@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B47328DFB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B837328CDC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236397AbhCATWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:22:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
+        id S240150AbhCATA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:00:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241295AbhCATP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D208764FE5;
-        Mon,  1 Mar 2021 17:01:33 +0000 (UTC)
+        id S240320AbhCASyU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:54:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B158764FE2;
+        Mon,  1 Mar 2021 17:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618094;
-        bh=wfxjql4rAZGSoFpCGp0+BZwZYE26VtTFaH0Hf54wbMo=;
+        s=korg; t=1614618097;
+        bh=BRpEDm/cP2MPxrelf681uu3+oEKOzcL2HHWlSPtVoX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JNPXlNP9su0f9eoOChv0GCtsNvBGBdna9r5qQz0umFNMefkbnz1NTSIPihkH+/ZQ
-         eDgS41/BNnT2/IfznbRScqgs7oRAxKSlsfQsc32oV4bFA94uQ3kTlaJw7DisYLvTx3
-         tjyO8HiTVagsr3xry+YApy2ESRf9B/dqK1bdD0XU=
+        b=Ol/NwIJ9PpiWv1QZNnm+LFxWUeDR5c8zT2uLodwgopBkpKcfFWvYrGaCNKHSXq7mE
+         fIInNCOK0u/syvmTXG7HOiCxLHibwXBN71IB/cm4zosqovgZH9hZJkbVE+JZTbyfYy
+         wNGWeCpqgKapImGt5z1FBuKiqT0NDTDt7MBrsQvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.4 305/340] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
-Date:   Mon,  1 Mar 2021 17:14:09 +0100
-Message-Id: <20210301161103.291562586@linuxfoundation.org>
+        stable@vger.kernel.org, Laz Lev <lazlev@web.de>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 306/340] media: smipcie: fix interrupt handling and IR timeout
+Date:   Mon,  1 Mar 2021 17:14:10 +0100
+Message-Id: <20210301161103.341856969@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,53 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Sean Young <sean@mess.org>
 
-commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
+commit 6532923237b427ed30cc7b4486f6f1ccdee3c647 upstream.
 
-The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-we apply the work around for r0p0 - r1p0. Unfortunately this
-won't be fixed for the future revisions for the CPU. Thus
-extend the work around for all versions of A55, to cover
-for r2p0 and any future revisions.
+After the first IR message, interrupts are no longer received. In addition,
+the code generates a timeout IR message of 10ms but sets the timeout value
+to 100ms, so no timeout was ever generated.
 
-Cc: stable@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
-[will: Update Kconfig help text]
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204317
+
+Fixes: a49a7a4635de ("media: smipcie: add universal ir capability")
+Tested-by: Laz Lev <lazlev@web.de>
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/Kconfig             |    2 +-
- arch/arm64/kernel/cpufeature.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/pci/smipcie/smipcie-ir.c |   48 ++++++++++++++++++---------------
+ 1 file changed, 27 insertions(+), 21 deletions(-)
 
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -489,7 +489,7 @@ config ARM64_ERRATUM_1024718
- 	help
- 	  This option adds a workaround for ARM Cortex-A55 Erratum 1024718.
+--- a/drivers/media/pci/smipcie/smipcie-ir.c
++++ b/drivers/media/pci/smipcie/smipcie-ir.c
+@@ -60,39 +60,45 @@ static void smi_ir_decode(struct smi_rc
+ {
+ 	struct smi_dev *dev = ir->dev;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+-	u32 dwIRControl, dwIRData;
+-	u8 index, ucIRCount, readLoop;
++	u32 control, data;
++	u8 index, ir_count, read_loop;
  
--	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
-+	  Affected Cortex-A55 cores (all revisions) could cause incorrect
- 	  update of the hardware dirty bit when the DBM/AP bits are updated
- 	  without a break-before-make. The workaround is to disable the usage
- 	  of hardware DBM locally on the affected cores. CPUs not affected by
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1092,7 +1092,7 @@ static bool cpu_has_broken_dbm(void)
- 	/* List of CPUs which have broken DBM support. */
- 	static const struct midr_range cpus[] = {
- #ifdef CONFIG_ARM64_ERRATUM_1024718
--		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
- #endif
- 		{},
- 	};
+-	dwIRControl = smi_read(IR_Init_Reg);
++	control = smi_read(IR_Init_Reg);
+ 
+-	if (dwIRControl & rbIRVld) {
+-		ucIRCount = (u8) smi_read(IR_Data_Cnt);
++	dev_dbg(&rc_dev->dev, "ircontrol: 0x%08x\n", control);
+ 
+-		readLoop = ucIRCount/4;
+-		if (ucIRCount % 4)
+-			readLoop += 1;
+-		for (index = 0; index < readLoop; index++) {
+-			dwIRData = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
+-
+-			ir->irData[index*4 + 0] = (u8)(dwIRData);
+-			ir->irData[index*4 + 1] = (u8)(dwIRData >> 8);
+-			ir->irData[index*4 + 2] = (u8)(dwIRData >> 16);
+-			ir->irData[index*4 + 3] = (u8)(dwIRData >> 24);
++	if (control & rbIRVld) {
++		ir_count = (u8)smi_read(IR_Data_Cnt);
++
++		dev_dbg(&rc_dev->dev, "ircount %d\n", ir_count);
++
++		read_loop = ir_count / 4;
++		if (ir_count % 4)
++			read_loop += 1;
++		for (index = 0; index < read_loop; index++) {
++			data = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++			dev_dbg(&rc_dev->dev, "IRData 0x%08x\n", data);
++
++			ir->irData[index * 4 + 0] = (u8)(data);
++			ir->irData[index * 4 + 1] = (u8)(data >> 8);
++			ir->irData[index * 4 + 2] = (u8)(data >> 16);
++			ir->irData[index * 4 + 3] = (u8)(data >> 24);
+ 		}
+-		smi_raw_process(rc_dev, ir->irData, ucIRCount);
+-		smi_set(IR_Init_Reg, rbIRVld);
++		smi_raw_process(rc_dev, ir->irData, ir_count);
+ 	}
+ 
+-	if (dwIRControl & rbIRhighidle) {
++	if (control & rbIRhighidle) {
+ 		struct ir_raw_event rawir = {};
+ 
++		dev_dbg(&rc_dev->dev, "high idle\n");
++
+ 		rawir.pulse = 0;
+ 		rawir.duration = US_TO_NS(SMI_SAMPLE_PERIOD *
+ 					  SMI_SAMPLE_IDLEMIN);
+ 		ir_raw_event_store_with_filter(rc_dev, &rawir);
+-		smi_set(IR_Init_Reg, rbIRhighidle);
+ 	}
+ 
++	smi_set(IR_Init_Reg, rbIRVld);
+ 	ir_raw_event_handle(rc_dev);
+ }
+ 
+@@ -151,7 +157,7 @@ int smi_ir_init(struct smi_dev *dev)
+ 	rc_dev->dev.parent = &dev->pci_dev->dev;
+ 
+ 	rc_dev->map_name = dev->info->rc_map;
+-	rc_dev->timeout = MS_TO_NS(100);
++	rc_dev->timeout = US_TO_NS(SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN);
+ 	rc_dev->rx_resolution = US_TO_NS(SMI_SAMPLE_PERIOD);
+ 
+ 	ir->rc_dev = rc_dev;
+@@ -174,7 +180,7 @@ void smi_ir_exit(struct smi_dev *dev)
+ 	struct smi_rc *ir = &dev->ir;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+ 
+-	smi_ir_stop(ir);
+ 	rc_unregister_device(rc_dev);
++	smi_ir_stop(ir);
+ 	ir->rc_dev = NULL;
+ }
 
 
