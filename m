@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 159AD328681
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:12:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A59C328676
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:12:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236890AbhCARLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:11:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35316 "EHLO mail.kernel.org"
+        id S237209AbhCARKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:10:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236629AbhCAREU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236647AbhCAREU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:04:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AAB664F7A;
-        Mon,  1 Mar 2021 16:39:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C682F64F78;
+        Mon,  1 Mar 2021 16:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616758;
-        bh=gscsK6egNxqXwp35awYMGStMGQWRsjreCV5Ex2pFbJ0=;
+        s=korg; t=1614616761;
+        bh=xus7r0Ib1H8G6cveWjGRQV0sauCd/dArh4uwYmEtteA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAts+U40/ajRvIPwYVwzcHzq9PF1RaEQUdxvfuWJvFqixNzm8dg5tAJJY+KDCmJcc
-         9ZGQ+Nw37HlK2XCyOZL1jajPTVr6C1i981ylp3dKeL2I7F9bRMI8mOCKXtHJB78zlY
-         lRVEu6hG4xfZ7weSRGTYqdHMNp4yhERlnbAw0kwY=
+        b=zm8aYWp2Nz2ooqhAPCl3MENVDrY6emMc7V/P3lBLGbCdafK769yJ5uv24vT8s5BYk
+         CTD9DHgR1e+l6QsJZqR+2E2t+f3Ht+zfCR99ANNrBhyP6PUC6y42m1IyQgLewfbBMN
+         +GuwGsB3J9599GqhvYI9YgpdD0iLQ5sELXT2lRdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/247] media: tm6000: Fix memleak in tm6000_start_stream
-Date:   Mon,  1 Mar 2021 17:11:45 +0100
-Message-Id: <20210301161035.839478721@linuxfoundation.org>
+Subject: [PATCH 4.19 086/247] ASoC: cs42l56: fix up error handling in probe
+Date:   Mon,  1 Mar 2021 17:11:46 +0100
+Message-Id: <20210301161035.888526470@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,38 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 76aaf8a96771c16365b8510f1fb97738dc88026e ]
+[ Upstream commit 856fe64da84c95a1d415564b981ae3908eea2a76 ]
 
-When usb_clear_halt() fails, dvb->bulk_urb->transfer_buffer
-and dvb->bulk_urb should be freed just like when
-usb_submit_urb() fails.
+There are two issues with this code.  The first error path forgot to set
+the error code and instead returns success.  The second error path
+doesn't clean up.
 
-Fixes: 3169c9b26fffa ("V4L/DVB (12788): tm6000: Add initial DVB-T support")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 272b5edd3b8f ("ASoC: Add support for CS42L56 CODEC")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X9NE/9nK9/TuxuL+@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/tm6000/tm6000-dvb.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/codecs/cs42l56.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/tm6000/tm6000-dvb.c b/drivers/media/usb/tm6000/tm6000-dvb.c
-index 3db2fd7f5d7c4..e4f2160f46ff1 100644
---- a/drivers/media/usb/tm6000/tm6000-dvb.c
-+++ b/drivers/media/usb/tm6000/tm6000-dvb.c
-@@ -149,6 +149,10 @@ static int tm6000_start_stream(struct tm6000_core *dev)
- 	if (ret < 0) {
- 		printk(KERN_ERR "tm6000: error %i in %s during pipe reset\n",
- 							ret, __func__);
-+
-+		kfree(dvb->bulk_urb->transfer_buffer);
-+		usb_free_urb(dvb->bulk_urb);
-+		dvb->bulk_urb = NULL;
- 		return ret;
- 	} else
- 		printk(KERN_ERR "tm6000: pipe resetted\n");
+diff --git a/sound/soc/codecs/cs42l56.c b/sound/soc/codecs/cs42l56.c
+index a5c8736fad777..04f89b751304c 100644
+--- a/sound/soc/codecs/cs42l56.c
++++ b/sound/soc/codecs/cs42l56.c
+@@ -1260,6 +1260,7 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
+ 		dev_err(&i2c_client->dev,
+ 			"CS42L56 Device ID (%X). Expected %X\n",
+ 			devid, CS42L56_DEVID);
++		ret = -EINVAL;
+ 		goto err_enable;
+ 	}
+ 	alpha_rev = reg & CS42L56_AREV_MASK;
+@@ -1317,7 +1318,7 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
+ 	ret =  devm_snd_soc_register_component(&i2c_client->dev,
+ 			&soc_component_dev_cs42l56, &cs42l56_dai, 1);
+ 	if (ret < 0)
+-		return ret;
++		goto err_enable;
+ 
+ 	return 0;
+ 
 -- 
 2.27.0
 
