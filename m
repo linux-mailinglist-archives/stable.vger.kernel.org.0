@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FC2332901F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138D9328FE5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242663AbhCAUDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58656 "EHLO mail.kernel.org"
+        id S242640AbhCAT6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241968AbhCATw2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:52:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 835F2651A0;
-        Mon,  1 Mar 2021 17:52:48 +0000 (UTC)
+        id S232419AbhCATsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:48:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADB6465050;
+        Mon,  1 Mar 2021 17:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621169;
-        bh=Rex5nsfLetPhwlgcEJ6NQpbEQSd5JBpMwOJn5U52yyU=;
+        s=korg; t=1614619117;
+        bh=udoE2E4B/51s1NXDi4Y40FhUjDcDqmyoBRM4HMfIym8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yLUAPWWgNbIA49+MY4PJMYoobttmPpJ9wKj5teS4gtR8DByyiKFlITZGUEtCyKYYe
-         8+CHqfY8FEEvbpnlwXp3DzzuNk1kI8ypz3NxQ/4RfOPZfvvLwXiZKj59ponq8MbE+Q
-         pcdoMwYTBBFDS7zVM7xvKOXt4u6j7TpzchnURh8o=
+        b=LCBiDxAlelHvib58Qr0XCqup0dKmxms14E7QMoQ2SmELj0lQztQtjoWW7VpGAKbGJ
+         vsb+AmD7WiV/LIv1lNDB03j7fzHkKtBMx7atqosX6EvxCYCDaFNL+nNHPk8iy6CGgo
+         VXg95dPzqUcQ0np/kFFY/02uPYKDh9IWQhRDxl+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 418/775] RDMA/rxe: Correct skb on loopback path
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Yong Wu <yong.wu@mediatek.com>, Will Deacon <will@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 338/663] iommu: Properly pass gfp_t in _iommu_map() to avoid atomic sleeping
 Date:   Mon,  1 Mar 2021 17:09:46 +0100
-Message-Id: <20210301161222.235358408@linuxfoundation.org>
+Message-Id: <20210301161158.572015280@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 5120bf0a5fc15dec210a0fe0f39e4a256bb6e349 ]
+[ Upstream commit b8437a3ef8c485903d05d1f261328aaf0c0a6cc2 ]
 
-rxe_net.c sends packets at the IP layer with skb->data pointing at the IP
-header but receives packets from a UDP tunnel with skb->data pointing at
-the UDP header.  On the loopback path this was not correctly accounted
-for.  This patch corrects for this by using sbk_pull() to strip the IP
-header from the skb on received packets.
+Sleeping while atomic = bad.  Let's fix an obvious typo to try to avoid it.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20210128182301.16859-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The warning that was seen (on a downstream kernel with the problematic
+patch backported):
+
+ BUG: sleeping function called from invalid context at mm/page_alloc.c:4726
+ in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 9, name: ksoftirqd/0
+ CPU: 0 PID: 9 Comm: ksoftirqd/0 Not tainted 5.4.93-12508-gc10c93e28e39 #1
+ Call trace:
+  dump_backtrace+0x0/0x154
+  show_stack+0x20/0x2c
+  dump_stack+0xa0/0xfc
+  ___might_sleep+0x11c/0x12c
+  __might_sleep+0x50/0x84
+  __alloc_pages_nodemask+0xf8/0x2bc
+  __arm_lpae_alloc_pages+0x48/0x1b4
+  __arm_lpae_map+0x124/0x274
+  __arm_lpae_map+0x1cc/0x274
+  arm_lpae_map+0x140/0x170
+  arm_smmu_map+0x78/0xbc
+  __iommu_map+0xd4/0x210
+  _iommu_map+0x4c/0x84
+  iommu_map_atomic+0x44/0x58
+  __iommu_dma_map+0x8c/0xc4
+  iommu_dma_map_page+0xac/0xf0
+
+Fixes: d8c1df02ac7f ("iommu: Move iotlb_sync_map out from __iommu_map")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Yong Wu <yong.wu@mediatek.com>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210201170611.1.I64a7b62579287d668d7c89e105dcedf45d641063@changeid
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iommu/iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index 943914c2a50c7..bce44502ab0ed 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -414,6 +414,11 @@ int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index a25a85a0bba5b..0d9adce6d812f 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2424,7 +2424,7 @@ static int _iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 	const struct iommu_ops *ops = domain->ops;
+ 	int ret;
  
- void rxe_loopback(struct sk_buff *skb)
- {
-+	if (skb->protocol == htons(ETH_P_IP))
-+		skb_pull(skb, sizeof(struct iphdr));
-+	else
-+		skb_pull(skb, sizeof(struct ipv6hdr));
-+
- 	rxe_rcv(skb);
- }
+-	ret = __iommu_map(domain, iova, paddr, size, prot, GFP_KERNEL);
++	ret = __iommu_map(domain, iova, paddr, size, prot, gfp);
+ 	if (ret == 0 && ops->iotlb_sync_map)
+ 		ops->iotlb_sync_map(domain);
  
 -- 
 2.27.0
