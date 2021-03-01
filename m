@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1832328F98
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11BAE328F6B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242375AbhCATxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:53:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S237234AbhCATvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:51:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52977 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242293AbhCAToX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC4D364FF9;
-        Mon,  1 Mar 2021 17:35:41 +0000 (UTC)
+        id S238670AbhCATlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:41:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ED04652B5;
+        Mon,  1 Mar 2021 17:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620142;
-        bh=iLhmkhBZZ3ZZQxpBdmX5lIilipZXosQZXgZBVF9VSEM=;
+        s=korg; t=1614620158;
+        bh=RZ2lNrtk/ruHMYhO3IkOoY0gjuJVD5j4yXHhcUwXC4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUVF+7ANNWoW6LN4Vlg3lfz3kP7+S8/3wLQkFN38MLJ2umQJ6C/8iHom4z2Mj0PGl
-         mQZoP5HMcTOyMdLpoQY4vlHYBklLClsqBVVqChaS/YCu+Xug6i5bOrojDhFQRRdrv5
-         33Bxm/AeHwEb6m3t1fDj/AwDka54/qI0rrGsSGs0=
+        b=rA5fwYgqEU/Hsj3yfXNagO+QiZDfR5/CYRspwZ3iXQ2xFlpnPNjf+FAslfLrmYXk+
+         UOL7JqW6hcfmu+LfpJpWSoEr2Q1QzDQ9Y/GbQtmS/O5QZsyn8PVPaRQDA8q6Prq5Ax
+         /TzjW6q/xMYGgEaZhtrJgY+FTHPHlGgXvhjUXmX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 046/775] arm64: dts: allwinner: A64: properly connect USB PHY to port 0
-Date:   Mon,  1 Mar 2021 17:03:34 +0100
-Message-Id: <20210301161204.000322060@linuxfoundation.org>
+Subject: [PATCH 5.11 052/775] cpufreq: brcmstb-avs-cpufreq: Free resources in error path
+Date:   Mon,  1 Mar 2021 17:03:40 +0100
+Message-Id: <20210301161204.283675684@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,82 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit cc72570747e43335f4933a24dd74d5653639176a ]
+[ Upstream commit 05f456286fd489558c72a4711d22a5612c965685 ]
 
-In recent Allwinner SoCs the first USB host controller (HCI0) shares
-the first PHY with the MUSB controller. Probably to make this sharing
-work, we were avoiding to declare this in the DT. This has two
-shortcomings:
-- U-Boot (which uses the same .dts) cannot use this port in host mode
-  without a PHY linked, so we were loosing one USB port there.
-- It requires the MUSB driver to be enabled and loaded, although we
-  don't actually use it.
+If 'cpufreq_register_driver()' fails, we must release the resources
+allocated in 'brcm_avs_prepare_init()' as already done in the remove
+function.
 
-To avoid those issues, let's add this PHY link to the A64 .dtsi file.
-After all PHY port 0 *is* connected to HCI0, so we should describe
-it as this. Remove the part from the Pinebook DTS which already had
-this property.
+To do that, introduce a new function 'brcm_avs_prepare_uninit()' in order
+to avoid code duplication. This also makes the code more readable (IMHO).
 
-This makes it work in U-Boot, also improves compatiblity when no MUSB
-driver is loaded (for instance in distribution installers).
-
-Fixes: dc03a047df1d ("arm64: allwinner: a64: add EHCI0/OHCI0 nodes to A64 DTSI")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210113152630.28810-2-andre.przywara@arm.com
+Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+[ Viresh: Updated Subject ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts | 4 ----
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi         | 4 ++++
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/cpufreq/brcmstb-avs-cpufreq.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-index 896f34fd9fc3a..d07cf05549c32 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-@@ -126,8 +126,6 @@
- };
+diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+index 3e31e5d28b79c..e25ccb744187d 100644
+--- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
++++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+@@ -597,6 +597,16 @@ unmap_base:
+ 	return ret;
+ }
  
- &ehci0 {
--	phys = <&usbphy 0>;
--	phy-names = "usb";
- 	status = "okay";
- };
++static void brcm_avs_prepare_uninit(struct platform_device *pdev)
++{
++	struct private_data *priv;
++
++	priv = platform_get_drvdata(pdev);
++
++	iounmap(priv->avs_intr_base);
++	iounmap(priv->base);
++}
++
+ static int brcm_avs_cpufreq_init(struct cpufreq_policy *policy)
+ {
+ 	struct cpufreq_frequency_table *freq_table;
+@@ -732,21 +742,22 @@ static int brcm_avs_cpufreq_probe(struct platform_device *pdev)
  
-@@ -177,8 +175,6 @@
- };
+ 	brcm_avs_driver.driver_data = pdev;
  
- &ohci0 {
--	phys = <&usbphy 0>;
--	phy-names = "usb";
- 	status = "okay";
- };
+-	return cpufreq_register_driver(&brcm_avs_driver);
++	ret = cpufreq_register_driver(&brcm_avs_driver);
++	if (ret)
++		brcm_avs_prepare_uninit(pdev);
++
++	return ret;
+ }
  
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 51cc30e84e261..19e9b8ca8432f 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -593,6 +593,8 @@
- 				 <&ccu CLK_USB_OHCI0>;
- 			resets = <&ccu RST_BUS_OHCI0>,
- 				 <&ccu RST_BUS_EHCI0>;
-+			phys = <&usbphy 0>;
-+			phy-names = "usb";
- 			status = "disabled";
- 		};
+ static int brcm_avs_cpufreq_remove(struct platform_device *pdev)
+ {
+-	struct private_data *priv;
+ 	int ret;
  
-@@ -603,6 +605,8 @@
- 			clocks = <&ccu CLK_BUS_OHCI0>,
- 				 <&ccu CLK_USB_OHCI0>;
- 			resets = <&ccu RST_BUS_OHCI0>;
-+			phys = <&usbphy 0>;
-+			phy-names = "usb";
- 			status = "disabled";
- 		};
+ 	ret = cpufreq_unregister_driver(&brcm_avs_driver);
+ 	if (ret)
+ 		return ret;
  
+-	priv = platform_get_drvdata(pdev);
+-	iounmap(priv->base);
+-	iounmap(priv->avs_intr_base);
++	brcm_avs_prepare_uninit(pdev);
+ 
+ 	return 0;
+ }
 -- 
 2.27.0
 
