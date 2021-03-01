@@ -2,155 +2,268 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6920C328405
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A5EF32840C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233446AbhCAQ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57264 "EHLO mail.kernel.org"
+        id S234700AbhCAQ2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237909AbhCAQX0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 364F564F33;
-        Mon,  1 Mar 2021 16:20:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615635;
-        bh=xfs2OrtPDAspQ/+PAs+u1SLlVQpuFufeLzjotLNYK50=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTTPK4Kt+HaHLhHwJtDJHur5p8IBl0ASiSy1CwZLYTS7A9XGOtJNudFdx6MSqvReX
-         /kumXo8gQ8tSHgf8unxJ8SWYh2otms8RZTWz6dflolIEC71zzMVpJmRoMRnEMd+OmZ
-         NT4IDkXnPPHa0wIKGqi4iyRV97Jn5birpj7bMNEU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.4 93/93] dm era: Update in-core bitset after committing the metadata
-Date:   Mon,  1 Mar 2021 17:13:45 +0100
-Message-Id: <20210301161011.439945404@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
-References: <20210301161006.881950696@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S237917AbhCAQYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:24:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B8E564EC8;
+        Mon,  1 Mar 2021 16:21:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614615680;
+        bh=Ip7Mp1DMbhDkrGODLPGVBAf4OkM1dkK3fFgja7Pk9vY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=taYJ+cBHSl8Qgp4OrMmBlMDtUiU2syumTqq7jWeU9F94woa+8FQVzPC2iSREXX23q
+         uu+aF5079WJEfsFf0RdR/mUviMvV8REUqdTjzlKQa8W0XISguFNby2NuJDl9n5Ef9X
+         pkm4sXcfSo9uF6NcZPN00D6n/7T+YSgvp6lKUARfv8sqDdbdKSpPNVVIpzdkP8o9z6
+         dYOKyaPpWGlf3vaFJ3F+gUuQGK0GDYvkKH/HLmvD4D1VFgGnolo13YsABU+D+Jhl+/
+         byvZgeGGsX/IFWd656LJU4jydttFFzREoO4706Suxgefs8XuaE48g7jbQc+/puasJ0
+         ZvmwRpHgmrhYg==
+Date:   Mon, 1 Mar 2021 09:21:16 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     anders.roxell@linaro.org, natechancellor@gmail.com,
+        tsbogend@alpha.franken.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] MIPS: VDSO: Use CLANG_FLAGS instead of
+ filtering out" failed to apply to 5.4-stable tree
+Message-ID: <20210301162116.hx5vjaeldfvgtieq@24bbad8f3778>
+References: <1614592687119110@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="s5n34356g5w5nvq6"
+Content-Disposition: inline
+In-Reply-To: <1614592687119110@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 2099b145d77c1d53f5711f029c37cc537897cee6 upstream.
+--s5n34356g5w5nvq6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In case of a system crash, dm-era might fail to mark blocks as written
-in its metadata, although the corresponding writes to these blocks were
-passed down to the origin device and completed successfully.
+On Mon, Mar 01, 2021 at 10:58:07AM +0100, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.4-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 76d7fff22be3e4185ee5f9da2eecbd8188e76b2c Mon Sep 17 00:00:00 2001
+> From: Nathan Chancellor <nathan@kernel.org>
+> Date: Fri, 15 Jan 2021 12:26:22 -0700
+> Subject: [PATCH] MIPS: VDSO: Use CLANG_FLAGS instead of filtering out
+>  '--target='
+> 
+> Commit ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO
+> cflags") allowed the '--target=' flag from the main Makefile to filter
+> through to the vDSO. However, it did not bring any of the other clang
+> specific flags for controlling the integrated assembler and the GNU
+> tools locations (--prefix=, --gcc-toolchain=, and -no-integrated-as).
+> Without these, we will get a warning (visible with tinyconfig):
+> 
+> arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per
+> compilation unit
+> .pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long
+> 4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
+> ^
+> arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per
+> compilation unit
+>  .section .mips_abiflags, "a"
+>  ^
+> 
+> All of these flags are bundled up under CLANG_FLAGS in the main Makefile
+> and exported so that they can be added to Makefiles that set their own
+> CFLAGS. Use this value instead of filtering out '--target=' so there is
+> no warning and all of the tools are properly used.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO cflags")
+> Link: https://github.com/ClangBuiltLinux/linux/issues/1256
+> Reported-by: Anders Roxell <anders.roxell@linaro.org>
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> Tested-by: Anders Roxell <anders.roxell@linaro.org>
+> Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> 
+> diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+> index 5810cc12bc1d..2131d3fd7333 100644
+> --- a/arch/mips/vdso/Makefile
+> +++ b/arch/mips/vdso/Makefile
+> @@ -16,16 +16,13 @@ ccflags-vdso := \
+>  	$(filter -march=%,$(KBUILD_CFLAGS)) \
+>  	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+>  	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
+> +	$(CLANG_FLAGS) \
+>  	-D__VDSO__
+>  
+>  ifndef CONFIG_64BIT
+>  ccflags-vdso += -DBUILD_VDSO32
+>  endif
+>  
+> -ifdef CONFIG_CC_IS_CLANG
+> -ccflags-vdso += $(filter --target=%,$(KBUILD_CFLAGS))
+> -endif
+> -
+>  #
+>  # The -fno-jump-tables flag only prevents the compiler from generating
+>  # jump tables but does not prevent the compiler from emitting absolute
+> 
 
-Consider the following sequence of events:
+Attached are the 4.19 and 5.4 backports.
 
-1. We write to a block that has not been yet written in the current era
-2. era_map() checks the in-core bitmap for the current era and sees
-   that the block is not marked as written.
-3. The write is deferred for submission after the metadata have been
-   updated and committed.
-4. The worker thread processes the deferred write
-   (process_deferred_bios()) and marks the block as written in the
-   in-core bitmap, **before** committing the metadata.
-5. The worker thread starts committing the metadata.
-6. We do more writes that map to the same block as the write of step (1)
-7. era_map() checks the in-core bitmap and sees that the block is marked
-   as written, **although the metadata have not been committed yet**.
-8. These writes are passed down to the origin device immediately and the
-   device reports them as completed.
-9. The system crashes, e.g., power failure, before the commit from step
-   (5) finishes.
+Cheers,
+Nathan
 
-When the system recovers and we query the dm-era target for the list of
-written blocks it doesn't report the aforementioned block as written,
-although the writes of step (6) completed successfully.
+--s5n34356g5w5nvq6
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="76d7fff22be3-5.4.patch"
 
-The issue is that era_map() decides whether to defer or not a write
-based on non committed information. The root cause of the bug is that we
-update the in-core bitmap, **before** committing the metadata.
+From 7cf7b4c222c24d9b6b38c35e465f4eb43648a135 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Fri, 15 Jan 2021 12:26:22 -0700
+Subject: [PATCH 5.4] MIPS: VDSO: Use CLANG_FLAGS instead of filtering out
+ '--target='
 
-Fix this by updating the in-core bitmap **after** successfully
-committing the metadata.
+commit 76d7fff22be3e4185ee5f9da2eecbd8188e76b2c upstream.
 
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Commit ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO
+cflags") allowed the '--target=' flag from the main Makefile to filter
+through to the vDSO. However, it did not bring any of the other clang
+specific flags for controlling the integrated assembler and the GNU
+tools locations (--prefix=, --gcc-toolchain=, and -no-integrated-as).
+Without these, we will get a warning (visible with tinyconfig):
+
+arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per
+compilation unit
+.pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long
+4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
+^
+arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per
+compilation unit
+ .section .mips_abiflags, "a"
+ ^
+
+All of these flags are bundled up under CLANG_FLAGS in the main Makefile
+and exported so that they can be added to Makefiles that set their own
+CFLAGS. Use this value instead of filtering out '--target=' so there is
+no warning and all of the tools are properly used.
+
+Cc: stable@vger.kernel.org
+Fixes: ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO cflags")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1256
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nc: Fix conflict due to lack of 99570c3da96a in 5.4]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 ---
- drivers/md/dm-era-target.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ arch/mips/vdso/Makefile | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -134,7 +134,7 @@ static int writeset_test_and_set(struct
- {
- 	int r;
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index 996a934ece7d..d3cd9c4cadc2 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -16,12 +16,9 @@ ccflags-vdso := \
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
+ 	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+ 	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
++	$(CLANG_FLAGS) \
+ 	-D__VDSO__
  
--	if (!test_and_set_bit(block, ws->bits)) {
-+	if (!test_bit(block, ws->bits)) {
- 		r = dm_bitset_set_bit(info, ws->md.root, block, &ws->md.root);
- 		if (r) {
- 			/* FIXME: fail mode */
-@@ -1242,8 +1242,10 @@ static void process_deferred_bios(struct
- 	int r;
- 	struct bio_list deferred_bios, marked_bios;
- 	struct bio *bio;
-+	struct blk_plug plug;
- 	bool commit_needed = false;
- 	bool failed = false;
-+	struct writeset *ws = era->md->current_writeset;
- 
- 	bio_list_init(&deferred_bios);
- 	bio_list_init(&marked_bios);
-@@ -1253,9 +1255,11 @@ static void process_deferred_bios(struct
- 	bio_list_init(&era->deferred_bios);
- 	spin_unlock(&era->deferred_lock);
- 
-+	if (bio_list_empty(&deferred_bios))
-+		return;
-+
- 	while ((bio = bio_list_pop(&deferred_bios))) {
--		r = writeset_test_and_set(&era->md->bitset_info,
--					  era->md->current_writeset,
-+		r = writeset_test_and_set(&era->md->bitset_info, ws,
- 					  get_block(era, bio));
- 		if (r < 0) {
- 			/*
-@@ -1263,7 +1267,6 @@ static void process_deferred_bios(struct
- 			 * FIXME: finish.
- 			 */
- 			failed = true;
+-ifdef CONFIG_CC_IS_CLANG
+-ccflags-vdso += $(filter --target=%,$(KBUILD_CFLAGS))
+-endif
 -
- 		} else if (r == 0)
- 			commit_needed = true;
- 
-@@ -1279,9 +1282,19 @@ static void process_deferred_bios(struct
- 	if (failed)
- 		while ((bio = bio_list_pop(&marked_bios)))
- 			bio_io_error(bio);
--	else
--		while ((bio = bio_list_pop(&marked_bios)))
-+	else {
-+		blk_start_plug(&plug);
-+		while ((bio = bio_list_pop(&marked_bios))) {
-+			/*
-+			 * Only update the in-core writeset if the on-disk one
-+			 * was updated too.
-+			 */
-+			if (commit_needed)
-+				set_bit(get_block(era, bio), ws->bits);
- 			generic_make_request(bio);
-+		}
-+		blk_finish_plug(&plug);
-+	}
- }
- 
- static void process_rpc_calls(struct era *era)
+ #
+ # The -fno-jump-tables flag only prevents the compiler from generating
+ # jump tables but does not prevent the compiler from emitting absolute
+
+base-commit: ef1fcccf6e5fe3aabe7c3590964efac6d5220c43
+-- 
+2.31.0.rc0
 
 
+--s5n34356g5w5nvq6
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment; filename="76d7fff22be3-4.19.patch"
+
+From 64b4ec3fb30cb7fd9a17fe2b46e4e7ce498c8c19 Mon Sep 17 00:00:00 2001
+From: Nathan Chancellor <natechancellor@gmail.com>
+Date: Fri, 15 Jan 2021 12:26:22 -0700
+Subject: [PATCH 4.19] MIPS: VDSO: Use CLANG_FLAGS instead of filtering out
+ '--target='
+
+commit 76d7fff22be3e4185ee5f9da2eecbd8188e76b2c upstream.
+
+Commit ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO
+cflags") allowed the '--target=' flag from the main Makefile to filter
+through to the vDSO. However, it did not bring any of the other clang
+specific flags for controlling the integrated assembler and the GNU
+tools locations (--prefix=, --gcc-toolchain=, and -no-integrated-as).
+Without these, we will get a warning (visible with tinyconfig):
+
+arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per
+compilation unit
+.pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long
+4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
+^
+arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per
+compilation unit
+ .section .mips_abiflags, "a"
+ ^
+
+All of these flags are bundled up under CLANG_FLAGS in the main Makefile
+and exported so that they can be added to Makefiles that set their own
+CFLAGS. Use this value instead of filtering out '--target=' so there is
+no warning and all of the tools are properly used.
+
+Cc: stable@vger.kernel.org
+Fixes: ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO cflags")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1256
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nc: Fix conflict due to lack of 99570c3da96a and 076f421da5d4 in 4.19]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ arch/mips/vdso/Makefile | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/arch/mips/vdso/Makefile b/arch/mips/vdso/Makefile
+index c99fa1c1bd9c..a876b1657bf4 100644
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -10,12 +10,9 @@ ccflags-vdso := \
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
+ 	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+ 	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
++	$(CLANG_FLAGS) \
+ 	-D__VDSO__
+ 
+-ifeq ($(cc-name),clang)
+-ccflags-vdso += $(filter --target=%,$(KBUILD_CFLAGS))
+-endif
+-
+ cflags-vdso := $(ccflags-vdso) \
+ 	$(filter -W%,$(filter-out -Wa$(comma)%,$(KBUILD_CFLAGS))) \
+ 	-O2 -g -fPIC -fno-strict-aliasing -fno-common -fno-builtin -G 0 \
+
+base-commit: 2d19be4653f5e74ed95560b69f94eb6791d49af3
+-- 
+2.31.0.rc0
+
+
+--s5n34356g5w5nvq6--
