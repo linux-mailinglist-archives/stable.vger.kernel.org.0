@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29F1328C5A
+	by mail.lfdr.de (Postfix) with ESMTP id 31000328C59
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235289AbhCASuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53755 "EHLO mail.kernel.org"
+        id S235939AbhCASuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:50:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237839AbhCASoG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:44:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F89464FC8;
-        Mon,  1 Mar 2021 17:41:27 +0000 (UTC)
+        id S240203AbhCASmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C1A864FF3;
+        Mon,  1 Mar 2021 17:08:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620488;
-        bh=V5AWefLF0sRCYMocX0u25yi5NC1clN+qL8PSRF8RwxM=;
+        s=korg; t=1614618482;
+        bh=B8xcsFFER3jXb57qBy0FUCVsaG1FopeY8Mu47l7l6dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBzjA76RXhwXz4zB06LiCBLHlGBObI3YkvUzMfJNDAFZe2vsBYXaMyy3Si+OqMfGn
-         Ds8qxZv/3sBWd8/g1qkR0OBQZe4c9qSE/YJ+1+L39GFi+Zuicxn5UQldiuXRYpumQI
-         hbkTIyc/johgAdT6+DCY94RdGiUgC4oRg4uh/0hk=
+        b=SCnU1DdtRqbNSZmu4p6CzB8Ug2Hk5KBIlk5jMkIyQgCIeVweHIAqE1/lrZWGfI1yC
+         H3wLr0oWPKt/yPVstK3LdzaBF5sO1VT2fLrCTuU3zM6l7W+66U/jegQ0lqeKDYvzIN
+         d6sciIPgTxg3ac+5eJJ9+XutaoWyQ20sOQUqkG+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 142/775] Bluetooth: hci_qca: Wait for SSR completion during suspend
+Subject: [PATCH 5.10 062/663] ARM: dts: Configure missing thermal interrupt for 4430
 Date:   Mon,  1 Mar 2021 17:05:10 +0100
-Message-Id: <20210301161208.668513893@linuxfoundation.org>
+Message-Id: <20210301161144.806287163@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit ad3a9c0ec2d2baed936cfdd05870f9d1e1f40e0e ]
+[ Upstream commit 44f416879a442600b006ef7dec3a6dc98bcf59c6 ]
 
-During SSR after memory dump collection,BT controller will be powered off,
-powered on and then FW will be downloaded.During suspend if BT controller
-is powered off due to SSR then we should wait until SSR is completed and
-then suspend.
+We have gpio_86 wired internally to the bandgap thermal shutdown
+interrupt on 4430 like we have it on 4460 according to the TRM.
+This can be found easily by searching for TSHUT.
 
-Fixes: 2be43abac5a8 ("Bluetooth: hci_qca: Wait for timeout during suspend")
-Signed-off-by: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+For some reason the thermal shutdown interrupt was never added
+for 4430, let's add it. I believe this is needed for the thermal
+shutdown interrupt handler ti_bandgap_tshut_irq_handler() to call
+orderly_poweroff().
+
+Fixes: aa9bb4bb8878 ("arm: dts: add omap4430 thermal data")
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Eduardo Valentin <edubezval@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/omap443x.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 5dbcb7c42b805..17a3859326dc7 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -50,7 +50,8 @@
- #define IBS_HOST_TX_IDLE_TIMEOUT_MS	2000
- #define CMD_TRANS_TIMEOUT_MS		100
- #define MEMDUMP_TIMEOUT_MS		8000
--#define IBS_DISABLE_SSR_TIMEOUT_MS	(MEMDUMP_TIMEOUT_MS + 1000)
-+#define IBS_DISABLE_SSR_TIMEOUT_MS \
-+	(MEMDUMP_TIMEOUT_MS + FW_DOWNLOAD_TIMEOUT_MS)
- #define FW_DOWNLOAD_TIMEOUT_MS		3000
+diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
+index cb309743de5da..dd8ef58cbaed4 100644
+--- a/arch/arm/boot/dts/omap443x.dtsi
++++ b/arch/arm/boot/dts/omap443x.dtsi
+@@ -33,10 +33,12 @@
+ 	};
  
- /* susclk rate */
-@@ -2102,7 +2103,12 @@ static int __maybe_unused qca_suspend(struct device *dev)
+ 	ocp {
++		/* 4430 has only gpio_86 tshut and no talert interrupt */
+ 		bandgap: bandgap@4a002260 {
+ 			reg = <0x4a002260 0x4
+ 			       0x4a00232C 0x4>;
+ 			compatible = "ti,omap4430-bandgap";
++			gpios = <&gpio3 22 GPIO_ACTIVE_HIGH>;
  
- 	set_bit(QCA_SUSPENDING, &qca->flags);
- 
--	if (test_bit(QCA_BT_OFF, &qca->flags))
-+	/* During SSR after memory dump collection, controller will be
-+	 * powered off and then powered on.If controller is powered off
-+	 * during SSR then we should wait until SSR is completed.
-+	 */
-+	if (test_bit(QCA_BT_OFF, &qca->flags) &&
-+	    !test_bit(QCA_SSR_TRIGGERED, &qca->flags))
- 		return 0;
- 
- 	if (test_bit(QCA_IBS_DISABLED, &qca->flags)) {
-@@ -2112,7 +2118,7 @@ static int __maybe_unused qca_suspend(struct device *dev)
- 
- 		/* QCA_IBS_DISABLED flag is set to true, During FW download
- 		 * and during memory dump collection. It is reset to false,
--		 * After FW download complete and after memory dump collections.
-+		 * After FW download complete.
- 		 */
- 		wait_on_bit_timeout(&qca->flags, QCA_IBS_DISABLED,
- 			    TASK_UNINTERRUPTIBLE, msecs_to_jiffies(wait_timeout));
-@@ -2124,10 +2130,6 @@ static int __maybe_unused qca_suspend(struct device *dev)
- 		}
- 	}
- 
--	/* After memory dump collection, Controller is powered off.*/
--	if (test_bit(QCA_BT_OFF, &qca->flags))
--		return 0;
--
- 	cancel_work_sync(&qca->ws_awake_device);
- 	cancel_work_sync(&qca->ws_awake_rx);
- 
+ 			#thermal-sensor-cells = <0>;
+ 		};
 -- 
 2.27.0
 
