@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 313483289FD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:11:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59EFA328A2D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238711AbhCASJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:09:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
+        id S239495AbhCASNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238983AbhCASCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:02:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20DA6651E0;
-        Mon,  1 Mar 2021 17:19:01 +0000 (UTC)
+        id S238947AbhCASHU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:07:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53AC6651E7;
+        Mon,  1 Mar 2021 17:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619142;
-        bh=Rex5nsfLetPhwlgcEJ6NQpbEQSd5JBpMwOJn5U52yyU=;
+        s=korg; t=1614619147;
+        bh=RzofuUKyN9DwFW2Y0fKdA4U9YIA7AaYiv9uS/HSHnCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWoMUXbraB3vKoO+ehrWSIW5tXKVYDLUS5a37x50jG3wABJSmccQ1Ga40N7NkXa8k
-         PorToR2Donj8eXv59UwnZap9a5ZTV4mACQpq6OZXHBXA6Y/PwuXyfkaJstmf0YOP1Q
-         FWANMCpZezQVVIwQGHAubFNMHJgAN4K3LgHHa8x8=
+        b=wkph/Mk0IR2l6SsbWc7B4k7J3Wrs+0V2So4OPYLQ6nf8cjoHS30MNwrHDUoiRw7Bp
+         d2zpVgoKJQDLllx6vajzODFYMdNCZBPUBE/AiFFekanQqVvjV5z4ZJHXOe4Dugxn8l
+         ZZN5tq+KbyqJzkE/8SIajU4zpu4axEmp3O6jhhh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 347/663] RDMA/rxe: Correct skb on loopback path
-Date:   Mon,  1 Mar 2021 17:09:55 +0100
-Message-Id: <20210301161159.016466594@linuxfoundation.org>
+Subject: [PATCH 5.10 349/663] mfd: altera-sysmgr: Fix physical address storing more
+Date:   Mon,  1 Mar 2021 17:09:57 +0100
+Message-Id: <20210301161159.116709424@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,41 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5120bf0a5fc15dec210a0fe0f39e4a256bb6e349 ]
+[ Upstream commit b0b5b16b78cea1b2b990a69ab8e07a42ccf7a2ed ]
 
-rxe_net.c sends packets at the IP layer with skb->data pointing at the IP
-header but receives packets from a UDP tunnel with skb->data pointing at
-the UDP header.  On the loopback path this was not correctly accounted
-for.  This patch corrects for this by using sbk_pull() to strip the IP
-header from the skb on received packets.
+A recent fix improved the way the resource gets passed to
+the low-level accessors, but left one warning that appears
+in configurations with a resource_size_t that is wider than
+a pointer:
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20210128182301.16859-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+In file included from drivers/mfd/altera-sysmgr.c:19:
+drivers/mfd/altera-sysmgr.c: In function 'sysmgr_probe':
+drivers/mfd/altera-sysmgr.c:148:40: error: cast to pointer from integer of different size [-Werror=int-to-pointer-cast]
+  148 |   regmap = devm_regmap_init(dev, NULL, (void *)res->start,
+      |                                        ^
+include/linux/regmap.h:646:6: note: in definition of macro '__regmap_lockdep_wrapper'
+  646 |   fn(__VA_ARGS__, &_key,     \
+      |      ^~~~~~~~~~~
+drivers/mfd/altera-sysmgr.c:148:12: note: in expansion of macro 'devm_regmap_init'
+  148 |   regmap = devm_regmap_init(dev, NULL, (void *)res->start,
+      |            ^~~~~~~~~~~~~~~~
+
+I had tried a different approach that would store the address
+in the private data as a phys_addr_t, but the easiest solution
+now seems to be to add a double cast to shut up the warning.
+
+As the address is passed to an inline assembly, it is guaranteed
+to not be wider than a register anyway.
+
+Fixes: d9ca7801b6e5 ("mfd: altera-sysmgr: Fix physical address storing hacks")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_net.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/mfd/altera-sysmgr.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
-index 943914c2a50c7..bce44502ab0ed 100644
---- a/drivers/infiniband/sw/rxe/rxe_net.c
-+++ b/drivers/infiniband/sw/rxe/rxe_net.c
-@@ -414,6 +414,11 @@ int rxe_send(struct rxe_pkt_info *pkt, struct sk_buff *skb)
+diff --git a/drivers/mfd/altera-sysmgr.c b/drivers/mfd/altera-sysmgr.c
+index 41076d121dd54..591b300d90953 100644
+--- a/drivers/mfd/altera-sysmgr.c
++++ b/drivers/mfd/altera-sysmgr.c
+@@ -145,7 +145,8 @@ static int sysmgr_probe(struct platform_device *pdev)
+ 		sysmgr_config.reg_write = s10_protected_reg_write;
  
- void rxe_loopback(struct sk_buff *skb)
- {
-+	if (skb->protocol == htons(ETH_P_IP))
-+		skb_pull(skb, sizeof(struct iphdr));
-+	else
-+		skb_pull(skb, sizeof(struct ipv6hdr));
-+
- 	rxe_rcv(skb);
- }
- 
+ 		/* Need physical address for SMCC call */
+-		regmap = devm_regmap_init(dev, NULL, (void *)res->start,
++		regmap = devm_regmap_init(dev, NULL,
++					  (void *)(uintptr_t)res->start,
+ 					  &sysmgr_config);
+ 	} else {
+ 		base = devm_ioremap(dev, res->start, resource_size(res));
 -- 
 2.27.0
 
