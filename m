@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC162328F84
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CAB7328ECA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242226AbhCATwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:52:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S241394AbhCATiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:38:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242167AbhCAToC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E57BC65085;
-        Mon,  1 Mar 2021 17:29:03 +0000 (UTC)
+        id S234958AbhCATaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:30:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B4965262;
+        Mon,  1 Mar 2021 17:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619744;
-        bh=Ptg2P1wBUY7lTOmMuF6I6M1P+5OZgQIKIOZmTHAPdBs=;
+        s=korg; t=1614619774;
+        bh=ipIGFaa63ZOOz2A8qn1nXeE4C3+/9waKTFS9Vm+dzPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oMAQgddJz6e4Z0ZfEFTX4CKjOqALO4UtdsaD9zbuZgdgFicZPFvKZtmGuFKSf4pko
-         r+iFr+3jDuQBL56en3MnTGr9mrtR6s+RpRthlaJHRwhFgutbvY8RFTg6tpwzJxxQxg
-         sjz96TCDjKGsgBFuKxMQzCW+GUqPtDvyTXKIoJcY=
+        b=qjOIcs2JZv+4qIJGorLABFISnj4xAawrjc1e+ux9oF+IVGWm7jZyjFIy9NiKMxGWY
+         jjZIE+L15HAxgxsN0bfr3myDMd2c5rsXMBoTOUbHbzKxmjRrEqKB/Nt5lq+2nRQrPq
+         XwZOxwywmyBCrDbnfHMk/xKHyh3Aorp5EjZK0+MQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laz Lev <lazlev@web.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 566/663] media: smipcie: fix interrupt handling and IR timeout
-Date:   Mon,  1 Mar 2021 17:13:34 +0100
-Message-Id: <20210301161209.875296652@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.10 576/663] entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point
+Date:   Mon,  1 Mar 2021 17:13:44 +0100
+Message-Id: <20210301161210.352518905@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,109 +40,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 6532923237b427ed30cc7b4486f6f1ccdee3c647 upstream.
+commit 4ae7dc97f726ea95c58ac58af71cc034ad22d7de upstream.
 
-After the first IR message, interrupts are no longer received. In addition,
-the code generates a timeout IR message of 10ms but sets the timeout value
-to 100ms, so no timeout was ever generated.
+Following the idle loop model, cleanly check for pending rcuog wakeup
+before the last rescheduling point upon resuming to guest mode. This
+way we can avoid to do it from rcu_user_enter() with the last resort
+self-IPI hack that enforces rescheduling.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=204317
-
-Fixes: a49a7a4635de ("media: smipcie: add universal ir capability")
-Tested-by: Laz Lev <lazlev@web.de>
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/smipcie/smipcie-ir.c |   48 ++++++++++++++++++---------------
- 1 file changed, 27 insertions(+), 21 deletions(-)
+ arch/x86/kvm/x86.c        |    1 +
+ include/linux/entry-kvm.h |   14 ++++++++++++++
+ kernel/rcu/tree.c         |   44 ++++++++++++++++++++++++++++++++++----------
+ kernel/rcu/tree_plugin.h  |    1 +
+ 4 files changed, 50 insertions(+), 10 deletions(-)
 
---- a/drivers/media/pci/smipcie/smipcie-ir.c
-+++ b/drivers/media/pci/smipcie/smipcie-ir.c
-@@ -60,38 +60,44 @@ static void smi_ir_decode(struct smi_rc
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1776,6 +1776,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
+ 
+ bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
  {
- 	struct smi_dev *dev = ir->dev;
- 	struct rc_dev *rc_dev = ir->rc_dev;
--	u32 dwIRControl, dwIRData;
--	u8 index, ucIRCount, readLoop;
-+	u32 control, data;
-+	u8 index, ir_count, read_loop;
++	xfer_to_guest_mode_prepare();
+ 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
+ 		xfer_to_guest_mode_work_pending();
+ }
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -47,6 +47,20 @@ static inline int arch_xfer_to_guest_mod
+ int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
  
--	dwIRControl = smi_read(IR_Init_Reg);
-+	control = smi_read(IR_Init_Reg);
+ /**
++ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
++ *				need to be handled while IRQs are disabled
++ *				upon entering to guest.
++ *
++ * Has to be invoked with interrupts disabled before the last call
++ * to xfer_to_guest_mode_work_pending().
++ */
++static inline void xfer_to_guest_mode_prepare(void)
++{
++	lockdep_assert_irqs_disabled();
++	rcu_nocb_flush_deferred_wakeup();
++}
++
++/**
+  * __xfer_to_guest_mode_work_pending - Check if work is pending
+  *
+  * Returns: True if work pending, False otherwise.
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -670,9 +670,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
  
--	if (dwIRControl & rbIRVld) {
--		ucIRCount = (u8) smi_read(IR_Data_Cnt);
-+	dev_dbg(&rc_dev->dev, "ircontrol: 0x%08x\n", control);
+ #ifdef CONFIG_NO_HZ_FULL
  
--		readLoop = ucIRCount/4;
--		if (ucIRCount % 4)
--			readLoop += 1;
--		for (index = 0; index < readLoop; index++) {
--			dwIRData = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
+ /*
+  * An empty function that will trigger a reschedule on
+- * IRQ tail once IRQs get re-enabled on userspace resume.
++ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
+  */
+ static void late_wakeup_func(struct irq_work *work)
+ {
+@@ -681,6 +682,37 @@ static void late_wakeup_func(struct irq_
+ static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
+ 	IRQ_WORK_INIT(late_wakeup_func);
+ 
++/*
++ * If either:
++ *
++ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
++ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
++ *
++ * In these cases the late RCU wake ups aren't supported in the resched loops and our
++ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
++ * get re-enabled again.
++ */
++noinstr static void rcu_irq_work_resched(void)
++{
++	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
++
++	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
++		return;
++
++	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
++		return;
++
++	instrumentation_begin();
++	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
++		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
++	}
++	instrumentation_end();
++}
++
++#else
++static inline void rcu_irq_work_resched(void) { }
++#endif
++
+ /**
+  * rcu_user_enter - inform RCU that we are resuming userspace.
+  *
+@@ -694,8 +726,6 @@ static DEFINE_PER_CPU(struct irq_work, l
+  */
+ noinstr void rcu_user_enter(void)
+ {
+-	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
 -
--			ir->irData[index*4 + 0] = (u8)(dwIRData);
--			ir->irData[index*4 + 1] = (u8)(dwIRData >> 8);
--			ir->irData[index*4 + 2] = (u8)(dwIRData >> 16);
--			ir->irData[index*4 + 3] = (u8)(dwIRData >> 24);
-+	if (control & rbIRVld) {
-+		ir_count = (u8)smi_read(IR_Data_Cnt);
-+
-+		dev_dbg(&rc_dev->dev, "ircount %d\n", ir_count);
-+
-+		read_loop = ir_count / 4;
-+		if (ir_count % 4)
-+			read_loop += 1;
-+		for (index = 0; index < read_loop; index++) {
-+			data = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
-+			dev_dbg(&rc_dev->dev, "IRData 0x%08x\n", data);
-+
-+			ir->irData[index * 4 + 0] = (u8)(data);
-+			ir->irData[index * 4 + 1] = (u8)(data >> 8);
-+			ir->irData[index * 4 + 2] = (u8)(data >> 16);
-+			ir->irData[index * 4 + 3] = (u8)(data >> 24);
- 		}
--		smi_raw_process(rc_dev, ir->irData, ucIRCount);
--		smi_set(IR_Init_Reg, rbIRVld);
-+		smi_raw_process(rc_dev, ir->irData, ir_count);
- 	}
+ 	lockdep_assert_irqs_disabled();
  
--	if (dwIRControl & rbIRhighidle) {
-+	if (control & rbIRhighidle) {
- 		struct ir_raw_event rawir = {};
- 
-+		dev_dbg(&rc_dev->dev, "high idle\n");
-+
- 		rawir.pulse = 0;
- 		rawir.duration = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
- 		ir_raw_event_store_with_filter(rc_dev, &rawir);
--		smi_set(IR_Init_Reg, rbIRhighidle);
- 	}
- 
-+	smi_set(IR_Init_Reg, rbIRVld);
- 	ir_raw_event_handle(rc_dev);
+ 	/*
+@@ -703,13 +733,7 @@ noinstr void rcu_user_enter(void)
+ 	 * rescheduling opportunity in the entry code. Trigger a self IPI
+ 	 * that will fire and reschedule once we resume in user/guest mode.
+ 	 */
+-	instrumentation_begin();
+-	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
+-		if (do_nocb_deferred_wakeup(rdp) && need_resched())
+-			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+-	}
+-	instrumentation_end();
+-
++	rcu_irq_work_resched();
+ 	rcu_eqs_enter(true);
  }
  
-@@ -150,7 +156,7 @@ int smi_ir_init(struct smi_dev *dev)
- 	rc_dev->dev.parent = &dev->pci_dev->dev;
- 
- 	rc_dev->map_name = dev->info->rc_map;
--	rc_dev->timeout = MS_TO_US(100);
-+	rc_dev->timeout = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
- 	rc_dev->rx_resolution = SMI_SAMPLE_PERIOD;
- 
- 	ir->rc_dev = rc_dev;
-@@ -173,7 +179,7 @@ void smi_ir_exit(struct smi_dev *dev)
- 	struct smi_rc *ir = &dev->ir;
- 	struct rc_dev *rc_dev = ir->rc_dev;
- 
--	smi_ir_stop(ir);
- 	rc_unregister_device(rc_dev);
-+	smi_ir_stop(ir);
- 	ir->rc_dev = NULL;
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void
+ {
+ 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
  }
++EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
+ 
+ void __init rcu_init_nohz(void)
+ {
 
 
