@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57AAC3285C1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BDF43284BE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236573AbhCAQ6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:58:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
+        id S234888AbhCAQmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232677AbhCAQwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:52:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BF3164FBF;
-        Mon,  1 Mar 2021 16:33:51 +0000 (UTC)
+        id S234482AbhCAQfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:35:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 079D464F6A;
+        Mon,  1 Mar 2021 16:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616432;
-        bh=gXbvBo7gC3gwCUnskLruRZA2ZXWf8pL0VuSO9q3H7kI=;
+        s=korg; t=1614615964;
+        bh=ccYvQCnf6qkevx1ti7nhlRohlJptkxbjNbSR8dXc6y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzjY3xagKtv0B2Z1iXBAdjUGIBjD7bPNDA/Nq0Ws1bWKMnGv5ZECLryDduNeV+v7i
-         zGjzLPummDKs+4VvfZ0ZBbq4XVntik3pKVZUOBW8zf0HeUHblwZeVDGkf2maWevT0F
-         qlhhP7eSDCnpmoO9nHv1isKnyNyFnKUQ1GzMOQk4=
+        b=AO5ncW2BPIzw+CQmACQQo2X3pkeWpl++TTdvHULG1sDkjHS3h6Guyn/LaHrQw0GKi
+         4fq94hrfVA7sPr1uTbvPcvQpDb7U2F5DEaljQYTxaYdpK3270O3TErc4FFyD0P1yw5
+         WUkDYASnP8a5+UxtUz1ji9UEjWb4ij7VMpJltvho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.14 149/176] arm64: uprobe: Return EOPNOTSUPP for AARCH32 instruction probing
-Date:   Mon,  1 Mar 2021 17:13:42 +0100
-Message-Id: <20210301161028.406353107@linuxfoundation.org>
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Ming-Hung Tsai <mtsai@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 122/134] dm era: Fix bitset memory leaks
+Date:   Mon,  1 Mar 2021 17:13:43 +0100
+Message-Id: <20210301161019.584586243@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Zhe <zhe.he@windriver.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit d47422d953e258ad587b5edf2274eb95d08bdc7d upstream.
+commit 904e6b266619c2da5c58b5dce14ae30629e39645 upstream.
 
-As stated in linux/errno.h, ENOTSUPP should never be seen by user programs.
-When we set up uprobe with 32-bit perf and arm64 kernel, we would see the
-following vague error without useful hint.
+Deallocate the memory allocated for the in-core bitsets when destroying
+the target and in error paths.
 
-The sys_perf_event_open() syscall returned with 524 (INTERNAL ERROR:
-strerror_r(524, [buf], 128)=22)
-
-Use EOPNOTSUPP instead to indicate such cases.
-
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Link: https://lore.kernel.org/r/20210223082535.48730-1-zhe.he@windriver.com
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/probes/uprobes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-era-target.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/kernel/probes/uprobes.c
-+++ b/arch/arm64/kernel/probes/uprobes.c
-@@ -41,7 +41,7 @@ int arch_uprobe_analyze_insn(struct arch
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -46,6 +46,7 @@ struct writeset {
+ static void writeset_free(struct writeset *ws)
+ {
+ 	vfree(ws->bits);
++	ws->bits = NULL;
+ }
  
- 	/* TODO: Currently we do not support AARCH32 instruction probing */
- 	if (mm->context.flags & MMCF_AARCH32)
--		return -ENOTSUPP;
-+		return -EOPNOTSUPP;
- 	else if (!IS_ALIGNED(addr, AARCH64_INSN_SIZE))
- 		return -EINVAL;
+ static int setup_on_disk_bitset(struct dm_disk_bitset *info,
+@@ -812,6 +813,8 @@ static struct era_metadata *metadata_ope
+ 
+ static void metadata_close(struct era_metadata *md)
+ {
++	writeset_free(&md->writesets[0]);
++	writeset_free(&md->writesets[1]);
+ 	destroy_persistent_data_objects(md);
+ 	kfree(md);
+ }
+@@ -849,6 +852,7 @@ static int metadata_resize(struct era_me
+ 	r = writeset_alloc(&md->writesets[1], *new_size);
+ 	if (r) {
+ 		DMERR("%s: writeset_alloc failed for writeset 1", __func__);
++		writeset_free(&md->writesets[0]);
+ 		return r;
+ 	}
+ 
+@@ -859,6 +863,8 @@ static int metadata_resize(struct era_me
+ 			    &value, &md->era_array_root);
+ 	if (r) {
+ 		DMERR("%s: dm_array_resize failed", __func__);
++		writeset_free(&md->writesets[0]);
++		writeset_free(&md->writesets[1]);
+ 		return r;
+ 	}
  
 
 
