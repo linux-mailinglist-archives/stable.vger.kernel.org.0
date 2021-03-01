@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA48932870E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:20:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD33328720
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:21:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbhCARTA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:19:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46316 "EHLO mail.kernel.org"
+        id S234755AbhCARU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:20:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237561AbhCARMR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:12:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D770664EE8;
-        Mon,  1 Mar 2021 16:43:39 +0000 (UTC)
+        id S237787AbhCARNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:13:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37ADC64EED;
+        Mon,  1 Mar 2021 16:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617020;
-        bh=eLHjXKOoR57muTxYafgvzISGl0UuljIk7HMuCALKpb4=;
+        s=korg; t=1614617051;
+        bh=vnQTW2da1VQFV0Wigy6nCMPc9Qiz/41SoNJxkm0kHq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VLKZPzc/ZBvUvXv9BUDv5iagn+3R1tuF9WoCgqPx8ugvPGd1Hi94iqpYDK2KCDSN
-         BnddrRwqDTtTOS6J0UEPcuuzEYw0mVowiYap+y2Lf3VwYMsfVK3X3d09vCUNz2EuVA
-         pRJo5PiqpKs+3vVYLtPna7hf4ZPgYcKsL/Q2DEeo=
+        b=SHsrPsMf1cZAS+Ggoi1lI6Dt93Y+9Zs4Y6XjJBdZJSopZuPgZhakSSIMpkoBqxmlI
+         cot7WYOgKqHMI0qoRmJxXD4f/awtH5/ktn9M/18VVVWsjfYFl5+X7cxH9qEfwlLstM
+         8nwpHMiF2qjg4J7CR7PYhjGBpSkMXV+EZzc9FvYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishnu Dasa <vdasa@vmware.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 157/247] VMCI: Use set_page_dirty_lock() when unregistering guest memory
-Date:   Mon,  1 Mar 2021 17:12:57 +0100
-Message-Id: <20210301161039.356313534@linuxfoundation.org>
+Subject: [PATCH 4.19 158/247] PCI: Align checking of syscall user config accessors
+Date:   Mon,  1 Mar 2021 17:12:58 +0100
+Message-Id: <20210301161039.406301849@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,41 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 5a16c535409f8dcb7568e20737309e3027ae3e49 ]
+[ Upstream commit ef9e4005cbaf022c6251263aa27836acccaef65d ]
 
-When the VMCI host support releases guest memory in the case where
-the VM was killed, the pinned guest pages aren't locked. Use
-set_page_dirty_lock() instead of set_page_dirty().
+After 34e3207205ef ("PCI: handle positive error codes"),
+pci_user_read_config_*() and pci_user_write_config_*() return 0 or negative
+errno values, not PCIBIOS_* values like PCIBIOS_SUCCESSFUL or
+PCIBIOS_BAD_REGISTER_NUMBER.
 
-Testing done: Killed VM while having an active VMCI based vSocket
-connection and observed warning from ext4. With this fix, no
-warning was observed. Ran various vSocket tests without issues.
+Remove comparisons with PCIBIOS_SUCCESSFUL and check only for non-zero.  It
+happens that PCIBIOS_SUCCESSFUL is zero, so this is not a functional
+change, but it aligns this code with the user accessors.
 
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-Link: https://lore.kernel.org/r/1611160360-30299-1-git-send-email-jhansen@vmware.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bhelgaas: commit log]
+Fixes: 34e3207205ef ("PCI: handle positive error codes")
+Link: https://lore.kernel.org/r/f1220314-e518-1e18-bf94-8e6f8c703758@gmail.com
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/syscall.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-index 5e0d1ac67f73f..36025e1058169 100644
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -645,7 +645,7 @@ static void qp_release_pages(struct page **pages,
+diff --git a/drivers/pci/syscall.c b/drivers/pci/syscall.c
+index d96626c614f56..a7bdd10fccf33 100644
+--- a/drivers/pci/syscall.c
++++ b/drivers/pci/syscall.c
+@@ -19,7 +19,7 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned long, bus, unsigned long, dfn,
+ 	u16 word;
+ 	u32 dword;
+ 	long err;
+-	long cfg_ret;
++	int cfg_ret;
  
- 	for (i = 0; i < num_pages; i++) {
- 		if (dirty)
--			set_page_dirty(pages[i]);
-+			set_page_dirty_lock(pages[i]);
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+@@ -45,7 +45,7 @@ SYSCALL_DEFINE5(pciconfig_read, unsigned long, bus, unsigned long, dfn,
+ 	}
  
- 		put_page(pages[i]);
- 		pages[i] = NULL;
+ 	err = -EIO;
+-	if (cfg_ret != PCIBIOS_SUCCESSFUL)
++	if (cfg_ret)
+ 		goto error;
+ 
+ 	switch (len) {
+@@ -103,7 +103,7 @@ SYSCALL_DEFINE5(pciconfig_write, unsigned long, bus, unsigned long, dfn,
+ 		if (err)
+ 			break;
+ 		err = pci_user_write_config_byte(dev, off, byte);
+-		if (err != PCIBIOS_SUCCESSFUL)
++		if (err)
+ 			err = -EIO;
+ 		break;
+ 
+@@ -112,7 +112,7 @@ SYSCALL_DEFINE5(pciconfig_write, unsigned long, bus, unsigned long, dfn,
+ 		if (err)
+ 			break;
+ 		err = pci_user_write_config_word(dev, off, word);
+-		if (err != PCIBIOS_SUCCESSFUL)
++		if (err)
+ 			err = -EIO;
+ 		break;
+ 
+@@ -121,7 +121,7 @@ SYSCALL_DEFINE5(pciconfig_write, unsigned long, bus, unsigned long, dfn,
+ 		if (err)
+ 			break;
+ 		err = pci_user_write_config_dword(dev, off, dword);
+-		if (err != PCIBIOS_SUCCESSFUL)
++		if (err)
+ 			err = -EIO;
+ 		break;
+ 
 -- 
 2.27.0
 
