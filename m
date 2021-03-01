@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1B132849E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C42E3284AF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232591AbhCAQi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:38:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
+        id S234730AbhCAQkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:40:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232660AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232694AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1930564F35;
-        Mon,  1 Mar 2021 16:24:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AA464F70;
+        Mon,  1 Mar 2021 16:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615887;
-        bh=F02ITT3lKNUMiw4LaCCPj0C3VBg42859ZY3N+Tn37/M=;
+        s=korg; t=1614615898;
+        bh=87jKld7AmQdJn4kxHXTqOJYAO+4A2BTYGY6SdrnOY7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfLHqxT1+Oj0T9nowO4JE45/1OQGWkWwsfJUcZb6k5sw1H7klnEUMfGVCdEydwQvb
-         vL2MqahlMQOUU10geCEmL50QSFdMGDMFzFTl7BHNL7KttFIaDiojZFj3BtbNofcHlA
-         8iLzzLtJGJGNVxC8b7tb69sgqYMgpj27ApLmW4UM=
+        b=w0WZRnxgxVb7XGQjQVrQG6+wSzBatVnQl3eDv075FUZCdMzSA7dkh2gB9x5o1jbAQ
+         r+I08t4QRVoPsiRuVUdrTIDMSR+QalOwNgogcvdI+iSxYr0mpaPm5nIN60v+sIR1xt
+         ZoQgYgKY9rp5AvTnGBM01ZHH6NK4GRdLTuwTXz0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 068/134] powerpc/pseries/dlpar: handle ibm, configure-connector delay status
-Date:   Mon,  1 Mar 2021 17:12:49 +0100
-Message-Id: <20210301161016.902253440@linuxfoundation.org>
+Subject: [PATCH 4.9 069/134] spi: pxa2xx: Fix the controller numbering for Wildcat Point
+Date:   Mon,  1 Mar 2021 17:12:50 +0100
+Message-Id: <20210301161016.948803340@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -41,63 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 768d70e19ba525debd571b36e6d0ab19956c63d7 ]
+[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
 
-dlpar_configure_connector() has two problems in its handling of
-ibm,configure-connector's return status:
+Wildcat Point has two SPI controllers and added one is actually second one.
+Fix the numbering by adding the description of the first one.
 
-1. When the status is -2 (busy, call again), we call
-   ibm,configure-connector again immediately without checking whether
-   to schedule, which can result in monopolizing the CPU.
-2. Extended delay status (9900..9905) goes completely unhandled,
-   causing the configuration to unnecessarily terminate.
-
-Fix both of these issues by using rtas_busy_delay().
-
-Fixes: ab519a011caa ("powerpc/pseries: Kernel DLPAR Infrastructure")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210107025900.410369-1-nathanl@linux.ibm.com
+Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
+Cc: Leif Liddy <leif.liddy@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/dlpar.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/dlpar.c b/arch/powerpc/platforms/pseries/dlpar.c
-index 5abb8e2239a54..647dbd8514c4f 100644
---- a/arch/powerpc/platforms/pseries/dlpar.c
-+++ b/arch/powerpc/platforms/pseries/dlpar.c
-@@ -139,7 +139,6 @@ void dlpar_free_cc_nodes(struct device_node *dn)
- #define NEXT_PROPERTY   3
- #define PREV_PARENT     4
- #define MORE_MEMORY     5
--#define CALL_AGAIN	-2
- #define ERR_CFG_USE     -9003
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index 58d2d48e16a53..c37e35aeafa44 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -21,7 +21,8 @@ enum {
+ 	PORT_BSW1,
+ 	PORT_BSW2,
+ 	PORT_CE4100,
+-	PORT_LPT,
++	PORT_LPT0,
++	PORT_LPT1,
+ };
  
- struct device_node *dlpar_configure_connector(__be32 drc_index,
-@@ -181,6 +180,9 @@ struct device_node *dlpar_configure_connector(__be32 drc_index,
+ struct pxa_spi_info {
+@@ -48,8 +49,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
+ static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
+ static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
  
- 		spin_unlock(&rtas_data_buf_lock);
+-static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
+-static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
++static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
++static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
  
-+		if (rtas_busy_delay(rc))
-+			continue;
-+
- 		switch (rc) {
- 		case COMPLETE:
- 			break;
-@@ -233,9 +235,6 @@ struct device_node *dlpar_configure_connector(__be32 drc_index,
- 			parent_path = last_dn->parent->full_name;
- 			break;
+ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ {
+@@ -158,12 +161,19 @@ static struct pxa_spi_info spi_info_configs[] = {
+ 		.num_chipselect = 1,
+ 		.max_clk_rate = 50000000,
+ 	},
+-	[PORT_LPT] = {
++	[PORT_LPT0] = {
+ 		.type = LPSS_LPT_SSP,
+ 		.port_id = 0,
+ 		.setup = lpss_spi_setup,
+-		.tx_param = &lpt_tx_param,
+-		.rx_param = &lpt_rx_param,
++		.tx_param = &lpt0_tx_param,
++		.rx_param = &lpt0_rx_param,
++	},
++	[PORT_LPT1] = {
++		.type = LPSS_LPT_SSP,
++		.port_id = 1,
++		.setup = lpss_spi_setup,
++		.tx_param = &lpt1_tx_param,
++		.rx_param = &lpt1_rx_param,
+ 	},
+ };
  
--		case CALL_AGAIN:
--			break;
--
- 		case MORE_MEMORY:
- 		case ERR_CFG_USE:
- 		default:
+@@ -251,8 +261,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
+ 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
+ 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
+-	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
+-	{ },
++	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
++	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
++	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
+ 
 -- 
 2.27.0
 
