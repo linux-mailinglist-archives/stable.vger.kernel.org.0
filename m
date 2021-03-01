@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 164CC3287D8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 597BA3287CD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238551AbhCAR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:29:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
+        id S238523AbhCAR2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238251AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:24:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14CC464F52;
-        Mon,  1 Mar 2021 16:49:22 +0000 (UTC)
+        id S238167AbhCARXg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:23:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C3FF64DE7;
+        Mon,  1 Mar 2021 16:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617363;
-        bh=jqY5K+taFlk8VrEj0sTzwryz2GIEM3eA8b46QXsQxGc=;
+        s=korg; t=1614617367;
+        bh=mFsVZl/eaB00tjnCacHEicJ+TWNUhcpxob1k9bl4794=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQjAoZd4DYDXG241BeDHQtG7lYg6C5PYF07RjXXyFWrhb/fNjk4oEB4mXzlVR+/ET
-         lliL/RX2i4nQMrg+Uombp+3BwD0XM+L3AuB9MjrQwOtBLx+e1Ydjp3hH0pPvfXkrdQ
-         JOCrXg0Ds57NTDs3P4PrJPibqd4//LpO3G0vXYuI=
+        b=F2MtSkGmptZXWpBtzc0Vgw0Empg/33/sunYGR90ilWmtlE0V8IFzGBtLqWvI68sg9
+         /N/D5J+NROulilFz6jqEIbn18dfhtxG+3VZdAgXoblx9my2vgEV6cL6Tq6DaCujcvI
+         3dXzwa6sACC8Vu4JaEuc2UpOcexUjzDuvsaeR0R8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jupeng Zhong <zhongjupeng@yulong.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/340] Bluetooth: btusb: Fix memory leak in btusb_mtk_wmt_recv
-Date:   Mon,  1 Mar 2021 17:09:52 +0100
-Message-Id: <20210301161050.686702646@linuxfoundation.org>
+Subject: [PATCH 5.4 049/340] arm64: dts: msm8916: Fix reserved and rfsa nodes unit address
+Date:   Mon,  1 Mar 2021 17:09:53 +0100
+Message-Id: <20210301161050.736067318@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,73 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jupeng Zhong <zhongjupeng@yulong.com>
+From: Vincent Knecht <vincent.knecht@mailoo.org>
 
-[ Upstream commit de71a6cb4bf24d8993b9ca90d1ddb131b60251a1 ]
+[ Upstream commit d5ae2528b0b56cf054b27d48b0cb85330900082f ]
 
-In btusb_mtk_wmt_recv if skb_clone fails, the alocated skb should be
-released.
+Fix `reserved` and `rfsa` unit address according to their reg address
 
-Omit the labels “err_out” and “err_free_skb” in this function
-implementation so that the desired exception handling code
-would be directly specified in the affected if branches.
+Fixes: 7258e10e6a0b ("ARM: dts: msm8916: Update reserved-memory")
 
-Fixes: a1c49c434e15 ("btusb: Add protocol support for MediaTek MT7668U USB devices")
-Signed-off-by: Jupeng Zhong <zhongjupeng@yulong.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Link: https://lore.kernel.org/r/20210123104417.518105-1-vincent.knecht@mailoo.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index b92bd97b1c399..b467fd05c5e82 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2568,7 +2568,7 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 		skb = bt_skb_alloc(HCI_WMT_MAX_EVENT_SIZE, GFP_ATOMIC);
- 		if (!skb) {
- 			hdev->stat.err_rx++;
--			goto err_out;
-+			return;
- 		}
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index d95273af9f1e4..449843f2184d8 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -53,7 +53,7 @@
+ 			no-map;
+ 		};
  
- 		hci_skb_pkt_type(skb) = HCI_EVENT_PKT;
-@@ -2586,13 +2586,18 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 		 */
- 		if (test_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags)) {
- 			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
--			if (!data->evt_skb)
--				goto err_out;
-+			if (!data->evt_skb) {
-+				kfree_skb(skb);
-+				return;
-+			}
- 		}
+-		reserved@8668000 {
++		reserved@86680000 {
+ 			reg = <0x0 0x86680000 0x0 0x80000>;
+ 			no-map;
+ 		};
+@@ -66,7 +66,7 @@
+ 			qcom,client-id = <1>;
+ 		};
  
- 		err = hci_recv_frame(hdev, skb);
--		if (err < 0)
--			goto err_free_skb;
-+		if (err < 0) {
-+			kfree_skb(data->evt_skb);
-+			data->evt_skb = NULL;
-+			return;
-+		}
- 
- 		if (test_and_clear_bit(BTUSB_TX_WAIT_VND_EVT,
- 				       &data->flags)) {
-@@ -2601,11 +2606,6 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
- 			wake_up_bit(&data->flags,
- 				    BTUSB_TX_WAIT_VND_EVT);
- 		}
--err_out:
--		return;
--err_free_skb:
--		kfree_skb(data->evt_skb);
--		data->evt_skb = NULL;
- 		return;
- 	} else if (urb->status == -ENOENT) {
- 		/* Avoid suspend failed when usb_kill_urb */
+-		rfsa@867e00000 {
++		rfsa@867e0000 {
+ 			reg = <0x0 0x867e0000 0x0 0x20000>;
+ 			no-map;
+ 		};
 -- 
 2.27.0
 
