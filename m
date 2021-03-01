@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FF3328520
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8489F32851E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235716AbhCAQtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:49:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47106 "EHLO mail.kernel.org"
+        id S231730AbhCAQst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:48:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234699AbhCAQlw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:41:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B72464E42;
-        Mon,  1 Mar 2021 16:29:12 +0000 (UTC)
+        id S234727AbhCAQlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:41:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DEBF64E41;
+        Mon,  1 Mar 2021 16:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616152;
-        bh=OoyPEBXYditKI0dPBcJzwZjMJUPunAwtWK1zkLzVn6Q=;
+        s=korg; t=1614616155;
+        bh=zNAa4z0E3iVClAE5WUMXkiFb3QNfxdG/BiQagb0rKC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yM7zsHKRWn/3IeZD4GQnRqcJ/WDDwNKCFwSCf9C02uY8BG7oVpNelBFL/vYuCAAo9
-         6fsNwc5vkWd7PimFdReBHFin4RuIfurBs9rWPSMtSYWhoUhfs9q0AQOOZ35F7Mx7h2
-         UvALti57RtmmVjMsrPN+v4MG04h7eKaf0aM3HY7w=
+        b=dYhdf6/I4o4Mj8tCTc23cT9ZpQC3nOztnJMi9edOW4pjVZscf1gFHL6FaN79dFwa6
+         sE6KDKvkh9otyrO9vw9/wQArgMf4ZHM3pr+rro5ej9Iw75Uymx2Z1zrLg4A3r3Cbsp
+         g3i7Dp+e3pGjQHi8M5TIyvtsNEl7MNefWfnZwHPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Qais Yousef <qais.yousef@arm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/176] crypto: bcm - Rename struct device_private to bcm_device_private
-Date:   Mon,  1 Mar 2021 17:12:05 +0100
-Message-Id: <20210301161023.541743867@linuxfoundation.org>
+Subject: [PATCH 4.14 053/176] media: lmedm04: Fix misuse of comma
+Date:   Mon,  1 Mar 2021 17:12:06 +0100
+Message-Id: <20210301161023.584461270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -41,81 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit f7f2b43eaf6b4cfe54c75100709be31d5c4b52c8 ]
+[ Upstream commit 59a3e78f8cc33901fe39035c1ab681374bba95ad ]
 
-Renaming 'struct device_private' to 'struct bcm_device_private',
-because it clashes with 'struct device_private' from
-'drivers/base/base.h'.
+There's a comma used instead of a semicolon that causes multiple
+statements to be executed after an if instead of just the intended
+single statement.
 
-While it's not a functional problem, it's causing two distinct
-type hierarchies in BTF data. It also breaks build with options:
-  CONFIG_DEBUG_INFO_BTF=y
-  CONFIG_CRYPTO_DEV_BCM_SPU=y
+Replace the comma with a semicolon.
 
-as reported by Qais Yousef [1].
-
-[1] https://lore.kernel.org/lkml/20201229151352.6hzmjvu3qh6p2qgg@e107158-lin/
-
-Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 15e1ce33182d ("[media] lmedm04: Fix usb_submit_urb BOGUS urb xfer, pipe 1 != type 3 in interrupt urb")
+Signed-off-by: Joe Perches <joe@perches.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/bcm/cipher.c | 2 +-
- drivers/crypto/bcm/cipher.h | 4 ++--
- drivers/crypto/bcm/util.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/dvb-usb-v2/lmedm04.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index af6119b3b6b72..676175d96b68b 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -53,7 +53,7 @@
+diff --git a/drivers/media/usb/dvb-usb-v2/lmedm04.c b/drivers/media/usb/dvb-usb-v2/lmedm04.c
+index be26c029546bd..f481557f258ee 100644
+--- a/drivers/media/usb/dvb-usb-v2/lmedm04.c
++++ b/drivers/media/usb/dvb-usb-v2/lmedm04.c
+@@ -436,7 +436,7 @@ static int lme2510_int_read(struct dvb_usb_adapter *adap)
+ 	ep = usb_pipe_endpoint(d->udev, lme_int->lme_urb->pipe);
  
- /* ================= Device Structure ================== */
+ 	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
+-		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa),
++		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa);
  
--struct device_private iproc_priv;
-+struct bcm_device_private iproc_priv;
+ 	lme_int->lme_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
  
- /* ==================== Parameters ===================== */
- 
-diff --git a/drivers/crypto/bcm/cipher.h b/drivers/crypto/bcm/cipher.h
-index 57a55eb2a2552..07b2233342db8 100644
---- a/drivers/crypto/bcm/cipher.h
-+++ b/drivers/crypto/bcm/cipher.h
-@@ -432,7 +432,7 @@ struct spu_hw {
- 	u32 num_chan;
- };
- 
--struct device_private {
-+struct bcm_device_private {
- 	struct platform_device *pdev;
- 
- 	struct spu_hw spu;
-@@ -479,6 +479,6 @@ struct device_private {
- 	struct mbox_chan **mbox;
- };
- 
--extern struct device_private iproc_priv;
-+extern struct bcm_device_private iproc_priv;
- 
- #endif
-diff --git a/drivers/crypto/bcm/util.c b/drivers/crypto/bcm/util.c
-index 430c5570ea877..657cf7e587214 100644
---- a/drivers/crypto/bcm/util.c
-+++ b/drivers/crypto/bcm/util.c
-@@ -401,7 +401,7 @@ char *spu_alg_name(enum spu_cipher_alg alg, enum spu_cipher_mode mode)
- static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
- 				size_t count, loff_t *offp)
- {
--	struct device_private *ipriv;
-+	struct bcm_device_private *ipriv;
- 	char *buf;
- 	ssize_t ret, out_offset, out_count;
- 	int i;
 -- 
 2.27.0
 
