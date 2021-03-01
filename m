@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A16D327F7A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:28:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FD8327F9D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235717AbhCAN2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:28:13 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:53697 "EHLO
+        id S235708AbhCANfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:35:55 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:56789 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235736AbhCAN2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:28:06 -0500
+        by vger.kernel.org with ESMTP id S235715AbhCANf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:35:29 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 59E8A1941D78;
-        Mon,  1 Mar 2021 08:27:17 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 613061941F7E;
+        Mon,  1 Mar 2021 08:34:41 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:27:17 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:34:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=eDPr12
-        zImi4Hvfn/tFbrpjWbqg4NnX+YuT9nAx4neLI=; b=m2QmIkqJqoFOil7Cd8OgeK
-        qemYv034yAyNxXnVlDLErDexnmKOsudp+1AyVlsTajZyMiqvtAEgFPCfyjL8/Z1D
-        MynbmpwIW3Aumjgb2wujsazTSL9HyNsG1O7M7dZCkLz25EZTxY/+xLYTV0ozvqxz
-        oqCVuMTo6nDT66MdybCIFKAafxhChvzcQakO/KhL2zmMpv1CvV2tUoB+LnaYoGBJ
-        X4DIJgKH6UeBNIhgQ/SfB3UyTvVuzTICae9OlAM9Y9SyFKY6DwIXVoa+jXIUN5aP
-        3y52cWe04W+RCxEcpHhBqp/XRHStvPDUhpMXS/XNPdCbBOeDqN+d9e/Gj6dbhtSw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=46uuY8
+        6vSK4WlL7vimq12TvUpJVy5+JF7mO+2dcYXpM=; b=ve998ArQKuEc6jRquKIOPZ
+        I0v3WXXMA8efLoOazbDOwhSijDPfrl9It70EVohZm6ZqHDEQOMOnMvcvBzn29U34
+        Y/iKrxJkG7FdHuYGATgHJ1uF+zAktCVT7K1JPRAyOiARdsjvt9T8fsVFMNQVyKOD
+        e0klSN/2I4xMwS4DFvfZO7qtWYHq5mUiK88kyScvfVupjuQBB6+6YtAzfBB+gteB
+        ljQTaCPEiVGxCtwLgpUP5mDCZ0xBCsx4zVJlVXFKhzoQGC3NCsWtJaCiMAKUDZj8
+        gT9sMXW0SD2XRC3QzTgMol23/BROvHVUgIs6SwBidXZ9YIWqPuJicMq4wTf7dK8w
         ==
-X-ME-Sender: <xms:tes8YAKD-_Dps8EzwJIQMzicMzS75P-wEJJ7uN7xGmuIDrdlNv83mA>
-    <xme:tes8YFFJLyLXudjdfVCN559rmdVdxfa-LRogPI8S6qQwjSoSbevdOGOVg3muq3ZcW
-    iupWD4O0eqhGg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehudcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:cO08YL2zUzEi41WX9ZtUqJKU4RdDmm5z4Id2whRl16wI_WI16uLNBg>
+    <xme:cO08YKFxURSZqFtvJTYQnZcGV4tOcgJolFNEJygODJeR6lgQvZBp6i15UGr7QybkA
+    0HTvqWxQS1mjg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:tes8YE8tLWC3puYUVwc1dOA1VeEOvZwTqjVHq1AXTouBpoC8gdsawg>
-    <xmx:tes8YNL6ZuJKZJZLtHspRlQtPzOt31YIBHujq3kJFt-30q3Clop5tw>
-    <xmx:tes8YKtz0AmpIRMrjPpB6zLgFfTgALo5-CMhPe8tp3VDwMMGY84Zrg>
-    <xmx:tes8YO_sQ8hiRG8jJvyrChKzwM7gJSGwvICuw6NyOncnrq2fKy8SKA>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:cO08YL5fkCjb9xuZnoTHzVCnWY2JNs5t3ZuoiUvtMLnqLe_cKAaJGg>
+    <xmx:cO08YA3kiEdMUr-no3o-ggm_aKGlr0l-MJwCZnT8985kTYsBojRYYg>
+    <xmx:cO08YOGLbDDWFJpWkawMjI-plWtKyDO2SEBN7xh3IIsXf0s-P-0nGQ>
+    <xmx:ce08YJN21uYxnBAygwK23TTPz9KmrB0AD8CxJ6pCW17qyDKG-lN6YA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B171B1080063;
-        Mon,  1 Mar 2021 08:27:16 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mei: bus: block send with vtag on non-conformat FW" failed to apply to 5.10-stable tree
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tomas.winkler@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 69CB11080054;
+        Mon,  1 Mar 2021 08:34:40 -0500 (EST)
+Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()" failed to apply to 5.4-stable tree
+To:     rafael.j.wysocki@intel.com, yu.c.chen@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:27:14 +0100
-Message-ID: <16146052346243@kroah.com>
+Date:   Mon, 01 Mar 2021 14:34:38 +0100
+Message-ID: <161460567817999@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,36 +70,85 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b398d53cd421454d64850f8b1f6d609ede9042d9 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Mon, 8 Feb 2021 17:06:48 +0200
-Subject: [PATCH] mei: bus: block send with vtag on non-conformat FW
+From a45ee4d4e13b0e35a8ec7ea0bf9267243d57b302 Mon Sep 17 00:00:00 2001
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Thu, 7 Jan 2021 19:43:30 +0100
+Subject: [PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()
+ argument
 
-Block data send with vtag if either transport layer or
-FW client are not supporting vtags.
+All of the callers of intel_pstate_get_hwp_max() access the struct
+cpudata object that corresponds to the given CPU already and the
+function itself needs to access that object (in order to update
+hwp_cap_cached), so modify the code to pass a struct cpudata pointer
+to it instead of the CPU number.
 
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210208150649.141358-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Chen Yu <yu.c.chen@intel.com>
 
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 580074e32599..935acc6bbf3c 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -61,6 +61,13 @@ ssize_t __mei_cl_send(struct mei_cl *cl, u8 *buf, size_t length, u8 vtag,
- 		goto out;
- 	}
+diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
+index 74bf54e6c993..3eb63daf2523 100644
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -819,13 +819,13 @@ static struct freq_attr *hwp_cpufreq_attrs[] = {
+ 	NULL,
+ };
  
-+	if (vtag) {
-+		/* Check if vtag is supported by client */
-+		rets = mei_cl_vt_support_check(cl);
-+		if (rets)
-+			goto out;
-+	}
-+
- 	if (length > mei_cl_mtu(cl)) {
- 		rets = -EFBIG;
- 		goto out;
+-static void intel_pstate_get_hwp_max(unsigned int cpu, int *phy_max,
++static void intel_pstate_get_hwp_max(struct cpudata *cpu, int *phy_max,
+ 				     int *current_max)
+ {
+ 	u64 cap;
+ 
+-	rdmsrl_on_cpu(cpu, MSR_HWP_CAPABILITIES, &cap);
+-	WRITE_ONCE(all_cpu_data[cpu]->hwp_cap_cached, cap);
++	rdmsrl_on_cpu(cpu->cpu, MSR_HWP_CAPABILITIES, &cap);
++	WRITE_ONCE(cpu->hwp_cap_cached, cap);
+ 	if (global.no_turbo || global.turbo_disabled)
+ 		*current_max = HWP_GUARANTEED_PERF(cap);
+ 	else
+@@ -1213,7 +1213,7 @@ static void update_qos_request(enum freq_qos_req_type type)
+ 			continue;
+ 
+ 		if (hwp_active)
+-			intel_pstate_get_hwp_max(i, &turbo_max, &max_state);
++			intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
+ 		else
+ 			turbo_max = cpu->pstate.turbo_pstate;
+ 
+@@ -1723,7 +1723,7 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
+ 	if (hwp_active && !hwp_mode_bdw) {
+ 		unsigned int phy_max, current_max;
+ 
+-		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
++		intel_pstate_get_hwp_max(cpu, &phy_max, &current_max);
+ 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
+ 		cpu->pstate.turbo_pstate = phy_max;
+ 	} else {
+@@ -2208,7 +2208,7 @@ static void intel_pstate_update_perf_limits(struct cpudata *cpu,
+ 	 * rather than pure ratios.
+ 	 */
+ 	if (hwp_active) {
+-		intel_pstate_get_hwp_max(cpu->cpu, &turbo_max, &max_state);
++		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
+ 	} else {
+ 		max_state = global.no_turbo || global.turbo_disabled ?
+ 			cpu->pstate.max_pstate : cpu->pstate.turbo_pstate;
+@@ -2323,7 +2323,7 @@ static void intel_pstate_verify_cpu_policy(struct cpudata *cpu,
+ 	if (hwp_active) {
+ 		int max_state, turbo_max;
+ 
+-		intel_pstate_get_hwp_max(cpu->cpu, &turbo_max, &max_state);
++		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
+ 		max_freq = max_state * cpu->pstate.scaling;
+ 	} else {
+ 		max_freq = intel_pstate_get_max_freq(cpu);
+@@ -2710,7 +2710,7 @@ static int intel_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	if (hwp_active) {
+ 		u64 value;
+ 
+-		intel_pstate_get_hwp_max(policy->cpu, &turbo_max, &max_state);
++		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
+ 		policy->transition_delay_us = INTEL_CPUFREQ_TRANSITION_DELAY_HWP;
+ 		rdmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, &value);
+ 		WRITE_ONCE(cpu->hwp_req_cached, value);
 
