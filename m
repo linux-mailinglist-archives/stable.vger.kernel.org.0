@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF49328628
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1157B32862A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236943AbhCARF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:05:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55906 "EHLO mail.kernel.org"
+        id S236962AbhCARFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:05:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236681AbhCAQ6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:58:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE9B264FDF;
-        Mon,  1 Mar 2021 16:37:05 +0000 (UTC)
+        id S236693AbhCAQ6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:58:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADF1E64F5C;
+        Mon,  1 Mar 2021 16:37:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616626;
-        bh=hakMxTD3W4MSZK40mEvtMtBQom0lgn5VXOlBPRG8f1g=;
+        s=korg; t=1614616629;
+        bh=2h0OcArB9tb8B+/3X01jDalkr89GWiNq9+KbgvNopkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+VFlCjTcGxmKmtn6vCb5U0Br+ipvRNCZgM1G5T6LdrIOqmNk3zda2zm8y3zUUKZ1
-         cBEf6z2KChfDhRqhtJHhxp5BjhKru2jCx2hS53QsgubPqX4fNUm+T6+E7r3K9TEVAD
-         2q+p6kuOulih8oojhAxJ1Pk/KwbhLGKGZ50UjDvQ=
+        b=Zm83aXTCetP2ZvBPJPHymnkQ2veyRmOuHF/3V06hxHWEqNBKwG7eZ+YB8/G1Av3+U
+         nj6nupFmN9V/IKGcUi9WJpvqz+cujBcc5IbfchnNadZ2V+ipakijVGF3Z1ExstIO5p
+         LbyNpmRfaTaEq0f99msGv0EvY3wTQ0zv/zkAwMSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Bob Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/247] cpufreq: brcmstb-avs-cpufreq: Fix resource leaks in ->remove()
-Date:   Mon,  1 Mar 2021 17:11:00 +0100
-Message-Id: <20210301161033.645765924@linuxfoundation.org>
+Subject: [PATCH 4.19 041/247] ACPICA: Fix exception code class checks
+Date:   Mon,  1 Mar 2021 17:11:01 +0100
+Message-Id: <20210301161033.687197314@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,36 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 3657f729b6fb5f2c0bf693742de2dcd49c572aa1 ]
+[ Upstream commit 3dfaea3811f8b6a89a347e8da9ab862cdf3e30fe ]
 
-If 'cpufreq_unregister_driver()' fails, just WARN and continue, so that
-other resources are freed.
+ACPICA commit 1a3a549286ea9db07d7ec700e7a70dd8bcc4354e
 
-Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-[ Viresh: Updated Subject ]
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+The macros to classify different AML exception codes are broken. For
+instance,
+
+  ACPI_ENV_EXCEPTION(Status)
+
+will always evaluate to zero due to
+
+  #define AE_CODE_ENVIRONMENTAL      0x0000
+  #define ACPI_ENV_EXCEPTION(Status) (Status & AE_CODE_ENVIRONMENTAL)
+
+Similarly, ACPI_AML_EXCEPTION(Status) will evaluate to a non-zero
+value for error codes of type AE_CODE_PROGRAMMER, AE_CODE_ACPI_TABLES,
+as well as AE_CODE_AML, and not just AE_CODE_AML as the name suggests.
+
+This commit fixes those checks.
+
+Fixes: d46b6537f0ce ("ACPICA: AML Parser: ignore all exceptions resulting from incorrect AML during table load")
+Link: https://github.com/acpica/acpica/commit/1a3a5492
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/brcmstb-avs-cpufreq.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ include/acpi/acexcep.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-index 1514c9846c5d5..a3c82f530d608 100644
---- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
-+++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
-@@ -723,8 +723,7 @@ static int brcm_avs_cpufreq_remove(struct platform_device *pdev)
- 	int ret;
+diff --git a/include/acpi/acexcep.h b/include/acpi/acexcep.h
+index 856c56ef01431..878b8e26c6c50 100644
+--- a/include/acpi/acexcep.h
++++ b/include/acpi/acexcep.h
+@@ -59,11 +59,11 @@ struct acpi_exception_info {
  
- 	ret = cpufreq_unregister_driver(&brcm_avs_driver);
--	if (ret)
--		return ret;
-+	WARN_ON(ret);
+ #define AE_OK                           (acpi_status) 0x0000
  
- 	brcm_avs_prepare_uninit(pdev);
+-#define ACPI_ENV_EXCEPTION(status)      (status & AE_CODE_ENVIRONMENTAL)
+-#define ACPI_AML_EXCEPTION(status)      (status & AE_CODE_AML)
+-#define ACPI_PROG_EXCEPTION(status)     (status & AE_CODE_PROGRAMMER)
+-#define ACPI_TABLE_EXCEPTION(status)    (status & AE_CODE_ACPI_TABLES)
+-#define ACPI_CNTL_EXCEPTION(status)     (status & AE_CODE_CONTROL)
++#define ACPI_ENV_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_ENVIRONMENTAL)
++#define ACPI_AML_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_AML)
++#define ACPI_PROG_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_PROGRAMMER)
++#define ACPI_TABLE_EXCEPTION(status)    (((status) & AE_CODE_MASK) == AE_CODE_ACPI_TABLES)
++#define ACPI_CNTL_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_CONTROL)
  
+ /*
+  * Environmental exceptions
 -- 
 2.27.0
 
