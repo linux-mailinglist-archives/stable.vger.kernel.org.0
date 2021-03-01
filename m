@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2B423285AB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93DA9328597
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235259AbhCAQ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:56:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50410 "EHLO mail.kernel.org"
+        id S234890AbhCAQyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:54:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235736AbhCAQte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:49:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A74C64EF8;
-        Mon,  1 Mar 2021 16:32:39 +0000 (UTC)
+        id S235737AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 416B864FA7;
+        Mon,  1 Mar 2021 16:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616360;
-        bh=1j8tOCw2di61nDs3fihxkIALOMwjcbJSzl/ScivA/LI=;
+        s=korg; t=1614616362;
+        bh=DgqKiG/n/IJH1MO7fR/EdeOjLPKqGSUBFjVSdjx9L00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxGtPcMJVYvwMvpZBVLPM6KXvHC5FUMG5BVIDSKTGvH/B0A6aJP7UGqXx1oqYNqZ3
-         0mDIF5KD/LujAfUoP9ysOVOc+vKJFoXBKxmUYvtfWU0z7Lcp6cvszAz74DvgfPZ+AP
-         dkVGvMKjI4FHk2sCQJWP+q7iVvCjUOA6Lc2akYIA=
+        b=HLR6ZUuzKBGKGe2CCPELisudMtMm0nROSQHvi96EfPpRhpoIp8pEf1mGTMtHX5TDG
+         VA6dFb1AQp6Ly6292lDjs7N1FAHqgnTeld9NfOFwwcT5Z3pyFSAeGZXxdMvDmbyyO3
+         2NY67PIHmNiTGUw2EdiX6b/tmuyJFxxmkzMUy0ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Qinglang Miao <miaoqinglang@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 4.14 123/176] ACPI: configfs: add missing check after configfs_register_default_group()
-Date:   Mon,  1 Mar 2021 17:13:16 +0100
-Message-Id: <20210301161027.099871302@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 124/176] HID: wacom: Ignore attempts to overwrite the touch_max value from HID
+Date:   Mon,  1 Mar 2021 17:13:17 +0100
+Message-Id: <20210301161027.152540319@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -41,53 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qinglang Miao <miaoqinglang@huawei.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-commit 67e40054de86aae520ddc2a072d7f6951812a14f upstream.
+commit 88f38846bfb1a452a3d47e38aeab20a4ceb74294 upstream.
 
-A list_add corruption is reported by Hulk Robot like this:
-==============
-list_add corruption.
-Call Trace:
-link_obj+0xc0/0x1c0
-link_group+0x21/0x140
-configfs_register_subsystem+0xdb/0x380
-acpi_configfs_init+0x25/0x1000 [acpi_configfs]
-do_one_initcall+0x149/0x820
-do_init_module+0x1ef/0x720
-load_module+0x35c8/0x4380
-__do_sys_finit_module+0x10d/0x1a0
-do_syscall_64+0x34/0x80
+The `wacom_feature_mapping` function is careful to only set the the
+touch_max value a single time, but this care does not extend to the
+`wacom_wac_finger_event` function. In particular, if a device sends
+multiple HID_DG_CONTACTMAX items in a single feature report, the
+driver will end up retaining the value of last item.
 
-It's because of the missing check after configfs_register_default_group,
-where configfs_unregister_subsystem should be called once failure.
+The HID descriptor for the Cintiq Companion 2 does exactly this. It
+incorrectly sets a "Report Count" of 2, which will cause the driver
+to process two HID_DG_CONTACTCOUNT items. The first item has the actual
+count, while the second item should have been declared as a constant
+zero. The constant zero is the value the driver ends up using, however,
+since it is the last HID_DG_CONTACTCOUNT in the report.
 
-Fixes: 612bd01fc6e0 ("ACPI: add support for loading SSDTs via configfs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    Report ID (16),
+    Usage (Contact Count Maximum),  ; Contact count maximum (55h, static value)
+    Report Count (2),
+    Logical Maximum (10),
+    Feature (Variable),
+
+To address this, we add a check that the touch_max is not already set
+within the `wacom_wac_finger_event` function that processes the
+HID_DG_TOUCHMAX item. We emit a warning if the value is set and ignore
+the updated value.
+
+This could potentially cause problems if there is a tablet which has
+a similar issue but requires the last item to be used. This is unlikely,
+however, since it would have to have a different non-zero value for
+HID_DG_CONTACTMAX earlier in the same report, which makes no sense
+except in the case of a firmware bug. Note that cases where the
+HID_DG_CONTACTMAX items are in different reports is already handled
+(and similarly ignored) by `wacom_feature_mapping` as mentioned above.
+
+Link: https://github.com/linuxwacom/input-wacom/issues/223
+Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/acpi_configfs.c |    7 ++++++-
+ drivers/hid/wacom_wac.c |    7 ++++++-
  1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/acpi_configfs.c
-+++ b/drivers/acpi/acpi_configfs.c
-@@ -269,7 +269,12 @@ static int __init acpi_configfs_init(voi
- 
- 	acpi_table_group = configfs_register_default_group(root, "table",
- 							   &acpi_tables_type);
--	return PTR_ERR_OR_ZERO(acpi_table_group);
-+	if (IS_ERR(acpi_table_group)) {
-+		configfs_unregister_subsystem(&acpi_configfs);
-+		return PTR_ERR(acpi_table_group);
-+	}
-+
-+	return 0;
- }
- module_init(acpi_configfs_init);
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2452,7 +2452,12 @@ static void wacom_wac_finger_event(struc
+ 		wacom_wac->hid_data.tipswitch = value;
+ 		break;
+ 	case HID_DG_CONTACTMAX:
+-		features->touch_max = value;
++		if (!features->touch_max) {
++			features->touch_max = value;
++		} else {
++			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
++				 "%d -> %d\n", __func__, features->touch_max, value);
++		}
+ 		return;
+ 	}
  
 
 
