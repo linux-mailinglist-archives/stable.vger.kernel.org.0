@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AACAA3290CD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8F93290CA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242255AbhCAUP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:15:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37636 "EHLO mail.kernel.org"
+        id S239951AbhCAUPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:15:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242835AbhCAUEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:04:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B617B64EAE;
-        Mon,  1 Mar 2021 17:58:21 +0000 (UTC)
+        id S242836AbhCAUEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:04:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96ECF653A2;
+        Mon,  1 Mar 2021 17:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621502;
-        bh=VEAU1DBYYKwJ8k/rQt6OGf+BLS02UkotgzCagmef5Sc=;
+        s=korg; t=1614621505;
+        bh=jf4Ra3bK+Jrx7VR5X/cspBEB9XBNdMpA9TNa5h8NlsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4q9MqZlf+FVvYBBlJB1/BfLX6rTUR++2D5LDVjSyEqART/WbxKXyKc2rnRD8fZ44
-         iQOVmhYEpKrizavnaC8OvDyEKg76uUTBJsxty6ZULpqOitdWD/XzOjN4h0nrAQwFL1
-         Z1es81kscUJeR1kJvTCG+LIwiSWDPl1aVhigWhqw=
+        b=dFYr0cdQQF6+ViSTNb/QT88vZAsGIVBjLYJBqDY9hzuqWLcaUBR9ZdEEVFf3azZIq
+         f3i3BV4FPZfkGs8KFVNL1lx/gJ/XblS3uFWNy0zFHR5JrBPYTaFs+6e3ZyvoB3ov/S
+         CVd7sUutbBQ33EXOrS7S2nTOR4eYIeFD1ct/E7RU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 540/775] net/mlx4_core: Add missed mlx4_free_cmd_mailbox()
-Date:   Mon,  1 Mar 2021 17:11:48 +0100
-Message-Id: <20210301161228.170960203@linuxfoundation.org>
+Subject: [PATCH 5.11 541/775] PCI: rockchip: Make ep-gpios DT property optional
+Date:   Mon,  1 Mar 2021 17:11:49 +0100
+Message-Id: <20210301161228.219824183@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,37 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 8eb65fda4a6dbd59cd5de24b106a10b6ee0d2176 ]
+[ Upstream commit 58adbfb3ebec460e8b58875c682bafd866808e80 ]
 
-mlx4_do_mirror_rule() forgets to call mlx4_free_cmd_mailbox() to
-free the memory region allocated by mlx4_alloc_cmd_mailbox() before
-an exit.
-Add the missed call to fix it.
+The Rockchip PCIe controller DT binding clearly states that 'ep-gpios' is
+an optional property. And indeed there are boards that don't require it.
 
-Fixes: 78efed275117 ("net/mlx4_core: Support mirroring VF DMFS rules on both ports")
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20210221143559.390277-1-hslester96@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Make the driver follow the binding by using devm_gpiod_get_optional()
+instead of devm_gpiod_get().
+
+[bhelgaas: tidy whitespace]
+Link: https://lore.kernel.org/r/20210121162321.4538-2-wens@kernel.org
+Fixes: e77f847df54c ("PCI: rockchip: Add Rockchip PCIe controller support")
+Fixes: 956cd99b35a8 ("PCI: rockchip: Separate common code from RC driver")
+Fixes: 964bac9455be ("PCI: rockchip: Split out rockchip_pcie_parse_dt() to parse DT")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/resource_tracker.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pcie-rockchip.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-index 394f43add85cf..a99e71bc7b3c9 100644
---- a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-@@ -4986,6 +4986,7 @@ static int mlx4_do_mirror_rule(struct mlx4_dev *dev, struct res_fs_rule *fs_rule
- 
- 	if (!fs_rule->mirr_mbox) {
- 		mlx4_err(dev, "rule mirroring mailbox is null\n");
-+		mlx4_free_cmd_mailbox(dev, mailbox);
- 		return -EINVAL;
+diff --git a/drivers/pci/controller/pcie-rockchip.c b/drivers/pci/controller/pcie-rockchip.c
+index 904dec0d3a88f..990a00e08bc5b 100644
+--- a/drivers/pci/controller/pcie-rockchip.c
++++ b/drivers/pci/controller/pcie-rockchip.c
+@@ -82,7 +82,7 @@ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
  	}
- 	memcpy(mailbox->buf, fs_rule->mirr_mbox, fs_rule->mirr_mbox_size);
+ 
+ 	rockchip->mgmt_sticky_rst = devm_reset_control_get_exclusive(dev,
+-								     "mgmt-sticky");
++								"mgmt-sticky");
+ 	if (IS_ERR(rockchip->mgmt_sticky_rst)) {
+ 		if (PTR_ERR(rockchip->mgmt_sticky_rst) != -EPROBE_DEFER)
+ 			dev_err(dev, "missing mgmt-sticky reset property in node\n");
+@@ -118,11 +118,11 @@ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
+ 	}
+ 
+ 	if (rockchip->is_rc) {
+-		rockchip->ep_gpio = devm_gpiod_get(dev, "ep", GPIOD_OUT_HIGH);
+-		if (IS_ERR(rockchip->ep_gpio)) {
+-			dev_err(dev, "missing ep-gpios property in node\n");
+-			return PTR_ERR(rockchip->ep_gpio);
+-		}
++		rockchip->ep_gpio = devm_gpiod_get_optional(dev, "ep",
++							    GPIOD_OUT_HIGH);
++		if (IS_ERR(rockchip->ep_gpio))
++			return dev_err_probe(dev, PTR_ERR(rockchip->ep_gpio),
++					     "failed to get ep GPIO\n");
+ 	}
+ 
+ 	rockchip->aclk_pcie = devm_clk_get(dev, "aclk");
 -- 
 2.27.0
 
