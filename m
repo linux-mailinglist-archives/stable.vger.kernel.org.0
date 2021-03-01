@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 859A43289CE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:06:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 392B0328A01
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239116AbhCASFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:05:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
+        id S238890AbhCASJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:09:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234813AbhCASAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:00:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2293765171;
-        Mon,  1 Mar 2021 17:07:26 +0000 (UTC)
+        id S238981AbhCASCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:02:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCDEE6516D;
+        Mon,  1 Mar 2021 17:07:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618447;
-        bh=7O9THxkQKlPNfX8bSXJTRcMgywUHZqzSNO3BAJFCyQw=;
+        s=korg; t=1614618450;
+        bh=eno8TBR3dVmtsb0SKpcXuy0w+BazzcextpK+WyGdDYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qc2ZArqDKOdiTKUmKDmIxVaKvcVdUs9oPmjp+BAYELCdKvzbW1Sf56h7Hl/frFbBX
-         ahirfSi7d4KJsOERqtfrqIxlhGTnMKT6l1SJJxU9g8nAVl6Td3H+D6VosqTNQdQuzI
-         zsyDoWUhtRQtIdFzxImtDO/IDoeBBFBI++niiFP8=
+        b=1KWImB/0XuRjFVJnch0RBM7jjZ6DotIrABJ/atfQCqh9JocvCxHAHrCOjElBsAT8b
+         m2u8Ph47KEQc9Vgy64ltYIjl/WKQ7cahETFToWS41tv27Q55lzBB86zyNduWS46CIK
+         FWMB2W9QenhYc6eBm/QwJaZd46xryO65i8Qa09H0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/663] iwlwifi: mvm: assign SAR table revision to the command later
-Date:   Mon,  1 Mar 2021 17:05:38 +0100
-Message-Id: <20210301161146.179235242@linuxfoundation.org>
+Subject: [PATCH 5.10 091/663] iwlwifi: mvm: dont check if CSA event is running before removing
+Date:   Mon,  1 Mar 2021 17:05:39 +0100
+Message-Id: <20210301161146.229466725@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,62 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 28db1862067cb09ebfdccfbc129a52c6fdb4c4d7 ]
+[ Upstream commit b8a86164454aa745ecb534d7477d50d440ea05b6 ]
 
-The call to iwl_sar_geo_init() was moved to the end of the
-iwl_mvm_sar_geo_init() function, after the table revision is assigned
-to the FW command.  But the revision is only known after
-iwl_sar_geo_init() is called, so we were always assigning zero to it.
+We may want to remove it before it started (i.e. before the
+actual switch time).
 
-Fix that by moving the assignment code after the iwl_sar_geo_init()
-function is called.
-
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Fixes: 58ddd9b6d194 ("iwlwifi: mvm: don't send a CSA command the firmware doesn't know")
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Fixes: 45acebf8d6a6 ("iwlwifi: fix sar geo table initialization")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210210135352.cef55ef3a065.If96c60f08d24c2262c287168a6f0dbd7cf0f8f5c@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20210210171218.835db8987b8a.Ic6c5d28d744302db1bc6c4314bd3138ba472f834@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 34a44300a15eb..ad374b25e2550 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -896,12 +896,10 @@ static int iwl_mvm_sar_geo_init(struct iwl_mvm *mvm)
- 	if (cmd_ver == 3) {
- 		len = sizeof(cmd.v3);
- 		n_bands = ARRAY_SIZE(cmd.v3.table[0]);
--		cmd.v3.table_revision = cpu_to_le32(mvm->fwrt.geo_rev);
- 	} else if (fw_has_api(&mvm->fwrt.fw->ucode_capa,
- 			      IWL_UCODE_TLV_API_SAR_TABLE_VER)) {
- 		len = sizeof(cmd.v2);
- 		n_bands = ARRAY_SIZE(cmd.v2.table[0]);
--		cmd.v2.table_revision = cpu_to_le32(mvm->fwrt.geo_rev);
- 	} else {
- 		len = sizeof(cmd.v1);
- 		n_bands = ARRAY_SIZE(cmd.v1.table[0]);
-@@ -921,6 +919,16 @@ static int iwl_mvm_sar_geo_init(struct iwl_mvm *mvm)
- 	if (ret)
- 		return 0;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+index 1db6d8d38822a..3939eccd3d5ac 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+@@ -1055,9 +1055,6 @@ void iwl_mvm_remove_csa_period(struct iwl_mvm *mvm,
  
-+	/*
-+	 * Set the revision on versions that contain it.
-+	 * This must be done after calling iwl_sar_geo_init().
-+	 */
-+	if (cmd_ver == 3)
-+		cmd.v3.table_revision = cpu_to_le32(mvm->fwrt.geo_rev);
-+	else if (fw_has_api(&mvm->fwrt.fw->ucode_capa,
-+			    IWL_UCODE_TLV_API_SAR_TABLE_VER))
-+		cmd.v2.table_revision = cpu_to_le32(mvm->fwrt.geo_rev);
-+
- 	return iwl_mvm_send_cmd_pdu(mvm,
- 				    WIDE_ID(PHY_OPS_GROUP, GEO_TX_POWER_LIMIT),
- 				    0, len, &cmd);
+ 	lockdep_assert_held(&mvm->mutex);
+ 
+-	if (!te_data->running)
+-		return;
+-
+ 	spin_lock_bh(&mvm->time_event_lock);
+ 	id = te_data->id;
+ 	spin_unlock_bh(&mvm->time_event_lock);
 -- 
 2.27.0
 
