@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99497328914
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B0D3288CF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238994AbhCARtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:49:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
+        id S238323AbhCARo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:44:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238914AbhCARnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:43:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D68DD64FDD;
-        Mon,  1 Mar 2021 16:58:09 +0000 (UTC)
+        id S238022AbhCARkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:40:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EF5564FC5;
+        Mon,  1 Mar 2021 16:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617890;
-        bh=9rj+LRcxD1850915KJhU5ryX+AAJC5m4+jNdVpJTFlI=;
+        s=korg; t=1614617802;
+        bh=1HDIA4BmOyZxIVeBKMPTGphOKaZaWG/AbsVn5IQifeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frwSGSU2xL8Q6EOy0gKd4dNaKLmh6QtF+nYP/UES0mC5MSSVwTB/vQioAkcIIPh7F
-         TcLewa1wSZOtVbnwYw5oVC8i7sEvIJaiunFh7LjThSahic/9MFefzpCzsunpDoSPbi
-         q9hOdfV9xJf1o00zW14QgN/K6dRmmii9pI5Mu6i8=
+        b=N9AbD4jcGdtBKWp1zIz/M6KLfsVgCD3aRGHpXvF/NmN+cMKLamDS5Tav3Tv4udvRL
+         iaB0ENCYYx3AsY5LLt9RJ2JsJEKow1MElTRz3T5w7Id+iem5XtTwR7cMUDu0fzJSy5
+         enTeFgTUX+wHL+4YzQCOn0tzJ2uXwSFPUba91NVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Li <yieli@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 193/340] nfsd: register pernet ops last, unregister first
-Date:   Mon,  1 Mar 2021 17:12:17 +0100
-Message-Id: <20210301161057.806637162@linuxfoundation.org>
+Subject: [PATCH 5.4 194/340] RDMA/hns: Fixes missing error code of CMDQ
+Date:   Mon,  1 Mar 2021 17:12:18 +0100
+Message-Id: <20210301161057.857753079@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,85 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Lang Cheng <chenglang@huawei.com>
 
-[ Upstream commit bd5ae9288d6451bd346a1b4a59d4fe7e62ba29b7 ]
+[ Upstream commit 8f86e2eadac968200a6ab1d7074fc0f5cbc1e075 ]
 
-These pernet operations may depend on stuff set up or torn down in the
-module init/exit functions.  And they may be called at any time in
-between.  So it makes more sense for them to be the last to be
-registered in the init function, and the first to be unregistered in the
-exit function.
+When posting a multi-descriptors command, the error code of previous
+failed descriptors may be rewrote to 0 by a later successful descriptor.
 
-In particular, without this, the drc slab is being destroyed before all
-the per-net drcs are shut down, resulting in an "Objects remaining in
-nfsd_drc on __kmem_cache_shutdown()" warning in exit_nfsd.
-
-Reported-by: Zhi Li <yieli@redhat.com>
-Fixes: 3ba75830ce17 "nfsd4: drc containerization"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: a04ff739f2a9 ("RDMA/hns: Add command queue support for hip08 RoCE driver")
+Link: https://lore.kernel.org/r/1612688143-28226-3-git-send-email-liweihang@huawei.com
+Signed-off-by: Lang Cheng <chenglang@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index be418fccc9d86..7f39d6091dfa0 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1523,12 +1523,9 @@ static int __init init_nfsd(void)
- 	int retval;
- 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index e8933daab4995..d01e3222c00cf 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -1009,7 +1009,7 @@ static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
+ 	u32 timeout = 0;
+ 	int handle = 0;
+ 	u16 desc_ret;
+-	int ret = 0;
++	int ret;
+ 	int ntc;
  
--	retval = register_pernet_subsys(&nfsd_net_ops);
--	if (retval < 0)
--		return retval;
- 	retval = register_cld_notifier();
- 	if (retval)
--		goto out_unregister_pernet;
-+		return retval;
- 	retval = nfsd4_init_slabs();
- 	if (retval)
- 		goto out_unregister_notifier;
-@@ -1546,9 +1543,14 @@ static int __init init_nfsd(void)
- 		goto out_free_lockd;
- 	retval = register_filesystem(&nfsd_fs_type);
- 	if (retval)
-+		goto out_free_exports;
-+	retval = register_pernet_subsys(&nfsd_net_ops);
-+	if (retval < 0)
- 		goto out_free_all;
- 	return 0;
- out_free_all:
-+	unregister_pernet_subsys(&nfsd_net_ops);
-+out_free_exports:
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
- out_free_lockd:
-@@ -1562,13 +1564,12 @@ out_free_slabs:
- 	nfsd4_free_slabs();
- out_unregister_notifier:
- 	unregister_cld_notifier();
--out_unregister_pernet:
--	unregister_pernet_subsys(&nfsd_net_ops);
- 	return retval;
- }
- 
- static void __exit exit_nfsd(void)
- {
-+	unregister_pernet_subsys(&nfsd_net_ops);
- 	nfsd_drc_slab_free();
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
-@@ -1579,7 +1580,6 @@ static void __exit exit_nfsd(void)
- 	nfsd_fault_inject_cleanup();
- 	unregister_filesystem(&nfsd_fs_type);
- 	unregister_cld_notifier();
--	unregister_pernet_subsys(&nfsd_net_ops);
- }
- 
- MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
+ 	spin_lock_bh(&csq->lock);
+@@ -1054,15 +1054,14 @@ static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
+ 	if (hns_roce_cmq_csq_done(hr_dev)) {
+ 		complete = true;
+ 		handle = 0;
++		ret = 0;
+ 		while (handle < num) {
+ 			/* get the result of hardware write back */
+ 			desc_to_use = &csq->desc[ntc];
+ 			desc[handle] = *desc_to_use;
+ 			dev_dbg(hr_dev->dev, "Get cmq desc:\n");
+ 			desc_ret = le16_to_cpu(desc[handle].retval);
+-			if (desc_ret == CMD_EXEC_SUCCESS)
+-				ret = 0;
+-			else
++			if (unlikely(desc_ret != CMD_EXEC_SUCCESS))
+ 				ret = -EIO;
+ 			priv->cmq.last_status = desc_ret;
+ 			ntc++;
 -- 
 2.27.0
 
