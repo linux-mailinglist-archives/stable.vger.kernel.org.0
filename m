@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF94D3288F3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578083288FB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235982AbhCARrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:47:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60232 "EHLO mail.kernel.org"
+        id S238724AbhCARrt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:47:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238313AbhCARlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:41:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F0A8650C9;
-        Mon,  1 Mar 2021 16:57:04 +0000 (UTC)
+        id S237465AbhCARmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:42:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 671B6650CD;
+        Mon,  1 Mar 2021 16:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617825;
-        bh=QWf5KA6Q7ONSpxkmBHHYXcCdlxgUzjlPgHWdomIsv1g=;
+        s=korg; t=1614617828;
+        bh=s+zyr0PNELZLGoaoKNMygPWr3TDS6MMw3b0tgq/dubk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ti53beJsqQG5v/nmYuxhcgSJoe5prpbiCV/ulY2DyB6a+RBEOiD0FUL6zakXdi+9U
-         Ps0A1mr5DADerV0PSkA5trS7OtDh5iLcHnPriVUDbw7IfJHAZidgykg3iHO2h1JfhG
-         q3VEwrKk5hoNeG6vO0boEgHRbVmy3ggGu8sBimYc=
+        b=MrovSFNkncreQ3YLT2HffEpbxLJzaObdjEYoVpjo4BonqhCtOpUrki2XmL/L4zffc
+         8gfHC7GJQGv79iKxo0svORgdEMJe3uCMGb1SdlYTt+5+AUYkzoLwJMUgNV530GtvUN
+         CSWZED/Ww6Uht1KoHB6xer8TjbsPRbRGFaXmpByI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Iskren Chernev <iskren.chernev@gmail.com>,
-        Rob Clark <robdclark@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Keqian Zhu <zhukeqian1@huawei.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 210/340] drm/msm/mdp5: Fix wait-for-commit for cmd panels
-Date:   Mon,  1 Mar 2021 17:12:34 +0100
-Message-Id: <20210301161058.634180432@linuxfoundation.org>
+Subject: [PATCH 5.4 211/340] vfio/iommu_type1: Fix some sanity checks in detach group
+Date:   Mon,  1 Mar 2021 17:12:35 +0100
+Message-Id: <20210301161058.685101812@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,41 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Iskren Chernev <iskren.chernev@gmail.com>
+From: Keqian Zhu <zhukeqian1@huawei.com>
 
-[ Upstream commit 68e4f01fddb4ead80e8c7084db489307f22c9cbb ]
+[ Upstream commit 4a19f37a3dd3f29997735e61b25ddad24b8abe73 ]
 
-Before the offending commit in msm_atomic_commit_tail wait_flush was
-called once per frame, after the commit was submitted. After it
-wait_flush is also called at the beginning to ensure previous
-potentially async commits are done.
+vfio_sanity_check_pfn_list() is used to check whether pfn_list and
+notifier are empty when remove the external domain, so it makes a
+wrong assumption that only external domain will use the pinning
+interface.
 
-For cmd panels the source of wait_flush is a ping-pong irq notifying
-a completion. The completion needs to be notified with complete_all so
-multiple waiting parties (new async committers) can proceed.
+Now we apply the pfn_list check when a vfio_dma is removed and apply
+the notifier check when all domains are removed.
 
-Signed-off-by: Iskren Chernev <iskren.chernev@gmail.com>
-Suggested-by: Rob Clark <robdclark@gmail.com>
-Fixes: 2d99ced787e3d ("drm/msm: async commit support")
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: a54eb55045ae ("vfio iommu type1: Add support for mediated devices")
+Signed-off-by: Keqian Zhu <zhukeqian1@huawei.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/vfio_iommu_type1.c | 31 ++++++++-----------------------
+ 1 file changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-index 03c6d6157e4d0..395146884a222 100644
---- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
-@@ -1099,7 +1099,7 @@ static void mdp5_crtc_pp_done_irq(struct mdp_irq *irq, uint32_t irqstatus)
- 	struct mdp5_crtc *mdp5_crtc = container_of(irq, struct mdp5_crtc,
- 								pp_done);
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index bc6ba41686fa3..9cbe058a530f0 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -866,6 +866,7 @@ static long vfio_unmap_unpin(struct vfio_iommu *iommu, struct vfio_dma *dma,
  
--	complete(&mdp5_crtc->pp_completion);
-+	complete_all(&mdp5_crtc->pp_completion);
+ static void vfio_remove_dma(struct vfio_iommu *iommu, struct vfio_dma *dma)
+ {
++	WARN_ON(!RB_EMPTY_ROOT(&dma->pfn_list));
+ 	vfio_unmap_unpin(iommu, dma, true);
+ 	vfio_unlink_dma(iommu, dma);
+ 	put_task_struct(dma->task);
+@@ -1974,23 +1975,6 @@ static void vfio_iommu_unmap_unpin_reaccount(struct vfio_iommu *iommu)
+ 	}
  }
  
- static void mdp5_crtc_wait_for_pp_done(struct drm_crtc *crtc)
+-static void vfio_sanity_check_pfn_list(struct vfio_iommu *iommu)
+-{
+-	struct rb_node *n;
+-
+-	n = rb_first(&iommu->dma_list);
+-	for (; n; n = rb_next(n)) {
+-		struct vfio_dma *dma;
+-
+-		dma = rb_entry(n, struct vfio_dma, node);
+-
+-		if (WARN_ON(!RB_EMPTY_ROOT(&dma->pfn_list)))
+-			break;
+-	}
+-	/* mdev vendor driver must unregister notifier */
+-	WARN_ON(iommu->notifier.head);
+-}
+-
+ /*
+  * Called when a domain is removed in detach. It is possible that
+  * the removed domain decided the iova aperture window. Modify the
+@@ -2088,10 +2072,10 @@ static void vfio_iommu_type1_detach_group(void *iommu_data,
+ 			kfree(group);
+ 
+ 			if (list_empty(&iommu->external_domain->group_list)) {
+-				vfio_sanity_check_pfn_list(iommu);
+-
+-				if (!IS_IOMMU_CAP_DOMAIN_IN_CONTAINER(iommu))
++				if (!IS_IOMMU_CAP_DOMAIN_IN_CONTAINER(iommu)) {
++					WARN_ON(iommu->notifier.head);
+ 					vfio_iommu_unmap_unpin_all(iommu);
++				}
+ 
+ 				kfree(iommu->external_domain);
+ 				iommu->external_domain = NULL;
+@@ -2124,10 +2108,12 @@ static void vfio_iommu_type1_detach_group(void *iommu_data,
+ 		 */
+ 		if (list_empty(&domain->group_list)) {
+ 			if (list_is_singular(&iommu->domain_list)) {
+-				if (!iommu->external_domain)
++				if (!iommu->external_domain) {
++					WARN_ON(iommu->notifier.head);
+ 					vfio_iommu_unmap_unpin_all(iommu);
+-				else
++				} else {
+ 					vfio_iommu_unmap_unpin_reaccount(iommu);
++				}
+ 			}
+ 			iommu_domain_free(domain->domain);
+ 			list_del(&domain->next);
+@@ -2201,7 +2187,6 @@ static void vfio_iommu_type1_release(void *iommu_data)
+ 
+ 	if (iommu->external_domain) {
+ 		vfio_release_domain(iommu->external_domain, true);
+-		vfio_sanity_check_pfn_list(iommu);
+ 		kfree(iommu->external_domain);
+ 	}
+ 
 -- 
 2.27.0
 
