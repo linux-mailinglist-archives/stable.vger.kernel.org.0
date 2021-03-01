@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 205D03283C0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:27:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F5563283BD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:27:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbhCAQYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:24:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56680 "EHLO mail.kernel.org"
+        id S235414AbhCAQXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:23:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234487AbhCAQVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:21:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CECC864EE7;
-        Mon,  1 Mar 2021 16:18:19 +0000 (UTC)
+        id S235453AbhCAQVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:21:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2960764EE2;
+        Mon,  1 Mar 2021 16:18:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615500;
-        bh=IAuHFua0eGM1kTkwBcAqqLH5AoIBGoVn6iKhLUzUkkE=;
+        s=korg; t=1614615511;
+        bh=ED3HmXy+hdatvtAgfsfp4sFFjftCCCGXk/cXndI65uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWh/lU/BQeJ+eY3uL+Z6tMM9nR5WwXw3TCTnyTQmoX+4gEry7UP30C+Xvxovw4Jm/
-         UkqC3PKv59FnWCqmGh365kqPUxuzsy8rkZUEncsIHxQ8JPwvCXJZcdRY/K1EOAZC1g
-         Xa/Eomy02XyA/rxb9alZqFo2MjoZ6rRont2GMs3k=
+        b=r85rXDfqO2coX9oMuB12yXXNG4mlMu1L/x8uNWnbAhfModN7NxCTAg5DC2e/7YccK
+         zxl8ZXiBE3oYYTNY5A2gB7L0caY0tOFupR6Cs+IH7NepE7IWbbpDCT0u1ae/SV7vpa
+         4TJsKxcvpfnGrhy0b2TSrLYiWV8vbkei44Bm76i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/93] MIPS: lantiq: Explicitly compare LTQ_EBU_PCC_ISTAT against 0
-Date:   Mon,  1 Mar 2021 17:12:36 +0100
-Message-Id: <20210301161008.091342206@linuxfoundation.org>
+Subject: [PATCH 4.4 25/93] media: media/pci: Fix memleak in empress_init
+Date:   Mon,  1 Mar 2021 17:12:37 +0100
+Message-Id: <20210301161008.140643246@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,53 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit c6f2a9e17b9bef7677caddb1626c2402f3e9d2bd ]
+[ Upstream commit 15d0c52241ecb1c9d802506bff6f5c3f7872c0df ]
 
-When building xway_defconfig with clang:
+When vb2_queue_init() fails, dev->empress_dev
+should be released just like other error handling
+paths.
 
-arch/mips/lantiq/irq.c:305:48: error: use of logical '&&' with constant
-operand [-Werror,-Wconstant-logical-operand]
-        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
-                                                      ^ ~~~~~~~~~~~~~~~~~
-arch/mips/lantiq/irq.c:305:48: note: use '&' for a bitwise operation
-        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
-                                                      ^~
-                                                      &
-arch/mips/lantiq/irq.c:305:48: note: remove constant to silence this
-warning
-        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
-                                                     ~^~~~~~~~~~~~~~~~~~~~
-1 error generated.
-
-Explicitly compare the constant LTQ_EBU_PCC_ISTAT against 0 to fix the
-warning. Additionally, remove the unnecessary parentheses as this is a
-simple conditional statement and shorthand '== 0' to '!'.
-
-Fixes: 3645da0276ae ("OF: MIPS: lantiq: implement irq_domain support")
-Link: https://github.com/ClangBuiltLinux/linux/issues/807
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 2ada815fc48bb ("[media] saa7134: convert to vb2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/irq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/saa7134/saa7134-empress.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
-index a7057a06c0961..5526b89a21a02 100644
---- a/arch/mips/lantiq/irq.c
-+++ b/arch/mips/lantiq/irq.c
-@@ -245,7 +245,7 @@ static void ltq_hw_irqdispatch(int module)
- 	do_IRQ((int)irq + MIPS_CPU_IRQ_CASCADE + (INT_NUM_IM_OFFSET * module));
+diff --git a/drivers/media/pci/saa7134/saa7134-empress.c b/drivers/media/pci/saa7134/saa7134-empress.c
+index 56b932c97196d..ae3b96e9cff35 100644
+--- a/drivers/media/pci/saa7134/saa7134-empress.c
++++ b/drivers/media/pci/saa7134/saa7134-empress.c
+@@ -295,8 +295,11 @@ static int empress_init(struct saa7134_dev *dev)
+ 	q->timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC;
+ 	q->lock = &dev->lock;
+ 	err = vb2_queue_init(q);
+-	if (err)
++	if (err) {
++		video_device_release(dev->empress_dev);
++		dev->empress_dev = NULL;
+ 		return err;
++	}
+ 	dev->empress_dev->queue = q;
  
- 	/* if this is a EBU irq, we need to ack it or get a deadlock */
--	if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
-+	if (irq == LTQ_ICU_EBU_IRQ && !module && LTQ_EBU_PCC_ISTAT != 0)
- 		ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_PCC_ISTAT) | 0x10,
- 			LTQ_EBU_PCC_ISTAT);
- }
+ 	video_set_drvdata(dev->empress_dev, dev);
 -- 
 2.27.0
 
