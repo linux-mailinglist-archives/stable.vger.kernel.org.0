@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B659A328EA1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FA9328EB1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242021AbhCATe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:34:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49714 "EHLO mail.kernel.org"
+        id S242103AbhCATfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:35:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241752AbhCAT3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B67A1651BF;
-        Mon,  1 Mar 2021 17:16:37 +0000 (UTC)
+        id S241870AbhCAT3d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E65764F20;
+        Mon,  1 Mar 2021 17:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618998;
-        bh=Rh+Y3qbRoDXJ60BNGZS75Fm1ObrDfLuiNCMDohEsR+s=;
+        s=korg; t=1614620971;
+        bh=FWst4qTI7kqgy8waaxo+7DukXkl9Ufpc+Jgga+lArHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EC5/SDZo2rxyv29c2eqSlABdkZ0xqVuui8NwhCESmQFpGOrftWQWjqeFTeEhwMtng
-         m4DVGLUKAE0h/WPX/zUW+B3KlQByV6Kepkfw0JgT1UH6lJlxowrjsCCcw+M9glb6Tt
-         6sEz9Uln6j3apKcpZ4bhw4MEX5jaNu5b/wtzshsw=
+        b=Nb/XVG9IZNx/j4RllpjcS4wHii+dEICP47kgJu/PSv5zhkhnIa126H5sEqvOOYpKQ
+         DSDhsXSq/Mllc5z0KCcNeqUjQYjszMvPkBHpycZVURwshWiDZ/MYCsyNiFuQ7fareP
+         Sn2xdllKPsx7d8RVjEWbsgNyN7z54pH2KTBqyG2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 264/663] regulator: qcom-rpmh-regulator: add pm8009-1 chip revision
-Date:   Mon,  1 Mar 2021 17:08:32 +0100
-Message-Id: <20210301161154.876964311@linuxfoundation.org>
+Subject: [PATCH 5.11 347/775] RDMA/rtrs: Fix KASAN: stack-out-of-bounds bug
+Date:   Mon,  1 Mar 2021 17:08:35 +0100
+Message-Id: <20210301161218.769438367@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,77 +41,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 951384cabc5dfb09251d440dbc26058eba86f97e ]
+[ Upstream commit 7fbc3c373eefc291ff96d48496106c106b7f81c6 ]
 
-PM8009 has special revision (P=1), which is to be used for sm8250
-platform. The major difference is the S2 regulator which supplies 0.95 V
-instead of 2.848V. Declare regulators data to be used for this chip
-revision. The datasheet calls the chip just pm8009-1, so use the same
-name.
+When KASAN is enabled, we notice warning below:
+[  483.436975] ==================================================================
+[  483.437234] BUG: KASAN: stack-out-of-bounds in _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.437430] Read of size 4 at addr ffff88a195fd7d30 by task kworker/1:3/6954
 
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Fixes: 06369bcc15a1 ("regulator: qcom-rpmh: Add support for SM8150")
-Reviewed-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20201231122348.637917-4-dmitry.baryshkov@linaro.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[  483.437731] CPU: 1 PID: 6954 Comm: kworker/1:3 Kdump: loaded Tainted: G           O      5.4.82-pserver #5.4.82-1+feature+linux+5.4.y+dbg+20201210.1532+987e7a6~deb10
+[  483.437976] Hardware name: Supermicro Super Server/X11DDW-L, BIOS 3.3 02/21/2020
+[  483.438168] Workqueue: rtrs_server_wq hb_work [rtrs_core]
+[  483.438323] Call Trace:
+[  483.438486]  dump_stack+0x96/0xe0
+[  483.438646]  ? _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.438802]  print_address_description.constprop.6+0x1b/0x220
+[  483.438966]  ? _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.439133]  ? _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.439285]  __kasan_report.cold.9+0x1a/0x32
+[  483.439444]  ? _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.439597]  kasan_report+0x10/0x20
+[  483.439752]  _mlx5_ib_post_send+0x188a/0x2560 [mlx5_ib]
+[  483.439910]  ? update_sd_lb_stats+0xfb1/0xfc0
+[  483.440073]  ? set_reg_wr+0x520/0x520 [mlx5_ib]
+[  483.440222]  ? update_group_capacity+0x340/0x340
+[  483.440377]  ? find_busiest_group+0x314/0x870
+[  483.440526]  ? update_sd_lb_stats+0xfc0/0xfc0
+[  483.440683]  ? __bitmap_and+0x6f/0x100
+[  483.440832]  ? __lock_acquire+0xa2/0x2150
+[  483.440979]  ? __lock_acquire+0xa2/0x2150
+[  483.441128]  ? __lock_acquire+0xa2/0x2150
+[  483.441279]  ? debug_lockdep_rcu_enabled+0x23/0x60
+[  483.441430]  ? lock_downgrade+0x390/0x390
+[  483.441582]  ? __lock_acquire+0xa2/0x2150
+[  483.441729]  ? __lock_acquire+0xa2/0x2150
+[  483.441876]  ? newidle_balance+0x425/0x8f0
+[  483.442024]  ? __lock_acquire+0xa2/0x2150
+[  483.442172]  ? debug_lockdep_rcu_enabled+0x23/0x60
+[  483.442330]  hb_work+0x15d/0x1d0 [rtrs_core]
+[  483.442479]  ? schedule_hb+0x50/0x50 [rtrs_core]
+[  483.442627]  ? lock_downgrade+0x390/0x390
+[  483.442781]  ? process_one_work+0x40d/0xa50
+[  483.442931]  process_one_work+0x4ee/0xa50
+[  483.443082]  ? pwq_dec_nr_in_flight+0x110/0x110
+[  483.443231]  ? do_raw_spin_lock+0x119/0x1d0
+[  483.443383]  worker_thread+0x65/0x5c0
+[  483.443532]  ? process_one_work+0xa50/0xa50
+[  483.451839]  kthread+0x1e2/0x200
+[  483.451983]  ? kthread_create_on_node+0xc0/0xc0
+[  483.452139]  ret_from_fork+0x3a/0x50
+
+The problem is we use wrong type when send wr, hw driver expect the type
+of IB_WR_RDMA_WRITE_WITH_IMM wr should be ib_rdma_wr, and doing
+container_of to access member. The fix is simple use ib_rdma_wr instread
+of ib_send_wr.
+
+Fixes: c0894b3ea69d ("RDMA/rtrs: core: lib functions shared between client and server modules")
+Link: https://lore.kernel.org/r/20201217141915.56989-20-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/qcom-rpmh-regulator.c | 26 +++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/infiniband/ulp/rtrs/rtrs.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
-index a22c4b5f64f7e..ba838c4cf2b8b 100644
---- a/drivers/regulator/qcom-rpmh-regulator.c
-+++ b/drivers/regulator/qcom-rpmh-regulator.c
-@@ -732,6 +732,15 @@ static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
- 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
- };
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs.c b/drivers/infiniband/ulp/rtrs/rtrs.c
+index df52427f17106..da4ff764dd3f0 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs.c
+@@ -182,16 +182,16 @@ int rtrs_post_rdma_write_imm_empty(struct rtrs_con *con, struct ib_cqe *cqe,
+ 				    u32 imm_data, enum ib_send_flags flags,
+ 				    struct ib_send_wr *head)
+ {
+-	struct ib_send_wr wr;
++	struct ib_rdma_wr wr;
  
-+static const struct rpmh_vreg_hw_data pmic5_hfsmps515_1 = {
-+	.regulator_type = VRM,
-+	.ops = &rpmh_regulator_vrm_ops,
-+	.voltage_range = REGULATOR_LINEAR_RANGE(900000, 0, 4, 16000),
-+	.n_voltages = 5,
-+	.pmic_mode_map = pmic_mode_map_pmic5_smps,
-+	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
-+};
-+
- static const struct rpmh_vreg_hw_data pmic5_bob = {
- 	.regulator_type = VRM,
- 	.ops = &rpmh_regulator_vrm_bypass_ops,
-@@ -878,6 +887,19 @@ static const struct rpmh_vreg_init_data pm8009_vreg_data[] = {
- 	{},
- };
+-	wr = (struct ib_send_wr) {
+-		.wr_cqe	= cqe,
+-		.send_flags	= flags,
+-		.opcode	= IB_WR_RDMA_WRITE_WITH_IMM,
+-		.ex.imm_data	= cpu_to_be32(imm_data),
++	wr = (struct ib_rdma_wr) {
++		.wr.wr_cqe	= cqe,
++		.wr.send_flags	= flags,
++		.wr.opcode	= IB_WR_RDMA_WRITE_WITH_IMM,
++		.wr.ex.imm_data	= cpu_to_be32(imm_data),
+ 	};
  
-+static const struct rpmh_vreg_init_data pm8009_1_vreg_data[] = {
-+	RPMH_VREG("smps1",  "smp%s1",  &pmic5_hfsmps510, "vdd-s1"),
-+	RPMH_VREG("smps2",  "smp%s2",  &pmic5_hfsmps515_1, "vdd-s2"),
-+	RPMH_VREG("ldo1",   "ldo%s1",  &pmic5_nldo,      "vdd-l1"),
-+	RPMH_VREG("ldo2",   "ldo%s2",  &pmic5_nldo,      "vdd-l2"),
-+	RPMH_VREG("ldo3",   "ldo%s3",  &pmic5_nldo,      "vdd-l3"),
-+	RPMH_VREG("ldo4",   "ldo%s4",  &pmic5_nldo,      "vdd-l4"),
-+	RPMH_VREG("ldo5",   "ldo%s5",  &pmic5_pldo,      "vdd-l5-l6"),
-+	RPMH_VREG("ldo6",   "ldo%s6",  &pmic5_pldo,      "vdd-l5-l6"),
-+	RPMH_VREG("ldo7",   "ldo%s6",  &pmic5_pldo_lv,   "vdd-l7"),
-+	{},
-+};
-+
- static const struct rpmh_vreg_init_data pm6150_vreg_data[] = {
- 	RPMH_VREG("smps1",  "smp%s1",  &pmic5_ftsmps510, "vdd-s1"),
- 	RPMH_VREG("smps2",  "smp%s2",  &pmic5_ftsmps510, "vdd-s2"),
-@@ -976,6 +998,10 @@ static const struct of_device_id __maybe_unused rpmh_regulator_match_table[] = {
- 		.compatible = "qcom,pm8009-rpmh-regulators",
- 		.data = pm8009_vreg_data,
- 	},
-+	{
-+		.compatible = "qcom,pm8009-1-rpmh-regulators",
-+		.data = pm8009_1_vreg_data,
-+	},
- 	{
- 		.compatible = "qcom,pm8150-rpmh-regulators",
- 		.data = pm8150_vreg_data,
+-	return rtrs_post_send(con->qp, head, &wr);
++	return rtrs_post_send(con->qp, head, &wr.wr);
+ }
+ EXPORT_SYMBOL_GPL(rtrs_post_rdma_write_imm_empty);
+ 
 -- 
 2.27.0
 
