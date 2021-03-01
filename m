@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA5E3288F7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFAC43288F9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238715AbhCARre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:47:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
+        id S231908AbhCARrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:47:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238364AbhCARmK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:42:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35BCE650CF;
-        Mon,  1 Mar 2021 16:57:10 +0000 (UTC)
+        id S238384AbhCARm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:42:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5FEB650D0;
+        Mon,  1 Mar 2021 16:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617830;
-        bh=l7UsS6s+geSISZVWy4Wdx/lWP2smWsWtS3a0K5VpQ5o=;
+        s=korg; t=1614617836;
+        bh=uGqG15nqGHgs+ORqH5Fco4ZMe5TNrzHzNyyYcZk2gCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYt796bQ4bxDSIk6JqdMEWg+ASGf8vPevxqVY1Lqa1tSN4QMaSZKGKVxDeCdPxanR
-         vAkOpVb58MSEnq5jAUsv43x1mLnD8hxN9+3IDRV+hfYpXanTfXmSS8sQwgv1kW/pTB
-         jf2/nOpWShssjyAdZyIYRcG4QrZyjd09aKsa9QFI=
+        b=V3Gmdmx998FCX9id/L/AEMcH9kzlzstI02wRCgeCDmplvd1FJbVghK7vF0FX86lX1
+         ptMAuzKW+mm3VUk3JWKrwnkwiBBCRCiZAJ2+BE7sp9ChmYsnEpAAFTWJA3yJ47++7H
+         csqbFFOfCzR80oaheGWh7vcZWp0JitSrJF3ZNPoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Artem Blagodarenko <artem.blagodarenko@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/340] ext4: fix potential htree index checksum corruption
-Date:   Mon,  1 Mar 2021 17:12:36 +0100
-Message-Id: <20210301161058.734542176@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 213/340] nvmem: core: Fix a resource leak on error in nvmem_add_cells_from_of()
+Date:   Mon,  1 Mar 2021 17:12:37 +0100
+Message-Id: <20210301161058.784412623@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,53 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b5776e7524afbd4569978ff790864755c438bba7 ]
+[ Upstream commit 72e008ce307fa2f35f6783997378b32e83122839 ]
 
-In the case where we need to do an interior node split, and
-immediately afterwards, we are unable to allocate a new directory leaf
-block due to ENOSPC, the directory index checksum's will not be filled
-in correctly (and indeed, will not be correctly journalled).
+This doesn't call of_node_put() on the error path so it leads to a
+memory leak.
 
-This looks like a bug that was introduced when we added largedir
-support.  The original code doesn't make any sense (and should have
-been caught in code review), but it was hidden because most of the
-time, the index node checksum will be set by do_split().  But if
-do_split bails out due to ENOSPC, then ext4_handle_dirty_dx_node()
-won't get called, and so the directory index checksum field will not
-get set, leading to:
-
-EXT4-fs error (device sdb): dx_probe:858: inode #6635543: block 4022: comm nfsd: Directory index failed checksum
-
-Google-Bug-Id: 176345532
-Fixes: e08ac99fa2a2 ("ext4: add largedir feature")
-Cc: Artem Blagodarenko <artem.blagodarenko@gmail.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 0749aa25af82 ("nvmem: core: fix regression in of_nvmem_cell_get()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210129171430.11328-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/namei.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/nvmem/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index f05ec9bfbf4fd..7f22487d502b5 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -2405,11 +2405,10 @@ again:
- 						   (frame - 1)->bh);
- 			if (err)
- 				goto journal_error;
--			if (restart) {
--				err = ext4_handle_dirty_dx_node(handle, dir,
--							   frame->bh);
-+			err = ext4_handle_dirty_dx_node(handle, dir,
-+							frame->bh);
-+			if (err)
- 				goto journal_error;
--			}
- 		} else {
- 			struct dx_root *dxroot;
- 			memcpy((char *) entries2, (char *) entries,
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 84f4078216a36..acd82ff41951f 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -345,6 +345,7 @@ static int nvmem_add_cells_from_of(struct nvmem_device *nvmem)
+ 				cell->name, nvmem->stride);
+ 			/* Cells already added will be freed later. */
+ 			kfree_const(cell->name);
++			of_node_put(cell->np);
+ 			kfree(cell);
+ 			return -EINVAL;
+ 		}
 -- 
 2.27.0
 
