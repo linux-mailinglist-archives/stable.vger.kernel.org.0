@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55FD1328D91
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFA7328D7E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235224AbhCATN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:13:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
+        id S239975AbhCATMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:12:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241123AbhCATIQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:08:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B3164F3A;
-        Mon,  1 Mar 2021 17:04:27 +0000 (UTC)
+        id S241042AbhCATHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:07:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E15EA652F1;
+        Mon,  1 Mar 2021 17:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618268;
-        bh=6jv3u8/6dFLbw4S02vIg7NuvhYZZh0Kw7OCCSGXZ8h0=;
+        s=korg; t=1614620392;
+        bh=6tQuBOcSMBf/r/Lu7ClQnfu6VIfyAsAgETUbur8U/js=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7xXX5+aW3PrI9Uaclwdo3DM5c1Nidyk8DYZqr7foB9hwXIz4ztFdgbCnySjFDMmU
-         QhJJWgp/j46+xe8tP7svp5SebJpExKsCEfaJ7KcoZ/WFvZUE2C34Nzye33bdy8etzQ
-         MVxnuy2TQYDfBaNua68RaXfvLbvFdJPry5kBprwU=
+        b=ce44akyI5ThUjH05mLxbzQjMeCOl8VMneZBqqGJi9D9QYRKKFrv3Mv/3aLZ/syLnB
+         s3eRF2hRyR0bvGqb+fVtA1e4JtUp7h+950oT8RC63dNZX0qeWpAff6r1N0vFwkV9Wc
+         T+L1kIF+nPG1MNi/ac21H2BYWj88XpU+CueiOksk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/663] arm64: dts: renesas: beacon kit: Fix choppy Bluetooth Audio
-Date:   Mon,  1 Mar 2021 17:04:33 +0100
-Message-Id: <20210301161143.040608419@linuxfoundation.org>
+Subject: [PATCH 5.11 106/775] net/mlx5e: Dont change interrupt moderation params when DIM is enabled
+Date:   Mon,  1 Mar 2021 17:04:34 +0100
+Message-Id: <20210301161206.898831830@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit db030c5a9658846a42fbed4d43a8b5f28a2d7ab7 ]
+[ Upstream commit 019f93bc4ba3a0dcb77f448ee77fc4c9c1b89565 ]
 
-The Bluetooth chip is capable of operating at 4Mbps, but the
-max-speed setting was on the UART node instead of the Bluetooth
-node, so the chip didn't operate at the correct speed resulting
-in choppy audio.  Fix this by setting the max-speed in the proper
-node.
+When mlx5e_ethtool_set_coalesce doesn't change DIM state
+(enabled/disabled), it calls mlx5e_set_priv_channels_coalesce
+unconditionally, which in turn invokes a firmware command to set
+interrupt moderation parameters. It shouldn't happen while DIM manages
+those parameters dynamically (it might even be happening at the same
+time).
 
-Fixes: a1d8a344f1ca ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Link: https://lore.kernel.org/r/20201213183759.223246-3-aford173@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+This patch fixes it by splitting mlx5e_set_priv_channels_coalesce into
+two functions (for RX and TX) and calling them only when DIM is disabled
+(for RX and TX respectively).
+
+Fixes: cb3c7fd4f839 ("net/mlx5e: Support adaptive RX coalescing")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c   | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-index 97272f5fa0abf..6d24b36ca0a7c 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-@@ -88,7 +88,6 @@
- 	pinctrl-names = "default";
- 	uart-has-rtscts;
- 	status = "okay";
--	max-speed = <4000000>;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index 302001d6661ea..d7ff5fa45cb7d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -525,7 +525,7 @@ static int mlx5e_get_coalesce(struct net_device *netdev,
+ #define MLX5E_MAX_COAL_FRAMES		MLX5_MAX_CQ_COUNT
  
- 	bluetooth {
- 		compatible = "brcm,bcm43438-bt";
-@@ -97,6 +96,7 @@
- 		device-wakeup-gpios = <&pca9654 5 GPIO_ACTIVE_HIGH>;
- 		clocks = <&osc_32k>;
- 		clock-names = "extclk";
-+		max-speed = <4000000>;
- 	};
- };
+ static void
+-mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
++mlx5e_set_priv_channels_tx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
+ {
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int tc;
+@@ -540,6 +540,17 @@ mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesc
+ 						coal->tx_coalesce_usecs,
+ 						coal->tx_max_coalesced_frames);
+ 		}
++	}
++}
++
++static void
++mlx5e_set_priv_channels_rx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
++{
++	struct mlx5_core_dev *mdev = priv->mdev;
++	int i;
++
++	for (i = 0; i < priv->channels.num; ++i) {
++		struct mlx5e_channel *c = priv->channels.c[i];
  
+ 		mlx5_core_modify_cq_moderation(mdev, &c->rq.cq.mcq,
+ 					       coal->rx_coalesce_usecs,
+@@ -596,7 +607,10 @@ int mlx5e_ethtool_set_coalesce(struct mlx5e_priv *priv,
+ 	reset_tx = !!coal->use_adaptive_tx_coalesce != priv->channels.params.tx_dim_enabled;
+ 
+ 	if (!reset_rx && !reset_tx) {
+-		mlx5e_set_priv_channels_coalesce(priv, coal);
++		if (!coal->use_adaptive_rx_coalesce)
++			mlx5e_set_priv_channels_rx_coalesce(priv, coal);
++		if (!coal->use_adaptive_tx_coalesce)
++			mlx5e_set_priv_channels_tx_coalesce(priv, coal);
+ 		priv->channels.params = new_channels.params;
+ 		goto out;
+ 	}
 -- 
 2.27.0
 
