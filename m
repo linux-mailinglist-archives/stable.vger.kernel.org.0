@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FC42328CD1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF22328E14
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240200AbhCAS73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:59:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57762 "EHLO mail.kernel.org"
+        id S235914AbhCATXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:23:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240784AbhCASxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:53:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A2F652EB;
-        Mon,  1 Mar 2021 17:39:34 +0000 (UTC)
+        id S241396AbhCATSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:18:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57682652E6;
+        Mon,  1 Mar 2021 17:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620374;
-        bh=fBlJ90zDYN9Pdef0+/b3tPkRYdzHIGpOS/Nmebu3xgY=;
+        s=korg; t=1614620386;
+        bh=5zLvdUX5BbkNxDFM+dTSIEwWu7JX2ukVC1ho8jcw1fQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgWgh8dRyqrPfDVlZdr3QeFp7jPoS+G4P3RD70cJh0Ss3KWApZQVyRYSyi72LW4oO
-         T0p6I/DgvFsRFnzg19aYEz15FfyAb7CFl3ParCvDWwdY9ro8vtR49KXA3kTYyP3vFw
-         Xo/3EqHhmVTOJiB7p36v9IgXpJBWESwZEbzW+pOE=
+        b=PFgrzsweavGwfCJecYSFRyaPolTl3Bkb00CXRUqbCvAZJwjcSbk4Ltr1C6uqomM9S
+         eLF0gyF1nvG30RRvixJgsaP/SKE+75lJyoQmAK6mYi66dWTMqsyr2lYSEyCSoHcZ2C
+         DxPxYFoK80iqSWH0O1J9DPcJ1c+rEPPaGJ2a+wsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 103/775] dpaa2-eth: fix memory leak in XDP_REDIRECT
-Date:   Mon,  1 Mar 2021 17:04:31 +0100
-Message-Id: <20210301161206.748611921@linuxfoundation.org>
+Subject: [PATCH 5.11 104/775] net: phy: consider that suspend2ram may cut off PHY power
+Date:   Mon,  1 Mar 2021 17:04:32 +0100
+Message-Id: <20210301161206.798967209@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,50 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ioana Ciornei <ioana.ciornei@nxp.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit e12be9139cca26d689fe1a9257054b76752f725b ]
+[ Upstream commit 4c0d2e96ba055bd8911bb8287def4f8ebbad15b6 ]
 
-If xdp_do_redirect() fails, the calling driver should handle recycling
-or freeing of the page associated with the frame. The dpaa2-eth driver
-didn't do either of them and just incremented a counter.
-Fix this by trying to DMA map back the page and recycle it or, if the
-mapping fails, just free it.
+Claudiu reported that on his system S2R cuts off power to the PHY and
+after resuming certain PHY settings are lost. The PM folks confirmed
+that cutting off power to selected components in S2R is a valid case.
+Therefore resuming from S2R, same as from hibernation, has to assume
+that the PHY has power-on defaults. As a consequence use the restore
+callback also as resume callback.
+In addition make sure that the interrupt configuration is restored.
+Let's do this in phy_init_hw() and ensure that after this call
+actual interrupt configuration is in sync with phydev->interrupts.
+Currently, if interrupt was enabled before hibernation, we would
+resume with interrupt disabled because that's the power-on default.
 
-Fixes: d678be1dc1ec ("dpaa2-eth: add XDP_REDIRECT support")
-Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+This fix applies cleanly only after the commit marked as fixed.
+
+I don't have an affected system, therefore change is compile-tested
+only.
+
+[0] https://lore.kernel.org/netdev/1610120754-14331-1-git-send-email-claudiu.beznea@microchip.com/
+
+Fixes: 611d779af7ca ("net: phy: fix MDIO bus PM PHY resuming")
+Reported-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/phy/phy_device.c | 53 ++++++++++++------------------------
+ 1 file changed, 17 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index fb0bcd18ec0c1..f1c2b3c7f7e99 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -399,10 +399,20 @@ static u32 dpaa2_eth_run_xdp(struct dpaa2_eth_priv *priv,
- 		xdp.frame_sz = DPAA2_ETH_RX_BUF_RAW_SIZE;
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index 80c2e646c0934..71169e7d6177d 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -300,50 +300,22 @@ static int mdio_bus_phy_resume(struct device *dev)
  
- 		err = xdp_do_redirect(priv->net_dev, &xdp, xdp_prog);
--		if (unlikely(err))
-+		if (unlikely(err)) {
-+			addr = dma_map_page(priv->net_dev->dev.parent,
-+					    virt_to_page(vaddr), 0,
-+					    priv->rx_buf_size, DMA_BIDIRECTIONAL);
-+			if (unlikely(dma_mapping_error(priv->net_dev->dev.parent, addr))) {
-+				free_pages((unsigned long)vaddr, 0);
-+			} else {
-+				ch->buf_count++;
-+				dpaa2_eth_xdp_release_buf(priv, ch, addr);
-+			}
- 			ch->stats.xdp_drop++;
--		else
-+		} else {
- 			ch->stats.xdp_redirect++;
-+		}
- 		break;
- 	}
+ 	phydev->suspended_by_mdio_bus = 0;
+ 
+-	ret = phy_resume(phydev);
++	ret = phy_init_hw(phydev);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-no_resume:
+-	if (phydev->attached_dev && phydev->adjust_link)
+-		phy_start_machine(phydev);
+-
+-	return 0;
+-}
+-
+-static int mdio_bus_phy_restore(struct device *dev)
+-{
+-	struct phy_device *phydev = to_phy_device(dev);
+-	struct net_device *netdev = phydev->attached_dev;
+-	int ret;
+-
+-	if (!netdev)
+-		return 0;
+-
+-	ret = phy_init_hw(phydev);
++	ret = phy_resume(phydev);
+ 	if (ret < 0)
+ 		return ret;
+-
++no_resume:
+ 	if (phydev->attached_dev && phydev->adjust_link)
+ 		phy_start_machine(phydev);
+ 
+ 	return 0;
+ }
+ 
+-static const struct dev_pm_ops mdio_bus_phy_pm_ops = {
+-	.suspend = mdio_bus_phy_suspend,
+-	.resume = mdio_bus_phy_resume,
+-	.freeze = mdio_bus_phy_suspend,
+-	.thaw = mdio_bus_phy_resume,
+-	.restore = mdio_bus_phy_restore,
+-};
+-
+-#define MDIO_BUS_PHY_PM_OPS (&mdio_bus_phy_pm_ops)
+-
+-#else
+-
+-#define MDIO_BUS_PHY_PM_OPS NULL
+-
++static SIMPLE_DEV_PM_OPS(mdio_bus_phy_pm_ops, mdio_bus_phy_suspend,
++			 mdio_bus_phy_resume);
+ #endif /* CONFIG_PM */
+ 
+ /**
+@@ -554,7 +526,7 @@ static const struct device_type mdio_bus_phy_type = {
+ 	.name = "PHY",
+ 	.groups = phy_dev_groups,
+ 	.release = phy_device_release,
+-	.pm = MDIO_BUS_PHY_PM_OPS,
++	.pm = pm_ptr(&mdio_bus_phy_pm_ops),
+ };
+ 
+ static int phy_request_driver_module(struct phy_device *dev, u32 phy_id)
+@@ -1143,10 +1115,19 @@ int phy_init_hw(struct phy_device *phydev)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	if (phydev->drv->config_init)
++	if (phydev->drv->config_init) {
+ 		ret = phydev->drv->config_init(phydev);
++		if (ret < 0)
++			return ret;
++	}
+ 
+-	return ret;
++	if (phydev->drv->config_intr) {
++		ret = phydev->drv->config_intr(phydev);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
+ }
+ EXPORT_SYMBOL(phy_init_hw);
  
 -- 
 2.27.0
