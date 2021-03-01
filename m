@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC47328B94
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:40:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97345328BCA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240193AbhCASh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:37:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44682 "EHLO mail.kernel.org"
+        id S240381AbhCASiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238030AbhCAS31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:29:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA9036527D;
-        Mon,  1 Mar 2021 17:30:35 +0000 (UTC)
+        id S240159AbhCASdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:33:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1B0D64FEC;
+        Mon,  1 Mar 2021 17:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619836;
-        bh=okeCtSG7Ka7Bj1vHqCXyN3O/rjwda6/+h163fwI1cZw=;
+        s=korg; t=1614618091;
+        bh=7kNqb+uskKNwN+qDFydirpd8hxZWFISm4FCzrd2OM4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R75gqU5Xsp+4/MZ9KAssZumM/B5UEbi9o8ylSQ8P4lmmKCubpdvcmJtwgLFjPejMQ
-         sdDb6JZZ/Fjevbt9kGTSwVfOV71lYHjWON8f7TPuMa4YtsLJ0WWc+viUtUSgVvs+vn
-         rMUkyFbeKhIjLcG1ph51GFltBEhGm6Jiuwhzkke8=
+        b=zguMB1DOpXIdVij4HfcVtORH3hJbcOCVvqiPI03bVCbN1qGkWb/eHjs3p9SaJmN/D
+         q58xByoAk+8HKKdUlOEFXx2abiax8V0/5YoLUnAZ11t/r/s2Urj1mlfpmgDJzy9nY3
+         J9O6YRGPxQZ1QJaXM0mHJJZMFaOYeUVV7xM3aI9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Joao Martins <joao.m.martins@oracle.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 599/663] hugetlb: fix copy_huge_page_from_user contig page struct assumption
-Date:   Mon,  1 Mar 2021 17:14:07 +0100
-Message-Id: <20210301161211.501704308@linuxfoundation.org>
+Subject: [PATCH 5.4 304/340] hugetlb: fix copy_huge_page_from_user contig page struct assumption
+Date:   Mon,  1 Mar 2021 17:14:08 +0100
+Message-Id: <20210301161103.241562059@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -84,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/mm/memory.c
 +++ b/mm/memory.c
-@@ -5203,17 +5203,19 @@ long copy_huge_page_from_user(struct pag
+@@ -4718,17 +4718,19 @@ long copy_huge_page_from_user(struct pag
  	void *page_kaddr;
  	unsigned long i, rc = 0;
  	unsigned long ret_val = pages_per_huge_page * PAGE_SIZE;
