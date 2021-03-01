@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3501C32856C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3603732847D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236101AbhCAQxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50422 "EHLO mail.kernel.org"
+        id S232897AbhCAQgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:36:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235226AbhCAQrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:47:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E2C864EF0;
-        Mon,  1 Mar 2021 16:31:31 +0000 (UTC)
+        id S231709AbhCAQ37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44EEB64F1B;
+        Mon,  1 Mar 2021 16:23:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616292;
-        bh=dPTW1Odk/tVpPDHtVvvgXziQVk7c2vP9zAkt8tAyZrk=;
+        s=korg; t=1614615825;
+        bh=x6O3dtjGOI4sJSCTP/KSgpzM9vY1gViK+mI/rO9wgqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOl0GKZl/WJxbP6n/RmBNqpfaOa73ngVC/Pp7Km6OVDWTLq+mwdJOy8KdwGNipmpG
-         Jt2UVacYTksBcv7ESrTiO/G1pcYA5v9bq7qDWD0dHnMyPdHwY7bnYWiirXTHc02PPB
-         g4n9NxrsxhQfpvBxdiYT1EmIihN7+eee13JU19TU=
+        b=r7yk8IV1N2bf+jYlv/++2GX3W+pizcVXJnvUOHqTjJ5p4leDVsFCtspenuA9eIv4k
+         I9Arr9YfPKUu8TkixW+9CYYDhLf3LNO+Dy/JNxc2GDtOtaY9V1TpCsioGLZdCYx6Nc
+         es77VtkuicrDIcxuCK+G1o8iZJOymmcQSDtNvNJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/176] RDMA/rxe: Fix coding error in rxe_recv.c
-Date:   Mon,  1 Mar 2021 17:12:46 +0100
-Message-Id: <20210301161025.604008422@linuxfoundation.org>
+Subject: [PATCH 4.9 066/134] RDMA/rxe: Fix coding error in rxe_recv.c
+Date:   Mon,  1 Mar 2021 17:12:47 +0100
+Message-Id: <20210301161016.801339417@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,7 +58,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index b7098f7bb30e5..43c1fd92b6d70 100644
+index db6bb026ae902..ece4fe838e755 100644
 --- a/drivers/infiniband/sw/rxe/rxe_recv.c
 +++ b/drivers/infiniband/sw/rxe/rxe_recv.c
 @@ -36,21 +36,26 @@
