@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E95329123
+	by mail.lfdr.de (Postfix) with ESMTP id C670A329124
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236692AbhCAUTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:19:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39902 "EHLO mail.kernel.org"
+        id S236702AbhCAUTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:19:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243013AbhCAUN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243018AbhCAUN0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:13:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEF2B653C7;
-        Mon,  1 Mar 2021 18:01:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6540652B0;
+        Mon,  1 Mar 2021 18:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621701;
-        bh=z2FypSTru9dRLhmwWZ/Aq/IPBmnYTtLQEVR701h/Xw0=;
+        s=korg; t=1614621704;
+        bh=hmR2cfOvkHnlt3Cg+y69VLZhqFEKTwIBrtpN9F+o8YQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XshW7yLXazpQ6kBjWqHtpwu9fS0UecHC/PTRB1TuXK4hftenpZyOaqHu0QQhgL4n5
-         0BOWlZ+6L7QeNdJTo6vNvLOJPn3Ia1S8WHRFn8BZpaOlWpHI96Iwm/rkBtLvIr67tv
-         kXpb/7dEzCtZ1DlJejIW4S9qOfKB/no/ZpTCLh3w=
+        b=QqibHKqMSfeWqO7Djzo5NXXL/yjBZGDXitU6JUrydbNpQWqW4yOFckxR+UIwiXd1G
+         5C+1N/eepbkzmZDig+n9zCw8Hc2YwHX51NyCBR6u88tl4jyPhQp5tmTCIrWZCJdsnQ
+         zZhneaxyF6QdeVujMfX+3GKbQYNFQglGmJWxwAZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20Kokem=C3=BCller?= <jan.kokemueller@gmail.com>,
+        stable@vger.kernel.org, Eric Bernstein <eric.bernstein@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 612/775] drm/amd/display: Add FPU wrappers to dcn21_validate_bandwidth()
-Date:   Mon,  1 Mar 2021 17:13:00 +0100
-Message-Id: <20210301161231.646303130@linuxfoundation.org>
+Subject: [PATCH 5.11 613/775] drm/amd/display: Remove Assert from dcn10_get_dig_frontend
+Date:   Mon,  1 Mar 2021 17:13:01 +0100
+Message-Id: <20210301161231.696477061@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,76 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kokemüller <jan.kokemueller@gmail.com>
+From: Eric Bernstein <eric.bernstein@amd.com>
 
-commit 41401ac67791810dd880345962339aa1bedd3c0d upstream.
+commit 83e6667b675f101fb66659dfa72e45d08773d763 upstream.
 
-dcn21_validate_bandwidth() calls functions that use floating point math.
-On my machine this sometimes results in simd exceptions when there are
-other FPU users such as KVM virtual machines running. The screen freezes
-completely in this case.
+[Why]
+In some cases, this function is called when DIG BE is not
+connected to DIG FE, in which case a value of zero isn't
+invalid and assert should not be hit.
 
-Wrapping the function with DC_FP_START()/DC_FP_END() seems to solve the
-problem. This mirrors the approach used for dcn20_validate_bandwidth.
+[How]
+Remove assert and handle ENGINE_ID_UNKNOWN result in calling
+function.
 
-Tested on a AMD Ryzen 7 PRO 4750U (Renoir).
-
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=206987
-Signed-off-by: Jan Kokemüller <jan.kokemueller@gmail.com>
+Signed-off-by: Eric Bernstein <eric.bernstein@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c |    2 -
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c |   20 ++++++++++++++++--
- 2 files changed, 19 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c |    1 -
+ drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c        |    2 ++
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
-@@ -3245,7 +3245,7 @@ restore_dml_state:
- bool dcn20_validate_bandwidth(struct dc *dc, struct dc_state *context,
- 		bool fast_validate)
- {
--	bool voltage_supported = false;
-+	bool voltage_supported;
- 	DC_FP_START();
- 	voltage_supported = dcn20_validate_bandwidth_fp(dc, context, fast_validate);
- 	DC_FP_END();
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -1329,8 +1329,8 @@ validate_out:
- 	return out;
- }
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c
+@@ -480,7 +480,6 @@ unsigned int dcn10_get_dig_frontend(stru
+ 		break;
+ 	default:
+ 		// invalid source select DIG
+-		ASSERT(false);
+ 		result = ENGINE_ID_UNKNOWN;
+ 	}
  
--bool dcn21_validate_bandwidth(struct dc *dc, struct dc_state *context,
--		bool fast_validate)
-+static noinline bool dcn21_validate_bandwidth_fp(struct dc *dc,
-+		struct dc_state *context, bool fast_validate)
- {
- 	bool out = false;
+--- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
+@@ -539,6 +539,8 @@ void dcn30_init_hw(struct dc *dc)
  
-@@ -1383,6 +1383,22 @@ validate_out:
+ 					fe = dc->links[i]->link_enc->funcs->get_dig_frontend(
+ 										dc->links[i]->link_enc);
++					if (fe == ENGINE_ID_UNKNOWN)
++						continue;
  
- 	return out;
- }
-+
-+/*
-+ * Some of the functions further below use the FPU, so we need to wrap this
-+ * with DC_FP_START()/DC_FP_END(). Use the same approach as for
-+ * dcn20_validate_bandwidth in dcn20_resource.c.
-+ */
-+bool dcn21_validate_bandwidth(struct dc *dc, struct dc_state *context,
-+		bool fast_validate)
-+{
-+	bool voltage_supported;
-+	DC_FP_START();
-+	voltage_supported = dcn21_validate_bandwidth_fp(dc, context, fast_validate);
-+	DC_FP_END();
-+	return voltage_supported;
-+}
-+
- static void dcn21_destroy_resource_pool(struct resource_pool **pool)
- {
- 	struct dcn21_resource_pool *dcn21_pool = TO_DCN21_RES_POOL(*pool);
+ 					for (j = 0; j < dc->res_pool->stream_enc_count; j++) {
+ 						if (fe == dc->res_pool->stream_enc[j]->id) {
 
 
