@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECC93284CE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB8973284C2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235196AbhCAQnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:43:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41576 "EHLO mail.kernel.org"
+        id S235021AbhCAQmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233014AbhCAQgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:36:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB08564EBD;
-        Mon,  1 Mar 2021 16:26:46 +0000 (UTC)
+        id S234233AbhCAQeh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:34:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEE2664DE8;
+        Mon,  1 Mar 2021 16:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616007;
-        bh=t5jl8b3jk72RF1zzvmMSF2PuMr6R5JKWJjDLDMpuIyc=;
+        s=korg; t=1614615921;
+        bh=AEZWs4LF/u8g//4gQuwvy5fuDg+5eV+9FwuWkjjeQCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMikxptmTAqk7GYFg0B+aL4rhOqmJ/WdzF1UhyvQfGQWB4IqI4EF50B6HOYo3uQnO
-         eS+XiTeZAao0wI83g6hkv7zYtffwq4r+9tLkJAIqe02h8X9D4dnGUJd88Sqb41gbac
-         gYin/0z63o9ZELSOV7HBZZGiYLgVebLPV3PKbNG0=
+        b=iwd+EHexMYKepYVPmcaBFjoKdbgJd/bs213AysCo9SLCDZeItqEK8EZz30AkHhNvL
+         K6/tty94/3puVY+PKEAvF7SW7LvSsvcyYm9DdoIYywpJeGZreTrsjzP6RMCwFL78TV
+         wOQjUCexgFGpSx6vR6CXvJK5s7zQUwDF9dPomgQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Kaiser <martin@kaiser.cx>
-Subject: [PATCH 4.9 107/134] staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
-Date:   Mon,  1 Mar 2021 17:13:28 +0100
-Message-Id: <20210301161018.833752082@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        "David P. Reed" <dpreed@deepplum.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.9 108/134] x86/reboot: Force all cpus to exit VMX root if VMX is supported
+Date:   Mon,  1 Mar 2021 17:13:29 +0100
+Message-Id: <20210301161018.883930964@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -38,30 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kaiser <martin@kaiser.cx>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 7a8d2f1908a59003e55ef8691d09efb7fbc51625 upstream.
+commit ed72736183c45a413a8d6974dd04be90f514cb6b upstream.
 
-The Edimax EW-7811UN V2 uses an RTL8188EU chipset and works with this
-driver.
+Force all CPUs to do VMXOFF (via NMI shootdown) during an emergency
+reboot if VMX is _supported_, as VMX being off on the current CPU does
+not prevent other CPUs from being in VMX root (post-VMXON).  This fixes
+a bug where a crash/panic reboot could leave other CPUs in VMX root and
+prevent them from being woken via INIT-SIPI-SIPI in the new kernel.
 
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210204085217.9743-1-martin@kaiser.cx
+Fixes: d176720d34c7 ("x86: disable VMX on all CPUs on reboot")
+Cc: stable@vger.kernel.org
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: David P. Reed <dpreed@deepplum.com>
+[sean: reworked changelog and further tweaked comment]
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20201231002702.2223707-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8188eu/os_dep/usb_intf.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/reboot.c |   29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
---- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-+++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
-@@ -49,6 +49,7 @@ static struct usb_device_id rtw_usb_id_t
- 	{USB_DEVICE(0x2357, 0x0111)}, /* TP-Link TL-WN727N v5.21 */
- 	{USB_DEVICE(0x2C4E, 0x0102)}, /* MERCUSYS MW150US v2 */
- 	{USB_DEVICE(0x0df6, 0x0076)}, /* Sitecom N150 v2 */
-+	{USB_DEVICE(0x7392, 0xb811)}, /* Edimax EW-7811UN V2 */
- 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xffef)}, /* Rosewill RNX-N150NUB */
- 	{}	/* Terminating entry */
- };
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -539,29 +539,20 @@ static void emergency_vmx_disable_all(vo
+ 	local_irq_disable();
+ 
+ 	/*
+-	 * We need to disable VMX on all CPUs before rebooting, otherwise
+-	 * we risk hanging up the machine, because the CPU ignore INIT
+-	 * signals when VMX is enabled.
++	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
++	 * the machine, because the CPU blocks INIT when it's in VMX root.
+ 	 *
+-	 * We can't take any locks and we may be on an inconsistent
+-	 * state, so we use NMIs as IPIs to tell the other CPUs to disable
+-	 * VMX and halt.
++	 * We can't take any locks and we may be on an inconsistent state, so
++	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
+ 	 *
+-	 * For safety, we will avoid running the nmi_shootdown_cpus()
+-	 * stuff unnecessarily, but we don't have a way to check
+-	 * if other CPUs have VMX enabled. So we will call it only if the
+-	 * CPU we are running on has VMX enabled.
+-	 *
+-	 * We will miss cases where VMX is not enabled on all CPUs. This
+-	 * shouldn't do much harm because KVM always enable VMX on all
+-	 * CPUs anyway. But we can miss it on the small window where KVM
+-	 * is still enabling VMX.
++	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
++	 * doesn't prevent a different CPU from being in VMX root operation.
+ 	 */
+-	if (cpu_has_vmx() && cpu_vmx_enabled()) {
+-		/* Disable VMX on this CPU. */
+-		cpu_vmxoff();
++	if (cpu_has_vmx()) {
++		/* Safely force _this_ CPU out of VMX root operation. */
++		__cpu_emergency_vmxoff();
+ 
+-		/* Halt and disable VMX on the other CPUs */
++		/* Halt and exit VMX root operation on the other CPUs. */
+ 		nmi_shootdown_cpus(vmxoff_nmi);
+ 
+ 	}
 
 
