@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D1B328DA5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E429A328DF7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241188AbhCATO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:14:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39806 "EHLO mail.kernel.org"
+        id S241308AbhCATVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:21:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238111AbhCATKX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:10:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 877506515A;
-        Mon,  1 Mar 2021 17:05:45 +0000 (UTC)
+        id S241181AbhCATPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:15:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0C4464F68;
+        Mon,  1 Mar 2021 17:05:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618346;
-        bh=9DuVnw8v0R91EGGubf83NuZVYD2Dz9+n4BTaoCVq+Eo=;
+        s=korg; t=1614618354;
+        bh=paZs/kfVvmPSMjQHABpCoQawtPwaTll39jcDG95uWQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euTaam3mjpv0/nFe767+POifEE4y4jfqxjzXqjNuqGdaa/1oBt6cP51M4S/wFbEox
-         CikteHQzpItuGeXBALwVDF4gIIv3ZQyKkUz6Wp8sj+lOaSMKU2r247BWOnyM3xIl4m
-         EB3u+PLErXnmi/DnV4HVZdjQ01XCbKT7s/OdOpig=
+        b=JxArnueJGbzblYJXoj+NPZrrHIbbnzgFLFqtLugpCArygmvUHvROpEzZX2dbGZ2iv
+         S3NGF1t2HnKxjSzbfdP6mFXeiYVN68gE+khcvf6l+afpbn5dlkCe6AKMZh2LxWkEHL
+         5KUKppTCDSf4iskrHQHz+E5JLQCW/cyBGfdwbjsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/663] ACPICA: Fix exception code class checks
-Date:   Mon,  1 Mar 2021 17:05:01 +0100
-Message-Id: <20210301161144.388684781@linuxfoundation.org>
+Subject: [PATCH 5.10 056/663] soc: qcom: socinfo: Fix an off by one in qcom_show_pmic_model()
+Date:   Mon,  1 Mar 2021 17:05:04 +0100
+Message-Id: <20210301161144.528704289@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,60 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 3dfaea3811f8b6a89a347e8da9ab862cdf3e30fe ]
+[ Upstream commit 5fb33d8960dc7abdabc6fe599a30c2c99b082ef6 ]
 
-ACPICA commit 1a3a549286ea9db07d7ec700e7a70dd8bcc4354e
+These need to be < ARRAY_SIZE() instead of <= ARRAY_SIZE() to prevent
+accessing one element beyond the end of the array.
 
-The macros to classify different AML exception codes are broken. For
-instance,
-
-  ACPI_ENV_EXCEPTION(Status)
-
-will always evaluate to zero due to
-
-  #define AE_CODE_ENVIRONMENTAL      0x0000
-  #define ACPI_ENV_EXCEPTION(Status) (Status & AE_CODE_ENVIRONMENTAL)
-
-Similarly, ACPI_AML_EXCEPTION(Status) will evaluate to a non-zero
-value for error codes of type AE_CODE_PROGRAMMER, AE_CODE_ACPI_TABLES,
-as well as AE_CODE_AML, and not just AE_CODE_AML as the name suggests.
-
-This commit fixes those checks.
-
-Fixes: d46b6537f0ce ("ACPICA: AML Parser: ignore all exceptions resulting from incorrect AML during table load")
-Link: https://github.com/acpica/acpica/commit/1a3a5492
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: e9247e2ce577 ("soc: qcom: socinfo: fix printing of pmic_model")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YAf+o85Z9lgkq3Nw@mwanda
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/acexcep.h | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/soc/qcom/socinfo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/acpi/acexcep.h b/include/acpi/acexcep.h
-index 2fc624a617690..f8a4afb0279a3 100644
---- a/include/acpi/acexcep.h
-+++ b/include/acpi/acexcep.h
-@@ -59,11 +59,11 @@ struct acpi_exception_info {
+diff --git a/drivers/soc/qcom/socinfo.c b/drivers/soc/qcom/socinfo.c
+index b44ede48decc0..e0620416e5743 100644
+--- a/drivers/soc/qcom/socinfo.c
++++ b/drivers/soc/qcom/socinfo.c
+@@ -280,7 +280,7 @@ static int qcom_show_pmic_model(struct seq_file *seq, void *p)
+ 	if (model < 0)
+ 		return -EINVAL;
  
- #define AE_OK                           (acpi_status) 0x0000
- 
--#define ACPI_ENV_EXCEPTION(status)      (status & AE_CODE_ENVIRONMENTAL)
--#define ACPI_AML_EXCEPTION(status)      (status & AE_CODE_AML)
--#define ACPI_PROG_EXCEPTION(status)     (status & AE_CODE_PROGRAMMER)
--#define ACPI_TABLE_EXCEPTION(status)    (status & AE_CODE_ACPI_TABLES)
--#define ACPI_CNTL_EXCEPTION(status)     (status & AE_CODE_CONTROL)
-+#define ACPI_ENV_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_ENVIRONMENTAL)
-+#define ACPI_AML_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_AML)
-+#define ACPI_PROG_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_PROGRAMMER)
-+#define ACPI_TABLE_EXCEPTION(status)    (((status) & AE_CODE_MASK) == AE_CODE_ACPI_TABLES)
-+#define ACPI_CNTL_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_CONTROL)
- 
- /*
-  * Environmental exceptions
+-	if (model <= ARRAY_SIZE(pmic_models) && pmic_models[model])
++	if (model < ARRAY_SIZE(pmic_models) && pmic_models[model])
+ 		seq_printf(seq, "%s\n", pmic_models[model]);
+ 	else
+ 		seq_printf(seq, "unknown (%d)\n", model);
 -- 
 2.27.0
 
