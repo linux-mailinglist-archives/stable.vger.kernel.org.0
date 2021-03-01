@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EC2328C9D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6FA0328C62
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240466AbhCASzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:55:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
+        id S240297AbhCASvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235191AbhCAStl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:49:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7829650FC;
-        Mon,  1 Mar 2021 17:01:58 +0000 (UTC)
+        id S240022AbhCASo3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:44:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE456650FB;
+        Mon,  1 Mar 2021 17:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618119;
-        bh=9JWjh7AvZXL4VeSi0y6vEWJfCSzqtZD6IaYtAeUvkKw=;
+        s=korg; t=1614618122;
+        bh=Qfn0aUat3ceZQ1ghd+EeB4wkAMI8sShpeAtkKyiVw5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awBkTBivtxZ/PGqoUGp07V2OTX3LP6ly1tW1iO8VAOWrYv752PkOnUVyEnwqlegWi
-         TNoFPU2h/B7s4C+VVaQwrQ6Gv3xxXe3CP3ax2sZHb4/8Oe64zrGfLHq4qm/TjP+FJR
-         nX+xwAyndb74NS9kuEzScWNE3nMbw75wIi+aZV9Y=
+        b=ySd2DovywqtmS3HVgEDTxO2ybnvgHivPYikvt0lxMUtcCmtESdAl5BLerhvy+I7eB
+         D0BviHFPwuounLDJcJ8vnkdKKW2veb/NJ5m26DmJ4Xc7XV1as0VvLIMpMfI5FJOZZc
+         psui4vsbTix5dQqF1tPT0arj+3z8LbPCA4qWVw34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wendy Wang <wendy.wang@intel.com>,
-        Chen Yu <yu.c.chen@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.4 313/340] cpufreq: intel_pstate: Get per-CPU max freq via MSR_HWP_CAPABILITIES if available
-Date:   Mon,  1 Mar 2021 17:14:17 +0100
-Message-Id: <20210301161103.691641522@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 314/340] s390/vtime: fix inline assembly clobber list
+Date:   Mon,  1 Mar 2021 17:14:18 +0100
+Message-Id: <20210301161103.742017602@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,58 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Yu <yu.c.chen@intel.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 6f67e060083a84a4cc364eab6ae40c717165fb0c upstream.
+commit b29c5093820d333eef22f58cd04ec0d089059c39 upstream.
 
-Currently, when turbo is disabled (either by BIOS or by the user),
-the intel_pstate driver reads the max non-turbo frequency from the
-package-wide MSR_PLATFORM_INFO(0xce) register.
+The stck/stckf instruction used within the inline assembly within
+do_account_vtime() changes the condition code. This is not reflected
+with the clobber list, and therefore might result in incorrect code
+generation.
 
-However, on asymmetric platforms it is possible in theory that small
-and big core with HWP enabled might have different max non-turbo CPU
-frequency, because MSR_HWP_CAPABILITIES is per-CPU scope according
-to Intel Software Developer Manual.
+It seems unlikely that the compiler could generate incorrect code
+considering the surrounding C code, but it must still be fixed.
 
-The turbo max freq is already per-CPU in current code, so make
-similar change to the max non-turbo frequency as well.
-
-Reported-by: Wendy Wang <wendy.wang@intel.com>
-Signed-off-by: Chen Yu <yu.c.chen@intel.com>
-[ rjw: Subject and changelog edits ]
-Cc: 4.18+ <stable@vger.kernel.org> # 4.18+: a45ee4d4e13b: cpufreq: intel_pstate: Change intel_pstate_get_hwp_max() argument
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/intel_pstate.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/kernel/vtime.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -1566,11 +1566,9 @@ static void intel_pstate_max_within_limi
- static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
- {
- 	cpu->pstate.min_pstate = pstate_funcs.get_min();
--	cpu->pstate.max_pstate = pstate_funcs.get_max();
- 	cpu->pstate.max_pstate_physical = pstate_funcs.get_max_physical();
- 	cpu->pstate.turbo_pstate = pstate_funcs.get_turbo();
- 	cpu->pstate.scaling = pstate_funcs.get_scaling();
--	cpu->pstate.max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
+--- a/arch/s390/kernel/vtime.c
++++ b/arch/s390/kernel/vtime.c
+@@ -136,7 +136,8 @@ static int do_account_vtime(struct task_
+ 		"	stck	%1"	/* Store current tod clock value */
+ #endif
+ 		: "=Q" (S390_lowcore.last_update_timer),
+-		  "=Q" (S390_lowcore.last_update_clock));
++		  "=Q" (S390_lowcore.last_update_clock)
++		: : "cc");
+ 	clock = S390_lowcore.last_update_clock - clock;
+ 	timer -= S390_lowcore.last_update_timer;
  
- 	if (hwp_active && !hwp_mode_bdw) {
- 		unsigned int phy_max, current_max;
-@@ -1578,9 +1576,12 @@ static void intel_pstate_get_cpu_pstates
- 		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
- 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
- 		cpu->pstate.turbo_pstate = phy_max;
-+		cpu->pstate.max_pstate = HWP_GUARANTEED_PERF(READ_ONCE(cpu->hwp_cap_cached));
- 	} else {
- 		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
-+		cpu->pstate.max_pstate = pstate_funcs.get_max();
- 	}
-+	cpu->pstate.max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
- 
- 	if (pstate_funcs.get_aperf_mperf_shift)
- 		cpu->aperf_mperf_shift = pstate_funcs.get_aperf_mperf_shift();
 
 
