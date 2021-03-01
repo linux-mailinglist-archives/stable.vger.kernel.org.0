@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB68328BD0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D15E1328C90
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240335AbhCASip (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45030 "EHLO mail.kernel.org"
+        id S233969AbhCASxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:53:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239920AbhCASdv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:33:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A429E64F00;
-        Mon,  1 Mar 2021 17:48:08 +0000 (UTC)
+        id S240467AbhCASrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:47:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79B3064EE6;
+        Mon,  1 Mar 2021 17:13:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620889;
-        bh=0ExyrjjpQ/CckP5moQJw2qC6duuW8N60lGvhI8jFxLY=;
+        s=korg; t=1614618800;
+        bh=Zx9LDLiJDNi9Yp+SxQtDzp5TmEwpvydW9I5sVx36m6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Le6n6XBYK7e9Qx1M1d4i3UO7xoMLubPKo8TdeDjPvv0s6vZ2Ju3hg+SLSmVBFHIQq
-         5T6eXePLnv4ZV5uDD7wvDFLHFi1KQ+e3yGQksB7YrQgXR4gmgOwfjGiSs9SE/OfdCI
-         431zoWoMQWtfD6knh4Ctzs9eZxu4bhNFVfvXiy6s=
+        b=dQ0/WQm78xw6Lz+7hwpJjvbtheOnbBLQPMnmm4lt8mxJM/tWD6PGU3oRvy7PHOYrl
+         7IraSDeVgx7f1gbxH65GC8l0NfIxzlij7KnJ/xswqPByU0CPDjRzuER10Rxb3QSitL
+         xi6zN5MC7n7clTvRjY9d4IvTnBedIzbtVed+hRp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 299/775] irqchip/imx: IMX_INTMUX should not default to y, unconditionally
-Date:   Mon,  1 Mar 2021 17:07:47 +0100
-Message-Id: <20210301161216.402851612@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Waiman Long <longman@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 221/663] locking/lockdep: Avoid unmatched unlock
+Date:   Mon,  1 Mar 2021 17:07:49 +0100
+Message-Id: <20210301161152.730348458@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit a890caeb2ba40ca183969230e204ab144f258357 ]
+[ Upstream commit 7f82e631d236cafd28518b998c6d4d8dc2ef68f6 ]
 
-Merely enabling CONFIG_COMPILE_TEST should not enable additional code.
-To fix this, restrict the automatic enabling of IMX_INTMUX to ARCH_MXC,
-and ask the user in case of compile-testing.
+Commit f6f48e180404 ("lockdep: Teach lockdep about "USED" <- "IN-NMI"
+inversions") overlooked that print_usage_bug() releases the graph_lock
+and called it without the graph lock held.
 
-Fixes: 66968d7dfc3f5451 ("irqchip: Add COMPILE_TEST support for IMX_INTMUX")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210208145605.422943-1-geert+renesas@glider.be
+Fixes: f6f48e180404 ("lockdep: Teach lockdep about "USED" <- "IN-NMI" inversions")
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Link: https://lkml.kernel.org/r/YBfkuyIfB1+VRxXP@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/Kconfig | 3 ++-
+ kernel/locking/lockdep.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index b147f22a78f48..d7d1a0fab2c1a 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -457,7 +457,8 @@ config IMX_IRQSTEER
- 	  Support for the i.MX IRQSTEER interrupt multiplexer/remapper.
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index bdaf4829098c0..780012eb2f3fe 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -3707,7 +3707,7 @@ static void
+ print_usage_bug(struct task_struct *curr, struct held_lock *this,
+ 		enum lock_usage_bit prev_bit, enum lock_usage_bit new_bit)
+ {
+-	if (!debug_locks_off_graph_unlock() || debug_locks_silent)
++	if (!debug_locks_off() || debug_locks_silent)
+ 		return;
  
- config IMX_INTMUX
--	def_bool y if ARCH_MXC || COMPILE_TEST
-+	bool "i.MX INTMUX support" if COMPILE_TEST
-+	default y if ARCH_MXC
- 	select IRQ_DOMAIN
- 	help
- 	  Support for the i.MX INTMUX interrupt multiplexer.
+ 	pr_warn("\n");
+@@ -3748,6 +3748,7 @@ valid_state(struct task_struct *curr, struct held_lock *this,
+ 	    enum lock_usage_bit new_bit, enum lock_usage_bit bad_bit)
+ {
+ 	if (unlikely(hlock_class(this)->usage_mask & (1 << bad_bit))) {
++		graph_unlock();
+ 		print_usage_bug(curr, this, bad_bit, new_bit);
+ 		return 0;
+ 	}
 -- 
 2.27.0
 
