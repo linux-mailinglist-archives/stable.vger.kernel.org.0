@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72FB3286F9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:20:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B88B3286F5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237900AbhCARSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:18:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46318 "EHLO mail.kernel.org"
+        id S237866AbhCARSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:18:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237090AbhCARKG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:10:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6030F65021;
-        Mon,  1 Mar 2021 16:42:36 +0000 (UTC)
+        id S236971AbhCARJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:09:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E85C64E99;
+        Mon,  1 Mar 2021 16:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616957;
-        bh=fZ5PhIh7UxpcmY0p6jEo7owvyW711H3IXrhaPTtmlj0=;
+        s=korg; t=1614616961;
+        bh=66sK3yAydc9g1KiW61EpXbNrkFOzjQ/pz/UJTDITgIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=of2xwst3gI7x+KpMZu7hRCvp7OW6AEVpwnOFPD/bJ07h2wOUivk/Y9YyaLLUZ/Hmd
-         Xojp+ct6fpkB8al9Yxycm+BB4V8X2QXRIlRSK9ZfAQvRhVWC1ENttGVhckoNlzpIz7
-         xhTo/Cbo2XkkttPHZhU92o6/7uiB+MED2E2eCNFM=
+        b=1V2QC2seGGazipH9z+Wk+wdS7pWT8BZtLDhzA1NadwsWeo7pK/oCzwokaWgVutNE7
+         HY1riiDObCorAoSyXuQt3I9SZ3jCRCf9BKn2qEv+5eF0s8KuLxKe8ePXC0n2wu51/L
+         CHVdamoNrEdILQIJH3cfV5RtOLFWLO8zzR0TPI4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 152/247] Input: elo - fix an error code in elo_connect()
-Date:   Mon,  1 Mar 2021 17:12:52 +0100
-Message-Id: <20210301161039.103239665@linuxfoundation.org>
+Subject: [PATCH 4.19 153/247] sparc64: only select COMPAT_BINFMT_ELF if BINFMT_ELF is set
+Date:   Mon,  1 Mar 2021 17:12:53 +0100
+Message-Id: <20210301161039.153818631@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,38 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 0958351e93fa0ac142f6dd8bd844441594f30a57 ]
+[ Upstream commit 80bddf5c93a99e11fc9faf7e4b575d01cecd45d3 ]
 
-If elo_setup_10() fails then this should return an error code instead
-of success.
+Currently COMPAT on SPARC64 selects COMPAT_BINFMT_ELF unconditionally,
+even when BINFMT_ELF is not enabled. This causes a kconfig warning.
 
-Fixes: fae3006e4b42 ("Input: elo - add support for non-pressure-sensitive touchscreens")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YBKFd5CvDu+jVmfW@mwanda
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Instead, just select COMPAT_BINFMT_ELF if BINFMT_ELF is enabled.
+This builds cleanly with no kconfig warnings.
+
+WARNING: unmet direct dependencies detected for COMPAT_BINFMT_ELF
+  Depends on [n]: COMPAT [=y] && BINFMT_ELF [=n]
+  Selected by [y]:
+  - COMPAT [=y] && SPARC64 [=y]
+
+Fixes: 26b4c912185a ("sparc,sparc64: unify Kconfig files")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: sparclinux@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/elo.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/sparc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
-index 7f2942f3cec6e..0f3146bcfcd0f 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -345,8 +345,10 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
- 	switch (elo->id) {
- 
- 	case 0: /* 10-byte protocol */
--		if (elo_setup_10(elo))
-+		if (elo_setup_10(elo)) {
-+			err = -EIO;
- 			goto fail3;
-+		}
- 
- 		break;
- 
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index e6f2a38d2e61e..1f1a7583fa905 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -554,7 +554,7 @@ config COMPAT
+ 	bool
+ 	depends on SPARC64
+ 	default y
+-	select COMPAT_BINFMT_ELF
++	select COMPAT_BINFMT_ELF if BINFMT_ELF
+ 	select HAVE_UID16
+ 	select ARCH_WANT_OLD_COMPAT_IPC
+ 	select COMPAT_OLD_SIGACTION
 -- 
 2.27.0
 
