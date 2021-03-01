@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AD6328A15
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948B2328A3C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239387AbhCASL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:11:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58184 "EHLO mail.kernel.org"
+        id S239554AbhCASNm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238838AbhCASF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:05:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E4565234;
-        Mon,  1 Mar 2021 17:26:01 +0000 (UTC)
+        id S239378AbhCASIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:08:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 702D46523E;
+        Mon,  1 Mar 2021 17:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619562;
-        bh=drLlJvlSfwAeKnvGYCbhCoG2wefxD2R9+izg7SVj/Tg=;
+        s=korg; t=1614619579;
+        bh=8tTmOVdS1/PkhguOWQ0gRjVoSUMEQ+s3z+eGgd/9ks8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbUiN+zCSMtJfTQps2ZFN6PZFVKhBLLUQvds/luBa3QzyTCI1egA/Rj7ZTmyCvJS4
-         ioQ8hxkx+/xOUP8pstk6t9EvipgoqgPkfeLc6JkkKJhX2e/79QJbKTpLOH7Aza1kMv
-         6Ext3E+X6Opz1oW+N0IKbUjsnXR6QhMkTImXuZL4=
+        b=y8P14yAwzLcNlyOAw9YkTkceNkf8qtuJBwDnNcKiV3D3pfJ7kYk2KNz80FWFNK14o
+         lYYBjuLpyJEZL+teZ+8tRtNVCXIfgICdquqTKuqcdHeN9F6m0zNA1h7R/gPIDPjjmF
+         /7TZWczZ63AuPXrMoDsKsjPbL2o9PcnGYFxHHO9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 500/663] ALSA: fireface: fix to parse sync status register of latter protocol
-Date:   Mon,  1 Mar 2021 17:12:28 +0100
-Message-Id: <20210301161206.590238344@linuxfoundation.org>
+        stable@vger.kernel.org, YunQiang Su <syq@debian.org>,
+        Aurelien Jarno <aurelien@aurel32.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 506/663] MIPS: Support binutils configured with --enable-mips-fix-loongson3-llsc=yes
+Date:   Mon,  1 Mar 2021 17:12:34 +0100
+Message-Id: <20210301161206.877659270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,212 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-commit c50bfc8a6866775be39d7e747e83e8a5a9051e2e upstream.
+commit 5373ae67c3aad1ab306cc722b5a80b831eb4d4d1 upstream.
 
-Fireface UCX, UFX, and FF802 are categorized for latter protocol of the
-series. Current support for FF802 (and UFX) includes failure to parse
-sync status register and results in EIO.
+>From version 2.35, binutils can be configured with
+--enable-mips-fix-loongson3-llsc=yes, which means it defaults to
+-mfix-loongson3-llsc. This breaks labels which might then point at the
+wrong instruction.
 
-Further investigation figures out that the content of register differs
-depending on models. This commit adds tables specific to FF802 and UFX
-to fix it.
+The workaround to explicitly pass -mno-fix-loongson3-llsc has been
+added in Linux version 5.1, but is only enabled when building a Loongson
+64 kernel. As vendors might use a common toolchain for building Loongson
+and non-Loongson kernels, just move that workaround to
+arch/mips/Makefile. At the same time update the comments to reflect the
+current status.
 
-Fixes: 062bb452b078b ("ALSA: fireface: add support for RME FireFace 802")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210207154736.229551-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org # 5.1+
+Cc: YunQiang Su <syq@debian.org>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/fireface/ff-protocol-latter.c |  118 ++++++++++++++++++++++-----
- 1 file changed, 100 insertions(+), 18 deletions(-)
+ arch/mips/Makefile            |   19 +++++++++++++++++++
+ arch/mips/loongson64/Platform |   22 ----------------------
+ 2 files changed, 19 insertions(+), 22 deletions(-)
 
---- a/sound/firewire/fireface/ff-protocol-latter.c
-+++ b/sound/firewire/fireface/ff-protocol-latter.c
-@@ -15,6 +15,61 @@
- #define LATTER_FETCH_MODE	0xffff00000010ULL
- #define LATTER_SYNC_STATUS	0x0000801c0000ULL
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(cal
+ #
+ cflags-y += -fno-stack-check
  
-+// The content of sync status register differs between models.
-+//
-+// Fireface UCX:
-+//  0xf0000000: (unidentified)
-+//  0x0f000000: effective rate of sampling clock
-+//  0x00f00000: detected rate of word clock on BNC interface
-+//  0x000f0000: detected rate of ADAT or S/PDIF on optical interface
-+//  0x0000f000: detected rate of S/PDIF on coaxial interface
-+//  0x00000e00: effective source of sampling clock
-+//    0x00000e00: Internal
-+//    0x00000800: (unidentified)
-+//    0x00000600: Word clock on BNC interface
-+//    0x00000400: ADAT on optical interface
-+//    0x00000200: S/PDIF on coaxial or optical interface
-+//  0x00000100: Optical interface is used for ADAT signal
-+//  0x00000080: (unidentified)
-+//  0x00000040: Synchronized to word clock on BNC interface
-+//  0x00000020: Synchronized to ADAT or S/PDIF on optical interface
-+//  0x00000010: Synchronized to S/PDIF on coaxial interface
-+//  0x00000008: (unidentified)
-+//  0x00000004: Lock word clock on BNC interface
-+//  0x00000002: Lock ADAT or S/PDIF on optical interface
-+//  0x00000001: Lock S/PDIF on coaxial interface
-+//
-+// Fireface 802 (and perhaps UFX):
-+//   0xf0000000: effective rate of sampling clock
-+//   0x0f000000: detected rate of ADAT-B on 2nd optical interface
-+//   0x00f00000: detected rate of ADAT-A on 1st optical interface
-+//   0x000f0000: detected rate of AES/EBU on XLR or coaxial interface
-+//   0x0000f000: detected rate of word clock on BNC interface
-+//   0x00000e00: effective source of sampling clock
-+//     0x00000e00: internal
-+//     0x00000800: ADAT-B
-+//     0x00000600: ADAT-A
-+//     0x00000400: AES/EBU
-+//     0x00000200: Word clock
-+//   0x00000080: Synchronized to ADAT-B on 2nd optical interface
-+//   0x00000040: Synchronized to ADAT-A on 1st optical interface
-+//   0x00000020: Synchronized to AES/EBU on XLR or 2nd optical interface
-+//   0x00000010: Synchronized to word clock on BNC interface
-+//   0x00000008: Lock ADAT-B on 2nd optical interface
-+//   0x00000004: Lock ADAT-A on 1st optical interface
-+//   0x00000002: Lock AES/EBU on XLR or 2nd optical interface
-+//   0x00000001: Lock word clock on BNC interface
-+//
-+// The pattern for rate bits:
-+//   0x00: 32.0 kHz
-+//   0x01: 44.1 kHz
-+//   0x02: 48.0 kHz
-+//   0x04: 64.0 kHz
-+//   0x05: 88.2 kHz
-+//   0x06: 96.0 kHz
-+//   0x08: 128.0 kHz
-+//   0x09: 176.4 kHz
-+//   0x0a: 192.0 kHz
- static int parse_clock_bits(u32 data, unsigned int *rate,
- 			    enum snd_ff_clock_src *src,
- 			    enum snd_ff_unit_version unit_version)
-@@ -23,35 +78,48 @@ static int parse_clock_bits(u32 data, un
- 		unsigned int rate;
- 		u32 flag;
- 	} *rate_entry, rate_entries[] = {
--		{ 32000,	0x00000000, },
--		{ 44100,	0x01000000, },
--		{ 48000,	0x02000000, },
--		{ 64000,	0x04000000, },
--		{ 88200,	0x05000000, },
--		{ 96000,	0x06000000, },
--		{ 128000,	0x08000000, },
--		{ 176400,	0x09000000, },
--		{ 192000,	0x0a000000, },
-+		{ 32000,	0x00, },
-+		{ 44100,	0x01, },
-+		{ 48000,	0x02, },
-+		{ 64000,	0x04, },
-+		{ 88200,	0x05, },
-+		{ 96000,	0x06, },
-+		{ 128000,	0x08, },
-+		{ 176400,	0x09, },
-+		{ 192000,	0x0a, },
- 	};
- 	static const struct {
- 		enum snd_ff_clock_src src;
- 		u32 flag;
--	} *clk_entry, clk_entries[] = {
-+	} *clk_entry, *clk_entries, ucx_clk_entries[] = {
- 		{ SND_FF_CLOCK_SRC_SPDIF,	0x00000200, },
- 		{ SND_FF_CLOCK_SRC_ADAT1,	0x00000400, },
- 		{ SND_FF_CLOCK_SRC_WORD,	0x00000600, },
- 		{ SND_FF_CLOCK_SRC_INTERNAL,	0x00000e00, },
-+	}, ufx_ff802_clk_entries[] = {
-+		{ SND_FF_CLOCK_SRC_WORD,	0x00000200, },
-+		{ SND_FF_CLOCK_SRC_SPDIF,	0x00000400, },
-+		{ SND_FF_CLOCK_SRC_ADAT1,	0x00000600, },
-+		{ SND_FF_CLOCK_SRC_ADAT2,	0x00000800, },
-+		{ SND_FF_CLOCK_SRC_INTERNAL,	0x00000e00, },
- 	};
-+	u32 rate_bits;
-+	unsigned int clk_entry_count;
- 	int i;
- 
--	if (unit_version != SND_FF_UNIT_VERSION_UCX) {
--		// e.g. 0x00fe0f20 but expected 0x00eff002.
--		data = ((data & 0xf0f0f0f0) >> 4) | ((data & 0x0f0f0f0f) << 4);
-+	if (unit_version == SND_FF_UNIT_VERSION_UCX) {
-+		rate_bits = (data & 0x0f000000) >> 24;
-+		clk_entries = ucx_clk_entries;
-+		clk_entry_count = ARRAY_SIZE(ucx_clk_entries);
-+	} else {
-+		rate_bits = (data & 0xf0000000) >> 28;
-+		clk_entries = ufx_ff802_clk_entries;
-+		clk_entry_count = ARRAY_SIZE(ufx_ff802_clk_entries);
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(rate_entries); ++i) {
- 		rate_entry = rate_entries + i;
--		if ((data & 0x0f000000) == rate_entry->flag) {
-+		if (rate_bits == rate_entry->flag) {
- 			*rate = rate_entry->rate;
- 			break;
- 		}
-@@ -59,14 +127,14 @@ static int parse_clock_bits(u32 data, un
- 	if (i == ARRAY_SIZE(rate_entries))
- 		return -EIO;
- 
--	for (i = 0; i < ARRAY_SIZE(clk_entries); ++i) {
-+	for (i = 0; i < clk_entry_count; ++i) {
- 		clk_entry = clk_entries + i;
- 		if ((data & 0x000e00) == clk_entry->flag) {
- 			*src = clk_entry->src;
- 			break;
- 		}
- 	}
--	if (i == ARRAY_SIZE(clk_entries))
-+	if (i == clk_entry_count)
- 		return -EIO;
- 
- 	return 0;
-@@ -249,16 +317,22 @@ static void latter_dump_status(struct sn
- 		char *const label;
- 		u32 locked_mask;
- 		u32 synced_mask;
--	} *clk_entry, clk_entries[] = {
-+	} *clk_entry, *clk_entries, ucx_clk_entries[] = {
- 		{ "S/PDIF",	0x00000001, 0x00000010, },
- 		{ "ADAT",	0x00000002, 0x00000020, },
- 		{ "WDClk",	0x00000004, 0x00000040, },
-+	}, ufx_ff802_clk_entries[] = {
-+		{ "WDClk",	0x00000001, 0x00000010, },
-+		{ "AES/EBU",	0x00000002, 0x00000020, },
-+		{ "ADAT-A",	0x00000004, 0x00000040, },
-+		{ "ADAT-B",	0x00000008, 0x00000080, },
- 	};
- 	__le32 reg;
- 	u32 data;
- 	unsigned int rate;
- 	enum snd_ff_clock_src src;
- 	const char *label;
-+	unsigned int clk_entry_count;
- 	int i;
- 	int err;
- 
-@@ -270,7 +344,15 @@ static void latter_dump_status(struct sn
- 
- 	snd_iprintf(buffer, "External source detection:\n");
- 
--	for (i = 0; i < ARRAY_SIZE(clk_entries); ++i) {
-+	if (ff->unit_version == SND_FF_UNIT_VERSION_UCX) {
-+		clk_entries = ucx_clk_entries;
-+		clk_entry_count = ARRAY_SIZE(ucx_clk_entries);
-+	} else {
-+		clk_entries = ufx_ff802_clk_entries;
-+		clk_entry_count = ARRAY_SIZE(ufx_ff802_clk_entries);
-+	}
++# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
++# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
++# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
++# for a description).
++#
++# We disable this in order to prevent the assembler meddling with the
++# instruction that labels refer to, ie. if we label an ll instruction:
++#
++# 1: ll v0, 0(a0)
++#
++# ...then with the assembler fix applied the label may actually point at a sync
++# instruction inserted by the assembler, and if we were using the label in an
++# exception table the table would no longer contain the address of the ll
++# instruction.
++#
++# Avoid this by explicitly disabling that assembler behaviour.
++#
++cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
 +
-+	for (i = 0; i < clk_entry_count; ++i) {
- 		clk_entry = clk_entries + i;
- 		snd_iprintf(buffer, "%s: ", clk_entry->label);
- 		if (data & clk_entry->locked_mask) {
+ #
+ # CPU-dependent compiler/assembler options for optimization.
+ #
+--- a/arch/mips/loongson64/Platform
++++ b/arch/mips/loongson64/Platform
+@@ -6,28 +6,6 @@
+ cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+ 
+ #
+-# Some versions of binutils, not currently mainline as of 2019/02/04, support
+-# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
+-# to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h for a
+-# description).
+-#
+-# We disable this in order to prevent the assembler meddling with the
+-# instruction that labels refer to, ie. if we label an ll instruction:
+-#
+-# 1: ll v0, 0(a0)
+-#
+-# ...then with the assembler fix applied the label may actually point at a sync
+-# instruction inserted by the assembler, and if we were using the label in an
+-# exception table the table would no longer contain the address of the ll
+-# instruction.
+-#
+-# Avoid this by explicitly disabling that assembler behaviour. If upstream
+-# binutils does not merge support for the flag then we can revisit & remove
+-# this later - for now it ensures vendor toolchains don't cause problems.
+-#
+-cflags-$(CONFIG_CPU_LOONGSON64)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
+-
+-#
+ # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
+ # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
+ # that GCC might generate R2 code for -march=loongson3a which then is rejected
 
 
