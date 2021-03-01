@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64E5328EDD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02580328E8D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238075AbhCATjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:39:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48622 "EHLO mail.kernel.org"
+        id S241954AbhCATdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:33:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241947AbhCATaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:30:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB2F76529A;
-        Mon,  1 Mar 2021 17:32:50 +0000 (UTC)
+        id S241627AbhCAT2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:28:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74F46652A1;
+        Mon,  1 Mar 2021 17:33:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619971;
-        bh=Un2jYswws1ByDrwhtiyuuxeMrwd3O2Oegrx4yVkBNpI=;
+        s=korg; t=1614619984;
+        bh=aWTIFM4NeP3t/+9+xymvdY5JiY10QtUC0TL3TErd+j4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHWHnV5DtJRFEo7UJBwPhekjBgGBYafFu1zW0gVGhluqIqIh7NeX5HjW8Mks+QvFH
-         3LxU0YfrvSaI7jCQlHHD5WiURPUAZmdmR0nFgwiFbZLFbd0V1bG0S7ycL5GQqeGpmJ
-         pQb8TFs8NsghVAJQpJc9pH+0SelTpERmxew6SYJo=
+        b=RYC2NDLdLAw5km8EQ0+n8699TQASHMW26KdO/4QqQ0Aiv47TdBLGIRFjh7t9ikaUp
+         6+cRBZ3em5sa1dnt+2mnRh11GCSFKO2zar5SN23VY/ZkunGd8vWwWHiE1MOFaLsKJo
+         IwcBYi1Lre8UL+sVi4TXVFoDzmxB8TtN2PUcg7Pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Ming-Hung Tsai <mtsai@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.10 647/663] dm writecache: fix writing beyond end of underlying device when shrinking
-Date:   Mon,  1 Mar 2021 17:14:55 +0100
-Message-Id: <20210301161213.863328176@linuxfoundation.org>
+Subject: [PATCH 5.10 651/663] dm era: Fix bitset memory leaks
+Date:   Mon,  1 Mar 2021 17:14:59 +0100
+Message-Id: <20210301161214.064019804@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,78 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 4134455f2aafdfeab50cabb4cccb35e916034b93 upstream.
+commit 904e6b266619c2da5c58b5dce14ae30629e39645 upstream.
 
-Do not attempt to write any data beyond the end of the underlying data
-device while shrinking it.
+Deallocate the memory allocated for the in-core bitsets when destroying
+the target and in error paths.
 
-The DM writecache device must be suspended when the underlying data
-device is shrunk.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-writecache.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/md/dm-era-target.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -148,6 +148,7 @@ struct dm_writecache {
- 	size_t metadata_sectors;
- 	size_t n_blocks;
- 	uint64_t seq_count;
-+	sector_t data_device_sectors;
- 	void *block_start;
- 	struct wc_entry *entries;
- 	unsigned block_size;
-@@ -977,6 +978,8 @@ static void writecache_resume(struct dm_
- 
- 	wc_lock(wc);
- 
-+	wc->data_device_sectors = i_size_read(wc->dev->bdev->bd_inode) >> SECTOR_SHIFT;
-+
- 	if (WC_MODE_PMEM(wc)) {
- 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
- 	} else {
-@@ -1646,6 +1649,10 @@ static bool wc_add_block(struct writebac
- 	void *address = memory_data(wc, e);
- 
- 	persistent_memory_flush_cache(address, block_size);
-+
-+	if (unlikely(bio_end_sector(&wb->bio) >= wc->data_device_sectors))
-+		return true;
-+
- 	return bio_add_page(&wb->bio, persistent_memory_page(address),
- 			    block_size, persistent_memory_page_offset(address)) != 0;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -47,6 +47,7 @@ struct writeset {
+ static void writeset_free(struct writeset *ws)
+ {
+ 	vfree(ws->bits);
++	ws->bits = NULL;
  }
-@@ -1717,6 +1724,9 @@ static void __writecache_writeback_pmem(
- 		if (writecache_has_error(wc)) {
- 			bio->bi_status = BLK_STS_IOERR;
- 			bio_endio(bio);
-+		} else if (unlikely(!bio_sectors(bio))) {
-+			bio->bi_status = BLK_STS_OK;
-+			bio_endio(bio);
- 		} else {
- 			submit_bio(bio);
- 		}
-@@ -1760,6 +1770,14 @@ static void __writecache_writeback_ssd(s
- 			e = f;
- 		}
  
-+		if (unlikely(to.sector + to.count > wc->data_device_sectors)) {
-+			if (to.sector >= wc->data_device_sectors) {
-+				writecache_copy_endio(0, 0, c);
-+				continue;
-+			}
-+			from.count = to.count = wc->data_device_sectors - to.sector;
-+		}
-+
- 		dm_kcopyd_copy(wc->dm_kcopyd, &from, 1, &to, 0, writecache_copy_endio, c);
+ static int setup_on_disk_bitset(struct dm_disk_bitset *info,
+@@ -811,6 +812,8 @@ static struct era_metadata *metadata_ope
  
- 		__writeback_throttle(wc, wbl);
+ static void metadata_close(struct era_metadata *md)
+ {
++	writeset_free(&md->writesets[0]);
++	writeset_free(&md->writesets[1]);
+ 	destroy_persistent_data_objects(md);
+ 	kfree(md);
+ }
+@@ -848,6 +851,7 @@ static int metadata_resize(struct era_me
+ 	r = writeset_alloc(&md->writesets[1], *new_size);
+ 	if (r) {
+ 		DMERR("%s: writeset_alloc failed for writeset 1", __func__);
++		writeset_free(&md->writesets[0]);
+ 		return r;
+ 	}
+ 
+@@ -858,6 +862,8 @@ static int metadata_resize(struct era_me
+ 			    &value, &md->era_array_root);
+ 	if (r) {
+ 		DMERR("%s: dm_array_resize failed", __func__);
++		writeset_free(&md->writesets[0]);
++		writeset_free(&md->writesets[1]);
+ 		return r;
+ 	}
+ 
 
 
