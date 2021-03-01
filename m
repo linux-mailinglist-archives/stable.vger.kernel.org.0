@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D9F3285B0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A6243285BC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235386AbhCAQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:57:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51310 "EHLO mail.kernel.org"
+        id S236359AbhCAQ6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:58:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235045AbhCAQuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:50:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF4D264FB0;
-        Mon,  1 Mar 2021 16:33:10 +0000 (UTC)
+        id S235793AbhCAQwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:52:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4F8564FB1;
+        Mon,  1 Mar 2021 16:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616391;
-        bh=7JlgxSgB8VkId5rpVtu+QFDZIel6gZVvYTlVi77vwyU=;
+        s=korg; t=1614616394;
+        bh=tJHUttpc1OBNchC98vG0su6aGYE8cWN7gyrCOJ6d7cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuWXn6W/NfIdLviKnwjGCIBzsZsmwaS2mu0MyxTsU3sjr//3LD7ViSlH5IOzR4JG4
-         u1F4G9z3sAfC05e53ZI4g90jQQ1D3VMGA+Cg2Td3WUV3B7B7b657++un56ZiLeteGt
-         ZsDMGLNPrvapS8GoDonacdUuV5wc4IegHGi68ALA=
+        b=V3imDv5n9vIDw41FAC1Gw2k3RERKjn5B8MgmRbc5ueILL6KhzxlQzYjdOBzs81uSg
+         2H6V2uGQzOkn3A54H/PkkxnTzpafcPd0PI1L5tzADc3HUKABVbmmgXYjurbxTcKB4p
+         nbmy7fyYVAeqWZqgxdHFOoQGXGk8Aiit9GQWLzB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@ger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
+        stable@vger.kernel.org,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        David Howells <dhowells@redhat.com>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.14 136/176] tpm_tis: Fix check_locality for correct locality acquisition
-Date:   Mon,  1 Mar 2021 17:13:29 +0100
-Message-Id: <20210301161027.746715200@linuxfoundation.org>
+Subject: [PATCH 4.14 137/176] KEYS: trusted: Fix migratable=1 failing
+Date:   Mon,  1 Mar 2021 17:13:30 +0100
+Message-Id: <20210301161027.799803020@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -41,41 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit 3d9ae54af1d02a7c0edc55c77d7df2b921e58a87 upstream.
+commit 8da7520c80468c48f981f0b81fc1be6599e3b0ad upstream.
 
-The TPM TIS specification says the TPM signals the acquisition of locality
-when the TMP_ACCESS_REQUEST_USE bit goes to one *and* the
-TPM_ACCESS_REQUEST_USE bit goes to zero.  Currently we only check the
-former not the latter, so check both.  Adding the check on
-TPM_ACCESS_REQUEST_USE should fix the case where the locality is
-re-requested before the TPM has released it.  In this case the locality may
-get released briefly before it is reacquired, which causes all sorts of
-problems. However, with the added check, TPM_ACCESS_REQUEST_USE should
-remain 1 until the second request for the locality is granted.
+Consider the following transcript:
 
-Cc: stable@ger.kernel.org
-Fixes: 27084efee0c3 ("[PATCH] tpm: driver for next generation TPM chips")
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+$ keyctl add trusted kmk "new 32 blobauth=helloworld keyhandle=80000000 migratable=1" @u
+add_key: Invalid argument
+
+The documentation has the following description:
+
+  migratable=   0|1 indicating permission to reseal to new PCR values,
+                default 1 (resealing allowed)
+
+The consequence is that "migratable=1" should succeed. Fix this by
+allowing this condition to pass instead of return -EINVAL.
+
+[*] Documentation/security/keys/trusted-encrypted.rst
+
+Cc: stable@vger.kernel.org
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: David Howells <dhowells@redhat.com>
+Fixes: d00a1c72f7f4 ("keys: add new trusted key-type")
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/keys/trusted.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -68,7 +68,8 @@ static bool check_locality(struct tpm_ch
- 	if (rc < 0)
- 		return false;
- 
--	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) ==
-+	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID
-+		       | TPM_ACCESS_REQUEST_USE)) ==
- 	    (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) {
- 		priv->locality = l;
- 		return true;
+--- a/security/keys/trusted.c
++++ b/security/keys/trusted.c
+@@ -797,7 +797,7 @@ static int getoptions(char *c, struct tr
+ 		case Opt_migratable:
+ 			if (*args[0].from == '0')
+ 				pay->migratable = 0;
+-			else
++			else if (*args[0].from != '1')
+ 				return -EINVAL;
+ 			break;
+ 		case Opt_pcrlock:
 
 
