@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FBD327FDE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17077327FEF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235833AbhCANqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:46:40 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:50309 "EHLO
+        id S235918AbhCANs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:48:29 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45097 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235866AbhCANqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:46:39 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1017019412C2;
-        Mon,  1 Mar 2021 08:46:18 -0500 (EST)
+        by vger.kernel.org with ESMTP id S235905AbhCANs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:48:29 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 8DB2519420A5;
+        Mon,  1 Mar 2021 08:47:23 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 08:46:18 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:47:23 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8Ul5hc
-        LnoiGFUE4kbygosTtQ426hMT9qm8YQ2lE2Kj0=; b=VceHIK2EU4dMqyUJSsMoSD
-        A1iUBnjA+MN/d4YkZw6mbrZHPToxXWPxZv9EgIF7uPLXjZua6rVBxVcsRKSbFQv5
-        G1aPSmriZxwAl/g6oUTwB3OClogyPoseooHKzfuZki962KeWZQAZ45e9o76R5lBd
-        /QcKqYWtxysgOtq1hiZlkqZkfqtGhL1j6tDN8uJZ7B8INSnDlmgnDZgmLrOH9i3P
-        Q5ddCDSQUxjKM6XBB1V2rBndWdUGCd7iqo4Gp9LJD56sabUBQy9ZhQS1W7M/jFcq
-        HqwcZzLSk7iRB9ODppOO//TNMDsGK2j+iuJyzxyghxKgDZe9uoTS5sZSo7JTgS9g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FtoxxX
+        jIaK/7h8w6DWtGjauEZ2PLhyhvQjmpcEIWXUI=; b=ne0q9MLu2AYu7Q5+5I4Pfs
+        +1zHJh9i2e7D8ABHF6nThs4gDYOosv2fUN7vCa/G1ZuP6rOAL3jFie5SgiOIYNmU
+        WiKXB1ah/i0kA93PikT4Sxv1zAth9P4gEo9cV3uNISG8WCKt013k1vJM9gmELHgQ
+        x8uf/MAPT7J7wFS41XGlZTuacjyWgMhdhXxOlDV4oWdj9FlJ+UqZZE3fXCwnIRAM
+        /ZCybn5q7AVOM1jjxPv+apUavI4YPHCx+kDLJOyMfHiCTVD1BXHv21V6FRbDCiHc
+        jYxskl0NLY1mJCNlnl47JFQ/hXFent8TKUAUdXVMG8oPSq6FSeO0b1491jn5ugjA
         ==
-X-ME-Sender: <xms:KvA8YBIuPqpqRai-H5MNhr4KQ8YUV1LiVsdwfkoUbsOZ9oxsBq_0fQ>
-    <xme:KvA8YDhI4MAyfpNJ28ssHshrUUgO_sfvs0TwVRSaXbxkFGuGosw4T1z1ED0uqVt10
-    xbTMQHrTZaW8g>
+X-ME-Sender: <xms:a_A8YP4rbYk_kHNeTNTCIrLr6RHHYSRmiPOW1SBD6kLRgpa52gTZKw>
+    <xme:a_A8YE4LILMqPgV3ccWN30nJJmMu4CumjY7KIzDbKUgwhEC-ayIgE7sFOaL_JmYxc
+    G8CNhd1croZUw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:KvA8YF8x8UC6muNVtofo-85jh0UP6G-EOpHBOQiMu_nDrTTB38gv0w>
-    <xmx:KvA8YAP_DqRAHvXcnsUmTWLkSTNZ9JoDYTDS3vNK0DV2U5VXOE940w>
-    <xmx:KvA8YBBRLZ1w5P_jhD8VlTKk10--o9RaziIOOVW4cvuuGktm9pDH4g>
-    <xmx:KvA8YOH7uv3_QqYh1aN7vGqIleqsTIISKlaoMS_WEviq_cehmNGj_Q>
+X-ME-Proxy: <xmx:a_A8YGc8FRZ1uwxSlJx9B4P85PPnXJybZPoYC12THQezcYLToAulwg>
+    <xmx:a_A8YAKuJsHJz6qq1kJTEIyr4fzDaVXa90OHbGRGTlrdzbzJVyPbeA>
+    <xmx:a_A8YDKn6V-t8LXDilMksWzsN4D5sgGJ-g3o8mr6W6qEkKmkY8atsA>
+    <xmx:a_A8YFzfcOUdumzRj7Qa6D0JR9QhmHuwTQ4rJQeHLZ3dxSDvNa8v3A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C4DDB108005C;
-        Mon,  1 Mar 2021 08:46:17 -0500 (EST)
-Subject: FAILED: patch "[PATCH] dm writecache: fix writing beyond end of underlying device" failed to apply to 4.19-stable tree
-To:     mpatocka@redhat.com, snitzer@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E620F1080066;
+        Mon,  1 Mar 2021 08:47:22 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dm era: Update in-core bitset after committing the metadata" failed to apply to 4.4-stable tree
+To:     ntsironis@arrikto.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:46:08 +0100
-Message-ID: <1614606368115248@kroah.com>
+Date:   Mon, 01 Mar 2021 14:47:20 +0100
+Message-ID: <1614606440235123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,77 +70,116 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4134455f2aafdfeab50cabb4cccb35e916034b93 Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Tue, 9 Feb 2021 10:56:20 -0500
-Subject: [PATCH] dm writecache: fix writing beyond end of underlying device
- when shrinking
+From 2099b145d77c1d53f5711f029c37cc537897cee6 Mon Sep 17 00:00:00 2001
+From: Nikos Tsironis <ntsironis@arrikto.com>
+Date: Fri, 22 Jan 2021 17:19:31 +0200
+Subject: [PATCH] dm era: Update in-core bitset after committing the metadata
 
-Do not attempt to write any data beyond the end of the underlying data
-device while shrinking it.
+In case of a system crash, dm-era might fail to mark blocks as written
+in its metadata, although the corresponding writes to these blocks were
+passed down to the origin device and completed successfully.
 
-The DM writecache device must be suspended when the underlying data
-device is shrunk.
+Consider the following sequence of events:
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
+1. We write to a block that has not been yet written in the current era
+2. era_map() checks the in-core bitmap for the current era and sees
+   that the block is not marked as written.
+3. The write is deferred for submission after the metadata have been
+   updated and committed.
+4. The worker thread processes the deferred write
+   (process_deferred_bios()) and marks the block as written in the
+   in-core bitmap, **before** committing the metadata.
+5. The worker thread starts committing the metadata.
+6. We do more writes that map to the same block as the write of step (1)
+7. era_map() checks the in-core bitmap and sees that the block is marked
+   as written, **although the metadata have not been committed yet**.
+8. These writes are passed down to the origin device immediately and the
+   device reports them as completed.
+9. The system crashes, e.g., power failure, before the commit from step
+   (5) finishes.
+
+When the system recovers and we query the dm-era target for the list of
+written blocks it doesn't report the aforementioned block as written,
+although the writes of step (6) completed successfully.
+
+The issue is that era_map() decides whether to defer or not a write
+based on non committed information. The root cause of the bug is that we
+update the in-core bitmap, **before** committing the metadata.
+
+Fix this by updating the in-core bitmap **after** successfully
+committing the metadata.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index e8382d73c73c..baf5a9ce2b25 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -148,6 +148,7 @@ struct dm_writecache {
- 	size_t metadata_sectors;
- 	size_t n_blocks;
- 	uint64_t seq_count;
-+	sector_t data_device_sectors;
- 	void *block_start;
- 	struct wc_entry *entries;
- 	unsigned block_size;
-@@ -977,6 +978,8 @@ static void writecache_resume(struct dm_target *ti)
+diff --git a/drivers/md/dm-era-target.c b/drivers/md/dm-era-target.c
+index 854b1be8b452..62f679faf9e7 100644
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -134,7 +134,7 @@ static int writeset_test_and_set(struct dm_disk_bitset *info,
+ {
+ 	int r;
  
- 	wc_lock(wc);
+-	if (!test_and_set_bit(block, ws->bits)) {
++	if (!test_bit(block, ws->bits)) {
+ 		r = dm_bitset_set_bit(info, ws->md.root, block, &ws->md.root);
+ 		if (r) {
+ 			/* FIXME: fail mode */
+@@ -1226,8 +1226,10 @@ static void process_deferred_bios(struct era *era)
+ 	int r;
+ 	struct bio_list deferred_bios, marked_bios;
+ 	struct bio *bio;
++	struct blk_plug plug;
+ 	bool commit_needed = false;
+ 	bool failed = false;
++	struct writeset *ws = era->md->current_writeset;
  
-+	wc->data_device_sectors = i_size_read(wc->dev->bdev->bd_inode) >> SECTOR_SHIFT;
+ 	bio_list_init(&deferred_bios);
+ 	bio_list_init(&marked_bios);
+@@ -1237,9 +1239,11 @@ static void process_deferred_bios(struct era *era)
+ 	bio_list_init(&era->deferred_bios);
+ 	spin_unlock(&era->deferred_lock);
+ 
++	if (bio_list_empty(&deferred_bios))
++		return;
 +
- 	if (WC_MODE_PMEM(wc)) {
- 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
- 	} else {
-@@ -1646,6 +1649,10 @@ static bool wc_add_block(struct writeback_struct *wb, struct wc_entry *e, gfp_t
- 	void *address = memory_data(wc, e);
+ 	while ((bio = bio_list_pop(&deferred_bios))) {
+-		r = writeset_test_and_set(&era->md->bitset_info,
+-					  era->md->current_writeset,
++		r = writeset_test_and_set(&era->md->bitset_info, ws,
+ 					  get_block(era, bio));
+ 		if (r < 0) {
+ 			/*
+@@ -1247,7 +1251,6 @@ static void process_deferred_bios(struct era *era)
+ 			 * FIXME: finish.
+ 			 */
+ 			failed = true;
+-
+ 		} else if (r == 0)
+ 			commit_needed = true;
  
- 	persistent_memory_flush_cache(address, block_size);
-+
-+	if (unlikely(bio_end_sector(&wb->bio) >= wc->data_device_sectors))
-+		return true;
-+
- 	return bio_add_page(&wb->bio, persistent_memory_page(address),
- 			    block_size, persistent_memory_page_offset(address)) != 0;
- }
-@@ -1717,6 +1724,9 @@ static void __writecache_writeback_pmem(struct dm_writecache *wc, struct writeba
- 		if (writecache_has_error(wc)) {
- 			bio->bi_status = BLK_STS_IOERR;
- 			bio_endio(bio);
-+		} else if (unlikely(!bio_sectors(bio))) {
-+			bio->bi_status = BLK_STS_OK;
-+			bio_endio(bio);
- 		} else {
- 			submit_bio(bio);
- 		}
-@@ -1760,6 +1770,14 @@ static void __writecache_writeback_ssd(struct dm_writecache *wc, struct writebac
- 			e = f;
- 		}
- 
-+		if (unlikely(to.sector + to.count > wc->data_device_sectors)) {
-+			if (to.sector >= wc->data_device_sectors) {
-+				writecache_copy_endio(0, 0, c);
-+				continue;
-+			}
-+			from.count = to.count = wc->data_device_sectors - to.sector;
+@@ -1263,9 +1266,19 @@ static void process_deferred_bios(struct era *era)
+ 	if (failed)
+ 		while ((bio = bio_list_pop(&marked_bios)))
+ 			bio_io_error(bio);
+-	else
+-		while ((bio = bio_list_pop(&marked_bios)))
++	else {
++		blk_start_plug(&plug);
++		while ((bio = bio_list_pop(&marked_bios))) {
++			/*
++			 * Only update the in-core writeset if the on-disk one
++			 * was updated too.
++			 */
++			if (commit_needed)
++				set_bit(get_block(era, bio), ws->bits);
+ 			submit_bio_noacct(bio);
 +		}
-+
- 		dm_kcopyd_copy(wc->dm_kcopyd, &from, 1, &to, 0, writecache_copy_endio, c);
++		blk_finish_plug(&plug);
++	}
+ }
  
- 		__writeback_throttle(wc, wbl);
+ static void process_rpc_calls(struct era *era)
 
