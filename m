@@ -2,51 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 376553290D1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A033328FFD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242883AbhCAUPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:15:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37630 "EHLO mail.kernel.org"
+        id S237951AbhCAUAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:00:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235661AbhCAUFS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:05:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0E26651BE;
-        Mon,  1 Mar 2021 17:58:37 +0000 (UTC)
+        id S241823AbhCATrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:47:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7D3764FA1;
+        Mon,  1 Mar 2021 17:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621518;
-        bh=i60qBqoPVl+WofouB6tb4SS67wcZ70FqSk7W0S+vhMk=;
+        s=korg; t=1614619473;
+        bh=CYijl/QOwgK9+/hTXIC3+0/4oA2jUChSIdl3Z+/1XhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rvKzejx/ZnLRJOrU2tA91iYiVMGAkgMb0GuAkcSnJ/Wfpq9E91+Oxb7kQ/XW+k4Fp
-         KYX3d76bA/XM6EHqEGVpyyqyo227uvXCXURgyHdpPeMG5farK6Z6o/Ez4EKznVKr6Z
-         sL+a373sSagGR2K5hteNN1+eK2sXhifR6i6YJ+o0=
+        b=FDvHto4/DU6ryp+j6d/2YVgfuk+BrxkUkASVFqmZyHg6TvEf824GmVsdrDb2z/4lg
+         elJpbCW/6PQSnhrNi+LN6lGMgGJCgc0t4w9HPUpT4aiw3J+ZENrIoe0jaiQL8/NhCT
+         wZ6TjLAUScusxOuVUZr7XR/cKvtNGnSxzZSEGpSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Pankaj Gupta <pankaj.gupta@cloud.ionos.com>,
-        Roman Gushchin <guro@fb.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Feng Tang <feng.tang@intel.com>,
-        Hugh Dickins <hughd@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        NeilBrown <neilb@suse.de>,
-        "Rafael. J. Wysocki" <rafael@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 546/775] mm: memcontrol: fix NR_ANON_THPS accounting in charge moving
-Date:   Mon,  1 Mar 2021 17:11:54 +0100
-Message-Id: <20210301161228.467503274@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 467/663] i2c: brcmstb: Fix brcmstd_send_i2c_cmd condition
+Date:   Mon,  1 Mar 2021 17:11:55 +0100
+Message-Id: <20210301161204.966399954@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,108 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit b0ba3bff3e7bb6b58bb248bdd2f3d8ad52fd10c3 ]
+[ Upstream commit a1858ce0cfe31368b23ba55794e409fb57ced4a4 ]
 
-Patch series "Convert all THP vmstat counters to pages", v6.
+The brcmstb_send_i2c_cmd currently has a condition that is (CMD_RD ||
+CMD_WR) which always evaluates to true, while the obvious fix is to test
+whether the cmd variable passed as parameter holds one of these two
+values.
 
-This patch series is aimed to convert all THP vmstat counters to pages.
-
-The unit of some vmstat counters are pages, some are bytes, some are
-HPAGE_PMD_NR, and some are KiB. When we want to expose these vmstat
-counters to the userspace, we have to know the unit of the vmstat counters
-is which one. When the unit is bytes or kB, both clearly distinguishable
-by the B/KB suffix. But for the THP vmstat counters, we may make mistakes.
-
-For example, the below is some bug fix for the THP vmstat counters:
-
-  - 7de2e9f195b9 ("mm: memcontrol: correct the NR_ANON_THPS counter of hierarchical memcg")
-  - The first commit in this series ("fix NR_ANON_THPS accounting in charge moving")
-
-This patch series can make the code clear. And make all the unit of the THP
-vmstat counters in pages. Finally, the unit of the vmstat counters are
-pages, kB and bytes. The B/KB suffix can tell us that the unit is bytes
-or kB. The rest which is without suffix are pages.
-
-In this series, I changed the following vmstat counters unit from HPAGE_PMD_NR
-to pages. However, there is no change to the print format of output to user
-space.
-
-  - NR_ANON_THPS
-  - NR_FILE_THPS
-  - NR_SHMEM_THPS
-  - NR_SHMEM_PMDMAPPED
-  - NR_FILE_PMDMAPPED
-
-Doing this also can make the statistics more accuracy for the THP vmstat
-counters. This series is consistent with 8f182270dfec ("mm/swap.c: flush lru
-pvecs on compound page arrival").
-
-Because we use struct per_cpu_nodestat to cache the vmstat counters, which
-leads to inaccurate statistics especially THP vmstat counters. In the systems
-with hundreds of processors it can be GBs of memory. For example, for a 96
-CPUs system, the threshold is the maximum number of 125. And the per cpu
-counters can cache 23.4375 GB in total.
-
-The THP page is already a form of batched addition (it will add 512 worth of
-memory in one go) so skipping the batching seems like sensible. Although every
-THP stats update overflows the per-cpu counter, resorting to atomic global
-updates. But it can make the statistics more accuracy for the THP vmstat
-counters. From this point of view, I think that do this converting is
-reasonable.
-
-Thanks Hugh for mentioning this. This was inspired by Johannes and Roman.
-Thanks to them.
-
-This patch (of 7):
-
-The unit of NR_ANON_THPS is HPAGE_PMD_NR already.  So it should inc/dec by
-one rather than nr_pages.
-
-Link: https://lkml.kernel.org/r/20201228164110.2838-1-songmuchun@bytedance.com
-Link: https://lkml.kernel.org/r/20201228164110.2838-2-songmuchun@bytedance.com
-Fixes: 468c398233da ("mm: memcontrol: switch to native NR_ANON_THPS counter")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Pankaj Gupta <pankaj.gupta@cloud.ionos.com>
-Reviewed-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: NeilBrown <neilb@suse.de>
-Cc: Rafael. J. Wysocki <rafael@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: dd1aa2524bc5 ("i2c: brcmstb: Add Broadcom settop SoC i2c controller driver")
+Reported-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-brcmstb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 913c2b9e5c72d..9f4db41d8e161 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -5637,10 +5637,8 @@ static int mem_cgroup_move_account(struct page *page,
- 			__mod_lruvec_state(from_vec, NR_ANON_MAPPED, -nr_pages);
- 			__mod_lruvec_state(to_vec, NR_ANON_MAPPED, nr_pages);
- 			if (PageTransHuge(page)) {
--				__mod_lruvec_state(from_vec, NR_ANON_THPS,
--						   -nr_pages);
--				__mod_lruvec_state(to_vec, NR_ANON_THPS,
--						   nr_pages);
-+				__dec_lruvec_state(from_vec, NR_ANON_THPS);
-+				__inc_lruvec_state(to_vec, NR_ANON_THPS);
- 			}
+diff --git a/drivers/i2c/busses/i2c-brcmstb.c b/drivers/i2c/busses/i2c-brcmstb.c
+index d4e0a0f6732ae..ba766d24219ef 100644
+--- a/drivers/i2c/busses/i2c-brcmstb.c
++++ b/drivers/i2c/busses/i2c-brcmstb.c
+@@ -316,7 +316,7 @@ static int brcmstb_send_i2c_cmd(struct brcmstb_i2c_dev *dev,
+ 		goto cmd_out;
+ 	}
  
- 		}
+-	if ((CMD_RD || CMD_WR) &&
++	if ((cmd == CMD_RD || cmd == CMD_WR) &&
+ 	    bsc_readl(dev, iic_enable) & BSC_IIC_EN_NOACK_MASK) {
+ 		rc = -EREMOTEIO;
+ 		dev_dbg(dev->device, "controller received NOACK intr for %s\n",
 -- 
 2.27.0
 
