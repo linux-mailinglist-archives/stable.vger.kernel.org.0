@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E815328A49
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB5F328A1E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239363AbhCASOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:14:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
+        id S239345AbhCASMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:12:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239445AbhCASIq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1768651CD;
-        Mon,  1 Mar 2021 17:17:10 +0000 (UTC)
+        id S239088AbhCASFp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:05:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 686F4651D4;
+        Mon,  1 Mar 2021 17:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619031;
-        bh=oSmsppwOFSGJvRWs7tGyuh25TJzFvei7c3QfdnAwgs8=;
+        s=korg; t=1614619051;
+        bh=pItgVztPsWOLbhu1XQT65dKNDo2XiajdX3r/DX5pCk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a384FDqDKooxXOXV4jWALg+mWlhW7/ATcnjNJsi+0+LhmBGWV7EaVXD08Aqt+FJ7a
-         XDFEDVKmHmj7W4AStQZPDze+HUmI8G/EPGsIZRG4fihapVgjp+iV8DspMSEOsUwScd
-         MqOul3lvNIxXsVH1tQjLTQygKPCrH6WFhxX9p+FI=
+        b=mT3HilH90EHo6oGl79kNoH8IDZ48bh2xbgShimNC2Bkg3nPRRxsRUgGUCrxvlSQz3
+         Uj67XF9el9HT425QJOluBlComvy6Ph+uwsx9s/wpi/tE51wuu198LgOGUYAv+JuRiA
+         GkPQNNP3TN+GQLfeHIinPVrhTLCn7co0dbe3WRek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Ben Boeckel <mathstuf@gmail.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 307/663] watch_queue: Drop references to /dev/watch_queue
-Date:   Mon,  1 Mar 2021 17:09:15 +0100
-Message-Id: <20210301161157.033977454@linuxfoundation.org>
+Subject: [PATCH 5.10 314/663] regulator: core: Avoid debugfs: Directory ... already present! error
+Date:   Mon,  1 Mar 2021 17:09:22 +0100
+Message-Id: <20210301161157.381011644@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -43,81 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gabriel Krisman Bertazi <krisman@collabora.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8fe62e0c0e2efa5437f3ee81b65d69e70a45ecd2 ]
+[ Upstream commit dbe954d8f1635f949a1d9a5d6e6fb749ae022b47 ]
 
-The merged API doesn't use a watch_queue device, but instead relies on
-pipes, so let the documentation reflect that.
+Sometimes regulator_get() gets called twice for the same supply on the
+same device. This may happen e.g. when a framework / library is used
+which uses the regulator; and the driver itself also needs to enable
+the regulator in some cases where the framework will not enable it.
 
-Fixes: f7e47677e39a ("watch_queue: Add a key/keyring notification facility")
-Signed-off-by: Gabriel Krisman Bertazi <krisman@collabora.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-Reviewed-by: Ben Boeckel <mathstuf@gmail.com>
+Commit ff268b56ce8c ("regulator: core: Don't spew backtraces on
+duplicate sysfs") already takes care of the backtrace which would
+trigger when creating a duplicate consumer symlink under
+/sys/class/regulator/regulator.%d in this scenario.
+
+Commit c33d442328f5 ("debugfs: make error message a bit more verbose")
+causes a new error to get logged in this scenario:
+
+[   26.938425] debugfs: Directory 'wm5102-codec-MICVDD' with parent 'spi-WM510204:00-MICVDD' already present!
+
+There is no _nowarn variant of debugfs_create_dir(), but we can detect
+and avoid this problem by checking the return value of the earlier
+sysfs_create_link_nowarn() call.
+
+Add a check for the earlier sysfs_create_link_nowarn() failing with
+-EEXIST and skip the debugfs_create_dir() call in that case, avoiding
+this error getting logged.
+
+Fixes: c33d442328f5 ("debugfs: make error message a bit more verbose")
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210122183250.370571-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/security/keys/core.rst | 4 ++--
- samples/Kconfig                      | 2 +-
- samples/watch_queue/watch_test.c     | 2 +-
- security/keys/Kconfig                | 8 ++++----
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/regulator/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/security/keys/core.rst b/Documentation/security/keys/core.rst
-index aa0081685ee11..b3ed5c581034c 100644
---- a/Documentation/security/keys/core.rst
-+++ b/Documentation/security/keys/core.rst
-@@ -1040,8 +1040,8 @@ The keyctl syscall functions are:
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 35098dbd32a3c..7b3de8b0b1caf 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -1617,7 +1617,7 @@ static struct regulator *create_regulator(struct regulator_dev *rdev,
+ 					  const char *supply_name)
+ {
+ 	struct regulator *regulator;
+-	int err;
++	int err = 0;
  
-      "key" is the ID of the key to be watched.
+ 	if (dev) {
+ 		char buf[REG_STR_SIZE];
+@@ -1663,8 +1663,8 @@ static struct regulator *create_regulator(struct regulator_dev *rdev,
+ 		}
+ 	}
  
--     "queue_fd" is a file descriptor referring to an open "/dev/watch_queue"
--     which manages the buffer into which notifications will be delivered.
-+     "queue_fd" is a file descriptor referring to an open pipe which
-+     manages the buffer into which notifications will be delivered.
- 
-      "filter" is either NULL to remove a watch or a filter specification to
-      indicate what events are required from the key.
-diff --git a/samples/Kconfig b/samples/Kconfig
-index 0ed6e4d71d87b..e76cdfc50e257 100644
---- a/samples/Kconfig
-+++ b/samples/Kconfig
-@@ -210,7 +210,7 @@ config SAMPLE_WATCHDOG
- 	depends on CC_CAN_LINK
- 
- config SAMPLE_WATCH_QUEUE
--	bool "Build example /dev/watch_queue notification consumer"
-+	bool "Build example watch_queue notification API consumer"
- 	depends on CC_CAN_LINK && HEADERS_INSTALL
- 	help
- 	  Build example userspace program to use the new mount_notify(),
-diff --git a/samples/watch_queue/watch_test.c b/samples/watch_queue/watch_test.c
-index 46e618a897fef..8c6cb57d5cfc5 100644
---- a/samples/watch_queue/watch_test.c
-+++ b/samples/watch_queue/watch_test.c
-@@ -1,5 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0
--/* Use /dev/watch_queue to watch for notifications.
-+/* Use watch_queue API to watch for notifications.
-  *
-  * Copyright (C) 2020 Red Hat, Inc. All Rights Reserved.
-  * Written by David Howells (dhowells@redhat.com)
-diff --git a/security/keys/Kconfig b/security/keys/Kconfig
-index 83bc23409164a..c161642a84841 100644
---- a/security/keys/Kconfig
-+++ b/security/keys/Kconfig
-@@ -119,7 +119,7 @@ config KEY_NOTIFICATIONS
- 	bool "Provide key/keyring change notifications"
- 	depends on KEYS && WATCH_QUEUE
- 	help
--	  This option provides support for getting change notifications on keys
--	  and keyrings on which the caller has View permission.  This makes use
--	  of the /dev/watch_queue misc device to handle the notification
--	  buffer and provides KEYCTL_WATCH_KEY to enable/disable watches.
-+	  This option provides support for getting change notifications
-+	  on keys and keyrings on which the caller has View permission.
-+	  This makes use of pipes to handle the notification buffer and
-+	  provides KEYCTL_WATCH_KEY to enable/disable watches.
+-	regulator->debugfs = debugfs_create_dir(supply_name,
+-						rdev->debugfs);
++	if (err != -EEXIST)
++		regulator->debugfs = debugfs_create_dir(supply_name, rdev->debugfs);
+ 	if (!regulator->debugfs) {
+ 		rdev_dbg(rdev, "Failed to create debugfs directory\n");
+ 	} else {
 -- 
 2.27.0
 
