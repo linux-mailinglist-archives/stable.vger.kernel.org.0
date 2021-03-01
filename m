@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B7A328768
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE3132876B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238197AbhCARXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:23:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
+        id S238200AbhCARXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:23:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236529AbhCARQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237734AbhCARQD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:16:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B2B65032;
-        Mon,  1 Mar 2021 16:45:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56F0F65041;
+        Mon,  1 Mar 2021 16:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617157;
-        bh=jxdL+NXLqAGrcWPfzTx4Ka+fkw2lSjx8W/G5Jhpuyac=;
+        s=korg; t=1614617160;
+        bh=Q6MKNMoNasPyBgqi9r5mPcPs7EgxvEFvueDoTVIccI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SluCUSIeZrPd62iGjdn46eTfiv+PNs/Qyj3EAfEBR2pxcX20UPTITZF24SG5RQwT4
-         cxqb2gKmQa72tQ3j+VVQJq1rpCRmqF0PfZkZ7GjEcS5c+pt0kBcEdCF5UyN52Zg3o8
-         n+KplMyJujwdV706g+Wt/YJdytpmlthtUf4BWzTs=
+        b=mgrQT3SwJOStsds9PWXI72Xk5M3p9HwyzTIkqjzTqzry6FWCdf7gmi2gfSz/kpoMA
+         7wU7rrETvX/II7cNnBzwifgW0DboMD7+vdIJDUpP1TXKp1sqrIOrISJAOkw8GNTGR5
+         2FNiKrNG9vU2lwcAP4sYOmZT7xJSLOJ94yg9weXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 192/247] USB: serial: mos7720: fix error code in mos7720_write()
-Date:   Mon,  1 Mar 2021 17:13:32 +0100
-Message-Id: <20210301161041.056678560@linuxfoundation.org>
+        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 193/247] ALSA: hda/realtek: modify EAPD in the ALC886
+Date:   Mon,  1 Mar 2021 17:13:33 +0100
+Message-Id: <20210301161041.106146086@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -39,35 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: PeiSen Hou <pshou@realtek.com>
 
-commit fea7372cbc40869876df0f045e367f6f97a1666c upstream.
+commit 4841b8e6318a7f0ae57c4e5ec09032ea057c97a8 upstream.
 
-This code should return -ENOMEM if the kmalloc() fails but instead
-it returns success.
+Modify 0x20 index 7 bit 5 to 1, make the 0x15 EAPD the same as 0x14.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: PeiSen Hou <pshou@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/e62c5058957f48d8b8953e97135ff108@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7720.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/usb/serial/mos7720.c
-+++ b/drivers/usb/serial/mos7720.c
-@@ -1250,8 +1250,10 @@ static int mos7720_write(struct tty_stru
- 	if (urb->transfer_buffer == NULL) {
- 		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
- 					       GFP_ATOMIC);
--		if (!urb->transfer_buffer)
-+		if (!urb->transfer_buffer) {
-+			bytes_sent = -ENOMEM;
- 			goto exit;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1880,6 +1880,7 @@ enum {
+ 	ALC889_FIXUP_FRONT_HP_NO_PRESENCE,
+ 	ALC889_FIXUP_VAIO_TT,
+ 	ALC888_FIXUP_EEE1601,
++	ALC886_FIXUP_EAPD,
+ 	ALC882_FIXUP_EAPD,
+ 	ALC883_FIXUP_EAPD,
+ 	ALC883_FIXUP_ACER_EAPD,
+@@ -2213,6 +2214,15 @@ static const struct hda_fixup alc882_fix
+ 			{ }
+ 		}
+ 	},
++	[ALC886_FIXUP_EAPD] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			/* change to EAPD mode */
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x07 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0068 },
++			{ }
 +		}
- 	}
- 	transfer_size = min(count, URB_TRANSFER_BUFFER_SIZE);
++	},
+ 	[ALC882_FIXUP_EAPD] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -2485,6 +2495,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x106b, 0x4a00, "Macbook 5,2", ALC889_FIXUP_MBA11_VREF),
  
+ 	SND_PCI_QUIRK(0x1071, 0x8258, "Evesham Voyaeger", ALC882_FIXUP_EAPD),
++	SND_PCI_QUIRK(0x13fe, 0x1009, "Advantech MIT-W101", ALC886_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
 
 
