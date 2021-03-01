@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E88B2328764
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 803BB32876C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238178AbhCARXi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:23:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50436 "EHLO mail.kernel.org"
+        id S238203AbhCARXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:23:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232265AbhCARQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:16:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C528A65050;
-        Mon,  1 Mar 2021 16:46:24 +0000 (UTC)
+        id S237825AbhCARQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:16:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFAA665051;
+        Mon,  1 Mar 2021 16:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617185;
-        bh=0KBqfaLlD1LOkMSE99nIANNFPHTpm6MgxtAapTpg6Do=;
+        s=korg; t=1614617188;
+        bh=ow61ZDxBFEupd1XCEa5kWgb8gUKNiRyWQgrKiVxPjFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohZwuOHP0axmmG5K0DEXAelJgG05PAJtkKqVtslFra9nz6rFHDFtCqJZ5I6ZjL0L1
-         WExHaL1KL2pzyaRsCJ/lDkUsNcdE4uZTXRIIGNngfQ8jxCwpaE2uyDtaViy0Dr0MCN
-         s3kb+JEwzw8hmkDk8OV//ev0nTbyf4UI+jOMMVTQ=
+        b=EiOaQ4nJJ9eFJKTYP+Mv85L423HsyBbV69Rlmr2K/AD5evJj4zFKHeH+4s/JWpyqj
+         XdZtqVEN6+TagDy80W19+UETkKc/edfukTESDA6GBLK9eMebTicFazbO6BJaOwsrL/
+         lyoZKOQoaUpiVR+lGq64fp6SlvmnqsnI1brbjXxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Ming-Hung Tsai <mtsai@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 233/247] dm era: Recover committed writeset after crash
-Date:   Mon,  1 Mar 2021 17:14:13 +0100
-Message-Id: <20210301161043.104059624@linuxfoundation.org>
+Subject: [PATCH 4.19 234/247] dm era: Verify the data block size hasnt changed
+Date:   Mon,  1 Mar 2021 17:14:14 +0100
+Message-Id: <20210301161043.157832452@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,123 +42,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit de89afc1e40fdfa5f8b666e5d07c43d21a1d3be0 upstream.
+commit c8e846ff93d5eaa5384f6f325a1687ac5921aade upstream.
 
-Following a system crash, dm-era fails to recover the committed writeset
-for the current era, leading to lost writes. That is, we lose the
-information about what blocks were written during the affected era.
-
-dm-era assumes that the writeset of the current era is archived when the
-device is suspended. So, when resuming the device, it just moves on to
-the next era, ignoring the committed writeset.
-
-This assumption holds when the device is properly shut down. But, when
-the system crashes, the code that suspends the target never runs, so the
-writeset for the current era is not archived.
-
-There are three issues that cause the committed writeset to get lost:
-
-1. dm-era doesn't load the committed writeset when opening the metadata
-2. The code that resizes the metadata wipes the information about the
-   committed writeset (assuming it was loaded at step 1)
-3. era_preresume() starts a new era, without taking into account that
-   the current era might not have been archived, due to a system crash.
-
-To fix this:
-
-1. Load the committed writeset when opening the metadata
-2. Fix the code that resizes the metadata to make sure it doesn't wipe
-   the loaded writeset
-3. Fix era_preresume() to check for a loaded writeset and archive it,
-   before starting a new era.
+dm-era doesn't support changing the data block size of existing devices,
+so check explicitly that the requested block size for a new target
+matches the one stored in the metadata.
 
 Fixes: eec40579d84873 ("dm: add era target")
 Cc: stable@vger.kernel.org # v3.15+
 Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/md/dm-era-target.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
 --- a/drivers/md/dm-era-target.c
 +++ b/drivers/md/dm-era-target.c
-@@ -70,8 +70,6 @@ static size_t bitset_size(unsigned nr_bi
-  */
- static int writeset_alloc(struct writeset *ws, dm_block_t nr_blocks)
- {
--	ws->md.nr_bits = nr_blocks;
--	ws->md.root = INVALID_WRITESET_ROOT;
- 	ws->bits = vzalloc(bitset_size(nr_blocks));
- 	if (!ws->bits) {
- 		DMERR("%s: couldn't allocate in memory bitset", __func__);
-@@ -84,12 +82,14 @@ static int writeset_alloc(struct writese
- /*
-  * Wipes the in-core bitset, and creates a new on disk bitset.
-  */
--static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws)
-+static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws,
-+			 dm_block_t nr_blocks)
- {
- 	int r;
+@@ -563,6 +563,15 @@ static int open_metadata(struct era_meta
+ 	}
  
--	memset(ws->bits, 0, bitset_size(ws->md.nr_bits));
-+	memset(ws->bits, 0, bitset_size(nr_blocks));
+ 	disk = dm_block_data(sblock);
++
++	/* Verify the data block size hasn't changed */
++	if (le32_to_cpu(disk->data_block_size) != md->block_size) {
++		DMERR("changing the data block size (from %u to %llu) is not supported",
++		      le32_to_cpu(disk->data_block_size), md->block_size);
++		r = -EINVAL;
++		goto bad;
++	}
++
+ 	r = dm_tm_open_with_sm(md->bm, SUPERBLOCK_LOCATION,
+ 			       disk->metadata_space_map_root,
+ 			       sizeof(disk->metadata_space_map_root),
+@@ -574,7 +583,6 @@ static int open_metadata(struct era_meta
  
-+	ws->md.nr_bits = nr_blocks;
- 	r = setup_on_disk_bitset(info, ws->md.nr_bits, &ws->md.root);
- 	if (r) {
- 		DMERR("%s: setup_on_disk_bitset failed", __func__);
-@@ -578,6 +578,7 @@ static int open_metadata(struct era_meta
+ 	setup_infos(md);
+ 
+-	md->block_size = le32_to_cpu(disk->data_block_size);
  	md->nr_blocks = le32_to_cpu(disk->nr_blocks);
  	md->current_era = le32_to_cpu(disk->current_era);
  
-+	ws_unpack(&disk->current_writeset, &md->current_writeset->md);
- 	md->writeset_tree_root = le64_to_cpu(disk->writeset_tree_root);
- 	md->era_array_root = le64_to_cpu(disk->era_array_root);
- 	md->metadata_snap = le64_to_cpu(disk->metadata_snap);
-@@ -869,7 +870,6 @@ static int metadata_era_archive(struct e
- 	}
- 
- 	ws_pack(&md->current_writeset->md, &value);
--	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
- 
- 	keys[0] = md->current_era;
- 	__dm_bless_for_disk(&value);
-@@ -881,6 +881,7 @@ static int metadata_era_archive(struct e
- 		return r;
- 	}
- 
-+	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
- 	md->archived_writesets = true;
- 
- 	return 0;
-@@ -897,7 +898,7 @@ static int metadata_new_era(struct era_m
- 	int r;
- 	struct writeset *new_writeset = next_writeset(md);
- 
--	r = writeset_init(&md->bitset_info, new_writeset);
-+	r = writeset_init(&md->bitset_info, new_writeset, md->nr_blocks);
- 	if (r) {
- 		DMERR("%s: writeset_init failed", __func__);
- 		return r;
-@@ -950,7 +951,7 @@ static int metadata_commit(struct era_me
- 	int r;
- 	struct dm_block *sblock;
- 
--	if (md->current_writeset->md.root != SUPERBLOCK_LOCATION) {
-+	if (md->current_writeset->md.root != INVALID_WRITESET_ROOT) {
- 		r = dm_bitset_flush(&md->bitset_info, md->current_writeset->md.root,
- 				    &md->current_writeset->md.root);
- 		if (r) {
-@@ -1579,7 +1580,7 @@ static int era_preresume(struct dm_targe
- 
- 	start_worker(era);
- 
--	r = in_worker0(era, metadata_new_era);
-+	r = in_worker0(era, metadata_era_rollover);
- 	if (r) {
- 		DMERR("%s: metadata_era_rollover failed", __func__);
- 		return r;
 
 
