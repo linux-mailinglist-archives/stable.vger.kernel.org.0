@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F20328A68
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39DD63289BE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239569AbhCASRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
+        id S236622AbhCASD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239057AbhCASJT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:09:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1F8F64F3E;
-        Mon,  1 Mar 2021 17:05:56 +0000 (UTC)
+        id S239174AbhCAR6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:58:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76C8264F6B;
+        Mon,  1 Mar 2021 17:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618357;
-        bh=JxfD2xSjmuUV9FC76sMH0DWAc9vUOhn/rSQ2t0OJ/V8=;
+        s=korg; t=1614618360;
+        bh=vbuVeIEFL7Jimxs3iKdmSS2pCjQ/tt0oQ2cjTvP/l/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9y56WaWt5tlVyDhEhJz5U2gL1M8kn3aLxGfWygU3hEZLDhiZRfrmRR9YqVlc1YNA
-         BuhYRO1M6JOFQOvV1FcAoPg4iGjgvUGedo6PezM0ndJlVBRcbAUtSmv5Y8KmF9tgG2
-         nxBAQpNO7UXoN8kJnNmElINiZgEV+6eZTzWqZyQc=
+        b=KMxJ9pIPi/0ftX248nMB7zJPmR6FjKKjEB6QRhvEQ7A9s9kyaRhMMqIi031ctPD2N
+         XA0NWSHHu3kIll5xXNgQy1M6PO88I1SIIjdJrfRq13NZz1X+pBU29EOIJQUXIUeoB0
+         wcBP9NeM76J8DtvBtn97Ri7eE2DI0g2AWdlvfY2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/663] soc: ti: pm33xx: Fix some resource leak in the error handling paths of the probe function
-Date:   Mon,  1 Mar 2021 17:05:05 +0100
-Message-Id: <20210301161144.578332479@linuxfoundation.org>
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 058/663] staging: media: atomisp: Fix size_t format specifier in hmm_alloc() debug statemenet
+Date:   Mon,  1 Mar 2021 17:05:06 +0100
+Message-Id: <20210301161144.614235720@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,48 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 17ad4662595ea0c4fd7496b664523ef632e63349 ]
+[ Upstream commit bfe21ef195a9f2785747e698dfd19f75554e2d91 ]
 
-'am33xx_pm_rtc_setup()' allocates some resources that must be freed on the
-error. Commit 2152fbbd47c0 ("soc: ti: pm33xx: Simplify RTC usage to prepare
-to drop platform data") has introduced the use of these resources but has
-only updated the remove function.
+Fix this build warning on 32-bit:
 
-Fix the error handling path of the probe function now.
+  drivers/staging/media/atomisp/pci/hmm/hmm.c: In function ‘hmm_alloc’:
+  drivers/staging/media/atomisp/pci/hmm/hmm.c:272:3: warning: format ‘%ld’ \
+     expects argument of type ‘long int’, but argument 6 has type ‘size_t {aka unsigned int}’ [-Wformat=]
+     "%s: pages: 0x%08x (%ld bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
+     ^
 
-Fixes: 2152fbbd47c0 ("soc: ti: pm33xx: Simplify RTC usage to prepare to drop platform data")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Fixes: 03884c93560c ("media: atomisp: add debug for hmm alloc")
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20201126181150.10576-1-bp@alien8.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/ti/pm33xx.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/media/atomisp/pci/hmm/hmm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/soc/ti/pm33xx.c b/drivers/soc/ti/pm33xx.c
-index d2f5e7001a93c..dc21aa855a458 100644
---- a/drivers/soc/ti/pm33xx.c
-+++ b/drivers/soc/ti/pm33xx.c
-@@ -536,7 +536,7 @@ static int am33xx_pm_probe(struct platform_device *pdev)
+diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm.c b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+index e0eaff0f8a228..6a5ee46070898 100644
+--- a/drivers/staging/media/atomisp/pci/hmm/hmm.c
++++ b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+@@ -269,7 +269,7 @@ ia_css_ptr hmm_alloc(size_t bytes, enum hmm_bo_type type,
+ 		hmm_set(bo->start, 0, bytes);
  
- 	ret = am33xx_push_sram_idle();
- 	if (ret)
--		goto err_free_sram;
-+		goto err_unsetup_rtc;
+ 	dev_dbg(atomisp_dev,
+-		"%s: pages: 0x%08x (%ld bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
++		"%s: pages: 0x%08x (%zu bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
+ 		__func__, bo->start, bytes, type, from_highmem, userptr, cached);
  
- 	am33xx_pm_set_ipc_ops();
- 
-@@ -566,6 +566,9 @@ static int am33xx_pm_probe(struct platform_device *pdev)
- 
- err_put_wkup_m3_ipc:
- 	wkup_m3_ipc_put(m3_ipc);
-+err_unsetup_rtc:
-+	iounmap(rtc_base_virt);
-+	clk_put(rtc_fck);
- err_free_sram:
- 	am33xx_pm_free_sram();
- 	pm33xx_dev = NULL;
+ 	return bo->start;
 -- 
 2.27.0
 
