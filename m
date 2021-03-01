@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AF0132895D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCF032895C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238779AbhCARzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:55:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43366 "EHLO mail.kernel.org"
+        id S238729AbhCARzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:55:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238513AbhCARtg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:49:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52478650EF;
-        Mon,  1 Mar 2021 17:00:03 +0000 (UTC)
+        id S238617AbhCARth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:49:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DC6F650EC;
+        Mon,  1 Mar 2021 17:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618003;
-        bh=ZTXcQ/HgkGLx7GOqLgNFOnRAvJ4AQ4FcdaC5wFNq3J0=;
+        s=korg; t=1614618007;
+        bh=Bko+Wm0UuPJLzh4azU5u9LN+7ZRjmySD0dUobLg2ZjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PO717kT5n03DbR0+Jfpvc+T90s/JBfBv8Pjo84OKso32vQQFIXttl1k7S2O25lf4h
-         ObrO3nq58/gRcspDqgnRPzYglVGdUGu9hyXs+fKpDMa50Bp+FSB1FNc34Qw6Gl5q4x
-         szOxNAC2/kWkZQEoNExg10uVWFtK2KDhb1farNAI=
+        b=sRzKGde7nRpQg4cNGOQrEsG5ts+ERMf/MiPcbJiYl0NETpL60dNI+L+1honzHgO7d
+         KgK3oNREaMOu2VV9rie6wyxjCO4HHkfuUE/OHG75X30LzOxkhSskCL8N/tpSOosA/5
+         y3Xp41PzoGS/MY123pEwJqGFv7qLwa5Uv+jgGa00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 274/340] crypto: sun4i-ss - initialize need_fallback
-Date:   Mon,  1 Mar 2021 17:13:38 +0100
-Message-Id: <20210301161101.774009706@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 275/340] seccomp: Add missing return in non-void function
+Date:   Mon,  1 Mar 2021 17:13:39 +0100
+Message-Id: <20210301161101.822429256@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -39,32 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 4ec8977b921fd9d512701e009ce8082cb94b5c1c upstream.
+commit 04b38d012556199ba4c31195940160e0c44c64f0 upstream.
 
-The need_fallback is never initialized and seem to be always true at runtime.
-So all hardware operations are always bypassed.
+We don't actually care about the value, since the kernel will panic
+before that; but a value should nonetheless be returned, otherwise the
+compiler will complain.
 
-Fixes: 0ae1f46c55f87 ("crypto: sun4i-ss - fallback when length is not multiple of blocksize")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 8112c4f140fa ("seccomp: remove 2-phase API")
+Cc: stable@vger.kernel.org # 4.7+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210111172839.640914-1-paul@crapouillou.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-cipher.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/seccomp.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-@@ -196,7 +196,7 @@ static int sun4i_ss_cipher_poll(struct s
- 	unsigned int obo = 0;	/* offset in bufo*/
- 	unsigned int obl = 0;	/* length of data in bufo */
- 	unsigned long flags;
--	bool need_fallback;
-+	bool need_fallback = false;
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -921,6 +921,8 @@ static int __seccomp_filter(int this_sys
+ 			    const bool recheck_after_trace)
+ {
+ 	BUG();
++
++	return -1;
+ }
+ #endif
  
- 	if (!areq->cryptlen)
- 		return 0;
 
 
