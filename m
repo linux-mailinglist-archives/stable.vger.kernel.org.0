@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F892328A85
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1208B328A0D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239499AbhCASSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:18:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60786 "EHLO mail.kernel.org"
+        id S234482AbhCASK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:10:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239328AbhCASLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:11:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71AA460249;
-        Mon,  1 Mar 2021 17:39:06 +0000 (UTC)
+        id S239047AbhCASEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 051966514F;
+        Mon,  1 Mar 2021 17:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620347;
-        bh=4VybER3IavOMA4seHo5f6Doje/QSZTxs3TFThHrhSh4=;
+        s=korg; t=1614618312;
+        bh=knLjTX156/NfT82qImq3VmnlLP/sb7rvTwiGTaR3u7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3JQUMoz1BC0AozXQTSqIL9ECyM9J566fmphQr0gH0TI0HuwzLBjlSJOZC8Zk3Piy
-         GqXtkaZ/fbvV8mqNyCalFpeQ1FQ2JcNL/0Z4iwBL/mVWRPrGY63FminmUfsPOYXVi1
-         iVq3xGCn/mdTwfMlMJqrb79jkC4OPLHLy792Dxik=
+        b=ZJxXQNlddtxwGpiQT2ectIr0YNW2amigANOovqc40uO5YcWJ1trWvXXf7fef/AE8h
+         ZtlYdOcZPhBVcMdWSnmVMMtyy8A6xePSoWSVl9aXUyOgNffBLA7zixszopv6XEisIX
+         /UKOyo9F1n1GW6HXFp3Ji3j1bdPGPhLGjfzM7yDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junichi Nomura <junichi.nomura@nec.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 120/775] bpf, devmap: Use GFP_KERNEL for xdp bulk queue allocation
-Date:   Mon,  1 Mar 2021 17:04:48 +0100
-Message-Id: <20210301161207.608693157@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 042/663] bpf: Avoid warning when re-casting __bpf_call_base into __bpf_call_base_args
+Date:   Mon,  1 Mar 2021 17:04:50 +0100
+Message-Id: <20210301161143.857962150@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun'ichi Nomura <junichi.nomura@nec.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 7d4553b69fb335496c597c31590e982485ebe071 ]
+[ Upstream commit 6943c2b05bf09fd5c5729f7d7d803bf3f126cb9a ]
 
-The devmap bulk queue is allocated with GFP_ATOMIC and the allocation
-may fail if there is no available space in existing percpu pool.
+BPF interpreter uses extra input argument, so re-casts __bpf_call_base into
+__bpf_call_base_args. Avoid compiler warning about incompatible function
+prototypes by casting to void * first.
 
-Since commit 75ccae62cb8d42 ("xdp: Move devmap bulk queue into struct net_device")
-moved the bulk queue allocation to NETDEV_REGISTER callback, whose context
-is allowed to sleep, use GFP_KERNEL instead of GFP_ATOMIC to let percpu
-allocator extend the pool when needed and avoid possible failure of netdev
-registration.
-
-As the required alignment is natural, we can simply use alloc_percpu().
-
-Fixes: 75ccae62cb8d42 ("xdp: Move devmap bulk queue into struct net_device")
-Signed-off-by: Jun'ichi Nomura <junichi.nomura@nec.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/bpf/20210209082451.GA44021@jeru.linux.bs1.fc.nec.co.jp
+Fixes: 1ea47e01ad6e ("bpf: add support for bpf_call to interpreter")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210112075520.4103414-3-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ include/linux/filter.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
-index f6e9c68afdd42..85d9d1b72a33a 100644
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -802,9 +802,7 @@ static int dev_map_notification(struct notifier_block *notifier,
- 			break;
+diff --git a/include/linux/filter.h b/include/linux/filter.h
+index 1b62397bd1247..e2ffa02f9067a 100644
+--- a/include/linux/filter.h
++++ b/include/linux/filter.h
+@@ -886,7 +886,7 @@ void sk_filter_uncharge(struct sock *sk, struct sk_filter *fp);
+ u64 __bpf_call_base(u64 r1, u64 r2, u64 r3, u64 r4, u64 r5);
+ #define __bpf_call_base_args \
+ 	((u64 (*)(u64, u64, u64, u64, u64, const struct bpf_insn *)) \
+-	 __bpf_call_base)
++	 (void *)__bpf_call_base)
  
- 		/* will be freed in free_netdev() */
--		netdev->xdp_bulkq =
--			__alloc_percpu_gfp(sizeof(struct xdp_dev_bulk_queue),
--					   sizeof(void *), GFP_ATOMIC);
-+		netdev->xdp_bulkq = alloc_percpu(struct xdp_dev_bulk_queue);
- 		if (!netdev->xdp_bulkq)
- 			return NOTIFY_BAD;
- 
+ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog);
+ void bpf_jit_compile(struct bpf_prog *prog);
 -- 
 2.27.0
 
