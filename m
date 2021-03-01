@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FED3328AE3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A0B3328AD5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239761AbhCASYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:24:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39690 "EHLO mail.kernel.org"
+        id S237845AbhCASXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:23:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239568AbhCASTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:19:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A9D6865168;
-        Mon,  1 Mar 2021 17:06:59 +0000 (UTC)
+        id S239538AbhCASRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:17:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C002F65170;
+        Mon,  1 Mar 2021 17:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618420;
-        bh=iMH4t2kCJ6eeGc1rC6GCEGke9jt0PK3W41XzbwufATU=;
+        s=korg; t=1614618439;
+        bh=jgQB9RKeyETS68Ouoc8IcaY3KHOjwFBmuV6WbgHdndU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n0Q7YoAbhYjbNhl9zveNjj88AZmy0MNibYMVYb8pGXGPrbVbphi/5JZjX+IC0bcwC
-         7ouR66voYOXlsYjqNVaEGaWGeQ7DSPMoDvUEq1I+fV8JuQfdhNMyDhGwgKqtmUW9Ba
-         xBiKOaHdV00N9orukSXeYao35fjt7GVeilxj7N20=
+        b=ptdPQI2Yx21BMQM7Mnga3Hm94dhG1unvFcv8xmnqbp8wp+TvwHLjsVp5b9n9LJOKE
+         ZDlke4N29WvoNSMT+AyV/R42Gug4V+iERP99ircIIuQFJuJNev0MJCEiznD+98ObeS
+         Jj0fOD4wIttVsfJAUHnFrbitTLPdEJV1gBSiBHDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/663] staging: wfx: fix possible panic with re-queued frames
-Date:   Mon,  1 Mar 2021 17:05:29 +0100
-Message-Id: <20210301161145.743453254@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 087/663] iwlwifi: mvm: fix the type we use in the PPAG table validity checks
+Date:   Mon,  1 Mar 2021 17:05:35 +0100
+Message-Id: <20210301161146.034824949@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,99 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 26df933d9b83ea668304dc4ec641d52ea1fc4091 ]
+[ Upstream commit 5a6842455c113920001df83cffa28accceeb0927 ]
 
-When the firmware rejects a frame (because station become asleep or
-disconnected), the frame is re-queued in mac80211. However, the
-re-queued frame was 8 bytes longer than the original one (the size of
-the ICV for the encryption). So, when mac80211 try to send this frame
-again, it is a little bigger than expected.
-If the frame is re-queued secveral time it end with a skb_over_panic
-because the skb buffer is not large enough.
+The value we receive from ACPI is a long long unsigned integer but the
+values should be treated as signed char.  When comparing the received
+value with ACPI_PPAG_MIN_LB/HB, we were doing an unsigned comparison,
+so the negative value would actually be treated as a very high number.
 
-Note it only happens when device acts as an AP and encryption is
-enabled.
+To solve this issue, assign the value to our table of s8's before
+making the comparison, so the value is already converted when we do
+so.
 
-This patch more or less reverts the commit 049fde130419 ("staging: wfx:
-drop useless field from struct wfx_tx_priv").
-
-Fixes: 049fde130419 ("staging: wfx: drop useless field from struct wfx_tx_priv")
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Link: https://lore.kernel.org/r/20210208135254.399964-1-Jerome.Pouiller@silabs.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210210135352.b0ec69f312bc.If77fd9c61a96aa7ef2ac96d935b7efd7df502399@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wfx/data_tx.c | 10 +++++++++-
- drivers/staging/wfx/data_tx.h |  1 +
- 2 files changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/wfx/data_tx.c b/drivers/staging/wfx/data_tx.c
-index 36b36ef39d053..77fb104efdec1 100644
---- a/drivers/staging/wfx/data_tx.c
-+++ b/drivers/staging/wfx/data_tx.c
-@@ -331,6 +331,7 @@ static int wfx_tx_inner(struct wfx_vif *wvif, struct ieee80211_sta *sta,
- {
- 	struct hif_msg *hif_msg;
- 	struct hif_req_tx *req;
-+	struct wfx_tx_priv *tx_priv;
- 	struct ieee80211_tx_info *tx_info = IEEE80211_SKB_CB(skb);
- 	struct ieee80211_key_conf *hw_key = tx_info->control.hw_key;
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *)skb->data;
-@@ -344,11 +345,14 @@ static int wfx_tx_inner(struct wfx_vif *wvif, struct ieee80211_sta *sta,
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 059ce227151ea..c351c91a9ec96 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -999,16 +999,23 @@ read_table:
+ 			union acpi_object *ent;
  
- 	// From now tx_info->control is unusable
- 	memset(tx_info->rate_driver_data, 0, sizeof(struct wfx_tx_priv));
-+	// Fill tx_priv
-+	tx_priv = (struct wfx_tx_priv *)tx_info->rate_driver_data;
-+	tx_priv->icv_size = wfx_tx_get_icv_len(hw_key);
- 
- 	// Fill hif_msg
- 	WARN(skb_headroom(skb) < wmsg_len, "not enough space in skb");
- 	WARN(offset & 1, "attempt to transmit an unaligned frame");
--	skb_put(skb, wfx_tx_get_icv_len(hw_key));
-+	skb_put(skb, tx_priv->icv_size);
- 	skb_push(skb, wmsg_len);
- 	memset(skb->data, 0, wmsg_len);
- 	hif_msg = (struct hif_msg *)skb->data;
-@@ -484,6 +488,7 @@ static void wfx_tx_fill_rates(struct wfx_dev *wdev,
- 
- void wfx_tx_confirm_cb(struct wfx_dev *wdev, const struct hif_cnf_tx *arg)
- {
-+	const struct wfx_tx_priv *tx_priv;
- 	struct ieee80211_tx_info *tx_info;
- 	struct wfx_vif *wvif;
- 	struct sk_buff *skb;
-@@ -495,6 +500,7 @@ void wfx_tx_confirm_cb(struct wfx_dev *wdev, const struct hif_cnf_tx *arg)
- 		return;
- 	}
- 	tx_info = IEEE80211_SKB_CB(skb);
-+	tx_priv = wfx_skb_tx_priv(skb);
- 	wvif = wdev_to_wvif(wdev, ((struct hif_msg *)skb->data)->interface);
- 	WARN_ON(!wvif);
- 	if (!wvif)
-@@ -503,6 +509,8 @@ void wfx_tx_confirm_cb(struct wfx_dev *wdev, const struct hif_cnf_tx *arg)
- 	// Note that wfx_pending_get_pkt_us_delay() get data from tx_info
- 	_trace_tx_stats(arg, skb, wfx_pending_get_pkt_us_delay(wdev, skb));
- 	wfx_tx_fill_rates(wdev, tx_info, arg);
-+	skb_trim(skb, skb->len - tx_priv->icv_size);
+ 			ent = &wifi_pkg->package.elements[idx++];
+-			if (ent->type != ACPI_TYPE_INTEGER ||
+-			    (j == 0 && ent->integer.value > ACPI_PPAG_MAX_LB) ||
+-			    (j == 0 && ent->integer.value < ACPI_PPAG_MIN_LB) ||
+-			    (j != 0 && ent->integer.value > ACPI_PPAG_MAX_HB) ||
+-			    (j != 0 && ent->integer.value < ACPI_PPAG_MIN_HB)) {
+-				ppag_table.v1.enabled = cpu_to_le32(0);
++			if (ent->type != ACPI_TYPE_INTEGER) {
+ 				ret = -EINVAL;
+ 				goto out_free;
+ 			}
 +
- 	// From now, you can touch to tx_info->status, but do not touch to
- 	// tx_priv anymore
- 	// FIXME: use ieee80211_tx_info_clear_status()
-diff --git a/drivers/staging/wfx/data_tx.h b/drivers/staging/wfx/data_tx.h
-index 46c9fff7a870e..401363d6b563a 100644
---- a/drivers/staging/wfx/data_tx.h
-+++ b/drivers/staging/wfx/data_tx.h
-@@ -35,6 +35,7 @@ struct tx_policy_cache {
- 
- struct wfx_tx_priv {
- 	ktime_t xmit_timestamp;
-+	unsigned char icv_size;
- };
- 
- void wfx_tx_policy_init(struct wfx_vif *wvif);
+ 			gain[i * num_sub_bands + j] = ent->integer.value;
++
++			if ((j == 0 &&
++			     (gain[i * num_sub_bands + j] > ACPI_PPAG_MAX_LB ||
++			      gain[i * num_sub_bands + j] < ACPI_PPAG_MIN_LB)) ||
++			    (j != 0 &&
++			     (gain[i * num_sub_bands + j] > ACPI_PPAG_MAX_HB ||
++			      gain[i * num_sub_bands + j] < ACPI_PPAG_MIN_HB))) {
++				ppag_table.v1.enabled = cpu_to_le32(0);
++				ret = -EINVAL;
++				goto out_free;
++			}
+ 		}
+ 	}
+ 	ret = 0;
 -- 
 2.27.0
 
