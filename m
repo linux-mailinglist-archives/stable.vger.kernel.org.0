@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66481328B8E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:39:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5397328B4F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240169AbhCAShR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:37:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S239990AbhCASc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:32:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234861AbhCAS3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:29:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 520BB65001;
-        Mon,  1 Mar 2021 17:09:09 +0000 (UTC)
+        id S239602AbhCASYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:24:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 441EF65348;
+        Mon,  1 Mar 2021 17:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618549;
-        bh=44yxA0E7WiIwxw9+9jOtNTZsmjjapBtEe9/Oejm4uNQ=;
+        s=korg; t=1614620671;
+        bh=aX5hJxqw5n5ej0Fl9vYIFNNP+8dvW9NKJkz4v5qLVkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPkgR0IaZ9VGKNVpdp4q9t4SRW1lI5MHsuUlZmZO71L2Y8ea4F9zaWx55m6nyfXn6
-         atWm5uvNqBF1zXcONzBoOtFs4uGpF87FCXre9pIgG5N8CahvUFJ6EBZG7YAspSzICv
-         GZqzbmlFad9EGKYAahLX+zqNCHyqhxeCcX7tk+xc=
+        b=PIb9zeA0m4mGKqXbHvIuwUiRcXQ7DBtycDvZWym2AiVbkc2E/yfrsEOK5/RH0uhuP
+         dIZyxoQqzkFOrr7M/h8fC7g2vRwJqZHkbRbkG2uw0cMN8DheV+ob9oj+eOF7BQ2ZAR
+         VRiBNVITHkKCS57RrNMO23KpcRPE/wrUNrG69tcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/663] ibmvnic: skip send_request_unmap for timeout reset
-Date:   Mon,  1 Mar 2021 17:06:14 +0100
-Message-Id: <20210301161147.969852181@linuxfoundation.org>
+Subject: [PATCH 5.11 207/775] evm: Fix memleak in init_desc
+Date:   Mon,  1 Mar 2021 17:06:15 +0100
+Message-Id: <20210301161211.870180855@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 7d3a7b9ea59ddb223aec59b45fa1713c633aaed4 ]
+[ Upstream commit ccf11dbaa07b328fa469415c362d33459c140a37 ]
 
-Timeout reset will trigger the VIOS to unmap it automatically,
-similarly as FAILVOER and MOBILITY events. If we unmap it
-in the linux side, we will see errors like
-"30000003: Error 4 in REQUEST_UNMAP_RSP".
-So, don't call send_request_unmap for timeout reset.
+tmp_tfm is allocated, but not freed on subsequent kmalloc failure, which
+leads to a memory leak.  Free tmp_tfm.
 
-Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+[zohar@linux.ibm.com: formatted/reworded patch description]
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ security/integrity/evm/evm_crypto.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index d6cd131625525..5e1f4e71af7bc 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -249,8 +249,13 @@ static void free_long_term_buff(struct ibmvnic_adapter *adapter,
- 	if (!ltb->buff)
- 		return;
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index 168c3b78ac47b..a6dd47eb086da 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -73,7 +73,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ {
+ 	long rc;
+ 	const char *algo;
+-	struct crypto_shash **tfm, *tmp_tfm;
++	struct crypto_shash **tfm, *tmp_tfm = NULL;
+ 	struct shash_desc *desc;
  
-+	/* VIOS automatically unmaps the long term buffer at remote
-+	 * end for the following resets:
-+	 * FAILOVER, MOBILITY, TIMEOUT.
-+	 */
- 	if (adapter->reset_reason != VNIC_RESET_FAILOVER &&
--	    adapter->reset_reason != VNIC_RESET_MOBILITY)
-+	    adapter->reset_reason != VNIC_RESET_MOBILITY &&
-+	    adapter->reset_reason != VNIC_RESET_TIMEOUT)
- 		send_request_unmap(adapter, ltb->map_id);
- 	dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
- }
+ 	if (type == EVM_XATTR_HMAC) {
+@@ -118,13 +118,16 @@ unlock:
+ alloc:
+ 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
+ 			GFP_KERNEL);
+-	if (!desc)
++	if (!desc) {
++		crypto_free_shash(tmp_tfm);
+ 		return ERR_PTR(-ENOMEM);
++	}
+ 
+ 	desc->tfm = *tfm;
+ 
+ 	rc = crypto_shash_init(desc);
+ 	if (rc) {
++		crypto_free_shash(tmp_tfm);
+ 		kfree(desc);
+ 		return ERR_PTR(rc);
+ 	}
 -- 
 2.27.0
 
