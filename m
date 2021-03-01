@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1584232892A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AC493288D1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234759AbhCARwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:52:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
+        id S238329AbhCARpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:45:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238543AbhCARpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:45:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C51664FE7;
-        Mon,  1 Mar 2021 16:58:06 +0000 (UTC)
+        id S238066AbhCARko (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:40:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21325650C3;
+        Mon,  1 Mar 2021 16:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617887;
-        bh=QsTUp8bQsQpd8ulOBfV2MbPHQmo7AQ+qGIkRfCUfRSk=;
+        s=korg; t=1614617805;
+        bh=vNq6TyY9GRGGifyuyy4JGPoj3/T1Ji1wUB5eQGb8xas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddzsywtyvLKzSV47oDZoh/rues7NnzQe/FJ+0CgboS1IvbyQcSJlJAO8u5tDqwR7w
-         dNk3YZIKaW6oRvogQVq8i9FeaDeaLE036pNuWNsA/STqLlXaiofCMJHNKVurRRLgXk
-         MyzGhdFeLQnhPZhVnNRhDdzQ0L2fVCuzhFE53Z5U=
+        b=1qXdYAO9BEf4tcws0T9pwznTLpPu3KU41WTQGc2UJnQp7w011XcmeM5wzSVf/H2u2
+         aZZEBl+PE0+dh6PplX+K7jX/6xnspgewiLbtfvjIRnW7L1BO/dvUbiHtufjImJuSoF
+         4lW5bL0agxBi8+rEqBIv0Bxh6FEfZj53J32EflF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Ruehl <chris.ruehl@gtsys.com.hk>,
-        Douglas Anderson <dianders@chromium.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 202/340] phy: rockchip-emmc: emmc_phy_init() always return 0
-Date:   Mon,  1 Mar 2021 17:12:26 +0100
-Message-Id: <20210301161058.248227924@linuxfoundation.org>
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 203/340] misc: eeprom_93xx46: Add module alias to avoid breaking support for non device tree users
+Date:   Mon,  1 Mar 2021 17:12:27 +0100
+Message-Id: <20210301161058.298298578@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,50 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ruehl <chris.ruehl@gtsys.com.hk>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 39961bd6b70e5a5d7c4b5483ad8e1db6b5765c60 ]
+[ Upstream commit 4540b9fbd8ebb21bb3735796d300a1589ee5fbf2 ]
 
-rockchip_emmc_phy_init() return variable is not set with the error value
-if clk_get() failed. 'emmcclk' is optional, thus use clk_get_optional()
-and if the return value != NULL make error processing and set the
-return code accordingly.
+Module alias "spi:93xx46" is used by non device tree users like
+drivers/misc/eeprom/digsy_mtc_eeprom.c  and removing it will
+break support for them.
 
-Fixes: 52c0624a10cce phy: rockchip-emmc: Set phyctrl_frqsel based on card clock
-Signed-off-by: Chris Ruehl <chris.ruehl@gtsys.com.hk>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20201210080454.17379-1-chris.ruehl@gtsys.com.hk
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fix this by adding back the module alias "spi:93xx46".
+
+Fixes: 13613a2246bf ("misc: eeprom_93xx46: Fix module alias to enable module autoprobe")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20210113051253.15061-1-a-govindraju@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-emmc.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/misc/eeprom/eeprom_93xx46.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-emmc.c b/drivers/phy/rockchip/phy-rockchip-emmc.c
-index 2dc19ddd120f5..a005fc58bbf02 100644
---- a/drivers/phy/rockchip/phy-rockchip-emmc.c
-+++ b/drivers/phy/rockchip/phy-rockchip-emmc.c
-@@ -240,15 +240,17 @@ static int rockchip_emmc_phy_init(struct phy *phy)
- 	 * - SDHCI driver to get the PHY
- 	 * - SDHCI driver to init the PHY
- 	 *
--	 * The clock is optional, so upon any error we just set to NULL.
-+	 * The clock is optional, using clk_get_optional() to get the clock
-+	 * and do error processing if the return value != NULL
- 	 *
- 	 * NOTE: we don't do anything special for EPROBE_DEFER here.  Given the
- 	 * above expected use case, EPROBE_DEFER isn't sensible to expect, so
- 	 * it's just like any other error.
- 	 */
--	rk_phy->emmcclk = clk_get(&phy->dev, "emmcclk");
-+	rk_phy->emmcclk = clk_get_optional(&phy->dev, "emmcclk");
- 	if (IS_ERR(rk_phy->emmcclk)) {
--		dev_dbg(&phy->dev, "Error getting emmcclk: %d\n", ret);
-+		ret = PTR_ERR(rk_phy->emmcclk);
-+		dev_err(&phy->dev, "Error getting emmcclk: %d\n", ret);
- 		rk_phy->emmcclk = NULL;
- 	}
- 
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index 6adf979299667..414dcbd3c3c25 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -510,4 +510,5 @@ module_spi_driver(eeprom_93xx46_driver);
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Driver for 93xx46 EEPROMs");
+ MODULE_AUTHOR("Anatolij Gustschin <agust@denx.de>");
++MODULE_ALIAS("spi:93xx46");
+ MODULE_ALIAS("spi:eeprom-93xx46");
 -- 
 2.27.0
 
