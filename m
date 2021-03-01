@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEDDB3284A3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2B423285AB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbhCAQjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:39:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
+        id S235259AbhCAQ4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:56:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232697AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A89D664F33;
-        Mon,  1 Mar 2021 16:24:49 +0000 (UTC)
+        id S235736AbhCAQte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A74C64EF8;
+        Mon,  1 Mar 2021 16:32:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615890;
-        bh=D45NwzvobpGbnXel38LgIc/vIXIxGCSnF3KaM7r1Z0c=;
+        s=korg; t=1614616360;
+        bh=1j8tOCw2di61nDs3fihxkIALOMwjcbJSzl/ScivA/LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiEYsooUNdp3EesAOa8MDKmgYcfEnfsZ70b4rV4pTiDIx2/QwK4LsODI0lEr6czmJ
-         WE1Q7JtxC8hApWFtbA0uF8GULvdGym4JhqdAoAGg2QVP4rZP2utcTC3IHGgg/vOkdX
-         YsB50mjuV6+T3Y1w9L5e6Ua25pBrQVlzt7M4pHsQ=
+        b=YxGtPcMJVYvwMvpZBVLPM6KXvHC5FUMG5BVIDSKTGvH/B0A6aJP7UGqXx1oqYNqZ3
+         0mDIF5KD/LujAfUoP9ysOVOc+vKJFoXBKxmUYvtfWU0z7Lcp6cvszAz74DvgfPZ+AP
+         dkVGvMKjI4FHk2sCQJWP+q7iVvCjUOA6Lc2akYIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Lech Perczak <lech.perczak@gmail.com>
-Subject: [PATCH 4.9 095/134] USB: serial: option: update interface mapping for ZTE P685M
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Qinglang Miao <miaoqinglang@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 4.14 123/176] ACPI: configfs: add missing check after configfs_register_default_group()
 Date:   Mon,  1 Mar 2021 17:13:16 +0100
-Message-Id: <20210301161018.246726569@linuxfoundation.org>
+Message-Id: <20210301161027.099871302@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lech Perczak <lech.perczak@gmail.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
 
-commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
+commit 67e40054de86aae520ddc2a072d7f6951812a14f upstream.
 
-This patch prepares for qmi_wwan driver support for the device.
-Previously "option" driver mapped itself to interfaces 0 and 3 (matching
-ff/ff/ff), while interface 3 is in fact a QMI port.
-Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
-and weren't supported previously at all.
-Without this patch, a possible conflict would exist if device ID was
-added to qmi_wwan driver for interface 3.
+A list_add corruption is reported by Hulk Robot like this:
+==============
+list_add corruption.
+Call Trace:
+link_obj+0xc0/0x1c0
+link_group+0x21/0x140
+configfs_register_subsystem+0xdb/0x380
+acpi_configfs_init+0x25/0x1000 [acpi_configfs]
+do_one_initcall+0x149/0x820
+do_init_module+0x1ef/0x720
+load_module+0x35c8/0x4380
+__do_sys_finit_module+0x10d/0x1a0
+do_syscall_64+0x34/0x80
 
-Update and simplify device ID to match interfaces 0-2 directly,
-to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
-with QMI (3), and ADB (4).
+It's because of the missing check after configfs_register_default_group,
+where configfs_unregister_subsystem should be called once failure.
 
-The modem is used inside ZTE MF283+ router and carriers identify it as
-such.
-Interface mapping is:
-0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
-
-T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1275 Rev=f0.00
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
-Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 612bd01fc6e0 ("ACPI: add support for loading SSDTs via configfs")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Suggested-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/acpi_configfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1551,7 +1551,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
--	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
-+	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
-+	  .driver_info = RSVD(3) | RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
+--- a/drivers/acpi/acpi_configfs.c
++++ b/drivers/acpi/acpi_configfs.c
+@@ -269,7 +269,12 @@ static int __init acpi_configfs_init(voi
+ 
+ 	acpi_table_group = configfs_register_default_group(root, "table",
+ 							   &acpi_tables_type);
+-	return PTR_ERR_OR_ZERO(acpi_table_group);
++	if (IS_ERR(acpi_table_group)) {
++		configfs_unregister_subsystem(&acpi_configfs);
++		return PTR_ERR(acpi_table_group);
++	}
++
++	return 0;
+ }
+ module_init(acpi_configfs_init);
+ 
 
 
