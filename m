@@ -2,34 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AFC7328D77
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C01328D26
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235239AbhCATLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36592 "EHLO mail.kernel.org"
+        id S234447AbhCATGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:06:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240785AbhCATGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:06:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C379C651F7;
-        Mon,  1 Mar 2021 17:20:04 +0000 (UTC)
+        id S240802AbhCATBA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:01:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 722FF651F4;
+        Mon,  1 Mar 2021 17:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619205;
-        bh=dgK4SJKskwrHlITS8R6DyDUSdy/Sk3XZTC5aDWFvg3E=;
+        s=korg; t=1614619208;
+        bh=U0YhMBcJe6UFeDB8hA3gegGjlHGfwXl7GX4r0hE1ycc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AFtKEEB3j9RH7W/Pe9pbfrl6nc0RtJwcObMLugTwNsv2igVwbPAtvSx9YtLutEoa9
-         vIK5srhPXscI1epmLbxR2C9dCoNFbSCA2ZymzmQxpOJ6rqwhtOnLWCzDFwxfKABC1S
-         WQ5kmQEO/ABnEFl+F2PQHK9Jyxj4PB0wsGWJzZVA=
+        b=il/Mmd1TxeBasTVlHNQJgNlEecEw/qHCN3YqjmloIRmMEf7k/NtY/f/2TOavP7O1u
+         bGW6UnL/uSLpBOuZkpRsI+cehnyPvNOiEJO8h2KojrgPqgM6DEzpgVzKFJ9IELuSVL
+         NyysaQ4uQvWWK0/MbTdExYMvyiYrnsARC9Gk/jOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        "J. Avila" <elavila@google.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 371/663] printk: avoid prb_first_valid_seq() where possible
-Date:   Mon,  1 Mar 2021 17:10:19 +0100
-Message-Id: <20210301161200.205329570@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Fraser <nfraser@codeweavers.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        "Frank Ch. Eigler" <fche@redhat.com>,
+        Huw Davies <huw@codeweavers.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        Kim Phillips <kim.phillips@amd.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Remi Bernon <rbernon@codeweavers.com>,
+        Song Liu <songliubraving@fb.com>,
+        Tommi Rantala <tommi.t.rantala@nokia.com>,
+        Ulrich Czekalla <uczekalla@codeweavers.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 372/663] perf symbols: Fix return value when loading PE DSO
+Date:   Mon,  1 Mar 2021 17:10:20 +0100
+Message-Id: <20210301161200.256228519@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,125 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Ogness <john.ogness@linutronix.de>
+From: Nicholas Fraser <nfraser@codeweavers.com>
 
-[ Upstream commit 13791c80b0cdf54d92fc54221cdf490683b109de ]
+[ Upstream commit 77771a97011fa9146ccfaf2983a3a2885dc57b6f ]
 
-If message sizes average larger than expected (more than 32
-characters), the data_ring will wrap before the desc_ring. Once the
-data_ring wraps, it will start invalidating descriptors. These
-invalid descriptors hang around until they are eventually recycled
-when the desc_ring wraps. Readers do not care about invalid
-descriptors, but they still need to iterate past them. If the
-average message size is much larger than 32 characters, then there
-will be many invalid descriptors preceding the valid descriptors.
+The first time dso__load() was called on a PE file it always returned -1
+error. This caused the first call to map__find_symbol() to always fail
+on a PE file so the first sample from each PE file always had symbol
+<unknown>. Subsequent samples succeed however because the DSO is already
+loaded.
 
-The function prb_first_valid_seq() always begins at the oldest
-descriptor and searches for the first valid descriptor. This can
-be rather expensive for the above scenario. And, in fact, because
-of its heavy usage in /dev/kmsg, there have been reports of long
-delays and even RCU stalls.
+This fixes dso__load() to return 0 when successfully loading a DSO with
+libbfd.
 
-For code that does not need to search from the oldest record,
-replace prb_first_valid_seq() usage with prb_read_valid_*()
-functions, which provide a start sequence number to search from.
-
-Fixes: 896fbe20b4e2333fb55 ("printk: use the lockless ringbuffer")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Reported-by: J. Avila <elavila@google.com>
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20210211173152.1629-1-john.ogness@linutronix.de
+Fixes: eac9a4342e5447ca ("perf symbols: Try reading the symbol table with libbfd")
+Signed-off-by: Nicholas Fraser <nfraser@codeweavers.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Frank Ch. Eigler <fche@redhat.com>
+Cc: Huw Davies <huw@codeweavers.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kim Phillips <kim.phillips@amd.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Remi Bernon <rbernon@codeweavers.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Tommi Rantala <tommi.t.rantala@nokia.com>
+Cc: Ulrich Czekalla <uczekalla@codeweavers.com>
+Link: http://lore.kernel.org/lkml/1671b43b-09c3-1911-dbf8-7f030242fbf7@codeweavers.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ tools/perf/util/symbol.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index aafec8cb8637d..d0df95346ab3f 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -782,9 +782,9 @@ static ssize_t devkmsg_read(struct file *file, char __user *buf,
- 		logbuf_lock_irq();
- 	}
+diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
+index da6036ba0cea4..4d569ad7db02d 100644
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -1866,8 +1866,10 @@ int dso__load(struct dso *dso, struct map *map)
+ 		if (nsexit)
+ 			nsinfo__mountns_enter(dso->nsinfo, &nsc);
  
--	if (user->seq < prb_first_valid_seq(prb)) {
-+	if (r->info->seq != user->seq) {
- 		/* our last seen message is gone, return error and reset */
--		user->seq = prb_first_valid_seq(prb);
-+		user->seq = r->info->seq;
- 		ret = -EPIPE;
- 		logbuf_unlock_irq();
- 		goto out;
-@@ -859,6 +859,7 @@ static loff_t devkmsg_llseek(struct file *file, loff_t offset, int whence)
- static __poll_t devkmsg_poll(struct file *file, poll_table *wait)
- {
- 	struct devkmsg_user *user = file->private_data;
-+	struct printk_info info;
- 	__poll_t ret = 0;
- 
- 	if (!user)
-@@ -867,9 +868,9 @@ static __poll_t devkmsg_poll(struct file *file, poll_table *wait)
- 	poll_wait(file, &log_wait, wait);
- 
- 	logbuf_lock_irq();
--	if (prb_read_valid(prb, user->seq, NULL)) {
-+	if (prb_read_valid_info(prb, user->seq, &info, NULL)) {
- 		/* return error when data has vanished underneath us */
--		if (user->seq < prb_first_valid_seq(prb))
-+		if (info.seq != user->seq)
- 			ret = EPOLLIN|EPOLLRDNORM|EPOLLERR|EPOLLPRI;
- 		else
- 			ret = EPOLLIN|EPOLLRDNORM;
-@@ -1606,6 +1607,7 @@ static void syslog_clear(void)
- 
- int do_syslog(int type, char __user *buf, int len, int source)
- {
-+	struct printk_info info;
- 	bool clear = false;
- 	static int saved_console_loglevel = LOGLEVEL_DEFAULT;
- 	int error;
-@@ -1676,9 +1678,14 @@ int do_syslog(int type, char __user *buf, int len, int source)
- 	/* Number of chars in the log buffer */
- 	case SYSLOG_ACTION_SIZE_UNREAD:
- 		logbuf_lock_irq();
--		if (syslog_seq < prb_first_valid_seq(prb)) {
-+		if (!prb_read_valid_info(prb, syslog_seq, &info, NULL)) {
-+			/* No unread messages. */
-+			logbuf_unlock_irq();
-+			return 0;
+-		if (bfdrc == 0)
++		if (bfdrc == 0) {
++			ret = 0;
+ 			break;
 +		}
-+		if (info.seq != syslog_seq) {
- 			/* messages are gone, move to first one */
--			syslog_seq = prb_first_valid_seq(prb);
-+			syslog_seq = info.seq;
- 			syslog_partial = 0;
- 		}
- 		if (source == SYSLOG_FROM_PROC) {
-@@ -1690,7 +1697,6 @@ int do_syslog(int type, char __user *buf, int len, int source)
- 			error = prb_next_seq(prb) - syslog_seq;
- 		} else {
- 			bool time = syslog_partial ? syslog_time : printk_time;
--			struct printk_info info;
- 			unsigned int line_count;
- 			u64 seq;
  
-@@ -3378,9 +3384,11 @@ bool kmsg_dump_get_buffer(struct kmsg_dumper *dumper, bool syslog,
- 		goto out;
- 
- 	logbuf_lock_irqsave(flags);
--	if (dumper->cur_seq < prb_first_valid_seq(prb)) {
--		/* messages are gone, move to first available one */
--		dumper->cur_seq = prb_first_valid_seq(prb);
-+	if (prb_read_valid_info(prb, dumper->cur_seq, &info, NULL)) {
-+		if (info.seq != dumper->cur_seq) {
-+			/* messages are gone, move to first available one */
-+			dumper->cur_seq = info.seq;
-+		}
- 	}
- 
- 	/* last entry */
+ 		if (!is_reg || sirc < 0)
+ 			continue;
 -- 
 2.27.0
 
