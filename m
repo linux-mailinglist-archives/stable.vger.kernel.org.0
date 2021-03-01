@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EB57328DBE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCD8328D58
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241018AbhCATQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:16:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
+        id S241177AbhCATIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:08:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241081AbhCATMm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:12:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C905865266;
-        Mon,  1 Mar 2021 17:29:11 +0000 (UTC)
+        id S240945AbhCATBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:01:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CBBD65086;
+        Mon,  1 Mar 2021 17:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619752;
-        bh=VdgGtG62dbtuzn5Gqpyjud3MAjEKXkOevuzcKm5Dbzg=;
+        s=korg; t=1614619760;
+        bh=7QZbEgsuRYGNKjRVN5gXd3wsekiJW9m7CuB+SQT1stM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsE6iH8LLBqFQcFRNG+xt7xCKvChLyOSLiwAIwZhGa+NRX5ofcZ9eH8zoXqyRm9aU
-         WTiJTzNzCNZPEadSveAG/nNcFjbYcn/ATwSpv58RPEuddK34jes7x8LFiNGveKBPmW
-         AKCcFj0LtOphHBxDsuaBgnGeQJOUgeVks0WbF0YI=
+        b=XovlqSfkmBhjfCOJKkYJRYhj1ljMCpalsZJhWQARiK+ruStuE+40Zu1AOupvLktM2
+         juEXbGU2PULxHX0YadzZjEjvrQPjYjemQ3OwkPhD/HLvDygUL9Ha0arFxv5s/VlXrL
+         advN2f2o2lxgg4soYLg85i+WsQdk++O3YX23Lk7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.10 569/663] x86/fault: Fix AMD erratum #91 errata fixup for user code
-Date:   Mon,  1 Mar 2021 17:13:37 +0100
-Message-Id: <20210301161210.021056154@linuxfoundation.org>
+        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.10 572/663] rcu: Pull deferred rcuog wake up to rcu_eqs_enter() callers
+Date:   Mon,  1 Mar 2021 17:13:40 +0100
+Message-Id: <20210301161210.170092926@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,95 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 35f1c89b0cce247bf0213df243ed902989b1dcda upstream.
+commit 54b7429efffc99e845ba9381bee3244f012a06c2 upstream.
 
-The recent rework of probe_kernel_address() and its conversion to
-get_kernel_nofault() inadvertently broke is_prefetch(). Before this
-change, probe_kernel_address() was used as a sloppy "read user or
-kernel memory" helper, but it doesn't do that any more. The new
-get_kernel_nofault() reads *kernel* memory only, which completely broke
-is_prefetch() for user access.
+Deferred wakeup of rcuog kthreads upon RCU idle mode entry is going to
+be handled differently whether initiated by idle, user or guest. Prepare
+with pulling that control up to rcu_eqs_enter() callers.
 
-Adjust the code to the correct accessor based on access mode. The
-manual address bounds check is no longer necessary, since the accessor
-helpers (get_user() / get_kernel_nofault()) do the right thing all by
-themselves. As a bonus, by using the correct accessor, the open-coded
-address bounds check is not needed anymore.
-
- [ bp: Massage commit message. ]
-
-Fixes: eab0c6089b68 ("maccess: unify the probe kernel arch hooks")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/b91f7f92f3367d2d3a88eec3b09c6aab1b2dc8ef.1612924255.git.luto@kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-2-frederic@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/fault.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ kernel/rcu/tree.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -53,7 +53,7 @@ kmmio_fault(struct pt_regs *regs, unsign
-  * 32-bit mode:
-  *
-  *   Sometimes AMD Athlon/Opteron CPUs report invalid exceptions on prefetch.
-- *   Check that here and ignore it.
-+ *   Check that here and ignore it.  This is AMD erratum #91.
-  *
-  * 64-bit mode:
-  *
-@@ -82,11 +82,7 @@ check_prefetch_opcode(struct pt_regs *re
- #ifdef CONFIG_X86_64
- 	case 0x40:
- 		/*
--		 * In AMD64 long mode 0x40..0x4F are valid REX prefixes
--		 * Need to figure out under what instruction mode the
--		 * instruction was issued. Could check the LDT for lm,
--		 * but for now it's good enough to assume that long
--		 * mode only uses well known segments or kernel.
-+		 * In 64-bit mode 0x40..0x4F are valid REX prefixes
- 		 */
- 		return (!user_mode(regs) || user_64bit_mode(regs));
- #endif
-@@ -126,20 +122,31 @@ is_prefetch(struct pt_regs *regs, unsign
- 	instr = (void *)convert_ip_to_linear(current, regs);
- 	max_instr = instr + 15;
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -636,7 +636,6 @@ static noinstr void rcu_eqs_enter(bool u
+ 	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
+ 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
+ 	rdp = this_cpu_ptr(&rcu_data);
+-	do_nocb_deferred_wakeup(rdp);
+ 	rcu_prepare_for_idle();
+ 	rcu_preempt_deferred_qs(current);
  
--	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE_MAX)
--		return 0;
-+	/*
-+	 * This code has historically always bailed out if IP points to a
-+	 * not-present page (e.g. due to a race).  No one has ever
-+	 * complained about this.
-+	 */
-+	pagefault_disable();
- 
- 	while (instr < max_instr) {
- 		unsigned char opcode;
- 
--		if (get_kernel_nofault(opcode, instr))
--			break;
-+		if (user_mode(regs)) {
-+			if (get_user(opcode, instr))
-+				break;
-+		} else {
-+			if (get_kernel_nofault(opcode, instr))
-+				break;
-+		}
- 
- 		instr++;
- 
- 		if (!check_prefetch_opcode(regs, instr, opcode, &prefetch))
- 			break;
- 	}
+@@ -664,7 +663,10 @@ static noinstr void rcu_eqs_enter(bool u
+  */
+ void rcu_idle_enter(void)
+ {
++	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
 +
-+	pagefault_enable();
- 	return prefetch;
+ 	lockdep_assert_irqs_disabled();
++	do_nocb_deferred_wakeup(rdp);
+ 	rcu_eqs_enter(false);
  }
- 
+ EXPORT_SYMBOL_GPL(rcu_idle_enter);
+@@ -683,7 +685,14 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
+  */
+ noinstr void rcu_user_enter(void)
+ {
++	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
++
+ 	lockdep_assert_irqs_disabled();
++
++	instrumentation_begin();
++	do_nocb_deferred_wakeup(rdp);
++	instrumentation_end();
++
+ 	rcu_eqs_enter(true);
+ }
+ #endif /* CONFIG_NO_HZ_FULL */
 
 
