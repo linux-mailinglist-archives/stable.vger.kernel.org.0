@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54C30328F33
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F4D328E72
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:32:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241702AbhCATrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:47:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
+        id S234769AbhCATcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:32:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234826AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93477650F3;
-        Mon,  1 Mar 2021 17:01:01 +0000 (UTC)
+        id S241526AbhCAT0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:26:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B683365276;
+        Mon,  1 Mar 2021 17:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618062;
-        bh=lJlcJo5vjrIG2dfiBblGpI5tolIwegM+Ah7c4SbmBTA=;
+        s=korg; t=1614619817;
+        bh=HWH2mT8EBuU3SvawlmtLYIXl5D5rjbZ2+5FmiCq8ADQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGVHfWezO5jn1WUAf85OZfeQX2q0xwwMhVfq4GUij1jklJ2cXlhkx5HtQ3QqfXI/w
-         4y0lZ55KdYsPewldEKRSoTo3WCfC6f6p9WdB9q+9WlDJneK1O3+40h9ZhN27x+pwj/
-         RkckaHw8DW1gbFPWKXW7rEbg1tU/wt7w6NMHbRI0=
+        b=wDBJXoQ5KRdVzbkbeS9bw+I5D+Ap1FYd8a0lQ/hrG4aqP303rsRuMtX32BVC8EVjt
+         d8wItkz+jARpjwn9A2ESXRXOrkJ+LKQlFRE7ewrB1aAcdbyR84SOJT2mtPQkZ5hgwD
+         3sCVVsf1OpGo2qB8OgcasiUAFpa40kAV3G0i4Prw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@ger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.4 263/340] tpm_tis: Clean up locality release
-Date:   Mon,  1 Mar 2021 17:13:27 +0100
-Message-Id: <20210301161101.238940754@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 562/663] media: i2c: max9286: fix access to unallocated memory
+Date:   Mon,  1 Mar 2021 17:13:30 +0100
+Message-Id: <20210301161209.670371555@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,95 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-commit e42acf104d6e0bd7ccd2f09103d5be5e6d3c637c upstream.
+commit e88ccf09e79cf33cac40316ba69c820d9eebc82b upstream.
 
-The current release locality code seems to be based on the
-misunderstanding that the TPM interrupts when a locality is released:
-it doesn't, only when the locality is acquired.
+The asd allocated with v4l2_async_notifier_add_fwnode_subdev() must be
+of size max9286_asd, otherwise access to max9286_asd->source will go to
+unallocated memory.
 
-Furthermore, there seems to be no point in waiting for the locality to
-be released.  All it does is penalize the last TPM user.  However, if
-there's no next TPM user, this is a pointless wait and if there is a
-next TPM user, they'll pay the penalty waiting for the new locality
-(or possibly not if it's the same as the old locality).
-
-Fix the code by making release_locality as simple write to release
-with no waiting for completion.
-
-Cc: stable@ger.kernel.org
-Fixes: 33bafe90824b ("tpm_tis: verify locality released before returning from release_locality")
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fixes: 86d37bf31af6 ("media: i2c: max9286: Allocate v4l2_async_subdev dynamically")
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Cc: stable@vger.kernel.org # v5.10+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Tested-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   47 ----------------------------------------
- 1 file changed, 1 insertion(+), 46 deletions(-)
+ drivers/media/i2c/max9286.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -135,58 +135,13 @@ static bool check_locality(struct tpm_ch
- 	return false;
- }
+--- a/drivers/media/i2c/max9286.c
++++ b/drivers/media/i2c/max9286.c
+@@ -580,7 +580,7 @@ static int max9286_v4l2_notifier_registe
  
--static bool locality_inactive(struct tpm_chip *chip, int l)
--{
--	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	int rc;
--	u8 access;
--
--	rc = tpm_tis_read8(priv, TPM_ACCESS(l), &access);
--	if (rc < 0)
--		return false;
--
--	if ((access & (TPM_ACCESS_VALID | TPM_ACCESS_ACTIVE_LOCALITY))
--	    == TPM_ACCESS_VALID)
--		return true;
--
--	return false;
--}
--
- static int release_locality(struct tpm_chip *chip, int l)
- {
- 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	unsigned long stop, timeout;
--	long rc;
- 
- 	tpm_tis_write8(priv, TPM_ACCESS(l), TPM_ACCESS_ACTIVE_LOCALITY);
- 
--	stop = jiffies + chip->timeout_a;
--
--	if (chip->flags & TPM_CHIP_FLAG_IRQ) {
--again:
--		timeout = stop - jiffies;
--		if ((long)timeout <= 0)
--			return -1;
--
--		rc = wait_event_interruptible_timeout(priv->int_queue,
--						      (locality_inactive(chip, l)),
--						      timeout);
--
--		if (rc > 0)
--			return 0;
--
--		if (rc == -ERESTARTSYS && freezing(current)) {
--			clear_thread_flag(TIF_SIGPENDING);
--			goto again;
--		}
--	} else {
--		do {
--			if (locality_inactive(chip, l))
--				return 0;
--			tpm_msleep(TPM_TIMEOUT);
--		} while (time_before(jiffies, stop));
--	}
--	return -1;
-+	return 0;
- }
- 
- static int request_locality(struct tpm_chip *chip, int l)
+ 		asd = v4l2_async_notifier_add_fwnode_subdev(&priv->notifier,
+ 							    source->fwnode,
+-							    sizeof(*asd));
++							    sizeof(struct max9286_asd));
+ 		if (IS_ERR(asd)) {
+ 			dev_err(dev, "Failed to add subdev for source %u: %ld",
+ 				i, PTR_ERR(asd));
 
 
