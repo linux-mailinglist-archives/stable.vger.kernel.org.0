@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0C0328EEB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB57328F48
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241475AbhCATkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:40:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50866 "EHLO mail.kernel.org"
+        id S242328AbhCATs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:48:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241661AbhCATc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79B3F64FDC;
-        Mon,  1 Mar 2021 17:44:06 +0000 (UTC)
+        id S241740AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:38:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE0B864FFF;
+        Mon,  1 Mar 2021 17:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620647;
-        bh=PKy+BTdVpY5bdXj1vnnfybhkRjj+pobNfcSHDw8vm/E=;
+        s=korg; t=1614618541;
+        bh=VejxEiyxyML83jVdaBmLRIWKWPlBf9I+ntI8vXbTOUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUgyLxJsorZcsmSpV4bxpc+GZ49EeprlbXDkwEXW7Vep7BpWoqb7XH2JycdkHgIRT
-         dzwcYxZIprV3KTEGHKsHX5oc8lu15TCSCcFZU0Sw4Pcr5A4fiFlRJAJQkHX/Ci0afT
-         p0u5pZEnTFAVaEH/28DBSc5XrH55m7rvZ14DpW90=
+        b=mBTDiHMZ+gP1ayR0TG8xLjPxB8+z7HLSlP/dhzgx+fyY+hYrr5UhxelWOsmzmDNEZ
+         eHcK8StbO+ldzTTZQ1MIYzaqE341vnRNymxgNlH4Bq7itB1dIso9H5AuvH38VEffT4
+         OuDT+OG2AZssg/7RU2gE7FxLKinAmfZbMFAb2YZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 201/775] media: em28xx: Fix use-after-free in em28xx_alloc_urbs
-Date:   Mon,  1 Mar 2021 17:06:09 +0100
-Message-Id: <20210301161211.573274180@linuxfoundation.org>
+Subject: [PATCH 5.10 124/663] bpf: Clear subreg_def for global function return values
+Date:   Mon,  1 Mar 2021 17:06:12 +0100
+Message-Id: <20210301161147.873757369@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit a26efd1961a18b91ae4cd2e433adbcf865b40fa3 ]
+[ Upstream commit 45159b27637b0fef6d5ddb86fc7c46b13c77960f ]
 
-When kzalloc() fails, em28xx_uninit_usb_xfer() will free
-usb_bufs->buf and set it to NULL. Thus the later access
-to usb_bufs->buf[i] will lead to null pointer dereference.
-Also the kfree(usb_bufs->buf) after that is redundant.
+test_global_func4 fails on s390 as reported by Yauheni in [1].
 
-Fixes: d571b592c6206 ("media: em28xx: don't use coherent buffer for DMA transfers")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The immediate problem is that the zext code includes the instruction,
+whose result needs to be zero-extended, into the zero-extension
+patchlet, and if this instruction happens to be a branch, then its
+delta is not adjusted. As a result, the verifier rejects the program
+later.
+
+However, according to [2], as far as the verifier's algorithm is
+concerned and as specified by the insn_no_def() function, branching
+insns do not define anything. This includes call insns, even though
+one might argue that they define %r0.
+
+This means that the real problem is that zero extension kicks in at
+all. This happens because clear_caller_saved_regs() sets BPF_REG_0's
+subreg_def after global function calls. This can be fixed in many
+ways; this patch mimics what helper function call handling already
+does.
+
+  [1] https://lore.kernel.org/bpf/20200903140542.156624-1-yauheni.kaliuta@redhat.com/
+  [2] https://lore.kernel.org/bpf/CAADnVQ+2RPKcftZw8d+B1UwB35cpBhpF5u3OocNh90D9pETPwg@mail.gmail.com/
+
+Fixes: 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210212040408.90109-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-core.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ kernel/bpf/verifier.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-core.c b/drivers/media/usb/em28xx/em28xx-core.c
-index e6088b5d1b805..3daa64bb1e1d9 100644
---- a/drivers/media/usb/em28xx/em28xx-core.c
-+++ b/drivers/media/usb/em28xx/em28xx-core.c
-@@ -956,14 +956,10 @@ int em28xx_alloc_urbs(struct em28xx *dev, enum em28xx_mode mode, int xfer_bulk,
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index c09594e70f90a..6c2e4947beaeb 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4786,8 +4786,9 @@ static int check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
+ 					subprog);
+ 			clear_caller_saved_regs(env, caller->regs);
  
- 		usb_bufs->buf[i] = kzalloc(sb_size, GFP_KERNEL);
- 		if (!usb_bufs->buf[i]) {
--			em28xx_uninit_usb_xfer(dev, mode);
--
- 			for (i--; i >= 0; i--)
- 				kfree(usb_bufs->buf[i]);
+-			/* All global functions return SCALAR_VALUE */
++			/* All global functions return a 64-bit SCALAR_VALUE */
+ 			mark_reg_unknown(env, caller->regs, BPF_REG_0);
++			caller->regs[BPF_REG_0].subreg_def = DEF_NOT_SUBREG;
  
--			kfree(usb_bufs->buf);
--			usb_bufs->buf = NULL;
--
-+			em28xx_uninit_usb_xfer(dev, mode);
- 			return -ENOMEM;
- 		}
- 
+ 			/* continue with next insn after call */
+ 			return 0;
 -- 
 2.27.0
 
