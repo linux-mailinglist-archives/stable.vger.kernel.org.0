@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DDBE32842A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:31:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91A8E328430
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:31:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbhCAQaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:30:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
+        id S231998AbhCAQbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:31:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234372AbhCAQ0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:26:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37DAA64F45;
-        Mon,  1 Mar 2021 16:21:47 +0000 (UTC)
+        id S234384AbhCAQ0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:26:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04F4B64E22;
+        Mon,  1 Mar 2021 16:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615707;
-        bh=vDTgs1r/EZY3fCr1ZtB1xpxMcUKus5eXTZGEv5Z9uYk=;
+        s=korg; t=1614615716;
+        bh=KMtygo8wtaNm3eLgfS5RuQuA7gEixNzxymmC2NTTEJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oi3N7RBQVkT7BcSnVVk1BJtfBtZP0TUNMIKTFBQvs8TxnvEvJ8BYLidWS3CWBnxBy
-         PtiABAR2sqPFTMHavu+TqVA5wsNauljYivKIlX4PN2yc/aPezOVwJufHJZT4NiUhbD
-         ehS6z2eyS5Tnyt/mnQCHQQGJ/19z7Gi1UvY/1Oyk=
+        b=J7l1a9tZno4sp+jjb2Vfap1SX+vTmEY4gvLYMvEBvrsKGexhwkVwdEOfR9Mk2Svc3
+         dSEbo1xz0l5uo803/QOBxe0LlncTQcOznSPfC6uW/1cejZDnELZrY5WIwg5MTvukkI
+         +b+dKl+plQjUzTak86/0zto1/0v/4R73roEoLCtE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-Subject: [PATCH 4.9 004/134] igb: Remove incorrect "unexpected SYS WRAP" log message
-Date:   Mon,  1 Mar 2021 17:11:45 +0100
-Message-Id: <20210301161013.794609666@linuxfoundation.org>
+        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.9 005/134] arm64: tegra: Add power-domain for Tegra210 HDA
+Date:   Mon,  1 Mar 2021 17:11:46 +0100
+Message-Id: <20210301161013.843923030@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -42,44 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corinna Vinschen <vinschen@redhat.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit 2643e6e90210e16c978919617170089b7c2164f7 upstream.
+commit 1e0ca5467445bc1f41a9e403d6161a22f313dae7 upstream.
 
-TSAUXC.DisableSystime is never set, so SYSTIM runs into a SYS WRAP
-every 1100 secs on 80580/i350/i354 (40 bit SYSTIM) and every 35000
-secs on 80576 (45 bit SYSTIM).
+HDA initialization is failing occasionally on Tegra210 and following
+print is observed in the boot log. Because of this probe() fails and
+no sound card is registered.
 
-This wrap event sets the TSICR.SysWrap bit unconditionally.
+  [16.800802] tegra-hda 70030000.hda: no codecs found!
 
-However, checking TSIM at interrupt time shows that this event does not
-actually cause the interrupt.  Rather, it's just bycatch while the
-actual interrupt is caused by, for instance, TSICR.TXTS.
+Codecs request a state change and enumeration by the controller. In
+failure cases this does not seem to happen as STATETS register reads 0.
 
-The conclusion is that the SYS WRAP is actually expected, so the
-"unexpected SYS WRAP" message is entirely bogus and just helps to
-confuse users.  Drop it.
+The problem seems to be related to the HDA codec dependency on SOR
+power domain. If it is gated during HDA probe then the failure is
+observed. Building Tegra HDA driver into kernel image avoids this
+failure but does not completely address the dependency part. Fix this
+problem by adding 'power-domains' DT property for Tegra210 HDA. Note
+that Tegra186 and Tegra194 HDA do this already.
 
-Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-Acked-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Cc: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+Fixes: 742af7e7a0a1 ("arm64: tegra: Add Tegra210 support")
+Depends-on: 96d1f078ff0 ("arm64: tegra: Add SOR power-domain for Tegra210")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Acked-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra210.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -5665,8 +5665,6 @@ static void igb_tsync_interrupt(struct i
- 		event.type = PTP_CLOCK_PPS;
- 		if (adapter->ptp_caps.pps)
- 			ptp_clock_event(adapter->ptp_clock, &event);
--		else
--			dev_err(&adapter->pdev->dev, "unexpected SYS WRAP");
- 		ack |= TSINTR_SYS_WRAP;
- 	}
+--- a/arch/arm64/boot/dts/nvidia/tegra210.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra210.dtsi
+@@ -727,6 +727,7 @@
+ 			 <&tegra_car 128>, /* hda2hdmi */
+ 			 <&tegra_car 111>; /* hda2codec_2x */
+ 		reset-names = "hda", "hda2hdmi", "hda2codec_2x";
++		power-domains = <&pd_sor>;
+ 		status = "disabled";
+ 	};
  
 
 
