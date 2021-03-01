@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67CD132863B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A8A328634
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236567AbhCARG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:06:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
+        id S237015AbhCARGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:06:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235413AbhCAQ7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236357AbhCAQ7J (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:59:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8A4464FE8;
-        Mon,  1 Mar 2021 16:37:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0F4164FE4;
+        Mon,  1 Mar 2021 16:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616657;
-        bh=GFmbhcJcN/uW05kczdTV6zEvwvCAh8sGgbNOItm6ZN4=;
+        s=korg; t=1614616660;
+        bh=xerIsFzExni5txIsBkbguWWcNbi1jFUFSRXEiM48xBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tl6s33L1Y4NNdc+e0uApT6J/Kqjnp756GXv0MLHuaZItqFPYC1bWha7+NXV4q+H/y
-         6clFOkiB5CnQHuOpraaMeqSXrTZOjSezbVPsDkFZg2MxEVdYTjOGrbn1MvmdUneyWJ
-         kQMS5PZb7k/k79wzN7GvCICtYaVTQTIBmZbO0mnM=
+        b=ZPYLFniab0GXn6hhaXNeH32QMnPRFaKJnlGZ3qwRPNxYgracmexdd6HzBePn0GCQQ
+         lL2XzMopMy45tBV5Pz245ea//abmsy6fFgV7dVJLRR1JPJLKH8wBiTwBt72ukseOnw
+         Vn/9/j2BkTUi6tGj3LUuY99yP1Wz+/GKnrjSEhd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/247] staging: rtl8723bs: wifi_regd.c: Fix incorrect number of regulatory rules
-Date:   Mon,  1 Mar 2021 17:11:10 +0100
-Message-Id: <20210301161034.122579753@linuxfoundation.org>
+Subject: [PATCH 4.19 051/247] ARM: dts: armada388-helios4: assign pinctrl to LEDs
+Date:   Mon,  1 Mar 2021 17:11:11 +0100
+Message-Id: <20210301161034.169256299@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -39,90 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Rosen Penev <rosenp@gmail.com>
 
-[ Upstream commit 61834c967a929f6b4b7fcb91f43fa225cc29aa19 ]
+[ Upstream commit e011c9025a4691b5c734029577a920bd6c320994 ]
 
-The custom regulatory ruleset in the rtl8723bs driver lists an incorrect
-number of rules: one too many. This results in an out-of-bounds access,
-as detected by KASAN. This was possible thanks to the newly added support
-for KASAN on ARMv7.
+Split up the pins to match earlier definitions. Allows LEDs to flash
+properly.
 
-Fix this by filling in the correct number of rules given.
+Fixes: ced8025b569e ("ARM: dts: armada388-helios4")
 
-KASAN report:
-
-==================================================================
-BUG: KASAN: global-out-of-bounds in cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211]
-Read of size 4 at addr bf20c254 by task ip/971
-
-CPU: 2 PID: 971 Comm: ip Tainted: G         C        5.11.0-rc2-00020-gf7fe528a7ebe #1
-Hardware name: Allwinner sun8i Family
-[<c0113338>] (unwind_backtrace) from [<c010e8a4>] (show_stack+0x10/0x14)
-[<c010e8a4>] (show_stack) from [<c0e0f868>] (dump_stack+0x9c/0xb4)
-[<c0e0f868>] (dump_stack) from [<c0388284>] (print_address_description.constprop.2+0x1dc/0x2dc)
-[<c0388284>] (print_address_description.constprop.2) from [<c03885cc>] (kasan_report+0x1a8/0x1c4)
-[<c03885cc>] (kasan_report) from [<bf00a354>] (cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211])
-[<bf00a354>] (cfg80211_does_bw_fit_range [cfg80211]) from [<bf00b41c>] (freq_reg_info_regd.part.6+0x108/0x124 [>
-[<bf00b41c>] (freq_reg_info_regd.part.6 [cfg80211]) from [<bf00df00>] (handle_channel_custom.constprop.12+0x48/>
-[<bf00df00>] (handle_channel_custom.constprop.12 [cfg80211]) from [<bf00e150>] (wiphy_apply_custom_regulatory+0>
-[<bf00e150>] (wiphy_apply_custom_regulatory [cfg80211]) from [<bf1fb9e8>] (rtw_regd_init+0x60/0x70 [r8723bs])
-[<bf1fb9e8>] (rtw_regd_init [r8723bs]) from [<bf1ee5a8>] (rtw_cfg80211_init_wiphy+0x164/0x1e8 [r8723bs])
-[<bf1ee5a8>] (rtw_cfg80211_init_wiphy [r8723bs]) from [<bf1f8d50>] (_netdev_open+0xe4/0x28c [r8723bs])
-[<bf1f8d50>] (_netdev_open [r8723bs]) from [<bf1f8f58>] (netdev_open+0x60/0x88 [r8723bs])
-[<bf1f8f58>] (netdev_open [r8723bs]) from [<c0bb3730>] (__dev_open+0x178/0x220)
-[<c0bb3730>] (__dev_open) from [<c0bb3cdc>] (__dev_change_flags+0x258/0x2c4)
-[<c0bb3cdc>] (__dev_change_flags) from [<c0bb3d88>] (dev_change_flags+0x40/0x80)
-[<c0bb3d88>] (dev_change_flags) from [<c0bc86fc>] (do_setlink+0x538/0x1160)
-[<c0bc86fc>] (do_setlink) from [<c0bcf9e8>] (__rtnl_newlink+0x65c/0xad8)
-[<c0bcf9e8>] (__rtnl_newlink) from [<c0bcfeb0>] (rtnl_newlink+0x4c/0x6c)
-[<c0bcfeb0>] (rtnl_newlink) from [<c0bc67c8>] (rtnetlink_rcv_msg+0x1f8/0x454)
-[<c0bc67c8>] (rtnetlink_rcv_msg) from [<c0c330e4>] (netlink_rcv_skb+0xc4/0x1e0)
-[<c0c330e4>] (netlink_rcv_skb) from [<c0c32478>] (netlink_unicast+0x2c8/0x3c4)
-[<c0c32478>] (netlink_unicast) from [<c0c32894>] (netlink_sendmsg+0x320/0x5f0)
-[<c0c32894>] (netlink_sendmsg) from [<c0b75eb0>] (____sys_sendmsg+0x320/0x3e0)
-[<c0b75eb0>] (____sys_sendmsg) from [<c0b78394>] (___sys_sendmsg+0xe8/0x12c)
-[<c0b78394>] (___sys_sendmsg) from [<c0b78a50>] (__sys_sendmsg+0xc0/0x120)
-[<c0b78a50>] (__sys_sendmsg) from [<c0100060>] (ret_fast_syscall+0x0/0x58)
-Exception stack(0xc5693fa8 to 0xc5693ff0)
-3fa0:                   00000074 c7a39800 00000003 b6cee648 00000000 00000000
-3fc0: 00000074 c7a39800 00000001 00000128 78d18349 00000000 b6ceeda0 004f7cb0
-3fe0: 00000128 b6cee5e8 aeca151f aec1d746
-
-The buggy address belongs to the variable:
- rtw_drv_halt+0xf908/0x6b4 [r8723bs]
-
-Memory state around the buggy address:
- bf20c100: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
- bf20c180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->bf20c200: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
-                                         ^
- bf20c280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- bf20c300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20210108141401.31741-1-wens@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/os_dep/wifi_regd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/armada-388-helios4.dts | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-index aa2f62acc994d..4dd6f3fb59060 100644
---- a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-+++ b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-@@ -39,7 +39,7 @@
- 	NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_OFDM)
+diff --git a/arch/arm/boot/dts/armada-388-helios4.dts b/arch/arm/boot/dts/armada-388-helios4.dts
+index 705adfa8c680f..e0fa1391948c1 100644
+--- a/arch/arm/boot/dts/armada-388-helios4.dts
++++ b/arch/arm/boot/dts/armada-388-helios4.dts
+@@ -70,6 +70,9 @@
  
- static const struct ieee80211_regdomain rtw_regdom_rd = {
--	.n_reg_rules = 3,
-+	.n_reg_rules = 2,
- 	.alpha2 = "99",
- 	.reg_rules = {
- 		RTW_2GHZ_CH01_11,
+ 	system-leds {
+ 		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&helios_system_led_pins>;
++
+ 		status-led {
+ 			label = "helios4:green:status";
+ 			gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
+@@ -86,6 +89,9 @@
+ 
+ 	io-leds {
+ 		compatible = "gpio-leds";
++		pinctrl-names = "default";
++		pinctrl-0 = <&helios_io_led_pins>;
++
+ 		sata1-led {
+ 			label = "helios4:green:ata1";
+ 			gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+@@ -291,9 +297,12 @@
+ 						       "mpp39", "mpp40";
+ 					marvell,function = "sd0";
+ 				};
+-				helios_led_pins: helios-led-pins {
+-					marvell,pins = "mpp24", "mpp25",
+-						       "mpp49", "mpp50",
++				helios_system_led_pins: helios-system-led-pins {
++					marvell,pins = "mpp24", "mpp25";
++					marvell,function = "gpio";
++				};
++				helios_io_led_pins: helios-io-led-pins {
++					marvell,pins = "mpp49", "mpp50",
+ 						       "mpp52", "mpp53",
+ 						       "mpp54";
+ 					marvell,function = "gpio";
 -- 
 2.27.0
 
