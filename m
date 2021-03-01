@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 536E6328C1C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B22328BB5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240306AbhCASpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:45:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S240308AbhCASij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234556AbhCASj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A02A564FFB;
-        Mon,  1 Mar 2021 17:08:55 +0000 (UTC)
+        id S239800AbhCASc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:32:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 682E464FFD;
+        Mon,  1 Mar 2021 17:08:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618536;
-        bh=6mYZ4RgTHW7sK5kJf72iEJkj6mnZPhTzIIYcC3GRuZc=;
+        s=korg; t=1614618538;
+        bh=Xi+lVabsYrHZBkh8p7HoHsOstLPyg4ZYJ4SjuvdVzLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VoGImoqfLaNqH46MNrM6YIRERzpROm6/H7U6hYotgm0AK96n3spgHkvwQwVexcTKP
-         Ml9DofJafRXIQCuWvwMxYIB+IdLVPTTibqRDHE+/QZRkmHiEYZi8WZrR9D4hR3xMcN
-         ZhekHMskCSfNNO2JEZuExbfdPBQXxJ2ch2Avyl0o=
+        b=VAWbKFyDPJg8v5vqWDZaDI1O1QXij84wDIV/m2Q4m5flrqVEcn4kgyFxJN1L0Ort0
+         xufwp4lw3ZTcHdHNpzXcpeHZROya6oYzlcTSQAEe8qHR3NNNhQ2ult2r4m5y7GIyn6
+         gqkD736ja0taLztSdWFa9smoLF5/z81B9thoQ1U4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 122/663] cxgb4/chtls/cxgbit: Keeping the max ofld immediate data size same in cxgb4 and ulds
-Date:   Mon,  1 Mar 2021 17:06:10 +0100
-Message-Id: <20210301161147.779906192@linuxfoundation.org>
+Subject: [PATCH 5.10 123/663] b43: N-PHY: Fix the update of coef for the PHY revision >= 3case
+Date:   Mon,  1 Mar 2021 17:06:11 +0100
+Message-Id: <20210301161147.829701812@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,102 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 2355a6773a2cb0d2dce13432dde78497f1d6617b ]
+[ Upstream commit 4773acf3d4b50768bf08e9e97a204819e9ea0895 ]
 
-The Max imm data size in cxgb4 is not similar to the max imm data size
-in the chtls. This caused an mismatch in output of is_ofld_imm() of
-cxgb4 and chtls. So fixed this by keeping the max wreq size of imm data
-same in both chtls and cxgb4 as MAX_IMM_OFLD_TX_DATA_WR_LEN.
+The documentation for the PHY update [1] states:
 
-As cxgb4's max imm. data value for ofld packets is changed to
-MAX_IMM_OFLD_TX_DATA_WR_LEN. Using the same in cxgbit also.
+Loop 4 times with index i
 
-Fixes: 36bedb3f2e5b8 ("crypto: chtls - Inline TLS record Tx")
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
+    If PHY Revision >= 3
+        Copy table[i] to coef[i]
+    Otherwise
+        Set coef[i] to 0
+
+the copy of the table to coef is currently implemented the wrong way
+around, table is being updated from uninitialized values in coeff.
+Fix this by swapping the assignment around.
+
+[1] https://bcm-v4.sipsolutions.net/802.11/PHY/N/RestoreCal/
+
+Fixes: 2f258b74d13c ("b43: N-PHY: implement restoring general configuration")
+Addresses-Coverity: ("Uninitialized scalar variable")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h        |  3 +++
- drivers/net/ethernet/chelsio/cxgb4/sge.c              | 11 ++++++++---
- .../ethernet/chelsio/inline_crypto/chtls/chtls_cm.h   |  3 ---
- drivers/target/iscsi/cxgbit/cxgbit_target.c           |  3 +--
- 4 files changed, 12 insertions(+), 8 deletions(-)
+ drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-index 1b49f2fa9b185..34546f5312eee 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-@@ -46,6 +46,9 @@
- #define MAX_ULD_QSETS 16
- #define MAX_ULD_NPORTS 4
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index b669dff24b6e0..665b737fbb0d8 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -5311,7 +5311,7 @@ static void b43_nphy_restore_cal(struct b43_wldev *dev)
  
-+/* ulp_mem_io + ulptx_idata + payload + padding */
-+#define MAX_IMM_ULPTX_WR_LEN (32 + 8 + 256 + 8)
-+
- /* CPL message priority levels */
- enum {
- 	CPL_PRIORITY_DATA     = 0,  /* data messages */
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 196652a114c5f..3334c9e2152ab 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -2842,17 +2842,22 @@ int t4_mgmt_tx(struct adapter *adap, struct sk_buff *skb)
-  *	@skb: the packet
-  *
-  *	Returns true if a packet can be sent as an offload WR with immediate
-- *	data.  We currently use the same limit as for Ethernet packets.
-+ *	data.
-+ *	FW_OFLD_TX_DATA_WR limits the payload to 255 bytes due to 8-bit field.
-+ *      However, FW_ULPTX_WR commands have a 256 byte immediate only
-+ *      payload limit.
-  */
- static inline int is_ofld_imm(const struct sk_buff *skb)
- {
- 	struct work_request_hdr *req = (struct work_request_hdr *)skb->data;
- 	unsigned long opcode = FW_WR_OP_G(ntohl(req->wr_hi));
- 
--	if (opcode == FW_CRYPTO_LOOKASIDE_WR)
-+	if (unlikely(opcode == FW_ULPTX_WR))
-+		return skb->len <= MAX_IMM_ULPTX_WR_LEN;
-+	else if (opcode == FW_CRYPTO_LOOKASIDE_WR)
- 		return skb->len <= SGE_MAX_WR_LEN;
- 	else
--		return skb->len <= MAX_IMM_TX_PKT_LEN;
-+		return skb->len <= MAX_IMM_OFLD_TX_DATA_WR_LEN;
- }
- 
- /**
-diff --git a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-index 47ba81e42f5d0..b1161bdeda4dc 100644
---- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-+++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-@@ -50,9 +50,6 @@
- #define MIN_RCV_WND (24 * 1024U)
- #define LOOPBACK(x)     (((x) & htonl(0xff000000)) == htonl(0x7f000000))
- 
--/* ulp_mem_io + ulptx_idata + payload + padding */
--#define MAX_IMM_ULPTX_WR_LEN (32 + 8 + 256 + 8)
--
- /* for TX: a skb must have a headroom of at least TX_HEADER_LEN bytes */
- #define TX_HEADER_LEN \
- 	(sizeof(struct fw_ofld_tx_data_wr) + sizeof(struct sge_opaque_hdr))
-diff --git a/drivers/target/iscsi/cxgbit/cxgbit_target.c b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-index 9b3eb2e8c92ad..b926e1d6c7b8e 100644
---- a/drivers/target/iscsi/cxgbit/cxgbit_target.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-@@ -86,8 +86,7 @@ static int cxgbit_is_ofld_imm(const struct sk_buff *skb)
- 	if (likely(cxgbit_skcb_flags(skb) & SKCBF_TX_ISO))
- 		length += sizeof(struct cpl_tx_data_iso);
- 
--#define MAX_IMM_TX_PKT_LEN	256
--	return length <= MAX_IMM_TX_PKT_LEN;
-+	return length <= MAX_IMM_OFLD_TX_DATA_WR_LEN;
- }
- 
- /*
+ 	for (i = 0; i < 4; i++) {
+ 		if (dev->phy.rev >= 3)
+-			table[i] = coef[i];
++			coef[i] = table[i];
+ 		else
+ 			coef[i] = 0;
+ 	}
 -- 
 2.27.0
 
