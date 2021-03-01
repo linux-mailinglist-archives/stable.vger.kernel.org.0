@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80414328390
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6634F328386
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235495AbhCAQVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:21:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57272 "EHLO mail.kernel.org"
+        id S235396AbhCAQVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:21:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237737AbhCAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E82764ED6;
-        Mon,  1 Mar 2021 16:17:41 +0000 (UTC)
+        id S237786AbhCAQTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:19:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE58064EDB;
+        Mon,  1 Mar 2021 16:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615461;
-        bh=EOzZmko/S45RY8+x9JCgVoEoxJZ0+q1YqGisDaogHpQ=;
+        s=korg; t=1614615464;
+        bh=PHkXosXrdWybl+QZ4ZtRF8itog5yKuSA7S7sciIk8Ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YVW6jPpKydk9H1VlYIoVan+Lkt5IsDe1gcp8j2wFeuveGlO4yJK3Yqv2fytDJbg/d
-         7xoCfEP8N0EppF1G3VCzb5yOceMhVZuy4uSfOBmjETUYd5b8V7dEpX+zwnemKm+ymS
-         UxoNvesGWmNmNGcCFnCq7SoqAn6TTVBcaWLDvSxs=
+        b=qdnuEDzjKEEcFfabnSfx81UT2tP3ntgpf7VdgODlCKrK98LfdAK3ngVwbR4W22TEL
+         nlcR9UaU7o7zfqsYAEEqqABSs/Xnj4TuS4BkBwjadXve6ZsDcpbl+MCYBYsbVcpl5s
+         Z+P7KlbK2vUjG/Zcy4wZ8/8SThPbvifKJyMkRBog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 38/93] clocksource/drivers/mxs_timer: Add missing semicolon when DEBUG is defined
-Date:   Mon,  1 Mar 2021 17:12:50 +0100
-Message-Id: <20210301161008.785293986@linuxfoundation.org>
+Subject: [PATCH 4.4 39/93] regulator: axp20x: Fix reference cout leak
+Date:   Mon,  1 Mar 2021 17:12:51 +0100
+Message-Id: <20210301161008.829149165@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -40,43 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 7da390694afbaed8e0f05717a541dfaf1077ba51 ]
+[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
 
-When DEBUG is defined this error occurs
+Decrements the reference count of device node and its child node.
 
-drivers/clocksource/mxs_timer.c:138:1: error:
-  expected ‘;’ before ‘}’ token
-
-The preceding statement needs a semicolon.
-Replace pr_info() with pr_debug() and remove the unneeded ifdef.
-
-Fixes: eb8703e2ef7c ("clockevents/drivers/mxs: Migrate to new 'set-state' interface")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210118211955.763609-1-trix@redhat.com
+Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/mxs_timer.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/regulator/axp20x-regulator.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clocksource/mxs_timer.c b/drivers/clocksource/mxs_timer.c
-index f5ce2961c0d62..23f125126fa81 100644
---- a/drivers/clocksource/mxs_timer.c
-+++ b/drivers/clocksource/mxs_timer.c
-@@ -154,10 +154,7 @@ static void mxs_irq_clear(char *state)
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index 5cf4a97e03048..df235ac1a6b2b 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -279,7 +279,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
+ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ {
+ 	struct device_node *np, *regulators;
+-	int ret;
++	int ret = 0;
+ 	u32 dcdcfreq = 0;
  
- 	/* Clear pending interrupt */
- 	timrot_irq_acknowledge();
+ 	np = of_node_get(pdev->dev.parent->of_node);
+@@ -294,13 +294,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
+-			return ret;
+ 		}
 -
--#ifdef DEBUG
--	pr_info("%s: changing mode to %s\n", __func__, state)
--#endif /* DEBUG */
-+	pr_debug("%s: changing mode to %s\n", __func__, state);
+ 		of_node_put(regulators);
+ 	}
+ 
+-	return 0;
++	of_node_put(np);
++	return ret;
  }
  
- static int mxs_shutdown(struct clock_event_device *evt)
+ static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
