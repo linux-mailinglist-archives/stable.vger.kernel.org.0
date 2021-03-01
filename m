@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6360D328984
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15FDD328AD7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239018AbhCAR5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:57:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46814 "EHLO mail.kernel.org"
+        id S238013AbhCASXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:23:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238725AbhCARv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:51:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F9DE650BB;
-        Mon,  1 Mar 2021 17:41:58 +0000 (UTC)
+        id S232997AbhCASSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:18:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2614464FCC;
+        Mon,  1 Mar 2021 17:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620519;
-        bh=mx6vPhvTek/kyPDSLu1/sdse0OOuYRMxo4Un60gyHpE=;
+        s=korg; t=1614620527;
+        bh=BXWybLxRKMc5pEe+vFIQRaEx8gYO0bE1is8/v2Q8m7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YY6VC/JdAoGEcX/2t0BxPLH+/dK1lpKtU1d/7opTsshTjRA/3bhxmRKog2gDa+8V2
-         oWPNwz2FmGWsRBq5/TVNmVSFGngkpyiEYGfNwsjTTD6wpq0sU+qtMBg85HrndldZQY
-         QghpKBmHZm7RtkLgnw35yAftTc8jaKYi9huln6h0=
+        b=e7/7ZVNFQZ9cBQ8+LEIAWvKN2gGKJO2lWcDWMkTBV1k2z0pKC6hrN8GPRyO7OjUWj
+         zHHmnq147PZJk7C0RwecPNoqgh6yWDJA/BVZh4cKHF+WxqBe9IzTvB93yZ3pyLFAOU
+         pzkljI0OyNVBCd1OEAM0gInzsPXJwZ4FeueGFi/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 183/775] kcsan: Rewrite kcsan_prandom_u32_max() without prandom_u32_state()
-Date:   Mon,  1 Mar 2021 17:05:51 +0100
-Message-Id: <20210301161210.674713285@linuxfoundation.org>
+Subject: [PATCH 5.11 185/775] drm: rcar-du: Fix crash when using LVDS1 clock for CRTC
+Date:   Mon,  1 Mar 2021 17:05:53 +0100
+Message-Id: <20210301161210.772915465@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,107 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit 71a076f4a61a6c779794ad286f356b39725edc3b ]
+[ Upstream commit 53ced169373aab52d3b5da0fee6a342002d1876d ]
 
-Rewrite kcsan_prandom_u32_max() to not depend on code that might be
-instrumented, removing any dependency on lib/random32.c. The rewrite
-implements a simple linear congruential generator, that is sufficient
-for our purposes (for udelay() and skip_watch counter randomness).
+On D3 and E3 platforms, the LVDS encoder includes a PLL that can
+generate a clock for the corresponding CRTC, used even when the CRTC
+output to a non-LVDS port. This mechanism is supported by the driver,
+but the implementation is broken in dual-link LVDS mode. In that case,
+the LVDS1 drm_encoder is skipped, which causes a crash when trying to
+access its bridge later on.
 
-The initial motivation for this was to allow enabling KCSAN for
-kernel/sched (remove KCSAN_SANITIZE := n from kernel/sched/Makefile),
-with CONFIG_DEBUG_PREEMPT=y. Without this change, we could observe
-recursion:
+Fix this by storing bridge pointers internally instead of retrieving
+them from the encoder. The rcar_du_device encoders field isn't used
+anymore and can be dropped.
 
-	check_access() [via instrumentation]
-	  kcsan_setup_watchpoint()
-	    reset_kcsan_skip()
-	      kcsan_prandom_u32_max()
-	        get_cpu_var()
-		  preempt_disable()
-		    preempt_count_add() [in kernel/sched/core.c]
-		      check_access() [via instrumentation]
-
-Note, while this currently does not affect an unmodified kernel, it'd be
-good to keep a KCSAN kernel working when KCSAN_SANITIZE := n is removed
-from kernel/sched/Makefile to permit testing scheduler code with KCSAN
-if desired.
-
-Fixes: cd290ec24633 ("kcsan: Use tracing-safe version of prandom")
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 8e8fddab0d0a ("drm: rcar-du: Skip LVDS1 output on Gen3 when using dual-link LVDS mode")
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/core.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c    | 10 ++--------
+ drivers/gpu/drm/rcar-du/rcar_du_drv.h     |  6 +++---
+ drivers/gpu/drm/rcar-du/rcar_du_encoder.c |  5 ++++-
+ 3 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/kcsan/core.c b/kernel/kcsan/core.c
-index 3994a217bde76..3bf98db9c702d 100644
---- a/kernel/kcsan/core.c
-+++ b/kernel/kcsan/core.c
-@@ -12,7 +12,6 @@
- #include <linux/moduleparam.h>
- #include <linux/percpu.h>
- #include <linux/preempt.h>
--#include <linux/random.h>
- #include <linux/sched.h>
- #include <linux/uaccess.h>
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index b5fb941e0f534..e23b9c7b4afeb 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -730,13 +730,10 @@ static void rcar_du_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	 */
+ 	if (rcdu->info->lvds_clk_mask & BIT(rcrtc->index) &&
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+-		struct rcar_du_encoder *encoder =
+-			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
++		struct drm_bridge *bridge = rcdu->lvds[rcrtc->index];
+ 		const struct drm_display_mode *mode =
+ 			&crtc->state->adjusted_mode;
+-		struct drm_bridge *bridge;
  
-@@ -101,7 +100,7 @@ static atomic_long_t watchpoints[CONFIG_KCSAN_NUM_WATCHPOINTS + NUM_SLOTS-1];
- static DEFINE_PER_CPU(long, kcsan_skip);
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
+ 		rcar_lvds_clk_enable(bridge, mode->clock * 1000);
+ 	}
  
- /* For kcsan_prandom_u32_max(). */
--static DEFINE_PER_CPU(struct rnd_state, kcsan_rand_state);
-+static DEFINE_PER_CPU(u32, kcsan_rand_state);
+@@ -764,15 +761,12 @@ static void rcar_du_crtc_atomic_disable(struct drm_crtc *crtc,
  
- static __always_inline atomic_long_t *find_watchpoint(unsigned long addr,
- 						      size_t size,
-@@ -275,20 +274,17 @@ should_watch(const volatile void *ptr, size_t size, int type, struct kcsan_ctx *
- }
+ 	if (rcdu->info->lvds_clk_mask & BIT(rcrtc->index) &&
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+-		struct rcar_du_encoder *encoder =
+-			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
+-		struct drm_bridge *bridge;
++		struct drm_bridge *bridge = rcdu->lvds[rcrtc->index];
  
- /*
-- * Returns a pseudo-random number in interval [0, ep_ro). See prandom_u32_max()
-- * for more details.
-- *
-- * The open-coded version here is using only safe primitives for all contexts
-- * where we can have KCSAN instrumentation. In particular, we cannot use
-- * prandom_u32() directly, as its tracepoint could cause recursion.
-+ * Returns a pseudo-random number in interval [0, ep_ro). Simple linear
-+ * congruential generator, using constants from "Numerical Recipes".
-  */
- static u32 kcsan_prandom_u32_max(u32 ep_ro)
- {
--	struct rnd_state *state = &get_cpu_var(kcsan_rand_state);
--	const u32 res = prandom_u32_state(state);
-+	u32 state = this_cpu_read(kcsan_rand_state);
+ 		/*
+ 		 * Disable the LVDS clock output, see
+ 		 * rcar_du_crtc_atomic_enable().
+ 		 */
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
+ 		rcar_lvds_clk_disable(bridge);
+ 	}
+ 
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+index 61504c54e2ecf..3597a179bfb78 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+@@ -20,10 +20,10 @@
+ 
+ struct clk;
+ struct device;
++struct drm_bridge;
+ struct drm_device;
+ struct drm_property;
+ struct rcar_du_device;
+-struct rcar_du_encoder;
+ 
+ #define RCAR_DU_FEATURE_CRTC_IRQ_CLOCK	BIT(0)	/* Per-CRTC IRQ and clock */
+ #define RCAR_DU_FEATURE_VSP1_SOURCE	BIT(1)	/* Has inputs from VSP1 */
+@@ -71,6 +71,7 @@ struct rcar_du_device_info {
+ #define RCAR_DU_MAX_CRTCS		4
+ #define RCAR_DU_MAX_GROUPS		DIV_ROUND_UP(RCAR_DU_MAX_CRTCS, 2)
+ #define RCAR_DU_MAX_VSPS		4
++#define RCAR_DU_MAX_LVDS		2
+ 
+ struct rcar_du_device {
+ 	struct device *dev;
+@@ -83,11 +84,10 @@ struct rcar_du_device {
+ 	struct rcar_du_crtc crtcs[RCAR_DU_MAX_CRTCS];
+ 	unsigned int num_crtcs;
+ 
+-	struct rcar_du_encoder *encoders[RCAR_DU_OUTPUT_MAX];
+-
+ 	struct rcar_du_group groups[RCAR_DU_MAX_GROUPS];
+ 	struct platform_device *cmms[RCAR_DU_MAX_CRTCS];
+ 	struct rcar_du_vsp vsps[RCAR_DU_MAX_VSPS];
++	struct drm_bridge *lvds[RCAR_DU_MAX_LVDS];
+ 
+ 	struct {
+ 		struct drm_property *colorkey;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_encoder.c b/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
+index b0335da0c1614..50fc14534fa4d 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
+@@ -57,7 +57,6 @@ int rcar_du_encoder_init(struct rcar_du_device *rcdu,
+ 	if (renc == NULL)
+ 		return -ENOMEM;
+ 
+-	rcdu->encoders[output] = renc;
+ 	renc->output = output;
+ 	encoder = rcar_encoder_to_drm_encoder(renc);
+ 
+@@ -91,6 +90,10 @@ int rcar_du_encoder_init(struct rcar_du_device *rcdu,
+ 			ret = -EPROBE_DEFER;
+ 			goto done;
+ 		}
 +
-+	state = 1664525 * state + 1013904223;
-+	this_cpu_write(kcsan_rand_state, state);
- 
--	put_cpu_var(kcsan_rand_state);
--	return (u32)(((u64) res * ep_ro) >> 32);
-+	return state % ep_ro;
- }
- 
- static inline void reset_kcsan_skip(void)
-@@ -639,10 +635,14 @@ static __always_inline void check_access(const volatile void *ptr, size_t size,
- 
- void __init kcsan_init(void)
- {
-+	int cpu;
-+
- 	BUG_ON(!in_task());
- 
- 	kcsan_debugfs_init();
--	prandom_seed_full_state(&kcsan_rand_state);
-+
-+	for_each_possible_cpu(cpu)
-+		per_cpu(kcsan_rand_state, cpu) = (u32)get_cycles();
++		if (output == RCAR_DU_OUTPUT_LVDS0 ||
++		    output == RCAR_DU_OUTPUT_LVDS1)
++			rcdu->lvds[output - RCAR_DU_OUTPUT_LVDS0] = bridge;
+ 	}
  
  	/*
- 	 * We are in the init task, and no other tasks should be running;
 -- 
 2.27.0
 
