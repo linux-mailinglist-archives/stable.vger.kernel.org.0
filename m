@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEF22328E14
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FD1328D91
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235914AbhCATXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:23:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
+        id S235224AbhCATN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:13:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241396AbhCATSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57682652E6;
-        Mon,  1 Mar 2021 17:39:46 +0000 (UTC)
+        id S241123AbhCATIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:08:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B3164F3A;
+        Mon,  1 Mar 2021 17:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620386;
-        bh=5zLvdUX5BbkNxDFM+dTSIEwWu7JX2ukVC1ho8jcw1fQ=;
+        s=korg; t=1614618268;
+        bh=6jv3u8/6dFLbw4S02vIg7NuvhYZZh0Kw7OCCSGXZ8h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFgrzsweavGwfCJecYSFRyaPolTl3Bkb00CXRUqbCvAZJwjcSbk4Ltr1C6uqomM9S
-         eLF0gyF1nvG30RRvixJgsaP/SKE+75lJyoQmAK6mYi66dWTMqsyr2lYSEyCSoHcZ2C
-         DxPxYFoK80iqSWH0O1J9DPcJ1c+rEPPaGJ2a+wsc=
+        b=r7xXX5+aW3PrI9Uaclwdo3DM5c1Nidyk8DYZqr7foB9hwXIz4ztFdgbCnySjFDMmU
+         QhJJWgp/j46+xe8tP7svp5SebJpExKsCEfaJ7KcoZ/WFvZUE2C34Nzye33bdy8etzQ
+         MVxnuy2TQYDfBaNua68RaXfvLbvFdJPry5kBprwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 104/775] net: phy: consider that suspend2ram may cut off PHY power
-Date:   Mon,  1 Mar 2021 17:04:32 +0100
-Message-Id: <20210301161206.798967209@linuxfoundation.org>
+Subject: [PATCH 5.10 025/663] arm64: dts: renesas: beacon kit: Fix choppy Bluetooth Audio
+Date:   Mon,  1 Mar 2021 17:04:33 +0100
+Message-Id: <20210301161143.040608419@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,128 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 4c0d2e96ba055bd8911bb8287def4f8ebbad15b6 ]
+[ Upstream commit db030c5a9658846a42fbed4d43a8b5f28a2d7ab7 ]
 
-Claudiu reported that on his system S2R cuts off power to the PHY and
-after resuming certain PHY settings are lost. The PM folks confirmed
-that cutting off power to selected components in S2R is a valid case.
-Therefore resuming from S2R, same as from hibernation, has to assume
-that the PHY has power-on defaults. As a consequence use the restore
-callback also as resume callback.
-In addition make sure that the interrupt configuration is restored.
-Let's do this in phy_init_hw() and ensure that after this call
-actual interrupt configuration is in sync with phydev->interrupts.
-Currently, if interrupt was enabled before hibernation, we would
-resume with interrupt disabled because that's the power-on default.
+The Bluetooth chip is capable of operating at 4Mbps, but the
+max-speed setting was on the UART node instead of the Bluetooth
+node, so the chip didn't operate at the correct speed resulting
+in choppy audio.  Fix this by setting the max-speed in the proper
+node.
 
-This fix applies cleanly only after the commit marked as fixed.
-
-I don't have an affected system, therefore change is compile-tested
-only.
-
-[0] https://lore.kernel.org/netdev/1610120754-14331-1-git-send-email-claudiu.beznea@microchip.com/
-
-Fixes: 611d779af7ca ("net: phy: fix MDIO bus PM PHY resuming")
-Reported-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a1d8a344f1ca ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20201213183759.223246-3-aford173@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy_device.c | 53 ++++++++++++------------------------
- 1 file changed, 17 insertions(+), 36 deletions(-)
+ arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
-index 80c2e646c0934..71169e7d6177d 100644
---- a/drivers/net/phy/phy_device.c
-+++ b/drivers/net/phy/phy_device.c
-@@ -300,50 +300,22 @@ static int mdio_bus_phy_resume(struct device *dev)
+diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
+index 97272f5fa0abf..6d24b36ca0a7c 100644
+--- a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
++++ b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
+@@ -88,7 +88,6 @@
+ 	pinctrl-names = "default";
+ 	uart-has-rtscts;
+ 	status = "okay";
+-	max-speed = <4000000>;
  
- 	phydev->suspended_by_mdio_bus = 0;
- 
--	ret = phy_resume(phydev);
-+	ret = phy_init_hw(phydev);
- 	if (ret < 0)
- 		return ret;
- 
--no_resume:
--	if (phydev->attached_dev && phydev->adjust_link)
--		phy_start_machine(phydev);
--
--	return 0;
--}
--
--static int mdio_bus_phy_restore(struct device *dev)
--{
--	struct phy_device *phydev = to_phy_device(dev);
--	struct net_device *netdev = phydev->attached_dev;
--	int ret;
--
--	if (!netdev)
--		return 0;
--
--	ret = phy_init_hw(phydev);
-+	ret = phy_resume(phydev);
- 	if (ret < 0)
- 		return ret;
--
-+no_resume:
- 	if (phydev->attached_dev && phydev->adjust_link)
- 		phy_start_machine(phydev);
- 
- 	return 0;
- }
- 
--static const struct dev_pm_ops mdio_bus_phy_pm_ops = {
--	.suspend = mdio_bus_phy_suspend,
--	.resume = mdio_bus_phy_resume,
--	.freeze = mdio_bus_phy_suspend,
--	.thaw = mdio_bus_phy_resume,
--	.restore = mdio_bus_phy_restore,
--};
--
--#define MDIO_BUS_PHY_PM_OPS (&mdio_bus_phy_pm_ops)
--
--#else
--
--#define MDIO_BUS_PHY_PM_OPS NULL
--
-+static SIMPLE_DEV_PM_OPS(mdio_bus_phy_pm_ops, mdio_bus_phy_suspend,
-+			 mdio_bus_phy_resume);
- #endif /* CONFIG_PM */
- 
- /**
-@@ -554,7 +526,7 @@ static const struct device_type mdio_bus_phy_type = {
- 	.name = "PHY",
- 	.groups = phy_dev_groups,
- 	.release = phy_device_release,
--	.pm = MDIO_BUS_PHY_PM_OPS,
-+	.pm = pm_ptr(&mdio_bus_phy_pm_ops),
+ 	bluetooth {
+ 		compatible = "brcm,bcm43438-bt";
+@@ -97,6 +96,7 @@
+ 		device-wakeup-gpios = <&pca9654 5 GPIO_ACTIVE_HIGH>;
+ 		clocks = <&osc_32k>;
+ 		clock-names = "extclk";
++		max-speed = <4000000>;
+ 	};
  };
- 
- static int phy_request_driver_module(struct phy_device *dev, u32 phy_id)
-@@ -1143,10 +1115,19 @@ int phy_init_hw(struct phy_device *phydev)
- 	if (ret < 0)
- 		return ret;
- 
--	if (phydev->drv->config_init)
-+	if (phydev->drv->config_init) {
- 		ret = phydev->drv->config_init(phydev);
-+		if (ret < 0)
-+			return ret;
-+	}
- 
--	return ret;
-+	if (phydev->drv->config_intr) {
-+		ret = phydev->drv->config_intr(phydev);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	return 0;
- }
- EXPORT_SYMBOL(phy_init_hw);
  
 -- 
 2.27.0
