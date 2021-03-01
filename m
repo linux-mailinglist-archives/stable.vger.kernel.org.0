@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E8B328EEE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7D55328E54
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:31:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240998AbhCATkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:40:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+        id S241622AbhCAT17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:27:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241606AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 047156507D;
-        Mon,  1 Mar 2021 17:27:24 +0000 (UTC)
+        id S241547AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:24:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C60B65260;
+        Mon,  1 Mar 2021 17:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619645;
-        bh=1ky7nt3ngZjKLGd7nTnrpKypDmjz25a4MrDHr3oVSPo=;
+        s=korg; t=1614619727;
+        bh=Lz+3XLTCULspYyzvlhiTLiL1CoYYgRLJv7r9U0NgbVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dgq9aNJMpniqQF8plI9Ze05L8f/XxXZHkHnh2+AKoKp1/MtC+ouOTcO4hgKxSeSM/
-         D6etEhGjplEpdhdC8mC+RDhKPTFBYzuZOPYreVIuw+gijoX1c7zbwcGaCHaO/6wMY5
-         V0UAzWj2lADTRoQ9n0O0mGs2nGzp6pwQ0uWIjxno=
+        b=MM3hZGPnRvjvgpQjEHAF+jlyA44fulU9f8rV/GRFwcKkJjSbVcRGBLdtt+F4kVRtY
+         /adYSC9+49a4c/6op95duQ2JBgsNw1PYjrsCLKQITtpeFvA7E+pbMqetk3izDapJLZ
+         hjcFht1XyaDyM+IEuyPCwtWmNIEtV1MMFUhiRuv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
-        Daniel Stone <daniels@collabora.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.10 522/663] drm/rockchip: Require the YTR modifier for AFBC
-Date:   Mon,  1 Mar 2021 17:12:50 +0100
-Message-Id: <20210301161207.674014050@linuxfoundation.org>
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.10 529/663] KEYS: trusted: Fix migratable=1 failing
+Date:   Mon,  1 Mar 2021 17:12:57 +0100
+Message-Id: <20210301161208.020629485@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,61 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit 5f94e3571459abb626077aedb65d71264c2a58c0 upstream.
+commit 8da7520c80468c48f981f0b81fc1be6599e3b0ad upstream.
 
-The AFBC decoder used in the Rockchip VOP assumes the use of the
-YUV-like colourspace transform (YTR). YTR is lossless for RGB(A)
-buffers, which covers the RGBA8 and RGB565 formats supported in
-vop_convert_afbc_format. Use of YTR is signaled with the
-AFBC_FORMAT_MOD_YTR modifier, which prior to this commit was missing. As
-such, a producer would have to generate buffers that do not use YTR,
-which the VOP would erroneously decode as YTR, leading to severe visual
-corruption.
+Consider the following transcript:
 
-The upstream AFBC support was developed against a captured frame, which
-failed to exercise modifier support. Prior to bring-up of AFBC in Mesa
-(in the Panfrost driver), no open userspace respected modifier
-reporting. As such, this change is not expected to affect broken
-userspaces.
+$ keyctl add trusted kmk "new 32 blobauth=helloworld keyhandle=80000000 migratable=1" @u
+add_key: Invalid argument
 
-Tested on RK3399 with Panfrost and Weston.
+The documentation has the following description:
 
-Fixes: 7707f7227f09 ("drm/rockchip: Add support for afbc")
+  migratable=   0|1 indicating permission to reseal to new PCR values,
+                default 1 (resealing allowed)
+
+The consequence is that "migratable=1" should succeed. Fix this by
+allowing this condition to pass instead of return -EINVAL.
+
+[*] Documentation/security/keys/trusted-encrypted.rst
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>
-Acked-by: Daniel Stone <daniels@collabora.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200811202631.3603-1-alyssa.rosenzweig@collabora.com
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: David Howells <dhowells@redhat.com>
+Fixes: d00a1c72f7f4 ("keys: add new trusted key-type")
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.h |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ security/keys/trusted-keys/trusted_tpm1.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.h
-@@ -17,9 +17,20 @@
- 
- #define NUM_YUV2YUV_COEFFICIENTS 12
- 
-+/* AFBC supports a number of configurable modes. Relevant to us is block size
-+ * (16x16 or 32x8), storage modifiers (SPARSE, SPLIT), and the YUV-like
-+ * colourspace transform (YTR). 16x16 SPARSE mode is always used. SPLIT mode
-+ * could be enabled via the hreg_block_split register, but is not currently
-+ * handled. The colourspace transform is implicitly always assumed by the
-+ * decoder, so consumers must use this transform as well.
-+ *
-+ * Failure to match modifiers will cause errors displaying AFBC buffers
-+ * produced by conformant AFBC producers, including Mesa.
-+ */
- #define ROCKCHIP_AFBC_MOD \
- 	DRM_FORMAT_MOD_ARM_AFBC( \
- 		AFBC_FORMAT_MOD_BLOCK_SIZE_16x16 | AFBC_FORMAT_MOD_SPARSE \
-+			| AFBC_FORMAT_MOD_YTR \
- 	)
- 
- enum vop_data_format {
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -801,7 +801,7 @@ static int getoptions(char *c, struct tr
+ 		case Opt_migratable:
+ 			if (*args[0].from == '0')
+ 				pay->migratable = 0;
+-			else
++			else if (*args[0].from != '1')
+ 				return -EINVAL;
+ 			break;
+ 		case Opt_pcrlock:
 
 
