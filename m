@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D76DA32916F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A02132916C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243012AbhCAU0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:26:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
+        id S242844AbhCAUZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:25:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243208AbhCAUSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243209AbhCAUSy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:18:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93E4F65291;
-        Mon,  1 Mar 2021 18:03:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58C8D653E2;
+        Mon,  1 Mar 2021 18:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621833;
-        bh=lJlcJo5vjrIG2dfiBblGpI5tolIwegM+Ah7c4SbmBTA=;
+        s=korg; t=1614621836;
+        bh=1/F/Xo1GRSIJtJr+pRrXtoT/zYqmaonRhTOTFAawYIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKroA3vZiCR0FtaNK4Y9C0qNTCmoub0U3Cd3CJO9N02toae14AW0gNvwSx9jVVGzD
-         cORbJZ20WcZTeebtRPn8x92yaLsqhxbOThGxY/F0Hw026b6dfBJEMtbqtUoHtx6Ch2
-         6NIM6svLm5M5wadqzxPC3mUjh+ZAbxfJc56wgQRs=
+        b=NV+CvcIGNZ1uqF1GjcBe9txrgcpsxn0nZ7WXr302alXcICjOG7GvKE5KETGQP29FE
+         PM0ZOjXwkiwW+96W1qY1PvvZa9TCxgYxKiATXqFOdEcL3GyNCh4L3DtMGHiHn/d6GV
+         f58dIfY+z3g4TWzrkCwKWjPWqNJQXO2Oi6HMTZh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@ger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
+        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        David Howells <dhowells@redhat.com>,
+        Kent Yoder <key@linux.vnet.ibm.com>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 630/775] tpm_tis: Clean up locality release
-Date:   Mon,  1 Mar 2021 17:13:18 +0100
-Message-Id: <20210301161232.532896631@linuxfoundation.org>
+Subject: [PATCH 5.11 631/775] KEYS: trusted: Fix incorrect handling of tpm_get_random()
+Date:   Mon,  1 Mar 2021 17:13:19 +0100
+Message-Id: <20210301161232.582211015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,95 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit e42acf104d6e0bd7ccd2f09103d5be5e6d3c637c upstream.
+commit 5df16caada3fba3b21cb09b85cdedf99507f4ec1 upstream.
 
-The current release locality code seems to be based on the
-misunderstanding that the TPM interrupts when a locality is released:
-it doesn't, only when the locality is acquired.
+When tpm_get_random() was introduced, it defined the following API for the
+return value:
 
-Furthermore, there seems to be no point in waiting for the locality to
-be released.  All it does is penalize the last TPM user.  However, if
-there's no next TPM user, this is a pointless wait and if there is a
-next TPM user, they'll pay the penalty waiting for the new locality
-(or possibly not if it's the same as the old locality).
+1. A positive value tells how many bytes of random data was generated.
+2. A negative value on error.
 
-Fix the code by making release_locality as simple write to release
-with no waiting for completion.
+However, in the call sites the API was used incorrectly, i.e. as it would
+only return negative values and otherwise zero. Returning he positive read
+counts to the user space does not make any possible sense.
 
-Cc: stable@ger.kernel.org
-Fixes: 33bafe90824b ("tpm_tis: verify locality released before returning from release_locality")
-Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
-Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Fix this by returning -EIO when tpm_get_random() returns a positive value.
+
+Fixes: 41ab999c80f1 ("tpm: Move tpm_get_random api into the TPM device driver")
+Cc: stable@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Kent Yoder <key@linux.vnet.ibm.com>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   47 ----------------------------------------
- 1 file changed, 1 insertion(+), 46 deletions(-)
+ security/keys/trusted-keys/trusted_tpm1.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -135,58 +135,13 @@ static bool check_locality(struct tpm_ch
- 	return false;
- }
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -403,9 +403,12 @@ static int osap(struct tpm_buf *tb, stru
+ 	int ret;
  
--static bool locality_inactive(struct tpm_chip *chip, int l)
--{
--	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	int rc;
--	u8 access;
--
--	rc = tpm_tis_read8(priv, TPM_ACCESS(l), &access);
--	if (rc < 0)
--		return false;
--
--	if ((access & (TPM_ACCESS_VALID | TPM_ACCESS_ACTIVE_LOCALITY))
--	    == TPM_ACCESS_VALID)
--		return true;
--
--	return false;
--}
--
- static int release_locality(struct tpm_chip *chip, int l)
- {
- 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
--	unsigned long stop, timeout;
--	long rc;
+ 	ret = tpm_get_random(chip, ononce, TPM_NONCE_SIZE);
+-	if (ret != TPM_NONCE_SIZE)
++	if (ret < 0)
+ 		return ret;
  
- 	tpm_tis_write8(priv, TPM_ACCESS(l), TPM_ACCESS_ACTIVE_LOCALITY);
++	if (ret != TPM_NONCE_SIZE)
++		return -EIO;
++
+ 	tpm_buf_reset(tb, TPM_TAG_RQU_COMMAND, TPM_ORD_OSAP);
+ 	tpm_buf_append_u16(tb, type);
+ 	tpm_buf_append_u32(tb, handle);
+@@ -496,8 +499,12 @@ static int tpm_seal(struct tpm_buf *tb,
+ 		goto out;
  
--	stop = jiffies + chip->timeout_a;
--
--	if (chip->flags & TPM_CHIP_FLAG_IRQ) {
--again:
--		timeout = stop - jiffies;
--		if ((long)timeout <= 0)
--			return -1;
--
--		rc = wait_event_interruptible_timeout(priv->int_queue,
--						      (locality_inactive(chip, l)),
--						      timeout);
--
--		if (rc > 0)
--			return 0;
--
--		if (rc == -ERESTARTSYS && freezing(current)) {
--			clear_thread_flag(TIF_SIGPENDING);
--			goto again;
--		}
--	} else {
--		do {
--			if (locality_inactive(chip, l))
--				return 0;
--			tpm_msleep(TPM_TIMEOUT);
--		} while (time_before(jiffies, stop));
--	}
--	return -1;
-+	return 0;
- }
+ 	ret = tpm_get_random(chip, td->nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE)
+-		goto out;
++		return -EIO;
++
+ 	ordinal = htonl(TPM_ORD_SEAL);
+ 	datsize = htonl(datalen);
+ 	pcrsize = htonl(pcrinfosize);
+@@ -601,9 +608,12 @@ static int tpm_unseal(struct tpm_buf *tb
  
- static int request_locality(struct tpm_chip *chip, int l)
+ 	ordinal = htonl(TPM_ORD_UNSEAL);
+ 	ret = tpm_get_random(chip, nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE) {
+ 		pr_info("trusted_key: tpm_get_random failed (%d)\n", ret);
+-		return ret;
++		return -EIO;
+ 	}
+ 	ret = TSS_authhmac(authdata1, keyauth, TPM_NONCE_SIZE,
+ 			   enonce1, nonceodd, cont, sizeof(uint32_t),
+@@ -1013,8 +1023,12 @@ static int trusted_instantiate(struct ke
+ 	case Opt_new:
+ 		key_len = payload->key_len;
+ 		ret = tpm_get_random(chip, payload->key, key_len);
++		if (ret < 0)
++			goto out;
++
+ 		if (ret != key_len) {
+ 			pr_info("trusted_key: key_create failed (%d)\n", ret);
++			ret = -EIO;
+ 			goto out;
+ 		}
+ 		if (tpm2)
 
 
