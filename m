@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78051328747
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 832B7328742
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:24:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238070AbhCARWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:22:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
+        id S231324AbhCARWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:22:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237889AbhCARNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:13:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 209AB6502F;
-        Mon,  1 Mar 2021 16:44:45 +0000 (UTC)
+        id S237973AbhCARNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:13:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0065864F90;
+        Mon,  1 Mar 2021 16:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617086;
-        bh=dmNY6VhMniOzNzQQzvWXJ8O0SbQOJ+PSRyeNw1rQUk8=;
+        s=korg; t=1614617089;
+        bh=1yTEUzwgfyEcCq1y6Ir4WpQSNodMyMZ/cyKleqozpMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/34nNnclv7bhVMj0sbggvVjr1zEeoO4X8ATr7i+66h9JM4rQgl50SJT254xsrN8l
-         kpriusGVjY+f+dlry76XCSMlJXhenrDJwpsIhHFn1D8gcuwnyHn0cpSOjKP5ilURJx
-         AZl50GVxkD3OFHE2ZlR8+xqWRqy39B8Va1C0n+JI=
+        b=olUURT2VmIkJel7FwvxfOSK4OxtM1Tu+jlO8FyBGGWiwIXflUXQoqp2RMomkszi7u
+         x/AHrYQg3d8yUu/P6YlmisrdTm3ibVuPHiGcpbC18dxIF3/AyWU3WQlef+/M8UTwoT
+         d0fdQtFX7+062TlK3G37nPKMqWa/HObAgHdxSHik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 198/247] btrfs: fix reloc root leak with 0 ref reloc roots on recovery
-Date:   Mon,  1 Mar 2021 17:13:38 +0100
-Message-Id: <20210301161041.345563657@linuxfoundation.org>
+Subject: [PATCH 4.19 199/247] btrfs: fix extent buffer leak on failure to copy root
+Date:   Mon,  1 Mar 2021 17:13:39 +0100
+Message-Id: <20210301161041.396941891@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -39,48 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit c78a10aebb275c38d0cfccae129a803fe622e305 upstream.
+commit 72c9925f87c8b74f36f8e75a4cd93d964538d3ca upstream.
 
-When recovering a relocation, if we run into a reloc root that has 0
-refs we simply add it to the reloc_control->reloc_roots list, and then
-clean it up later.  The problem with this is __del_reloc_root() doesn't
-do anything if the root isn't in the radix tree, which in this case it
-won't be because we never call __add_reloc_root() on the reloc_root.
+At btrfs_copy_root(), if the call to btrfs_inc_ref() fails we end up
+returning without unlocking and releasing our reference on the extent
+buffer named "cow" we previously allocated with btrfs_alloc_tree_block().
 
-This exit condition simply isn't correct really.  During normal
-operation we can remove ourselves from the rb tree and then we're meant
-to clean up later at merge_reloc_roots() time, and this happens
-correctly.  During recovery we're depending on free_reloc_roots() to
-drop our references, but we're short-circuiting.
+So fix that by unlocking the extent buffer and dropping our reference on
+it before returning.
 
-Fix this by continuing to check if we're on the list and dropping
-ourselves from the reloc_control root list and dropping our reference
-appropriately.  Change the corresponding BUG_ON() to an ASSERT() that
-does the correct thing if we aren't in the rb tree.
-
+Fixes: be20aa9dbadc8c ("Btrfs: Add mount option to turn off data cow")
 CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/relocation.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/btrfs/ctree.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1291,9 +1291,7 @@ static void __del_reloc_root(struct btrf
- 			RB_CLEAR_NODE(&node->rb_node);
- 		}
- 		spin_unlock(&rc->reloc_root_tree.lock);
--		if (!node)
--			return;
--		BUG_ON((struct btrfs_root *)node->data != root);
-+		ASSERT(!node || (struct btrfs_root *)node->data == root);
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -268,6 +268,8 @@ int btrfs_copy_root(struct btrfs_trans_h
+ 	else
+ 		ret = btrfs_inc_ref(trans, root, cow, 0);
+ 	if (ret) {
++		btrfs_tree_unlock(cow);
++		free_extent_buffer(cow);
+ 		btrfs_abort_transaction(trans, ret);
+ 		return ret;
  	}
- 
- 	spin_lock(&fs_info->trans_lock);
 
 
