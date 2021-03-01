@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 726B63287CE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D78883287B1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238527AbhCAR2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:28:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48856 "EHLO mail.kernel.org"
+        id S238447AbhCAR2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238249AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:24:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E2465068;
-        Mon,  1 Mar 2021 16:48:50 +0000 (UTC)
+        id S237966AbhCARVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:21:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D90B64F98;
+        Mon,  1 Mar 2021 16:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617331;
-        bh=LhcZVeNCRJS1Z6vXuuq/RF6MV1TwjipyFenDsbvlGMM=;
+        s=korg; t=1614617256;
+        bh=zT6jV+zI54eT7uXsn9mSvwTR59Vf+LyayPCd7B3QDW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BRd3kAuUxlJ/IQ0F1kPn1f9oTPlWKlKrRy4xVSl/YLhoX3zMyWRfKXiwuJLydIwF
-         6gkbA9eWF7bKSkNzVi2dVt039rVLvvZYDH6ypWdGVHpLqncm5HbAiC7ZapUXK9ik4O
-         b8W0PN3paQhS9K5rxgRuAMSDxHe8VxRJJund+h3g=
+        b=IR98Z9Nz1HrsLfWAXUfPwwKBJQJM7WdQ36T6JgaX6/wQtS566CnlBQgU/TtHWt6pm
+         Bc3rDUDVec4Wd2iv1zFPv0xb8hBkuFnp9ycWlxUmDttmRWnHgv1z6Y2cnr4cgdaJj6
+         S/q1pRIQeN58BcG1thmWSf15FxSDoQKk6e0zyVy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 009/340] bfq: Avoid false bfq queue merging
-Date:   Mon,  1 Mar 2021 17:09:13 +0100
-Message-Id: <20210301161048.765559820@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 010/340] ALSA: usb-audio: Fix PCM buffer allocation in non-vmalloc mode
+Date:   Mon,  1 Mar 2021 17:09:14 +0100
+Message-Id: <20210301161048.815902895@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,55 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 41e76c85660c022c6bf5713bfb6c21e64a487cec upstream.
+commit fb3c293b82c31a9a68fbcf4e7a45fadd8a47ea2b upstream.
 
-bfq_setup_cooperator() uses bfqd->in_serv_last_pos so detect whether it
-makes sense to merge current bfq queue with the in-service queue.
-However if the in-service queue is freshly scheduled and didn't dispatch
-any requests yet, bfqd->in_serv_last_pos is stale and contains value
-from the previously scheduled bfq queue which can thus result in a bogus
-decision that the two queues should be merged. This bug can be observed
-for example with the following fio jobfile:
+The commit f274baa49be6 ("ALSA: usb-audio: Allow non-vmalloc buffer
+for PCM buffers") introduced the mode to allocate coherent pages for
+PCM buffers, and it used bus->controller device as its DMA device.
+It turned out, however, that bus->sysdev is a more appropriate device
+to be used for DMA mapping in HCD code.
 
-[global]
-direct=0
-ioengine=sync
-invalidate=1
-size=1g
-rw=read
+This patch corrects the device reference accordingly.
 
-[reader]
-numjobs=4
-directory=/mnt
+Note that, on most platforms, both point to the very same device,
+hence this patch doesn't change anything practically.  But on
+platforms like xhcd-plat hcd, the change becomes effective.
 
-where the 4 processes will end up in the one shared bfq queue although
-they do IO to physically very distant files (for some reason I was able to
-observe this only with slice_idle=1ms setting).
-
-Fix the problem by invalidating bfqd->in_serv_last_pos when switching
-in-service queue.
-
-Fixes: 058fdecc6de7 ("block, bfq: fix in-service-queue check for queue merging")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Acked-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f274baa49be6 ("ALSA: usb-audio: Allow non-vmalloc buffer for PCM buffers")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210205144559.29555-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/pcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2937,6 +2937,7 @@ static void __bfq_set_in_service_queue(s
- 	}
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1885,7 +1885,7 @@ void snd_usb_preallocate_buffer(struct s
+ {
+ 	struct snd_pcm *pcm = subs->stream->pcm;
+ 	struct snd_pcm_substream *s = pcm->streams[subs->direction].substream;
+-	struct device *dev = subs->dev->bus->controller;
++	struct device *dev = subs->dev->bus->sysdev;
  
- 	bfqd->in_service_queue = bfqq;
-+	bfqd->in_serv_last_pos = 0;
- }
- 
- /*
+ 	if (!snd_usb_use_vmalloc)
+ 		snd_pcm_lib_preallocate_pages(s, SNDRV_DMA_TYPE_DEV_SG,
 
 
