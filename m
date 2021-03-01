@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E853288A5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AF8032889F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238679AbhCARnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
+        id S238650AbhCARnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233446AbhCARfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:35:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB23E650AF;
-        Mon,  1 Mar 2021 16:54:31 +0000 (UTC)
+        id S237006AbhCARfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:35:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99CF964FBC;
+        Mon,  1 Mar 2021 16:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617672;
-        bh=96NTDA+OYK/Px4c45nUkM396t1LTy1nYrtKs3+38CF0=;
+        s=korg; t=1614617675;
+        bh=ZroAn3WEtKgo+UYosISiDSp6LPXCEJAILV+aFDtpYF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cB4DFslZiJfDR9U+oPX4izQdG70vQOcnMFkSSqO0acXZTJ46a6Sz5gPaQTtzrNOOJ
-         EMrd+UHl3GF3b3OuqMpz8aSmOT1u73WXfs3cYb/HFX8q00qKR6/gm149oh7iYIylwW
-         un/Vz3vV1k/S2UCVVZ39DEfyhpsKMwuxMxe5NYS0=
+        b=t0/1OZtibHN/J05+cpBjz+M7Mv3oyLFrth1tUn+5BqSzkZBPjl4uBcTmxeVrNZQgt
+         ZukIfRlpKwLfodBjtJCxg+QP5yjsdm4TsIgkoYWwsd1CBaQn+4s0zKURYNgF5PXRqx
+         Zn6Sb+DL3StSt+5o0Z6C28zqAJ2LNS7YSSq5l4t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 155/340] spi: atmel: Put allocated master before return
-Date:   Mon,  1 Mar 2021 17:11:39 +0100
-Message-Id: <20210301161055.943982856@linuxfoundation.org>
+Subject: [PATCH 5.4 156/340] regulator: s5m8767: Drop regulators OF node reference
+Date:   Mon,  1 Mar 2021 17:11:40 +0100
+Message-Id: <20210301161055.991818223@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,37 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit 21ea2743f015dbacec1831bdc8afc848db9c2b8c ]
+[ Upstream commit a5872bd3398d0ff2ce4c77794bc7837899c69024 ]
 
-The allocated master is not released. Goto error handling label rather
-than directly return.
+The device node reference obtained with of_get_child_by_name() should be
+dropped on error paths.
 
-Fixes: 5e9af37e46bc ("spi: atmel: introduce probe deferring")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Fixes: 5e9af37e46bc ("spi: atmel: introduce probe deferring")
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20210120050025.25426-1-bianpan2016@163.com
+Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20210121155914.48034-1-krzk@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-atmel.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/s5m8767.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-atmel.c b/drivers/spi/spi-atmel.c
-index abbc1582f457e..d9711ea5b01d3 100644
---- a/drivers/spi/spi-atmel.c
-+++ b/drivers/spi/spi-atmel.c
-@@ -1569,7 +1569,7 @@ static int atmel_spi_probe(struct platform_device *pdev)
- 		if (ret == 0) {
- 			as->use_dma = true;
- 		} else if (ret == -EPROBE_DEFER) {
--			return ret;
-+			goto out_unmap_regs;
- 		}
- 	} else if (as->caps.has_pdc_support) {
- 		as->use_pdc = true;
+diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
+index ee0ed538e244f..5276f8442f3c6 100644
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -544,14 +544,18 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
+ 	rdata = devm_kcalloc(&pdev->dev,
+ 			     pdata->num_regulators, sizeof(*rdata),
+ 			     GFP_KERNEL);
+-	if (!rdata)
++	if (!rdata) {
++		of_node_put(regulators_np);
+ 		return -ENOMEM;
++	}
+ 
+ 	rmode = devm_kcalloc(&pdev->dev,
+ 			     pdata->num_regulators, sizeof(*rmode),
+ 			     GFP_KERNEL);
+-	if (!rmode)
++	if (!rmode) {
++		of_node_put(regulators_np);
+ 		return -ENOMEM;
++	}
+ 
+ 	pdata->regulators = rdata;
+ 	pdata->opmode = rmode;
 -- 
 2.27.0
 
