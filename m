@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACA93289DC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:09:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C0F328B0D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236689AbhCASHB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:07:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52452 "EHLO mail.kernel.org"
+        id S239912AbhCAS1p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:27:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239223AbhCAR7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:59:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 536AC65172;
-        Mon,  1 Mar 2021 17:07:35 +0000 (UTC)
+        id S239753AbhCASUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:20:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4F2B65000;
+        Mon,  1 Mar 2021 17:09:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618455;
-        bh=k6vtMchoWGyWtWELp5BGWeV7s51JHBk/vSco0li3SZA=;
+        s=korg; t=1614618544;
+        bh=bPQPvYbXUPUjJOHRKL9WSros6ZRo9eI9F4XnFSeL9pI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdilqj8KrRCvaGL6cvCfAFScjzSk1pz59SkKaOycPOOZMPFhiRHTDUh2fCDdrd62V
-         mv9GZYSg1n07llz/GNBWrHs4938hHgadpYMSuvU4RyUxvV0ciYptyeLVIak3Vvt2uc
-         1QaJWZMUDlP0Rh0RCq5uv4CqCuSGqEAfOhdBhCnw=
+        b=HnIJup5tpDA5aGvXSGvmYVbS/3EumLE9JZbFAWXSHa5UjqV1M+HkJ9TbVUJVQDuHL
+         eECmTgiwqaRRGJKCLt9m8Yl7ISkIawnr8kOu0lpubUo42J9vfu6keJX/U+EmwjoFHA
+         755HU3JR/5LsXHxGiv5/rzVNZAR9ns3b7BdxN6oI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+3536db46dfa58c573458@syzkaller.appspotmail.com,
-        syzbot+516acdb03d3e27d91bcd@syzkaller.appspotmail.com,
-        Marco Elver <elver@google.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/663] bpf_lru_list: Read double-checked variable once without lock
-Date:   Mon,  1 Mar 2021 17:05:40 +0100
-Message-Id: <20210301161146.281516490@linuxfoundation.org>
+Subject: [PATCH 5.10 098/663] bnxt_en: reverse order of TX disable and carrier off
+Date:   Mon,  1 Mar 2021 17:05:46 +0100
+Message-Id: <20210301161146.580876906@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -44,63 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-[ Upstream commit 6df8fb83301d68ea0a0c0e1cbcc790fcc333ed12 ]
+[ Upstream commit 132e0b65dc2b8bfa9721bfce834191f24fd1d7ed ]
 
-For double-checked locking in bpf_common_lru_push_free(), node->type is
-read outside the critical section and then re-checked under the lock.
-However, concurrent writes to node->type result in data races.
+A TX queue can potentially immediately timeout after it is stopped
+and the last TX timestamp on that queue was more than 5 seconds ago with
+carrier still up.  Prevent these intermittent false TX timeouts
+by bringing down carrier first before calling netif_tx_disable().
 
-For example, the following concurrent access was observed by KCSAN:
-
-  write to 0xffff88801521bc22 of 1 bytes by task 10038 on cpu 1:
-   __bpf_lru_node_move_in        kernel/bpf/bpf_lru_list.c:91
-   __local_list_flush            kernel/bpf/bpf_lru_list.c:298
-   ...
-  read to 0xffff88801521bc22 of 1 bytes by task 10043 on cpu 0:
-   bpf_common_lru_push_free      kernel/bpf/bpf_lru_list.c:507
-   bpf_lru_push_free             kernel/bpf/bpf_lru_list.c:555
-   ...
-
-Fix the data races where node->type is read outside the critical section
-(for double-checked locking) by marking the access with READ_ONCE() as
-well as ensuring the variable is only accessed once.
-
-Fixes: 3a08c2fd7634 ("bpf: LRU List")
-Reported-by: syzbot+3536db46dfa58c573458@syzkaller.appspotmail.com
-Reported-by: syzbot+516acdb03d3e27d91bcd@syzkaller.appspotmail.com
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Link: https://lore.kernel.org/bpf/20210209112701.3341724-1-elver@google.com
+Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/bpf_lru_list.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/bpf_lru_list.c b/kernel/bpf/bpf_lru_list.c
-index 1b6b9349cb857..d99e89f113c43 100644
---- a/kernel/bpf/bpf_lru_list.c
-+++ b/kernel/bpf/bpf_lru_list.c
-@@ -502,13 +502,14 @@ struct bpf_lru_node *bpf_lru_pop_free(struct bpf_lru *lru, u32 hash)
- static void bpf_common_lru_push_free(struct bpf_lru *lru,
- 				     struct bpf_lru_node *node)
- {
-+	u8 node_type = READ_ONCE(node->type);
- 	unsigned long flags;
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 033bfab24ef2f..c7c5c01a783a0 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -8856,9 +8856,10 @@ void bnxt_tx_disable(struct bnxt *bp)
+ 			txr->dev_state = BNXT_DEV_STATE_CLOSING;
+ 		}
+ 	}
++	/* Drop carrier first to prevent TX timeout */
++	netif_carrier_off(bp->dev);
+ 	/* Stop all TX queues */
+ 	netif_tx_disable(bp->dev);
+-	netif_carrier_off(bp->dev);
+ }
  
--	if (WARN_ON_ONCE(node->type == BPF_LRU_LIST_T_FREE) ||
--	    WARN_ON_ONCE(node->type == BPF_LRU_LOCAL_LIST_T_FREE))
-+	if (WARN_ON_ONCE(node_type == BPF_LRU_LIST_T_FREE) ||
-+	    WARN_ON_ONCE(node_type == BPF_LRU_LOCAL_LIST_T_FREE))
- 		return;
- 
--	if (node->type == BPF_LRU_LOCAL_LIST_T_PENDING) {
-+	if (node_type == BPF_LRU_LOCAL_LIST_T_PENDING) {
- 		struct bpf_lru_locallist *loc_l;
- 
- 		loc_l = per_cpu_ptr(lru->common_lru.local_list, node->cpu);
+ void bnxt_tx_enable(struct bnxt *bp)
 -- 
 2.27.0
 
