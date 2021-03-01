@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 525BB328C75
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4CF0328C74
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240608AbhCASwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:52:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53408 "EHLO mail.kernel.org"
+        id S238903AbhCASwm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:52:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239728AbhCASmk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:42:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E0B764F6E;
-        Mon,  1 Mar 2021 17:01:44 +0000 (UTC)
+        id S240092AbhCASoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:44:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3214C650F2;
+        Mon,  1 Mar 2021 17:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618105;
-        bh=YKOIZLt6JK+OyGakGVDrBEZGwci86HLf7KXQNm3Aekc=;
+        s=korg; t=1614618113;
+        bh=z7VRdudYj41kewCTrMKmfPEDxQl4yAJBUEc8xmnH21k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5iBntDNIMh3gRWJNLvEzt9FrNUWLctImtyZ16iHR1mvP2N+aAPYMguSFv7oovS54
-         sP+mGyEkNoc7AVn3u3iUYSyWwRckC1cBaM5/3DKdQY9VjMixyM3U+PDgLXaiONrWKP
-         UcHHwCKS5rlvyqjNCjzupAravcHZs/FFYpbxDPuQ=
+        b=ZtlJiw1EVe69eQObiRZeb1dtLLL4Mc5AVtkhMw47R1dy26zWyd0WYNtO0cldUxfny
+         zUbf2MFtKvCdIZHJ8DjNiyWkxEVh3Y/3hnom7qalNlgVKmH/nAkbnf16ukXxVZbfh7
+         ViZmZT59L3I0CfiSoXX+DPrNXZg2ukCwe6wyBfpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 309/340] powerpc/32s: Add missing call to kuep_lock on syscall entry
-Date:   Mon,  1 Mar 2021 17:14:13 +0100
-Message-Id: <20210301161103.492523630@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.4 311/340] gpio: pcf857x: Fix missing first interrupt
+Date:   Mon,  1 Mar 2021 17:14:15 +0100
+Message-Id: <20210301161103.591076096@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,38 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-commit 57fdfbce89137ae85cd5cef48be168040a47dd13 upstream.
+commit a8002a35935aaefcd6a42ad3289f62bab947f2ca upstream.
 
-Userspace Execution protection and fast syscall entry were implemented
-independently from each other and were both merged in kernel 5.2,
-leading to syscall entry missing userspace execution protection.
+If no n_latch value will be provided at driver probe then all pins will
+be used as an input:
 
-On syscall entry, execution of user space memory must be
-locked in the same way as on exception entry.
+    gpio->out = ~n_latch;
 
-Fixes: b86fb88855ea ("powerpc/32: implement fast entry for syscalls on non BOOKE")
+In that case initial state for all pins is "one":
+
+    gpio->status = gpio->out;
+
+So if pcf857x IRQ happens with change pin value from "zero" to "one"
+then we miss it, because of "one" from IRQ and "one" from initial state
+leaves corresponding pin unchanged:
+change = (gpio->status ^ status) & gpio->irq_enabled;
+
+The right solution will be to read actual state at driver probe.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c65e105b63aaf74f91a14f845bc77192350b84a6.1612796617.git.christophe.leroy@csgroup.eu
+Fixes: 6e20a0a429bd ("gpio: pcf857x: enable gpio_to_irq() support")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/entry_32.S |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpio/gpio-pcf857x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/entry_32.S
-+++ b/arch/powerpc/kernel/entry_32.S
-@@ -336,6 +336,9 @@ trace_syscall_entry_irq_off:
+--- a/drivers/gpio/gpio-pcf857x.c
++++ b/drivers/gpio/gpio-pcf857x.c
+@@ -332,7 +332,7 @@ static int pcf857x_probe(struct i2c_clie
+ 	 * reset state.  Otherwise it flags pins to be driven low.
+ 	 */
+ 	gpio->out = ~n_latch;
+-	gpio->status = gpio->out;
++	gpio->status = gpio->read(gpio->client);
  
- 	.globl	transfer_to_syscall
- transfer_to_syscall:
-+#ifdef CONFIG_PPC_BOOK3S_32
-+	kuep_lock r11, r12
-+#endif
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	andi.	r12,r9,MSR_EE
- 	beq-	trace_syscall_entry_irq_off
+ 	status = devm_gpiochip_add_data(&client->dev, &gpio->chip, gpio);
+ 	if (status < 0)
 
 
