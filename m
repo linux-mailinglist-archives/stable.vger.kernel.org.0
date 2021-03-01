@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A4B32921A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86897329224
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243655AbhCAUiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:38:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49676 "EHLO mail.kernel.org"
+        id S237451AbhCAUkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:40:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243437AbhCAUc6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:32:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 353296503F;
-        Mon,  1 Mar 2021 18:09:13 +0000 (UTC)
+        id S243510AbhCAUdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:33:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF4096509A;
+        Mon,  1 Mar 2021 18:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622153;
-        bh=SOAigHL47hsULGlPPzpozP3UHX5sHtQj1aRe3XJC67U=;
+        s=korg; t=1614622156;
+        bh=rPF8tN/ud/JLoTSIQdl/KfCJR4ZOCKc2FG3essbPd0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDUFWyt1SyT5jpV2yRem3f5m3ovrqVX4byzJDnIjSRx5c0vOLknzjfmVq+RqKrych
-         qTRg2xCYUUGR86ekOYOih5kPy3JRW7powJBDz13yfjwjCVI+e2mSsphoeChK3hpK+w
-         iKa5vZ23I9XOGrkIdooM6SbpV9Rj5WhbMkfAM2ls=
+        b=AdBtdalA5FEO0KIdvNpNq8EXzD8NUv1oOujMjVgiOWFc7ovflaKuows1fW+pBErsE
+         tbfKq96YTWqvAWQEdz37x00soO9ea/Rdiq5eBqKe07dUgF43OtUs2FY4Vz1cm6iauF
+         OdMzfXef6L5jWGtePJ4FMoaLUkyzlxBS05y+kgEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 760/775] dm era: Recover committed writeset after crash
-Date:   Mon,  1 Mar 2021 17:15:28 +0100
-Message-Id: <20210301161238.873135358@linuxfoundation.org>
+Subject: [PATCH 5.11 761/775] dm era: Update in-core bitset after committing the metadata
+Date:   Mon,  1 Mar 2021 17:15:29 +0100
+Message-Id: <20210301161238.924006403@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,35 +41,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit de89afc1e40fdfa5f8b666e5d07c43d21a1d3be0 upstream.
+commit 2099b145d77c1d53f5711f029c37cc537897cee6 upstream.
 
-Following a system crash, dm-era fails to recover the committed writeset
-for the current era, leading to lost writes. That is, we lose the
-information about what blocks were written during the affected era.
+In case of a system crash, dm-era might fail to mark blocks as written
+in its metadata, although the corresponding writes to these blocks were
+passed down to the origin device and completed successfully.
 
-dm-era assumes that the writeset of the current era is archived when the
-device is suspended. So, when resuming the device, it just moves on to
-the next era, ignoring the committed writeset.
+Consider the following sequence of events:
 
-This assumption holds when the device is properly shut down. But, when
-the system crashes, the code that suspends the target never runs, so the
-writeset for the current era is not archived.
+1. We write to a block that has not been yet written in the current era
+2. era_map() checks the in-core bitmap for the current era and sees
+   that the block is not marked as written.
+3. The write is deferred for submission after the metadata have been
+   updated and committed.
+4. The worker thread processes the deferred write
+   (process_deferred_bios()) and marks the block as written in the
+   in-core bitmap, **before** committing the metadata.
+5. The worker thread starts committing the metadata.
+6. We do more writes that map to the same block as the write of step (1)
+7. era_map() checks the in-core bitmap and sees that the block is marked
+   as written, **although the metadata have not been committed yet**.
+8. These writes are passed down to the origin device immediately and the
+   device reports them as completed.
+9. The system crashes, e.g., power failure, before the commit from step
+   (5) finishes.
 
-There are three issues that cause the committed writeset to get lost:
+When the system recovers and we query the dm-era target for the list of
+written blocks it doesn't report the aforementioned block as written,
+although the writes of step (6) completed successfully.
 
-1. dm-era doesn't load the committed writeset when opening the metadata
-2. The code that resizes the metadata wipes the information about the
-   committed writeset (assuming it was loaded at step 1)
-3. era_preresume() starts a new era, without taking into account that
-   the current era might not have been archived, due to a system crash.
+The issue is that era_map() decides whether to defer or not a write
+based on non committed information. The root cause of the bug is that we
+update the in-core bitmap, **before** committing the metadata.
 
-To fix this:
-
-1. Load the committed writeset when opening the metadata
-2. Fix the code that resizes the metadata to make sure it doesn't wipe
-   the loaded writeset
-3. Fix era_preresume() to check for a loaded writeset and archive it,
-   before starting a new era.
+Fix this by updating the in-core bitmap **after** successfully
+committing the metadata.
 
 Fixes: eec40579d84873 ("dm: add era target")
 Cc: stable@vger.kernel.org # v3.15+
@@ -77,87 +83,74 @@ Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/md/dm-era-target.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
 --- a/drivers/md/dm-era-target.c
 +++ b/drivers/md/dm-era-target.c
-@@ -71,8 +71,6 @@ static size_t bitset_size(unsigned nr_bi
-  */
- static int writeset_alloc(struct writeset *ws, dm_block_t nr_blocks)
- {
--	ws->md.nr_bits = nr_blocks;
--	ws->md.root = INVALID_WRITESET_ROOT;
- 	ws->bits = vzalloc(bitset_size(nr_blocks));
- 	if (!ws->bits) {
- 		DMERR("%s: couldn't allocate in memory bitset", __func__);
-@@ -85,12 +83,14 @@ static int writeset_alloc(struct writese
- /*
-  * Wipes the in-core bitset, and creates a new on disk bitset.
-  */
--static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws)
-+static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws,
-+			 dm_block_t nr_blocks)
+@@ -134,7 +134,7 @@ static int writeset_test_and_set(struct
  {
  	int r;
  
--	memset(ws->bits, 0, bitset_size(ws->md.nr_bits));
-+	memset(ws->bits, 0, bitset_size(nr_blocks));
- 
-+	ws->md.nr_bits = nr_blocks;
- 	r = setup_on_disk_bitset(info, ws->md.nr_bits, &ws->md.root);
- 	if (r) {
- 		DMERR("%s: setup_on_disk_bitset failed", __func__);
-@@ -579,6 +579,7 @@ static int open_metadata(struct era_meta
- 	md->nr_blocks = le32_to_cpu(disk->nr_blocks);
- 	md->current_era = le32_to_cpu(disk->current_era);
- 
-+	ws_unpack(&disk->current_writeset, &md->current_writeset->md);
- 	md->writeset_tree_root = le64_to_cpu(disk->writeset_tree_root);
- 	md->era_array_root = le64_to_cpu(disk->era_array_root);
- 	md->metadata_snap = le64_to_cpu(disk->metadata_snap);
-@@ -870,7 +871,6 @@ static int metadata_era_archive(struct e
- 	}
- 
- 	ws_pack(&md->current_writeset->md, &value);
--	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
- 
- 	keys[0] = md->current_era;
- 	__dm_bless_for_disk(&value);
-@@ -882,6 +882,7 @@ static int metadata_era_archive(struct e
- 		return r;
- 	}
- 
-+	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
- 	md->archived_writesets = true;
- 
- 	return 0;
-@@ -898,7 +899,7 @@ static int metadata_new_era(struct era_m
- 	int r;
- 	struct writeset *new_writeset = next_writeset(md);
- 
--	r = writeset_init(&md->bitset_info, new_writeset);
-+	r = writeset_init(&md->bitset_info, new_writeset, md->nr_blocks);
- 	if (r) {
- 		DMERR("%s: writeset_init failed", __func__);
- 		return r;
-@@ -951,7 +952,7 @@ static int metadata_commit(struct era_me
- 	int r;
- 	struct dm_block *sblock;
- 
--	if (md->current_writeset->md.root != SUPERBLOCK_LOCATION) {
-+	if (md->current_writeset->md.root != INVALID_WRITESET_ROOT) {
- 		r = dm_bitset_flush(&md->bitset_info, md->current_writeset->md.root,
- 				    &md->current_writeset->md.root);
+-	if (!test_and_set_bit(block, ws->bits)) {
++	if (!test_bit(block, ws->bits)) {
+ 		r = dm_bitset_set_bit(info, ws->md.root, block, &ws->md.root);
  		if (r) {
-@@ -1565,7 +1566,7 @@ static int era_preresume(struct dm_targe
+ 			/* FIXME: fail mode */
+@@ -1226,8 +1226,10 @@ static void process_deferred_bios(struct
+ 	int r;
+ 	struct bio_list deferred_bios, marked_bios;
+ 	struct bio *bio;
++	struct blk_plug plug;
+ 	bool commit_needed = false;
+ 	bool failed = false;
++	struct writeset *ws = era->md->current_writeset;
  
- 	start_worker(era);
+ 	bio_list_init(&deferred_bios);
+ 	bio_list_init(&marked_bios);
+@@ -1237,9 +1239,11 @@ static void process_deferred_bios(struct
+ 	bio_list_init(&era->deferred_bios);
+ 	spin_unlock(&era->deferred_lock);
  
--	r = in_worker0(era, metadata_new_era);
-+	r = in_worker0(era, metadata_era_rollover);
- 	if (r) {
- 		DMERR("%s: metadata_era_rollover failed", __func__);
- 		return r;
++	if (bio_list_empty(&deferred_bios))
++		return;
++
+ 	while ((bio = bio_list_pop(&deferred_bios))) {
+-		r = writeset_test_and_set(&era->md->bitset_info,
+-					  era->md->current_writeset,
++		r = writeset_test_and_set(&era->md->bitset_info, ws,
+ 					  get_block(era, bio));
+ 		if (r < 0) {
+ 			/*
+@@ -1247,7 +1251,6 @@ static void process_deferred_bios(struct
+ 			 * FIXME: finish.
+ 			 */
+ 			failed = true;
+-
+ 		} else if (r == 0)
+ 			commit_needed = true;
+ 
+@@ -1263,9 +1266,19 @@ static void process_deferred_bios(struct
+ 	if (failed)
+ 		while ((bio = bio_list_pop(&marked_bios)))
+ 			bio_io_error(bio);
+-	else
+-		while ((bio = bio_list_pop(&marked_bios)))
++	else {
++		blk_start_plug(&plug);
++		while ((bio = bio_list_pop(&marked_bios))) {
++			/*
++			 * Only update the in-core writeset if the on-disk one
++			 * was updated too.
++			 */
++			if (commit_needed)
++				set_bit(get_block(era, bio), ws->bits);
+ 			submit_bio_noacct(bio);
++		}
++		blk_finish_plug(&plug);
++	}
+ }
+ 
+ static void process_rpc_calls(struct era *era)
 
 
