@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 209BE328457
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4BC328557
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233502AbhCAQdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:33:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        id S235939AbhCAQx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234839AbhCAQ3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF20764EF2;
-        Mon,  1 Mar 2021 16:22:38 +0000 (UTC)
+        id S235327AbhCAQo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:44:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D472D64D73;
+        Mon,  1 Mar 2021 16:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615759;
-        bh=vKNtseI8/nS7wW4NqmKMaOIS6UXExW50r8LAs4EdFdg=;
+        s=korg; t=1614616226;
+        bh=3TK0yicQuSVWNt6sQ9tEOq0iZyfjg7CppEvx3hHWzFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RU/pHsD0O0gxTRdvHwWlMRUKLmdypYAe8o1DmYoDGR+9GVXMaZKpVvHZAdpuqZ4G7
-         ar3LFVAlXOKzwkdggIVHZxQ1pHeF7SCJ3JBPpWl8kmDpbkOtrtO4L5YiwGjI3qojFa
-         4yNAneUw2Mga+7v+XjeE5SrPyfwe4XReDd1PChj8=
+        b=EYsno4ygibq3ouIyNp5JIT1HcTQKY5jv23lzVkahUdj+cosLA68PQXMhWi5SIyva3
+         ODSgCzNKT4UvGSfHXofrn2y5U26Rd3aLpBNlRI/BBYI9k81yedQm8fLBqxbBCL/Ors
+         QJ9t5a567o6sEBKag7D0yNSciopQM+1imBfcpnVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 050/134] HID: core: detect and skip invalid inputs to snto32()
+Subject: [PATCH 4.14 078/176] power: reset: at91-sama5d2_shdwc: fix wkupdbc mask
 Date:   Mon,  1 Mar 2021 17:12:31 +0100
-Message-Id: <20210301161016.023306074@linuxfoundation.org>
+Message-Id: <20210301161024.841493761@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit a0312af1f94d13800e63a7d0a66e563582e39aec ]
+[ Upstream commit 95aa21a3f1183260db1b0395e03df5bebc5ed641 ]
 
-Prevent invalid (0, 0) inputs to hid-core's snto32() function.
+According to datasheet WKUPDBC mask is b/w bits 26..24.
 
-Maybe it is just the dummy device here that is causing this, but
-there are hundreds of calls to snto32(0, 0). Having n (bits count)
-of 0 is causing the current UBSAN trap with a shift value of
-0xffffffff (-1, or n - 1 in this function).
-
-Either of the value to shift being 0 or the bits count being 0 can be
-handled by just returning 0 to the caller, avoiding the following
-complex shift + OR operations:
-
-	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
-
-Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: f80cb48843987 ("power: reset: at91-shdwc: add new shutdown controller driver")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/power/reset/at91-sama5d2_shdwc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 18bdba45c159a..40b36e59a8676 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1109,6 +1109,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);
+diff --git a/drivers/power/reset/at91-sama5d2_shdwc.c b/drivers/power/reset/at91-sama5d2_shdwc.c
+index 037976a1fe40b..c2fab93b556bb 100644
+--- a/drivers/power/reset/at91-sama5d2_shdwc.c
++++ b/drivers/power/reset/at91-sama5d2_shdwc.c
+@@ -36,7 +36,7 @@
  
- static s32 snto32(__u32 value, unsigned n)
- {
-+	if (!value || !n)
-+		return 0;
-+
- 	switch (n) {
- 	case 8:  return ((__s8)value);
- 	case 16: return ((__s16)value);
+ #define AT91_SHDW_MR	0x04		/* Shut Down Mode Register */
+ #define AT91_SHDW_WKUPDBC_SHIFT	24
+-#define AT91_SHDW_WKUPDBC_MASK	GENMASK(31, 16)
++#define AT91_SHDW_WKUPDBC_MASK	GENMASK(26, 24)
+ #define AT91_SHDW_WKUPDBC(x)	(((x) << AT91_SHDW_WKUPDBC_SHIFT) \
+ 						& AT91_SHDW_WKUPDBC_MASK)
+ 
 -- 
 2.27.0
 
