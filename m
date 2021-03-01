@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F4BC328557
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1694B328459
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235939AbhCAQx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
+        id S233535AbhCAQdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235327AbhCAQo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D472D64D73;
-        Mon,  1 Mar 2021 16:30:25 +0000 (UTC)
+        id S234840AbhCAQ3J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 761F364F49;
+        Mon,  1 Mar 2021 16:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616226;
-        bh=3TK0yicQuSVWNt6sQ9tEOq0iZyfjg7CppEvx3hHWzFI=;
+        s=korg; t=1614615762;
+        bh=06W9OjmK5npGvjgITadR5hHypBrj9Vnsz8U9lByzxEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EYsno4ygibq3ouIyNp5JIT1HcTQKY5jv23lzVkahUdj+cosLA68PQXMhWi5SIyva3
-         ODSgCzNKT4UvGSfHXofrn2y5U26Rd3aLpBNlRI/BBYI9k81yedQm8fLBqxbBCL/Ors
-         QJ9t5a567o6sEBKag7D0yNSciopQM+1imBfcpnVE=
+        b=un7fwF6kV8DisTehaGWcMlr3Szgshahy/Gh84Xyfqf5Q1NhCjTHz5HoOFs/LlQ55M
+         xhmpUB3GQFNwAv6s4WFvEpHC5kj8ELRNDP5NTjP+q7q1XdlJPzl1Yf80GDSUEidfne
+         iZnesq7u8g7//eKbOG0uQBL5UgZLR54QPfjg0axg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 078/176] power: reset: at91-sama5d2_shdwc: fix wkupdbc mask
-Date:   Mon,  1 Mar 2021 17:12:31 +0100
-Message-Id: <20210301161024.841493761@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 051/134] dmaengine: fsldma: Fix a resource leak in the remove function
+Date:   Mon,  1 Mar 2021 17:12:32 +0100
+Message-Id: <20210301161016.072652350@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 95aa21a3f1183260db1b0395e03df5bebc5ed641 ]
+[ Upstream commit cbc0ad004c03ad7971726a5db3ec84dba3dcb857 ]
 
-According to datasheet WKUPDBC mask is b/w bits 26..24.
+A 'irq_dispose_mapping()' call is missing in the remove function.
+Add it.
 
-Fixes: f80cb48843987 ("power: reset: at91-shdwc: add new shutdown controller driver")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+This is needed to undo the 'irq_of_parse_and_map() call from the probe
+function and already part of the error handling path of the probe function.
+
+It was added in the probe function only in commit d3f620b2c4fe ("fsldma:
+simplify IRQ probing and handling")
+
+Fixes: 77cd62e8082b ("fsldma: allow Freescale Elo DMA driver to be compiled as a module")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201212160516.92515-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/reset/at91-sama5d2_shdwc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/fsldma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/reset/at91-sama5d2_shdwc.c b/drivers/power/reset/at91-sama5d2_shdwc.c
-index 037976a1fe40b..c2fab93b556bb 100644
---- a/drivers/power/reset/at91-sama5d2_shdwc.c
-+++ b/drivers/power/reset/at91-sama5d2_shdwc.c
-@@ -36,7 +36,7 @@
+diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
+index 51c75bf2b9b68..a5687864e8830 100644
+--- a/drivers/dma/fsldma.c
++++ b/drivers/dma/fsldma.c
+@@ -1433,6 +1433,7 @@ static int fsldma_of_remove(struct platform_device *op)
+ 		if (fdev->chan[i])
+ 			fsl_dma_chan_remove(fdev->chan[i]);
+ 	}
++	irq_dispose_mapping(fdev->irq);
  
- #define AT91_SHDW_MR	0x04		/* Shut Down Mode Register */
- #define AT91_SHDW_WKUPDBC_SHIFT	24
--#define AT91_SHDW_WKUPDBC_MASK	GENMASK(31, 16)
-+#define AT91_SHDW_WKUPDBC_MASK	GENMASK(26, 24)
- #define AT91_SHDW_WKUPDBC(x)	(((x) << AT91_SHDW_WKUPDBC_SHIFT) \
- 						& AT91_SHDW_WKUPDBC_MASK)
- 
+ 	iounmap(fdev->regs);
+ 	kfree(fdev);
 -- 
 2.27.0
 
