@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C69A32845F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2E532854E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234105AbhCAQeM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:34:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60754 "EHLO mail.kernel.org"
+        id S235831AbhCAQxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234782AbhCAQ3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4521F64E31;
-        Mon,  1 Mar 2021 16:23:01 +0000 (UTC)
+        id S233771AbhCAQoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:44:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B7364ECE;
+        Mon,  1 Mar 2021 16:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615781;
-        bh=Q5h96U+BDWH4AjP0R27+N24OwmlM9ICB3VQOUIK2axQ=;
+        s=korg; t=1614616252;
+        bh=iatZs6Il6CM2dgaOuyAw5chWPuH5qKV4Zd8Xi7jJEDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5wBTwAk/11ioKv9LdB09sCdRHgPcCTJBNVbVxOdUP5BbSbqEqiMeNZCWVMH4Fc4p
-         yRDxABm52ayt3tdzNXM53eBtkE4MINcBhkTFiU7oPvGtZhu8/Rb5E042ddWCfl2l54
-         QO5BNpJ6b6fm7SaW9jSgcSH6+GGfC9LPwlbrJCwY=
+        b=MeyjDv3RUVyKfC9WHmzMyOKG1rz6OkAP1SscJUDcfhPLgeagrwVh2yioKq+tCLFDW
+         nQ2sd1ZC49yatKBpCOevz/N8knYo2G5pyeJBiNmGustNoIZVkSaWUwpgfVo4jtmU2q
+         /0pvk0u5Yp3hYTeBJUswZPQNxr5FPM1jjyIcn19E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/134] regulator: axp20x: Fix reference cout leak
-Date:   Mon,  1 Mar 2021 17:12:38 +0100
-Message-Id: <20210301161016.361981677@linuxfoundation.org>
+Subject: [PATCH 4.14 086/176] IB/umad: Return EIO in case of when device disassociated
+Date:   Mon,  1 Mar 2021 17:12:39 +0100
+Message-Id: <20210301161025.245286470@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
+[ Upstream commit 4fc5461823c9cad547a9bdfbf17d13f0da0d6bb5 ]
 
-Decrements the reference count of device node and its child node.
+MAD message received by the user has EINVAL error in all flows
+including when the device is disassociated. That makes it impossible
+for the applications to treat such flow differently.
 
-Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Change it to return EIO, so the applications will be able to perform
+disassociation recovery.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/20210125121339.837518-2-leon@kernel.org
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/axp20x-regulator.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/user_mad.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
-index a3ade9e4ef478..86776d45b68e1 100644
---- a/drivers/regulator/axp20x-regulator.c
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -415,7 +415,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
- static int axp20x_regulator_parse_dt(struct platform_device *pdev)
- {
- 	struct device_node *np, *regulators;
--	int ret;
-+	int ret = 0;
- 	u32 dcdcfreq = 0;
+diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
+index 4a137bf584b04..a3aab7d55ad47 100644
+--- a/drivers/infiniband/core/user_mad.c
++++ b/drivers/infiniband/core/user_mad.c
+@@ -354,6 +354,11 @@ static ssize_t ib_umad_read(struct file *filp, char __user *buf,
  
- 	np = of_node_get(pdev->dev.parent->of_node);
-@@ -430,13 +430,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
- 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
- 		if (ret < 0) {
- 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
--			return ret;
- 		}
--
- 		of_node_put(regulators);
+ 	mutex_lock(&file->mutex);
+ 
++	if (file->agents_dead) {
++		mutex_unlock(&file->mutex);
++		return -EIO;
++	}
++
+ 	while (list_empty(&file->recv_list)) {
+ 		mutex_unlock(&file->mutex);
+ 
+@@ -496,7 +501,7 @@ static ssize_t ib_umad_write(struct file *filp, const char __user *buf,
+ 
+ 	agent = __get_agent(file, packet->mad.hdr.id);
+ 	if (!agent) {
+-		ret = -EINVAL;
++		ret = -EIO;
+ 		goto err_up;
  	}
  
--	return 0;
-+	of_node_put(np);
-+	return ret;
- }
- 
- static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
