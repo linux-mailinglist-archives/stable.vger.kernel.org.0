@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAEAE328EC2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7986B328F10
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235820AbhCATgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:36:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
+        id S241770AbhCATmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:42:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237506AbhCAT3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BF5F64F87;
-        Mon,  1 Mar 2021 17:09:06 +0000 (UTC)
+        id S242083AbhCATfJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:35:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6CB06500A;
+        Mon,  1 Mar 2021 17:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618547;
-        bh=saPavgP26WaM+RiUm/fefwRdh33qL16DznqsERggCMY=;
+        s=korg; t=1614618574;
+        bh=/W/Tc/HnXc8aILkVRDZo0nelZiN4XaVtyPc1nqyUrSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUy1zwD430Esal0QR3Yc9FgajZa5kxKbNk/QRUZ7SSJIPMPtlS9TB927dWMnqOGVO
-         1NBtT2BJ4uxGcFwGQFuoKJQBz5QffJP9WKtq6ukb2/R+r9gGQLWfUasrKFJPJsqgFu
-         kPq4+uMnHs5YMfe/1+nGavsk9OCgVwbEHT1sJ9fg=
+        b=RXP99v7SVxlH5zOJ8AY7Cn1Ap6t5DB8eZkfKVtZ+3Z/cgo70cQS4HiBkKBmArZmkG
+         50y9g9lfgfUFEVwZYn2dcSMSqPPpm4OrjMTi9RC405adqKpXoSLR1RpAunmExyzpSs
+         3ndgX8rNLU7RbsYoDRw+I8b2ZQCJEHaN6DTExQKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
-        Thomas Falcon <tlfalcon@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Steen Hegelund <steen.hegelund@microchip.com>,
+        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/663] ibmvnic: add memory barrier to protect long term buffer
-Date:   Mon,  1 Mar 2021 17:06:13 +0100
-Message-Id: <20210301161147.924261157@linuxfoundation.org>
+Subject: [PATCH 5.10 129/663] net: phy: mscc: adding LCPLL reset to VSC8514
+Date:   Mon,  1 Mar 2021 17:06:17 +0100
+Message-Id: <20210301161148.130872543@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,46 +42,501 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <ljp@linux.ibm.com>
+From: Bjarni Jonasson <bjarni.jonasson@microchip.com>
 
-[ Upstream commit 42557dab78edc8235aba5b441f2eb35f725a0ede ]
+[ Upstream commit 3cc2c646be0b22037f31c958e96c0544a073d108 ]
 
-dma_rmb() barrier is added to load the long term buffer before copying
-it to socket buffer; and dma_wmb() barrier is added to update the
-long term buffer before it being accessed by VIOS (virtual i/o server).
+At Power-On Reset, transients may cause the LCPLL to lock onto a
+clock that is momentarily unstable. This is normally seen in QSGMII
+setups where the higher speed 6G SerDes is being used.
+This patch adds an initial LCPLL Reset to the PHY (first instance)
+to avoid this issue.
 
-Fixes: 032c5e82847a ("Driver for IBM System i/p VNIC protocol")
-Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
-Acked-by: Thomas Falcon <tlfalcon@linux.ibm.com>
+Fixes: e4f9ba642f0b ("net: phy: mscc: add support for VSC8514 PHY.")
+Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
+Signed-off-by: Bjarni Jonasson <bjarni.jonasson@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/phy/mscc/mscc.h      |   8 +
+ drivers/net/phy/mscc/mscc_main.c | 350 ++++++++++++++++++++-----------
+ 2 files changed, 236 insertions(+), 122 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index d789c3cb7f87b..d6cd131625525 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1592,6 +1592,9 @@ static netdev_tx_t ibmvnic_xmit(struct sk_buff *skb, struct net_device *netdev)
- 		skb_copy_from_linear_data(skb, dst, skb->len);
+diff --git a/drivers/net/phy/mscc/mscc.h b/drivers/net/phy/mscc/mscc.h
+index 9481bce94c2ed..c2023f93c0b24 100644
+--- a/drivers/net/phy/mscc/mscc.h
++++ b/drivers/net/phy/mscc/mscc.h
+@@ -102,6 +102,7 @@ enum rgmii_clock_delay {
+ #define PHY_MCB_S6G_READ		  BIT(30)
+ 
+ #define PHY_S6G_PLL5G_CFG0		  0x06
++#define PHY_S6G_PLL5G_CFG2		  0x08
+ #define PHY_S6G_LCPLL_CFG		  0x11
+ #define PHY_S6G_PLL_CFG			  0x2b
+ #define PHY_S6G_COMMON_CFG		  0x2c
+@@ -121,6 +122,9 @@ enum rgmii_clock_delay {
+ #define PHY_S6G_PLL_FSM_CTRL_DATA_POS	  8
+ #define PHY_S6G_PLL_FSM_ENA_POS		  7
+ 
++#define PHY_S6G_CFG2_FSM_DIS              1
++#define PHY_S6G_CFG2_FSM_CLK_BP          23
++
+ #define MSCC_EXT_PAGE_ACCESS		  31
+ #define MSCC_PHY_PAGE_STANDARD		  0x0000 /* Standard registers */
+ #define MSCC_PHY_PAGE_EXTENDED		  0x0001 /* Extended registers */
+@@ -412,6 +416,10 @@ struct vsc8531_edge_rate_table {
+ };
+ #endif /* CONFIG_OF_MDIO */
+ 
++enum csr_target {
++	MACRO_CTRL  = 0x07,
++};
++
+ #if IS_ENABLED(CONFIG_MACSEC)
+ int vsc8584_macsec_init(struct phy_device *phydev);
+ void vsc8584_handle_macsec_interrupt(struct phy_device *phydev);
+diff --git a/drivers/net/phy/mscc/mscc_main.c b/drivers/net/phy/mscc/mscc_main.c
+index 6bc7406a1ce73..41a410124437d 100644
+--- a/drivers/net/phy/mscc/mscc_main.c
++++ b/drivers/net/phy/mscc/mscc_main.c
+@@ -710,6 +710,113 @@ static int phy_base_read(struct phy_device *phydev, u32 regnum)
+ 	return __phy_package_read(phydev, regnum);
+ }
+ 
++static u32 vsc85xx_csr_read(struct phy_device *phydev,
++			    enum csr_target target, u32 reg)
++{
++	unsigned long deadline;
++	u32 val, val_l, val_h;
++
++	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS, MSCC_PHY_PAGE_CSR_CNTL);
++
++	/* CSR registers are grouped under different Target IDs.
++	 * 6-bit Target_ID is split between MSCC_EXT_PAGE_CSR_CNTL_20 and
++	 * MSCC_EXT_PAGE_CSR_CNTL_19 registers.
++	 * Target_ID[5:2] maps to bits[3:0] of MSCC_EXT_PAGE_CSR_CNTL_20
++	 * and Target_ID[1:0] maps to bits[13:12] of MSCC_EXT_PAGE_CSR_CNTL_19.
++	 */
++
++	/* Setup the Target ID */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_20,
++		       MSCC_PHY_CSR_CNTL_20_TARGET(target >> 2));
++
++	if ((target >> 2 == 0x1) || (target >> 2 == 0x3))
++		/* non-MACsec access */
++		target &= 0x3;
++	else
++		target = 0;
++
++	/* Trigger CSR Action - Read into the CSR's */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_19,
++		       MSCC_PHY_CSR_CNTL_19_CMD | MSCC_PHY_CSR_CNTL_19_READ |
++		       MSCC_PHY_CSR_CNTL_19_REG_ADDR(reg) |
++		       MSCC_PHY_CSR_CNTL_19_TARGET(target));
++
++	/* Wait for register access*/
++	deadline = jiffies + msecs_to_jiffies(PROC_CMD_NCOMPLETED_TIMEOUT_MS);
++	do {
++		usleep_range(500, 1000);
++		val = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_19);
++	} while (time_before(jiffies, deadline) &&
++		!(val & MSCC_PHY_CSR_CNTL_19_CMD));
++
++	if (!(val & MSCC_PHY_CSR_CNTL_19_CMD))
++		return 0xffffffff;
++
++	/* Read the Least Significant Word (LSW) (17) */
++	val_l = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_17);
++
++	/* Read the Most Significant Word (MSW) (18) */
++	val_h = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_18);
++
++	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS,
++		       MSCC_PHY_PAGE_STANDARD);
++
++	return (val_h << 16) | val_l;
++}
++
++static int vsc85xx_csr_write(struct phy_device *phydev,
++			     enum csr_target target, u32 reg, u32 val)
++{
++	unsigned long deadline;
++
++	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS, MSCC_PHY_PAGE_CSR_CNTL);
++
++	/* CSR registers are grouped under different Target IDs.
++	 * 6-bit Target_ID is split between MSCC_EXT_PAGE_CSR_CNTL_20 and
++	 * MSCC_EXT_PAGE_CSR_CNTL_19 registers.
++	 * Target_ID[5:2] maps to bits[3:0] of MSCC_EXT_PAGE_CSR_CNTL_20
++	 * and Target_ID[1:0] maps to bits[13:12] of MSCC_EXT_PAGE_CSR_CNTL_19.
++	 */
++
++	/* Setup the Target ID */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_20,
++		       MSCC_PHY_CSR_CNTL_20_TARGET(target >> 2));
++
++	/* Write the Least Significant Word (LSW) (17) */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_17, (u16)val);
++
++	/* Write the Most Significant Word (MSW) (18) */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_18, (u16)(val >> 16));
++
++	if ((target >> 2 == 0x1) || (target >> 2 == 0x3))
++		/* non-MACsec access */
++		target &= 0x3;
++	else
++		target = 0;
++
++	/* Trigger CSR Action - Write into the CSR's */
++	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_19,
++		       MSCC_PHY_CSR_CNTL_19_CMD |
++		       MSCC_PHY_CSR_CNTL_19_REG_ADDR(reg) |
++		       MSCC_PHY_CSR_CNTL_19_TARGET(target));
++
++	/* Wait for register access */
++	deadline = jiffies + msecs_to_jiffies(PROC_CMD_NCOMPLETED_TIMEOUT_MS);
++	do {
++		usleep_range(500, 1000);
++		val = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_19);
++	} while (time_before(jiffies, deadline) &&
++		 !(val & MSCC_PHY_CSR_CNTL_19_CMD));
++
++	if (!(val & MSCC_PHY_CSR_CNTL_19_CMD))
++		return -ETIMEDOUT;
++
++	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS,
++		       MSCC_PHY_PAGE_STANDARD);
++
++	return 0;
++}
++
+ /* bus->mdio_lock should be locked when using this function */
+ static void vsc8584_csr_write(struct phy_device *phydev, u16 addr, u32 val)
+ {
+@@ -1131,6 +1238,92 @@ out:
+ 	return ret;
+ }
+ 
++/* Access LCPLL Cfg_2 */
++static void vsc8584_pll5g_cfg2_wr(struct phy_device *phydev,
++				  bool disable_fsm)
++{
++	u32 rd_dat;
++
++	rd_dat = vsc85xx_csr_read(phydev, MACRO_CTRL, PHY_S6G_PLL5G_CFG2);
++	rd_dat &= ~BIT(PHY_S6G_CFG2_FSM_DIS);
++	rd_dat |= (disable_fsm << PHY_S6G_CFG2_FSM_DIS);
++	vsc85xx_csr_write(phydev, MACRO_CTRL, PHY_S6G_PLL5G_CFG2, rd_dat);
++}
++
++/* trigger a read to the spcified MCB */
++static int vsc8584_mcb_rd_trig(struct phy_device *phydev,
++			       u32 mcb_reg_addr, u8 mcb_slave_num)
++{
++	u32 rd_dat = 0;
++
++	/* read MCB */
++	vsc85xx_csr_write(phydev, MACRO_CTRL, mcb_reg_addr,
++			  (0x40000000 | (1L << mcb_slave_num)));
++
++	return read_poll_timeout(vsc85xx_csr_read, rd_dat,
++				 !(rd_dat & 0x40000000),
++				 4000, 200000, 0,
++				 phydev, MACRO_CTRL, mcb_reg_addr);
++}
++
++/* trigger a write to the spcified MCB */
++static int vsc8584_mcb_wr_trig(struct phy_device *phydev,
++			       u32 mcb_reg_addr,
++			       u8 mcb_slave_num)
++{
++	u32 rd_dat = 0;
++
++	/* write back MCB */
++	vsc85xx_csr_write(phydev, MACRO_CTRL, mcb_reg_addr,
++			  (0x80000000 | (1L << mcb_slave_num)));
++
++	return read_poll_timeout(vsc85xx_csr_read, rd_dat,
++				 !(rd_dat & 0x80000000),
++				 4000, 200000, 0,
++				 phydev, MACRO_CTRL, mcb_reg_addr);
++}
++
++/* Sequence to Reset LCPLL for the VIPER and ELISE PHY */
++static int vsc8584_pll5g_reset(struct phy_device *phydev)
++{
++	bool dis_fsm;
++	int ret = 0;
++
++	ret = vsc8584_mcb_rd_trig(phydev, 0x11, 0);
++	if (ret < 0)
++		goto done;
++	dis_fsm = 1;
++
++	/* Reset LCPLL */
++	vsc8584_pll5g_cfg2_wr(phydev, dis_fsm);
++
++	/* write back LCPLL MCB */
++	ret = vsc8584_mcb_wr_trig(phydev, 0x11, 0);
++	if (ret < 0)
++		goto done;
++
++	/* 10 mSec sleep while LCPLL is hold in reset */
++	usleep_range(10000, 20000);
++
++	/* read LCPLL MCB into CSRs */
++	ret = vsc8584_mcb_rd_trig(phydev, 0x11, 0);
++	if (ret < 0)
++		goto done;
++	dis_fsm = 0;
++
++	/* Release the Reset of LCPLL */
++	vsc8584_pll5g_cfg2_wr(phydev, dis_fsm);
++
++	/* write back LCPLL MCB */
++	ret = vsc8584_mcb_wr_trig(phydev, 0x11, 0);
++	if (ret < 0)
++		goto done;
++
++	usleep_range(110000, 200000);
++done:
++	return ret;
++}
++
+ /* bus->mdio_lock should be locked when using this function */
+ static int vsc8584_config_pre_init(struct phy_device *phydev)
+ {
+@@ -1579,8 +1772,16 @@ static int vsc8514_config_pre_init(struct phy_device *phydev)
+ 		{0x16b2, 0x00007000},
+ 		{0x16b4, 0x00000814},
+ 	};
++	struct device *dev = &phydev->mdio.dev;
+ 	unsigned int i;
+ 	u16 reg;
++	int ret;
++
++	ret = vsc8584_pll5g_reset(phydev);
++	if (ret < 0) {
++		dev_err(dev, "failed LCPLL reset, ret: %d\n", ret);
++		return ret;
++	}
+ 
+ 	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS, MSCC_PHY_PAGE_STANDARD);
+ 
+@@ -1615,101 +1816,6 @@ static int vsc8514_config_pre_init(struct phy_device *phydev)
+ 	return 0;
+ }
+ 
+-static u32 vsc85xx_csr_ctrl_phy_read(struct phy_device *phydev,
+-				     u32 target, u32 reg)
+-{
+-	unsigned long deadline;
+-	u32 val, val_l, val_h;
+-
+-	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS, MSCC_PHY_PAGE_CSR_CNTL);
+-
+-	/* CSR registers are grouped under different Target IDs.
+-	 * 6-bit Target_ID is split between MSCC_EXT_PAGE_CSR_CNTL_20 and
+-	 * MSCC_EXT_PAGE_CSR_CNTL_19 registers.
+-	 * Target_ID[5:2] maps to bits[3:0] of MSCC_EXT_PAGE_CSR_CNTL_20
+-	 * and Target_ID[1:0] maps to bits[13:12] of MSCC_EXT_PAGE_CSR_CNTL_19.
+-	 */
+-
+-	/* Setup the Target ID */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_20,
+-		       MSCC_PHY_CSR_CNTL_20_TARGET(target >> 2));
+-
+-	/* Trigger CSR Action - Read into the CSR's */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_19,
+-		       MSCC_PHY_CSR_CNTL_19_CMD | MSCC_PHY_CSR_CNTL_19_READ |
+-		       MSCC_PHY_CSR_CNTL_19_REG_ADDR(reg) |
+-		       MSCC_PHY_CSR_CNTL_19_TARGET(target & 0x3));
+-
+-	/* Wait for register access*/
+-	deadline = jiffies + msecs_to_jiffies(PROC_CMD_NCOMPLETED_TIMEOUT_MS);
+-	do {
+-		usleep_range(500, 1000);
+-		val = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_19);
+-	} while (time_before(jiffies, deadline) &&
+-		!(val & MSCC_PHY_CSR_CNTL_19_CMD));
+-
+-	if (!(val & MSCC_PHY_CSR_CNTL_19_CMD))
+-		return 0xffffffff;
+-
+-	/* Read the Least Significant Word (LSW) (17) */
+-	val_l = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_17);
+-
+-	/* Read the Most Significant Word (MSW) (18) */
+-	val_h = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_18);
+-
+-	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS,
+-		       MSCC_PHY_PAGE_STANDARD);
+-
+-	return (val_h << 16) | val_l;
+-}
+-
+-static int vsc85xx_csr_ctrl_phy_write(struct phy_device *phydev,
+-				      u32 target, u32 reg, u32 val)
+-{
+-	unsigned long deadline;
+-
+-	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS, MSCC_PHY_PAGE_CSR_CNTL);
+-
+-	/* CSR registers are grouped under different Target IDs.
+-	 * 6-bit Target_ID is split between MSCC_EXT_PAGE_CSR_CNTL_20 and
+-	 * MSCC_EXT_PAGE_CSR_CNTL_19 registers.
+-	 * Target_ID[5:2] maps to bits[3:0] of MSCC_EXT_PAGE_CSR_CNTL_20
+-	 * and Target_ID[1:0] maps to bits[13:12] of MSCC_EXT_PAGE_CSR_CNTL_19.
+-	 */
+-
+-	/* Setup the Target ID */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_20,
+-		       MSCC_PHY_CSR_CNTL_20_TARGET(target >> 2));
+-
+-	/* Write the Least Significant Word (LSW) (17) */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_17, (u16)val);
+-
+-	/* Write the Most Significant Word (MSW) (18) */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_18, (u16)(val >> 16));
+-
+-	/* Trigger CSR Action - Write into the CSR's */
+-	phy_base_write(phydev, MSCC_EXT_PAGE_CSR_CNTL_19,
+-		       MSCC_PHY_CSR_CNTL_19_CMD |
+-		       MSCC_PHY_CSR_CNTL_19_REG_ADDR(reg) |
+-		       MSCC_PHY_CSR_CNTL_19_TARGET(target & 0x3));
+-
+-	/* Wait for register access */
+-	deadline = jiffies + msecs_to_jiffies(PROC_CMD_NCOMPLETED_TIMEOUT_MS);
+-	do {
+-		usleep_range(500, 1000);
+-		val = phy_base_read(phydev, MSCC_EXT_PAGE_CSR_CNTL_19);
+-	} while (time_before(jiffies, deadline) &&
+-		 !(val & MSCC_PHY_CSR_CNTL_19_CMD));
+-
+-	if (!(val & MSCC_PHY_CSR_CNTL_19_CMD))
+-		return -ETIMEDOUT;
+-
+-	phy_base_write(phydev, MSCC_EXT_PAGE_ACCESS,
+-		       MSCC_PHY_PAGE_STANDARD);
+-
+-	return 0;
+-}
+-
+ static int __phy_write_mcb_s6g(struct phy_device *phydev, u32 reg, u8 mcb,
+ 			       u32 op)
+ {
+@@ -1717,15 +1823,15 @@ static int __phy_write_mcb_s6g(struct phy_device *phydev, u32 reg, u8 mcb,
+ 	u32 val;
+ 	int ret;
+ 
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET, reg,
+-					 op | (1 << mcb));
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET, reg,
++				op | (1 << mcb));
+ 	if (ret)
+ 		return -EINVAL;
+ 
+ 	deadline = jiffies + msecs_to_jiffies(PROC_CMD_NCOMPLETED_TIMEOUT_MS);
+ 	do {
+ 		usleep_range(500, 1000);
+-		val = vsc85xx_csr_ctrl_phy_read(phydev, PHY_MCB_TARGET, reg);
++		val = vsc85xx_csr_read(phydev, PHY_MCB_TARGET, reg);
+ 
+ 		if (val == 0xffffffff)
+ 			return -EIO;
+@@ -1806,41 +1912,41 @@ static int vsc8514_config_init(struct phy_device *phydev)
+ 	/* lcpll mcb */
+ 	phy_update_mcb_s6g(phydev, PHY_S6G_LCPLL_CFG, 0);
+ 	/* pll5gcfg0 */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_PLL5G_CFG0, 0x7036f145);
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_PLL5G_CFG0, 0x7036f145);
+ 	if (ret)
+ 		goto err;
+ 
+ 	phy_commit_mcb_s6g(phydev, PHY_S6G_LCPLL_CFG, 0);
+ 	/* pllcfg */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_PLL_CFG,
+-					 (3 << PHY_S6G_PLL_ENA_OFFS_POS) |
+-					 (120 << PHY_S6G_PLL_FSM_CTRL_DATA_POS)
+-					 | (0 << PHY_S6G_PLL_FSM_ENA_POS));
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_PLL_CFG,
++				(3 << PHY_S6G_PLL_ENA_OFFS_POS) |
++				(120 << PHY_S6G_PLL_FSM_CTRL_DATA_POS)
++				| (0 << PHY_S6G_PLL_FSM_ENA_POS));
+ 	if (ret)
+ 		goto err;
+ 
+ 	/* commoncfg */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_COMMON_CFG,
+-					 (0 << PHY_S6G_SYS_RST_POS) |
+-					 (0 << PHY_S6G_ENA_LANE_POS) |
+-					 (0 << PHY_S6G_ENA_LOOP_POS) |
+-					 (0 << PHY_S6G_QRATE_POS) |
+-					 (3 << PHY_S6G_IF_MODE_POS));
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_COMMON_CFG,
++				(0 << PHY_S6G_SYS_RST_POS) |
++				(0 << PHY_S6G_ENA_LANE_POS) |
++				(0 << PHY_S6G_ENA_LOOP_POS) |
++				(0 << PHY_S6G_QRATE_POS) |
++				(3 << PHY_S6G_IF_MODE_POS));
+ 	if (ret)
+ 		goto err;
+ 
+ 	/* misccfg */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_MISC_CFG, 1);
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_MISC_CFG, 1);
+ 	if (ret)
+ 		goto err;
+ 
+ 	/* gpcfg */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_GPC_CFG, 768);
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_GPC_CFG, 768);
+ 	if (ret)
+ 		goto err;
+ 
+@@ -1851,8 +1957,8 @@ static int vsc8514_config_init(struct phy_device *phydev)
+ 		usleep_range(500, 1000);
+ 		phy_update_mcb_s6g(phydev, PHY_MCB_S6G_CFG,
+ 				   0); /* read 6G MCB into CSRs */
+-		reg = vsc85xx_csr_ctrl_phy_read(phydev, PHY_MCB_TARGET,
+-						PHY_S6G_PLL_STATUS);
++		reg = vsc85xx_csr_read(phydev, PHY_MCB_TARGET,
++				       PHY_S6G_PLL_STATUS);
+ 		if (reg == 0xffffffff) {
+ 			phy_unlock_mdio_bus(phydev);
+ 			return -EIO;
+@@ -1866,8 +1972,8 @@ static int vsc8514_config_init(struct phy_device *phydev)
  	}
  
-+	/* post changes to long_term_buff *dst before VIOS accessing it */
-+	dma_wmb();
-+
- 	tx_pool->consumer_index =
- 	    (tx_pool->consumer_index + 1) % tx_pool->num_buffers;
+ 	/* misccfg */
+-	ret = vsc85xx_csr_ctrl_phy_write(phydev, PHY_MCB_TARGET,
+-					 PHY_S6G_MISC_CFG, 0);
++	ret = vsc85xx_csr_write(phydev, PHY_MCB_TARGET,
++				PHY_S6G_MISC_CFG, 0);
+ 	if (ret)
+ 		goto err;
  
-@@ -2432,6 +2435,8 @@ restart_poll:
- 		offset = be16_to_cpu(next->rx_comp.off_frame_data);
- 		flags = next->rx_comp.flags;
- 		skb = rx_buff->skb;
-+		/* load long_term_buff before copying to skb */
-+		dma_rmb();
- 		skb_copy_to_linear_data(skb, rx_buff->data + offset,
- 					length);
- 
+@@ -1878,8 +1984,8 @@ static int vsc8514_config_init(struct phy_device *phydev)
+ 		usleep_range(500, 1000);
+ 		phy_update_mcb_s6g(phydev, PHY_MCB_S6G_CFG,
+ 				   0); /* read 6G MCB into CSRs */
+-		reg = vsc85xx_csr_ctrl_phy_read(phydev, PHY_MCB_TARGET,
+-						PHY_S6G_IB_STATUS0);
++		reg = vsc85xx_csr_read(phydev, PHY_MCB_TARGET,
++				       PHY_S6G_IB_STATUS0);
+ 		if (reg == 0xffffffff) {
+ 			phy_unlock_mdio_bus(phydev);
+ 			return -EIO;
 -- 
 2.27.0
 
