@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FE6932874D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:24:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EADAA328771
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238093AbhCARWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:22:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
+        id S238223AbhCARX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:23:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236975AbhCAROC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:14:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA2E465038;
-        Mon,  1 Mar 2021 16:45:42 +0000 (UTC)
+        id S235189AbhCARPq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:15:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E88565046;
+        Mon,  1 Mar 2021 16:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617143;
-        bh=NiW2HslaaNrXGLKHvuzcdC6Vfb6E+0pLQ55jzDQkPEk=;
+        s=korg; t=1614617154;
+        bh=go1GM1pPpZzr2Kd+fcqKFPh+0T0oost0FczjEyytlx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mANvwQ08JHlwWdGEMVbADHlnQiqLcIBwSw6bln3MGDvUdg0TRoPJlYhRZvIJFTqH
-         rcKEtXXvF4hl9jdyr3jxVn84Pdxhh3a8O7noUJ2OcAdqbowkJV4m6dJnf/RwRBEQnx
-         JAcBYjT28fnBKGx/EMTcMLkqPe8qu3NTl8oNe4tY=
+        b=F8tsGr58auJqG8Vq9ck4VyyB91youRk1UAHzosaIystAAFTvW7paTYtx4tcP5GEUy
+         brTgE5PFXL32VqcylQ+eD+EBpBLuKjr4OZQNqzBGB+cBtACilYc3kgKoVaxqrVbIzs
+         0Ppg4rqY26zcM/4dj06bQ1RaLErplpNmsdpDykXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir <svv75@mail.ru>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 190/247] USB: serial: ftdi_sio: fix FTX sub-integer prescaler
-Date:   Mon,  1 Mar 2021 17:13:30 +0100
-Message-Id: <20210301161040.956069917@linuxfoundation.org>
+Subject: [PATCH 4.19 191/247] USB: serial: mos7840: fix error code in mos7840_write()
+Date:   Mon,  1 Mar 2021 17:13:31 +0100
+Message-Id: <20210301161041.006321049@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -39,37 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 528222d0c8ce93e435a95cd1e476b60409dd5381 upstream.
+commit a70aa7dc60099bbdcbd6faca42a915d80f31161e upstream.
 
-The most-significant bit of the sub-integer-prescaler index is set in
-the high byte of the baudrate request wIndex also for FTX devices.
+This should return -ENOMEM instead of 0 if the kmalloc() fails.
 
-This fixes rates like 1152000 which got mapped to 1.2 MBd.
-
-Reported-by: Vladimir <svv75@mail.ru>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210351
+Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/serial/mos7840.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1370,8 +1370,9 @@ static int change_speed(struct tty_struc
- 	index_value = get_ftdi_divisor(tty, port);
- 	value = (u16)index_value;
- 	index = (u16)(index_value >> 16);
--	if ((priv->chip_type == FT2232C) || (priv->chip_type == FT2232H) ||
--		(priv->chip_type == FT4232H) || (priv->chip_type == FT232H)) {
-+	if (priv->chip_type == FT2232C || priv->chip_type == FT2232H ||
-+			priv->chip_type == FT4232H || priv->chip_type == FT232H ||
-+			priv->chip_type == FTX) {
- 		/* Probably the BM type needs the MSB of the encoded fractional
- 		 * divider also moved like for the chips above. Any infos? */
- 		index = (u16)((index << 8) | priv->interface);
+--- a/drivers/usb/serial/mos7840.c
++++ b/drivers/usb/serial/mos7840.c
+@@ -1340,8 +1340,10 @@ static int mos7840_write(struct tty_stru
+ 	if (urb->transfer_buffer == NULL) {
+ 		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
+ 					       GFP_ATOMIC);
+-		if (!urb->transfer_buffer)
++		if (!urb->transfer_buffer) {
++			bytes_sent = -ENOMEM;
+ 			goto exit;
++		}
+ 	}
+ 	transfer_size = min(count, URB_TRANSFER_BUFFER_SIZE);
+ 
 
 
