@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9E53290DB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:17:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D71103290DF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:17:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242427AbhCAUQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:16:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38526 "EHLO mail.kernel.org"
+        id S242914AbhCAUQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:16:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239620AbhCAUGD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:06:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AAA465017;
-        Mon,  1 Mar 2021 17:58:53 +0000 (UTC)
+        id S239596AbhCAUGB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:06:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECE7864F58;
+        Mon,  1 Mar 2021 17:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621534;
-        bh=nwPdD4nmNnr2ugnCcopGgDhT/RrZy4hHjJlGc1l/Ay8=;
+        s=korg; t=1614621537;
+        bh=9gryNzoOiLzEah55G3bfCjxzAxuy2v+KmEf+keOf3jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eimF7Y379E0j7v6Jn43e8BW+byoTwZotYyYBYEaaqHePYW13wCvJv9ZgDi3aPv5z5
-         vXXr4QsWf+cKXWzOO0FtnlOJGYoX44VkppWWBEvPkCNcD3K5jOXARFt805ZDFFqGsj
-         Qg64imi5HS/pJUdc/r0i5/mwEKzVQ+Rae/88ajzo=
+        b=LG7vYbEGXyuAtiCMm6/QAInnpgymMAytUsHFUXk8xz1fGJfoCZ46bseqk4vu66vOy
+         ivyYmjEvfbenjKz4a+WhO9mUAT3buLGTyPy5nVSA22BshBNvnL9pr/gTyyj1fMRrti
+         PwJK/rCYL+XMZ00JlNRE0dFyrFIZcjhXFfQcyUD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wonhyuk Yang <vvghjk1234@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christian Melki <christian.melki@t2data.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 551/775] mm/compaction: fix misbehaviors of fast_find_migrateblock()
-Date:   Mon,  1 Mar 2021 17:11:59 +0100
-Message-Id: <20210301161228.712419275@linuxfoundation.org>
+Subject: [PATCH 5.11 552/775] net: phy: micrel: set soft_reset callback to genphy_soft_reset for KSZ8081
+Date:   Mon,  1 Mar 2021 17:12:00 +0100
+Message-Id: <20210301161228.761716968@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,111 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wonhyuk Yang <vvghjk1234@gmail.com>
+From: Christian Melki <christian.melki@t2data.com>
 
-[ Upstream commit 15d28d0d11609c7a4f217b3d85e26456d9beb134 ]
+[ Upstream commit 764d31cacfe48440745c4bbb55a62ac9471c9f19 ]
 
-In the fast_find_migrateblock(), it iterates ocer the freelist to find the
-proper pageblock.  But there are some misbehaviors.
+Following a similar reinstate for the KSZ9031.
 
-First, if the page we found is equal to cc->migrate_pfn, it is considered
-that we didn't find a suitable pageblock.  Secondly, if the loop was
-terminated because order is less than PAGE_ALLOC_COSTLY_ORDER, it could be
-considered that we found a suitable one.  Thirdly, if the skip bit is set
-on the page block and we goto continue, it doesn't check nr_scanned.
-Fourthly, if the page block's skip bit is set, it checks that page block
-is the last of list, which is unnecessary.
+Older kernels would use the genphy_soft_reset if the PHY did not implement
+a .soft_reset.
 
-Link: https://lkml.kernel.org/r/20210128130411.6125-1-vvghjk1234@gmail.com
-Fixes: 70b44595eafe9 ("mm, compaction: use free lists to quickly locate a migration source")
-Signed-off-by: Wonhyuk Yang <vvghjk1234@gmail.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Bluntly removing that default may expose a lot of situations where various
+PHYs/board implementations won't recover on various changes.
+Like with this implementation during a 4.9.x to 5.4.x LTS transition.
+I think it's a good thing to remove unwanted soft resets but wonder if it
+did open a can of worms?
+
+Atleast this fixes one iMX6 FEC/RMII/8081 combo.
+
+Fixes: 6e2d85ec0559 ("net: phy: Stop with excessive soft reset")
+Signed-off-by: Christian Melki <christian.melki@t2data.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210224205536.9349-1-christian.melki@t2data.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/compaction.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/net/phy/micrel.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 190ccdaa6c192..2135c32efe8be 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1702,6 +1702,7 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 	unsigned long pfn = cc->migrate_pfn;
- 	unsigned long high_pfn;
- 	int order;
-+	bool found_block = false;
- 
- 	/* Skip hints are relied on to avoid repeats on the fast search */
- 	if (cc->ignore_skip_hint)
-@@ -1744,7 +1745,7 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 	high_pfn = pageblock_start_pfn(cc->migrate_pfn + distance);
- 
- 	for (order = cc->order - 1;
--	     order >= PAGE_ALLOC_COSTLY_ORDER && pfn == cc->migrate_pfn && nr_scanned < limit;
-+	     order >= PAGE_ALLOC_COSTLY_ORDER && !found_block && nr_scanned < limit;
- 	     order--) {
- 		struct free_area *area = &cc->zone->free_area[order];
- 		struct list_head *freelist;
-@@ -1759,7 +1760,11 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 		list_for_each_entry(freepage, freelist, lru) {
- 			unsigned long free_pfn;
- 
--			nr_scanned++;
-+			if (nr_scanned++ >= limit) {
-+				move_freelist_tail(freelist, freepage);
-+				break;
-+			}
-+
- 			free_pfn = page_to_pfn(freepage);
- 			if (free_pfn < high_pfn) {
- 				/*
-@@ -1768,12 +1773,8 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 				 * the list assumes an entry is deleted, not
- 				 * reordered.
- 				 */
--				if (get_pageblock_skip(freepage)) {
--					if (list_is_last(freelist, &freepage->lru))
--						break;
--
-+				if (get_pageblock_skip(freepage))
- 					continue;
--				}
- 
- 				/* Reorder to so a future search skips recent pages */
- 				move_freelist_tail(freelist, freepage);
-@@ -1781,15 +1782,10 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 				update_fast_start_pfn(cc, free_pfn);
- 				pfn = pageblock_start_pfn(free_pfn);
- 				cc->fast_search_fail = 0;
-+				found_block = true;
- 				set_pageblock_skip(freepage);
- 				break;
- 			}
--
--			if (nr_scanned >= limit) {
--				cc->fast_search_fail++;
--				move_freelist_tail(freelist, freepage);
--				break;
--			}
- 		}
- 		spin_unlock_irqrestore(&cc->zone->lock, flags);
- 	}
-@@ -1800,9 +1796,10 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
- 	 * If fast scanning failed then use a cached entry for a page block
- 	 * that had free pages as the basis for starting a linear scan.
- 	 */
--	if (pfn == cc->migrate_pfn)
-+	if (!found_block) {
-+		cc->fast_search_fail++;
- 		pfn = reinit_migrate_pfn(cc);
--
-+	}
- 	return pfn;
- }
- 
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 54e0d75203dac..57f8021b70af5 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1295,6 +1295,7 @@ static struct phy_driver ksphy_driver[] = {
+ 	.driver_data	= &ksz8081_type,
+ 	.probe		= kszphy_probe,
+ 	.config_init	= ksz8081_config_init,
++	.soft_reset	= genphy_soft_reset,
+ 	.config_intr	= kszphy_config_intr,
+ 	.handle_interrupt = kszphy_handle_interrupt,
+ 	.get_sset_count = kszphy_get_sset_count,
 -- 
 2.27.0
 
