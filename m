@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B7E3288FE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4483C3288FD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238755AbhCARsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:48:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33838 "EHLO mail.kernel.org"
+        id S238751AbhCARsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:48:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238405AbhCARmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238417AbhCARmg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:42:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 338CE650CA;
-        Mon,  1 Mar 2021 16:57:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEE4064FCF;
+        Mon,  1 Mar 2021 16:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617844;
-        bh=b4vDhz2ZtElJJnNA1zdD/kdLdM73YcY5VI3HwbTk7vY=;
+        s=korg; t=1614617847;
+        bh=tiCmN2hUDlB2iBgkmcX6Q9Kgmp4ySAenv89f/6cdMIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQ0kb6OLw58byVB/lIA1tBF6KMD524kDioy/HXQUI6qyDTd9huj5PvsdOhYKMyTFM
-         Vcvg20+I/98wI1ma6Xoa1/ZoQTHUQUNtZqC7oPDTEqOmXBdUhIh6V7vEk7ldV/1IEh
-         apEUz+azOljALiO7oX+oh39sOCX0OmlR50llC6WQ=
+        b=Kuqq6u89T5sBV4H8h85x1OsTuzoES/zTs+XbOYQRCQlZi8oU7bYeYlaKoY6XcQi29
+         Q4y6eBALal35S+Qu95Ms4jKoGjIn+O+VaTvnilRc+iRkPo0jheEswarqYQpyZ+UIDa
+         lSIwdtHmZSeUUciLNCVEYZmncrqwtiSeKYV7CCLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Andrzej=20Sawu=C5=82a?= <andrzej.sawula@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
         Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 216/340] i40e: Fix flow for IPv6 next header (extension header)
-Date:   Mon,  1 Mar 2021 17:12:40 +0100
-Message-Id: <20210301161058.934239239@linuxfoundation.org>
+Subject: [PATCH 5.4 217/340] i40e: Add zero-initialization of AQ command structures
+Date:   Mon,  1 Mar 2021 17:12:41 +0100
+Message-Id: <20210301161058.981017795@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -43,61 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-[ Upstream commit 92c6058024e87087cf1b99b0389d67c0a886360e ]
+[ Upstream commit d2c788f739b6f68090e968a2ee31b543701e795f ]
 
-When a packet contains an IPv6 header with next header which is
-an extension header and not a protocol one, the kernel function
-skb_transport_header called with such sk_buff will return a
-pointer to the extension header and not to the TCP one.
+Zero-initialize AQ command data structures to comply with
+API specifications.
 
-The above explained call caused a problem with packet processing
-for skb with encapsulation for tunnel with I40E_TX_CTX_EXT_IP_IPV6.
-The extension header was not skipped at all.
-
-The ipv6_skip_exthdr function does check if next header of the IPV6
-header is an extension header and doesn't modify the l4_proto pointer
-if it points to a protocol header value so its safe to omit the
-comparison of exthdr and l4.hdr pointers. The ipv6_skip_exthdr can
-return value -1. This means that the skipping process failed
-and there is something wrong with the packet so it will be dropped.
-
-Fixes: a3fd9d8876a5 ("i40e/i40evf: Handle IPv6 extension headers in checksum offload")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
+Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
+Fixes: f4492db16df8 ("i40e: Add NPAR BW get and set functions")
+Signed-off-by: Andrzej Sawuła <andrzej.sawula@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_txrx.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-index f47841f3a69d5..218aada8949d9 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-@@ -3093,13 +3093,16 @@ static int i40e_tx_enable_csum(struct sk_buff *skb, u32 *tx_flags,
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index c19b45a90fcd2..e41f7acc0e1fa 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7612,6 +7612,8 @@ int i40e_add_del_cloud_filter(struct i40e_vsi *vsi,
+ 	if (filter->flags >= ARRAY_SIZE(flag_table))
+ 		return I40E_ERR_CONFIG;
  
- 			l4_proto = ip.v4->protocol;
- 		} else if (*tx_flags & I40E_TX_FLAGS_IPV6) {
-+			int ret;
++	memset(&cld_filter, 0, sizeof(cld_filter));
 +
- 			tunnel |= I40E_TX_CTX_EXT_IP_IPV6;
+ 	/* copy element needed to add cloud filter from filter */
+ 	i40e_set_cld_element(filter, &cld_filter);
  
- 			exthdr = ip.hdr + sizeof(*ip.v6);
- 			l4_proto = ip.v6->nexthdr;
--			if (l4.hdr != exthdr)
--				ipv6_skip_exthdr(skb, exthdr - skb->data,
--						 &l4_proto, &frag_off);
-+			ret = ipv6_skip_exthdr(skb, exthdr - skb->data,
-+					       &l4_proto, &frag_off);
-+			if (ret < 0)
-+				return -1;
- 		}
+@@ -7679,6 +7681,8 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
+ 	    !ipv6_addr_any(&filter->ip.v6.src_ip6))
+ 		return -EOPNOTSUPP;
  
- 		/* define outer transport */
++	memset(&cld_filter, 0, sizeof(cld_filter));
++
+ 	/* copy element needed to add cloud filter from filter */
+ 	i40e_set_cld_element(filter, &cld_filter.element);
+ 
+@@ -11770,6 +11774,8 @@ i40e_status i40e_set_partition_bw_setting(struct i40e_pf *pf)
+ 	struct i40e_aqc_configure_partition_bw_data bw_data;
+ 	i40e_status status;
+ 
++	memset(&bw_data, 0, sizeof(bw_data));
++
+ 	/* Set the valid bit for this PF */
+ 	bw_data.pf_valid_bits = cpu_to_le16(BIT(pf->hw.pf_id));
+ 	bw_data.max_bw[pf->hw.pf_id] = pf->max_bw & I40E_ALT_BW_VALUE_MASK;
 -- 
 2.27.0
 
