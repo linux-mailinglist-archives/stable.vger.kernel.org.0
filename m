@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4FDB3286FA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 207D63286FC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:20:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237923AbhCARSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
+        id S237929AbhCARST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:18:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237163AbhCARKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:10:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E102D6501E;
-        Mon,  1 Mar 2021 16:42:45 +0000 (UTC)
+        id S237266AbhCARLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:11:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D9164E12;
+        Mon,  1 Mar 2021 16:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616966;
-        bh=5IM/LDQa7UZZldfn7jNf6artS7u6KjJqX+jFv80doIc=;
+        s=korg; t=1614616969;
+        bh=q23Yn/2bnRoMhkx4BWbXvglPxQFuwP3BCt+qTP86S20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJIsqSWyPpRNjCWU4+ZJpikYFZ6nK0yy6Wbnx2uw4VQfqeIogLcnq3ZcR8q7Xjv+t
-         IjMC2hy1ILiMUt2758jItSCY2SIZpxQoh62j2Ph4EXioI9ot7cUtxLr1Cn7KarK6KL
-         x/00WsdNxh2xdhaFSkPF85x3ZpdMm4DqrR0r+ChQ=
+        b=VM0gFJXjWimUaaZGu5QV6l8I+0gCMchYMYjYLhYTRkm9R4fGwm6LnoV4aSA2Z9xta
+         1aLtwZb/mNz3LnHU3ccszABbadhjSFhNrvSy1nZZaf11lBDsp/wO5Jf6A+MFJKZp0K
+         sn33E2LRH1ZM9mXVsHDZaYam6wA7rsy+/K5jQoYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@linux.microsoft.com>,
-        David Howells <dhowells@redhat.com>,
-        Mimi Zohar <zohar@linux.vnet.ibm.com>,
-        David Woodhouse <dwmw2@infradead.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 126/247] certs: Fix blacklist flag type confusion
-Date:   Mon,  1 Mar 2021 17:12:26 +0100
-Message-Id: <20210301161037.842729403@linuxfoundation.org>
+Subject: [PATCH 4.19 127/247] spi: atmel: Put allocated master before return
+Date:   Mon,  1 Mar 2021 17:12:27 +0100
+Message-Id: <20210301161037.892043389@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -43,102 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 4993e1f9479a4161fd7d93e2b8b30b438f00cb0f ]
+[ Upstream commit 21ea2743f015dbacec1831bdc8afc848db9c2b8c ]
 
-KEY_FLAG_KEEP is not meant to be passed to keyring_alloc() or key_alloc(),
-as these only take KEY_ALLOC_* flags.  KEY_FLAG_KEEP has the same value as
-KEY_ALLOC_BYPASS_RESTRICTION, but fortunately only key_create_or_update()
-uses it.  LSMs using the key_alloc hook don't check that flag.
+The allocated master is not released. Goto error handling label rather
+than directly return.
 
-KEY_FLAG_KEEP is then ignored but fortunately (again) the root user cannot
-write to the blacklist keyring, so it is not possible to remove a key/hash
-from it.
-
-Fix this by adding a KEY_ALLOC_SET_KEEP flag that tells key_alloc() to set
-KEY_FLAG_KEEP on the new key.  blacklist_init() can then, correctly, pass
-this to keyring_alloc().
-
-We can also use this in ima_mok_init() rather than setting the flag
-manually.
-
-Note that this doesn't fix an observable bug with the current
-implementation but it is required to allow addition of new hashes to the
-blacklist in the future without making it possible for them to be removed.
-
-Fixes: 734114f8782f ("KEYS: Add a system blacklist keyring")
-Reported-by: Mickaël Salaün <mic@linux.microsoft.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Mickaël Salaün <mic@linux.microsoft.com>
-cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: David Woodhouse <dwmw2@infradead.org>
+Fixes: 5e9af37e46bc ("spi: atmel: introduce probe deferring")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Fixes: 5e9af37e46bc ("spi: atmel: introduce probe deferring")
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20210120050025.25426-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- certs/blacklist.c                | 2 +-
- include/linux/key.h              | 1 +
- security/integrity/ima/ima_mok.c | 5 ++---
- security/keys/key.c              | 2 ++
- 4 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/spi/spi-atmel.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/certs/blacklist.c b/certs/blacklist.c
-index 3a507b9e2568a..e9f3f81c51f96 100644
---- a/certs/blacklist.c
-+++ b/certs/blacklist.c
-@@ -157,7 +157,7 @@ static int __init blacklist_init(void)
- 			      KEY_USR_VIEW | KEY_USR_READ |
- 			      KEY_USR_SEARCH,
- 			      KEY_ALLOC_NOT_IN_QUOTA |
--			      KEY_FLAG_KEEP,
-+			      KEY_ALLOC_SET_KEEP,
- 			      NULL, NULL);
- 	if (IS_ERR(blacklist_keyring))
- 		panic("Can't allocate system blacklist keyring\n");
-diff --git a/include/linux/key.h b/include/linux/key.h
-index e58ee10f6e585..3683c6a6fca30 100644
---- a/include/linux/key.h
-+++ b/include/linux/key.h
-@@ -249,6 +249,7 @@ extern struct key *key_alloc(struct key_type *type,
- #define KEY_ALLOC_BUILT_IN		0x0004	/* Key is built into kernel */
- #define KEY_ALLOC_BYPASS_RESTRICTION	0x0008	/* Override the check on restricted keyrings */
- #define KEY_ALLOC_UID_KEYRING		0x0010	/* allocating a user or user session keyring */
-+#define KEY_ALLOC_SET_KEEP		0x0020	/* Set the KEEP flag on the key/keyring */
- 
- extern void key_revoke(struct key *key);
- extern void key_invalidate(struct key *key);
-diff --git a/security/integrity/ima/ima_mok.c b/security/integrity/ima/ima_mok.c
-index 073ddc9bce5ba..3e7a1523663b8 100644
---- a/security/integrity/ima/ima_mok.c
-+++ b/security/integrity/ima/ima_mok.c
-@@ -43,13 +43,12 @@ __init int ima_mok_init(void)
- 				(KEY_POS_ALL & ~KEY_POS_SETATTR) |
- 				KEY_USR_VIEW | KEY_USR_READ |
- 				KEY_USR_WRITE | KEY_USR_SEARCH,
--				KEY_ALLOC_NOT_IN_QUOTA,
-+				KEY_ALLOC_NOT_IN_QUOTA |
-+				KEY_ALLOC_SET_KEEP,
- 				restriction, NULL);
- 
- 	if (IS_ERR(ima_blacklist_keyring))
- 		panic("Can't allocate IMA blacklist keyring.");
--
--	set_bit(KEY_FLAG_KEEP, &ima_blacklist_keyring->flags);
- 	return 0;
- }
- device_initcall(ima_mok_init);
-diff --git a/security/keys/key.c b/security/keys/key.c
-index d5fa8c4fc5544..d3ebc0533e3ad 100644
---- a/security/keys/key.c
-+++ b/security/keys/key.c
-@@ -305,6 +305,8 @@ struct key *key_alloc(struct key_type *type, const char *desc,
- 		key->flags |= 1 << KEY_FLAG_BUILTIN;
- 	if (flags & KEY_ALLOC_UID_KEYRING)
- 		key->flags |= 1 << KEY_FLAG_UID_KEYRING;
-+	if (flags & KEY_ALLOC_SET_KEEP)
-+		key->flags |= 1 << KEY_FLAG_KEEP;
- 
- #ifdef KEY_DEBUGGING
- 	key->magic = KEY_DEBUG_MAGIC;
+diff --git a/drivers/spi/spi-atmel.c b/drivers/spi/spi-atmel.c
+index 5a9d7e252a77c..2254e36c7f468 100644
+--- a/drivers/spi/spi-atmel.c
++++ b/drivers/spi/spi-atmel.c
+@@ -1605,7 +1605,7 @@ static int atmel_spi_probe(struct platform_device *pdev)
+ 		if (ret == 0) {
+ 			as->use_dma = true;
+ 		} else if (ret == -EPROBE_DEFER) {
+-			return ret;
++			goto out_unmap_regs;
+ 		}
+ 	} else if (as->caps.has_pdc_support) {
+ 		as->use_pdc = true;
 -- 
 2.27.0
 
