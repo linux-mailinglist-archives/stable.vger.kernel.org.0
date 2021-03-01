@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7791E328F26
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18D2C328F2C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240872AbhCATpq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:45:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50632 "EHLO mail.kernel.org"
+        id S241637AbhCATqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:46:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236189AbhCATgA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC9C6511C;
-        Mon,  1 Mar 2021 17:02:47 +0000 (UTC)
+        id S238259AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:36:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D9DB65100;
+        Mon,  1 Mar 2021 17:02:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618167;
-        bh=dGE1v0GCG/8MKspbHGh5FzQxyvr/FyJabl5fOrzZqdQ=;
+        s=korg; t=1614618139;
+        bh=2hmxUZp++fvJcfD9h4dal3MJPP6bFdBSPHgO7clqvU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ypNzlYlWacAdAiMlOKaPlOW8Zg45eT8m9mLP3161ebYDcdSKk3AGunfzKDOAoMnhg
-         SySa27035N2C66TsLPDFvVkhYVh92JfrgjvMbI9goLppAgsi4elDdeggYrFy2b9D3G
-         ojpEkAQvwQvDdEmvMxUFOctPo2ZVFnFJn7YBB7RQ=
+        b=eyq8AYlyBCAw/zZvYj+k0KPzHeZ+Bc454D+fOWPNqijVNuZ9wH4O1mS9F536zzbKO
+         tP/rBy8173VDgylwWC+P8QI5w40IUyVPxM8l2lpsqnb1jNM8KJfOkPNuSCWPChWwbX
+         TenjimPn7S7yoB/bjPiDf6lwzApA3hOEqVH4Dhfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Denis Efremov <efremov@linux.com>,
-        Kurt Garloff <kurt@garloff.de>
-Subject: [PATCH 5.4 290/340] floppy: reintroduce O_NDELAY fix
-Date:   Mon,  1 Mar 2021 17:13:54 +0100
-Message-Id: <20210301161102.563379034@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.4 293/340] watchdog: qcom: Remove incorrect usage of QCOM_WDT_ENABLE_IRQ
+Date:   Mon,  1 Mar 2021 17:13:57 +0100
+Message-Id: <20210301161102.717016216@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,81 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-commit 8a0c014cd20516ade9654fc13b51345ec58e7be8 upstream.
+commit a4f3407c41605d14f09e490045d0609990cd5d94 upstream.
 
-This issue was originally fixed in 09954bad4 ("floppy: refactor open()
-flags handling").
+As per register documentation, QCOM_WDT_ENABLE_IRQ which is BIT(1)
+of watchdog control register is wakeup interrupt enable bit and
+not related to bark interrupt at all, BIT(0) is used for that.
+So remove incorrect usage of this bit when supporting bark irq for
+pre-timeout notification. Currently with this bit set and bark
+interrupt specified, pre-timeout notification and/or watchdog
+reset/bite does not occur.
 
-The fix as a side-effect, however, introduce issue for open(O_ACCMODE)
-that is being used for ioctl-only open. I wrote a fix for that, but
-instead of it being merged, full revert of 09954bad4 was performed,
-re-introducing the O_NDELAY / O_NONBLOCK issue, and it strikes again.
-
-This is a forward-port of the original fix to current codebase; the
-original submission had the changelog below:
-
-====
-Commit 09954bad4 ("floppy: refactor open() flags handling"), as a
-side-effect, causes open(/dev/fdX, O_ACCMODE) to fail. It turns out that
-this is being used setfdprm userspace for ioctl-only open().
-
-Reintroduce back the original behavior wrt !(FMODE_READ|FMODE_WRITE)
-modes, while still keeping the original O_NDELAY bug fixed.
-
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2101221209060.5622@cbobk.fhfr.pm
+Fixes: 36375491a439 ("watchdog: qcom: support pre-timeout when the bark irq is available")
 Cc: stable@vger.kernel.org
-Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
-Tested-by: Wim Osterholt <wim@djo.tudelft.nl>
-Reported-and-tested-by: Kurt Garloff <kurt@garloff.de>
-Fixes: 09954bad4 ("floppy: refactor open() flags handling")
-Fixes: f2791e7ead ("Revert "floppy: refactor open() flags handling"")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210126150241.10009-1-saiprakash.ranjan@codeaurora.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/floppy.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/watchdog/qcom-wdt.c |   13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4063,21 +4063,22 @@ static int floppy_open(struct block_devi
- 	if (UFDCS->rawcmd == 1)
- 		UFDCS->rawcmd = 2;
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -22,7 +22,6 @@ enum wdt_reg {
+ };
  
--	if (!(mode & FMODE_NDELAY)) {
--		if (mode & (FMODE_READ|FMODE_WRITE)) {
--			UDRS->last_checked = 0;
--			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
--			check_disk_change(bdev);
--			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
--				goto out;
--			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
--				goto out;
--		}
--		res = -EROFS;
--		if ((mode & FMODE_WRITE) &&
--		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+	if (mode & (FMODE_READ|FMODE_WRITE)) {
-+		UDRS->last_checked = 0;
-+		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
-+		check_disk_change(bdev);
-+		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
-+			goto out;
-+		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
- 			goto out;
- 	}
-+
-+	res = -EROFS;
-+
-+	if ((mode & FMODE_WRITE) &&
-+			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+		goto out;
-+
- 	mutex_unlock(&open_lock);
- 	mutex_unlock(&floppy_mutex);
+ #define QCOM_WDT_ENABLE		BIT(0)
+-#define QCOM_WDT_ENABLE_IRQ	BIT(1)
+ 
+ static const u32 reg_offset_data_apcs_tmr[] = {
+ 	[WDT_RST] = 0x38,
+@@ -58,16 +57,6 @@ struct qcom_wdt *to_qcom_wdt(struct watc
+ 	return container_of(wdd, struct qcom_wdt, wdd);
+ }
+ 
+-static inline int qcom_get_enable(struct watchdog_device *wdd)
+-{
+-	int enable = QCOM_WDT_ENABLE;
+-
+-	if (wdd->pretimeout)
+-		enable |= QCOM_WDT_ENABLE_IRQ;
+-
+-	return enable;
+-}
+-
+ static irqreturn_t qcom_wdt_isr(int irq, void *arg)
+ {
+ 	struct watchdog_device *wdd = arg;
+@@ -86,7 +75,7 @@ static int qcom_wdt_start(struct watchdo
+ 	writel(1, wdt_addr(wdt, WDT_RST));
+ 	writel(bark * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
+ 	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
+-	writel(qcom_get_enable(wdd), wdt_addr(wdt, WDT_EN));
++	writel(QCOM_WDT_ENABLE, wdt_addr(wdt, WDT_EN));
  	return 0;
+ }
+ 
 
 
