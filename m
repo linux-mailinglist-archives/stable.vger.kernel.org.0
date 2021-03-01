@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4444E328EA0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72354328EE7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242016AbhCATeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:34:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48614 "EHLO mail.kernel.org"
+        id S237322AbhCATkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:40:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241717AbhCAT24 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:28:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0F19652C6;
-        Mon,  1 Mar 2021 17:37:36 +0000 (UTC)
+        id S241603AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:32:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C88BD64F24;
+        Mon,  1 Mar 2021 17:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620257;
-        bh=I378LHQLmI1Vw9vlFkHr7vQGsYoUL8h16QV4zVZM88s=;
+        s=korg; t=1614620268;
+        bh=Ufa3YiVNWK2HX+ItShYbsrowq+mZJDJvCP5Tih7f3jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsdTzJ93L87Ji+5TaQJb1nJXs+S1hcvknFaT+DkaUwThE4YwvsTWBZbfwtXudgQxp
-         Y7U9uYrvRaEe4qKNqIzhObvRZc87slSbvi/8NlMt4rBPq2Zt3Sp2WUE3YZWIoesBZ7
-         3SP1m1yreE3hi1oebo8OpIfTcRlvOU1KhE+RVrfA=
+        b=T6snDXnS79vhL41TXIpHpciMWqGF52GwRrc7Bt0tELYP1LlxVYvkfxSJhZ2qLfZ2M
+         gcBKXj20n8grwIRFNKte2Z196N3bYwebEqX2VAsR0FaDUndskDInW8dfymKuHO1D2u
+         N29emMm/N02Sb8yhHsrml9ExjDVw4Ow/oTFWej5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 087/775] ath11k: fix a locking bug in ath11k_mac_op_start()
-Date:   Mon,  1 Mar 2021 17:04:15 +0100
-Message-Id: <20210301161205.981251608@linuxfoundation.org>
+Subject: [PATCH 5.11 091/775] iwlwifi: mvm: send stored PPAG command instead of local
+Date:   Mon,  1 Mar 2021 17:04:19 +0100
+Message-Id: <20210301161206.174718264@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,57 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit c202e2ebe1dc454ad54fd0018c023ec553d47284 ]
+[ Upstream commit 659844d391826bfc5c8b4d9a06869ed51d859c76 ]
 
-This error path leads to a Smatch warning:
+Some change conflicts apparently cause a confusion between a local
+variable being used to send the PPAG command and the introduction of a
+union for this command.  Most parts of the local command were never
+copied from the stored data, so the FW was getting garbage in the
+tables instead of getting valid values.
 
-	drivers/net/wireless/ath/ath11k/mac.c:4269 ath11k_mac_op_start()
-	error: double unlocked '&ar->conf_mutex' (orig line 4251)
+Fix this by completely removing the local and using only the union
+that we have stored in fwrt.
 
-We're not holding the lock when we do the "goto err;" so it leads to a
-double unlock.  The fix is to hold the lock for a little longer.
-
-Fixes: c83c500b55b6 ("ath11k: enable idle power save mode")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-[kvalo@codeaurora.org: move also rcu_assign_pointer() call]
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YBk4GoeE+yc0wlJH@mwanda
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: f2134f66f40e ("iwlwifi: acpi: support ppag table command v2")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210210135352.d090e0301023.I7d57f4d7da9a3297734c51cf988199323c76916d@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index c1608f64ea95d..7d799fe6fbd89 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -4248,11 +4248,6 @@ static int ath11k_mac_op_start(struct ieee80211_hw *hw)
- 	/* Configure the hash seed for hash based reo dest ring selection */
- 	ath11k_wmi_pdev_lro_cfg(ar, ar->pdev->pdev_id);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 4d527409428d3..045765fa67bea 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -990,7 +990,6 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+ {
+ 	u8 cmd_ver;
+ 	int i, j, ret, num_sub_bands, cmd_size;
+-	union iwl_ppag_table_cmd ppag_table;
+ 	s8 *gain;
  
--	mutex_unlock(&ar->conf_mutex);
--
--	rcu_assign_pointer(ab->pdevs_active[ar->pdev_idx],
--			   &ab->pdevs[ar->pdev_idx]);
--
- 	/* allow device to enter IMPS */
- 	if (ab->hw_params.idle_ps) {
- 		ret = ath11k_wmi_pdev_set_param(ar, WMI_PDEV_PARAM_IDLE_PS_CONFIG,
-@@ -4262,6 +4257,12 @@ static int ath11k_mac_op_start(struct ieee80211_hw *hw)
- 			goto err;
- 		}
+ 	if (!fw_has_capa(&mvm->fw->ucode_capa, IWL_UCODE_TLV_CAPA_SET_PPAG)) {
+@@ -1003,15 +1002,13 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+ 		return 0;
  	}
-+
-+	mutex_unlock(&ar->conf_mutex);
-+
-+	rcu_assign_pointer(ab->pdevs_active[ar->pdev_idx],
-+			   &ab->pdevs[ar->pdev_idx]);
-+
- 	return 0;
  
- err:
+-	ppag_table.v1.enabled = mvm->fwrt.ppag_table.v1.enabled;
+-
+ 	cmd_ver = iwl_fw_lookup_cmd_ver(mvm->fw, PHY_OPS_GROUP,
+ 					PER_PLATFORM_ANT_GAIN_CMD,
+ 					IWL_FW_CMD_VER_UNKNOWN);
+ 	if (cmd_ver == 1) {
+ 		num_sub_bands = IWL_NUM_SUB_BANDS;
+ 		gain = mvm->fwrt.ppag_table.v1.gain[0];
+-		cmd_size = sizeof(ppag_table.v1);
++		cmd_size = sizeof(mvm->fwrt.ppag_table.v1);
+ 		if (mvm->fwrt.ppag_ver == 2) {
+ 			IWL_DEBUG_RADIO(mvm,
+ 					"PPAG table is v2 but FW supports v1, sending truncated table\n");
+@@ -1019,7 +1016,7 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+ 	} else if (cmd_ver == 2) {
+ 		num_sub_bands = IWL_NUM_SUB_BANDS_V2;
+ 		gain = mvm->fwrt.ppag_table.v2.gain[0];
+-		cmd_size = sizeof(ppag_table.v2);
++		cmd_size = sizeof(mvm->fwrt.ppag_table.v2);
+ 		if (mvm->fwrt.ppag_ver == 1) {
+ 			IWL_DEBUG_RADIO(mvm,
+ 					"PPAG table is v1 but FW supports v2, sending padded table\n");
+@@ -1039,7 +1036,7 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
+ 	IWL_DEBUG_RADIO(mvm, "Sending PER_PLATFORM_ANT_GAIN_CMD\n");
+ 	ret = iwl_mvm_send_cmd_pdu(mvm, WIDE_ID(PHY_OPS_GROUP,
+ 						PER_PLATFORM_ANT_GAIN_CMD),
+-				   0, cmd_size, &ppag_table);
++				   0, cmd_size, &mvm->fwrt.ppag_table);
+ 	if (ret < 0)
+ 		IWL_ERR(mvm, "failed to send PER_PLATFORM_ANT_GAIN_CMD (%d)\n",
+ 			ret);
 -- 
 2.27.0
 
