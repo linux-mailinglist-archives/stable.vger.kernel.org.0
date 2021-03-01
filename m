@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B7BD328524
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DDBE32842A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235774AbhCAQto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:49:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
+        id S231744AbhCAQaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:30:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235115AbhCAQnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5645664F1F;
-        Mon,  1 Mar 2021 16:29:41 +0000 (UTC)
+        id S234372AbhCAQ0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:26:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37DAA64F45;
+        Mon,  1 Mar 2021 16:21:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616181;
-        bh=6M0cdsJ50YrBieMzR1fNiGOjka+iFOnmAtTdCIygOjE=;
+        s=korg; t=1614615707;
+        bh=vDTgs1r/EZY3fCr1ZtB1xpxMcUKus5eXTZGEv5Z9uYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Na7BRuwDaduBo1R6+gF2fTh7VcNqsoEvg9FzchIAmdMzVzY0VHYfMPa0lpGjzjlzf
-         FvRmQbddk7jjJmM+DXFdPqBoFyoijF1VYPqj7Y9qRKSMRgDtiA2nz56DhUrbpk5fHd
-         2PNRF0O7rdohq58ztR6RXh9lS4f4lV0y/g9jFsI0=
+        b=Oi3N7RBQVkT7BcSnVVk1BJtfBtZP0TUNMIKTFBQvs8TxnvEvJ8BYLidWS3CWBnxBy
+         PtiABAR2sqPFTMHavu+TqVA5wsNauljYivKIlX4PN2yc/aPezOVwJufHJZT4NiUhbD
+         ehS6z2eyS5Tnyt/mnQCHQQGJ/19z7Gi1UvY/1Oyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simon Wunderlich <sw@simonwunderlich.de>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <ll@simonwunderlich.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 032/176] ath9k: fix data bus crash when setting nf_override via debugfs
+        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+Subject: [PATCH 4.9 004/134] igb: Remove incorrect "unexpected SYS WRAP" log message
 Date:   Mon,  1 Mar 2021 17:11:45 +0100
-Message-Id: <20210301161022.565475165@linuxfoundation.org>
+Message-Id: <20210301161013.794609666@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <ll@simonwunderlich.de>
+From: Corinna Vinschen <vinschen@redhat.com>
 
-[ Upstream commit 12c8f3d1cdd84f01ee777b756db9dddc1f1c9d17 ]
+commit 2643e6e90210e16c978919617170089b7c2164f7 upstream.
 
-When trying to set the noise floor via debugfs, a "data bus error"
-crash like the following can happen:
+TSAUXC.DisableSystime is never set, so SYSTIM runs into a SYS WRAP
+every 1100 secs on 80580/i350/i354 (40 bit SYSTIM) and every 35000
+secs on 80576 (45 bit SYSTIM).
 
-[   88.433133] Data bus error, epc == 80221c28, ra == 83314e60
-[   88.438895] Oops[#1]:
-[   88.441246] CPU: 0 PID: 7263 Comm: sh Not tainted 4.14.195 #0
-[   88.447174] task: 838a1c20 task.stack: 82d5e000
-[   88.451847] $ 0   : 00000000 00000030 deadc0de 83141de4
-[   88.457248] $ 4   : b810a2c4 0000a2c4 83230fd4 00000000
-[   88.462652] $ 8   : 0000000a 00000000 00000001 00000000
-[   88.468055] $12   : 7f8ef318 00000000 00000000 77f802a0
-[   88.473457] $16   : 83230080 00000002 0000001b 83230080
-[   88.478861] $20   : 83a1c3f8 00841000 77f7adb0 ffffff92
-[   88.484263] $24   : 00000fa4 77edd860
-[   88.489665] $28   : 82d5e000 82d5fda8 00000000 83314e60
-[   88.495070] Hi    : 00000000
-[   88.498044] Lo    : 00000000
-[   88.501040] epc   : 80221c28 ioread32+0x8/0x10
-[   88.505671] ra    : 83314e60 ath9k_hw_loadnf+0x88/0x520 [ath9k_hw]
-[   88.512049] Status: 1000fc03 KERNEL EXL IE
-[   88.516369] Cause : 5080801c (ExcCode 07)
-[   88.520508] PrId  : 00019374 (MIPS 24Kc)
-[   88.524556] Modules linked in: ath9k ath9k_common pppoe ppp_async l2tp_ppp cdc_mbim batman_adv ath9k_hw ath sr9700 smsc95xx sierra_net rndis_host qmi_wwan pppox ppp_generic pl2303 nf_conntrack_ipv6 mcs7830 mac80211 kalmia iptable_nat ipt_REJECT ipt_MASQUERADE huawei_cdc_ncm ftdi_sio dm9601 cfg80211 cdc_subset cdc_ncm cdc_ether cdc_eem ax88179_178a asix xt_time xt_tcpudp xt_tcpmss xt_statistic xt_state xt_nat xt_multiport xt_mark xt_mac xt_limit xt_length xt_hl xt_ecn xt_dscp xt_conntrack xt_comment xt_TCPMSS xt_REDIRECT xt_NETMAP xt_LOG xt_HL xt_FLOWOFFLOAD xt_DSCP xt_CLASSIFY usbserial usbnet usbhid slhc rtl8150 r8152 pegasus nf_reject_ipv4 nf_nat_redirect nf_nat_masquerade_ipv4 nf_conntrack_ipv4 nf_nat_ipv4 nf_nat nf_log_ipv4 nf_flow_table_hw nf_flow_table nf_defrag_ipv6 nf_defrag_ipv4 nf_conntrack
-[   88.597894]  libcrc32c kaweth iptable_mangle iptable_filter ipt_ECN ipheth ip_tables hso hid_generic crc_ccitt compat cdc_wdm cdc_acm br_netfilter hid evdev input_core nf_log_ipv6 nf_log_common ip6table_mangle ip6table_filter ip6_tables ip6t_REJECT x_tables nf_reject_ipv6 l2tp_netlink l2tp_core udp_tunnel ip6_udp_tunnel xfrm6_mode_tunnel xfrm6_mode_transport xfrm6_mode_beet ipcomp6 xfrm6_tunnel esp6 ah6 xfrm4_tunnel xfrm4_mode_tunnel xfrm4_mode_transport xfrm4_mode_beet ipcomp esp4 ah4 tunnel6 tunnel4 tun xfrm_user xfrm_ipcomp af_key xfrm_algo sha256_generic sha1_generic jitterentropy_rng drbg md5 hmac echainiv des_generic deflate zlib_inflate zlib_deflate cbc authenc crypto_acompress ehci_platform ehci_hcd gpio_button_hotplug usbcore nls_base usb_common crc16 mii aead crypto_null cryptomgr crc32c_generic
-[   88.671671]  crypto_hash
-[   88.674292] Process sh (pid: 7263, threadinfo=82d5e000, task=838a1c20, tls=77f81efc)
-[   88.682279] Stack : 00008060 00000008 00000200 00000000 00000000 00000000 00000000 00000002
-[   88.690916]         80500000 83230080 82d5fe22 00841000 77f7adb0 00000000 00000000 83156858
-[   88.699553]         00000000 8352fa00 83ad62b0 835302a8 00000000 300a00f8 00000003 82d5fe38
-[   88.708190]         82d5fef4 00000001 77f54dc4 77f80000 77f7adb0 c79fe901 00000000 00000000
-[   88.716828]         80510000 00000002 00841000 77f54dc4 77f80000 801ce4cc 0000000b 41824292
-[   88.725465]         ...
-[   88.727994] Call Trace:
-[   88.730532] [<80221c28>] ioread32+0x8/0x10
-[   88.734765] Code: 00000000  8c820000  0000000f <03e00008> 00000000  08088708  00000000  aca40000  03e00008
-[   88.744846]
-[   88.746464] ---[ end trace db226b2de1b69b9e ]---
-[   88.753477] Kernel panic - not syncing: Fatal exception
-[   88.759981] Rebooting in 3 seconds..
+This wrap event sets the TSICR.SysWrap bit unconditionally.
 
-The "REG_READ(ah, AR_PHY_AGC_CONTROL)" in ath9k_hw_loadnf() does not
-like being called when the hardware is asleep, leading to this crash.
+However, checking TSIM at interrupt time shows that this event does not
+actually cause the interrupt.  Rather, it's just bycatch while the
+actual interrupt is caused by, for instance, TSICR.TXTS.
 
-The easiest way to reproduce this is trying to set nf_override while
-the hardware is down:
+The conclusion is that the SYS WRAP is actually expected, so the
+"unexpected SYS WRAP" message is entirely bogus and just helps to
+confuse users.  Drop it.
 
-  $ ip link set down dev wlan0
-  $ echo "-85" > /sys/kernel/debug/ieee80211/phy0/ath9k/nf_override
-
-Fixing this crash by waking the hardware up before trying to set the
-noise floor. Similar to what other ath9k debugfs files do.
-
-Tested on a Lima board from 8devices, which has a QCA 4531 chipset.
-
-Fixes: b90189759a7f ("ath9k: add noise floor override option")
-Cc: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Linus Lüssing <ll@simonwunderlich.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210209184352.4272-1-linus.luessing@c0d3.blue
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
+Acked-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/debug.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/debug.c b/drivers/net/wireless/ath/ath9k/debug.c
-index 01fa301172885..e05be0eb3f349 100644
---- a/drivers/net/wireless/ath/ath9k/debug.c
-+++ b/drivers/net/wireless/ath/ath9k/debug.c
-@@ -1236,8 +1236,11 @@ static ssize_t write_file_nf_override(struct file *file,
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -5665,8 +5665,6 @@ static void igb_tsync_interrupt(struct i
+ 		event.type = PTP_CLOCK_PPS;
+ 		if (adapter->ptp_caps.pps)
+ 			ptp_clock_event(adapter->ptp_clock, &event);
+-		else
+-			dev_err(&adapter->pdev->dev, "unexpected SYS WRAP");
+ 		ack |= TSINTR_SYS_WRAP;
+ 	}
  
- 	ah->nf_override = val;
- 
--	if (ah->curchan)
-+	if (ah->curchan) {
-+		ath9k_ps_wakeup(sc);
- 		ath9k_hw_loadnf(ah, ah->curchan);
-+		ath9k_ps_restore(sc);
-+	}
- 
- 	return count;
- }
--- 
-2.27.0
-
 
 
