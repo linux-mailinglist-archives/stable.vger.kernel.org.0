@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE08328BED
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67EC2328C9D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240432AbhCASm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:42:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
+        id S240466AbhCASzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:55:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240179AbhCASgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:36:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F00DD65286;
-        Mon,  1 Mar 2021 17:31:00 +0000 (UTC)
+        id S235191AbhCAStl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:49:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7829650FC;
+        Mon,  1 Mar 2021 17:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619861;
-        bh=boC0s/vZwpW/83mfi+2o0z/wAakmJeX6on3qlkZBqfA=;
+        s=korg; t=1614618119;
+        bh=9JWjh7AvZXL4VeSi0y6vEWJfCSzqtZD6IaYtAeUvkKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxAYs3MkjozJj0c5ig3uqcFdWKjBGhpHxCHiL6uAKP0RNTj2pxRl3k9GSCIfcVyT2
-         W8CiOaNk5HfhdUOKiNai/wrYMWUkbtt5NNSqIW/QP+NTY8wkigkG7XqijBEa6BsEdU
-         g4FRwxB+xWRMe6ZE4EvalDmUbrwcEqdhEw8E9CCQ=
+        b=awBkTBivtxZ/PGqoUGp07V2OTX3LP6ly1tW1iO8VAOWrYv752PkOnUVyEnwqlegWi
+         TNoFPU2h/B7s4C+VVaQwrQ6Gv3xxXe3CP3ax2sZHb4/8Oe64zrGfLHq4qm/TjP+FJR
+         nX+xwAyndb74NS9kuEzScWNE3nMbw75wIi+aZV9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 607/663] powerpc/32: Preserve cr1 in exception prolog stack check to fix build error
-Date:   Mon,  1 Mar 2021 17:14:15 +0100
-Message-Id: <20210301161211.883656422@linuxfoundation.org>
+        stable@vger.kernel.org, Wendy Wang <wendy.wang@intel.com>,
+        Chen Yu <yu.c.chen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.4 313/340] cpufreq: intel_pstate: Get per-CPU max freq via MSR_HWP_CAPABILITIES if available
+Date:   Mon,  1 Mar 2021 17:14:17 +0100
+Message-Id: <20210301161103.691641522@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Chen Yu <yu.c.chen@intel.com>
 
-commit 3642eb21256a317ac14e9ed560242c6d20cf06d9 upstream.
+commit 6f67e060083a84a4cc364eab6ae40c717165fb0c upstream.
 
-THREAD_ALIGN_SHIFT = THREAD_SHIFT + 1 = PAGE_SHIFT + 1
-Maximum PAGE_SHIFT is 18 for 256k pages so
-THREAD_ALIGN_SHIFT is 19 at the maximum.
+Currently, when turbo is disabled (either by BIOS or by the user),
+the intel_pstate driver reads the max non-turbo frequency from the
+package-wide MSR_PLATFORM_INFO(0xce) register.
 
-No need to clobber cr1, it can be preserved when moving r1
-into CR when we check stack overflow.
+However, on asymmetric platforms it is possible in theory that small
+and big core with HWP enabled might have different max non-turbo CPU
+frequency, because MSR_HWP_CAPABILITIES is per-CPU scope according
+to Intel Software Developer Manual.
 
-This reduces the number of instructions in Machine Check Exception
-prolog and fixes a build failure reported by the kernel test robot
-on v5.10 stable when building with RTAS + VMAP_STACK + KVM. That
-build failure is due to too many instructions in the prolog hence
-not fitting between 0x200 and 0x300. Allthough the problem doesn't
-show up in mainline, it is still worth the change.
+The turbo max freq is already per-CPU in current code, so make
+similar change to the max non-turbo frequency as well.
 
-Fixes: 98bf2d3f4970 ("powerpc/32s: Fix RTAS machine check with VMAP stack")
-Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/5ae4d545e3ac58e133d2599e0deb88843cb494fc.1612768623.git.christophe.leroy@csgroup.eu
+Reported-by: Wendy Wang <wendy.wang@intel.com>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+[ rjw: Subject and changelog edits ]
+Cc: 4.18+ <stable@vger.kernel.org> # 4.18+: a45ee4d4e13b: cpufreq: intel_pstate: Change intel_pstate_get_hwp_max() argument
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_32.h        |    2 +-
- arch/powerpc/kernel/head_book3s_32.S |    6 ------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+ drivers/cpufreq/intel_pstate.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/kernel/head_32.h
-+++ b/arch/powerpc/kernel/head_32.h
-@@ -56,7 +56,7 @@
- 1:
- 	tophys_novmstack r11, r11
- #ifdef CONFIG_VMAP_STACK
--	mtcrf	0x7f, r1
-+	mtcrf	0x3f, r1
- 	bt	32 - THREAD_ALIGN_SHIFT, stack_overflow
- #endif
- .endm
---- a/arch/powerpc/kernel/head_book3s_32.S
-+++ b/arch/powerpc/kernel/head_book3s_32.S
-@@ -280,12 +280,6 @@ MachineCheck:
- 7:	EXCEPTION_PROLOG_2
- 	addi	r3,r1,STACK_FRAME_OVERHEAD
- #ifdef CONFIG_PPC_CHRP
--#ifdef CONFIG_VMAP_STACK
--	mfspr	r4, SPRN_SPRG_THREAD
--	tovirt(r4, r4)
--	lwz	r4, RTAS_SP(r4)
--	cmpwi	cr1, r4, 0
--#endif
- 	beq	cr1, machine_check_tramp
- 	twi	31, 0, 0
- #else
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -1566,11 +1566,9 @@ static void intel_pstate_max_within_limi
+ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
+ {
+ 	cpu->pstate.min_pstate = pstate_funcs.get_min();
+-	cpu->pstate.max_pstate = pstate_funcs.get_max();
+ 	cpu->pstate.max_pstate_physical = pstate_funcs.get_max_physical();
+ 	cpu->pstate.turbo_pstate = pstate_funcs.get_turbo();
+ 	cpu->pstate.scaling = pstate_funcs.get_scaling();
+-	cpu->pstate.max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
+ 
+ 	if (hwp_active && !hwp_mode_bdw) {
+ 		unsigned int phy_max, current_max;
+@@ -1578,9 +1576,12 @@ static void intel_pstate_get_cpu_pstates
+ 		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
+ 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
+ 		cpu->pstate.turbo_pstate = phy_max;
++		cpu->pstate.max_pstate = HWP_GUARANTEED_PERF(READ_ONCE(cpu->hwp_cap_cached));
+ 	} else {
+ 		cpu->pstate.turbo_freq = cpu->pstate.turbo_pstate * cpu->pstate.scaling;
++		cpu->pstate.max_pstate = pstate_funcs.get_max();
+ 	}
++	cpu->pstate.max_freq = cpu->pstate.max_pstate * cpu->pstate.scaling;
+ 
+ 	if (pstate_funcs.get_aperf_mperf_shift)
+ 		cpu->aperf_mperf_shift = pstate_funcs.get_aperf_mperf_shift();
 
 
