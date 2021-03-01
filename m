@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3307328508
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6E9932844A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235284AbhCAQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:47:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44584 "EHLO mail.kernel.org"
+        id S232933AbhCAQdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhCAQjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:39:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 254D664F8B;
-        Mon,  1 Mar 2021 16:28:22 +0000 (UTC)
+        id S234574AbhCAQ1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:27:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FACA64EE1;
+        Mon,  1 Mar 2021 16:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616103;
-        bh=GFmbhcJcN/uW05kczdTV6zEvwvCAh8sGgbNOItm6ZN4=;
+        s=korg; t=1614615733;
+        bh=I8nbikU4Sw4WIWLn374JUQfCx1J+ubH59OjzCnoMt9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VRnPJ27LjgDsuWagiQ5JMzyptL++LEIfOj37F2I0o6VtXhqKvPDs8mc5ZdoFEiOLE
-         TpOAXFUYSWcr5cLGeqvDCItdzZEVoD0UyC619h049zQi6PdajXnkvKr1hJgI2CJlb8
-         Kpbmd01n7WB8hMJ9F4CPGZkiCYaXFULN4zgvt8RY=
+        b=J9AwS1pqtYQKXGTvLSjcW9DRNJ50moE8XEJcmYuBpN38EYeYHoiD0d0Qaa/zelYtb
+         8lKpeE21xL7CO13hdBzsxce1j4TP12+08uTQTyzkrY79iPEm0FRFgYPBA7A+pZnCH+
+         IiKFa6PxtIghKmRtnqzjoS6P59dqZ2y6ari/knlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 028/176] staging: rtl8723bs: wifi_regd.c: Fix incorrect number of regulatory rules
-Date:   Mon,  1 Mar 2021 17:11:41 +0100
-Message-Id: <20210301161022.375162289@linuxfoundation.org>
+        stable@vger.kernel.org, Will McVicker <willmcvicker@google.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 001/134] HID: make arrays usage and value to be the same
+Date:   Mon,  1 Mar 2021 17:11:42 +0100
+Message-Id: <20210301161013.666159680@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,92 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Will McVicker <willmcvicker@google.com>
 
-[ Upstream commit 61834c967a929f6b4b7fcb91f43fa225cc29aa19 ]
+commit ed9be64eefe26d7d8b0b5b9fa3ffdf425d87a01f upstream.
 
-The custom regulatory ruleset in the rtl8723bs driver lists an incorrect
-number of rules: one too many. This results in an out-of-bounds access,
-as detected by KASAN. This was possible thanks to the newly added support
-for KASAN on ARMv7.
+The HID subsystem allows an "HID report field" to have a different
+number of "values" and "usages" when it is allocated. When a field
+struct is created, the size of the usage array is guaranteed to be at
+least as large as the values array, but it may be larger. This leads to
+a potential out-of-bounds write in
+__hidinput_change_resolution_multipliers() and an out-of-bounds read in
+hidinput_count_leds().
 
-Fix this by filling in the correct number of rules given.
+To fix this, let's make sure that both the usage and value arrays are
+the same size.
 
-KASAN report:
-
-==================================================================
-BUG: KASAN: global-out-of-bounds in cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211]
-Read of size 4 at addr bf20c254 by task ip/971
-
-CPU: 2 PID: 971 Comm: ip Tainted: G         C        5.11.0-rc2-00020-gf7fe528a7ebe #1
-Hardware name: Allwinner sun8i Family
-[<c0113338>] (unwind_backtrace) from [<c010e8a4>] (show_stack+0x10/0x14)
-[<c010e8a4>] (show_stack) from [<c0e0f868>] (dump_stack+0x9c/0xb4)
-[<c0e0f868>] (dump_stack) from [<c0388284>] (print_address_description.constprop.2+0x1dc/0x2dc)
-[<c0388284>] (print_address_description.constprop.2) from [<c03885cc>] (kasan_report+0x1a8/0x1c4)
-[<c03885cc>] (kasan_report) from [<bf00a354>] (cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211])
-[<bf00a354>] (cfg80211_does_bw_fit_range [cfg80211]) from [<bf00b41c>] (freq_reg_info_regd.part.6+0x108/0x124 [>
-[<bf00b41c>] (freq_reg_info_regd.part.6 [cfg80211]) from [<bf00df00>] (handle_channel_custom.constprop.12+0x48/>
-[<bf00df00>] (handle_channel_custom.constprop.12 [cfg80211]) from [<bf00e150>] (wiphy_apply_custom_regulatory+0>
-[<bf00e150>] (wiphy_apply_custom_regulatory [cfg80211]) from [<bf1fb9e8>] (rtw_regd_init+0x60/0x70 [r8723bs])
-[<bf1fb9e8>] (rtw_regd_init [r8723bs]) from [<bf1ee5a8>] (rtw_cfg80211_init_wiphy+0x164/0x1e8 [r8723bs])
-[<bf1ee5a8>] (rtw_cfg80211_init_wiphy [r8723bs]) from [<bf1f8d50>] (_netdev_open+0xe4/0x28c [r8723bs])
-[<bf1f8d50>] (_netdev_open [r8723bs]) from [<bf1f8f58>] (netdev_open+0x60/0x88 [r8723bs])
-[<bf1f8f58>] (netdev_open [r8723bs]) from [<c0bb3730>] (__dev_open+0x178/0x220)
-[<c0bb3730>] (__dev_open) from [<c0bb3cdc>] (__dev_change_flags+0x258/0x2c4)
-[<c0bb3cdc>] (__dev_change_flags) from [<c0bb3d88>] (dev_change_flags+0x40/0x80)
-[<c0bb3d88>] (dev_change_flags) from [<c0bc86fc>] (do_setlink+0x538/0x1160)
-[<c0bc86fc>] (do_setlink) from [<c0bcf9e8>] (__rtnl_newlink+0x65c/0xad8)
-[<c0bcf9e8>] (__rtnl_newlink) from [<c0bcfeb0>] (rtnl_newlink+0x4c/0x6c)
-[<c0bcfeb0>] (rtnl_newlink) from [<c0bc67c8>] (rtnetlink_rcv_msg+0x1f8/0x454)
-[<c0bc67c8>] (rtnetlink_rcv_msg) from [<c0c330e4>] (netlink_rcv_skb+0xc4/0x1e0)
-[<c0c330e4>] (netlink_rcv_skb) from [<c0c32478>] (netlink_unicast+0x2c8/0x3c4)
-[<c0c32478>] (netlink_unicast) from [<c0c32894>] (netlink_sendmsg+0x320/0x5f0)
-[<c0c32894>] (netlink_sendmsg) from [<c0b75eb0>] (____sys_sendmsg+0x320/0x3e0)
-[<c0b75eb0>] (____sys_sendmsg) from [<c0b78394>] (___sys_sendmsg+0xe8/0x12c)
-[<c0b78394>] (___sys_sendmsg) from [<c0b78a50>] (__sys_sendmsg+0xc0/0x120)
-[<c0b78a50>] (__sys_sendmsg) from [<c0100060>] (ret_fast_syscall+0x0/0x58)
-Exception stack(0xc5693fa8 to 0xc5693ff0)
-3fa0:                   00000074 c7a39800 00000003 b6cee648 00000000 00000000
-3fc0: 00000074 c7a39800 00000001 00000128 78d18349 00000000 b6ceeda0 004f7cb0
-3fe0: 00000128 b6cee5e8 aeca151f aec1d746
-
-The buggy address belongs to the variable:
- rtw_drv_halt+0xf908/0x6b4 [r8723bs]
-
-Memory state around the buggy address:
- bf20c100: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
- bf20c180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->bf20c200: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
-                                         ^
- bf20c280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- bf20c300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20210108141401.31741-1-wens@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Will McVicker <willmcvicker@google.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/os_dep/wifi_regd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-index aa2f62acc994d..4dd6f3fb59060 100644
---- a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-+++ b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
-@@ -39,7 +39,7 @@
- 	NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_OFDM)
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -91,7 +91,7 @@ EXPORT_SYMBOL_GPL(hid_register_report);
+  * Register a new field for this report.
+  */
  
- static const struct ieee80211_regdomain rtw_regdom_rd = {
--	.n_reg_rules = 3,
-+	.n_reg_rules = 2,
- 	.alpha2 = "99",
- 	.reg_rules = {
- 		RTW_2GHZ_CH01_11,
--- 
-2.27.0
-
+-static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
++static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages)
+ {
+ 	struct hid_field *field;
+ 
+@@ -102,7 +102,7 @@ static struct hid_field *hid_register_fi
+ 
+ 	field = kzalloc((sizeof(struct hid_field) +
+ 			 usages * sizeof(struct hid_usage) +
+-			 values * sizeof(unsigned)), GFP_KERNEL);
++			 usages * sizeof(unsigned)), GFP_KERNEL);
+ 	if (!field)
+ 		return NULL;
+ 
+@@ -281,7 +281,7 @@ static int hid_add_field(struct hid_pars
+ 	usages = max_t(unsigned, parser->local.usage_index,
+ 				 parser->global.report_count);
+ 
+-	field = hid_register_field(report, usages, parser->global.report_count);
++	field = hid_register_field(report, usages);
+ 	if (!field)
+ 		return 0;
+ 
 
 
