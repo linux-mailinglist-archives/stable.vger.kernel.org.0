@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A4C328579
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEDDB3284A3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232958AbhCAQyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:54:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
+        id S231946AbhCAQjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:39:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235733AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:49:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A780364FA5;
-        Mon,  1 Mar 2021 16:32:36 +0000 (UTC)
+        id S232697AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A89D664F33;
+        Mon,  1 Mar 2021 16:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616357;
-        bh=5f9yO/0BlGgWgb6yLh38/lcQKvAJLvKhHPEirEPXOa8=;
+        s=korg; t=1614615890;
+        bh=D45NwzvobpGbnXel38LgIc/vIXIxGCSnF3KaM7r1Z0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COVqwrOWPITaGumzFvc7Fj38mokdCcmQGYXW4JdzXdk3dTzpZA3+W6Fy+Nbr+EOBv
-         2QkqHpf24JESnyo1TkbRij8agXmyfUDO2Up61D9iTOlV2CHEM5d+y7jbL/gwNJafpw
-         wedgEwAM5MT4fUuqYkSilI0371w0JnjSeYqlwzzc=
+        b=MiEYsooUNdp3EesAOa8MDKmgYcfEnfsZ70b4rV4pTiDIx2/QwK4LsODI0lEr6czmJ
+         WE1Q7JtxC8hApWFtbA0uF8GULvdGym4JhqdAoAGg2QVP4rZP2utcTC3IHGgg/vOkdX
+         YsB50mjuV6+T3Y1w9L5e6Ua25pBrQVlzt7M4pHsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Calvin Johnson <calvin.johnson@oss.nxp.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.14 122/176] ACPI: property: Fix fwnode string properties matching
-Date:   Mon,  1 Mar 2021 17:13:15 +0100
-Message-Id: <20210301161027.052004809@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>
+Subject: [PATCH 4.9 095/134] USB: serial: option: update interface mapping for ZTE P685M
+Date:   Mon,  1 Mar 2021 17:13:16 +0100
+Message-Id: <20210301161018.246726569@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,146 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-commit e1e6bd2995ac0e1ad0c2a2d906a06f59ce2ed293 upstream.
+commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
 
-Property matching does not work for ACPI fwnodes if the value of the
-given property is not represented as a package in the _DSD package
-containing it.  For example, the "compatible" property in the _DSD
-below
+This patch prepares for qmi_wwan driver support for the device.
+Previously "option" driver mapped itself to interfaces 0 and 3 (matching
+ff/ff/ff), while interface 3 is in fact a QMI port.
+Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
+and weren't supported previously at all.
+Without this patch, a possible conflict would exist if device ID was
+added to qmi_wwan driver for interface 3.
 
-  Name (_DSD, Package () {
-    ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-    Package () {
-      Package () {"compatible", "ethernet-phy-ieee802.3-c45"}
-    }
-  })
+Update and simplify device ID to match interfaces 0-2 directly,
+to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
+with QMI (3), and ADB (4).
 
-will not be found by fwnode_property_match_string(), because the ACPI
-code handling device properties does not regard the single value as a
-"list" in that case.
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
 
-Namely, fwnode_property_match_string() invoked to match a given
-string property value first calls fwnode_property_read_string_array()
-with the last two arguments equal to NULL and 0, respectively, in
-order to count the items in the value of the given property, with the
-assumption that this value may be an array.  For ACPI fwnodes, that
-operation is carried out by acpi_node_prop_read() which calls
-acpi_data_prop_read() for this purpose.  However, when the return
-(val) pointer is NULL, that function only looks for a property whose
-value is a package without checking the single-value case at all.
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-To fix that, make acpi_data_prop_read() check the single-value
-case if its return pointer argument is NULL and modify
-acpi_data_prop_read_single() handling that case to attempt to
-read the value of the property if the return pointer is NULL
-and return 1 if that succeeds.
-
-Fixes: 3708184afc77 ("device property: Move FW type specific functionality to FW specific files")
-Reported-by: Calvin Johnson <calvin.johnson@oss.nxp.com>
-Cc: 4.13+ <stable@vger.kernel.org> # 4.13+
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/property.c |   44 +++++++++++++++++++++++++++++++++-----------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ drivers/usb/serial/option.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -688,9 +688,6 @@ static int acpi_data_prop_read_single(co
- 	const union acpi_object *obj;
- 	int ret;
- 
--	if (!val)
--		return -EINVAL;
--
- 	if (proptype >= DEV_PROP_U8 && proptype <= DEV_PROP_U64) {
- 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_INTEGER, &obj);
- 		if (ret)
-@@ -700,28 +697,43 @@ static int acpi_data_prop_read_single(co
- 		case DEV_PROP_U8:
- 			if (obj->integer.value > U8_MAX)
- 				return -EOVERFLOW;
--			*(u8 *)val = obj->integer.value;
-+
-+			if (val)
-+				*(u8 *)val = obj->integer.value;
-+
- 			break;
- 		case DEV_PROP_U16:
- 			if (obj->integer.value > U16_MAX)
- 				return -EOVERFLOW;
--			*(u16 *)val = obj->integer.value;
-+
-+			if (val)
-+				*(u16 *)val = obj->integer.value;
-+
- 			break;
- 		case DEV_PROP_U32:
- 			if (obj->integer.value > U32_MAX)
- 				return -EOVERFLOW;
--			*(u32 *)val = obj->integer.value;
-+
-+			if (val)
-+				*(u32 *)val = obj->integer.value;
-+
- 			break;
- 		default:
--			*(u64 *)val = obj->integer.value;
-+			if (val)
-+				*(u64 *)val = obj->integer.value;
-+
- 			break;
- 		}
-+
-+		if (!val)
-+			return 1;
- 	} else if (proptype == DEV_PROP_STRING) {
- 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_STRING, &obj);
- 		if (ret)
- 			return ret;
- 
--		*(char **)val = obj->string.pointer;
-+		if (val)
-+			*(char **)val = obj->string.pointer;
- 
- 		return 1;
- 	} else {
-@@ -735,7 +747,7 @@ int acpi_dev_prop_read_single(struct acp
- {
- 	int ret;
- 
--	if (!adev)
-+	if (!adev || !val)
- 		return -EINVAL;
- 
- 	ret = acpi_data_prop_read_single(&adev->data, propname, proptype, val);
-@@ -829,10 +841,20 @@ static int acpi_data_prop_read(const str
- 	const union acpi_object *items;
- 	int ret;
- 
--	if (val && nval == 1) {
-+	if (nval == 1 || !val) {
- 		ret = acpi_data_prop_read_single(data, propname, proptype, val);
--		if (ret >= 0)
-+		/*
-+		 * The overflow error means that the property is there and it is
-+		 * single-value, but its type does not match, so return.
-+		 */
-+		if (ret >= 0 || ret == -EOVERFLOW)
- 			return ret;
-+
-+		/*
-+		 * Reading this property as a single-value one failed, but its
-+		 * value may still be represented as one-element array, so
-+		 * continue.
-+		 */
- 	}
- 
- 	ret = acpi_data_get_property_array(data, propname, ACPI_TYPE_ANY, &obj);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1551,7 +1551,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
+-	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
++	  .driver_info = RSVD(3) | RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
 
 
