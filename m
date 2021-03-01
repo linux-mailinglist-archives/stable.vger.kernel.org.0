@@ -2,141 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8ABC328066
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F61D328068
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:13:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236255AbhCAOLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 09:11:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236253AbhCAOLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 09:11:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6528D64D99;
-        Mon,  1 Mar 2021 14:10:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614607816;
-        bh=MpORY1LSS6duWPJ6gsbDFWyR60Ty4kPP2cIOqbGO5xE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EhiRmv9XuCYUsjCgHNTx9OZEKlrYso8t1YBo2T+GSndID3VDaP4GpDbIp+Rn1gi+o
-         R+HUWULG4kDTQKcddGOAyx6U++EZpjGoxncBeFS7iDqr2aaKx+sW3tMNubFjFkcbvY
-         GqoGg2FylKbs0OSHYauax4haOf2rbvpXrrxwwiQs=
-Date:   Mon, 1 Mar 2021 15:10:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [5.10.y regression] i915 clear-residuals mitigation
- is causing gfx issues
-Message-ID: <YDz1xcbN050kIR6P@kroah.com>
-References: <161282685855.9448.10484374241892252440@build.alporthouse.com>
- <f1070486-891a-8ec0-0390-b9aeb03178ce@redhat.com>
- <161291205642.6673.10994709665368036431@build.alporthouse.com>
- <02fd493c-957f-890d-d0ad-ebd4119f55f2@redhat.com>
- <161296131275.7731.862746142230006325@build.alporthouse.com>
- <8f550b67-2c7c-c726-09d1-dc8842152974@redhat.com>
- <161304059194.7731.17263409378570191651@build.alporthouse.com>
- <e00f5813-37c6-52e7-4fd3-691be9d062d9@redhat.com>
- <96614fc1-c92d-1532-fd92-beb19e490075@redhat.com>
- <YCqEs8FaSBukRcaZ@kroah.com>
+        id S236247AbhCAOMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 09:12:15 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:32825 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236248AbhCAOLy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 09:11:54 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 1148D5C0115;
+        Mon,  1 Mar 2021 09:10:58 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 09:10:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=N/A24Db+F1Q1cnAfdMcKK1KV5/z
+        /iTsywaDJViMqvGs=; b=JrH+u/rX5F57P/tMlufihZR4mWm3UsEP3zW7M6ZXq2n
+        ckpixXa2rdeV3Dx0koNGGSdfXf37YVyItTEBNojT7jExOkQei6HpuRru2R47UK4m
+        Rpfeaby5VJC5NV+uXtj5jm1pgd2d27SSiTNcmcIePDWvutPAgTbRn5hoqPYasX7g
+        9kCJZ2yZxgni7wq1cQEinatfmuFrjePL+lRrGDEFeXyrLX4EjGdzLH3xU7gsgdw0
+        /Vd2y9A0vxQ3mx8eV4dCz5pfAQ4VBculMYeagXx5+QHLEClJeGYHh89accXvxr4E
+        c4TYch1TXgQzUSghvsxcObnrTVrATyS5T4gc35Vffaw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=N/A24D
+        b+F1Q1cnAfdMcKK1KV5/z/iTsywaDJViMqvGs=; b=ouYFzZE2+NWgbRN13WOTUN
+        zFDZQoNZuHkkv/pqBu81p0z8YO+MNpPVhjfcJ1xKjBM4FCp3oKk2AuoXVSx/CM3h
+        3h67tyOffDvysAfnUFmESsfIGZ7Se8GOKAEFlERBtNfFFV4RXs8SI3NseqOH1/HK
+        lYUxYx2jAhtz8hyDGeNEoCebB8U84gt4BTAyS9Tvwyoxp3m7SFOiqIr3d514OzFA
+        p2Ydix/PML8bY5ylMMSNItGED9xVYVIwxNEJ3RUK/2WjNmfsMb/r5JW4JXNkw5Lm
+        LIwE/XCYfB3vwAIVgWwjfz9qf7EaQqbpgpi2zpHok/G5D7jIlT9WNAASZiv8Nb2Q
+        ==
+X-ME-Sender: <xms:8fU8YGwMW_NPx7Clsr3bTfvKLnupVkgdwnnU94ZQoIQmwkXWWwNuZQ>
+    <xme:8fU8YCRuc87sjaue7Ve_iO4AJEfkM9tvXHA0zLEalQ1NJ7vaj3NbLgHojzWqH73S8
+    -IStaF1b-cXZw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehlecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepleeltdelve
+    duudefgfehleffhfevteevieeghfffudeuueegffevkeejgfdtveeunecuffhomhgrihhn
+    pehlkhhmlhdrohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghruf
+    hiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtgho
+    mh
+X-ME-Proxy: <xmx:8fU8YIWVqlToYlxqz_x4UvuUG9yIgyUvMJgSZEzy0JnTwJi2dm1x5A>
+    <xmx:8fU8YMiTdsDEekE1zPWg03hOGVwa5VjHrwb3TuPdJcB9KBTg_o1TwA>
+    <xmx:8fU8YIBg5mMWiEVgdKB4TCJgIhtO3o_g_I_EaPwZ7uEWw0whrElh0Q>
+    <xmx:8vU8YB5QUSQtc_Vm1toVXEii_6J4XdWnjnCgQIiIdoMxWfh58H1nqw>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4E5F5240064;
+        Mon,  1 Mar 2021 09:10:57 -0500 (EST)
+Date:   Mon, 1 Mar 2021 15:10:55 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Sumit Garg <sumit.garg@linaro.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Douglas Anderson <dianders@chromium.org>
+Subject: Re: Request to backport commit: d54ce6158e35 ("kgdb: fix to kill
+ breakpoints on initmem after boot")
+Message-ID: <YDz176xKljIfx6oZ@kroah.com>
+References: <CAFA6WYMVsmjy5KMYwFcnXuuPJsNBcEY_DCV+wF0bA_umg-Ri3A@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YCqEs8FaSBukRcaZ@kroah.com>
+In-Reply-To: <CAFA6WYMVsmjy5KMYwFcnXuuPJsNBcEY_DCV+wF0bA_umg-Ri3A@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 15, 2021 at 03:26:59PM +0100, Greg Kroah-Hartman wrote:
-> On Sun, Feb 14, 2021 at 05:00:44PM +0100, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 2/11/21 1:26 PM, Hans de Goede wrote:
-> > > Hi,
-> > > 
-> > > On 2/11/21 11:49 AM, Chris Wilson wrote:
-> > >> Quoting Hans de Goede (2021-02-11 10:36:13)
-> > >>> Hi,
-> > >>>
-> > >>> On 2/10/21 1:48 PM, Chris Wilson wrote:
-> > >>>> Quoting Hans de Goede (2021-02-10 10:37:19)
-> > >>>>> Hi,
-> > >>>>>
-> > >>>>> On 2/10/21 12:07 AM, Chris Wilson wrote:
-> > >>>>>> Quoting Hans de Goede (2021-02-09 11:46:46)
-> > >>>>>>> Hi,
-> > >>>>>>>
-> > >>>>>>> On 2/9/21 12:27 AM, Chris Wilson wrote:
-> > >>>>>>>> Quoting Hans de Goede (2021-02-08 20:38:58)
-> > >>>>>>>>> Hi All,
-> > >>>>>>>>>
-> > >>>>>>>>> We (Fedora) have been receiving reports from multiple users about gfx issues / glitches
-> > >>>>>>>>> stating with 5.10.9. All reporters are users of Ivy Bridge / Haswell iGPUs and all
-> > >>>>>>>>> reporters report that adding i915.mitigations=off to the cmdline fixes things, see:
-> > >>>>>>>>
-> > >>>>>>>> I tried to reproduce this on the w/e on hsw-gt1, to no avail; and piglit
-> > >>>>>>>> did not report any differences with and without mitigations. I have yet
-> > >>>>>>>> to test other platforms. So I don't yet have an alternative.
-> > >>>>>>>
-> > >>>>>>> Note the original / first reporter of:
-> > >>>>>>>
-> > >>>>>>> https://bugzilla.redhat.com/show_bug.cgi?id=1925346
-> > >>>>>>>
-> > >>>>>>> Is using hsw-gt2, so it seems that the problem is not just the enabling of
-> > >>>>>>> the mitigations on ivy-bridge / bay-trail but that there actually is
-> > >>>>>>> a regression on devices where the WA worked fine before...
-> > >>>>>>
-> > >>>>>> There have been 3 crashes uploaded related to v5.10.9, and in all 3
-> > >>>>>> cases the ACTHD has been in the first page. This strongly suggests that
-> > >>>>>> the w/a is scribbling over address 0. And there's then a very good
-> > >>>>>> chance that
-> > >>>>>>
-> > >>>>>> commit 29d35b73ead4e41aa0d1a954c9bfbdce659ec5d6
-> > >>>>>> Author: Chris Wilson <chris@chris-wilson.co.uk>
-> > >>>>>> Date:   Mon Jan 25 12:50:33 2021 +0000
-> > >>>>>>
-> > >>>>>>     drm/i915/gt: Always try to reserve GGTT address 0x0
-> > >>>>>>     
-> > >>>>>>     commit 489140b5ba2e7cc4b853c29e0591895ddb462a82 upstream.
-> > >>>>>>
-> > >>>>>> in v5.10.14 is sufficient to hide the issue.
-> > >>>>>
-> > >>>>> That one actually is already in v5.10.13 and the various reportes of these
-> > >>>>> issues have already tested 5.10.13. They did mention that it took longer
-> > >>>>> to reproduce with 5.10.13 then with 5.10.10, but that could also be due to:
-> > >>>>>
-> > >>>>> "drm/i915/gt: Clear CACHE_MODE prior to clearing residuals"
-> > >>>>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.10.y&id=520d05a77b2866eb4cb9e548e1d8c8abcfe60ec5
-> > >>>>
-> > >>>> Started looking for scratch page overwrites, and found this little gem:
-> > >>>> https://patchwork.freedesktop.org/patch/420436/?series=86947&rev=1
-> > >>>>
-> > >>>> Looks promising wrt the cause of overwriting random addresses -- and
-> > >>>> I hope that is the explanation for the glitches/hangs. I have a hsw gt2
-> > >>>> with gnome shell, piglit is happy, but I suspect it is all due to
-> > >>>> placement and so will only occur at random.
-> > >>>
-> > >>> If you can give me a list of commits to cherry-pick then I can prepare
-> > >>> a Fedora 5.10.y kernel which those added for the group of Fedora users
-> > >>> who are hitting this to test.
-> > >>
-> > >> e627d5923cae ("drm/i915/gt: One more flush for Baytrail clear residuals")
-> > >> d30bbd62b1bf ("drm/i915/gt: Flush before changing register state")
-> > >> 1914911f4aa0 ("drm/i915/gt: Correct surface base address for renderclear")
-> > > 
-> > > Thanks, the test-kernel is building now. I will let you know when I have
-> > > heard back from the Fedora users (this will likely take 1-2 days).
-> > 
-> > I've heard back from 2 of the reporters who were seeing issues with 5.10.9+
-> > 
-> > And I'm happy to report 5.10.15 + the 3 commits mentioned above cherry-picked
-> > on top fixes the graphics glitches for them.
-> > 
-> > So if we can get these 3 commits into 5.10.y and 5.11.y then this should be
-> > resolved.
+On Mon, Mar 01, 2021 at 09:47:15AM +0530, Sumit Garg wrote:
+> Hi,
 > 
-> Great!
+> Please help ot backport commit: d54ce6158e35 ("kgdb: fix to kill
+> breakpoints on initmem after boot") to stable kernels. Below are
+> comments from kgdb/kdb maintainer in this thread [1]:
 > 
-> Hopefully these will show up in Linus's tree soon...
+> "BTW this is not Cc:ed to stable and I do wonder if it crosses the
+> threshold to be considered a fix rather than a feature. Normally I
+> consider adding safety rails for kgdb to be a new feature but, in this
+> case, the problem would easily ensnare an inexperienced developer who is
+> doing nothing more than debugging their own driver (assuming they
+> correctly marked their probe function as .init) so I think this weighs
+> in favour of being a fix."
+> 
+> [1] https://lkml.org/lkml/2021/2/25/516
 
-I think I have the needed 3 commits now.
+Now queued up to the 5.10 and 5.11 stable trees, thanks.
+
+greg k-h
