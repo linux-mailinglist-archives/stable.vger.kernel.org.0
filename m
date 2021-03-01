@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8266328F8A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D09F328F35
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242268AbhCATwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:52:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
+        id S241906AbhCATro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:47:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242202AbhCAToD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B54565285;
-        Mon,  1 Mar 2021 17:30:58 +0000 (UTC)
+        id S235798AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:36:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B233650FF;
+        Mon,  1 Mar 2021 17:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619858;
-        bh=JUnO/GnhXr0F5Kh2N1zUw2QEMreqFEMEf1hOYK+S6yU=;
+        s=korg; t=1614618127;
+        bh=/GNukFuwCRa0uUC0gEumB/aw0yyP/dXMPMVsIshgH3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fgVxRGLoTVQkV4RHZ6TgjX9zzeFE8sz90c80tw0RQp4oSsPYU5NmRggH65GYE87mQ
-         LbCRY1RH9L3UBNmPX0kYlbeIVNrmpgYtRZC7hdOPPD9oFy4O3+BTSmjqonkxLCMKUl
-         RgOwNAjZd0uhyyS1Ddn28jkmyzha14Vz5fUHzNew=
+        b=N75IpE6YggtJxqrWEMM2vMUEHvPVb5K0N5EGjFiFjm6+stH6vLpH/xGdw6Ca76veC
+         Bz8NErqn82BN84CUiTed5b3LOoPm+vmgmm0+UVbXsBFJVA7mHEzEEFqsTtkLz4G1H2
+         98Z0wQpbmgfRC7FAfH0zvvPq1lu9CaNHxz8v3kAo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shirley Her <shirley.her@bayhubtech.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 606/663] mmc: sdhci-pci-o2micro: Bug fix for SDR104 HW tuning failure
-Date:   Mon,  1 Mar 2021 17:14:14 +0100
-Message-Id: <20210301161211.834553281@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 316/340] um: mm: check more comprehensively for stub changes
+Date:   Mon,  1 Mar 2021 17:14:20 +0100
+Message-Id: <20210301161103.841774870@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shirley Her <shirley.her@bayhubtech.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 1ad9f88014ae1d5abccb6fe930bc4c5c311bdc05 upstream.
+commit 47da29763ec9a153b9b685bff9db659e4e09e494 upstream.
 
-Force chip enter L0 power state during SDR104 HW tuning to avoid tuning failure
+If userspace tries to change the stub, we need to kill it,
+because otherwise it can escape the virtual machine. In a
+few cases the stub checks weren't good, e.g. if userspace
+just tries to
 
-Signed-off-by: Shirley Her <shirley.her@bayhubtech.com>
-Link: https://lore.kernel.org/r/20210206014051.3418-1-shirley.her@bayhubtech.com
-Fixes: 7b7d897e8898 ("mmc: sdhci-pci-o2micro: Add HW tuning for SDR104 mode")
+	mmap(0x100000 - 0x1000, 0x3000, ...)
+
+it could succeed to get a new private/anonymous mapping
+replacing the stubs. Fix this by checking everywhere, and
+checking for _overlap_, not just direct changes.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 3963333fe676 ("uml: cover stubs with a VMA")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-o2micro.c |   20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/um/kernel/tlb.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-pci-o2micro.c
-+++ b/drivers/mmc/host/sdhci-pci-o2micro.c
-@@ -33,6 +33,8 @@
- #define O2_SD_ADMA2		0xE7
- #define O2_SD_INF_MOD		0xF1
- #define O2_SD_MISC_CTRL4	0xFC
-+#define O2_SD_MISC_CTRL		0x1C0
-+#define O2_SD_PWR_FORCE_L0	0x0002
- #define O2_SD_TUNING_CTRL	0x300
- #define O2_SD_PLL_SETTING	0x304
- #define O2_SD_MISC_SETTING	0x308
-@@ -300,6 +302,8 @@ static int sdhci_o2_execute_tuning(struc
- {
- 	struct sdhci_host *host = mmc_priv(mmc);
- 	int current_bus_width = 0;
-+	u32 scratch32 = 0;
-+	u16 scratch = 0;
+--- a/arch/um/kernel/tlb.c
++++ b/arch/um/kernel/tlb.c
+@@ -126,6 +126,9 @@ static int add_mmap(unsigned long virt,
+ 	struct host_vm_op *last;
+ 	int fd = -1, ret = 0;
  
- 	/*
- 	 * This handler only implements the eMMC tuning that is specific to
-@@ -312,6 +316,17 @@ static int sdhci_o2_execute_tuning(struc
- 	if (WARN_ON((opcode != MMC_SEND_TUNING_BLOCK_HS200) &&
- 			(opcode != MMC_SEND_TUNING_BLOCK)))
++	if (virt + len > STUB_START && virt < STUB_END)
++		return -EINVAL;
++
+ 	if (hvc->userspace)
+ 		fd = phys_mapping(phys, &offset);
+ 	else
+@@ -163,7 +166,7 @@ static int add_munmap(unsigned long addr
+ 	struct host_vm_op *last;
+ 	int ret = 0;
+ 
+-	if ((addr >= STUB_START) && (addr < STUB_END))
++	if (addr + len > STUB_START && addr < STUB_END)
  		return -EINVAL;
-+
-+	/* Force power mode enter L0 */
-+	scratch = sdhci_readw(host, O2_SD_MISC_CTRL);
-+	scratch |= O2_SD_PWR_FORCE_L0;
-+	sdhci_writew(host, scratch, O2_SD_MISC_CTRL);
-+
-+	/* wait DLL lock, timeout value 5ms */
-+	if (readx_poll_timeout(sdhci_o2_pll_dll_wdt_control, host,
-+		scratch32, (scratch32 & O2_DLL_LOCK_STATUS), 1, 5000))
-+		pr_warn("%s: DLL can't lock in 5ms after force L0 during tuning.\n",
-+				mmc_hostname(host->mmc));
- 	/*
- 	 * Judge the tuning reason, whether caused by dll shift
- 	 * If cause by dll shift, should call sdhci_o2_dll_recovery
-@@ -344,6 +359,11 @@ static int sdhci_o2_execute_tuning(struc
- 		sdhci_set_bus_width(host, current_bus_width);
- 	}
  
-+	/* Cancel force power mode enter L0 */
-+	scratch = sdhci_readw(host, O2_SD_MISC_CTRL);
-+	scratch &= ~(O2_SD_PWR_FORCE_L0);
-+	sdhci_writew(host, scratch, O2_SD_MISC_CTRL);
-+
- 	sdhci_reset(host, SDHCI_RESET_CMD);
- 	sdhci_reset(host, SDHCI_RESET_DATA);
+ 	if (hvc->index != 0) {
+@@ -193,6 +196,9 @@ static int add_mprotect(unsigned long ad
+ 	struct host_vm_op *last;
+ 	int ret = 0;
  
++	if (addr + len > STUB_START && addr < STUB_END)
++		return -EINVAL;
++
+ 	if (hvc->index != 0) {
+ 		last = &hvc->ops[hvc->index - 1];
+ 		if ((last->type == MPROTECT) &&
+@@ -433,6 +439,10 @@ void flush_tlb_page(struct vm_area_struc
+ 	struct mm_id *mm_id;
+ 
+ 	address &= PAGE_MASK;
++
++	if (address >= STUB_START && address < STUB_END)
++		goto kill;
++
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+ 		goto kill;
 
 
