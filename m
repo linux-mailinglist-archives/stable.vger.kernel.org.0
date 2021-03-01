@@ -2,116 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EB1327F55
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:22:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E360327F67
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:26:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235282AbhCANWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:22:01 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:45053 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235387AbhCANWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:22:00 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.nyi.internal (Postfix) with ESMTP id 43EA05C00C2;
-        Mon,  1 Mar 2021 08:21:14 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 01 Mar 2021 08:21:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=rhXaCrKGBrwKHgr4ALQuoS3wuzW
-        8zZ5ehlsEWxHaNhA=; b=BkJABv/UN0FesDTDJ375bWUXO3ZJDTRQBTdPgj6wMm4
-        dQkr3/DWyRSVUWZ/vffzW3Xy0TzWwdHYchsTRCEVElBAwgd7mt5xCzUFdWf4uGrJ
-        U3uRrOUCysVt4ZhqTxZ2eUbmBkvwEQgJ+/OSLOK69o/NpaCpft4tMEdtUSrAzgmj
-        kX6IJyiXm/J0lWb4T92z6D8ilGaHV4cXWCZMQTUG6r56uyGdi6vqhX48/98RG8Sk
-        XffXAMZGODUbgrymtIFFnUhWayBbsxCmPvTT314jNM1gMlfy0EXOLrlg80q+QM00
-        6LuLkcmI8iRn01SXNFBFN0mBdgSnhfQX0i/891HCaYw==
+        id S235657AbhCANZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:25:01 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41167 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235614AbhCANY0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:24:26 -0500
+Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1F1F319419E5;
+        Mon,  1 Mar 2021 08:23:17 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute7.internal (MEProxy); Mon, 01 Mar 2021 08:23:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rhXaCr
-        KGBrwKHgr4ALQuoS3wuzW8zZ5ehlsEWxHaNhA=; b=NxpqRKOpbDfQ8GbIn+h41L
-        TdrRSO5j9g+5E16q2RElredigI1eoVx+Zmfy5VJ0Wj25E23otkwT9tF/W/sdZ50Z
-        7InNXg75QOjMG6GZ865BpQ9R7dEUcg95nAYF7G8j/rk+iFfzVFBpiOl/QDbKWaTA
-        IRCYB1YPEZ+5gRQsItcyC6KZbXpy22g2IsVX3ho2xgeLIMgLLVnXqvNtQEnpcJCJ
-        TZ55CuTBXwPr6yLxromS3cu54yx5af+NSTNQf1hxiqi7zYc+WAzmWErf+KsMIfpz
-        8cCxXZB/8EPwnYiuEiSbieijqxrVYyy/z7D4ACzyMy4NjS1imSCQ88iu27lf+prw
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0yshrg
+        MKdu4yKqsqEZ5RP2CtVx066Il2Am3xv2cN8X8=; b=rlN9VoaOpUaF5KbhCLudGs
+        ZEMhaPX3BKiMgkqPiYPIR9R18/iI4OA+MK9F3ll1z/SXm7qeDmF5Yvuu4L7Xml3F
+        tf/ULqBVXqenexCRf6nYF187u5YMRWSLfieB4vUZleUFQf7PXB58LKpYEyPb3aib
+        WvBQdNRryXM4DPqziTD+ASROzLESBIQxUQBuwfK5ri5U7BSGFy/SLMk83Q2jdc06
+        tkwbGFTS6+k7cU2xb3KoDheEjPLiM01w3ayL66a5y/sKCfXyRQdrxNt6hCq4UMA7
+        dhijWDCGK37N+zTa4ybyjb+SkaUfUBzWITLq3oLkTMoiVenE7wQ7uQhE5Cq5tm2A
         ==
-X-ME-Sender: <xms:Seo8YCwG31WgI0sxk7i6cmiVEBF01zEiWcPHVQg4n9ooBw5PNC914A>
-    <xme:Seo8YMNwSh4oXOhzAdK-zr4ZMPWjuR-UdIhFJdr9aXvY__cq2MMCM4wWWdTLz4NMj
-    qGWLH4g0JQP8A>
+X-ME-Sender: <xms:xOo8YBeELEpgHy8B-BzjiL8n5C3HtsOztZoxEpTVcjsE7bwDZwRZMA>
+    <xme:xOo8YDfd-evTRQdGSp769qHNmvvJkDoSAu84pfDjF5Skbo1k7pQNNCA-X21EHOpSt
+    18I0qMqnWHwKw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehtdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilh
-    hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:Seo8YGp2NsxXdcSbKdH5j12O87rU5iaQkifnn7mHT_f4LQIsXPQ23Q>
-    <xmx:Seo8YNEBD0A-0yrOQtdS8pLrpptsAl9tHyDWdaQfkpn6em4AgHOqJw>
-    <xmx:Seo8YLr7npAroytpOdWbOCCyGEcQnIi0eOKrj_6ssenjFqLeOYIKag>
-    <xmx:Suo8YIdtGGfGVtPheP9anTG-Svk-w5QZAi6RGWo0FMgI1IhZSWW4ew>
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
+    fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:xOo8YFiHgVhSRIYjLZclx4NSW-tUU-k9NQwa_xh2RNpC42yLsbBkTA>
+    <xmx:xOo8YPS53jJTulrsQKF63F0jtjGoR_qySlHJgEhvAQiJMMFQB8dyVQ>
+    <xmx:xOo8YGwEaqFC6N_jwRyzmHFdwDzcQkWPG6NwMHiSQxGA8P0BvyAWqw>
+    <xmx:xeo8YN0X2h7xpl9k3teTejR8EiK1uBu5CeZ3FXsoGx2Dupg1Dnr77NLRVXc>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6E25D1080064;
-        Mon,  1 Mar 2021 08:21:13 -0500 (EST)
-Date:   Mon, 1 Mar 2021 14:21:11 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Petr Mladek <pmladek@suse.com>
-Cc:     stable@vger.kernel.org, John Ogness <john.ogness@linutronix.de>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "J. Avila" <elavila@google.com>,
-        kernel test robot <oliver.sang@intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] printk: avoid prb_first_valid_seq() where possible
-Message-ID: <YDzqR2u3c3lC8YWv@kroah.com>
-References: <20210211173152.1629-1-john.ogness@linutronix.de>
- <YDTEls/iLBQEtTTn@alley>
+        by mail.messagingengine.com (Postfix) with ESMTPA id C014D24005C;
+        Mon,  1 Mar 2021 08:23:15 -0500 (EST)
+Subject: FAILED: patch "[PATCH] kcmp: Support selection of SYS_kcmp without" failed to apply to 5.4-stable tree
+To:     chris@chris-wilson.co.uk, airlied@gmail.com,
+        akpm@linux-foundation.org, daniel.vetter@ffwll.ch, daniel@ffwll.ch,
+        gorcunov@gmail.com, keescook@chromium.org, l.stach@pengutronix.de,
+        linux@rasmusvillemoes.dk, luto@amacapital.net, tzimmermann@suse.de,
+        wad@chromium.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 01 Mar 2021 14:23:13 +0100
+Message-ID: <161460499374173@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YDTEls/iLBQEtTTn@alley>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 10:02:14AM +0100, Petr Mladek wrote:
-> On Thu 2021-02-11 18:37:52, John Ogness wrote:
-> > If message sizes average larger than expected (more than 32
-> > characters), the data_ring will wrap before the desc_ring. Once the
-> > data_ring wraps, it will start invalidating descriptors. These
-> > invalid descriptors hang around until they are eventually recycled
-> > when the desc_ring wraps. Readers do not care about invalid
-> > descriptors, but they still need to iterate past them. If the
-> > average message size is much larger than 32 characters, then there
-> > will be many invalid descriptors preceding the valid descriptors.
-> > 
-> > The function prb_first_valid_seq() always begins at the oldest
-> > descriptor and searches for the first valid descriptor. This can
-> > be rather expensive for the above scenario. And, in fact, because
-> > of its heavy usage in /dev/kmsg, there have been reports of long
-> > delays and even RCU stalls.
-> > 
-> > For code that does not need to search from the oldest record,
-> > replace prb_first_valid_seq() usage with prb_read_valid_*()
-> > functions, which provide a start sequence number to search from.
-> > 
-> > Fixes: 896fbe20b4e2333fb55 ("printk: use the lockless ringbuffer")
-> > Reported-by: kernel test robot <oliver.sang@intel.com>
-> > Reported-by: J. Avila <elavila@google.com>
-> > Signed-off-by: John Ogness <john.ogness@linutronix.de>
-> 
-> Could you please push this fix into the stable releases
-> based on 5.10 and 5.11, please?
-> 
-> The patch fixes a visible performance regression. It has
-> landed in the mainline as the commit
-> 13791c80b0cdf54d92fc542 ("printk: avoid prb_first_valid_seq() where
-> possible").
-> 
-> It should apply cleanly.
 
-Already queued up, thanks.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From bfe3911a91047557eb0e620f95a370aee6a248c7 Mon Sep 17 00:00:00 2001
+From: Chris Wilson <chris@chris-wilson.co.uk>
+Date: Fri, 5 Feb 2021 22:00:12 +0000
+Subject: [PATCH] kcmp: Support selection of SYS_kcmp without
+ CHECKPOINT_RESTORE
+
+Userspace has discovered the functionality offered by SYS_kcmp and has
+started to depend upon it. In particular, Mesa uses SYS_kcmp for
+os_same_file_description() in order to identify when two fd (e.g. device
+or dmabuf) point to the same struct file. Since they depend on it for
+core functionality, lift SYS_kcmp out of the non-default
+CONFIG_CHECKPOINT_RESTORE into the selectable syscall category.
+
+Rasmus Villemoes also pointed out that systemd uses SYS_kcmp to
+deduplicate the per-service file descriptor store.
+
+Note that some distributions such as Ubuntu are already enabling
+CHECKPOINT_RESTORE in their configs and so, by extension, SYS_kcmp.
+
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3046
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dave Airlie <airlied@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> # DRM depends on kcmp
+Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk> # systemd uses kcmp
+Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210205220012.1983-1-chris@chris-wilson.co.uk
+
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 0973f408d75f..af6c6d214d91 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -15,6 +15,9 @@ menuconfig DRM
+ 	select I2C_ALGOBIT
+ 	select DMA_SHARED_BUFFER
+ 	select SYNC_FILE
++# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
++# device and dmabuf fd. Let's make sure that is available for our userspace.
++	select KCMP
+ 	help
+ 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+ 	  introduced in XFree86 4.0. If you say Y here, you need to select
+diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+index a829af074eb5..3196474cbe24 100644
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -979,7 +979,7 @@ static struct epitem *ep_find(struct eventpoll *ep, struct file *file, int fd)
+ 	return epir;
+ }
+ 
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
+ {
+ 	struct rb_node *rbp;
+@@ -1021,7 +1021,7 @@ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd,
+ 
+ 	return file_raw;
+ }
+-#endif /* CONFIG_CHECKPOINT_RESTORE */
++#endif /* CONFIG_KCMP */
+ 
+ /**
+  * Adds a new entry to the tail of the list in a lockless way, i.e.
+diff --git a/include/linux/eventpoll.h b/include/linux/eventpoll.h
+index 0350393465d4..593322c946e6 100644
+--- a/include/linux/eventpoll.h
++++ b/include/linux/eventpoll.h
+@@ -18,7 +18,7 @@ struct file;
+ 
+ #ifdef CONFIG_EPOLL
+ 
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd, unsigned long toff);
+ #endif
+ 
+diff --git a/init/Kconfig b/init/Kconfig
+index 29ad68325028..b7d3c6a12196 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1193,6 +1193,7 @@ endif # NAMESPACES
+ config CHECKPOINT_RESTORE
+ 	bool "Checkpoint/restore support"
+ 	select PROC_CHILDREN
++	select KCMP
+ 	default n
+ 	help
+ 	  Enables additional kernel features in a sake of checkpoint/restore.
+@@ -1736,6 +1737,16 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
+ config ARCH_HAS_MEMBARRIER_SYNC_CORE
+ 	bool
+ 
++config KCMP
++	bool "Enable kcmp() system call" if EXPERT
++	help
++	  Enable the kernel resource comparison system call. It provides
++	  user-space with the ability to compare two processes to see if they
++	  share a common resource, such as a file descriptor or even virtual
++	  memory space.
++
++	  If unsure, say N.
++
+ config RSEQ
+ 	bool "Enable rseq() system call" if EXPERT
+ 	default y
+diff --git a/kernel/Makefile b/kernel/Makefile
+index aa7368c7eabf..320f1f3941b7 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -51,7 +51,7 @@ obj-y += livepatch/
+ obj-y += dma/
+ obj-y += entry/
+ 
+-obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
++obj-$(CONFIG_KCMP) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+diff --git a/tools/testing/selftests/seccomp/seccomp_bpf.c b/tools/testing/selftests/seccomp/seccomp_bpf.c
+index 26c72f2b61b1..1b6c7d33c4ff 100644
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -315,7 +315,7 @@ TEST(kcmp)
+ 	ret = __filecmp(getpid(), getpid(), 1, 1);
+ 	EXPECT_EQ(ret, 0);
+ 	if (ret != 0 && errno == ENOSYS)
+-		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_CHECKPOINT_RESTORE?)");
++		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_KCMP?)");
+ }
+ 
+ TEST(mode_strict_support)
+
