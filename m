@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5176B328B11
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EC88328A70
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239930AbhCAS17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:27:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39686 "EHLO mail.kernel.org"
+        id S239573AbhCASRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:17:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239763AbhCASWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:22:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68C6665148;
-        Mon,  1 Mar 2021 17:04:44 +0000 (UTC)
+        id S239121AbhCASJW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:09:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EDE465149;
+        Mon,  1 Mar 2021 17:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618284;
-        bh=lmSM0n8siN8+vSOfprrYX0alrU89oLxHOxywOPrgswM=;
+        s=korg; t=1614618287;
+        bh=8JMErj/tbuu+TqqPZo8l4d/F5jzJozgU4KNy7irLKlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0RDehDHOEmIEOnaPf3/5XWziEC4YlyttqaD9UCzPsnLPnQ5P1pb56qLpcAJBOd7I
-         b1unkKT+/X+9HbbBmim2k6DPkoTNYT7Qkk/AxTI4VIrsm7kZunlqxz/0cpus5gHprK
-         TYxymNUI4uIMpCQrsEoLHXwCRirLO+cQK17HOaIU=
+        b=2g4B3CiZT4yp9a8I1pKMgBdodSgBbEwc6EcEFtQUu6XvffzWZKH7FURsqyTJju32C
+         9sL2O2jp+aw6zP0E7R21jwS1CA3g2HccBwME4eHpdJc2jQAh/RgLQ36l3OZwfhfssD
+         OL2J8vNYOa8e/HgJn/EzWQQ44fmga4PFwu4JQwdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Michael Walle <michael@walle.cc>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 004/663] debugfs: do not attempt to create a new file before the filesystem is initalized
-Date:   Mon,  1 Mar 2021 17:04:12 +0100
-Message-Id: <20210301161141.994896453@linuxfoundation.org>
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 005/663] scsi: libsas: docs: Remove notify_ha_event()
+Date:   Mon,  1 Mar 2021 17:04:13 +0100
+Message-Id: <20210301161142.044432864@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,36 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ahmed S. Darwish <a.darwish@linutronix.de>
 
-commit 56348560d495d2501e87db559a61de717cd3ab02 upstream.
+commit 3f901c81dfad6930de5d4e6b582c4fde880cdada upstream.
 
-Some subsystems want to add debugfs files at early boot, way before
-debugfs is initialized.  This seems to work somehow as the vfs layer
-will not allow it to happen, but let's be explicit and test to ensure we
-are properly up and running before allowing files to be created.
+The ->notify_ha_event() hook has long been removed from the libsas event
+interface.
 
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Michael Walle <michael@walle.cc>
-Reported-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210218100818.3622317-2-gregkh@linuxfoundation.org
+Remove it from documentation.
+
+Link: https://lore.kernel.org/r/20210118100955.1761652-2-a.darwish@linutronix.de
+Fixes: 042ebd293b86 ("scsi: libsas: kill useless ha_event and do some cleanup")
+Cc: stable@vger.kernel.org
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/inode.c |    3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/scsi/libsas.rst |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -318,6 +318,9 @@ static struct dentry *start_creating(con
- 	if (!(debugfs_allow & DEBUGFS_ALLOW_API))
- 		return ERR_PTR(-EPERM);
+--- a/Documentation/scsi/libsas.rst
++++ b/Documentation/scsi/libsas.rst
+@@ -189,7 +189,6 @@ num_phys
+ The event interface::
  
-+	if (!debugfs_initialized())
-+		return ERR_PTR(-ENOENT);
-+
- 	pr_debug("creating file '%s'\n", name);
+ 	/* LLDD calls these to notify the class of an event. */
+-	void (*notify_ha_event)(struct sas_ha_struct *, enum ha_event);
+ 	void (*notify_port_event)(struct sas_phy *, enum port_event);
+ 	void (*notify_phy_event)(struct sas_phy *, enum phy_event);
  
- 	if (IS_ERR(parent))
 
 
