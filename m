@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 386BB329228
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 320A232922A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:42:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237543AbhCAUkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:40:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        id S238888AbhCAUkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:40:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243543AbhCAUda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:33:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 643A1650F9;
-        Mon,  1 Mar 2021 18:09:21 +0000 (UTC)
+        id S243585AbhCAUdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:33:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 113E764F14;
+        Mon,  1 Mar 2021 18:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622162;
-        bh=aWTIFM4NeP3t/+9+xymvdY5JiY10QtUC0TL3TErd+j4=;
+        s=korg; t=1614622164;
+        bh=FhAFLmwM6AvDOXjxWIIAupJmFYCg7bsnc/EYF2o4LeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMIkk4JSA7iutt1VJsx2UknGMWqqy9LUUA8PvQZ4chZCVZMK2B//kXM/0QwseunNM
-         +Hx2fBvAAeFZR4WAKLjxCT6Oon4ygKF9xerhr23tpMfs0DDxKObRFo09+7HIjDT9sN
-         SWZ7QLZCPe7miuPwJ+PYNK44QGeY48+QNEjciTf0=
+        b=iarBYFHGZHJl2Fur979bLRwv8PC4KdasVBvPmQRc8WPOfme6yIq4rwyxlEGTFsgW3
+         o8uSe4qXKErg5ykRr9ukpUJX04IBdSVihb4EFUwZAZ2xzUaednFV59xeRCGCbfpFME
+         Ee/wqjuX4RDnikQq3uI3BpdQx6lAaA4WA68zmC28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
         Ming-Hung Tsai <mtsai@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 763/775] dm era: Fix bitset memory leaks
-Date:   Mon,  1 Mar 2021 17:15:31 +0100
-Message-Id: <20210301161239.024902514@linuxfoundation.org>
+Subject: [PATCH 5.11 764/775] dm era: Use correct value size in equality function of writeset tree
+Date:   Mon,  1 Mar 2021 17:15:32 +0100
+Message-Id: <20210301161239.067476921@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,10 +42,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 904e6b266619c2da5c58b5dce14ae30629e39645 upstream.
+commit 64f2d15afe7b336aafebdcd14cc835ecf856df4b upstream.
 
-Deallocate the memory allocated for the in-core bitsets when destroying
-the target and in error paths.
+Fix the writeset tree equality test function to use the right value size
+when comparing two btree values.
 
 Fixes: eec40579d84873 ("dm: add era target")
 Cc: stable@vger.kernel.org # v3.15+
@@ -54,44 +54,19 @@ Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/md/dm-era-target.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/md/dm-era-target.c
 +++ b/drivers/md/dm-era-target.c
-@@ -47,6 +47,7 @@ struct writeset {
- static void writeset_free(struct writeset *ws)
+@@ -389,7 +389,7 @@ static void ws_dec(void *context, const
+ 
+ static int ws_eq(void *context, const void *value1, const void *value2)
  {
- 	vfree(ws->bits);
-+	ws->bits = NULL;
+-	return !memcmp(value1, value2, sizeof(struct writeset_metadata));
++	return !memcmp(value1, value2, sizeof(struct writeset_disk));
  }
  
- static int setup_on_disk_bitset(struct dm_disk_bitset *info,
-@@ -811,6 +812,8 @@ static struct era_metadata *metadata_ope
- 
- static void metadata_close(struct era_metadata *md)
- {
-+	writeset_free(&md->writesets[0]);
-+	writeset_free(&md->writesets[1]);
- 	destroy_persistent_data_objects(md);
- 	kfree(md);
- }
-@@ -848,6 +851,7 @@ static int metadata_resize(struct era_me
- 	r = writeset_alloc(&md->writesets[1], *new_size);
- 	if (r) {
- 		DMERR("%s: writeset_alloc failed for writeset 1", __func__);
-+		writeset_free(&md->writesets[0]);
- 		return r;
- 	}
- 
-@@ -858,6 +862,8 @@ static int metadata_resize(struct era_me
- 			    &value, &md->era_array_root);
- 	if (r) {
- 		DMERR("%s: dm_array_resize failed", __func__);
-+		writeset_free(&md->writesets[0]);
-+		writeset_free(&md->writesets[1]);
- 		return r;
- 	}
- 
+ /*----------------------------------------------------------------*/
 
 
