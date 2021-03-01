@@ -2,32 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BE423284C7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0D13284C0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235092AbhCAQnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:43:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42634 "EHLO mail.kernel.org"
+        id S234967AbhCAQmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232156AbhCAQgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:36:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D22D64F71;
-        Mon,  1 Mar 2021 16:26:12 +0000 (UTC)
+        id S231990AbhCAQfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:35:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD6964F73;
+        Mon,  1 Mar 2021 16:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615973;
-        bh=5p7IqPtrReJyFbU0donFcl0MxdLF+HiORrh/WDgwiK4=;
+        s=korg; t=1614615975;
+        bh=WNCAVJ/vKWgsoYvC6iBp3ixDnLPffgkpsBXKWvHyhE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBz4Oxr6cA9UaHh7lsIp8H1ceo3g5yct9V3cPHmHr6j3H2/0XieOaFn6wlnhKLncT
-         Ix55C/RO+tzgy8kQiv6cdW1IwhEvcu0XEIa1BIhA6hM3MKvFlRUtFUrFT6Yyhk84Av
-         h0/yexDQFw04B81lxtt16txGhWKc5W/HyaA2S6nQ=
+        b=zDcB5NFif/RKALqbInoGhMGxFyqjnWRqqoQHYQLtcLJ6aylSy7SbNtMFtNA8esfNw
+         lQ98tU3u4VwYx+VDNc+99p7dzByzMRm8OtYzZ6sG1VLoT29ZS45RYjgcBJXZVZ8PWX
+         xYx2bAu8j/1PISvsTDCbwxO/+NxkiYeAy2n9VgNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 125/134] dm era: only resize metadata in preresume
-Date:   Mon,  1 Mar 2021 17:13:46 +0100
-Message-Id: <20210301161019.739681109@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Dave Jones <davej@codemonkey.org.uk>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@us.ibm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 4.9 126/134] futex: Fix OWNER_DEAD fixup
+Date:   Mon,  1 Mar 2021 17:13:47 +0100
+Message-Id: <20210301161019.791353827@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -39,80 +47,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit cca2c6aebe86f68103a8615074b3578e854b5016 upstream.
+commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
 
-Metadata resize shouldn't happen in the ctr. The ctr loads a temporary
-(inactive) table that will only become active upon resume. That is why
-resize should always be done in terms of resume. Otherwise a load (ctr)
-whose inactive table never becomes active will incorrectly resize the
-metadata.
+Both Geert and DaveJ reported that the recent futex commit:
 
-Also, perform the resize directly in preresume, instead of using the
-worker to do it.
+  c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
 
-The worker might run other metadata operations, e.g., it could start
-digestion, before resizing the metadata. These operations will end up
-using the old size.
+introduced a problem with setting OWNER_DEAD. We set the bit on an
+uninitialized variable and then entirely optimize it away as a
+dead-store.
 
-This could lead to errors, like:
+Move the setting of the bit to where it is more useful.
 
-  device-mapper: era: metadata_digest_transcribe_writeset: dm_array_set_value failed
-  device-mapper: era: process_old_eras: digest step failed, stopping digestion
-
-The reason of the above error is that the worker started the digestion
-of the archived writeset using the old, larger size.
-
-As a result, metadata_digest_transcribe_writeset tried to write beyond
-the end of the era array.
-
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: Dave Jones <davej@codemonkey.org.uk>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@us.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ kernel/futex.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -1502,15 +1502,6 @@ static int era_ctr(struct dm_target *ti,
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -2424,9 +2424,6 @@ static int __fixup_pi_state_owner(u32 __
+ 	int err = 0;
+ 
+ 	oldowner = pi_state->owner;
+-	/* Owner died? */
+-	if (!pi_state->owner)
+-		newtid |= FUTEX_OWNER_DIED;
+ 
+ 	/*
+ 	 * We are here because either:
+@@ -2484,6 +2481,9 @@ retry:
  	}
- 	era->md = md;
  
--	era->nr_blocks = calc_nr_blocks(era);
--
--	r = metadata_resize(era->md, &era->nr_blocks);
--	if (r) {
--		ti->error = "couldn't resize metadata";
--		era_destroy(era);
--		return -ENOMEM;
--	}
--
- 	era->wq = alloc_ordered_workqueue("dm-" DM_MSG_PREFIX, WQ_MEM_RECLAIM);
- 	if (!era->wq) {
- 		ti->error = "could not create workqueue for metadata object";
-@@ -1588,9 +1579,17 @@ static int era_preresume(struct dm_targe
- 	dm_block_t new_size = calc_nr_blocks(era);
+ 	newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
++	/* Owner died? */
++	if (!pi_state->owner)
++		newtid |= FUTEX_OWNER_DIED;
  
- 	if (era->nr_blocks != new_size) {
--		r = in_worker1(era, metadata_resize, &new_size);
--		if (r)
-+		r = metadata_resize(era->md, &new_size);
-+		if (r) {
-+			DMERR("%s: metadata_resize failed", __func__);
-+			return r;
-+		}
-+
-+		r = metadata_commit(era->md);
-+		if (r) {
-+			DMERR("%s: metadata_commit failed", __func__);
- 			return r;
-+		}
- 
- 		era->nr_blocks = new_size;
- 	}
+ 	if (get_futex_value_locked(&uval, uaddr))
+ 		goto handle_fault;
 
 
