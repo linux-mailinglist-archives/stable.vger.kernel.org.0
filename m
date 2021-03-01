@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8F03287D4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 726B63287CE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238542AbhCAR2z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:28:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48864 "EHLO mail.kernel.org"
+        id S238527AbhCAR2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238245AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238249AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:24:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A12A65073;
-        Mon,  1 Mar 2021 16:48:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E2465068;
+        Mon,  1 Mar 2021 16:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617328;
-        bh=573bljVzYWhD4ui2+AHihux+rb4jvs/sMGde0ArCrUE=;
+        s=korg; t=1614617331;
+        bh=LhcZVeNCRJS1Z6vXuuq/RF6MV1TwjipyFenDsbvlGMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CmIwShcqa3V/rGsR8zFGTzRBebSkmBTEGnvfW+r9ZH1MfYPBiOjIyWfC2RmIAt9WN
-         5JVGyw2hGrqFTUeFsWCzH4oVrTQ+vf5siwcwXv2gqLPcGBR9dJVrk2Kvn+z0m7t2OH
-         esE+KK2N+WYJgFuUum9xGKmf9jKWPucoavh+ldXM=
+        b=1BRd3kAuUxlJ/IQ0F1kPn1f9oTPlWKlKrRy4xVSl/YLhoX3zMyWRfKXiwuJLydIwF
+         6gkbA9eWF7bKSkNzVi2dVt039rVLvvZYDH6ypWdGVHpLqncm5HbAiC7ZapUXK9ik4O
+         b8W0PN3paQhS9K5rxgRuAMSDxHe8VxRJJund+h3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ludovic Pouzenc <bugreports@pouzenc.fr>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.4 008/340] virt: vbox: Do not use wait_event_interruptible when called from kernel context
-Date:   Mon,  1 Mar 2021 17:09:12 +0100
-Message-Id: <20210301161048.717006737@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 009/340] bfq: Avoid false bfq queue merging
+Date:   Mon,  1 Mar 2021 17:09:13 +0100
+Message-Id: <20210301161048.765559820@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -39,66 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-commit c35901b39ddc20077f4ae7b9f7bf344487f62212 upstream.
+commit 41e76c85660c022c6bf5713bfb6c21e64a487cec upstream.
 
-Do not use wait_event_interruptible when vbg_hgcm_call() gets called from
-kernel-context, such as it being called by the vboxsf filesystem code.
+bfq_setup_cooperator() uses bfqd->in_serv_last_pos so detect whether it
+makes sense to merge current bfq queue with the in-service queue.
+However if the in-service queue is freshly scheduled and didn't dispatch
+any requests yet, bfqd->in_serv_last_pos is stale and contains value
+from the previously scheduled bfq queue which can thus result in a bogus
+decision that the two queues should be merged. This bug can be observed
+for example with the following fio jobfile:
 
-This fixes some filesystem related system calls on shared folders
-unexpectedly failing with -EINTR.
+[global]
+direct=0
+ioengine=sync
+invalidate=1
+size=1g
+rw=read
 
-Fixes: 0532a1b0d045 ("virt: vbox: Implement passing requestor info to the host for VirtualBox 6.0.x")
-Reported-by: Ludovic Pouzenc <bugreports@pouzenc.fr>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210121150754.147598-1-hdegoede@redhat.com
+[reader]
+numjobs=4
+directory=/mnt
+
+where the 4 processes will end up in the one shared bfq queue although
+they do IO to physically very distant files (for some reason I was able to
+observe this only with slice_idle=1ms setting).
+
+Fix the problem by invalidating bfqd->in_serv_last_pos when switching
+in-service queue.
+
+Fixes: 058fdecc6de7 ("block, bfq: fix in-service-queue check for queue merging")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Acked-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virt/vboxguest/vboxguest_utils.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ block/bfq-iosched.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/virt/vboxguest/vboxguest_utils.c
-+++ b/drivers/virt/vboxguest/vboxguest_utils.c
-@@ -466,7 +466,7 @@ static int hgcm_cancel_call(struct vbg_d
-  *               Cancellation fun.
-  */
- static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
--			    u32 timeout_ms, bool *leak_it)
-+			    u32 timeout_ms, bool interruptible, bool *leak_it)
- {
- 	int rc, cancel_rc, ret;
- 	long timeout;
-@@ -493,10 +493,15 @@ static int vbg_hgcm_do_call(struct vbg_d
- 	else
- 		timeout = msecs_to_jiffies(timeout_ms);
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2937,6 +2937,7 @@ static void __bfq_set_in_service_queue(s
+ 	}
  
--	timeout = wait_event_interruptible_timeout(
--					gdev->hgcm_wq,
--					hgcm_req_done(gdev, &call->header),
--					timeout);
-+	if (interruptible) {
-+		timeout = wait_event_interruptible_timeout(gdev->hgcm_wq,
-+							   hgcm_req_done(gdev, &call->header),
-+							   timeout);
-+	} else {
-+		timeout = wait_event_timeout(gdev->hgcm_wq,
-+					     hgcm_req_done(gdev, &call->header),
-+					     timeout);
-+	}
+ 	bfqd->in_service_queue = bfqq;
++	bfqd->in_serv_last_pos = 0;
+ }
  
- 	/* timeout > 0 means hgcm_req_done has returned true, so success */
- 	if (timeout > 0)
-@@ -629,7 +634,8 @@ int vbg_hgcm_call(struct vbg_dev *gdev,
- 	hgcm_call_init_call(call, client_id, function, parms, parm_count,
- 			    bounce_bufs);
- 
--	ret = vbg_hgcm_do_call(gdev, call, timeout_ms, &leak_it);
-+	ret = vbg_hgcm_do_call(gdev, call, timeout_ms,
-+			       requestor & VMMDEV_REQUESTOR_USERMODE, &leak_it);
- 	if (ret == 0) {
- 		*vbox_status = call->header.result;
- 		ret = hgcm_call_copy_back_result(call, parms, parm_count,
+ /*
 
 
