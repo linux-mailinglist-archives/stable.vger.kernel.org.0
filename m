@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64C8C32844B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5D3328541
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232965AbhCAQdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:33:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59986 "EHLO mail.kernel.org"
+        id S233706AbhCAQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:51:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232056AbhCAQ2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:28:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E54664EED;
-        Mon,  1 Mar 2021 16:22:30 +0000 (UTC)
+        id S235343AbhCAQoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:44:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD8A64F95;
+        Mon,  1 Mar 2021 16:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615750;
-        bh=+nZLZ+8DU1bB546hofKiUfN1z70R/SeU+DeYtpUD6Us=;
+        s=korg; t=1614616217;
+        bh=Pn/xEOSDGvfv3cEvCt0FwdYMiBKRHGTfSDwgp9tT+Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SfLaXZSoMqQVls52MJN2X5+Yfzd1KbtxHjsI+REdh/uJkDUVExoXoLY69ziZq4PcL
-         J8Yz9l93vuHR2pkKvQnDX2NXx4n2B87MqO8vvlSmP+ft5L9/+cTi9eSbKDfcY7YBOX
-         LjsMv0SmU/Tad4dZtKcV4w7hMGwNOVFFkwf8Z9Z0=
+        b=R6/JEepX0ZjDIO9Vvp4vQZLvZ5mmkUKUekwvaox2kGBbVTgcDuLSauyACRoJUSjXY
+         CnJ9Op2TVo9qY9ktOBuDHTiDkzz5jVWdzQedUr78jAt5ayekhiU1V09TWVhZRYNPrY
+         m/9flmy/CRKA4GZQ9TY1Ec/AmPV1qgujF+REwCPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/134] jffs2: fix use after free in jffs2_sum_write_data()
+Subject: [PATCH 4.14 075/176] mfd: bd9571mwv: Use devm_mfd_add_devices()
 Date:   Mon,  1 Mar 2021 17:12:28 +0100
-Message-Id: <20210301161015.894924794@linuxfoundation.org>
+Message-Id: <20210301161024.690373474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 19646447ad3a680d2ab08c097585b7d96a66126b ]
+[ Upstream commit c58ad0f2b052b5675d6394e03713ee41e721b44c ]
 
-clang static analysis reports this problem
+To remove mfd devices when unload this driver, should use
+devm_mfd_add_devices() instead.
 
-fs/jffs2/summary.c:794:31: warning: Use of memory after it is freed
-                c->summary->sum_list_head = temp->u.next;
-                                            ^~~~~~~~~~~~
-
-In jffs2_sum_write_data(), in a loop summary data is handles a node at
-a time.  When it has written out the node it is removed the summary list,
-and the node is deleted.  In the corner case when a
-JFFS2_FEATURE_RWCOMPAT_COPY is seen, a call is made to
-jffs2_sum_disable_collecting().  jffs2_sum_disable_collecting() deletes
-the whole list which conflicts with the loop's deleting the list by parts.
-
-To preserve the old behavior of stopping the write midway, bail out of
-the loop after disabling summary collection.
-
-Fixes: 6171586a7ae5 ("[JFFS2] Correct handling of JFFS2_FEATURE_RWCOMPAT_COPY nodes.")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: d3ea21272094 ("mfd: Add ROHM BD9571MWV-M MFD PMIC driver")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/summary.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mfd/bd9571mwv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/jffs2/summary.c b/fs/jffs2/summary.c
-index be7c8a6a57480..4fe64519870f1 100644
---- a/fs/jffs2/summary.c
-+++ b/fs/jffs2/summary.c
-@@ -783,6 +783,8 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
- 					dbg_summary("Writing unknown RWCOMPAT_COPY node type %x\n",
- 						    je16_to_cpu(temp->u.nodetype));
- 					jffs2_sum_disable_collecting(c->summary);
-+					/* The above call removes the list, nothing more to do */
-+					goto bail_rwcompat;
- 				} else {
- 					BUG();	/* unknown node in summary information */
- 				}
-@@ -794,6 +796,7 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
- 
- 		c->summary->sum_num--;
+diff --git a/drivers/mfd/bd9571mwv.c b/drivers/mfd/bd9571mwv.c
+index 98192d4863e4c..100bd25a1a995 100644
+--- a/drivers/mfd/bd9571mwv.c
++++ b/drivers/mfd/bd9571mwv.c
+@@ -183,9 +183,9 @@ static int bd9571mwv_probe(struct i2c_client *client,
+ 		return ret;
  	}
-+ bail_rwcompat:
  
- 	jffs2_sum_reset_collected(c->summary);
- 
+-	ret = mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO, bd9571mwv_cells,
+-			      ARRAY_SIZE(bd9571mwv_cells), NULL, 0,
+-			      regmap_irq_get_domain(bd->irq_data));
++	ret = devm_mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO,
++				   bd9571mwv_cells, ARRAY_SIZE(bd9571mwv_cells),
++				   NULL, 0, regmap_irq_get_domain(bd->irq_data));
+ 	if (ret) {
+ 		regmap_del_irq_chip(bd->irq, bd->irq_data);
+ 		return ret;
 -- 
 2.27.0
 
