@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5E0328FCB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53375328FB7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242485AbhCAT6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
+        id S241768AbhCAT4K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:56:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240429AbhCATpM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:45:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 836F664EDE;
-        Mon,  1 Mar 2021 17:12:55 +0000 (UTC)
+        id S232387AbhCATod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8556E651B0;
+        Mon,  1 Mar 2021 17:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618776;
-        bh=54KiUnhgH/gu9nF7H3ne4ivMcs82IRwTkSTLS8uXcek=;
+        s=korg; t=1614618755;
+        bh=qWhwuelnhjiiPv+6c4RLaqCQUHSA9eNW2T+frNKjm6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spocLWiDk7NeeQTP+feI42tpSl7P+xYNL7wEbt9s6XFwmafiz5oKtSsd+D4kJHQ6M
-         MuuLXlC0yJSXRrMjlKNEnEeG3rfag2fsJO1hpd/DRf0skYiFLXnAMy6/Ng0S6Ne4eO
-         z8P+lN+TM2DVXs9VWJZJST1YwAVXYrv+1VSrtbS8=
+        b=JFRhsr0z+PYXPgqtYVdgaVpoHoaZ/E/IT65oW6VdYNTec6ryEzGe3GU8uW+viv4uj
+         dX/M1TWDCHbXXCFKkO0N9JUVpL11LOIDMB+9ecgilJ7uuE66Wdb15bsQrQhT3Tkn8H
+         N+XmYyqMYJUN9ThjaWV4Ga8Uj9kQn6J+aA63ONdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Till=20D=C3=B6rges?= <doerges@pre-sense.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Frantisek Hrbata <frantisek@hrbata.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 195/663] media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values
-Date:   Mon,  1 Mar 2021 17:07:23 +0100
-Message-Id: <20210301161151.427837099@linuxfoundation.org>
+Subject: [PATCH 5.10 205/663] drm/nouveau: bail out of nouveau_channel_new if channel init fails
+Date:   Mon,  1 Mar 2021 17:07:33 +0100
+Message-Id: <20210301161151.927843031@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,77 +41,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Frantisek Hrbata <frantisek@hrbata.com>
 
-[ Upstream commit dc9455ffae02d7b7fb51ba1e007fffcb9dc5d890 ]
+[ Upstream commit eaba3b28401f50e22d64351caa8afe8d29509f27 ]
 
-The Renkforce RF AC4K 300 Action Cam 4K reports invalid bFormatIndex and
-bFrameIndex values when negotiating the video probe and commit controls.
-The UVC descriptors report a single supported format and frame size,
-with bFormatIndex and bFrameIndex both equal to 2, but the video probe
-and commit controls report bFormatIndex and bFrameIndex set to 1.
+Unprivileged user can crash kernel by using DRM_IOCTL_NOUVEAU_CHANNEL_ALLOC
+ioctl. This was reported by trinity[1] fuzzer.
 
-The device otherwise operates correctly, but the driver rejects the
-values and fails the format try operation. Fix it by ignoring the
-invalid indices, and assuming that the format and frame requested by the
-driver are accepted by the device.
+[   71.073906] nouveau 0000:01:00.0: crashme[1329]: channel failed to initialise, -17
+[   71.081730] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[   71.088928] #PF: supervisor read access in kernel mode
+[   71.094059] #PF: error_code(0x0000) - not-present page
+[   71.099189] PGD 119590067 P4D 119590067 PUD 1054f5067 PMD 0
+[   71.104842] Oops: 0000 [#1] SMP NOPTI
+[   71.108498] CPU: 2 PID: 1329 Comm: crashme Not tainted 5.8.0-rc6+ #2
+[   71.114993] Hardware name: AMD Pike/Pike, BIOS RPK1506A 09/03/2014
+[   71.121213] RIP: 0010:nouveau_abi16_ioctl_channel_alloc+0x108/0x380 [nouveau]
+[   71.128339] Code: 48 89 9d f0 00 00 00 41 8b 4c 24 04 41 8b 14 24 45 31 c0 4c 8d 4b 10 48 89 ee 4c 89 f7 e8 10 11 00 00 85 c0 75 78 48 8b 43 10 <8b> 90 a0 00 00 00 41 89 54 24 08 80 7d 3d 05 0f 86 bb 01 00 00 41
+[   71.147074] RSP: 0018:ffffb4a1809cfd38 EFLAGS: 00010246
+[   71.152526] RAX: 0000000000000000 RBX: ffff98cedbaa1d20 RCX: 00000000000003bf
+[   71.159651] RDX: 00000000000003be RSI: 0000000000000000 RDI: 0000000000030160
+[   71.166774] RBP: ffff98cee776de00 R08: ffffdc0144198a08 R09: ffff98ceeefd4000
+[   71.173901] R10: ffff98cee7e81780 R11: 0000000000000001 R12: ffffb4a1809cfe08
+[   71.181214] R13: ffff98cee776d000 R14: ffff98cec519e000 R15: ffff98cee776def0
+[   71.188339] FS:  00007fd926250500(0000) GS:ffff98ceeac80000(0000) knlGS:0000000000000000
+[   71.196418] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   71.202155] CR2: 00000000000000a0 CR3: 0000000106622000 CR4: 00000000000406e0
+[   71.209297] Call Trace:
+[   71.211777]  ? nouveau_abi16_ioctl_getparam+0x1f0/0x1f0 [nouveau]
+[   71.218053]  drm_ioctl_kernel+0xac/0xf0 [drm]
+[   71.222421]  drm_ioctl+0x211/0x3c0 [drm]
+[   71.226379]  ? nouveau_abi16_ioctl_getparam+0x1f0/0x1f0 [nouveau]
+[   71.232500]  nouveau_drm_ioctl+0x57/0xb0 [nouveau]
+[   71.237285]  ksys_ioctl+0x86/0xc0
+[   71.240595]  __x64_sys_ioctl+0x16/0x20
+[   71.244340]  do_syscall_64+0x4c/0x90
+[   71.248110]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   71.253162] RIP: 0033:0x7fd925d4b88b
+[   71.256731] Code: Bad RIP value.
+[   71.259955] RSP: 002b:00007ffc743592d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
+[   71.267514] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd925d4b88b
+[   71.274637] RDX: 0000000000601080 RSI: 00000000c0586442 RDI: 0000000000000003
+[   71.281986] RBP: 00007ffc74359340 R08: 00007fd926016ce0 R09: 00007fd926016ce0
+[   71.289111] R10: 0000000000000003 R11: 0000000000000206 R12: 0000000000400620
+[   71.296235] R13: 00007ffc74359420 R14: 0000000000000000 R15: 0000000000000000
+[   71.303361] Modules linked in: rfkill sunrpc snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_intel_dspcfg snd_hda_codec snd_hda_core edac_mce_amd snd_hwdep kvm_amd snd_seq ccp snd_seq_device snd_pcm kvm snd_timer snd irqbypass soundcore sp5100_tco pcspkr crct10dif_pclmul crc32_pclmul ghash_clmulni_intel wmi_bmof joydev i2c_piix4 fam15h_power k10temp acpi_cpufreq ip_tables xfs libcrc32c sd_mod t10_pi sg nouveau video mxm_wmi i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops ttm broadcom bcm_phy_lib ata_generic ahci drm e1000 crc32c_intel libahci serio_raw tg3 libata firewire_ohci firewire_core wmi crc_itu_t dm_mirror dm_region_hash dm_log dm_mod
+[   71.365269] CR2: 00000000000000a0
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210767
+simplified reproducer
+---------------------------------8<----------------------------------------
+/*
+ * gcc -o crashme crashme.c
+ * ./crashme /dev/dri/renderD128
+ */
 
-Fixes: 8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
-Reported-by: Till Dörges <doerges@pre-sense.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+struct drm_nouveau_channel_alloc {
+	uint32_t     fb_ctxdma_handle;
+	uint32_t     tt_ctxdma_handle;
+
+	int          channel;
+	uint32_t     pushbuf_domains;
+
+	/* Notifier memory */
+	uint32_t     notifier_handle;
+
+	/* DRM-enforced subchannel assignments */
+	struct {
+		uint32_t handle;
+		uint32_t grclass;
+	} subchan[8];
+	uint32_t nr_subchan;
+};
+
+static struct drm_nouveau_channel_alloc channel;
+
+int main(int argc, char *argv[]) {
+	int fd;
+	int rv;
+
+	if (argc != 2)
+		die("usage: %s <dev>", 0, argv[0]);
+
+	if ((fd = open(argv[1], O_RDONLY)) == -1)
+		die("open %s", errno, argv[1]);
+
+	if (ioctl(fd, DRM_IOCTL_NOUVEAU_CHANNEL_ALLOC, &channel) == -1 &&
+			errno == EACCES)
+		die("ioctl %s", errno, argv[1]);
+
+	close(fd);
+
+	printf("PASS\n");
+
+	return 0;
+}
+---------------------------------8<----------------------------------------
+
+[1] https://github.com/kernelslacker/trinity
+
+Fixes: eeaf06ac1a55 ("drm/nouveau/svm: initial support for shared virtual memory")
+Signed-off-by: Frantisek Hrbata <frantisek@hrbata.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_chan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index fa06bfa174ad3..c7172b8952a96 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -248,7 +248,9 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		goto done;
- 
- 	/* After the probe, update fmt with the values returned from
--	 * negotiation with the device.
-+	 * negotiation with the device. Some devices return invalid bFormatIndex
-+	 * and bFrameIndex values, in which case we can only assume they have
-+	 * accepted the requested format as-is.
- 	 */
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (probe->bFormatIndex == stream->format[i].index) {
-@@ -257,11 +259,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_chan.c b/drivers/gpu/drm/nouveau/nouveau_chan.c
+index 8f099601d2f2d..9b6f2c1414d72 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_chan.c
++++ b/drivers/gpu/drm/nouveau/nouveau_chan.c
+@@ -533,6 +533,7 @@ nouveau_channel_new(struct nouveau_drm *drm, struct nvif_device *device,
+ 	if (ret) {
+ 		NV_PRINTK(err, cli, "channel failed to initialise, %d\n", ret);
+ 		nouveau_channel_del(pchan);
++		goto done;
  	}
  
--	if (i == stream->nformats) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
-+	if (i == stream->nformats)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFormatIndex %u, using default\n",
- 			  probe->bFormatIndex);
--		return -EINVAL;
--	}
- 
- 	for (i = 0; i < format->nframes; ++i) {
- 		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
-@@ -270,11 +271,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
- 	}
- 
--	if (i == format->nframes) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
-+	if (i == format->nframes)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFrameIndex %u, using default\n",
- 			  probe->bFrameIndex);
--		return -EINVAL;
--	}
- 
- 	fmt->fmt.pix.width = frame->wWidth;
- 	fmt->fmt.pix.height = frame->wHeight;
+ 	ret = nouveau_svmm_join((*pchan)->vmm->svmm, (*pchan)->inst);
 -- 
 2.27.0
 
