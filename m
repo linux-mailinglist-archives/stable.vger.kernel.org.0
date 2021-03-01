@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0846C3290E4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:21:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F9E53290DB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:17:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242939AbhCAURG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:17:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
+        id S242427AbhCAUQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:16:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239625AbhCAUGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:06:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5461E64F35;
-        Mon,  1 Mar 2021 17:58:51 +0000 (UTC)
+        id S239620AbhCAUGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:06:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AAA465017;
+        Mon,  1 Mar 2021 17:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621531;
-        bh=NiRobg7LEud42Oe4WTKalEPV8tErAbwJtSjaGnhFykQ=;
+        s=korg; t=1614621534;
+        bh=nwPdD4nmNnr2ugnCcopGgDhT/RrZy4hHjJlGc1l/Ay8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEHw+3fsFe2fwqWwfRmfDdT9tA4hFAhBBk0Qu/+Ieq0DwCWaqfHJfRNrA8fSqQ4QZ
-         6UuH8QhHnYhtTK2JqiAOdifOGF1skQg2M+EXEjuKtbvlJF/FdfnWd/4wyRaIF4fODL
-         czkFoKGy94fpcEP4DbsILpA0KreeQ10y3ojHBzB8=
+        b=eimF7Y379E0j7v6Jn43e8BW+byoTwZotYyYBYEaaqHePYW13wCvJv9ZgDi3aPv5z5
+         vXXr4QsWf+cKXWzOO0FtnlOJGYoX44VkppWWBEvPkCNcD3K5jOXARFt805ZDFFqGsj
+         Qg64imi5HS/pJUdc/r0i5/mwEKzVQ+Rae/88ajzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Wandun <chenwandun@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Roman Gushchin <guro@fb.com>,
+        stable@vger.kernel.org, Wonhyuk Yang <vvghjk1234@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Mel Gorman <mgorman@techsingularity.net>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 550/775] mm/hugetlb: suppress wrong warning info when alloc gigantic page
-Date:   Mon,  1 Mar 2021 17:11:58 +0100
-Message-Id: <20210301161228.669320348@linuxfoundation.org>
+Subject: [PATCH 5.11 551/775] mm/compaction: fix misbehaviors of fast_find_migrateblock()
+Date:   Mon,  1 Mar 2021 17:11:59 +0100
+Message-Id: <20210301161228.712419275@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,46 +43,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Wandun <chenwandun@huawei.com>
+From: Wonhyuk Yang <vvghjk1234@gmail.com>
 
-[ Upstream commit 7ecc956551f8a66618f71838c790a9b0b4f9ca10 ]
+[ Upstream commit 15d28d0d11609c7a4f217b3d85e26456d9beb134 ]
 
-If hugetlb_cma is enabled, it will skip boot time allocation when
-allocating gigantic page, that doesn't means allocation failure, so
-suppress this warning info.
+In the fast_find_migrateblock(), it iterates ocer the freelist to find the
+proper pageblock.  But there are some misbehaviors.
 
-Link: https://lkml.kernel.org/r/20210219123909.13130-1-chenwandun@huawei.com
-Fixes: cf11e85fc08c ("mm: hugetlb: optionally allocate gigantic hugepages using cma")
-Signed-off-by: Chen Wandun <chenwandun@huawei.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Roman Gushchin <guro@fb.com>
+First, if the page we found is equal to cc->migrate_pfn, it is considered
+that we didn't find a suitable pageblock.  Secondly, if the loop was
+terminated because order is less than PAGE_ALLOC_COSTLY_ORDER, it could be
+considered that we found a suitable one.  Thirdly, if the skip bit is set
+on the page block and we goto continue, it doesn't check nr_scanned.
+Fourthly, if the page block's skip bit is set, it checks that page block
+is the last of list, which is unnecessary.
+
+Link: https://lkml.kernel.org/r/20210128130411.6125-1-vvghjk1234@gmail.com
+Fixes: 70b44595eafe9 ("mm, compaction: use free lists to quickly locate a migration source")
+Signed-off-by: Wonhyuk Yang <vvghjk1234@gmail.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mel Gorman <mgorman@techsingularity.net>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/compaction.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index bc61eea60e07e..63d15f0a6629f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -2520,7 +2520,7 @@ static void __init hugetlb_hstate_alloc_pages(struct hstate *h)
- 		if (hstate_is_gigantic(h)) {
- 			if (hugetlb_cma_size) {
- 				pr_warn_once("HugeTLB: hugetlb_cma is enabled, skip boot time allocation\n");
--				break;
-+				goto free;
- 			}
- 			if (!alloc_bootmem_huge_page(h))
- 				break;
-@@ -2538,7 +2538,7 @@ static void __init hugetlb_hstate_alloc_pages(struct hstate *h)
- 			h->max_huge_pages, buf, i);
- 		h->max_huge_pages = i;
- 	}
+diff --git a/mm/compaction.c b/mm/compaction.c
+index 190ccdaa6c192..2135c32efe8be 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1702,6 +1702,7 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 	unsigned long pfn = cc->migrate_pfn;
+ 	unsigned long high_pfn;
+ 	int order;
++	bool found_block = false;
+ 
+ 	/* Skip hints are relied on to avoid repeats on the fast search */
+ 	if (cc->ignore_skip_hint)
+@@ -1744,7 +1745,7 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 	high_pfn = pageblock_start_pfn(cc->migrate_pfn + distance);
+ 
+ 	for (order = cc->order - 1;
+-	     order >= PAGE_ALLOC_COSTLY_ORDER && pfn == cc->migrate_pfn && nr_scanned < limit;
++	     order >= PAGE_ALLOC_COSTLY_ORDER && !found_block && nr_scanned < limit;
+ 	     order--) {
+ 		struct free_area *area = &cc->zone->free_area[order];
+ 		struct list_head *freelist;
+@@ -1759,7 +1760,11 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 		list_for_each_entry(freepage, freelist, lru) {
+ 			unsigned long free_pfn;
+ 
+-			nr_scanned++;
++			if (nr_scanned++ >= limit) {
++				move_freelist_tail(freelist, freepage);
++				break;
++			}
++
+ 			free_pfn = page_to_pfn(freepage);
+ 			if (free_pfn < high_pfn) {
+ 				/*
+@@ -1768,12 +1773,8 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 				 * the list assumes an entry is deleted, not
+ 				 * reordered.
+ 				 */
+-				if (get_pageblock_skip(freepage)) {
+-					if (list_is_last(freelist, &freepage->lru))
+-						break;
 -
-+free:
- 	kfree(node_alloc_noretry);
++				if (get_pageblock_skip(freepage))
+ 					continue;
+-				}
+ 
+ 				/* Reorder to so a future search skips recent pages */
+ 				move_freelist_tail(freelist, freepage);
+@@ -1781,15 +1782,10 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 				update_fast_start_pfn(cc, free_pfn);
+ 				pfn = pageblock_start_pfn(free_pfn);
+ 				cc->fast_search_fail = 0;
++				found_block = true;
+ 				set_pageblock_skip(freepage);
+ 				break;
+ 			}
+-
+-			if (nr_scanned >= limit) {
+-				cc->fast_search_fail++;
+-				move_freelist_tail(freelist, freepage);
+-				break;
+-			}
+ 		}
+ 		spin_unlock_irqrestore(&cc->zone->lock, flags);
+ 	}
+@@ -1800,9 +1796,10 @@ static unsigned long fast_find_migrateblock(struct compact_control *cc)
+ 	 * If fast scanning failed then use a cached entry for a page block
+ 	 * that had free pages as the basis for starting a linear scan.
+ 	 */
+-	if (pfn == cc->migrate_pfn)
++	if (!found_block) {
++		cc->fast_search_fail++;
+ 		pfn = reinit_migrate_pfn(cc);
+-
++	}
+ 	return pfn;
  }
  
 -- 
