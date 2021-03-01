@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6077132901D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1C0329017
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:07:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242647AbhCAUDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
+        id S242539AbhCAUCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:02:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239573AbhCATwS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:52:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8521C6518D;
-        Mon,  1 Mar 2021 17:52:27 +0000 (UTC)
+        id S239412AbhCATwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:52:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B676513D;
+        Mon,  1 Mar 2021 17:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621148;
-        bh=/9EWwN4fsnpG9sXQdfRzP1iao39kMLN3OYxJujxeT2U=;
+        s=korg; t=1614621150;
+        bh=6MZ1QLjfi3khUaDKSbwAaCQT4J9pjD/NPIHmCnWkTxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7GhtN7PUuG5vdngPWZKtymkwseLoYoyLAf+ejfPQoS5lFG2ainVGzldXrFaaPKas
-         X2muJTLpDp03KSOl9miNgJLL7SLTEsi9sziH7l3pid4JofunG44Xb8fV4Zjfp/LNr/
-         3xrS6ggVRsW1LKzScP//uFsU9Fl5eIlyhBymWQuA=
+        b=It0Y6ScEtEl6p5MDpBHYgw0yRbd9fU0JpvugJIGXJU+FSlYsSzEojWyxa15o+0lOo
+         9/QRwSsbrxJ4zrQ8ocfcPjjl+v1lSxzaiIF6nsxszJaY8Ms2lSqj5fVcG9hnYQ5SEf
+         aGAiBZFExBMugbBXqwDnsHbjqVysluE17hmuEJHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "David E. Box" <david.e.box@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 411/775] platform/x86: intel_pmt: Make INTEL_PMT_CLASS non-user-selectable
-Date:   Mon,  1 Mar 2021 17:09:39 +0100
-Message-Id: <20210301161221.899089398@linuxfoundation.org>
+Subject: [PATCH 5.11 412/775] platform/x86: intel_pmt_telemetry: Add dependency on MFD_INTEL_PMT
+Date:   Mon,  1 Mar 2021 17:09:40 +0100
+Message-Id: <20210301161221.948851872@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,34 +43,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David E. Box <david.e.box@linux.intel.com>
 
-[ Upstream commit 35d8a973fe4d38afee944db636c3d2b1df3741a7 ]
+[ Upstream commit f3f6da5014dea3cc005b36948abe3664b5d1f7d3 ]
 
-Fix error in Kconfig that exposed INTEL_PMT_CLASS as a user selectable
-option. It is already selected by INTEL_PMT_TELEMETRY and
-INTEL_PMT_CRASHLOG which are user selectable.
+All devices that expose Intel Platform Monitoring Technology (PMT)
+telemetry are currently owned by the intel_pmt MFD driver. Therefore make
+the telemetry driver depend on the MFD driver for build.
 
-Fixes: e2729113ce66 ("platform/x86: Intel PMT class driver")
+Fixes: 68fe8e6e2c4b ("platform/x86: Intel PMT Telemetry capability driver")
 Signed-off-by: David E. Box <david.e.box@linux.intel.com>
-Link: https://lore.kernel.org/r/20210126205508.30907-1-david.e.box@linux.intel.com
+Link: https://lore.kernel.org/r/20210126205508.30907-2-david.e.box@linux.intel.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 91e6176cdfbdf..af75c3342c061 100644
+index af75c3342c061..9948c5f4928d4 100644
 --- a/drivers/platform/x86/Kconfig
 +++ b/drivers/platform/x86/Kconfig
-@@ -1369,7 +1369,7 @@ config INTEL_PMC_CORE
- 		- MPHY/PLL gating status (Sunrisepoint PCH only)
+@@ -1382,6 +1382,7 @@ config INTEL_PMT_CLASS
  
- config INTEL_PMT_CLASS
--	tristate "Intel Platform Monitoring Technology (PMT) Class driver"
-+	tristate
+ config INTEL_PMT_TELEMETRY
+ 	tristate "Intel Platform Monitoring Technology (PMT) Telemetry driver"
++	depends on MFD_INTEL_PMT
+ 	select INTEL_PMT_CLASS
  	help
- 	  The Intel Platform Monitoring Technology (PMT) class driver provides
- 	  the basic sysfs interface and file hierarchy uses by PMT devices.
+ 	  The Intel Platform Monitory Technology (PMT) Telemetry driver provides
 -- 
 2.27.0
 
