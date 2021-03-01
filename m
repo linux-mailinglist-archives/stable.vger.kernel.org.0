@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE857328E04
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96458328DB6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241418AbhCATWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:22:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43888 "EHLO mail.kernel.org"
+        id S241298AbhCATQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:16:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241338AbhCATRl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:17:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A29464F94;
-        Mon,  1 Mar 2021 17:21:02 +0000 (UTC)
+        id S235221AbhCATJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:09:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95BAC65056;
+        Mon,  1 Mar 2021 17:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619263;
-        bh=zhzxN6c5JN9khP+XvV0suo9/o3MwdDW1IU1ShLW3AuI=;
+        s=korg; t=1614619274;
+        bh=SOMY2cf7ehxVdu/OpMFzygPChKujMvoZ5qG0kZLw4qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tEBM85cB9NDD1sp6KXs/ImNBA/IJO3jXvBDxdQFPzSbBTnZu8ebIuhCyWbi12WJaS
-         ytq4Pydte7mgVuP7UMSlXu3XwV/NpgszvTlT+Ke+AkEUX0VDWHptgTdK7nt285p19x
-         ZWmjC78Ixa0Sn+TWhMJ4Hw2knfZiOG5e7XyJ0+10=
+        b=XG/5qZY+3i7RcMixd7p15ovoZHNNjSr8PdyjiVcIOMN3wbD15Gt1JqfQj3i/M8BF4
+         CPlJCRoH/6josbQ+W9GFN/YIYcgCILjWPzd5jNQcB1s4YqxVvQL6rsO2FlehJv2Il3
+         Atw/WF1Xun9yt07cz1Fuj8iXdT6bCJUli/Ejo/7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Ryan Chen <ryan_chen@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 361/663] spi: pxa2xx: Fix the controller numbering for Wildcat Point
-Date:   Mon,  1 Mar 2021 17:10:09 +0100
-Message-Id: <20210301161159.702497326@linuxfoundation.org>
+Subject: [PATCH 5.10 365/663] clk: aspeed: Fix APLL calculate formula from ast2600-A2
+Date:   Mon,  1 Mar 2021 17:10:13 +0100
+Message-Id: <20210301161159.906734969@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,85 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ryan Chen <ryan_chen@aspeedtech.com>
 
-[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
+[ Upstream commit 6286ce1e3ece54799f12775f8ce2a1cba9cbcfc5 ]
 
-Wildcat Point has two SPI controllers and added one is actually second one.
-Fix the numbering by adding the description of the first one.
+Starting from A2, the A-PLL calculation has changed. Use the
+existing formula for A0/A1 and the new formula for A2 onwards.
 
-Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
-Cc: Leif Liddy <leif.liddy@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
+Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+Link: https://lore.kernel.org/r/20210119061715.6043-1-ryan_chen@aspeedtech.com
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/clk/clk-ast2600.c | 37 +++++++++++++++++++++++++++----------
+ 1 file changed, 27 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-index f236e3034cf85..aafac128bb5f1 100644
---- a/drivers/spi/spi-pxa2xx-pci.c
-+++ b/drivers/spi/spi-pxa2xx-pci.c
-@@ -21,7 +21,8 @@ enum {
- 	PORT_BSW1,
- 	PORT_BSW2,
- 	PORT_CE4100,
--	PORT_LPT,
-+	PORT_LPT0,
-+	PORT_LPT1,
- };
+diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
+index 177368cac6dd6..a55b37fc2c8bd 100644
+--- a/drivers/clk/clk-ast2600.c
++++ b/drivers/clk/clk-ast2600.c
+@@ -17,7 +17,8 @@
  
- struct pxa_spi_info {
-@@ -57,8 +58,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
- static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
- static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
+ #define ASPEED_G6_NUM_CLKS		71
  
--static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
--static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
-+static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
-+static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
+-#define ASPEED_G6_SILICON_REV		0x004
++#define ASPEED_G6_SILICON_REV		0x014
++#define CHIP_REVISION_ID			GENMASK(23, 16)
  
- static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ #define ASPEED_G6_RESET_CTRL		0x040
+ #define ASPEED_G6_RESET_CTRL2		0x050
+@@ -190,18 +191,34 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
+ static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
  {
-@@ -185,12 +188,19 @@ static struct pxa_spi_info spi_info_configs[] = {
- 		.num_chipselect = 1,
- 		.max_clk_rate = 50000000,
- 	},
--	[PORT_LPT] = {
-+	[PORT_LPT0] = {
- 		.type = LPSS_LPT_SSP,
- 		.port_id = 0,
- 		.setup = lpss_spi_setup,
--		.tx_param = &lpt_tx_param,
--		.rx_param = &lpt_rx_param,
-+		.tx_param = &lpt0_tx_param,
-+		.rx_param = &lpt0_rx_param,
-+	},
-+	[PORT_LPT1] = {
-+		.type = LPSS_LPT_SSP,
-+		.port_id = 1,
-+		.setup = lpss_spi_setup,
-+		.tx_param = &lpt1_tx_param,
-+		.rx_param = &lpt1_rx_param,
- 	},
- };
+ 	unsigned int mult, div;
++	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
  
-@@ -285,8 +295,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
- 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
- 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
- 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
--	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
--	{ },
-+	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
-+	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
+-	if (val & BIT(20)) {
+-		/* Pass through mode */
+-		mult = div = 1;
++	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
++		if (val & BIT(24)) {
++			/* Pass through mode */
++			mult = div = 1;
++		} else {
++			/* F = 25Mhz * [(m + 1) / (n + 1)] / (p + 1) */
++			u32 m = val & 0x1fff;
++			u32 n = (val >> 13) & 0x3f;
++			u32 p = (val >> 19) & 0xf;
++
++			mult = (m + 1);
++			div = (n + 1) * (p + 1);
++		}
+ 	} else {
+-		/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
+-		u32 m = (val >> 5) & 0x3f;
+-		u32 od = (val >> 4) & 0x1;
+-		u32 n = val & 0xf;
++		if (val & BIT(20)) {
++			/* Pass through mode */
++			mult = div = 1;
++		} else {
++			/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
++			u32 m = (val >> 5) & 0x3f;
++			u32 od = (val >> 4) & 0x1;
++			u32 n = val & 0xf;
  
+-		mult = (2 - od) * (m + 2);
+-		div = n + 1;
++			mult = (2 - od) * (m + 2);
++			div = n + 1;
++		}
+ 	}
+ 	return clk_hw_register_fixed_factor(NULL, name, "clkin", 0,
+ 			mult, div);
 -- 
 2.27.0
 
