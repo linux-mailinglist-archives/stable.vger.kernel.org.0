@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56452328C5F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3546E328B61
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240252AbhCASux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:50:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S240132AbhCASd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:33:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239622AbhCASoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:44:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29F8D64F25;
-        Mon,  1 Mar 2021 17:49:54 +0000 (UTC)
+        id S239868AbhCAS0U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:26:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BBA865037;
+        Mon,  1 Mar 2021 17:15:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620995;
-        bh=S7pElHkuQ3P5DQSmV0wilz0wKV5YfyltnrQqMWJk5UU=;
+        s=korg; t=1614618945;
+        bh=n76WpIQrSPLMyoQURjtMF9uXbNBqhKxkm5PtyBVfulQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hqx/JzimSTwOOboWCAc5JdvjrzSQSwE4Jy/cQjDRk26GVheYTIma+C/Z64YL44T5V
-         vuSjRckgu1Pw+DqwbogLVJnYESWAHtPF6wmqvjL7nOYm9O9he2W+dDZ+m+5tl82twp
-         O9Hsz3Yfvrwjz9cp1SPHNYCFrPF5F4nLww3MyfCo=
+        b=ppxW0qy5wsdokql5oaVxfqBRrKT9Au/k1BNx635qj43s2FhN9M7vjt7UPpJqhuJm/
+         EKBEMXOcjL4CfYz/zUia0WK/h/3Bvf6BlaOLy7NeldAfFLyZ7NzQzb3FArJV8hLSXU
+         eitItsS1/Y2Xr14szvYZSDGymZmeEG9S7UlBX2Wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 355/775] spi: imx: Dont print error on -EPROBEDEFER
-Date:   Mon,  1 Mar 2021 17:08:43 +0100
-Message-Id: <20210301161219.164567336@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 276/663] dmaengine: fsldma: Fix a resource leak in the remove function
+Date:   Mon,  1 Mar 2021 17:08:44 +0100
+Message-Id: <20210301161155.477554008@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Günther <agx@sigxcpu.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8346633f2c87713a1852d802305e03555e9a9fce ]
+[ Upstream commit cbc0ad004c03ad7971726a5db3ec84dba3dcb857 ]
 
-This avoids
+A 'irq_dispose_mapping()' call is missing in the remove function.
+Add it.
 
-[    0.962538] spi_imx 30820000.spi: bitbang start failed with -517
+This is needed to undo the 'irq_of_parse_and_map() call from the probe
+function and already part of the error handling path of the probe function.
 
-durig driver probe.
+It was added in the probe function only in commit d3f620b2c4fe ("fsldma:
+simplify IRQ probing and handling")
 
-Fixes: 8197f489f4c4 ("spi: imx: Fix failure path leak on GPIO request error correctly")
-Signed-off-by: Guido Günther <agx@sigxcpu.org>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/0f51ab42e7c7a3452f2f8652794d81584303ea0d.1610987414.git.agx@sigxcpu.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 77cd62e8082b ("fsldma: allow Freescale Elo DMA driver to be compiled as a module")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201212160516.92515-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/fsldma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 73ca821763d69..5dc4ea4b4450e 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -1685,7 +1685,7 @@ static int spi_imx_probe(struct platform_device *pdev)
- 	master->dev.of_node = pdev->dev.of_node;
- 	ret = spi_bitbang_start(&spi_imx->bitbang);
- 	if (ret) {
--		dev_err(&pdev->dev, "bitbang start failed with %d\n", ret);
-+		dev_err_probe(&pdev->dev, ret, "bitbang start failed\n");
- 		goto out_bitbang_start;
+diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
+index 0feb323bae1e3..554f70a0c18c0 100644
+--- a/drivers/dma/fsldma.c
++++ b/drivers/dma/fsldma.c
+@@ -1314,6 +1314,7 @@ static int fsldma_of_remove(struct platform_device *op)
+ 		if (fdev->chan[i])
+ 			fsl_dma_chan_remove(fdev->chan[i]);
  	}
++	irq_dispose_mapping(fdev->irq);
  
+ 	iounmap(fdev->regs);
+ 	kfree(fdev);
 -- 
 2.27.0
 
