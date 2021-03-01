@@ -2,86 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6043278E6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 09:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF3B3278F8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 09:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232675AbhCAIHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 03:07:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46764 "EHLO mail.kernel.org"
+        id S232820AbhCAINC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 03:13:02 -0500
+Received: from mx2.suse.de ([195.135.220.15]:50010 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232748AbhCAIHq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 03:07:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4A1564E42;
-        Mon,  1 Mar 2021 08:07:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614586026;
-        bh=eYrKiRldcGd1/qq+sxHlcpmOrp2wd88rQgkH0JmzMWM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RvWeE1sPx0qe4txJaTyOiAnGuNX+mLLY4p8Do+UwiMsq18H8uw2VduUeZbCs29Yum
-         UDihHV0SreF2nc73wquBoDwBM9FuwwQOmcImPUk83qQCcw3JZA17EIFSwYL+rxLmai
-         HGZZ9+8pLgZyB1uNpKb1GCCsR50Orbvzp4SFlzuM=
-Date:   Mon, 1 Mar 2021 09:07:03 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>, lwn@lwn.net,
-        jslaby@suse.cz
-Subject: Re: futex breakage in 4.9 stable branch
-Message-ID: <YDygp3WYafzcgt+s@kroah.com>
-References: <161408880177110@kroah.com>
- <66826ac72356b00814f51487dd1008298e52ed9b.camel@decadent.org.uk>
+        id S232791AbhCAIMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 03:12:50 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id C6EBEAAC5;
+        Mon,  1 Mar 2021 08:12:07 +0000 (UTC)
+Subject: Re: [PATCH v5] drm: Use USB controller's DMA mask when importing
+ dmabufs
+To:     Pavel Machek <pavel@ucw.cz>, Daniel Vetter <daniel@ffwll.ch>
+Cc:     airlied@linux.ie, gregkh@linuxfoundation.org,
+        Christoph Hellwig <hch@lst.de>, hdegoede@redhat.com,
+        stern@rowland.harvard.edu, dri-devel@lists.freedesktop.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
+        sean@poorly.run, christian.koenig@amd.com
+References: <20210226092648.4584-1-tzimmermann@suse.de>
+ <YDkBuu0AhZy+C/Y/@phenom.ffwll.local> <20210226203312.GA3379@duo.ucw.cz>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <1adb54b8-95dc-0abb-487d-4df8631f9620@suse.de>
+Date:   Mon, 1 Mar 2021 09:12:06 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <66826ac72356b00814f51487dd1008298e52ed9b.camel@decadent.org.uk>
+In-Reply-To: <20210226203312.GA3379@duo.ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Cemqj0UT4Kw6RI6RCIC7JY3mfwGp3XkzT"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 01, 2021 at 01:13:08AM +0100, Ben Hutchings wrote:
-> On Tue, 2021-02-23 at 15:00 +0100, Greg Kroah-Hartman wrote:
-> > I'm announcing the release of the 4.9.258 kernel.
-> > 
-> > All users of the 4.9 kernel series must upgrade.
-> > 
-> > The updated 4.9.y git tree can be found at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-> > and can be browsed at the normal kernel.org git web browser:
-> >         
-> 
-> The backported futex fixes are still incomplete/broken in this version.
-> If I enable lockdep and run the futex self-tests (from 5.10):
-> 
-> - on 4.9.246, they pass with no lockdep output
-> - on 4.9.257 and 4.9.258, they pass but futex_requeue_pi trigers a
->   lockdep splat
-> 
-> I have a local branch that essentially updates futex and rtmutex in
-> 4.9-stable to match 4.14-stable.  With this, the tests pass and lockdep
-> is happy.
-> 
-> Unfortunately, that branch has about another 60 commits.  Further, the
-> more we change futex in 4.9, the more difficult it is going to be to
-> update the 4.9-rt branch.  But I don't see any better option available
-> at the moment.
-> 
-> Thoughts?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Cemqj0UT4Kw6RI6RCIC7JY3mfwGp3XkzT
+Content-Type: multipart/mixed; boundary="IOGrfYGWofvwdV9AO5CURMPRmJs0eEhq6";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Pavel Machek <pavel@ucw.cz>, Daniel Vetter <daniel@ffwll.ch>
+Cc: airlied@linux.ie, gregkh@linuxfoundation.org,
+ Christoph Hellwig <hch@lst.de>, hdegoede@redhat.com,
+ stern@rowland.harvard.edu, dri-devel@lists.freedesktop.org,
+ Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
+ sean@poorly.run, christian.koenig@amd.com
+Message-ID: <1adb54b8-95dc-0abb-487d-4df8631f9620@suse.de>
+Subject: Re: [PATCH v5] drm: Use USB controller's DMA mask when importing
+ dmabufs
+References: <20210226092648.4584-1-tzimmermann@suse.de>
+ <YDkBuu0AhZy+C/Y/@phenom.ffwll.local> <20210226203312.GA3379@duo.ucw.cz>
+In-Reply-To: <20210226203312.GA3379@duo.ucw.cz>
 
-There were some posted futex fixes for 4.9 (and 4.4) on the stable list
-that I have not gotten to yet.
+--IOGrfYGWofvwdV9AO5CURMPRmJs0eEhq6
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Hopefully after these are merged (this week), these issues will be
-resolved.
+Hi
 
-If not, then yes, they need to be fixed and any help you can provide
-would be appreciated.
+Am 26.02.21 um 21:33 schrieb Pavel Machek:
+> Hi!
+>=20
+>=20
+>>> +	struct device *dmadev;
+>>> +	struct drm_gem_object *obj;
+>>> +
+>>> +	if (!dev_is_usb(dev->dev))
+>>> +		return ERR_PTR(-ENODEV);
+>>> +
+>>> +	dmadev =3D usb_intf_get_dma_device(to_usb_interface(dev->dev));
+>>> +	if (drm_WARN_ONCE(dev, !dmadev, "buffer sharing not supported"))
+>>> +		return ERR_PTR(-ENODEV);
+>>> +
+>>> +	obj =3D drm_gem_prime_import_dev(dev, dma_buf, dmadev);
+>>> +
+>>> +	put_device(dmadev);
+>>
+>> Just realized there's another can of worms here because dma_buf_attach=
 
-As for "difficulty", yes, it's rough, but the changes backported were
-required, for obvious reasons :(
+>> does not refcount the struct device. But the dma_buf can easily outliv=
+e
+>> the underlying device, at least right now.
+>>
+>> We should probably require that devices get rid of all their mappings =
+in
+>> their hotunplug code.
+>>
+>> Ofc now that we pick some random other device struct this gets kinda
+>> worse.
+>>
+>> Anyway, also just another pre-existing condition that we should worry
+>> about here. It's all still a very bad hack.
+>=20
+> This is actually regression fix if I understand this correctly. Bug
+> means udl is unusable, so that's kind of bad.
+>=20
+> Should we revert the original commit causing this while this get
+> sorted out?
 
-thanks,
+Better not. It's not easily revert-able, so other code might break in=20
+the process.
 
-greg k-h
+I'd rather wait a bit for this to get ready, or meanwhile cherry-pick=20
+the current patch.
+
+Best regards
+Thomas
+
+>=20
+> Best regards,
+> 								Pavel
+>=20
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+(HRB 36809, AG N=FCrnberg)
+Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
+
+
+--IOGrfYGWofvwdV9AO5CURMPRmJs0eEhq6--
+
+--Cemqj0UT4Kw6RI6RCIC7JY3mfwGp3XkzT
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmA8odYFAwAAAAAACgkQlh/E3EQov+D6
+ERAAqhCtxyYv+hyefJI1xOml96qzh2ZcxiTVj/4J7CipQx76IxlnZY7vwRfI8iQcHy3dkRbWmyN0
+3sXM80YWgQtW/9116mKgOGGVBqOseXmpsZSZcTrYRdZSxBLR1iJSMkOFxC2JwW3oUe1ilQ/Sh65t
+qWNx3O33sLk8NPFKAOpzT2mPjplfBhs8hCt/VnfONaZdYecvKzeIZnUV8ah0AoiXLRI4qsU9m+ka
+AdLhmFF1zD9Revy1IeH5N9S9TKp5vvaTbnVcNuhG9ahk4uapy12xEbalQwPz9zHqyNNcWmRuO6mK
+6BnY2vUazEqVjM3/18RUNv3lAr1YuvSPfWj2SwPbY/YphwoEJao8WtaKsTObrkyRabSL+xntog1U
+C0oj7FT2n0BDLt/uLiru147dtzS64hXneUaM8/BoF/HW9AqhjuMGlM8AnECjGCPiLlNKQnqhadas
+F2Yqpbmvl5UTRiRi7eHwBzGTNArDrAmovQ34brJUNZ0tvLfdaNQ442dFxa6HH5lvNrTSPODm/JZo
+L6F5nAIZnpFx6/S3ypYkOrcOB31xuE8SZ1ZhjHU2oGI9HYuVRPQWpWwIwth0pLvXjHLhlKMHZXWs
+rg2OovBZohqpb0TtPWBXhXLdC0Dwy5qG6LKobTzkmFpuFS1zvtLCH9po0dP1ljZ5TdLf6IVuS85i
+TpI=
+=9WDm
+-----END PGP SIGNATURE-----
+
+--Cemqj0UT4Kw6RI6RCIC7JY3mfwGp3XkzT--
