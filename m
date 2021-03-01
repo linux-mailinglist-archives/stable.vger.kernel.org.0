@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6676328389
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D539732839C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235413AbhCAQVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:21:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56644 "EHLO mail.kernel.org"
+        id S235189AbhCAQWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:22:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237784AbhCAQTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FB3E64EC4;
-        Mon,  1 Mar 2021 16:17:29 +0000 (UTC)
+        id S237734AbhCAQTc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:19:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E9DE64E66;
+        Mon,  1 Mar 2021 16:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615449;
-        bh=achybmWqggPsIEp4S9TA73cspTASuxLJc3rLOcSkiyw=;
+        s=korg; t=1614615452;
+        bh=gMK0obj2fPpWNkpdJaep+NirTN1PIVdJ1Dw11qFoqZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4qdW6Lb1Nf1S+H8JmJv4o93qt5Evxy8t3+4C4snGK2ikTRQ+7WxOG0WfDqnJcTw7
-         A++eKU3fpDHSiTx0m6fk0zZQY8SbCzR8wECVRH2VVW5nXY8RQ6XzLeiDIGKCtZLMuw
-         NlMtK2n4NtW7fmcVub3ZZciEP9t0CzlGD8Iz1Bdk=
+        b=gEMg0N2N3bdmAIgvrD9Qxkarzn+UZO/LhQG4oVo3/zPcRRVBYPS6opb0r11rbRpp2
+         rIDN40nfDc+CjLCaWFt3mqo5lnLrfyipUT6pu8yWIXvBbbzVY7jwaF3Bwt3ETXY2mR
+         mxF3P0O9fDlq/ZIRK9+E7I2MC7PhaKN+qMmdM0ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 34/93] clk: meson: clk-pll: fix initializing the old rate (fallback) for a PLL
-Date:   Mon,  1 Mar 2021 17:12:46 +0100
-Message-Id: <20210301161008.592174223@linuxfoundation.org>
+Subject: [PATCH 4.4 35/93] HID: core: detect and skip invalid inputs to snto32()
+Date:   Mon,  1 Mar 2021 17:12:47 +0100
+Message-Id: <20210301161008.636240620@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,36 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 2f290b7c67adf6459a17a4c978102af35cd62e4a ]
+[ Upstream commit a0312af1f94d13800e63a7d0a66e563582e39aec ]
 
-The "rate" parameter in meson_clk_pll_set_rate() contains the new rate.
-Retrieve the old rate with clk_hw_get_rate() so we don't inifinitely try
-to switch from the new rate to the same rate again.
+Prevent invalid (0, 0) inputs to hid-core's snto32() function.
 
-Fixes: 7a29a869434e8b ("clk: meson: Add support for Meson clock controller")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20201226121556.975418-2-martin.blumenstingl@googlemail.com
+Maybe it is just the dummy device here that is causing this, but
+there are hundreds of calls to snto32(0, 0). Having n (bits count)
+of 0 is causing the current UBSAN trap with a shift value of
+0xffffffff (-1, or n - 1 in this function).
+
+Either of the value to shift being 0 or the bits count being 0 can be
+handled by just returning 0 to the caller, avoiding the following
+complex shift + OR operations:
+
+	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
+
+Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/clk-pll.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/clk/meson/clk-pll.c b/drivers/clk/meson/clk-pll.c
-index 664edf0708ea7..50b1138aaad71 100644
---- a/drivers/clk/meson/clk-pll.c
-+++ b/drivers/clk/meson/clk-pll.c
-@@ -138,7 +138,7 @@ static int meson_clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
- 	if (parent_rate == 0 || rate == 0)
- 		return -EINVAL;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1495cf343d9f5..25544a08fa838 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1109,6 +1109,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);
  
--	old_rate = rate;
-+	old_rate = clk_hw_get_rate(hw);
- 
- 	rate_set = meson_clk_get_pll_settings(pll, rate);
- 	if (!rate_set)
+ static s32 snto32(__u32 value, unsigned n)
+ {
++	if (!value || !n)
++		return 0;
++
+ 	switch (n) {
+ 	case 8:  return ((__s8)value);
+ 	case 16: return ((__s16)value);
 -- 
 2.27.0
 
