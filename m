@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9A5D328DE7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFE4328DF4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241321AbhCATT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:19:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43898 "EHLO mail.kernel.org"
+        id S241102AbhCATV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:21:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241257AbhCATPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AEB9650FA;
-        Mon,  1 Mar 2021 17:14:32 +0000 (UTC)
+        id S241186AbhCATPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:15:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B468A65027;
+        Mon,  1 Mar 2021 17:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618873;
-        bh=np4pLtvbnCOYPihpSn9/7tNShNDH24Oz5BOxu8A21GM=;
+        s=korg; t=1614618878;
+        bh=+nZLZ+8DU1bB546hofKiUfN1z70R/SeU+DeYtpUD6Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbFc8yR1gVZnPh+8eO2drcNprilo0OUIl/TeOH8F3D7lkWz37V7fNuGBU3gvhAIfB
-         rnMMn8Te/eVRO/LcqtgCtkmhK1tb+6EhWinoYGHUdK/3NAgCfyzXAajEcvohR6AsrT
-         zIJssUnwYDrQ+zg/Ov+0OkGrv0i4GnvcuRucMlJE=
+        b=EwUmbxsAq7oJzvtZ2XSCPM40bCbjPXjOgu/Rk1455s+9YSmGxFttl/5xDPZlWtPuf
+         lEXeOIKMCvBIPfBea2HHBxpLu44/F6ve7GG6RJv1C8gwOH0mBYl4z5CwscMc1dAGMj
+         5YUtHJ1ubnB73nT7oqwdsUf40WEB8uE0+hO4WJ3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 248/663] ASoC: simple-card-utils: Fix device module clock
-Date:   Mon,  1 Mar 2021 17:08:16 +0100
-Message-Id: <20210301161154.091936113@linuxfoundation.org>
+Subject: [PATCH 5.10 250/663] jffs2: fix use after free in jffs2_sum_write_data()
+Date:   Mon,  1 Mar 2021 17:08:18 +0100
+Message-Id: <20210301161154.192983205@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,55 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 1e30f642cf2939bbdac82ea0dd3071232670b5ab ]
+[ Upstream commit 19646447ad3a680d2ab08c097585b7d96a66126b ]
 
-If "clocks = <&xxx>" is specified from the CPU or Codec component
-device node, the clock is not getting enabled. Thus audio playback
-or capture fails.
+clang static analysis reports this problem
 
-Fix this by populating "simple_dai->clk" field when clocks property
-is specified from device node as well. Also tidy up by re-organising
-conditional statements of parsing logic.
+fs/jffs2/summary.c:794:31: warning: Use of memory after it is freed
+                c->summary->sum_list_head = temp->u.next;
+                                            ^~~~~~~~~~~~
 
-Fixes: bb6fc620c2ed ("ASoC: simple-card-utils: add asoc_simple_card_parse_clk()")
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/1612939421-19900-2-git-send-email-spujar@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+In jffs2_sum_write_data(), in a loop summary data is handles a node at
+a time.  When it has written out the node it is removed the summary list,
+and the node is deleted.  In the corner case when a
+JFFS2_FEATURE_RWCOMPAT_COPY is seen, a call is made to
+jffs2_sum_disable_collecting().  jffs2_sum_disable_collecting() deletes
+the whole list which conflicts with the loop's deleting the list by parts.
+
+To preserve the old behavior of stopping the write midway, bail out of
+the loop after disabling summary collection.
+
+Fixes: 6171586a7ae5 ("[JFFS2] Correct handling of JFFS2_FEATURE_RWCOMPAT_COPY nodes.")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/simple-card-utils.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/jffs2/summary.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/generic/simple-card-utils.c b/sound/soc/generic/simple-card-utils.c
-index 6cada4c1e283b..ab31045cfc952 100644
---- a/sound/soc/generic/simple-card-utils.c
-+++ b/sound/soc/generic/simple-card-utils.c
-@@ -172,16 +172,15 @@ int asoc_simple_parse_clk(struct device *dev,
- 	 *  or device's module clock.
- 	 */
- 	clk = devm_get_clk_from_child(dev, node, NULL);
--	if (!IS_ERR(clk)) {
--		simple_dai->sysclk = clk_get_rate(clk);
-+	if (IS_ERR(clk))
-+		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
+diff --git a/fs/jffs2/summary.c b/fs/jffs2/summary.c
+index be7c8a6a57480..4fe64519870f1 100644
+--- a/fs/jffs2/summary.c
++++ b/fs/jffs2/summary.c
+@@ -783,6 +783,8 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
+ 					dbg_summary("Writing unknown RWCOMPAT_COPY node type %x\n",
+ 						    je16_to_cpu(temp->u.nodetype));
+ 					jffs2_sum_disable_collecting(c->summary);
++					/* The above call removes the list, nothing more to do */
++					goto bail_rwcompat;
+ 				} else {
+ 					BUG();	/* unknown node in summary information */
+ 				}
+@@ -794,6 +796,7 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
  
-+	if (!IS_ERR(clk)) {
- 		simple_dai->clk = clk;
--	} else if (!of_property_read_u32(node, "system-clock-frequency", &val)) {
-+		simple_dai->sysclk = clk_get_rate(clk);
-+	} else if (!of_property_read_u32(node, "system-clock-frequency",
-+					 &val)) {
- 		simple_dai->sysclk = val;
--	} else {
--		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
--		if (!IS_ERR(clk))
--			simple_dai->sysclk = clk_get_rate(clk);
+ 		c->summary->sum_num--;
  	}
++ bail_rwcompat:
  
- 	if (of_property_read_bool(node, "system-clock-direction-out"))
+ 	jffs2_sum_reset_collected(c->summary);
+ 
 -- 
 2.27.0
 
