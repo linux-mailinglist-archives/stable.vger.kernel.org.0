@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 871AA328D37
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC82A328D97
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241060AbhCATH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:07:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
+        id S241014AbhCATOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:14:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240841AbhCATB3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:01:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FD28651AE;
-        Mon,  1 Mar 2021 17:12:50 +0000 (UTC)
+        id S235261AbhCATJf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:09:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE476024A;
+        Mon,  1 Mar 2021 17:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618770;
-        bh=avRH+x/mn+bmUhs71GCvEo6NFvyk7x94ZQsIJc/3eyc=;
+        s=korg; t=1614620825;
+        bh=np4pLtvbnCOYPihpSn9/7tNShNDH24Oz5BOxu8A21GM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WwbtgefqOdjwF9DlD5bdeusiA4+2IBLcLy/MvEe8Y/B4/CcI34jGpA/XPOI0rbT85
-         84rJ1fjujrnlijecxlblzxcYwExTqpO0Ewo33HEIAAvjw1t5CB3vVBUwPAGdsvCOLB
-         ouLK2twtKW6x/DkED2TZPC8Z03CMiF/HE16w5HUM=
+        b=rPFeTQNfi1ln9sM34+3Tk/iaU5dHG8xdgEw1lkoSH5ocqyOnll93DLbjawTUrJ8Q8
+         LC6obXX1WJS3W/d0UV5+KrI+H55XnJm5Rokpc7aqQ9OfhXSZx25kzKisWZnTDH0o/x
+         VMmoHkdzpqH080pGMBHGH6ezwi5GuGazIFUNFaLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daiyue Zhang <zhangdaiyue1@huawei.com>,
-        Dehe Gu <gudehe@huawei.com>,
-        Junchao Jiang <jiangjunchao1@huawei.com>,
-        Ge Qiu <qiuge@huawei.com>, Yi Chen <chenyi77@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 211/663] f2fs: fix to avoid inconsistent quota data
-Date:   Mon,  1 Mar 2021 17:07:39 +0100
-Message-Id: <20210301161152.228522861@linuxfoundation.org>
+Subject: [PATCH 5.11 293/775] ASoC: simple-card-utils: Fix device module clock
+Date:   Mon,  1 Mar 2021 17:07:41 +0100
+Message-Id: <20210301161216.095959496@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,98 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Chen <chenyi77@huawei.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-[ Upstream commit 25fb04dbce6a0e165d28fd1fa8a1d7018c637fe8 ]
+[ Upstream commit 1e30f642cf2939bbdac82ea0dd3071232670b5ab ]
 
-Occasionally, quota data may be corrupted detected by fsck:
+If "clocks = <&xxx>" is specified from the CPU or Codec component
+device node, the clock is not getting enabled. Thus audio playback
+or capture fails.
 
-Info: checkpoint state = 45 :  crc compacted_summary unmount
-[QUOTA WARNING] Usage inconsistent for ID 0:actual (1543036928, 762) != expected (1543032832, 762)
-[ASSERT] (fsck_chk_quota_files:1986)  --> Quota file is missing or invalid quota file content found.
-[QUOTA WARNING] Usage inconsistent for ID 0:actual (1352478720, 344) != expected (1352474624, 344)
-[ASSERT] (fsck_chk_quota_files:1986)  --> Quota file is missing or invalid quota file content found.
+Fix this by populating "simple_dai->clk" field when clocks property
+is specified from device node as well. Also tidy up by re-organising
+conditional statements of parsing logic.
 
-[FSCK] Unreachable nat entries                        [Ok..] [0x0]
-[FSCK] SIT valid block bitmap checking                [Ok..]
-[FSCK] Hard link checking for regular file            [Ok..] [0x0]
-[FSCK] valid_block_count matching with CP             [Ok..] [0xdf299]
-[FSCK] valid_node_count matcing with CP (de lookup)   [Ok..] [0x2b01]
-[FSCK] valid_node_count matcing with CP (nat lookup)  [Ok..] [0x2b01]
-[FSCK] valid_inode_count matched with CP              [Ok..] [0x2665]
-[FSCK] free segment_count matched with CP             [Ok..] [0xcb04]
-[FSCK] next block offset is free                      [Ok..]
-[FSCK] fixing SIT types
-[FSCK] other corrupted bugs                           [Fail]
-
-The root cause is:
-If we open file w/ readonly flag, disk quota info won't be initialized
-for this file, however, following mmap() will force to convert inline
-inode via f2fs_convert_inline_inode(), which may increase block usage
-for this inode w/o updating quota data, it causes inconsistent disk quota
-info.
-
-The issue will happen in following stack:
-open(file, O_RDONLY)
-mmap(file)
-- f2fs_convert_inline_inode
- - f2fs_convert_inline_page
-  - f2fs_reserve_block
-   - f2fs_reserve_new_block
-    - f2fs_reserve_new_blocks
-     - f2fs_i_blocks_write
-      - dquot_claim_block
-inode->i_blocks increase, but the dqb_curspace keep the size for the dquots
-is NULL.
-
-To fix this issue, let's call dquot_initialize() anyway in both
-f2fs_truncate() and f2fs_convert_inline_inode() functions to avoid potential
-inconsistent quota data issue.
-
-Fixes: 0abd675e97e6 ("f2fs: support plain user/group quota")
-Signed-off-by: Daiyue Zhang <zhangdaiyue1@huawei.com>
-Signed-off-by: Dehe Gu <gudehe@huawei.com>
-Signed-off-by: Junchao Jiang <jiangjunchao1@huawei.com>
-Signed-off-by: Ge Qiu <qiuge@huawei.com>
-Signed-off-by: Yi Chen <chenyi77@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: bb6fc620c2ed ("ASoC: simple-card-utils: add asoc_simple_card_parse_clk()")
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/1612939421-19900-2-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c   | 4 ++++
- fs/f2fs/inline.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ sound/soc/generic/simple-card-utils.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index fe39e591e5b4c..f97f2842f9ec1 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -766,6 +766,10 @@ int f2fs_truncate(struct inode *inode)
- 		return -EIO;
+diff --git a/sound/soc/generic/simple-card-utils.c b/sound/soc/generic/simple-card-utils.c
+index 6cada4c1e283b..ab31045cfc952 100644
+--- a/sound/soc/generic/simple-card-utils.c
++++ b/sound/soc/generic/simple-card-utils.c
+@@ -172,16 +172,15 @@ int asoc_simple_parse_clk(struct device *dev,
+ 	 *  or device's module clock.
+ 	 */
+ 	clk = devm_get_clk_from_child(dev, node, NULL);
+-	if (!IS_ERR(clk)) {
+-		simple_dai->sysclk = clk_get_rate(clk);
++	if (IS_ERR(clk))
++		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
+ 
++	if (!IS_ERR(clk)) {
+ 		simple_dai->clk = clk;
+-	} else if (!of_property_read_u32(node, "system-clock-frequency", &val)) {
++		simple_dai->sysclk = clk_get_rate(clk);
++	} else if (!of_property_read_u32(node, "system-clock-frequency",
++					 &val)) {
+ 		simple_dai->sysclk = val;
+-	} else {
+-		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
+-		if (!IS_ERR(clk))
+-			simple_dai->sysclk = clk_get_rate(clk);
  	}
  
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
-+
- 	/* we should check inline_data size */
- 	if (!f2fs_may_inline_data(inode)) {
- 		err = f2fs_convert_inline_inode(inode);
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 70384e31788db..b9e37f0b3e093 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -191,6 +191,10 @@ int f2fs_convert_inline_inode(struct inode *inode)
- 	if (!f2fs_has_inline_data(inode))
- 		return 0;
- 
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
-+
- 	page = f2fs_grab_cache_page(inode->i_mapping, 0, false);
- 	if (!page)
- 		return -ENOMEM;
+ 	if (of_property_read_bool(node, "system-clock-direction-out"))
 -- 
 2.27.0
 
