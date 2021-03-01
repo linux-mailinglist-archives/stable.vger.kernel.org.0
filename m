@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F6D328FD1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AAA0328FBF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242531AbhCAT6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
+        id S234914AbhCAT5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:57:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240744AbhCATpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:45:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75F6864FCF;
-        Mon,  1 Mar 2021 17:43:44 +0000 (UTC)
+        id S235818AbhCATor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26AB864F64;
+        Mon,  1 Mar 2021 17:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620625;
-        bh=t7KkS03sTGMZVsOQ1FE5kHPOnpkHk74FZ2X7vPDKYjs=;
+        s=korg; t=1614620638;
+        bh=o38ArbLCra0COZeM1Ksq0zTLLZooik7rRuUG+JnT1ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3WLm78+jgfnlXvN67vlmc/ZOaBoKSKchn5rXrl0ZZBWVpKW55JUtfovON/lg72kc
-         t4SieaM/2kHU90dO+vwgjRueHmoDo2Pi6iRogqGfCI5sQUm+8mTloFLh421v+tZQQA
-         x4EDzr7HeKmhvOpHjTn0zJ6RMdg12XwMXPfBynUM=
+        b=HtOk84j2WIHEmD7a7Z1QHpreYQ92ZbiYwonL+0Wf2yBJ2c5i18AHgurjgh7JfHLig
+         lTHh0XksxLNNPYR5JxdaQEpIkYnQixVUZ39bFGJCfMFVLjPH3cbc+lh6leN7qvYq0V
+         6BavoMW1e21S5gBlcn0DlXWaFDEnb/j1CLsgUWi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joshua Thompson <funaho@jurai.org>,
-        Stan Johnson <userm57@yahoo.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
+        stable@vger.kernel.org,
+        "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 220/775] macintosh/adb-iop: Use big-endian autopoll mask
-Date:   Mon,  1 Mar 2021 17:06:28 +0100
-Message-Id: <20210301161212.495956807@linuxfoundation.org>
+Subject: [PATCH 5.11 225/775] media: vidtv: psi: fix missing crc for PMT
+Date:   Mon,  1 Mar 2021 17:06:33 +0100
+Message-Id: <20210301161212.747591846@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,59 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
 
-[ Upstream commit c396dd2ec5bbd1cb80eafe32a72ab6bd6b17cb5a ]
+[ Upstream commit 0a933a7f73d6c545dcbecb4f7a92d272aef4417b ]
 
-As usual, the available documentation is inadequate and leaves endianness
-unspecified for message data. However, testing shows that this patch does
-improve correctness. The mistake should have been detected earlier but it
-was obscured by other bugs. In testing, this patch reinstated pre-v5.9
-behaviour. The old driver bugs remain and ADB input devices may stop
-working. But that appears to be unrelated.
+The PMT write function was refactored and this broke the CRC computation.
 
-Cc: Joshua Thompson <funaho@jurai.org>
-Fixes: c66da95a39ec ("macintosh/adb-iop: Implement SRQ autopolling")
-Tested-by: Stan Johnson <userm57@yahoo.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20210125074524.3027452-1-geert@linux-m68k.org
+Fix it.
+
+Fixes: db9569f67e2e ("media: vidtv: cleanup PMT write table function")
+Signed-off-by: Daniel W. S. Almeida <dwlsalmeida@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/adb-iop.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/test-drivers/vidtv/vidtv_psi.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/macintosh/adb-iop.c b/drivers/macintosh/adb-iop.c
-index 0ee3272491501..2633bc254935c 100644
---- a/drivers/macintosh/adb-iop.c
-+++ b/drivers/macintosh/adb-iop.c
-@@ -19,6 +19,7 @@
- #include <asm/macints.h>
- #include <asm/mac_iop.h>
- #include <asm/adb_iop.h>
-+#include <asm/unaligned.h>
+diff --git a/drivers/media/test-drivers/vidtv/vidtv_psi.c b/drivers/media/test-drivers/vidtv/vidtv_psi.c
+index 4511a2a98405d..1724bb485e670 100644
+--- a/drivers/media/test-drivers/vidtv/vidtv_psi.c
++++ b/drivers/media/test-drivers/vidtv/vidtv_psi.c
+@@ -1164,6 +1164,8 @@ u32 vidtv_psi_pmt_write_into(struct vidtv_psi_pmt_write_args *args)
+ 	struct vidtv_psi_desc *table_descriptor   = args->pmt->descriptor;
+ 	struct vidtv_psi_table_pmt_stream *stream = args->pmt->stream;
+ 	struct vidtv_psi_desc *stream_descriptor;
++	u32 crc = INITIAL_CRC;
++	u32 nbytes = 0;
+ 	struct header_write_args h_args = {
+ 		.dest_buf           = args->buf,
+ 		.dest_offset        = args->offset,
+@@ -1181,6 +1183,7 @@ u32 vidtv_psi_pmt_write_into(struct vidtv_psi_pmt_write_args *args)
+ 		.new_psi_section    = false,
+ 		.is_crc             = false,
+ 		.dest_buf_sz        = args->buf_sz,
++		.crc                = &crc,
+ 	};
+ 	struct desc_write_args d_args   = {
+ 		.dest_buf           = args->buf,
+@@ -1193,8 +1196,6 @@ u32 vidtv_psi_pmt_write_into(struct vidtv_psi_pmt_write_args *args)
+ 		.pid                = args->pid,
+ 		.dest_buf_sz        = args->buf_sz,
+ 	};
+-	u32 crc = INITIAL_CRC;
+-	u32 nbytes = 0;
  
- #include <linux/adb.h>
+ 	vidtv_psi_pmt_table_update_sec_len(args->pmt);
  
-@@ -249,7 +250,7 @@ static void adb_iop_set_ap_complete(struct iop_msg *msg)
- {
- 	struct adb_iopmsg *amsg = (struct adb_iopmsg *)msg->message;
- 
--	autopoll_devs = (amsg->data[1] << 8) | amsg->data[0];
-+	autopoll_devs = get_unaligned_be16(amsg->data);
- 	if (autopoll_devs & (1 << autopoll_addr))
- 		return;
- 	autopoll_addr = autopoll_devs ? (ffs(autopoll_devs) - 1) : 0;
-@@ -266,8 +267,7 @@ static int adb_iop_autopoll(int devs)
- 	amsg.flags = ADB_IOP_SET_AUTOPOLL | (mask ? ADB_IOP_AUTOPOLL : 0);
- 	amsg.count = 2;
- 	amsg.cmd = 0;
--	amsg.data[0] = mask & 0xFF;
--	amsg.data[1] = (mask >> 8) & 0xFF;
-+	put_unaligned_be16(mask, amsg.data);
- 
- 	iop_send_message(ADB_IOP, ADB_CHAN, NULL, sizeof(amsg), (__u8 *)&amsg,
- 			 adb_iop_set_ap_complete);
 -- 
 2.27.0
 
