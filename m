@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A482328553
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29EC32845E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235906AbhCAQxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
+        id S231352AbhCAQeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:34:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235610AbhCAQo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C99964D9E;
-        Mon,  1 Mar 2021 16:30:37 +0000 (UTC)
+        id S234875AbhCAQ3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F137964EEF;
+        Mon,  1 Mar 2021 16:22:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616238;
-        bh=Ll01cyWGiab8fD3my7tq0cLu3utkQTsjJGI8tYbo7Dc=;
+        s=korg; t=1614615770;
+        bh=pnj2q4mKwcEOetJykDtwV2xdO7Ak5cmiJLRktgJvHes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/CS6hNz7PWACb3EMNuARmV2g4MW0mec/j7gNbYIMyTh2Aujaf25fgA8Au6+s8ZL6
-         LiQvbMskYT1zHGJ8b1bbz5NSIpAgV5GiQYQvbq+mVTfRG0GQUATYO9LYPh1wosCX0z
-         5Da3O4o+R6dXOBmKlKAR0l6s63pOG2o8j0LTgkQ4=
+        b=yrysth0XK2/k34ckjYO195UMK9NHw67Vm4p+Y8JX4zAF7gmfw+wSka2B5xVBcV8nP
+         QpskzNmjbbOaddSLlkxrnyQFBpLygC50a3wQqZWN2PP7VJf0QYSZUl/8LxdvQ2Qgaw
+         iS0WvLMjp/ctKFKvSdkqnzAM2Gpt4hqfiah565qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/176] regulator: axp20x: Fix reference cout leak
+        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        devicetree@vger.kernel.org, KarimAllah Ahmed <karahmed@amazon.de>,
+        Quentin Perret <qperret@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 053/134] fdt: Properly handle "no-map" field in the memory region
 Date:   Mon,  1 Mar 2021 17:12:34 +0100
-Message-Id: <20210301161024.990115828@linuxfoundation.org>
+Message-Id: <20210301161016.171027994@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: KarimAllah Ahmed <karahmed@amazon.de>
 
-[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
+[ Upstream commit 86588296acbfb1591e92ba60221e95677ecadb43 ]
 
-Decrements the reference count of device node and its child node.
+Mark the memory region with NOMAP flag instead of completely removing it
+from the memory blocks. That makes the FDT handling consistent with the EFI
+memory map handling.
 
-Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: KarimAllah Ahmed <karahmed@amazon.de>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Link: https://lore.kernel.org/r/20210115114544.1830068-2-qperret@google.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/axp20x-regulator.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/of/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
-index 376a99b7cf5da..901e3fb65ebf7 100644
---- a/drivers/regulator/axp20x-regulator.c
-+++ b/drivers/regulator/axp20x-regulator.c
-@@ -493,7 +493,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
- static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index e9360d5cbcbac..f90b626269ab6 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1159,7 +1159,7 @@ int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
+ 					phys_addr_t size, bool nomap)
  {
- 	struct device_node *np, *regulators;
--	int ret;
-+	int ret = 0;
- 	u32 dcdcfreq = 0;
- 
- 	np = of_node_get(pdev->dev.parent->of_node);
-@@ -508,13 +508,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
- 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
- 		if (ret < 0) {
- 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
--			return ret;
- 		}
--
- 		of_node_put(regulators);
- 	}
- 
--	return 0;
-+	of_node_put(np);
-+	return ret;
+ 	if (nomap)
+-		return memblock_remove(base, size);
++		return memblock_mark_nomap(base, size);
+ 	return memblock_reserve(base, size);
  }
  
- static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
