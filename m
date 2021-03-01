@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B56328512
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBA5328518
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235538AbhCAQsT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:48:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46640 "EHLO mail.kernel.org"
+        id S235683AbhCAQsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:48:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233518AbhCAQlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:41:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 315DE64DF5;
-        Mon,  1 Mar 2021 16:28:48 +0000 (UTC)
+        id S234893AbhCAQlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:41:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29F3864EE0;
+        Mon,  1 Mar 2021 16:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616129;
-        bh=ugIPlnR3uZHy1NSFOnPp5bkhtRS0yi4mhFhfoLYbLl8=;
+        s=korg; t=1614616132;
+        bh=eT39xaQOiQE9iX/3+l/9yrjkQleI1avlPT9OBeh+DR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLhjUj6ld6TbR9WqObxO5XgCKAce+LXoh5SxdaCEAFo6iyQ9KotNR2yhKoSYx+WyE
-         PiAvexD1U6lpaFbfLsY485xJlgePms9/IVCbpyEZR2z9DaOu0/xX6AwJej8UwSnjI5
-         4H9uIiu5oRguiRa15iQqHNrTrbNxWXLd6xBVVNlE=
+        b=rni3vv5OQU/j1j+U8zNyznd/XaaNKrh6SbiOpnD8x5vSy+5Pcl+9knr6hUC5IiST1
+         W0WGZKYBtmYPWB1QAevA1c71YCoUbRDxqsbI+lYKB2n8SShA9K+4rNdmYew2uM0piu
+         QubL9S2LV2KQUB6S2MvD1A78I6AJcm3LGZhqDdEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/176] MIPS: c-r4k: Fix section mismatch for loongson2_sc_init
-Date:   Mon,  1 Mar 2021 17:11:58 +0100
-Message-Id: <20210301161023.207590677@linuxfoundation.org>
+Subject: [PATCH 4.14 046/176] MIPS: lantiq: Explicitly compare LTQ_EBU_PCC_ISTAT against 0
+Date:   Mon,  1 Mar 2021 17:11:59 +0100
+Message-Id: <20210301161023.247559607@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -44,41 +43,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit c58734eee6a2151ba033c0dcb31902c89e310374 ]
+[ Upstream commit c6f2a9e17b9bef7677caddb1626c2402f3e9d2bd ]
 
-When building with clang, the following section mismatch warning occurs:
+When building xway_defconfig with clang:
 
-WARNING: modpost: vmlinux.o(.text+0x24490): Section mismatch in
-reference from the function r4k_cache_init() to the function
-.init.text:loongson2_sc_init()
+arch/mips/lantiq/irq.c:305:48: error: use of logical '&&' with constant
+operand [-Werror,-Wconstant-logical-operand]
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                      ^ ~~~~~~~~~~~~~~~~~
+arch/mips/lantiq/irq.c:305:48: note: use '&' for a bitwise operation
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                      ^~
+                                                      &
+arch/mips/lantiq/irq.c:305:48: note: remove constant to silence this
+warning
+        if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
+                                                     ~^~~~~~~~~~~~~~~~~~~~
+1 error generated.
 
-This should have been fixed with commit ad4fddef5f23 ("mips: fix Section
-mismatch in reference") but it was missed. Remove the improper __init
-annotation like that commit did.
+Explicitly compare the constant LTQ_EBU_PCC_ISTAT against 0 to fix the
+warning. Additionally, remove the unnecessary parentheses as this is a
+simple conditional statement and shorthand '== 0' to '!'.
 
-Fixes: 078a55fc824c ("MIPS: Delete __cpuinit/__CPUINIT usage from MIPS code")
-Link: https://github.com/ClangBuiltLinux/linux/issues/787
+Fixes: 3645da0276ae ("OF: MIPS: lantiq: implement irq_domain support")
+Link: https://github.com/ClangBuiltLinux/linux/issues/807
+Reported-by: Dmitry Golovin <dima@golovin.in>
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Huacai Chen <chenhuacai@kernel.org>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/mm/c-r4k.c | 2 +-
+ arch/mips/lantiq/irq.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/mm/c-r4k.c b/arch/mips/mm/c-r4k.c
-index e4de107bf7fd8..c1afed6b1ce72 100644
---- a/arch/mips/mm/c-r4k.c
-+++ b/arch/mips/mm/c-r4k.c
-@@ -1665,7 +1665,7 @@ static int probe_scache(void)
- 	return 1;
+diff --git a/arch/mips/lantiq/irq.c b/arch/mips/lantiq/irq.c
+index 37caeadb2964c..0476d7e97a03f 100644
+--- a/arch/mips/lantiq/irq.c
++++ b/arch/mips/lantiq/irq.c
+@@ -244,7 +244,7 @@ static void ltq_hw_irq_handler(struct irq_desc *desc)
+ 	generic_handle_irq(irq_linear_revmap(ltq_domain, hwirq));
+ 
+ 	/* if this is a EBU irq, we need to ack it or get a deadlock */
+-	if ((irq == LTQ_ICU_EBU_IRQ) && (module == 0) && LTQ_EBU_PCC_ISTAT)
++	if (irq == LTQ_ICU_EBU_IRQ && !module && LTQ_EBU_PCC_ISTAT != 0)
+ 		ltq_ebu_w32(ltq_ebu_r32(LTQ_EBU_PCC_ISTAT) | 0x10,
+ 			LTQ_EBU_PCC_ISTAT);
  }
- 
--static void __init loongson2_sc_init(void)
-+static void loongson2_sc_init(void)
- {
- 	struct cpuinfo_mips *c = &current_cpu_data;
- 
 -- 
 2.27.0
 
