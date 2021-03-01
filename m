@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 038EF328D38
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C040328D3B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241067AbhCATH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:07:59 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:41215 "EHLO
+        id S241076AbhCATIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:08:02 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:40015 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240429AbhCATBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 14:01:47 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id E0ECCAD4;
-        Mon,  1 Mar 2021 14:00:53 -0500 (EST)
+        by vger.kernel.org with ESMTP id S240616AbhCATCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 14:02:40 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 2E084A9B;
+        Mon,  1 Mar 2021 14:01:49 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 14:00:54 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 14:01:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=DZk1pC
-        +fOj1OaB1fwOGaycJkxYaHo2qTTT4TDGrKgJg=; b=S6gSN3DqTlimQ6Z5uOzZd0
-        Txsj3Q2ERNm3INwuBPbz72DLR20NCpK+y947E8wzTE9C5YrupGYvaDvTcFamXTOK
-        2bVtTwPQ73Ixpx4mBuH43e5vfAJ3BAKTUZPAbTsW81Of+AQvg1ybT2/wr0+tdz80
-        RgBf5vZpRhDZFEp8IVjs//20S8hWYVFH1z3WQTXmwU9QlRVd7mx26JQMoAf1K4/4
-        GP5CPi27rEBbxjlIzAuiWhHdA9DKZgOBaoYdTWMArlDsodyttqf3+EvCoF+ge21v
-        uLRoe2xZGv2c7topCZTbg4ei3lO/khk+t5j2OJfKnY9Zcp5XF8KwHlwbqD1sH/FA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=od+fbL
+        9XatwtJcoKQX+AxlNcTgu6cU8LEwkffqQTNJ4=; b=ntWFgf99BV2Hl5Wp0SXcKx
+        5QNiD3qvnr6pCdZ3cJGyxBDekvgvpzTRBDyl/E1UPGJO/vClOy4pD3PEG6hAgVzi
+        L5sQf7MqLjt6w7vSynOCfjQ7kzQPMZO9LAhGO5itrd7WcFSyzbRNBEpkkgWFGHkl
+        m1/3jdzL1ws5dO16js9pPiwVpKLLxYUyBv4X08GpO4iSrKafw7x51XcxzGSOtEcO
+        /D8NAkS5clzyptbZS5ZA4G0RR4+LZbQXGrJEGpBU5BjGYblwlNJ61yt/BGftQdNE
+        nQbrMWaI/4mvzyHh/jcfTGjzUAQ5Z4XGsCs/jFpIjFSPR5RiJ1SgUpQEfMosihbA
         ==
-X-ME-Sender: <xms:4zk9YGH8uc5AA7_7YrpTkmnt5mCWp-IucmZs4g-VUM5yFVmAyIupFA>
-    <xme:4zk9YHQc0U3oTfWeIVtTaK-19ZPZsTMadmePFRT6NRCMyBOIS8BFw8GH_9qSB3QR2
-    9b3g2ED9g69qQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduudelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Gjo9YPwSaYFgXgG9WmRkeHL_M3VxAC17SROs9dbG-IHnbPeOoyX0jw>
+    <xme:Gjo9YHSZEdEbWlz1f3-E9yo52Y1CYHWH3tPdYOVuvl7ilzKHmIjJA5yD0YDut5ImH
+    e_PZ8ZH8h66vg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduudekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:4zk9YNBKrnXHbpaLtV5IG0TMvShaiPvA9UWLQln9GAj5OJHPNQGaUA>
-    <xmx:4zk9YH2n18t1wl5AnnSbEtzLkj7RzBPhaJ_ANSLID4GrHV8PjMNCAg>
-    <xmx:4zk9YLWnh2eEv0mx_nDZFzh6jufA1H7yxjZ-WhYVycN5qpRcoF5HeQ>
-    <xmx:5Tk9YH0VY-XP1-72LIRfdpXPvkXVUmn_Iotvl0FpLbQp1db4KCuZp_wNUVo>
+X-ME-Proxy: <xmx:Gjo9YJXmrNoi6JP78UE4WPEbWk-KyXpePbL5SF7P7Q6F7y6aShgW5g>
+    <xmx:Gjo9YJh3B3_GZ7GdsH3AKrRB_a7r9OPBXQI52ixh4RHADmKF7mDoYQ>
+    <xmx:Gjo9YBBABBge4wb5iaotVRsXSri1lvwd9wA55rKBEXNiZ1rKXuFiLg>
+    <xmx:HDo9YEphVppDbJEAnyCJiQkBeAThxu-QZmMdcvolep_5oZwSG7TJLxgYs1c>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 525F01080064;
-        Mon,  1 Mar 2021 14:00:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] crypto: sun4i-ss - IV register does not work on A10 and A13" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B6BF91080059;
+        Mon,  1 Mar 2021 14:01:46 -0500 (EST)
+Subject: FAILED: patch "[PATCH] crypto: sun4i-ss - IV register does not work on A10 and A13" failed to apply to 5.4-stable tree
 To:     clabbe@baylibre.com, herbert@gondor.apana.org.au,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 20:00:40 +0100
-Message-ID: <161462524069158@kroah.com>
+Date:   Mon, 01 Mar 2021 20:01:45 +0100
+Message-ID: <161462530510598@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
