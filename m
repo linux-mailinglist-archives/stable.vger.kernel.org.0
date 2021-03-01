@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FBF329029
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB41532906D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242704AbhCAUD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59056 "EHLO mail.kernel.org"
+        id S242910AbhCAUIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:08:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242372AbhCATxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:53:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34AA3652F4;
-        Mon,  1 Mar 2021 17:53:16 +0000 (UTC)
+        id S236081AbhCATyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:54:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4825C65373;
+        Mon,  1 Mar 2021 17:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621196;
-        bh=qm7VpN2YWJo2EZEaSzUlCmb0J1rwn8IGEG/yGm2879w=;
+        s=korg; t=1614621307;
+        bh=2LHPHV9tnSxi5BO34yWNDGIqGGLjjbhgK2npfrgmMek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGypx67n5AQo2pn4MZHqONaAp/zjqwK/4UpeU7IuaNrL+x5gvboG79K8TFzB8dOJV
-         AYMTMg8Ikf/J2jcYS58ocpvg5MpVE8h2SX239uAKOzO4NWPVvSR46qT5cOPqT6B23w
-         Yy691etQHlUvAUG4UD6rnLAC5+mIYMwHRjJNIGAU=
+        b=Ea9ba9rGgTYf88h5jUIhaPniK1NLIdvJlhitoRiYyAYBEyANOC3adgZf5hTTIJcVb
+         /StEieaP2n6+JBh5u3CGajdXxG2uXwTdSqFSmTgk6tphvAyzhZDYlaCHskUVdsM5Db
+         G5hUsFmDyLNCcSXwo1ChnIfg1qHkTfzM21iCGxuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 427/775] clk: qcom: gcc-sc7180: Mark the MM XO clocks to be always ON
-Date:   Mon,  1 Mar 2021 17:09:55 +0100
-Message-Id: <20210301161222.673150358@linuxfoundation.org>
+Subject: [PATCH 5.11 428/775] clk: qcom: gcc-msm8998: Fix Alpha PLL type for all GPLLs
+Date:   Mon,  1 Mar 2021 17:09:56 +0100
+Message-Id: <20210301161222.721662841@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,129 +42,385 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taniya Das <tdas@codeaurora.org>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit d79dfa19ca4235c28be62952bda6091babdcf8f3 ]
+[ Upstream commit 292f75ecff07e8a07fe2e3e19b4b567d0b698842 ]
 
-There are intermittent GDSC power-up failures observed for titan top
-gdsc, which requires the XO clock. Thus mark all the MM XO clocks always
-enabled from probe.
+All of the GPLLs in the MSM8998 Global Clock Controller are Fabia PLLs
+and not generic alphas: this was producing bad effects over the entire
+clock tree of MSM8998, where any GPLL child clock was declaring a false
+clock rate, due to their parent also showing the same.
 
-Fixes: 8d4025943e13 ("clk: qcom: camcc-sc7180: Use runtime PM ops instead of clk ones")
-Signed-off-by: Taniya Das <tdas@codeaurora.org>
-Link: https://lore.kernel.org/r/1611128871-5898-1-git-send-email-tdas@codeaurora.org
+The issue resides in the calculation of the clock rate for the specific
+Alpha PLL type, where Fabia has a different register layout; switching
+the MSM8998 GPLLs to the correct Alpha Fabia PLL type fixes the rate
+(calculation) reading. While at it, also make these PLLs fixed since
+their rate is supposed to *never* be changed while the system runs, as
+this would surely crash the entire SoC.
+
+Now all the children of all the PLLs are also complying with their
+specified clock table and system stability is improved.
+
+Fixes: b5f5f525c547 ("clk: qcom: Add MSM8998 Global Clock Control (GCC) driver")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Link: https://lore.kernel.org/r/20210114221059.483390-7-angelogioacchino.delregno@somainline.org
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sc7180.c | 47 +++--------------------------------
- 1 file changed, 4 insertions(+), 43 deletions(-)
+ drivers/clk/qcom/gcc-msm8998.c | 100 ++++++++++++++++-----------------
+ 1 file changed, 50 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sc7180.c b/drivers/clk/qcom/gcc-sc7180.c
-index b05901b249172..88e896abb6631 100644
---- a/drivers/clk/qcom/gcc-sc7180.c
-+++ b/drivers/clk/qcom/gcc-sc7180.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2019-2020, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2019-2021, The Linux Foundation. All rights reserved.
-  */
+diff --git a/drivers/clk/qcom/gcc-msm8998.c b/drivers/clk/qcom/gcc-msm8998.c
+index 9d7016bcd6800..b8dcfe62312bb 100644
+--- a/drivers/clk/qcom/gcc-msm8998.c
++++ b/drivers/clk/qcom/gcc-msm8998.c
+@@ -135,7 +135,7 @@ static struct pll_vco fabia_vco[] = {
  
- #include <linux/clk-provider.h>
-@@ -919,19 +919,6 @@ static struct clk_branch gcc_camera_throttle_hf_axi_clk = {
+ static struct clk_alpha_pll gpll0 = {
+ 	.offset = 0x0,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.vco_table = fabia_vco,
+ 	.num_vco = ARRAY_SIZE(fabia_vco),
+ 	.clkr = {
+@@ -145,58 +145,58 @@ static struct clk_alpha_pll gpll0 = {
+ 			.name = "gpll0",
+ 			.parent_names = (const char *[]){ "xo" },
+ 			.num_parents = 1,
+-			.ops = &clk_alpha_pll_ops,
++			.ops = &clk_alpha_pll_fixed_fabia_ops,
+ 		}
  	},
  };
  
--static struct clk_branch gcc_camera_xo_clk = {
--	.halt_reg = 0xb02c,
--	.halt_check = BRANCH_HALT,
--	.clkr = {
--		.enable_reg = 0xb02c,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "gcc_camera_xo_clk",
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
- static struct clk_branch gcc_ce1_ahb_clk = {
- 	.halt_reg = 0x4100c,
- 	.halt_check = BRANCH_HALT_VOTED,
-@@ -1096,19 +1083,6 @@ static struct clk_branch gcc_disp_throttle_hf_axi_clk = {
+ static struct clk_alpha_pll_postdiv gpll0_out_even = {
+ 	.offset = 0x0,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_even",
+ 		.parent_names = (const char *[]){ "gpll0" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
  	},
  };
  
--static struct clk_branch gcc_disp_xo_clk = {
--	.halt_reg = 0xb030,
--	.halt_check = BRANCH_HALT,
--	.clkr = {
--		.enable_reg = 0xb030,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "gcc_disp_xo_clk",
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
- static struct clk_branch gcc_gp1_clk = {
- 	.halt_reg = 0x64000,
- 	.halt_check = BRANCH_HALT,
-@@ -2159,19 +2133,6 @@ static struct clk_branch gcc_video_throttle_axi_clk = {
+ static struct clk_alpha_pll_postdiv gpll0_out_main = {
+ 	.offset = 0x0,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_main",
+ 		.parent_names = (const char *[]){ "gpll0" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
  	},
  };
  
--static struct clk_branch gcc_video_xo_clk = {
--	.halt_reg = 0xb028,
--	.halt_check = BRANCH_HALT,
--	.clkr = {
--		.enable_reg = 0xb028,
--		.enable_mask = BIT(0),
--		.hw.init = &(struct clk_init_data){
--			.name = "gcc_video_xo_clk",
--			.ops = &clk_branch2_ops,
--		},
--	},
--};
--
- static struct clk_branch gcc_mss_cfg_ahb_clk = {
- 	.halt_reg = 0x8a000,
- 	.halt_check = BRANCH_HALT,
-@@ -2304,7 +2265,6 @@ static struct clk_regmap *gcc_sc7180_clocks[] = {
- 	[GCC_BOOT_ROM_AHB_CLK] = &gcc_boot_rom_ahb_clk.clkr,
- 	[GCC_CAMERA_HF_AXI_CLK] = &gcc_camera_hf_axi_clk.clkr,
- 	[GCC_CAMERA_THROTTLE_HF_AXI_CLK] = &gcc_camera_throttle_hf_axi_clk.clkr,
--	[GCC_CAMERA_XO_CLK] = &gcc_camera_xo_clk.clkr,
- 	[GCC_CE1_AHB_CLK] = &gcc_ce1_ahb_clk.clkr,
- 	[GCC_CE1_AXI_CLK] = &gcc_ce1_axi_clk.clkr,
- 	[GCC_CE1_CLK] = &gcc_ce1_clk.clkr,
-@@ -2317,7 +2277,6 @@ static struct clk_regmap *gcc_sc7180_clocks[] = {
- 	[GCC_DISP_GPLL0_DIV_CLK_SRC] = &gcc_disp_gpll0_div_clk_src.clkr,
- 	[GCC_DISP_HF_AXI_CLK] = &gcc_disp_hf_axi_clk.clkr,
- 	[GCC_DISP_THROTTLE_HF_AXI_CLK] = &gcc_disp_throttle_hf_axi_clk.clkr,
--	[GCC_DISP_XO_CLK] = &gcc_disp_xo_clk.clkr,
- 	[GCC_GP1_CLK] = &gcc_gp1_clk.clkr,
- 	[GCC_GP1_CLK_SRC] = &gcc_gp1_clk_src.clkr,
- 	[GCC_GP2_CLK] = &gcc_gp2_clk.clkr,
-@@ -2413,7 +2372,6 @@ static struct clk_regmap *gcc_sc7180_clocks[] = {
- 	[GCC_VIDEO_AXI_CLK] = &gcc_video_axi_clk.clkr,
- 	[GCC_VIDEO_GPLL0_DIV_CLK_SRC] = &gcc_video_gpll0_div_clk_src.clkr,
- 	[GCC_VIDEO_THROTTLE_AXI_CLK] = &gcc_video_throttle_axi_clk.clkr,
--	[GCC_VIDEO_XO_CLK] = &gcc_video_xo_clk.clkr,
- 	[GPLL0] = &gpll0.clkr,
- 	[GPLL0_OUT_EVEN] = &gpll0_out_even.clkr,
- 	[GPLL6] = &gpll6.clkr,
-@@ -2510,6 +2468,9 @@ static int gcc_sc7180_probe(struct platform_device *pdev)
- 	regmap_update_bits(regmap, 0x0b004, BIT(0), BIT(0));
- 	regmap_update_bits(regmap, 0x0b008, BIT(0), BIT(0));
- 	regmap_update_bits(regmap, 0x0b00c, BIT(0), BIT(0));
-+	regmap_update_bits(regmap, 0x0b02c, BIT(0), BIT(0));
-+	regmap_update_bits(regmap, 0x0b028, BIT(0), BIT(0));
-+	regmap_update_bits(regmap, 0x0b030, BIT(0), BIT(0));
- 	regmap_update_bits(regmap, 0x71004, BIT(0), BIT(0));
+ static struct clk_alpha_pll_postdiv gpll0_out_odd = {
+ 	.offset = 0x0,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_odd",
+ 		.parent_names = (const char *[]){ "gpll0" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
  
- 	ret = qcom_cc_register_rcg_dfs(regmap, gcc_dfs_clocks,
+ static struct clk_alpha_pll_postdiv gpll0_out_test = {
+ 	.offset = 0x0,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll0_out_test",
+ 		.parent_names = (const char *[]){ "gpll0" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll gpll1 = {
+ 	.offset = 0x1000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.vco_table = fabia_vco,
+ 	.num_vco = ARRAY_SIZE(fabia_vco),
+ 	.clkr = {
+@@ -206,58 +206,58 @@ static struct clk_alpha_pll gpll1 = {
+ 			.name = "gpll1",
+ 			.parent_names = (const char *[]){ "xo" },
+ 			.num_parents = 1,
+-			.ops = &clk_alpha_pll_ops,
++			.ops = &clk_alpha_pll_fixed_fabia_ops,
+ 		}
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll1_out_even = {
+ 	.offset = 0x1000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll1_out_even",
+ 		.parent_names = (const char *[]){ "gpll1" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll1_out_main = {
+ 	.offset = 0x1000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll1_out_main",
+ 		.parent_names = (const char *[]){ "gpll1" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll1_out_odd = {
+ 	.offset = 0x1000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll1_out_odd",
+ 		.parent_names = (const char *[]){ "gpll1" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll1_out_test = {
+ 	.offset = 0x1000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll1_out_test",
+ 		.parent_names = (const char *[]){ "gpll1" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll gpll2 = {
+ 	.offset = 0x2000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.vco_table = fabia_vco,
+ 	.num_vco = ARRAY_SIZE(fabia_vco),
+ 	.clkr = {
+@@ -267,58 +267,58 @@ static struct clk_alpha_pll gpll2 = {
+ 			.name = "gpll2",
+ 			.parent_names = (const char *[]){ "xo" },
+ 			.num_parents = 1,
+-			.ops = &clk_alpha_pll_ops,
++			.ops = &clk_alpha_pll_fixed_fabia_ops,
+ 		}
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll2_out_even = {
+ 	.offset = 0x2000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll2_out_even",
+ 		.parent_names = (const char *[]){ "gpll2" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll2_out_main = {
+ 	.offset = 0x2000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll2_out_main",
+ 		.parent_names = (const char *[]){ "gpll2" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll2_out_odd = {
+ 	.offset = 0x2000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll2_out_odd",
+ 		.parent_names = (const char *[]){ "gpll2" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll2_out_test = {
+ 	.offset = 0x2000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll2_out_test",
+ 		.parent_names = (const char *[]){ "gpll2" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll gpll3 = {
+ 	.offset = 0x3000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.vco_table = fabia_vco,
+ 	.num_vco = ARRAY_SIZE(fabia_vco),
+ 	.clkr = {
+@@ -328,58 +328,58 @@ static struct clk_alpha_pll gpll3 = {
+ 			.name = "gpll3",
+ 			.parent_names = (const char *[]){ "xo" },
+ 			.num_parents = 1,
+-			.ops = &clk_alpha_pll_ops,
++			.ops = &clk_alpha_pll_fixed_fabia_ops,
+ 		}
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll3_out_even = {
+ 	.offset = 0x3000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll3_out_even",
+ 		.parent_names = (const char *[]){ "gpll3" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll3_out_main = {
+ 	.offset = 0x3000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll3_out_main",
+ 		.parent_names = (const char *[]){ "gpll3" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll3_out_odd = {
+ 	.offset = 0x3000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll3_out_odd",
+ 		.parent_names = (const char *[]){ "gpll3" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll3_out_test = {
+ 	.offset = 0x3000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll3_out_test",
+ 		.parent_names = (const char *[]){ "gpll3" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll gpll4 = {
+ 	.offset = 0x77000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.vco_table = fabia_vco,
+ 	.num_vco = ARRAY_SIZE(fabia_vco),
+ 	.clkr = {
+@@ -389,52 +389,52 @@ static struct clk_alpha_pll gpll4 = {
+ 			.name = "gpll4",
+ 			.parent_names = (const char *[]){ "xo" },
+ 			.num_parents = 1,
+-			.ops = &clk_alpha_pll_ops,
++			.ops = &clk_alpha_pll_fixed_fabia_ops,
+ 		}
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll4_out_even = {
+ 	.offset = 0x77000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4_out_even",
+ 		.parent_names = (const char *[]){ "gpll4" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll4_out_main = {
+ 	.offset = 0x77000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4_out_main",
+ 		.parent_names = (const char *[]){ "gpll4" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll4_out_odd = {
+ 	.offset = 0x77000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4_out_odd",
+ 		.parent_names = (const char *[]){ "gpll4" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
+ static struct clk_alpha_pll_postdiv gpll4_out_test = {
+ 	.offset = 0x77000,
+-	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_DEFAULT],
++	.regs = clk_alpha_pll_regs[CLK_ALPHA_PLL_TYPE_FABIA],
+ 	.clkr.hw.init = &(struct clk_init_data){
+ 		.name = "gpll4_out_test",
+ 		.parent_names = (const char *[]){ "gpll4" },
+ 		.num_parents = 1,
+-		.ops = &clk_alpha_pll_postdiv_ops,
++		.ops = &clk_alpha_pll_postdiv_fabia_ops,
+ 	},
+ };
+ 
 -- 
 2.27.0
 
