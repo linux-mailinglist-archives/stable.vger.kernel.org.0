@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCA3328DD2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EB57328DBE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241355AbhCATRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:17:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
+        id S241018AbhCATQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:16:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237788AbhCATNk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:13:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BE0761490;
-        Mon,  1 Mar 2021 17:28:58 +0000 (UTC)
+        id S241081AbhCATMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:12:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C905865266;
+        Mon,  1 Mar 2021 17:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619738;
-        bh=svcXpyccXQibrYHoBq6UlegmZPdNMiH5pCVw138BbCs=;
+        s=korg; t=1614619752;
+        bh=VdgGtG62dbtuzn5Gqpyjud3MAjEKXkOevuzcKm5Dbzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IioEanWvU8yBbDgKPaXDbNoWndihkkfamSTj1rYcPXB3F8DWjTyFDFR+lPskzHltC
-         pqqJSSjSOBfGirxNK3v6UAU8kTNKagejUnCLkCeC14hPvjQGjmN8RaAMhUc3s2QRSA
-         zMSVxt8H7SAMJPFg8feaS/dojRe+zC5FmIj1lyVU=
+        b=nsE6iH8LLBqFQcFRNG+xt7xCKvChLyOSLiwAIwZhGa+NRX5ofcZ9eH8zoXqyRm9aU
+         WTiJTzNzCNZPEadSveAG/nNcFjbYcn/ATwSpv58RPEuddK34jes7x8LFiNGveKBPmW
+         AKCcFj0LtOphHBxDsuaBgnGeQJOUgeVks0WbF0YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 564/663] media: ipu3-cio2: Fix mbus_code processing in cio2_subdev_set_fmt()
-Date:   Mon,  1 Mar 2021 17:13:32 +0100
-Message-Id: <20210301161209.771816404@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.10 569/663] x86/fault: Fix AMD erratum #91 errata fixup for user code
+Date:   Mon,  1 Mar 2021 17:13:37 +0100
+Message-Id: <20210301161210.021056154@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,35 +39,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: Andy Lutomirski <luto@kernel.org>
 
-commit 334de4b45892f7e67074e1b1b2ac36fd3e091118 upstream.
+commit 35f1c89b0cce247bf0213df243ed902989b1dcda upstream.
 
-Loop was useless as it would always exit on the first iteration. Fix
-it with right condition.
+The recent rework of probe_kernel_address() and its conversion to
+get_kernel_nofault() inadvertently broke is_prefetch(). Before this
+change, probe_kernel_address() was used as a sloppy "read user or
+kernel memory" helper, but it doesn't do that any more. The new
+get_kernel_nofault() reads *kernel* memory only, which completely broke
+is_prefetch() for user access.
 
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Fixes: a86cf9b29e8b ("media: ipu3-cio2: Validate mbus format in setting subdev format")
-Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Adjust the code to the correct accessor based on access mode. The
+manual address bounds check is no longer necessary, since the accessor
+helpers (get_user() / get_kernel_nofault()) do the right thing all by
+themselves. As a bonus, by using the correct accessor, the open-coded
+address bounds check is not needed anymore.
+
+ [ bp: Massage commit message. ]
+
+Fixes: eab0c6089b68 ("maccess: unify the probe kernel arch hooks")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/b91f7f92f3367d2d3a88eec3b09c6aab1b2dc8ef.1612924255.git.luto@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/mm/fault.c |   27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1277,7 +1277,7 @@ static int cio2_subdev_set_fmt(struct v4
- 	fmt->format.code = formats[0].mbus_code;
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -53,7 +53,7 @@ kmmio_fault(struct pt_regs *regs, unsign
+  * 32-bit mode:
+  *
+  *   Sometimes AMD Athlon/Opteron CPUs report invalid exceptions on prefetch.
+- *   Check that here and ignore it.
++ *   Check that here and ignore it.  This is AMD erratum #91.
+  *
+  * 64-bit mode:
+  *
+@@ -82,11 +82,7 @@ check_prefetch_opcode(struct pt_regs *re
+ #ifdef CONFIG_X86_64
+ 	case 0x40:
+ 		/*
+-		 * In AMD64 long mode 0x40..0x4F are valid REX prefixes
+-		 * Need to figure out under what instruction mode the
+-		 * instruction was issued. Could check the LDT for lm,
+-		 * but for now it's good enough to assume that long
+-		 * mode only uses well known segments or kernel.
++		 * In 64-bit mode 0x40..0x4F are valid REX prefixes
+ 		 */
+ 		return (!user_mode(regs) || user_64bit_mode(regs));
+ #endif
+@@ -126,20 +122,31 @@ is_prefetch(struct pt_regs *regs, unsign
+ 	instr = (void *)convert_ip_to_linear(current, regs);
+ 	max_instr = instr + 15;
  
- 	for (i = 0; i < ARRAY_SIZE(formats); i++) {
--		if (formats[i].mbus_code == fmt->format.code) {
-+		if (formats[i].mbus_code == mbus_code) {
- 			fmt->format.code = mbus_code;
+-	if (user_mode(regs) && instr >= (unsigned char *)TASK_SIZE_MAX)
+-		return 0;
++	/*
++	 * This code has historically always bailed out if IP points to a
++	 * not-present page (e.g. due to a race).  No one has ever
++	 * complained about this.
++	 */
++	pagefault_disable();
+ 
+ 	while (instr < max_instr) {
+ 		unsigned char opcode;
+ 
+-		if (get_kernel_nofault(opcode, instr))
+-			break;
++		if (user_mode(regs)) {
++			if (get_user(opcode, instr))
++				break;
++		} else {
++			if (get_kernel_nofault(opcode, instr))
++				break;
++		}
+ 
+ 		instr++;
+ 
+ 		if (!check_prefetch_opcode(regs, instr, opcode, &prefetch))
  			break;
- 		}
+ 	}
++
++	pagefault_enable();
+ 	return prefetch;
+ }
+ 
 
 
