@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5767832838B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8E6A328385
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235418AbhCAQVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:21:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56664 "EHLO mail.kernel.org"
+        id S235389AbhCAQVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:21:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237785AbhCAQTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB20864EBD;
-        Mon,  1 Mar 2021 16:17:23 +0000 (UTC)
+        id S237783AbhCAQTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:19:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C521C64EBE;
+        Mon,  1 Mar 2021 16:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615444;
-        bh=1eKXSA8cIktsJfyE3Kpkyn6RZoMoY3oiWUaaLnrMJAE=;
+        s=korg; t=1614615447;
+        bh=HD8zoycEz+avgQXZPfOseUSnSMHTUb6/F9Ww9RKB07M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXa105ju/zHP3JVxFdHrYojEoR2mtnXXmDsRasgB6LW/TooOLiQno8luPtFP2csMI
-         Nzsqn83/02yyLXWH4TEQZ3GLQz5EztlEnVLho0CAuDp90O7G7jSelCDPhhX/prAeCJ
-         Or3dTn/f6yZdceIDUvCzkw8etDcaVyOEMjkATdps=
+        b=Zyzi8gKrE4jdX3asYnyH6V9IuX9QSIu83vZ+ndctXwMO2aYb6B7EjAJCrPz7iYNtK
+         lsV2Re/0OliePbxTG83OAHN0ca3j8zIT7/HPwT5nX6ir3I73oyWdz1emlVmLtWGI48
+         FLzFl4W5GXEwNIDWxb9rZHrKrxwDRmLBjOJaBAds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 32/93] fs/jfs: fix potential integer overflow on shift of a int
-Date:   Mon,  1 Mar 2021 17:12:44 +0100
-Message-Id: <20210301161008.496882817@linuxfoundation.org>
+Subject: [PATCH 4.4 33/93] jffs2: fix use after free in jffs2_sum_write_data()
+Date:   Mon,  1 Mar 2021 17:12:45 +0100
+Message-Id: <20210301161008.543271476@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -40,37 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 4208c398aae4c2290864ba15c3dab7111f32bec1 ]
+[ Upstream commit 19646447ad3a680d2ab08c097585b7d96a66126b ]
 
-The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
-arithmetic and then assigned to a signed 64 bit integer. In the case where
-l2nb is 32 or more this can lead to an overflow.  Avoid this by shifting
-the value 1LL instead.
+clang static analysis reports this problem
 
-Addresses-Coverity: ("Uninitentional integer overflow")
-Fixes: b40c2e665cd5 ("fs/jfs: TRIM support for JFS Filesystem")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+fs/jffs2/summary.c:794:31: warning: Use of memory after it is freed
+                c->summary->sum_list_head = temp->u.next;
+                                            ^~~~~~~~~~~~
+
+In jffs2_sum_write_data(), in a loop summary data is handles a node at
+a time.  When it has written out the node it is removed the summary list,
+and the node is deleted.  In the corner case when a
+JFFS2_FEATURE_RWCOMPAT_COPY is seen, a call is made to
+jffs2_sum_disable_collecting().  jffs2_sum_disable_collecting() deletes
+the whole list which conflicts with the loop's deleting the list by parts.
+
+To preserve the old behavior of stopping the write midway, bail out of
+the loop after disabling summary collection.
+
+Fixes: 6171586a7ae5 ("[JFFS2] Correct handling of JFFS2_FEATURE_RWCOMPAT_COPY nodes.")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_dmap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jffs2/summary.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
-index 2d514c7affc2a..9ff510a489cb1 100644
---- a/fs/jfs/jfs_dmap.c
-+++ b/fs/jfs/jfs_dmap.c
-@@ -1669,7 +1669,7 @@ s64 dbDiscardAG(struct inode *ip, int agno, s64 minlen)
- 		} else if (rc == -ENOSPC) {
- 			/* search for next smaller log2 block */
- 			l2nb = BLKSTOL2(nblocks) - 1;
--			nblocks = 1 << l2nb;
-+			nblocks = 1LL << l2nb;
- 		} else {
- 			/* Trim any already allocated blocks */
- 			jfs_error(bmp->db_ipbmap->i_sb, "-EIO\n");
+diff --git a/fs/jffs2/summary.c b/fs/jffs2/summary.c
+index bc5385471a6e3..c05d6f5f10ecd 100644
+--- a/fs/jffs2/summary.c
++++ b/fs/jffs2/summary.c
+@@ -783,6 +783,8 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
+ 					dbg_summary("Writing unknown RWCOMPAT_COPY node type %x\n",
+ 						    je16_to_cpu(temp->u.nodetype));
+ 					jffs2_sum_disable_collecting(c->summary);
++					/* The above call removes the list, nothing more to do */
++					goto bail_rwcompat;
+ 				} else {
+ 					BUG();	/* unknown node in summary information */
+ 				}
+@@ -794,6 +796,7 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
+ 
+ 		c->summary->sum_num--;
+ 	}
++ bail_rwcompat:
+ 
+ 	jffs2_sum_reset_collected(c->summary);
+ 
 -- 
 2.27.0
 
