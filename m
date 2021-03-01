@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23DCA328A3B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99BAF3289D7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239549AbhCASNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57212 "EHLO mail.kernel.org"
+        id S239191AbhCASGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:06:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239374AbhCASIg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC53864EFC;
-        Mon,  1 Mar 2021 17:48:49 +0000 (UTC)
+        id S239237AbhCAR7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:59:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92F0F64F11;
+        Mon,  1 Mar 2021 17:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620930;
-        bh=wjPsW1m9JioH6LRAqfyMLDWuR6UgMf4q9//Pw8X9mho=;
+        s=korg; t=1614620933;
+        bh=0VApcNbJO8KNfMiuGi0jfvrbmadcMglLwh2nJAtV798=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCWn7fr2HkSvRwR27qp/X+mDrVYWKUOd9yrsDNqsy7Zkh80XIUF6cspqXYBnMlpSc
-         G7tItwZfr1QAmIFWQnyOYDgMGd5gdj4LJx+Ab659OPFR2NFc3jk+kDZ/AuwYw18YRk
-         J0LpqKWPRqf8crkOgORMHt8Ohaq0wK6jeLbaAD5o=
+        b=QaEi1Ja1Jdy5afYQQPD0UcZjKmXQS/F35wfmvk188gQIdUhRPE+kaOZMETeKZ9J/M
+         uIqe3QauV0y66PWTzpvlQeeShEq0cvH7ElfAie12EATMS2M2fttww4RhoLiCsPJAdC
+         URE0GpLSdF9fXbumaiwCiyhm85nTvVC5rz/Nx5R4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Roy Im <Roy.Im.Opensource@diasemi.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 301/775] drm/amdgpu/display: remove hdcp_srm sysfs on device removal
-Date:   Mon,  1 Mar 2021 17:07:49 +0100
-Message-Id: <20210301161216.501743096@linuxfoundation.org>
+Subject: [PATCH 5.11 302/775] Input: da7280 - fix missing error test
+Date:   Mon,  1 Mar 2021 17:07:50 +0100
+Message-Id: <20210301161216.546224228@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,69 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit e96b1b2974989c6a25507b527843ede7594efc85 ]
+[ Upstream commit 1e2020aa0da00051d94c4690c023c45d8f3834bd ]
 
-Fixes: 9037246bb2da5 ("drm/amd/display: Add sysfs interface for set/get srm")
+An "if" testing for error condition has accidentally been dropped from
+the code.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: cd3f609823a5 ("Input: new da7280 haptic driver")
+Reviewed-by: Roy Im <Roy.Im.Opensource@diasemi.com>
+Link: https://lore.kernel.org/r/X9j8lGFgijzHyYZZ@google.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c      | 2 +-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c | 3 ++-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h | 2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/input/misc/da7280.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 961abf1cf040c..6a336cce6b7c6 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1131,7 +1131,7 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
- 
- #ifdef CONFIG_DRM_AMD_DC_HDCP
- 	if (adev->dm.hdcp_workqueue) {
--		hdcp_destroy(adev->dm.hdcp_workqueue);
-+		hdcp_destroy(&adev->dev->kobj, adev->dm.hdcp_workqueue);
- 		adev->dm.hdcp_workqueue = NULL;
+diff --git a/drivers/input/misc/da7280.c b/drivers/input/misc/da7280.c
+index 37568b00873d4..2f698a8c1d650 100644
+--- a/drivers/input/misc/da7280.c
++++ b/drivers/input/misc/da7280.c
+@@ -863,6 +863,7 @@ static void da7280_parse_properties(struct device *dev,
+ 		gpi_str3[7] = '0' + i;
+ 		haptics->gpi_ctl[i].polarity = 0;
+ 		error = device_property_read_string(dev, gpi_str3, &str);
++		if (!error)
+ 			haptics->gpi_ctl[i].polarity =
+ 				da7280_haptic_of_gpi_pol_str(dev, str);
  	}
- 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-index c2cd184f0bbd4..79de68ac03f20 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-@@ -376,7 +376,7 @@ static void event_cpirq(struct work_struct *work)
- }
- 
- 
--void hdcp_destroy(struct hdcp_workqueue *hdcp_work)
-+void hdcp_destroy(struct kobject *kobj, struct hdcp_workqueue *hdcp_work)
- {
- 	int i = 0;
- 
-@@ -385,6 +385,7 @@ void hdcp_destroy(struct hdcp_workqueue *hdcp_work)
- 		cancel_delayed_work_sync(&hdcp_work[i].watchdog_timer_dwork);
- 	}
- 
-+	sysfs_remove_bin_file(kobj, &hdcp_work[0].attr);
- 	kfree(hdcp_work->srm);
- 	kfree(hdcp_work->srm_temp);
- 	kfree(hdcp_work);
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
-index 5159b3a5e5b03..09294ff122fea 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
-@@ -69,7 +69,7 @@ void hdcp_update_display(struct hdcp_workqueue *hdcp_work,
- 
- void hdcp_reset_display(struct hdcp_workqueue *work, unsigned int link_index);
- void hdcp_handle_cpirq(struct hdcp_workqueue *work, unsigned int link_index);
--void hdcp_destroy(struct hdcp_workqueue *work);
-+void hdcp_destroy(struct kobject *kobj, struct hdcp_workqueue *work);
- 
- struct hdcp_workqueue *hdcp_create_workqueue(struct amdgpu_device *adev, struct cp_psp *cp_psp, struct dc *dc);
- 
 -- 
 2.27.0
 
