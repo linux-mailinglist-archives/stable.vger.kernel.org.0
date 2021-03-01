@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F170B328FC4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ADCF328FDA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242420AbhCAT6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S242577AbhCAT6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235973AbhCATor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 750A0650FD;
-        Mon,  1 Mar 2021 17:02:04 +0000 (UTC)
+        id S241819AbhCATrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:47:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37573650FE;
+        Mon,  1 Mar 2021 17:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618125;
-        bh=mDNce7JorKvDfVda5uTF6y2n3mrETWCjGAl4Rk/5v2w=;
+        s=korg; t=1614618133;
+        bh=F3uOmjDRirqlt+F07n7sLAB9NP0IpsyjcYsORllsl2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dANfAeBGM8OHtDRmzRsYoFUEd+osdDX6VjVq4zl5IvMoyrS2as95d1zd0vjG7dnzA
-         TtB6KPv9cjS/xu2e53Mds9/0JDRraaGVh8kzoKEDREpQxBxXfCaLgLLX7JmS367BJl
-         oI8CaGIMEsLJPEEnu6NftqrsPrPpz4MsJ1a2Z3BY=
+        b=OC4JUTxuPbt2toWFIWnF3+/ozAb1ubfcpK8/LkGjQrIhCjhrZ20uBzopP4IKMq60c
+         aMjCCdTpIUr5wKA66vnI1MvO2vP0Vb++5yKcy2YdU4sqWiGWLSG6LNkBB1UNE0yWIK
+         E+p4Lgv2j4vdCGs9NhNrltRRrAfS7z9+zSnCRVYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 315/340] virtio/s390: implement virtio-ccw revision 2 correctly
-Date:   Mon,  1 Mar 2021 17:14:19 +0100
-Message-Id: <20210301161103.793008004@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 318/340] sparc32: fix a user-triggerable oops in clear_user()
+Date:   Mon,  1 Mar 2021 17:14:22 +0100
+Message-Id: <20210301161103.942326025@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,59 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 182f709c5cff683e6732d04c78e328de0532284f upstream.
+commit 7780918b36489f0b2f9a3749d7be00c2ceaec513 upstream.
 
-CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
-and drivers should only rely on it being implemented when they
-negotiated at least that revision with the device.
+Back in 2.1.29 the clear_user() guts (__bzero()) had been merged
+with memset().  Unfortunately, while all exception handlers had been
+copied, one of the exception table entries got lost.  As the result,
+clear_user() starting at 128*n bytes before the end of page and
+spanning between 8 and 127 bytes into the next page would oops when
+the second page is unmapped.  It's trivial to reproduce - all
+it takes is
 
-However, virtio_ccw_get_status() issued READ_STATUS for any
-device operating at least at revision 1. If the device accepts
-READ_STATUS regardless of the negotiated revision (which some
-implementations like QEMU do, even though the spec currently does
-not allow it), everything works as intended. While a device
-rejecting the command should also be handled gracefully, we will
-not be able to see any changes the device makes to the status,
-such as setting NEEDS_RESET or setting the status to zero after
-a completed reset.
+main()
+{
+	int fd = open("/dev/zero", O_RDONLY);
+	char *p = mmap(NULL, 16384, PROT_READ|PROT_WRITE,
+			MAP_PRIVATE|MAP_ANON, -1, 0);
+	munmap(p + 8192, 8192);
+	read(fd, p + 8192 - 128, 192);
+}
 
-We negotiated the revision to at most 1, as we never bumped the
-maximum revision; let's do that now and properly send READ_STATUS
-only if we are operating at least at revision 2.
+which had been oopsing since March 1997.  Says something about
+the quality of test coverage... ;-/  And while today sparc32 port
+is nearly dead, back in '97 it had been very much alive; in fact,
+sparc64 had only been in mainline for 3 months by that point...
 
-Cc: stable@vger.kernel.org
-Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210216110645.1087321-1-cohuck@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Cc: stable@kernel.org
+Fixes: v2.1.29
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/virtio/virtio_ccw.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/sparc/lib/memset.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -117,7 +117,7 @@ struct virtio_rev_info {
- };
+--- a/arch/sparc/lib/memset.S
++++ b/arch/sparc/lib/memset.S
+@@ -142,6 +142,7 @@ __bzero:
+ 	ZERO_LAST_BLOCKS(%o0, 0x48, %g2)
+ 	ZERO_LAST_BLOCKS(%o0, 0x08, %g2)
+ 13:
++	EXT(12b, 13b, 21f)
+ 	be	8f
+ 	 andcc	%o1, 4, %g0
  
- /* the highest virtio-ccw revision we support */
--#define VIRTIO_CCW_REV_MAX 1
-+#define VIRTIO_CCW_REV_MAX 2
- 
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
-@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct v
- 	u8 old_status = vcdev->dma_area->status;
- 	struct ccw1 *ccw;
- 
--	if (vcdev->revision < 1)
-+	if (vcdev->revision < 2)
- 		return vcdev->dma_area->status;
- 
- 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
 
 
