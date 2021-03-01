@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03373328CDF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4129D328D21
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240734AbhCATAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:00:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60074 "EHLO mail.kernel.org"
+        id S240770AbhCATGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:06:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240318AbhCASyU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:54:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 813C665046;
-        Mon,  1 Mar 2021 17:17:54 +0000 (UTC)
+        id S240918AbhCAS6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:58:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D39DA65080;
+        Mon,  1 Mar 2021 17:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619075;
-        bh=y6GPOy0+OEfueUHtFgFIf5ZuR8dDIYNb2yTTvnPD2kY=;
+        s=korg; t=1614621050;
+        bh=WoD5ce5uh/pym10JLGNNgMoW+LvIveEE/HyLPg4+iB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pM44aSbYEgGSHyop7NjCnN6jcyzE/QO001apz2jyUSdNNUgDOyt9cVou1FJYTrOU1
-         cyjLx6AzeDDElHWTIO7hoiuchJh4OuYUh2UfCB/bflZA1qwNtMLOOQYxdTPCVDnLUp
-         V/MOxCau9k770FjSSQH9hBxRa1xAUf5lLsUIOjXc=
+        b=bS9OoAgnr0P9/VPSEDUjNOm0irhAF7Dq5VvfVZyNpqLufyl0qzPSLyYjlKYgkOEyo
+         TqOc8uHHFxqNWYvICmMFF2UFYm98N3PibiVQoANHpyTq3cfmYDNT8w6laIZQqQxyuq
+         lY+dS6deYjvRao9YLUG4n/3ARRK7r8+U9GT/63QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 295/663] rtc: s5m: select REGMAP_I2C
-Date:   Mon,  1 Mar 2021 17:09:03 +0100
-Message-Id: <20210301161156.429884023@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 376/775] isofs: release buffer head before return
+Date:   Mon,  1 Mar 2021 17:09:04 +0100
+Message-Id: <20210301161220.178524840@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 1f0cbda3b452b520c5f3794f8f0e410e8bc7386a ]
+[ Upstream commit 0a6dc67a6aa45f19bd4ff89b4f468fc50c4b8daa ]
 
-The rtc-s5m uses the I2C regmap but doesn't select it in Kconfig so
-depending on the configuration the build may fail. Fix it.
+Release the buffer_head before returning error code in
+do_isofs_readdir() and isofs_find_entry().
 
-Fixes: 959df7778bbd ("rtc: Enable compile testing for Maxim and Samsung drivers")
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210114102219.23682-2-brgl@bgdev.pl
+Fixes: 2deb1acc653c ("isofs: fix access to unallocated memory when reading corrupted filesystem")
+Link: https://lore.kernel.org/r/20210118120455.118955-1-bianpan2016@163.com
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/isofs/dir.c   | 1 +
+ fs/isofs/namei.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 65ad9d0b47ab1..e59f78f99e8f1 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -692,6 +692,7 @@ config RTC_DRV_S5M
- 	tristate "Samsung S2M/S5M series"
- 	depends on MFD_SEC_CORE || COMPILE_TEST
- 	select REGMAP_IRQ
-+	select REGMAP_I2C
- 	help
- 	  If you say yes here you will get support for the
- 	  RTC of Samsung S2MPS14 and S5M PMIC series.
+diff --git a/fs/isofs/dir.c b/fs/isofs/dir.c
+index f0fe641893a5e..b9e6a7ec78be4 100644
+--- a/fs/isofs/dir.c
++++ b/fs/isofs/dir.c
+@@ -152,6 +152,7 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
+ 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
+ 			       " in block %lu of inode %lu\n", block,
+ 			       inode->i_ino);
++			brelse(bh);
+ 			return -EIO;
+ 		}
+ 
+diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
+index 402769881c32b..58f80e1b3ac0d 100644
+--- a/fs/isofs/namei.c
++++ b/fs/isofs/namei.c
+@@ -102,6 +102,7 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
+ 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
+ 			       " in block %lu of inode %lu\n", block,
+ 			       dir->i_ino);
++			brelse(bh);
+ 			return 0;
+ 		}
+ 
 -- 
 2.27.0
 
