@@ -2,40 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7469E328401
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6920C328405
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233262AbhCAQ2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57260 "EHLO mail.kernel.org"
+        id S233446AbhCAQ2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237910AbhCAQX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237909AbhCAQX0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:23:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FDF964F37;
-        Mon,  1 Mar 2021 16:20:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 364F564F33;
+        Mon,  1 Mar 2021 16:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615632;
-        bh=ySmuI/Q3rO6b3vJxf7qwaecZ+rkkwA8Zw4lifTgE3s0=;
+        s=korg; t=1614615635;
+        bh=xfs2OrtPDAspQ/+PAs+u1SLlVQpuFufeLzjotLNYK50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJGeEZ2zxoomtc8KHLhRf/W3vERRwl2bF/FqGLFcBeuXPLNc+dmn5TZj/OfAbARGX
-         RFFbFDl6DMv/AM2qsGC/HaceGMPZ/y3/3FjlvEKeo/o89BrFDsVnGbIWkYt4svJLUB
-         HwOj51YPZjmoK/5wVIhJohqbhAgSfrsjy7jrwTto=
+        b=aTTPK4Kt+HaHLhHwJtDJHur5p8IBl0ASiSy1CwZLYTS7A9XGOtJNudFdx6MSqvReX
+         /kumXo8gQ8tSHgf8unxJ8SWYh2otms8RZTWz6dflolIEC71zzMVpJmRoMRnEMd+OmZ
+         NT4IDkXnPPHa0wIKGqi4iyRV97Jn5birpj7bMNEU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Dave Jones <davej@codemonkey.org.uk>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@us.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.4 92/93] futex: Fix OWNER_DEAD fixup
-Date:   Mon,  1 Mar 2021 17:13:44 +0100
-Message-Id: <20210301161011.389910223@linuxfoundation.org>
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.4 93/93] dm era: Update in-core bitset after committing the metadata
+Date:   Mon,  1 Mar 2021 17:13:45 +0100
+Message-Id: <20210301161011.439945404@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -47,60 +39,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
+commit 2099b145d77c1d53f5711f029c37cc537897cee6 upstream.
 
-Both Geert and DaveJ reported that the recent futex commit:
+In case of a system crash, dm-era might fail to mark blocks as written
+in its metadata, although the corresponding writes to these blocks were
+passed down to the origin device and completed successfully.
 
-  c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+Consider the following sequence of events:
 
-introduced a problem with setting OWNER_DEAD. We set the bit on an
-uninitialized variable and then entirely optimize it away as a
-dead-store.
+1. We write to a block that has not been yet written in the current era
+2. era_map() checks the in-core bitmap for the current era and sees
+   that the block is not marked as written.
+3. The write is deferred for submission after the metadata have been
+   updated and committed.
+4. The worker thread processes the deferred write
+   (process_deferred_bios()) and marks the block as written in the
+   in-core bitmap, **before** committing the metadata.
+5. The worker thread starts committing the metadata.
+6. We do more writes that map to the same block as the write of step (1)
+7. era_map() checks the in-core bitmap and sees that the block is marked
+   as written, **although the metadata have not been committed yet**.
+8. These writes are passed down to the origin device immediately and the
+   device reports them as completed.
+9. The system crashes, e.g., power failure, before the commit from step
+   (5) finishes.
 
-Move the setting of the bit to where it is more useful.
+When the system recovers and we query the dm-era target for the list of
+written blocks it doesn't report the aforementioned block as written,
+although the writes of step (6) completed successfully.
 
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: Dave Jones <davej@codemonkey.org.uk>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@us.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
-Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
+The issue is that era_map() decides whether to defer or not a write
+based on non committed information. The root cause of the bug is that we
+update the in-core bitmap, **before** committing the metadata.
+
+Fix this by updating the in-core bitmap **after** successfully
+committing the metadata.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/md/dm-era-target.c |   25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2248,10 +2248,6 @@ static int __fixup_pi_state_owner(u32 __
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -134,7 +134,7 @@ static int writeset_test_and_set(struct
+ {
+ 	int r;
  
- 	oldowner = pi_state->owner;
+-	if (!test_and_set_bit(block, ws->bits)) {
++	if (!test_bit(block, ws->bits)) {
+ 		r = dm_bitset_set_bit(info, ws->md.root, block, &ws->md.root);
+ 		if (r) {
+ 			/* FIXME: fail mode */
+@@ -1242,8 +1242,10 @@ static void process_deferred_bios(struct
+ 	int r;
+ 	struct bio_list deferred_bios, marked_bios;
+ 	struct bio *bio;
++	struct blk_plug plug;
+ 	bool commit_needed = false;
+ 	bool failed = false;
++	struct writeset *ws = era->md->current_writeset;
  
--	/* Owner died? */
--	if (!pi_state->owner)
--		newtid |= FUTEX_OWNER_DIED;
+ 	bio_list_init(&deferred_bios);
+ 	bio_list_init(&marked_bios);
+@@ -1253,9 +1255,11 @@ static void process_deferred_bios(struct
+ 	bio_list_init(&era->deferred_bios);
+ 	spin_unlock(&era->deferred_lock);
+ 
++	if (bio_list_empty(&deferred_bios))
++		return;
++
+ 	while ((bio = bio_list_pop(&deferred_bios))) {
+-		r = writeset_test_and_set(&era->md->bitset_info,
+-					  era->md->current_writeset,
++		r = writeset_test_and_set(&era->md->bitset_info, ws,
+ 					  get_block(era, bio));
+ 		if (r < 0) {
+ 			/*
+@@ -1263,7 +1267,6 @@ static void process_deferred_bios(struct
+ 			 * FIXME: finish.
+ 			 */
+ 			failed = true;
 -
- 	/*
- 	 * We are here because either:
- 	 *
-@@ -2309,6 +2305,9 @@ retry:
- 	}
+ 		} else if (r == 0)
+ 			commit_needed = true;
  
- 	newtid = task_pid_vnr(newowner) | FUTEX_WAITERS;
-+	/* Owner died? */
-+	if (!pi_state->owner)
-+		newtid |= FUTEX_OWNER_DIED;
+@@ -1279,9 +1282,19 @@ static void process_deferred_bios(struct
+ 	if (failed)
+ 		while ((bio = bio_list_pop(&marked_bios)))
+ 			bio_io_error(bio);
+-	else
+-		while ((bio = bio_list_pop(&marked_bios)))
++	else {
++		blk_start_plug(&plug);
++		while ((bio = bio_list_pop(&marked_bios))) {
++			/*
++			 * Only update the in-core writeset if the on-disk one
++			 * was updated too.
++			 */
++			if (commit_needed)
++				set_bit(get_block(era, bio), ws->bits);
+ 			generic_make_request(bio);
++		}
++		blk_finish_plug(&plug);
++	}
+ }
  
- 	if (get_futex_value_locked(&uval, uaddr))
- 		goto handle_fault;
+ static void process_rpc_calls(struct era *era)
 
 
