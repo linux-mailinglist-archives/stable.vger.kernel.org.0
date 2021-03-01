@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D8A328BA8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:40:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D54B328C51
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240277AbhCASi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47678 "EHLO mail.kernel.org"
+        id S235931AbhCAStV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:49:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239947AbhCASbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:31:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB265651A5;
-        Mon,  1 Mar 2021 17:12:13 +0000 (UTC)
+        id S240178AbhCASmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FC486532F;
+        Mon,  1 Mar 2021 17:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618734;
-        bh=szcTyCxuwgUNa++4Ndccoj2lfKzm/iCe/BfGwV47W4w=;
+        s=korg; t=1614620702;
+        bh=korvbWkQKQGPsMDqI/km9sO28tKkbr2StM7kHzm05ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIOluibhXZQBq1v1qrnybQfuw8imR0YZ19qma4arBEWq1GgaZlwsGuBMjwk+ZECxY
-         e8xFVBx51F94rivSZfi4HZohN5+I1fKpguirV8u5iQG6kUP1+1aTdmxPKVDNPO3ejO
-         VqJbpQRACM3LAdYrddtDNqZZcjYXKbH/iM6HTzwc=
+        b=m54dLOzwjaTDjqVFk4Ju1CMQocwsbNGnzsozksPWqGNEyR9hkdduMQKi9BkF8AwSA
+         DwFpTHbWZPnRUNxDfMSqEuBbcpwz7Pa+70lWHlkznMi8m4GSYPjTKSFdL2ZFKmBKBo
+         bjAVc8RehlzZWO0x++rgnoy72qFHD5VIK/qXa0i0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 167/663] media: media/pci: Fix memleak in empress_init
-Date:   Mon,  1 Mar 2021 17:06:55 +0100
-Message-Id: <20210301161150.043888185@linuxfoundation.org>
+Subject: [PATCH 5.11 249/775] ASoC: cpcap: fix microphone timeslot mask
+Date:   Mon,  1 Mar 2021 17:06:57 +0100
+Message-Id: <20210301161213.935953811@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Sebastian Reichel <sre@kernel.org>
 
-[ Upstream commit 15d0c52241ecb1c9d802506bff6f5c3f7872c0df ]
+[ Upstream commit de5bfae2fd962a9da99f56382305ec7966a604b9 ]
 
-When vb2_queue_init() fails, dev->empress_dev
-should be released just like other error handling
-paths.
+The correct mask is 0x1f8 (Bit 3-8), but due to missing BIT() 0xf (Bit
+0-3) was set instead. This means setting of CPCAP_BIT_MIC1_RX_TIMESLOT0
+(Bit 3) still worked (part of both masks). On the other hand the code
+does not properly clear the other MIC timeslot bits. I think this
+is not a problem, since they are probably initialized to 0 and not
+touched by the driver anywhere else. But the mask also contains some
+wrong bits, that will be cleared. Bit 0 (CPCAP_BIT_SMB_CDC) should be
+safe, since the driver enforces it to be 0 anyways.
 
-Fixes: 2ada815fc48bb ("[media] saa7134: convert to vb2")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Bit 1-2 are CPCAP_BIT_FS_INV and CPCAP_BIT_CLK_INV. This means enabling
+audio recording forces the codec into SND_SOC_DAIFMT_NB_NF mode, which
+is obviously bad.
+
+The bug probably remained undetected, because there are not many use
+cases for routing microphone to the CPU on platforms using cpcap and
+user base is small. I do remember having some issues with bad sound
+quality when testing voice recording back when I wrote the driver.
+It probably was this bug.
+
+Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210123172945.3958622-1-sre@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7134/saa7134-empress.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/soc/codecs/cpcap.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/pci/saa7134/saa7134-empress.c b/drivers/media/pci/saa7134/saa7134-empress.c
-index 39e3c7f8c5b46..76a37fbd84587 100644
---- a/drivers/media/pci/saa7134/saa7134-empress.c
-+++ b/drivers/media/pci/saa7134/saa7134-empress.c
-@@ -282,8 +282,11 @@ static int empress_init(struct saa7134_dev *dev)
- 	q->lock = &dev->lock;
- 	q->dev = &dev->pci->dev;
- 	err = vb2_queue_init(q);
--	if (err)
-+	if (err) {
-+		video_device_release(dev->empress_dev);
-+		dev->empress_dev = NULL;
- 		return err;
-+	}
- 	dev->empress_dev->queue = q;
- 	dev->empress_dev->device_caps = V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
- 					V4L2_CAP_VIDEO_CAPTURE;
+diff --git a/sound/soc/codecs/cpcap.c b/sound/soc/codecs/cpcap.c
+index f046987ee4cdb..c0425e3707d9c 100644
+--- a/sound/soc/codecs/cpcap.c
++++ b/sound/soc/codecs/cpcap.c
+@@ -1264,12 +1264,12 @@ static int cpcap_voice_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	if (direction == SNDRV_PCM_STREAM_CAPTURE) {
+ 		mask = 0x0000;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT0;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT1;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT2;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT0;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT1;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT2;
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT0);
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT1);
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT2);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT0);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT1);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT2);
+ 		val = 0x0000;
+ 		if (channels >= 2)
+ 			val = BIT(CPCAP_BIT_MIC1_RX_TIMESLOT0);
 -- 
 2.27.0
 
