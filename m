@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC2E327FA9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAB3327FAA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235799AbhCANhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:37:43 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41145 "EHLO
+        id S235767AbhCANhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:37:46 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:41313 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235804AbhCANhk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:37:40 -0500
+        by vger.kernel.org with ESMTP id S235859AbhCANhn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:37:43 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8EBB61941E06;
-        Mon,  1 Mar 2021 08:36:52 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9201D1941E7A;
+        Mon,  1 Mar 2021 08:36:56 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:36:52 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:36:56 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tT6k1+
-        N5v+2LiC3dj1FtMpH7Vjl43X7iZkMMFimBdUo=; b=ne73JotwUpNE9dKNUDbfR6
-        /vrir4VWMPTRamegGkeS/Imw6W7qUrDxPDd/B4HZalfFx71m+JO/i9FnVP9nqwuw
-        NGzcbpMQ0nbMnanY7xgOOMs4IAPqyrCLheWYzvx0/kSaTLj35iL4d9TJ5RW1Kygs
-        RI1HFUPqjWvakdGFdhbleCw8a9ZZg5iwKurNQXOste0AkeBX86wb1/YtVO4zGWe+
-        eUmprQvK0lGTmwz0zM5VLtMXOhuWA2ibFbzPAw+Zgd0wNsYLKzasSQFdS9AcuDHQ
-        GZC4LfDckbTR9NvoZtg5rGBAwlfKT+Em71egIzlKEUNl4FKlNV6Bl/N45FgxrAsg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=exZF+u
+        ALAfTBoUBH88Avb6LCfX9ZFILP2YBXAnZbiT4=; b=wowFJW6iQaZyOX0UEMTwUg
+        YlBQuX/PdMyRIFaoGQMk4n8ZXzUdfSkzFIdzdmCUjHTuUgtP8S4d+sOlZONoVIOw
+        lPFLHJYXao6KOgLrIK8cZtrWRYLNSvz9/yyzMXWQgR1GkO2XE01+aM3QeFs30j2E
+        Scf2WEApSc9vTUEXYiHPKd3YOR70m7JVrZIy8rIhIDyqOHzSFiYqsuhcBX3EtfJV
+        NxqIeMJ5h/sWvLTHNOa43ygVNCI2AQUd6f56kbIbdBbh3Pxk28SQN6PcejL5/47+
+        TGoPxfNs4+dXwx/4AFdT71Uy5melf0UkW04tzgfCRj0f5oFjzAp9Ld+3DY2kKiKg
         ==
-X-ME-Sender: <xms:9O08YDnQAZJv_cvTNkWT5XX6UkxZh3oiTbuRcdcV4lfgvXVuB6rFRw>
-    <xme:9O08YG36Wna_dtrUA0I8bOIH6l-mXUhWTDjpzUlKz3k8tNMNBR0EYe5tNKmwmXKyy
-    1It5KnzXd2oGg>
+X-ME-Sender: <xms:-O08YMXVJRRHmq8d1We8AZybE5Y0K3agkR4OJs6_BEv8w78uAWj1sQ>
+    <xme:-O08YOLeCmXNfniZteorT4BSHRLUSDcbThxWZJjgzaz4qsN9as0QPkoBSde-9qrlo
+    swwKhiy8vgtdA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeevuedukeegheeitdfhfefgvedvteethedvieehheduge
     dtvdevgfdtieehkeeuheenucffohhmrghinhepvghnthhrhidrshgsnecukfhppeekfedr
-    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepvdenucfrrghrrghmpehmrghilh
+    keeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehmrghilh
     hfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:9O08YJrmlnuDWEu3gyOTemzYM7HTfjQDqkfwY0KtCAYiYEFCDaWutg>
-    <xmx:9O08YLn3SZlgU2yD_UDYiO7BfHlphWuqM-RD1k0QXWdw5fwtYehgEA>
-    <xmx:9O08YB103sFsvZ8-Qa-VMNRBlffo5JuVVzOYFEF8C9jwozpJGESwhg>
-    <xmx:9O08YPAHx6_twwUo-0VaxD0MM6_3_voQkG4PqMIt1YgzJURNQPl09g>
+X-ME-Proxy: <xmx:-O08YG1g58ySUcHSJ3ti1lsveWZ87F1Ilx--8kgmrGetZ1Rl40p4XQ>
+    <xmx:-O08YM7QVtEXWt9Xdfx6cSOOYpmd4VRdl9I42J0Qw2BkoxXbax6HwQ>
+    <xmx:-O08YH9bxZVSPO-6xphUy2rkVqA3NWH7pPQhmO06V7POiguRMI50sQ>
+    <xmx:-O08YHFRTdVSYD3dTv549yeuLxmfz3jB9SoEn0GxWLOEUlnQnm2d6g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2469F1080059;
-        Mon,  1 Mar 2021 08:36:52 -0500 (EST)
-Subject: FAILED: patch "[PATCH] s390: add stack for machine check handler" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4D9AB1080059;
+        Mon,  1 Mar 2021 08:36:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] s390: fix kernel asce loading when sie is interrupted" failed to apply to 5.11-stable tree
 To:     svens@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:36:42 +0100
-Message-ID: <161460580220742@kroah.com>
+Date:   Mon, 01 Mar 2021 14:36:54 +0100
+Message-ID: <161460581411228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,240 +71,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b61b1595124a1694501105e5dd488de0c0c6bc2a Mon Sep 17 00:00:00 2001
+From 26521412ae22d06caab98721757b2721c6d7c46c Mon Sep 17 00:00:00 2001
 From: Sven Schnelle <svens@linux.ibm.com>
-Date: Wed, 3 Feb 2021 09:02:51 +0100
-Subject: [PATCH] s390: add stack for machine check handler
+Date: Wed, 3 Feb 2021 09:16:45 +0100
+Subject: [PATCH] s390: fix kernel asce loading when sie is interrupted
 
-The previous code used the normal kernel stack for machine checks.
-This is problematic when a machine check interrupts a system call
-or interrupt handler right at the beginning where registers are set up.
+If a machine check is coming in during sie, the PU saves the
+control registers to the machine check save area. Afterwards
+mcck_int_handler is called, which loads __LC_KERNEL_ASCE into
+%cr1. Later the code restores %cr1 from the machine check area,
+but that is wrong when SIE was interrupted because the machine
+check area still contains the gmap asce. Instead it should return
+with either __KERNEL_ASCE in %cr1 when interrupted in SIE or
+the previous %cr1 content saved in the machine check save area.
 
-Assume system_call is interrupted at the first instruction and a machine
-check is triggered. The machine check handler is called, checks the PSW
-to see whether it is coming from user space, notices that it is already
-in kernel mode but %r15 still contains the user space stack. This would
-lead to a kernel crash.
-
-There are basically two ways of fixing that: Either using the 'critical
-cleanup' approach which compares the address in the PSW to see whether
-it is already at a point where the stack has been set up, or use an extra
-stack for the machine check handler.
-
-For simplicity, we will go with the second approach and allocate an extra
-stack. This adds some memory overhead for large systems, but usually large
-system have plenty of memory so this isn't really a concern. But it keeps
-the mchk stack setup simple and less error prone.
-
-Fixes: 0b0ed657fe00 ("s390: remove critical section cleanup from entry.S")
+Fixes: 87d598634521 ("s390/mm: remove set_fs / rework address space handling")
 Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
 Cc: <stable@kernel.org> # v5.8+
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 
-diff --git a/arch/s390/include/asm/lowcore.h b/arch/s390/include/asm/lowcore.h
-index 4d65c8e4e6d0..22bceeeba4bc 100644
---- a/arch/s390/include/asm/lowcore.h
-+++ b/arch/s390/include/asm/lowcore.h
-@@ -107,16 +107,15 @@ struct lowcore {
- 	__u64	async_stack;			/* 0x0350 */
- 	__u64	nodat_stack;			/* 0x0358 */
- 	__u64	restart_stack;			/* 0x0360 */
--
-+	__u64	mcck_stack;			/* 0x0368 */
- 	/* Restart function and parameter. */
--	__u64	restart_fn;			/* 0x0368 */
--	__u64	restart_data;			/* 0x0370 */
--	__u64	restart_source;			/* 0x0378 */
-+	__u64	restart_fn;			/* 0x0370 */
-+	__u64	restart_data;			/* 0x0378 */
-+	__u64	restart_source;			/* 0x0380 */
- 
- 	/* Address space pointer. */
--	__u64	kernel_asce;			/* 0x0380 */
--	__u64	user_asce;			/* 0x0388 */
--	__u8	pad_0x0390[0x0398-0x0390];	/* 0x0390 */
-+	__u64	kernel_asce;			/* 0x0388 */
-+	__u64	user_asce;			/* 0x0390 */
- 
- 	/*
- 	 * The lpp and current_pid fields form a
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index d22bb28ef50c..15e637728a4b 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -118,6 +118,7 @@ int main(void)
- 	OFFSET(__LC_ASYNC_STACK, lowcore, async_stack);
- 	OFFSET(__LC_NODAT_STACK, lowcore, nodat_stack);
- 	OFFSET(__LC_RESTART_STACK, lowcore, restart_stack);
-+	OFFSET(__LC_MCCK_STACK, lowcore, mcck_stack);
- 	OFFSET(__LC_RESTART_FN, lowcore, restart_fn);
- 	OFFSET(__LC_RESTART_DATA, lowcore, restart_data);
- 	OFFSET(__LC_RESTART_SOURCE, lowcore, restart_source);
 diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index ed5acf95235f..f7953bb17558 100644
+index f7953bb17558..377294969954 100644
 --- a/arch/s390/kernel/entry.S
 +++ b/arch/s390/kernel/entry.S
-@@ -70,6 +70,8 @@ _LPP_OFFSET	= __LC_LPP
- 	je	\oklabel
- 	clg	%r14,__LC_ASYNC_STACK
- 	je	\oklabel
-+	clg	%r14,__LC_MCCK_STACK
-+	je	\oklabel
- 	clg	%r14,__LC_NODAT_STACK
- 	je	\oklabel
- 	clg	%r14,__LC_RESTART_STACK
-@@ -548,20 +550,16 @@ ENTRY(mcck_int_handler)
- 	jhe	.Lmcck_stack
- 	lghi	%r11,__LC_GPREGS_SAVE_AREA+64	# inside critical section, do cleanup
- 	brasl	%r14,.Lcleanup_sie
--.Lmcck_stack:
- #endif
--	CHECK_STACK __LC_GPREGS_SAVE_AREA+64
--	lgr	%r11,%r15
--	aghi	%r15,-(STACK_FRAME_OVERHEAD + __PT_SIZE)
--	stg	%r11,__SF_BACKCHAIN(%r15)
--	j	5f
-+	j	.Lmcck_stack
- .Lmcck_user:
- 	BPENTER __TI_flags(%r12),_TIF_ISOLATE_BP
-+.Lmcck_stack:
-+	lg	%r15,__LC_MCCK_STACK
-+.Lmcck_skip:
-+	la	%r11,STACK_FRAME_OVERHEAD(%r15)
+@@ -558,6 +558,7 @@ ENTRY(mcck_int_handler)
+ 	lg	%r15,__LC_MCCK_STACK
+ .Lmcck_skip:
+ 	la	%r11,STACK_FRAME_OVERHEAD(%r15)
++	stctg	%c1,%c1,__PT_CR1(%r11)
  	lctlg	%c1,%c1,__LC_KERNEL_ASCE
--	lg	%r15,__LC_KERNEL_STACK
  	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
--5:	la	%r11,STACK_FRAME_OVERHEAD(%r15)
--.Lmcck_skip:
  	lghi	%r14,__LC_GPREGS_SAVE_AREA+64
- 	stmg	%r0,%r7,__PT_R0(%r11)
- 	# clear user controlled registers to prevent speculative use
-@@ -602,7 +600,6 @@ ENTRY(mcck_int_handler)
- 
- .Lmcck_panic:
- 	lg	%r15,__LC_NODAT_STACK
--	la	%r11,STACK_FRAME_OVERHEAD(%r15)
- 	j	.Lmcck_skip
- ENDPROC(mcck_int_handler)
- 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 6b004940c4dc..60da976eee6f 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -338,7 +338,7 @@ int __init arch_early_irq_init(void)
- 	return 0;
- }
- 
--static int __init async_stack_realloc(void)
-+static int __init stack_realloc(void)
- {
- 	unsigned long old, new;
- 
-@@ -348,9 +348,16 @@ static int __init async_stack_realloc(void)
- 		panic("Couldn't allocate async stack");
- 	WRITE_ONCE(S390_lowcore.async_stack, new + STACK_INIT_OFFSET);
- 	free_pages(old, THREAD_SIZE_ORDER);
-+
-+	old = S390_lowcore.mcck_stack - STACK_INIT_OFFSET;
-+	new = stack_alloc();
-+	if (!new)
-+		panic("Couldn't allocate machine check stack");
-+	WRITE_ONCE(S390_lowcore.mcck_stack, new + STACK_INIT_OFFSET);
-+	memblock_free(old, THREAD_SIZE);
- 	return 0;
- }
--early_initcall(async_stack_realloc);
-+early_initcall(stack_realloc);
- 
- void __init arch_call_rest_init(void)
- {
-@@ -372,6 +379,7 @@ void __init arch_call_rest_init(void)
- static void __init setup_lowcore_dat_off(void)
- {
- 	unsigned long int_psw_mask = PSW_KERNEL_BITS;
-+	unsigned long mcck_stack;
- 	struct lowcore *lc;
- 
- 	if (IS_ENABLED(CONFIG_KASAN))
-@@ -439,6 +447,12 @@ static void __init setup_lowcore_dat_off(void)
- 	lc->restart_data = 0;
- 	lc->restart_source = -1UL;
- 
-+	mcck_stack = (unsigned long)memblock_alloc(THREAD_SIZE, THREAD_SIZE);
-+	if (!mcck_stack)
-+		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
-+		      __func__, THREAD_SIZE, THREAD_SIZE);
-+	lc->mcck_stack = mcck_stack + STACK_INIT_OFFSET;
-+
- 	/* Setup absolute zero lowcore */
- 	mem_assign_absolute(S390_lowcore.restart_stack, lc->restart_stack);
- 	mem_assign_absolute(S390_lowcore.restart_fn, lc->restart_fn);
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index c5abbb94ac6e..e299892440b6 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -189,7 +189,7 @@ static void pcpu_ec_call(struct pcpu *pcpu, int ec_bit)
- 
- static int pcpu_alloc_lowcore(struct pcpu *pcpu, int cpu)
- {
--	unsigned long async_stack, nodat_stack;
-+	unsigned long async_stack, nodat_stack, mcck_stack;
- 	struct lowcore *lc;
- 
- 	if (pcpu != &pcpu_devices[0]) {
-@@ -202,13 +202,15 @@ static int pcpu_alloc_lowcore(struct pcpu *pcpu, int cpu)
- 		nodat_stack = pcpu->lowcore->nodat_stack - STACK_INIT_OFFSET;
- 	}
- 	async_stack = stack_alloc();
--	if (!async_stack)
--		goto out;
-+	mcck_stack = stack_alloc();
-+	if (!async_stack || !mcck_stack)
-+		goto out_stack;
- 	lc = pcpu->lowcore;
- 	memcpy(lc, &S390_lowcore, 512);
- 	memset((char *) lc + 512, 0, sizeof(*lc) - 512);
- 	lc->async_stack = async_stack + STACK_INIT_OFFSET;
- 	lc->nodat_stack = nodat_stack + STACK_INIT_OFFSET;
-+	lc->mcck_stack = mcck_stack + STACK_INIT_OFFSET;
- 	lc->cpu_nr = cpu;
- 	lc->spinlock_lockval = arch_spin_lockval(cpu);
- 	lc->spinlock_index = 0;
-@@ -216,12 +218,13 @@ static int pcpu_alloc_lowcore(struct pcpu *pcpu, int cpu)
- 	lc->return_lpswe = gen_lpswe(__LC_RETURN_PSW);
- 	lc->return_mcck_lpswe = gen_lpswe(__LC_RETURN_MCCK_PSW);
- 	if (nmi_alloc_per_cpu(lc))
--		goto out_async;
-+		goto out_stack;
- 	lowcore_ptr[cpu] = lc;
- 	pcpu_sigp_retry(pcpu, SIGP_SET_PREFIX, (u32)(unsigned long) lc);
- 	return 0;
- 
--out_async:
-+out_stack:
-+	stack_free(mcck_stack);
- 	stack_free(async_stack);
- out:
- 	if (pcpu != &pcpu_devices[0]) {
-@@ -233,16 +236,18 @@ static int pcpu_alloc_lowcore(struct pcpu *pcpu, int cpu)
- 
- static void pcpu_free_lowcore(struct pcpu *pcpu)
- {
--	unsigned long async_stack, nodat_stack, lowcore;
-+	unsigned long async_stack, nodat_stack, mcck_stack, lowcore;
- 
- 	nodat_stack = pcpu->lowcore->nodat_stack - STACK_INIT_OFFSET;
- 	async_stack = pcpu->lowcore->async_stack - STACK_INIT_OFFSET;
-+	mcck_stack = pcpu->lowcore->mcck_stack - STACK_INIT_OFFSET;
- 	lowcore = (unsigned long) pcpu->lowcore;
- 
- 	pcpu_sigp_retry(pcpu, SIGP_SET_PREFIX, 0);
- 	lowcore_ptr[pcpu - pcpu_devices] = NULL;
- 	nmi_free_per_cpu(pcpu->lowcore);
- 	stack_free(async_stack);
-+	stack_free(mcck_stack);
- 	if (pcpu == &pcpu_devices[0])
- 		return;
- 	free_pages(nodat_stack, THREAD_SIZE_ORDER);
+@@ -573,8 +574,6 @@ ENTRY(mcck_int_handler)
+ 	xgr	%r10,%r10
+ 	mvc	__PT_R8(64,%r11),0(%r14)
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+-	la	%r14,4095
+-	mvc	__PT_CR1(8,%r11),__LC_CREGS_SAVE_AREA-4095+8(%r14)
+ 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
+ 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	lgr	%r2,%r11		# pass pointer to pt_regs
 
