@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FDC328D2C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E33BD328E2A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236001AbhCATGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:06:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34078 "EHLO mail.kernel.org"
+        id S236028AbhCATZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:25:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240815AbhCATBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:01:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D25A65189;
-        Mon,  1 Mar 2021 17:10:30 +0000 (UTC)
+        id S235778AbhCATSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:18:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FAFC6531A;
+        Mon,  1 Mar 2021 17:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618630;
-        bh=hF0Z2ImeDhMsG9CfI2pxm99ZtROhX7KaIIFYm6QhRvA=;
+        s=korg; t=1614620605;
+        bh=Xdp7RkbAmR5eSRDTFJg/JPFqPfFBtL/+DLixpAY9Mpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GS0Re8PFqU2E6NVlix8KheM2rXl7C7Kkr9KCKrYLO2+VOTJnau8+fwN04sFu0CeiE
-         2FrHOucTyPV1uO/WIvG5IccefR/Caxk0oHLEZuBB2c/zL6xWcYBXpLMBklBkuJ5868
-         KMAFu0C4iiPuz6/cnS+QjIfOWrGj7ZmOLCmivkI0=
+        b=wpnuMZyh834Be0duE0uG9Ra4e/ML0XMGcPtutSm1/6AkrN/iSdM43ihOFptqM6wbz
+         OKxUXqsdtwv8nVVXUPPgpOkRFdu4r1YsyVnmUNkVswydtjDCxGEPKaHLKS2hkUUmGz
+         RyyNZ97It0IdA+nsLx73hAXeE9ZaeJWd2J7LXW/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/663] net: amd-xgbe: Fix NETDEV WATCHDOG transmit queue timeout warning
-Date:   Mon,  1 Mar 2021 17:06:19 +0100
-Message-Id: <20210301161148.231188202@linuxfoundation.org>
+Subject: [PATCH 5.11 214/775] media: ti-vpe: cal: fix write to unallocated memory
+Date:   Mon,  1 Mar 2021 17:06:22 +0100
+Message-Id: <20210301161212.198862532@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-[ Upstream commit 186edbb510bd60e748f93975989ccba25ee99c50 ]
+[ Upstream commit 5a402af5e19f215689e8bf3cc244c21d94eba3c4 ]
 
-The current driver calls netif_carrier_off() late in the link tear down
-which can result in a netdev watchdog timeout.
+The asd allocated with v4l2_async_notifier_add_fwnode_subdev() must be
+of size cal_v4l2_async_subdev, otherwise access to
+cal_v4l2_async_subdev->phy will go to unallocated memory.
 
-Calling netif_carrier_off() immediately after netif_tx_stop_all_queues()
-avoids the warning.
-
- ------------[ cut here ]------------
- NETDEV WATCHDOG: enp3s0f2 (amd-xgbe): transmit queue 0 timed out
- WARNING: CPU: 3 PID: 0 at net/sched/sch_generic.c:461 dev_watchdog+0x20d/0x220
- Modules linked in: amd_xgbe(E)  amd-xgbe 0000:03:00.2 enp3s0f2: Link is Down
- CPU: 3 PID: 0 Comm: swapper/3 Tainted: G            E
- Hardware name: AMD Bilby-RV2/Bilby-RV2, BIOS RBB1202A 10/18/2019
- RIP: 0010:dev_watchdog+0x20d/0x220
- Code: 00 49 63 4e e0 eb 92 4c 89 e7 c6 05 c6 e2 c1 00 01 e8 e7 ce fc ff 89 d9 48
- RSP: 0018:ffff90cfc28c3e88 EFLAGS: 00010286
- RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000006
- RDX: 0000000000000007 RSI: 0000000000000086 RDI: ffff90cfc28d63c0
- RBP: ffff90cfb977845c R08: 0000000000000050 R09: 0000000000196018
- R10: ffff90cfc28c3ef8 R11: 0000000000000000 R12: ffff90cfb9778000
- R13: 0000000000000003 R14: ffff90cfb9778480 R15: 0000000000000010
- FS:  0000000000000000(0000) GS:ffff90cfc28c0000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f240ff2d9d0 CR3: 00000001e3e0a000 CR4: 00000000003406e0
- Call Trace:
-  <IRQ>
-  ? pfifo_fast_reset+0x100/0x100
-  call_timer_fn+0x2b/0x130
-  run_timer_softirq+0x3e8/0x440
-  ? enqueue_hrtimer+0x39/0x90
-
-Fixes: e722ec82374b ("amd-xgbe: Update the BelFuse quirk to support SGMII")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8fcb7576ad19 ("media: ti-vpe: cal: Allow multiple contexts per subdev notifier")
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c  | 1 +
- drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/ti-vpe/cal.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-index 2709a2db56577..395eb0b526802 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -1368,6 +1368,7 @@ static void xgbe_stop(struct xgbe_prv_data *pdata)
- 		return;
+diff --git a/drivers/media/platform/ti-vpe/cal.c b/drivers/media/platform/ti-vpe/cal.c
+index 59a0266b1f399..2eef245c31a17 100644
+--- a/drivers/media/platform/ti-vpe/cal.c
++++ b/drivers/media/platform/ti-vpe/cal.c
+@@ -406,7 +406,7 @@ static irqreturn_t cal_irq(int irq_cal, void *data)
+  */
  
- 	netif_tx_stop_all_queues(netdev);
-+	netif_carrier_off(pdata->netdev);
+ struct cal_v4l2_async_subdev {
+-	struct v4l2_async_subdev asd;
++	struct v4l2_async_subdev asd; /* Must be first */
+ 	struct cal_camerarx *phy;
+ };
  
- 	xgbe_stop_timers(pdata);
- 	flush_workqueue(pdata->dev_workqueue);
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-index 93ef5a30cb8d9..19ee4db0156d6 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-@@ -1396,7 +1396,6 @@ static void xgbe_phy_stop(struct xgbe_prv_data *pdata)
- 	pdata->phy_if.phy_impl.stop(pdata);
- 
- 	pdata->phy.link = 0;
--	netif_carrier_off(pdata->netdev);
- 
- 	xgbe_phy_adjust_link(pdata);
- }
+@@ -472,7 +472,7 @@ static int cal_async_notifier_register(struct cal_dev *cal)
+ 		fwnode = of_fwnode_handle(phy->sensor_node);
+ 		asd = v4l2_async_notifier_add_fwnode_subdev(&cal->notifier,
+ 							    fwnode,
+-							    sizeof(*asd));
++							    sizeof(*casd));
+ 		if (IS_ERR(asd)) {
+ 			phy_err(phy, "Failed to add subdev to notifier\n");
+ 			ret = PTR_ERR(asd);
 -- 
 2.27.0
 
