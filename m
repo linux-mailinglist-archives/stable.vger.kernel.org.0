@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E72D329038
+	by mail.lfdr.de (Postfix) with ESMTP id A05EA329039
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242754AbhCAUDm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242760AbhCAUDm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Mar 2021 15:03:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58658 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242502AbhCATxs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242504AbhCATxs (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 14:53:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F1F652F5;
-        Mon,  1 Mar 2021 17:53:49 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F10264DE8;
+        Mon,  1 Mar 2021 17:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621229;
-        bh=0l32i3LfLbX2a/ZEUAGzt0HJxsUdgwIniReGIS6c5L0=;
+        s=korg; t=1614621233;
+        bh=zhzxN6c5JN9khP+XvV0suo9/o3MwdDW1IU1ShLW3AuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMVQvP804mm9fxZX7Th/3ApAqKRzl2XVlmi4ovGQckR9N8wIT3TrTfB037OVqqC43
-         UfZc3OHp7s/7V0BNEr6ikObSOS6uiYMUzlaayZcIbDsNLH7Am2lYOOfzDp4ymVcuZR
-         VTZ2zIDFhGoFAsKYO/kN6xOTr1jRyLMeLOF5/34s=
+        b=qNxXAeouHYHCbjKNzEzLp6Dodyse5vQAqWIRfcpU14vGl9xapflGakTX1o9Hmw29n
+         5Plq8BtqNluLOGEdMOb4fmN1vgph+eoVeJPg9RaGmcK6OZQUrWdaRVHaXHNnM2IvP8
+         0XKVbSZ+dnk7D6ffKcoAzJXmNCwhzegIuiEUYHms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Michal Simek <michal.simek@xilinx.com>,
+        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 441/775] clk: divider: fix initialization with parent_hw
-Date:   Mon,  1 Mar 2021 17:10:09 +0100
-Message-Id: <20210301161223.350132727@linuxfoundation.org>
+Subject: [PATCH 5.11 442/775] spi: pxa2xx: Fix the controller numbering for Wildcat Point
+Date:   Mon,  1 Mar 2021 17:10:10 +0100
+Message-Id: <20210301161223.397327660@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,48 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Tretter <m.tretter@pengutronix.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 0225daea08141b1dff681502d5af70b71e8b11ec ]
+[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
 
-If a driver registers a divider clock with a parent_hw instead of the
-parent_name, the parent_hw is ignored and the clock does not have a
-parent.
+Wildcat Point has two SPI controllers and added one is actually second one.
+Fix the numbering by adding the description of the first one.
 
-Fix this by initializing the parents the same way they are initialized
-for clock gates.
-
-Fixes: ff258817137a ("clk: divider: Add support for specifying parents via DT/pointers")
-Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
-Reviewed-by: Stephen Boyd <sboyd@kernel.org>
-Acked-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lore.kernel.org/r/20210121071659.1226489-3-m.tretter@pengutronix.de
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
+Cc: Leif Liddy <leif.liddy@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-divider.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/clk-divider.c b/drivers/clk/clk-divider.c
-index c499799693ccc..344997203f0e7 100644
---- a/drivers/clk/clk-divider.c
-+++ b/drivers/clk/clk-divider.c
-@@ -494,8 +494,13 @@ struct clk_hw *__clk_hw_register_divider(struct device *dev,
- 	else
- 		init.ops = &clk_divider_ops;
- 	init.flags = flags;
--	init.parent_names = (parent_name ? &parent_name: NULL);
--	init.num_parents = (parent_name ? 1 : 0);
-+	init.parent_names = parent_name ? &parent_name : NULL;
-+	init.parent_hws = parent_hw ? &parent_hw : NULL;
-+	init.parent_data = parent_data;
-+	if (parent_name || parent_hw || parent_data)
-+		init.num_parents = 1;
-+	else
-+		init.num_parents = 0;
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index f236e3034cf85..aafac128bb5f1 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -21,7 +21,8 @@ enum {
+ 	PORT_BSW1,
+ 	PORT_BSW2,
+ 	PORT_CE4100,
+-	PORT_LPT,
++	PORT_LPT0,
++	PORT_LPT1,
+ };
  
- 	/* struct clk_divider assignments */
- 	div->reg = reg;
+ struct pxa_spi_info {
+@@ -57,8 +58,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
+ static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
+ static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
+ 
+-static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
+-static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
++static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
++static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
+ 
+ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ {
+@@ -185,12 +188,19 @@ static struct pxa_spi_info spi_info_configs[] = {
+ 		.num_chipselect = 1,
+ 		.max_clk_rate = 50000000,
+ 	},
+-	[PORT_LPT] = {
++	[PORT_LPT0] = {
+ 		.type = LPSS_LPT_SSP,
+ 		.port_id = 0,
+ 		.setup = lpss_spi_setup,
+-		.tx_param = &lpt_tx_param,
+-		.rx_param = &lpt_rx_param,
++		.tx_param = &lpt0_tx_param,
++		.rx_param = &lpt0_rx_param,
++	},
++	[PORT_LPT1] = {
++		.type = LPSS_LPT_SSP,
++		.port_id = 1,
++		.setup = lpss_spi_setup,
++		.tx_param = &lpt1_tx_param,
++		.rx_param = &lpt1_rx_param,
+ 	},
+ };
+ 
+@@ -285,8 +295,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
+ 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
+ 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
+-	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
+-	{ },
++	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
++	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
++	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
+ 
 -- 
 2.27.0
 
