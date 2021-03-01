@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F013288CC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D165E3288C3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbhCARob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:44:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33836 "EHLO mail.kernel.org"
+        id S238883AbhCARns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237147AbhCARki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:40:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09ABF650BD;
-        Mon,  1 Mar 2021 16:56:12 +0000 (UTC)
+        id S234700AbhCARkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:40:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3E2F64FC7;
+        Mon,  1 Mar 2021 16:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617773;
-        bh=zhzxN6c5JN9khP+XvV0suo9/o3MwdDW1IU1ShLW3AuI=;
+        s=korg; t=1614617776;
+        bh=A4RpwhzWqUG12ho5899rGBpkXEQBnkKQYletbRJNlDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQ0dzHZF7ooG+sVC56Q6FY32AM3OExhl7Q3/v6+hm8cHy2a2jQKvOSfOb7JwcaFHl
-         gI7BWGBvbexYMAgbukRnFxnfAkaLgoNrzYsis0ask2LyAUa375Fku74eeotdRS1HR/
-         cWJohvbbQsMOjudzHvti7xDa4B0/hwD3GunnhmTg=
+        b=uMbMFsM8U7cY6IpAJYrnRg7pfHTmEd6/jqLknvF9vDhao8+KTdHJn/lXQB6KdtEDX
+         rQI5Zw7LHUmMROkor89MpQJhyqicBWFr3BuMyacTAkwayUfNR4PnYSLRLujDnZkq/Z
+         nP5sBDPyCilG67C9sOUuToFSFnFFIdDCt7Siop2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 190/340] spi: pxa2xx: Fix the controller numbering for Wildcat Point
-Date:   Mon,  1 Mar 2021 17:12:14 +0100
-Message-Id: <20210301161057.662528317@linuxfoundation.org>
+Subject: [PATCH 5.4 191/340] regulator: qcom-rpmh: fix pm8009 ldo7
+Date:   Mon,  1 Mar 2021 17:12:15 +0100
+Message-Id: <20210301161057.711978780@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,84 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
+[ Upstream commit 20ccc362c3d20da734af896e075b74222589f2c0 ]
 
-Wildcat Point has two SPI controllers and added one is actually second one.
-Fix the numbering by adding the description of the first one.
+Use the correct name to avoid ldo7 commands being sent to ldo6's address.
 
-Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
-Cc: Leif Liddy <leif.liddy@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
+Fixes: 06369bcc15a1 ("regulator: qcom-rpmh: Add support for SM8150")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210211034935.5622-1-jonathan@marek.ca
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/regulator/qcom-rpmh-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-index f236e3034cf85..aafac128bb5f1 100644
---- a/drivers/spi/spi-pxa2xx-pci.c
-+++ b/drivers/spi/spi-pxa2xx-pci.c
-@@ -21,7 +21,8 @@ enum {
- 	PORT_BSW1,
- 	PORT_BSW2,
- 	PORT_CE4100,
--	PORT_LPT,
-+	PORT_LPT0,
-+	PORT_LPT1,
+diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
+index a47f87b8373df..68d22acdb037a 100644
+--- a/drivers/regulator/qcom-rpmh-regulator.c
++++ b/drivers/regulator/qcom-rpmh-regulator.c
+@@ -874,7 +874,7 @@ static const struct rpmh_vreg_init_data pm8009_vreg_data[] = {
+ 	RPMH_VREG("ldo4",   "ldo%s4",  &pmic5_nldo,      "vdd-l4"),
+ 	RPMH_VREG("ldo5",   "ldo%s5",  &pmic5_pldo,      "vdd-l5-l6"),
+ 	RPMH_VREG("ldo6",   "ldo%s6",  &pmic5_pldo,      "vdd-l5-l6"),
+-	RPMH_VREG("ldo7",   "ldo%s6",  &pmic5_pldo_lv,   "vdd-l7"),
++	RPMH_VREG("ldo7",   "ldo%s7",  &pmic5_pldo_lv,   "vdd-l7"),
+ 	{},
  };
- 
- struct pxa_spi_info {
-@@ -57,8 +58,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
- static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
- static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
- 
--static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
--static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
-+static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
-+static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
- 
- static bool lpss_dma_filter(struct dma_chan *chan, void *param)
- {
-@@ -185,12 +188,19 @@ static struct pxa_spi_info spi_info_configs[] = {
- 		.num_chipselect = 1,
- 		.max_clk_rate = 50000000,
- 	},
--	[PORT_LPT] = {
-+	[PORT_LPT0] = {
- 		.type = LPSS_LPT_SSP,
- 		.port_id = 0,
- 		.setup = lpss_spi_setup,
--		.tx_param = &lpt_tx_param,
--		.rx_param = &lpt_rx_param,
-+		.tx_param = &lpt0_tx_param,
-+		.rx_param = &lpt0_rx_param,
-+	},
-+	[PORT_LPT1] = {
-+		.type = LPSS_LPT_SSP,
-+		.port_id = 1,
-+		.setup = lpss_spi_setup,
-+		.tx_param = &lpt1_tx_param,
-+		.rx_param = &lpt1_rx_param,
- 	},
- };
- 
-@@ -285,8 +295,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
- 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
- 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
- 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
--	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
--	{ },
-+	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
-+	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
  
 -- 
 2.27.0
