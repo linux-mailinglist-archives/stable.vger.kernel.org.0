@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D09E8328D6A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:12:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94519328CEC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240974AbhCATKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:10:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36590 "EHLO mail.kernel.org"
+        id S235342AbhCATCG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:02:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240887AbhCATGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:06:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EA4B64EEA;
-        Mon,  1 Mar 2021 17:28:55 +0000 (UTC)
+        id S236013AbhCAS4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:56:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B733765082;
+        Mon,  1 Mar 2021 17:29:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619736;
-        bh=s7yDtmqYHkEXvFf3ADK97RDJ3bk723d4c8aAgU9r0DE=;
+        s=korg; t=1614619766;
+        bh=eCjytbrzNgFTMozE8yJrwlEMCfqMOUqtSTSS+MWopow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7StcV+IGCkzFoJUXmTl+oYLTujl+NfM0X0DC+gkS0BWHAktbMkDuGaXOZmkyavm4
-         GdR3esLxxZBIs9L5GzHCY/D6qsV3dmRmL+2j8KLKWg3KqNXvhDgFEfk7e9t6cIqL7v
-         s+AYip+Xeq95SDJ/c0+gRHwHmkG1UnhtE7hnQtz8=
+        b=x6t0ZDERoMgaKZ+Ct4prRLiyqH3i98SV1pP9rhNLdvg4cKL+Uq6kHijkmfjpYYSPB
+         0hYZaCizIwBqjiCLBq1mDwKRue+wxptPAdN3lLxsY16Vf3NWAjkxuwQ3jP0gLpCJes
+         A+AROz4+HU6/bwbtcWG+Hp1oHwTPpSGA0wdKUwPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
-        Matteo Croce <mcroce@microsoft.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.10 555/663] pstore: Fix typo in compression option name
-Date:   Mon,  1 Mar 2021 17:13:23 +0100
-Message-Id: <20210301161209.333940951@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 5.10 556/663] dts64: mt7622: fix slow sd card access
+Date:   Mon,  1 Mar 2021 17:13:24 +0100
+Message-Id: <20210301161209.381793399@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,47 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Bohac <jbohac@suse.cz>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit 19d8e9149c27b689c6224f5c84b96a159342195a upstream.
+commit dc2e76175417e69c41d927dba75a966399f18354 upstream.
 
-Both pstore_compress() and decompress_record() use a mistyped config
-option name ("PSTORE_COMPRESSION" instead of "PSTORE_COMPRESS"). As
-a result compression and decompression of pstore records was always
-disabled.
+Fix extreme slow speed (200MB takes ~20 min) on writing sdcard on
+bananapi-r64 by adding reset-control for mmc1 like it's done for mmc0/emmc.
 
-Use the correct config option name.
-
-Signed-off-by: Jiri Bohac <jbohac@suse.cz>
-Fixes: fd49e03280e5 ("pstore: Fix linking when crypto API disabled")
-Acked-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 2c002a3049f7 ("arm64: dts: mt7622: add mmc related device nodes")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210218111547.johvp5klpv3xrpnn@dwarf.suse.cz
+Link: https://lore.kernel.org/r/20210113180919.49523-1-linux@fw-web.de
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pstore/platform.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/mediatek/mt7622.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -269,7 +269,7 @@ static int pstore_compress(const void *i
- {
- 	int ret;
+--- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+@@ -698,6 +698,8 @@
+ 		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
+ 			 <&topckgen CLK_TOP_AXI_SEL>;
+ 		clock-names = "source", "hclk";
++		resets = <&pericfg MT7622_PERI_MSDC1_SW_RST>;
++		reset-names = "hrst";
+ 		status = "disabled";
+ 	};
  
--	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION))
-+	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS))
- 		return -EINVAL;
- 
- 	ret = crypto_comp_compress(tfm, in, inlen, out, &outlen);
-@@ -671,7 +671,7 @@ static void decompress_record(struct pst
- 	int unzipped_len;
- 	char *unzipped, *workspace;
- 
--	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION) || !record->compressed)
-+	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS) || !record->compressed)
- 		return;
- 
- 	/* Only PSTORE_TYPE_DMESG support compression. */
 
 
