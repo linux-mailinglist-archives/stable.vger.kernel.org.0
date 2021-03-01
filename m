@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 001E0328A0F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E4F3289F7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234410AbhCASLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:11:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S238136AbhCASJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:09:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232697AbhCASEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:04:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C31A264E5F;
-        Mon,  1 Mar 2021 17:44:22 +0000 (UTC)
+        id S239074AbhCASC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:02:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6488E65349;
+        Mon,  1 Mar 2021 17:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620663;
-        bh=hABkrZe6wCI8WU49Dfb5/wFF2YPEA9dR+iG/8nJO9D4=;
+        s=korg; t=1614620669;
+        bh=TLWxD7EFUh2V3do57RgboHDrwvdJab/sEilyXSsC2d4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hI+/l5PLEhwiMEwro4pTL1nY+r93Gzr5p2XmOW7jmMCDjSAz7Zlc5giFlvklqK5NZ
-         bcNictFn9XJvWc7xabHpPc0nOoHLjT0VvBifetgkZ5kZIKAvalBILBwuvu7AyzpTvV
-         bxioPo5QNK7JWtyiOrtav5GmrbK8YmHXDpGHHDVw=
+        b=cr25DT1QlcVNcWiA+DUT7kSyNYcWtwGufHdjlFOVa0SoyadpzLCIzg6wwoFJHgPn4
+         A7zwER3hNpeKcCvdGt+pF7pWevaxL78hMi8ZgI5JW5uD/VdqhWEWLB5Y3v/yKctVYI
+         ftaJqZ01YEmsgHnHl2SSiQIF1c0d4MzaiN2uSQvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 204/775] media: aspeed: fix error return code in aspeed_video_setup_video()
-Date:   Mon,  1 Mar 2021 17:06:12 +0100
-Message-Id: <20210301161211.722243364@linuxfoundation.org>
+Subject: [PATCH 5.11 206/775] ASoC: qcom: qdsp6: Move frontend AIFs to q6asm-dai
+Date:   Mon,  1 Mar 2021 17:06:14 +0100
+Message-Id: <20210301161211.820021920@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,43 +42,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Changzhong <zhangchangzhong@huawei.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit d497fcdab02996a4510d5dd0d743447c737c317a ]
+[ Upstream commit 6fd8d2d275f74baa7ac17b2656da1235f56dab99 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+At the moment it is necessary to set up the DAPM routes between
+front-end AIF<->DAI explicitly in the device tree, e.g. using
 
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+	audio-routing =
+		"MM_DL1", "MultiMedia1 Playback",
+		"MM_DL3", "MultiMedia3 Playback",
+		"MM_DL4", "MultiMedia4 Playback",
+		"MultiMedia2 Capture", "MM_UL2";
+
+This is prone to mistakes and (sadly) there is no clear error if one
+of these routes is missing. :(
+
+Actually, this should not be necessary because the ASoC core normally
+automatically links AIF<->DAI within snd_soc_dapm_link_dai_widgets().
+This is done using the "stname" parameter of SND_SOC_DAPM_AIF_IN/OUT.
+
+For SND_SOC_DAPM_AIF_IN("MM_DL1", "MultiMedia1 Playback", 0, 0, 0, 0),
+it should create the route from above: MM_DL1 <-> MultiMedia1 Playback.
+
+This does not work at the moment because the AIF widget (MM_DL1)
+and the DAI widget (MultiMedia1 Playback) belong to different
+DAPM contexts (q6routing / q6asm-dai).
+
+Fix this by declaring the AIF widgets in the same driver as the DAIs
+(q6asm-dai). Now the routes above are created automatically
+and no longer need to be specified in the device tree.
+
+This is also more consistent with the back-end AIFs which are already
+declared in q6afe-dais instead of q6routing. q6routing should only link
+the components together using mixers.
+
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20201211203255.148246-1-stephan@gerhold.net
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/qcom/qdsp6/q6asm-dai.c | 21 +++++++++++++++++++++
+ sound/soc/qcom/qdsp6/q6routing.c | 18 ------------------
+ 2 files changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index c46a79eace98b..f2c4dadd6a0eb 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -1551,12 +1551,12 @@ static int aspeed_video_setup_video(struct aspeed_video *video)
- 			       V4L2_JPEG_CHROMA_SUBSAMPLING_420, mask,
- 			       V4L2_JPEG_CHROMA_SUBSAMPLING_444);
- 
--	if (video->ctrl_handler.error) {
-+	rc = video->ctrl_handler.error;
-+	if (rc) {
- 		v4l2_ctrl_handler_free(&video->ctrl_handler);
- 		v4l2_device_unregister(v4l2_dev);
- 
--		dev_err(video->dev, "Failed to init controls: %d\n",
--			video->ctrl_handler.error);
-+		dev_err(video->dev, "Failed to init controls: %d\n", rc);
- 		return rc;
+diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
+index c9ac9c1d26c47..9766725c29166 100644
+--- a/sound/soc/qcom/qdsp6/q6asm-dai.c
++++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
+@@ -1233,6 +1233,25 @@ static void q6asm_dai_pcm_free(struct snd_soc_component *component,
  	}
+ }
  
++static const struct snd_soc_dapm_widget q6asm_dapm_widgets[] = {
++	SND_SOC_DAPM_AIF_IN("MM_DL1", "MultiMedia1 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL2", "MultiMedia2 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL3", "MultiMedia3 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL4", "MultiMedia4 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL5", "MultiMedia5 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL6", "MultiMedia6 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL7", "MultiMedia7 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("MM_DL8", "MultiMedia8 Playback", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL1", "MultiMedia1 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL2", "MultiMedia2 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL3", "MultiMedia3 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL4", "MultiMedia4 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL5", "MultiMedia5 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL6", "MultiMedia6 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL7", "MultiMedia7 Capture", 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_OUT("MM_UL8", "MultiMedia8 Capture", 0, SND_SOC_NOPM, 0, 0),
++};
++
+ static const struct snd_soc_component_driver q6asm_fe_dai_component = {
+ 	.name		= DRV_NAME,
+ 	.open		= q6asm_dai_open,
+@@ -1245,6 +1264,8 @@ static const struct snd_soc_component_driver q6asm_fe_dai_component = {
+ 	.pcm_construct	= q6asm_dai_pcm_new,
+ 	.pcm_destruct	= q6asm_dai_pcm_free,
+ 	.compress_ops	= &q6asm_dai_compress_ops,
++	.dapm_widgets	= q6asm_dapm_widgets,
++	.num_dapm_widgets = ARRAY_SIZE(q6asm_dapm_widgets),
+ };
+ 
+ static struct snd_soc_dai_driver q6asm_fe_dais_template[] = {
+diff --git a/sound/soc/qcom/qdsp6/q6routing.c b/sound/soc/qcom/qdsp6/q6routing.c
+index 53185e26fea17..0a6b9433f6acf 100644
+--- a/sound/soc/qcom/qdsp6/q6routing.c
++++ b/sound/soc/qcom/qdsp6/q6routing.c
+@@ -713,24 +713,6 @@ static const struct snd_kcontrol_new mmul8_mixer_controls[] = {
+ 	Q6ROUTING_TX_MIXERS(MSM_FRONTEND_DAI_MULTIMEDIA8) };
+ 
+ static const struct snd_soc_dapm_widget msm_qdsp6_widgets[] = {
+-	/* Frontend AIF */
+-	SND_SOC_DAPM_AIF_IN("MM_DL1", "MultiMedia1 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL2", "MultiMedia2 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL3", "MultiMedia3 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL4", "MultiMedia4 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL5", "MultiMedia5 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL6", "MultiMedia6 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL7", "MultiMedia7 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_IN("MM_DL8", "MultiMedia8 Playback", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL1", "MultiMedia1 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL2", "MultiMedia2 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL3", "MultiMedia3 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL4", "MultiMedia4 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL5", "MultiMedia5 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL6", "MultiMedia6 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL7", "MultiMedia7 Capture", 0, 0, 0, 0),
+-	SND_SOC_DAPM_AIF_OUT("MM_UL8", "MultiMedia8 Capture", 0, 0, 0, 0),
+-
+ 	/* Mixer definitions */
+ 	SND_SOC_DAPM_MIXER("HDMI Mixer", SND_SOC_NOPM, 0, 0,
+ 			   hdmi_mixer_controls,
 -- 
 2.27.0
 
