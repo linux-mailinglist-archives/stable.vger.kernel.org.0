@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5D7232853E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74A71328449
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235346AbhCAQvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:51:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47108 "EHLO mail.kernel.org"
+        id S232875AbhCAQdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235340AbhCAQoF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3852E64F48;
-        Mon,  1 Mar 2021 16:30:07 +0000 (UTC)
+        id S234564AbhCAQ1D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:27:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF9EF64EE7;
+        Mon,  1 Mar 2021 16:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616207;
-        bh=kKdG+sRyeAvIXVZfetldZ6MndIWfxk20Yc4PPcTH6Vc=;
+        s=korg; t=1614615742;
+        bh=ChE7H3PW4shC1YLyROmo2Z5LCrWYrhBF+y+51g7IGGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xzTG4vkSvzcQTvbkHZa/bm512bTCejTIg/h5UqYLbv6Nm5+v9bC1I6tWrJXbM9clu
-         kOW8dXuiMHPQbWCKk3UKdkNgkJVDwCMD8rSohcvzVSMrDVQ/NQLTcY7ixZI/UFfwSb
-         Pz162QsceJQNF272FydavuN9C53RPDvQBWC7BTC0=
+        b=kM8aVvuQIMpwHLLqcgxC85BgUJBCNc85I1S2K5x5pYTBpjkaLfmLQ02vxe3ouEpEO
+         rt7Ji+bS3AShkI/+Gi6pq57jC0d+Oho/UTKHlG/XetnHk7m5dkQR2HF4AzRjmxAN9L
+         pWgsRiY7Mgf/xtRq5bioOix2+xiXAOyDafGwFD48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/176] dmaengine: fsldma: Fix a resource leak in the remove function
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 044/134] btrfs: clarify error returns values in __load_free_space_cache
 Date:   Mon,  1 Mar 2021 17:12:25 +0100
-Message-Id: <20210301161024.543669156@linuxfoundation.org>
+Message-Id: <20210301161015.748555624@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit cbc0ad004c03ad7971726a5db3ec84dba3dcb857 ]
+[ Upstream commit 3cc64e7ebfb0d7faaba2438334c43466955a96e8 ]
 
-A 'irq_dispose_mapping()' call is missing in the remove function.
-Add it.
+Return value in __load_free_space_cache is not properly set after
+(unlikely) memory allocation failures and 0 is returned instead.
+This is not a problem for the caller load_free_space_cache because only
+value 1 is considered as 'cache loaded' but for clarity it's better
+to set the errors accordingly.
 
-This is needed to undo the 'irq_of_parse_and_map() call from the probe
-function and already part of the error handling path of the probe function.
-
-It was added in the probe function only in commit d3f620b2c4fe ("fsldma:
-simplify IRQ probing and handling")
-
-Fixes: 77cd62e8082b ("fsldma: allow Freescale Elo DMA driver to be compiled as a module")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212160516.92515-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: a67509c30079 ("Btrfs: add a io_ctl struct and helpers for dealing with the space cache")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsldma.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/free-space-cache.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
-index 3eaece888e751..79166c8d5afc1 100644
---- a/drivers/dma/fsldma.c
-+++ b/drivers/dma/fsldma.c
-@@ -1318,6 +1318,7 @@ static int fsldma_of_remove(struct platform_device *op)
- 		if (fdev->chan[i])
- 			fsl_dma_chan_remove(fdev->chan[i]);
- 	}
-+	irq_dispose_mapping(fdev->irq);
+diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
+index 8e93bd391b352..f74cb39a64e5e 100644
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -753,8 +753,10 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 	while (num_entries) {
+ 		e = kmem_cache_zalloc(btrfs_free_space_cachep,
+ 				      GFP_NOFS);
+-		if (!e)
++		if (!e) {
++			ret = -ENOMEM;
+ 			goto free_cache;
++		}
  
- 	iounmap(fdev->regs);
- 	kfree(fdev);
+ 		ret = io_ctl_read_entry(&io_ctl, e, &type);
+ 		if (ret) {
+@@ -763,6 +765,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 		}
+ 
+ 		if (!e->bytes) {
++			ret = -1;
+ 			kmem_cache_free(btrfs_free_space_cachep, e);
+ 			goto free_cache;
+ 		}
+@@ -782,6 +785,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 			num_bitmaps--;
+ 			e->bitmap = kzalloc(PAGE_SIZE, GFP_NOFS);
+ 			if (!e->bitmap) {
++				ret = -ENOMEM;
+ 				kmem_cache_free(
+ 					btrfs_free_space_cachep, e);
+ 				goto free_cache;
 -- 
 2.27.0
 
