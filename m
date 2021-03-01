@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B458328C26
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8304328BAE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240392AbhCASqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:46:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50578 "EHLO mail.kernel.org"
+        id S240281AbhCASi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232127AbhCASjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC7C64F9B;
-        Mon,  1 Mar 2021 17:23:18 +0000 (UTC)
+        id S239956AbhCASbv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:31:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F18365065;
+        Mon,  1 Mar 2021 17:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619399;
-        bh=1f96oeQVM/BiIMAVZWokvRhoLmRmkBWfKByRvH20G1I=;
+        s=korg; t=1614619422;
+        bh=2nOI2ZExrpgPbebxZQ5B72jGMWtLl1wFJBAWaWU2TLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q082dRmC5ONsB+1c1OqgIBdqoZ5jkGnogn9OHvgwvIkKCbNKKj1zn1vQMIN9PIVTr
-         7MFcUpLIyikyEhtX/WNex+G4T86Bhb4539QAHI0Z2D3HyG726JnI5ermrS41h2zpNQ
-         lT302MuVFcZatM0igvuYjhIZZ5iudo3WaceOk3sA=
+        b=uo7kCJxjyXLkhbEklt0FizuYRUtISjnaeo4kbG/47mMfsTtA1vikeNzp2KvjRm/RM
+         fxxLPvzVwXiSXFwvKHcU5kwBXbsiXuYl80IHaYlvcJF0ztTYn6QDFWmmOVZ2Lwe0vT
+         0MnBy1u0PvKaCc73abqTZWGaQnSkoz4YgDQ5oRGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        stable@vger.kernel.org, Henry Tieman <henry.w.tieman@intel.com>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 441/663] i40e: Fix add TC filter for IPv6
-Date:   Mon,  1 Mar 2021 17:11:29 +0100
-Message-Id: <20210301161203.717398943@linuxfoundation.org>
+Subject: [PATCH 5.10 448/663] ice: update the number of available RSS queues
+Date:   Mon,  1 Mar 2021 17:11:36 +0100
+Message-Id: <20210301161204.062245723@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -44,49 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Henry Tieman <henry.w.tieman@intel.com>
 
-[ Upstream commit 61c1e0eb8375def7c891bfe857bb795a57090526 ]
+[ Upstream commit 0393e46ac48a6832b1011c233ebcef84f8dbe4f5 ]
 
-Fix insufficient distinction between IPv4 and IPv6 addresses
-when creating a filter.
-IPv4 and IPv6 are kept in the same memory area. If IPv6 is added,
-then it's caught by IPv4 check, which leads to err -95.
+It was possible to have Rx queues that were not available for use
+by RSS. This would happen when increasing the number of Rx queues
+while there was a user defined RSS LUT.
 
-Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
-Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Reviewed-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Always update the number of available RSS queues when changing the
+number of Rx queues.
+
+Fixes: 87324e747fde ("ice: Implement ethtool ops for channels")
+Signed-off-by: Henry Tieman <henry.w.tieman@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 27 ++++++++++++++------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 3ca5644785556..59971f62e6268 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7731,7 +7731,8 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
- 		return -EOPNOTSUPP;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index d27b9cb3e8082..aebebd2102da0 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -3328,6 +3328,18 @@ ice_get_channels(struct net_device *dev, struct ethtool_channels *ch)
+ 	ch->max_other = ch->other_count;
+ }
  
- 	/* adding filter using src_port/src_ip is not supported at this stage */
--	if (filter->src_port || filter->src_ipv4 ||
-+	if (filter->src_port ||
-+	    (filter->src_ipv4 && filter->n_proto != ETH_P_IPV6) ||
- 	    !ipv6_addr_any(&filter->ip.v6.src_ip6))
- 		return -EOPNOTSUPP;
++/**
++ * ice_get_valid_rss_size - return valid number of RSS queues
++ * @hw: pointer to the HW structure
++ * @new_size: requested RSS queues
++ */
++static int ice_get_valid_rss_size(struct ice_hw *hw, int new_size)
++{
++	struct ice_hw_common_caps *caps = &hw->func_caps.common_cap;
++
++	return min_t(int, new_size, BIT(caps->rss_table_entry_width));
++}
++
+ /**
+  * ice_vsi_set_dflt_rss_lut - set default RSS LUT with requested RSS size
+  * @vsi: VSI to reconfigure RSS LUT on
+@@ -3355,14 +3367,10 @@ static int ice_vsi_set_dflt_rss_lut(struct ice_vsi *vsi, int req_rss_size)
+ 		return -ENOMEM;
  
-@@ -7760,7 +7761,7 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
- 			cpu_to_le16(I40E_AQC_ADD_CLOUD_FILTER_MAC_VLAN_PORT);
- 		}
+ 	/* set RSS LUT parameters */
+-	if (!test_bit(ICE_FLAG_RSS_ENA, pf->flags)) {
++	if (!test_bit(ICE_FLAG_RSS_ENA, pf->flags))
+ 		vsi->rss_size = 1;
+-	} else {
+-		struct ice_hw_common_caps *caps = &hw->func_caps.common_cap;
+-
+-		vsi->rss_size = min_t(int, req_rss_size,
+-				      BIT(caps->rss_table_entry_width));
+-	}
++	else
++		vsi->rss_size = ice_get_valid_rss_size(hw, req_rss_size);
  
--	} else if (filter->dst_ipv4 ||
-+	} else if ((filter->dst_ipv4 && filter->n_proto != ETH_P_IPV6) ||
- 		   !ipv6_addr_any(&filter->ip.v6.dst_ip6)) {
- 		cld_filter.element.flags =
- 				cpu_to_le16(I40E_AQC_ADD_CLOUD_FILTER_IP_PORT);
+ 	/* create/set RSS LUT */
+ 	ice_fill_rss_lut(lut, vsi->rss_table_size, vsi->rss_size);
+@@ -3441,9 +3449,12 @@ static int ice_set_channels(struct net_device *dev, struct ethtool_channels *ch)
+ 
+ 	ice_vsi_recfg_qs(vsi, new_rx, new_tx);
+ 
+-	if (new_rx && !netif_is_rxfh_configured(dev))
++	if (!netif_is_rxfh_configured(dev))
+ 		return ice_vsi_set_dflt_rss_lut(vsi, new_rx);
+ 
++	/* Update rss_size due to change in Rx queues */
++	vsi->rss_size = ice_get_valid_rss_size(&pf->hw, new_rx);
++
+ 	return 0;
+ }
+ 
 -- 
 2.27.0
 
