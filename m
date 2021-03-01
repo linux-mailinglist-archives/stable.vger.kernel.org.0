@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5060B3291C5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:33:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 473543291C7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:33:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243397AbhCAUck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:32:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
+        id S243410AbhCAUcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:32:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242826AbhCAUZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:25:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A646464FC4;
-        Mon,  1 Mar 2021 18:06:33 +0000 (UTC)
+        id S243042AbhCAU0O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:26:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8539D64FC6;
+        Mon,  1 Mar 2021 18:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621994;
-        bh=TCfziAUs93QysWgA7MipDrigXY6pBu0AXFqcZJIpM2M=;
+        s=korg; t=1614621997;
+        bh=7JkhFDWfXH9UY1P5WrPSTBQu5B61e53Um7n6konFoSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqXIA7efGGrSeyz8AuZ0DAk5ieutPfz6JN3CyhOUxPUjTG16kWfSZvHLGK/4TtEsL
-         2VLE5YeaTVOV8AYWPsPMlZY3VSy52wWamzCIrXLHuQnku/MJ6LP27zumfXa5sjOu0M
-         z2QNBVOns4BiLtUMRMLmYjjQO1Fx0+hTL/sfSrBc=
+        b=BYQ1h4Jm/j3VKdXzHDEdZ7FWnkZ3FcSiSB198UxRinVaSgxrledWROC0t0PAMDSLr
+         wLFw2ZvaPepD8AW/4EFW+IPq1VcoJk4JVZ+7gqzyUv0rsCE8ZbagEiBQR//eKVof9a
+         8S58FC7JPjlLGTTL84cBO4i29zyvDbKe05htGQE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.11 718/775] mei: me: emmitsburg workstation DID
-Date:   Mon,  1 Mar 2021 17:14:46 +0100
-Message-Id: <20210301161236.828142127@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.11 719/775] mei: me: add adler lake point S DID
+Date:   Mon,  1 Mar 2021 17:14:47 +0100
+Message-Id: <20210301161236.879187608@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -38,15 +40,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Winkler <tomas.winkler@intel.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 372726cb3957dbd69ded9a4e3419d5c6c3bc648e upstream.
+commit f7545efaf7950b240de6b8a20b9c3ffd7278538e upstream.
 
-Add Emmitsburg workstation DID.
+Add Adler Lake S device id.
 
 Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210129120752.850325-5-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/20210129120752.850325-6-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  drivers/misc/mei/hw-me-regs.h |    2 ++
@@ -55,22 +58,22 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/misc/mei/hw-me-regs.h
 +++ b/drivers/misc/mei/hw-me-regs.h
-@@ -101,6 +101,8 @@
- #define MEI_DEV_ID_MCC        0x4B70  /* Mule Creek Canyon (EHL) */
- #define MEI_DEV_ID_MCC_4      0x4B75  /* Mule Creek Canyon 4 (EHL) */
+@@ -103,6 +103,8 @@
  
-+#define MEI_DEV_ID_EBG        0x1BE0  /* Emmitsburg WS */
+ #define MEI_DEV_ID_EBG        0x1BE0  /* Emmitsburg WS */
+ 
++#define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
 +
  /*
   * MEI HW Section
   */
 --- a/drivers/misc/mei/pci-me.c
 +++ b/drivers/misc/mei/pci-me.c
-@@ -107,6 +107,8 @@ static const struct pci_device_id mei_me
+@@ -109,6 +109,8 @@ static const struct pci_device_id mei_me
  
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CDF, MEI_ME_PCH8_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_EBG, MEI_ME_PCH15_SPS_CFG)},
  
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_EBG, MEI_ME_PCH15_SPS_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
 +
  	/* required last entry */
  	{0, }
