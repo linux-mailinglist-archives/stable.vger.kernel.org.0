@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FCEC328E83
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F73328EB3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241677AbhCATdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:33:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
+        id S242106AbhCATfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:35:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241534AbhCAT0p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:26:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B80064F48;
-        Mon,  1 Mar 2021 17:14:47 +0000 (UTC)
+        id S241873AbhCAT3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1C5C64F6C;
+        Mon,  1 Mar 2021 17:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618888;
-        bh=v1qgq11IQiNc8b4IKEHQ3qeCbnn0O59oU4+m9UbuUIg=;
+        s=korg; t=1614621026;
+        bh=8cMgb4xGAjd8a8wRgt0wH4q4ZXANGpxicI9k8qjckxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ec1CBlK5FoKpwnyymE9wFGmAAyuRR8tJu+lhLj7+gpKUpq/mjjczIhxZD5OoVLawb
-         rwgpNLgtO6OrR6wQt987bZoRFymuPce8Jw9aUDBpWkUZoBN3361EQ1uNWgP7OpYlu9
-         SvS82rmoPKRk0QTmsQKpsoYh5erEJoD83DcNPgbk=
+        b=EWLEMU3RB4l5HxIIrOeBfL5/H+/uso21E7YxNbVWR+eyv5y88C5BZnE3kE+7/H8V5
+         c8Vej24Uu/EtLmh+TS4kUufDi0+hfabzE2PT7135ptX2Ap+sJrLPbTgRw/37izK0C8
+         1dJyh8KxGQp5BCTkghmonMfisjPFX2qBGRbMzplU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 254/663] irqchip/imx: IMX_INTMUX should not default to y, unconditionally
-Date:   Mon,  1 Mar 2021 17:08:22 +0100
-Message-Id: <20210301161154.396226994@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        devicetree@vger.kernel.org, KarimAllah Ahmed <karahmed@amazon.de>,
+        Quentin Perret <qperret@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 336/775] fdt: Properly handle "no-map" field in the memory region
+Date:   Mon,  1 Mar 2021 17:08:24 +0100
+Message-Id: <20210301161218.225700513@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: KarimAllah Ahmed <karahmed@amazon.de>
 
-[ Upstream commit a890caeb2ba40ca183969230e204ab144f258357 ]
+[ Upstream commit 86588296acbfb1591e92ba60221e95677ecadb43 ]
 
-Merely enabling CONFIG_COMPILE_TEST should not enable additional code.
-To fix this, restrict the automatic enabling of IMX_INTMUX to ARCH_MXC,
-and ask the user in case of compile-testing.
+Mark the memory region with NOMAP flag instead of completely removing it
+from the memory blocks. That makes the FDT handling consistent with the EFI
+memory map handling.
 
-Fixes: 66968d7dfc3f5451 ("irqchip: Add COMPILE_TEST support for IMX_INTMUX")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210208145605.422943-1-geert+renesas@glider.be
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: KarimAllah Ahmed <karahmed@amazon.de>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Link: https://lore.kernel.org/r/20210115114544.1830068-2-qperret@google.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/of/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/Kconfig b/drivers/irqchip/Kconfig
-index 2aa79c32ee228..6156a065681bc 100644
---- a/drivers/irqchip/Kconfig
-+++ b/drivers/irqchip/Kconfig
-@@ -464,7 +464,8 @@ config IMX_IRQSTEER
- 	  Support for the i.MX IRQSTEER interrupt multiplexer/remapper.
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index feb0f2d67fc5f..427b534d60d2d 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1147,7 +1147,7 @@ int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
+ 					phys_addr_t size, bool nomap)
+ {
+ 	if (nomap)
+-		return memblock_remove(base, size);
++		return memblock_mark_nomap(base, size);
+ 	return memblock_reserve(base, size);
+ }
  
- config IMX_INTMUX
--	def_bool y if ARCH_MXC || COMPILE_TEST
-+	bool "i.MX INTMUX support" if COMPILE_TEST
-+	default y if ARCH_MXC
- 	select IRQ_DOMAIN
- 	help
- 	  Support for the i.MX INTMUX interrupt multiplexer.
 -- 
 2.27.0
 
