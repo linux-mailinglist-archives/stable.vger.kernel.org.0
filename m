@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CAB7328ECA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D5F328EA3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241394AbhCATiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:38:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49914 "EHLO mail.kernel.org"
+        id S242026AbhCATed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234958AbhCATaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:30:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B4965262;
-        Mon,  1 Mar 2021 17:29:34 +0000 (UTC)
+        id S241805AbhCAT3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D77526508E;
+        Mon,  1 Mar 2021 17:29:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619774;
-        bh=ipIGFaa63ZOOz2A8qn1nXeE4C3+/9waKTFS9Vm+dzPc=;
+        s=korg; t=1614619780;
+        bh=8WCF+oineygjeY4ucIdrkbCSgKBCtwRSbYcTZlESzYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qjOIcs2JZv+4qIJGorLABFISnj4xAawrjc1e+ux9oF+IVGWm7jZyjFIy9NiKMxGWY
-         jjZIE+L15HAxgxsN0bfr3myDMd2c5rsXMBoTOUbHbzKxmjRrEqKB/Nt5lq+2nRQrPq
-         XwZOxwywmyBCrDbnfHMk/xKHyh3Aorp5EjZK0+MQ=
+        b=HpWaAwN1lkU1Mk+m4UxIsyOgLcmnoKYycqv3y7Oz2wnmohf2hNE0PBcfG44SUnAIq
+         uMNlGW78Ff84zv4P6Cde1NUPkxA17m8DQrHCgOAG+8pSbx3I3gI5ykjvJiC4qJJFL/
+         L4Too9h0T8sJEtPFznMhhoB9+1cL+Ny2pr+7ezpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.10 576/663] entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point
-Date:   Mon,  1 Mar 2021 17:13:44 +0100
-Message-Id: <20210301161210.352518905@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 5.10 578/663] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+Date:   Mon,  1 Mar 2021 17:13:46 +0100
+Message-Id: <20210301161210.455729289@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,147 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit 4ae7dc97f726ea95c58ac58af71cc034ad22d7de upstream.
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
 
-Following the idle loop model, cleanly check for pending rcuog wakeup
-before the last rescheduling point upon resuming to guest mode. This
-way we can avoid to do it from rcu_user_enter() with the last resort
-self-IPI hack that enforces rescheduling.
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c        |    1 +
- include/linux/entry-kvm.h |   14 ++++++++++++++
- kernel/rcu/tree.c         |   44 ++++++++++++++++++++++++++++++++++----------
- kernel/rcu/tree_plugin.h  |    1 +
- 4 files changed, 50 insertions(+), 10 deletions(-)
+ arch/arm64/Kconfig             |    2 +-
+ arch/arm64/kernel/cpufeature.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1776,6 +1776,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -520,7 +520,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds a workaround for ARM Cortex-A55 Erratum 1024718.
  
- bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
- {
-+	xfer_to_guest_mode_prepare();
- 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
- 		xfer_to_guest_mode_work_pending();
- }
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -47,6 +47,20 @@ static inline int arch_xfer_to_guest_mod
- int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
- 
- /**
-+ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
-+ *				need to be handled while IRQs are disabled
-+ *				upon entering to guest.
-+ *
-+ * Has to be invoked with interrupts disabled before the last call
-+ * to xfer_to_guest_mode_work_pending().
-+ */
-+static inline void xfer_to_guest_mode_prepare(void)
-+{
-+	lockdep_assert_irqs_disabled();
-+	rcu_nocb_flush_deferred_wakeup();
-+}
-+
-+/**
-  * __xfer_to_guest_mode_work_pending - Check if work is pending
-  *
-  * Returns: True if work pending, False otherwise.
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -670,9 +670,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
- 
- #ifdef CONFIG_NO_HZ_FULL
- 
-+#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
- /*
-  * An empty function that will trigger a reschedule on
-- * IRQ tail once IRQs get re-enabled on userspace resume.
-+ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
-  */
- static void late_wakeup_func(struct irq_work *work)
- {
-@@ -681,6 +682,37 @@ static void late_wakeup_func(struct irq_
- static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
- 	IRQ_WORK_INIT(late_wakeup_func);
- 
-+/*
-+ * If either:
-+ *
-+ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
-+ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
-+ *
-+ * In these cases the late RCU wake ups aren't supported in the resched loops and our
-+ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
-+ * get re-enabled again.
-+ */
-+noinstr static void rcu_irq_work_resched(void)
-+{
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
-+	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
-+		return;
-+
-+	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
-+		return;
-+
-+	instrumentation_begin();
-+	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
-+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
-+	}
-+	instrumentation_end();
-+}
-+
-+#else
-+static inline void rcu_irq_work_resched(void) { }
-+#endif
-+
- /**
-  * rcu_user_enter - inform RCU that we are resuming userspace.
-  *
-@@ -694,8 +726,6 @@ static DEFINE_PER_CPU(struct irq_work, l
-  */
- noinstr void rcu_user_enter(void)
- {
--	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
--
- 	lockdep_assert_irqs_disabled();
- 
- 	/*
-@@ -703,13 +733,7 @@ noinstr void rcu_user_enter(void)
- 	 * rescheduling opportunity in the entry code. Trigger a self IPI
- 	 * that will fire and reschedule once we resume in user/guest mode.
- 	 */
--	instrumentation_begin();
--	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
--		if (do_nocb_deferred_wakeup(rdp) && need_resched())
--			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
--	}
--	instrumentation_end();
--
-+	rcu_irq_work_resched();
- 	rcu_eqs_enter(true);
- }
- 
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void
- {
- 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
- }
-+EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
- 
- void __init rcu_init_nohz(void)
- {
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all revisions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The workaround is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1457,7 +1457,7 @@ static bool cpu_has_broken_dbm(void)
+ 	/* List of CPUs which have broken DBM support. */
+ 	static const struct midr_range cpus[] = {
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
++		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
+ 		/* Kryo4xx Silver (rdpe => r1p0) */
+ 		MIDR_REV(MIDR_QCOM_KRYO_4XX_SILVER, 0xd, 0xe),
+ #endif
 
 
