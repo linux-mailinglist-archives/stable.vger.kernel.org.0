@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0432328DF3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B236328E15
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236045AbhCATVO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:21:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43776 "EHLO mail.kernel.org"
+        id S237298AbhCATXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:23:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241178AbhCATPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAEEE651BC;
-        Mon,  1 Mar 2021 17:16:33 +0000 (UTC)
+        id S235739AbhCATSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:18:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C79B64F0B;
+        Mon,  1 Mar 2021 17:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618994;
-        bh=E/xjog0OVqxHXt7s9wNYEhmoWkH1qiyAUbY2IKVwaWQ=;
+        s=korg; t=1614620963;
+        bh=Uu+wM+IxSlmm5kvzOMfD+rK5HK1u72PRHotX9AJEzvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1RxFW4RF1R/X74zqgaOOgPzHj3Ah8+Ezn5XO7kRJiqwUvLyGp0585VWFg5J2VavjS
-         hs6EEXGUCSKXZq6YukMnWmMWFRY8gI57NdDd8wrDtzLgY7Ks327NwLiAIerVhgMh1r
-         qJE6oWUqBNyMRZTypxH4R9psHkX+k/KMFnz32eMI=
+        b=e+bCFMgANPOkuLU3cNcMyFEAEJZJd3yZCOg0utManbHllO8dmu3yyVzoEHyb1SwTT
+         XP+X7YBWfUVrvtzlNPDdIWPfanIZw3cA/Yx+1fb2DYbvKe9XTy2EQsnEyEmUNyqA4b
+         cOj8q2QlpJffhtQD+KfMxOfy9wICToWz7rKoyqB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 263/663] selftests/powerpc: Make the test check in eeh-basic.sh posix compliant
-Date:   Mon,  1 Mar 2021 17:08:31 +0100
-Message-Id: <20210301161154.826745964@linuxfoundation.org>
+Subject: [PATCH 5.11 344/775] RDMA/rtrs-srv: Fix missing wr_cqe
+Date:   Mon,  1 Mar 2021 17:08:32 +0100
+Message-Id: <20210301161218.621690507@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 3db380570af7052620ace20c29e244938610ca71 ]
+[ Upstream commit 8537f2de6519945890a2b0f3739b23f32b5c0a89 ]
 
-The == operand is a bash extension, thus this will fail on Ubuntu
-with:
-  ./eeh-basic.sh: 89: test: 2: unexpected operator
+We had a few places wr_cqe is not set, which could lead to NULL pointer
+deref or GPF in error case.
 
-As the /bin/sh on Ubuntu is pointed to DASH.
-
-Use -eq to fix this posix compatibility issue.
-
-Fixes: 996f9e0f93f162 ("selftests/powerpc: Fix eeh-basic.sh exit codes")
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Reviewed-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201228043459.14281-1-po-hsu.lin@canonical.com
+Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20201217141915.56989-14-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/eeh/eeh-basic.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/eeh/eeh-basic.sh b/tools/testing/selftests/powerpc/eeh/eeh-basic.sh
-index 0d783e1065c86..64779f073e177 100755
---- a/tools/testing/selftests/powerpc/eeh/eeh-basic.sh
-+++ b/tools/testing/selftests/powerpc/eeh/eeh-basic.sh
-@@ -86,5 +86,5 @@ echo "$failed devices failed to recover ($dev_count tested)"
- lspci | diff -u $pre_lspci -
- rm -f $pre_lspci
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index 92a216ddd9fd3..f59731c5a96a3 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -267,6 +267,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 		WARN_ON_ONCE(rkey != wr->rkey);
  
--test "$failed" == 0
-+test "$failed" -eq 0
- exit $?
+ 	wr->wr.opcode = IB_WR_RDMA_WRITE;
++	wr->wr.wr_cqe   = &io_comp_cqe;
+ 	wr->wr.ex.imm_data = 0;
+ 	wr->wr.send_flags  = 0;
+ 
+@@ -294,6 +295,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 		inv_wr.sg_list = NULL;
+ 		inv_wr.num_sge = 0;
+ 		inv_wr.opcode = IB_WR_SEND_WITH_INV;
++		inv_wr.wr_cqe   = &io_comp_cqe;
+ 		inv_wr.send_flags = 0;
+ 		inv_wr.ex.invalidate_rkey = rkey;
+ 	}
+@@ -304,6 +306,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 
+ 		srv_mr = &sess->mrs[id->msg_id];
+ 		rwr.wr.opcode = IB_WR_REG_MR;
++		rwr.wr.wr_cqe = &local_reg_cqe;
+ 		rwr.wr.num_sge = 0;
+ 		rwr.mr = srv_mr->mr;
+ 		rwr.wr.send_flags = 0;
+@@ -379,6 +382,7 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 
+ 		if (need_inval) {
+ 			if (likely(sg_cnt)) {
++				inv_wr.wr_cqe   = &io_comp_cqe;
+ 				inv_wr.sg_list = NULL;
+ 				inv_wr.num_sge = 0;
+ 				inv_wr.opcode = IB_WR_SEND_WITH_INV;
+@@ -421,6 +425,7 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 		srv_mr = &sess->mrs[id->msg_id];
+ 		rwr.wr.next = &imm_wr;
+ 		rwr.wr.opcode = IB_WR_REG_MR;
++		rwr.wr.wr_cqe = &local_reg_cqe;
+ 		rwr.wr.num_sge = 0;
+ 		rwr.wr.send_flags = 0;
+ 		rwr.mr = srv_mr->mr;
 -- 
 2.27.0
 
