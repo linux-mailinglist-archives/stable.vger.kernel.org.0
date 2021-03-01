@@ -2,381 +2,603 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C914328301
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8B8328418
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbhCAQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:05:50 -0500
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:37431 "EHLO
-        forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237488AbhCAQE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 11:04:27 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5C30519428FE;
-        Mon,  1 Mar 2021 11:02:57 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 11:02:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/Xm+tt
-        Db3WTJOcM42M/XSf0fu2wyJ9HBIn4dmaut1ZE=; b=n2l5LCZjmEj8kVBi/RRVPR
-        vNSlqVBc1M1ERSJzYKjDHY6ZkMTs+qcfdS7L95Xt73ivCeqc7DmzAlSAwR8tEITd
-        ggyYaHP0x15SDHdaKRuqDEcLjNzxEs0ZqB48UBkq/1LlS3WINN5mZeiUDbH2izC5
-        DsXmVtzXh7zY7LqRb+wGiM3JGnXK2m6w5vkOdgK8IR2YTLtmq4QZmEMbNpZ1E4ea
-        A0FlF4tL4IE+JztLZdtHXO4LHJVuqRIk7PwXCH8MNHFySfXvrweJV2SKElrkiAFI
-        6YPlVZemS+HI3EYzRJCnbB4J6Cp9AJx7cDUQd7/hME1JpR05jIxxkwewsxsvkU2A
-        ==
-X-ME-Sender: <xms:MBA9YO0AM9d3HuUPz3K8nKxqSnXipAQKcQNMwN8IJlg842haLndoUA>
-    <xme:MBA9YBFv_hsK5-Y2sfpEZR-2T37S_zBLHeCsAOdPfBTT--K8-0QCA1GFipxXjZaJo
-    RU9ZbDg5NV4Xw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdekvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
-    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:MBA9YG7oKpxhyDi2Itr2BJ-YHYeCq07jw66O5FegjtJt5gCqNytrJw>
-    <xmx:MBA9YP02Y_mIy__XsibJulYtCoFZXroC6NyqVOKyX_WGmdmYjy9iHw>
-    <xmx:MBA9YBF8JaYvl1y6Vy6jpLiUGLSYnGwJSiGxbjyRFAd3gsvjpcWjqw>
-    <xmx:MRA9YGSaI-1aaemO5gbAPdazyNEeLy7iv6819K5uATgp2JK7uwhbpg>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8BD6E240054;
-        Mon,  1 Mar 2021 11:02:56 -0500 (EST)
-Subject: FAILED: patch "[PATCH] net_sched: fix RTNL deadlock again caused by request_module()" failed to apply to 5.4-stable tree
-To:     cong.wang@bytedance.com, jhs@mojatatu.com, jiri@resnulli.us,
-        kuba@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 17:02:54 +0100
-Message-ID: <161461457416034@kroah.com>
+        id S234754AbhCAQ2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237753AbhCAQYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:24:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ED7A64EBD;
+        Mon,  1 Mar 2021 16:20:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614615641;
+        bh=MySWepMxq8AyNyJyMIQWkFv2ANPMRa9mCX9Pl32lb+Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QI8BSeIic9aIVbJ3WmgkjuhdcD+Zz2MzssIciD10c3O+a/TmF564YhUllYYOreifA
+         B15G+Yq4bottJj+XEGbYaFEDYkRkWoO1SoGUe9Cs2Sxo8yZawDkbpN+b4DNFnGAhfe
+         czsXtYDenM3gPWBZfCF8LLa32JC91bLFhz4Uj6Zk=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.9 000/134] 4.9.259-rc1 review
+Date:   Mon,  1 Mar 2021 17:11:41 +0100
+Message-Id: <20210301161013.585393984@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.259-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.259-rc1
+X-KernelTest-Deadline: 2021-03-03T16:10+00:00
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is the start of the stable review cycle for the 4.9.259 release.
+There are 134 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Responses should be made by Wed, 03 Mar 2021 16:09:49 +0000.
+Anything received after that time might be too late.
+
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.259-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
 
------------------- original commit in Linus's tree ------------------
+-------------
+Pseudo-Shortlog of commits:
 
-From d349f997686887906b1183b5be96933c5452362a Mon Sep 17 00:00:00 2001
-From: Cong Wang <cong.wang@bytedance.com>
-Date: Sat, 16 Jan 2021 16:56:57 -0800
-Subject: [PATCH] net_sched: fix RTNL deadlock again caused by request_module()
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.259-rc1
 
-tcf_action_init_1() loads tc action modules automatically with
-request_module() after parsing the tc action names, and it drops RTNL
-lock and re-holds it before and after request_module(). This causes a
-lot of troubles, as discovered by syzbot, because we can be in the
-middle of batch initializations when we create an array of tc actions.
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Update in-core bitset after committing the metadata
 
-One of the problem is deadlock:
+Jason A. Donenfeld <Jason@zx2c4.com>
+    net: icmp: pass zeroed opts from icmp{,v6}_ndo_send before sending
 
-CPU 0					CPU 1
-rtnl_lock();
-for (...) {
-  tcf_action_init_1();
-    -> rtnl_unlock();
-    -> request_module();
-				rtnl_lock();
-				for (...) {
-				  tcf_action_init_1();
-				    -> tcf_idr_check_alloc();
-				   // Insert one action into idr,
-				   // but it is not committed until
-				   // tcf_idr_insert_many(), then drop
-				   // the RTNL lock in the _next_
-				   // iteration
-				   -> rtnl_unlock();
-    -> rtnl_lock();
-    -> a_o->init();
-      -> tcf_idr_check_alloc();
-      // Now waiting for the same index
-      // to be committed
-				    -> request_module();
-				    -> rtnl_lock()
-				    // Now waiting for RTNL lock
-				}
-				rtnl_unlock();
-}
-rtnl_unlock();
+Leon Romanovsky <leonro@nvidia.com>
+    ipv6: silence compilation warning for non-IPV6 builds
 
-This is not easy to solve, we can move the request_module() before
-this loop and pre-load all the modules we need for this netlink
-message and then do the rest initializations. So the loop breaks down
-to two now:
+Eric Dumazet <edumazet@google.com>
+    ipv6: icmp6: avoid indirect call for icmpv6_send()
 
-        for (i = 1; i <= TCA_ACT_MAX_PRIO && tb[i]; i++) {
-                struct tc_action_ops *a_o;
+Jason A. Donenfeld <Jason@zx2c4.com>
+    sunvnet: use icmp_ndo_send helper
 
-                a_o = tc_action_load_ops(name, tb[i]...);
-                ops[i - 1] = a_o;
-        }
+Jason A. Donenfeld <Jason@zx2c4.com>
+    gtp: use icmp_ndo_send helper
 
-        for (i = 1; i <= TCA_ACT_MAX_PRIO && tb[i]; i++) {
-                act = tcf_action_init_1(ops[i - 1]...);
-        }
+Jason A. Donenfeld <Jason@zx2c4.com>
+    icmp: introduce helper for nat'd source address in network device context
 
-Although this looks serious, it only has been reported by syzbot, so it
-seems hard to trigger this by humans. And given the size of this patch,
-I'd suggest to make it to net-next and not to backport to stable.
+Thomas Gleixner <tglx@linutronix.de>
+    futex: fix dead code in attach_to_pi_owner()
 
-This patch has been tested by syzbot and tested with tdc.py by me.
+Peter Zijlstra <peterz@infradead.org>
+    futex: Fix OWNER_DEAD fixup
 
-Fixes: 0fedc63fadf0 ("net_sched: commit action insertions together")
-Reported-and-tested-by: syzbot+82752bc5331601cf4899@syzkaller.appspotmail.com
-Reported-and-tested-by: syzbot+b3b63b6bff456bd95294@syzkaller.appspotmail.com
-Reported-by: syzbot+ba67b12b1ca729912834@syzkaller.appspotmail.com
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Tested-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20210117005657.14810-1-xiyou.wangcong@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: only resize metadata in preresume
 
-diff --git a/include/net/act_api.h b/include/net/act_api.h
-index 55dab604861f..761c0e331915 100644
---- a/include/net/act_api.h
-+++ b/include/net/act_api.h
-@@ -186,10 +186,13 @@ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
- 		    struct nlattr *est, char *name, int ovr, int bind,
- 		    struct tc_action *actions[], size_t *attr_size,
- 		    bool rtnl_held, struct netlink_ext_ack *extack);
-+struct tc_action_ops *tc_action_load_ops(char *name, struct nlattr *nla,
-+					 bool rtnl_held,
-+					 struct netlink_ext_ack *extack);
- struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
- 				    struct nlattr *nla, struct nlattr *est,
- 				    char *name, int ovr, int bind,
--				    bool rtnl_held,
-+				    struct tc_action_ops *ops, bool rtnl_held,
- 				    struct netlink_ext_ack *extack);
- int tcf_action_dump(struct sk_buff *skb, struct tc_action *actions[], int bind,
- 		    int ref, bool terse);
-diff --git a/net/sched/act_api.c b/net/sched/act_api.c
-index 2e85b636b27b..4dd235ce9a07 100644
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -928,19 +928,13 @@ static void tcf_idr_insert_many(struct tc_action *actions[])
- 	}
- }
- 
--struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
--				    struct nlattr *nla, struct nlattr *est,
--				    char *name, int ovr, int bind,
--				    bool rtnl_held,
--				    struct netlink_ext_ack *extack)
-+struct tc_action_ops *tc_action_load_ops(char *name, struct nlattr *nla,
-+					 bool rtnl_held,
-+					 struct netlink_ext_ack *extack)
- {
--	struct nla_bitfield32 flags = { 0, 0 };
--	u8 hw_stats = TCA_ACT_HW_STATS_ANY;
--	struct tc_action *a;
-+	struct nlattr *tb[TCA_ACT_MAX + 1];
- 	struct tc_action_ops *a_o;
--	struct tc_cookie *cookie = NULL;
- 	char act_name[IFNAMSIZ];
--	struct nlattr *tb[TCA_ACT_MAX + 1];
- 	struct nlattr *kind;
- 	int err;
- 
-@@ -948,33 +942,21 @@ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
- 		err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla,
- 						  tcf_action_policy, extack);
- 		if (err < 0)
--			goto err_out;
-+			return ERR_PTR(err);
- 		err = -EINVAL;
- 		kind = tb[TCA_ACT_KIND];
- 		if (!kind) {
- 			NL_SET_ERR_MSG(extack, "TC action kind must be specified");
--			goto err_out;
-+			return ERR_PTR(err);
- 		}
- 		if (nla_strscpy(act_name, kind, IFNAMSIZ) < 0) {
- 			NL_SET_ERR_MSG(extack, "TC action name too long");
--			goto err_out;
--		}
--		if (tb[TCA_ACT_COOKIE]) {
--			cookie = nla_memdup_cookie(tb);
--			if (!cookie) {
--				NL_SET_ERR_MSG(extack, "No memory to generate TC cookie");
--				err = -ENOMEM;
--				goto err_out;
--			}
-+			return ERR_PTR(err);
- 		}
--		hw_stats = tcf_action_hw_stats_get(tb[TCA_ACT_HW_STATS]);
--		if (tb[TCA_ACT_FLAGS])
--			flags = nla_get_bitfield32(tb[TCA_ACT_FLAGS]);
- 	} else {
- 		if (strlcpy(act_name, name, IFNAMSIZ) >= IFNAMSIZ) {
- 			NL_SET_ERR_MSG(extack, "TC action name too long");
--			err = -EINVAL;
--			goto err_out;
-+			return ERR_PTR(-EINVAL);
- 		}
- 	}
- 
-@@ -996,24 +978,56 @@ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
- 		 * indicate this using -EAGAIN.
- 		 */
- 		if (a_o != NULL) {
--			err = -EAGAIN;
--			goto err_mod;
-+			module_put(a_o->owner);
-+			return ERR_PTR(-EAGAIN);
- 		}
- #endif
- 		NL_SET_ERR_MSG(extack, "Failed to load TC action module");
--		err = -ENOENT;
--		goto err_free;
-+		return ERR_PTR(-ENOENT);
- 	}
- 
-+	return a_o;
-+}
-+
-+struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
-+				    struct nlattr *nla, struct nlattr *est,
-+				    char *name, int ovr, int bind,
-+				    struct tc_action_ops *a_o, bool rtnl_held,
-+				    struct netlink_ext_ack *extack)
-+{
-+	struct nla_bitfield32 flags = { 0, 0 };
-+	u8 hw_stats = TCA_ACT_HW_STATS_ANY;
-+	struct nlattr *tb[TCA_ACT_MAX + 1];
-+	struct tc_cookie *cookie = NULL;
-+	struct tc_action *a;
-+	int err;
-+
- 	/* backward compatibility for policer */
--	if (name == NULL)
-+	if (name == NULL) {
-+		err = nla_parse_nested_deprecated(tb, TCA_ACT_MAX, nla,
-+						  tcf_action_policy, extack);
-+		if (err < 0)
-+			return ERR_PTR(err);
-+		if (tb[TCA_ACT_COOKIE]) {
-+			cookie = nla_memdup_cookie(tb);
-+			if (!cookie) {
-+				NL_SET_ERR_MSG(extack, "No memory to generate TC cookie");
-+				err = -ENOMEM;
-+				goto err_out;
-+			}
-+		}
-+		hw_stats = tcf_action_hw_stats_get(tb[TCA_ACT_HW_STATS]);
-+		if (tb[TCA_ACT_FLAGS])
-+			flags = nla_get_bitfield32(tb[TCA_ACT_FLAGS]);
-+
- 		err = a_o->init(net, tb[TCA_ACT_OPTIONS], est, &a, ovr, bind,
- 				rtnl_held, tp, flags.value, extack);
--	else
-+	} else {
- 		err = a_o->init(net, nla, est, &a, ovr, bind, rtnl_held,
- 				tp, flags.value, extack);
-+	}
- 	if (err < 0)
--		goto err_mod;
-+		goto err_out;
- 
- 	if (!name && tb[TCA_ACT_COOKIE])
- 		tcf_set_action_cookie(&a->act_cookie, cookie);
-@@ -1030,14 +1044,11 @@ struct tc_action *tcf_action_init_1(struct net *net, struct tcf_proto *tp,
- 
- 	return a;
- 
--err_mod:
--	module_put(a_o->owner);
--err_free:
-+err_out:
- 	if (cookie) {
- 		kfree(cookie->data);
- 		kfree(cookie);
- 	}
--err_out:
- 	return ERR_PTR(err);
- }
- 
-@@ -1048,6 +1059,7 @@ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
- 		    struct tc_action *actions[], size_t *attr_size,
- 		    bool rtnl_held, struct netlink_ext_ack *extack)
- {
-+	struct tc_action_ops *ops[TCA_ACT_MAX_PRIO] = {};
- 	struct nlattr *tb[TCA_ACT_MAX_PRIO + 1];
- 	struct tc_action *act;
- 	size_t sz = 0;
-@@ -1059,9 +1071,20 @@ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
- 	if (err < 0)
- 		return err;
- 
-+	for (i = 1; i <= TCA_ACT_MAX_PRIO && tb[i]; i++) {
-+		struct tc_action_ops *a_o;
-+
-+		a_o = tc_action_load_ops(name, tb[i], rtnl_held, extack);
-+		if (IS_ERR(a_o)) {
-+			err = PTR_ERR(a_o);
-+			goto err_mod;
-+		}
-+		ops[i - 1] = a_o;
-+	}
-+
- 	for (i = 1; i <= TCA_ACT_MAX_PRIO && tb[i]; i++) {
- 		act = tcf_action_init_1(net, tp, tb[i], est, name, ovr, bind,
--					rtnl_held, extack);
-+					ops[i - 1], rtnl_held, extack);
- 		if (IS_ERR(act)) {
- 			err = PTR_ERR(act);
- 			goto err;
-@@ -1081,6 +1104,11 @@ int tcf_action_init(struct net *net, struct tcf_proto *tp, struct nlattr *nla,
- 
- err:
- 	tcf_action_destroy(actions, bind);
-+err_mod:
-+	for (i = 0; i < TCA_ACT_MAX_PRIO; i++) {
-+		if (ops[i])
-+			module_put(ops[i]->owner);
-+	}
- 	return err;
- }
- 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 37b77bd30974..a67c66a512a4 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -3043,12 +3043,19 @@ int tcf_exts_validate(struct net *net, struct tcf_proto *tp, struct nlattr **tb,
- 		size_t attr_size = 0;
- 
- 		if (exts->police && tb[exts->police]) {
-+			struct tc_action_ops *a_o;
-+
-+			a_o = tc_action_load_ops("police", tb[exts->police], rtnl_held, extack);
-+			if (IS_ERR(a_o))
-+				return PTR_ERR(a_o);
- 			act = tcf_action_init_1(net, tp, tb[exts->police],
- 						rate_tlv, "police", ovr,
--						TCA_ACT_BIND, rtnl_held,
-+						TCA_ACT_BIND, a_o, rtnl_held,
- 						extack);
--			if (IS_ERR(act))
-+			if (IS_ERR(act)) {
-+				module_put(a_o->owner);
- 				return PTR_ERR(act);
-+			}
- 
- 			act->type = exts->type = TCA_OLD_COMPAT;
- 			exts->actions[0] = act;
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Reinitialize bitset cache before digesting a new writeset
+
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Use correct value size in equality function of writeset tree
+
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Fix bitset memory leaks
+
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Verify the data block size hasn't changed
+
+Nikos Tsironis <ntsironis@arrikto.com>
+    dm era: Recover committed writeset after crash
+
+Bob Peterson <rpeterso@redhat.com>
+    gfs2: Don't skip dlm unlock if glock has an lvb
+
+Al Viro <viro@zeniv.linux.org.uk>
+    sparc32: fix a user-triggerable oops in clear_user()
+
+Chao Yu <yuchao0@huawei.com>
+    f2fs: fix out-of-repair __setattr_copy()
+
+Maxim Kiselev <bigunclemax@gmail.com>
+    gpio: pcf857x: Fix missing first interrupt
+
+Frank Li <Frank.Li@nxp.com>
+    mmc: sdhci-esdhc-imx: fix kernel panic when remove module
+
+Fangrui Song <maskray@google.com>
+    module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for undefined symbols
+
+Dan Williams <dan.j.williams@intel.com>
+    libnvdimm/dimm: Avoid race between probe and available_slots_show()
+
+Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+    usb: renesas_usbhs: Clear pipe running flag in usbhs_pkt_pop()
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlb: fix a race between freeing and dissolving the page
+
+Pan Bian <bianpan2016@163.com>
+    mtd: spi-nor: hisi-sfc: Put child node np on error path
+
+Jiri Kosina <jkosina@suse.cz>
+    floppy: reintroduce O_NDELAY fix
+
+Sean Christopherson <seanjc@google.com>
+    x86/reboot: Force all cpus to exit VMX root if VMX is supported
+
+Martin Kaiser <martin@kaiser.cx>
+    staging: rtl8188eu: Add Edimax EW-7811UN V2 to device table
+
+Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+    drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
+
+Paul Cercueil <paul@crapouillou.net>
+    seccomp: Add missing return in non-void function
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix extent buffer leak on failure to copy root
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: fix reloc root leak with 0 ref reloc roots on recovery
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: abort the transaction if we fail to inc ref in btrfs_copy_root
+
+Jarkko Sakkinen <jarkko@kernel.org>
+    KEYS: trusted: Fix migratable=1 failing
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
+
+Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+    usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    USB: serial: mos7720: fix error code in mos7720_write()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    USB: serial: mos7840: fix error code in mos7840_write()
+
+Paul Cercueil <paul@crapouillou.net>
+    usb: musb: Fix runtime PM race in musb_queue_resume_work
+
+Lech Perczak <lech.perczak@gmail.com>
+    USB: serial: option: update interface mapping for ZTE P685M
+
+Marcos Paulo de Souza <mpdesouza@suse.com>
+    Input: i8042 - add ASUS Zenbook Flip to noselftest list
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    Input: joydev - prevent potential read overflow in ioctl
+
+Olivier Crête <olivier.crete@ocrete.ca>
+    Input: xpad - add support for PowerA Enhanced Wired Controller for Xbox Series X|S
+
+jeffrey.lin <jeffrey.lin@rad-ic.com>
+    Input: raydium_ts_i2c - do not send zero length
+
+Qinglang Miao <miaoqinglang@huawei.com>
+    ACPI: configfs: add missing check after configfs_register_default_group()
+
+Mikulas Patocka <mpatocka@redhat.com>
+    blk-settings: align max_sectors on "logical_block_size" boundary
+
+Randy Dunlap <rdunlap@infradead.org>
+    scsi: bnx2fc: Fix Kconfig warning & CNIC build errors
+
+Maxime Ripard <maxime@cerno.tech>
+    i2c: brcmstb: Fix brcmstd_send_i2c_cmd condition
+
+Marc Zyngier <maz@kernel.org>
+    arm64: Add missing ISB after invalidating TLB in __primary_switch
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/hugetlb: fix potential double free in hugetlb_register_node() error path
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/memory.c: fix potential pte_unmap_unlock pte error
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ocfs2: fix a use after free on error
+
+Chuhong Yuan <hslester96@gmail.com>
+    net/mlx4_core: Add missed mlx4_free_cmd_mailbox()
+
+Jann Horn <jannh@google.com>
+    Take mmap lock in cacheflush syscall
+
+Slawomir Laba <slawomirx.laba@intel.com>
+    i40e: Fix flow for IPv6 next header (extension header)
+
+Konrad Dybcio <konrad.dybcio@somainline.org>
+    drm/msm/dsi: Correct io_start for MSM8994 (20nm PHY)
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    PCI: Align checking of syscall user config accessors
+
+Jorgen Hansen <jhansen@vmware.com>
+    VMCI: Use set_page_dirty_lock() when unregistering guest memory
+
+Simon South <simon@simonsouth.net>
+    pwm: rockchip: rockchip_pwm_probe(): Remove superfluous clk_unprepare()
+
+Aswath Govindraju <a-govindraju@ti.com>
+    misc: eeprom_93xx46: Add module alias to avoid breaking support for non device tree users
+
+Aswath Govindraju <a-govindraju@ti.com>
+    misc: eeprom_93xx46: Fix module alias to enable module autoprobe
+
+Randy Dunlap <rdunlap@infradead.org>
+    sparc64: only select COMPAT_BINFMT_ELF if BINFMT_ELF is set
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    Input: elo - fix an error code in elo_connect()
+
+Namhyung Kim <namhyung@kernel.org>
+    perf test: Fix unaligned access in sample parsing test
+
+Adrian Hunter <adrian.hunter@intel.com>
+    perf intel-pt: Fix missing CYC processing in PSB
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    spi: pxa2xx: Fix the controller numbering for Wildcat Point
+
+Nathan Lynch <nathanl@linux.ibm.com>
+    powerpc/pseries/dlpar: handle ibm, configure-connector delay status
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    mfd: wm831x-auxadc: Prevent use after free in wm831x_auxadc_read_irq()
+
+Bob Pearson <rpearsonhpe@gmail.com>
+    RDMA/rxe: Fix coding error in rxe_recv.c
+
+Arnaldo Carvalho de Melo <acme@redhat.com>
+    perf tools: Fix DSO filtering when not finding a map for a sampled address
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    tracepoint: Do not fail unregistering a probe due to memory failure
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    amba: Fix resource leak for drivers without .remove
+
+Vladimir Murzin <vladimir.murzin@arm.com>
+    ARM: 9046/1: decompressor: Do not clear SCTLR.nTLSMD for ARMv7+ cores
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    mmc: usdhi6rol0: Fix a resource leak in the error handling path of the probe
+
+Christophe Leroy <christophe.leroy@csgroup.eu>
+    powerpc/47x: Disable 256k page size
+
+Shay Drory <shayd@nvidia.com>
+    IB/umad: Return EIO in case of when device disassociated
+
+Pan Bian <bianpan2016@163.com>
+    isofs: release buffer head before return
+
+Pan Bian <bianpan2016@163.com>
+    regulator: axp20x: Fix reference cout leak
+
+Tom Rix <trix@redhat.com>
+    clocksource/drivers/mxs_timer: Add missing semicolon when DEBUG is defined
+
+Claudiu Beznea <claudiu.beznea@microchip.com>
+    power: reset: at91-sama5d2_shdwc: fix wkupdbc mask
+
+Nicolas Boichat <drinkcat@chromium.org>
+    of/fdt: Make sure no-map does not remove already reserved regions
+
+KarimAllah Ahmed <karahmed@amazon.de>
+    fdt: Properly handle "no-map" field in the memory region
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    dmaengine: fsldma: Fix a resource leak in an error handling path of the probe function
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    dmaengine: fsldma: Fix a resource leak in the remove function
+
+Randy Dunlap <rdunlap@infradead.org>
+    HID: core: detect and skip invalid inputs to snto32()
+
+Pratyush Yadav <p.yadav@ti.com>
+    spi: cadence-quadspi: Abort read if dummy cycles required are too many
+
+Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+    clk: meson: clk-pll: fix initializing the old rate (fallback) for a PLL
+
+Tom Rix <trix@redhat.com>
+    jffs2: fix use after free in jffs2_sum_write_data()
+
+Colin Ian King <colin.king@canonical.com>
+    fs/jfs: fix potential integer overflow on shift of a int
+
+Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+    crypto: ecdh_helper - Ensure 'len >= secret.len' in decode_key()
+
+Zhihao Cheng <chengzhihao1@huawei.com>
+    btrfs: clarify error returns values in __load_free_space_cache
+
+Florian Fainelli <f.fainelli@gmail.com>
+    ata: ahci_brcm: Add back regulators management
+
+Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+    media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values
+
+Tom Rix <trix@redhat.com>
+    media: pxa_camera: declare variable when DEBUG is defined
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    media: cx25821: Fix a bug when reallocating some dma memory
+
+Luo Meng <luomeng12@huawei.com>
+    media: qm1d1c0042: fix error return code in qm1d1c0042_init()
+
+Joe Perches <joe@perches.com>
+    media: lmedm04: Fix misuse of comma
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    ASoC: cs42l56: fix up error handling in probe
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    media: tm6000: Fix memleak in tm6000_start_stream
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    media: media/pci: Fix memleak in empress_init
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    media: vsp1: Fix an error handling path in the probe function
+
+Nathan Chancellor <natechancellor@gmail.com>
+    MIPS: lantiq: Explicitly compare LTQ_EBU_PCC_ISTAT against 0
+
+Nathan Chancellor <natechancellor@gmail.com>
+    MIPS: c-r4k: Fix section mismatch for loongson2_sc_init
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    gma500: clean up error handling in init
+
+Jialin Zhang <zhangjialin11@huawei.com>
+    drm/gma500: Fix error return code in psb_driver_load()
+
+Randy Dunlap <rdunlap@infradead.org>
+    fbdev: aty: SPARC64 requires FB_ATY_CT
+
+Colin Ian King <colin.king@canonical.com>
+    b43: N-PHY: Fix the update of coef for the PHY revision >= 3case
+
+Colin Ian King <colin.king@canonical.com>
+    mac80211: fix potential overflow when multiplying to u32 integers
+
+Juergen Gross <jgross@suse.com>
+    xen/netback: fix spurious event detection for common event case
+
+Edwin Peer <edwin.peer@broadcom.com>
+    bnxt_en: reverse order of TX disable and carrier off
+
+Arnd Bergmann <arnd@arndb.de>
+    ARM: s3c: fix fiq for clang IAS
+
+Vincent Knecht <vincent.knecht@mailoo.org>
+    arm64: dts: msm8916: Fix reserved and rfsa nodes unit address
+
+Guenter Roeck <linux@roeck-us.net>
+    usb: dwc2: Make "trimming xfer length" a debug message
+
+Guenter Roeck <linux@roeck-us.net>
+    usb: dwc2: Abort transaction after errors with unknown reason
+
+Guenter Roeck <linux@roeck-us.net>
+    usb: dwc2: Do not update data length if it is 0 on inbound transfers
+
+Tony Lindgren <tony@atomide.com>
+    ARM: dts: Configure missing thermal interrupt for 4430
+
+Pan Bian <bianpan2016@163.com>
+    Bluetooth: Put HCI device if inquiry procedure interrupts
+
+Pan Bian <bianpan2016@163.com>
+    Bluetooth: drop HCI device reference before return
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    arm64: dts: exynos: correct PMIC interrupt trigger level on Espresso
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    ARM: dts: exynos: correct PMIC interrupt trigger level on Arndale Octa
+
+Krzysztof Kozlowski <krzk@kernel.org>
+    ARM: dts: exynos: correct PMIC interrupt trigger level on Spring
+
+Christopher William Snowhill <chris@kode54.net>
+    Bluetooth: Fix initializing response id after clearing struct
+
+Vlastimil Babka <vbabka@suse.cz>
+    mm, thp: make do_huge_pmd_wp_page() lock page for testing mapcount
+
+Eric Biggers <ebiggers@google.com>
+    random: fix the RNDRESEEDCRNG ioctl
+
+Alexander Lobakin <alobakin@pm.me>
+    MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
+
+Sumit Garg <sumit.garg@linaro.org>
+    kdb: Make memory allocations more robust
+
+Rong Chen <rong.a.chen@intel.com>
+    scripts/recordmcount.pl: support big endian for ARCH sh
+
+Shyam Prasad N <sprasad@microsoft.com>
+    cifs: Set CIFS_MOUNT_USE_PREFIX_PATH flag on setting cifs_sb->prepath.
+
+Christoph Schemmel <christoph.schemmel@gmail.com>
+    NET: usb: qmi_wwan: Adding support for Cinterion MV31
+
+Sameer Pujar <spujar@nvidia.com>
+    arm64: tegra: Add power-domain for Tegra210 HDA
+
+Corinna Vinschen <vinschen@redhat.com>
+    igb: Remove incorrect "unexpected SYS WRAP" log message
+
+Rustam Kovhaev <rkovhaev@gmail.com>
+    ntfs: check for valid standard information attribute
+
+Stefan Ursella <stefan.ursella@wolfvision.net>
+    usb: quirks: add quirk to start video capture on ELMO L-12F document camera reliable
+
+Will McVicker <willmcvicker@google.com>
+    HID: make arrays usage and value to be the same
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/boot/compressed/head.S                    |  4 +-
+ arch/arm/boot/dts/exynos5250-spring.dts            |  2 +-
+ arch/arm/boot/dts/exynos5420-arndale-octa.dts      |  2 +-
+ arch/arm/boot/dts/omap443x.dtsi                    |  2 +
+ arch/arm64/boot/dts/exynos/exynos7-espresso.dts    |  2 +-
+ arch/arm64/boot/dts/nvidia/tegra210.dtsi           |  1 +
+ arch/arm64/boot/dts/qcom/msm8916.dtsi              |  4 +-
+ arch/arm64/kernel/head.S                           |  1 +
+ arch/mips/kernel/vmlinux.lds.S                     |  1 +
+ arch/mips/lantiq/irq.c                             |  2 +-
+ arch/mips/mm/c-r4k.c                               |  2 +-
+ arch/nios2/kernel/sys_nios2.c                      | 11 ++-
+ arch/powerpc/Kconfig                               |  2 +-
+ arch/powerpc/platforms/pseries/dlpar.c             |  7 +-
+ arch/sparc/Kconfig                                 |  2 +-
+ arch/sparc/lib/memset.S                            |  1 +
+ arch/x86/kernel/reboot.c                           | 29 +++----
+ block/blk-settings.c                               | 12 +++
+ crypto/ecdh_helper.c                               |  3 +
+ drivers/acpi/acpi_configfs.c                       |  7 +-
+ drivers/amba/bus.c                                 | 20 +++--
+ drivers/ata/ahci_brcm.c                            | 14 +++-
+ drivers/block/floppy.c                             | 27 ++++---
+ drivers/char/random.c                              |  2 +-
+ drivers/clk/meson/clk-pll.c                        |  2 +-
+ drivers/clocksource/mxs_timer.c                    |  5 +-
+ drivers/dma/fsldma.c                               |  6 ++
+ drivers/gpio/gpio-pcf857x.c                        |  2 +-
+ drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c         | 22 ++---
+ drivers/gpu/drm/gma500/psb_drv.c                   |  2 +
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c         |  2 +-
+ drivers/hid/hid-core.c                             |  9 ++-
+ drivers/i2c/busses/i2c-brcmstb.c                   |  2 +-
+ drivers/infiniband/core/user_mad.c                 |  7 +-
+ drivers/infiniband/sw/rxe/rxe_recv.c               | 11 ++-
+ drivers/input/joydev.c                             |  7 +-
+ drivers/input/joystick/xpad.c                      |  1 +
+ drivers/input/serio/i8042-x86ia64io.h              |  4 +
+ drivers/input/touchscreen/elo.c                    |  4 +-
+ drivers/input/touchscreen/raydium_i2c_ts.c         |  3 +-
+ drivers/md/dm-era-target.c                         | 93 ++++++++++++++--------
+ drivers/media/pci/cx25821/cx25821-core.c           |  4 +-
+ drivers/media/pci/saa7134/saa7134-empress.c        |  5 +-
+ drivers/media/platform/pxa_camera.c                |  3 +
+ drivers/media/platform/vsp1/vsp1_drv.c             |  4 +-
+ drivers/media/tuners/qm1d1c0042.c                  |  4 +-
+ drivers/media/usb/dvb-usb-v2/lmedm04.c             |  2 +-
+ drivers/media/usb/tm6000/tm6000-dvb.c              |  4 +
+ drivers/media/usb/uvc/uvc_v4l2.c                   | 18 ++---
+ drivers/mfd/wm831x-auxadc.c                        |  3 +-
+ drivers/misc/eeprom/eeprom_93xx46.c                |  1 +
+ drivers/misc/vmw_vmci/vmci_queue_pair.c            |  5 +-
+ drivers/mmc/host/sdhci-esdhc-imx.c                 |  3 +-
+ drivers/mmc/host/usdhi6rol0.c                      |  4 +-
+ drivers/mtd/spi-nor/cadence-quadspi.c              |  2 +-
+ drivers/mtd/spi-nor/hisi-sfc.c                     |  4 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  3 +-
+ drivers/net/ethernet/intel/i40e/i40e_txrx.c        |  9 ++-
+ drivers/net/ethernet/intel/igb/igb_main.c          |  2 -
+ .../net/ethernet/mellanox/mlx4/resource_tracker.c  |  1 +
+ drivers/net/ethernet/sun/sunvnet_common.c          | 24 +-----
+ drivers/net/gtp.c                                  |  5 +-
+ drivers/net/usb/qmi_wwan.c                         |  1 +
+ drivers/net/wireless/broadcom/b43/phy_n.c          |  2 +-
+ drivers/net/xen-netback/interface.c                |  8 +-
+ drivers/nvdimm/dimm_devs.c                         | 18 ++++-
+ drivers/of/fdt.c                                   | 12 ++-
+ drivers/pci/syscall.c                              | 10 +--
+ drivers/power/reset/at91-sama5d2_shdwc.c           |  2 +-
+ drivers/pwm/pwm-rockchip.c                         |  1 -
+ drivers/regulator/axp20x-regulator.c               |  7 +-
+ drivers/scsi/bnx2fc/Kconfig                        |  1 +
+ drivers/spi/spi-pxa2xx-pci.c                       | 27 +++++--
+ drivers/spi/spi-s3c24xx-fiq.S                      |  9 +--
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c        |  1 +
+ drivers/usb/core/quirks.c                          |  3 +
+ drivers/usb/dwc2/hcd.c                             | 15 ++--
+ drivers/usb/dwc2/hcd_intr.c                        | 14 +++-
+ drivers/usb/dwc3/gadget.c                          | 19 ++++-
+ drivers/usb/musb/musb_core.c                       | 31 ++++----
+ drivers/usb/renesas_usbhs/fifo.c                   |  2 +
+ drivers/usb/serial/mos7720.c                       |  4 +-
+ drivers/usb/serial/mos7840.c                       |  4 +-
+ drivers/usb/serial/option.c                        |  3 +-
+ drivers/video/fbdev/Kconfig                        |  2 +-
+ fs/btrfs/ctree.c                                   |  7 +-
+ fs/btrfs/free-space-cache.c                        |  6 +-
+ fs/btrfs/relocation.c                              |  4 +-
+ fs/cifs/connect.c                                  |  1 +
+ fs/f2fs/file.c                                     |  3 +-
+ fs/gfs2/lock_dlm.c                                 |  8 +-
+ fs/isofs/dir.c                                     |  1 +
+ fs/isofs/namei.c                                   |  1 +
+ fs/jffs2/summary.c                                 |  3 +
+ fs/jfs/jfs_dmap.c                                  |  2 +-
+ fs/ntfs/inode.c                                    |  6 ++
+ fs/ocfs2/cluster/heartbeat.c                       |  8 +-
+ include/linux/icmpv6.h                             | 44 +++++++++-
+ include/linux/ipv6.h                               |  2 +-
+ include/net/icmp.h                                 | 10 +++
+ kernel/debug/kdb/kdb_private.h                     |  2 +-
+ kernel/futex.c                                     | 12 +--
+ kernel/module.c                                    | 21 ++++-
+ kernel/seccomp.c                                   |  2 +
+ kernel/tracepoint.c                                | 80 +++++++++++++++----
+ mm/huge_memory.c                                   | 15 ++++
+ mm/hugetlb.c                                       | 43 +++++++++-
+ mm/memory.c                                        |  6 +-
+ net/bluetooth/a2mp.c                               |  3 +-
+ net/bluetooth/hci_core.c                           |  6 +-
+ net/ipv4/icmp.c                                    | 34 ++++++++
+ net/ipv6/icmp.c                                    | 19 ++---
+ net/ipv6/ip6_icmp.c                                | 46 +++++++++--
+ net/mac80211/mesh_hwmp.c                           |  2 +-
+ scripts/recordmcount.pl                            |  6 +-
+ security/keys/trusted.c                            |  2 +-
+ sound/soc/codecs/cs42l56.c                         |  3 +-
+ tools/perf/tests/sample-parsing.c                  |  2 +-
+ tools/perf/util/event.c                            |  2 +
+ .../perf/util/intel-pt-decoder/intel-pt-decoder.c  |  3 +
+ 121 files changed, 763 insertions(+), 304 deletions(-)
+
 
