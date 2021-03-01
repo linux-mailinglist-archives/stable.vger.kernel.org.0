@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD62328E52
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D07328F05
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241614AbhCAT1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:27:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46156 "EHLO mail.kernel.org"
+        id S237796AbhCATmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:42:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241554AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DD9564ED9;
-        Mon,  1 Mar 2021 17:13:14 +0000 (UTC)
+        id S242076AbhCATfH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:35:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FD3F64EE7;
+        Mon,  1 Mar 2021 17:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618794;
-        bh=3XJNhc8dqDir7OJsr/oXPv22aujYCTxP9PbKfQ+J9Ho=;
+        s=korg; t=1614618808;
+        bh=YH0HHJxTO3JKvY10XdVCF98QJ/N+9tGj7lBuxQBAdBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViHeVRW5IeB0smeeb5kPFUbMkBuVLWDYt0cNfAYd0ICpFBBk2V3d0uEy/5kux9dXh
-         IsOV7udjJ2Wo5QK12qhX1pebpIERaXr4HWs3bT0JeLzsfM7//Qtzx3e99j/3Zqddbt
-         qAwtV+LUGrclYhkbjQe3H5nETe3ZapHRG7JBlnB8=
+        b=sIuxzbDYHXifkLJkJ1Bny7tChshrw7lZGQt3PewJl7Ll8/lFQro6TI3TGSdL6LzVw
+         rxm6Hjh408e414XHkplQASVzQblA8vGXt5y6clFbYvctJypoR+FeRkgsOtzSdsHsN7
+         vct4E9jNBlT0vxo8qZ2grs+JFS85K7ANr7hkRvv4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        stable@vger.kernel.org, Jairaj Arava <jairaj.arava@intel.com>,
+        Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@intel.com>,
+        Shuming Fan <shumingf@realtek.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 219/663] ASoC: Intel: sof_sdw: add missing TGL_HDMI quirk for Dell SKU 0A5E
-Date:   Mon,  1 Mar 2021 17:07:47 +0100
-Message-Id: <20210301161152.630341912@linuxfoundation.org>
+Subject: [PATCH 5.10 223/663] ASoC: rt5682: Fix panic in rt5682_jack_detect_handler happening during system shutdown
+Date:   Mon,  1 Mar 2021 17:07:51 +0100
+Message-Id: <20210301161152.832340405@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -43,38 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
 
-[ Upstream commit f12bbc50f3b14c9b8ed902c6d1da980dd5addcce ]
+[ Upstream commit 45a2702ce10993eda7a5b12690294782d565519c ]
 
-We missed adding the TGL_HDMI quirk which is very much needed to
-expose the 4 display pipelines and will be required on TGL topologies.
+During Coldboot stress tests, system encountered the following panic.
+Panic logs depicts rt5682_i2c_shutdown() happened first and then later
+jack detect handler workqueue function triggered.
+This situation causes panic as rt5682_i2c_shutdown() resets codec.
+Fix this panic by cancelling all jack detection delayed work.
 
-Fixes: 9ad9bc59dde10 ('ASoC: Intel: sof_sdw: set proper flags for Dell TGL-H SKU 0A5E')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210204203312.27112-3-pierre-louis.bossart@linux.intel.com
+Panic log:
+[   20.936124] sof_pci_shutdown
+[   20.940248] snd_sof_device_shutdown
+[   20.945023] snd_sof_shutdown
+[   21.126849] rt5682_i2c_shutdown
+[   21.286053] rt5682_jack_detect_handler
+[   21.291235] BUG: kernel NULL pointer dereference, address: 000000000000037c
+[   21.299302] #PF: supervisor read access in kernel mode
+[   21.305254] #PF: error_code(0x0000) - not-present page
+[   21.311218] PGD 0 P4D 0
+[   21.314155] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[   21.319206] CPU: 2 PID: 123 Comm: kworker/2:3 Tainted: G     U            5.4.68 #10
+[   21.333687] ACPI: Preparing to enter system sleep state S5
+[   21.337669] Workqueue: events_power_efficient rt5682_jack_detect_handler [snd_soc_rt5682]
+[   21.337671] RIP: 0010:rt5682_jack_detect_handler+0x6c/0x279 [snd_soc_rt5682]
+
+Fixes: a50067d4f3c1d ('ASoC: rt5682: split i2c driver into separate module')
+Signed-off-by: Jairaj Arava <jairaj.arava@intel.com>
+Signed-off-by: Sathyanarayana Nujella <sathyanarayana.nujella@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@intel.com>
+Reviewed-by: Shuming Fan <shumingf@realtek.com>
+Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20210205171428.2344210-1-ranjani.sridharan@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt5682-i2c.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index a8d43c87cb5a2..3945cb61b95a0 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -63,7 +63,8 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
- 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A5E")
- 		},
--		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_RT711_JD_SRC_JD2 |
- 					SOF_RT715_DAI_ID_FIX |
- 					SOF_SDW_FOUR_SPK),
- 	},
+diff --git a/sound/soc/codecs/rt5682-i2c.c b/sound/soc/codecs/rt5682-i2c.c
+index 6b4e0eb30c89a..7e652843c57d9 100644
+--- a/sound/soc/codecs/rt5682-i2c.c
++++ b/sound/soc/codecs/rt5682-i2c.c
+@@ -268,6 +268,9 @@ static void rt5682_i2c_shutdown(struct i2c_client *client)
+ {
+ 	struct rt5682_priv *rt5682 = i2c_get_clientdata(client);
+ 
++	cancel_delayed_work_sync(&rt5682->jack_detect_work);
++	cancel_delayed_work_sync(&rt5682->jd_check_work);
++
+ 	rt5682_reset(rt5682);
+ }
+ 
 -- 
 2.27.0
 
