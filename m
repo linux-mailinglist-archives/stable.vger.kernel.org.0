@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70CF0328E23
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:26:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE857328E04
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238200AbhCATYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:24:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43884 "EHLO mail.kernel.org"
+        id S241418AbhCATWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:22:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241275AbhCATSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C943164D9F;
-        Mon,  1 Mar 2021 17:20:20 +0000 (UTC)
+        id S241338AbhCATRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:17:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A29464F94;
+        Mon,  1 Mar 2021 17:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619221;
-        bh=0Bj6jkepFvalWN4bbnXrH3BtdvbFGpqRk8uahqSJUhk=;
+        s=korg; t=1614619263;
+        bh=zhzxN6c5JN9khP+XvV0suo9/o3MwdDW1IU1ShLW3AuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f5bG60P+I4MA17cdV6EkDJYYaxXo6Z0esaJ+JM6SNyRnVSxhNWB9l00dEcr5E54xV
-         j+wKzAOPNVkc/FqnDNrvXSfGLWS/q0k0UC1r2RYh+7PiVdRa5OGF+feW+dwbf5Pl7S
-         8pOuTuZJgSR6gmc+9L3MhsXqSzvNg3KGrC/wrR1k=
+        b=tEBM85cB9NDD1sp6KXs/ImNBA/IJO3jXvBDxdQFPzSbBTnZu8ebIuhCyWbi12WJaS
+         ytq4Pydte7mgVuP7UMSlXu3XwV/NpgszvTlT+Ke+AkEUX0VDWHptgTdK7nt285p19x
+         ZWmjC78Ixa0Sn+TWhMJ4Hw2knfZiOG5e7XyJ0+10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 359/663] RDMA/hns: Disable RQ inline by default
-Date:   Mon,  1 Mar 2021 17:10:07 +0100
-Message-Id: <20210301161159.616073308@linuxfoundation.org>
+Subject: [PATCH 5.10 361/663] spi: pxa2xx: Fix the controller numbering for Wildcat Point
+Date:   Mon,  1 Mar 2021 17:10:09 +0100
+Message-Id: <20210301161159.702497326@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,33 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Ou <oulijun@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 7373de9adb19aebed2781d3fdde576533d626d7a ]
+[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
 
-This feature should only be enabled by querying capability from firmware.
+Wildcat Point has two SPI controllers and added one is actually second one.
+Fix the numbering by adding the description of the first one.
 
-Fixes: ba6bb7e97421 ("RDMA/hns: Add interfaces to get pf capabilities from firmware")
-Link: https://lore.kernel.org/r/1612517974-31867-5-git-send-email-liweihang@huawei.com
-Signed-off-by: Lijun Ou <oulijun@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
+Cc: Leif Liddy <leif.liddy@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 5c29c7d8c50e6..69621e84986d7 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1847,7 +1847,6 @@ static void set_default_caps(struct hns_roce_dev *hr_dev)
+diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
+index f236e3034cf85..aafac128bb5f1 100644
+--- a/drivers/spi/spi-pxa2xx-pci.c
++++ b/drivers/spi/spi-pxa2xx-pci.c
+@@ -21,7 +21,8 @@ enum {
+ 	PORT_BSW1,
+ 	PORT_BSW2,
+ 	PORT_CE4100,
+-	PORT_LPT,
++	PORT_LPT0,
++	PORT_LPT1,
+ };
  
- 	caps->flags		= HNS_ROCE_CAP_FLAG_REREG_MR |
- 				  HNS_ROCE_CAP_FLAG_ROCE_V1_V2 |
--				  HNS_ROCE_CAP_FLAG_RQ_INLINE |
- 				  HNS_ROCE_CAP_FLAG_RECORD_DB |
- 				  HNS_ROCE_CAP_FLAG_SQ_RECORD_DB;
+ struct pxa_spi_info {
+@@ -57,8 +58,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
+ static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
+ static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
+ 
+-static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
+-static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
++static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
++static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
++static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
+ 
+ static bool lpss_dma_filter(struct dma_chan *chan, void *param)
+ {
+@@ -185,12 +188,19 @@ static struct pxa_spi_info spi_info_configs[] = {
+ 		.num_chipselect = 1,
+ 		.max_clk_rate = 50000000,
+ 	},
+-	[PORT_LPT] = {
++	[PORT_LPT0] = {
+ 		.type = LPSS_LPT_SSP,
+ 		.port_id = 0,
+ 		.setup = lpss_spi_setup,
+-		.tx_param = &lpt_tx_param,
+-		.rx_param = &lpt_rx_param,
++		.tx_param = &lpt0_tx_param,
++		.rx_param = &lpt0_rx_param,
++	},
++	[PORT_LPT1] = {
++		.type = LPSS_LPT_SSP,
++		.port_id = 1,
++		.setup = lpss_spi_setup,
++		.tx_param = &lpt1_tx_param,
++		.rx_param = &lpt1_rx_param,
+ 	},
+ };
+ 
+@@ -285,8 +295,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
+ 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
+ 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
+ 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
+-	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
+-	{ },
++	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
++	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
++	{ }
+ };
+ MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
  
 -- 
 2.27.0
