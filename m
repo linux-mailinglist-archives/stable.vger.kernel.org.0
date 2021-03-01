@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 000F83285A0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1B132849E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234769AbhCAQzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:55:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50408 "EHLO mail.kernel.org"
+        id S232591AbhCAQi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:38:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235741AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:49:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A78264FA6;
-        Mon,  1 Mar 2021 16:32:45 +0000 (UTC)
+        id S232660AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1930564F35;
+        Mon,  1 Mar 2021 16:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616365;
-        bh=EtwnrqhqIB7i230RSJk0UVzZmMMr4bP1Y58ycHV+aKo=;
+        s=korg; t=1614615887;
+        bh=F02ITT3lKNUMiw4LaCCPj0C3VBg42859ZY3N+Tn37/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZX6YjFqtEcq/bBRjexqGL3WTesPdBZGwh4pIeV0WuNjXOZLgRSih+31XQW7pzElMb
-         Pz9onQIca/j7NAT1hpAyUWbAaP+dwPlR2wcxJZOFTW7X6Sy9RMvV6nCderz54sdM6S
-         4gakXiIphazfF7yoDy0a2Kgh/kdd0bUALv7vHyn0=
+        b=pfLHqxT1+Oj0T9nowO4JE45/1OQGWkWwsfJUcZb6k5sw1H7klnEUMfGVCdEydwQvb
+         vL2MqahlMQOUU10geCEmL50QSFdMGDMFzFTl7BHNL7KttFIaDiojZFj3BtbNofcHlA
+         8iLzzLtJGJGNVxC8b7tb69sgqYMgpj27ApLmW4UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tyrel Datwyler <tyreld@linux.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/176] powerpc/pseries/dlpar: handle ibm, configure-connector delay status
+Subject: [PATCH 4.9 068/134] powerpc/pseries/dlpar: handle ibm, configure-connector delay status
 Date:   Mon,  1 Mar 2021 17:12:49 +0100
-Message-Id: <20210301161025.751280362@linuxfoundation.org>
+Message-Id: <20210301161016.902253440@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,7 +67,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/arch/powerpc/platforms/pseries/dlpar.c b/arch/powerpc/platforms/pseries/dlpar.c
-index fb2876a84fbe6..985e434481042 100644
+index 5abb8e2239a54..647dbd8514c4f 100644
 --- a/arch/powerpc/platforms/pseries/dlpar.c
 +++ b/arch/powerpc/platforms/pseries/dlpar.c
 @@ -139,7 +139,6 @@ void dlpar_free_cc_nodes(struct device_node *dn)
