@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4560F3285B7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D79D93284CB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235968AbhCAQ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:57:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
+        id S235175AbhCAQnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:43:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235568AbhCAQwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:52:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1E0864F21;
-        Mon,  1 Mar 2021 16:34:00 +0000 (UTC)
+        id S232297AbhCAQgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:36:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95FCF64F6F;
+        Mon,  1 Mar 2021 16:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616441;
-        bh=HM4BFj6wIR8XDr2/FrrC8w6xG1Dq6cbRDbrSFPY97JQ=;
+        s=korg; t=1614615970;
+        bh=jagVnOnzTh5hXI/onGJsEndRmb0CyYLnzLRvXyvzEmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4g0avcG+Gph6L/v9/YNtmdJPuvuP/NDygLvJik41OhWq987qcg5QKNtpN6+KeQTv
-         jEDOzhSEStxxdwINxr1Ka31bsCX3nhzvRSkKIgzCzm97AR3Kggwz24vmi0dV7zXALr
-         CraOVk/wKpUx63+JrLc9LgrbAMjhzrWcDzXq2VZw=
+        b=Ot55xGRvBnKOFAWFjT34sowPksR8eWqGu3PXA55Rac6hweyj11Ker3IHAzIyZmBFO
+         pbT/0IfkRO7hnqpILXImyitbBogoQDO6MgHhpZ54XWimjqT1kH0Zlnnhim7jFMwVg/
+         +YEyxjI1T/IPUoikfOyyROIBPEtnzATxVBDDoQGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 152/176] fs/affs: release old buffer head on error path
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 124/134] dm era: Reinitialize bitset cache before digesting a new writeset
 Date:   Mon,  1 Mar 2021 17:13:45 +0100
-Message-Id: <20210301161028.560652899@linuxfoundation.org>
+Message-Id: <20210301161019.689664472@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 70779b897395b330ba5a47bed84f94178da599f9 upstream.
+commit 2524933307fd0036d5c32357c693c021ab09a0b0 upstream.
 
-The reference count of the old buffer head should be decremented on path
-that fails to get the new buffer head.
+In case of devices with at most 64 blocks, the digestion of consecutive
+eras uses the writeset of the first era as the writeset of all eras to
+digest, leading to lost writes. That is, we lose the information about
+what blocks were written during the affected eras.
 
-Fixes: 6b4657667ba0 ("fs/affs: add rename exchange")
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+The digestion code uses a dm_disk_bitset object to access the archived
+writesets. This structure includes a one word (64-bit) cache to reduce
+the number of array lookups.
+
+This structure is initialized only once, in metadata_digest_start(),
+when we kick off digestion.
+
+But, when we insert a new writeset into the writeset tree, before the
+digestion of the previous writeset is done, or equivalently when there
+are multiple writesets in the writeset tree to digest, then all these
+writesets are digested using the same cache and the cache is not
+re-initialized when moving from one writeset to the next.
+
+For devices with more than 64 blocks, i.e., the size of the cache, the
+cache is indirectly invalidated when we move to a next set of blocks, so
+we avoid the bug.
+
+But for devices with at most 64 blocks we end up using the same cached
+data for digesting all archived writesets, i.e., the cache is loaded
+when digesting the first writeset and it never gets reloaded, until the
+digestion is done.
+
+As a result, the writeset of the first era to digest is used as the
+writeset of all the following archived eras, leading to lost writes.
+
+Fix this by reinitializing the dm_disk_bitset structure, and thus
+invalidating the cache, every time the digestion code starts digesting a
+new writeset.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/affs/namei.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-era-target.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/fs/affs/namei.c
-+++ b/fs/affs/namei.c
-@@ -461,8 +461,10 @@ affs_xrename(struct inode *old_dir, stru
- 		return -EIO;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -757,6 +757,12 @@ static int metadata_digest_lookup_writes
+ 	ws_unpack(&disk, &d->writeset);
+ 	d->value = cpu_to_le32(key);
  
- 	bh_new = affs_bread(sb, d_inode(new_dentry)->i_ino);
--	if (!bh_new)
-+	if (!bh_new) {
-+		affs_brelse(bh_old);
- 		return -EIO;
-+	}
++	/*
++	 * We initialise another bitset info to avoid any caching side effects
++	 * with the previous one.
++	 */
++	dm_disk_bitset_init(md->tm, &d->info);
++
+ 	d->nr_bits = min(d->writeset.nr_bits, md->nr_blocks);
+ 	d->current_bit = 0;
+ 	d->step = metadata_digest_transcribe_writeset;
+@@ -770,12 +776,6 @@ static int metadata_digest_start(struct
+ 		return 0;
  
- 	/* Remove old header from its parent directory. */
- 	affs_lock_dir(old_dir);
+ 	memset(d, 0, sizeof(*d));
+-
+-	/*
+-	 * We initialise another bitset info to avoid any caching side
+-	 * effects with the previous one.
+-	 */
+-	dm_disk_bitset_init(md->tm, &d->info);
+ 	d->step = metadata_digest_lookup_writeset;
+ 
+ 	return 0;
 
 
