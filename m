@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D4BB328FD0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D944328FBE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242520AbhCAT61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
+        id S242379AbhCAT5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:57:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240452AbhCATpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:45:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B4365030;
-        Mon,  1 Mar 2021 17:14:53 +0000 (UTC)
+        id S234733AbhCATof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ECC76510B;
+        Mon,  1 Mar 2021 17:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618894;
-        bh=THcye7fJji3pbGpNmY481FFDCt6rSaLVJjbuLCA3Bp4=;
+        s=korg; t=1614618870;
+        bh=xnB4jhQfrv/DG2lf8LK+Veia8APj8DVBYW29+Jt0+qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhBZGrCJmmILZoUy0vig/B8sTjXdowPJEz0Td+qT47vIKcuSxJK97SVvi49N3uDfz
-         3Ti869ZVbdnIBcAAJC2abd4t0xcwM9HQpLwowXstI1tQejwum+6fmhdN4zHh2OOZdg
-         7nUD5t319HqwS3IDjA4vyeCVvVrklUxEh+ylpCV4=
+        b=FZKqcwWpuOd2oGm88M/zl3DMI4LbD+6ZnRSKr/t5WFP8akanaxd3Q0jEz3Z/lfetm
+         zNQXvNmNm2PXPxghg7OiQTeWwyV2VFAL9+woz8nI0OHs4ckCysO/RKQ2z+o+Dcikij
+         46zNjO9Ap9tvvIyRDH/EuLGGxhK3Zncm/w7FwzJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 229/663] drm/vc4: hdmi: Move hdmi reset to bind
-Date:   Mon,  1 Mar 2021 17:07:57 +0100
-Message-Id: <20210301161153.136672182@linuxfoundation.org>
+Subject: [PATCH 5.10 247/663] ima: Free IMA measurement buffer after kexec syscall
+Date:   Mon,  1 Mar 2021 17:08:15 +0100
+Message-Id: <20210301161154.041224805@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -44,57 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 
-[ Upstream commit 902dc5c19a8fecd3113dd41cc601b34557bdede9 ]
+[ Upstream commit f31e3386a4e92ba6eda7328cb508462956c94c64 ]
 
-The hdmi reset got moved to a later point in the commit 9045e91a476b
-("drm/vc4: hdmi: Add reset callback").
+IMA allocates kernel virtual memory to carry forward the measurement
+list, from the current kernel to the next kernel on kexec system call,
+in ima_add_kexec_buffer() function.  This buffer is not freed before
+completing the kexec system call resulting in memory leak.
 
-However, the reset now occurs after vc4_hdmi_cec_init and so tramples
-the setup of registers like HDMI_CEC_CNTRL_1
+Add ima_buffer field in "struct kimage" to store the virtual address
+of the buffer allocated for the IMA measurement list.
+Free the memory allocated for the IMA measurement list in
+kimage_file_post_load_cleanup() function.
 
-This only affects pi0-3 as on pi4 the cec registers are in a separate
-block
-
-Fixes: 9045e91a476b ("drm/vc4: hdmi: Add reset callback")
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-3-maxime@cerno.tech
-(cherry picked from commit 7155334f15f360f5c98391c5c7e12af4c13395c4)
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Fixes: 7b8589cc29e7 ("ima: on soft reboot, save the measurement list")
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/kexec.h              | 5 +++++
+ kernel/kexec_file.c                | 5 +++++
+ security/integrity/ima/ima_kexec.c | 2 ++
+ 3 files changed, 12 insertions(+)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index db06f52de9d91..1b2b5e3986ebd 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -661,9 +661,6 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder)
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 9e93bef529680..5f61389f5f361 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -300,6 +300,11 @@ struct kimage {
+ 	/* Information for loading purgatory */
+ 	struct purgatory_info purgatory_info;
+ #endif
++
++#ifdef CONFIG_IMA_KEXEC
++	/* Virtual address of IMA measurement buffer for kexec syscall */
++	void *ima_buffer;
++#endif
+ };
+ 
+ /* kexec interface functions */
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index e21f6b9234f7a..7825adcc5efc3 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -166,6 +166,11 @@ void kimage_file_post_load_cleanup(struct kimage *image)
+ 	vfree(pi->sechdrs);
+ 	pi->sechdrs = NULL;
+ 
++#ifdef CONFIG_IMA_KEXEC
++	vfree(image->ima_buffer);
++	image->ima_buffer = NULL;
++#endif /* CONFIG_IMA_KEXEC */
++
+ 	/* See if architecture has anything to cleanup post load */
+ 	arch_kimage_file_post_load_cleanup(image);
+ 
+diff --git a/security/integrity/ima/ima_kexec.c b/security/integrity/ima/ima_kexec.c
+index 206ddcaa5c67a..e29bea3dd4ccd 100644
+--- a/security/integrity/ima/ima_kexec.c
++++ b/security/integrity/ima/ima_kexec.c
+@@ -129,6 +129,8 @@ void ima_add_kexec_buffer(struct kimage *image)
  		return;
  	}
  
--	if (vc4_hdmi->variant->reset)
--		vc4_hdmi->variant->reset(vc4_hdmi);
--
- 	if (vc4_hdmi->variant->phy_init)
- 		vc4_hdmi->variant->phy_init(vc4_hdmi, mode);
- 
-@@ -1744,6 +1741,9 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
- 	vc4_hdmi->disable_wifi_frequencies =
- 		of_property_read_bool(dev->of_node, "wifi-2.4ghz-coexistence");
- 
-+	if (vc4_hdmi->variant->reset)
-+		vc4_hdmi->variant->reset(vc4_hdmi);
++	image->ima_buffer = kexec_buffer;
 +
- 	pm_runtime_enable(dev);
- 
- 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+ 	pr_debug("kexec measurement buffer for the loaded kernel at 0x%lx.\n",
+ 		 kbuf.mem);
+ }
 -- 
 2.27.0
 
