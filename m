@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0978328F00
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:45:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E57328F91
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239094AbhCATlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:41:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50724 "EHLO mail.kernel.org"
+        id S242320AbhCATxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:53:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241605AbhCATcu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF4F651C0;
-        Mon,  1 Mar 2021 17:16:53 +0000 (UTC)
+        id S242259AbhCAToS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B016365042;
+        Mon,  1 Mar 2021 17:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619014;
-        bh=RV8g4zPGhyVksuOuGdwPcWVihQ7QmaeHewtOzMzPGZE=;
+        s=korg; t=1614621053;
+        bh=KsBIlFCuWO/SvTLiZ3DNi4EKh+Q09SGZIg/htGUJeco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1L3454vrPvgxpPQF3bJtFBDb+eZcMMRuGwcxTpB5ZZc0LPAqY6mlpSx0vBocmSPM9
-         mePMQP5cmpHomAh/HcGwBWvtev2AYgdnme70aXvMLsAFUxtobqcRgcrJjUZoQQRPjV
-         4HrtjGkdDkNoS2gHBsOxosPKD/mmlznwKzpUlWDs=
+        b=10aKJWBG/PPW8WeBeFoH1Am+vSNi4J2HWIZC2cPniX/toxd7461vDIurEAidg7uTN
+         o+VbWiSbhZ81Wd0V9ul/Dv+ezdHHx2ioMSKqinKbm53fOvihu3LZdRXqQ+sPnxPMeH
+         tRaCPNuD8Du+bwah/id596PSJ63EsDvjOpLT2gdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 293/663] RDMA/rtrs-srv: Init wr_cnt as 1
-Date:   Mon,  1 Mar 2021 17:09:01 +0100
-Message-Id: <20210301161156.331476349@linuxfoundation.org>
+Subject: [PATCH 5.11 377/775] watchdog: intel-mid_wdt: Postpone IRQ handler registration till SCU is ready
+Date:   Mon,  1 Mar 2021 17:09:05 +0100
+Message-Id: <20210301161220.231160980@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@cloud.ionos.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 6f5d1b3016d650f351e65c645a5eee5394547dd0 ]
+[ Upstream commit f285c9532b5bd3de7e37a6203318437cab79bd9a ]
 
-Fix up wr_avail accounting. if wr_cnt is 0, then we do SIGNAL for first
-wr, in completion we add queue_depth back, which is not right in the
-sense of tracking for available wr.
+When SCU is not ready and CONFIG_DEBUG_SHIRQ=y we got deferred probe followed
+by fired test IRQ which immediately makes kernel panic. Fix this by delaying
+IRQ handler registration till SCU is ready.
 
-So fix it by init wr_cnt to 1.
-
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20201217141915.56989-19-jinpu.wang@cloud.ionos.com
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 80ae679b8f86 ("watchdog: intel-mid_wdt: Convert to use new SCU IPC API")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/intel-mid_wdt.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index aac710764b44f..f3f4b640b0970 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -1620,7 +1620,7 @@ static int create_con(struct rtrs_srv_sess *sess,
- 	con->c.cm_id = cm_id;
- 	con->c.sess = &sess->s;
- 	con->c.cid = cid;
--	atomic_set(&con->wr_cnt, 0);
-+	atomic_set(&con->wr_cnt, 1);
+diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
+index 1ae03b64ef8bf..9b2173f765c8c 100644
+--- a/drivers/watchdog/intel-mid_wdt.c
++++ b/drivers/watchdog/intel-mid_wdt.c
+@@ -154,6 +154,10 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_nowayout(wdt_dev, WATCHDOG_NOWAYOUT);
+ 	watchdog_set_drvdata(wdt_dev, mid);
  
- 	if (con->c.cid == 0) {
- 		/*
++	mid->scu = devm_intel_scu_ipc_dev_get(dev);
++	if (!mid->scu)
++		return -EPROBE_DEFER;
++
+ 	ret = devm_request_irq(dev, pdata->irq, mid_wdt_irq,
+ 			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
+ 			       wdt_dev);
+@@ -162,10 +166,6 @@ static int mid_wdt_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	mid->scu = devm_intel_scu_ipc_dev_get(dev);
+-	if (!mid->scu)
+-		return -EPROBE_DEFER;
+-
+ 	/*
+ 	 * The firmware followed by U-Boot leaves the watchdog running
+ 	 * with the default threshold which may vary. When we get here
 -- 
 2.27.0
 
