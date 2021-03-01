@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75C7D328C18
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 953E7328B87
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240298AbhCASpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:45:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51238 "EHLO mail.kernel.org"
+        id S240182AbhCASgi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:36:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234540AbhCASjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D2A0651CF;
-        Mon,  1 Mar 2021 17:17:21 +0000 (UTC)
+        id S240084AbhCAS2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:28:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 651EC651D2;
+        Mon,  1 Mar 2021 17:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619042;
-        bh=lqRKLBvKAYvx4AkNz/AZ9rXkrR0NLQWErrsSkOTtLQM=;
+        s=korg; t=1614619046;
+        bh=ejA7acHAep666Ou8MJ1bctxFZB+1Srj5Z9Ie2pTZnvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKmyjaL869kbfe2gFoDFdI5g5lIjbK4HvtWOPmb5/Psd8c9sHsCnZwEN6Dc6saV7G
-         ktjRVUJoNLounCepsx7Jogg+UqfgaJIDEoT63qc8O+/T0aQBGXCXygM7hKo9yiQTkS
-         7vYeN9++U3MQGXJcJ/QLLtOd4E2nZ8t8DJ7dRNGo=
+        b=Xr+qY0l4GPYh82NW5umjEGupeqCtoy7fQrJm2mHFeBS6B0hCs31ItPvoAuHZLWPP/
+         Z8v+rGW8jbLgim10tHob5l3wgsQthU00TdcdRT6X7aAylcteXo27i9zP3G5v0utlBi
+         hhEcGYaMQfGRafYLTmaXcHXWeU7podSyiCXpJSaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 311/663] regulator: s5m8767: Drop regulators OF node reference
-Date:   Mon,  1 Mar 2021 17:09:19 +0100
-Message-Id: <20210301161157.226137926@linuxfoundation.org>
+Subject: [PATCH 5.10 312/663] power: supply: axp20x_usb_power: Init work before enabling IRQs
+Date:   Mon,  1 Mar 2021 17:09:20 +0100
+Message-Id: <20210301161157.278695667@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,47 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit a5872bd3398d0ff2ce4c77794bc7837899c69024 ]
+[ Upstream commit b5e8642ed95ff6ecc20cc6038fe831affa9d098c ]
 
-The device node reference obtained with of_get_child_by_name() should be
-dropped on error paths.
+The IRQ handler calls mod_delayed_work() on power->vbus_detect. However,
+that work item is not initialized until after the IRQs are enabled. If
+an IRQ is already pending when the driver is probed, the driver calls
+mod_delayed_work() on an uninitialized work item, which causes an oops.
 
-Fixes: 26aec009f6b6 ("regulator: add device tree support for s5m8767")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20210121155914.48034-1-krzk@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: bcfb7ae3f50b ("power: supply: axp20x_usb_power: Only poll while offline")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/s5m8767.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/power/supply/axp20x_usb_power.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
-index 48dd95b3ff45a..7c111bbdc2afa 100644
---- a/drivers/regulator/s5m8767.c
-+++ b/drivers/regulator/s5m8767.c
-@@ -544,14 +544,18 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
- 	rdata = devm_kcalloc(&pdev->dev,
- 			     pdata->num_regulators, sizeof(*rdata),
- 			     GFP_KERNEL);
--	if (!rdata)
-+	if (!rdata) {
-+		of_node_put(regulators_np);
- 		return -ENOMEM;
-+	}
+diff --git a/drivers/power/supply/axp20x_usb_power.c b/drivers/power/supply/axp20x_usb_power.c
+index 0eaa86c52874a..25e288388edad 100644
+--- a/drivers/power/supply/axp20x_usb_power.c
++++ b/drivers/power/supply/axp20x_usb_power.c
+@@ -593,6 +593,7 @@ static int axp20x_usb_power_probe(struct platform_device *pdev)
+ 	power->axp20x_id = axp_data->axp20x_id;
+ 	power->regmap = axp20x->regmap;
+ 	power->num_irqs = axp_data->num_irq_names;
++	INIT_DELAYED_WORK(&power->vbus_detect, axp20x_usb_power_poll_vbus);
  
- 	rmode = devm_kcalloc(&pdev->dev,
- 			     pdata->num_regulators, sizeof(*rmode),
- 			     GFP_KERNEL);
--	if (!rmode)
-+	if (!rmode) {
-+		of_node_put(regulators_np);
- 		return -ENOMEM;
-+	}
+ 	if (power->axp20x_id == AXP202_ID) {
+ 		/* Enable vbus valid checking */
+@@ -645,7 +646,6 @@ static int axp20x_usb_power_probe(struct platform_device *pdev)
+ 		}
+ 	}
  
- 	pdata->regulators = rdata;
- 	pdata->opmode = rmode;
+-	INIT_DELAYED_WORK(&power->vbus_detect, axp20x_usb_power_poll_vbus);
+ 	if (axp20x_usb_vbus_needs_polling(power))
+ 		queue_delayed_work(system_wq, &power->vbus_detect, 0);
+ 
 -- 
 2.27.0
 
