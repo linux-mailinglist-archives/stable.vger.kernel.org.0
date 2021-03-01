@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98CF3328DFA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A5D328DE7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241428AbhCATVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:21:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S241321AbhCATT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:19:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240571AbhCATPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 205F364F4C;
-        Mon,  1 Mar 2021 17:14:15 +0000 (UTC)
+        id S241257AbhCATPX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:15:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AEB9650FA;
+        Mon,  1 Mar 2021 17:14:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618856;
-        bh=WliSKD+l2eAzkAbuWJ7Xm6Nmez3lB6kqnCoclVF1/TI=;
+        s=korg; t=1614618873;
+        bh=np4pLtvbnCOYPihpSn9/7tNShNDH24Oz5BOxu8A21GM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xPkQQWDKHv7pwq5PhR/KDSTMr3atrdLHEMlnm2eheobiQ3Oshb73uwv8OgN7/yDs8
-         uXoX6gFHshdgzSVJ2aZAo+BLY7s6cMLYF2X0LPG2UXt7uc18zgIvAxAA09+FYebEhn
-         qV3EAQW4QRCJih6NMh1nxA56KbmNLCeG0F/KarYQ=
+        b=kbFc8yR1gVZnPh+8eO2drcNprilo0OUIl/TeOH8F3D7lkWz37V7fNuGBU3gvhAIfB
+         rnMMn8Te/eVRO/LcqtgCtkmhK1tb+6EhWinoYGHUdK/3NAgCfyzXAajEcvohR6AsrT
+         zIJssUnwYDrQ+zg/Ov+0OkGrv0i4GnvcuRucMlJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 243/663] nvmet: remove extra variable in identify ns
-Date:   Mon,  1 Mar 2021 17:08:11 +0100
-Message-Id: <20210301161153.845967977@linuxfoundation.org>
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 248/663] ASoC: simple-card-utils: Fix device module clock
+Date:   Mon,  1 Mar 2021 17:08:16 +0100
+Message-Id: <20210301161154.091936113@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,106 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Sameer Pujar <spujar@nvidia.com>
 
-[ Upstream commit 3c7b224f1956ed232b24ed2eb2c54e4476c6acb2 ]
+[ Upstream commit 1e30f642cf2939bbdac82ea0dd3071232670b5ab ]
 
-We remove the extra local variable struct nvmet_ns in
-nvmet_execute_identify_ns() since req already has ns member that can be
-reused, this also eliminates the explicit call to nvmet_put_namespace()
-which is already present in the request completion path.
+If "clocks = <&xxx>" is specified from the CPU or Codec component
+device node, the clock is not getting enabled. Thus audio playback
+or capture fails.
 
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix this by populating "simple_dai->clk" field when clocks property
+is specified from device node as well. Also tidy up by re-organising
+conditional statements of parsing logic.
+
+Fixes: bb6fc620c2ed ("ASoC: simple-card-utils: add asoc_simple_card_parse_clk()")
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Link: https://lore.kernel.org/r/1612939421-19900-2-git-send-email-spujar@nvidia.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/admin-cmd.c | 31 +++++++++++++++----------------
- 1 file changed, 15 insertions(+), 16 deletions(-)
+ sound/soc/generic/simple-card-utils.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-index 92ca23bc8dbfc..80ac91e67a1f1 100644
---- a/drivers/nvme/target/admin-cmd.c
-+++ b/drivers/nvme/target/admin-cmd.c
-@@ -469,7 +469,6 @@ out:
- static void nvmet_execute_identify_ns(struct nvmet_req *req)
- {
- 	struct nvmet_ctrl *ctrl = req->sq->ctrl;
--	struct nvmet_ns *ns;
- 	struct nvme_id_ns *id;
- 	u16 status = 0;
- 
-@@ -486,20 +485,21 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 	}
- 
- 	/* return an all zeroed buffer if we can't find an active namespace */
--	ns = nvmet_find_namespace(ctrl, req->cmd->identify.nsid);
--	if (!ns) {
-+	req->ns = nvmet_find_namespace(ctrl, req->cmd->identify.nsid);
-+	if (!req->ns) {
- 		status = NVME_SC_INVALID_NS;
- 		goto done;
- 	}
- 
--	nvmet_ns_revalidate(ns);
-+	nvmet_ns_revalidate(req->ns);
- 
- 	/*
- 	 * nuse = ncap = nsze isn't always true, but we have no way to find
- 	 * that out from the underlying device.
+diff --git a/sound/soc/generic/simple-card-utils.c b/sound/soc/generic/simple-card-utils.c
+index 6cada4c1e283b..ab31045cfc952 100644
+--- a/sound/soc/generic/simple-card-utils.c
++++ b/sound/soc/generic/simple-card-utils.c
+@@ -172,16 +172,15 @@ int asoc_simple_parse_clk(struct device *dev,
+ 	 *  or device's module clock.
  	 */
--	id->ncap = id->nsze = cpu_to_le64(ns->size >> ns->blksize_shift);
--	switch (req->port->ana_state[ns->anagrpid]) {
-+	id->ncap = id->nsze =
-+		cpu_to_le64(req->ns->size >> req->ns->blksize_shift);
-+	switch (req->port->ana_state[req->ns->anagrpid]) {
- 	case NVME_ANA_INACCESSIBLE:
- 	case NVME_ANA_PERSISTENT_LOSS:
- 		break;
-@@ -508,8 +508,8 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 		break;
-         }
+ 	clk = devm_get_clk_from_child(dev, node, NULL);
+-	if (!IS_ERR(clk)) {
+-		simple_dai->sysclk = clk_get_rate(clk);
++	if (IS_ERR(clk))
++		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
  
--	if (ns->bdev)
--		nvmet_bdev_set_limits(ns->bdev, id);
-+	if (req->ns->bdev)
-+		nvmet_bdev_set_limits(req->ns->bdev, id);
- 
- 	/*
- 	 * We just provide a single LBA format that matches what the
-@@ -523,25 +523,24 @@ static void nvmet_execute_identify_ns(struct nvmet_req *req)
- 	 * controllers, but also with any other user of the block device.
- 	 */
- 	id->nmic = (1 << 0);
--	id->anagrpid = cpu_to_le32(ns->anagrpid);
-+	id->anagrpid = cpu_to_le32(req->ns->anagrpid);
- 
--	memcpy(&id->nguid, &ns->nguid, sizeof(id->nguid));
-+	memcpy(&id->nguid, &req->ns->nguid, sizeof(id->nguid));
- 
--	id->lbaf[0].ds = ns->blksize_shift;
-+	id->lbaf[0].ds = req->ns->blksize_shift;
- 
--	if (ctrl->pi_support && nvmet_ns_has_pi(ns)) {
-+	if (ctrl->pi_support && nvmet_ns_has_pi(req->ns)) {
- 		id->dpc = NVME_NS_DPC_PI_FIRST | NVME_NS_DPC_PI_LAST |
- 			  NVME_NS_DPC_PI_TYPE1 | NVME_NS_DPC_PI_TYPE2 |
- 			  NVME_NS_DPC_PI_TYPE3;
- 		id->mc = NVME_MC_EXTENDED_LBA;
--		id->dps = ns->pi_type;
-+		id->dps = req->ns->pi_type;
- 		id->flbas = NVME_NS_FLBAS_META_EXT;
--		id->lbaf[0].ms = cpu_to_le16(ns->metadata_size);
-+		id->lbaf[0].ms = cpu_to_le16(req->ns->metadata_size);
++	if (!IS_ERR(clk)) {
+ 		simple_dai->clk = clk;
+-	} else if (!of_property_read_u32(node, "system-clock-frequency", &val)) {
++		simple_dai->sysclk = clk_get_rate(clk);
++	} else if (!of_property_read_u32(node, "system-clock-frequency",
++					 &val)) {
+ 		simple_dai->sysclk = val;
+-	} else {
+-		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
+-		if (!IS_ERR(clk))
+-			simple_dai->sysclk = clk_get_rate(clk);
  	}
  
--	if (ns->readonly)
-+	if (req->ns->readonly)
- 		id->nsattr |= (1 << 0);
--	nvmet_put_namespace(ns);
- done:
- 	if (!status)
- 		status = nvmet_copy_to_sgl(req, 0, id, sizeof(*id));
+ 	if (of_property_read_bool(node, "system-clock-direction-out"))
 -- 
 2.27.0
 
