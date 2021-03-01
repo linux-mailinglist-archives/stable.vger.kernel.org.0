@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C09F32854F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C6F32844D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235871AbhCAQxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48198 "EHLO mail.kernel.org"
+        id S233061AbhCAQdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234001AbhCAQoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6584464F8D;
-        Mon,  1 Mar 2021 16:30:57 +0000 (UTC)
+        id S234787AbhCAQ3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F58A64E54;
+        Mon,  1 Mar 2021 16:23:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616258;
-        bh=SP4ZZYuwmji8tltM8S/pQ5CLELGbEviw/BJyyv4v8Y4=;
+        s=korg; t=1614615792;
+        bh=6PTz06mppItF9gSXAjVn5lJ9usbEM3gnecb9Itra+zQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v7V92RQxKU/j/cAncqXfa8GOXwVdtNiTIMQuMrNdhSbSdE4z3wMCMe0txuFMQY1R2
-         QSTxjZwyR6HJ7jJ0/fvpfsJ8I4FHzMHIS3YF3tp/lyN8KhfJcSI3yB52M7Oe+UH6pS
-         yUEF2vSBMqDcoLA10YjnMusOq079iJoOZ56gHyPY=
+        b=mrmyTF33buMIvVG/WdmSM8UZfQN92fPyGNB+35xvw6VC/4STXshVX4sYhD8CBjzkN
+         lF9NKttliF+9sO1kToDEB43TSZlrcPIEZ7aDPtbcbrG5WQZFiOUxDGo+ZAEV6O4pdj
+         4o26sg3jPY/AKCRUdV+KSjds22pffcdZjMLzoyns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/176] mmc: usdhi6rol0: Fix a resource leak in the error handling path of the probe
-Date:   Mon,  1 Mar 2021 17:12:41 +0100
-Message-Id: <20210301161025.344197795@linuxfoundation.org>
+Subject: [PATCH 4.9 061/134] mmc: usdhi6rol0: Fix a resource leak in the error handling path of the probe
+Date:   Mon,  1 Mar 2021 17:12:42 +0100
+Message-Id: <20210301161016.560036035@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,7 +61,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/mmc/host/usdhi6rol0.c b/drivers/mmc/host/usdhi6rol0.c
-index 64da6a88cfb90..76e31a30b0cf9 100644
+index 1bd5f1a18d4e2..003aecc441223 100644
 --- a/drivers/mmc/host/usdhi6rol0.c
 +++ b/drivers/mmc/host/usdhi6rol0.c
 @@ -1866,10 +1866,12 @@ static int usdhi6_probe(struct platform_device *pdev)
