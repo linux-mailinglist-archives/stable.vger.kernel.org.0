@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C547B329202
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:39:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9640329200
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:39:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243477AbhCAUhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:37:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48330 "EHLO mail.kernel.org"
+        id S243448AbhCAUhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:37:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238807AbhCAU3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239667AbhCAU3M (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:29:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0D786541F;
-        Mon,  1 Mar 2021 18:07:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A0D65421;
+        Mon,  1 Mar 2021 18:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622074;
-        bh=OqF8kGi6hIdK9vSDb+mzFFWMLfTp4M7QdefA1DWUTf0=;
+        s=korg; t=1614622077;
+        bh=vAoKC/oQSeRRYOHmfGbX1pUThqpyunmz1aqUmqw9eds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IsYym0imgr/JJ0iMsiBo9XcvdzomSLoMGEyWRKQX2dTzOB6qAjx9ucNBHJUBtq7r3
-         Q3NTg1LfKnmInC88EIeQiDHXQZD1iLxVIVPK+m6aN2b36Gg7JcZPfhLVZS9+BahjNf
-         0sCR58L7/sBMmsChuYtoX5nKC0zXFKHFv95TlBkQ=
+        b=En6tRfghHDMIeHtE5B3m8V1luOcNI/0GAKLd5P4zqhd2YqY+IKAoFehLzQ8s3VqbU
+         +H9JKAN2hG4oKjeZ/0SzMUHguFyCpkeAtSDv6x/PRmnu3r13zAcjDRNXBGBwhF/KXJ
+         HSC9ivQCPrIf5vhYelVgTxs4OfJSfCjF5dYw9eWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Masahisa Kojima <masahisa.kojima@linaro.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.11 747/775] spi: fsl: invert spisel_boot signal on MPC8309
-Date:   Mon,  1 Mar 2021 17:15:15 +0100
-Message-Id: <20210301161238.232428519@linuxfoundation.org>
+Subject: [PATCH 5.11 748/775] spi: spi-synquacer: fix set_cs handling
+Date:   Mon,  1 Mar 2021 17:15:16 +0100
+Message-Id: <20210301161238.280938488@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,41 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Masahisa Kojima <masahisa.kojima@linaro.org>
 
-commit 9d2aa6dbf87af89c13cac2d1b4cccad83fb14a7e upstream.
+commit 1c9f1750f0305bf605ff22686fc0ac89c06deb28 upstream.
 
-Commit 7a2da5d7960a ("spi: fsl: Fix driver breakage when SPI_CS_HIGH
-is not set in spi->mode") broke our MPC8309 board by effectively
-inverting the boolean value passed to fsl_spi_cs_control. The
-SPISEL_BOOT signal is used as chipselect, but it's not a gpio, so
-we cannot rely on gpiolib handling the polarity.
+When the slave chip select is deasserted, DMSTOP bit
+must be set.
 
-Adapt to the new world order by inverting the logic here. This does
-assume that the slave sitting at the SPISEL_BOOT is active low, but
-should that ever turn out not to be the case, one can create a stub
-gpiochip driver controlling a single gpio (or rather, a single "spo",
-special-purpose output).
-
-Fixes: 7a2da5d7960a ("spi: fsl: Fix driver breakage when SPI_CS_HIGH is not set in spi->mode")
+Fixes: b0823ee35cf9 ("spi: Add spi driver for Socionext SynQuacer platform")
+Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Link: https://lore.kernel.org/r/20210130143545.505613-1-rasmus.villemoes@prevas.dk
+Link: https://lore.kernel.org/r/20210201073109.9036-1-jassisinghbrar@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-fsl-spi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-synquacer.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/spi/spi-fsl-spi.c
-+++ b/drivers/spi/spi-fsl-spi.c
-@@ -695,7 +695,7 @@ static void fsl_spi_cs_control(struct sp
- 
- 		if (WARN_ON_ONCE(!pinfo->immr_spi_cs))
- 			return;
--		iowrite32be(on ? SPI_BOOT_SEL_BIT : 0, pinfo->immr_spi_cs);
-+		iowrite32be(on ? 0 : SPI_BOOT_SEL_BIT, pinfo->immr_spi_cs);
- 	}
+--- a/drivers/spi/spi-synquacer.c
++++ b/drivers/spi/spi-synquacer.c
+@@ -490,6 +490,10 @@ static void synquacer_spi_set_cs(struct
+ 	val &= ~(SYNQUACER_HSSPI_DMPSEL_CS_MASK <<
+ 		 SYNQUACER_HSSPI_DMPSEL_CS_SHIFT);
+ 	val |= spi->chip_select << SYNQUACER_HSSPI_DMPSEL_CS_SHIFT;
++
++	if (!enable)
++		val |= SYNQUACER_HSSPI_DMSTOP_STOP;
++
+ 	writel(val, sspi->regs + SYNQUACER_HSSPI_REG_DMSTART);
  }
  
 
