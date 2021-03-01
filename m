@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A383291D7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B31E3291AD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240308AbhCAUeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:34:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48400 "EHLO mail.kernel.org"
+        id S242264AbhCAUaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:30:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243188AbhCAU07 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:26:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1FAB65417;
-        Mon,  1 Mar 2021 18:07:06 +0000 (UTC)
+        id S243307AbhCAUXw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:23:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 482B26504E;
+        Mon,  1 Mar 2021 18:05:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622027;
-        bh=HQWsocddKk1rTCs1lKREmOb4su48pda2Hq3NdtSRDGE=;
+        s=korg; t=1614621943;
+        bh=TgQidPWdU1tn64DHfTIhKIJzP+NSV1Ilb/6NV4j1/94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+JIxZqY9kqoLOgpo4mUntxfMwO63cXuFrH96Nvvg5mcWt1A4koOOJTGcxYXPeSVq
-         ZBDyKKADEhUWtR8HJaZ4it3D/gLVSQLo06c6WCvt8nBpZML7ysgNB3sTvHKZqWMMfn
-         idpeNz0OQudyChrIEqgMTVv7ET667k4BTElEB9Uw=
+        b=v+qulaLbiwynzJ8f+dlZ3BfXMmbKgblkcPjEy+j9s/6fGAC2HjD/x+Bcrg+dVaiQ1
+         QlI1WK0qQvVJzMH5f8AZOANz8xu4lg/NSMqCK8rFxqFGYCuTxXpFXCz1jZbwMqRF4c
+         e4rDiB5rsdiiJ3aksubkftgm7ns+NhiDQeb0IJdI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NeilBrown <neilb@suse.de>,
-        Xin Long <lucien.xin@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Vlad Yasevich <vyasevich@gmail.com>,
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 700/775] x86: fix seq_file iteration for pat/memtype.c
-Date:   Mon,  1 Mar 2021 17:14:28 +0100
-Message-Id: <20210301161235.962036681@linuxfoundation.org>
+Subject: [PATCH 5.11 701/775] mm: memcontrol: fix swap undercounting in cgroup2
+Date:   Mon,  1 Mar 2021 17:14:29 +0100
+Message-Id: <20210301161236.012063726@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -51,68 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.de>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 3d2fc4c082448e9c05792f9b2a11c1d5db408b85 upstream.
+commit cae3af62b33aa931427a0f211e04347b22180b36 upstream.
 
-The memtype seq_file iterator allocates a buffer in the ->start and ->next
-functions and frees it in the ->show function.  The preferred handling for
-such resources is to free them in the subsequent ->next or ->stop function
-call.
+When pages are swapped in, the VM may retain the swap copy to avoid
+repeated writes in the future.  It's also retained if shared pages are
+faulted back in some processes, but not in others.  During that time we
+have an in-memory copy of the page, as well as an on-swap copy.  Cgroup1
+and cgroup2 handle these overlapping lifetimes slightly differently due to
+the nature of how they account memory and swap:
 
-Since Commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration
-code and interface") there is no guarantee that ->show will be called
-after ->next, so this function can now leak memory.
+Cgroup1 has a unified memory+swap counter that tracks a data page
+regardless whether it's in-core or swapped out.  On swapin, we transfer
+the charge from the swap entry to the newly allocated swapcache page, even
+though the swap entry might stick around for a while.  That's why we have
+a mem_cgroup_uncharge_swap() call inside mem_cgroup_charge().
 
-So move the freeing of the buffer to ->next and ->stop.
+Cgroup2 tracks memory and swap as separate, independent resources and thus
+has split memory and swap counters.  On swapin, we charge the newly
+allocated swapcache page as memory, while the swap slot in turn must
+remain charged to the swap counter as long as its allocated too.
 
-Link: https://lkml.kernel.org/r/161248539022.21478.13874455485854739066.stgit@noble1
-Fixes: 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-Signed-off-by: NeilBrown <neilb@suse.de>
-Cc: Xin Long <lucien.xin@gmail.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: Neil Horman <nhorman@tuxdriver.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Vlad Yasevich <vyasevich@gmail.com>
-Cc: <stable@vger.kernel.org>
+The cgroup2 logic was broken by commit 2d1c498072de ("mm: memcontrol: make
+swap tracking an integral part of memory control"), because it
+accidentally removed the do_memsw_account() check in the branch inside
+mem_cgroup_uncharge() that was supposed to tell the difference between the
+charge transfer in cgroup1 and the separate counters in cgroup2.
+
+As a result, cgroup2 currently undercounts retained swap to varying
+degrees: swap slots are cached up to 50% of the configured limit or total
+available swap space; partially faulted back shared pages are only limited
+by physical capacity.  This in turn allows cgroups to significantly
+overconsume their alloted swap space.
+
+Add the do_memsw_account() check back to fix this problem.
+
+Link: https://lkml.kernel.org/r/20210217153237.92484-1-songmuchun@bytedance.com
+Fixes: 2d1c498072de ("mm: memcontrol: make swap tracking an integral part of memory control")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>	[5.8+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/pat/memtype.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/memcontrol.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/arch/x86/mm/pat/memtype.c
-+++ b/arch/x86/mm/pat/memtype.c
-@@ -1164,12 +1164,14 @@ static void *memtype_seq_start(struct se
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -6758,7 +6758,19 @@ int mem_cgroup_charge(struct page *page,
+ 	memcg_check_events(memcg, page);
+ 	local_irq_enable();
  
- static void *memtype_seq_next(struct seq_file *seq, void *v, loff_t *pos)
- {
-+	kfree(v);
- 	++*pos;
- 	return memtype_get_idx(*pos);
- }
- 
- static void memtype_seq_stop(struct seq_file *seq, void *v)
- {
-+	kfree(v);
- }
- 
- static int memtype_seq_show(struct seq_file *seq, void *v)
-@@ -1181,8 +1183,6 @@ static int memtype_seq_show(struct seq_f
- 			entry_print->end,
- 			cattr_name(entry_print->type));
- 
--	kfree(entry_print);
--
- 	return 0;
- }
- 
+-	if (PageSwapCache(page)) {
++	/*
++	 * Cgroup1's unified memory+swap counter has been charged with the
++	 * new swapcache page, finish the transfer by uncharging the swap
++	 * slot. The swap slot would also get uncharged when it dies, but
++	 * it can stick around indefinitely and we'd count the page twice
++	 * the entire time.
++	 *
++	 * Cgroup2 has separate resource counters for memory and swap,
++	 * so this is a non-issue here. Memory and swap charge lifetimes
++	 * correspond 1:1 to page and swap slot lifetimes: we charge the
++	 * page to memory here, and uncharge swap when the slot is freed.
++	 */
++	if (do_memsw_account() && PageSwapCache(page)) {
+ 		swp_entry_t entry = { .val = page_private(page) };
+ 		/*
+ 		 * The swap entry might not get freed for a long time,
 
 
