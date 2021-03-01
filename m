@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8332F328F6C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E565328EF0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238532AbhCATvi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:51:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
+        id S241516AbhCATk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:40:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236793AbhCATmC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:42:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D34F6501C;
-        Mon,  1 Mar 2021 17:11:17 +0000 (UTC)
+        id S241602AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:32:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 685D765196;
+        Mon,  1 Mar 2021 17:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618678;
-        bh=RbsRnAjVjKH2hfuolaRNlatMWXPRUnHLsvtlKr+1y5c=;
+        s=korg; t=1614618686;
+        bh=z48XpFlYBWyux+J2/a5onXBUtrHRr7RYVt6Yo8P6K/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JvnpaRxROFk5biJPQz2I7I5GRW/0v8G7k2MnNpZObwBD+LU7gFSgS1ah8mn8wX+nY
-         oMv8qlxCtHAros56CkvxwE16uov0BCMWFEET0UdRlMxzmQMLfaxq+vqP9JFaXA2K52
-         LuPNhDzkT28OrzOGVEqlQNqMo/QUgE3Im0419uaA=
+        b=rz/OPMCfKoBvMhkJhPEOhUczgZU119xTkcqE0JcqjZRBO9hE4B9s+UXw/PYnFn13y
+         VcKwS5nFZ6NHnabXfnsxvtVjKdIgRlz7sWfDfQIejS/gefmfBEjv+1GjjLwRdRuakA
+         6FzSCEbHyDsb4/wqIR7R8ZEy7x7fwIddBcBI3XcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        =?UTF-8?q?S=C3=A9bastien=20Szymanski?= 
-        <sebastien.szymanski@armadeus.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/663] media: imx7: csi: Fix pad link validation
-Date:   Mon,  1 Mar 2021 17:07:05 +0100
-Message-Id: <20210301161150.544187438@linuxfoundation.org>
+Subject: [PATCH 5.10 180/663] MIPS: Compare __SYNC_loongson3_war against 0
+Date:   Mon,  1 Mar 2021 17:07:08 +0100
+Message-Id: <20210301161150.680837474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -44,62 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rmfrfs@gmail.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit f5ffb81f51376eb5a12e8c4cb4871426c65bb2af ]
+[ Upstream commit 8790ccf8daf1a8c53b6cb8ce0c9a109274bd3fa8 ]
 
-We can not make the assumption that the bound subdev is always a CSI
-mux, in i.MX6UL/i.MX6ULL that is not the case. So, just get the entity
-selected by source directly upstream from the CSI.
+When building with clang when CONFIG_CPU_LOONGSON3_WORKAROUNDS is
+enabled:
 
-Fixes: 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as a CSI mux")
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Tested-by: Fabio Estevam <festevam@gmail.com>
-Tested-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ In file included from lib/errseq.c:4:
+ In file included from ./include/linux/atomic.h:7:
+ ./arch/mips/include/asm/atomic.h:52:1: warning: converting the result of
+ '<<' to a boolean always evaluates to true
+ [-Wtautological-constant-compare]
+ ATOMIC_OPS(atomic64, s64)
+ ^
+ ./arch/mips/include/asm/atomic.h:40:9: note: expanded from macro
+ 'ATOMIC_OPS'
+         return cmpxchg(&v->counter, o, n);
+                ^
+ ./arch/mips/include/asm/cmpxchg.h:194:7: note: expanded from macro
+ 'cmpxchg'
+         if (!__SYNC_loongson3_war)
+              ^
+ ./arch/mips/include/asm/sync.h:147:34: note: expanded from macro
+ '__SYNC_loongson3_war'
+ # define __SYNC_loongson3_war   (1 << 31)
+                                    ^
+
+While it is not wrong that the result of this shift is always true in a
+boolean context, it is not a problem here. Regardless, the warning is
+really noisy so rather than making the shift a boolean implicitly, use
+it in an equality comparison so the shift is used as an integer value.
+
+Fixes: 4d1dbfe6cbec ("MIPS: atomic: Emit Loongson3 sync workarounds within asm")
+Fixes: a91f2a1dba44 ("MIPS: cmpxchg: Omit redundant barriers for Loongson3")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/atomic.h  | 2 +-
+ arch/mips/include/asm/cmpxchg.h | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index 31e36168f9d0f..ac52b1daf9914 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -499,6 +499,7 @@ static int imx7_csi_pad_link_validate(struct v4l2_subdev *sd,
- 				      struct v4l2_subdev_format *sink_fmt)
- {
- 	struct imx7_csi *csi = v4l2_get_subdevdata(sd);
-+	struct media_entity *src;
- 	struct media_pad *pad;
- 	int ret;
- 
-@@ -509,11 +510,21 @@ static int imx7_csi_pad_link_validate(struct v4l2_subdev *sd,
- 	if (!csi->src_sd)
- 		return -EPIPE;
- 
-+	src = &csi->src_sd->entity;
-+
-+	/*
-+	 * if the source is neither a CSI MUX or CSI-2 get the one directly
-+	 * upstream from this CSI
-+	 */
-+	if (src->function != MEDIA_ENT_F_VID_IF_BRIDGE &&
-+	    src->function != MEDIA_ENT_F_VID_MUX)
-+		src = &csi->sd.entity;
-+
- 	/*
--	 * find the entity that is selected by the CSI mux. This is needed
-+	 * find the entity that is selected by the source. This is needed
- 	 * to distinguish between a parallel or CSI-2 pipeline.
- 	 */
--	pad = imx_media_pipeline_pad(&csi->src_sd->entity, 0, 0, true);
-+	pad = imx_media_pipeline_pad(src, 0, 0, true);
- 	if (!pad)
- 		return -ENODEV;
- 
+diff --git a/arch/mips/include/asm/atomic.h b/arch/mips/include/asm/atomic.h
+index f904084fcb1fd..27ad767915390 100644
+--- a/arch/mips/include/asm/atomic.h
++++ b/arch/mips/include/asm/atomic.h
+@@ -248,7 +248,7 @@ static __inline__ int pfx##_sub_if_positive(type i, pfx##_t * v)	\
+ 	 * bltz that can branch	to code outside of the LL/SC loop. As	\
+ 	 * such, we don't need to emit another barrier here.		\
+ 	 */								\
+-	if (!__SYNC_loongson3_war)					\
++	if (__SYNC_loongson3_war == 0)					\
+ 		smp_mb__after_atomic();					\
+ 									\
+ 	return result;							\
+diff --git a/arch/mips/include/asm/cmpxchg.h b/arch/mips/include/asm/cmpxchg.h
+index 5b0b3a6777ea5..ed8f3f3c4304a 100644
+--- a/arch/mips/include/asm/cmpxchg.h
++++ b/arch/mips/include/asm/cmpxchg.h
+@@ -99,7 +99,7 @@ unsigned long __xchg(volatile void *ptr, unsigned long x, int size)
+ 	 * contains a completion barrier prior to the LL, so we don't	\
+ 	 * need to emit an extra one here.				\
+ 	 */								\
+-	if (!__SYNC_loongson3_war)					\
++	if (__SYNC_loongson3_war == 0)					\
+ 		smp_mb__before_llsc();					\
+ 									\
+ 	__res = (__typeof__(*(ptr)))					\
+@@ -191,7 +191,7 @@ unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+ 	 * contains a completion barrier prior to the LL, so we don't	\
+ 	 * need to emit an extra one here.				\
+ 	 */								\
+-	if (!__SYNC_loongson3_war)					\
++	if (__SYNC_loongson3_war == 0)					\
+ 		smp_mb__before_llsc();					\
+ 									\
+ 	__res = cmpxchg_local((ptr), (old), (new));			\
+@@ -201,7 +201,7 @@ unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+ 	 * contains a completion barrier after the SC, so we don't	\
+ 	 * need to emit an extra one here.				\
+ 	 */								\
+-	if (!__SYNC_loongson3_war)					\
++	if (__SYNC_loongson3_war == 0)					\
+ 		smp_llsc_mb();						\
+ 									\
+ 	__res;								\
 -- 
 2.27.0
 
