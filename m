@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09302329062
+	by mail.lfdr.de (Postfix) with ESMTP id 7B479329063
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242776AbhCAUIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:08:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
+        id S242867AbhCAUIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:08:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240929AbhCATzo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:55:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D7A46537B;
-        Mon,  1 Mar 2021 17:55:23 +0000 (UTC)
+        id S241088AbhCAT4K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:56:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7DCA65378;
+        Mon,  1 Mar 2021 17:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621324;
-        bh=++I0Nj0PLxescV1Sm9n34oAHLi3b9EOb8dWbDtGUHtw=;
+        s=korg; t=1614621327;
+        bh=19yHZoK3HBP0lkuxRqJoUuivNNBKkBGfXJo4NM9PD30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fk0jfa2ig02WylXq74VgX5i5z+l3fAMF0cgAUaILhNhaN/MkDnQmFH/kYs0kqA8ZC
-         faglZ2DNEwmvo6RErrjNWujopp+5+hH9mBmY5mMvtS365ChZVb+ZQ+Tjll6wh5aIbS
-         w45GEC/a7NiJO5sACO0wsNcNd8CObQWWFbxN0Tiw=
+        b=zKN5CEoen7ebXiaceO5SJgvPBxxaRLcDQ6Z3qvTQ3fi/z5Syki4Z4wPsMqUPC7czd
+         xa9C8W2GiK+uvBs2DprZ2xCXcnWYyiuus/ksfRaZeB/4n/TTwZ/IPCPIyZjaI85Wku
+         E2POtFG+1D69Tnv6sWapuYLy0+s4CD3FIRlOfUuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 475/775] Input: st1232 - add IDLE state as ready condition
-Date:   Mon,  1 Mar 2021 17:10:43 +0100
-Message-Id: <20210301161225.016236772@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        patches@armlinux.org.uk, Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.11 476/775] ARM: 9065/1: OABI compat: fix build when EPOLL is not enabled
+Date:   Mon,  1 Mar 2021 17:10:44 +0100
+Message-Id: <20210301161225.066076417@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,39 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Tretter <m.tretter@pengutronix.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6524d8eac258452e547f8a49c8a965ac6dd8a161 ]
+[ Upstream commit fd749fe4bcb00ad80d9eece709f804bb4ac6bf1e ]
 
-The st1232 can switch from NORMAL to IDLE state after the configured
-idle time (by default 8 s). If the st1232 is not reset during probe, it
-might already be ready but in IDLE state. Since it does not enter NORMAL
-state in this case, probe fails.
+When CONFIG_EPOLL is not set/enabled, sys_oabi-compat.c has build
+errors. Fix these by surrounding them with ifdef CONFIG_EPOLL/endif
+and providing stubs for the "EPOLL is not set" case.
 
-Fix the wait function to report the IDLE state as ready, too.
+../arch/arm/kernel/sys_oabi-compat.c: In function 'sys_oabi_epoll_ctl':
+../arch/arm/kernel/sys_oabi-compat.c:257:6: error: implicit declaration of function 'ep_op_has_event' [-Werror=implicit-function-declaration]
+  257 |  if (ep_op_has_event(op) &&
+      |      ^~~~~~~~~~~~~~~
+../arch/arm/kernel/sys_oabi-compat.c:264:9: error: implicit declaration of function 'do_epoll_ctl'; did you mean 'sys_epoll_ctl'? [-Werror=implicit-function-declaration]
+  264 |  return do_epoll_ctl(epfd, op, fd, &kernel, false);
+      |         ^~~~~~~~~~~~
 
-Fixes: f605be6a57b4 ("Input: st1232 - wait until device is ready before reading resolution")
-Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
-Link: https://lore.kernel.org/r/20210219110556.1858969-1-m.tretter@pengutronix.de
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: c281634c8652 ("ARM: compat: remove KERNEL_DS usage in sys_oabi_epoll_ctl()")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com> # from an lkp .config file
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: patches@armlinux.org.uk
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/st1232.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/kernel/sys_oabi-compat.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index b4e7bcbe9b91d..885f0572488dd 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -94,7 +94,7 @@ static int st1232_ts_wait_ready(struct st1232_ts_data *ts)
+diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
+index 0203e545bbc8d..075a2e0ed2c15 100644
+--- a/arch/arm/kernel/sys_oabi-compat.c
++++ b/arch/arm/kernel/sys_oabi-compat.c
+@@ -248,6 +248,7 @@ struct oabi_epoll_event {
+ 	__u64 data;
+ } __attribute__ ((packed,aligned(4)));
  
- 	for (retries = 10; retries; retries--) {
- 		error = st1232_ts_read_data(ts, REG_STATUS, 1);
--		if (!error && ts->read_buf[0] == (STATUS_NORMAL | ERROR_NONE))
-+		if (!error && ts->read_buf[0] == (STATUS_NORMAL | STATUS_IDLE | ERROR_NONE))
- 			return 0;
++#ifdef CONFIG_EPOLL
+ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+ 				   struct oabi_epoll_event __user *event)
+ {
+@@ -298,6 +299,20 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
+ 	kfree(kbuf);
+ 	return err ? -EFAULT : ret;
+ }
++#else
++asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
++				   struct oabi_epoll_event __user *event)
++{
++	return -EINVAL;
++}
++
++asmlinkage long sys_oabi_epoll_wait(int epfd,
++				    struct oabi_epoll_event __user *events,
++				    int maxevents, int timeout)
++{
++	return -EINVAL;
++}
++#endif
  
- 		usleep_range(1000, 2000);
+ struct oabi_sembuf {
+ 	unsigned short	sem_num;
 -- 
 2.27.0
 
