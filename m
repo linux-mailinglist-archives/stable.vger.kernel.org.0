@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD24D327C36
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44474327C3E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234251AbhCAKck (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:32:40 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:55353 "EHLO
+        id S234522AbhCAKdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:33:39 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:58725 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234242AbhCAKc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:32:29 -0500
+        by vger.kernel.org with ESMTP id S234567AbhCAKdc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:33:32 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8EB7C1940669;
-        Mon,  1 Mar 2021 05:31:21 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:31:21 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 4BCF81940669;
+        Mon,  1 Mar 2021 05:32:44 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:32:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SrsTP3
-        TGItijDmrgzjsgmXCCAyU8oqr9H3B11KaTWeA=; b=S1RMcLV0c6q+fq7Q64tcSd
-        ZJv+VnUu/OwfKlpsl9W4Dv2biLk+Bgu7bFjtjCjqeRCfVMHD/7hsQJIIvBbFviM2
-        PLTnuYgkQL1wnmiQrj3ntmM2nrZXoMIBUyLIfbibiCCId1qO/r31CbLjZHcG1OB6
-        W/59U7EDF7sZmTn6mR+xzLpZa4j2YW96Z3ESxMit+qIvNaWIMsDdu4/oPDve0Wzz
-        3tQUVsunRmEZs5bfKZlS8MkQkRBiuZ2gX2lCzSrpRYJMMTQzGUGtNZ3MsqsTuhYU
-        waJOe4EitJVXmQKp9AOewNT+Ji66dF2K6RpbJFNX9GIngtdagNx7Hq56gh1VjHlQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=x4xNMJ
+        fAhie/WWwHtbCh8oNAvQRFpKlXYE+hVIHw8AA=; b=Hsf8b5zm7bXFo7W0g2tFG9
+        HNZr8NtbTkZvG09um7U0ywD7ymWSfk+FVpDwFzOUTAYGzNJ187wMsB6eobkFLeGT
+        lRN/NsjhpIZRk8xb58A6spH0dK++89ZfsbGH2hAaHvOv9EZlxzkotU0RoQq0nlOW
+        vnnODOu4PzDaaXUtCWwr5+0GWo2j2FAlgmtwRDTT5W9UmTJYgg+It0uDxowFrFez
+        uTacQhXh8nVieZEUQAvtFZHtz8OV+TomV2YJIzB6QeEcvpl/inmcN4esHolUyHsg
+        BVLMVC5OTfb8G8JcOm7q1oZUl+zJ6b1lDzmbfb2RzyeRSuMBr3HPyTAX0JmT9YJA
         ==
-X-ME-Sender: <xms:ecI8YO8Ylc0bs03-7UH4DWKS8R1RRUHxqGj7ds9c4_h7eKAbBwBH8Q>
-    <xme:ecI8YOtzLANt8OvUJPV67l-s6WHP8yXD47dKO5_OPzXPcjhAHCw33Iv_DWErJqgB0
-    b3bqpY-M47fiw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddugecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:y8I8YGdUZ9INn-6aCX4gECLFqRIn_UNPn6p2H9ZbFCQq7DJWUD6nfA>
+    <xme:y8I8YAOWvdT9SQf75ZzEurzhAm0Ep3meRBNSWzuEAOc-BsG2laoXMnLiFjYwKr-8U
+    T2GlyTVqDAjog>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:ecI8YEDVFugeQVGaaPZvwobWvBTW59sELglhFsljOawfcz-BBFzMwg>
-    <xmx:ecI8YGe4M7HXU21rNvsByo7Mt5s3lrGxA8aeOnKh1WUb53ZKyK-K3w>
-    <xmx:ecI8YDPS6Xej_dD2Mat4xF6QA17U90FYpKB20R9n6zEz3KOqxoVI3A>
-    <xmx:ecI8YFVa8dP3hPWVtA7ULp9N_LTaYTc6GrC_wMWypN7rnglEICn-cw>
+X-ME-Proxy: <xmx:y8I8YHjpo8VSNPwO8hMm29ErAInAaPojbiSRiGN9pRqy8eWkGDkxIg>
+    <xmx:y8I8YD-kD_qvEHgM9Szkt1VmS9cfAqTECwIkhxTYwNMLm3_WY0bdtw>
+    <xmx:y8I8YCtNkc63xIfApk5qxFnBDpIWsqymP5xSZe7us6EefLyfgVFQ5w>
+    <xmx:zMI8YHVYeey_4A0jmQOpQARkBChbDNifkwDnCbVgjmps52qEve0HmA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1508424005B;
-        Mon,  1 Mar 2021 05:31:20 -0500 (EST)
-Subject: FAILED: patch "[PATCH] crypto: sun4i-ss - handle BigEndian for cipher" failed to apply to 4.9-stable tree
-To:     clabbe@baylibre.com, herbert@gondor.apana.org.au,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 73B69108005C;
+        Mon,  1 Mar 2021 05:32:43 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drivers: soc: atmel: add null entry at the end of" failed to apply to 4.14-stable tree
+To:     claudiu.beznea@microchip.com, arnd@arndb.de,
+        nicolas.ferre@microchip.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:31:11 +0100
-Message-ID: <161459467119062@kroah.com>
+Date:   Mon, 01 Mar 2021 11:32:41 +0100
+Message-ID: <161459476197245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,55 +71,36 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5ab6177fa02df15cd8a02a1f1fb361d2d5d8b946 Mon Sep 17 00:00:00 2001
-From: Corentin Labbe <clabbe@baylibre.com>
-Date: Mon, 14 Dec 2020 20:02:28 +0000
-Subject: [PATCH] crypto: sun4i-ss - handle BigEndian for cipher
+From 975435132ecfef8de2118668c9f4f95086a0aae5 Mon Sep 17 00:00:00 2001
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
+Date: Fri, 22 Jan 2021 14:21:34 +0200
+Subject: [PATCH] drivers: soc: atmel: add null entry at the end of
+ at91_soc_allowed_list[]
 
-Ciphers produce invalid results on BE.
-Key and IV need to be written in LE.
+of_match_node() calls __of_match_node() which loops though the entries of
+matches array. It stops when condition:
+(matches->name[0] || matches->type[0] || matches->compatible[0]) is
+false. Thus, add a null entry at the end of at91_soc_allowed_list[]
+array.
 
-Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: caab13b49604 ("drivers: soc: atmel: Avoid calling at91_soc_init on non AT91 SoCs")
+Cc: stable@vger.kernel.org #4.12+
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-index c7bf731dad7b..e097f4c3e68f 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -52,13 +52,13 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
+diff --git a/drivers/soc/atmel/soc.c b/drivers/soc/atmel/soc.c
+index 728d461ad6d6..698d21f50516 100644
+--- a/drivers/soc/atmel/soc.c
++++ b/drivers/soc/atmel/soc.c
+@@ -275,7 +275,8 @@ static const struct of_device_id at91_soc_allowed_list[] __initconst = {
+ 	{ .compatible = "atmel,at91rm9200", },
+ 	{ .compatible = "atmel,at91sam9", },
+ 	{ .compatible = "atmel,sama5", },
+-	{ .compatible = "atmel,samv7", }
++	{ .compatible = "atmel,samv7", },
++	{ }
+ };
  
- 	spin_lock_irqsave(&ss->slock, flags);
- 
--	for (i = 0; i < op->keylen; i += 4)
--		writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
-+	for (i = 0; i < op->keylen / 4; i++)
-+		writesl(ss->base + SS_KEY0 + i * 4, &op->key[i], 1);
- 
- 	if (areq->iv) {
- 		for (i = 0; i < 4 && i < ivsize / 4; i++) {
- 			v = *(u32 *)(areq->iv + i * 4);
--			writel(v, ss->base + SS_IV0 + i * 4);
-+			writesl(ss->base + SS_IV0 + i * 4, &v, 1);
- 		}
- 	}
- 	writel(mode, ss->base + SS_CTL);
-@@ -223,13 +223,13 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 
- 	spin_lock_irqsave(&ss->slock, flags);
- 
--	for (i = 0; i < op->keylen; i += 4)
--		writel(*(op->key + i / 4), ss->base + SS_KEY0 + i);
-+	for (i = 0; i < op->keylen / 4; i++)
-+		writesl(ss->base + SS_KEY0 + i * 4, &op->key[i], 1);
- 
- 	if (areq->iv) {
- 		for (i = 0; i < 4 && i < ivsize / 4; i++) {
- 			v = *(u32 *)(areq->iv + i * 4);
--			writel(v, ss->base + SS_IV0 + i * 4);
-+			writesl(ss->base + SS_IV0 + i * 4, &v, 1);
- 		}
- 	}
- 	writel(mode, ss->base + SS_CTL);
+ static int __init atmel_soc_device_init(void)
 
