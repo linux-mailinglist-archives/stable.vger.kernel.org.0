@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70A4C327BA4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:12:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F461327BA6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231655AbhCAKMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:12:03 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:53445 "EHLO
+        id S232077AbhCAKM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:12:26 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:50559 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231821AbhCAKMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:12:02 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 730901940746;
-        Mon,  1 Mar 2021 05:11:15 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:11:15 -0500
+        by vger.kernel.org with ESMTP id S231821AbhCAKMY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:12:24 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7C8AA1940771;
+        Mon,  1 Mar 2021 05:11:17 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 01 Mar 2021 05:11:17 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=D2YLkG
-        rSqC+W6oEcVpWnj3PpdaU1nU3YE9r7vK1TR7A=; b=f66lHvai4MhcPBxewfrjPc
-        wa0q2siked45/jf7Ibx+xCoSZbAj2YklmmOsCPGXygogdrOiJRDzfTaXNEAdzfDN
-        DsqSAX8YzaX4qbxxpzOEFwRxhEA810dpp+JE4QuTcRBgtdehXlhsc+29iwBvuLZo
-        seRZbIACtdo37JAghtu5kvqX5ZIfw4l/fGT1Q8rttAxCEkod5BNiQax7epI1I8/O
-        kko6afO4oEchN/zq15ixe4ifC4LGfL6WVdf+22YGuQIWappFD3WxzI9Xagk6gFDv
-        YBoMYNXdlNai8UdgkjjoQ8qEnCil2e2bZOWAh4/tMtNluG1G6S9j/AKrslJCxjbw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cUmFUD
+        +s+/k2Ke/B+ofe/TrOeV71kZolNemOPofoGdw=; b=aDQOzWqXBbdQfMNn2OL7gm
+        dfvt0MbNxVdVskRZOreGGTefJytsmDWGLh9AndsA4I0Ji6hPENqI+JTJEPTLga1x
+        gaBP6DKkYx2t3BTt0bGf2fJ+mGmMo6IdA25AAR/KGn5ZMyGwhCpTs0Iov75YbG4J
+        VMgqflOLQsAzdQQcWJcgBh5FLC+kh0JioGveZDKVxba3kM/Z/4NvonAD7xFvZVm+
+        LuUbwFAj7p6OTCouK1S7Tfc1nhXZBd7ZlTMOspmTQFzaiEguUnN7h+UUXOsh4qJA
+        PPxzCCAT2jR6HzZa7BwolOVXpBcxv/vB0s3rQPkz+GWmTELyqcM117ToqhTLGlPw
         ==
-X-ME-Sender: <xms:wr08YIDzgCVfYgkAEEWvM-QPf2BocarO-gXSYw_b6gT2JFVU3Dud2g>
-    <xme:wr08YKjJopSU2bJVtA6AcPiTrvqj64pE-ulGgNENUlCwdduSKsti3NdunZ3Shszgi
-    MShxkCTXENtHw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddutdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:xb08YGbBrUcjzwvk3HHBpJkQQBAUddVxG3xVbHWj2SpO2A-Fd5ScKw>
+    <xme:xb08YC0yBgz4dYg7YdkPKFVDQQYrrBF3MKHuI6A7W0SL3EizmTIHEXQ-EwhfrORIP
+    HnGO-UA2mE8uA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:wr08YLkkvRgCnof2kDB-dHmElY57dCLx-nnle95iY14rG4CtLtIskg>
-    <xmx:wr08YOxE9gRR9znpKvGxGx6OrjtwmTO3OUYCeNq5p_ooZohSRjkGyA>
-    <xmx:wr08YNQkm8zvlBHTUh5r2dZb3s7GdOReOwWnJZ7anRAr_HK1Dfjmrg>
-    <xmx:w708YPekJYoZUYRltk0Pxj9Cs8jJA89ixIBCyGC8LktD2pDM2A4kEw>
+X-ME-Proxy: <xmx:xb08YAgZykVHmQoyCf1JPZYZ8VyZBN6vpwli_HkIXmTp-AfCHg-sFQ>
+    <xmx:xb08YObr1NRMF7f3tZQBuiTQGv1pGfp6SPUsR7dptWYUmS6AucynnQ>
+    <xmx:xb08YIT7zfFB-m26GG5BWne6t_Ww9FfupMeCRU4-zAfdHN4Kkib6Sw>
+    <xmx:xb08YIOq_s4EAcpOgpvy9H2Fw223bqD0tmYQGlylSmZj7tku57ATUQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7B88724005C;
-        Mon,  1 Mar 2021 05:11:14 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KEYS: trusted: Fix incorrect handling of tpm_get_random()" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C55EE108005F;
+        Mon,  1 Mar 2021 05:11:16 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KEYS: trusted: Fix incorrect handling of tpm_get_random()" failed to apply to 4.14-stable tree
 To:     jarkko@kernel.org, James.Bottomley@HansenPartnership.com,
         dhowells@redhat.com, key@linux.vnet.ibm.com, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:11:11 +0100
-Message-ID: <1614593471248155@kroah.com>
+Date:   Mon, 01 Mar 2021 11:11:12 +0100
+Message-ID: <1614593472143142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
