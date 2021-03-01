@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B8C32921B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0717A329218
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243651AbhCAUiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:38:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51660 "EHLO mail.kernel.org"
+        id S243647AbhCAUit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243417AbhCAUcz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:32:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D2D64DFB;
-        Mon,  1 Mar 2021 18:09:02 +0000 (UTC)
+        id S243394AbhCAUce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:32:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD7A6505D;
+        Mon,  1 Mar 2021 18:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622143;
-        bh=Vp5984YNxnqpp3o1+ri9qj1KBG03LESBzURmO0GNqa8=;
+        s=korg; t=1614622145;
+        bh=gRIT0VF9fiR/03qrO6Qr37uVPBAtkSGVbL9WsCTeM3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q5kkqOtvHKQDUgBn+SGeCbuJhYB7TnKPlsWzl5flB+0YyBGp9EWRcmVcmyxEsbtgv
-         gP90/LllGZYolC9GFJFocX6FNNSkMleDYKYaMyN08cZgnJ+A2iVuSdBzPg3QQ0pClP
-         0623ISodjOxBgnuFXU3mAe0YinwyZAhe9Hda4nV0=
+        b=UeXi4BpDzn2Rgmt2kcsZ6eJft8h7FZdg44cWFI2/Zvp1TkLVW1EBAPv+TmeSE7wUn
+         PotFybRu5RFa0CiKtFiWE0fgQ/BElpp4s+pnVznwuQuuRYmmRkaox/hvDEf4HHDk3y
+         WWRut5q9Nt0NYHERFgrx2JWz7dP1vVGCu4YNXG8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 773/775] net: sched: fix police ext initialization
-Date:   Mon,  1 Mar 2021 17:15:41 +0100
-Message-Id: <20210301161239.516477572@linuxfoundation.org>
+        syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com,
+        Takeshi Misawa <jeliantsurux@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.11 774/775] net: qrtr: Fix memory leak in qrtr_tun_open
+Date:   Mon,  1 Mar 2021 17:15:42 +0100
+Message-Id: <20210301161239.564016616@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,119 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Takeshi Misawa <jeliantsurux@gmail.com>
 
-commit 396d7f23adf9e8c436dd81a69488b5b6a865acf8 upstream.
+commit fc0494ead6398609c49afa37bc949b61c5c16b91 upstream.
 
-When police action is created by cls API tcf_exts_validate() first
-conditional that calls tcf_action_init_1() directly, the action idr is not
-updated according to latest changes in action API that require caller to
-commit newly created action to idr with tcf_idr_insert_many(). This results
-such action not being accessible through act API and causes crash reported
-by syzbot:
+If qrtr_endpoint_register() failed, tun is leaked.
+Fix this, by freeing tun in error path.
 
-==================================================================
-BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:71 [inline]
-BUG: KASAN: null-ptr-deref in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
-BUG: KASAN: null-ptr-deref in __tcf_idr_release net/sched/act_api.c:178 [inline]
-BUG: KASAN: null-ptr-deref in tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
-Read of size 4 at addr 0000000000000010 by task kworker/u4:5/204
+syzbot report:
+BUG: memory leak
+unreferenced object 0xffff88811848d680 (size 64):
+  comm "syz-executor684", pid 10171, jiffies 4294951561 (age 26.070s)
+  hex dump (first 32 bytes):
+    80 dd 0a 84 ff ff ff ff 00 00 00 00 00 00 00 00  ................
+    90 d6 48 18 81 88 ff ff 90 d6 48 18 81 88 ff ff  ..H.......H.....
+  backtrace:
+    [<0000000018992a50>] kmalloc include/linux/slab.h:552 [inline]
+    [<0000000018992a50>] kzalloc include/linux/slab.h:682 [inline]
+    [<0000000018992a50>] qrtr_tun_open+0x22/0x90 net/qrtr/tun.c:35
+    [<0000000003a453ef>] misc_open+0x19c/0x1e0 drivers/char/misc.c:141
+    [<00000000dec38ac8>] chrdev_open+0x10d/0x340 fs/char_dev.c:414
+    [<0000000079094996>] do_dentry_open+0x1e6/0x620 fs/open.c:817
+    [<000000004096d290>] do_open fs/namei.c:3252 [inline]
+    [<000000004096d290>] path_openat+0x74a/0x1b00 fs/namei.c:3369
+    [<00000000b8e64241>] do_filp_open+0xa0/0x190 fs/namei.c:3396
+    [<00000000a3299422>] do_sys_openat2+0xed/0x230 fs/open.c:1172
+    [<000000002c1bdcef>] do_sys_open fs/open.c:1188 [inline]
+    [<000000002c1bdcef>] __do_sys_openat fs/open.c:1204 [inline]
+    [<000000002c1bdcef>] __se_sys_openat fs/open.c:1199 [inline]
+    [<000000002c1bdcef>] __x64_sys_openat+0x7f/0xe0 fs/open.c:1199
+    [<00000000f3a5728f>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+    [<000000004b38b7ec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-CPU: 0 PID: 204 Comm: kworker/u4:5 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- __kasan_report mm/kasan/report.c:400 [inline]
- kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
- check_memory_region_inline mm/kasan/generic.c:179 [inline]
- check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
- instrument_atomic_read include/linux/instrumented.h:71 [inline]
- atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
- __tcf_idr_release net/sched/act_api.c:178 [inline]
- tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
- tc_action_net_exit include/net/act_api.h:151 [inline]
- police_exit_net+0x168/0x360 net/sched/act_police.c:390
- ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
- cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
- process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
-==================================================================
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 204 Comm: kworker/u4:5 Tainted: G    B             5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- panic+0x306/0x73d kernel/panic.c:231
- end_report+0x58/0x5e mm/kasan/report.c:100
- __kasan_report mm/kasan/report.c:403 [inline]
- kasan_report.cold+0x67/0xd5 mm/kasan/report.c:413
- check_memory_region_inline mm/kasan/generic.c:179 [inline]
- check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
- instrument_atomic_read include/linux/instrumented.h:71 [inline]
- atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
- __tcf_idr_release net/sched/act_api.c:178 [inline]
- tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
- tc_action_net_exit include/net/act_api.h:151 [inline]
- police_exit_net+0x168/0x360 net/sched/act_police.c:390
- ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
- cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
- process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
-Kernel Offset: disabled
-
-Fix the issue by calling tcf_idr_insert_many() after successful action
-initialization.
-
-Fixes: 0fedc63fadf0 ("net_sched: commit action insertions together")
-Reported-by: syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 28fb4e59a47d ("net: qrtr: Expose tunneling endpoint to user space")
+Reported-by: syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com
+Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
+Link: https://lore.kernel.org/r/20210221234427.GA2140@DESKTOP
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/act_api.h |    1 +
- net/sched/act_api.c   |    2 +-
- net/sched/cls_api.c   |    1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ net/qrtr/tun.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/include/net/act_api.h
-+++ b/include/net/act_api.h
-@@ -166,6 +166,7 @@ int tcf_idr_create_from_flags(struct tc_
- 			      struct nlattr *est, struct tc_action **a,
- 			      const struct tc_action_ops *ops, int bind,
- 			      u32 flags);
-+void tcf_idr_insert_many(struct tc_action *actions[]);
- void tcf_idr_cleanup(struct tc_action_net *tn, u32 index);
- int tcf_idr_check_alloc(struct tc_action_net *tn, u32 *index,
- 			struct tc_action **a, int bind);
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -908,7 +908,7 @@ static const struct nla_policy tcf_actio
- 	[TCA_ACT_HW_STATS]	= NLA_POLICY_BITFIELD32(TCA_ACT_HW_STATS_ANY),
- };
- 
--static void tcf_idr_insert_many(struct tc_action *actions[])
-+void tcf_idr_insert_many(struct tc_action *actions[])
+--- a/net/qrtr/tun.c
++++ b/net/qrtr/tun.c
+@@ -31,6 +31,7 @@ static int qrtr_tun_send(struct qrtr_end
+ static int qrtr_tun_open(struct inode *inode, struct file *filp)
  {
- 	int i;
+ 	struct qrtr_tun *tun;
++	int ret;
  
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -3053,6 +3053,7 @@ int tcf_exts_validate(struct net *net, s
- 			act->type = exts->type = TCA_OLD_COMPAT;
- 			exts->actions[0] = act;
- 			exts->nr_actions = 1;
-+			tcf_idr_insert_many(exts->actions);
- 		} else if (exts->action && tb[exts->action]) {
- 			int err;
+ 	tun = kzalloc(sizeof(*tun), GFP_KERNEL);
+ 	if (!tun)
+@@ -43,7 +44,16 @@ static int qrtr_tun_open(struct inode *i
  
+ 	filp->private_data = tun;
+ 
+-	return qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
++	ret = qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
++	if (ret)
++		goto out;
++
++	return 0;
++
++out:
++	filp->private_data = NULL;
++	kfree(tun);
++	return ret;
+ }
+ 
+ static ssize_t qrtr_tun_read_iter(struct kiocb *iocb, struct iov_iter *to)
 
 
