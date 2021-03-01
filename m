@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 891263290C5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C333290C6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243102AbhCAUOr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:14:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
+        id S236519AbhCAUOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:14:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242811AbhCAUEI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:04:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28A05653A0;
-        Mon,  1 Mar 2021 17:58:16 +0000 (UTC)
+        id S242834AbhCAUEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:04:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 147C36539E;
+        Mon,  1 Mar 2021 17:58:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621496;
-        bh=eITzPkw4zzb73jnNnryBS8HhDfCDDfZbl6FiYhqnhe0=;
+        s=korg; t=1614621499;
+        bh=wESI+7EB1Tdr7dYgKhFZj12p2xxhKjT3CxxDskX3ztY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MDal+YyILpEKJGEnqUUe+gkpSHsWFLDPZAHSVnPUNSgvbvsLwAKfF8CXUtnmzlkyE
-         F+flFII03SEnm8/DodIFth69kb+Mo2n59fjODBL8V9Ak82X5vV9fmypvtfWjc66C+C
-         btpcmnwQlPijyr3lKSkq0Ao9HYMBYFk16yJJPOg4=
+        b=FC4kWYb1Xr/cGwgWiyaF5Aj7RTeqILujTcDYJuWU5OXHVEVqdMiKEX2iW/eFBdmMy
+         /v8TSuF06TIO/+vLQNc6mZbgO0Rvn7z4PyiAxwcpRMI+hfpObx1BiDgANIrtqsNq6p
+         VNRxEqeOt1k4nJEB9suYGknJKLe/lnNBIpz86cJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
-        Camelia Groza <camelia.groza@nxp.com>,
-        Madalin Bucur <madalin.bucur@oss.nxp.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
+        stable@vger.kernel.org,
+        "Song, Yoong Siang" <yoong.siang.song@intel.com>,
         Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 538/775] dpaa_eth: fix the access method for the dpaa_napi_portal
-Date:   Mon,  1 Mar 2021 17:11:46 +0100
-Message-Id: <20210301161228.069612957@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>, Song@vger.kernel.org
+Subject: [PATCH 5.11 539/775] net: stmmac: fix CBS idleslope and sendslope calculation
+Date:   Mon,  1 Mar 2021 17:11:47 +0100
+Message-Id: <20210301161228.121250825@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,45 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Camelia Groza <camelia.groza@nxp.com>
+From: Song, Yoong Siang <yoong.siang.song@intel.com>
 
-[ Upstream commit 433dfc99aa3e0acbf655b961d98eb690162f758f ]
+[ Upstream commit 24877687b375f2c476ffb726ea915fc85df09e3d ]
 
-The current use of container_of is flawed and unnecessary. Obtain
-the dpaa_napi_portal reference from the private percpu data instead.
+When link speed is not 100 Mbps, port transmit rate and speed divider
+are set to 8 and 1000000 respectively. These values are incorrect for
+CBS idleslope and sendslope HW values calculation if the link speed is
+not 1 Gbps.
 
-Fixes: a1e031ffb422 ("dpaa_eth: add XDP_REDIRECT support")
-Reported-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Camelia Groza <camelia.groza@nxp.com>
-Acked-by: Madalin Bucur <madalin.bucur@oss.nxp.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Link: https://lore.kernel.org/r/20210218182106.22613-1-camelia.groza@nxp.com
+This patch adds switch statement to set the values of port transmit rate
+and speed divider for 10 Gbps, 5 Gbps, 2.5 Gbps, 1 Gbps, and 100 Mbps.
+Note that CBS is not supported at 10 Mbps.
+
+Fixes: bc41a6689b30 ("net: stmmac: tc: Remove the speed dependency")
+Fixes: 1f705bc61aee ("net: stmmac: Add support for CBS QDISC")
+Signed-off-by: Song, Yoong Siang <yoong.siang.song@intel.com>
+Link: https://lore.kernel.org/r/1613655653-11755-1-git-send-email-yoong.siang.song@intel.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa/dpaa_eth.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_tc.c   | 30 ++++++++++++++++---
+ 1 file changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-index 6faa20bed4885..9905caeaeee3e 100644
---- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
-@@ -2672,7 +2672,6 @@ static enum qman_cb_dqrr_result rx_default_dqrr(struct qman_portal *portal,
- 	u32 hash;
- 	u64 ns;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+index 56985542e2029..44bb133c30007 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_tc.c
+@@ -316,6 +316,32 @@ static int tc_setup_cbs(struct stmmac_priv *priv,
+ 	if (!priv->dma_cap.av)
+ 		return -EOPNOTSUPP;
  
--	np = container_of(&portal, struct dpaa_napi_portal, p);
- 	dpaa_fq = container_of(fq, struct dpaa_fq, fq_base);
- 	fd_status = be32_to_cpu(fd->status);
- 	fd_format = qm_fd_get_format(fd);
-@@ -2687,6 +2686,7 @@ static enum qman_cb_dqrr_result rx_default_dqrr(struct qman_portal *portal,
++	/* Port Transmit Rate and Speed Divider */
++	switch (priv->speed) {
++	case SPEED_10000:
++		ptr = 32;
++		speed_div = 10000000;
++		break;
++	case SPEED_5000:
++		ptr = 32;
++		speed_div = 5000000;
++		break;
++	case SPEED_2500:
++		ptr = 8;
++		speed_div = 2500000;
++		break;
++	case SPEED_1000:
++		ptr = 8;
++		speed_div = 1000000;
++		break;
++	case SPEED_100:
++		ptr = 4;
++		speed_div = 100000;
++		break;
++	default:
++		return -EOPNOTSUPP;
++	}
++
+ 	mode_to_use = priv->plat->tx_queues_cfg[queue].mode_to_use;
+ 	if (mode_to_use == MTL_QUEUE_DCB && qopt->enable) {
+ 		ret = stmmac_dma_qmode(priv, priv->ioaddr, queue, MTL_QUEUE_AVB);
+@@ -332,10 +358,6 @@ static int tc_setup_cbs(struct stmmac_priv *priv,
+ 		priv->plat->tx_queues_cfg[queue].mode_to_use = MTL_QUEUE_DCB;
+ 	}
  
- 	percpu_priv = this_cpu_ptr(priv->percpu_priv);
- 	percpu_stats = &percpu_priv->stats;
-+	np = &percpu_priv->np;
- 
- 	if (unlikely(dpaa_eth_napi_schedule(percpu_priv, portal, sched_napi)))
- 		return qman_cb_dqrr_stop;
+-	/* Port Transmit Rate and Speed Divider */
+-	ptr = (priv->speed == SPEED_100) ? 4 : 8;
+-	speed_div = (priv->speed == SPEED_100) ? 100000 : 1000000;
+-
+ 	/* Final adjustments for HW */
+ 	value = div_s64(qopt->idleslope * 1024ll * ptr, speed_div);
+ 	priv->plat->tx_queues_cfg[queue].idle_slope = value & GENMASK(31, 0);
 -- 
 2.27.0
 
