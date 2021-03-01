@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F3C5329167
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A34C0329177
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242045AbhCAUZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:25:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44016 "EHLO mail.kernel.org"
+        id S243181AbhCAU06 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:26:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243215AbhCAUS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:18:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F38BE653EB;
-        Mon,  1 Mar 2021 18:04:00 +0000 (UTC)
+        id S242775AbhCAUUv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:20:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D33D8653ED;
+        Mon,  1 Mar 2021 18:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621841;
-        bh=gIrkr9f+g407ocE3V1plKh5srxdKOJERSnGXU0ad9DU=;
+        s=korg; t=1614621844;
+        bh=kieaigp/QO71ZK4ke2ynIm0g0Syo9cZrLaLP7micMeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjfNpAjeZH+65DuhcTy9HE23AvG7nCVPF7ULFP6IgSX7QAbh8Y0fQeskegwdKWRvB
-         YlyIxa8qhf+MP1vWj79av3/1yQDYrQYsCBbLZxoCIn8XRU3eOXvM6AhiKVLw1ql1ch
-         G7NK2ZKx5rLOXcUzamY0w5ikU3wa0kffJdXmiK40=
+        b=1oLSUo2E8xHnN2zR7Ekz8+5AFBedLOu+SKqYSsoOEY5AdvAXN8vG6D5TByzdMXT45
+         2osPpk0oiQkmO2UgHsjwl5RY21F4je63RuUrhsFIAET3cgXJflm7JrMCIZ9tN9J6LJ
+         Qf0ao5WFklcesVJu+7TGV5eXTBV9bnvcVB6Y8uiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        David Howells <dhowells@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 633/775] KEYS: trusted: Reserve TPM for seal and unseal operations
-Date:   Mon,  1 Mar 2021 17:13:21 +0100
-Message-Id: <20210301161232.678209694@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.11 634/775] btrfs: do not cleanup upper nodes in btrfs_backref_cleanup_node
+Date:   Mon,  1 Mar 2021 17:13:22 +0100
+Message-Id: <20210301161232.722402445@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,148 +40,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 8c657a0590de585b1115847c17b34a58025f2f4b upstream.
+commit 7e2a870a599d4699a626ec26430c7a1ab14a2a49 upstream.
 
-When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
-the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
-which are used to take temporarily the ownership of the TPM chip. The
-ownership is only taken inside tpm_send(), but this is not sufficient,
-as in the key load TPM2_CC_LOAD, TPM2_CC_UNSEAL and TPM2_FLUSH_CONTEXT
-need to be done as a one single atom.
+Zygo reported the following panic when testing my error handling patches
+for relocation:
 
-Take the TPM chip ownership before sending anything with
-tpm_try_get_ops() and tpm_put_ops(), and use tpm_transmit_cmd() to send
-TPM commands instead of tpm_send(), reverting back to the old behaviour.
+  kernel BUG at fs/btrfs/backref.c:2545!
+  invalid opcode: 0000 [#1] SMP KASAN PTI CPU: 3 PID: 8472 Comm: btrfs Tainted: G        W 14
+  Hardware name: QEMU Standard PC (i440FX + PIIX,
 
-Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
-Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: stable@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Sumit Garg <sumit.garg@linaro.org>
-Acked-by Sumit Garg <sumit.garg@linaro.org>
-Tested-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+  Call Trace:
+   btrfs_backref_error_cleanup+0x4df/0x530
+   build_backref_tree+0x1a5/0x700
+   ? _raw_spin_unlock+0x22/0x30
+   ? release_extent_buffer+0x225/0x280
+   ? free_extent_buffer.part.52+0xd7/0x140
+   relocate_tree_blocks+0x2a6/0xb60
+   ? kasan_unpoison_shadow+0x35/0x50
+   ? do_relocation+0xc10/0xc10
+   ? kasan_kmalloc+0x9/0x10
+   ? kmem_cache_alloc_trace+0x6a3/0xcb0
+   ? free_extent_buffer.part.52+0xd7/0x140
+   ? rb_insert_color+0x342/0x360
+   ? add_tree_block.isra.36+0x236/0x2b0
+   relocate_block_group+0x2eb/0x780
+   ? merge_reloc_roots+0x470/0x470
+   btrfs_relocate_block_group+0x26e/0x4c0
+   btrfs_relocate_chunk+0x52/0x120
+   btrfs_balance+0xe2e/0x18f0
+   ? pvclock_clocksource_read+0xeb/0x190
+   ? btrfs_relocate_chunk+0x120/0x120
+   ? lock_contended+0x620/0x6e0
+   ? do_raw_spin_lock+0x1e0/0x1e0
+   ? do_raw_spin_unlock+0xa8/0x140
+   btrfs_ioctl_balance+0x1f9/0x460
+   btrfs_ioctl+0x24c8/0x4380
+   ? __kasan_check_read+0x11/0x20
+   ? check_chain_key+0x1f4/0x2f0
+   ? __asan_loadN+0xf/0x20
+   ? btrfs_ioctl_get_supported_features+0x30/0x30
+   ? kvm_sched_clock_read+0x18/0x30
+   ? check_chain_key+0x1f4/0x2f0
+   ? lock_downgrade+0x3f0/0x3f0
+   ? handle_mm_fault+0xad6/0x2150
+   ? do_vfs_ioctl+0xfc/0x9d0
+   ? ioctl_file_clone+0xe0/0xe0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags+0x26/0x30
+   ? lock_is_held_type+0xc3/0xf0
+   ? syscall_enter_from_user_mode+0x1b/0x60
+   ? do_syscall_64+0x13/0x80
+   ? rcu_read_lock_sched_held+0xa1/0xd0
+   ? __kasan_check_read+0x11/0x20
+   ? __fget_light+0xae/0x110
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This occurs because of this check
+
+  if (RB_EMPTY_NODE(&upper->rb_node))
+	  BUG_ON(!list_empty(&node->upper));
+
+As we are dropping the backref node, if we discover that our upper node
+in the edge we just cleaned up isn't linked into the cache that we are
+now done with this node, thus the BUG_ON().
+
+However this is an erroneous assumption, as we will look up all the
+references for a node first, and then process the pending edges.  All of
+the 'upper' nodes in our pending edges won't be in the cache's rb_tree
+yet, because they haven't been processed.  We could very well have many
+edges still left to cleanup on this node.
+
+The fact is we simply do not need this check, we can just process all of
+the edges only for this node, because below this check we do the
+following
+
+  if (list_empty(&upper->lower)) {
+	  list_add_tail(&upper->lower, &cache->leaves);
+	  upper->lowest = 1;
+  }
+
+If the upper node truly isn't used yet, then we add it to the
+cache->leaves list to be cleaned up later.  If it is still used then the
+last child node that has it linked into its node will add it to the
+leaves list and then it will be cleaned up.
+
+Fix this problem by dropping this logic altogether.  With this fix I no
+longer see the panic when testing with error injection in the backref
+code.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm.h                    |    4 ----
- include/linux/tpm.h                       |    5 ++++-
- security/keys/trusted-keys/trusted_tpm2.c |   22 ++++++++++++++++++----
- 3 files changed, 22 insertions(+), 9 deletions(-)
+ fs/btrfs/backref.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -164,8 +164,6 @@ extern const struct file_operations tpmr
- extern struct idr dev_nums_idr;
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -2541,13 +2541,6 @@ void btrfs_backref_cleanup_node(struct b
+ 		list_del(&edge->list[UPPER]);
+ 		btrfs_backref_free_edge(cache, edge);
  
- ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz);
--ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
--			 size_t min_rsp_body_length, const char *desc);
- int tpm_get_timeouts(struct tpm_chip *);
- int tpm_auto_startup(struct tpm_chip *chip);
- 
-@@ -194,8 +192,6 @@ static inline void tpm_msleep(unsigned i
- int tpm_chip_start(struct tpm_chip *chip);
- void tpm_chip_stop(struct tpm_chip *chip);
- struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
--__must_check int tpm_try_get_ops(struct tpm_chip *chip);
--void tpm_put_ops(struct tpm_chip *chip);
- 
- struct tpm_chip *tpm_chip_alloc(struct device *dev,
- 				const struct tpm_class_ops *ops);
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -397,6 +397,10 @@ static inline u32 tpm2_rc_value(u32 rc)
- #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
- 
- extern int tpm_is_tpm2(struct tpm_chip *chip);
-+extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
-+extern void tpm_put_ops(struct tpm_chip *chip);
-+extern ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
-+				size_t min_rsp_body_length, const char *desc);
- extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
- 			struct tpm_digest *digest);
- extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
-@@ -410,7 +414,6 @@ static inline int tpm_is_tpm2(struct tpm
- {
- 	return -ENODEV;
- }
--
- static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
- 			       struct tpm_digest *digest)
- {
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -83,6 +83,12 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 	if (rc)
- 		return rc;
- 
-+	rc = tpm_buf_init(&buf, TPM2_ST_SESSIONS, TPM2_CC_CREATE);
-+	if (rc) {
-+		tpm_put_ops(chip);
-+		return rc;
-+	}
-+
- 	tpm_buf_append_u32(&buf, options->keyhandle);
- 	tpm2_buf_append_auth(&buf, TPM2_RS_PW,
- 			     NULL /* nonce */, 0,
-@@ -130,7 +136,7 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "sealing data");
- 	if (rc)
- 		goto out;
- 
-@@ -157,6 +163,7 @@ out:
- 			rc = -EPERM;
- 	}
- 
-+	tpm_put_ops(chip);
- 	return rc;
- }
- 
-@@ -211,7 +218,7 @@ static int tpm2_load_cmd(struct tpm_chip
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "loading blob");
- 	if (!rc)
- 		*blob_handle = be32_to_cpup(
- 			(__be32 *) &buf.data[TPM_HEADER_SIZE]);
-@@ -260,7 +267,7 @@ static int tpm2_unseal_cmd(struct tpm_ch
- 			     options->blobauth /* hmac */,
- 			     TPM_DIGEST_SIZE);
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 6, "unsealing");
- 	if (rc > 0)
- 		rc = -EPERM;
- 
-@@ -304,12 +311,19 @@ int tpm2_unseal_trusted(struct tpm_chip
- 	u32 blob_handle;
- 	int rc;
- 
--	rc = tpm2_load_cmd(chip, payload, options, &blob_handle);
-+	rc = tpm_try_get_ops(chip);
- 	if (rc)
- 		return rc;
- 
-+	rc = tpm2_load_cmd(chip, payload, options, &blob_handle);
-+	if (rc)
-+		goto out;
-+
- 	rc = tpm2_unseal_cmd(chip, payload, options, blob_handle);
- 	tpm2_flush_context(chip, blob_handle);
- 
-+out:
-+	tpm_put_ops(chip);
-+
- 	return rc;
- }
+-		if (RB_EMPTY_NODE(&upper->rb_node)) {
+-			BUG_ON(!list_empty(&node->upper));
+-			btrfs_backref_drop_node(cache, node);
+-			node = upper;
+-			node->lowest = 1;
+-			continue;
+-		}
+ 		/*
+ 		 * Add the node to leaf node list if no other child block
+ 		 * cached.
 
 
