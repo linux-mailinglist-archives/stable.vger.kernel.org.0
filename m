@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE9B3289D6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:08:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 017DD3289CF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:06:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238958AbhCASG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:06:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52490 "EHLO mail.kernel.org"
+        id S239094AbhCASGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:06:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239227AbhCAR7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:59:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF4976524D;
-        Mon,  1 Mar 2021 17:27:54 +0000 (UTC)
+        id S234754AbhCASA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:00:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 767BD6525E;
+        Mon,  1 Mar 2021 17:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619675;
-        bh=8OHyZyUzFVh/ELW1UiG+7dTWtN9HwcthoW9RT05Iy2A=;
+        s=korg; t=1614619725;
+        bh=1/F/Xo1GRSIJtJr+pRrXtoT/zYqmaonRhTOTFAawYIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3/i4h9uRUWGzG6wJRlFr1LZAFPoLmKfbDJCgJxb/GAYjdjibyy86A4O6WLB/myOI
-         EbrNv90hZu1xz6wyTZStHxcfNgucaidKFhiR/ptSLskHolmMfD78xkzHsuX6H7F0Sj
-         i3u1wFrz21yY+swSBzoMLJwXj16LuwieEWjgdc4s=
+        b=QEF+/5GlTnEfsMUlyo6TkeS7WZmOBJ4tfSrIOVFwK3SAlehHnHLj2tbxH4d1DnCjl
+         Q3usbZZh+mAc2ai/ksTF6ocZF9IhtMNIVR0amp2S0FDmva7L8JaaY8LwxC9yJhqTwq
+         0mALR2XwyAh0DviUShPIjJxChPV6mg03O+loCwKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 523/663] ASoC: siu: Fix build error by a wrong const prefix
-Date:   Mon,  1 Mar 2021 17:12:51 +0100
-Message-Id: <20210301161207.717952087@linuxfoundation.org>
+        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+        David Howells <dhowells@redhat.com>,
+        Kent Yoder <key@linux.vnet.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.10 528/663] KEYS: trusted: Fix incorrect handling of tpm_get_random()
+Date:   Mon,  1 Mar 2021 17:12:56 +0100
+Message-Id: <20210301161207.969230242@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,52 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jarkko Sakkinen <jarkko@kernel.org>
 
-commit ae07f5c7c5e9ebca5b9d6471bb4b99a9da5c6d88 upstream.
+commit 5df16caada3fba3b21cb09b85cdedf99507f4ec1 upstream.
 
-A const prefix was put wrongly in the middle at the code refactoring
-commit 932eaf7c7904 ("ASoC: sh: siu_pcm: remove snd_pcm_ops"), which
-leads to a build error as:
-  sound/soc/sh/siu_pcm.c:546:8: error: expected '{' before 'const'
+When tpm_get_random() was introduced, it defined the following API for the
+return value:
 
-Also, another inconsistency is that the declaration of siu_component
-misses the const prefix.
+1. A positive value tells how many bytes of random data was generated.
+2. A negative value on error.
 
-This patch corrects both failures.
+However, in the call sites the API was used incorrectly, i.e. as it would
+only return negative values and otherwise zero. Returning he positive read
+counts to the user space does not make any possible sense.
 
-Fixes: 932eaf7c7904 ("ASoC: sh: siu_pcm: remove snd_pcm_ops")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210126154702.3974-1-tiwai@suse.de
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by returning -EIO when tpm_get_random() returns a positive value.
+
+Fixes: 41ab999c80f1 ("tpm: Move tpm_get_random api into the TPM device driver")
+Cc: stable@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Kent Yoder <key@linux.vnet.ibm.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sh/siu.h     |    2 +-
- sound/soc/sh/siu_pcm.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/keys/trusted-keys/trusted_tpm1.c |   20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
---- a/sound/soc/sh/siu.h
-+++ b/sound/soc/sh/siu.h
-@@ -169,7 +169,7 @@ static inline u32 siu_read32(u32 __iomem
- #define SIU_BRGBSEL	(0x108 / sizeof(u32))
- #define SIU_BRRB	(0x10c / sizeof(u32))
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -403,9 +403,12 @@ static int osap(struct tpm_buf *tb, stru
+ 	int ret;
  
--extern struct snd_soc_component_driver siu_component;
-+extern const struct snd_soc_component_driver siu_component;
- extern struct siu_info *siu_i2s_data;
+ 	ret = tpm_get_random(chip, ononce, TPM_NONCE_SIZE);
+-	if (ret != TPM_NONCE_SIZE)
++	if (ret < 0)
+ 		return ret;
  
- int siu_init_port(int port, struct siu_port **port_info, struct snd_card *card);
---- a/sound/soc/sh/siu_pcm.c
-+++ b/sound/soc/sh/siu_pcm.c
-@@ -543,7 +543,7 @@ static void siu_pcm_free(struct snd_soc_
- 	dev_dbg(pcm->card->dev, "%s\n", __func__);
- }
++	if (ret != TPM_NONCE_SIZE)
++		return -EIO;
++
+ 	tpm_buf_reset(tb, TPM_TAG_RQU_COMMAND, TPM_ORD_OSAP);
+ 	tpm_buf_append_u16(tb, type);
+ 	tpm_buf_append_u32(tb, handle);
+@@ -496,8 +499,12 @@ static int tpm_seal(struct tpm_buf *tb,
+ 		goto out;
  
--struct const snd_soc_component_driver siu_component = {
-+const struct snd_soc_component_driver siu_component = {
- 	.name		= DRV_NAME,
- 	.open		= siu_pcm_open,
- 	.close		= siu_pcm_close,
+ 	ret = tpm_get_random(chip, td->nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE)
+-		goto out;
++		return -EIO;
++
+ 	ordinal = htonl(TPM_ORD_SEAL);
+ 	datsize = htonl(datalen);
+ 	pcrsize = htonl(pcrinfosize);
+@@ -601,9 +608,12 @@ static int tpm_unseal(struct tpm_buf *tb
+ 
+ 	ordinal = htonl(TPM_ORD_UNSEAL);
+ 	ret = tpm_get_random(chip, nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE) {
+ 		pr_info("trusted_key: tpm_get_random failed (%d)\n", ret);
+-		return ret;
++		return -EIO;
+ 	}
+ 	ret = TSS_authhmac(authdata1, keyauth, TPM_NONCE_SIZE,
+ 			   enonce1, nonceodd, cont, sizeof(uint32_t),
+@@ -1013,8 +1023,12 @@ static int trusted_instantiate(struct ke
+ 	case Opt_new:
+ 		key_len = payload->key_len;
+ 		ret = tpm_get_random(chip, payload->key, key_len);
++		if (ret < 0)
++			goto out;
++
+ 		if (ret != key_len) {
+ 			pr_info("trusted_key: key_create failed (%d)\n", ret);
++			ret = -EIO;
+ 			goto out;
+ 		}
+ 		if (tpm2)
 
 
