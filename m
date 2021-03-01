@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9D6327D28
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:27:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E922327D2C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232033AbhCAL05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 06:26:57 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34997 "EHLO
+        id S232564AbhCAL1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 06:27:12 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:45245 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233423AbhCAL01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:26:27 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 0F8011941344;
-        Mon,  1 Mar 2021 06:25:37 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 06:25:37 -0500
+        by vger.kernel.org with ESMTP id S233368AbhCAL06 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:26:58 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1DD6A194136D;
+        Mon,  1 Mar 2021 06:25:45 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 01 Mar 2021 06:25:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Vi/hIl
-        szVr+en77NLS8i9EhCzVUcDqMU/MUdu+uY6zQ=; b=AnaHM4OF91C2FXAGSOIyNm
-        Ln5LsUjHvoTqMk/YrEV8Xivbs+lA2gyDySPqpHlVvb2uJm+ukJVBm0Z6P8dcC/FG
-        by4TEbI1GQJux6UNK2sKAZ4eCvCLDSfVeA8hEsgFh7Nhhyj0nkzE9PX5FJbUDtEj
-        VWKxs3zCTeX+brP1FgqUZFtF6eRYD/BuvK9WJIFi7T1rjRvF9u7Uwl3DyJKzsm34
-        ILYHjJZ1O3JLjbOKW7EaLiIQS2aSaxBTE7oVROWpDEo/U0InwfBBe9roHKrJ7crp
-        YO0RwhpRL5kVLAfT+7XRswmdgw9Cx49nXq+gnAJyCnNfwmWlwf38w9Zs9scg/4Xg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8+4v4p
+        BASztKpFmYcB05s03g5umk++FYSjOdD3Z2hK4=; b=YFXcol4TBs19YrXqps0UTq
+        6t9aGVMwZflIAK+cMQnZ8BS5xVRMn4nyXaQG1gqPMryXzFO2LKuyA2ddFlYqXRUS
+        +pBHwgRkqFN6XgJ/XFI0JyEooLbvFpBMtzmncBcjgKNdKctCcYshJlHRPEprsvmA
+        KwyaIJjW3+3q1tAP/H8vZkn/B/MHT9D62McOgs64arDhKEPJ2zkj1qg7jt91HTyQ
+        +dlWY92zKAnp1rR5PRYs5HdpkkaPSglxs4Gg3uHo2zdB55tCabHaOil0SjM/gZm6
+        qAB4wtXLfJKfWspnM52VUScObMrOWq2mqNxqETXtqGaGZez+WDshw/PWmjDzenYw
         ==
-X-ME-Sender: <xms:MM88YJxmxeOyHiLCdN9Qggkg3xjdQIOEkE1ojM8tuUEp7yDaRUU2yw>
-    <xme:MM88YJT0An1H-Dh3KVtrtSSCoyJwGvTIMzcrmsceHFAx2ANPJ3Z0eUFbvJ4lnachZ
-    6PegABu3rd94Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddviecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:OM88YGVjBBh1Qhw9nMv81VhGqI9o72QdwIpRIa_KOn7xLdMLN-Q6jw>
+    <xme:OM88YEl7ad7Ues9Ci5t5hwp7OS7hfjsmUchAQqw6oQmEyJCOZfi3PPRZhtCeLWZjD
+    RzJWfEg3199cw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddvjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddviecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:MM88YDVzz6ltbyaAEPoUk1ZaaJPENlNFPRbJzY_7ihw81svJ0Mn1Yw>
-    <xmx:MM88YLgXlR7X3ySDT_1n65CsTVCzxgmQrhu-UwzbH0sICPDyzetdEw>
-    <xmx:MM88YLAtrqIUTd1v5W5QLHpbI7xMYYAtBnxYOVM86mvt2I_bpwr0mg>
-    <xmx:Mc88YOrhQXYOmtUPFyDSH7dHYSKHUcrdohByLSwp6XVqh5LfJThfpw>
+X-ME-Proxy: <xmx:Oc88YDyVbtWh1K1d0-2Fe6F94bbuMC9m0Zf7IFcAdKjngwoop2hDVg>
+    <xmx:Oc88YPhnnnarez-cns7d-0CtkarpzDqBKqxTiJlyKslS2LxD77SJNw>
+    <xmx:Oc88YIUBJn0Eez8rRJjD7xy5lthY0gI1T5xHtS7E3rTJXKOAPgmRDA>
+    <xmx:Oc88YI-eQun_MmsuRDCYmosUBVZXi-p7HXsNwwS6BI7-s8Z3vDFD-w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4F07F108005F;
-        Mon,  1 Mar 2021 06:25:36 -0500 (EST)
-Subject: FAILED: patch "[PATCH] platform/x86: ideapad-laptop: Disable touchpad_switch for" failed to apply to 5.11-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id AABCF240057;
+        Mon,  1 Mar 2021 06:25:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] platform/x86: ideapad-laptop: Disable touchpad_switch for" failed to apply to 5.10-stable tree
 To:     jiaxun.yang@flygoat.com, hdegoede@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 01 Mar 2021 12:25:34 +0100
-Message-ID: <161459793460206@kroah.com>
+Message-ID: <161459793434250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
