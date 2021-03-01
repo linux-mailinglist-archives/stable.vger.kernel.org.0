@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E633285E8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AB333287BC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236515AbhCARAq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:00:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54008 "EHLO mail.kernel.org"
+        id S238482AbhCAR2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:28:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235389AbhCAQyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:54:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1727164FC0;
-        Mon,  1 Mar 2021 16:34:46 +0000 (UTC)
+        id S237030AbhCARSv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:18:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B99E6504D;
+        Mon,  1 Mar 2021 16:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616488;
-        bh=27E69NLc3uLFzYYYkyCQYU/Byoydz3ugJhxopS9IvZI=;
+        s=korg; t=1614617231;
+        bh=1aUp4WnQ0d6xW1Xx1eaYpX3/zb8vkFgrgPhQ4ud/oec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFhqtxkwtr1fb6OItH/FcWyVBAC4dY4L/uv24+OfvEiW5tVJTr4tQE8/mWu+aJJBY
-         LvPWdUd5wd5H/7jZCtydXrHeGyea71gzRZRtiR4GE9aQdIfRBoBVr3VGyFdQYUnwaf
-         zn+0co7f8UUp6L0JLq4pB7IXds1d4iseEqjRqQdE=
+        b=SPF+549TIhCJiUedaiCbULyFeac/LK2drlV/umBJL7ubVQL0TFnY4WbfwWJY/lBDm
+         1BjQhSxA4H0DHaL580jQb19WcGjCNOtD25nYTldxdiCrOT4tR41UuszXBAGOZzaQ0R
+         ZqFBsFGbnBJBcugrYP6IagjiupN7NB9g+IIflEvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 169/176] dm era: only resize metadata in preresume
-Date:   Mon,  1 Mar 2021 17:14:02 +0100
-Message-Id: <20210301161029.423694749@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: [PATCH 4.19 223/247] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+Date:   Mon,  1 Mar 2021 17:14:03 +0100
+Message-Id: <20210301161042.603544161@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
+References: <20210301161031.684018251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-commit cca2c6aebe86f68103a8615074b3578e854b5016 upstream.
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
 
-Metadata resize shouldn't happen in the ctr. The ctr loads a temporary
-(inactive) table that will only become active upon resume. That is why
-resize should always be done in terms of resume. Otherwise a load (ctr)
-whose inactive table never becomes active will incorrectly resize the
-metadata.
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-Also, perform the resize directly in preresume, instead of using the
-worker to do it.
-
-The worker might run other metadata operations, e.g., it could start
-digestion, before resizing the metadata. These operations will end up
-using the old size.
-
-This could lead to errors, like:
-
-  device-mapper: era: metadata_digest_transcribe_writeset: dm_array_set_value failed
-  device-mapper: era: process_old_eras: digest step failed, stopping digestion
-
-The reason of the above error is that the worker started the digestion
-of the archived writeset using the old, larger size.
-
-As a result, metadata_digest_transcribe_writeset tried to write beyond
-the end of the era array.
-
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Cc: stable@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/md/dm-era-target.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -1500,15 +1500,6 @@ static int era_ctr(struct dm_target *ti,
- 	}
- 	era->md = md;
+---
+ arch/arm64/Kconfig             |    2 +-
+ arch/arm64/kernel/cpufeature.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -473,7 +473,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds work around for Arm Cortex-A55 Erratum 1024718.
  
--	era->nr_blocks = calc_nr_blocks(era);
--
--	r = metadata_resize(era->md, &era->nr_blocks);
--	if (r) {
--		ti->error = "couldn't resize metadata";
--		era_destroy(era);
--		return -ENOMEM;
--	}
--
- 	era->wq = alloc_ordered_workqueue("dm-" DM_MSG_PREFIX, WQ_MEM_RECLAIM);
- 	if (!era->wq) {
- 		ti->error = "could not create workqueue for metadata object";
-@@ -1586,9 +1577,17 @@ static int era_preresume(struct dm_targe
- 	dm_block_t new_size = calc_nr_blocks(era);
- 
- 	if (era->nr_blocks != new_size) {
--		r = in_worker1(era, metadata_resize, &new_size);
--		if (r)
-+		r = metadata_resize(era->md, &new_size);
-+		if (r) {
-+			DMERR("%s: metadata_resize failed", __func__);
-+			return r;
-+		}
-+
-+		r = metadata_commit(era->md);
-+		if (r) {
-+			DMERR("%s: metadata_commit failed", __func__);
- 			return r;
-+		}
- 
- 		era->nr_blocks = new_size;
- 	}
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all revisions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The work around is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1012,7 +1012,7 @@ static bool cpu_has_broken_dbm(void)
+ 	/* List of CPUs which have broken DBM support. */
+ 	static const struct midr_range cpus[] = {
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
++		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
+ #endif
+ 		{},
+ 	};
 
 
