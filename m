@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97689328A30
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99FBD328AD6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239510AbhCASNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
+        id S239189AbhCASXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:23:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239061AbhCASGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:06:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5523965092;
-        Mon,  1 Mar 2021 17:35:47 +0000 (UTC)
+        id S233014AbhCASSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:18:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 039B5652B2;
+        Mon,  1 Mar 2021 17:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620147;
-        bh=3VYUcoViFPnf+4FXGF+rYTvwNJdrsI5fzYOj7PRVt0Q=;
+        s=korg; t=1614620169;
+        bh=9DuVnw8v0R91EGGubf83NuZVYD2Dz9+n4BTaoCVq+Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xV2MZBxAB0qmtLOZrIlLeCQa/HvmnoniYxPM3O9woga34n/HyjigYGsyf8Rvi3Nu/
-         AO+x68PsAhnNUOfqZBHdLfvMXcpKZACGDCcDpFUChXUiTKOnFkhtVGzck3w9X/Fy0I
-         6jIpK8QF5Z9szV/D7lMn5QxyP32/6hwS8BMpZteU=
+        b=Tmmd/p2xh78f2t+53D3mdXDVL59LUXdQ492D35/gegQnCO3y6ykSx/FoOvCbNvnMd
+         l4K+B5Dp3o+nKr7o5GhIqaCs6In/4lcLp/VNwnuFOtIlxB4JFNzzkFqlMI0pj89dC3
+         AVQQ0JTF+Vq29xOdzU+mrexnrfXJicGlpqXqUc6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Bob Moore <robert.moore@intel.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 048/775] arm64: dts: allwinner: Drop non-removable from SoPine/LTS SD card
-Date:   Mon,  1 Mar 2021 17:03:36 +0100
-Message-Id: <20210301161204.096448716@linuxfoundation.org>
+Subject: [PATCH 5.11 055/775] ACPICA: Fix exception code class checks
+Date:   Mon,  1 Mar 2021 17:03:43 +0100
+Message-Id: <20210301161204.425476888@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,44 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 941432d007689f3774646e41a1439228b6c6ee0e ]
+[ Upstream commit 3dfaea3811f8b6a89a347e8da9ab862cdf3e30fe ]
 
-The SD card on the SoPine SoM module is somewhat concealed, so was
-originally defined as "non-removable".
-However there is a working card-detect pin (tested on two different
-SoM versions), and in certain SoM base boards it might be actually
-accessible at runtime.
-Also the Pine64-LTS shares the SoPine base .dtsi, so inherited the
-non-removable flag, even though the SD card slot is perfectly accessible
-and usable there. (It turns out that just *my* board has a broken card
-detect switch, so I originally thought CD wouldn't work on the LTS.)
+ACPICA commit 1a3a549286ea9db07d7ec700e7a70dd8bcc4354e
 
-Drop the "non-removable" flag to describe the SD card slot properly.
+The macros to classify different AML exception codes are broken. For
+instance,
 
-Fixes: c3904a269891 ("arm64: allwinner: a64: add DTSI file for SoPine SoM")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210113152630.28810-5-andre.przywara@arm.com
+  ACPI_ENV_EXCEPTION(Status)
+
+will always evaluate to zero due to
+
+  #define AE_CODE_ENVIRONMENTAL      0x0000
+  #define ACPI_ENV_EXCEPTION(Status) (Status & AE_CODE_ENVIRONMENTAL)
+
+Similarly, ACPI_AML_EXCEPTION(Status) will evaluate to a non-zero
+value for error codes of type AE_CODE_PROGRAMMER, AE_CODE_ACPI_TABLES,
+as well as AE_CODE_AML, and not just AE_CODE_AML as the name suggests.
+
+This commit fixes those checks.
+
+Fixes: d46b6537f0ce ("ACPICA: AML Parser: ignore all exceptions resulting from incorrect AML during table load")
+Link: https://github.com/acpica/acpica/commit/1a3a5492
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ include/acpi/acexcep.h | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-index c48692b06e1fa..3402cec87035b 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine.dtsi
-@@ -32,7 +32,6 @@
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&mmc0_pins>;
- 	vmmc-supply = <&reg_dcdc1>;
--	non-removable;
- 	disable-wp;
- 	bus-width = <4>;
- 	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
+diff --git a/include/acpi/acexcep.h b/include/acpi/acexcep.h
+index 2fc624a617690..f8a4afb0279a3 100644
+--- a/include/acpi/acexcep.h
++++ b/include/acpi/acexcep.h
+@@ -59,11 +59,11 @@ struct acpi_exception_info {
+ 
+ #define AE_OK                           (acpi_status) 0x0000
+ 
+-#define ACPI_ENV_EXCEPTION(status)      (status & AE_CODE_ENVIRONMENTAL)
+-#define ACPI_AML_EXCEPTION(status)      (status & AE_CODE_AML)
+-#define ACPI_PROG_EXCEPTION(status)     (status & AE_CODE_PROGRAMMER)
+-#define ACPI_TABLE_EXCEPTION(status)    (status & AE_CODE_ACPI_TABLES)
+-#define ACPI_CNTL_EXCEPTION(status)     (status & AE_CODE_CONTROL)
++#define ACPI_ENV_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_ENVIRONMENTAL)
++#define ACPI_AML_EXCEPTION(status)      (((status) & AE_CODE_MASK) == AE_CODE_AML)
++#define ACPI_PROG_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_PROGRAMMER)
++#define ACPI_TABLE_EXCEPTION(status)    (((status) & AE_CODE_MASK) == AE_CODE_ACPI_TABLES)
++#define ACPI_CNTL_EXCEPTION(status)     (((status) & AE_CODE_MASK) == AE_CODE_CONTROL)
+ 
+ /*
+  * Environmental exceptions
 -- 
 2.27.0
 
