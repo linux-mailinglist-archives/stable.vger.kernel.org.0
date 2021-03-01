@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0325C328EB8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82EDB328E6D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242119AbhCATfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49914 "EHLO mail.kernel.org"
+        id S235796AbhCATal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:30:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241896AbhCAT3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12BD765304;
-        Mon,  1 Mar 2021 17:41:52 +0000 (UTC)
+        id S235045AbhCAT0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:26:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 963BF65006;
+        Mon,  1 Mar 2021 17:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620513;
-        bh=h4ZWlSYR2+h/Jw99zRo59+VmAS7yRMLLLQSuCh7kN4c=;
+        s=korg; t=1614618566;
+        bh=RsxIiG5MEdXPhq0Kn0zDOwy1CiIYJXFtWCmklzWmEZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDe258L5Da3+3o+96HJJrBGut5lJaDMcn0jG4YKYxwSzUNJykzemf/JhWb1HTHAhE
-         93uzbl2FsgkJcTyaiTjs8pPzAc7ZkHZ9ihQnWtYgTsvKCFXEPVwvXYjI95/nv2pH8U
-         EmU01CFvM5RsLJKQOlGQQe3NbMcvKkwfc1cMi4zc=
+        b=L4/X/FRh++CU0JyIMFK/po5nSgPGc4OuUG8KIbKPgsyU0QgVl2K6gasRXDg/0DAmU
+         VEwIdavNjp1re/HOx/WkbHuvPEB+EBgoxj5zI6n0bKZ24dqjIxwepZ+A9his42+wga
+         jIQHKMg7rwiJDJdx1i5MqaPpWzMIewJuD1AdZ5/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Michael Tretter <m.tretter@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@mellanox.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 181/775] media: allegro: Fix use after free on error
-Date:   Mon,  1 Mar 2021 17:05:49 +0100
-Message-Id: <20210301161210.574915391@linuxfoundation.org>
+Subject: [PATCH 5.10 103/663] net/mlx5e: Dont change interrupt moderation params when DIM is enabled
+Date:   Mon,  1 Mar 2021 17:05:51 +0100
+Message-Id: <20210301161146.830770638@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit ce814ad4bb52bfc7c0472e6da0aa742ab88f4361 ]
+[ Upstream commit 019f93bc4ba3a0dcb77f448ee77fc4c9c1b89565 ]
 
-The "channel" is added to the "dev->channels" but then if
-v4l2_m2m_ctx_init() fails then we free "channel" but it's still on the
-list so it could lead to a use after free.  Let's not add it to the
-list until after v4l2_m2m_ctx_init() succeeds.
+When mlx5e_ethtool_set_coalesce doesn't change DIM state
+(enabled/disabled), it calls mlx5e_set_priv_channels_coalesce
+unconditionally, which in turn invokes a firmware command to set
+interrupt moderation parameters. It shouldn't happen while DIM manages
+those parameters dynamically (it might even be happening at the same
+time).
 
-Fixes: cc62c74749a3 ("media: allegro: add missed checks in allegro_open()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Michael Tretter <m.tretter@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This patch fixes it by splitting mlx5e_set_priv_channels_coalesce into
+two functions (for RX and TX) and calling them only when DIM is disabled
+(for RX and TX respectively).
+
+Fixes: cb3c7fd4f839 ("net/mlx5e: Support adaptive RX coalescing")
+Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/allegro-dvt/allegro-core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../ethernet/mellanox/mlx5/core/en_ethtool.c   | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
-index 9f718f43282bc..640451134072b 100644
---- a/drivers/staging/media/allegro-dvt/allegro-core.c
-+++ b/drivers/staging/media/allegro-dvt/allegro-core.c
-@@ -2483,8 +2483,6 @@ static int allegro_open(struct file *file)
- 	INIT_LIST_HEAD(&channel->buffers_reference);
- 	INIT_LIST_HEAD(&channel->buffers_intermediate);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index e596f050c4316..eab058ef6e9ff 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -522,7 +522,7 @@ static int mlx5e_get_coalesce(struct net_device *netdev,
+ #define MLX5E_MAX_COAL_FRAMES		MLX5_MAX_CQ_COUNT
  
--	list_add(&channel->list, &dev->channels);
--
- 	channel->fh.m2m_ctx = v4l2_m2m_ctx_init(dev->m2m_dev, channel,
- 						allegro_queue_init);
+ static void
+-mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
++mlx5e_set_priv_channels_tx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
+ {
+ 	struct mlx5_core_dev *mdev = priv->mdev;
+ 	int tc;
+@@ -537,6 +537,17 @@ mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesc
+ 						coal->tx_coalesce_usecs,
+ 						coal->tx_max_coalesced_frames);
+ 		}
++	}
++}
++
++static void
++mlx5e_set_priv_channels_rx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
++{
++	struct mlx5_core_dev *mdev = priv->mdev;
++	int i;
++
++	for (i = 0; i < priv->channels.num; ++i) {
++		struct mlx5e_channel *c = priv->channels.c[i];
  
-@@ -2493,6 +2491,7 @@ static int allegro_open(struct file *file)
- 		goto error;
+ 		mlx5_core_modify_cq_moderation(mdev, &c->rq.cq.mcq,
+ 					       coal->rx_coalesce_usecs,
+@@ -593,7 +604,10 @@ int mlx5e_ethtool_set_coalesce(struct mlx5e_priv *priv,
+ 	reset_tx = !!coal->use_adaptive_tx_coalesce != priv->channels.params.tx_dim_enabled;
+ 
+ 	if (!reset_rx && !reset_tx) {
+-		mlx5e_set_priv_channels_coalesce(priv, coal);
++		if (!coal->use_adaptive_rx_coalesce)
++			mlx5e_set_priv_channels_rx_coalesce(priv, coal);
++		if (!coal->use_adaptive_tx_coalesce)
++			mlx5e_set_priv_channels_tx_coalesce(priv, coal);
+ 		priv->channels.params = new_channels.params;
+ 		goto out;
  	}
- 
-+	list_add(&channel->list, &dev->channels);
- 	file->private_data = &channel->fh;
- 	v4l2_fh_add(&channel->fh);
- 
 -- 
 2.27.0
 
