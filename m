@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC6B328973
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:01:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4D4B328A9C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234767AbhCAR4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:56:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42188 "EHLO mail.kernel.org"
+        id S239639AbhCASUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:20:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239009AbhCARu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:50:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B6164F4B;
-        Mon,  1 Mar 2021 17:00:31 +0000 (UTC)
+        id S239320AbhCASOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:14:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA576508A;
+        Mon,  1 Mar 2021 17:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618032;
-        bh=9mt6kFIBhE+fNqvgWw3E+zxVC1gFqHai+4LpBXedc5M=;
+        s=korg; t=1614619786;
+        bh=2vyHBnX6YcabTICcKqGF/9Jh0f4R8QeEyCeAD/U3Uyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayRaKmVIx8YcjExN3GQsr+69IqkQ14caFxYCWT0m+Zxf647TlDu4qgMH/g+MTHlWx
-         kaYFGMAnpFFf4X100IKhMS5gq4bhevKlJe5EfajJefnKTFlxkgkOPdkwLityjf7jC9
-         4ERI/4ctr15C6BNqjEg74rXA+bHqBh+U1g+OizsI=
+        b=vE/VDWv0NoEq2m77Td4vOCanaOUpSY9MjNppWoiMTSIP9Y6gscTnoGBw8tacwH8VX
+         taBGyQOm/qzjjoZk4a5FK4nmFY1Sv/asw4XZxlftBU7+rVjeTerI0vkSpqWRq100RQ
+         t+xd8k+B/SZmJrVDhfrJWnO5iaCNueNe/rtgVdnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Pavel Machek (CIP)" <pavel@denx.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 283/340] media: ipu3-cio2: Fix mbus_code processing in cio2_subdev_set_fmt()
-Date:   Mon,  1 Mar 2021 17:13:47 +0100
-Message-Id: <20210301161102.220147272@linuxfoundation.org>
+        stable@vger.kernel.org, qiuguorui1 <qiuguorui1@huawei.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 580/663] arm64: kexec_file: fix memory leakage in create_dtb() when fdt_open_into() fails
+Date:   Mon,  1 Mar 2021 17:13:48 +0100
+Message-Id: <20210301161210.559104400@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Machek <pavel@denx.de>
+From: qiuguorui1 <qiuguorui1@huawei.com>
 
-commit 334de4b45892f7e67074e1b1b2ac36fd3e091118 upstream.
+commit 656d1d58d8e0958d372db86c24f0b2ea36f50888 upstream.
 
-Loop was useless as it would always exit on the first iteration. Fix
-it with right condition.
+in function create_dtb(), if fdt_open_into() fails, we need to vfree
+buf before return.
 
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Fixes: a86cf9b29e8b ("media: ipu3-cio2: Validate mbus format in setting subdev format")
-Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: stable@vger.kernel.org # v4.16 and up
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 52b2a8af7436 ("arm64: kexec_file: load initrd and device-tree")
+Cc: stable@vger.kernel.org # v5.0
+Signed-off-by: qiuguorui1 <qiuguorui1@huawei.com>
+Link: https://lore.kernel.org/r/20210218125900.6810-1-qiuguorui1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/pci/intel/ipu3/ipu3-cio2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/machine_kexec_file.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-+++ b/drivers/media/pci/intel/ipu3/ipu3-cio2.c
-@@ -1288,7 +1288,7 @@ static int cio2_subdev_set_fmt(struct v4
- 	fmt->format.code = formats[0].mbus_code;
+--- a/arch/arm64/kernel/machine_kexec_file.c
++++ b/arch/arm64/kernel/machine_kexec_file.c
+@@ -182,8 +182,10 @@ static int create_dtb(struct kimage *ima
  
- 	for (i = 0; i < ARRAY_SIZE(formats); i++) {
--		if (formats[i].mbus_code == fmt->format.code) {
-+		if (formats[i].mbus_code == mbus_code) {
- 			fmt->format.code = mbus_code;
- 			break;
- 		}
+ 		/* duplicate a device tree blob */
+ 		ret = fdt_open_into(initial_boot_params, buf, buf_size);
+-		if (ret)
++		if (ret) {
++			vfree(buf);
+ 			return -EINVAL;
++		}
+ 
+ 		ret = setup_dtb(image, initrd_load_addr, initrd_len,
+ 				cmdline, buf);
 
 
