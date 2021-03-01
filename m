@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A31328ABD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13D4D328A31
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239638AbhCASWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:22:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35642 "EHLO mail.kernel.org"
+        id S239507AbhCASNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239542AbhCASRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:17:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F533650CF;
-        Mon,  1 Mar 2021 17:44:14 +0000 (UTC)
+        id S239041AbhCASHs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:07:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8192F65185;
+        Mon,  1 Mar 2021 17:10:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620655;
-        bh=f9NRaC5Oh62uXWYTZTMNKQcmTsrA5jD5yC9ZKfyJqik=;
+        s=korg; t=1614618614;
+        bh=JbxPQcCXfvnj9ggn8GyS0qw0U1tKTQs/Pt9cVbEbR9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tn2rA91sJ/bCaPF8wGlD9cy0BHKD41opmc/hMG1qnccn7pCnVogMTelbtldMidq7e
-         Kg9Xf4jXa3LJkM7oW7vWIZnTY4S+2SJBbo0SZyu1ss0d+V1reQs19Iu6w+1BIYGtPN
-         EAFWbZD3288gB1K9oxSlRB3w4ASaArD3/h3ysEMY=
+        b=JX8DJf3b4syd/Yhz/hZFS3vbobzjxVx9NExVecyUVoTGhjL2ygMpdQ6OEpxgm0tx5
+         SNkBwMwhUtNZgwyhtXw5v6V7/UeDjtrNnuP2uUAt1LNTSeNGbhmBiVo/uaoy8xwK3a
+         LrUQCBDX+bQvTd8mAVhvwJsejBX6V3/HDqvXo9Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 230/775] mtd: phram: use div_u64_rem to stop overwrite len in phram_setup
-Date:   Mon,  1 Mar 2021 17:06:38 +0100
-Message-Id: <20210301161212.995927005@linuxfoundation.org>
+Subject: [PATCH 5.10 151/663] drm: rcar-du: Fix crash when using LVDS1 clock for CRTC
+Date:   Mon,  1 Mar 2021 17:06:39 +0100
+Message-Id: <20210301161149.245560452@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +42,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit dc2b3e5cbc8087224fcd8698b0dc56131e0bf37d ]
+[ Upstream commit 53ced169373aab52d3b5da0fee6a342002d1876d ]
 
-We now support user to set erase page size, and use do_div between len
-and erase size to determine the reasonableness for the erase size.
-However, do_div is a macro and will overwrite the value of len. Which
-results a mtd device with unexcepted size. Fix it by use div_u64_rem.
+On D3 and E3 platforms, the LVDS encoder includes a PLL that can
+generate a clock for the corresponding CRTC, used even when the CRTC
+output to a non-LVDS port. This mechanism is supported by the driver,
+but the implementation is broken in dual-link LVDS mode. In that case,
+the LVDS1 drm_encoder is skipped, which causes a crash when trying to
+access its bridge later on.
 
-Fixes: ffad560394de ("mtd: phram: Allow the user to set the erase page size.")
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210125124936.651812-1-yangerkun@huawei.com
+Fix this by storing bridge pointers internally instead of retrieving
+them from the encoder. The rcar_du_device encoders field isn't used
+anymore and can be dropped.
+
+Fixes: 8e8fddab0d0a ("drm: rcar-du: Skip LVDS1 output on Gen3 when using dual-link LVDS mode")
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/devices/phram.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c    | 10 ++--------
+ drivers/gpu/drm/rcar-du/rcar_du_drv.h     |  6 +++---
+ drivers/gpu/drm/rcar-du/rcar_du_encoder.c |  5 ++++-
+ 3 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/mtd/devices/phram.c b/drivers/mtd/devices/phram.c
-index cfd170946ba48..5b04ae6c30573 100644
---- a/drivers/mtd/devices/phram.c
-+++ b/drivers/mtd/devices/phram.c
-@@ -222,6 +222,7 @@ static int phram_setup(const char *val)
- 	uint64_t start;
- 	uint64_t len;
- 	uint64_t erasesize = PAGE_SIZE;
-+	uint32_t rem;
- 	int i, ret;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index fe86a3e677571..1b9738e44909d 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -727,13 +727,10 @@ static void rcar_du_crtc_atomic_enable(struct drm_crtc *crtc,
+ 	 */
+ 	if (rcdu->info->lvds_clk_mask & BIT(rcrtc->index) &&
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+-		struct rcar_du_encoder *encoder =
+-			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
++		struct drm_bridge *bridge = rcdu->lvds[rcrtc->index];
+ 		const struct drm_display_mode *mode =
+ 			&crtc->state->adjusted_mode;
+-		struct drm_bridge *bridge;
  
- 	if (strnlen(val, sizeof(buf)) >= sizeof(buf))
-@@ -263,8 +264,11 @@ static int phram_setup(const char *val)
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
+ 		rcar_lvds_clk_enable(bridge, mode->clock * 1000);
+ 	}
+ 
+@@ -759,15 +756,12 @@ static void rcar_du_crtc_atomic_disable(struct drm_crtc *crtc,
+ 
+ 	if (rcdu->info->lvds_clk_mask & BIT(rcrtc->index) &&
+ 	    rstate->outputs == BIT(RCAR_DU_OUTPUT_DPAD0)) {
+-		struct rcar_du_encoder *encoder =
+-			rcdu->encoders[RCAR_DU_OUTPUT_LVDS0 + rcrtc->index];
+-		struct drm_bridge *bridge;
++		struct drm_bridge *bridge = rcdu->lvds[rcrtc->index];
+ 
+ 		/*
+ 		 * Disable the LVDS clock output, see
+ 		 * rcar_du_crtc_atomic_enable().
+ 		 */
+-		bridge = drm_bridge_chain_get_first_bridge(&encoder->base);
+ 		rcar_lvds_clk_disable(bridge);
+ 	}
+ 
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_drv.h b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+index 61504c54e2ecf..3597a179bfb78 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_drv.h
++++ b/drivers/gpu/drm/rcar-du/rcar_du_drv.h
+@@ -20,10 +20,10 @@
+ 
+ struct clk;
+ struct device;
++struct drm_bridge;
+ struct drm_device;
+ struct drm_property;
+ struct rcar_du_device;
+-struct rcar_du_encoder;
+ 
+ #define RCAR_DU_FEATURE_CRTC_IRQ_CLOCK	BIT(0)	/* Per-CRTC IRQ and clock */
+ #define RCAR_DU_FEATURE_VSP1_SOURCE	BIT(1)	/* Has inputs from VSP1 */
+@@ -71,6 +71,7 @@ struct rcar_du_device_info {
+ #define RCAR_DU_MAX_CRTCS		4
+ #define RCAR_DU_MAX_GROUPS		DIV_ROUND_UP(RCAR_DU_MAX_CRTCS, 2)
+ #define RCAR_DU_MAX_VSPS		4
++#define RCAR_DU_MAX_LVDS		2
+ 
+ struct rcar_du_device {
+ 	struct device *dev;
+@@ -83,11 +84,10 @@ struct rcar_du_device {
+ 	struct rcar_du_crtc crtcs[RCAR_DU_MAX_CRTCS];
+ 	unsigned int num_crtcs;
+ 
+-	struct rcar_du_encoder *encoders[RCAR_DU_OUTPUT_MAX];
+-
+ 	struct rcar_du_group groups[RCAR_DU_MAX_GROUPS];
+ 	struct platform_device *cmms[RCAR_DU_MAX_CRTCS];
+ 	struct rcar_du_vsp vsps[RCAR_DU_MAX_VSPS];
++	struct drm_bridge *lvds[RCAR_DU_MAX_LVDS];
+ 
+ 	struct {
+ 		struct drm_property *colorkey;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_encoder.c b/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
+index b0335da0c1614..50fc14534fa4d 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_encoder.c
+@@ -57,7 +57,6 @@ int rcar_du_encoder_init(struct rcar_du_device *rcdu,
+ 	if (renc == NULL)
+ 		return -ENOMEM;
+ 
+-	rcdu->encoders[output] = renc;
+ 	renc->output = output;
+ 	encoder = rcar_encoder_to_drm_encoder(renc);
+ 
+@@ -91,6 +90,10 @@ int rcar_du_encoder_init(struct rcar_du_device *rcdu,
+ 			ret = -EPROBE_DEFER;
+ 			goto done;
  		}
++
++		if (output == RCAR_DU_OUTPUT_LVDS0 ||
++		    output == RCAR_DU_OUTPUT_LVDS1)
++			rcdu->lvds[output - RCAR_DU_OUTPUT_LVDS0] = bridge;
  	}
  
-+	if (erasesize)
-+		div_u64_rem(len, (uint32_t)erasesize, &rem);
-+
- 	if (len == 0 || erasesize == 0 || erasesize > len
--	    || erasesize > UINT_MAX || do_div(len, (uint32_t)erasesize) != 0) {
-+	    || erasesize > UINT_MAX || rem) {
- 		parse_err("illegal erasesize or len\n");
- 		goto error;
- 	}
+ 	/*
 -- 
 2.27.0
 
