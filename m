@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7AFA328A88
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3023289B9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239667AbhCASSV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:18:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34308 "EHLO mail.kernel.org"
+        id S239306AbhCASDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:03:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239195AbhCASMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:12:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 636FE6516A;
-        Mon,  1 Mar 2021 17:07:02 +0000 (UTC)
+        id S238292AbhCAR4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:56:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F1964F58;
+        Mon,  1 Mar 2021 17:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618422;
-        bh=dbmBbJIQd5Su2jJKkyvUXkfSRniCgdQy9uxz8YeJee8=;
+        s=korg; t=1614620411;
+        bh=UHO1R0MIiVfqXFJir/glVUeoflpMlrooTURLOHO8NiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j3XGSFnAOJeOXxSlMtN/hJsaykq0vSze0d1yluhJCcleQ4EEwUDVHbHUuIT+MmLTT
-         l+IRGEDPQKvDtgpuJ8I4f7ETXeZ6LDWEI9HCWAoTl+gZmRA9+jLlUqZhCqrCe9nQHC
-         A5MoMRBuETzg1/xfN1J6df47Mw+lZxxAfKrdXrmc=
+        b=SctDvuXmTWihCd6vEbgwGh6YTLAqVMZMDXiHPad0pWMnUyYmWaapzqwaE4J5iXYzU
+         1XaVDaNcisaiHi+VHNIkGT3WnzdsPglbzLIQg6Vwg+KUqqQ4O4fcopykZUfB/bcRQ+
+         3thd5c9rdDco3Dh1r+Kd5qQ77y9cqs1/ycc+2UsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boris ARZUR <boris@konbu.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/663] usb: dwc2: Abort transaction after errors with unknown reason
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 144/775] bpf: Declare __bpf_free_used_maps() unconditionally
 Date:   Mon,  1 Mar 2021 17:05:12 +0100
-Message-Id: <20210301161144.903821310@linuxfoundation.org>
+Message-Id: <20210301161208.765625118@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit f74b68c61cbc4b2245022fcce038509333d63f6f ]
+[ Upstream commit 936f8946bdb48239f4292812d4d2e26c6d328c95 ]
 
-In some situations, the following error messages are reported.
+__bpf_free_used_maps() is always defined in kernel/bpf/core.c, while
+include/linux/bpf.h is guarding it behind CONFIG_BPF_SYSCALL. Move it out of
+that guard region and fix compiler warning.
 
-dwc2 ff540000.usb: dwc2_hc_chhltd_intr_dma: Channel 1 - ChHltd set, but reason is unknown
-dwc2 ff540000.usb: hcint 0x00000002, intsts 0x04000021
-
-This is sometimes followed by:
-
-dwc2 ff540000.usb: dwc2_update_urb_state_abn(): trimming xfer length
-
-and then:
-
-WARNING: CPU: 0 PID: 0 at kernel/v4.19/drivers/usb/dwc2/hcd.c:2913
-			dwc2_assign_and_init_hc+0x98c/0x990
-
-The warning suggests that an odd buffer address is to be used for DMA.
-
-After an error is observed, the receive buffer may be full
-(urb->actual_length >= urb->length). However, the urb is still left in
-the queue unless three errors were observed in a row. When it is queued
-again, the dwc2 hcd code translates this into a 1-block transfer.
-If urb->actual_length (ie the total expected receive length) is not
-DMA-aligned, the buffer pointer programmed into the chip will be
-unaligned. This results in the observed warning.
-
-To solve the problem, abort input transactions after an error with
-unknown cause if the entire packet was already received. This may be
-a bit drastic, but we don't really know why the transfer was aborted
-even though the entire packet was received. Aborting the transfer in
-this situation is less risky than accepting a potentially corrupted
-packet.
-
-With this patch in place, the 'ChHltd set' and 'trimming xfer length'
-messages are still observed, but there are no more transfer attempts
-with odd buffer addresses.
-
-Fixes: 151d0cbdbe860 ("usb: dwc2: make the scheduler handle excessive NAKs better")
-Cc: Boris ARZUR <boris@konbu.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20210113112052.17063-3-nsaenzjulienne@suse.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a2ea07465c8d ("bpf: Fix missing prog untrack in release_maps")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210112075520.4103414-4-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/hcd_intr.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ include/linux/bpf.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc2/hcd_intr.c b/drivers/usb/dwc2/hcd_intr.c
-index a052d39b4375e..12819e019e13c 100644
---- a/drivers/usb/dwc2/hcd_intr.c
-+++ b/drivers/usb/dwc2/hcd_intr.c
-@@ -1977,6 +1977,18 @@ error:
- 		qtd->error_count++;
- 		dwc2_update_urb_state_abn(hsotg, chan, chnum, qtd->urb,
- 					  qtd, DWC2_HC_XFER_XACT_ERR);
-+		/*
-+		 * We can get here after a completed transaction
-+		 * (urb->actual_length >= urb->length) which was not reported
-+		 * as completed. If that is the case, and we do not abort
-+		 * the transfer, a transfer of size 0 will be enqueued
-+		 * subsequently. If urb->actual_length is not DMA-aligned,
-+		 * the buffer will then point to an unaligned address, and
-+		 * the resulting behavior is undefined. Bail out in that
-+		 * situation.
-+		 */
-+		if (qtd->urb->actual_length >= qtd->urb->length)
-+			qtd->error_count = 3;
- 		dwc2_hcd_save_data_toggle(hsotg, chan, chnum, qtd);
- 		dwc2_halt_channel(hsotg, chan, qtd, DWC2_HC_XFER_XACT_ERR);
- 	}
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index ef9309604b3e5..6e585dbc10df3 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1206,8 +1206,6 @@ void bpf_prog_sub(struct bpf_prog *prog, int i);
+ void bpf_prog_inc(struct bpf_prog *prog);
+ struct bpf_prog * __must_check bpf_prog_inc_not_zero(struct bpf_prog *prog);
+ void bpf_prog_put(struct bpf_prog *prog);
+-void __bpf_free_used_maps(struct bpf_prog_aux *aux,
+-			  struct bpf_map **used_maps, u32 len);
+ 
+ void bpf_prog_free_id(struct bpf_prog *prog, bool do_idr_lock);
+ void bpf_map_free_id(struct bpf_map *map, bool do_idr_lock);
+@@ -1676,6 +1674,9 @@ static inline struct bpf_prog *bpf_prog_get_type(u32 ufd,
+ 	return bpf_prog_get_type_dev(ufd, type, false);
+ }
+ 
++void __bpf_free_used_maps(struct bpf_prog_aux *aux,
++			  struct bpf_map **used_maps, u32 len);
++
+ bool bpf_prog_get_ok(struct bpf_prog *, enum bpf_prog_type *, bool);
+ 
+ int bpf_prog_offload_compile(struct bpf_prog *prog);
 -- 
 2.27.0
 
