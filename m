@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E565328EF0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDC90328EE1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241516AbhCATk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:40:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
+        id S235938AbhCATkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:40:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241602AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 685D765196;
-        Mon,  1 Mar 2021 17:11:25 +0000 (UTC)
+        id S241949AbhCATaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:30:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4310665358;
+        Mon,  1 Mar 2021 17:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618686;
-        bh=z48XpFlYBWyux+J2/a5onXBUtrHRr7RYVt6Yo8P6K/I=;
+        s=korg; t=1614620743;
+        bh=cCGZalGL3RQfmx4GBFN4eOMl5F3Hjoz/dGA0uMf1ICk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rz/OPMCfKoBvMhkJhPEOhUczgZU119xTkcqE0JcqjZRBO9hE4B9s+UXw/PYnFn13y
-         VcKwS5nFZ6NHnabXfnsxvtVjKdIgRlz7sWfDfQIejS/gefmfBEjv+1GjjLwRdRuakA
-         6FzSCEbHyDsb4/wqIR7R8ZEy7x7fwIddBcBI3XcI=
+        b=Yl24lwRLTuWgRmODPPYjwrmUummWm33Si2/rgH0pYrUuJDHv4AHfE70dLdr+vR7tP
+         psummY3dBmQX1bNLkKlDjv/BTFN9v68e/DFcCvfzqRYaIDhzSd13ZeobvuANRRz4YC
+         ac2QvCWIXVbso8cFdW0PnM6LOvhzEE/Dn3wTF/Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 180/663] MIPS: Compare __SYNC_loongson3_war against 0
-Date:   Mon,  1 Mar 2021 17:07:08 +0100
-Message-Id: <20210301161150.680837474@linuxfoundation.org>
+Subject: [PATCH 5.11 262/775] ASoC: Intel: sof_sdw: add missing TGL_HDMI quirk for Dell SKU 0A32
+Date:   Mon,  1 Mar 2021 17:07:10 +0100
+Message-Id: <20210301161214.583268290@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,94 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 8790ccf8daf1a8c53b6cb8ce0c9a109274bd3fa8 ]
+[ Upstream commit 45c92ec32b43c6cb42341ebf07577eefed9d87ec ]
 
-When building with clang when CONFIG_CPU_LOONGSON3_WORKAROUNDS is
-enabled:
+We missed adding the TGL_HDMI quirk which is very much needed to
+expose the 4 display pipelines and will be required on TGL topologies.
 
- In file included from lib/errseq.c:4:
- In file included from ./include/linux/atomic.h:7:
- ./arch/mips/include/asm/atomic.h:52:1: warning: converting the result of
- '<<' to a boolean always evaluates to true
- [-Wtautological-constant-compare]
- ATOMIC_OPS(atomic64, s64)
- ^
- ./arch/mips/include/asm/atomic.h:40:9: note: expanded from macro
- 'ATOMIC_OPS'
-         return cmpxchg(&v->counter, o, n);
-                ^
- ./arch/mips/include/asm/cmpxchg.h:194:7: note: expanded from macro
- 'cmpxchg'
-         if (!__SYNC_loongson3_war)
-              ^
- ./arch/mips/include/asm/sync.h:147:34: note: expanded from macro
- '__SYNC_loongson3_war'
- # define __SYNC_loongson3_war   (1 << 31)
-                                    ^
-
-While it is not wrong that the result of this shift is always true in a
-boolean context, it is not a problem here. Regardless, the warning is
-really noisy so rather than making the shift a boolean implicitly, use
-it in an equality comparison so the shift is used as an integer value.
-
-Fixes: 4d1dbfe6cbec ("MIPS: atomic: Emit Loongson3 sync workarounds within asm")
-Fixes: a91f2a1dba44 ("MIPS: cmpxchg: Omit redundant barriers for Loongson3")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 488cdbd8931fe ('ASoC: Intel: sof_sdw: add quirk for new TigerLake-SDCA device')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20210204203312.27112-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/atomic.h  | 2 +-
- arch/mips/include/asm/cmpxchg.h | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/atomic.h b/arch/mips/include/asm/atomic.h
-index f904084fcb1fd..27ad767915390 100644
---- a/arch/mips/include/asm/atomic.h
-+++ b/arch/mips/include/asm/atomic.h
-@@ -248,7 +248,7 @@ static __inline__ int pfx##_sub_if_positive(type i, pfx##_t * v)	\
- 	 * bltz that can branch	to code outside of the LL/SC loop. As	\
- 	 * such, we don't need to emit another barrier here.		\
- 	 */								\
--	if (!__SYNC_loongson3_war)					\
-+	if (__SYNC_loongson3_war == 0)					\
- 		smp_mb__after_atomic();					\
- 									\
- 	return result;							\
-diff --git a/arch/mips/include/asm/cmpxchg.h b/arch/mips/include/asm/cmpxchg.h
-index 5b0b3a6777ea5..ed8f3f3c4304a 100644
---- a/arch/mips/include/asm/cmpxchg.h
-+++ b/arch/mips/include/asm/cmpxchg.h
-@@ -99,7 +99,7 @@ unsigned long __xchg(volatile void *ptr, unsigned long x, int size)
- 	 * contains a completion barrier prior to the LL, so we don't	\
- 	 * need to emit an extra one here.				\
- 	 */								\
--	if (!__SYNC_loongson3_war)					\
-+	if (__SYNC_loongson3_war == 0)					\
- 		smp_mb__before_llsc();					\
- 									\
- 	__res = (__typeof__(*(ptr)))					\
-@@ -191,7 +191,7 @@ unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
- 	 * contains a completion barrier prior to the LL, so we don't	\
- 	 * need to emit an extra one here.				\
- 	 */								\
--	if (!__SYNC_loongson3_war)					\
-+	if (__SYNC_loongson3_war == 0)					\
- 		smp_mb__before_llsc();					\
- 									\
- 	__res = cmpxchg_local((ptr), (old), (new));			\
-@@ -201,7 +201,7 @@ unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
- 	 * contains a completion barrier after the SC, so we don't	\
- 	 * need to emit an extra one here.				\
- 	 */								\
--	if (!__SYNC_loongson3_war)					\
-+	if (__SYNC_loongson3_war == 0)					\
- 		smp_llsc_mb();						\
- 									\
- 	__res;								\
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 29b6bba3d4257..afdc336ec9bf5 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -54,7 +54,8 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc"),
+ 			DMI_EXACT_MATCH(DMI_PRODUCT_SKU, "0A32")
+ 		},
+-		.driver_data = (void *)(SOF_RT711_JD_SRC_JD2 |
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_RT711_JD_SRC_JD2 |
+ 					SOF_RT715_DAI_ID_FIX |
+ 					SOF_SDW_FOUR_SPK),
+ 	},
 -- 
 2.27.0
 
