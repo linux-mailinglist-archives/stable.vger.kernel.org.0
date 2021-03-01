@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8969328DB2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:17:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4E5328E46
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235522AbhCATPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:15:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
+        id S241588AbhCAT1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:27:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238401AbhCATKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:10:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF10D64E46;
-        Mon,  1 Mar 2021 17:13:11 +0000 (UTC)
+        id S241552AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:24:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B2BE64DED;
+        Mon,  1 Mar 2021 17:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618792;
-        bh=XCtq2cJj6+p7gcdRotFnrT0sx5hq0c2HzNl+lGG18TI=;
+        s=korg; t=1614620859;
+        bh=eCYmHukBaD3Mmz+JfEzIQKfcTJC9IGGpJqg0KxGywGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GiXIEm0KWpfFhkjIYbp9vaqsd8GNZ/c7ZDe/Vt7FgIev8UUsCz6EtODGTnm+kerDt
-         q0t65gHY+mESmSQf6N4KP4k4gF4xWuSO+PvAVuAt7mZWvjIObYocFXQfqF6R7bhE30
-         dcaRfG6FclyOj4OHz9Cfeg4I6+RdRyh3N+mLkdnE=
+        b=1fw5RE7yesZ2Fnlb7D8jRrkSDajdo0PvtuQg9vU6g+0tF5se1dR5iKu0waK/jkEM1
+         fKN3EIMQU80Wyh5IwoSp9rDKuPA6u+TBAI2zp/r8bZSknYboh2olGbzz8LNCp9eg9C
+         vPZgr9T0ApitghGDwWkzTx/25jVDg8KJq1/CC68s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juan Vazquez <juvazq@microsoft.com>,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 218/663] Drivers: hv: vmbus: Avoid use-after-free in vmbus_onoffer_rescind()
+        stable@vger.kernel.org, Wang ShaoBo <bobo.shaobowang@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 298/775] ubifs: Fix error return code in alloc_wbufs()
 Date:   Mon,  1 Mar 2021 17:07:46 +0100
-Message-Id: <20210301161152.580518280@linuxfoundation.org>
+Message-Id: <20210301161216.352028497@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+From: Wang ShaoBo <bobo.shaobowang@huawei.com>
 
-[ Upstream commit e3fa4b747f085d2cda09bba0533b86fa76038635 ]
+[ Upstream commit 42119dbe571eb419dae99b81dd20fa42f47464e1 ]
 
-When channel->device_obj is non-NULL, vmbus_onoffer_rescind() could
-invoke put_device(), that will eventually release the device and free
-the channel object (cf. vmbus_device_release()).  However, a pointer
-to the object is dereferenced again later to load the primary_channel.
-The use-after-free can be avoided by noticing that this load/check is
-redundant if device_obj is non-NULL: primary_channel must be NULL if
-device_obj is non-NULL, cf. vmbus_add_channel_work().
+Fix to return PTR_ERR() error code from the error handling case instead
+fo 0 in function alloc_wbufs(), as done elsewhere in this function.
 
-Fixes: 54a66265d6754b ("Drivers: hv: vmbus: Fix rescind handling")
-Reported-by: Juan Vazquez <juvazq@microsoft.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20201209070827.29335-5-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 6a98bc4614de ("ubifs: Add authentication nodes to journal")
+Signed-off-by: Wang ShaoBo <bobo.shaobowang@huawei.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/ubifs/super.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 1d44bb635bb84..6be9f56cb6270 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -1102,8 +1102,7 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
- 			vmbus_device_unregister(channel->device_obj);
- 			put_device(dev);
- 		}
--	}
--	if (channel->primary_channel != NULL) {
-+	} else if (channel->primary_channel != NULL) {
- 		/*
- 		 * Sub-channel is being rescinded. Following is the channel
- 		 * close sequence when initiated from the driveri (refer to
+diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
+index 138b9426c6c18..ddb2ca636c93d 100644
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -838,8 +838,10 @@ static int alloc_wbufs(struct ubifs_info *c)
+ 		c->jheads[i].wbuf.jhead = i;
+ 		c->jheads[i].grouped = 1;
+ 		c->jheads[i].log_hash = ubifs_hash_get_desc(c);
+-		if (IS_ERR(c->jheads[i].log_hash))
++		if (IS_ERR(c->jheads[i].log_hash)) {
++			err = PTR_ERR(c->jheads[i].log_hash);
+ 			goto out;
++		}
+ 	}
+ 
+ 	/*
 -- 
 2.27.0
 
