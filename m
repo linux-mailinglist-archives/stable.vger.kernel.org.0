@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C580D328447
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A53E32853D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232847AbhCAQc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:32:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60808 "EHLO mail.kernel.org"
+        id S235316AbhCAQv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:51:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234583AbhCAQ1C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:27:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E97F364EE6;
-        Mon,  1 Mar 2021 16:22:18 +0000 (UTC)
+        id S235300AbhCAQnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:43:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 588DF64F4A;
+        Mon,  1 Mar 2021 16:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615739;
-        bh=ZkhmouR1ABSL6l5Si2Cvofoh3fwpuQsyR/9RV4khVRU=;
+        s=korg; t=1614616204;
+        bh=b3oRAKSxoYIMcb3tTe7J/dQcxTsgWB3yNv0wQQXamek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xj8hUZWcBlFHs+Qf/ELegFYowkbYam0AOQv0zc6CyE3vXdDjfhkPG9TIpK9Saj2yH
-         XAQrXF5GONa2JZrtCNReTRzLI0gDwRTlmotG/lrqRtU945/KLuauQL3+sLQG2jYA5I
-         qdXTf9b3c4pXhlYZeNktg+KAN5Sj4A19r1RHMfBs=
+        b=hbppT7iE8BUYspxKBZQHvPPTTBgva1juHWpJkUYdDZfyqWwccxwP6Wt7eZ744/euo
+         Ej6dqdjiFQTKb6HNVwiOABAlUply7Fj2ANiSTmE5CqV+xikkqTLOeffK2r0msoT27o
+         iB9xFdLeSihn5Y0V9e9g3VjuhicbOak+sNScyJYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 043/134] ata: ahci_brcm: Add back regulators management
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 071/176] HID: core: detect and skip invalid inputs to snto32()
 Date:   Mon,  1 Mar 2021 17:12:24 +0100
-Message-Id: <20210301161015.692041996@linuxfoundation.org>
+Message-Id: <20210301161024.488925964@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 10340f8d7b6dd54e616339c8ccb2f397133ebea0 ]
+[ Upstream commit a0312af1f94d13800e63a7d0a66e563582e39aec ]
 
-While reworking the resources management and departing from using
-ahci_platform_enable_resources() which did not allow a proper step
-separation like we need, we unfortunately lost the ability to control
-AHCI regulators. This broke some Broadcom STB systems that do expect
-regulators to be turned on to link up with attached hard drives.
+Prevent invalid (0, 0) inputs to hid-core's snto32() function.
 
-Fixes: c0cdf2ac4b5b ("ata: ahci_brcm: Fix AHCI resources management")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Maybe it is just the dummy device here that is causing this, but
+there are hundreds of calls to snto32(0, 0). Having n (bits count)
+of 0 is causing the current UBSAN trap with a shift value of
+0xffffffff (-1, or n - 1 in this function).
+
+Either of the value to shift being 0 or the bits count being 0 can be
+handled by just returning 0 to the caller, avoiding the following
+complex shift + OR operations:
+
+	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
+
+Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci_brcm.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
-index f50a76ad63e4a..8354f2de37c31 100644
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -285,6 +285,10 @@ static int brcm_ahci_resume(struct device *dev)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index fe4e889af0090..71ee1267d2efc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1129,6 +1129,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);
  
-+	ret = ahci_platform_enable_regulators(hpriv);
-+	if (ret)
-+		goto out_disable_clks;
+ static s32 snto32(__u32 value, unsigned n)
+ {
++	if (!value || !n)
++		return 0;
 +
- 	brcm_sata_init(priv);
- 	brcm_sata_phys_enable(priv);
- 	brcm_sata_alpm_init(hpriv);
-@@ -314,6 +318,8 @@ out_disable_platform_phys:
- 	ahci_platform_disable_phys(hpriv);
- out_disable_phys:
- 	brcm_sata_phys_disable(priv);
-+	ahci_platform_disable_regulators(hpriv);
-+out_disable_clks:
- 	ahci_platform_disable_clks(hpriv);
- 	return ret;
- }
-@@ -377,6 +383,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto out_reset;
- 
-+	ret = ahci_platform_enable_regulators(hpriv);
-+	if (ret)
-+		goto out_disable_clks;
-+
- 	/* Must be first so as to configure endianness including that
- 	 * of the standard AHCI register space.
- 	 */
-@@ -386,7 +396,7 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 	priv->port_mask = brcm_ahci_get_portmask(hpriv, priv);
- 	if (!priv->port_mask) {
- 		ret = -ENODEV;
--		goto out_disable_clks;
-+		goto out_disable_regulators;
- 	}
- 
- 	/* Must be done before ahci_platform_enable_phys() */
-@@ -417,6 +427,8 @@ out_disable_platform_phys:
- 	ahci_platform_disable_phys(hpriv);
- out_disable_phys:
- 	brcm_sata_phys_disable(priv);
-+out_disable_regulators:
-+	ahci_platform_disable_regulators(hpriv);
- out_disable_clks:
- 	ahci_platform_disable_clks(hpriv);
- out_reset:
+ 	switch (n) {
+ 	case 8:  return ((__s8)value);
+ 	case 16: return ((__s16)value);
 -- 
 2.27.0
 
