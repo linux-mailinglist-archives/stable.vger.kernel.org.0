@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 412C6329217
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63B8C32921B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243644AbhCAUit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:38:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50698 "EHLO mail.kernel.org"
+        id S243651AbhCAUiu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:38:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243391AbhCAUcb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:32:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C59AB64FA0;
-        Mon,  1 Mar 2021 18:08:59 +0000 (UTC)
+        id S243417AbhCAUcz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:32:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70D2D64DFB;
+        Mon,  1 Mar 2021 18:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622140;
-        bh=7LQG+VlbBN9ppfU/hm8OQV9akWbmzvEpmnPaE7ab0Ig=;
+        s=korg; t=1614622143;
+        bh=Vp5984YNxnqpp3o1+ri9qj1KBG03LESBzURmO0GNqa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oH0QTb3ofUI5tk6PQIrQPd7pUySBcX78vwi6iUzwYQXtQ9MH06JwkvQTAbjViChEF
-         SrTz28CdyLuaudyI2qOoG3HZhTQi0LesKY8zVHco0ttu1ra76djiY+DGoTeGN0NUbt
-         9pYxGmj50Kw+dhBw+Yh3eaIyG2DXMqHMqxVHHmw0=
+        b=q5kkqOtvHKQDUgBn+SGeCbuJhYB7TnKPlsWzl5flB+0YyBGp9EWRcmVcmyxEsbtgv
+         gP90/LllGZYolC9GFJFocX6FNNSkMleDYKYaMyN08cZgnJ+A2iVuSdBzPg3QQ0pClP
+         0623ISodjOxBgnuFXU3mAe0YinwyZAhe9Hda4nV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 772/775] wireguard: queueing: get rid of per-peer ring buffers
-Date:   Mon,  1 Mar 2021 17:15:40 +0100
-Message-Id: <20210301161239.466018861@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 773/775] net: sched: fix police ext initialization
+Date:   Mon,  1 Mar 2021 17:15:41 +0100
+Message-Id: <20210301161239.516477572@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,559 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit 8b5553ace83cced775eefd0f3f18b5c6214ccf7a upstream.
+commit 396d7f23adf9e8c436dd81a69488b5b6a865acf8 upstream.
 
-Having two ring buffers per-peer means that every peer results in two
-massive ring allocations. On an 8-core x86_64 machine, this commit
-reduces the per-peer allocation from 18,688 bytes to 1,856 bytes, which
-is an 90% reduction. Ninety percent! With some single-machine
-deployments approaching 500,000 peers, we're talking about a reduction
-from 7 gigs of memory down to 700 megs of memory.
+When police action is created by cls API tcf_exts_validate() first
+conditional that calls tcf_action_init_1() directly, the action idr is not
+updated according to latest changes in action API that require caller to
+commit newly created action to idr with tcf_idr_insert_many(). This results
+such action not being accessible through act API and causes crash reported
+by syzbot:
 
-In order to get rid of these per-peer allocations, this commit switches
-to using a list-based queueing approach. Currently GSO fragments are
-chained together using the skb->next pointer (the skb_list_* singly
-linked list approach), so we form the per-peer queue around the unused
-skb->prev pointer (which sort of makes sense because the links are
-pointing backwards). Use of skb_queue_* is not possible here, because
-that is based on doubly linked lists and spinlocks. Multiple cores can
-write into the queue at any given time, because its writes occur in the
-start_xmit path or in the udp_recv path. But reads happen in a single
-workqueue item per-peer, amounting to a multi-producer, single-consumer
-paradigm.
+==================================================================
+BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:71 [inline]
+BUG: KASAN: null-ptr-deref in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+BUG: KASAN: null-ptr-deref in __tcf_idr_release net/sched/act_api.c:178 [inline]
+BUG: KASAN: null-ptr-deref in tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+Read of size 4 at addr 0000000000000010 by task kworker/u4:5/204
 
-The MPSC queue is implemented locklessly and never blocks. However, it
-is not linearizable (though it is serializable), with a very tight and
-unlikely race on writes, which, when hit (some tiny fraction of the
-0.15% of partial adds on a fully loaded 16-core x86_64 system), causes
-the queue reader to terminate early. However, because every packet sent
-queues up the same workqueue item after it is fully added, the worker
-resumes again, and stopping early isn't actually a problem, since at
-that point the packet wouldn't have yet been added to the encryption
-queue. These properties allow us to avoid disabling interrupts or
-spinning. The design is based on Dmitry Vyukov's algorithm [1].
+CPU: 0 PID: 204 Comm: kworker/u4:5 Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ __kasan_report mm/kasan/report.c:400 [inline]
+ kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ __tcf_idr_release net/sched/act_api.c:178 [inline]
+ tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+ tc_action_net_exit include/net/act_api.h:151 [inline]
+ police_exit_net+0x168/0x360 net/sched/act_police.c:390
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
+ cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
+ process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+==================================================================
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 204 Comm: kworker/u4:5 Tainted: G    B             5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ panic+0x306/0x73d kernel/panic.c:231
+ end_report+0x58/0x5e mm/kasan/report.c:100
+ __kasan_report mm/kasan/report.c:403 [inline]
+ kasan_report.cold+0x67/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ __tcf_idr_release net/sched/act_api.c:178 [inline]
+ tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+ tc_action_net_exit include/net/act_api.h:151 [inline]
+ police_exit_net+0x168/0x360 net/sched/act_police.c:390
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
+ cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
+ process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+Kernel Offset: disabled
 
-Performance-wise, ordinarily list-based queues aren't preferable to
-ringbuffers, because of cache misses when following pointers around.
-However, we *already* have to follow the adjacent pointers when working
-through fragments, so there shouldn't actually be any change there. A
-potential downside is that dequeueing is a bit more complicated, but the
-ptr_ring structure used prior had a spinlock when dequeueing, so all and
-all the difference appears to be a wash.
+Fix the issue by calling tcf_idr_insert_many() after successful action
+initialization.
 
-Actually, from profiling, the biggest performance hit, by far, of this
-commit winds up being atomic_add_unless(count, 1, max) and atomic_
-dec(count), which account for the majority of CPU time, according to
-perf. In that sense, the previous ring buffer was superior in that it
-could check if it was full by head==tail, which the list-based approach
-cannot do.
-
-But all and all, this enables us to get massive memory savings, allowing
-WireGuard to scale for real world deployments, without taking much of a
-performance hit.
-
-[1] http://www.1024cores.net/home/lock-free-algorithms/queues/intrusive-mpsc-node-based-queue
-
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Reviewed-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 0fedc63fadf0 ("net_sched: commit action insertions together")
+Reported-by: syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/device.c   |   12 ++---
- drivers/net/wireguard/device.h   |   15 +++---
- drivers/net/wireguard/peer.c     |   28 ++++--------
- drivers/net/wireguard/peer.h     |    4 -
- drivers/net/wireguard/queueing.c |   86 +++++++++++++++++++++++++++++++--------
- drivers/net/wireguard/queueing.h |   45 ++++++++++++++------
- drivers/net/wireguard/receive.c  |   16 ++-----
- drivers/net/wireguard/send.c     |   31 ++++----------
- 8 files changed, 144 insertions(+), 93 deletions(-)
+ include/net/act_api.h |    1 +
+ net/sched/act_api.c   |    2 +-
+ net/sched/cls_api.c   |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -235,8 +235,8 @@ static void wg_destruct(struct net_devic
- 	destroy_workqueue(wg->handshake_receive_wq);
- 	destroy_workqueue(wg->handshake_send_wq);
- 	destroy_workqueue(wg->packet_crypt_wq);
--	wg_packet_queue_free(&wg->decrypt_queue, true);
--	wg_packet_queue_free(&wg->encrypt_queue, true);
-+	wg_packet_queue_free(&wg->decrypt_queue);
-+	wg_packet_queue_free(&wg->encrypt_queue);
- 	rcu_barrier(); /* Wait for all the peers to be actually freed. */
- 	wg_ratelimiter_uninit();
- 	memzero_explicit(&wg->static_identity, sizeof(wg->static_identity));
-@@ -338,12 +338,12 @@ static int wg_newlink(struct net *src_ne
- 		goto err_destroy_handshake_send;
- 
- 	ret = wg_packet_queue_init(&wg->encrypt_queue, wg_packet_encrypt_worker,
--				   true, MAX_QUEUED_PACKETS);
-+				   MAX_QUEUED_PACKETS);
- 	if (ret < 0)
- 		goto err_destroy_packet_crypt;
- 
- 	ret = wg_packet_queue_init(&wg->decrypt_queue, wg_packet_decrypt_worker,
--				   true, MAX_QUEUED_PACKETS);
-+				   MAX_QUEUED_PACKETS);
- 	if (ret < 0)
- 		goto err_free_encrypt_queue;
- 
-@@ -368,9 +368,9 @@ static int wg_newlink(struct net *src_ne
- err_uninit_ratelimiter:
- 	wg_ratelimiter_uninit();
- err_free_decrypt_queue:
--	wg_packet_queue_free(&wg->decrypt_queue, true);
-+	wg_packet_queue_free(&wg->decrypt_queue);
- err_free_encrypt_queue:
--	wg_packet_queue_free(&wg->encrypt_queue, true);
-+	wg_packet_queue_free(&wg->encrypt_queue);
- err_destroy_packet_crypt:
- 	destroy_workqueue(wg->packet_crypt_wq);
- err_destroy_handshake_send:
---- a/drivers/net/wireguard/device.h
-+++ b/drivers/net/wireguard/device.h
-@@ -27,13 +27,14 @@ struct multicore_worker {
- 
- struct crypt_queue {
- 	struct ptr_ring ring;
--	union {
--		struct {
--			struct multicore_worker __percpu *worker;
--			int last_cpu;
--		};
--		struct work_struct work;
--	};
-+	struct multicore_worker __percpu *worker;
-+	int last_cpu;
-+};
-+
-+struct prev_queue {
-+	struct sk_buff *head, *tail, *peeked;
-+	struct { struct sk_buff *next, *prev; } empty; // Match first 2 members of struct sk_buff.
-+	atomic_t count;
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -166,6 +166,7 @@ int tcf_idr_create_from_flags(struct tc_
+ 			      struct nlattr *est, struct tc_action **a,
+ 			      const struct tc_action_ops *ops, int bind,
+ 			      u32 flags);
++void tcf_idr_insert_many(struct tc_action *actions[]);
+ void tcf_idr_cleanup(struct tc_action_net *tn, u32 index);
+ int tcf_idr_check_alloc(struct tc_action_net *tn, u32 *index,
+ 			struct tc_action **a, int bind);
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -908,7 +908,7 @@ static const struct nla_policy tcf_actio
+ 	[TCA_ACT_HW_STATS]	= NLA_POLICY_BITFIELD32(TCA_ACT_HW_STATS_ANY),
  };
  
- struct wg_device {
---- a/drivers/net/wireguard/peer.c
-+++ b/drivers/net/wireguard/peer.c
-@@ -32,27 +32,22 @@ struct wg_peer *wg_peer_create(struct wg
- 	peer = kzalloc(sizeof(*peer), GFP_KERNEL);
- 	if (unlikely(!peer))
- 		return ERR_PTR(ret);
--	peer->device = wg;
-+	if (dst_cache_init(&peer->endpoint_cache, GFP_KERNEL))
-+		goto err;
- 
-+	peer->device = wg;
- 	wg_noise_handshake_init(&peer->handshake, &wg->static_identity,
- 				public_key, preshared_key, peer);
--	if (dst_cache_init(&peer->endpoint_cache, GFP_KERNEL))
--		goto err_1;
--	if (wg_packet_queue_init(&peer->tx_queue, wg_packet_tx_worker, false,
--				 MAX_QUEUED_PACKETS))
--		goto err_2;
--	if (wg_packet_queue_init(&peer->rx_queue, NULL, false,
--				 MAX_QUEUED_PACKETS))
--		goto err_3;
--
- 	peer->internal_id = atomic64_inc_return(&peer_counter);
- 	peer->serial_work_cpu = nr_cpumask_bits;
- 	wg_cookie_init(&peer->latest_cookie);
- 	wg_timers_init(peer);
- 	wg_cookie_checker_precompute_peer_keys(peer);
- 	spin_lock_init(&peer->keypairs.keypair_update_lock);
--	INIT_WORK(&peer->transmit_handshake_work,
--		  wg_packet_handshake_send_worker);
-+	INIT_WORK(&peer->transmit_handshake_work, wg_packet_handshake_send_worker);
-+	INIT_WORK(&peer->transmit_packet_work, wg_packet_tx_worker);
-+	wg_prev_queue_init(&peer->tx_queue);
-+	wg_prev_queue_init(&peer->rx_queue);
- 	rwlock_init(&peer->endpoint_lock);
- 	kref_init(&peer->refcount);
- 	skb_queue_head_init(&peer->staged_packet_queue);
-@@ -68,11 +63,7 @@ struct wg_peer *wg_peer_create(struct wg
- 	pr_debug("%s: Peer %llu created\n", wg->dev->name, peer->internal_id);
- 	return peer;
- 
--err_3:
--	wg_packet_queue_free(&peer->tx_queue, false);
--err_2:
--	dst_cache_destroy(&peer->endpoint_cache);
--err_1:
-+err:
- 	kfree(peer);
- 	return ERR_PTR(ret);
- }
-@@ -197,8 +188,7 @@ static void rcu_release(struct rcu_head
- 	struct wg_peer *peer = container_of(rcu, struct wg_peer, rcu);
- 
- 	dst_cache_destroy(&peer->endpoint_cache);
--	wg_packet_queue_free(&peer->rx_queue, false);
--	wg_packet_queue_free(&peer->tx_queue, false);
-+	WARN_ON(wg_prev_queue_peek(&peer->tx_queue) || wg_prev_queue_peek(&peer->rx_queue));
- 
- 	/* The final zeroing takes care of clearing any remaining handshake key
- 	 * material and other potentially sensitive information.
---- a/drivers/net/wireguard/peer.h
-+++ b/drivers/net/wireguard/peer.h
-@@ -36,7 +36,7 @@ struct endpoint {
- 
- struct wg_peer {
- 	struct wg_device *device;
--	struct crypt_queue tx_queue, rx_queue;
-+	struct prev_queue tx_queue, rx_queue;
- 	struct sk_buff_head staged_packet_queue;
- 	int serial_work_cpu;
- 	struct noise_keypairs keypairs;
-@@ -45,7 +45,7 @@ struct wg_peer {
- 	rwlock_t endpoint_lock;
- 	struct noise_handshake handshake;
- 	atomic64_t last_sent_handshake;
--	struct work_struct transmit_handshake_work, clear_peer_work;
-+	struct work_struct transmit_handshake_work, clear_peer_work, transmit_packet_work;
- 	struct cookie latest_cookie;
- 	struct hlist_node pubkey_hash;
- 	u64 rx_bytes, tx_bytes;
---- a/drivers/net/wireguard/queueing.c
-+++ b/drivers/net/wireguard/queueing.c
-@@ -9,8 +9,7 @@ struct multicore_worker __percpu *
- wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr)
+-static void tcf_idr_insert_many(struct tc_action *actions[])
++void tcf_idr_insert_many(struct tc_action *actions[])
  {
- 	int cpu;
--	struct multicore_worker __percpu *worker =
--		alloc_percpu(struct multicore_worker);
-+	struct multicore_worker __percpu *worker = alloc_percpu(struct multicore_worker);
+ 	int i;
  
- 	if (!worker)
- 		return NULL;
-@@ -23,7 +22,7 @@ wg_packet_percpu_multicore_worker_alloc(
- }
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -3053,6 +3053,7 @@ int tcf_exts_validate(struct net *net, s
+ 			act->type = exts->type = TCA_OLD_COMPAT;
+ 			exts->actions[0] = act;
+ 			exts->nr_actions = 1;
++			tcf_idr_insert_many(exts->actions);
+ 		} else if (exts->action && tb[exts->action]) {
+ 			int err;
  
- int wg_packet_queue_init(struct crypt_queue *queue, work_func_t function,
--			 bool multicore, unsigned int len)
-+			 unsigned int len)
- {
- 	int ret;
- 
-@@ -31,25 +30,78 @@ int wg_packet_queue_init(struct crypt_qu
- 	ret = ptr_ring_init(&queue->ring, len, GFP_KERNEL);
- 	if (ret)
- 		return ret;
--	if (function) {
--		if (multicore) {
--			queue->worker = wg_packet_percpu_multicore_worker_alloc(
--				function, queue);
--			if (!queue->worker) {
--				ptr_ring_cleanup(&queue->ring, NULL);
--				return -ENOMEM;
--			}
--		} else {
--			INIT_WORK(&queue->work, function);
--		}
-+	queue->worker = wg_packet_percpu_multicore_worker_alloc(function, queue);
-+	if (!queue->worker) {
-+		ptr_ring_cleanup(&queue->ring, NULL);
-+		return -ENOMEM;
- 	}
- 	return 0;
- }
- 
--void wg_packet_queue_free(struct crypt_queue *queue, bool multicore)
-+void wg_packet_queue_free(struct crypt_queue *queue)
- {
--	if (multicore)
--		free_percpu(queue->worker);
-+	free_percpu(queue->worker);
- 	WARN_ON(!__ptr_ring_empty(&queue->ring));
- 	ptr_ring_cleanup(&queue->ring, NULL);
- }
-+
-+#define NEXT(skb) ((skb)->prev)
-+#define STUB(queue) ((struct sk_buff *)&queue->empty)
-+
-+void wg_prev_queue_init(struct prev_queue *queue)
-+{
-+	NEXT(STUB(queue)) = NULL;
-+	queue->head = queue->tail = STUB(queue);
-+	queue->peeked = NULL;
-+	atomic_set(&queue->count, 0);
-+	BUILD_BUG_ON(
-+		offsetof(struct sk_buff, next) != offsetof(struct prev_queue, empty.next) -
-+							offsetof(struct prev_queue, empty) ||
-+		offsetof(struct sk_buff, prev) != offsetof(struct prev_queue, empty.prev) -
-+							 offsetof(struct prev_queue, empty));
-+}
-+
-+static void __wg_prev_queue_enqueue(struct prev_queue *queue, struct sk_buff *skb)
-+{
-+	WRITE_ONCE(NEXT(skb), NULL);
-+	WRITE_ONCE(NEXT(xchg_release(&queue->head, skb)), skb);
-+}
-+
-+bool wg_prev_queue_enqueue(struct prev_queue *queue, struct sk_buff *skb)
-+{
-+	if (!atomic_add_unless(&queue->count, 1, MAX_QUEUED_PACKETS))
-+		return false;
-+	__wg_prev_queue_enqueue(queue, skb);
-+	return true;
-+}
-+
-+struct sk_buff *wg_prev_queue_dequeue(struct prev_queue *queue)
-+{
-+	struct sk_buff *tail = queue->tail, *next = smp_load_acquire(&NEXT(tail));
-+
-+	if (tail == STUB(queue)) {
-+		if (!next)
-+			return NULL;
-+		queue->tail = next;
-+		tail = next;
-+		next = smp_load_acquire(&NEXT(next));
-+	}
-+	if (next) {
-+		queue->tail = next;
-+		atomic_dec(&queue->count);
-+		return tail;
-+	}
-+	if (tail != READ_ONCE(queue->head))
-+		return NULL;
-+	__wg_prev_queue_enqueue(queue, STUB(queue));
-+	next = smp_load_acquire(&NEXT(tail));
-+	if (next) {
-+		queue->tail = next;
-+		atomic_dec(&queue->count);
-+		return tail;
-+	}
-+	return NULL;
-+}
-+
-+#undef NEXT
-+#undef STUB
---- a/drivers/net/wireguard/queueing.h
-+++ b/drivers/net/wireguard/queueing.h
-@@ -17,12 +17,13 @@ struct wg_device;
- struct wg_peer;
- struct multicore_worker;
- struct crypt_queue;
-+struct prev_queue;
- struct sk_buff;
- 
- /* queueing.c APIs: */
- int wg_packet_queue_init(struct crypt_queue *queue, work_func_t function,
--			 bool multicore, unsigned int len);
--void wg_packet_queue_free(struct crypt_queue *queue, bool multicore);
-+			 unsigned int len);
-+void wg_packet_queue_free(struct crypt_queue *queue);
- struct multicore_worker __percpu *
- wg_packet_percpu_multicore_worker_alloc(work_func_t function, void *ptr);
- 
-@@ -135,8 +136,31 @@ static inline int wg_cpumask_next_online
- 	return cpu;
- }
- 
-+void wg_prev_queue_init(struct prev_queue *queue);
-+
-+/* Multi producer */
-+bool wg_prev_queue_enqueue(struct prev_queue *queue, struct sk_buff *skb);
-+
-+/* Single consumer */
-+struct sk_buff *wg_prev_queue_dequeue(struct prev_queue *queue);
-+
-+/* Single consumer */
-+static inline struct sk_buff *wg_prev_queue_peek(struct prev_queue *queue)
-+{
-+	if (queue->peeked)
-+		return queue->peeked;
-+	queue->peeked = wg_prev_queue_dequeue(queue);
-+	return queue->peeked;
-+}
-+
-+/* Single consumer */
-+static inline void wg_prev_queue_drop_peeked(struct prev_queue *queue)
-+{
-+	queue->peeked = NULL;
-+}
-+
- static inline int wg_queue_enqueue_per_device_and_peer(
--	struct crypt_queue *device_queue, struct crypt_queue *peer_queue,
-+	struct crypt_queue *device_queue, struct prev_queue *peer_queue,
- 	struct sk_buff *skb, struct workqueue_struct *wq, int *next_cpu)
- {
- 	int cpu;
-@@ -145,8 +169,9 @@ static inline int wg_queue_enqueue_per_d
- 	/* We first queue this up for the peer ingestion, but the consumer
- 	 * will wait for the state to change to CRYPTED or DEAD before.
- 	 */
--	if (unlikely(ptr_ring_produce_bh(&peer_queue->ring, skb)))
-+	if (unlikely(!wg_prev_queue_enqueue(peer_queue, skb)))
- 		return -ENOSPC;
-+
- 	/* Then we queue it up in the device queue, which consumes the
- 	 * packet as soon as it can.
- 	 */
-@@ -157,9 +182,7 @@ static inline int wg_queue_enqueue_per_d
- 	return 0;
- }
- 
--static inline void wg_queue_enqueue_per_peer(struct crypt_queue *queue,
--					     struct sk_buff *skb,
--					     enum packet_state state)
-+static inline void wg_queue_enqueue_per_peer_tx(struct sk_buff *skb, enum packet_state state)
- {
- 	/* We take a reference, because as soon as we call atomic_set, the
- 	 * peer can be freed from below us.
-@@ -167,14 +190,12 @@ static inline void wg_queue_enqueue_per_
- 	struct wg_peer *peer = wg_peer_get(PACKET_PEER(skb));
- 
- 	atomic_set_release(&PACKET_CB(skb)->state, state);
--	queue_work_on(wg_cpumask_choose_online(&peer->serial_work_cpu,
--					       peer->internal_id),
--		      peer->device->packet_crypt_wq, &queue->work);
-+	queue_work_on(wg_cpumask_choose_online(&peer->serial_work_cpu, peer->internal_id),
-+		      peer->device->packet_crypt_wq, &peer->transmit_packet_work);
- 	wg_peer_put(peer);
- }
- 
--static inline void wg_queue_enqueue_per_peer_napi(struct sk_buff *skb,
--						  enum packet_state state)
-+static inline void wg_queue_enqueue_per_peer_rx(struct sk_buff *skb, enum packet_state state)
- {
- 	/* We take a reference, because as soon as we call atomic_set, the
- 	 * peer can be freed from below us.
---- a/drivers/net/wireguard/receive.c
-+++ b/drivers/net/wireguard/receive.c
-@@ -444,7 +444,6 @@ packet_processed:
- int wg_packet_rx_poll(struct napi_struct *napi, int budget)
- {
- 	struct wg_peer *peer = container_of(napi, struct wg_peer, napi);
--	struct crypt_queue *queue = &peer->rx_queue;
- 	struct noise_keypair *keypair;
- 	struct endpoint endpoint;
- 	enum packet_state state;
-@@ -455,11 +454,10 @@ int wg_packet_rx_poll(struct napi_struct
- 	if (unlikely(budget <= 0))
- 		return 0;
- 
--	while ((skb = __ptr_ring_peek(&queue->ring)) != NULL &&
-+	while ((skb = wg_prev_queue_peek(&peer->rx_queue)) != NULL &&
- 	       (state = atomic_read_acquire(&PACKET_CB(skb)->state)) !=
- 		       PACKET_STATE_UNCRYPTED) {
--		__ptr_ring_discard_one(&queue->ring);
--		peer = PACKET_PEER(skb);
-+		wg_prev_queue_drop_peeked(&peer->rx_queue);
- 		keypair = PACKET_CB(skb)->keypair;
- 		free = true;
- 
-@@ -508,7 +506,7 @@ void wg_packet_decrypt_worker(struct wor
- 		enum packet_state state =
- 			likely(decrypt_packet(skb, PACKET_CB(skb)->keypair)) ?
- 				PACKET_STATE_CRYPTED : PACKET_STATE_DEAD;
--		wg_queue_enqueue_per_peer_napi(skb, state);
-+		wg_queue_enqueue_per_peer_rx(skb, state);
- 		if (need_resched())
- 			cond_resched();
- 	}
-@@ -531,12 +529,10 @@ static void wg_packet_consume_data(struc
- 	if (unlikely(READ_ONCE(peer->is_dead)))
- 		goto err;
- 
--	ret = wg_queue_enqueue_per_device_and_peer(&wg->decrypt_queue,
--						   &peer->rx_queue, skb,
--						   wg->packet_crypt_wq,
--						   &wg->decrypt_queue.last_cpu);
-+	ret = wg_queue_enqueue_per_device_and_peer(&wg->decrypt_queue, &peer->rx_queue, skb,
-+						   wg->packet_crypt_wq, &wg->decrypt_queue.last_cpu);
- 	if (unlikely(ret == -EPIPE))
--		wg_queue_enqueue_per_peer_napi(skb, PACKET_STATE_DEAD);
-+		wg_queue_enqueue_per_peer_rx(skb, PACKET_STATE_DEAD);
- 	if (likely(!ret || ret == -EPIPE)) {
- 		rcu_read_unlock_bh();
- 		return;
---- a/drivers/net/wireguard/send.c
-+++ b/drivers/net/wireguard/send.c
-@@ -239,8 +239,7 @@ void wg_packet_send_keepalive(struct wg_
- 	wg_packet_send_staged_packets(peer);
- }
- 
--static void wg_packet_create_data_done(struct sk_buff *first,
--				       struct wg_peer *peer)
-+static void wg_packet_create_data_done(struct wg_peer *peer, struct sk_buff *first)
- {
- 	struct sk_buff *skb, *next;
- 	bool is_keepalive, data_sent = false;
-@@ -262,22 +261,19 @@ static void wg_packet_create_data_done(s
- 
- void wg_packet_tx_worker(struct work_struct *work)
- {
--	struct crypt_queue *queue = container_of(work, struct crypt_queue,
--						 work);
-+	struct wg_peer *peer = container_of(work, struct wg_peer, transmit_packet_work);
- 	struct noise_keypair *keypair;
- 	enum packet_state state;
- 	struct sk_buff *first;
--	struct wg_peer *peer;
- 
--	while ((first = __ptr_ring_peek(&queue->ring)) != NULL &&
-+	while ((first = wg_prev_queue_peek(&peer->tx_queue)) != NULL &&
- 	       (state = atomic_read_acquire(&PACKET_CB(first)->state)) !=
- 		       PACKET_STATE_UNCRYPTED) {
--		__ptr_ring_discard_one(&queue->ring);
--		peer = PACKET_PEER(first);
-+		wg_prev_queue_drop_peeked(&peer->tx_queue);
- 		keypair = PACKET_CB(first)->keypair;
- 
- 		if (likely(state == PACKET_STATE_CRYPTED))
--			wg_packet_create_data_done(first, peer);
-+			wg_packet_create_data_done(peer, first);
- 		else
- 			kfree_skb_list(first);
- 
-@@ -306,16 +302,14 @@ void wg_packet_encrypt_worker(struct wor
- 				break;
- 			}
- 		}
--		wg_queue_enqueue_per_peer(&PACKET_PEER(first)->tx_queue, first,
--					  state);
-+		wg_queue_enqueue_per_peer_tx(first, state);
- 		if (need_resched())
- 			cond_resched();
- 	}
- }
- 
--static void wg_packet_create_data(struct sk_buff *first)
-+static void wg_packet_create_data(struct wg_peer *peer, struct sk_buff *first)
- {
--	struct wg_peer *peer = PACKET_PEER(first);
- 	struct wg_device *wg = peer->device;
- 	int ret = -EINVAL;
- 
-@@ -323,13 +317,10 @@ static void wg_packet_create_data(struct
- 	if (unlikely(READ_ONCE(peer->is_dead)))
- 		goto err;
- 
--	ret = wg_queue_enqueue_per_device_and_peer(&wg->encrypt_queue,
--						   &peer->tx_queue, first,
--						   wg->packet_crypt_wq,
--						   &wg->encrypt_queue.last_cpu);
-+	ret = wg_queue_enqueue_per_device_and_peer(&wg->encrypt_queue, &peer->tx_queue, first,
-+						   wg->packet_crypt_wq, &wg->encrypt_queue.last_cpu);
- 	if (unlikely(ret == -EPIPE))
--		wg_queue_enqueue_per_peer(&peer->tx_queue, first,
--					  PACKET_STATE_DEAD);
-+		wg_queue_enqueue_per_peer_tx(first, PACKET_STATE_DEAD);
- err:
- 	rcu_read_unlock_bh();
- 	if (likely(!ret || ret == -EPIPE))
-@@ -393,7 +384,7 @@ void wg_packet_send_staged_packets(struc
- 	packets.prev->next = NULL;
- 	wg_peer_get(keypair->entry.peer);
- 	PACKET_CB(packets.next)->keypair = keypair;
--	wg_packet_create_data(packets.next);
-+	wg_packet_create_data(peer, packets.next);
- 	return;
- 
- out_invalid:
 
 
