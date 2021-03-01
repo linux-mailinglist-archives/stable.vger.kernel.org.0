@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D3F3285AC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9DC7328498
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235982AbhCAQ4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:56:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50418 "EHLO mail.kernel.org"
+        id S234673AbhCAQiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:38:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235739AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:49:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A83E64F14;
-        Mon,  1 Mar 2021 16:32:30 +0000 (UTC)
+        id S232663AbhCAQc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:32:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F55C64F2B;
+        Mon,  1 Mar 2021 16:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616351;
-        bh=RsbPo0XyIseqr+G8QIRElmcAco+518rnGF0zBeON3Zs=;
+        s=korg; t=1614615884;
+        bh=ymdq+xzvkAsE44SwFhAffqL61NBddWlAT9+XphAUN6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqqdhvCzt8SDMqM/kpUzilV1s1qF6CmewZbpvAHe4vd62KU9KZnPveUeKI9gYV2bi
-         BrGyffOM2K35FcVQNj30pOcxGfnMk1G2tJRlhgbJf7xAYcaTTmmrRimxx+j91fT3Am
-         O32ABUcb9LUrfMw2qU6rykXq/2fba70SlDVBa4G8=
+        b=b2jUijpfYQ3zMeXRT4ItgIKzLO6957J+0mga7uLXZBmZXmXsm8B++1xvhSYuPrF5z
+         qKSJ4gGBEl4FbMCHjiI+TA5fmge6VWoX+aN2SoRFaGLcmt3rd32aSYs8exaOjc808H
+         PWFWjLaX7h0EL0Vi3BTRUoD7OGFU+7zDVrOSAQPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.14 121/176] blk-settings: align max_sectors on "logical_block_size" boundary
-Date:   Mon,  1 Mar 2021 17:13:14 +0100
-Message-Id: <20210301161026.995476833@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ludvig Norgren Guldhag <ludvigng@gmail.com>,
+        Marcos Paulo de Souza <mpdesouza@suse.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 094/134] Input: i8042 - add ASUS Zenbook Flip to noselftest list
+Date:   Mon,  1 Mar 2021 17:13:15 +0100
+Message-Id: <20210301161018.197046759@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Marcos Paulo de Souza <mpdesouza@suse.com>
 
-commit 97f433c3601a24d3513d06f575a389a2ca4e11e4 upstream.
+commit b5d6e7ab7fe7d186878142e9fc1a05e4c3b65eb9 upstream.
 
-We get I/O errors when we run md-raid1 on the top of dm-integrity on the
-top of ramdisk.
-device-mapper: integrity: Bio not aligned on 8 sectors: 0xff00, 0xff
-device-mapper: integrity: Bio not aligned on 8 sectors: 0xff00, 0xff
-device-mapper: integrity: Bio not aligned on 8 sectors: 0xffff, 0x1
-device-mapper: integrity: Bio not aligned on 8 sectors: 0xffff, 0x1
-device-mapper: integrity: Bio not aligned on 8 sectors: 0x8048, 0xff
-device-mapper: integrity: Bio not aligned on 8 sectors: 0x8147, 0xff
-device-mapper: integrity: Bio not aligned on 8 sectors: 0x8246, 0xff
-device-mapper: integrity: Bio not aligned on 8 sectors: 0x8345, 0xbb
+After commit 77b425399f6d ("Input: i8042 - use chassis info to skip
+selftest on Asus laptops"), all modern Asus laptops have the i8042
+selftest disabled. It has done by using chassys type "10" (laptop).
 
-The ramdisk device has logical_block_size 512 and max_sectors 255. The
-dm-integrity device uses logical_block_size 4096 and it doesn't affect the
-"max_sectors" value - thus, it inherits 255 from the ramdisk. So, we have
-a device with max_sectors not aligned on logical_block_size.
+The Asus Zenbook Flip suffers from similar suspend/resume issues, but
+it _sometimes_ work and sometimes it doesn't. Setting noselftest makes
+it work reliably. In this case, we need to add chassis type "31"
+(convertible) in order to avoid selftest in this device.
 
-The md-raid device sees that the underlying leg has max_sectors 255 and it
-will split the bios on 255-sector boundary, making the bios unaligned on
-logical_block_size.
-
-In order to fix the bug, we round down max_sectors to logical_block_size.
-
+Reported-by: Ludvig Norgren Guldhag <ludvigng@gmail.com>
+Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
+Link: https://lore.kernel.org/r/20210219164638.761-1-mpdesouza@suse.com
 Cc: stable@vger.kernel.org
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-settings.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/block/blk-settings.c
-+++ b/block/blk-settings.c
-@@ -513,6 +513,14 @@ void blk_queue_io_opt(struct request_que
- }
- EXPORT_SYMBOL(blk_queue_io_opt);
- 
-+static unsigned int blk_round_down_sectors(unsigned int sectors, unsigned int lbs)
-+{
-+	sectors = round_down(sectors, lbs >> SECTOR_SHIFT);
-+	if (sectors < PAGE_SIZE >> SECTOR_SHIFT)
-+		sectors = PAGE_SIZE >> SECTOR_SHIFT;
-+	return sectors;
-+}
-+
- /**
-  * blk_queue_stack_limits - inherit underlying queue limits for stacked drivers
-  * @t:	the stacking driver (top)
-@@ -639,6 +647,10 @@ int blk_stack_limits(struct queue_limits
- 		ret = -1;
- 	}
- 
-+	t->max_sectors = blk_round_down_sectors(t->max_sectors, t->logical_block_size);
-+	t->max_hw_sectors = blk_round_down_sectors(t->max_hw_sectors, t->logical_block_size);
-+	t->max_dev_sectors = blk_round_down_sectors(t->max_dev_sectors, t->logical_block_size);
-+
- 	/* Discard alignment and granularity */
- 	if (b->discard_granularity) {
- 		alignment = queue_limit_discard_alignment(b, start);
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -579,6 +579,10 @@ static const struct dmi_system_id i8042_
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
+ 		},
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
++		},
+ 	},
+ 	{ }
+ };
 
 
