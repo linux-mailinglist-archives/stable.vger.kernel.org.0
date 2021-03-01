@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0538328A9B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D27A8328B10
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239589AbhCASUB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:20:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34234 "EHLO mail.kernel.org"
+        id S239925AbhCAS16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239291AbhCASOL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:14:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6872A65125;
-        Mon,  1 Mar 2021 17:03:06 +0000 (UTC)
+        id S239729AbhCASWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:22:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3BED65094;
+        Mon,  1 Mar 2021 17:32:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618187;
-        bh=9LRu77Qa14saVp8Myqa9XX9jUSJL92s4Mb8pKr9mnww=;
+        s=korg; t=1614619933;
+        bh=F3uOmjDRirqlt+F07n7sLAB9NP0IpsyjcYsORllsl2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3LYrRBmvAKlqdEY2nNCYwWkouSdYjCG6OAEaXVHUH7Z3uV8JhrXQ8E3GfvtZLu3W
-         IODd4n5UXOXFueYK706nhrUcD1C3fYcHwv0NIq5f/jqNN5UIygL7P1pGNj6ys/R3ZA
-         EG4NkHkfKt3UJkBMl9ESzWBE4asNvS4kRbka0I+U=
+        b=h9xwSNnhKHCr6WULCHUr/qy4cVbsqGtktCAawKJl7wUsbWQ76e/jP+9fWAeqquolv
+         nXb0r7k1WeP7cgq2VZKKWQEaOTbI6mX/KHGiE9Zelxjwtw+2lcqlhlzLpnk6gJlE3c
+         CByYbAEbaYvu8dGo+RU3Hwe+2NPpf+zhmgAk+XjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com,
-        Vlad Buslov <vladbu@nvidia.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
+        stable@vger.kernel.org, stable@kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 338/340] net: sched: fix police ext initialization
+Subject: [PATCH 5.10 634/663] sparc32: fix a user-triggerable oops in clear_user()
 Date:   Mon,  1 Mar 2021 17:14:42 +0100
-Message-Id: <20210301161104.928637408@linuxfoundation.org>
+Message-Id: <20210301161213.222909107@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,119 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 396d7f23adf9e8c436dd81a69488b5b6a865acf8 upstream.
+commit 7780918b36489f0b2f9a3749d7be00c2ceaec513 upstream.
 
-When police action is created by cls API tcf_exts_validate() first
-conditional that calls tcf_action_init_1() directly, the action idr is not
-updated according to latest changes in action API that require caller to
-commit newly created action to idr with tcf_idr_insert_many(). This results
-such action not being accessible through act API and causes crash reported
-by syzbot:
+Back in 2.1.29 the clear_user() guts (__bzero()) had been merged
+with memset().  Unfortunately, while all exception handlers had been
+copied, one of the exception table entries got lost.  As the result,
+clear_user() starting at 128*n bytes before the end of page and
+spanning between 8 and 127 bytes into the next page would oops when
+the second page is unmapped.  It's trivial to reproduce - all
+it takes is
 
-==================================================================
-BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:71 [inline]
-BUG: KASAN: null-ptr-deref in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
-BUG: KASAN: null-ptr-deref in __tcf_idr_release net/sched/act_api.c:178 [inline]
-BUG: KASAN: null-ptr-deref in tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
-Read of size 4 at addr 0000000000000010 by task kworker/u4:5/204
+main()
+{
+	int fd = open("/dev/zero", O_RDONLY);
+	char *p = mmap(NULL, 16384, PROT_READ|PROT_WRITE,
+			MAP_PRIVATE|MAP_ANON, -1, 0);
+	munmap(p + 8192, 8192);
+	read(fd, p + 8192 - 128, 192);
+}
 
-CPU: 0 PID: 204 Comm: kworker/u4:5 Not tainted 5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- __kasan_report mm/kasan/report.c:400 [inline]
- kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
- check_memory_region_inline mm/kasan/generic.c:179 [inline]
- check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
- instrument_atomic_read include/linux/instrumented.h:71 [inline]
- atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
- __tcf_idr_release net/sched/act_api.c:178 [inline]
- tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
- tc_action_net_exit include/net/act_api.h:151 [inline]
- police_exit_net+0x168/0x360 net/sched/act_police.c:390
- ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
- cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
- process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
-==================================================================
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 204 Comm: kworker/u4:5 Tainted: G    B             5.11.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: netns cleanup_net
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- panic+0x306/0x73d kernel/panic.c:231
- end_report+0x58/0x5e mm/kasan/report.c:100
- __kasan_report mm/kasan/report.c:403 [inline]
- kasan_report.cold+0x67/0xd5 mm/kasan/report.c:413
- check_memory_region_inline mm/kasan/generic.c:179 [inline]
- check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
- instrument_atomic_read include/linux/instrumented.h:71 [inline]
- atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
- __tcf_idr_release net/sched/act_api.c:178 [inline]
- tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
- tc_action_net_exit include/net/act_api.h:151 [inline]
- police_exit_net+0x168/0x360 net/sched/act_police.c:390
- ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
- cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
- process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
-Kernel Offset: disabled
+which had been oopsing since March 1997.  Says something about
+the quality of test coverage... ;-/  And while today sparc32 port
+is nearly dead, back in '97 it had been very much alive; in fact,
+sparc64 had only been in mainline for 3 months by that point...
 
-Fix the issue by calling tcf_idr_insert_many() after successful action
-initialization.
-
-Fixes: 0fedc63fadf0 ("net_sched: commit action insertions together")
-Reported-by: syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: stable@kernel.org
+Fixes: v2.1.29
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/act_api.h |    1 +
- net/sched/act_api.c   |    2 +-
- net/sched/cls_api.c   |    1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ arch/sparc/lib/memset.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/act_api.h
-+++ b/include/net/act_api.h
-@@ -156,6 +156,7 @@ int tcf_idr_search(struct tc_action_net
- int tcf_idr_create(struct tc_action_net *tn, u32 index, struct nlattr *est,
- 		   struct tc_action **a, const struct tc_action_ops *ops,
- 		   int bind, bool cpustats);
-+void tcf_idr_insert_many(struct tc_action *actions[]);
- void tcf_idr_cleanup(struct tc_action_net *tn, u32 index);
- int tcf_idr_check_alloc(struct tc_action_net *tn, u32 *index,
- 			struct tc_action **a, int bind);
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -823,7 +823,7 @@ static const struct nla_policy tcf_actio
- 	[TCA_ACT_OPTIONS]	= { .type = NLA_NESTED },
- };
- 
--static void tcf_idr_insert_many(struct tc_action *actions[])
-+void tcf_idr_insert_many(struct tc_action *actions[])
- {
- 	int i;
- 
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -3026,6 +3026,7 @@ int tcf_exts_validate(struct net *net, s
- 			act->type = exts->type = TCA_OLD_COMPAT;
- 			exts->actions[0] = act;
- 			exts->nr_actions = 1;
-+			tcf_idr_insert_many(exts->actions);
- 		} else if (exts->action && tb[exts->action]) {
- 			int err;
+--- a/arch/sparc/lib/memset.S
++++ b/arch/sparc/lib/memset.S
+@@ -142,6 +142,7 @@ __bzero:
+ 	ZERO_LAST_BLOCKS(%o0, 0x48, %g2)
+ 	ZERO_LAST_BLOCKS(%o0, 0x08, %g2)
+ 13:
++	EXT(12b, 13b, 21f)
+ 	be	8f
+ 	 andcc	%o1, 4, %g0
  
 
 
