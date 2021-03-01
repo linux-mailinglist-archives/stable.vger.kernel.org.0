@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01CA3328530
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0699E32842D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbhCAQuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46584 "EHLO mail.kernel.org"
+        id S231820AbhCAQag (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:30:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235075AbhCAQnC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90DB664EF2;
-        Mon,  1 Mar 2021 16:29:35 +0000 (UTC)
+        id S234301AbhCAQ0h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:26:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12F9564F48;
+        Mon,  1 Mar 2021 16:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616176;
-        bh=/opa7NkDfsggFxcZsiy5NCFhrJt9wStmMuH34R1yXeg=;
+        s=korg; t=1614615710;
+        bh=1XfFHkKc5MZ1jdYHZqmhtLbMCNrVvwi3dBdETPH5AB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TR+pF8y4kXZzL/xGZk/TqxTpcE4BHXcAMhNXkAMX9i7MRtADNUgScmNOysw33CATu
-         VuH6glygdKFCJXyCSIJAf1SstL6j63Upie/eyoXIY5sXdHlQzfe3yystslKnji4st1
-         8B389CnFBpAP4Q+Q/dW/TL23P1E/aptAlMx1vQ4s=
+        b=ueOh8vvUTZbb8fbDiz0BVV4/CxsV7g/c1Q9zh1OJqcU1nRTt4R0IrDMY123ZvwjI9
+         NM+uVgdp9iSohw3IS/JGZLXWIYi3jPza4aQbFYIoJn9+nGXkftjQgQOTe6rvIHUPHR
+         whQxq+5N9pDRpdGVzEhOgpTrI30MuF98ZotqKCyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juan Vazquez <juvazq@microsoft.com>,
-        "Andrea Parri (Microsoft)" <parri.andrea@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 059/176] Drivers: hv: vmbus: Avoid use-after-free in vmbus_onoffer_rescind()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 031/134] gma500: clean up error handling in init
 Date:   Mon,  1 Mar 2021 17:12:12 +0100
-Message-Id: <20210301161023.880481531@linuxfoundation.org>
+Message-Id: <20210301161015.111013255@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit e3fa4b747f085d2cda09bba0533b86fa76038635 ]
+[ Upstream commit 15ccc39b3aab667c6fa131206f01f31bfbccdf6a ]
 
-When channel->device_obj is non-NULL, vmbus_onoffer_rescind() could
-invoke put_device(), that will eventually release the device and free
-the channel object (cf. vmbus_device_release()).  However, a pointer
-to the object is dereferenced again later to load the primary_channel.
-The use-after-free can be avoided by noticing that this load/check is
-redundant if device_obj is non-NULL: primary_channel must be NULL if
-device_obj is non-NULL, cf. vmbus_add_channel_work().
+The main problem with this error handling was that it didn't clean up if
+i2c_add_numbered_adapter() failed.  This code is pretty old, and doesn't
+match with today's checkpatch.pl standards so I took the opportunity to
+tidy it up a bit.  I changed the NULL comparison, and removed the
+WARNING message if kzalloc() fails and updated the label names.
 
-Fixes: 54a66265d6754b ("Drivers: hv: vmbus: Fix rescind handling")
-Reported-by: Juan Vazquez <juvazq@microsoft.com>
-Signed-off-by: Andrea Parri (Microsoft) <parri.andrea@gmail.com>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Link: https://lore.kernel.org/r/20201209070827.29335-5-parri.andrea@gmail.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Fixes: 1b082ccf5901 ("gma500: Add Oaktrail support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/X8ikkAqZfnDO2lu6@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hv/channel_mgmt.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
-index 5bf633c15cd4b..3891d3c2cc002 100644
---- a/drivers/hv/channel_mgmt.c
-+++ b/drivers/hv/channel_mgmt.c
-@@ -989,8 +989,7 @@ static void vmbus_onoffer_rescind(struct vmbus_channel_message_header *hdr)
- 			vmbus_device_unregister(channel->device_obj);
- 			put_device(dev);
- 		}
+diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
+index e281070611480..fc9a34ed58bd1 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
++++ b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
+@@ -279,11 +279,8 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
+ 	hdmi_dev = pci_get_drvdata(dev);
+ 
+ 	i2c_dev = kzalloc(sizeof(struct hdmi_i2c_dev), GFP_KERNEL);
+-	if (i2c_dev == NULL) {
+-		DRM_ERROR("Can't allocate interface\n");
+-		ret = -ENOMEM;
+-		goto exit;
 -	}
--	if (channel->primary_channel != NULL) {
-+	} else if (channel->primary_channel != NULL) {
- 		/*
- 		 * Sub-channel is being rescinded. Following is the channel
- 		 * close sequence when initiated from the driveri (refer to
++	if (!i2c_dev)
++		return -ENOMEM;
+ 
+ 	i2c_dev->adap = &oaktrail_hdmi_i2c_adapter;
+ 	i2c_dev->status = I2C_STAT_INIT;
+@@ -300,16 +297,23 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
+ 			  oaktrail_hdmi_i2c_adapter.name, hdmi_dev);
+ 	if (ret) {
+ 		DRM_ERROR("Failed to request IRQ for I2C controller\n");
+-		goto err;
++		goto free_dev;
+ 	}
+ 
+ 	/* Adapter registration */
+ 	ret = i2c_add_numbered_adapter(&oaktrail_hdmi_i2c_adapter);
+-	return ret;
++	if (ret) {
++		DRM_ERROR("Failed to add I2C adapter\n");
++		goto free_irq;
++	}
+ 
+-err:
++	return 0;
++
++free_irq:
++	free_irq(dev->irq, hdmi_dev);
++free_dev:
+ 	kfree(i2c_dev);
+-exit:
++
+ 	return ret;
+ }
+ 
 -- 
 2.27.0
 
