@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05991328760
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B30F3285EB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238170AbhCARXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:23:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57230 "EHLO mail.kernel.org"
+        id S236561AbhCARAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:00:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237989AbhCARQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:16:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A086504B;
-        Mon,  1 Mar 2021 16:46:13 +0000 (UTC)
+        id S235503AbhCAQyE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:54:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36A1464F59;
+        Mon,  1 Mar 2021 16:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617174;
-        bh=5MKwQfX3WVWHiU2ZKh8rkd/E6VooJndjZa/fl8rCdmg=;
+        s=korg; t=1614616484;
+        bh=/HHHEAURaIWnwAXG4Ir+ZuS7Q8itwrj9biVWrqa6Vg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEdVA3IC9YRNt5G7LhliJTQdoFDQDzrU65tdmRZ5T8GYIDfpMUvi+qS/4Qkvakk5P
-         YvVBx6VN8aoYCQ3W+7eysHshZ3BsReMuOsx82sYRgxsNXRcizzyhNIWmdcpGx0Yzd4
-         DRiRaK+KT1ANCzbmynKX2SMyc84jf4lKx3lVQ5GM=
+        b=nWM8n32OYBz8b9vZ96x1ITuWuJhx+qA6fvUX++E47cRWz/YnIEN8TOcMkK48cilLu
+         2rB8K84PlIJE07VjruFY5wrLb9xo6IFhdgcHZ/uuGP8Uv9LQ1lIGH27MnyVVqZAUAd
+         zUXa433+9cTL8Pl47WusNIovgl7Q3nTFhJCSo7wE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
-        Zi Yan <ziy@nvidia.com>, Davidlohr Bueso <dbueso@suse.de>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 221/247] hugetlb: fix copy_huge_page_from_user contig page struct assumption
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 168/176] dm era: Reinitialize bitset cache before digesting a new writeset
 Date:   Mon,  1 Mar 2021 17:14:01 +0100
-Message-Id: <20210301161042.500881839@linuxfoundation.org>
+Message-Id: <20210301161029.372077834@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
-References: <20210301161031.684018251@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 3272cfc2525b3a2810a59312d7a1e6f04a0ca3ef upstream.
+commit 2524933307fd0036d5c32357c693c021ab09a0b0 upstream.
 
-page structs are not guaranteed to be contiguous for gigantic pages.  The
-routine copy_huge_page_from_user can encounter gigantic pages, yet it
-assumes page structs are contiguous when copying pages from user space.
+In case of devices with at most 64 blocks, the digestion of consecutive
+eras uses the writeset of the first era as the writeset of all eras to
+digest, leading to lost writes. That is, we lose the information about
+what blocks were written during the affected eras.
 
-Since page structs for the target gigantic page are not contiguous, the
-data copied from user space could overwrite other pages not associated
-with the gigantic page and cause data corruption.
+The digestion code uses a dm_disk_bitset object to access the archived
+writesets. This structure includes a one word (64-bit) cache to reduce
+the number of array lookups.
 
-Non-contiguous page structs are generally not an issue.  However, they can
-exist with a specific kernel configuration and hotplug operations.  For
-example: Configure the kernel with CONFIG_SPARSEMEM and
-!CONFIG_SPARSEMEM_VMEMMAP.  Then, hotplug add memory for the area where
-the gigantic page will be allocated.
+This structure is initialized only once, in metadata_digest_start(),
+when we kick off digestion.
 
-Link: https://lkml.kernel.org/r/20210217184926.33567-2-mike.kravetz@oracle.com
-Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Joao Martins <joao.m.martins@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+But, when we insert a new writeset into the writeset tree, before the
+digestion of the previous writeset is done, or equivalently when there
+are multiple writesets in the writeset tree to digest, then all these
+writesets are digested using the same cache and the cache is not
+re-initialized when moving from one writeset to the next.
+
+For devices with more than 64 blocks, i.e., the size of the cache, the
+cache is indirectly invalidated when we move to a next set of blocks, so
+we avoid the bug.
+
+But for devices with at most 64 blocks we end up using the same cached
+data for digesting all archived writesets, i.e., the cache is loaded
+when digesting the first writeset and it never gets reloaded, until the
+digestion is done.
+
+As a result, the writeset of the first era to digest is used as the
+writeset of all the following archived eras, leading to lost writes.
+
+Fix this by reinitializing the dm_disk_bitset structure, and thus
+invalidating the cache, every time the digestion code starts digesting a
+new writeset.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/md/dm-era-target.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4885,17 +4885,19 @@ long copy_huge_page_from_user(struct pag
- 	void *page_kaddr;
- 	unsigned long i, rc = 0;
- 	unsigned long ret_val = pages_per_huge_page * PAGE_SIZE;
-+	struct page *subpage = dst_page;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -755,6 +755,12 @@ static int metadata_digest_lookup_writes
+ 	ws_unpack(&disk, &d->writeset);
+ 	d->value = cpu_to_le32(key);
  
--	for (i = 0; i < pages_per_huge_page; i++) {
-+	for (i = 0; i < pages_per_huge_page;
-+	     i++, subpage = mem_map_next(subpage, dst_page, i)) {
- 		if (allow_pagefault)
--			page_kaddr = kmap(dst_page + i);
-+			page_kaddr = kmap(subpage);
- 		else
--			page_kaddr = kmap_atomic(dst_page + i);
-+			page_kaddr = kmap_atomic(subpage);
- 		rc = copy_from_user(page_kaddr,
- 				(const void __user *)(src + i * PAGE_SIZE),
- 				PAGE_SIZE);
- 		if (allow_pagefault)
--			kunmap(dst_page + i);
-+			kunmap(subpage);
- 		else
- 			kunmap_atomic(page_kaddr);
++	/*
++	 * We initialise another bitset info to avoid any caching side effects
++	 * with the previous one.
++	 */
++	dm_disk_bitset_init(md->tm, &d->info);
++
+ 	d->nr_bits = min(d->writeset.nr_bits, md->nr_blocks);
+ 	d->current_bit = 0;
+ 	d->step = metadata_digest_transcribe_writeset;
+@@ -768,12 +774,6 @@ static int metadata_digest_start(struct
+ 		return 0;
  
+ 	memset(d, 0, sizeof(*d));
+-
+-	/*
+-	 * We initialise another bitset info to avoid any caching side
+-	 * effects with the previous one.
+-	 */
+-	dm_disk_bitset_init(md->tm, &d->info);
+ 	d->step = metadata_digest_lookup_writeset;
+ 
+ 	return 0;
 
 
