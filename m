@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 342B2328C7B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6BD9328B62
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240640AbhCASxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:53:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
+        id S240138AbhCASdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:33:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240387AbhCASqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:46:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A19C9652C9;
-        Mon,  1 Mar 2021 17:38:23 +0000 (UTC)
+        id S239864AbhCAS0U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:26:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1DBE650AF;
+        Mon,  1 Mar 2021 17:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620304;
-        bh=E0cr/6ezm6nBvKdVtXE2sJ7xXAo5B1hcNrNsFh/WUDg=;
+        s=korg; t=1614620230;
+        bh=/WUkTsMO3HJouzYpTHEkGeGce2v6s4ecUkrcPoFIDeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrwmnDsoA0xMTcNsckJQYoKcfYzFbhXidYSrxavzlHEdpf6QlbPpTrfeUcPsPApk6
-         TtK0a75GLvvoPBK0/MVh/xBs5ViLSMKRDd0xRGUC1dRPdWtlGrg5i+SGLdcD68jyp9
-         LP71RmV/C+tx8O90zjsfervoWMCQ9P0FQLfkuLt8=
+        b=eaI7vtYFD64+wiRxq1P8X8XeT/mWx5vg+KgecpyU+TcNmteWTkYS3hNn2Fr7qXU9L
+         52gn9oEM6r0R0f518GcHZNdma9bB2uzHm1oVeJnbudT9rvSKKdtt2G2OPLoHwWt0OK
+         1W+glKc1zE8jecjV+L6xZtdhRoLbzMTBH1MlRkZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 074/775] arm64: dts: armada-3720-turris-mox: rename u-boot mtd partition to a53-firmware
-Date:   Mon,  1 Mar 2021 17:04:02 +0100
-Message-Id: <20210301161205.334513357@linuxfoundation.org>
+Subject: [PATCH 5.11 078/775] arm64: dts: msm8916: Fix reserved and rfsa nodes unit address
+Date:   Mon,  1 Mar 2021 17:04:06 +0100
+Message-Id: <20210301161205.535222163@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,44 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Vincent Knecht <vincent.knecht@mailoo.org>
 
-[ Upstream commit a9d9bfcadfb43b856dbcf9419de75f7420d5a225 ]
+[ Upstream commit d5ae2528b0b56cf054b27d48b0cb85330900082f ]
 
-The partition called "u-boot" in reality contains TF-A and U-Boot, and
-TF-A is before U-Boot.
+Fix `reserved` and `rfsa` unit address according to their reg address
 
-Rename this parition to "a53-firmware" to avoid confusion for users,
-since they cannot simply build U-Boot from U-Boot repository and flash
-the resulting image there. Instead they have to build the firmware with
-the sources from the mox-boot-builder repository [1] and flash the
-a53-firmware.bin binary there.
+Fixes: 7258e10e6a0b ("ARM: dts: msm8916: Update reserved-memory")
 
-[1] https://gitlab.nic.cz/turris/mox-boot-builder
-
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Link: https://lore.kernel.org/r/20210123104417.518105-1-vincent.knecht@mailoo.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index f5ec3b6447692..d239ab70ed995 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -205,7 +205,7 @@
- 			};
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 402e891a84ab6..d25f6dc751e99 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -56,7 +56,7 @@
+ 			no-map;
+ 		};
  
- 			partition@20000 {
--				label = "u-boot";
-+				label = "a53-firmware";
- 				reg = <0x20000 0x160000>;
- 			};
+-		reserved@8668000 {
++		reserved@86680000 {
+ 			reg = <0x0 0x86680000 0x0 0x80000>;
+ 			no-map;
+ 		};
+@@ -69,7 +69,7 @@
+ 			qcom,client-id = <1>;
+ 		};
  
+-		rfsa@867e00000 {
++		rfsa@867e0000 {
+ 			reg = <0x0 0x867e0000 0x0 0x20000>;
+ 			no-map;
+ 		};
 -- 
 2.27.0
 
