@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA7F328AA8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D47328AA4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239585AbhCASU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:20:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+        id S239526AbhCASUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:20:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239296AbhCASOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:14:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18E2D65139;
-        Mon,  1 Mar 2021 17:04:08 +0000 (UTC)
+        id S239295AbhCASOV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:14:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47F6C652CF;
+        Mon,  1 Mar 2021 17:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618249;
-        bh=+FK8FpHa6WcqRv6+hnYYgMTAEGgG/qmFLCsq7tswExE=;
+        s=korg; t=1614620292;
+        bh=utd6b4njfYgRu3bQP9RHnS797FBHRMDNy5xurfOzus0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=if973edNSMilTMK9ldNaLY4R/BtMONlIamyys/5fibzUpzy+ppe7SL93VT5CKntvD
-         xWCrPJDflq8JlMbKNYe2qz4zpgr1uIsFiXi15St4HTgezORpDnqf1PCFA0RMs5Aaal
-         tRge0b4wxD7ETxKCa8Mh3jnlg12PXoIma15HwBEQ=
+        b=V26oIAJ20RW60ah3kdaDeEZyVdeKiJJm6Z5zEVBnNf0y6qDLPC3kkG0IiAJ00savt
+         8ZXv/7lnd8SWNJ+dxu5r6xi9+VpJwELJqlNphy4PIr4Je3s4t8G7P8GD4UsxV/znvy
+         q8IKoWhzPKQ75Rx2e3XgDCfUPzMYCQmwSjmFwV1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 019/663] ALSA: pcm: Dont call sync_stop if it hasnt been stopped
+        stable@vger.kernel.org,
+        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        Abdul Haleem <abdhalee@in.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 099/775] ibmvnic: Set to CLOSED state even on error
 Date:   Mon,  1 Mar 2021 17:04:27 +0100
-Message-Id: <20210301161142.739137166@linuxfoundation.org>
+Message-Id: <20210301161206.559987211@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,48 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
 
-commit 700cb70730777c159a988e01daa93f20a1ae9b58 upstream.
+[ Upstream commit d4083d3c00f60a09ad82e3bf17ff57fec69c8aa6 ]
 
-The PCM stop operation sets the stop_operating flag for indicating the
-sync_stop post-process.  This flag is, however, set unconditionally
-even if the PCM trigger weren't issued.  This may lead to
-inconsistency in the driver side.
+If set_link_state() fails for any reason, we still cleanup the adapter
+state and cannot recover from a partial close anyway. So set the adapter
+to CLOSED state. That way if a new soft/hard reset is processed, the
+adapter will remain in the CLOSED state until the next ibmvnic_open().
 
-Correct the code to set stop_operating flag only after the trigger
-STOP is actually called.
-
-Fixes: 1e850beea278 ("ALSA: pcm: Add the support for sync-stop operation")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210206203656.15959-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 01d9bd792d16 ("ibmvnic: Reorganize device close")
+Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Reported-by: Abdul Haleem <abdhalee@in.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_native.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -1421,8 +1421,10 @@ static int snd_pcm_do_stop(struct snd_pc
- 			   snd_pcm_state_t state)
- {
- 	if (substream->runtime->trigger_master == substream &&
--	    snd_pcm_running(substream))
-+	    snd_pcm_running(substream)) {
- 		substream->ops->trigger(substream, SNDRV_PCM_TRIGGER_STOP);
-+		substream->runtime->stop_operating = true;
-+	}
- 	return 0; /* unconditonally stop all substreams */
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index a536fdbf05e19..621be6d2da971 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1353,10 +1353,8 @@ static int __ibmvnic_close(struct net_device *netdev)
+ 
+ 	adapter->state = VNIC_CLOSING;
+ 	rc = set_link_state(adapter, IBMVNIC_LOGICAL_LNK_DN);
+-	if (rc)
+-		return rc;
+ 	adapter->state = VNIC_CLOSED;
+-	return 0;
++	return rc;
  }
  
-@@ -1435,7 +1437,6 @@ static void snd_pcm_post_stop(struct snd
- 		runtime->status->state = state;
- 		snd_pcm_timer_notify(substream, SNDRV_TIMER_EVENT_MSTOP);
- 	}
--	runtime->stop_operating = true;
- 	wake_up(&runtime->sleep);
- 	wake_up(&runtime->tsleep);
- }
+ static int ibmvnic_close(struct net_device *netdev)
+-- 
+2.27.0
+
 
 
