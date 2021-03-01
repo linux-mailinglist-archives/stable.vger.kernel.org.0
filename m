@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D75D3328CAF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB476328BBA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238129AbhCAS5F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:57:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57720 "EHLO mail.kernel.org"
+        id S240317AbhCASim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240399AbhCASvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:51:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 599C76501B;
-        Mon,  1 Mar 2021 17:12:05 +0000 (UTC)
+        id S240115AbhCASdx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:33:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EACEB601FB;
+        Mon,  1 Mar 2021 17:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618725;
-        bh=dDrGlAYOEdD7F0y/JYY+1YNb0RaD7VHOvOfpdjXa1YM=;
+        s=korg; t=1614620773;
+        bh=QZfqqODzLjPWobLQLMvNc9EN9DSIpFLhkU7KJxFVOgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QM5himF2RRd0mjczww1qeIdbG9PHkeMeW7M+CXT4F8Qox+n33zzCCrndtE0Zddcu9
-         LQ0Fm6fHe5OxLAr0QugIWmLQGKrLjtfXxgRat3IUAhAGnJB3nFWIBHPI3/ghBy1B0E
-         MQyC+vhikLFJUEqlypBlrO2EQegLzvVq1nTKT1x4=
+        b=tN8xwvghbcdLSbl1WLiRTegZrtoyRE/1HPDadMwY5CywUKaF9+zKw9owY/Mkxk3fR
+         POVsQz7VWwCzYVpYvnizaGIfeJLmuYJtSt03R1HnEH0KSUOVwp6WSEp3qAG5rpCqZI
+         1qmBQpkitZxwvepBZ4/l1TaeguZBt7w/SI31qSgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Dom Cobley <popcornmix@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 192/663] media: cx25821: Fix a bug when reallocating some dma memory
-Date:   Mon,  1 Mar 2021 17:07:20 +0100
-Message-Id: <20210301161151.277603049@linuxfoundation.org>
+Subject: [PATCH 5.11 275/775] drm/vc4: hdmi: Fix up CEC registers
+Date:   Mon,  1 Mar 2021 17:07:23 +0100
+Message-Id: <20210301161215.219557476@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dom Cobley <popcornmix@gmail.com>
 
-[ Upstream commit b2de3643c5024fc4fd128ba7767c7fb8b714bea7 ]
+[ Upstream commit 5a32bfd563e8b5766e57475c2c81c769e5a13f5d ]
 
-This function looks like a realloc.
+The commit 311e305fdb4e ("drm/vc4: hdmi: Implement a register layout
+abstraction") forgot one CEC register, and made a copy and paste mistake
+for another one. Fix those mistakes.
 
-However, if 'risc->cpu != NULL', the memory will be freed, but never
-reallocated with the bigger 'size'.
-Explicitly set 'risc->cpu' to NULL, so that the reallocation is
-correctly performed a few lines below.
-
-[hverkuil: NULL != risc->cpu -> risc->cpu]
-
-Fixes: 5ede94c70553 ("[media] cx25821: remove bogus btcx_risc dependency)
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 311e305fdb4e ("drm/vc4: hdmi: Implement a register layout abstraction")
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-5-maxime@cerno.tech
+(cherry picked from commit 303085bc11bb7aebeeaaf09213f99fd7aa539a34)
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx25821/cx25821-core.c | 4 +++-
+ drivers/gpu/drm/vc4/vc4_hdmi_regs.h | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/cx25821/cx25821-core.c b/drivers/media/pci/cx25821/cx25821-core.c
-index 55018d9e439fb..285047b32c44a 100644
---- a/drivers/media/pci/cx25821/cx25821-core.c
-+++ b/drivers/media/pci/cx25821/cx25821-core.c
-@@ -976,8 +976,10 @@ int cx25821_riscmem_alloc(struct pci_dev *pci,
- 	__le32 *cpu;
- 	dma_addr_t dma = 0;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
+index 96d764ebfe675..5379c36f09923 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
++++ b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
+@@ -29,6 +29,7 @@ enum vc4_hdmi_field {
+ 	HDMI_CEC_CPU_MASK_SET,
+ 	HDMI_CEC_CPU_MASK_STATUS,
+ 	HDMI_CEC_CPU_STATUS,
++	HDMI_CEC_CPU_SET,
  
--	if (NULL != risc->cpu && risc->size < size)
-+	if (risc->cpu && risc->size < size) {
- 		pci_free_consistent(pci, risc->size, risc->cpu, risc->dma);
-+		risc->cpu = NULL;
-+	}
- 	if (NULL == risc->cpu) {
- 		cpu = pci_zalloc_consistent(pci, size, &dma);
- 		if (NULL == cpu)
+ 	/*
+ 	 * Transmit data, first byte is low byte of the 32-bit reg.
+@@ -196,9 +197,10 @@ static const struct vc4_hdmi_register __maybe_unused vc4_hdmi_fields[] = {
+ 	VC4_HDMI_REG(HDMI_TX_PHY_RESET_CTL, 0x02c0),
+ 	VC4_HDMI_REG(HDMI_TX_PHY_CTL_0, 0x02c4),
+ 	VC4_HDMI_REG(HDMI_CEC_CPU_STATUS, 0x0340),
++	VC4_HDMI_REG(HDMI_CEC_CPU_SET, 0x0344),
+ 	VC4_HDMI_REG(HDMI_CEC_CPU_CLEAR, 0x0348),
+ 	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_STATUS, 0x034c),
+-	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_SET, 0x034c),
++	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_SET, 0x0350),
+ 	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_CLEAR, 0x0354),
+ 	VC4_HDMI_REG(HDMI_RAM_PACKET_START, 0x0400),
+ };
 -- 
 2.27.0
 
