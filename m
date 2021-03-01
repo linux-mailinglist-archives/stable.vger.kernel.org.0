@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C9C328D16
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 971A3328E50
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240850AbhCATFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:05:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
+        id S241611AbhCAT1w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:27:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236011AbhCAS65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:58:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D54C6522B;
-        Mon,  1 Mar 2021 17:25:29 +0000 (UTC)
+        id S238096AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:24:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 100326500B;
+        Mon,  1 Mar 2021 17:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619530;
-        bh=D2LVDaN8hZJpX1CeiMcPvE6wKFL2Bwh5v9y4bTsAd5A=;
+        s=korg; t=1614619615;
+        bh=vA3gJPn7S6dmA2TAtjIIkC3rHBGWeEv8HoqfLQelgR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9yILuRbx1SBCj0zDu9W+uYwLxJ/iFhPtpQ4GAXx2mgDg8zFydUZFEP4qiylLwh8r
-         8v1XT7TwxYLMMUgkv0LQB2AnHdHoHHQWZJxt6tp4Mvjffun3ELV/Up5akAsO6LS1ZT
-         /aJ2ZAHAxSqfFBEC9RY1+DBd/K0dX3Z9bJENC10A=
+        b=SNftXimTA5XbWI4OpgWO3RUpj7GujEt4DXkYf6+Anuwbm+oMub0HVPmy/+okfopl9
+         P2kUCAVyMZKeTfBmDowoWISfufs9ut6gKy0h0LyBgzijPhjEPRhXBKsukESu7RFhTD
+         5OIRWr1SSRLQkQRXTYz8griSpdOH+v/8xlvfu/is=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "jeffrey.lin" <jeffrey.lin@rad-ic.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.10 486/663] Input: raydium_ts_i2c - do not send zero length
-Date:   Mon,  1 Mar 2021 17:12:14 +0100
-Message-Id: <20210301161205.903689240@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>
+Subject: [PATCH 5.10 491/663] USB: serial: option: update interface mapping for ZTE P685M
+Date:   Mon,  1 Mar 2021 17:12:19 +0100
+Message-Id: <20210301161206.139213430@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,40 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jeffrey.lin <jeffrey.lin@rad-ic.com>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-commit fafd320ae51b9c72d371585b2501f86640ea7b7d upstream.
+commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
 
-Add default write command package to prevent i2c quirk error of zero
-data length as Raydium touch firmware update is executed.
+This patch prepares for qmi_wwan driver support for the device.
+Previously "option" driver mapped itself to interfaces 0 and 3 (matching
+ff/ff/ff), while interface 3 is in fact a QMI port.
+Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
+and weren't supported previously at all.
+Without this patch, a possible conflict would exist if device ID was
+added to qmi_wwan driver for interface 3.
 
-Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
-Link: https://lore.kernel.org/r/1608031217-7247-1-git-send-email-jeffrey.lin@raydium.corp-partner.google.com
+Update and simplify device ID to match interfaces 0-2 directly,
+to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
+with QMI (3), and ADB (4).
+
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
+
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c |    3 ++-
+ drivers/usb/serial/option.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -445,6 +445,7 @@ static int raydium_i2c_write_object(stru
- 				    enum raydium_bl_ack state)
- {
- 	int error;
-+	static const u8 cmd[] = { 0xFF, 0x39 };
- 
- 	error = raydium_i2c_send(client, RM_CMD_BOOT_WRT, data, len);
- 	if (error) {
-@@ -453,7 +454,7 @@ static int raydium_i2c_write_object(stru
- 		return error;
- 	}
- 
--	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, NULL, 0);
-+	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, cmd, sizeof(cmd));
- 	if (error) {
- 		dev_err(&client->dev, "Ack obj command failed: %d\n", error);
- 		return error;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1569,7 +1569,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
+-	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
++	  .driver_info = RSVD(3) | RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
 
 
