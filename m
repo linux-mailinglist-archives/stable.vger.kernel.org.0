@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B55328A58
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F54328A35
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbhCASQE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:16:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58732 "EHLO mail.kernel.org"
+        id S239521AbhCASN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231902AbhCASIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0BAB6146D;
-        Mon,  1 Mar 2021 17:15:20 +0000 (UTC)
+        id S239271AbhCASIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:08:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8EC64E62;
+        Mon,  1 Mar 2021 17:13:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618921;
-        bh=QIQVHHM5Fu68yLjLw+JJv0itefkFib+0J3GDb8j6Cd0=;
+        s=korg; t=1614618834;
+        bh=gvmHwS7ZOav2q26xzaIqniB1AvIo8l+wxzWzd5FCu90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9bf3+tqUfvolIbiO9RJyErGWwH+dLlI0X97Lf5GKDSOezGzKkLxI5tPpkr4bStF6
-         KgAtuZEd91VDs5N8JvpsGrm44qSqu5NF9bcUFusaAlfYcgY/maoFoZiV6XkgIAgqY3
-         +IVg1FtrCj7Xddw7yD+cBMVxzO+i4n90KteX3Hmc=
+        b=A/2adm8iqNVN2TvMWnUT8l0HJNzpng+GGsDTiffXBLMNro9Th1DoijYEPJS+VfRnE
+         Ka+VF3N9VA/evCYKCKp01yppRgESwvEPB/eM5EpOewnrnbUl0dP4kW3B/Mp7kcSKze
+         wna3gTCQPqp6OEpnqHiVmsT7O0ZPlH8OUPoP7L5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 226/663] btrfs: fix double accounting of ordered extent for subpage case in btrfs_invalidapge
-Date:   Mon,  1 Mar 2021 17:07:54 +0100
-Message-Id: <20210301161152.982526168@linuxfoundation.org>
+Subject: [PATCH 5.10 227/663] KVM: x86: Restore all 64 bits of DR6 and DR7 during RSM on x86-64
+Date:   Mon,  1 Mar 2021 17:07:55 +0100
+Message-Id: <20210301161153.035114517@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,79 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 951c80f83d61bd4b21794c8aba829c3c1a45c2d0 ]
+[ Upstream commit 2644312052d54e2e7543c7d186899a36ed22f0bf ]
 
-Commit dbfdb6d1b369 ("Btrfs: Search for all ordered extents that could
-span across a page") make btrfs_invalidapage() to search all ordered
-extents.
+Restore the full 64-bit values of DR6 and DR7 when emulating RSM on
+x86-64, as defined by both Intel's SDM and AMD's APM.
 
-The offending code looks like this:
+Note, bits 63:32 of DR6 and DR7 are reserved, so this is a glorified nop
+unless the SMM handler is poking into SMRAM, which it most definitely
+shouldn't be doing since both Intel and AMD list the DR6 and DR7 fields
+as read-only.
 
-  again:
-	  start = page_start;
-	  ordered = btrfs_lookup_ordered_range(inode, start, page_end - start + 1);
-	  if (ordred) {
-		  end = min(page_end,
-			    ordered->file_offset + ordered->num_bytes - 1);
-
-		  /* Do the cleanup */
-
-		  start = end + 1;
-		  if (start < page_end)
-			  goto again;
-	  }
-
-The behavior is indeed necessary for the incoming subpage support, but
-when it iterates through all the ordered extents, it also resets the
-search range @start.
-
-This means, for the following cases, we can double account the ordered
-extents, causing its bytes_left underflow:
-
-	Page offset
-	0		16K		32K
-	|<--- OE 1  --->|<--- OE 2 ---->|
-
-As the first iteration will find ordered extent (OE) 1, which doesn't
-cover the full page, thus after cleanup code, we need to retry again.
-But again label will reset start to page_start, and we got OE 1 again,
-which causes double accounting on OE 1, and cause OE 1's byte_left to
-underflow.
-
-This problem can only happen for subpage case, as for regular sectorsize
-== PAGE_SIZE case, we will always find a OE ends at or after page end,
-thus no way to trigger the problem.
-
-Move the again label after start = page_start.  There will be more
-comprehensive rework to convert the open coded loop to a proper while
-loop for subpage support.
-
-Fixes: dbfdb6d1b369 ("Btrfs: Search for all ordered extents that could span across a page")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 660a5d517aaa ("KVM: x86: save/load state on SMM switch")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210205012458.3872687-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/emulate.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index b536d21541a9f..4d85f3a6695d1 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -8207,8 +8207,9 @@ static void btrfs_invalidatepage(struct page *page, unsigned int offset,
+diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
+index 66a08322988f2..1453b9b794425 100644
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -2564,12 +2564,12 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt,
+ 	ctxt->_eip   = GET_SMSTATE(u64, smstate, 0x7f78);
+ 	ctxt->eflags = GET_SMSTATE(u32, smstate, 0x7f70) | X86_EFLAGS_FIXED;
  
- 	if (!inode_evicting)
- 		lock_extent_bits(tree, page_start, page_end, &cached_state);
--again:
-+
- 	start = page_start;
-+again:
- 	ordered = btrfs_lookup_ordered_range(inode, start, page_end - start + 1);
- 	if (ordered) {
- 		end = min(page_end,
+-	val = GET_SMSTATE(u32, smstate, 0x7f68);
++	val = GET_SMSTATE(u64, smstate, 0x7f68);
+ 
+ 	if (ctxt->ops->set_dr(ctxt, 6, (val & DR6_VOLATILE) | DR6_FIXED_1))
+ 		return X86EMUL_UNHANDLEABLE;
+ 
+-	val = GET_SMSTATE(u32, smstate, 0x7f60);
++	val = GET_SMSTATE(u64, smstate, 0x7f60);
+ 
+ 	if (ctxt->ops->set_dr(ctxt, 7, (val & DR7_VOLATILE) | DR7_FIXED_1))
+ 		return X86EMUL_UNHANDLEABLE;
 -- 
 2.27.0
 
