@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E0F32854B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE803285A4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbhCAQwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:52:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47106 "EHLO mail.kernel.org"
+        id S236134AbhCAQ4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:56:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233279AbhCAQot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F13D464F94;
-        Mon,  1 Mar 2021 16:31:08 +0000 (UTC)
+        id S235779AbhCAQtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 224A064FAE;
+        Mon,  1 Mar 2021 16:33:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616269;
-        bh=JZuoPyem7BXj70uXYt5WEXtN+U06Wcpxah3YyjHUWjA=;
+        s=korg; t=1614616382;
+        bh=e7XQbBHlJIQSGNgwvra5zb0spLGRQWEwus4V3gmzmeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MRRNC/kY+giGkDPBMuRjZTZ11jeHqwOs0qXtEMYyHRTMfOADARkhYaar3YwFB1bT
-         6SmLjkfjoYj/iyRC/KFf3alfNqhzrEbzyE68b2+EjrfXIEmu9Q8NXt7HhunmHoIlRH
-         9zoObdvSk/W/5+a2lkH0KGazx8XZBNQ3ruPbBKzM=
+        b=tkW4n/9oYtQuHbPqdhozeGGrpYgiHq8X26/3cHEDD9/uiT7aAXHJ1q1NGDe8SIdMX
+         QuBNAsWDSNfq/B7ISD7MEYWvxFbYeJvcbUh2xMk8BEtsS44bULFhG73iHul0mmDimT
+         yYT8djgz9sg8APccQ5SX2Lt2p+C213p5ltioa+wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
         Ingo Molnar <mingo@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Andrii Nakryiko <andriin@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@chromium.org>,
-        netdev <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Florian Weimer <fw@deneb.enyo.de>,
-        syzbot+83aa762ef23b6f0d1991@syzkaller.appspotmail.com,
-        syzbot+d29e58bb557324e55e5e@syzkaller.appspotmail.com,
-        Matt Mullins <mmullins@mmlx.us>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Jin Yao <yao.jin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>, Kan Liang <kan.liang@intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/176] tracepoint: Do not fail unregistering a probe due to memory failure
-Date:   Mon,  1 Mar 2021 17:12:44 +0100
-Message-Id: <20210301161025.500837025@linuxfoundation.org>
+Subject: [PATCH 4.14 092/176] perf tools: Fix DSO filtering when not finding a map for a sampled address
+Date:   Mon,  1 Mar 2021 17:12:45 +0100
+Message-Id: <20210301161025.553724347@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -57,203 +47,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit befe6d946551d65cddbd32b9cb0170b0249fd5ed ]
+[ Upstream commit c69bf11ad3d30b6bf01cfa538ddff1a59467c734 ]
 
-The list of tracepoint callbacks is managed by an array that is protected
-by RCU. To update this array, a new array is allocated, the updates are
-copied over to the new array, and then the list of functions for the
-tracepoint is switched over to the new array. After a completion of an RCU
-grace period, the old array is freed.
+When we lookup an address and don't find a map we should filter that
+sample if the user specified a list of --dso entries to filter on, fix
+it.
 
-This process happens for both adding a callback as well as removing one.
-But on removing a callback, if the new array fails to be allocated, the
-callback is not removed, and may be used after it is freed by the clients
-of the tracepoint.
+Before:
 
-There's really no reason to fail if the allocation for a new array fails
-when removing a function. Instead, the function can simply be replaced by a
-stub function that could be cleaned up on the next modification of the
-array. That is, instead of calling the function registered to the
-tracepoint, it would call a stub function in its place.
+  $ perf script
+             sleep 274800  2843.556162:          1 cycles:u:  ffffffffbb26bff4 [unknown] ([unknown])
+             sleep 274800  2843.556168:          1 cycles:u:  ffffffffbb2b047d [unknown] ([unknown])
+             sleep 274800  2843.556171:          1 cycles:u:  ffffffffbb2706b2 [unknown] ([unknown])
+             sleep 274800  2843.556174:          6 cycles:u:  ffffffffbb2b0267 [unknown] ([unknown])
+             sleep 274800  2843.556176:         59 cycles:u:  ffffffffbb2b03b1 [unknown] ([unknown])
+             sleep 274800  2843.556180:        691 cycles:u:  ffffffffbb26bff4 [unknown] ([unknown])
+             sleep 274800  2843.556189:       9160 cycles:u:      7fa9550eeaa3 __GI___tunables_init+0xf3 (/usr/lib64/ld-2.32.so)
+             sleep 274800  2843.556312:      86937 cycles:u:      7fa9550e157b _dl_lookup_symbol_x+0x4b (/usr/lib64/ld-2.32.so)
+  $
 
-Link: https://lore.kernel.org/r/20201115055256.65625-1-mmullins@mmlx.us
-Link: https://lore.kernel.org/r/20201116175107.02db396d@gandalf.local.home
-Link: https://lore.kernel.org/r/20201117211836.54acaef2@oasis.local.home
-Link: https://lkml.kernel.org/r/20201118093405.7a6d2290@gandalf.local.home
+So we have some samples we somehow didn't find in a map for, if we now
+do:
 
-[ Note, this version does use undefined compiler behavior (assuming that
-  a stub function with no parameters or return, can be called by a location
-  that thinks it has parameters but still no return value. Static calls
-  do the same thing, so this trick is not without precedent.
+  $ perf report --stdio --dso /usr/lib64/ld-2.32.so
+  # dso: /usr/lib64/ld-2.32.so
+  #
+  # Total Lost Samples: 0
+  #
+  # Samples: 8  of event 'cycles:u'
+  # Event count (approx.): 96856
+  #
+  # Overhead  Command  Symbol
+  # ........  .......  ........................
+  #
+      89.76%  sleep    [.] _dl_lookup_symbol_x
+       9.46%  sleep    [.] __GI___tunables_init
+       0.71%  sleep    [k] 0xffffffffbb26bff4
+       0.06%  sleep    [k] 0xffffffffbb2b03b1
+       0.01%  sleep    [k] 0xffffffffbb2b0267
+       0.00%  sleep    [k] 0xffffffffbb2706b2
+       0.00%  sleep    [k] 0xffffffffbb2b047d
+  $
 
-  There's another solution that uses RCU tricks and is more complex, but
-  can be an alternative if this solution becomes an issue.
+After this patch we get the right output with just entries for the DSOs
+specified in --dso:
 
-  Link: https://lore.kernel.org/lkml/20210127170721.58bce7cc@gandalf.local.home/
-]
+  $ perf report --stdio --dso /usr/lib64/ld-2.32.so
+  # dso: /usr/lib64/ld-2.32.so
+  #
+  # Total Lost Samples: 0
+  #
+  # Samples: 8  of event 'cycles:u'
+  # Event count (approx.): 96856
+  #
+  # Overhead  Command  Symbol
+  # ........  .......  ........................
+  #
+      89.76%  sleep    [.] _dl_lookup_symbol_x
+       9.46%  sleep    [.] __GI___tunables_init
+  $
+  #
 
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Fixes: 96415e4d3f5fdf9c ("perf symbols: Avoid unnecessary symbol loading when dso list is specified")
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: Andrii Nakryiko <andriin@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@chromium.org>
-Cc: netdev <netdev@vger.kernel.org>
-Cc: bpf <bpf@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Florian Weimer <fw@deneb.enyo.de>
-Fixes: 97e1c18e8d17b ("tracing: Kernel Tracepoints")
-Reported-by: syzbot+83aa762ef23b6f0d1991@syzkaller.appspotmail.com
-Reported-by: syzbot+d29e58bb557324e55e5e@syzkaller.appspotmail.com
-Reported-by: Matt Mullins <mmullins@mmlx.us>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Tested-by: Matt Mullins <mmullins@mmlx.us>
+Cc: Jin Yao <yao.jin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210128131209.GD775562@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/tracepoint.c | 80 ++++++++++++++++++++++++++++++++++++---------
- 1 file changed, 64 insertions(+), 16 deletions(-)
+ tools/perf/util/event.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/tracepoint.c b/kernel/tracepoint.c
-index a170d83043a5a..b65b2e7fd8507 100644
---- a/kernel/tracepoint.c
-+++ b/kernel/tracepoint.c
-@@ -60,6 +60,12 @@ struct tp_probes {
- 	struct tracepoint_func probes[0];
- };
- 
-+/* Called in removal of a func but failed to allocate a new tp_funcs */
-+static void tp_stub_func(void)
-+{
-+	return;
-+}
-+
- static inline void *allocate_probes(int count)
- {
- 	struct tp_probes *p  = kmalloc(count * sizeof(struct tracepoint_func)
-@@ -98,6 +104,7 @@ func_add(struct tracepoint_func **funcs, struct tracepoint_func *tp_func,
- {
- 	struct tracepoint_func *old, *new;
- 	int nr_probes = 0;
-+	int stub_funcs = 0;
- 	int pos = -1;
- 
- 	if (WARN_ON(!tp_func->func))
-@@ -114,14 +121,34 @@ func_add(struct tracepoint_func **funcs, struct tracepoint_func *tp_func,
- 			if (old[nr_probes].func == tp_func->func &&
- 			    old[nr_probes].data == tp_func->data)
- 				return ERR_PTR(-EEXIST);
-+			if (old[nr_probes].func == tp_stub_func)
-+				stub_funcs++;
+diff --git a/tools/perf/util/event.c b/tools/perf/util/event.c
+index 70cada80d1853..87f683fd6f264 100644
+--- a/tools/perf/util/event.c
++++ b/tools/perf/util/event.c
+@@ -1521,6 +1521,8 @@ int machine__resolve(struct machine *machine, struct addr_location *al,
  		}
- 	}
--	/* + 2 : one for new probe, one for NULL func */
--	new = allocate_probes(nr_probes + 2);
-+	/* + 2 : one for new probe, one for NULL func - stub functions */
-+	new = allocate_probes(nr_probes + 2 - stub_funcs);
- 	if (new == NULL)
- 		return ERR_PTR(-ENOMEM);
- 	if (old) {
--		if (pos < 0) {
-+		if (stub_funcs) {
-+			/* Need to copy one at a time to remove stubs */
-+			int probes = 0;
-+
-+			pos = -1;
-+			for (nr_probes = 0; old[nr_probes].func; nr_probes++) {
-+				if (old[nr_probes].func == tp_stub_func)
-+					continue;
-+				if (pos < 0 && old[nr_probes].prio < prio)
-+					pos = probes++;
-+				new[probes++] = old[nr_probes];
-+			}
-+			nr_probes = probes;
-+			if (pos < 0)
-+				pos = probes;
-+			else
-+				nr_probes--; /* Account for insertion */
-+
-+		} else if (pos < 0) {
- 			pos = nr_probes;
- 			memcpy(new, old, nr_probes * sizeof(struct tracepoint_func));
- 		} else {
-@@ -155,8 +182,9 @@ static void *func_remove(struct tracepoint_func **funcs,
- 	/* (N -> M), (N > 1, M >= 0) probes */
- 	if (tp_func->func) {
- 		for (nr_probes = 0; old[nr_probes].func; nr_probes++) {
--			if (old[nr_probes].func == tp_func->func &&
--			     old[nr_probes].data == tp_func->data)
-+			if ((old[nr_probes].func == tp_func->func &&
-+			     old[nr_probes].data == tp_func->data) ||
-+			    old[nr_probes].func == tp_stub_func)
- 				nr_del++;
- 		}
- 	}
-@@ -175,14 +203,32 @@ static void *func_remove(struct tracepoint_func **funcs,
- 		/* N -> M, (N > 1, M > 0) */
- 		/* + 1 for NULL */
- 		new = allocate_probes(nr_probes - nr_del + 1);
--		if (new == NULL)
--			return ERR_PTR(-ENOMEM);
--		for (i = 0; old[i].func; i++)
--			if (old[i].func != tp_func->func
--					|| old[i].data != tp_func->data)
--				new[j++] = old[i];
--		new[nr_probes - nr_del].func = NULL;
--		*funcs = new;
-+		if (new) {
-+			for (i = 0; old[i].func; i++)
-+				if ((old[i].func != tp_func->func
-+				     || old[i].data != tp_func->data)
-+				    && old[i].func != tp_stub_func)
-+					new[j++] = old[i];
-+			new[nr_probes - nr_del].func = NULL;
-+			*funcs = new;
-+		} else {
-+			/*
-+			 * Failed to allocate, replace the old function
-+			 * with calls to tp_stub_func.
-+			 */
-+			for (i = 0; old[i].func; i++)
-+				if (old[i].func == tp_func->func &&
-+				    old[i].data == tp_func->data) {
-+					old[i].func = tp_stub_func;
-+					/* Set the prio to the next event. */
-+					if (old[i + 1].func)
-+						old[i].prio =
-+							old[i + 1].prio;
-+					else
-+						old[i].prio = -1;
-+				}
-+			*funcs = old;
-+		}
- 	}
- 	debug_print_probes(*funcs);
- 	return old;
-@@ -239,10 +285,12 @@ static int tracepoint_remove_func(struct tracepoint *tp,
- 	tp_funcs = rcu_dereference_protected(tp->funcs,
- 			lockdep_is_held(&tracepoints_mutex));
- 	old = func_remove(&tp_funcs, func);
--	if (IS_ERR(old)) {
--		WARN_ON_ONCE(PTR_ERR(old) != -ENOMEM);
-+	if (WARN_ON_ONCE(IS_ERR(old)))
- 		return PTR_ERR(old);
--	}
-+
-+	if (tp_funcs == old)
-+		/* Failed allocating new tp_funcs, replaced func with stub */
-+		return 0;
  
- 	if (!tp_funcs) {
- 		/* Removed last function */
+ 		al->sym = map__find_symbol(al->map, al->addr);
++	} else if (symbol_conf.dso_list) {
++		al->filtered |= (1 << HIST_FILTER__DSO);
+ 	}
+ 
+ 	if (symbol_conf.sym_list &&
 -- 
 2.27.0
 
