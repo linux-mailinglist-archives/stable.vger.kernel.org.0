@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7513A329032
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EE532900C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242733AbhCAUDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
+        id S237820AbhCAUCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:02:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242470AbhCATxj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:53:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C1F565089;
-        Mon,  1 Mar 2021 17:53:32 +0000 (UTC)
+        id S242115AbhCATux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:50:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19344650E7;
+        Mon,  1 Mar 2021 17:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621213;
-        bh=SLEXgjDorRN61SND0rkTIITpPrSjtZdiLSKi/kAWjro=;
+        s=korg; t=1614621131;
+        bh=MiiD1MWL6PY8LnU14twFLfstDbHagKFXtuDW7Ow3N7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgGee9IKFRVnygyTob5Akt1VUnM4N7dGYuAWq2naaNds4wY49f7cY8EvJHANNSbA7
-         kCVLbgbv1peMNiHOXgSyap0QMheNQqt5jp3/TxYd8eZSxY9lieg74zfMZgfRnhiO7f
-         sGpHGCO9J39YvjP1RqEcvmIk0nXrAYsJ5FDdWQ+U=
+        b=0QDZRqgUkCVQro2OTDNd/J55GeIrH6HcTl6W6+ibEn8yP7z/okTI6JsskUo0USWWV
+         T6C4DWNTT95+WgQWRJAMNHX/WN38se/G0jW49MxDzFwcpyxm5n1RmCuR7jTGzf4Ddr
+         Vxe9zumOB1m1DNxCzrkqBeAMNz5evBofNr3gdbdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 404/775] amba: Fix resource leak for drivers without .remove
-Date:   Mon,  1 Mar 2021 17:09:32 +0100
-Message-Id: <20210301161221.551800905@linuxfoundation.org>
+        stable@vger.kernel.org, Yong Wu <yong.wu@mediatek.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 405/775] iommu: Move iotlb_sync_map out from __iommu_map
+Date:   Mon,  1 Mar 2021 17:09:33 +0100
+Message-Id: <20210301161221.600588163@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,78 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Yong Wu <yong.wu@mediatek.com>
 
-[ Upstream commit de5d7adb89367bbc87b4e5ce7afe7ae9bd86dc12 ]
+[ Upstream commit d8c1df02ac7f2c802a9b2afc0f5c888c4217f1d5 ]
 
-Consider an amba driver with a .probe but without a .remove callback (e.g.
-pl061_gpio_driver). The function amba_probe() is called to bind a device
-and so dev_pm_domain_attach() and others are called. As there is no remove
-callback amba_remove() isn't called at unbind time however and so calling
-dev_pm_domain_detach() is missed and the pm domain keeps active.
+In the end of __iommu_map, It alway call iotlb_sync_map.
 
-To fix this always use the core driver callbacks and handle missing amba
-callbacks there. For probe refuse registration as a driver without probe
-doesn't make sense.
+This patch moves iotlb_sync_map out from __iommu_map since it is
+unnecessary to call this for each sg segment especially iotlb_sync_map
+is flush tlb all currently. Add a little helper _iommu_map for this.
 
-Fixes: 7cfe249475fd ("ARM: AMBA: Add pclk support to AMBA bus infrastructure")
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210126165835.687514-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Yong Wu <yong.wu@mediatek.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210107122909.16317-2-yong.wu@mediatek.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/amba/bus.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ drivers/iommu/iommu.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index ecc304149067c..b5f5ca4e3f343 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -299,10 +299,11 @@ static int amba_remove(struct device *dev)
- {
- 	struct amba_device *pcdev = to_amba_device(dev);
- 	struct amba_driver *drv = to_amba_driver(dev->driver);
--	int ret;
-+	int ret = 0;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index ffeebda8d6def..c304a6a30d42e 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2426,9 +2426,6 @@ static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 		size -= pgsize;
+ 	}
  
- 	pm_runtime_get_sync(dev);
--	ret = drv->remove(pcdev);
-+	if (drv->remove)
-+		ret = drv->remove(pcdev);
- 	pm_runtime_put_noidle(dev);
+-	if (ops->iotlb_sync_map)
+-		ops->iotlb_sync_map(domain);
+-
+ 	/* unroll mapping in case something went wrong */
+ 	if (ret)
+ 		iommu_unmap(domain, orig_iova, orig_size - size);
+@@ -2438,18 +2435,31 @@ static int __iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 	return ret;
+ }
  
- 	/* Undo the runtime PM settings in amba_probe() */
-@@ -319,7 +320,9 @@ static int amba_remove(struct device *dev)
- static void amba_shutdown(struct device *dev)
- {
- 	struct amba_driver *drv = to_amba_driver(dev->driver);
--	drv->shutdown(to_amba_device(dev));
++static int _iommu_map(struct iommu_domain *domain, unsigned long iova,
++		      phys_addr_t paddr, size_t size, int prot, gfp_t gfp)
++{
++	const struct iommu_ops *ops = domain->ops;
++	int ret;
 +
-+	if (drv->shutdown)
-+		drv->shutdown(to_amba_device(dev));
- }
- 
- /**
-@@ -332,12 +335,13 @@ static void amba_shutdown(struct device *dev)
-  */
- int amba_driver_register(struct amba_driver *drv)
++	ret = __iommu_map(domain, iova, paddr, size, prot, GFP_KERNEL);
++	if (ret == 0 && ops->iotlb_sync_map)
++		ops->iotlb_sync_map(domain);
++
++	return ret;
++}
++
+ int iommu_map(struct iommu_domain *domain, unsigned long iova,
+ 	      phys_addr_t paddr, size_t size, int prot)
  {
--	drv->drv.bus = &amba_bustype;
-+	if (!drv->probe)
-+		return -EINVAL;
- 
--#define SETFN(fn)	if (drv->fn) drv->drv.fn = amba_##fn
--	SETFN(probe);
--	SETFN(remove);
--	SETFN(shutdown);
-+	drv->drv.bus = &amba_bustype;
-+	drv->drv.probe = amba_probe;
-+	drv->drv.remove = amba_remove;
-+	drv->drv.shutdown = amba_shutdown;
- 
- 	return driver_register(&drv->drv);
+ 	might_sleep();
+-	return __iommu_map(domain, iova, paddr, size, prot, GFP_KERNEL);
++	return _iommu_map(domain, iova, paddr, size, prot, GFP_KERNEL);
  }
+ EXPORT_SYMBOL_GPL(iommu_map);
+ 
+ int iommu_map_atomic(struct iommu_domain *domain, unsigned long iova,
+ 	      phys_addr_t paddr, size_t size, int prot)
+ {
+-	return __iommu_map(domain, iova, paddr, size, prot, GFP_ATOMIC);
++	return _iommu_map(domain, iova, paddr, size, prot, GFP_ATOMIC);
+ }
+ EXPORT_SYMBOL_GPL(iommu_map_atomic);
+ 
+@@ -2533,6 +2543,7 @@ static size_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 			     struct scatterlist *sg, unsigned int nents, int prot,
+ 			     gfp_t gfp)
+ {
++	const struct iommu_ops *ops = domain->ops;
+ 	size_t len = 0, mapped = 0;
+ 	phys_addr_t start;
+ 	unsigned int i = 0;
+@@ -2563,6 +2574,8 @@ static size_t __iommu_map_sg(struct iommu_domain *domain, unsigned long iova,
+ 			sg = sg_next(sg);
+ 	}
+ 
++	if (ops->iotlb_sync_map)
++		ops->iotlb_sync_map(domain);
+ 	return mapped;
+ 
+ out_err:
 -- 
 2.27.0
 
