@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D080328941
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FDF7328940
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239058AbhCARxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
+        id S239054AbhCARxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:53:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238138AbhCARrE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:47:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 354A664FD7;
-        Mon,  1 Mar 2021 16:59:24 +0000 (UTC)
+        id S238146AbhCARrB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:47:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09DAD650DE;
+        Mon,  1 Mar 2021 16:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617964;
-        bh=/3RrrgaEYCMX0pkVk1wuZsjjY1LotXBWkd/8kfcAYJo=;
+        s=korg; t=1614617967;
+        bh=6fC6iAy6FRB6BijMFMI6kET+V7ALN2BFLqZJu5zSVfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cn8mtaajRPLA9MMG/cfJ/Lva2Vb66CxzJWbgDJnMb1pdpfXyAboyFOHldWVMP3MkU
-         5ucvVUCFvVORilPXen4YA53YzwYGtzCga6THJ2flEyeF2WJ9kSnOcTdS2OjzOx4JXA
-         gYL3jW4jpnMNQLskfWlKMVNeh/mOB/RN30Y9OfPI=
+        b=1Wso7AuFTrNpJfFz8F8gqC8rXc6W3kk9mfQXiZCwRhkuSasQZL0lEWXHkc+1ii1rA
+         J2csIYDThgCdwS/BLl54XkbVvKDVl6lpVYtiJKf+/7iRLYFRC58cWvfGdMLNp+njU0
+         4yEHrFrEm9iudoLjwhrzuOJCv0oR+75ZVQ+RIKBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Josef=20O=C5=A1kera?= <joskera@redhat.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Marc Zyngier <maz@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 230/340] r8169: fix jumbo packet handling on RTL8168e
-Date:   Mon,  1 Mar 2021 17:12:54 +0100
-Message-Id: <20210301161059.616249463@linuxfoundation.org>
+Subject: [PATCH 5.4 231/340] arm64: Add missing ISB after invalidating TLB in __primary_switch
+Date:   Mon,  1 Mar 2021 17:12:55 +0100
+Message-Id: <20210301161059.667125934@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,49 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 6cf739131a15e4177e58a1b4f2bede9d5da78552 ]
+[ Upstream commit 9d41053e8dc115c92b8002c3db5f545d7602498b ]
 
-Josef reported [0] that using jumbo packets fails on RTL8168e.
-Aligning the values for register MaxTxPacketSize with the
-vendor driver fixes the problem.
+Although there has been a bit of back and forth on the subject, it
+appears that invalidating TLBs requires an ISB instruction when FEAT_ETS
+is not implemented by the CPU.
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=211827
+>From the bible:
 
-Fixes: d58d46b5d851 ("r8169: jumbo fixes.")
-Reported-by: Josef Oškera <joskera@redhat.com>
-Tested-by: Josef Oškera <joskera@redhat.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Link: https://lore.kernel.org/r/b15ddef7-0d50-4320-18f4-6a3f86fbfd3e@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+  | In an implementation that does not implement FEAT_ETS, a TLB
+  | maintenance instruction executed by a PE, PEx, can complete at any
+  | time after it is issued, but is only guaranteed to be finished for a
+  | PE, PEx, after the execution of DSB by the PEx followed by a Context
+  | synchronization event
+
+Add the missing ISB in __primary_switch, just in case.
+
+Fixes: 3c5e9f238bc4 ("arm64: head.S: move KASLR processing out of __enable_mmu()")
+Suggested-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20210224093738.3629662-3-maz@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/head.S | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 1e8244ec5b332..131be1fa770cb 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -4077,7 +4077,7 @@ static void r8168dp_hw_jumbo_disable(struct rtl8169_private *tp)
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index bdb5ec3419006..438de2301cfe3 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -970,6 +970,7 @@ __primary_switch:
  
- static void r8168e_hw_jumbo_enable(struct rtl8169_private *tp)
- {
--	RTL_W8(tp, MaxTxPacketSize, 0x3f);
-+	RTL_W8(tp, MaxTxPacketSize, 0x24);
- 	RTL_W8(tp, Config3, RTL_R8(tp, Config3) | Jumbo_En0);
- 	RTL_W8(tp, Config4, RTL_R8(tp, Config4) | 0x01);
- 	rtl_tx_performance_tweak(tp, PCI_EXP_DEVCTL_READRQ_512B);
-@@ -4085,7 +4085,7 @@ static void r8168e_hw_jumbo_enable(struct rtl8169_private *tp)
+ 	tlbi	vmalle1				// Remove any stale TLB entries
+ 	dsb	nsh
++	isb
  
- static void r8168e_hw_jumbo_disable(struct rtl8169_private *tp)
- {
--	RTL_W8(tp, MaxTxPacketSize, 0x0c);
-+	RTL_W8(tp, MaxTxPacketSize, 0x3f);
- 	RTL_W8(tp, Config3, RTL_R8(tp, Config3) & ~Jumbo_En0);
- 	RTL_W8(tp, Config4, RTL_R8(tp, Config4) & ~0x01);
- 	rtl_tx_performance_tweak(tp, PCI_EXP_DEVCTL_READRQ_4096B);
+ 	msr	sctlr_el1, x19			// re-enable the MMU
+ 	isb
 -- 
 2.27.0
 
