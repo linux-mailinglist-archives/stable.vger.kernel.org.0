@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7610E328E96
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A738C328F8C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241980AbhCATdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:33:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S242283AbhCATw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:52:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241703AbhCAT2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:28:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 687F665054;
-        Mon,  1 Mar 2021 17:21:16 +0000 (UTC)
+        id S242198AbhCAToD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE08B651F3;
+        Mon,  1 Mar 2021 17:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619276;
-        bh=BZ+59cz0G/FJDTov8lOoYT8F7N3HGL/cTj4rCPAqPW0=;
+        s=korg; t=1614619197;
+        bh=E6XF8j4WUmRONjQdlpbT/dDDBQ+Edu+yQgaaG+u4nL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6BPsS2C9NwEGiZVAhHBph2NcGFNDXziDa5wwYdUJGUPZ/4MbRKsHCPZO1x6syu27
-         vFAo5P1JnT0b8ksNCUONbsHOa7Tdfk2Y8rnuXXwch8Zps2pgNbFJAb/xKW3lZvJqtt
-         PxIGe9/j52t11oalB1FIhx+TxFDcpYhS92NjY+xc=
+        b=XBZ6+8iTHWM1kLWyrqgEnHFatpirrf+0YTqhVfRA+LkqApuJJSmdhi9RwRJT3x7Jc
+         stnNYijzzO3my7mMsPc5X52UAL5FM+4AQjSVnwLmF4j+4Zt4PfNCDu3k7s2CRVhvds
+         KE+FVtBmFqKKbpkMOnfsvjTk//DVbsvqkTFwZfLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        stable@vger.kernel.org,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 366/663] selftests/ftrace: Update synthetic event syntax errors
-Date:   Mon,  1 Mar 2021 17:10:14 +0100
-Message-Id: <20210301161159.954985356@linuxfoundation.org>
+Subject: [PATCH 5.10 368/663] regulator: bd718x7, bd71828, Fix dvs voltage levels
+Date:   Mon,  1 Mar 2021 17:10:16 +0100
+Message-Id: <20210301161200.053279685@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,78 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Zanussi <zanussi@kernel.org>
+From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 
-[ Upstream commit b5734e997e1117afb479ffda500e36fa91aea3e8 ]
+[ Upstream commit c294554111a835598b557db789d9ad2379b512a2 ]
 
-Some of the synthetic event errors and positions have changed in the
-code - update those and add several more tests.
+The ROHM BD718x7 and BD71828 drivers support setting HW state
+specific voltages from device-tree. This is used also by various
+in-tree DTS files.
 
-Also add a runtime check to ensure that the kernel supports dynamic
-strings in synthetic events, which these tests require.
+These drivers do incorrectly try to compose bit-map using enum
+values. By a chance this works for first two valid levels having
+values 1 and 2 - but setting values for the rest of the levels
+do indicate capability of setting values for first levels as
+well. Luckily the regulators which support setting values for
+SUSPEND/LPSR do usually also support setting values for RUN
+and IDLE too - thus this has not been such a fatal issue.
 
-Link: https://lkml.kernel.org/r/51402656433455baead34f068c6e9466b64df9c0.1612208610.git.zanussi@kernel.org
+Fix this by defining the old enum values as bits and fixing the
+parsing code. This allows keeping existing IC specific drivers
+intact and only slightly changing the rohm-regulator.c
 
-Fixes: 81ff92a93d95 (selftests/ftrace: Add test case for synthetic event syntax errors)
-Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 21b72156ede8b ("regulator: bd718x7: Split driver to common and bd718x7 specific parts")
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20210212080023.GA880728@localhost.localdomain
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../trigger-synthetic_event_syntax_errors.tc  | 35 ++++++++++++++-----
- 1 file changed, 27 insertions(+), 8 deletions(-)
+ drivers/regulator/rohm-regulator.c |  9 ++++++---
+ include/linux/mfd/rohm-generic.h   | 14 ++++++--------
+ 2 files changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
-index ada594fe16cb3..955e3ceea44b5 100644
---- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
-+++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
-@@ -1,19 +1,38 @@
- #!/bin/sh
- # SPDX-License-Identifier: GPL-2.0
- # description: event trigger - test synthetic_events syntax parser errors
--# requires: synthetic_events error_log
-+# requires: synthetic_events error_log "char name[]' >> synthetic_events":README
+diff --git a/drivers/regulator/rohm-regulator.c b/drivers/regulator/rohm-regulator.c
+index 399002383b28b..5c558b153d55e 100644
+--- a/drivers/regulator/rohm-regulator.c
++++ b/drivers/regulator/rohm-regulator.c
+@@ -52,9 +52,12 @@ int rohm_regulator_set_dvs_levels(const struct rohm_dvs_config *dvs,
+ 	char *prop;
+ 	unsigned int reg, mask, omask, oreg = desc->enable_reg;
  
- check_error() { # command-with-error-pos-by-^
-     ftrace_errlog_check 'synthetic_events' "$1" 'synthetic_events'
- }
+-	for (i = 0; i < ROHM_DVS_LEVEL_MAX && !ret; i++) {
+-		if (dvs->level_map & (1 << i)) {
+-			switch (i + 1) {
++	for (i = 0; i < ROHM_DVS_LEVEL_VALID_AMOUNT && !ret; i++) {
++		int bit;
++
++		bit = BIT(i);
++		if (dvs->level_map & bit) {
++			switch (bit) {
+ 			case ROHM_DVS_LEVEL_RUN:
+ 				prop = "rohm,dvs-run-voltage";
+ 				reg = dvs->run_reg;
+diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-generic.h
+index 4283b5b33e040..2b85b9deb03ae 100644
+--- a/include/linux/mfd/rohm-generic.h
++++ b/include/linux/mfd/rohm-generic.h
+@@ -20,14 +20,12 @@ struct rohm_regmap_dev {
+ 	struct regmap *regmap;
+ };
  
-+check_dyn_error() { # command-with-error-pos-by-^
-+    ftrace_errlog_check 'synthetic_events' "$1" 'dynamic_events'
-+}
-+
- check_error 'myevent ^chr arg'			# INVALID_TYPE
--check_error 'myevent ^char str[];; int v'	# INVALID_TYPE
--check_error 'myevent char ^str]; int v'		# INVALID_NAME
--check_error 'myevent char ^str;[]'		# INVALID_NAME
--check_error 'myevent ^char str[; int v'		# INVALID_TYPE
--check_error '^mye;vent char str[]'		# BAD_NAME
--check_error 'myevent char str[]; ^int'		# INVALID_FIELD
--check_error '^myevent'				# INCOMPLETE_CMD
-+check_error 'myevent ^unsigned arg'		# INCOMPLETE_TYPE
-+
-+check_error 'myevent char ^str]; int v'		# BAD_NAME
-+check_error '^mye-vent char str[]'		# BAD_NAME
-+check_error 'myevent char ^st-r[]'		# BAD_NAME
-+
-+check_error 'myevent char str;^[]'		# INVALID_FIELD
-+check_error 'myevent char str; ^int'		# INVALID_FIELD
-+
-+check_error 'myevent char ^str[; int v'		# INVALID_ARRAY_SPEC
-+check_error 'myevent char ^str[kdjdk]'		# INVALID_ARRAY_SPEC
-+check_error 'myevent char ^str[257]'		# INVALID_ARRAY_SPEC
-+
-+check_error '^mye;vent char str[]'		# INVALID_CMD
-+check_error '^myevent ; char str[]'		# INVALID_CMD
-+check_error '^myevent; char str[]'		# INVALID_CMD
-+check_error '^myevent ;char str[]'		# INVALID_CMD
-+check_error '^; char str[]'			# INVALID_CMD
-+check_error '^;myevent char str[]'		# INVALID_CMD
-+check_error '^myevent'				# INVALID_CMD
-+
-+check_dyn_error '^s:junk/myevent char str['	# INVALID_DYN_CMD
+-enum {
+-	ROHM_DVS_LEVEL_UNKNOWN,
+-	ROHM_DVS_LEVEL_RUN,
+-	ROHM_DVS_LEVEL_IDLE,
+-	ROHM_DVS_LEVEL_SUSPEND,
+-	ROHM_DVS_LEVEL_LPSR,
+-	ROHM_DVS_LEVEL_MAX = ROHM_DVS_LEVEL_LPSR,
+-};
++#define ROHM_DVS_LEVEL_RUN		BIT(0)
++#define ROHM_DVS_LEVEL_IDLE		BIT(1)
++#define ROHM_DVS_LEVEL_SUSPEND		BIT(2)
++#define ROHM_DVS_LEVEL_LPSR		BIT(3)
++#define ROHM_DVS_LEVEL_VALID_AMOUNT	4
++#define ROHM_DVS_LEVEL_UNKNOWN		0
  
- exit 0
+ /**
+  * struct rohm_dvs_config - dynamic voltage scaling register descriptions
 -- 
 2.27.0
 
