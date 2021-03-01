@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84935328393
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7605328397
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237160AbhCAQWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:22:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        id S235469AbhCAQWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:22:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237732AbhCAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237731AbhCAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E977B64EBA;
-        Mon,  1 Mar 2021 16:17:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 978DD64EAE;
+        Mon,  1 Mar 2021 16:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615430;
-        bh=evSdY0+nY04A+V+1Rt8iND8a4NQ1L7MXUVOZXIhB1Bk=;
+        s=korg; t=1614615433;
+        bh=GuFZUTlsmQ05FkrB4261N8Wq4tDh1IRG/jfj/9sL4lQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+DM1aAtzY/H3aa/Pu97+Q9m/vxeEh07aqe0wSe/qb/qVY0RKn6l6i7hMlj0ea+UN
-         VJmhs6+8TC15yVrPSBQBvZAzjL0ShAxPVmEj+G8IL3cWh2Rb2wqaSSt0+TPhjEv2uB
-         iXhTBA6b59Oly/RIivj52y4MAxctXLxp0+MzZa4U=
+        b=TXf1qedYMLswg99NFCwJlf2mxooppShBSvbKs3sOTSUF3KyX7ryEL5nuJg9ks4R0N
+         Uk8/K/xIM+OCClmiIy7oSX16RIOMYCjG/vSiXADGawRdpQzwgxtJhy1jOMYZypW/Lo
+         cK5bMoIf8uxlpmKSDhBndMQIG0G8OwE79ljdll2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.4 08/93] MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
-Date:   Mon,  1 Mar 2021 17:12:20 +0100
-Message-Id: <20210301161007.306941836@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christopher William Snowhill <chris@kode54.net>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 09/93] Bluetooth: Fix initializing response id after clearing struct
+Date:   Mon,  1 Mar 2021 17:12:21 +0100
+Message-Id: <20210301161007.359944148@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,66 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alobakin@pm.me>
+From: Christopher William Snowhill <chris@kode54.net>
 
-commit 8ac7c87acdcac156670f9920c8acbd84308ff4b1 upstream.
+[ Upstream commit a5687c644015a097304a2e47476c0ecab2065734 ]
 
-MIPS uses its own declaration of rwdata, and thus it should be kept
-in sync with the asm-generic one. Currently PAGE_ALIGNED_DATA() is
-missing from the linker script, which emits the following ld
-warnings:
+Looks like this was missed when patching the source to clear the structures
+throughout, causing this one instance to clear the struct after the response
+id is assigned.
 
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/kernel/vdso.o' being placed
-in section `.data..page_aligned'
-mips-alpine-linux-musl-ld: warning: orphan section
-`.data..page_aligned' from `arch/mips/vdso/vdso-image.o' being placed
-in section `.data..page_aligned'
-
-Add the necessary declaration, so the mentioned structures will be
-placed in vmlinux as intended:
-
-ffffffff80630580 D __end_once
-ffffffff80630580 D __start___dyndbg
-ffffffff80630580 D __start_once
-ffffffff80630580 D __stop___dyndbg
-ffffffff80634000 d mips_vdso_data
-ffffffff80638000 d vdso_data
-ffffffff80638580 D _gp
-ffffffff8063c000 T __init_begin
-ffffffff8063c000 D _edata
-ffffffff8063c000 T _sinittext
-
-->
-
-ffffffff805a4000 D __end_init_task
-ffffffff805a4000 D __nosave_begin
-ffffffff805a4000 D __nosave_end
-ffffffff805a4000 d mips_vdso_data
-ffffffff805a8000 d vdso_data
-ffffffff805ac000 D mmlist_lock
-ffffffff805ac080 D tasklist_lock
-
-Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
-Signed-off-by: Alexander Lobakin <alobakin@pm.me>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eddb7732119d ("Bluetooth: A2MP: Fix not initializing all members")
+Signed-off-by: Christopher William Snowhill <chris@kode54.net>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+ net/bluetooth/a2mp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/vmlinux.lds.S
-+++ b/arch/mips/kernel/vmlinux.lds.S
-@@ -90,6 +90,7 @@ SECTIONS
+diff --git a/net/bluetooth/a2mp.c b/net/bluetooth/a2mp.c
+index 8f918155685db..242ef2abd0911 100644
+--- a/net/bluetooth/a2mp.c
++++ b/net/bluetooth/a2mp.c
+@@ -388,9 +388,9 @@ static int a2mp_getampassoc_req(struct amp_mgr *mgr, struct sk_buff *skb,
+ 	hdev = hci_dev_get(req->id);
+ 	if (!hdev || hdev->amp_type == AMP_TYPE_BREDR || tmp) {
+ 		struct a2mp_amp_assoc_rsp rsp;
+-		rsp.id = req->id;
  
- 		INIT_TASK_DATA(THREAD_SIZE)
- 		NOSAVE_DATA
-+		PAGE_ALIGNED_DATA(PAGE_SIZE)
- 		CACHELINE_ALIGNED_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- 		READ_MOSTLY_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
- 		DATA_DATA
+ 		memset(&rsp, 0, sizeof(rsp));
++		rsp.id = req->id;
+ 
+ 		if (tmp) {
+ 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+-- 
+2.27.0
+
 
 
