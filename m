@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E57328F91
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 547B6328EB2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242320AbhCATxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
+        id S242100AbhCATfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:35:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242259AbhCAToS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B016365042;
-        Mon,  1 Mar 2021 17:50:52 +0000 (UTC)
+        id S241871AbhCAT3f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 359A8650CC;
+        Mon,  1 Mar 2021 17:50:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621053;
-        bh=KsBIlFCuWO/SvTLiZ3DNi4EKh+Q09SGZIg/htGUJeco=;
+        s=korg; t=1614621058;
+        bh=bGtGg8MitEcULIwlNW9UgD8oEquBOhO0LawppJcwG+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10aKJWBG/PPW8WeBeFoH1Am+vSNi4J2HWIZC2cPniX/toxd7461vDIurEAidg7uTN
-         o+VbWiSbhZ81Wd0V9ul/Dv+ezdHHx2ioMSKqinKbm53fOvihu3LZdRXqQ+sPnxPMeH
-         tRaCPNuD8Du+bwah/id596PSJ63EsDvjOpLT2gdg=
+        b=K3rV2WkPWkdlnsOAAXkOVKl2y5QaXEBwsXmr1dkn0bb72WvAhdMNrgsE0OYy/nLja
+         g7CtJBDqHtNURCGHgFHmYKBShaiYqEo4B3cQAJTMIhXpZr/isgAkWSo5qnA26BgoEJ
+         Les8egTCs+nchaSuMcTUnviqiXtIyh7z25yOFSRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Miguel Ojeda <ojeda@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 377/775] watchdog: intel-mid_wdt: Postpone IRQ handler registration till SCU is ready
-Date:   Mon,  1 Mar 2021 17:09:05 +0100
-Message-Id: <20210301161220.231160980@linuxfoundation.org>
+Subject: [PATCH 5.11 379/775] auxdisplay: Fix duplicate CHARLCD config symbol
+Date:   Mon,  1 Mar 2021 17:09:07 +0100
+Message-Id: <20210301161220.332217075@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,50 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit f285c9532b5bd3de7e37a6203318437cab79bd9a ]
+[ Upstream commit b45616445a6e346daf8a173a0c51413aec067ebb ]
 
-When SCU is not ready and CONFIG_DEBUG_SHIRQ=y we got deferred probe followed
-by fired test IRQ which immediately makes kernel panic. Fix this by delaying
-IRQ handler registration till SCU is ready.
+A second CHARLCD config symbol was added instead of moving the existing
+one.  Fix this by removing the old one.
 
-Fixes: 80ae679b8f86 ("watchdog: intel-mid_wdt: Convert to use new SCU IPC API")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 718e05ed92ecac0d ("auxdisplay: Introduce hd44780_common.[ch]")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/intel-mid_wdt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/auxdisplay/Kconfig | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/watchdog/intel-mid_wdt.c b/drivers/watchdog/intel-mid_wdt.c
-index 1ae03b64ef8bf..9b2173f765c8c 100644
---- a/drivers/watchdog/intel-mid_wdt.c
-+++ b/drivers/watchdog/intel-mid_wdt.c
-@@ -154,6 +154,10 @@ static int mid_wdt_probe(struct platform_device *pdev)
- 	watchdog_set_nowayout(wdt_dev, WATCHDOG_NOWAYOUT);
- 	watchdog_set_drvdata(wdt_dev, mid);
- 
-+	mid->scu = devm_intel_scu_ipc_dev_get(dev);
-+	if (!mid->scu)
-+		return -EPROBE_DEFER;
-+
- 	ret = devm_request_irq(dev, pdata->irq, mid_wdt_irq,
- 			       IRQF_SHARED | IRQF_NO_SUSPEND, "watchdog",
- 			       wdt_dev);
-@@ -162,10 +166,6 @@ static int mid_wdt_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
--	mid->scu = devm_intel_scu_ipc_dev_get(dev);
--	if (!mid->scu)
--		return -EPROBE_DEFER;
+diff --git a/drivers/auxdisplay/Kconfig b/drivers/auxdisplay/Kconfig
+index a2b59b84bb881..1509cb74705a3 100644
+--- a/drivers/auxdisplay/Kconfig
++++ b/drivers/auxdisplay/Kconfig
+@@ -507,6 +507,3 @@ config PANEL
+ 	depends on PARPORT
+ 	select AUXDISPLAY
+ 	select PARPORT_PANEL
 -
- 	/*
- 	 * The firmware followed by U-Boot leaves the watchdog running
- 	 * with the default threshold which may vary. When we get here
+-config CHARLCD
+-	tristate "Character LCD core support" if COMPILE_TEST
 -- 
 2.27.0
 
