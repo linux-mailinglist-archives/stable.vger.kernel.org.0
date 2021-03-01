@@ -2,114 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F065328A67
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC89328977
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239494AbhCASRO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60784 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238721AbhCASJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:09:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFF3D6529B;
-        Mon,  1 Mar 2021 17:33:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620009;
-        bh=gRIT0VF9fiR/03qrO6Qr37uVPBAtkSGVbL9WsCTeM3c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IF006vK5ZASQpNaPsSn6uZJS2PmS+LxOhMluNeY7O5xpX9T8/5nPh2Vn63ATorH+8
-         Ax8FQG3SShuu8KPL/feisOd/ozTgtvTxA/ZnIpQ//XPYSNAvsm0Y3iWb1pJVmYn1tT
-         myUEzjrxF64eKcQkD6XzHt9uQr4teRRFZLaeHM0I=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com,
-        Takeshi Misawa <jeliantsurux@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 662/663] net: qrtr: Fix memory leak in qrtr_tun_open
-Date:   Mon,  1 Mar 2021 17:15:10 +0100
-Message-Id: <20210301161214.607704812@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S236731AbhCAR5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:57:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238921AbhCARv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 12:51:27 -0500
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A767C061224
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 09:48:09 -0800 (PST)
+Received: by mail-ej1-x62b.google.com with SMTP id ci14so10835618ejc.7
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 09:48:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kKAwYJoDEnuNKA7NDxSNMttjG6oI4M6ycG0b0QK71X4=;
+        b=K3Wu1CRni/FcygK9s0nDOo+LOi/QsIK9pC2qcIZisiCTiBFFyeG5pGO1PFD9D/2JZ+
+         Bvf0xq9pahLEzCNVwR9seMyOWNxggnLxnVpPYz2NHM0bue7mr7+fChOYOmf8EbleGsYG
+         Cun1hkf7ALRFNd9gwzGa6mZCa5tGjeIanfEoghvOU4rstxztSLec6d5coGH3dSuXLdGD
+         UVnvPjD8qxQc3p2sYkGCkiM9SCZH8PNIsEtC8Vji1iCWutIfMu51gqijkUUbnIgSDTic
+         4+1E8YDV37gk2mJSHsHeqiVn9k/kW0QroJD69JR9ul1xZ/puiRxS3eOG/yLlJFCdJMlW
+         sM2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kKAwYJoDEnuNKA7NDxSNMttjG6oI4M6ycG0b0QK71X4=;
+        b=fXx/Q0STy0gQcAySx2m4pesEzNuBB5XHXBXwzbKMsTbjKhmvI6tfEEOpCTX/0BfLE2
+         x8ldJ4oBLxr6cmEvXPTV6m92PX5xnBsQS+sWHRkTVZWmqBrz9fzJP3fRYNdi3ClnpSeY
+         iZXAvmQz6pmaRYrygYLK/tv7tvZ+mlL/e943TquTX14GLFIq8swwayn3MOOGexsuLh6z
+         fFV111neLjWMowKQuMoxSgnfYIcpVnirCrh695VhpiicaOWrpIYqG/bhU5ZsfFmQf977
+         TidwwJCv9VW4KoUXDimVUNEVEh6PrZW9ZAoWgmB8mxJaI/ZWOgGHx+en6OwIWwtyNOt9
+         0Ipw==
+X-Gm-Message-State: AOAM530+WVADm7T9vxhQCtBfsAoeAWAE6njxO4N4/Oa3QCegPb6+7BRa
+        KCF8hoRr3Uzb36O6My4JZpFvdFsVW1zPxTTEi5izXQ==
+X-Google-Smtp-Source: ABdhPJzP4WNgoNINfvklMYsaaLWAkFd6O+mPU5Y3Qmi5KdRFJb3oaFi3Gphz6n7E8p4bAtOgLQVCxAsdCar9WQ9UggE=
+X-Received: by 2002:a17:906:d8ca:: with SMTP id re10mr17047184ejb.18.1614620888000;
+ Mon, 01 Mar 2021 09:48:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CA+G9fYvApAT=vx_XxhbMZ=rS8ShhYkSKa0JsHC8k0dFn5xwU=Q@mail.gmail.com>
+In-Reply-To: <CA+G9fYvApAT=vx_XxhbMZ=rS8ShhYkSKa0JsHC8k0dFn5xwU=Q@mail.gmail.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 1 Mar 2021 23:17:56 +0530
+Message-ID: <CA+G9fYsDd2Rk0YO=bELuWqcsA817v2GEaJvPxXfOJAVu0Jy5ig@mail.gmail.com>
+Subject: Re: rcar_du_kms.c:781:24: error: passing argument 1 of
+ '__drmm_add_action' from incompatible pointer type
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        dri-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        kieran.bingham+renesas@ideasonboard.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+On Mon, 1 Mar 2021 at 23:11, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+>
+> On stable rc 5.11 the x86_64 build failed due to below errors/warnings.
 
-commit fc0494ead6398609c49afa37bc949b61c5c16b91 upstream.
+These build failures were also noticed on stable rc 5.10 for arm64,
+arm, x86_64, and i386 architectures.
 
-If qrtr_endpoint_register() failed, tun is leaked.
-Fix this, by freeing tun in error path.
-
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff88811848d680 (size 64):
-  comm "syz-executor684", pid 10171, jiffies 4294951561 (age 26.070s)
-  hex dump (first 32 bytes):
-    80 dd 0a 84 ff ff ff ff 00 00 00 00 00 00 00 00  ................
-    90 d6 48 18 81 88 ff ff 90 d6 48 18 81 88 ff ff  ..H.......H.....
-  backtrace:
-    [<0000000018992a50>] kmalloc include/linux/slab.h:552 [inline]
-    [<0000000018992a50>] kzalloc include/linux/slab.h:682 [inline]
-    [<0000000018992a50>] qrtr_tun_open+0x22/0x90 net/qrtr/tun.c:35
-    [<0000000003a453ef>] misc_open+0x19c/0x1e0 drivers/char/misc.c:141
-    [<00000000dec38ac8>] chrdev_open+0x10d/0x340 fs/char_dev.c:414
-    [<0000000079094996>] do_dentry_open+0x1e6/0x620 fs/open.c:817
-    [<000000004096d290>] do_open fs/namei.c:3252 [inline]
-    [<000000004096d290>] path_openat+0x74a/0x1b00 fs/namei.c:3369
-    [<00000000b8e64241>] do_filp_open+0xa0/0x190 fs/namei.c:3396
-    [<00000000a3299422>] do_sys_openat2+0xed/0x230 fs/open.c:1172
-    [<000000002c1bdcef>] do_sys_open fs/open.c:1188 [inline]
-    [<000000002c1bdcef>] __do_sys_openat fs/open.c:1204 [inline]
-    [<000000002c1bdcef>] __se_sys_openat fs/open.c:1199 [inline]
-    [<000000002c1bdcef>] __x64_sys_openat+0x7f/0xe0 fs/open.c:1199
-    [<00000000f3a5728f>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000004b38b7ec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 28fb4e59a47d ("net: qrtr: Expose tunneling endpoint to user space")
-Reported-by: syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Link: https://lore.kernel.org/r/20210221234427.GA2140@DESKTOP
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/qrtr/tun.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
---- a/net/qrtr/tun.c
-+++ b/net/qrtr/tun.c
-@@ -31,6 +31,7 @@ static int qrtr_tun_send(struct qrtr_end
- static int qrtr_tun_open(struct inode *inode, struct file *filp)
- {
- 	struct qrtr_tun *tun;
-+	int ret;
- 
- 	tun = kzalloc(sizeof(*tun), GFP_KERNEL);
- 	if (!tun)
-@@ -43,7 +44,16 @@ static int qrtr_tun_open(struct inode *i
- 
- 	filp->private_data = tun;
- 
--	return qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
-+	ret = qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
-+	if (ret)
-+		goto out;
-+
-+	return 0;
-+
-+out:
-+	filp->private_data = NULL;
-+	kfree(tun);
-+	return ret;
- }
- 
- static ssize_t qrtr_tun_read_iter(struct kiocb *iocb, struct iov_iter *to)
-
-
+>
+> drivers/gpu/drm/rcar-du/rcar_du_kms.c: In function 'rcar_du_modeset_cleanup':
+> drivers/gpu/drm/rcar-du/rcar_du_kms.c:754:32: error: implicit
+> declaration of function 'to_rcar_du_device'; did you mean
+> 'to_rtc_device'? [-Werror=implicit-function-declaration]
+>   struct rcar_du_device *rcdu = to_rcar_du_device(dev);
+>                                 ^~~~~~~~~~~~~~~~~
+>                                 to_rtc_device
+> drivers/gpu/drm/rcar-du/rcar_du_kms.c:754:32: warning: initialization
+> makes pointer from integer without a cast [-Wint-conversion]
+> In file included from drivers/gpu/drm/rcar-du/rcar_du_kms.c:17:0:
+> drivers/gpu/drm/rcar-du/rcar_du_kms.c: In function 'rcar_du_modeset_init':
+> drivers/gpu/drm/rcar-du/rcar_du_kms.c:781:24: error: passing argument
+> 1 of '__drmm_add_action' from incompatible pointer type
+> [-Werror=incompatible-pointer-types]
+>   ret = drmm_add_action(&rcdu->ddev, rcar_du_modeset_cleanup, NULL);
+>                         ^
+> include/drm/drm_managed.h:25:20: note: in definition of macro 'drmm_add_action'
+>   __drmm_add_action(dev, action, data, #action)
+>                     ^~~
+> include/drm/drm_managed.h:27:18: note: expected 'struct drm_device *'
+> but argument is of type 'struct drm_device **'
+>  int __must_check __drmm_add_action(struct drm_device *dev,
+>                   ^~~~~~~~~~~~~~~~~
+> cc1: some warnings being treated as errors
+>
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+>
+> Build link,
+> https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-5.11/DISTRO=lkft,MACHINE=ls2088ardb,label=docker-buster-lkft/8/consoleText
+>
+> --
+> Linaro LKFT
+> https://lkft.linaro.org
