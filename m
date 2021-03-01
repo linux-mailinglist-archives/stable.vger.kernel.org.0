@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C76D2328F67
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF90328E8A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237886AbhCATvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:51:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53008 "EHLO mail.kernel.org"
+        id S241876AbhCATdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:33:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240907AbhCATlV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:41:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 696E96503C;
-        Mon,  1 Mar 2021 17:15:07 +0000 (UTC)
+        id S241505AbhCAT0q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:26:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10E3365107;
+        Mon,  1 Mar 2021 17:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618908;
-        bh=Uu2eES8d8sqkst1FzlgcpQT9ilhdD7VqlzdY6hDFNCY=;
+        s=korg; t=1614618845;
+        bh=T3UpDnoS0NKiycsNeTCsJ5ccBl4wBBq2xD3LEeZUROw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhsWmB7LoBu/UkoA/imVJiO/XnV1IsDyNzn0x6/kzJ7Gte/J3mlerFHu3pSgM06Pn
-         DmDjfED/2XQ+Nh0lKf8pjt4+q308wzZD1USfxchwgZaLDrjFx7OMztByxgV81uzizs
-         UYy/25I/YEiUL0Xj1woVW/q1IrRnGoa8Jl9q/YY0=
+        b=0Jq4M7CGg10DPOsdKF8qgFM8WJh+3u6P0C5hPzx1980zZ4dnj6xAvy3ksukx2mJUy
+         ejxtNuK8m1456rpGLz6kqqwntic+RjrapMyWfJMUEh5AXU1uDxwMCtRyOA7NECYOf2
+         rZIgkPpYVSw5LdQSpj8LsSikuqtoaSpzvIAydpzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 231/663] drm/vc4: hdmi: Fix up CEC registers
-Date:   Mon,  1 Mar 2021 17:07:59 +0100
-Message-Id: <20210301161153.239033064@linuxfoundation.org>
+        stable@vger.kernel.org, Abaci <abaci@linux.alibaba.com>,
+        Hao Xu <haoxu@linux.alibaba.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 239/663] io_uring: fix possible deadlock in io_uring_poll
+Date:   Mon,  1 Mar 2021 17:08:07 +0100
+Message-Id: <20210301161153.646481292@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -44,52 +41,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Hao Xu <haoxu@linux.alibaba.com>
 
-[ Upstream commit 5a32bfd563e8b5766e57475c2c81c769e5a13f5d ]
+[ Upstream commit ed670c3f90a67d9e16ab6d8893be6f072d79cd4c ]
 
-The commit 311e305fdb4e ("drm/vc4: hdmi: Implement a register layout
-abstraction") forgot one CEC register, and made a copy and paste mistake
-for another one. Fix those mistakes.
+Abaci reported follow issue:
 
-Fixes: 311e305fdb4e ("drm/vc4: hdmi: Implement a register layout abstraction")
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-5-maxime@cerno.tech
-(cherry picked from commit 303085bc11bb7aebeeaaf09213f99fd7aa539a34)
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+[   30.615891] ======================================================
+[   30.616648] WARNING: possible circular locking dependency detected
+[   30.617423] 5.11.0-rc3-next-20210115 #1 Not tainted
+[   30.618035] ------------------------------------------------------
+[   30.618914] a.out/1128 is trying to acquire lock:
+[   30.619520] ffff88810b063868 (&ep->mtx){+.+.}-{3:3}, at: __ep_eventpoll_poll+0x9f/0x220
+[   30.620505]
+[   30.620505] but task is already holding lock:
+[   30.621218] ffff88810e952be8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_enter+0x3f0/0x5b0
+[   30.622349]
+[   30.622349] which lock already depends on the new lock.
+[   30.622349]
+[   30.623289]
+[   30.623289] the existing dependency chain (in reverse order) is:
+[   30.624243]
+[   30.624243] -> #1 (&ctx->uring_lock){+.+.}-{3:3}:
+[   30.625263]        lock_acquire+0x2c7/0x390
+[   30.625868]        __mutex_lock+0xae/0x9f0
+[   30.626451]        io_cqring_overflow_flush.part.95+0x6d/0x70
+[   30.627278]        io_uring_poll+0xcb/0xd0
+[   30.627890]        ep_item_poll.isra.14+0x4e/0x90
+[   30.628531]        do_epoll_ctl+0xb7e/0x1120
+[   30.629122]        __x64_sys_epoll_ctl+0x70/0xb0
+[   30.629770]        do_syscall_64+0x2d/0x40
+[   30.630332]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.631187]
+[   30.631187] -> #0 (&ep->mtx){+.+.}-{3:3}:
+[   30.631985]        check_prevs_add+0x226/0xb00
+[   30.632584]        __lock_acquire+0x1237/0x13a0
+[   30.633207]        lock_acquire+0x2c7/0x390
+[   30.633740]        __mutex_lock+0xae/0x9f0
+[   30.634258]        __ep_eventpoll_poll+0x9f/0x220
+[   30.634879]        __io_arm_poll_handler+0xbf/0x220
+[   30.635462]        io_issue_sqe+0xa6b/0x13e0
+[   30.635982]        __io_queue_sqe+0x10b/0x550
+[   30.636648]        io_queue_sqe+0x235/0x470
+[   30.637281]        io_submit_sqes+0xcce/0xf10
+[   30.637839]        __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   30.638465]        do_syscall_64+0x2d/0x40
+[   30.638999]        entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.639643]
+[   30.639643] other info that might help us debug this:
+[   30.639643]
+[   30.640618]  Possible unsafe locking scenario:
+[   30.640618]
+[   30.641402]        CPU0                    CPU1
+[   30.641938]        ----                    ----
+[   30.642664]   lock(&ctx->uring_lock);
+[   30.643425]                                lock(&ep->mtx);
+[   30.644498]                                lock(&ctx->uring_lock);
+[   30.645668]   lock(&ep->mtx);
+[   30.646321]
+[   30.646321]  *** DEADLOCK ***
+[   30.646321]
+[   30.647642] 1 lock held by a.out/1128:
+[   30.648424]  #0: ffff88810e952be8 (&ctx->uring_lock){+.+.}-{3:3}, at: __x64_sys_io_uring_enter+0x3f0/0x5b0
+[   30.649954]
+[   30.649954] stack backtrace:
+[   30.650592] CPU: 1 PID: 1128 Comm: a.out Not tainted 5.11.0-rc3-next-20210115 #1
+[   30.651554] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+[   30.652290] Call Trace:
+[   30.652688]  dump_stack+0xac/0xe3
+[   30.653164]  check_noncircular+0x11e/0x130
+[   30.653747]  ? check_prevs_add+0x226/0xb00
+[   30.654303]  check_prevs_add+0x226/0xb00
+[   30.654845]  ? add_lock_to_list.constprop.49+0xac/0x1d0
+[   30.655564]  __lock_acquire+0x1237/0x13a0
+[   30.656262]  lock_acquire+0x2c7/0x390
+[   30.656788]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.657379]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.658014]  __mutex_lock+0xae/0x9f0
+[   30.658524]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.659112]  ? mark_held_locks+0x5a/0x80
+[   30.659648]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.660229]  ? _raw_spin_unlock_irqrestore+0x2d/0x40
+[   30.660885]  ? trace_hardirqs_on+0x46/0x110
+[   30.661471]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.662102]  ? __ep_eventpoll_poll+0x9f/0x220
+[   30.662696]  __ep_eventpoll_poll+0x9f/0x220
+[   30.663273]  ? __ep_eventpoll_poll+0x220/0x220
+[   30.663875]  __io_arm_poll_handler+0xbf/0x220
+[   30.664463]  io_issue_sqe+0xa6b/0x13e0
+[   30.664984]  ? __lock_acquire+0x782/0x13a0
+[   30.665544]  ? __io_queue_proc.isra.88+0x180/0x180
+[   30.666170]  ? __io_queue_sqe+0x10b/0x550
+[   30.666725]  __io_queue_sqe+0x10b/0x550
+[   30.667252]  ? __fget_files+0x131/0x260
+[   30.667791]  ? io_req_prep+0xd8/0x1090
+[   30.668316]  ? io_queue_sqe+0x235/0x470
+[   30.668868]  io_queue_sqe+0x235/0x470
+[   30.669398]  io_submit_sqes+0xcce/0xf10
+[   30.669931]  ? xa_load+0xe4/0x1c0
+[   30.670425]  __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   30.671051]  ? lockdep_hardirqs_on_prepare+0xde/0x180
+[   30.671719]  ? syscall_enter_from_user_mode+0x2b/0x80
+[   30.672380]  do_syscall_64+0x2d/0x40
+[   30.672901]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   30.673503] RIP: 0033:0x7fd89c813239
+[   30.673962] Code: 01 00 48 81 c4 80 00 00 00 e9 f1 fe ff ff 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05  3d 01 f0 ff ff 73 01 c3 48 8b 0d 27 ec 2c 00 f7 d8 64 89 01 48
+[   30.675920] RSP: 002b:00007ffc65a7c628 EFLAGS: 00000217 ORIG_RAX: 00000000000001aa
+[   30.676791] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd89c813239
+[   30.677594] RDX: 0000000000000000 RSI: 0000000000000014 RDI: 0000000000000003
+[   30.678678] RBP: 00007ffc65a7c720 R08: 0000000000000000 R09: 0000000003000000
+[   30.679492] R10: 0000000000000000 R11: 0000000000000217 R12: 0000000000400ff0
+[   30.680282] R13: 00007ffc65a7c840 R14: 0000000000000000 R15: 0000000000000000
+
+This might happen if we do epoll_wait on a uring fd while reading/writing
+the former epoll fd in a sqe in the former uring instance.
+So let's don't flush cqring overflow list, just do a simple check.
+
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Fixes: 6c503150ae33 ("io_uring: patch up IOPOLL overflow_flush sync")
+Signed-off-by: Hao Xu <haoxu@linux.alibaba.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi_regs.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/io_uring.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
-index 7c6b4818f2455..6c0dfbbe1a7ef 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi_regs.h
-@@ -29,6 +29,7 @@ enum vc4_hdmi_field {
- 	HDMI_CEC_CPU_MASK_SET,
- 	HDMI_CEC_CPU_MASK_STATUS,
- 	HDMI_CEC_CPU_STATUS,
-+	HDMI_CEC_CPU_SET,
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index d0b7332ca7033..d0172cc4f6427 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8440,8 +8440,21 @@ static __poll_t io_uring_poll(struct file *file, poll_table *wait)
+ 	smp_rmb();
+ 	if (!io_sqring_full(ctx))
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+-	io_cqring_overflow_flush(ctx, false, NULL, NULL);
+-	if (io_cqring_events(ctx))
++
++	/*
++	 * Don't flush cqring overflow list here, just do a simple check.
++	 * Otherwise there could possible be ABBA deadlock:
++	 *      CPU0                    CPU1
++	 *      ----                    ----
++	 * lock(&ctx->uring_lock);
++	 *                              lock(&ep->mtx);
++	 *                              lock(&ctx->uring_lock);
++	 * lock(&ep->mtx);
++	 *
++	 * Users may get EPOLLIN meanwhile seeing nothing in cqring, this
++	 * pushs them to do the flush.
++	 */
++	if (io_cqring_events(ctx) || test_bit(0, &ctx->cq_check_overflow))
+ 		mask |= EPOLLIN | EPOLLRDNORM;
  
- 	/*
- 	 * Transmit data, first byte is low byte of the 32-bit reg.
-@@ -196,9 +197,10 @@ static const struct vc4_hdmi_register vc4_hdmi_fields[] = {
- 	VC4_HDMI_REG(HDMI_TX_PHY_RESET_CTL, 0x02c0),
- 	VC4_HDMI_REG(HDMI_TX_PHY_CTL_0, 0x02c4),
- 	VC4_HDMI_REG(HDMI_CEC_CPU_STATUS, 0x0340),
-+	VC4_HDMI_REG(HDMI_CEC_CPU_SET, 0x0344),
- 	VC4_HDMI_REG(HDMI_CEC_CPU_CLEAR, 0x0348),
- 	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_STATUS, 0x034c),
--	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_SET, 0x034c),
-+	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_SET, 0x0350),
- 	VC4_HDMI_REG(HDMI_CEC_CPU_MASK_CLEAR, 0x0354),
- 	VC4_HDMI_REG(HDMI_RAM_PACKET_START, 0x0400),
- };
+ 	return mask;
 -- 
 2.27.0
 
