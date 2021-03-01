@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F66328381
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E17C1328387
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237655AbhCAQUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:20:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+        id S234958AbhCAQVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:21:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237779AbhCAQTF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF52464E75;
-        Mon,  1 Mar 2021 16:17:01 +0000 (UTC)
+        id S237780AbhCAQTG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:19:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DD0764E6B;
+        Mon,  1 Mar 2021 16:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615422;
-        bh=op4vn64CcWZpPN1K3w8WTxX2MBA/hrBhgkAtNECsBuw=;
+        s=korg; t=1614615425;
+        bh=aKLsGDzsotx/vhQoDb17p3KLQrVDH372nSPDeTVo3E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YzlBuJ6jBYkBXezh/Fu54n6/J1n6h0RNcE8AYDV4GygXaJ3Uolifm0iQXh8xeX6ak
-         +byq2SKmSMG5zLmSQ7+PWNvxoL2nLdrXYdGCtUcQEUoO11M9G8CShkdTqFwUmCY0GC
-         bakAwhVTU8qedbvG8rdem4DkgBmvE7X2oFjWCzsU=
+        b=P2r/ksMKLXz5g3B1z5uNLLrxSGF9d/BzM82WogkUJm8xidP+Suj9n+wzp+UjZ2lhN
+         eeqo2lTUv3AOF+Xz7//IRKd7RnvZb7qMMCnm0pYNW5U74hOWdYWDa0XMzxEVXXbJ5y
+         ePk7+jhSv9Q+uZc7rikeaTODKU/5pua8vuDzNHCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corinna Vinschen <vinschen@redhat.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-Subject: [PATCH 4.4 05/93] igb: Remove incorrect "unexpected SYS WRAP" log message
-Date:   Mon,  1 Mar 2021 17:12:17 +0100
-Message-Id: <20210301161007.153343176@linuxfoundation.org>
+        stable@vger.kernel.org, Rong Chen <rong.a.chen@intel.com>,
+        kernel test robot <lkp@intel.com>,
+        Yoshinori Sato <ysato@users.osdn.me>,
+        Rich Felker <dalias@libc.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 06/93] scripts/recordmcount.pl: support big endian for ARCH sh
+Date:   Mon,  1 Mar 2021 17:12:18 +0100
+Message-Id: <20210301161007.203588212@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -42,44 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corinna Vinschen <vinschen@redhat.com>
+From: Rong Chen <rong.a.chen@intel.com>
 
-commit 2643e6e90210e16c978919617170089b7c2164f7 upstream.
+[ Upstream commit 93ca696376dd3d44b9e5eae835ffbc84772023ec ]
 
-TSAUXC.DisableSystime is never set, so SYSTIM runs into a SYS WRAP
-every 1100 secs on 80580/i350/i354 (40 bit SYSTIM) and every 35000
-secs on 80576 (45 bit SYSTIM).
+The kernel test robot reported the following issue:
 
-This wrap event sets the TSICR.SysWrap bit unconditionally.
+    CC [M]  drivers/soc/litex/litex_soc_ctrl.o
+  sh4-linux-objcopy: Unable to change endianness of input file(s)
+  sh4-linux-ld: cannot find drivers/soc/litex/.tmp_gl_litex_soc_ctrl.o: No such file or directory
+  sh4-linux-objcopy: 'drivers/soc/litex/.tmp_mx_litex_soc_ctrl.o': No such file
 
-However, checking TSIM at interrupt time shows that this event does not
-actually cause the interrupt.  Rather, it's just bycatch while the
-actual interrupt is caused by, for instance, TSICR.TXTS.
+The problem is that the format of input file is elf32-shbig-linux, but
+sh4-linux-objcopy wants to output a file which format is elf32-sh-linux:
 
-The conclusion is that the SYS WRAP is actually expected, so the
-"unexpected SYS WRAP" message is entirely bogus and just helps to
-confuse users.  Drop it.
+  $ sh4-linux-objdump -d drivers/soc/litex/litex_soc_ctrl.o | grep format
+  drivers/soc/litex/litex_soc_ctrl.o:     file format elf32-shbig-linux
 
-Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-Acked-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Cc: Punit Agrawal <punit1.agrawal@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210210150435.2171567-1-rong.a.chen@intel.com
+Link: https://lore.kernel.org/linux-mm/202101261118.GbbYSlHu-lkp@intel.com
+Signed-off-by: Rong Chen <rong.a.chen@intel.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Yoshinori Sato <ysato@users.osdn.me>
+Cc: Rich Felker <dalias@libc.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c |    2 --
- 1 file changed, 2 deletions(-)
+ scripts/recordmcount.pl | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -5421,8 +5421,6 @@ static void igb_tsync_interrupt(struct i
- 		event.type = PTP_CLOCK_PPS;
- 		if (adapter->ptp_caps.pps)
- 			ptp_clock_event(adapter->ptp_clock, &event);
--		else
--			dev_err(&adapter->pdev->dev, "unexpected SYS WRAP");
- 		ack |= TSINTR_SYS_WRAP;
- 	}
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index 96e2486a6fc47..ccd6614ea2182 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -259,7 +259,11 @@ if ($arch eq "x86_64") {
  
+     # force flags for this arch
+     $ld .= " -m shlelf_linux";
+-    $objcopy .= " -O elf32-sh-linux";
++    if ($endian eq "big") {
++        $objcopy .= " -O elf32-shbig-linux";
++    } else {
++        $objcopy .= " -O elf32-sh-linux";
++    }
+ 
+ } elsif ($arch eq "powerpc") {
+     $local_regex = "^[0-9a-fA-F]+\\s+t\\s+(\\.?\\S+)";
+-- 
+2.27.0
+
 
 
