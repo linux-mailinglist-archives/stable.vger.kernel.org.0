@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 729663286D4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:17:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 921953286D0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:17:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237807AbhCARPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:15:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
+        id S237828AbhCARPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:15:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237559AbhCARIY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:08:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B73966500D;
-        Mon,  1 Mar 2021 16:41:34 +0000 (UTC)
+        id S233549AbhCARI3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:08:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF66365009;
+        Mon,  1 Mar 2021 16:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616895;
-        bh=SSiktEsWjy4mKPuxOmvTSX8jq/t/YQ5la8eE23Yyfn4=;
+        s=korg; t=1614616898;
+        bh=VtvvIrFn9Fdr4gfVk9d/h+msCCPZnwOXf80b6+WLYAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fx6ltL4y5jF2i2YqmagWTWac7XSFs/OYeBMG2nlLe9QgR/ShuZ1kGOoYOqCWbdKZ+
-         jj/KWVH57aDnjXT7NqnOzKtvwdNuxSfvAiFTDnr68Oa2sWpvEDQxG15opPER660ppk
-         UHozeI6B0wN7l9xPpAjkJoezi0GyoBGBYRG1JcKg=
+        b=D7K33ZWIknWWjH0MpoyCJ3c+jm/+Uan6fGb7BkJ1DQwO58+5Cs6ZzkbiD5UPZph55
+         V1/mo9ytYH4nMUka1lX0lwSmGOW9qz3rR3/AS2TExjI5lkR2dny1U+G2a1+RLOW7Vq
+         DhGjWLLuUBkGg8dDuh/p12jj492/IJsY+P/5LgZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/247] KVM: PPC: Make the VMX instruction emulation routines static
-Date:   Mon,  1 Mar 2021 17:12:33 +0100
-Message-Id: <20210301161038.179214692@linuxfoundation.org>
+Subject: [PATCH 4.19 134/247] powerpc/47x: Disable 256k page size
+Date:   Mon,  1 Mar 2021 17:12:34 +0100
+Message-Id: <20210301161038.227407216@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,74 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 9236f57a9e51c72ce426ccd2e53e123de7196a0f ]
+[ Upstream commit 910a0cb6d259736a0c86e795d4c2f42af8d0d775 ]
 
-These are only used locally. It fixes these W=1 compile errors :
+PPC47x_TLBE_SIZE isn't defined for 256k pages, leading to a build
+break if 256k pages is selected.
 
-../arch/powerpc/kvm/powerpc.c:1521:5: error: no previous prototype for ‘kvmppc_get_vmx_dword’ [-Werror=missing-prototypes]
- 1521 | int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1539:5: error: no previous prototype for ‘kvmppc_get_vmx_word’ [-Werror=missing-prototypes]
- 1539 | int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1557:5: error: no previous prototype for ‘kvmppc_get_vmx_hword’ [-Werror=missing-prototypes]
- 1557 | int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1575:5: error: no previous prototype for ‘kvmppc_get_vmx_byte’ [-Werror=missing-prototypes]
- 1575 | int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~
+So change the kconfig so that 256k pages can't be selected for 47x.
 
-Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction mmio emulation with analyse_instr() input")
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Fixes: e7f75ad01d59 ("powerpc/47x: Base ppc476 support")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Expand change log to mention build break]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210104143206.695198-19-clg@kaod.org
+Link: https://lore.kernel.org/r/2fed79b1154c872194f98bac4422c23918325e61.1611128938.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/powerpc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index 51cd66dc1bb09..7c8354dfe80e2 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -1497,7 +1497,7 @@ int kvmppc_handle_vmx_load(struct kvm_run *run, struct kvm_vcpu *vcpu,
- 	return emulated;
- }
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index d18ea3c1f4fac..6dd2a14e1ebcd 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -709,7 +709,7 @@ config PPC_64K_PAGES
  
--int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1515,7 +1515,7 @@ int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
+ config PPC_256K_PAGES
+ 	bool "256k page size"
+-	depends on 44x && !STDBINUTILS
++	depends on 44x && !STDBINUTILS && !PPC_47x
+ 	help
+ 	  Make the page size 256k.
  
--int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1533,7 +1533,7 @@ int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
- 
--int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1551,7 +1551,7 @@ int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
- 
--int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
 -- 
 2.27.0
 
