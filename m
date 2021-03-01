@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A6243285BC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6663284B9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236359AbhCAQ6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:58:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
+        id S232874AbhCAQmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235793AbhCAQwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:52:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4F8564FB1;
-        Mon,  1 Mar 2021 16:33:13 +0000 (UTC)
+        id S234298AbhCAQej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:34:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 756E064E5C;
+        Mon,  1 Mar 2021 16:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616394;
-        bh=tJHUttpc1OBNchC98vG0su6aGYE8cWN7gyrCOJ6d7cw=;
+        s=korg; t=1614615924;
+        bh=PL6RSaoPHOuZo46oVlz9RB7IohHUTP5ViUrqOxBSSuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3imDv5n9vIDw41FAC1Gw2k3RERKjn5B8MgmRbc5ueILL6KhzxlQzYjdOBzs81uSg
-         2H6V2uGQzOkn3A54H/PkkxnTzpafcPd0PI1L5tzADc3HUKABVbmmgXYjurbxTcKB4p
-         nbmy7fyYVAeqWZqgxdHFOoQGXGk8Aiit9GQWLzB0=
+        b=d4uFyIVnqm3bXLPMMRVh0LeqW1pnWQ6ZfVqhzbwVQpPnlgw2faiD5xWaSL1xbtyVl
+         TEq5ZRqWwcu7fNpXAzfSpDZ2SQRtIFoqfj66NFjPe/UAMCeiveaUH2tYWYMzkwXhFe
+         1iTRF5OQOrM5NqxUypYbvn6TOi0r9O+Lufloj5dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.14 137/176] KEYS: trusted: Fix migratable=1 failing
+        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Denis Efremov <efremov@linux.com>,
+        Kurt Garloff <kurt@garloff.de>
+Subject: [PATCH 4.9 109/134] floppy: reintroduce O_NDELAY fix
 Date:   Mon,  1 Mar 2021 17:13:30 +0100
-Message-Id: <20210301161027.799803020@linuxfoundation.org>
+Message-Id: <20210301161018.937734728@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit 8da7520c80468c48f981f0b81fc1be6599e3b0ad upstream.
+commit 8a0c014cd20516ade9654fc13b51345ec58e7be8 upstream.
 
-Consider the following transcript:
+This issue was originally fixed in 09954bad4 ("floppy: refactor open()
+flags handling").
 
-$ keyctl add trusted kmk "new 32 blobauth=helloworld keyhandle=80000000 migratable=1" @u
-add_key: Invalid argument
+The fix as a side-effect, however, introduce issue for open(O_ACCMODE)
+that is being used for ioctl-only open. I wrote a fix for that, but
+instead of it being merged, full revert of 09954bad4 was performed,
+re-introducing the O_NDELAY / O_NONBLOCK issue, and it strikes again.
 
-The documentation has the following description:
+This is a forward-port of the original fix to current codebase; the
+original submission had the changelog below:
 
-  migratable=   0|1 indicating permission to reseal to new PCR values,
-                default 1 (resealing allowed)
+====
+Commit 09954bad4 ("floppy: refactor open() flags handling"), as a
+side-effect, causes open(/dev/fdX, O_ACCMODE) to fail. It turns out that
+this is being used setfdprm userspace for ioctl-only open().
 
-The consequence is that "migratable=1" should succeed. Fix this by
-allowing this condition to pass instead of return -EINVAL.
+Reintroduce back the original behavior wrt !(FMODE_READ|FMODE_WRITE)
+modes, while still keeping the original O_NDELAY bug fixed.
 
-[*] Documentation/security/keys/trusted-encrypted.rst
-
+Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2101221209060.5622@cbobk.fhfr.pm
 Cc: stable@vger.kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: David Howells <dhowells@redhat.com>
-Fixes: d00a1c72f7f4 ("keys: add new trusted key-type")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
+Tested-by: Wim Osterholt <wim@djo.tudelft.nl>
+Reported-and-tested-by: Kurt Garloff <kurt@garloff.de>
+Fixes: 09954bad4 ("floppy: refactor open() flags handling")
+Fixes: f2791e7ead ("Revert "floppy: refactor open() flags handling"")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Denis Efremov <efremov@linux.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- security/keys/trusted.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/keys/trusted.c
-+++ b/security/keys/trusted.c
-@@ -797,7 +797,7 @@ static int getoptions(char *c, struct tr
- 		case Opt_migratable:
- 			if (*args[0].from == '0')
- 				pay->migratable = 0;
--			else
-+			else if (*args[0].from != '1')
- 				return -EINVAL;
- 			break;
- 		case Opt_pcrlock:
+---
+ drivers/block/floppy.c |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -4067,21 +4067,22 @@ static int floppy_open(struct block_devi
+ 	if (UFDCS->rawcmd == 1)
+ 		UFDCS->rawcmd = 2;
+ 
+-	if (!(mode & FMODE_NDELAY)) {
+-		if (mode & (FMODE_READ|FMODE_WRITE)) {
+-			UDRS->last_checked = 0;
+-			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
+-			check_disk_change(bdev);
+-			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
+-				goto out;
+-			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
+-				goto out;
+-		}
+-		res = -EROFS;
+-		if ((mode & FMODE_WRITE) &&
+-		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
++	if (mode & (FMODE_READ|FMODE_WRITE)) {
++		UDRS->last_checked = 0;
++		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
++		check_disk_change(bdev);
++		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
++			goto out;
++		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
+ 			goto out;
+ 	}
++
++	res = -EROFS;
++
++	if ((mode & FMODE_WRITE) &&
++			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
++		goto out;
++
+ 	mutex_unlock(&open_lock);
+ 	mutex_unlock(&floppy_mutex);
+ 	return 0;
 
 
