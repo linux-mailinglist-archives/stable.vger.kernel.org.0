@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8D7328A2A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5EA328A77
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239485AbhCASNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
+        id S239603AbhCASRy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:17:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239004AbhCASGj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:06:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC5F65188;
-        Mon,  1 Mar 2021 17:10:03 +0000 (UTC)
+        id S239330AbhCASLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:11:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAEAC65318;
+        Mon,  1 Mar 2021 17:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618604;
-        bh=TOlxSGGkEhs9SmZQvemrGPJ+SGT+fe0WY6biY6ueGMg=;
+        s=korg; t=1614620597;
+        bh=nHulc3qNJOD32dHhJbh76NFZMYWASY3FofVxMqXy6bU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o77t7uLyvAw0WXuEPNMPELFPBj7/D7JEPj1vCdaHA7nShb+mvcdymB+tEKAOm3pB3
-         OJFGfRNZ8+6QSjr5TRroTnhgS4z40fYmR+4/o3HWmMMJG4CNu4tfjynFc3XHEzSK3q
-         cqL2RkBLt/hfovbs6J9WGxI4OAdkjeXaoY9P/IUU=
+        b=en+tq0HZG5dODi3mukgHZ8nG09SFgN/d4D8qyaXHOb+FGtGlI3xeyONDIyC7KqpjQ
+         4w5Xv9e9qjdwEAo0mYU63ewJzLd1/IzjIYdoUOCSHfrRhfuwFZT9nUiBcY1/rrzSqf
+         YiBSbOg1X7zl4YBmYeK17nBjwHGVY3rTJvYdjy6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Giulio Benetti <giulio.benetti@micronovasrl.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/663] net: amd-xgbe: Reset the PHY rx data path when mailbox command timeout
-Date:   Mon,  1 Mar 2021 17:06:18 +0100
-Message-Id: <20210301161148.183037207@linuxfoundation.org>
+Subject: [PATCH 5.11 211/775] drm/sun4i: tcon: fix inverted DCLK polarity
+Date:   Mon,  1 Mar 2021 17:06:19 +0100
+Message-Id: <20210301161212.072648373@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,125 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Giulio Benetti <giulio.benetti@micronovasrl.com>
 
-[ Upstream commit 30b7edc82ec82578f4f5e6706766f0a9535617d3 ]
+[ Upstream commit 67f4aeb2b41a0629abde3794d463547f60b0cbdd ]
 
-Sometimes mailbox commands timeout when the RX data path becomes
-unresponsive. This prevents the submission of new mailbox commands to DXIO.
-This patch identifies the timeout and resets the RX data path so that the
-next message can be submitted properly.
+During commit 88bc4178568b ("drm: Use new
+DRM_BUS_FLAG_*_(DRIVE|SAMPLE)_(POS|NEG)EDGE flags") DRM_BUS_FLAG_*
+macros have been changed to avoid ambiguity but just because of this
+ambiguity previous DRM_BUS_FLAG_PIXDATA_(POS/NEG)EDGE were used meaning
+_SAMPLE_ not _DRIVE_. This leads to DLCK inversion and need to fix but
+instead of swapping phase values, let's adopt an easier approach Maxime
+suggested:
+It turned out that bit 26 of SUN4I_TCON0_IO_POL_REG is dedicated to
+invert DCLK polarity and this makes things really easier than before. So
+let's handle DCLK polarity by adding SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE
+as bit 26 and activating according to bus_flags the same way it is done
+for all the other signals polarity.
 
-Fixes: 549b32af9f7c ("amd-xgbe: Simplify mailbox interface rate change code")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 88bc4178568b ("drm: Use new DRM_BUS_FLAG_*_(DRIVE|SAMPLE)_(POS|NEG)EDGE flags")
+Suggested-by: Maxime Ripard <maxime@cerno.tech>
+Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210114081732.9386-1-giulio.benetti@benettiengineering.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-common.h | 14 +++++++++++
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 28 ++++++++++++++++++++-
- 2 files changed, 41 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/sun4i/sun4i_tcon.c | 21 ++-------------------
+ drivers/gpu/drm/sun4i/sun4i_tcon.h |  1 +
+ 2 files changed, 3 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-index b40d4377cc71d..b2cd3bdba9f89 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
-@@ -1279,10 +1279,18 @@
- #define MDIO_PMA_10GBR_FECCTRL		0x00ab
- #endif
+diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.c b/drivers/gpu/drm/sun4i/sun4i_tcon.c
+index 1e643bc7e786a..9f06dec0fc61d 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
++++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
+@@ -569,30 +569,13 @@ static void sun4i_tcon0_mode_set_rgb(struct sun4i_tcon *tcon,
+ 	if (info->bus_flags & DRM_BUS_FLAG_DE_LOW)
+ 		val |= SUN4I_TCON0_IO_POL_DE_NEGATIVE;
  
-+#ifndef MDIO_PMA_RX_CTRL1
-+#define MDIO_PMA_RX_CTRL1		0x8051
-+#endif
-+
- #ifndef MDIO_PCS_DIG_CTRL
- #define MDIO_PCS_DIG_CTRL		0x8000
- #endif
+-	/*
+-	 * On A20 and similar SoCs, the only way to achieve Positive Edge
+-	 * (Rising Edge), is setting dclk clock phase to 2/3(240°).
+-	 * By default TCON works in Negative Edge(Falling Edge),
+-	 * this is why phase is set to 0 in that case.
+-	 * Unfortunately there's no way to logically invert dclk through
+-	 * IO_POL register.
+-	 * The only acceptable way to work, triple checked with scope,
+-	 * is using clock phase set to 0° for Negative Edge and set to 240°
+-	 * for Positive Edge.
+-	 * On A33 and similar SoCs there would be a 90° phase option,
+-	 * but it divides also dclk by 2.
+-	 * Following code is a way to avoid quirks all around TCON
+-	 * and DOTCLOCK drivers.
+-	 */
+-	if (info->bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE)
+-		clk_set_phase(tcon->dclk, 240);
+-
+ 	if (info->bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
+-		clk_set_phase(tcon->dclk, 0);
++		val |= SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE;
  
-+#ifndef MDIO_PCS_DIGITAL_STAT
-+#define MDIO_PCS_DIGITAL_STAT		0x8010
-+#endif
-+
- #ifndef MDIO_AN_XNP
- #define MDIO_AN_XNP			0x0016
- #endif
-@@ -1358,6 +1366,8 @@
- #define XGBE_KR_TRAINING_ENABLE		BIT(1)
+ 	regmap_update_bits(tcon->regs, SUN4I_TCON0_IO_POL_REG,
+ 			   SUN4I_TCON0_IO_POL_HSYNC_POSITIVE |
+ 			   SUN4I_TCON0_IO_POL_VSYNC_POSITIVE |
++			   SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE |
+ 			   SUN4I_TCON0_IO_POL_DE_NEGATIVE,
+ 			   val);
  
- #define XGBE_PCS_CL37_BP		BIT(12)
-+#define XGBE_PCS_PSEQ_STATE_MASK	0x1c
-+#define XGBE_PCS_PSEQ_STATE_POWER_GOOD	0x10
+diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.h b/drivers/gpu/drm/sun4i/sun4i_tcon.h
+index ee555318e3c2f..e624f6977eb84 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_tcon.h
++++ b/drivers/gpu/drm/sun4i/sun4i_tcon.h
+@@ -113,6 +113,7 @@
+ #define SUN4I_TCON0_IO_POL_REG			0x88
+ #define SUN4I_TCON0_IO_POL_DCLK_PHASE(phase)		((phase & 3) << 28)
+ #define SUN4I_TCON0_IO_POL_DE_NEGATIVE			BIT(27)
++#define SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE		BIT(26)
+ #define SUN4I_TCON0_IO_POL_HSYNC_POSITIVE		BIT(25)
+ #define SUN4I_TCON0_IO_POL_VSYNC_POSITIVE		BIT(24)
  
- #define XGBE_AN_CL37_INT_CMPLT		BIT(0)
- #define XGBE_AN_CL37_INT_MASK		0x01
-@@ -1375,6 +1385,10 @@
- #define XGBE_PMA_CDR_TRACK_EN_OFF	0x00
- #define XGBE_PMA_CDR_TRACK_EN_ON	0x01
- 
-+#define XGBE_PMA_RX_RST_0_MASK		BIT(4)
-+#define XGBE_PMA_RX_RST_0_RESET_ON	0x10
-+#define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
-+
- /* Bit setting and getting macros
-  *  The get macro will extract the current bit field value from within
-  *  the variable
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 859ded0c06b05..087948085ae19 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -1953,6 +1953,27 @@ static void xgbe_phy_set_redrv_mode(struct xgbe_prv_data *pdata)
- 	xgbe_phy_put_comm_ownership(pdata);
- }
- 
-+static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
-+{
-+	int reg;
-+
-+	reg = XMDIO_READ_BITS(pdata, MDIO_MMD_PCS, MDIO_PCS_DIGITAL_STAT,
-+			      XGBE_PCS_PSEQ_STATE_MASK);
-+	if (reg == XGBE_PCS_PSEQ_STATE_POWER_GOOD) {
-+		/* Mailbox command timed out, reset of RX block is required.
-+		 * This can be done by asseting the reset bit and wait for
-+		 * its compeletion.
-+		 */
-+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
-+				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_ON);
-+		ndelay(20);
-+		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
-+				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_OFF);
-+		usleep_range(40, 50);
-+		netif_err(pdata, link, pdata->netdev, "firmware mailbox reset performed\n");
-+	}
-+}
-+
- static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 					unsigned int cmd, unsigned int sub_cmd)
- {
-@@ -1960,9 +1981,11 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 	unsigned int wait;
- 
- 	/* Log if a previous command did not complete */
--	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
-+	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
- 		netif_dbg(pdata, link, pdata->netdev,
- 			  "firmware mailbox not ready for command\n");
-+		xgbe_phy_rx_reset(pdata);
-+	}
- 
- 	/* Construct the command */
- 	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, cmd);
-@@ -1984,6 +2007,9 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
- 
- 	netif_dbg(pdata, link, pdata->netdev,
- 		  "firmware mailbox command did not complete\n");
-+
-+	/* Reset on error */
-+	xgbe_phy_rx_reset(pdata);
- }
- 
- static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 -- 
 2.27.0
 
