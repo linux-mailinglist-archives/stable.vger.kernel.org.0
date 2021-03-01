@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B236328E15
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F7E3328DF2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237298AbhCATXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:23:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43772 "EHLO mail.kernel.org"
+        id S241390AbhCATVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:21:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235739AbhCATSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C79B64F0B;
-        Mon,  1 Mar 2021 17:49:22 +0000 (UTC)
+        id S241237AbhCATPW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:15:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 291D264F39;
+        Mon,  1 Mar 2021 17:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620963;
-        bh=Uu+wM+IxSlmm5kvzOMfD+rK5HK1u72PRHotX9AJEzvQ=;
+        s=korg; t=1614620965;
+        bh=7JixmZr1Y2v3lL6DOduul8NJZ0rJQcrELUzZzxYLTjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e+bCFMgANPOkuLU3cNcMyFEAEJZJd3yZCOg0utManbHllO8dmu3yyVzoEHyb1SwTT
-         XP+X7YBWfUVrvtzlNPDdIWPfanIZw3cA/Yx+1fb2DYbvKe9XTy2EQsnEyEmUNyqA4b
-         cOj8q2QlpJffhtQD+KfMxOfy9wICToWz7rKoyqB8=
+        b=HAiLmOeQPGOJFPaWaufIFuWIgEl13kq9ke8xVUyqDKeXLFS9r7Au7Zpx28xy8kA92
+         9aTxTZRMSEmCUlNb+fv3+90Ww6iIomKhu9MgCnTjjXat2eMb7QPhsJLyVUetU/DBa1
+         t9rPYE7Q976NHRo+0zSgbzocADZY6Exp8ekbhaLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        stable@vger.kernel.org,
         Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 344/775] RDMA/rtrs-srv: Fix missing wr_cqe
-Date:   Mon,  1 Mar 2021 17:08:32 +0100
-Message-Id: <20210301161218.621690507@linuxfoundation.org>
+Subject: [PATCH 5.11 345/775] RDMA/rtrs-clt: Refactor the failure cases in alloc_clt
+Date:   Mon,  1 Mar 2021 17:08:33 +0100
+Message-Id: <20210301161218.671318912@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,68 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@cloud.ionos.com>
+From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
 
-[ Upstream commit 8537f2de6519945890a2b0f3739b23f32b5c0a89 ]
+[ Upstream commit eab098246625e91c1cbd6e8f75b09e4c9c28a9fc ]
 
-We had a few places wr_cqe is not set, which could lead to NULL pointer
-deref or GPF in error case.
+Make all failure cases go to the common path to avoid duplicate code.
+And some issued existed before.
 
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20201217141915.56989-14-jinpu.wang@cloud.ionos.com
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+1. clt need to be freed to avoid memory leak.
+
+2. return ERR_PTR(-ENOMEM) if kobject_create_and_add fails, because
+   rtrs_clt_open checks the return value of by call "IS_ERR(clt)".
+
+Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
+Link: https://lore.kernel.org/r/20201217141915.56989-15-jinpu.wang@cloud.ionos.com
 Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 92a216ddd9fd3..f59731c5a96a3 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -267,6 +267,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
- 		WARN_ON_ONCE(rkey != wr->rkey);
- 
- 	wr->wr.opcode = IB_WR_RDMA_WRITE;
-+	wr->wr.wr_cqe   = &io_comp_cqe;
- 	wr->wr.ex.imm_data = 0;
- 	wr->wr.send_flags  = 0;
- 
-@@ -294,6 +295,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
- 		inv_wr.sg_list = NULL;
- 		inv_wr.num_sge = 0;
- 		inv_wr.opcode = IB_WR_SEND_WITH_INV;
-+		inv_wr.wr_cqe   = &io_comp_cqe;
- 		inv_wr.send_flags = 0;
- 		inv_wr.ex.invalidate_rkey = rkey;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index b3fb5fb93815f..172bf7f221ff0 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -2570,11 +2570,8 @@ static struct rtrs_clt *alloc_clt(const char *sessname, size_t paths_num,
+ 	clt->dev.class = rtrs_clt_dev_class;
+ 	clt->dev.release = rtrs_clt_dev_release;
+ 	err = dev_set_name(&clt->dev, "%s", sessname);
+-	if (err) {
+-		free_percpu(clt->pcpu_path);
+-		kfree(clt);
+-		return ERR_PTR(err);
+-	}
++	if (err)
++		goto err;
+ 	/*
+ 	 * Suppress user space notification until
+ 	 * sysfs files are created
+@@ -2582,29 +2579,31 @@ static struct rtrs_clt *alloc_clt(const char *sessname, size_t paths_num,
+ 	dev_set_uevent_suppress(&clt->dev, true);
+ 	err = device_register(&clt->dev);
+ 	if (err) {
+-		free_percpu(clt->pcpu_path);
+ 		put_device(&clt->dev);
+-		return ERR_PTR(err);
++		goto err;
  	}
-@@ -304,6 +306,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
  
- 		srv_mr = &sess->mrs[id->msg_id];
- 		rwr.wr.opcode = IB_WR_REG_MR;
-+		rwr.wr.wr_cqe = &local_reg_cqe;
- 		rwr.wr.num_sge = 0;
- 		rwr.mr = srv_mr->mr;
- 		rwr.wr.send_flags = 0;
-@@ -379,6 +382,7 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 	clt->kobj_paths = kobject_create_and_add("paths", &clt->dev.kobj);
+ 	if (!clt->kobj_paths) {
+-		free_percpu(clt->pcpu_path);
+-		device_unregister(&clt->dev);
+-		return NULL;
++		err = -ENOMEM;
++		goto err_dev;
+ 	}
+ 	err = rtrs_clt_create_sysfs_root_files(clt);
+ 	if (err) {
+-		free_percpu(clt->pcpu_path);
+ 		kobject_del(clt->kobj_paths);
+ 		kobject_put(clt->kobj_paths);
+-		device_unregister(&clt->dev);
+-		return ERR_PTR(err);
++		goto err_dev;
+ 	}
+ 	dev_set_uevent_suppress(&clt->dev, false);
+ 	kobject_uevent(&clt->dev.kobj, KOBJ_ADD);
  
- 		if (need_inval) {
- 			if (likely(sg_cnt)) {
-+				inv_wr.wr_cqe   = &io_comp_cqe;
- 				inv_wr.sg_list = NULL;
- 				inv_wr.num_sge = 0;
- 				inv_wr.opcode = IB_WR_SEND_WITH_INV;
-@@ -421,6 +425,7 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
- 		srv_mr = &sess->mrs[id->msg_id];
- 		rwr.wr.next = &imm_wr;
- 		rwr.wr.opcode = IB_WR_REG_MR;
-+		rwr.wr.wr_cqe = &local_reg_cqe;
- 		rwr.wr.num_sge = 0;
- 		rwr.wr.send_flags = 0;
- 		rwr.mr = srv_mr->mr;
+ 	return clt;
++err_dev:
++	device_unregister(&clt->dev);
++err:
++	free_percpu(clt->pcpu_path);
++	kfree(clt);
++	return ERR_PTR(err);
+ }
+ 
+ static void wait_for_inflight_permits(struct rtrs_clt *clt)
 -- 
 2.27.0
 
