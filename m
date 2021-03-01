@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC87328EEA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8266328F8A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235389AbhCATkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:40:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
+        id S242268AbhCATwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:52:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241655AbhCATc4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 271A76527E;
-        Mon,  1 Mar 2021 17:30:46 +0000 (UTC)
+        id S242202AbhCAToD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B54565285;
+        Mon,  1 Mar 2021 17:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619847;
-        bh=trFxcuYKqMouF32lxS+/KuRd3gv9PdsV/7cUNEYyQKc=;
+        s=korg; t=1614619858;
+        bh=JUnO/GnhXr0F5Kh2N1zUw2QEMreqFEMEf1hOYK+S6yU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLdYFW7J/xvDq7nax2lb75WSPAcfbaVjAg0QWmyxcDhiccXbIUG7im0Cv6Ekv/sTN
-         UTo9gKNcsDAjfvvHa2l2nXHiDiKeP4sVccv6FYzFpUcTw2rBaN8+hRYjW9/VG0yA/y
-         bv6uhvoakoWppch4fv86/qodnXOKw4A3LwupHDl4=
+        b=fgVxRGLoTVQkV4RHZ6TgjX9zzeFE8sz90c80tw0RQp4oSsPYU5NmRggH65GYE87mQ
+         LbCRY1RH9L3UBNmPX0kYlbeIVNrmpgYtRZC7hdOPPD9oFy4O3+BTSmjqonkxLCMKUl
+         RgOwNAjZd0uhyyS1Ddn28jkmyzha14Vz5fUHzNew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.10 603/663] nvmem: qcom-spmi-sdam: Fix uninitialized pdev pointer
-Date:   Mon,  1 Mar 2021 17:14:11 +0100
-Message-Id: <20210301161211.690337025@linuxfoundation.org>
+        stable@vger.kernel.org, Shirley Her <shirley.her@bayhubtech.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 606/663] mmc: sdhci-pci-o2micro: Bug fix for SDR104 HW tuning failure
+Date:   Mon,  1 Mar 2021 17:14:14 +0100
+Message-Id: <20210301161211.834553281@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,60 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+From: Shirley Her <shirley.her@bayhubtech.com>
 
-commit e2057ee29973b9741d43d3f475a6b02fb46a0e61 upstream.
+commit 1ad9f88014ae1d5abccb6fe930bc4c5c311bdc05 upstream.
 
-"sdam->pdev" is uninitialized and it is used to print error logs.
-Fix it. Since device pointer can be used from sdam_config, use it
-directly thereby removing pdev pointer.
+Force chip enter L0 power state during SDR104 HW tuning to avoid tuning failure
 
-Fixes: 40ce9798794f ("nvmem: add QTI SDAM driver")
+Signed-off-by: Shirley Her <shirley.her@bayhubtech.com>
+Link: https://lore.kernel.org/r/20210206014051.3418-1-shirley.her@bayhubtech.com
+Fixes: 7b7d897e8898 ("mmc: sdhci-pci-o2micro: Add HW tuning for SDR104 mode")
 Cc: stable@vger.kernel.org
-Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210205100853.32372-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/qcom-spmi-sdam.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-pci-o2micro.c |   20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
---- a/drivers/nvmem/qcom-spmi-sdam.c
-+++ b/drivers/nvmem/qcom-spmi-sdam.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * Copyright (c) 2017, 2020 The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2017, 2020-2021, The Linux Foundation. All rights reserved.
-  */
- 
- #include <linux/device.h>
-@@ -18,7 +18,6 @@
- #define SDAM_PBS_TRIG_CLR		0xE6
- 
- struct sdam_chip {
--	struct platform_device		*pdev;
- 	struct regmap			*regmap;
- 	struct nvmem_config		sdam_config;
- 	unsigned int			base;
-@@ -65,7 +64,7 @@ static int sdam_read(void *priv, unsigne
- 				size_t bytes)
+--- a/drivers/mmc/host/sdhci-pci-o2micro.c
++++ b/drivers/mmc/host/sdhci-pci-o2micro.c
+@@ -33,6 +33,8 @@
+ #define O2_SD_ADMA2		0xE7
+ #define O2_SD_INF_MOD		0xF1
+ #define O2_SD_MISC_CTRL4	0xFC
++#define O2_SD_MISC_CTRL		0x1C0
++#define O2_SD_PWR_FORCE_L0	0x0002
+ #define O2_SD_TUNING_CTRL	0x300
+ #define O2_SD_PLL_SETTING	0x304
+ #define O2_SD_MISC_SETTING	0x308
+@@ -300,6 +302,8 @@ static int sdhci_o2_execute_tuning(struc
  {
- 	struct sdam_chip *sdam = priv;
--	struct device *dev = &sdam->pdev->dev;
-+	struct device *dev = sdam->sdam_config.dev;
- 	int rc;
+ 	struct sdhci_host *host = mmc_priv(mmc);
+ 	int current_bus_width = 0;
++	u32 scratch32 = 0;
++	u16 scratch = 0;
  
- 	if (!sdam_is_valid(sdam, offset, bytes)) {
-@@ -86,7 +85,7 @@ static int sdam_write(void *priv, unsign
- 				size_t bytes)
- {
- 	struct sdam_chip *sdam = priv;
--	struct device *dev = &sdam->pdev->dev;
-+	struct device *dev = sdam->sdam_config.dev;
- 	int rc;
+ 	/*
+ 	 * This handler only implements the eMMC tuning that is specific to
+@@ -312,6 +316,17 @@ static int sdhci_o2_execute_tuning(struc
+ 	if (WARN_ON((opcode != MMC_SEND_TUNING_BLOCK_HS200) &&
+ 			(opcode != MMC_SEND_TUNING_BLOCK)))
+ 		return -EINVAL;
++
++	/* Force power mode enter L0 */
++	scratch = sdhci_readw(host, O2_SD_MISC_CTRL);
++	scratch |= O2_SD_PWR_FORCE_L0;
++	sdhci_writew(host, scratch, O2_SD_MISC_CTRL);
++
++	/* wait DLL lock, timeout value 5ms */
++	if (readx_poll_timeout(sdhci_o2_pll_dll_wdt_control, host,
++		scratch32, (scratch32 & O2_DLL_LOCK_STATUS), 1, 5000))
++		pr_warn("%s: DLL can't lock in 5ms after force L0 during tuning.\n",
++				mmc_hostname(host->mmc));
+ 	/*
+ 	 * Judge the tuning reason, whether caused by dll shift
+ 	 * If cause by dll shift, should call sdhci_o2_dll_recovery
+@@ -344,6 +359,11 @@ static int sdhci_o2_execute_tuning(struc
+ 		sdhci_set_bus_width(host, current_bus_width);
+ 	}
  
- 	if (!sdam_is_valid(sdam, offset, bytes)) {
++	/* Cancel force power mode enter L0 */
++	scratch = sdhci_readw(host, O2_SD_MISC_CTRL);
++	scratch &= ~(O2_SD_PWR_FORCE_L0);
++	sdhci_writew(host, scratch, O2_SD_MISC_CTRL);
++
+ 	sdhci_reset(host, SDHCI_RESET_CMD);
+ 	sdhci_reset(host, SDHCI_RESET_DATA);
+ 
 
 
