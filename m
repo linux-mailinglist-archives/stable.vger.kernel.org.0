@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BC0032903C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A34E1329054
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbhCAUDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58990 "EHLO mail.kernel.org"
+        id S241413AbhCAUGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:06:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242529AbhCATxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:53:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EAB865360;
-        Mon,  1 Mar 2021 17:54:02 +0000 (UTC)
+        id S242627AbhCATyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:54:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E86A265363;
+        Mon,  1 Mar 2021 17:54:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621243;
-        bh=SOMY2cf7ehxVdu/OpMFzygPChKujMvoZ5qG0kZLw4qA=;
+        s=korg; t=1614621246;
+        bh=BZ+59cz0G/FJDTov8lOoYT8F7N3HGL/cTj4rCPAqPW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WHyHVgn7FDa+S8AwOG/+FtGyx+I+xJVkN+TkIFPr4aYvkBR67UVMD/Z+vmZ56QVMi
-         Cn1flmkNnscqeMcvMSkZZgdDHTtMuBTBVzyqXOPIj1nG1gaO4LiMauq1DjzKXKMv+4
-         wkWMG+23/u1f/XD+92xM9xmETkrbVUUpDIx/X0Ns=
+        b=RTyphj+0x1fPWA5Gz7jJs/cf7TRZXisYbto0nqXqRdJ8YDX/nkBBQqCbvltU/Kr1X
+         sVWxLyQP8ggAhpxKwgFMPpMpdsWJoxFc+9/br4IrtaEue/buDGEMUQfJiDLFxCT9/K
+         wP1OhlIqs3AM14FThFhf4XiO5eVgi3p21RfsthHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Chen <ryan_chen@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 446/775] clk: aspeed: Fix APLL calculate formula from ast2600-A2
-Date:   Mon,  1 Mar 2021 17:10:14 +0100
-Message-Id: <20210301161223.593814247@linuxfoundation.org>
+Subject: [PATCH 5.11 447/775] selftests/ftrace: Update synthetic event syntax errors
+Date:   Mon,  1 Mar 2021 17:10:15 +0100
+Message-Id: <20210301161223.634067894@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,81 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Chen <ryan_chen@aspeedtech.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit 6286ce1e3ece54799f12775f8ce2a1cba9cbcfc5 ]
+[ Upstream commit b5734e997e1117afb479ffda500e36fa91aea3e8 ]
 
-Starting from A2, the A-PLL calculation has changed. Use the
-existing formula for A0/A1 and the new formula for A2 onwards.
+Some of the synthetic event errors and positions have changed in the
+code - update those and add several more tests.
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-Link: https://lore.kernel.org/r/20210119061715.6043-1-ryan_chen@aspeedtech.com
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Also add a runtime check to ensure that the kernel supports dynamic
+strings in synthetic events, which these tests require.
+
+Link: https://lkml.kernel.org/r/51402656433455baead34f068c6e9466b64df9c0.1612208610.git.zanussi@kernel.org
+
+Fixes: 81ff92a93d95 (selftests/ftrace: Add test case for synthetic event syntax errors)
+Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ .../trigger-synthetic_event_syntax_errors.tc  | 35 ++++++++++++++-----
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 177368cac6dd6..a55b37fc2c8bd 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -17,7 +17,8 @@
+diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
+index ada594fe16cb3..955e3ceea44b5 100644
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
+@@ -1,19 +1,38 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+ # description: event trigger - test synthetic_events syntax parser errors
+-# requires: synthetic_events error_log
++# requires: synthetic_events error_log "char name[]' >> synthetic_events":README
  
- #define ASPEED_G6_NUM_CLKS		71
+ check_error() { # command-with-error-pos-by-^
+     ftrace_errlog_check 'synthetic_events' "$1" 'synthetic_events'
+ }
  
--#define ASPEED_G6_SILICON_REV		0x004
-+#define ASPEED_G6_SILICON_REV		0x014
-+#define CHIP_REVISION_ID			GENMASK(23, 16)
- 
- #define ASPEED_G6_RESET_CTRL		0x040
- #define ASPEED_G6_RESET_CTRL2		0x050
-@@ -190,18 +191,34 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
- static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
- {
- 	unsigned int mult, div;
-+	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
- 
--	if (val & BIT(20)) {
--		/* Pass through mode */
--		mult = div = 1;
-+	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
-+		if (val & BIT(24)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * [(m + 1) / (n + 1)] / (p + 1) */
-+			u32 m = val & 0x1fff;
-+			u32 n = (val >> 13) & 0x3f;
-+			u32 p = (val >> 19) & 0xf;
++check_dyn_error() { # command-with-error-pos-by-^
++    ftrace_errlog_check 'synthetic_events' "$1" 'dynamic_events'
++}
 +
-+			mult = (m + 1);
-+			div = (n + 1) * (p + 1);
-+		}
- 	} else {
--		/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
--		u32 m = (val >> 5) & 0x3f;
--		u32 od = (val >> 4) & 0x1;
--		u32 n = val & 0xf;
-+		if (val & BIT(20)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
-+			u32 m = (val >> 5) & 0x3f;
-+			u32 od = (val >> 4) & 0x1;
-+			u32 n = val & 0xf;
+ check_error 'myevent ^chr arg'			# INVALID_TYPE
+-check_error 'myevent ^char str[];; int v'	# INVALID_TYPE
+-check_error 'myevent char ^str]; int v'		# INVALID_NAME
+-check_error 'myevent char ^str;[]'		# INVALID_NAME
+-check_error 'myevent ^char str[; int v'		# INVALID_TYPE
+-check_error '^mye;vent char str[]'		# BAD_NAME
+-check_error 'myevent char str[]; ^int'		# INVALID_FIELD
+-check_error '^myevent'				# INCOMPLETE_CMD
++check_error 'myevent ^unsigned arg'		# INCOMPLETE_TYPE
++
++check_error 'myevent char ^str]; int v'		# BAD_NAME
++check_error '^mye-vent char str[]'		# BAD_NAME
++check_error 'myevent char ^st-r[]'		# BAD_NAME
++
++check_error 'myevent char str;^[]'		# INVALID_FIELD
++check_error 'myevent char str; ^int'		# INVALID_FIELD
++
++check_error 'myevent char ^str[; int v'		# INVALID_ARRAY_SPEC
++check_error 'myevent char ^str[kdjdk]'		# INVALID_ARRAY_SPEC
++check_error 'myevent char ^str[257]'		# INVALID_ARRAY_SPEC
++
++check_error '^mye;vent char str[]'		# INVALID_CMD
++check_error '^myevent ; char str[]'		# INVALID_CMD
++check_error '^myevent; char str[]'		# INVALID_CMD
++check_error '^myevent ;char str[]'		# INVALID_CMD
++check_error '^; char str[]'			# INVALID_CMD
++check_error '^;myevent char str[]'		# INVALID_CMD
++check_error '^myevent'				# INVALID_CMD
++
++check_dyn_error '^s:junk/myevent char str['	# INVALID_DYN_CMD
  
--		mult = (2 - od) * (m + 2);
--		div = n + 1;
-+			mult = (2 - od) * (m + 2);
-+			div = n + 1;
-+		}
- 	}
- 	return clk_hw_register_fixed_factor(NULL, name, "clkin", 0,
- 			mult, div);
+ exit 0
 -- 
 2.27.0
 
