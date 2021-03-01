@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6B6328489
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1281E328570
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233251AbhCAQhb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:37:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36926 "EHLO mail.kernel.org"
+        id S236138AbhCAQxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231668AbhCAQ37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1012B64F12;
-        Mon,  1 Mar 2021 16:23:36 +0000 (UTC)
+        id S235233AbhCAQrL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:47:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45EE964F9C;
+        Mon,  1 Mar 2021 16:31:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615817;
-        bh=bJZPrEQmEUULAGCg89U6fclNa7EqcOCmvCi9Sa8b2Gw=;
+        s=korg; t=1614616286;
+        bh=tEhdxp0bf97jK5Xbg7ROvByaEMNGg7BVNmSgnPjs+8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCxCfwenA8sCHmdMm1hFUpgIb09h7SzGLxjn09fi5KCwnpMDZjdq/fWvgBFZ/n5nK
-         ce8GMwVIq7hZBucBn3I76f7h1dF9tNmF8c/wBIalefInI9H/NcJdMEzZs1vnrx7vED
-         /6zb5gxKQw+uDFss0TeRSeh+WXbI/kKrFeKlhejA=
+        b=eGmnMCfny0V5h7kqxBEkh7VLGDM3NjjQbNBdcwcajA6VwB0E1J3ZSr5AJNfBKUIqT
+         niq2wxsuRdyDPh+x/qkM7l0x+XAX/pPODDJOFh38TSu32S4nn83m2B4TkiCmWgBDnO
+         ol5f4jtJBRaK6S/K7PvLJG4TbAv9FcgBw9NminSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 041/134] media: pxa_camera: declare variable when DEBUG is defined
+        stable@vger.kernel.org,
+        syzbot+77779c9b52ab78154b08@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 069/176] quota: Fix memory leak when handling corrupted quota file
 Date:   Mon,  1 Mar 2021 17:12:22 +0100
-Message-Id: <20210301161015.601336368@linuxfoundation.org>
+Message-Id: <20210301161024.389854942@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 031b9212eeee365443aaef013360ea6cded7b2c4 ]
+[ Upstream commit a4db1072e1a3bd7a8d9c356e1902b13ac5deb8ef ]
 
-When DEBUG is defined this error occurs
+When checking corrupted quota file we can bail out and leak allocated
+info structure. Properly free info structure on error return.
 
-drivers/media/platform/pxa_camera.c:1410:7: error:
-  ‘i’ undeclared (first use in this function)
-  for (i = 0; i < vb->num_planes; i++)
-       ^
-The variable 'i' is missing, so declare it.
-
-Fixes: 6f28435d1c15 ("[media] media: platform: pxa_camera: trivial move of functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: syzbot+77779c9b52ab78154b08@syzkaller.appspotmail.com
+Fixes: 11c514a99bb9 ("quota: Sanity-check quota file headers on load")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/pxa_camera.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/quota/quota_v2.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
-index 3fab9f776afa7..425eda460e013 100644
---- a/drivers/media/platform/pxa_camera.c
-+++ b/drivers/media/platform/pxa_camera.c
-@@ -1420,6 +1420,9 @@ static int pxac_vb2_prepare(struct vb2_buffer *vb)
- 	struct pxa_camera_dev *pcdev = vb2_get_drv_priv(vb->vb2_queue);
- 	struct pxa_buffer *buf = vb2_to_pxa_buffer(vb);
- 	int ret = 0;
-+#ifdef DEBUG
-+	int i;
-+#endif
- 
- 	switch (pcdev->channels) {
- 	case 1:
+diff --git a/fs/quota/quota_v2.c b/fs/quota/quota_v2.c
+index d99710270a373..addfaae8decfd 100644
+--- a/fs/quota/quota_v2.c
++++ b/fs/quota/quota_v2.c
+@@ -165,19 +165,24 @@ static int v2_read_file_info(struct super_block *sb, int type)
+ 		quota_error(sb, "Number of blocks too big for quota file size (%llu > %llu).",
+ 		    (loff_t)qinfo->dqi_blocks << qinfo->dqi_blocksize_bits,
+ 		    i_size_read(sb_dqopt(sb)->files[type]));
+-		goto out;
++		goto out_free;
+ 	}
+ 	if (qinfo->dqi_free_blk >= qinfo->dqi_blocks) {
+ 		quota_error(sb, "Free block number too big (%u >= %u).",
+ 			    qinfo->dqi_free_blk, qinfo->dqi_blocks);
+-		goto out;
++		goto out_free;
+ 	}
+ 	if (qinfo->dqi_free_entry >= qinfo->dqi_blocks) {
+ 		quota_error(sb, "Block with free entry too big (%u >= %u).",
+ 			    qinfo->dqi_free_entry, qinfo->dqi_blocks);
+-		goto out;
++		goto out_free;
+ 	}
+ 	ret = 0;
++out_free:
++	if (ret) {
++		kfree(info->dqi_priv);
++		info->dqi_priv = NULL;
++	}
+ out:
+ 	up_read(&dqopt->dqio_sem);
+ 	return ret;
 -- 
 2.27.0
 
