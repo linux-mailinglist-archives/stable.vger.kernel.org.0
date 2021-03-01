@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5DF6328C7C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 045A1328C17
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240647AbhCASxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:53:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53878 "EHLO mail.kernel.org"
+        id S236987AbhCASpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:45:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240405AbhCASqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:46:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7496665315;
-        Mon,  1 Mar 2021 17:43:08 +0000 (UTC)
+        id S237242AbhCASjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:39:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1061865317;
+        Mon,  1 Mar 2021 17:43:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620589;
-        bh=k6NxZ6Yebye94Y8CnNCVJrM63WQpjvNbNO1pybH1ndk=;
+        s=korg; t=1614620594;
+        bh=FVRZRs7L0MYkZQXb5ndpLTCAop6OHrOHH7V751OH+uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zp9MZgVbbduUZm88KFMnVILz6L+XYlsYKt2FUmVZ4iSQmdRbVv9JzEydrCmytmv5k
-         cb2At/sQOeZSGlLASssZ8Kgc59AFY6mqkeaUDr3TKhZ4jUsR/gNmEO1qptohHnlEzb
-         rt1sR5/nfaT6i/x4rRxGAb7xbx+sKRrIPS+oT0Hg=
+        b=rpbJ12+isBlslEBT8CLme7xLVlT5lduiHjkqAEk63+UqlBoclcgF8Yei5A1aS9eJ1
+         ZRvzec+UWn80xlRdo+nmIWduXQeRfcOdpquwf8ps2+uxRZ3dI2biDBTjZ6JuWIU+NQ
+         ntyCIZanXuc28Go7ME7WTOS4AzVFw/3DKVbX5O/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Xuewen Yan <xuewen.yan@unisoc.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 208/775] crypto: qat - replace CRYPTO_AES with CRYPTO_LIB_AES in Kconfig
-Date:   Mon,  1 Mar 2021 17:06:16 +0100
-Message-Id: <20210301161211.919870796@linuxfoundation.org>
+Subject: [PATCH 5.11 210/775] sched/fair: Avoid stale CPU util_est value for schedutil in task dequeue
+Date:   Mon,  1 Mar 2021 17:06:18 +0100
+Message-Id: <20210301161212.021149239@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,37 +42,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Chiappero <marco.chiappero@intel.com>
+From: Xuewen Yan <xuewen.yan@unisoc.com>
 
-[ Upstream commit 4f1a02e75a2eedfddd10222c0fe61d2a04d80099 ]
+[ Upstream commit 8c1f560c1ea3f19e22ba356f62680d9d449c9ec2 ]
 
-Use CRYPTO_LIB_AES in place of CRYPTO_AES in the dependences for the QAT
-common code.
+CPU (root cfs_rq) estimated utilization (util_est) is currently used in
+dequeue_task_fair() to drive frequency selection before it is updated.
 
-Fixes: c0e583ab2016 ("crypto: qat - add CRYPTO_AES to Kconfig dependencies")
-Reported-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+with:
+
+CPU_util        : rq->cfs.avg.util_avg
+CPU_util_est    : rq->cfs.avg.util_est
+CPU_utilization : max(CPU_util, CPU_util_est)
+task_util       : p->se.avg.util_avg
+task_util_est   : p->se.avg.util_est
+
+dequeue_task_fair():
+
+    /* (1) CPU_util and task_util update + inform schedutil about
+           CPU_utilization changes */
+    for_each_sched_entity() /* 2 loops */
+        (dequeue_entity() ->) update_load_avg() -> cfs_rq_util_change()
+         -> cpufreq_update_util() ->...-> sugov_update_[shared\|single]
+         -> sugov_get_util() -> cpu_util_cfs()
+
+    /* (2) CPU_util_est and task_util_est update */
+    util_est_dequeue()
+
+cpu_util_cfs() uses CPU_utilization which could lead to a false (too
+high) utilization value for schedutil in task ramp-down or ramp-up
+scenarios during task dequeue.
+
+To mitigate the issue split the util_est update (2) into:
+
+ (A) CPU_util_est update in util_est_dequeue()
+ (B) task_util_est update in util_est_update()
+
+Place (A) before (1) and keep (B) where (2) is. The latter is necessary
+since (B) relies on task_util update in (1).
+
+Fixes: 7f65ea42eb00 ("sched/fair: Add util_est on top of PELT")
+Signed-off-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/1608283672-18240-1-git-send-email-xuewen.yan94@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 43 ++++++++++++++++++++++++++++---------------
+ 1 file changed, 28 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/crypto/qat/Kconfig b/drivers/crypto/qat/Kconfig
-index 846a3d90b41a3..77783feb62b25 100644
---- a/drivers/crypto/qat/Kconfig
-+++ b/drivers/crypto/qat/Kconfig
-@@ -11,7 +11,7 @@ config CRYPTO_DEV_QAT
- 	select CRYPTO_SHA1
- 	select CRYPTO_SHA256
- 	select CRYPTO_SHA512
--	select CRYPTO_AES
-+	select CRYPTO_LIB_AES
- 	select FW_LOADER
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 04a3ce20da671..6918adaf74150 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3943,6 +3943,22 @@ static inline void util_est_enqueue(struct cfs_rq *cfs_rq,
+ 	trace_sched_util_est_cfs_tp(cfs_rq);
+ }
  
- config CRYPTO_DEV_QAT_DH895xCC
++static inline void util_est_dequeue(struct cfs_rq *cfs_rq,
++				    struct task_struct *p)
++{
++	unsigned int enqueued;
++
++	if (!sched_feat(UTIL_EST))
++		return;
++
++	/* Update root cfs_rq's estimated utilization */
++	enqueued  = cfs_rq->avg.util_est.enqueued;
++	enqueued -= min_t(unsigned int, enqueued, _task_util_est(p));
++	WRITE_ONCE(cfs_rq->avg.util_est.enqueued, enqueued);
++
++	trace_sched_util_est_cfs_tp(cfs_rq);
++}
++
+ /*
+  * Check if a (signed) value is within a specified (unsigned) margin,
+  * based on the observation that:
+@@ -3956,23 +3972,16 @@ static inline bool within_margin(int value, int margin)
+ 	return ((unsigned int)(value + margin - 1) < (2 * margin - 1));
+ }
+ 
+-static void
+-util_est_dequeue(struct cfs_rq *cfs_rq, struct task_struct *p, bool task_sleep)
++static inline void util_est_update(struct cfs_rq *cfs_rq,
++				   struct task_struct *p,
++				   bool task_sleep)
+ {
+ 	long last_ewma_diff;
+ 	struct util_est ue;
+-	int cpu;
+ 
+ 	if (!sched_feat(UTIL_EST))
+ 		return;
+ 
+-	/* Update root cfs_rq's estimated utilization */
+-	ue.enqueued  = cfs_rq->avg.util_est.enqueued;
+-	ue.enqueued -= min_t(unsigned int, ue.enqueued, _task_util_est(p));
+-	WRITE_ONCE(cfs_rq->avg.util_est.enqueued, ue.enqueued);
+-
+-	trace_sched_util_est_cfs_tp(cfs_rq);
+-
+ 	/*
+ 	 * Skip update of task's estimated utilization when the task has not
+ 	 * yet completed an activation, e.g. being migrated.
+@@ -4012,8 +4021,7 @@ util_est_dequeue(struct cfs_rq *cfs_rq, struct task_struct *p, bool task_sleep)
+ 	 * To avoid overestimation of actual task utilization, skip updates if
+ 	 * we cannot grant there is idle time in this CPU.
+ 	 */
+-	cpu = cpu_of(rq_of(cfs_rq));
+-	if (task_util(p) > capacity_orig_of(cpu))
++	if (task_util(p) > capacity_orig_of(cpu_of(rq_of(cfs_rq))))
+ 		return;
+ 
+ 	/*
+@@ -4096,8 +4104,11 @@ static inline void
+ util_est_enqueue(struct cfs_rq *cfs_rq, struct task_struct *p) {}
+ 
+ static inline void
+-util_est_dequeue(struct cfs_rq *cfs_rq, struct task_struct *p,
+-		 bool task_sleep) {}
++util_est_dequeue(struct cfs_rq *cfs_rq, struct task_struct *p) {}
++
++static inline void
++util_est_update(struct cfs_rq *cfs_rq, struct task_struct *p,
++		bool task_sleep) {}
+ static inline void update_misfit_status(struct task_struct *p, struct rq *rq) {}
+ 
+ #endif /* CONFIG_SMP */
+@@ -5609,6 +5620,8 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 	int idle_h_nr_running = task_has_idle_policy(p);
+ 	bool was_sched_idle = sched_idle_rq(rq);
+ 
++	util_est_dequeue(&rq->cfs, p);
++
+ 	for_each_sched_entity(se) {
+ 		cfs_rq = cfs_rq_of(se);
+ 		dequeue_entity(cfs_rq, se, flags);
+@@ -5659,7 +5672,7 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
+ 		rq->next_balance = jiffies;
+ 
+ dequeue_throttle:
+-	util_est_dequeue(&rq->cfs, p, task_sleep);
++	util_est_update(&rq->cfs, p, task_sleep);
+ 	hrtick_update(rq);
+ }
+ 
 -- 
 2.27.0
 
