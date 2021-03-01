@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C0AB328F81
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E95C328F7C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242147AbhCATwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:52:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
+        id S241839AbhCATwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:52:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242169AbhCAToB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE1E860C41;
-        Mon,  1 Mar 2021 17:46:34 +0000 (UTC)
+        id S242155AbhCAToA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81855651AD;
+        Mon,  1 Mar 2021 17:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620795;
-        bh=qA2TRLyly4mfWKsGE8VnSuu01WrBUCQNqc7S0NQ+JhI=;
+        s=korg; t=1614618763;
+        bh=korvbWkQKQGPsMDqI/km9sO28tKkbr2StM7kHzm05ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hcf/0KESC6PrFTMXC6rRt/qKsHneR583+ay/vTzbUQYG494FwqKeXmDuoSmKAAGJQ
-         H8gusovm2P2kYfL7K1dHXzUjqY2AKgtQ/y3eEpH5U0NOTkutqJAAG3zMP03g2qjZtj
-         qq/QfUFVevQQaiDXF0juHPekz+uDDnPGDU+g2xc8=
+        b=B9uD6H/kOovC2W8JPPijn5aYnfEgbA+/EVFSoK1lwn0W2JYo4iVeOXQ2xE6mt7t+4
+         m3nlOYkllw7C3woI2MGRdzNW2h0U0KDx/wNLSR9hqiYpl0FQPZHRxQDONxWHZl9Xtl
+         WqiVdFwrC4EjvF6GcDO1kuU8vWGBMOsGrhLJgBbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 283/775] crypto: ecdh_helper - Ensure len >= secret.len in decode_key()
-Date:   Mon,  1 Mar 2021 17:07:31 +0100
-Message-Id: <20210301161215.615456752@linuxfoundation.org>
+Subject: [PATCH 5.10 208/663] ASoC: cpcap: fix microphone timeslot mask
+Date:   Mon,  1 Mar 2021 17:07:36 +0100
+Message-Id: <20210301161152.078193080@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+From: Sebastian Reichel <sre@kernel.org>
 
-[ Upstream commit a53ab94eb6850c3657392e2d2ce9b38c387a2633 ]
+[ Upstream commit de5bfae2fd962a9da99f56382305ec7966a604b9 ]
 
-The length ('len' parameter) passed to crypto_ecdh_decode_key() is never
-checked against the length encoded in the passed buffer ('buf'
-parameter). This could lead to an out-of-bounds access when the passed
-length is less than the encoded length.
+The correct mask is 0x1f8 (Bit 3-8), but due to missing BIT() 0xf (Bit
+0-3) was set instead. This means setting of CPCAP_BIT_MIC1_RX_TIMESLOT0
+(Bit 3) still worked (part of both masks). On the other hand the code
+does not properly clear the other MIC timeslot bits. I think this
+is not a problem, since they are probably initialized to 0 and not
+touched by the driver anywhere else. But the mask also contains some
+wrong bits, that will be cleared. Bit 0 (CPCAP_BIT_SMB_CDC) should be
+safe, since the driver enforces it to be 0 anyways.
 
-Add a check to prevent that.
+Bit 1-2 are CPCAP_BIT_FS_INV and CPCAP_BIT_CLK_INV. This means enabling
+audio recording forces the codec into SND_SOC_DAIFMT_NB_NF mode, which
+is obviously bad.
 
-Fixes: 3c4b23901a0c7 ("crypto: ecdh - Add ECDH software support")
-Signed-off-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The bug probably remained undetected, because there are not many use
+cases for routing microphone to the CPU on platforms using cpcap and
+user base is small. I do remember having some issues with bad sound
+quality when testing voice recording back when I wrote the driver.
+It probably was this bug.
+
+Fixes: f6cdf2d3445d ("ASoC: cpcap: new codec")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Link: https://lore.kernel.org/r/20210123172945.3958622-1-sre@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/ecdh_helper.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/cpcap.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/crypto/ecdh_helper.c b/crypto/ecdh_helper.c
-index 66fcb2ea81544..fca63b559f655 100644
---- a/crypto/ecdh_helper.c
-+++ b/crypto/ecdh_helper.c
-@@ -67,6 +67,9 @@ int crypto_ecdh_decode_key(const char *buf, unsigned int len,
- 	if (secret.type != CRYPTO_KPP_SECRET_TYPE_ECDH)
- 		return -EINVAL;
+diff --git a/sound/soc/codecs/cpcap.c b/sound/soc/codecs/cpcap.c
+index f046987ee4cdb..c0425e3707d9c 100644
+--- a/sound/soc/codecs/cpcap.c
++++ b/sound/soc/codecs/cpcap.c
+@@ -1264,12 +1264,12 @@ static int cpcap_voice_hw_params(struct snd_pcm_substream *substream,
  
-+	if (unlikely(len < secret.len))
-+		return -EINVAL;
-+
- 	ptr = ecdh_unpack_data(&params->curve_id, ptr, sizeof(params->curve_id));
- 	ptr = ecdh_unpack_data(&params->key_size, ptr, sizeof(params->key_size));
- 	if (secret.len != crypto_ecdh_key_len(params))
+ 	if (direction == SNDRV_PCM_STREAM_CAPTURE) {
+ 		mask = 0x0000;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT0;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT1;
+-		mask |= CPCAP_BIT_MIC1_RX_TIMESLOT2;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT0;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT1;
+-		mask |= CPCAP_BIT_MIC2_TIMESLOT2;
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT0);
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT1);
++		mask |= BIT(CPCAP_BIT_MIC1_RX_TIMESLOT2);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT0);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT1);
++		mask |= BIT(CPCAP_BIT_MIC2_TIMESLOT2);
+ 		val = 0x0000;
+ 		if (channels >= 2)
+ 			val = BIT(CPCAP_BIT_MIC1_RX_TIMESLOT0);
 -- 
 2.27.0
 
