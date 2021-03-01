@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14A83290CE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ECE83290EB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242655AbhCAUPe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:15:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37634 "EHLO mail.kernel.org"
+        id S242906AbhCAUR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:17:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235681AbhCAUFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:05:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F94365292;
-        Mon,  1 Mar 2021 17:58:40 +0000 (UTC)
+        id S242177AbhCAUHI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:07:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C281F653A4;
+        Mon,  1 Mar 2021 17:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621521;
-        bh=dfiwfjdih95kPmNueKLfJksMl9tfBhr/oXqsr+opQjM=;
+        s=korg; t=1614621551;
+        bh=1f96oeQVM/BiIMAVZWokvRhoLmRmkBWfKByRvH20G1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5/QAdUKcsUHtOb9Nl3M+sFyM7Uc3SsFbpJ8dGuLOyH/zMCnaj2aRPSGyE12MQyWJ
-         CQcyg2AsVHBST+YqUNUVv52MeQ5YUGEh7pPGnkT6F5Temr7RHkHZzM0ZhDkUyXSI07
-         wr12LfyfYK8O0ccmTmkStI9lRVxdsRfiH82gkS54=
+        b=zu8ik0gTMQW4AT7O8iilGuX05sZcVZaHTEMZ2j1UK7EMzW+yYexSpS+DMj3qMqTBd
+         gi2CobwWJSNOVLUFL1Q4ldvpRNLiX5HnlXXN/6qdD8dhEXpiKkK7UneVQnVTgMD7SO
+         SU+bsFtRyFx5dU3CWqGdyBBhPpJCyqU4yNp+CxSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andreas Oetken <andreas.oetken@siemens.com>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 529/775] nios2: fixed broken sys_clone syscall
-Date:   Mon,  1 Mar 2021 17:11:37 +0100
-Message-Id: <20210301161227.633145299@linuxfoundation.org>
+Subject: [PATCH 5.11 530/775] i40e: Fix add TC filter for IPv6
+Date:   Mon,  1 Mar 2021 17:11:38 +0100
+Message-Id: <20210301161227.681690853@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,40 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Oetken <andreas.oetken@siemens.com>
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-[ Upstream commit 9abcfcb20320e8f693e89d86573b58e6289931cb ]
+[ Upstream commit 61c1e0eb8375def7c891bfe857bb795a57090526 ]
 
-The tls pointer must be pushed on the stack prior to calling nios2_clone
-as it is the 5th function argument. Prior handling of the tls pointer was
-done inside former called function copy_thread_tls using the r8 register
-from the current_pt_regs directly. This was a bad design and resulted in
-the current bug introduced in 04bd52fb.
+Fix insufficient distinction between IPv4 and IPv6 addresses
+when creating a filter.
+IPv4 and IPv6 are kept in the same memory area. If IPv6 is added,
+then it's caught by IPv4 check, which leads to err -95.
 
-Fixes: 04bd52fb ("nios2: enable HAVE_COPY_THREAD_TLS, switch to kernel_clone_args")
-Signed-off-by: Andreas Oetken <andreas.oetken@siemens.com>
-Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/kernel/entry.S | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/nios2/kernel/entry.S b/arch/nios2/kernel/entry.S
-index da8442450e460..0794cd7803dfe 100644
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -389,7 +389,10 @@ ENTRY(ret_from_interrupt)
-  */
- ENTRY(sys_clone)
- 	SAVE_SWITCH_STACK
-+	subi    sp, sp, 4 /* make space for tls pointer */
-+	stw     r8, 0(sp) /* pass tls pointer (r8) via stack (5th argument) */
- 	call	nios2_clone
-+	addi    sp, sp, 4
- 	RESTORE_SWITCH_STACK
- 	ret
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 3ca5644785556..59971f62e6268 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7731,7 +7731,8 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
+ 		return -EOPNOTSUPP;
  
+ 	/* adding filter using src_port/src_ip is not supported at this stage */
+-	if (filter->src_port || filter->src_ipv4 ||
++	if (filter->src_port ||
++	    (filter->src_ipv4 && filter->n_proto != ETH_P_IPV6) ||
+ 	    !ipv6_addr_any(&filter->ip.v6.src_ip6))
+ 		return -EOPNOTSUPP;
+ 
+@@ -7760,7 +7761,7 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
+ 			cpu_to_le16(I40E_AQC_ADD_CLOUD_FILTER_MAC_VLAN_PORT);
+ 		}
+ 
+-	} else if (filter->dst_ipv4 ||
++	} else if ((filter->dst_ipv4 && filter->n_proto != ETH_P_IPV6) ||
+ 		   !ipv6_addr_any(&filter->ip.v6.dst_ip6)) {
+ 		cld_filter.element.flags =
+ 				cpu_to_le16(I40E_AQC_ADD_CLOUD_FILTER_IP_PORT);
 -- 
 2.27.0
 
