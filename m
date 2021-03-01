@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53F6B328D1F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C9F328E4E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240635AbhCATGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:06:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
+        id S241563AbhCAT1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:27:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235033AbhCAS7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:59:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 546A964FA5;
-        Mon,  1 Mar 2021 17:31:31 +0000 (UTC)
+        id S241559AbhCATYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:24:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC1D6512E;
+        Mon,  1 Mar 2021 17:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619891;
-        bh=clNgsSlW6BodqZSmbhyAxuKEX+FLcS59BXvNc8EeZLU=;
+        s=korg; t=1614618217;
+        bh=KiPz5d8keEHTvz15eabUZwvjxe7M1UPtTCLWhmaDE/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMfK4OXVuT1nLCOUqQ8veVM3iOyD/gf0RkXJs8tnkwlaFA6hS2fQI66p+lkb3hBk4
-         TWB5VBzgsZRU9GWPxRX2HED3OPYFIamK6FtUz6XsvzSid1Imv5yY/4SronOJnrt6Q+
-         eLvCztsgLrTjxtaaoqqHY96LnTINFTbPO/OslCOE=
+        b=wDxFWw4Bl4UiTWYB2PaYOwtgM+9maVeGjemEmEMCUCjT21V0mifewM6d63a3ROx82
+         dk9m1swQX1B3vzL/nare0qHtXdco6A+OJcKXtVt05l/mSwdzw6vo11svlq9/E5KtpY
+         x8kVSgNsBA6tbmmXSDCXBV/TulW6dWGCZNR0O6Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Subject: [PATCH 5.10 617/663] printk: fix deadlock when kernel panic
-Date:   Mon,  1 Mar 2021 17:14:25 +0100
-Message-Id: <20210301161212.371954534@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 323/340] dm writecache: fix writing beyond end of underlying device when shrinking
+Date:   Mon,  1 Mar 2021 17:14:27 +0100
+Message-Id: <20210301161104.198664803@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,109 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 8a8109f303e25a27f92c1d8edd67d7cbbc60a4eb upstream.
+commit 4134455f2aafdfeab50cabb4cccb35e916034b93 upstream.
 
-printk_safe_flush_on_panic() caused the following deadlock on our
-server:
+Do not attempt to write any data beyond the end of the underlying data
+device while shrinking it.
 
-CPU0:                                         CPU1:
-panic                                         rcu_dump_cpu_stacks
-  kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
-    register_nmi_handler(crash_nmi_callback)      printk_safe_flush
-                                                    __printk_safe_flush
-                                                      raw_spin_lock_irqsave(&read_lock)
-    // send NMI to other processors
-    apic_send_IPI_allbutself(NMI_VECTOR)
-                                                        // NMI interrupt, dead loop
-                                                        crash_nmi_callback
-  printk_safe_flush_on_panic
-    printk_safe_flush
-      __printk_safe_flush
-        // deadlock
-        raw_spin_lock_irqsave(&read_lock)
+The DM writecache device must be suspended when the underlying data
+device is shrunk.
 
-DEADLOCK: read_lock is taken on CPU1 and will never get released.
-
-It happens when panic() stops a CPU by NMI while it has been in
-the middle of printk_safe_flush().
-
-Handle the lock the same way as logbuf_lock. The printk_safe buffers
-are flushed only when both locks can be safely taken. It can avoid
-the deadlock _in this particular case_ at expense of losing contents
-of printk_safe buffers.
-
-Note: It would actually be safe to re-init the locks when all CPUs were
-      stopped by NMI. But it would require passing this information
-      from arch-specific code. It is not worth the complexity.
-      Especially because logbuf_lock and printk_safe buffers have been
-      obsoleted by the lockless ring buffer.
-
-Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20210210034823.64867-1-songmuchun@bytedance.com
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/printk/printk_safe.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/md/dm-writecache.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/kernel/printk/printk_safe.c
-+++ b/kernel/printk/printk_safe.c
-@@ -45,6 +45,8 @@ struct printk_safe_seq_buf {
- static DEFINE_PER_CPU(struct printk_safe_seq_buf, safe_print_seq);
- static DEFINE_PER_CPU(int, printk_context);
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -142,6 +142,7 @@ struct dm_writecache {
+ 	size_t metadata_sectors;
+ 	size_t n_blocks;
+ 	uint64_t seq_count;
++	sector_t data_device_sectors;
+ 	void *block_start;
+ 	struct wc_entry *entries;
+ 	unsigned block_size;
+@@ -918,6 +919,8 @@ static void writecache_resume(struct dm_
  
-+static DEFINE_RAW_SPINLOCK(safe_read_lock);
+ 	wc_lock(wc);
+ 
++	wc->data_device_sectors = i_size_read(wc->dev->bdev->bd_inode) >> SECTOR_SHIFT;
 +
- #ifdef CONFIG_PRINTK_NMI
- static DEFINE_PER_CPU(struct printk_safe_seq_buf, nmi_print_seq);
- #endif
-@@ -180,8 +182,6 @@ static void report_message_lost(struct p
-  */
- static void __printk_safe_flush(struct irq_work *work)
- {
--	static raw_spinlock_t read_lock =
--		__RAW_SPIN_LOCK_INITIALIZER(read_lock);
- 	struct printk_safe_seq_buf *s =
- 		container_of(work, struct printk_safe_seq_buf, work);
- 	unsigned long flags;
-@@ -195,7 +195,7 @@ static void __printk_safe_flush(struct i
- 	 * different CPUs. This is especially important when printing
- 	 * a backtrace.
- 	 */
--	raw_spin_lock_irqsave(&read_lock, flags);
-+	raw_spin_lock_irqsave(&safe_read_lock, flags);
+ 	if (WC_MODE_PMEM(wc)) {
+ 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
+ 	} else {
+@@ -1488,6 +1491,10 @@ static bool wc_add_block(struct writebac
+ 	void *address = memory_data(wc, e);
  
- 	i = 0;
- more:
-@@ -232,7 +232,7 @@ more:
- 
- out:
- 	report_message_lost(s);
--	raw_spin_unlock_irqrestore(&read_lock, flags);
-+	raw_spin_unlock_irqrestore(&safe_read_lock, flags);
+ 	persistent_memory_flush_cache(address, block_size);
++
++	if (unlikely(bio_end_sector(&wb->bio) >= wc->data_device_sectors))
++		return true;
++
+ 	return bio_add_page(&wb->bio, persistent_memory_page(address),
+ 			    block_size, persistent_memory_page_offset(address)) != 0;
  }
+@@ -1559,6 +1566,9 @@ static void __writecache_writeback_pmem(
+ 		if (writecache_has_error(wc)) {
+ 			bio->bi_status = BLK_STS_IOERR;
+ 			bio_endio(bio);
++		} else if (unlikely(!bio_sectors(bio))) {
++			bio->bi_status = BLK_STS_OK;
++			bio_endio(bio);
+ 		} else {
+ 			submit_bio(bio);
+ 		}
+@@ -1602,6 +1612,14 @@ static void __writecache_writeback_ssd(s
+ 			e = f;
+ 		}
  
- /**
-@@ -278,6 +278,14 @@ void printk_safe_flush_on_panic(void)
- 		raw_spin_lock_init(&logbuf_lock);
- 	}
- 
-+	if (raw_spin_is_locked(&safe_read_lock)) {
-+		if (num_online_cpus() > 1)
-+			return;
++		if (unlikely(to.sector + to.count > wc->data_device_sectors)) {
++			if (to.sector >= wc->data_device_sectors) {
++				writecache_copy_endio(0, 0, c);
++				continue;
++			}
++			from.count = to.count = wc->data_device_sectors - to.sector;
++		}
 +
-+		debug_locks_off();
-+		raw_spin_lock_init(&safe_read_lock);
-+	}
-+
- 	printk_safe_flush();
- }
+ 		dm_kcopyd_copy(wc->dm_kcopyd, &from, 1, &to, 0, writecache_copy_endio, c);
  
+ 		__writeback_throttle(wc, wbl);
 
 
