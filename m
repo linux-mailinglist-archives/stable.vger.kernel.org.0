@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 579E6328A95
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA9F2328A66
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239566AbhCASTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:19:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34040 "EHLO mail.kernel.org"
+        id S234673AbhCASRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:17:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239244AbhCASN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:13:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2648765174;
-        Mon,  1 Mar 2021 17:07:52 +0000 (UTC)
+        id S238505AbhCASJS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:09:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDCD5651FC;
+        Mon,  1 Mar 2021 17:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618473;
-        bh=82QCpSEzvqdwB4K5AbWkLfA0LN4qztsgYUaHDxqgIvQ=;
+        s=korg; t=1614620431;
+        bh=UyxyDC5H4iCfK+QSXJyxUZ4eJ+IyEZFxGcFEYb9+TbE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=muma8vrwj3chmjgxzUKcRNMbe7qRD7AFtpJg/DxBgQ2Rmnl2UwccCuXrAgfWCGuFc
-         aMe5DFHaP3MzJqie+04NQNc4oWCS3+ASMm7teGZST8k7Ez9ppvwyLiVLqEpj573q51
-         oEs9HStv90Q8DsnG4+PFjlO8iR5Q94mFiuKkLvZo=
+        b=gkoD1rzevWrXZOGFT9tCf9kzmlhEQRYnivoS8+Pu1tY6KOH69jaaz77HUqzaSx8SB
+         ehd/Dq+bG5Wnb6Pyt74EcrmHuDj0UlCKbP8HSA3rC8nSUz4BqYo4oC7g2zzIAJs3/w
+         K2PhQjnJt7Jylhw+2UWJH2kFLdV5YMyzFuwV8BZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/663] can: mcp251xfd: mcp251xfd_probe(): fix errata reference
-Date:   Mon,  1 Mar 2021 17:05:17 +0100
-Message-Id: <20210301161145.146675687@linuxfoundation.org>
+Subject: [PATCH 5.11 151/775] selftests/bpf: Dont exit on failed bpf_testmod unload
+Date:   Mon,  1 Mar 2021 17:05:19 +0100
+Message-Id: <20210301161209.112899047@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 28eb119c042e8d3420b577b5b3ea851a111e7b2d ]
+[ Upstream commit 86ce322d21eb032ed8fdd294d0fb095d2debb430 ]
 
-This patch fixes the reference to the errata for both the mcp2517fd
-and the mcp2518fd.
+Fix bug in handling bpf_testmod unloading that will cause test_progs exiting
+prematurely if bpf_testmod unloading failed. This is especially problematic
+when running a subset of test_progs that doesn't require root permissions and
+doesn't rely on bpf_testmod, yet will fail immediately due to exit(1) in
+unload_bpf_testmod().
 
-Fixes: f5b84dedf7eb ("can: mcp25xxfd: mcp25xxfd_probe(): add SPI clk limit related errata information")
-Link: https://lore.kernel.org/r/20210128104644.2982125-2-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 9f7fa225894c ("selftests/bpf: Add bpf_testmod kernel module for testing")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210126065019.1268027-1-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c | 2 +-
+ tools/testing/selftests/bpf/test_progs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-index 59de6b3b5f026..096d818c167e2 100644
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
-@@ -2824,7 +2824,7 @@ static int mcp251xfd_probe(struct spi_device *spi)
- 			spi_get_device_id(spi)->driver_data;
- 
- 	/* Errata Reference:
--	 * mcp2517fd: DS80000789B, mcp2518fd: DS80000792C 4.
-+	 * mcp2517fd: DS80000792C 5., mcp2518fd: DS80000789C 4.
- 	 *
- 	 * The SPI can write corrupted data to the RAM at fast SPI
- 	 * speeds:
+diff --git a/tools/testing/selftests/bpf/test_progs.c b/tools/testing/selftests/bpf/test_progs.c
+index 213628ee721c1..6396932b97e29 100644
+--- a/tools/testing/selftests/bpf/test_progs.c
++++ b/tools/testing/selftests/bpf/test_progs.c
+@@ -390,7 +390,7 @@ static void unload_bpf_testmod(void)
+ 			return;
+ 		}
+ 		fprintf(env.stderr, "Failed to unload bpf_testmod.ko from kernel: %d\n", -errno);
+-		exit(1);
++		return;
+ 	}
+ 	if (env.verbosity > VERBOSE_NONE)
+ 		fprintf(stdout, "Successfully unloaded bpf_testmod.ko.\n");
 -- 
 2.27.0
 
