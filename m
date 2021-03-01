@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72222327E01
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82C13327DFF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:14:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233696AbhCAMOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 07:14:19 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33345 "EHLO
+        id S233659AbhCAMN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 07:13:57 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:36381 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233604AbhCAMOP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 07:14:15 -0500
+        by vger.kernel.org with ESMTP id S233648AbhCAMNy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 07:13:54 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4E61F1941655;
-        Mon,  1 Mar 2021 07:12:48 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 827C4194163F;
+        Mon,  1 Mar 2021 07:12:51 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 07:12:48 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 07:12:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ydK9MS
-        iHQ7lzBjC1+8IWLZqouozUuTLuuXRoW5kZZe8=; b=UyZSb+YBL3lUGKVVvtyTuV
-        BVpD/rSITuRUpNppgKCGcToqKAXNQ+F43s5z6BgZvRfrviEfidVyhrpWO7ntWgGp
-        sj/+/rChsnYI9TkxZAhnf34iNI6R4XxqeBDulVXLOFvsJzNI3keMK8ft7SferelV
-        BRqE8NHjKgikZT7AY8pOAL861YBqkdFNL+yIObSyhWhESOkYWyY6n7Slj/36Q9RR
-        IRd0kbvPasGwsk84oZN7iGvQfy/kVGSRLMbHVkbwQbJRjhDZITxi1pJVyiIHSK/w
-        kccJ0stFjQHCTfBiyHJgEEJqy6N61qHo+K7tKr6yLBGnRvb2n0EIyReLTZbI5qwQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7eZWvT
+        +JXkYXTiRCTtVUSOUYAMdWVd9m7+kY0wLClBQ=; b=rcZABsgonT3vKyRSqRLfYw
+        nFbAk8HcTWK1uiwhzmb9N4XnoRIxLjoHCSvx7J7kH4xdlynSI+p4dap7jcY3zMVd
+        lbHPspDu76NIUa6zO8oaj1GG0xjfZ7TafWQ9OLKl92bPHz0Yi7yjEY3Ox6hY7/0j
+        c9h72RHx5B6cEQFgnL8N/RoGmaKJVILJsczuFh1qQfwQDmEQCyaf813/MKGv8xK4
+        4o1G43woJ4r4Ow0cFjtW/yFDm6Ks2sLebXWwUrjwObhRiOn+q1BDmTo43/dL8Exq
+        8sNbGff7xyUcBrQJYWr9j1qCO8Z/5OpJeAKBF5ADqKnoVI2KgAkWAsoPKmNfZ09Q
         ==
-X-ME-Sender: <xms:P9o8YMk8742G9z4EjiWSSXtchgRVFZz795rfPgoM2ost5ZaZKPEkqg>
-    <xme:P9o8YL2Tu_71Uzrxxtyq9U439rNN2Ue0eXKwQT2pbqr-qfpkMUM49cUAq1505h3q3
-    UCIHwKr6ohdPQ>
+X-ME-Sender: <xms:Q9o8YOgR5mt0CM0BKEgXRU8j8dr98wNYm7fFtKif9NfP7y5LQC5C4A>
+    <xme:Q9o8YPAr4p7PI0MgVPl6QJQQfjo3RX4eCNod2MS8JxQBvO2e8XQuMx0K6BLrZWCXL
+    5TYrfqbdJKTcQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdefiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecuogfuohhrthgvugftvggtihhpvdculdegtddmnecujf
-    gurhepuffvhfffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhhsehl
-    ihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeenucggtffrrghtthgvrhhnpeeiteevhe
-    euvdfhtdfgvdeiieehheefleevveehjeduteevueevledujeejgfetheenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:P9o8YKoNNgz9-wVadS__tT0dnVN7n2cI6JSle3RGynnMed8w7qcBFg>
-    <xmx:P9o8YIn55Qz_hvo--z7Gc5m4PN5MwRg-_WF6qOUiJyrkeq_KrXSczA>
-    <xmx:P9o8YK0ZrDA8aXdLbfypdPU6CmwigSunH50yQ3e5lBXvtWvu-g9oZg>
-    <xmx:QNo8YIDP7Q9SleE2u_rOeq1kNYlylxrVNAbzc8ecwoVp5BkOUsXUlg>
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:Q9o8YGGtZnL7H9l4uYTmoTgs-LOECiiL8fHz_JT7nFdGcEhscXusUA>
+    <xmx:Q9o8YHRkzC1yu74Vy5ObNEWuY1xAtaqaIBnMf4J5MQQ5TecOlQK-Rw>
+    <xmx:Q9o8YLzBepFSSxzLTFisP2F6er8dKVy55aXEb652HZv1d2vT_VgXhA>
+    <xmx:Q9o8YJa1Pfu0b09kG0pnFzqPutBBAh99QYJ4UfXeS0v5uYoyLyw4HQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3DAD11080054;
-        Mon,  1 Mar 2021 07:12:47 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: don't take uring_lock during iowq cancel" failed to apply to 5.11-stable tree
-To:     asml.silence@gmail.com, abaci@linux.alibaba.com, axboe@kernel.dk,
-        haoxu@linux.alibaba.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2CA8D108005C;
+        Mon,  1 Mar 2021 07:12:51 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: wait potential ->release() on resurrect" failed to apply to 5.10-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 13:12:37 +0100
-Message-ID: <161460075732249@kroah.com>
+Date:   Mon, 01 Mar 2021 13:12:49 +0100
+Message-ID: <161460076955171@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,92 +70,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 792bb6eb862333658bf1bd2260133f0507e2da8d Mon Sep 17 00:00:00 2001
+From 88f171ab7798a1ed0b9e39867ee16f307466e870 Mon Sep 17 00:00:00 2001
 From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Thu, 18 Feb 2021 22:32:51 +0000
-Subject: [PATCH] io_uring: don't take uring_lock during iowq cancel
+Date: Sat, 20 Feb 2021 18:03:50 +0000
+Subject: [PATCH] io_uring: wait potential ->release() on resurrect
 
-[   97.866748] a.out/2890 is trying to acquire lock:
-[   97.867829] ffff8881046763e8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-io_wq_submit_work+0x155/0x240
-[   97.869735]
-[   97.869735] but task is already holding lock:
-[   97.871033] ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-__x64_sys_io_uring_enter+0x3f0/0x5b0
-[   97.873074]
-[   97.873074] other info that might help us debug this:
-[   97.874520]  Possible unsafe locking scenario:
-[   97.874520]
-[   97.875845]        CPU0
-[   97.876440]        ----
-[   97.877048]   lock(&ctx->uring_lock);
-[   97.877961]   lock(&ctx->uring_lock);
-[   97.878881]
-[   97.878881]  *** DEADLOCK ***
-[   97.878881]
-[   97.880341]  May be due to missing lock nesting notation
-[   97.880341]
-[   97.881952] 1 lock held by a.out/2890:
-[   97.882873]  #0: ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-__x64_sys_io_uring_enter+0x3f0/0x5b0
-[   97.885108]
-[   97.885108] stack backtrace:
-[   97.890457] Call Trace:
-[   97.891121]  dump_stack+0xac/0xe3
-[   97.891972]  __lock_acquire+0xab6/0x13a0
-[   97.892940]  lock_acquire+0x2c3/0x390
-[   97.894894]  __mutex_lock+0xae/0x9f0
-[   97.901101]  io_wq_submit_work+0x155/0x240
-[   97.902112]  io_wq_cancel_cb+0x162/0x490
-[   97.904126]  io_async_find_and_cancel+0x3b/0x140
-[   97.905247]  io_issue_sqe+0x86d/0x13e0
-[   97.909122]  __io_queue_sqe+0x10b/0x550
-[   97.913971]  io_queue_sqe+0x235/0x470
-[   97.914894]  io_submit_sqes+0xcce/0xf10
-[   97.917872]  __x64_sys_io_uring_enter+0x3fb/0x5b0
-[   97.921424]  do_syscall_64+0x2d/0x40
-[   97.922329]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-While holding uring_lock, e.g. from inline execution, async cancel
-request may attempt cancellations through io_wq_submit_work, which may
-try to grab a lock. Delay it to task_work, so we do it from a clean
-context and don't have to worry about locking.
+There is a short window where percpu_refs are already turned zero, but
+we try to do resurrect(). Play nicer and wait for ->release() to happen
+in this case and proceed as everything is ok. One downside for ctx refs
+is that we can ignore signal_pending() on a rare occasion, but someone
+else should check for it later if needed.
 
 Cc: <stable@vger.kernel.org> # 5.5+
-Fixes: c07e6719511e ("io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()")
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Reported-by: Hao Xu <haoxu@linux.alibaba.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 2fdfe5fa00b0..8dab07f42b34 100644
+index c98b673f0bb1..5cc02226bb38 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2337,7 +2337,9 @@ static void io_req_task_cancel(struct callback_head *cb)
- 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
- 	struct io_ring_ctx *ctx = req->ctx;
- 
-+	mutex_lock(&ctx->uring_lock);
- 	__io_req_task_cancel(req, -ECANCELED);
-+	mutex_unlock(&ctx->uring_lock);
- 	percpu_ref_put(&ctx->refs);
+@@ -1104,6 +1104,21 @@ static inline void io_set_resource_node(struct io_kiocb *req)
+ 	}
  }
  
-@@ -6426,8 +6428,13 @@ static void io_wq_submit_work(struct io_wq_work *work)
- 	if (timeout)
- 		io_queue_linked_timeout(timeout);
- 
--	if (work->flags & IO_WQ_WORK_CANCEL)
--		ret = -ECANCELED;
-+	if (work->flags & IO_WQ_WORK_CANCEL) {
-+		/* io-wq is going to take down one */
-+		refcount_inc(&req->refs);
-+		percpu_ref_get(&req->ctx->refs);
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
-+		return;
++static bool io_refs_resurrect(struct percpu_ref *ref, struct completion *compl)
++{
++	if (!percpu_ref_tryget(ref)) {
++		/* already at zero, wait for ->release() */
++		if (!try_wait_for_completion(compl))
++			synchronize_rcu();
++		return false;
 +	}
++
++	percpu_ref_resurrect(ref);
++	reinit_completion(compl);
++	percpu_ref_put(ref);
++	return true;
++}
++
+ static bool io_match_task(struct io_kiocb *head,
+ 			  struct task_struct *task,
+ 			  struct files_struct *files)
+@@ -7329,13 +7344,11 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
+ 		flush_delayed_work(&ctx->rsrc_put_work);
  
- 	if (!ret) {
- 		do {
+ 		ret = wait_for_completion_interruptible(&data->done);
+-		if (!ret)
++		if (!ret || !io_refs_resurrect(&data->refs, &data->done))
+ 			break;
+ 
+-		percpu_ref_resurrect(&data->refs);
+ 		io_sqe_rsrc_set_node(ctx, data, backup_node);
+ 		backup_node = NULL;
+-		reinit_completion(&data->done);
+ 		mutex_unlock(&ctx->uring_lock);
+ 		ret = io_run_task_work_sig();
+ 		mutex_lock(&ctx->uring_lock);
+@@ -10070,10 +10083,8 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 
+ 		mutex_lock(&ctx->uring_lock);
+ 
+-		if (ret) {
+-			percpu_ref_resurrect(&ctx->refs);
+-			goto out_quiesce;
+-		}
++		if (ret && io_refs_resurrect(&ctx->refs, &ctx->ref_comp))
++			return ret;
+ 	}
+ 
+ 	if (ctx->restricted) {
+@@ -10165,7 +10176,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
+ 	if (io_register_op_must_quiesce(opcode)) {
+ 		/* bring the ctx back to life */
+ 		percpu_ref_reinit(&ctx->refs);
+-out_quiesce:
+ 		reinit_completion(&ctx->ref_comp);
+ 	}
+ 	return ret;
 
