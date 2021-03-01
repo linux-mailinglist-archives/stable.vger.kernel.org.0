@@ -2,86 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CB33282A3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 16:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9583282BF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 16:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237315AbhCAPhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 10:37:41 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:59960 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237243AbhCAPhd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 10:37:33 -0500
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1614613001;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qKx7JwT/dd3v06LiZPRPHxdr3Mvak0GPNra5VoMoP1o=;
-        b=nK+Ok5k0MzH/QI6D7htimuCzXA0alrKJWT8+Do3p+0XYuoyqfczSMozW3q7pxLrvoqEoQG
-        oPMTvaQ335ix5FKGXv++7rUZ4aVJ6F7VMOnGN4yrMZzl2f1FpgrAeIWHr6p9NlZRkTny3C
-        mfyauLVxT+Q3OgBC3zcg7KjMex2oaw3NzCRrusUY0dx1/IqU7V4MsxRLGZV5kWXk9MlrMV
-        wEHyxfGS9F24lyJG44eWDWkGw/UUKuuSK4YEEkprmtMx8L6sOyW5Sou/QG0jpLUUuRwAcJ
-        RtksL22s2Aoghop2gfxmOKrLD+2+HdorpWpCy3XJ8Hdm4/73xtrFZPMIIKRAJw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1614613001;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=qKx7JwT/dd3v06LiZPRPHxdr3Mvak0GPNra5VoMoP1o=;
-        b=gygiVZKWsDAhRTr3SxO2Ecx5unMNBPIV7lNOYhJIMVyr4SRI5yLWsQlhx0G1nESn4BdQC1
-        xdWjjxdFYk354aCg==
-To:     Andy Lutomirski <luto@kernel.org>, x86@kernel.org
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 2/3] x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls
-In-Reply-To: <04713c6be5ab45357e3406c42d382536f52a64c6.1614104065.git.luto@kernel.org>
-References: <cover.1614104065.git.luto@kernel.org> <04713c6be5ab45357e3406c42d382536f52a64c6.1614104065.git.luto@kernel.org>
-Date:   Mon, 01 Mar 2021 16:36:40 +0100
-Message-ID: <87h7luubqv.fsf@nanos.tec.linutronix.de>
+        id S237137AbhCAPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 10:44:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48064 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237075AbhCAPoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 10:44:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B75A264D5D;
+        Mon,  1 Mar 2021 15:43:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614613406;
+        bh=yVXjrjD/Kcq7kpzZNWglcQv7ziGMi7fQx2ZsPOrMfRs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Q3jm0flby8NQpOAgjNbJf/SVQOwaB9Mx1aHHEpC/dyRk5OYXuFKvR3au7Q9rVhdxZ
+         Xqhu3U4xA6lKLeLKh2RZb91yeNXb8iW97W3SjLYI4u89S2GxGMQRBpq5vFzthxMyDK
+         O001Rsv6DR8oydZlUOL5jZVbx2Psl+KAeBtuoJBs=
+Date:   Mon, 1 Mar 2021 16:43:23 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Nikos Tsironis <ntsironis@arrikto.com>
+Cc:     snitzer@redhat.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] dm era: Update in-core bitset after
+ committing the metadata" failed to apply to 5.4-stable tree
+Message-ID: <YD0Lm6qwqDp0mRqo@kroah.com>
+References: <161460644719394@kroah.com>
+ <e8307822-5358-c3e3-7361-481034d0685e@arrikto.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8307822-5358-c3e3-7361-481034d0685e@arrikto.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23 2021 at 10:15, Andy Lutomirski wrote:
-> On a 32-bit fast syscall that fails to read its arguments from user
-> memory, the kernel currently does syscall exit work but not
-> syscall entry work.  This confuses audit and ptrace.  For example:
->
->     $ ./tools/testing/selftests/x86/syscall_arg_fault_32
->     ...
->     strace: pid 264258: entering, ptrace_syscall_info.op == 2
->     ...
->
-> This is a minimal fix intended for ease of backporting.  A more
-> complete cleanup is coming.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
-> ---
->  arch/x86/entry/common.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
-> index 0904f5676e4d..cf4dcf346ca8 100644
-> --- a/arch/x86/entry/common.c
-> +++ b/arch/x86/entry/common.c
-> @@ -128,7 +128,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_regs *regs)
->  		regs->ax = -EFAULT;
->  
->  		instrumentation_end();
-> -		syscall_exit_to_user_mode(regs);
-> +		local_irq_disable();
-> +		exit_to_user_mode();
+On Mon, Mar 01, 2021 at 05:27:26PM +0200, Nikos Tsironis wrote:
+> On 3/1/21 3:47 PM, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.4-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> Hi Greg,
+> 
+> Attached is the backport, which applies to all stable branches until
+> 4.4-stable.
 
-That's still the same as the previous version. The right function (while
-the name is misleading) to invoke here is irqentry_exit_to_user_mode()
-because that invokes exit_to_user_mode_prepare() before
-exit_to_user_mode(). We can rename that function afterwards.
+Now queued up, thanks.
 
-Thanks,
-
-        tglx
+greg k-h
