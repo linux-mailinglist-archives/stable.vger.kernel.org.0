@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A113291DF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FE43291E1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241894AbhCAUfP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:35:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48280 "EHLO mail.kernel.org"
+        id S243463AbhCAUfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:35:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243331AbhCAU1y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:27:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ED265422;
-        Mon,  1 Mar 2021 18:07:17 +0000 (UTC)
+        id S243377AbhCAU2T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:28:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE5F6541C;
+        Mon,  1 Mar 2021 18:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622038;
-        bh=rN8CIbaJiUOmdwGHNiBW6HOTjYrlrSvOFa9Eb47v6No=;
+        s=korg; t=1614622041;
+        bh=mmLEWm9/Uv+UU8Nw93WgttKPyP8rae+RYS5MLgLdluk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTwl60P1C+dHqFSAPvLvfgU6RHt4hZaVFX8jA+gZxC0+3as1uLByg4oRzJxEhMw9M
-         XmShhXe026edyhkdWreZ6g9QGAAsCrPcrj/+0u+zIV/oprI8SqmMmeyJ5q/z57fox/
-         ykfs7gmCxNPHg9ujCaNZ46xSm+5ivJ2GYvEXDM2U=
+        b=Ov3j+QLB+MxUxiFqaLJSOxd+X06CFrBWOOfVF2v3qmhiqtXWG1RL9OGDHCuPfH0yq
+         ZnhKcB7+qzaClnpzc7yFre0fp+C3y9JFv0FkDi85M3CrbZwyi2Zu7aVFoLQBr6LB5x
+         h3H7WWW4TavVSXQL7/+qyXrM7aGEznq27Svt2bB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.11 735/775] um: defer killing userspace on page table update failures
-Date:   Mon,  1 Mar 2021 17:15:03 +0100
-Message-Id: <20210301161237.665643324@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.11 736/775] irqchip/loongson-pch-msi: Use bitmap_zalloc() to allocate bitmap
+Date:   Mon,  1 Mar 2021 17:15:04 +0100
+Message-Id: <20210301161237.714439778@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,82 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-commit a7d48886cacf8b426e0079bca9639d2657cf2d38 upstream.
+commit c1f664d2400e73d5ca0fcd067fa5847d2c789c11 upstream.
 
-In some cases we can get to fix_range_common() with mmap_sem held,
-and in others we get there without it being held. For example, we
-get there with it held from sys_mprotect(), and without it held
-from fork_handler().
+Currently we use bitmap_alloc() to allocate msi bitmap which should be
+initialized with zero. This is obviously wrong but it works because msi
+can fallback to legacy interrupt mode. So use bitmap_zalloc() instead.
 
-Avoid any issues in this and simply defer killing the task until
-it runs the next time. Do it on the mm so that another task that
-shares the same mm can't continue running afterwards.
-
+Fixes: 632dcc2c75ef6de3272aa ("irqchip: Add Loongson PCH MSI controller")
 Cc: stable@vger.kernel.org
-Fixes: 468f65976a8d ("um: Fix hung task in fix_range_common()")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210209071051.2078435-1-chenhuacai@loongson.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/shared/skas/mm_id.h |    1 +
- arch/um/kernel/tlb.c                |    7 +++----
- arch/um/os-Linux/skas/process.c     |    4 ++++
- 3 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/irqchip/irq-loongson-pch-msi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/um/include/shared/skas/mm_id.h
-+++ b/arch/um/include/shared/skas/mm_id.h
-@@ -12,6 +12,7 @@ struct mm_id {
- 		int pid;
- 	} u;
- 	unsigned long stack;
-+	int kill;
- };
- 
- #endif
---- a/arch/um/kernel/tlb.c
-+++ b/arch/um/kernel/tlb.c
-@@ -352,12 +352,11 @@ void fix_range_common(struct mm_struct *
- 
- 	/* This is not an else because ret is modified above */
- 	if (ret) {
-+		struct mm_id *mm_idp = &current->mm->context.id;
-+
- 		printk(KERN_ERR "fix_range_common: failed, killing current "
- 		       "process: %d\n", task_tgid_vnr(current));
--		/* We are under mmap_lock, release it such that current can terminate */
--		mmap_write_unlock(current->mm);
--		force_sig(SIGKILL);
--		do_signal(&current->thread.regs);
-+		mm_idp->kill = 1;
+--- a/drivers/irqchip/irq-loongson-pch-msi.c
++++ b/drivers/irqchip/irq-loongson-pch-msi.c
+@@ -225,7 +225,7 @@ static int pch_msi_init(struct device_no
+ 		goto err_priv;
  	}
- }
  
---- a/arch/um/os-Linux/skas/process.c
-+++ b/arch/um/os-Linux/skas/process.c
-@@ -249,6 +249,7 @@ static int userspace_tramp(void *stack)
- }
- 
- int userspace_pid[NR_CPUS];
-+int kill_userspace_mm[NR_CPUS];
- 
- /**
-  * start_userspace() - prepare a new userspace process
-@@ -342,6 +343,8 @@ void userspace(struct uml_pt_regs *regs,
- 	interrupt_end();
- 
- 	while (1) {
-+		if (kill_userspace_mm[0])
-+			fatal_sigsegv();
- 
- 		/*
- 		 * This can legitimately fail if the process loads a
-@@ -663,4 +666,5 @@ void reboot_skas(void)
- void __switch_mm(struct mm_id *mm_idp)
- {
- 	userspace_pid[0] = mm_idp->u.pid;
-+	kill_userspace_mm[0] = mm_idp->kill;
- }
+-	priv->msi_map = bitmap_alloc(priv->num_irqs, GFP_KERNEL);
++	priv->msi_map = bitmap_zalloc(priv->num_irqs, GFP_KERNEL);
+ 	if (!priv->msi_map) {
+ 		ret = -ENOMEM;
+ 		goto err_priv;
 
 
