@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C813329174
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F170B328FC4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243130AbhCAU0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:26:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
+        id S242420AbhCAT6A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242895AbhCAUVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:21:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05C2F653EF;
-        Mon,  1 Mar 2021 18:04:22 +0000 (UTC)
+        id S235973AbhCATor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 750A0650FD;
+        Mon,  1 Mar 2021 17:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621863;
-        bh=rfjT8llz/QoNVZhhi58/+AphCSIH4G1rkQJTus+4BDU=;
+        s=korg; t=1614618125;
+        bh=mDNce7JorKvDfVda5uTF6y2n3mrETWCjGAl4Rk/5v2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVgCrRS+jGk3FNef8Ui83rgiOfXf+0YfwLsN8lD2hBHIyw0tcE1jtH+wgTqG1xvsm
-         Zj6hrH4AtFv0nUP6nIc3fIgq4h5PLhVuxGnhql8fwnWRrAUO1e8KfGmbQlW25sG+Lw
-         kFE0gGBzAUg8dv2BGPUpGf7hV5FIXkoiLuoOzbmA=
+        b=dANfAeBGM8OHtDRmzRsYoFUEd+osdDX6VjVq4zl5IvMoyrS2as95d1zd0vjG7dnzA
+         TtB6KPv9cjS/xu2e53Mds9/0JDRraaGVh8kzoKEDREpQxBxXfCaLgLLX7JmS367BJl
+         oI8CaGIMEsLJPEEnu6NftqrsPrPpz4MsJ1a2Z3BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        "David P. Reed" <dpreed@deepplum.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 672/775] x86/reboot: Force all cpus to exit VMX root if VMX is supported
-Date:   Mon,  1 Mar 2021 17:14:00 +0100
-Message-Id: <20210301161234.589477202@linuxfoundation.org>
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.4 315/340] virtio/s390: implement virtio-ccw revision 2 correctly
+Date:   Mon,  1 Mar 2021 17:14:19 +0100
+Message-Id: <20210301161103.793008004@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Cornelia Huck <cohuck@redhat.com>
 
-commit ed72736183c45a413a8d6974dd04be90f514cb6b upstream.
+commit 182f709c5cff683e6732d04c78e328de0532284f upstream.
 
-Force all CPUs to do VMXOFF (via NMI shootdown) during an emergency
-reboot if VMX is _supported_, as VMX being off on the current CPU does
-not prevent other CPUs from being in VMX root (post-VMXON).  This fixes
-a bug where a crash/panic reboot could leave other CPUs in VMX root and
-prevent them from being woken via INIT-SIPI-SIPI in the new kernel.
+CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
+and drivers should only rely on it being implemented when they
+negotiated at least that revision with the device.
 
-Fixes: d176720d34c7 ("x86: disable VMX on all CPUs on reboot")
+However, virtio_ccw_get_status() issued READ_STATUS for any
+device operating at least at revision 1. If the device accepts
+READ_STATUS regardless of the negotiated revision (which some
+implementations like QEMU do, even though the spec currently does
+not allow it), everything works as intended. While a device
+rejecting the command should also be handled gracefully, we will
+not be able to see any changes the device makes to the status,
+such as setting NEEDS_RESET or setting the status to zero after
+a completed reset.
+
+We negotiated the revision to at most 1, as we never bumped the
+maximum revision; let's do that now and properly send READ_STATUS
+only if we are operating at least at revision 2.
+
 Cc: stable@vger.kernel.org
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: David P. Reed <dpreed@deepplum.com>
-[sean: reworked changelog and further tweaked comment]
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20201231002702.2223707-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210216110645.1087321-1-cohuck@redhat.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/reboot.c |   30 ++++++++++--------------------
- 1 file changed, 10 insertions(+), 20 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -538,31 +538,21 @@ static void emergency_vmx_disable_all(vo
- 	local_irq_disable();
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -117,7 +117,7 @@ struct virtio_rev_info {
+ };
  
- 	/*
--	 * We need to disable VMX on all CPUs before rebooting, otherwise
--	 * we risk hanging up the machine, because the CPU ignores INIT
--	 * signals when VMX is enabled.
-+	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
-+	 * the machine, because the CPU blocks INIT when it's in VMX root.
- 	 *
--	 * We can't take any locks and we may be on an inconsistent
--	 * state, so we use NMIs as IPIs to tell the other CPUs to disable
--	 * VMX and halt.
-+	 * We can't take any locks and we may be on an inconsistent state, so
-+	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
- 	 *
--	 * For safety, we will avoid running the nmi_shootdown_cpus()
--	 * stuff unnecessarily, but we don't have a way to check
--	 * if other CPUs have VMX enabled. So we will call it only if the
--	 * CPU we are running on has VMX enabled.
--	 *
--	 * We will miss cases where VMX is not enabled on all CPUs. This
--	 * shouldn't do much harm because KVM always enable VMX on all
--	 * CPUs anyway. But we can miss it on the small window where KVM
--	 * is still enabling VMX.
-+	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
-+	 * doesn't prevent a different CPU from being in VMX root operation.
- 	 */
--	if (cpu_has_vmx() && cpu_vmx_enabled()) {
--		/* Disable VMX on this CPU. */
--		cpu_vmxoff();
-+	if (cpu_has_vmx()) {
-+		/* Safely force _this_ CPU out of VMX root operation. */
-+		__cpu_emergency_vmxoff();
+ /* the highest virtio-ccw revision we support */
+-#define VIRTIO_CCW_REV_MAX 1
++#define VIRTIO_CCW_REV_MAX 2
  
--		/* Halt and disable VMX on the other CPUs */
-+		/* Halt and exit VMX root operation on the other CPUs. */
- 		nmi_shootdown_cpus(vmxoff_nmi);
--
- 	}
- }
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct v
+ 	u8 old_status = vcdev->dma_area->status;
+ 	struct ccw1 *ccw;
  
+-	if (vcdev->revision < 1)
++	if (vcdev->revision < 2)
+ 		return vcdev->dma_area->status;
+ 
+ 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
 
 
