@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1829A329097
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A162329096
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241830AbhCAUKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:10:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34334 "EHLO mail.kernel.org"
+        id S238036AbhCAUKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:10:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241897AbhCAUA7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:00:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84DA665356;
-        Mon,  1 Mar 2021 17:57:13 +0000 (UTC)
+        id S236681AbhCAUBG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:01:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C4706538A;
+        Mon,  1 Mar 2021 17:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621434;
-        bh=/cgIGPLIHgBQ4ZU59lBjbLpdlYoq+BenV7ZiGWoqKrk=;
+        s=korg; t=1614621436;
+        bh=gS+09t6qDrpY8zaJLYH03eJ1SY1rrm2XqepLokM3m4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZmx6yIKjHQ7sFNXav467zd7b6PMJIkae/jCYBMB3bRwCPQRGUZHX/9r3x0sdCcKL
-         fyBQQYT2DWTzTurQEi/B8jH+HN/b8CYtsF7KwhZkvLrXYXeWR3K+cVk2df50sZmKJp
-         T3+DRnOpId3uz01t5vfXrkp9PY+ZPtg2zAm34diA=
+        b=pdAqnOirH0WFU0Mr4PNuAsYTqozVduyMp0Ne9BIoL3z0jTEQCWkTwgKfgHfYfQ0c9
+         ZGiF4kv4zTKTVw8be7oZQ3bSGvi55P0iQLsmdZ/55abbz28E7QLur57FHjN1PMnf82
+         M7dI7fOY3oAFLIBwi6N7QQ3IM4wvxlk5BKVVRDZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jonathan Marek <jonathan@marek.ca>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 514/775] misc: fastrpc: fix incorrect usage of dma_map_sgtable
-Date:   Mon,  1 Mar 2021 17:11:22 +0100
-Message-Id: <20210301161226.925893220@linuxfoundation.org>
+Subject: [PATCH 5.11 515/775] remoteproc/mediatek: acknowledge watchdog IRQ after handled
+Date:   Mon,  1 Mar 2021 17:11:23 +0100
+Message-Id: <20210301161226.974242136@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,44 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit b212658aebda82f92967bcbd4c7380d607c3d803 ]
+[ Upstream commit 8c545f52dce44368fff524e13116e696e005c074 ]
 
-dma_map_sgtable() returns 0 on success, which is the opposite of what this
-code was doing.
+Acknowledges watchdog IRQ after handled or kernel keeps receiving the
+interrupt.
 
-Fixes: 7cd7edb89437 ("misc: fastrpc: fix common struct sg_table related issues")
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20210208200401.31100-1-jonathan@marek.ca
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: fd0b6c1ff85a ("remoteproc/mediatek: Add support for mt8192 SCP")
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20210127082046.3735157-1-tzungbi@google.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/remoteproc/mtk_common.h |  1 +
+ drivers/remoteproc/mtk_scp.c    | 20 +++++++++++---------
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 70eb5ed942d03..f12e909034ac0 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -520,12 +520,13 @@ fastrpc_map_dma_buf(struct dma_buf_attachment *attachment,
- {
- 	struct fastrpc_dma_buf_attachment *a = attachment->priv;
- 	struct sg_table *table;
-+	int ret;
+diff --git a/drivers/remoteproc/mtk_common.h b/drivers/remoteproc/mtk_common.h
+index 988edb4977c31..bcab38511bf31 100644
+--- a/drivers/remoteproc/mtk_common.h
++++ b/drivers/remoteproc/mtk_common.h
+@@ -47,6 +47,7 @@
  
- 	table = &a->sgt;
+ #define MT8192_CORE0_SW_RSTN_CLR	0x10000
+ #define MT8192_CORE0_SW_RSTN_SET	0x10004
++#define MT8192_CORE0_WDT_IRQ		0x10030
+ #define MT8192_CORE0_WDT_CFG		0x10034
  
--	if (!dma_map_sgtable(attachment->dev, table, dir, 0))
--		return ERR_PTR(-ENOMEM);
--
-+	ret = dma_map_sgtable(attachment->dev, table, dir, 0);
-+	if (ret)
-+		table = ERR_PTR(ret);
- 	return table;
+ #define SCP_FW_VER_LEN			32
+diff --git a/drivers/remoteproc/mtk_scp.c b/drivers/remoteproc/mtk_scp.c
+index e0c2356903616..eba825b46696e 100644
+--- a/drivers/remoteproc/mtk_scp.c
++++ b/drivers/remoteproc/mtk_scp.c
+@@ -197,17 +197,19 @@ static void mt8192_scp_irq_handler(struct mtk_scp *scp)
+ 
+ 	scp_to_host = readl(scp->reg_base + MT8192_SCP2APMCU_IPC_SET);
+ 
+-	if (scp_to_host & MT8192_SCP_IPC_INT_BIT)
++	if (scp_to_host & MT8192_SCP_IPC_INT_BIT) {
+ 		scp_ipi_handler(scp);
+-	else
+-		scp_wdt_handler(scp, scp_to_host);
+ 
+-	/*
+-	 * SCP won't send another interrupt until we clear
+-	 * MT8192_SCP2APMCU_IPC.
+-	 */
+-	writel(MT8192_SCP_IPC_INT_BIT,
+-	       scp->reg_base + MT8192_SCP2APMCU_IPC_CLR);
++		/*
++		 * SCP won't send another interrupt until we clear
++		 * MT8192_SCP2APMCU_IPC.
++		 */
++		writel(MT8192_SCP_IPC_INT_BIT,
++		       scp->reg_base + MT8192_SCP2APMCU_IPC_CLR);
++	} else {
++		scp_wdt_handler(scp, scp_to_host);
++		writel(1, scp->reg_base + MT8192_CORE0_WDT_IRQ);
++	}
  }
  
+ static irqreturn_t scp_irq_handler(int irq, void *priv)
 -- 
 2.27.0
 
