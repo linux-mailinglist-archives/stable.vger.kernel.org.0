@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C70553285B6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 054243284B3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235929AbhCAQ5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:57:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51732 "EHLO mail.kernel.org"
+        id S232614AbhCAQla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:41:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235510AbhCAQvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:51:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B630E64FB7;
-        Mon,  1 Mar 2021 16:33:36 +0000 (UTC)
+        id S234146AbhCAQeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:34:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1FF964F65;
+        Mon,  1 Mar 2021 16:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616417;
-        bh=ORPCG6lNXDbkMXeS/l0DdB+Se3UxgSZObZMpSEonDEk=;
+        s=korg; t=1614615950;
+        bh=lvZBpWBWlaiMbmx7JZOtkfo25nShx4+/xJUUs9mwPO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4LjoGtMwWlqa99tWQpPfhExe0l6vZanr5SGPAD0ych+0Avs/4E85eSajrEo0E/1d
-         9CoWZcxxpBNnxeYEwROxmYs5JjBd5ZYBjbhefRVB7LDOEw2Z94I33unBWLuV06CJ8r
-         RZOqUw3En0WYaumIDNUQdCfP/48wSuJdVVncGGp0=
+        b=DFrzK3K1GYeoMlIHfWJwd+l0YRxB4+cgqjP8kspF+9ZOJ3aDm7duREUFcYHnReZdO
+         RyrlJONicLOQbM1oekHSioOBpVH8jOUAnAPxb9UFa2euEeKU17TtQYWXNRqNC4xYHJ
+         iyjxlPwFcCZgQwoY0kMwi1Vd0oxjKls9QxSByT9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.14 127/176] Input: joydev - prevent potential read overflow in ioctl
-Date:   Mon,  1 Mar 2021 17:13:20 +0100
-Message-Id: <20210301161027.295902515@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.9 100/134] usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
+Date:   Mon,  1 Mar 2021 17:13:21 +0100
+Message-Id: <20210301161018.485157042@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 182d679b2298d62bf42bb14b12a8067b8e17b617 upstream.
+commit 4b049f55ed95cd889bcdb3034fd75e1f01852b38 upstream.
 
-The problem here is that "len" might be less than "joydev->nabs" so the
-loops which verfy abspam[i] and keypam[] might read beyond the buffer.
+The dep->interval captures the number of frames/microframes per interval
+from bInterval. Fullspeed interrupt endpoint bInterval is the number of
+frames per interval and not 2^(bInterval - 1). So fix it here. This
+change is only for debugging purpose and should not affect the interrupt
+endpoint operation.
 
-Fixes: 999b874f4aa3 ("Input: joydev - validate axis/button maps before clobbering current ones")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YCyzR8WvFRw4HWw6@mwanda
-[dtor: additional check for len being even in joydev_handle_JSIOCSBTNMAP]
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/1263b563dedc4ab8b0fb854fba06ce4bc56bd495.1612820995.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/joydev.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -460,7 +460,7 @@ static int joydev_handle_JSIOCSAXMAP(str
- 	if (IS_ERR(abspam))
- 		return PTR_ERR(abspam);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -538,8 +538,13 @@ static int dwc3_gadget_set_ep_config(str
+ 		if (dwc->gadget.speed == USB_SPEED_FULL)
+ 			bInterval_m1 = 0;
  
--	for (i = 0; i < joydev->nabs; i++) {
-+	for (i = 0; i < len && i < joydev->nabs; i++) {
- 		if (abspam[i] > ABS_MAX) {
- 			retval = -EINVAL;
- 			goto out;
-@@ -484,6 +484,9 @@ static int joydev_handle_JSIOCSBTNMAP(st
- 	int i;
- 	int retval = 0;
- 
-+	if (len % sizeof(*keypam))
-+		return -EINVAL;
++		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
++		    dwc->gadget.speed == USB_SPEED_FULL)
++			dep->interval = desc->bInterval;
++		else
++			dep->interval = 1 << (desc->bInterval - 1);
 +
- 	len = min(len, sizeof(joydev->keypam));
+ 		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
+-		dep->interval = 1 << (desc->bInterval - 1);
+ 	}
  
- 	/* Validate the map. */
-@@ -491,7 +494,7 @@ static int joydev_handle_JSIOCSBTNMAP(st
- 	if (IS_ERR(keypam))
- 		return PTR_ERR(keypam);
- 
--	for (i = 0; i < joydev->nkey; i++) {
-+	for (i = 0; i < (len / 2) && i < joydev->nkey; i++) {
- 		if (keypam[i] > KEY_MAX || keypam[i] < BTN_MISC) {
- 			retval = -EINVAL;
- 			goto out;
+ 	return dwc3_send_gadget_ep_cmd(dep, DWC3_DEPCMD_SETEPCONFIG, &params);
 
 
