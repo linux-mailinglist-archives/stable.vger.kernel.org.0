@@ -2,74 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A148632807D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:16:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9495D32808E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236290AbhCAOQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 09:16:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51110 "EHLO mail.kernel.org"
+        id S232983AbhCAOT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 09:19:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236217AbhCAOQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 09:16:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DC1D64D99;
-        Mon,  1 Mar 2021 14:15:28 +0000 (UTC)
+        id S232807AbhCAOTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 09:19:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC28C64E07;
+        Mon,  1 Mar 2021 14:19:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614608129;
-        bh=9mINMwSlE6Lx+Ht6ULSem8ouBs47qezztpHF+PAhhSw=;
+        s=korg; t=1614608354;
+        bh=k1UvY5aGECSBschfIZbptzWuvhL5cuyW0lixGCaxFHg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RCX7w0rroZjBI8wWRNDjIQ6u97soKDKpqx2MH4Ow+ELjyIAvn7gdp7gLdYXPCAoxb
-         4dAU3od2y7UJwkyNEZRCHM0A5nL6iRyL/XoasmSWGzPoaIZ8phj3c///f6um+Y9WkW
-         QW0o+YDkedxfj5hNqUO+q0y7Og2NNIhhRVZiQzkg=
-Date:   Mon, 1 Mar 2021 15:15:26 +0100
+        b=IBVrvHn70IusfxbNTfaUa4EiDWHh5ycOe9o0R9NXJzWU2yc0dFLuSDmH85Xb0+mHm
+         KV6VtIHyxBhjug7yQ738Qs4J81vnM3F9ADrUYza04xV/A0NV/2riOyKL69LsFi2rcs
+         QQ96bdbJ4YVP+e/xYB+SuZhyWbzjGVr5ZoVib92I=
+Date:   Mon, 1 Mar 2021 15:19:11 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Zheng Yejian <zhengyejian1@huawei.com>
-Cc:     lee.jones@linaro.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, tglx@linutronix.de,
-        cj.chengjian@huawei.com, judy.chenhui@huawei.com,
-        zhangjinhao2@huawei.com
-Subject: Re: [PATCH 4.9.y 1/1] futex: Fix OWNER_DEAD fixup
-Message-ID: <YDz2/ratMYUR5SZV@kroah.com>
-References: <20210223144151.916675-1-zhengyejian1@huawei.com>
- <20210223144151.916675-2-zhengyejian1@huawei.com>
+To:     Lee Jones <lee.jones@linaro.org>
+Cc:     Xiaoming Ni <nixiaoming@huawei.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, sashal@kernel.org, tglx@linutronix.de,
+        wangle6@huawei.com, zhengyejian1@huawei.com
+Subject: Re: [PATCH 4.9.258] futex: fix dead code in attach_to_pi_owner()
+Message-ID: <YDz338EbaQHUP070@kroah.com>
+References: <20210224100923.51315-1-nixiaoming@huawei.com>
+ <20210225091738.GC641347@dell>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210223144151.916675-2-zhengyejian1@huawei.com>
+In-Reply-To: <20210225091738.GC641347@dell>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 23, 2021 at 10:41:51PM +0800, Zheng Yejian wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
+On Thu, Feb 25, 2021 at 09:17:38AM +0000, Lee Jones wrote:
+> On Wed, 24 Feb 2021, Xiaoming Ni wrote:
 > 
-> commit a97cb0e7b3f4c6297fd857055ae8e895f402f501 upstream.
+> > The handle_exit_race() function is defined in commit 9c3f39860367
+> >  ("futex: Cure exit race"), which never returns -EBUSY. This results
+> > in a small piece of dead code in the attach_to_pi_owner() function:
+> > 
+> > 	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
+> > 	...
+> > 	if (ret == -EBUSY)
+> > 		*exiting = p; /* dead code */
+> > 
+> > The return value -EBUSY is added to handle_exit_race() in upsteam
+> > commit ac31c7ff8624409 ("futex: Provide distinct return value when
+> > owner is exiting"). This commit was incorporated into v4.9.255, before
+> > the function handle_exit_race() was introduced, whitout Modify
+> > handle_exit_race().
+> > 
+> > To fix dead code, extract the change of handle_exit_race() from
+> > commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
+> >  is exiting"), re-incorporated.
+> > 
+> > Fixes: 9c3f39860367 ("futex: Cure exit race")
+> > Cc: stable@vger.kernel.org # v4.9.258
+> > Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+> > ---
+> >  kernel/futex.c | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
-> Both Geert and DaveJ reported that the recent futex commit:
+> To clarify, this is not a wholesale back-port from Mainline.
 > 
->   c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> It takes the remaining functional snippet of:
 > 
-> introduced a problem with setting OWNER_DEAD. We set the bit on an
-> uninitialized variable and then entirely optimize it away as a
-> dead-store.
+>  ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
 > 
-> Move the setting of the bit to where it is more useful.
+> ... and is the correct fix for this issue.
 > 
-> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> Reported-by: Dave Jones <davej@codemonkey.org.uk>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Paul E. McKenney <paulmck@us.ibm.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
-> Link: http://lkml.kernel.org/r/20180122103947.GD2228@hirez.programming.kicks-ass.net
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
-> ---
->  kernel/futex.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> Reviewed-by: Lee Jones <lee.jones@linaro.org>
 
-Now queued up, thanks.
+Thanks, now queued up.
 
 greg k-h
