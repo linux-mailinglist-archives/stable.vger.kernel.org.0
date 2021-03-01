@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B1D3290FA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 533E33290F8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243081AbhCAUSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:18:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38528 "EHLO mail.kernel.org"
+        id S243073AbhCAUSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:18:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242887AbhCAUIY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242884AbhCAUIY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:08:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E77C64F6B;
-        Mon,  1 Mar 2021 17:59:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9EFE652BC;
+        Mon,  1 Mar 2021 17:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621592;
-        bh=upBw5AdhJq8rnQs+7k6VyJ4fcKb+oB1WjUncSlyNNPs=;
+        s=korg; t=1614621595;
+        bh=URqSUfeg+CbfO1DyDksP7G2pQkvdZe74RRFwn9Tbu2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1D4RWl8HKW/6T6jxDyPwy0ptgbLX578tucL+cIzeDZgsND6qZEHppomXV9Qov2VU
-         tsa1Tt+PDRhhZ+qsnerq5Y0Ce37URnkOK31CJDm6eM/sp1LYsUHTgQIoshVFqE2qaA
-         aVLuvAOe6oFQazg/clTSMx/GWWssaOgJshblWblw=
+        b=UD/jEww7klekjp4O9LYI6eH6ktNg52989sUcV8HKCru6YdKFlthnH1W7aGq39otor
+         CqcK+qgHhEv9gvTD2L5eWoWJTF5j6ga9nLzngAOAV6GU6e/KdWLmYVdWk4bQjvLOaN
+         kdeF/UiC/22Jsjf79+DEJob77jj+SZNNr48154+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Marcin=20=C5=9Alusarz?= <marcin.slusarz@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Calvin Johnson <calvin.johnson@oss.nxp.com>,
         "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.11 573/775] soundwire: intel: fix possible crash when no device is detected
-Date:   Mon,  1 Mar 2021 17:12:21 +0100
-Message-Id: <20210301161229.771857266@linuxfoundation.org>
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.11 574/775] ACPI: property: Fix fwnode string properties matching
+Date:   Mon,  1 Mar 2021 17:12:22 +0100
+Message-Id: <20210301161229.821167939@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,97 +43,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcin Ślusarz <marcin.slusarz@intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 957e3f797917b36355766807b1d8a54a1ba0cfc9 upstream.
+commit e1e6bd2995ac0e1ad0c2a2d906a06f59ce2ed293 upstream.
 
-acpi_walk_namespace can return success without executing our
-callback which initializes info->handle.
-If the random value in this structure is a valid address (which
-is on the stack, so it's quite possible), then nothing bad will
-happen, because:
-sdw_intel_scan_controller
- -> acpi_bus_get_device
- -> acpi_get_device_data
- -> acpi_get_data_full
- -> acpi_ns_validate_handle
-will reject this handle.
+Property matching does not work for ACPI fwnodes if the value of the
+given property is not represented as a package in the _DSD package
+containing it.  For example, the "compatible" property in the _DSD
+below
 
-However, if the value from the stack doesn't point to a valid
-address, we get this:
+  Name (_DSD, Package () {
+    ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+    Package () {
+      Package () {"compatible", "ethernet-phy-ieee802.3-c45"}
+    }
+  })
 
-BUG: kernel NULL pointer dereference, address: 0000000000000050
-PGD 0 P4D 0
-Oops: 0000 [#1] SMP NOPTI
-CPU: 6 PID: 472 Comm: systemd-udevd Tainted: G        W         5.10.0-1-amd64 #1 Debian 5.10.4-1
-Hardware name: HP HP Pavilion Laptop 15-cs3xxx/86E2, BIOS F.05 01/01/2020
-RIP: 0010:acpi_ns_validate_handle+0x1a/0x23
-Code: 00 48 83 c4 10 5b 5d 41 5c 41 5d 41 5e 41 5f c3 0f 1f 44 00 00 48 8d 57 ff 48 89 f8 48 83 fa fd 76 08 48 8b 05 0c b8 67 01 c3 <80> 7f 08 0f 74 02 31 c0 c3 0f 1f 44 00 00 48 8b 3d f6 b7 67 01 e8
-RSP: 0000:ffffc388807c7b20 EFLAGS: 00010213
-RAX: 0000000000000048 RBX: ffffc388807c7b70 RCX: 0000000000000000
-RDX: 0000000000000047 RSI: 0000000000000246 RDI: 0000000000000048
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffffc0f5f4d1 R11: ffffffff8f0cb268 R12: 0000000000001001
-R13: ffffffff8e33b160 R14: 0000000000000048 R15: 0000000000000000
-FS:  00007f24548288c0(0000) GS:ffff9f781fb80000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000050 CR3: 0000000106158004 CR4: 0000000000770ee0
-PKRU: 55555554
-Call Trace:
- acpi_get_data_full+0x4d/0x92
- acpi_bus_get_device+0x1f/0x40
- sdw_intel_acpi_scan+0x59/0x230 [soundwire_intel]
- ? strstr+0x22/0x60
- ? dmi_matches+0x76/0xe0
- snd_intel_dsp_driver_probe.cold+0xaf/0x163 [snd_intel_dspcfg]
- azx_probe+0x7a/0x970 [snd_hda_intel]
- local_pci_probe+0x42/0x80
- ? _cond_resched+0x16/0x40
- pci_device_probe+0xfd/0x1b0
- really_probe+0x205/0x460
- driver_probe_device+0xe1/0x150
- device_driver_attach+0xa1/0xb0
- __driver_attach+0x8a/0x150
- ? device_driver_attach+0xb0/0xb0
- ? device_driver_attach+0xb0/0xb0
- bus_for_each_dev+0x78/0xc0
- bus_add_driver+0x12b/0x1e0
- driver_register+0x8b/0xe0
- ? 0xffffffffc0f65000
- do_one_initcall+0x44/0x1d0
- ? do_init_module+0x23/0x250
- ? kmem_cache_alloc_trace+0xf5/0x200
- do_init_module+0x5c/0x250
- __do_sys_finit_module+0xb1/0x110
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+will not be found by fwnode_property_match_string(), because the ACPI
+code handling device properties does not regard the single value as a
+"list" in that case.
 
-Signed-off-by: Marcin Ślusarz <marcin.slusarz@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210208120104.204761-1-marcin.slusarz@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Namely, fwnode_property_match_string() invoked to match a given
+string property value first calls fwnode_property_read_string_array()
+with the last two arguments equal to NULL and 0, respectively, in
+order to count the items in the value of the given property, with the
+assumption that this value may be an array.  For ACPI fwnodes, that
+operation is carried out by acpi_node_prop_read() which calls
+acpi_data_prop_read() for this purpose.  However, when the return
+(val) pointer is NULL, that function only looks for a property whose
+value is a package without checking the single-value case at all.
+
+To fix that, make acpi_data_prop_read() check the single-value
+case if its return pointer argument is NULL and modify
+acpi_data_prop_read_single() handling that case to attempt to
+read the value of the property if the return pointer is NULL
+and return 1 if that succeeds.
+
+Fixes: 3708184afc77 ("device property: Move FW type specific functionality to FW specific files")
+Reported-by: Calvin Johnson <calvin.johnson@oss.nxp.com>
+Cc: 4.13+ <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soundwire/intel_init.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/property.c |   44 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
---- a/drivers/soundwire/intel_init.c
-+++ b/drivers/soundwire/intel_init.c
-@@ -405,11 +405,12 @@ int sdw_intel_acpi_scan(acpi_handle *par
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -787,9 +787,6 @@ static int acpi_data_prop_read_single(co
+ 	const union acpi_object *obj;
+ 	int ret;
+ 
+-	if (!val)
+-		return -EINVAL;
+-
+ 	if (proptype >= DEV_PROP_U8 && proptype <= DEV_PROP_U64) {
+ 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_INTEGER, &obj);
+ 		if (ret)
+@@ -799,28 +796,43 @@ static int acpi_data_prop_read_single(co
+ 		case DEV_PROP_U8:
+ 			if (obj->integer.value > U8_MAX)
+ 				return -EOVERFLOW;
+-			*(u8 *)val = obj->integer.value;
++
++			if (val)
++				*(u8 *)val = obj->integer.value;
++
+ 			break;
+ 		case DEV_PROP_U16:
+ 			if (obj->integer.value > U16_MAX)
+ 				return -EOVERFLOW;
+-			*(u16 *)val = obj->integer.value;
++
++			if (val)
++				*(u16 *)val = obj->integer.value;
++
+ 			break;
+ 		case DEV_PROP_U32:
+ 			if (obj->integer.value > U32_MAX)
+ 				return -EOVERFLOW;
+-			*(u32 *)val = obj->integer.value;
++
++			if (val)
++				*(u32 *)val = obj->integer.value;
++
+ 			break;
+ 		default:
+-			*(u64 *)val = obj->integer.value;
++			if (val)
++				*(u64 *)val = obj->integer.value;
++
+ 			break;
+ 		}
++
++		if (!val)
++			return 1;
+ 	} else if (proptype == DEV_PROP_STRING) {
+ 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_STRING, &obj);
+ 		if (ret)
+ 			return ret;
+ 
+-		*(char **)val = obj->string.pointer;
++		if (val)
++			*(char **)val = obj->string.pointer;
+ 
+ 		return 1;
+ 	} else {
+@@ -834,7 +846,7 @@ int acpi_dev_prop_read_single(struct acp
  {
- 	acpi_status status;
+ 	int ret;
  
-+	info->handle = NULL;
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE,
- 				     parent_handle, 1,
- 				     sdw_intel_acpi_cb,
- 				     NULL, info, NULL);
--	if (ACPI_FAILURE(status))
-+	if (ACPI_FAILURE(status) || info->handle == NULL)
- 		return -ENODEV;
+-	if (!adev)
++	if (!adev || !val)
+ 		return -EINVAL;
  
- 	return sdw_intel_scan_controller(info);
+ 	ret = acpi_data_prop_read_single(&adev->data, propname, proptype, val);
+@@ -928,10 +940,20 @@ static int acpi_data_prop_read(const str
+ 	const union acpi_object *items;
+ 	int ret;
+ 
+-	if (val && nval == 1) {
++	if (nval == 1 || !val) {
+ 		ret = acpi_data_prop_read_single(data, propname, proptype, val);
+-		if (ret >= 0)
++		/*
++		 * The overflow error means that the property is there and it is
++		 * single-value, but its type does not match, so return.
++		 */
++		if (ret >= 0 || ret == -EOVERFLOW)
+ 			return ret;
++
++		/*
++		 * Reading this property as a single-value one failed, but its
++		 * value may still be represented as one-element array, so
++		 * continue.
++		 */
+ 	}
+ 
+ 	ret = acpi_data_get_property_array(data, propname, ACPI_TYPE_ANY, &obj);
 
 
