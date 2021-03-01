@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E16ED328FC6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 313C8328FD8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242439AbhCAT6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55158 "EHLO mail.kernel.org"
+        id S242565AbhCAT6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236046AbhCATov (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78D2464F34;
-        Mon,  1 Mar 2021 17:39:20 +0000 (UTC)
+        id S241721AbhCATq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:46:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CFCC652E1;
+        Mon,  1 Mar 2021 17:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620361;
-        bh=6mYZ4RgTHW7sK5kJf72iEJkj6mnZPhTzIIYcC3GRuZc=;
+        s=korg; t=1614620366;
+        bh=NgyCZmuYOTuc8kjm1KjUZenqnDmxnQHGJ2KI7vihzrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjxZrhfAQbYjWPeZssbZfyqG8wzPs9b+5CyfMdXf9LacZ9I80wrURss0L6aMxE5ij
-         Omqh51k9ZGuLiPxHOMWFF+nKK9pEm7TAb9sTlMQzXywUxdieJNILaPU+x06Chzh0g2
-         C4irQeytYvm+UeVUNYjYXFH4Z0Njn/ZQr3+Y/d24=
+        b=Pm6rIgf73onMmD0kxykEcoCy1gF4nCw+WKADrPGXmG3G/Pwq5Gj9pN5lgp7UzoEUf
+         O/H7LFR0Q7lalOLCPXoTtJevqzNXmeZubZzD5TrSFPEyVmi/Hz69zEo6JSkIogCnh3
+         59p26BoCKr2nEW2vc2WQXqM9PcuiLb2Vlh7mVgl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Ilya Leoshkevich <iii@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 125/775] cxgb4/chtls/cxgbit: Keeping the max ofld immediate data size same in cxgb4 and ulds
-Date:   Mon,  1 Mar 2021 17:04:53 +0100
-Message-Id: <20210301161207.851470160@linuxfoundation.org>
+Subject: [PATCH 5.11 127/775] bpf: Clear subreg_def for global function return values
+Date:   Mon,  1 Mar 2021 17:04:55 +0100
+Message-Id: <20210301161207.953525968@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,102 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit 2355a6773a2cb0d2dce13432dde78497f1d6617b ]
+[ Upstream commit 45159b27637b0fef6d5ddb86fc7c46b13c77960f ]
 
-The Max imm data size in cxgb4 is not similar to the max imm data size
-in the chtls. This caused an mismatch in output of is_ofld_imm() of
-cxgb4 and chtls. So fixed this by keeping the max wreq size of imm data
-same in both chtls and cxgb4 as MAX_IMM_OFLD_TX_DATA_WR_LEN.
+test_global_func4 fails on s390 as reported by Yauheni in [1].
 
-As cxgb4's max imm. data value for ofld packets is changed to
-MAX_IMM_OFLD_TX_DATA_WR_LEN. Using the same in cxgbit also.
+The immediate problem is that the zext code includes the instruction,
+whose result needs to be zero-extended, into the zero-extension
+patchlet, and if this instruction happens to be a branch, then its
+delta is not adjusted. As a result, the verifier rejects the program
+later.
 
-Fixes: 36bedb3f2e5b8 ("crypto: chtls - Inline TLS record Tx")
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+However, according to [2], as far as the verifier's algorithm is
+concerned and as specified by the insn_no_def() function, branching
+insns do not define anything. This includes call insns, even though
+one might argue that they define %r0.
+
+This means that the real problem is that zero extension kicks in at
+all. This happens because clear_caller_saved_regs() sets BPF_REG_0's
+subreg_def after global function calls. This can be fixed in many
+ways; this patch mimics what helper function call handling already
+does.
+
+  [1] https://lore.kernel.org/bpf/20200903140542.156624-1-yauheni.kaliuta@redhat.com/
+  [2] https://lore.kernel.org/bpf/CAADnVQ+2RPKcftZw8d+B1UwB35cpBhpF5u3OocNh90D9pETPwg@mail.gmail.com/
+
+Fixes: 51c39bb1d5d1 ("bpf: Introduce function-by-function verification")
+Reported-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210212040408.90109-1-iii@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h        |  3 +++
- drivers/net/ethernet/chelsio/cxgb4/sge.c              | 11 ++++++++---
- .../ethernet/chelsio/inline_crypto/chtls/chtls_cm.h   |  3 ---
- drivers/target/iscsi/cxgbit/cxgbit_target.c           |  3 +--
- 4 files changed, 12 insertions(+), 8 deletions(-)
+ kernel/bpf/verifier.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-index 1b49f2fa9b185..34546f5312eee 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.h
-@@ -46,6 +46,9 @@
- #define MAX_ULD_QSETS 16
- #define MAX_ULD_NPORTS 4
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 20babdd06278f..33683eafea90e 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4834,8 +4834,9 @@ static int check_func_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
+ 					subprog);
+ 			clear_caller_saved_regs(env, caller->regs);
  
-+/* ulp_mem_io + ulptx_idata + payload + padding */
-+#define MAX_IMM_ULPTX_WR_LEN (32 + 8 + 256 + 8)
-+
- /* CPL message priority levels */
- enum {
- 	CPL_PRIORITY_DATA     = 0,  /* data messages */
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 196652a114c5f..3334c9e2152ab 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -2842,17 +2842,22 @@ int t4_mgmt_tx(struct adapter *adap, struct sk_buff *skb)
-  *	@skb: the packet
-  *
-  *	Returns true if a packet can be sent as an offload WR with immediate
-- *	data.  We currently use the same limit as for Ethernet packets.
-+ *	data.
-+ *	FW_OFLD_TX_DATA_WR limits the payload to 255 bytes due to 8-bit field.
-+ *      However, FW_ULPTX_WR commands have a 256 byte immediate only
-+ *      payload limit.
-  */
- static inline int is_ofld_imm(const struct sk_buff *skb)
- {
- 	struct work_request_hdr *req = (struct work_request_hdr *)skb->data;
- 	unsigned long opcode = FW_WR_OP_G(ntohl(req->wr_hi));
+-			/* All global functions return SCALAR_VALUE */
++			/* All global functions return a 64-bit SCALAR_VALUE */
+ 			mark_reg_unknown(env, caller->regs, BPF_REG_0);
++			caller->regs[BPF_REG_0].subreg_def = DEF_NOT_SUBREG;
  
--	if (opcode == FW_CRYPTO_LOOKASIDE_WR)
-+	if (unlikely(opcode == FW_ULPTX_WR))
-+		return skb->len <= MAX_IMM_ULPTX_WR_LEN;
-+	else if (opcode == FW_CRYPTO_LOOKASIDE_WR)
- 		return skb->len <= SGE_MAX_WR_LEN;
- 	else
--		return skb->len <= MAX_IMM_TX_PKT_LEN;
-+		return skb->len <= MAX_IMM_OFLD_TX_DATA_WR_LEN;
- }
- 
- /**
-diff --git a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-index 47ba81e42f5d0..b1161bdeda4dc 100644
---- a/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-+++ b/drivers/net/ethernet/chelsio/inline_crypto/chtls/chtls_cm.h
-@@ -50,9 +50,6 @@
- #define MIN_RCV_WND (24 * 1024U)
- #define LOOPBACK(x)     (((x) & htonl(0xff000000)) == htonl(0x7f000000))
- 
--/* ulp_mem_io + ulptx_idata + payload + padding */
--#define MAX_IMM_ULPTX_WR_LEN (32 + 8 + 256 + 8)
--
- /* for TX: a skb must have a headroom of at least TX_HEADER_LEN bytes */
- #define TX_HEADER_LEN \
- 	(sizeof(struct fw_ofld_tx_data_wr) + sizeof(struct sge_opaque_hdr))
-diff --git a/drivers/target/iscsi/cxgbit/cxgbit_target.c b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-index 9b3eb2e8c92ad..b926e1d6c7b8e 100644
---- a/drivers/target/iscsi/cxgbit/cxgbit_target.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_target.c
-@@ -86,8 +86,7 @@ static int cxgbit_is_ofld_imm(const struct sk_buff *skb)
- 	if (likely(cxgbit_skcb_flags(skb) & SKCBF_TX_ISO))
- 		length += sizeof(struct cpl_tx_data_iso);
- 
--#define MAX_IMM_TX_PKT_LEN	256
--	return length <= MAX_IMM_TX_PKT_LEN;
-+	return length <= MAX_IMM_OFLD_TX_DATA_WR_LEN;
- }
- 
- /*
+ 			/* continue with next insn after call */
+ 			return 0;
 -- 
 2.27.0
 
