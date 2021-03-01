@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F04329142
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2479332914B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243180AbhCAUXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:23:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40900 "EHLO mail.kernel.org"
+        id S243268AbhCAUXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:23:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242693AbhCAUQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243115AbhCAUQK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:16:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F36C653D1;
-        Mon,  1 Mar 2021 18:02:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25D3F653D7;
+        Mon,  1 Mar 2021 18:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621737;
-        bh=6zMXgh+XFJzQ6CWYEERvnVhuU4zxjGkCbpqSM0+CbG8=;
+        s=korg; t=1614621758;
+        bh=8OHyZyUzFVh/ELW1UiG+7dTWtN9HwcthoW9RT05Iy2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUaMpiHi1gOPHDbz4VrGVqECBjHkTRKpxxmXLzKPfKIUgZRr1tlxwSl48rKWlD1Zx
-         +LUCmZ0/c7fHowREsBiffyRaHuSk4ctwFqeA3+32CF8ECJBToIGUYwRF0INRKLBGrD
-         1OtBT7WozJXjpp9DHRtgQTffxDvvU7waIzoehJKg=
+        b=FKP+mI5P6Fs14x1VbpuCLwlQgoAPZXOZ0XeXYYcMeSMBXjq6aea+FToCubS0PpLRW
+         tccuSNGwyHlAv8We2GPuL+ti9C36+3BhvOO0VuxRpLKP+6VYRLBHVOQlPLscnW4Mzf
+         4NYX0F5QhwN7vjgQKAZvaeSL5wGDu5hT3mzFuZUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
-        Ezequiel Garcia <ezequiel@collabora.com>,
-        Christopher Morgan <macromorgan@hotmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.11 624/775] drm/panel: kd35t133: allow using non-continuous dsi clock
-Date:   Mon,  1 Mar 2021 17:13:12 +0100
-Message-Id: <20210301161232.232504699@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.11 626/775] ASoC: siu: Fix build error by a wrong const prefix
+Date:   Mon,  1 Mar 2021 17:13:14 +0100
+Message-Id: <20210301161232.332669085@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,42 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko@sntech.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d922d58fedcd98ba625e89b625a98e222b090b10 upstream.
+commit ae07f5c7c5e9ebca5b9d6471bb4b99a9da5c6d88 upstream.
 
-The panel is able to work when dsi clock is non-continuous, thus
-the system power consumption can be reduced using such feature.
+A const prefix was put wrongly in the middle at the code refactoring
+commit 932eaf7c7904 ("ASoC: sh: siu_pcm: remove snd_pcm_ops"), which
+leads to a build error as:
+  sound/soc/sh/siu_pcm.c:546:8: error: expected '{' before 'const'
 
-Add MIPI_DSI_CLOCK_NON_CONTINUOUS to panel's mode_flags.
+Also, another inconsistency is that the declaration of siu_component
+misses the const prefix.
 
-Also the flag actually becomes necessary after
-commit c6d94e37bdbb ("drm/bridge/synopsys: dsi: add support for non-continuous HS clock")
-and without it the panel only emits stripes instead of output.
+This patch corrects both failures.
 
-Fixes: c6d94e37bdbb ("drm/bridge/synopsys: dsi: add support for non-continuous HS clock")
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Tested-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Christopher Morgan <macromorgan@hotmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210206135020.1991820-1-heiko@sntech.de
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: 932eaf7c7904 ("ASoC: sh: siu_pcm: remove snd_pcm_ops")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210126154702.3974-1-tiwai@suse.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-elida-kd35t133.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/sh/siu.h     |    2 +-
+ sound/soc/sh/siu_pcm.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/panel/panel-elida-kd35t133.c
-+++ b/drivers/gpu/drm/panel/panel-elida-kd35t133.c
-@@ -265,7 +265,8 @@ static int kd35t133_probe(struct mipi_ds
- 	dsi->lanes = 1;
- 	dsi->format = MIPI_DSI_FMT_RGB888;
- 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
--			  MIPI_DSI_MODE_LPM | MIPI_DSI_MODE_EOT_PACKET;
-+			  MIPI_DSI_MODE_LPM | MIPI_DSI_MODE_EOT_PACKET |
-+			  MIPI_DSI_CLOCK_NON_CONTINUOUS;
+--- a/sound/soc/sh/siu.h
++++ b/sound/soc/sh/siu.h
+@@ -169,7 +169,7 @@ static inline u32 siu_read32(u32 __iomem
+ #define SIU_BRGBSEL	(0x108 / sizeof(u32))
+ #define SIU_BRRB	(0x10c / sizeof(u32))
  
- 	drm_panel_init(&ctx->panel, &dsi->dev, &kd35t133_funcs,
- 		       DRM_MODE_CONNECTOR_DSI);
+-extern struct snd_soc_component_driver siu_component;
++extern const struct snd_soc_component_driver siu_component;
+ extern struct siu_info *siu_i2s_data;
+ 
+ int siu_init_port(int port, struct siu_port **port_info, struct snd_card *card);
+--- a/sound/soc/sh/siu_pcm.c
++++ b/sound/soc/sh/siu_pcm.c
+@@ -543,7 +543,7 @@ static void siu_pcm_free(struct snd_soc_
+ 	dev_dbg(pcm->card->dev, "%s\n", __func__);
+ }
+ 
+-struct const snd_soc_component_driver siu_component = {
++const struct snd_soc_component_driver siu_component = {
+ 	.name		= DRV_NAME,
+ 	.open		= siu_pcm_open,
+ 	.close		= siu_pcm_close,
 
 
