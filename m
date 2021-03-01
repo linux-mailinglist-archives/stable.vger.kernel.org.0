@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C693290FF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C65328FB6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243131AbhCAUSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:18:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39925 "EHLO mail.kernel.org"
+        id S236567AbhCATzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:55:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238552AbhCAUJv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:09:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB40653B4;
-        Mon,  1 Mar 2021 18:00:05 +0000 (UTC)
+        id S233977AbhCATod (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BCD26522F;
+        Mon,  1 Mar 2021 17:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621606;
-        bh=SAfqGVoDVV7vGzd+ShP/ahMF4bUwHmopoaMbIMk9GZ4=;
+        s=korg; t=1614619559;
+        bh=FXyUN6mPqd37HOZDi4nQevb3kLIw+Q+l9fL4/yhn+7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zem3//BSiQ60j8DEx1rkxNvtnE6iE9SyXe5KRZkDdyThKBOIqJhjXGg5sHRxQoygW
-         tkOrYFY9wStCcbG5V+tcd6gplJSvfM8oG4rOpFAhQkSvjRh+FpXqn5HgnAik8jRz3e
-         zmE/dlTK6GPmMzNZO079NiLw4fkzz/PA3UUUw79U=
+        b=iAIxiUZVB++BOUiP63OoGAypKHh1CdJHqYyKnNMDnDzu3spASON2OiOy8Jvfmn5wH
+         RjMiKfuVUtU9g5oitxLxrqWv0nAdVanD5y2mKxad1C1uuU4TsOerz/sArGOaeGpSO6
+         so43keGB9nwfGYOFi9Qdlp8VcSH1Zs/YMi3ir5SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.11 578/775] HID: wacom: Ignore attempts to overwrite the touch_max value from HID
-Date:   Mon,  1 Mar 2021 17:12:26 +0100
-Message-Id: <20210301161230.020255738@linuxfoundation.org>
+        stable@vger.kernel.org, Mathias Kresin <dev@kresin.me>,
+        Hauke Mehrtens <hauke@hauke-m.de>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 499/663] phy: lantiq: rcu-usb2: wait after clock enable
+Date:   Mon,  1 Mar 2021 17:12:27 +0100
+Message-Id: <20210301161206.539325474@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Mathias Kresin <dev@kresin.me>
 
-commit 88f38846bfb1a452a3d47e38aeab20a4ceb74294 upstream.
+commit 36acd5e24e3000691fb8d1ee31cf959cb1582d35 upstream.
 
-The `wacom_feature_mapping` function is careful to only set the the
-touch_max value a single time, but this care does not extend to the
-`wacom_wac_finger_event` function. In particular, if a device sends
-multiple HID_DG_CONTACTMAX items in a single feature report, the
-driver will end up retaining the value of last item.
+Commit 65dc2e725286 ("usb: dwc2: Update Core Reset programming flow.")
+revealed that the phy isn't ready immediately after enabling it's
+clocks. The dwc2_check_core_version() fails and the dwc2 usb driver
+errors out.
 
-The HID descriptor for the Cintiq Companion 2 does exactly this. It
-incorrectly sets a "Report Count" of 2, which will cause the driver
-to process two HID_DG_CONTACTCOUNT items. The first item has the actual
-count, while the second item should have been declared as a constant
-zero. The constant zero is the value the driver ends up using, however,
-since it is the last HID_DG_CONTACTCOUNT in the report.
+Add a short delay to let the phy get up and running. There isn't any
+documentation how much time is required, the value was chosen based on
+tests.
 
-    Report ID (16),
-    Usage (Contact Count Maximum),  ; Contact count maximum (55h, static value)
-    Report Count (2),
-    Logical Maximum (10),
-    Feature (Variable),
-
-To address this, we add a check that the touch_max is not already set
-within the `wacom_wac_finger_event` function that processes the
-HID_DG_TOUCHMAX item. We emit a warning if the value is set and ignore
-the updated value.
-
-This could potentially cause problems if there is a tablet which has
-a similar issue but requires the last item to be used. This is unlikely,
-however, since it would have to have a different non-zero value for
-HID_DG_CONTACTMAX earlier in the same report, which makes no sense
-except in the case of a firmware bug. Note that cases where the
-HID_DG_CONTACTMAX items are in different reports is already handled
-(and similarly ignored) by `wacom_feature_mapping` as mentioned above.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/223
-Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: <stable@vger.kernel.org> # v5.7+
+Link: https://lore.kernel.org/r/20210107224901.2102479-1-dev@kresin.me
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_wac.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/phy/lantiq/phy-lantiq-rcu-usb2.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2600,7 +2600,12 @@ static void wacom_wac_finger_event(struc
- 		wacom_wac->is_invalid_bt_frame = !value;
- 		return;
- 	case HID_DG_CONTACTMAX:
--		features->touch_max = value;
-+		if (!features->touch_max) {
-+			features->touch_max = value;
-+		} else {
-+			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
-+				 "%d -> %d\n", __func__, features->touch_max, value);
-+		}
- 		return;
- 	}
+--- a/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
++++ b/drivers/phy/lantiq/phy-lantiq-rcu-usb2.c
+@@ -124,8 +124,16 @@ static int ltq_rcu_usb2_phy_power_on(str
+ 	reset_control_deassert(priv->phy_reset);
  
+ 	ret = clk_prepare_enable(priv->phy_gate_clk);
+-	if (ret)
++	if (ret) {
+ 		dev_err(dev, "failed to enable PHY gate\n");
++		return ret;
++	}
++
++	/*
++	 * at least the xrx200 usb2 phy requires some extra time to be
++	 * operational after enabling the clock
++	 */
++	usleep_range(100, 200);
+ 
+ 	return ret;
+ }
 
 
