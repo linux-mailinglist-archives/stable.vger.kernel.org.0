@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD46328042
+	by mail.lfdr.de (Postfix) with ESMTP id CCB55328043
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234309AbhCAOGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 09:06:43 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40733 "EHLO
+        id S234562AbhCAOHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 09:07:04 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:58297 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236058AbhCAOG3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 09:06:29 -0500
+        by vger.kernel.org with ESMTP id S234389AbhCAOG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 09:06:57 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1570D194225F;
-        Mon,  1 Mar 2021 09:05:40 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id B3FD41942248;
+        Mon,  1 Mar 2021 09:05:47 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 09:05:40 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 09:05:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zMWB4G
-        aHdeG5g4GC+p5XCh/FPq6+nKIrVMrpMc1575c=; b=CgWHW6LkmP4buEPhoJ9C6u
-        DiGx2I1sEylYhAblUTVEsu/c9QCC97zVqPWJ7vKtKkPrnq9RNV3kgm0JJjRhcS4p
-        OwPc9T08FkP4bFBBQOgQaaXuHZNnDihBs7PWFWTBfg+UaLqlCEQpyeOssAmeM+Lg
-        gN2f8tQFLomtK4HrKnImbMny67au/3PjpBEIdTaWpga6NrSHCXNDc/BISp6ZKNu9
-        cwZmdTFi4o0UTvtQi97yVKyVeqs7fkE3A4CLbpCTR9KOz+S6oK4awNTfAQHv/mVH
-        fITgSVBJJt3xxpD4cwOV28i01M49qLnMxxj9w7lYC5p4FHPPj7Jl5KXUcovALZCA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=U4jVr5
+        8AgjlTVHdQEcGF7C2+7RS+qJdXlmnIXEU9mE0=; b=liEdn2bGbfrW6B+ZBaeq6D
+        kfirL6DBKCtcxOY7r7bZlxhMYTYitdq6O0Bvn++zW11ucyL7cXrp8wt9U2rmaMTw
+        nH+Vr0lPh1lsMXpwQok3h/dy7S+xUgvnO9lrvRUHP8UxU6vWPOSBZU4GXl8as32P
+        Dcy8tj5I4hsziX/EgmEDy/AvYPSfTU2gp2Ng2NU3+Fx3vsl7YvtOxcHkWMEvzAnS
+        M8VVeFQNJHrCVPhTiRvSsiJjHk8X581s1irfTinlAkt/Uh1efo68cgRYLK3YZm8t
+        +LHGwgnlXBrIADSk+WSETWA4bQGifSuL20XUOY1Wi1DaIvYlggmCV126UeiRfKCQ
         ==
-X-ME-Sender: <xms:s_Q8YHJAHMGSgR2NFgxoQiFP_JlSMKynUpOadr21Xz5hn-w_y-zyLQ>
-    <xme:s_Q8YLL4-yfhQQoE0ndn-1IBNBOR574HKHGoEdNLqHqEU2KyBKFpyy5XZvM25PF9-
-    M5fVBHxMUbQzQ>
+X-ME-Sender: <xms:u_Q8YCvFF_sm0MlFLrSz0JefJHCmmaOL3FRq0ohVUoV5mnFaqwPsvg>
+    <xme:u_Q8YLyAf-9sqVR9oKZ0rzBxrBYm2IZPQHfYwuS_SQceDb1mlAdOAnm-NR6M7zOMQ
+    sdqtjbrpSrfdA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
     fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
-    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrh
     grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:s_Q8YPsnMf_N95Y55W9r0L-SnBuvrFPwGVvkESpEW2YsOV2iN0KLUQ>
-    <xmx:s_Q8YAb0IJz161K0ZwEyrZNdf1Zs4utwzOTG7_iPQH4XYeZCfy7yRg>
-    <xmx:s_Q8YOYOEXs9owWutZ_1kv9Un4NrY4n0aiFtWvtWkxe-y3eQrDigTQ>
-    <xmx:tPQ8YHApv0HiPVtvhzICq07gdNh7IkBx2WwJTOZFAqlDXkzXEK_ygg>
+X-ME-Proxy: <xmx:u_Q8YM5q1xdb5yNAVXXRhf18907HFL4XFmkxNERFoUXHfbaCphdkVQ>
+    <xmx:u_Q8YFWFZ3wIHXmPudhuhiU6Hlj5UPkm07x6pRLVlEW-lerefFdnGA>
+    <xmx:u_Q8YI0ruM5v7cOfafI8QnscnwisQ8VfXduWbaDKaPFnwJD0lUSEaQ>
+    <xmx:u_Q8YDAS81vEnU7tm4xq2OiLuINEX1WQjCOsCbBdVTeN0p_656jPrQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3C5B924005A;
-        Mon,  1 Mar 2021 09:05:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915/gt: Define guc firmware blob for older Cometlakes" failed to apply to 5.11-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 56C2424005C;
+        Mon,  1 Mar 2021 09:05:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915/gt: Define guc firmware blob for older Cometlakes" failed to apply to 5.10-stable tree
 To:     chris@chris-wilson.co.uk, mika.kuoppala@linux.intel.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 15:05:37 +0100
-Message-ID: <161460753716775@kroah.com>
+Date:   Mon, 01 Mar 2021 15:05:38 +0100
+Message-ID: <161460753820437@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
