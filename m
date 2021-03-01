@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3546E328B61
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E28328B3A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:34:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240132AbhCASd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:33:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43164 "EHLO mail.kernel.org"
+        id S239882AbhCASbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:31:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239868AbhCAS0U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:26:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BBA865037;
-        Mon,  1 Mar 2021 17:15:44 +0000 (UTC)
+        id S239198AbhCASXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:23:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B856511A;
+        Mon,  1 Mar 2021 17:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618945;
-        bh=n76WpIQrSPLMyoQURjtMF9uXbNBqhKxkm5PtyBVfulQ=;
+        s=korg; t=1614618957;
+        bh=zALidLivyhGJzurLP3RgXTjQv++DahGtOpqvB+1aiRQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ppxW0qy5wsdokql5oaVxfqBRrKT9Au/k1BNx635qj43s2FhN9M7vjt7UPpJqhuJm/
-         EKBEMXOcjL4CfYz/zUia0WK/h/3Bvf6BlaOLy7NeldAfFLyZ7NzQzb3FArJV8hLSXU
-         eitItsS1/Y2Xr14szvYZSDGymZmeEG9S7UlBX2Wc=
+        b=YEYos2HB5j/txJJAxJccvmi6l6hy+7VcsPZ4IPNs5/Q1tFE/1Ucqx/62J8Gfhe5oW
+         LeT6ObZ19rVSvT8m2g9mYagC6Ge9m6LC9gbfTo7Sdx+zRcSrK8o6D6nkG/dmgxyTOk
+         SzaGkhIKX5EZT3e7/5aetIg48MdB/GY2a02IxoVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Ferry Toth <ftoth@exalondelft.nl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 276/663] dmaengine: fsldma: Fix a resource leak in the remove function
-Date:   Mon,  1 Mar 2021 17:08:44 +0100
-Message-Id: <20210301161155.477554008@linuxfoundation.org>
+Subject: [PATCH 5.10 279/663] dmaengine: hsu: disable spurious interrupt
+Date:   Mon,  1 Mar 2021 17:08:47 +0100
+Message-Id: <20210301161155.623253393@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,40 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-[ Upstream commit cbc0ad004c03ad7971726a5db3ec84dba3dcb857 ]
+[ Upstream commit 035b73b2b3b2e074a56489a7bf84b6a8012c0e0d ]
 
-A 'irq_dispose_mapping()' call is missing in the remove function.
-Add it.
+On Intel Tangier B0 and Anniedale the interrupt line, disregarding
+to have different numbers, is shared between HSU DMA and UART IPs.
+Thus on such SoCs we are expecting that IRQ handler is called in
+UART driver only. hsu_pci_irq was handling the spurious interrupt
+from HSU DMA by returning immediately. This wastes CPU time and
+since HSU DMA and HSU UART interrupt occur simultaneously they race
+to be handled causing delay to the HSU UART interrupt handling.
+Fix this by disabling the interrupt entirely.
 
-This is needed to undo the 'irq_of_parse_and_map() call from the probe
-function and already part of the error handling path of the probe function.
-
-It was added in the probe function only in commit d3f620b2c4fe ("fsldma:
-simplify IRQ probing and handling")
-
-Fixes: 77cd62e8082b ("fsldma: allow Freescale Elo DMA driver to be compiled as a module")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212160516.92515-1-christophe.jaillet@wanadoo.fr
+Fixes: 4831e0d9054c ("serial: 8250_mid: handle interrupt correctly in DMA case")
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210112223749.97036-1-ftoth@exalondelft.nl
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsldma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/hsu/pci.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
-index 0feb323bae1e3..554f70a0c18c0 100644
---- a/drivers/dma/fsldma.c
-+++ b/drivers/dma/fsldma.c
-@@ -1314,6 +1314,7 @@ static int fsldma_of_remove(struct platform_device *op)
- 		if (fdev->chan[i])
- 			fsl_dma_chan_remove(fdev->chan[i]);
- 	}
-+	irq_dispose_mapping(fdev->irq);
+diff --git a/drivers/dma/hsu/pci.c b/drivers/dma/hsu/pci.c
+index 07cc7320a614f..9045a6f7f5893 100644
+--- a/drivers/dma/hsu/pci.c
++++ b/drivers/dma/hsu/pci.c
+@@ -26,22 +26,12 @@
+ static irqreturn_t hsu_pci_irq(int irq, void *dev)
+ {
+ 	struct hsu_dma_chip *chip = dev;
+-	struct pci_dev *pdev = to_pci_dev(chip->dev);
+ 	u32 dmaisr;
+ 	u32 status;
+ 	unsigned short i;
+ 	int ret = 0;
+ 	int err;
  
- 	iounmap(fdev->regs);
- 	kfree(fdev);
+-	/*
+-	 * On Intel Tangier B0 and Anniedale the interrupt line, disregarding
+-	 * to have different numbers, is shared between HSU DMA and UART IPs.
+-	 * Thus on such SoCs we are expecting that IRQ handler is called in
+-	 * UART driver only.
+-	 */
+-	if (pdev->device == PCI_DEVICE_ID_INTEL_MRFLD_HSU_DMA)
+-		return IRQ_HANDLED;
+-
+ 	dmaisr = readl(chip->regs + HSU_PCI_DMAISR);
+ 	for (i = 0; i < chip->hsu->nr_channels; i++) {
+ 		if (dmaisr & 0x1) {
+@@ -105,6 +95,17 @@ static int hsu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (ret)
+ 		goto err_register_irq;
+ 
++	/*
++	 * On Intel Tangier B0 and Anniedale the interrupt line, disregarding
++	 * to have different numbers, is shared between HSU DMA and UART IPs.
++	 * Thus on such SoCs we are expecting that IRQ handler is called in
++	 * UART driver only. Instead of handling the spurious interrupt
++	 * from HSU DMA here and waste CPU time and delay HSU UART interrupt
++	 * handling, disable the interrupt entirely.
++	 */
++	if (pdev->device == PCI_DEVICE_ID_INTEL_MRFLD_HSU_DMA)
++		disable_irq_nosync(chip->irq);
++
+ 	pci_set_drvdata(pdev, chip);
+ 
+ 	return 0;
 -- 
 2.27.0
 
