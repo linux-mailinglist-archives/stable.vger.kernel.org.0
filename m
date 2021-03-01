@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DB4328F78
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C0AB328F81
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241781AbhCATwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:52:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
+        id S242147AbhCATwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:52:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242156AbhCAToA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12CF464E2E;
-        Mon,  1 Mar 2021 17:13:43 +0000 (UTC)
+        id S242169AbhCAToB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE1E860C41;
+        Mon,  1 Mar 2021 17:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618824;
-        bh=ELZikx7g3N74HYqa74de0f9j+RRsCSv1vYuRnXBIa+U=;
+        s=korg; t=1614620795;
+        bh=qA2TRLyly4mfWKsGE8VnSuu01WrBUCQNqc7S0NQ+JhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klOS2fS4dugT+CCM6+HVvRx60pnHfnmtOauu4M+/6Bfp0JmSGY5pf+D1EDe1U1Ds/
-         g9AkH0XsVpCwabQagyt2UICGeW9nNo4MHTgJ6QQ8fZhSkwESqrnQkeWZIszQv31No9
-         wKq25Ph4ejWdZ04uT1UDl9t+fhpaAR+Vp3aPNBkg=
+        b=Hcf/0KESC6PrFTMXC6rRt/qKsHneR583+ay/vTzbUQYG494FwqKeXmDuoSmKAAGJQ
+         H8gusovm2P2kYfL7K1dHXzUjqY2AKgtQ/y3eEpH5U0NOTkutqJAAG3zMP03g2qjZtj
+         qq/QfUFVevQQaiDXF0juHPekz+uDDnPGDU+g2xc8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 200/663] perf/arm-cmn: Fix PMU instance naming
-Date:   Mon,  1 Mar 2021 17:07:28 +0100
-Message-Id: <20210301161151.676613738@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 283/775] crypto: ecdh_helper - Ensure len >= secret.len in decode_key()
+Date:   Mon,  1 Mar 2021 17:07:31 +0100
+Message-Id: <20210301161215.615456752@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
 
-[ Upstream commit 79d7c3dca99fa96033695ddf5d495b775a3a137b ]
+[ Upstream commit a53ab94eb6850c3657392e2d2ce9b38c387a2633 ]
 
-Although it's neat to avoid the suffix for the typical case of a
-single PMU, it means systems with multiple CMN instances end up with
-inconsistent naming. I think it also breaks perf tool's "uncore alias"
-logic if the common instance prefix is also the full name of one.
+The length ('len' parameter) passed to crypto_ecdh_decode_key() is never
+checked against the length encoded in the passed buffer ('buf'
+parameter). This could lead to an out-of-bounds access when the passed
+length is less than the encoded length.
 
-Avoid any surprises by not trying to be clever and simply numbering
-every instance, even when it might technically prove redundant.
+Add a check to prevent that.
 
-Fixes: 0ba64770a2f2 ("perf: Add Arm CMN-600 PMU driver")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/649a2281233f193d59240b13ed91b57337c77b32.1611839564.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 3c4b23901a0c7 ("crypto: ecdh - Add ECDH software support")
+Signed-off-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/perf/arm-cmn.rst |  2 +-
- drivers/perf/arm-cmn.c                     | 13 ++++---------
- 2 files changed, 5 insertions(+), 10 deletions(-)
+ crypto/ecdh_helper.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/Documentation/admin-guide/perf/arm-cmn.rst b/Documentation/admin-guide/perf/arm-cmn.rst
-index 0e48093460140..796e25b7027b2 100644
---- a/Documentation/admin-guide/perf/arm-cmn.rst
-+++ b/Documentation/admin-guide/perf/arm-cmn.rst
-@@ -17,7 +17,7 @@ PMU events
- ----------
+diff --git a/crypto/ecdh_helper.c b/crypto/ecdh_helper.c
+index 66fcb2ea81544..fca63b559f655 100644
+--- a/crypto/ecdh_helper.c
++++ b/crypto/ecdh_helper.c
+@@ -67,6 +67,9 @@ int crypto_ecdh_decode_key(const char *buf, unsigned int len,
+ 	if (secret.type != CRYPTO_KPP_SECRET_TYPE_ECDH)
+ 		return -EINVAL;
  
- The PMU driver registers a single PMU device for the whole interconnect,
--see /sys/bus/event_source/devices/arm_cmn. Multi-chip systems may link
-+see /sys/bus/event_source/devices/arm_cmn_0. Multi-chip systems may link
- more than one CMN together via external CCIX links - in this situation,
- each mesh counts its own events entirely independently, and additional
- PMU devices will be named arm_cmn_{1..n}.
-diff --git a/drivers/perf/arm-cmn.c b/drivers/perf/arm-cmn.c
-index a76ff594f3ca4..f3071b5ddaaef 100644
---- a/drivers/perf/arm-cmn.c
-+++ b/drivers/perf/arm-cmn.c
-@@ -1502,7 +1502,7 @@ static int arm_cmn_probe(struct platform_device *pdev)
- 	struct arm_cmn *cmn;
- 	const char *name;
- 	static atomic_t id;
--	int err, rootnode, this_id;
-+	int err, rootnode;
- 
- 	cmn = devm_kzalloc(&pdev->dev, sizeof(*cmn), GFP_KERNEL);
- 	if (!cmn)
-@@ -1549,14 +1549,9 @@ static int arm_cmn_probe(struct platform_device *pdev)
- 		.cancel_txn = arm_cmn_end_txn,
- 	};
- 
--	this_id = atomic_fetch_inc(&id);
--	if (this_id == 0) {
--		name = "arm_cmn";
--	} else {
--		name = devm_kasprintf(cmn->dev, GFP_KERNEL, "arm_cmn_%d", this_id);
--		if (!name)
--			return -ENOMEM;
--	}
-+	name = devm_kasprintf(cmn->dev, GFP_KERNEL, "arm_cmn_%d", atomic_fetch_inc(&id));
-+	if (!name)
-+		return -ENOMEM;
- 
- 	err = cpuhp_state_add_instance(arm_cmn_hp_state, &cmn->cpuhp_node);
- 	if (err)
++	if (unlikely(len < secret.len))
++		return -EINVAL;
++
+ 	ptr = ecdh_unpack_data(&params->curve_id, ptr, sizeof(params->curve_id));
+ 	ptr = ecdh_unpack_data(&params->key_size, ptr, sizeof(params->key_size));
+ 	if (secret.len != crypto_ecdh_key_len(params))
 -- 
 2.27.0
 
