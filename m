@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7909932891F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D492E32892D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239022AbhCARux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:50:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        id S239028AbhCARwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:52:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234782AbhCARog (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:44:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 682AD650D8;
-        Mon,  1 Mar 2021 16:58:37 +0000 (UTC)
+        id S238308AbhCARpo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:45:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E139650D9;
+        Mon,  1 Mar 2021 16:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617917;
-        bh=3A003Q3ITV1AzE5zxvYtp7Mqr9pWGisb8h8hTysFFVg=;
+        s=korg; t=1614617920;
+        bh=GlxxVNP9rhEar+fi8jeExJM4gGoPJ386ybd4Nou0H4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOYo3kHa2aRuRdGKbu4Ag8Q3YHdFLkLZsfFD6N1ZlM6uBPFRZg4mdnBKArNZKuvaW
-         aOCADL3JM54T7vZHnETNk3R0moAdkjlrePK/nj8rjtMyY0WfdlXxs5ZdB+zzTQMy2w
-         Caqc717GvnDEVQazr7wAMOh3vI5wA1SYWKoq1toM=
+        b=pQFjgkN9kRupeW/C3uEGxTsdIDtd6BCqHpcESZNY6wrUHIcW4PQur3botSV49YzRP
+         GVgYsMEZXqcSi9/aGEPib8Nm8REkcsNzXfh20fKyzGqLigUbUW2vhvshQovmXm9ZnC
+         iqvGaPBfPmDZlgxuW4cUnldqyrQbflFYfeGPeXwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ludvig Norgren Guldhag <ludvigng@gmail.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.4 243/340] Input: i8042 - add ASUS Zenbook Flip to noselftest list
-Date:   Mon,  1 Mar 2021 17:13:07 +0100
-Message-Id: <20210301161100.251732170@linuxfoundation.org>
+        syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com,
+        James Reynolds <jr@memlen.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 244/340] media: mceusb: Fix potential out-of-bounds shift
+Date:   Mon,  1 Mar 2021 17:13:08 +0100
+Message-Id: <20210301161100.297368594@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: James Reynolds <jr@memlen.com>
 
-commit b5d6e7ab7fe7d186878142e9fc1a05e4c3b65eb9 upstream.
+commit 1b43bad31fb0e00f45baf5b05bd21eb8d8ce7f58 upstream.
 
-After commit 77b425399f6d ("Input: i8042 - use chassis info to skip
-selftest on Asus laptops"), all modern Asus laptops have the i8042
-selftest disabled. It has done by using chassys type "10" (laptop).
+When processing a MCE_RSP_GETPORTSTATUS command, the bit index to set in
+ir->txports_cabled comes from response data, and isn't validated.
 
-The Asus Zenbook Flip suffers from similar suspend/resume issues, but
-it _sometimes_ work and sometimes it doesn't. Setting noselftest makes
-it work reliably. In this case, we need to add chassis type "31"
-(convertible) in order to avoid selftest in this device.
+As ir->txports_cabled is a u8, nothing should be done if the bit index
+is greater than 7.
 
-Reported-by: Ludvig Norgren Guldhag <ludvigng@gmail.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Link: https://lore.kernel.org/r/20210219164638.761-1-mpdesouza@suse.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reported-by: syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com
+Signed-off-by: James Reynolds <jr@memlen.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/rc/mceusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -588,6 +588,10 @@ static const struct dmi_system_id i8042_
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_CHASSIS_TYPE, "10"), /* Notebook */
- 		},
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
-+		},
- 	},
- 	{ }
- };
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -1169,7 +1169,7 @@ static void mceusb_handle_command(struct
+ 		switch (subcmd) {
+ 		/* the one and only 5-byte return value command */
+ 		case MCE_RSP_GETPORTSTATUS:
+-			if (buf_in[5] == 0)
++			if (buf_in[5] == 0 && *hi < 8)
+ 				ir->txports_cabled |= 1 << *hi;
+ 			break;
+ 
 
 
