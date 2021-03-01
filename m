@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2766328881
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C5C32887F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238083AbhCARlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:41:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54070 "EHLO mail.kernel.org"
+        id S238211AbhCARl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:41:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238477AbhCARdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238490AbhCARdf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:33:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2719C650A5;
-        Mon,  1 Mar 2021 16:53:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2460650A7;
+        Mon,  1 Mar 2021 16:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617599;
-        bh=Vzqect8iqBfz4kLKMHHOZAN2PO5gDDzl1cJCQMhT9WA=;
+        s=korg; t=1614617602;
+        bh=+WWcS0iU3jIbZcQRN/v73E9P5on3JNQJGT26ncKZWLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbrWWGn1thlhkwLsQXzjrGuRWlKoyLrIMJddrQ2tRvxmPuZbZkFOvSQqY/pLv4YD1
-         faT0QXyxaz9V0PRso+PhW54p6C86JQ53iPo7C16puzu9qvQdxAB8z/vXgHuLc1i0Gu
-         zK7iqoKBhHOBGkTYldg2eirBpwWsztyd/wGGaE5Q=
+        b=y/bhAhW78HHO1DYMK2I9bx7bmbfot6SHc1d/s5Wt/tMefKHBStFaciP1X3QP5jx4I
+         w86IchqG0BgopFufHFIja0KnyIUx9FFhpH56IaX7iTlHBy0t5V1pugJmQoUzCQf8MT
+         EXIPfOMqUzuprH2CBDHEQWHX9D546muwdUj8BRpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/340] media: cx25821: Fix a bug when reallocating some dma memory
-Date:   Mon,  1 Mar 2021 17:10:44 +0100
-Message-Id: <20210301161053.254277161@linuxfoundation.org>
+Subject: [PATCH 5.4 101/340] media: pxa_camera: declare variable when DEBUG is defined
+Date:   Mon,  1 Mar 2021 17:10:45 +0100
+Message-Id: <20210301161053.303143671@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,44 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit b2de3643c5024fc4fd128ba7767c7fb8b714bea7 ]
+[ Upstream commit 031b9212eeee365443aaef013360ea6cded7b2c4 ]
 
-This function looks like a realloc.
+When DEBUG is defined this error occurs
 
-However, if 'risc->cpu != NULL', the memory will be freed, but never
-reallocated with the bigger 'size'.
-Explicitly set 'risc->cpu' to NULL, so that the reallocation is
-correctly performed a few lines below.
+drivers/media/platform/pxa_camera.c:1410:7: error:
+  ‘i’ undeclared (first use in this function)
+  for (i = 0; i < vb->num_planes; i++)
+       ^
+The variable 'i' is missing, so declare it.
 
-[hverkuil: NULL != risc->cpu -> risc->cpu]
-
-Fixes: 5ede94c70553 ("[media] cx25821: remove bogus btcx_risc dependency)
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Fixes: 6f28435d1c15 ("[media] media: platform: pxa_camera: trivial move of functions")
+Signed-off-by: Tom Rix <trix@redhat.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx25821/cx25821-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/platform/pxa_camera.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/pci/cx25821/cx25821-core.c b/drivers/media/pci/cx25821/cx25821-core.c
-index 41be22ce66f3e..44839a6461e88 100644
---- a/drivers/media/pci/cx25821/cx25821-core.c
-+++ b/drivers/media/pci/cx25821/cx25821-core.c
-@@ -976,8 +976,10 @@ int cx25821_riscmem_alloc(struct pci_dev *pci,
- 	__le32 *cpu;
- 	dma_addr_t dma = 0;
+diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
+index 8d47ea0c33f84..6e04e3ec61bac 100644
+--- a/drivers/media/platform/pxa_camera.c
++++ b/drivers/media/platform/pxa_camera.c
+@@ -1447,6 +1447,9 @@ static int pxac_vb2_prepare(struct vb2_buffer *vb)
+ 	struct pxa_camera_dev *pcdev = vb2_get_drv_priv(vb->vb2_queue);
+ 	struct pxa_buffer *buf = vb2_to_pxa_buffer(vb);
+ 	int ret = 0;
++#ifdef DEBUG
++	int i;
++#endif
  
--	if (NULL != risc->cpu && risc->size < size)
-+	if (risc->cpu && risc->size < size) {
- 		pci_free_consistent(pci, risc->size, risc->cpu, risc->dma);
-+		risc->cpu = NULL;
-+	}
- 	if (NULL == risc->cpu) {
- 		cpu = pci_zalloc_consistent(pci, size, &dma);
- 		if (NULL == cpu)
+ 	switch (pcdev->channels) {
+ 	case 1:
 -- 
 2.27.0
 
