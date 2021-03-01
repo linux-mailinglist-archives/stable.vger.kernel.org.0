@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34986329195
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4595B329193
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243354AbhCAU2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:28:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47791 "EHLO mail.kernel.org"
+        id S243347AbhCAU2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:28:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243111AbhCAUVn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:21:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE321653F4;
-        Mon,  1 Mar 2021 18:04:33 +0000 (UTC)
+        id S243112AbhCAUVq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:21:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81901653F5;
+        Mon,  1 Mar 2021 18:04:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621874;
-        bh=45PiAJj6RUDqc5W7aCX2bycT9L0iqSXRuEWHzzkpJZ0=;
+        s=korg; t=1614621877;
+        bh=y/b2NgyUohq9Pq8dCdra4FuIxG98Y4RYA5/bPtEC57I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvKaL9xWSEmnk3dA0IXkm0Er0W4GWvJ70XRNDnFf35jN8ZZStcLdfh7YwDbTHu1AX
-         3e9/8ne8BIOkHcAeQ1OvWq/WcvKqcUgC+p2FY4WuZXJUbGbmUOjZn1cbVoSw0mwzFj
-         yCJddgmx+HXleLlKcDNa80zvlEmkrF9+9evPISEA=
+        b=QWhwaBgHczVxrHuNE4XdCCpsLfuBX8THN1MSMwdOOckMPxFuoaUaG1ykxNKqPY0U6
+         gPtdMCbs1moz5r3mrZJUQt/g1dkz0uH5L11I11UYun908zFN+MZij3WCn8/BpDscTn
+         p1hyWUSbpqaq59ShuHdJhBRddWjgpw2IQJ77+9sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.11 676/775] rcu: Pull deferred rcuog wake up to rcu_eqs_enter() callers
-Date:   Mon,  1 Mar 2021 17:14:04 +0100
-Message-Id: <20210301161234.788791214@linuxfoundation.org>
+Subject: [PATCH 5.11 677/775] rcu/nocb: Perform deferred wake up before last idles need_resched() check
+Date:   Mon,  1 Mar 2021 17:14:05 +0100
+Message-Id: <20210301161234.837460699@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,57 +43,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 54b7429efffc99e845ba9381bee3244f012a06c2 upstream.
+commit 43789ef3f7d61aa7bed0cb2764e588fc990c30ef upstream.
 
-Deferred wakeup of rcuog kthreads upon RCU idle mode entry is going to
-be handled differently whether initiated by idle, user or guest. Prepare
-with pulling that control up to rcu_eqs_enter() callers.
+Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+kthread (rcuog) to be serviced.
 
+Usually a local wake up happening while running the idle task is handled
+in one of the need_resched() checks carefully placed within the idle
+loop that can break to the scheduler.
+
+Unfortunately the call to rcu_idle_enter() is already beyond the last
+generic need_resched() check and we may halt the CPU with a resched
+request unhandled, leaving the task hanging.
+
+Fix this with splitting the rcuog wakeup handling from rcu_idle_enter()
+and place it before the last generic need_resched() check in the idle
+loop. It is then assumed that no call to call_rcu() will be performed
+after that in the idle loop until the CPU is put in low power mode.
+
+Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-2-frederic@kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-3-frederic@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ include/linux/rcupdate.h |    2 ++
+ kernel/rcu/tree.c        |    3 ---
+ kernel/rcu/tree_plugin.h |    5 +++++
+ kernel/sched/idle.c      |    1 +
+ 4 files changed, 8 insertions(+), 3 deletions(-)
 
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -110,8 +110,10 @@ static inline void rcu_user_exit(void) {
+ 
+ #ifdef CONFIG_RCU_NOCB_CPU
+ void rcu_init_nohz(void);
++void rcu_nocb_flush_deferred_wakeup(void);
+ #else /* #ifdef CONFIG_RCU_NOCB_CPU */
+ static inline void rcu_init_nohz(void) { }
++static inline void rcu_nocb_flush_deferred_wakeup(void) { }
+ #endif /* #else #ifdef CONFIG_RCU_NOCB_CPU */
+ 
+ /**
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -644,7 +644,6 @@ static noinstr void rcu_eqs_enter(bool u
- 	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
- 	rdp = this_cpu_ptr(&rcu_data);
--	do_nocb_deferred_wakeup(rdp);
- 	rcu_prepare_for_idle();
- 	rcu_preempt_deferred_qs(current);
- 
-@@ -672,7 +671,10 @@ static noinstr void rcu_eqs_enter(bool u
+@@ -671,10 +671,7 @@ static noinstr void rcu_eqs_enter(bool u
   */
  void rcu_idle_enter(void)
  {
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
+-	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+-
  	lockdep_assert_irqs_disabled();
-+	do_nocb_deferred_wakeup(rdp);
+-	do_nocb_deferred_wakeup(rdp);
  	rcu_eqs_enter(false);
  }
  EXPORT_SYMBOL_GPL(rcu_idle_enter);
-@@ -691,7 +693,14 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
-  */
- noinstr void rcu_user_enter(void)
- {
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
- 	lockdep_assert_irqs_disabled();
-+
-+	instrumentation_begin();
-+	do_nocb_deferred_wakeup(rdp);
-+	instrumentation_end();
-+
- 	rcu_eqs_enter(true);
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -2187,6 +2187,11 @@ static void do_nocb_deferred_wakeup(stru
+ 		do_nocb_deferred_wakeup_common(rdp);
  }
- #endif /* CONFIG_NO_HZ_FULL */
+ 
++void rcu_nocb_flush_deferred_wakeup(void)
++{
++	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
++}
++
+ void __init rcu_init_nohz(void)
+ {
+ 	int cpu;
+--- a/kernel/sched/idle.c
++++ b/kernel/sched/idle.c
+@@ -285,6 +285,7 @@ static void do_idle(void)
+ 		}
+ 
+ 		arch_cpu_idle_enter();
++		rcu_nocb_flush_deferred_wakeup();
+ 
+ 		/*
+ 		 * In poll mode we reenable interrupts and spin. Also if we
 
 
