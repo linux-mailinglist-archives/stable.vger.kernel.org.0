@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CFD328F30
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEEE6328EC3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239035AbhCATrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:47:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50714 "EHLO mail.kernel.org"
+        id S236183AbhCATgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:36:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235793AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:36:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CA6265237;
-        Mon,  1 Mar 2021 17:25:56 +0000 (UTC)
+        id S241935AbhCAT3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07D5D6523F;
+        Mon,  1 Mar 2021 17:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619557;
-        bh=jxdL+NXLqAGrcWPfzTx4Ka+fkw2lSjx8W/G5Jhpuyac=;
+        s=korg; t=1614619573;
+        bh=rEMFEs4meQcHSpuNcflRtLxgpxQkIL2cAepKw1jjmw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MczWkxzW8jDyk7mTbaVEl/SjpT//EU/Q4xXN9IW+djr2G9r+ykVPZt+mxZvQYBhIf
-         Gs+svb+/J7U4lCh2wMnGGU4hHUaQEpo7zrddhecxVb5E3eK+l76I8hdVwq+TgyxCVQ
-         G7JeEihucqSWX/Tjh10uQs98VKgYX+ZeX7dqUmQw=
+        b=Vj5CI0iwLVA6qHaWMnd3tZkh3ijAMTl38uBGI2yOb6o2Mlr+WQXGMxj68fU+J/XUe
+         HALrcMQolOsOCzkUWtKocng/swKkwIWnaw0fLKUwQnGGm6Sjg4ll7Y/WJHKmUape49
+         WKuSaP1/s14ft9+8UXF0c6hdE3X6s8T1RzS1bXLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 498/663] USB: serial: mos7720: fix error code in mos7720_write()
-Date:   Mon,  1 Mar 2021 17:12:26 +0100
-Message-Id: <20210301161206.488137167@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 504/663] ALSA: hda/realtek: Quirk for HP Spectre x360 14 amp setup
+Date:   Mon,  1 Mar 2021 17:12:32 +0100
+Message-Id: <20210301161206.778614737@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,35 +38,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fea7372cbc40869876df0f045e367f6f97a1666c upstream.
+commit c3bb2b521944ffbbc8c24b849f81977a9915fb5e upstream.
 
-This code should return -ENOMEM if the kmalloc() fails but instead
-it returns success.
+HP Spectre x360 14 model (PCI SSID 103c:87f7) seems requiring a unique
+setup for its external amp: the GPIO0 needs to be toggled on and off
+shortly at each device initialization via runtime PM.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This patch implements that workaround as well as the model option
+string, so that users with other devices may try the same workaround
+more easily.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=210633
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210215082540.4520-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7720.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
---- a/drivers/usb/serial/mos7720.c
-+++ b/drivers/usb/serial/mos7720.c
-@@ -1250,8 +1250,10 @@ static int mos7720_write(struct tty_stru
- 	if (urb->transfer_buffer == NULL) {
- 		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
- 					       GFP_ATOMIC);
--		if (!urb->transfer_buffer)
-+		if (!urb->transfer_buffer) {
-+			bytes_sent = -ENOMEM;
- 			goto exit;
-+		}
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -4291,6 +4291,28 @@ static void alc280_fixup_hp_gpio4(struct
  	}
- 	transfer_size = min(count, URB_TRANSFER_BUFFER_SIZE);
+ }
  
++/* HP Spectre x360 14 model needs a unique workaround for enabling the amp;
++ * it needs to toggle the GPIO0 once on and off at each time (bko#210633)
++ */
++static void alc245_fixup_hp_x360_amp(struct hda_codec *codec,
++				     const struct hda_fixup *fix, int action)
++{
++	struct alc_spec *spec = codec->spec;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		spec->gpio_mask |= 0x01;
++		spec->gpio_dir |= 0x01;
++		break;
++	case HDA_FIXUP_ACT_INIT:
++		/* need to toggle GPIO to enable the amp */
++		alc_update_gpio_data(codec, 0x01, true);
++		msleep(100);
++		alc_update_gpio_data(codec, 0x01, false);
++		break;
++	}
++}
++
+ static void alc_update_coef_led(struct hda_codec *codec,
+ 				struct alc_coef_led *led,
+ 				bool polarity, bool on)
+@@ -6277,6 +6299,7 @@ enum {
+ 	ALC280_FIXUP_HP_DOCK_PINS,
+ 	ALC269_FIXUP_HP_DOCK_GPIO_MIC1_LED,
+ 	ALC280_FIXUP_HP_9480M,
++	ALC245_FIXUP_HP_X360_AMP,
+ 	ALC288_FIXUP_DELL_HEADSET_MODE,
+ 	ALC288_FIXUP_DELL1_MIC_NO_PRESENCE,
+ 	ALC288_FIXUP_DELL_XPS_13,
+@@ -6982,6 +7005,10 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc280_fixup_hp_9480m,
+ 	},
++	[ALC245_FIXUP_HP_X360_AMP] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc245_fixup_hp_x360_amp,
++	},
+ 	[ALC288_FIXUP_DELL_HEADSET_MODE] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc_fixup_headset_mode_dell_alc288,
+@@ -7996,6 +8023,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x87c8, "HP", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+ 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+@@ -8368,6 +8396,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
++	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
+ 	{}
+ };
+ #define ALC225_STANDARD_PINS \
 
 
