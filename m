@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37036328F5E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8980E328F41
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241920AbhCATu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:50:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52976 "EHLO mail.kernel.org"
+        id S242108AbhCATsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:48:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240664AbhCATlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:41:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A33C564F8E;
-        Mon,  1 Mar 2021 17:20:54 +0000 (UTC)
+        id S241744AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:38:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A83236521B;
+        Mon,  1 Mar 2021 17:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619255;
-        bh=r8JDvbqKeyBjuyGPr1KBtseZo0036tHjEt4LSOYMGxI=;
+        s=korg; t=1614619358;
+        bh=QsTUp8bQsQpd8ulOBfV2MbPHQmo7AQ+qGIkRfCUfRSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ols7xBWVH9pJcRB6bNe+8wdXgd43xwFxEClU8zRNa/3H1MfYsA1dt0996UST6FkzH
-         cfVMToedAaDYU8blGMUkjl2hxcdPiosMnnDTODlgwQLjRsleQesrzBzANhvbqbQSS6
-         34qODmFHam2fA7epgyBnKmOTgZeK4kQ3UD8bSpLI=
+        b=Thk4ZAVgzVlqU0af9SQSqqDpwDgv3/U32PH7sR1ay+s+DFi2OgMziee+JyrDEDxPA
+         4RD1/zC33R9NI0nN0cGTM4wPY8JZByDahvnV2VrXUaNBs45KopMDBgyEje5QGbuN9K
+         ymTc2f5Upu26N1KVz13O35puKAYSIbKpKfawVHL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 387/663] perf intel-pt: Fix IPC with CYC threshold
-Date:   Mon,  1 Mar 2021 17:10:35 +0100
-Message-Id: <20210301161201.014484601@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Ruehl <chris.ruehl@gtsys.com.hk>,
+        Douglas Anderson <dianders@chromium.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 395/663] phy: rockchip-emmc: emmc_phy_init() always return 0
+Date:   Mon,  1 Mar 2021 17:10:43 +0100
+Message-Id: <20210301161201.409530225@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,149 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Chris Ruehl <chris.ruehl@gtsys.com.hk>
 
-[ Upstream commit 6af4b60033e0ce0332fcdf256c965ad41942821a ]
+[ Upstream commit 39961bd6b70e5a5d7c4b5483ad8e1db6b5765c60 ]
 
-The code assumed every CYC-eligible packet has a CYC packet, which is not
-the case when CYC thresholds are used. Fix by checking if a CYC packet is
-actually present in that case.
+rockchip_emmc_phy_init() return variable is not set with the error value
+if clk_get() failed. 'emmcclk' is optional, thus use clk_get_optional()
+and if the return value != NULL make error processing and set the
+return code accordingly.
 
-Fixes: 5b1dc0fd1da06 ("perf intel-pt: Add support for samples to contain IPC ratio")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/r/20210205175350.23817-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 52c0624a10cce phy: rockchip-emmc: Set phyctrl_frqsel based on card clock
+Signed-off-by: Chris Ruehl <chris.ruehl@gtsys.com.hk>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20201210080454.17379-1-chris.ruehl@gtsys.com.hk
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../util/intel-pt-decoder/intel-pt-decoder.c  | 27 +++++++++++++++++++
- .../util/intel-pt-decoder/intel-pt-decoder.h  |  1 +
- tools/perf/util/intel-pt.c                    | 13 +++++++++
- 3 files changed, 41 insertions(+)
+ drivers/phy/rockchip/phy-rockchip-emmc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-index ef29f6b25e60a..197eb58a39cb7 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -24,6 +24,13 @@
- #include "intel-pt-decoder.h"
- #include "intel-pt-log.h"
+diff --git a/drivers/phy/rockchip/phy-rockchip-emmc.c b/drivers/phy/rockchip/phy-rockchip-emmc.c
+index 2dc19ddd120f5..a005fc58bbf02 100644
+--- a/drivers/phy/rockchip/phy-rockchip-emmc.c
++++ b/drivers/phy/rockchip/phy-rockchip-emmc.c
+@@ -240,15 +240,17 @@ static int rockchip_emmc_phy_init(struct phy *phy)
+ 	 * - SDHCI driver to get the PHY
+ 	 * - SDHCI driver to init the PHY
+ 	 *
+-	 * The clock is optional, so upon any error we just set to NULL.
++	 * The clock is optional, using clk_get_optional() to get the clock
++	 * and do error processing if the return value != NULL
+ 	 *
+ 	 * NOTE: we don't do anything special for EPROBE_DEFER here.  Given the
+ 	 * above expected use case, EPROBE_DEFER isn't sensible to expect, so
+ 	 * it's just like any other error.
+ 	 */
+-	rk_phy->emmcclk = clk_get(&phy->dev, "emmcclk");
++	rk_phy->emmcclk = clk_get_optional(&phy->dev, "emmcclk");
+ 	if (IS_ERR(rk_phy->emmcclk)) {
+-		dev_dbg(&phy->dev, "Error getting emmcclk: %d\n", ret);
++		ret = PTR_ERR(rk_phy->emmcclk);
++		dev_err(&phy->dev, "Error getting emmcclk: %d\n", ret);
+ 		rk_phy->emmcclk = NULL;
+ 	}
  
-+#define BITULL(x) (1ULL << (x))
-+
-+/* IA32_RTIT_CTL MSR bits */
-+#define INTEL_PT_CYC_ENABLE		BITULL(1)
-+#define INTEL_PT_CYC_THRESHOLD		(BITULL(22) | BITULL(21) | BITULL(20) | BITULL(19))
-+#define INTEL_PT_CYC_THRESHOLD_SHIFT	19
-+
- #define INTEL_PT_BLK_SIZE 1024
- 
- #define BIT63 (((uint64_t)1 << 63))
-@@ -167,6 +174,8 @@ struct intel_pt_decoder {
- 	uint64_t sample_tot_cyc_cnt;
- 	uint64_t base_cyc_cnt;
- 	uint64_t cyc_cnt_timestamp;
-+	uint64_t ctl;
-+	uint64_t cyc_threshold;
- 	double tsc_to_cyc;
- 	bool continuous_period;
- 	bool overflow;
-@@ -204,6 +213,14 @@ static uint64_t intel_pt_lower_power_of_2(uint64_t x)
- 	return x << i;
- }
- 
-+static uint64_t intel_pt_cyc_threshold(uint64_t ctl)
-+{
-+	if (!(ctl & INTEL_PT_CYC_ENABLE))
-+		return 0;
-+
-+	return (ctl & INTEL_PT_CYC_THRESHOLD) >> INTEL_PT_CYC_THRESHOLD_SHIFT;
-+}
-+
- static void intel_pt_setup_period(struct intel_pt_decoder *decoder)
- {
- 	if (decoder->period_type == INTEL_PT_PERIOD_TICKS) {
-@@ -245,12 +262,15 @@ struct intel_pt_decoder *intel_pt_decoder_new(struct intel_pt_params *params)
- 
- 	decoder->flags              = params->flags;
- 
-+	decoder->ctl                = params->ctl;
- 	decoder->period             = params->period;
- 	decoder->period_type        = params->period_type;
- 
- 	decoder->max_non_turbo_ratio    = params->max_non_turbo_ratio;
- 	decoder->max_non_turbo_ratio_fp = params->max_non_turbo_ratio;
- 
-+	decoder->cyc_threshold = intel_pt_cyc_threshold(decoder->ctl);
-+
- 	intel_pt_setup_period(decoder);
- 
- 	decoder->mtc_shift = params->mtc_period;
-@@ -2017,6 +2037,7 @@ static int intel_pt_hop_trace(struct intel_pt_decoder *decoder, bool *no_tip, in
- 
- static int intel_pt_walk_trace(struct intel_pt_decoder *decoder)
- {
-+	int last_packet_type = INTEL_PT_PAD;
- 	bool no_tip = false;
- 	int err;
- 
-@@ -2025,6 +2046,12 @@ static int intel_pt_walk_trace(struct intel_pt_decoder *decoder)
- 		if (err)
- 			return err;
- next:
-+		if (decoder->cyc_threshold) {
-+			if (decoder->sample_cyc && last_packet_type != INTEL_PT_CYC)
-+				decoder->sample_cyc = false;
-+			last_packet_type = decoder->packet.type;
-+		}
-+
- 		if (decoder->hop) {
- 			switch (intel_pt_hop_trace(decoder, &no_tip, &err)) {
- 			case HOP_IGNORE:
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-index b52937b03c8c8..48adaa78acfc2 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-@@ -244,6 +244,7 @@ struct intel_pt_params {
- 	void *data;
- 	bool return_compression;
- 	bool branch_enable;
-+	uint64_t ctl;
- 	uint64_t period;
- 	enum intel_pt_period_type period_type;
- 	unsigned max_non_turbo_ratio;
-diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
-index 710ce798a2686..dc023b8c6003a 100644
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -893,6 +893,18 @@ static bool intel_pt_sampling_mode(struct intel_pt *pt)
- 	return false;
- }
- 
-+static u64 intel_pt_ctl(struct intel_pt *pt)
-+{
-+	struct evsel *evsel;
-+	u64 config;
-+
-+	evlist__for_each_entry(pt->session->evlist, evsel) {
-+		if (intel_pt_get_config(pt, &evsel->core.attr, &config))
-+			return config;
-+	}
-+	return 0;
-+}
-+
- static u64 intel_pt_ns_to_ticks(const struct intel_pt *pt, u64 ns)
- {
- 	u64 quot, rem;
-@@ -1026,6 +1038,7 @@ static struct intel_pt_queue *intel_pt_alloc_queue(struct intel_pt *pt,
- 	params.data = ptq;
- 	params.return_compression = intel_pt_return_compression(pt);
- 	params.branch_enable = intel_pt_branch_enable(pt);
-+	params.ctl = intel_pt_ctl(pt);
- 	params.max_non_turbo_ratio = pt->max_non_turbo_ratio;
- 	params.mtc_period = intel_pt_mtc_period(pt);
- 	params.tsc_ctc_ratio_n = pt->tsc_ctc_ratio_n;
 -- 
 2.27.0
 
