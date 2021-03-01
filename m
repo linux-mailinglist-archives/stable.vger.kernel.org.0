@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E393291F1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0C83291EC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243605AbhCAUhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48400 "EHLO mail.kernel.org"
+        id S238833AbhCAUg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:36:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239942AbhCAU31 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:29:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A90326541D;
-        Mon,  1 Mar 2021 18:07:59 +0000 (UTC)
+        id S243459AbhCAU3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:29:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FEF565420;
+        Mon,  1 Mar 2021 18:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622080;
-        bh=TFqIPdUDjPW5xQIl2D2AAy/slzU2IEd+9FSUAXhCuK8=;
+        s=korg; t=1614622083;
+        bh=xOWbgxp3vEq+RDS7HFsY+tPWOzL+E97JnpPwj0+LSvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8Y10B/jo/GdCaPOZWJGD5XD2ncypoqxl0gq6yZe/2Yh9Us6v/QDLURP8vLeWVQW7
-         KGunasT4azHNWWkpqdYY+WZ6Lyp7Nd5y4oj1y4/CukFFhodat85IV4hZRUCSk04qDO
-         IJTw67EmVv6IW4CKRPRGRVjUORLqijWYJ2vyA3zA=
+        b=mcHDsrNnbrDGqpG8Ggl5t40zj36jladyDpThRyuu7EhiZK4UpBLx53xiFleuw9SnI
+         rDm40UDHopHsY8b9atTnWvsCOk8BSVL+fgmeJHbfyPeaFEYvdvCK/iZqGCc6mSlm7F
+         Hgm6ULrjPzBNGDca8lLyKtvJ/53VvNWd/tRy5his=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>
-Subject: [PATCH 5.11 749/775] gfs2: fix glock confusion in function signal_our_withdraw
-Date:   Mon,  1 Mar 2021 17:15:17 +0100
-Message-Id: <20210301161238.321521605@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.11 750/775] gfs2: Dont skip dlm unlock if glock has an lvb
+Date:   Mon,  1 Mar 2021 17:15:18 +0100
+Message-Id: <20210301161238.374749884@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,73 +41,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bob Peterson <rpeterso@redhat.com>
 
-commit f5f02fde9f52b2d769c1c2ddfd3d9c4a1fe739a7 upstream.
+commit 78178ca844f0eb88f21f31c7fde969384be4c901 upstream.
 
-If go_free is defined, function signal_our_withdraw is supposed to
-synchronize on the GLF_FREEING flag of the inode glock, but it
-accidentally does that on the live glock. Fix that and disambiguate
-the glock variables.
+Patch fb6791d100d1 was designed to allow gfs2 to unmount quicker by
+skipping the step where it tells dlm to unlock glocks in EX with lvbs.
+This was done because when gfs2 unmounts a file system, it destroys the
+dlm lockspace shortly after it destroys the glocks so it doesn't need to
+unlock them all: the unlock is implied when the lockspace is destroyed
+by dlm.
 
-Fixes: 601ef0d52e96 ("gfs2: Force withdraw to replay journals and wait for it to finish")
-Cc: stable@vger.kernel.org # v5.7+
+However, that patch introduced a use-after-free in dlm: as part of its
+normal dlm_recoverd process, it can call ls_recovery to recover dead
+locks. In so doing, it can call recover_rsbs which calls recover_lvb for
+any mastered rsbs. Func recover_lvb runs through the list of lkbs queued
+to the given rsb (if the glock is cached but unlocked, it will still be
+queued to the lkb, but in NL--Unlocked--mode) and if it has an lvb,
+copies it to the rsb, thus trying to preserve the lkb. However, when
+gfs2 skips the dlm unlock step, it frees the glock and its lvb, which
+means dlm's function recover_lvb references the now freed lvb pointer,
+copying the freed lvb memory to the rsb.
+
+This patch changes the check in gdlm_put_lock so that it calls
+dlm_unlock for all glocks that contain an lvb pointer.
+
+Fixes: fb6791d100d1 ("GFS2: skip dlm_unlock calls in unmount")
+Cc: stable@vger.kernel.org # v3.8+
 Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/util.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/gfs2/lock_dlm.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/fs/gfs2/util.c
-+++ b/fs/gfs2/util.c
-@@ -93,9 +93,10 @@ out_unlock:
- 
- static void signal_our_withdraw(struct gfs2_sbd *sdp)
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -284,7 +284,6 @@ static void gdlm_put_lock(struct gfs2_gl
  {
--	struct gfs2_glock *gl = sdp->sd_live_gh.gh_gl;
-+	struct gfs2_glock *live_gl = sdp->sd_live_gh.gh_gl;
- 	struct inode *inode = sdp->sd_jdesc->jd_inode;
- 	struct gfs2_inode *ip = GFS2_I(inode);
-+	struct gfs2_glock *i_gl = ip->i_gl;
- 	u64 no_formal_ino = ip->i_no_formal_ino;
- 	int ret = 0;
- 	int tries;
-@@ -141,7 +142,8 @@ static void signal_our_withdraw(struct g
- 		atomic_set(&sdp->sd_freeze_state, SFS_FROZEN);
- 		thaw_super(sdp->sd_vfs);
- 	} else {
--		wait_on_bit(&gl->gl_flags, GLF_DEMOTE, TASK_UNINTERRUPTIBLE);
-+		wait_on_bit(&i_gl->gl_flags, GLF_DEMOTE,
-+			    TASK_UNINTERRUPTIBLE);
+ 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
+ 	struct lm_lockstruct *ls = &sdp->sd_lockstruct;
+-	int lvb_needs_unlock = 0;
+ 	int error;
+ 
+ 	if (gl->gl_lksb.sb_lkid == 0) {
+@@ -297,13 +296,10 @@ static void gdlm_put_lock(struct gfs2_gl
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
+ 
+-	/* don't want to skip dlm_unlock writing the lvb when lock is ex */
+-
+-	if (gl->gl_lksb.sb_lvbptr && (gl->gl_state == LM_ST_EXCLUSIVE))
+-		lvb_needs_unlock = 1;
++	/* don't want to skip dlm_unlock writing the lvb when lock has one */
+ 
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
+-	    !lvb_needs_unlock) {
++	    !gl->gl_lksb.sb_lvbptr) {
+ 		gfs2_glock_free(gl);
+ 		return;
  	}
- 
- 	/*
-@@ -161,15 +163,15 @@ static void signal_our_withdraw(struct g
- 	 * on other nodes to be successful, otherwise we remain the owner of
- 	 * the glock as far as dlm is concerned.
- 	 */
--	if (gl->gl_ops->go_free) {
--		set_bit(GLF_FREEING, &gl->gl_flags);
--		wait_on_bit(&gl->gl_flags, GLF_FREEING, TASK_UNINTERRUPTIBLE);
-+	if (i_gl->gl_ops->go_free) {
-+		set_bit(GLF_FREEING, &i_gl->gl_flags);
-+		wait_on_bit(&i_gl->gl_flags, GLF_FREEING, TASK_UNINTERRUPTIBLE);
- 	}
- 
- 	/*
- 	 * Dequeue the "live" glock, but keep a reference so it's never freed.
- 	 */
--	gfs2_glock_hold(gl);
-+	gfs2_glock_hold(live_gl);
- 	gfs2_glock_dq_wait(&sdp->sd_live_gh);
- 	/*
- 	 * We enqueue the "live" glock in EX so that all other nodes
-@@ -208,7 +210,7 @@ static void signal_our_withdraw(struct g
- 		gfs2_glock_nq(&sdp->sd_live_gh);
- 	}
- 
--	gfs2_glock_queue_put(gl); /* drop the extra reference we acquired */
-+	gfs2_glock_queue_put(live_gl); /* drop extra reference we acquired */
- 	clear_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags);
- 
- 	/*
 
 
