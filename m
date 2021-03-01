@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA096328D51
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E245328CFB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241147AbhCATIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:08:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36574 "EHLO mail.kernel.org"
+        id S240942AbhCATC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:02:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240798AbhCATEO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:04:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A07765114;
-        Mon,  1 Mar 2021 17:02:34 +0000 (UTC)
+        id S237645AbhCAS4f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:56:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6D665116;
+        Mon,  1 Mar 2021 17:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618155;
-        bh=udd9H+fWJo/jf7K6AMrz/uRNDpYlkztJcaZ4+VW9JU8=;
+        s=korg; t=1614618165;
+        bh=r4LmnqTKTiX8b9Js/N7Y2ZWHle+cnvllCjwg+U4roK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+F65eTAM1/ZnxfWa9sjuxvWHqJyWSU6Prec4FAfMnFzN8a29ahds5cIM5PMzM7kv
-         5FoUPhh+VqhC1Gf1fztI8vMQxP22KRuGCUis/iUaNLoSorVEzHMigVo30mi9OXGK+0
-         jNmI8Ry+d+/5q0jJYH85KEvmhh77sRMQI3K1Ffxw=
+        b=fgaCzUkce5agQdpkvpvLxWmeHImQgQxEiEX2ymZLvKUv6almHbpDpELtNRW8F4d0a
+         G6r76wxz3ENYSMo5eaX+VkErIg5nCiPS+ZiP7TDQE0+AOj1etJB+domsR4vkC3HBBH
+         KmlqMKEp98Cax9Y6NwewKPfCbSQ+kWKazApOzHzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
         Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 5.4 296/340] mtd: spi-nor: sfdp: Fix wrong erase type bitmask for overlaid region
-Date:   Mon,  1 Mar 2021 17:14:00 +0100
-Message-Id: <20210301161102.867719075@linuxfoundation.org>
+Subject: [PATCH 5.4 299/340] mtd: spi-nor: hisi-sfc: Put child node np on error path
+Date:   Mon,  1 Mar 2021 17:14:03 +0100
+Message-Id: <20210301161103.008953142@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,35 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+From: Pan Bian <bianpan2016@163.com>
 
-commit abdf5a5ef9652bad4d58058bc22ddf23543ba3e1 upstream.
+commit fe6653460ee7a7dbe0cd5fd322992af862ce5ab0 upstream.
 
-At the time spi_nor_region_check_overlay() is called, the erase types are
-sorted in ascending order of erase size. The 'erase_type' should be masked
-with 'BIT(erase[i].idx)' instead of 'BIT(i)'.
+Put the child node np when it fails to get or register device.
 
-Fixes: b038e8e3be72 ("mtd: spi-nor: parse SFDP Sector Map Parameter Table")
+Fixes: e523f11141bd ("mtd: spi-nor: add hisilicon spi-nor flash controller driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-[ta: Add Fixes tag and Cc to stable]
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+[ta: Add Fixes tag and Cc stable]
 Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/fd90c40d5b626a1319a78fc2bcee79a8871d4d57.1601612872.git.Takahiro.Kuwano@infineon.com
+Link: https://lore.kernel.org/r/20210121091847.85362-1-bianpan2016@163.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/spi-nor/spi-nor.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/hisi-sfc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/spi-nor/spi-nor.c
-+++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -3700,7 +3700,7 @@ spi_nor_region_check_overlay(struct spi_
- 	int i;
+--- a/drivers/mtd/spi-nor/hisi-sfc.c
++++ b/drivers/mtd/spi-nor/hisi-sfc.c
+@@ -396,8 +396,10 @@ static int hisi_spi_nor_register_all(str
  
- 	for (i = 0; i < SNOR_ERASE_TYPE_MAX; i++) {
--		if (!(erase_type & BIT(i)))
-+		if (!(erase[i].size && erase_type & BIT(erase[i].idx)))
- 			continue;
- 		if (region->size & erase[i].size_mask) {
- 			spi_nor_region_mark_overlay(region);
+ 	for_each_available_child_of_node(dev->of_node, np) {
+ 		ret = hisi_spi_nor_register(np, host);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			goto fail;
++		}
+ 
+ 		if (host->num_chip == HIFMC_MAX_CHIP_NUM) {
+ 			dev_warn(dev, "Flash device number exceeds the maximum chipselect number\n");
 
 
