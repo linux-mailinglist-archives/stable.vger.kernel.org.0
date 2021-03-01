@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85FC328BC8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBA5328C53
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240374AbhCASiu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44972 "EHLO mail.kernel.org"
+        id S239793AbhCAStZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:49:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234833AbhCASdn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:33:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC92865090;
-        Mon,  1 Mar 2021 17:32:01 +0000 (UTC)
+        id S240187AbhCASmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB04C65119;
+        Mon,  1 Mar 2021 17:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619922;
-        bh=mmLEWm9/Uv+UU8Nw93WgttKPyP8rae+RYS5MLgLdluk=;
+        s=korg; t=1614618184;
+        bh=nhiN8s0bYSKO0nargsa6lPSG+d0nzK4AiogPYI5J8jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W8q5GZ8AgGnXJ3mQnSI8Rcb2u/g7gL82aTQ+eg7Edobzy1tAmrbQ+DFg1TIZSuFPr
-         wSmk5Br/a2u1npXVICOjO/bpzTbepgsE72lY/LS84VYZ1vIDlCEsdFRghuoOlc3alN
-         h+vGPCzcmMlx3toGYoE8o41Mg3CbLYRpDc+5sXnk=
+        b=eoFe+P52h3mwDiRcSE7LcrFGs6PHGd8hdrNGXAK6ER8T5NTH9NaWD8iAEh10Cjkyr
+         DJHuIznqvDhiqiJ/0MkmZdvWYLIXnqx6eCVExtrj7gM8pOvn63x1Cj/xmhE6VEKcWh
+         /cUWY8mhH43192OVMs6inJnNI4+jk6I6VxS/TUKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@loongson.cn>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.10 630/663] irqchip/loongson-pch-msi: Use bitmap_zalloc() to allocate bitmap
-Date:   Mon,  1 Mar 2021 17:14:38 +0100
-Message-Id: <20210301161213.024738231@linuxfoundation.org>
+        stable@vger.kernel.org, SinYu <liuxyon@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 337/340] net: icmp: pass zeroed opts from icmp{,v6}_ndo_send before sending
+Date:   Mon,  1 Mar 2021 17:14:41 +0100
+Message-Id: <20210301161104.878041150@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +41,330 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huacai Chen <chenhuacai@loongson.cn>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit c1f664d2400e73d5ca0fcd067fa5847d2c789c11 upstream.
+commit ee576c47db60432c37e54b1e2b43a8ca6d3a8dca upstream.
 
-Currently we use bitmap_alloc() to allocate msi bitmap which should be
-initialized with zero. This is obviously wrong but it works because msi
-can fallback to legacy interrupt mode. So use bitmap_zalloc() instead.
+The icmp{,v6}_send functions make all sorts of use of skb->cb, casting
+it with IPCB or IP6CB, assuming the skb to have come directly from the
+inet layer. But when the packet comes from the ndo layer, especially
+when forwarded, there's no telling what might be in skb->cb at that
+point. As a result, the icmp sending code risks reading bogus memory
+contents, which can result in nasty stack overflows such as this one
+reported by a user:
 
-Fixes: 632dcc2c75ef6de3272aa ("irqchip: Add Loongson PCH MSI controller")
-Cc: stable@vger.kernel.org
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210209071051.2078435-1-chenhuacai@loongson.cn
+    panic+0x108/0x2ea
+    __stack_chk_fail+0x14/0x20
+    __icmp_send+0x5bd/0x5c0
+    icmp_ndo_send+0x148/0x160
+
+In icmp_send, skb->cb is cast with IPCB and an ip_options struct is read
+from it. The optlen parameter there is of particular note, as it can
+induce writes beyond bounds. There are quite a few ways that can happen
+in __ip_options_echo. For example:
+
+    // sptr/skb are attacker-controlled skb bytes
+    sptr = skb_network_header(skb);
+    // dptr/dopt points to stack memory allocated by __icmp_send
+    dptr = dopt->__data;
+    // sopt is the corrupt skb->cb in question
+    if (sopt->rr) {
+        optlen  = sptr[sopt->rr+1]; // corrupt skb->cb + skb->data
+        soffset = sptr[sopt->rr+2]; // corrupt skb->cb + skb->data
+	// this now writes potentially attacker-controlled data, over
+	// flowing the stack:
+        memcpy(dptr, sptr+sopt->rr, optlen);
+    }
+
+In the icmpv6_send case, the story is similar, but not as dire, as only
+IP6CB(skb)->iif and IP6CB(skb)->dsthao are used. The dsthao case is
+worse than the iif case, but it is passed to ipv6_find_tlv, which does
+a bit of bounds checking on the value.
+
+This is easy to simulate by doing a `memset(skb->cb, 0x41,
+sizeof(skb->cb));` before calling icmp{,v6}_ndo_send, and it's only by
+good fortune and the rarity of icmp sending from that context that we've
+avoided reports like this until now. For example, in KASAN:
+
+    BUG: KASAN: stack-out-of-bounds in __ip_options_echo+0xa0e/0x12b0
+    Write of size 38 at addr ffff888006f1f80e by task ping/89
+    CPU: 2 PID: 89 Comm: ping Not tainted 5.10.0-rc7-debug+ #5
+    Call Trace:
+     dump_stack+0x9a/0xcc
+     print_address_description.constprop.0+0x1a/0x160
+     __kasan_report.cold+0x20/0x38
+     kasan_report+0x32/0x40
+     check_memory_region+0x145/0x1a0
+     memcpy+0x39/0x60
+     __ip_options_echo+0xa0e/0x12b0
+     __icmp_send+0x744/0x1700
+
+Actually, out of the 4 drivers that do this, only gtp zeroed the cb for
+the v4 case, while the rest did not. So this commit actually removes the
+gtp-specific zeroing, while putting the code where it belongs in the
+shared infrastructure of icmp{,v6}_ndo_send.
+
+This commit fixes the issue by passing an empty IPCB or IP6CB along to
+the functions that actually do the work. For the icmp_send, this was
+already trivial, thanks to __icmp_send providing the plumbing function.
+For icmpv6_send, this required a tiny bit of refactoring to make it
+behave like the v4 case, after which it was straight forward.
+
+Fixes: a2b78e9b2cac ("sunvnet: generate ICMP PTMUD messages for smaller port MTUs")
+Reported-by: SinYu <liuxyon@gmail.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/netdev/CAF=yD-LOF116aHub6RMe8vB8ZpnrrnoTdqhobEx+bvoA8AsP0w@mail.gmail.com/T/
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20210223131858.72082-1-Jason@zx2c4.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/irqchip/irq-loongson-pch-msi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/gtp.c      |    1 -
+ include/linux/icmpv6.h |   26 ++++++++++++++++++++------
+ include/linux/ipv6.h   |    1 -
+ include/net/icmp.h     |    6 +++++-
+ net/ipv4/icmp.c        |    5 +++--
+ net/ipv6/icmp.c        |   16 ++++++++--------
+ net/ipv6/ip6_icmp.c    |   12 +++++++-----
+ 7 files changed, 43 insertions(+), 24 deletions(-)
 
---- a/drivers/irqchip/irq-loongson-pch-msi.c
-+++ b/drivers/irqchip/irq-loongson-pch-msi.c
-@@ -225,7 +225,7 @@ static int pch_msi_init(struct device_no
- 		goto err_priv;
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -545,7 +545,6 @@ static int gtp_build_skb_ip4(struct sk_b
+ 	if (!skb_is_gso(skb) && (iph->frag_off & htons(IP_DF)) &&
+ 	    mtu < ntohs(iph->tot_len)) {
+ 		netdev_dbg(dev, "packet too big, fragmentation needed\n");
+-		memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
+ 		icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
+ 			      htonl(mtu));
+ 		goto err_rt;
+--- a/include/linux/icmpv6.h
++++ b/include/linux/icmpv6.h
+@@ -3,6 +3,7 @@
+ #define _LINUX_ICMPV6_H
+ 
+ #include <linux/skbuff.h>
++#include <linux/ipv6.h>
+ #include <uapi/linux/icmpv6.h>
+ 
+ static inline struct icmp6hdr *icmp6_hdr(const struct sk_buff *skb)
+@@ -15,13 +16,16 @@ static inline struct icmp6hdr *icmp6_hdr
+ #if IS_ENABLED(CONFIG_IPV6)
+ 
+ typedef void ip6_icmp_send_t(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+-			     const struct in6_addr *force_saddr);
++			     const struct in6_addr *force_saddr,
++			     const struct inet6_skb_parm *parm);
+ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+-		const struct in6_addr *force_saddr);
++		const struct in6_addr *force_saddr,
++		const struct inet6_skb_parm *parm);
+ #if IS_BUILTIN(CONFIG_IPV6)
+-static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
++static inline void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
++				 const struct inet6_skb_parm *parm)
+ {
+-	icmp6_send(skb, type, code, info, NULL);
++	icmp6_send(skb, type, code, info, NULL, parm);
+ }
+ static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
+ {
+@@ -34,11 +38,17 @@ static inline int inet6_unregister_icmp_
+ 	return 0;
+ }
+ #else
+-extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
++extern void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
++			  const struct inet6_skb_parm *parm);
+ extern int inet6_register_icmp_sender(ip6_icmp_send_t *fn);
+ extern int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn);
+ #endif
+ 
++static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
++{
++	__icmpv6_send(skb, type, code, info, IP6CB(skb));
++}
++
+ int ip6_err_gen_icmpv6_unreach(struct sk_buff *skb, int nhs, int type,
+ 			       unsigned int data_len);
+ 
+@@ -54,7 +64,11 @@ static inline void icmpv6_send(struct sk
+ #if IS_ENABLED(CONFIG_NF_NAT)
+ void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info);
+ #else
+-#define icmpv6_ndo_send icmpv6_send
++static inline void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)
++{
++	struct inet6_skb_parm parm = { 0 };
++	__icmpv6_send(skb_in, type, code, info, &parm);
++}
+ #endif
+ 
+ extern int				icmpv6_init(void);
+--- a/include/linux/ipv6.h
++++ b/include/linux/ipv6.h
+@@ -83,7 +83,6 @@ struct ipv6_params {
+ 	__s32 autoconf;
+ };
+ extern struct ipv6_params ipv6_defaults;
+-#include <linux/icmpv6.h>
+ #include <linux/tcp.h>
+ #include <linux/udp.h>
+ 
+--- a/include/net/icmp.h
++++ b/include/net/icmp.h
+@@ -46,7 +46,11 @@ static inline void icmp_send(struct sk_b
+ #if IS_ENABLED(CONFIG_NF_NAT)
+ void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info);
+ #else
+-#define icmp_ndo_send icmp_send
++static inline void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info)
++{
++	struct ip_options opts = { 0 };
++	__icmp_send(skb_in, type, code, info, &opts);
++}
+ #endif
+ 
+ int icmp_rcv(struct sk_buff *skb);
+--- a/net/ipv4/icmp.c
++++ b/net/ipv4/icmp.c
+@@ -755,13 +755,14 @@ EXPORT_SYMBOL(__icmp_send);
+ void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info)
+ {
+ 	struct sk_buff *cloned_skb = NULL;
++	struct ip_options opts = { 0 };
+ 	enum ip_conntrack_info ctinfo;
+ 	struct nf_conn *ct;
+ 	__be32 orig_ip;
+ 
+ 	ct = nf_ct_get(skb_in, &ctinfo);
+ 	if (!ct || !(ct->status & IPS_SRC_NAT)) {
+-		icmp_send(skb_in, type, code, info);
++		__icmp_send(skb_in, type, code, info, &opts);
+ 		return;
  	}
  
--	priv->msi_map = bitmap_alloc(priv->num_irqs, GFP_KERNEL);
-+	priv->msi_map = bitmap_zalloc(priv->num_irqs, GFP_KERNEL);
- 	if (!priv->msi_map) {
- 		ret = -ENOMEM;
- 		goto err_priv;
+@@ -776,7 +777,7 @@ void icmp_ndo_send(struct sk_buff *skb_i
+ 
+ 	orig_ip = ip_hdr(skb_in)->saddr;
+ 	ip_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.ip;
+-	icmp_send(skb_in, type, code, info);
++	__icmp_send(skb_in, type, code, info, &opts);
+ 	ip_hdr(skb_in)->saddr = orig_ip;
+ out:
+ 	consume_skb(cloned_skb);
+--- a/net/ipv6/icmp.c
++++ b/net/ipv6/icmp.c
+@@ -312,10 +312,9 @@ static int icmpv6_getfrag(void *from, ch
+ }
+ 
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+-static void mip6_addr_swap(struct sk_buff *skb)
++static void mip6_addr_swap(struct sk_buff *skb, const struct inet6_skb_parm *opt)
+ {
+ 	struct ipv6hdr *iph = ipv6_hdr(skb);
+-	struct inet6_skb_parm *opt = IP6CB(skb);
+ 	struct ipv6_destopt_hao *hao;
+ 	struct in6_addr tmp;
+ 	int off;
+@@ -332,7 +331,7 @@ static void mip6_addr_swap(struct sk_buf
+ 	}
+ }
+ #else
+-static inline void mip6_addr_swap(struct sk_buff *skb) {}
++static inline void mip6_addr_swap(struct sk_buff *skb, const struct inet6_skb_parm *opt) {}
+ #endif
+ 
+ static struct dst_entry *icmpv6_route_lookup(struct net *net,
+@@ -427,7 +426,8 @@ static int icmp6_iif(const struct sk_buf
+  *	Send an ICMP message in response to a packet in error
+  */
+ void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
+-		const struct in6_addr *force_saddr)
++		const struct in6_addr *force_saddr,
++		const struct inet6_skb_parm *parm)
+ {
+ 	struct inet6_dev *idev = NULL;
+ 	struct ipv6hdr *hdr = ipv6_hdr(skb);
+@@ -520,7 +520,7 @@ void icmp6_send(struct sk_buff *skb, u8
+ 	if (!(skb->dev->flags & IFF_LOOPBACK) && !icmpv6_global_allow(net, type))
+ 		goto out_bh_enable;
+ 
+-	mip6_addr_swap(skb);
++	mip6_addr_swap(skb, parm);
+ 
+ 	memset(&fl6, 0, sizeof(fl6));
+ 	fl6.flowi6_proto = IPPROTO_ICMPV6;
+@@ -606,7 +606,7 @@ EXPORT_SYMBOL(icmp6_send);
+  */
+ void icmpv6_param_prob(struct sk_buff *skb, u8 code, int pos)
+ {
+-	icmp6_send(skb, ICMPV6_PARAMPROB, code, pos, NULL);
++	icmp6_send(skb, ICMPV6_PARAMPROB, code, pos, NULL, IP6CB(skb));
+ 	kfree_skb(skb);
+ }
+ 
+@@ -663,10 +663,10 @@ int ip6_err_gen_icmpv6_unreach(struct sk
+ 	}
+ 	if (type == ICMP_TIME_EXCEEDED)
+ 		icmp6_send(skb2, ICMPV6_TIME_EXCEED, ICMPV6_EXC_HOPLIMIT,
+-			   info, &temp_saddr);
++			   info, &temp_saddr, IP6CB(skb2));
+ 	else
+ 		icmp6_send(skb2, ICMPV6_DEST_UNREACH, ICMPV6_ADDR_UNREACH,
+-			   info, &temp_saddr);
++			   info, &temp_saddr, IP6CB(skb2));
+ 	if (rt)
+ 		ip6_rt_put(rt);
+ 
+--- a/net/ipv6/ip6_icmp.c
++++ b/net/ipv6/ip6_icmp.c
+@@ -33,23 +33,25 @@ int inet6_unregister_icmp_sender(ip6_icm
+ }
+ EXPORT_SYMBOL(inet6_unregister_icmp_sender);
+ 
+-void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
++void __icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
++		   const struct inet6_skb_parm *parm)
+ {
+ 	ip6_icmp_send_t *send;
+ 
+ 	rcu_read_lock();
+ 	send = rcu_dereference(ip6_icmp_send);
+ 	if (send)
+-		send(skb, type, code, info, NULL);
++		send(skb, type, code, info, NULL, parm);
+ 	rcu_read_unlock();
+ }
+-EXPORT_SYMBOL(icmpv6_send);
++EXPORT_SYMBOL(__icmpv6_send);
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_NF_NAT)
+ #include <net/netfilter/nf_conntrack.h>
+ void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)
+ {
++	struct inet6_skb_parm parm = { 0 };
+ 	struct sk_buff *cloned_skb = NULL;
+ 	enum ip_conntrack_info ctinfo;
+ 	struct in6_addr orig_ip;
+@@ -57,7 +59,7 @@ void icmpv6_ndo_send(struct sk_buff *skb
+ 
+ 	ct = nf_ct_get(skb_in, &ctinfo);
+ 	if (!ct || !(ct->status & IPS_SRC_NAT)) {
+-		icmpv6_send(skb_in, type, code, info);
++		__icmpv6_send(skb_in, type, code, info, &parm);
+ 		return;
+ 	}
+ 
+@@ -72,7 +74,7 @@ void icmpv6_ndo_send(struct sk_buff *skb
+ 
+ 	orig_ip = ipv6_hdr(skb_in)->saddr;
+ 	ipv6_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.in6;
+-	icmpv6_send(skb_in, type, code, info);
++	__icmpv6_send(skb_in, type, code, info, &parm);
+ 	ipv6_hdr(skb_in)->saddr = orig_ip;
+ out:
+ 	consume_skb(cloned_skb);
 
 
