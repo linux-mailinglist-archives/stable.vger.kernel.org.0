@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B36328A36
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA12328A48
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbhCASN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
+        id S239143AbhCASOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:14:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239293AbhCASIU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 105A065103;
-        Mon,  1 Mar 2021 17:14:50 +0000 (UTC)
+        id S239443AbhCASIp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:08:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C86AB65104;
+        Mon,  1 Mar 2021 17:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618891;
-        bh=RQY+9gZbr/bRsI/eznwtH0hBGu31BLnYjYT3lhylAJA=;
+        s=korg; t=1614618897;
+        bh=7jTk6X3nESlHt2daZxwA5T/oEbwBTmja9BtwEuC7MiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtRO3zo6SeMyugaKxtOw5DMEdXtOapHFGYpxau/paBSnmQ6UR/aXAQrrk1Paz2PyJ
-         EhNkctq3ZhBlK4O3q9CSYWaNk/Ey9VJtks3kHNn4qA3JippBpMzmOZlHEDt7K25nPI
-         a/N28P3X47LEiCJfL6t70NX5J/lUmx6otdRH+KTE=
+        b=lLkrgS+I6kpSb7tWf1XxSjHHkQaiOwHPL9bIxyTZXHykYraFQ1Pnf9DzYtlUIrPLj
+         XKtuZFpd2WNu00qJj+3pY1t2wCvsK1NgnYyLVsUxZA/yjVkcMuH5F5bvTa3Zu3Reia
+         zbkxH1Vytxc0LnBk+MRwLDwFi+vwszyTt80iW+8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 255/663] smp: Process pending softirqs in flush_smp_call_function_from_idle()
-Date:   Mon,  1 Mar 2021 17:08:23 +0100
-Message-Id: <20210301161154.447737241@linuxfoundation.org>
+Subject: [PATCH 5.10 256/663] drm/amdgpu/display: remove hdcp_srm sysfs on device removal
+Date:   Mon,  1 Mar 2021 17:08:24 +0100
+Message-Id: <20210301161154.491191139@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,50 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit 66040b2d5d41f85cb1a752a75260595344c5ec3b ]
+[ Upstream commit e96b1b2974989c6a25507b527843ede7594efc85 ]
 
-send_call_function_single_ipi() may wake an idle CPU without sending an
-IPI. The woken up CPU will process the SMP-functions in
-flush_smp_call_function_from_idle(). Any raised softirq from within the
-SMP-function call will not be processed.
-Should the CPU have no tasks assigned, then it will go back to idle with
-pending softirqs and the NOHZ will rightfully complain.
+Fixes: 9037246bb2da5 ("drm/amd/display: Add sysfs interface for set/get srm")
 
-Process pending softirqs on return from flush_smp_call_function_queue().
-
-Fixes: b2a02fc43a1f4 ("smp: Optimize send_call_function_single_ipi()")
-Reported-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210123201027.3262800-2-bigeasy@linutronix.de
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/smp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c      | 2 +-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c | 3 ++-
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h | 2 +-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 4d17501433be7..25240fb2df949 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -14,6 +14,7 @@
- #include <linux/export.h>
- #include <linux/percpu.h>
- #include <linux/init.h>
-+#include <linux/interrupt.h>
- #include <linux/gfp.h>
- #include <linux/smp.h>
- #include <linux/cpu.h>
-@@ -449,6 +450,9 @@ void flush_smp_call_function_from_idle(void)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index fdca76fc598c0..bffaefaf5a292 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1096,7 +1096,7 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
  
- 	local_irq_save(flags);
- 	flush_smp_call_function_queue(true);
-+	if (local_softirq_pending())
-+		do_softirq();
-+
- 	local_irq_restore(flags);
+ #ifdef CONFIG_DRM_AMD_DC_HDCP
+ 	if (adev->dm.hdcp_workqueue) {
+-		hdcp_destroy(adev->dm.hdcp_workqueue);
++		hdcp_destroy(&adev->dev->kobj, adev->dm.hdcp_workqueue);
+ 		adev->dm.hdcp_workqueue = NULL;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+index c2cd184f0bbd4..79de68ac03f20 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+@@ -376,7 +376,7 @@ static void event_cpirq(struct work_struct *work)
  }
+ 
+ 
+-void hdcp_destroy(struct hdcp_workqueue *hdcp_work)
++void hdcp_destroy(struct kobject *kobj, struct hdcp_workqueue *hdcp_work)
+ {
+ 	int i = 0;
+ 
+@@ -385,6 +385,7 @@ void hdcp_destroy(struct hdcp_workqueue *hdcp_work)
+ 		cancel_delayed_work_sync(&hdcp_work[i].watchdog_timer_dwork);
+ 	}
+ 
++	sysfs_remove_bin_file(kobj, &hdcp_work[0].attr);
+ 	kfree(hdcp_work->srm);
+ 	kfree(hdcp_work->srm_temp);
+ 	kfree(hdcp_work);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
+index 5159b3a5e5b03..09294ff122fea 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.h
+@@ -69,7 +69,7 @@ void hdcp_update_display(struct hdcp_workqueue *hdcp_work,
+ 
+ void hdcp_reset_display(struct hdcp_workqueue *work, unsigned int link_index);
+ void hdcp_handle_cpirq(struct hdcp_workqueue *work, unsigned int link_index);
+-void hdcp_destroy(struct hdcp_workqueue *work);
++void hdcp_destroy(struct kobject *kobj, struct hdcp_workqueue *work);
+ 
+ struct hdcp_workqueue *hdcp_create_workqueue(struct amdgpu_device *adev, struct cp_psp *cp_psp, struct dc *dc);
  
 -- 
 2.27.0
