@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 230A0328F54
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBABF328EC7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238276AbhCATtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:49:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53014 "EHLO mail.kernel.org"
+        id S236713AbhCAThZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:37:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241725AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:38:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D701F6510A;
-        Mon,  1 Mar 2021 17:15:47 +0000 (UTC)
+        id S241937AbhCAT35 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 146CD65128;
+        Mon,  1 Mar 2021 17:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618948;
-        bh=0hKniYT9P+3ALacwHjD2nY0Eon86ck5jYVcMObYbxnw=;
+        s=korg; t=1614618965;
+        bh=zObVs7WjPNun3ujJeSX1WxJemE99x5DRaj5g4eV2zW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TfPER8aeWXW1HACC3x1q5SWI8gMb58f+z/YHcQiQyI70qumUK92Ez45lQzS80e/X
-         b2SlNK5BU+hCAuLzkzmGh0CyAHTBCmDA+6ugKSF+1UmhaCh8HWhXTck+HmIibRl3JD
-         5CzrpY54I6zsH3y2LfemnclV10lu0cKvjgkKvZbs=
+        b=w4MjL/qmIQgCqIg1HM/ttSkgWmm50KCCPw7BvS13CC5OwCgrQbzgo0Mw3ljjAhpIC
+         g6Mh2yqFhxP8WeFmFV0JFWbGdFeA9Aj3AdDeBXmk/Q1iMSAPUsdzvmRlALPLgQBnPp
+         aQ/GziyxOmU+lWDmYfA3p3o2+ed/pmI1eSECWiz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 277/663] dmaengine: fsldma: Fix a resource leak in an error handling path of the probe function
-Date:   Mon,  1 Mar 2021 17:08:45 +0100
-Message-Id: <20210301161155.527601808@linuxfoundation.org>
+        stable@vger.kernel.org, Arthur Demchenkov <spinal.by@gmail.com>,
+        Carl Philipp Klemm <philipp@uvos.xyz>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>, Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 282/663] power: supply: cpcap-battery: Fix missing power_supply_put()
+Date:   Mon,  1 Mar 2021 17:08:50 +0100
+Message-Id: <20210301161155.774374156@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,48 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b202d4e82531a62a33a6b14d321dd2aad491578e ]
+[ Upstream commit 97456a24acb41b74ab6910f40fb8f09b206fd3b5 ]
 
-In case of error, the previous 'fsl_dma_chan_probe()' calls must be undone
-by some 'fsl_dma_chan_remove()', as already done in the remove function.
+Fix missing power_supply_put().
 
-It was added in the remove function in commit 77cd62e8082b ("fsldma: allow
-Freescale Elo DMA driver to be compiled as a module")
-
-Fixes: d3f620b2c4fe ("fsldma: simplify IRQ probing and handling")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201212160614.92576-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Arthur Demchenkov <spinal.by@gmail.com>
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Fixes: 8b0134cc14b9 ("power: supply: cpcap-battery: Fix handling of lowered charger voltage")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsldma.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/power/supply/cpcap-battery.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
-index 554f70a0c18c0..f8459cc5315df 100644
---- a/drivers/dma/fsldma.c
-+++ b/drivers/dma/fsldma.c
-@@ -1214,6 +1214,7 @@ static int fsldma_of_probe(struct platform_device *op)
- {
- 	struct fsldma_device *fdev;
- 	struct device_node *child;
-+	unsigned int i;
- 	int err;
+diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
+index 7a974b5bd9dd1..cebc5c8fda1b5 100644
+--- a/drivers/power/supply/cpcap-battery.c
++++ b/drivers/power/supply/cpcap-battery.c
+@@ -561,17 +561,21 @@ static int cpcap_battery_update_charger(struct cpcap_battery_ddata *ddata,
+ 				POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
+ 				&prop);
+ 	if (error)
+-		return error;
++		goto out_put;
  
- 	fdev = kzalloc(sizeof(*fdev), GFP_KERNEL);
-@@ -1292,6 +1293,10 @@ static int fsldma_of_probe(struct platform_device *op)
- 	return 0;
+ 	/* Allow charger const voltage lower than battery const voltage */
+ 	if (const_charge_voltage > prop.intval)
+-		return 0;
++		goto out_put;
  
- out_free_fdev:
-+	for (i = 0; i < FSL_DMA_MAX_CHANS_PER_DEVICE; i++) {
-+		if (fdev->chan[i])
-+			fsl_dma_chan_remove(fdev->chan[i]);
-+	}
- 	irq_dispose_mapping(fdev->irq);
- 	iounmap(fdev->regs);
- out_free:
+ 	val.intval = const_charge_voltage;
+ 
+-	return power_supply_set_property(charger,
++	error = power_supply_set_property(charger,
+ 			POWER_SUPPLY_PROP_CONSTANT_CHARGE_VOLTAGE,
+ 			&val);
++out_put:
++	power_supply_put(charger);
++
++	return error;
+ }
+ 
+ static int cpcap_battery_set_property(struct power_supply *psy,
 -- 
 2.27.0
 
