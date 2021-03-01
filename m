@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFB7328D1B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E912328DAC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236787AbhCATFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:05:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34094 "EHLO mail.kernel.org"
+        id S241260AbhCATPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:15:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233166AbhCAS6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:58:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D045664D5D;
-        Mon,  1 Mar 2021 17:26:43 +0000 (UTC)
+        id S241029AbhCATLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:11:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FA4B64F9C;
+        Mon,  1 Mar 2021 17:26:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619604;
-        bh=hCcmAs2PRbDTnVNOZNBB4hD3hhROgsAcI6qeae1n1Cc=;
+        s=korg; t=1614619612;
+        bh=DWZ3pK/jmt/+ZAEw5AcDxxcpf5sJ42lwJvEL4f1PAYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0AE57zBPcXlC8k7SlJ6GV74AwjpJ2G14crVKbew3oMir1QfaGENNNOH2YlNdT10uL
-         RlGBhOIL9eT5qxHVgGOcBIVKDXf+Ukgp0d4VAORmT8G0fY5h6a+wN+ZfCDeGdHc5fX
-         RgV8PNTU6979FkUYs9ICQL7zX1EZGxjsH/0UVqIw=
+        b=VYNd/lLF/Pxg10kYod8X1YTVEirVkaUKSxajC5lMt511NGGy0tLj3FaDE8dz969RT
+         NiKFG+gNmUNgc9ZJ3+kQZV6fJyimWbaurYqRDzRwG2vZpRl/WGC2g9p44cxRV3rYRB
+         c1+skfNUtb9WWZigCCStwpGs62MXS4j3AE+L5kek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Bernstein <eric.bernstein@amd.com>,
-        Bindu Ramamurthy <bindu.r@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 514/663] drm/amd/display: Remove Assert from dcn10_get_dig_frontend
-Date:   Mon,  1 Mar 2021 17:12:42 +0100
-Message-Id: <20210301161207.284575433@linuxfoundation.org>
+Subject: [PATCH 5.10 517/663] drm/amdgpu: Set reference clock to 100Mhz on Renoir (v2)
+Date:   Mon,  1 Mar 2021 17:12:45 +0100
+Message-Id: <20210301161207.436130823@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,50 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Bernstein <eric.bernstein@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 83e6667b675f101fb66659dfa72e45d08773d763 upstream.
+commit 6e80fb8ab04f6c4f377e2fd422bdd1855beb7371 upstream.
 
-[Why]
-In some cases, this function is called when DIG BE is not
-connected to DIG FE, in which case a value of zero isn't
-invalid and assert should not be hit.
+Fixes the rlc reference clock used for GPU timestamps.
+Value is 100Mhz.  Confirmed with hardware team.
 
-[How]
-Remove assert and handle ENGINE_ID_UNKNOWN result in calling
-function.
+v2: reword commit message.
 
-Signed-off-by: Eric Bernstein <eric.bernstein@amd.com>
-Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1480
+Acked-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c |    1 -
- drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c        |    2 ++
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/soc15.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_link_encoder.c
-@@ -480,7 +480,6 @@ unsigned int dcn10_get_dig_frontend(stru
- 		break;
- 	default:
- 		// invalid source select DIG
--		ASSERT(false);
- 		result = ENGINE_ID_UNKNOWN;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -246,6 +246,8 @@ static u32 soc15_get_xclk(struct amdgpu_
+ {
+ 	u32 reference_clock = adev->clock.spll.reference_freq;
  
---- a/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn30/dcn30_hwseq.c
-@@ -526,6 +526,8 @@ void dcn30_init_hw(struct dc *dc)
++	if (adev->asic_type == CHIP_RENOIR)
++		return 10000;
+ 	if (adev->asic_type == CHIP_RAVEN)
+ 		return reference_clock / 4;
  
- 					fe = dc->links[i]->link_enc->funcs->get_dig_frontend(
- 										dc->links[i]->link_enc);
-+					if (fe == ENGINE_ID_UNKNOWN)
-+						continue;
- 
- 					for (j = 0; j < dc->res_pool->stream_enc_count; j++) {
- 						if (fe == dc->res_pool->stream_enc[j]->id) {
 
 
