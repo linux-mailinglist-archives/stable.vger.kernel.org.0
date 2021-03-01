@@ -2,55 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 754BE327E8C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:47:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4361327EAC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:56:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235060AbhCAMqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 07:46:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
+        id S235131AbhCAM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 07:56:01 -0500
+Received: from foss.arm.com ([217.140.110.172]:57436 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235043AbhCAMqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 07:46:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7555F601FE;
-        Mon,  1 Mar 2021 12:45:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614602755;
-        bh=wgJHrwDiFJ40+r/kbgx25BHO2vjMlUMTBrPkXaXEUH4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MtJvZYD1e8aoR+bRWcjA+tMlFAd0WZadZNrMDUypuotTEUANH97bKOM8zLV7lU1ZH
-         Bm8shtMXWqkHBfXwE2EmSpKOk2I9wDwZ7VYEFg4UfAGTUifrQkwoM7IOAMh8rCY9ej
-         nf1zJovbqO2k/4fHcCkVcyvIJ6ct+cCss3qO3IJg=
-Date:   Mon, 1 Mar 2021 13:45:52 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     dan.j.williams@intel.com, colyli@suse.com, dave.jiang@intel.com,
-        ira.weiny@intel.com, rpalethorpe@suse.com, stable@vger.kernel.org,
-        vishal.l.verma@intel.com
-Subject: Re: FAILED: patch "[PATCH] libnvdimm/dimm: Avoid race between probe
- and" failed to apply to 4.19-stable tree
-Message-ID: <YDziADsARVarJEW7@kroah.com>
-References: <1612779897191109@kroah.com>
- <YDgVYCKzK8zNt3Jy@debian>
+        id S235110AbhCAM4A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 07:56:00 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 574561FB;
+        Mon,  1 Mar 2021 04:55:14 -0800 (PST)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 8B5283F70D;
+        Mon,  1 Mar 2021 04:55:13 -0800 (PST)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     stable@vger.kernel.org
+Cc:     suzuki.poulose@arm.com, gregkh@linuxfoundation.org,
+        will@kernel.org, catalin.marinas@arm.com
+Subject: [PATCH] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
+Date:   Mon,  1 Mar 2021 12:54:59 +0000
+Message-Id: <20210301125459.3046861-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <161460092211572@kroah.com>
+References: <161460092211572@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YDgVYCKzK8zNt3Jy@debian>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 25, 2021 at 09:23:44PM +0000, Sudip Mukherjee wrote:
-> Hi Greg,
-> 
-> On Mon, Feb 08, 2021 at 11:24:57AM +0100, gregkh@linuxfoundation.org wrote:
-> > 
-> > The patch below does not apply to the 4.19-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
-> 
-> Here is the backport. Will apply to all branches till 4.4-stable.
+commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream
 
-thanks, now queued up.
+The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
+we apply the work around for r0p0 - r1p0. Unfortunately this
+won't be fixed for the future revisions for the CPU. Thus
+extend the work around for all versions of A55, to cover
+for r2p0 and any future revisions.
 
-greg k-h
+Cc: stable@vger.kernel.org # v5.4-
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
+[will: Update Kconfig help text]
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ arch/arm64/Kconfig             | 2 +-
+ arch/arm64/kernel/cpufeature.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index a0bc9bbb92f3..0ad21882aa04 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -489,7 +489,7 @@ config ARM64_ERRATUM_1024718
+ 	help
+ 	  This option adds a workaround for ARM Cortex-A55 Erratum 1024718.
+ 
+-	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
++	  Affected Cortex-A55 cores (all versions) could cause incorrect
+ 	  update of the hardware dirty bit when the DBM/AP bits are updated
+ 	  without a break-before-make. The workaround is to disable the usage
+ 	  of hardware DBM locally on the affected cores. CPUs not affected by
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index f2ec84540414..79caab15ccbf 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -1092,7 +1092,7 @@ static bool cpu_has_broken_dbm(void)
+ 	/* List of CPUs which have broken DBM support. */
+ 	static const struct midr_range cpus[] = {
+ #ifdef CONFIG_ARM64_ERRATUM_1024718
+-		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
++		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
+ #endif
+ 		{},
+ 	};
+-- 
+2.24.1
+
