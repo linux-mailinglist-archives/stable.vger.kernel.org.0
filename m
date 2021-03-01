@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FE4328996
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A607328A1F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhCASAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:00:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49630 "EHLO mail.kernel.org"
+        id S239202AbhCASMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:12:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234851AbhCARyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:54:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FB1B65055;
-        Mon,  1 Mar 2021 17:20:18 +0000 (UTC)
+        id S239082AbhCASFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:05:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0213D64E04;
+        Mon,  1 Mar 2021 17:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619218;
-        bh=n04CbcuGY13QM5c9qupprhew2x6HBhX6hWJSRI/13Ao=;
+        s=korg; t=1614619235;
+        bh=/yQWPPpYDpsQPtXvR87xm7pGg6ojykL9qZPjFe1zRbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fv3EeGgvKGk8TnuQBnyh23eqEF7El4kUf2+0HGXUo2eAeVcVKq2X+K23mSp4U6Sai
-         lGB93cvI2vknH+fLml/GpuwT2asPAnq3XVnFAt1DP99YiqS8TpKgv2SImy+9KsNWbT
-         itN043ljy7/sSBsKwsuwXbUretRgbfmiuoHBTTEI=
+        b=Q7ELpDDqyv1KbiIQ98Iu2JleAjQ3zAmaQes8V6KHzdyRPOOOJSzR71DHwNcl4ui41
+         DQb+L+H9bXETw9jLN9ni3lcc9J4naW8Sw2Baw4ZW4vVi0VoSCA8/dWBYWI0zCpBCJq
+         YbPtfQ8E8pq/UNxKxbBPotGeKMy5VllBOW4G8hkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Cheng <chenglang@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 376/663] RDMA/hns: Fixes missing error code of CMDQ
-Date:   Mon,  1 Mar 2021 17:10:24 +0100
-Message-Id: <20210301161200.457205671@linuxfoundation.org>
+Subject: [PATCH 5.10 381/663] RDMA/rtrs-srv-sysfs: fix missing put_device
+Date:   Mon,  1 Mar 2021 17:10:29 +0100
+Message-Id: <20210301161200.709261079@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,54 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Cheng <chenglang@huawei.com>
+From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
 
-[ Upstream commit 8f86e2eadac968200a6ab1d7074fc0f5cbc1e075 ]
+[ Upstream commit e2853c49477d104c01d3c7944e1fb5074eb11d9f ]
 
-When posting a multi-descriptors command, the error code of previous
-failed descriptors may be rewrote to 0 by a later successful descriptor.
+put_device() decreases the ref-count and then the device will be
+cleaned-up, while at is also add missing put_device in
+rtrs_srv_create_once_sysfs_root_folders
 
-Fixes: a04ff739f2a9 ("RDMA/hns: Add command queue support for hip08 RoCE driver")
-Link: https://lore.kernel.org/r/1612688143-28226-3-git-send-email-liweihang@huawei.com
-Signed-off-by: Lang Cheng <chenglang@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
+This patch solves a kmemleak error as below:
+
+  unreferenced object 0xffff88809a7a0710 (size 8):
+    comm "kworker/4:1H", pid 113, jiffies 4295833049 (age 6212.380s)
+    hex dump (first 8 bytes):
+      62 6c 61 00 6b 6b 6b a5                          bla.kkk.
+    backtrace:
+      [<0000000054413611>] kstrdup+0x2e/0x60
+      [<0000000078e3120a>] kobject_set_name_vargs+0x2f/0xb0
+      [<00000000f1a17a6b>] dev_set_name+0xab/0xe0
+      [<00000000d5502e32>] rtrs_srv_create_sess_files+0x2fb/0x314 [rtrs_server]
+      [<00000000ed11a1ef>] rtrs_srv_info_req_done+0x631/0x800 [rtrs_server]
+      [<000000008fc5aa8f>] __ib_process_cq+0x94/0x100 [ib_core]
+      [<00000000a9599cb4>] ib_cq_poll_work+0x32/0xc0 [ib_core]
+      [<00000000cfc376be>] process_one_work+0x4bc/0x980
+      [<0000000016e5c96a>] worker_thread+0x78/0x5c0
+      [<00000000c20b8be0>] kthread+0x191/0x1e0
+      [<000000006c9c0003>] ret_from_fork+0x3a/0x50
+
+Fixes: baa5b28b7a47 ("RDMA/rtrs-srv: Replace device_register with device_initialize and device_add")
+Link: https://lore.kernel.org/r/20210212134525.103456-5-jinpu.wang@cloud.ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 69621e84986d7..ebcf26dec1e30 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -1232,7 +1232,7 @@ static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
- 	u32 timeout = 0;
- 	int handle = 0;
- 	u16 desc_ret;
--	int ret = 0;
-+	int ret;
- 	int ntc;
- 
- 	spin_lock_bh(&csq->lock);
-@@ -1277,15 +1277,14 @@ static int __hns_roce_cmq_send(struct hns_roce_dev *hr_dev,
- 	if (hns_roce_cmq_csq_done(hr_dev)) {
- 		complete = true;
- 		handle = 0;
-+		ret = 0;
- 		while (handle < num) {
- 			/* get the result of hardware write back */
- 			desc_to_use = &csq->desc[ntc];
- 			desc[handle] = *desc_to_use;
- 			dev_dbg(hr_dev->dev, "Get cmq desc:\n");
- 			desc_ret = le16_to_cpu(desc[handle].retval);
--			if (desc_ret == CMD_EXEC_SUCCESS)
--				ret = 0;
--			else
-+			if (unlikely(desc_ret != CMD_EXEC_SUCCESS))
- 				ret = -EIO;
- 			priv->cmq.last_status = desc_ret;
- 			ntc++;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+index 1c5f97102103f..39708ab4f26e5 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+@@ -186,6 +186,7 @@ static int rtrs_srv_create_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
+ 		err = -ENOMEM;
+ 		pr_err("kobject_create_and_add(): %d\n", err);
+ 		device_del(&srv->dev);
++		put_device(&srv->dev);
+ 		goto unlock;
+ 	}
+ 	dev_set_uevent_suppress(&srv->dev, false);
+@@ -211,6 +212,7 @@ rtrs_srv_destroy_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
+ 		kobject_put(srv->kobj_paths);
+ 		mutex_unlock(&srv->paths_mutex);
+ 		device_del(&srv->dev);
++		put_device(&srv->dev);
+ 	} else {
+ 		mutex_unlock(&srv->paths_mutex);
+ 	}
 -- 
 2.27.0
 
