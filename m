@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3CB33285C9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6463284C8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236638AbhCAQ6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:58:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55018 "EHLO mail.kernel.org"
+        id S235109AbhCAQnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:43:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235942AbhCAQxc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:53:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A6C264F2B;
-        Mon,  1 Mar 2021 16:34:06 +0000 (UTC)
+        id S232952AbhCAQgt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:36:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 409BA64F6B;
+        Mon,  1 Mar 2021 16:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616446;
-        bh=TWXoJ6lgeSQ7BibcpBI2MVTVJnH+o09sijQRaHhDNcE=;
+        s=korg; t=1614615978;
+        bh=Ufwgbib4tnmfpKGDOy+QmSp0NroTZgDRb+4rXYsHuSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uz3rkjBFp3qVmbo77ijNgJSU2sAxBcnja2cTQwrLJmmjwlGjgSnKjNyB9VnDOR76p
-         CzRJ+CtjcV8raz77YlOG02IAkjQ0ngkrVZFSbzNJ4n8lXg//DaMiK/5pJzEDKC77aS
-         AENF+JEJB0pfZv0ACZejA01JdzEieVqlRwiLECkI=
+        b=no972zj+3gPmH9mxRzx7bddYkkVw6gwh8LYkM6YGoVP+87HXVeS77MKqCMhld0bnU
+         9NeoP/0b64tFzpcV3ejNeN+TTDWrAykesWMAr7RwxQXs344lUaPySUOIMDcz1rfOvG
+         6PABoKxEN5jBgH/xWDDZNoyyw+ZvgHrnRqwZG/gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        David Hildenbrand <david@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.14 154/176] mm: hugetlb: fix a race between freeing and dissolving the page
-Date:   Mon,  1 Mar 2021 17:13:47 +0100
-Message-Id: <20210301161028.664192563@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 4.9 127/134] futex: fix dead code in attach_to_pi_owner()
+Date:   Mon,  1 Mar 2021 17:13:48 +0100
+Message-Id: <20210301161019.841984983@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,138 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 7ffddd499ba6122b1a07828f023d1d67629aa017 upstream
+The handle_exit_race() function is defined in commit 9c3f39860367
+ ("futex: Cure exit race"), which never returns -EBUSY. This results
+in a small piece of dead code in the attach_to_pi_owner() function:
 
-There is a race condition between __free_huge_page()
-and dissolve_free_huge_page().
+	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
+	...
+	if (ret == -EBUSY)
+		*exiting = p; /* dead code */
 
-  CPU0:                         CPU1:
+The return value -EBUSY is added to handle_exit_race() in upsteam
+commit ac31c7ff8624409 ("futex: Provide distinct return value when
+owner is exiting"). This commit was incorporated into v4.9.255, before
+the function handle_exit_race() was introduced, whitout Modify
+handle_exit_race().
 
-  // page_count(page) == 1
-  put_page(page)
-    __free_huge_page(page)
-                                dissolve_free_huge_page(page)
-                                  spin_lock(&hugetlb_lock)
-                                  // PageHuge(page) && !page_count(page)
-                                  update_and_free_page(page)
-                                  // page is freed to the buddy
-                                  spin_unlock(&hugetlb_lock)
-      spin_lock(&hugetlb_lock)
-      clear_page_huge_active(page)
-      enqueue_huge_page(page)
-      // It is wrong, the page is already freed
-      spin_unlock(&hugetlb_lock)
+To fix dead code, extract the change of handle_exit_race() from
+commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
+ is exiting"), re-incorporated.
 
-The race window is between put_page() and dissolve_free_huge_page().
+Lee writes:
 
-We should make sure that the page is already on the free list when it is
-dissolved.
+This commit takes the remaining functional snippet of:
 
-As a result __free_huge_page would corrupt page(s) already in the buddy
-allocator.
+ ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
 
-Link: https://lkml.kernel.org/r/20210115124942.46403-4-songmuchun@bytedance.com
-Fixes: c8721bbbdd36 ("mm: memory-hotplug: enable memory hotplug to handle hugepage")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[sudip: adjust context]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+... and is the correct fix for this issue.
+
+
+Fixes: 9c3f39860367 ("futex: Cure exit race")
+Cc: stable@vger.kernel.org # v4.9.258
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/hugetlb.c |   39 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 39 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -69,6 +69,21 @@ DEFINE_SPINLOCK(hugetlb_lock);
- static int num_fault_mutexes;
- struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
+---
+ kernel/futex.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1207,11 +1207,11 @@ static int handle_exit_race(u32 __user *
+ 	u32 uval2;
  
-+static inline bool PageHugeFreed(struct page *head)
-+{
-+	return page_private(head + 4) == -1UL;
-+}
-+
-+static inline void SetPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, -1UL);
-+}
-+
-+static inline void ClearPageHugeFreed(struct page *head)
-+{
-+	set_page_private(head + 4, 0);
-+}
-+
- /* Forward declaration */
- static int hugetlb_acct_memory(struct hstate *h, long delta);
+ 	/*
+-	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
+-	 * for it to finish.
++	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
++	 * caller that the alleged owner is busy.
+ 	 */
+ 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
+-		return -EAGAIN;
++		return -EBUSY;
  
-@@ -866,6 +881,7 @@ static void enqueue_huge_page(struct hst
- 	list_move(&page->lru, &h->hugepage_freelists[nid]);
- 	h->free_huge_pages++;
- 	h->free_huge_pages_node[nid]++;
-+	SetPageHugeFreed(page);
- }
- 
- static struct page *dequeue_huge_page_node_exact(struct hstate *h, int nid)
-@@ -883,6 +899,7 @@ static struct page *dequeue_huge_page_no
- 		return NULL;
- 	list_move(&page->lru, &h->hugepage_activelist);
- 	set_page_refcounted(page);
-+	ClearPageHugeFreed(page);
- 	h->free_huge_pages--;
- 	h->free_huge_pages_node[nid]--;
- 	return page;
-@@ -1315,6 +1332,7 @@ static void prep_new_huge_page(struct hs
- 	set_hugetlb_cgroup(page, NULL);
- 	h->nr_huge_pages++;
- 	h->nr_huge_pages_node[nid]++;
-+	ClearPageHugeFreed(page);
- 	spin_unlock(&hugetlb_lock);
- 	put_page(page); /* free it into the hugepage allocator */
- }
-@@ -1478,6 +1496,7 @@ int dissolve_free_huge_page(struct page
- {
- 	int rc = 0;
- 
-+retry:
- 	spin_lock(&hugetlb_lock);
- 	if (PageHuge(page) && !page_count(page)) {
- 		struct page *head = compound_head(page);
-@@ -1487,6 +1506,26 @@ int dissolve_free_huge_page(struct page
- 			rc = -EBUSY;
- 			goto out;
- 		}
-+
-+		/*
-+		 * We should make sure that the page is already on the free list
-+		 * when it is dissolved.
-+		 */
-+		if (unlikely(!PageHugeFreed(head))) {
-+			spin_unlock(&hugetlb_lock);
-+			cond_resched();
-+
-+			/*
-+			 * Theoretically, we should return -EBUSY when we
-+			 * encounter this race. In fact, we have a chance
-+			 * to successfully dissolve the page if we do a
-+			 * retry. Because the race window is quite small.
-+			 * If we seize this opportunity, it is an optimization
-+			 * for increasing the success rate of dissolving page.
-+			 */
-+			goto retry;
-+		}
-+
- 		/*
- 		 * Move PageHWPoison flag from head page to the raw error page,
- 		 * which makes any subpages rather than the error page reusable.
+ 	/*
+ 	 * Reread the user space value to handle the following situation:
 
 
