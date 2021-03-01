@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE39328BB8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C67328C0E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240314AbhCASik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S232890AbhCASoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:44:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240139AbhCASdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:33:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC5C665233;
-        Mon,  1 Mar 2021 17:26:15 +0000 (UTC)
+        id S240496AbhCASjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:39:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E2B465240;
+        Mon,  1 Mar 2021 17:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619576;
-        bh=0z3WB6fxxIRpXJVqt7kYMNPzomhDGaiSxTU+Sip1pak=;
+        s=korg; t=1614619581;
+        bh=Qj6SvHx4Z1EeQh+3XarPAeOQ/tPaEbqStbueKupEZG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uA3zDX2lcotTL0/cPp2QQ42b2Ha2L57Xmw/odlg1ITM+xEEbqQnnf7UqvkyTLQIg2
-         aMB6F20bUPuQpR8y7IhFYK9ZAiRGQm+xNn+6d6IufYil/sr8gRC838uwYrOzGwaT+H
-         R+DuxbfN3sb7WCBaw8fGMwOu3Mv9wtpqdi8IHiCc=
+        b=D7SdDwHASl7Td+AjOqBZPK4m/Wz+bP0K/ITthqkouvUTjEhH76dQjtmJVmn4EUBF+
+         Pn7WCTFEDHIkI+DqjqZoUcsiMo2LqoD7wBvL4yXEFc3WSRghgRJ/VQ9KzuRamAhSwR
+         VGTLZezXP8GhvDI7amo43zwiasdI2W62Cch1x6HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>,
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 505/663] MIPS: Ingenic: Disable HPTLB for D0 XBurst CPUs too
-Date:   Mon,  1 Mar 2021 17:12:33 +0100
-Message-Id: <20210301161206.828394015@linuxfoundation.org>
+Subject: [PATCH 5.10 507/663] MIPS: VDSO: Use CLANG_FLAGS instead of filtering out --target=
+Date:   Mon,  1 Mar 2021 17:12:35 +0100
+Message-Id: <20210301161206.928645530@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,52 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit a5360958a3cd1d876aae1f504ae014658513e1af upstream.
+commit 76d7fff22be3e4185ee5f9da2eecbd8188e76b2c upstream.
 
-The JZ4760 has the HPTLB as well, but has a XBurst CPU with a D0 CPUID.
+Commit ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO
+cflags") allowed the '--target=' flag from the main Makefile to filter
+through to the vDSO. However, it did not bring any of the other clang
+specific flags for controlling the integrated assembler and the GNU
+tools locations (--prefix=, --gcc-toolchain=, and -no-integrated-as).
+Without these, we will get a warning (visible with tinyconfig):
 
-Disable the HPTLB for all XBurst CPUs with a D0 CPUID. In the case where
-there is no HPTLB (e.g. for older SoCs), this won't have any side
-effect.
+arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per
+compilation unit
+.pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long
+4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
+^
+arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per
+compilation unit
+ .section .mips_abiflags, "a"
+ ^
 
-Fixes: b02efeb05699 ("MIPS: Ingenic: Disable abandoned HPTLB function.")
-Cc: <stable@vger.kernel.org> # 5.4
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+All of these flags are bundled up under CLANG_FLAGS in the main Makefile
+and exported so that they can be added to Makefiles that set their own
+CFLAGS. Use this value instead of filtering out '--target=' so there is
+no warning and all of the tools are properly used.
+
+Cc: stable@vger.kernel.org
+Fixes: ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO cflags")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1256
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/kernel/cpu-probe.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/mips/vdso/Makefile |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1830,16 +1830,17 @@ static inline void cpu_probe_ingenic(str
- 		 */
- 		case PRID_COMP_INGENIC_D0:
- 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
--			break;
-+			fallthrough;
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -16,16 +16,13 @@ ccflags-vdso := \
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
+ 	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+ 	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
++	$(CLANG_FLAGS) \
+ 	-D__VDSO__
  
- 		/*
- 		 * The config0 register in the XBurst CPUs with a processor ID of
--		 * PRID_COMP_INGENIC_D1 has an abandoned huge page tlb mode, this
--		 * mode is not compatible with the MIPS standard, it will cause
--		 * tlbmiss and into an infinite loop (line 21 in the tlb-funcs.S)
--		 * when starting the init process. After chip reset, the default
--		 * is HPTLB mode, Write 0xa9000000 to cp0 register 5 sel 4 to
--		 * switch back to VTLB mode to prevent getting stuck.
-+		 * PRID_COMP_INGENIC_D0 or PRID_COMP_INGENIC_D1 has an abandoned
-+		 * huge page tlb mode, this mode is not compatible with the MIPS
-+		 * standard, it will cause tlbmiss and into an infinite loop
-+		 * (line 21 in the tlb-funcs.S) when starting the init process.
-+		 * After chip reset, the default is HPTLB mode, Write 0xa9000000
-+		 * to cp0 register 5 sel 4 to switch back to VTLB mode to prevent
-+		 * getting stuck.
- 		 */
- 		case PRID_COMP_INGENIC_D1:
- 			write_c0_page_ctrl(XBURST_PAGECTRL_HPTLB_DIS);
+ ifndef CONFIG_64BIT
+ ccflags-vdso += -DBUILD_VDSO32
+ endif
+ 
+-ifdef CONFIG_CC_IS_CLANG
+-ccflags-vdso += $(filter --target=%,$(KBUILD_CFLAGS))
+-endif
+-
+ #
+ # The -fno-jump-tables flag only prevents the compiler from generating
+ # jump tables but does not prevent the compiler from emitting absolute
 
 
