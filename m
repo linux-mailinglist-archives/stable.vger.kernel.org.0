@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC839328A00
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A45B9328AF9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:27:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236585AbhCASJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54746 "EHLO mail.kernel.org"
+        id S239875AbhCAS01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:26:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238995AbhCASCm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:02:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2155E65109;
-        Mon,  1 Mar 2021 17:02:23 +0000 (UTC)
+        id S239721AbhCASU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:20:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6641365098;
+        Mon,  1 Mar 2021 17:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618144;
-        bh=8OXa68IVo/IzHQq1VAt2m/4RVBqIiT2CKKRLJPzARfE=;
+        s=korg; t=1614620004;
+        bh=KcIk4Kz2b8MBawrOW9nBScge22W/NWosoaZ++Q388m0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/ONexQRWmJY4PbLWLz4wnb1c60iApj0pzYSRMAFyr7W8nFyIqEFKyOlgoU8H6EDi
-         25N6mXx+QAnde5OP5bmpT4/QfMLy2bL/B36VAI4E5f1q7G5uh+C5RwMYgf/zVsCfeB
-         d2I+i0XYmHJ613+HMq0KealAWdAkSmYiJ/A36rWU=
+        b=PjPz6jSj8uhByayp4R/whd1wqsQZWRkoBvMM9RPK2lXv6CTMzOGKSh/9iC3smIElR
+         qFeUG3XpcfThuRfktufeg5fgA18bll+ecmIJ0sU/c7pP9fe931ikfLNqePdzin1wtI
+         jbsdD3jMTcwpVTPHVvFWbVWKYhl3v+A3DUxF0EDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.4 321/340] gfs2: Recursive gfs2_quota_hold in gfs2_iomap_end
-Date:   Mon,  1 Mar 2021 17:14:25 +0100
-Message-Id: <20210301161104.094707790@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH 5.10 619/663] zonefs: Fix file size of zones in full condition
+Date:   Mon,  1 Mar 2021 17:14:27 +0100
+Message-Id: <20210301161212.470598179@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,46 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-commit 7009fa9cd9a5262944b30eb7efb1f0561d074b68 upstream.
+commit 059c01039c0185dbee7ed080f1f2bd22cb1e4dab upstream.
 
-When starting an iomap write, gfs2_quota_lock_check -> gfs2_quota_lock
--> gfs2_quota_hold is called from gfs2_iomap_begin.  At the end of the
-write, before unlocking the quotas, punch_hole -> gfs2_quota_hold can be
-called again in gfs2_iomap_end, which is incorrect and leads to a failed
-assertion.  Instead, move the call to gfs2_quota_unlock before the call
-to punch_hole to fix that.
+Per ZBC/ZAC/ZNS specifications, write pointers may not have valid values
+when zones are in full condition. However, when zonefs mounts a zoned
+block device, zonefs refers write pointers to set file size even when
+the zones are in full condition. This results in wrong file size. To fix
+this, refer maximum file size in place of write pointers for zones in
+full condition.
 
-Fixes: 64bc06bb32ee ("gfs2: iomap buffered write support")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Fixes: 8dcc1a9d90c1 ("fs: New zonefs file system")
+Cc: <stable@vger.kernel.org> # 5.6+
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/bmap.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/zonefs/super.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -1228,6 +1228,9 @@ static int gfs2_iomap_end(struct inode *
- 
- 	gfs2_inplace_release(ip);
- 
-+	if (ip->i_qadata && ip->i_qadata->qa_qd_num)
-+		gfs2_quota_unlock(ip);
-+
- 	if (length != written && (iomap->flags & IOMAP_F_NEW)) {
- 		/* Deallocate blocks that were just allocated. */
- 		loff_t blockmask = i_blocksize(inode) - 1;
-@@ -1240,9 +1243,6 @@ static int gfs2_iomap_end(struct inode *
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -250,6 +250,9 @@ static loff_t zonefs_check_zone_conditio
  		}
- 	}
- 
--	if (ip->i_qadata && ip->i_qadata->qa_qd_num)
--		gfs2_quota_unlock(ip);
--
- 	if (unlikely(!written))
- 		goto out_unlock;
- 
+ 		inode->i_mode &= ~0222;
+ 		return i_size_read(inode);
++	case BLK_ZONE_COND_FULL:
++		/* The write pointer of full zones is invalid. */
++		return zi->i_max_size;
+ 	default:
+ 		if (zi->i_ztype == ZONEFS_ZTYPE_CNV)
+ 			return zi->i_max_size;
 
 
