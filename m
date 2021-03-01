@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE397328DAA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E93C328D63
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:12:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241080AbhCATPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:15:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39788 "EHLO mail.kernel.org"
+        id S235215AbhCATJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:09:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240861AbhCATKz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:10:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B5336523C;
-        Mon,  1 Mar 2021 17:26:10 +0000 (UTC)
+        id S235075AbhCATFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:05:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8744565076;
+        Mon,  1 Mar 2021 17:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619570;
-        bh=3OCZHpCE0RGBPpGQbRCSuKdps0Gwoc/FedcVj0rIlrY=;
+        s=korg; t=1614619587;
+        bh=kwpSODCNP7X5Esi1YjWE+Dyk8Hhx6JIUfZ0ISy5aygU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrS4UhH1zCfbnKPYSVegkaVSWX03dERLx+inpoNPxT0VjwgPwm+DTehTdCJ7xeAD7
-         bGosiF8msDNckLRd6Mpmn8rIf1VAPhzH8OFg07LHsVikSRbMMrA6RZMrbqsdbcggw6
-         Pt0FzueHMD5FSwTZAvUl5548TwBtjZYFRjRxQkbA=
+        b=uciMaEs/FFeGFmD4TjY+51l1zhoN1m7NBtnvOYm7nxqahefQY9M3GR6VBoe/vu5Up
+         lfNTBAOdxd/jHHJcONiA2+3+LT6LatsKgF1yrSQ4/gF9HEExQ7IK0/j66VVimNG6z2
+         NC21Ay+EmeDYUF2FPTAbE+Hi/Q1rps3IzYeAQAO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 503/663] ALSA: hda/realtek: modify EAPD in the ALC886
-Date:   Mon,  1 Mar 2021 17:12:31 +0100
-Message-Id: <20210301161206.731146915@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Kevin Hao <haokexin@gmail.com>
+Subject: [PATCH 5.10 508/663] Revert "MIPS: Octeon: Remove special handling of CONFIG_MIPS_ELF_APPENDED_DTB=y"
+Date:   Mon,  1 Mar 2021 17:12:36 +0100
+Message-Id: <20210301161206.975792107@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,54 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: PeiSen Hou <pshou@realtek.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 4841b8e6318a7f0ae57c4e5ec09032ea057c97a8 upstream.
+commit fe82de91af83a9212b6c704b1ce6cf6d129a108b upstream.
 
-Modify 0x20 index 7 bit 5 to 1, make the 0x15 EAPD the same as 0x14.
+This reverts commit d9df9fb901d25b941ab2cfb5b570d91fb2abf7a3.
 
-Signed-off-by: PeiSen Hou <pshou@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e62c5058957f48d8b8953e97135ff108@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+For the OCTEON boards, it need to patch the built-in DTB before using
+it. Previously it judges if it is a built-in DTB by checking
+fw_passed_dtb. But after commit 37e5c69ffd41 ("MIPS: head.S: Init
+fw_passed_dtb to builtin DTB", the fw_passed_dtb is initialized even
+when using built-in DTB. This causes the OCTEON boards boot broken due
+to an unpatched built-in DTB is used. Revert the commit d9df9fb901d2 to
+restore the codes before the fw_passed_dtb is used and then fix this
+issue.
+
+Fixed: 37e5c69ffd41 ("MIPS: head.S: Init fw_passed_dtb to builtin DTB")
+Cc: stable@vger.kernel.org
+Suggested-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/mips/cavium-octeon/setup.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -1905,6 +1905,7 @@ enum {
- 	ALC889_FIXUP_FRONT_HP_NO_PRESENCE,
- 	ALC889_FIXUP_VAIO_TT,
- 	ALC888_FIXUP_EEE1601,
-+	ALC886_FIXUP_EAPD,
- 	ALC882_FIXUP_EAPD,
- 	ALC883_FIXUP_EAPD,
- 	ALC883_FIXUP_ACER_EAPD,
-@@ -2238,6 +2239,15 @@ static const struct hda_fixup alc882_fix
- 			{ }
- 		}
- 	},
-+	[ALC886_FIXUP_EAPD] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			/* change to EAPD mode */
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x07 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x0068 },
-+			{ }
-+		}
-+	},
- 	[ALC882_FIXUP_EAPD] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -2510,6 +2520,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x106b, 0x4a00, "Macbook 5,2", ALC889_FIXUP_MBA11_VREF),
+--- a/arch/mips/cavium-octeon/setup.c
++++ b/arch/mips/cavium-octeon/setup.c
+@@ -1158,12 +1158,15 @@ void __init device_tree_init(void)
+ 	bool do_prune;
+ 	bool fill_mac;
  
- 	SND_PCI_QUIRK(0x1071, 0x8258, "Evesham Voyaeger", ALC882_FIXUP_EAPD),
-+	SND_PCI_QUIRK(0x13fe, 0x1009, "Advantech MIT-W101", ALC886_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
- 	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
+-	if (fw_passed_dtb) {
+-		fdt = (void *)fw_passed_dtb;
++#ifdef CONFIG_MIPS_ELF_APPENDED_DTB
++	if (!fdt_check_header(&__appended_dtb)) {
++		fdt = &__appended_dtb;
+ 		do_prune = false;
+ 		fill_mac = true;
+ 		pr_info("Using appended Device Tree.\n");
+-	} else if (octeon_bootinfo->minor_version >= 3 && octeon_bootinfo->fdt_addr) {
++	} else
++#endif
++	if (octeon_bootinfo->minor_version >= 3 && octeon_bootinfo->fdt_addr) {
+ 		fdt = phys_to_virt(octeon_bootinfo->fdt_addr);
+ 		if (fdt_check_header(fdt))
+ 			panic("Corrupt Device Tree passed to kernel.");
 
 
