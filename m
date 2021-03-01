@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9908F328B65
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A8C4328BE8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240155AbhCASdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:33:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43170 "EHLO mail.kernel.org"
+        id S239114AbhCASmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:42:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239853AbhCAS0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:26:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 194C564F8D;
-        Mon,  1 Mar 2021 17:20:43 +0000 (UTC)
+        id S240153AbhCASgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:36:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E9664F92;
+        Mon,  1 Mar 2021 17:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619243;
-        bh=NCB5zbz4nRNClltVQZVP2+8tDvrk2KA9cju5UkaOzIE=;
+        s=korg; t=1614619249;
+        bh=XD8VFxHfoZEaFY/3b+6BLe+5TYx9IDfxIZXxgQbNcuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nzwaAfloGFswJKYtR44N6F1Eeu/mlwup7rSe86HtwKyyMkKRiQgOJYiddN5Q8aLTy
-         j+UfYVTWMtoNaP22ulu2b+rTZ31hKAQsvc4JMxwrzdU9X2Xzbhr/8gJW/DMGnk5eVI
-         yacwjkohq6bpYWeecILrd7ic5wZEiINa9qR2tJGY=
+        b=aYFX4Xy2Q4qg+47Iuo8nqB5gBvoHB6+Z1KgJ9RkW7LImo+LtI456tX7+clRJpw8Nq
+         79WY9k9fEvy3g1NIPxsqs0LmF4XzYK8ZApIA2ij8VKFBdZxbJf7I/hP9ySkSZdlIqy
+         l9kPV9y+3IL+rIyuoeANJ3ce5CiMg2YV4v7GAJZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, zhangjinhao2@huawei.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 384/663] perf record: Fix continue profiling after draining the buffer
-Date:   Mon,  1 Mar 2021 17:10:32 +0100
-Message-Id: <20210301161200.862676963@linuxfoundation.org>
+Subject: [PATCH 5.10 386/663] perf intel-pt: Fix premature IPC
+Date:   Mon,  1 Mar 2021 17:10:34 +0100
+Message-Id: <20210301161200.964502560@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -47,97 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit e16c2ce7c5ed5de881066c1fd10ba5c09af69559 ]
+[ Upstream commit 20aa39708a5999b7921b27482a756766272286ac ]
 
-Commit da231338ec9c0987 ("perf record: Use an eventfd to wakeup when
-done") uses eventfd() to solve a rare race where the setting and
-checking of 'done' which add done_fd to pollfd.  When draining buffer,
-revents of done_fd is 0 and evlist__filter_pollfd function returns a
-non-zero value.  As a result, perf record does not stop profiling.
+The code assumed a change in cycle count means accurate IPC. That is not
+correct, for example when sampling both branches and instructions, or at
+a FUP packet (which is not CYC-eligible) address. Fix by using an explicit
+flag to indicate when IPC can be sampled.
 
-The following simple scenarios can trigger this condition:
-
-  # sleep 10 &
-  # perf record -p $!
-
-After the sleep process exits, perf record should stop profiling and exit.
-However, perf record keeps running.
-
-If pollfd revents contains only POLLERR or POLLHUP, perf record
-indicates that buffer is draining and need to stop profiling.  Use
-fdarray_flag__nonfilterable() to set done eventfd to nonfilterable
-objects, so that evlist__filter_pollfd() does not filter and check done
-eventfd.
-
-Fixes: da231338ec9c0987 ("perf record: Use an eventfd to wakeup when done")
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: zhangjinhao2@huawei.com
-Link: http://lore.kernel.org/lkml/20210205065001.23252-1-yangjihong1@huawei.com
+Fixes: 5b1dc0fd1da06 ("perf intel-pt: Add support for samples to contain IPC ratio")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Link: https://lore.kernel.org/r/20210205175350.23817-3-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-record.c | 2 +-
- tools/perf/util/evlist.c    | 8 ++++++++
- tools/perf/util/evlist.h    | 4 ++++
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ .../util/intel-pt-decoder/intel-pt-decoder.c     | 11 ++++++++++-
+ .../util/intel-pt-decoder/intel-pt-decoder.h     |  1 +
+ tools/perf/util/intel-pt.c                       | 16 ++++++----------
+ 3 files changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/tools/perf/builtin-record.c b/tools/perf/builtin-record.c
-index adf311d15d3d2..e5c938d538ee5 100644
---- a/tools/perf/builtin-record.c
-+++ b/tools/perf/builtin-record.c
-@@ -1666,7 +1666,7 @@ static int __cmd_record(struct record *rec, int argc, const char **argv)
- 		status = -1;
- 		goto out_delete_session;
+diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+index 91cba05827369..ef29f6b25e60a 100644
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -2814,9 +2814,18 @@ const struct intel_pt_state *intel_pt_decode(struct intel_pt_decoder *decoder)
+ 		}
+ 		if (intel_pt_sample_time(decoder->pkt_state)) {
+ 			intel_pt_update_sample_time(decoder);
+-			if (decoder->sample_cyc)
++			if (decoder->sample_cyc) {
+ 				decoder->sample_tot_cyc_cnt = decoder->tot_cyc_cnt;
++				decoder->state.flags |= INTEL_PT_SAMPLE_IPC;
++				decoder->sample_cyc = false;
++			}
+ 		}
++		/*
++		 * When using only TSC/MTC to compute cycles, IPC can be
++		 * sampled as soon as the cycle count changes.
++		 */
++		if (!decoder->have_cyc)
++			decoder->state.flags |= INTEL_PT_SAMPLE_IPC;
  	}
--	err = evlist__add_pollfd(rec->evlist, done_fd);
-+	err = evlist__add_wakeup_eventfd(rec->evlist, done_fd);
- 	if (err < 0) {
- 		pr_err("Failed to add wakeup eventfd to poll list\n");
- 		status = err;
-diff --git a/tools/perf/util/evlist.c b/tools/perf/util/evlist.c
-index 8bdf3d2c907cb..98ae432470cdd 100644
---- a/tools/perf/util/evlist.c
-+++ b/tools/perf/util/evlist.c
-@@ -508,6 +508,14 @@ int evlist__filter_pollfd(struct evlist *evlist, short revents_and_mask)
- 	return perf_evlist__filter_pollfd(&evlist->core, revents_and_mask);
- }
  
-+#ifdef HAVE_EVENTFD_SUPPORT
-+int evlist__add_wakeup_eventfd(struct evlist *evlist, int fd)
-+{
-+	return perf_evlist__add_pollfd(&evlist->core, fd, NULL, POLLIN,
-+				       fdarray_flag__nonfilterable);
-+}
-+#endif
-+
- int evlist__poll(struct evlist *evlist, int timeout)
- {
- 	return perf_evlist__poll(&evlist->core, timeout);
-diff --git a/tools/perf/util/evlist.h b/tools/perf/util/evlist.h
-index e1a450322bc5b..9298fce53ea31 100644
---- a/tools/perf/util/evlist.h
-+++ b/tools/perf/util/evlist.h
-@@ -160,6 +160,10 @@ perf_evlist__find_tracepoint_by_name(struct evlist *evlist,
- int evlist__add_pollfd(struct evlist *evlist, int fd);
- int evlist__filter_pollfd(struct evlist *evlist, short revents_and_mask);
+ 	decoder->state.timestamp = decoder->sample_timestamp;
+diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
+index 8645fc2654811..b52937b03c8c8 100644
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
+@@ -17,6 +17,7 @@
+ #define INTEL_PT_ABORT_TX	(1 << 1)
+ #define INTEL_PT_ASYNC		(1 << 2)
+ #define INTEL_PT_FUP_IP		(1 << 3)
++#define INTEL_PT_SAMPLE_IPC	(1 << 4)
  
-+#ifdef HAVE_EVENTFD_SUPPORT
-+int evlist__add_wakeup_eventfd(struct evlist *evlist, int fd);
-+#endif
-+
- int evlist__poll(struct evlist *evlist, int timeout);
+ enum intel_pt_sample_type {
+ 	INTEL_PT_BRANCH		= 1 << 0,
+diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
+index 3a0348caec7d6..710ce798a2686 100644
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -1381,7 +1381,8 @@ static int intel_pt_synth_branch_sample(struct intel_pt_queue *ptq)
+ 		sample.branch_stack = (struct branch_stack *)&dummy_bs;
+ 	}
  
- struct evsel *perf_evlist__id2evsel(struct evlist *evlist, u64 id);
+-	sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_br_cyc_cnt;
++	if (ptq->state->flags & INTEL_PT_SAMPLE_IPC)
++		sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_br_cyc_cnt;
+ 	if (sample.cyc_cnt) {
+ 		sample.insn_cnt = ptq->ipc_insn_cnt - ptq->last_br_insn_cnt;
+ 		ptq->last_br_insn_cnt = ptq->ipc_insn_cnt;
+@@ -1431,7 +1432,8 @@ static int intel_pt_synth_instruction_sample(struct intel_pt_queue *ptq)
+ 	else
+ 		sample.period = ptq->state->tot_insn_cnt - ptq->last_insn_cnt;
+ 
+-	sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_in_cyc_cnt;
++	if (ptq->state->flags & INTEL_PT_SAMPLE_IPC)
++		sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_in_cyc_cnt;
+ 	if (sample.cyc_cnt) {
+ 		sample.insn_cnt = ptq->ipc_insn_cnt - ptq->last_in_insn_cnt;
+ 		ptq->last_in_insn_cnt = ptq->ipc_insn_cnt;
+@@ -1966,14 +1968,8 @@ static int intel_pt_sample(struct intel_pt_queue *ptq)
+ 
+ 	ptq->have_sample = false;
+ 
+-	if (ptq->state->tot_cyc_cnt > ptq->ipc_cyc_cnt) {
+-		/*
+-		 * Cycle count and instruction count only go together to create
+-		 * a valid IPC ratio when the cycle count changes.
+-		 */
+-		ptq->ipc_insn_cnt = ptq->state->tot_insn_cnt;
+-		ptq->ipc_cyc_cnt = ptq->state->tot_cyc_cnt;
+-	}
++	ptq->ipc_insn_cnt = ptq->state->tot_insn_cnt;
++	ptq->ipc_cyc_cnt = ptq->state->tot_cyc_cnt;
+ 
+ 	/*
+ 	 * Do PEBS first to allow for the possibility that the PEBS timestamp
 -- 
 2.27.0
 
