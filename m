@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE3B328523
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D79C328439
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235758AbhCAQtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:49:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47194 "EHLO mail.kernel.org"
+        id S232143AbhCAQbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:31:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233203AbhCAQmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:42:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE30F64E54;
-        Mon,  1 Mar 2021 16:29:20 +0000 (UTC)
+        id S234530AbhCAQ04 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:26:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEEFC64EDE;
+        Mon,  1 Mar 2021 16:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616161;
-        bh=pJMk7dsVaVaaXiXn/XiNg6HmmAkfq7w9jkMNsllPpHw=;
+        s=korg; t=1614615696;
+        bh=BAZTcyNR0ah3RKQxrFNX57aT/FoDscx82hwvIndlBj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8slo9OPPyqAODBdvBxu1sm6UAhWhmqYufsNkXyaLlWCnT0OcG7iI5T+Geim4FlPP
-         E1wsplu2cgup/8nWQTEAtA/S1cqPMdZy+UBLM81Nlj8EdykZdXhlnKs1T2qDTCWD/g
-         Hy8GJPZoRROI6QDmiL8+3c34D8NGdpn9sB8Uet1k=
+        b=L/4pOGeld3erqbXVKavDNHQNXKA2zlSYYxyweA+vD8iWc9Z3WXkKrOV9VIeSnes7f
+         WTc0m781loZ9HXJ/FoT4yaxsPdWuEWDOMqFs/8y28HpJ6IITuvHG2sHQU5tVmAr1BN
+         K8DwbM9lmXwsQYTexgQ6Nw9MncdGy/fmmZhb3ils=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 055/176] media: cx25821: Fix a bug when reallocating some dma memory
+Subject: [PATCH 4.9 027/134] mac80211: fix potential overflow when multiplying to u32 integers
 Date:   Mon,  1 Mar 2021 17:12:08 +0100
-Message-Id: <20210301161023.677697995@linuxfoundation.org>
+Message-Id: <20210301161014.913564170@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit b2de3643c5024fc4fd128ba7767c7fb8b714bea7 ]
+[ Upstream commit 6194f7e6473be78acdc5d03edd116944bdbb2c4e ]
 
-This function looks like a realloc.
+The multiplication of the u32 variables tx_time and estimated_retx is
+performed using a 32 bit multiplication and the result is stored in
+a u64 result. This has a potential u32 overflow issue, so avoid this
+by casting tx_time to a u64 to force a 64 bit multiply.
 
-However, if 'risc->cpu != NULL', the memory will be freed, but never
-reallocated with the bigger 'size'.
-Explicitly set 'risc->cpu' to NULL, so that the reallocation is
-correctly performed a few lines below.
-
-[hverkuil: NULL != risc->cpu -> risc->cpu]
-
-Fixes: 5ede94c70553 ("[media] cx25821: remove bogus btcx_risc dependency)
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Addresses-Coverity: ("Unintentional integer overflow")
+Fixes: 050ac52cbe1f ("mac80211: code for on-demand Hybrid Wireless Mesh Protocol")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210205175352.208841-1-colin.king@canonical.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx25821/cx25821-core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/mac80211/mesh_hwmp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/cx25821/cx25821-core.c b/drivers/media/pci/cx25821/cx25821-core.c
-index 040c6c251d3a3..79582071f1390 100644
---- a/drivers/media/pci/cx25821/cx25821-core.c
-+++ b/drivers/media/pci/cx25821/cx25821-core.c
-@@ -986,8 +986,10 @@ int cx25821_riscmem_alloc(struct pci_dev *pci,
- 	__le32 *cpu;
- 	dma_addr_t dma = 0;
+diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
+index 2fbd100b9e73d..a8b837d0498a4 100644
+--- a/net/mac80211/mesh_hwmp.c
++++ b/net/mac80211/mesh_hwmp.c
+@@ -355,7 +355,7 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
+ 	 */
+ 	tx_time = (device_constant + 10 * test_frame_len / rate);
+ 	estimated_retx = ((1 << (2 * ARITH_SHIFT)) / (s_unit - err));
+-	result = (tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
++	result = ((u64)tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
+ 	return (u32)result;
+ }
  
--	if (NULL != risc->cpu && risc->size < size)
-+	if (risc->cpu && risc->size < size) {
- 		pci_free_consistent(pci, risc->size, risc->cpu, risc->dma);
-+		risc->cpu = NULL;
-+	}
- 	if (NULL == risc->cpu) {
- 		cpu = pci_zalloc_consistent(pci, size, &dma);
- 		if (NULL == cpu)
 -- 
 2.27.0
 
