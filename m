@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E16CA328C88
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 342B2328C7B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240735AbhCASxa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:53:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
+        id S240640AbhCASxB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:53:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240453AbhCASrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:47:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C194E652D2;
-        Mon,  1 Mar 2021 17:38:20 +0000 (UTC)
+        id S240387AbhCASqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:46:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A19C9652C9;
+        Mon,  1 Mar 2021 17:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620301;
-        bh=Hj45fkpl/zLj6j94jMlLmt4gLpwjCu+KZOufa3efEZU=;
+        s=korg; t=1614620304;
+        bh=E0cr/6ezm6nBvKdVtXE2sJ7xXAo5B1hcNrNsFh/WUDg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQZUR6zVIXV6HRNSsIqOc6AZ+CTGs7Lb1v8mWl+h7RsOC+13gsEj8v+2oLt++PS4h
-         qEKaCM21rbYL85M2kma/CARP+ChCaydE0a5EdMzDZRegdaXmYavbrJ5G8rpiLIe+Ih
-         vDCl9bifxcQ18F1MIDDWEU4HltX0cfJyPKmY4wss=
+        b=KrwmnDsoA0xMTcNsckJQYoKcfYzFbhXidYSrxavzlHEdpf6QlbPpTrfeUcPsPApk6
+         TtK0a75GLvvoPBK0/MVh/xBs5ViLSMKRDd0xRGUC1dRPdWtlGrg5i+SGLdcD68jyp9
+         LP71RmV/C+tx8O90zjsfervoWMCQ9P0FQLfkuLt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Gregory CLEMENT <gregory.clement@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 073/775] ARM: dts: armada388-helios4: assign pinctrl to each fan
-Date:   Mon,  1 Mar 2021 17:04:01 +0100
-Message-Id: <20210301161205.282236437@linuxfoundation.org>
+Subject: [PATCH 5.11 074/775] arm64: dts: armada-3720-turris-mox: rename u-boot mtd partition to a53-firmware
+Date:   Mon,  1 Mar 2021 17:04:02 +0100
+Message-Id: <20210301161205.334513357@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,57 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rosen Penev <rosenp@gmail.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 46ecdfc1830eaa40a11d7f832089c82b0e67ea96 ]
+[ Upstream commit a9d9bfcadfb43b856dbcf9419de75f7420d5a225 ]
 
-Split up the pins for each fan. This is needed in order to control them
+The partition called "u-boot" in reality contains TF-A and U-Boot, and
+TF-A is before U-Boot.
 
-Fixes: ced8025b569e ("ARM: dts: armada388-helios4")
+Rename this parition to "a53-firmware" to avoid confusion for users,
+since they cannot simply build U-Boot from U-Boot repository and flash
+the resulting image there. Instead they have to build the firmware with
+the sources from the mox-boot-builder repository [1] and flash the
+a53-firmware.bin binary there.
 
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
+[1] https://gitlab.nic.cz/turris/mox-boot-builder
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
+Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
+Cc: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-388-helios4.dts | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/armada-388-helios4.dts b/arch/arm/boot/dts/armada-388-helios4.dts
-index 5a6af7e83e445..ec134e22bae3e 100644
---- a/arch/arm/boot/dts/armada-388-helios4.dts
-+++ b/arch/arm/boot/dts/armada-388-helios4.dts
-@@ -127,11 +127,15 @@
- 	fan1: j10-pwm {
- 		compatible = "pwm-fan";
- 		pwms = <&gpio1 9 40000>;	/* Target freq:25 kHz */
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&helios_fan1_pins>;
- 	};
+diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+index f5ec3b6447692..d239ab70ed995 100644
+--- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
++++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
+@@ -205,7 +205,7 @@
+ 			};
  
- 	fan2: j17-pwm {
- 		compatible = "pwm-fan";
- 		pwms = <&gpio1 23 40000>;	/* Target freq:25 kHz */
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&helios_fan2_pins>;
- 	};
+ 			partition@20000 {
+-				label = "u-boot";
++				label = "a53-firmware";
+ 				reg = <0x20000 0x160000>;
+ 			};
  
- 	usb2_phy: usb2-phy {
-@@ -302,9 +306,12 @@
- 						       "mpp54";
- 					marvell,function = "gpio";
- 				};
--				helios_fan_pins: helios-fan-pins {
--					marvell,pins = "mpp41", "mpp43",
--						       "mpp48", "mpp55";
-+				helios_fan1_pins: helios_fan1_pins {
-+					marvell,pins = "mpp41", "mpp43";
-+					marvell,function = "gpio";
-+				};
-+				helios_fan2_pins: helios_fan2_pins {
-+					marvell,pins = "mpp48", "mpp55";
- 					marvell,function = "gpio";
- 				};
- 				microsom_spi1_cs_pins: spi1-cs-pins {
 -- 
 2.27.0
 
