@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF26328C79
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F115328C28
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240632AbhCASwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:52:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53755 "EHLO mail.kernel.org"
+        id S240398AbhCASqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:46:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240389AbhCASqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:46:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE57652FD;
-        Mon,  1 Mar 2021 17:41:14 +0000 (UTC)
+        id S234895AbhCASjw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:39:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4376964FC2;
+        Mon,  1 Mar 2021 17:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620475;
-        bh=zTCer9CEjzzvigX66N3JVX3LNdsvI6xdRW08i/j+1S4=;
+        s=korg; t=1614620477;
+        bh=kicAYfIs9IHKgNgZpi4axMiRHGEeqNxO79hUbBUNKoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTdpNcym4eoNA0SO7l+zPSWoGrhAy9wRDwsGlXvVqN8GFxBgT0IDBgAUlAivbbbLt
-         oI/f8PoqDmHGrsedCF1WSAHr6Oupl593l4KguKg/vdUhhtm8SCPeYvHitTYZNJCa7t
-         zmjxfmH83w9CzqtJVYLKNwutSztnU8v2V5vbXrpc=
+        b=saxIGmMdbrHsU+P2AhMMhWJfLSC9y/3XAz1ns6ENK27xw1imrz1cXPzWvScYTHYfz
+         hOaIvi/Ap+IwDNjUiWxMYOa6bbJzE8Bqq2IGHSRlk/mDInBgXz5DW1ztpUykgZSxEw
+         WhdqPzvIuUsJuCnpwkTtraxgNZ+pn/3pWZCsWSpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
+        stable@vger.kernel.org,
+        Maxime Chevallier <maxime.chevallier@bootlin.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 137/775] net: amd-xgbe: Fix network fluctuations when using 1G BELFUSE SFP
-Date:   Mon,  1 Mar 2021 17:05:05 +0100
-Message-Id: <20210301161208.439872496@linuxfoundation.org>
+Subject: [PATCH 5.11 138/775] net: mvneta: Remove per-cpu queue mapping for Armada 3700
+Date:   Mon,  1 Mar 2021 17:05:06 +0100
+Message-Id: <20210301161208.489226451@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,39 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
 
-[ Upstream commit 9eab3fdb419916f66a72d1572f68d82cd9b3f963 ]
+[ Upstream commit cf9bf871280d9e0a8869d98c2602d29caf69dfa3 ]
 
-Frequent link up/down events can happen when a Bel Fuse SFP part is
-connected to the amd-xgbe device. Try to avoid the frequent link
-issues by resetting the PHY as documented in Bel Fuse SFP datasheets.
+According to Errata #23 "The per-CPU GbE interrupt is limited to Core
+0", we can't use the per-cpu interrupt mechanism on the Armada 3700
+familly.
 
-Fixes: e722ec82374b ("amd-xgbe: Update the BelFuse quirk to support SGMII")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+This is correctly checked for RSS configuration, but the initial queue
+mapping is still done by having the queues spread across all the CPUs in
+the system, both in the init path and in the cpu_hotplug path.
+
+Fixes: 2636ac3cc2b4 ("net: mvneta: Add network support for Armada 3700 SoC")
+Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/marvell/mvneta.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index d3f72faecd1da..18e48b3bc402b 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -922,6 +922,9 @@ static bool xgbe_phy_belfuse_phy_quirks(struct xgbe_prv_data *pdata)
- 	if ((phy_id & 0xfffffff0) != 0x03625d10)
- 		return false;
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index bc4d8d1444019..fd5b33646ea71 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -3432,7 +3432,9 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
+ 		return -ENOMEM;
  
-+	/* Reset PHY - wait for self-clearing reset bit to clear */
-+	genphy_soft_reset(phy_data->phydev);
-+
- 	/* Disable RGMII mode */
- 	phy_write(phy_data->phydev, 0x18, 0x7007);
- 	reg = phy_read(phy_data->phydev, 0x18);
+ 	/* Setup XPS mapping */
+-	if (txq_number > 1)
++	if (pp->neta_armada3700)
++		cpu = 0;
++	else if (txq_number > 1)
+ 		cpu = txq->id % num_present_cpus();
+ 	else
+ 		cpu = pp->rxq_def % num_present_cpus();
+@@ -4210,6 +4212,11 @@ static int mvneta_cpu_online(unsigned int cpu, struct hlist_node *node)
+ 						  node_online);
+ 	struct mvneta_pcpu_port *port = per_cpu_ptr(pp->ports, cpu);
+ 
++	/* Armada 3700's per-cpu interrupt for mvneta is broken, all interrupts
++	 * are routed to CPU 0, so we don't need all the cpu-hotplug support
++	 */
++	if (pp->neta_armada3700)
++		return 0;
+ 
+ 	spin_lock(&pp->lock);
+ 	/*
 -- 
 2.27.0
 
