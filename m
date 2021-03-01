@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A723B328EC9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3419328EA8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240093AbhCAThw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:37:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48586 "EHLO mail.kernel.org"
+        id S242058AbhCATfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241941AbhCAT35 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E683D65026;
-        Mon,  1 Mar 2021 17:45:20 +0000 (UTC)
+        id S241864AbhCAT3a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF69D65028;
+        Mon,  1 Mar 2021 17:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620721;
-        bh=VCXlJRMEOq+5vWVT+/1rbTmZRLrsBta0K2bSLlFzQ8c=;
+        s=korg; t=1614620724;
+        bh=frr9Q74IdcFPXnlqXg0YiQVMnua1tYVFcXImVBBl0h0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjAnkM2IEiji6LIS9GzsQTfbRuYAzRej+C9iDaqo6Ik91J2qixJeg+MRgofpgsvLg
-         X4BiSmpRX6h0xks78MfD+2zEjTjqes5LFC5XakiaMeyAAoeUiMHQ/ezW4cdzUt2jjI
-         +D/gUD8jsfsELjK6EIkphuKjSFd7Mps5wvzRT7wk=
+        b=efgfKUNKlMqlzZOBn8b+yMbLFQkIYrFeg2eg85oX8J1SgCD+vqMhk0y4KhtY8kyAs
+         eRp3q5YTsMsYx4XxOyWUK5cyafdghI9sPURqvTLwgSFMsq5rQyh6HRqzjhcUZKpdqE
+         ZdtM9ShWPYCLn2KRggLIeavIoF9hSMfP92jdDyeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Dehe Gu <gudehe@huawei.com>, Ge Qiu <qiuge@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Srinivasa Rao Mandadapu <srivasam@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 255/775] f2fs: fix a wrong condition in __submit_bio
-Date:   Mon,  1 Mar 2021 17:07:03 +0100
-Message-Id: <20210301161214.235224208@linuxfoundation.org>
+Subject: [PATCH 5.11 256/775] ASoC: qcom: Fix typo error in HDMI regmap config callbacks
+Date:   Mon,  1 Mar 2021 17:07:04 +0100
+Message-Id: <20210301161214.285808997@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,35 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dehe Gu <gudehe@huawei.com>
+From: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
 
-[ Upstream commit 39f71b7e40e21805d6b15fc7750bdd9cab6a5010 ]
+[ Upstream commit e681b1a6d706b4e54c3847bb822531b4660234f3 ]
 
-We should use !F2FS_IO_ALIGNED() to check and submit_io directly.
+Had a typo in lpass platform driver that resulted in crash
+during suspend/resume with an HDMI dongle connected.
 
-Fixes: 8223ecc456d0 ("f2fs: fix to add missing F2FS_IO_ALIGNED() condition")
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Dehe Gu <gudehe@huawei.com>
-Signed-off-by: Ge Qiu <qiuge@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+The regmap read/write/volatile regesters validation callbacks in lpass-cpu
+were using MI2S rdma_channels count instead of hdmi_rdma_channels.
+
+This typo error causing to read registers from the regmap beyond the length
+of the mapping created by ioremap().
+
+This fix avoids the need for reducing number hdmi_rdma_channels,
+which is done in
+commit 7dfe20ee92f6 ("ASoC: qcom: Fix number of HDMI RDMA channels on sc7180").
+So reverting the same.
+
+Fixes: 7cb37b7bd0d3c ("ASoC: qcom: Add support for lpass hdmi driver")
+Signed-off-by: Srinivasa Rao Mandadapu <srivasam@codeaurora.org>
+Link: https://lore.kernel.org/r/20210202062727.22469-1-srivasam@codeaurora.org
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/qcom/lpass-cpu.c    | 8 ++++----
+ sound/soc/qcom/lpass-sc7180.c | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index d72c99d9bd1f4..4d3ebf094f6d7 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -499,7 +499,7 @@ static inline void __submit_bio(struct f2fs_sb_info *sbi,
- 		if (f2fs_lfs_mode(sbi) && current->plug)
- 			blk_finish_plug(current->plug);
+diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
+index 73ca24c0a08b7..8e5415c9234f1 100644
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -594,7 +594,7 @@ static bool lpass_hdmi_regmap_writeable(struct device *dev, unsigned int reg)
+ 			return true;
+ 	}
  
--		if (F2FS_IO_ALIGNED(sbi))
-+		if (!F2FS_IO_ALIGNED(sbi))
- 			goto submit_io;
+-	for (i = 0; i < v->rdma_channels; ++i) {
++	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
+ 		if (reg == LPAIF_HDMI_RDMACTL_REG(v, i))
+ 			return true;
+ 		if (reg == LPAIF_HDMI_RDMABASE_REG(v, i))
+@@ -640,7 +640,7 @@ static bool lpass_hdmi_regmap_readable(struct device *dev, unsigned int reg)
+ 	if (reg == LPASS_HDMITX_APP_IRQSTAT_REG(v))
+ 		return true;
  
- 		start = bio->bi_iter.bi_size >> F2FS_BLKSIZE_BITS;
+-	for (i = 0; i < v->rdma_channels; ++i) {
++	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
+ 		if (reg == LPAIF_HDMI_RDMACTL_REG(v, i))
+ 			return true;
+ 		if (reg == LPAIF_HDMI_RDMABASE_REG(v, i))
+@@ -667,7 +667,7 @@ static bool lpass_hdmi_regmap_volatile(struct device *dev, unsigned int reg)
+ 	if (reg == LPASS_HDMI_TX_LEGACY_ADDR(v))
+ 		return true;
+ 
+-	for (i = 0; i < v->rdma_channels; ++i) {
++	for (i = 0; i < v->hdmi_rdma_channels; ++i) {
+ 		if (reg == LPAIF_HDMI_RDMACURR_REG(v, i))
+ 			return true;
+ 	}
+@@ -817,7 +817,7 @@ int asoc_qcom_lpass_cpu_platform_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		lpass_hdmi_regmap_config.max_register = LPAIF_HDMI_RDMAPER_REG(variant,
+-					variant->hdmi_rdma_channels);
++					variant->hdmi_rdma_channels - 1);
+ 		drvdata->hdmiif_map = devm_regmap_init_mmio(dev, drvdata->hdmiif,
+ 					&lpass_hdmi_regmap_config);
+ 		if (IS_ERR(drvdata->hdmiif_map)) {
+diff --git a/sound/soc/qcom/lpass-sc7180.c b/sound/soc/qcom/lpass-sc7180.c
+index 735c9dac28f26..8c168d3c589e9 100644
+--- a/sound/soc/qcom/lpass-sc7180.c
++++ b/sound/soc/qcom/lpass-sc7180.c
+@@ -171,7 +171,7 @@ static struct lpass_variant sc7180_data = {
+ 	.rdma_channels		= 5,
+ 	.hdmi_rdma_reg_base		= 0x64000,
+ 	.hdmi_rdma_reg_stride	= 0x1000,
+-	.hdmi_rdma_channels		= 3,
++	.hdmi_rdma_channels		= 4,
+ 	.dmactl_audif_start	= 1,
+ 	.wrdma_reg_base		= 0x18000,
+ 	.wrdma_reg_stride	= 0x1000,
 -- 
 2.27.0
 
