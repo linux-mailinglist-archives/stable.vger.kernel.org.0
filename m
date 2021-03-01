@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 664C6327B91
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 407E7327BA0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbhCAKHU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:07:20 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:60811 "EHLO
+        id S232216AbhCAKKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:10:46 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52551 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231594AbhCAKGR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:06:17 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2D78B1940AF9;
-        Mon,  1 Mar 2021 05:05:25 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 05:05:25 -0500
+        by vger.kernel.org with ESMTP id S231591AbhCAKKo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:10:44 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E73281940B48;
+        Mon,  1 Mar 2021 05:09:57 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:09:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9JZRXA
-        Nxt/bljr9NKoOZ1SZSpuAsa4YqK625NlVPBfw=; b=FkUt1Yup++eOr+NDnVdKgR
-        kZbRwdfg05KRiABd1ICPn0/CpIbd5pouig5odY/x7eqeJONRjUdpIBBXCAfg+AbA
-        FozrgXUWGZ2sOmnTmQcaPSQq9m/B5jsoBwkoM43tWbioZCXWqJCXKGBjP/0Iid/A
-        BD15FeooZxV5TnLjt2upB2injBCllZEdAluZ8V9vjJVJTsNdT25SuGw9Xu3UMQ/X
-        vsetb+uXqq5NNad1cWs4RFmJo/42nJd4faVFFDg9mx5FDMx86su3hrl14RaW0UZd
-        5UY92xIwWfmg9/8jEn691kGGNZZYGqaS2J3ujvs8j0koZ7y+X05W/a5iBqFF/yVQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IVlAAG
+        WV46iROpGeIojZ0h/d30NMYPzU4Dq63ZaVaRU=; b=OZ1aYxJp4D6s8qxzGGm0no
+        9wAp2xyiSFc3C5VeWYt2x0NSHst11zWTwrZOYmFVV/TTJmJJDgiGRAwdTHsz/H5P
+        5iX+BJiSHh0qeVHemhM5l/3YNW03z4D7swfl9Mf4NJJdUi5rGpfvS0bJwxeFIuJx
+        NL6Sr29Q3CoViXMaxTd+Gx+JyiDDKCWPvECn2Q+vGR2JGAxoBckQJvaMSUChTZHL
+        8Lywbcf5uVBSdISsfLxi9xnhtytR6TpUJGnVAuT9eZNPFVE/CNURrx1DVj/DWIs0
+        NGZVgFhw8AAHklC24c4+pvaDyT9xBTQ2MouRp7RL3DUGR/tfwGYgDZB6SouqzkDw
         ==
-X-ME-Sender: <xms:Zbw8YPlhXQ2HzXiR-Y8o8knPp4knJFUNb_TLGp108VCOZF4ZksxLpA>
-    <xme:Zbw8YKnwHr_nwgfZ4Psb-zmmGMX9Bzfe4R7EASFH6UIaDrzk7SI3LMkrLjxu8b5cv
-    h4yvluSgWPuDw>
+X-ME-Sender: <xms:db08YOg_HTenAQ7wCiA47MMhZq8ezIem2Ce_4hQepcAAek2Ygr_wNg>
+    <xme:db08YPDBtCC-z86Pm71grvsnXZJ25vfR9C1phkgAhtjC9q4_g0VsGCsXIUhUgur9U
+    KXRJTw6fwrdEw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddutdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:Zbw8YIvJkQAht-X2OTS1K4dothjmiwfL59btWdz8_RsTy54s7SUPEQ>
-    <xmx:Zbw8YFkz25muJeOoORBel-YAmfaPtZh8DZOwlumCAjJTjcP_HMYRqQ>
-    <xmx:Zbw8YLvcVWRcMnVuQh6eIOLFe460fX8ynHeX-vDWV6h6M6XbxTopBg>
-    <xmx:Zbw8YF8C-mZz5eoRz_jhc6KN7i0F5PC_eivsJh73_BJtT5-BI0YbXA>
+X-ME-Proxy: <xmx:db08YGGL1DOu3_SAusJxoCi0_46rhTB5XRKF0xrXizTICVDFonCOwA>
+    <xmx:db08YHTqB-dX_0ITojfppDlSTxMClhlLN7PumxjkEI-tYKq510a7tA>
+    <xmx:db08YLzPNnIJSq2il45IDY-afIrdF7zbC6S3dGMR1haLHCT79SGQgQ>
+    <xmx:db08YEpQvrydetYt1xQ9oNjtruTMNmrwWj1LVBC3NultC_t1mp9JTw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CB801240054;
-        Mon,  1 Mar 2021 05:05:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/amdgpu: add green_sardine device id (v2)" failed to apply to 5.11-stable tree
-To:     Prike.Liang@amd.com, alexander.deucher@amd.com, ray.huang@amd.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 60D841080063;
+        Mon,  1 Mar 2021 05:09:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] tpm_tis: Fix check_locality for correct locality acquisition" failed to apply to 4.9-stable tree
+To:     James.Bottomley@HansenPartnership.com, jarkko@kernel.org,
+        jsnitsel@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:05:15 +0100
-Message-ID: <1614593115224188@kroah.com>
+Date:   Mon, 01 Mar 2021 11:09:47 +0100
+Message-ID: <1614593387241210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,31 +71,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8bf0835132c19437e1530621b730dd4f29fe938e Mon Sep 17 00:00:00 2001
-From: Prike Liang <Prike.Liang@amd.com>
-Date: Fri, 2 Oct 2020 10:58:55 -0400
-Subject: [PATCH] drm/amdgpu: add green_sardine device id (v2)
+From 3d9ae54af1d02a7c0edc55c77d7df2b921e58a87 Mon Sep 17 00:00:00 2001
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Date: Thu, 1 Oct 2020 11:09:21 -0700
+Subject: [PATCH] tpm_tis: Fix check_locality for correct locality acquisition
 
-Add green_sardine PCI id support and map it to renoir asic type.
+The TPM TIS specification says the TPM signals the acquisition of locality
+when the TMP_ACCESS_REQUEST_USE bit goes to one *and* the
+TPM_ACCESS_REQUEST_USE bit goes to zero.  Currently we only check the
+former not the latter, so check both.  Adding the check on
+TPM_ACCESS_REQUEST_USE should fix the case where the locality is
+re-requested before the TPM has released it.  In this case the locality may
+get released briefly before it is reacquired, which causes all sorts of
+problems. However, with the added check, TPM_ACCESS_REQUEST_USE should
+remain 1 until the second request for the locality is granted.
 
-v2: add apu flag
+Cc: stable@ger.kernel.org
+Fixes: 27084efee0c3 ("[PATCH] tpm: driver for next generation TPM chips")
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 
-Signed-off-by: Prike Liang <Prike.Liang@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.10.x
-
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index cac2724e7615..6a402d8b5573 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1085,6 +1085,7 @@ static const struct pci_device_id pciidlist[] = {
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index 92c51c6cfd1b..f3ecde8df47d 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -125,7 +125,8 @@ static bool check_locality(struct tpm_chip *chip, int l)
+ 	if (rc < 0)
+ 		return false;
  
- 	/* Renoir */
- 	{0x1002, 0x1636, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_RENOIR|AMD_IS_APU},
-+	{0x1002, 0x1638, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_RENOIR|AMD_IS_APU},
- 
- 	/* Navi12 */
- 	{0x1002, 0x7360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_NAVI12},
+-	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) ==
++	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID
++		       | TPM_ACCESS_REQUEST_USE)) ==
+ 	    (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) {
+ 		priv->locality = l;
+ 		return true;
 
