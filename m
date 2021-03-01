@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC09B3287CF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 164CC3287D8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238530AbhCAR2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:28:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48870 "EHLO mail.kernel.org"
+        id S238551AbhCAR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:29:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238247AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238251AbhCARYA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:24:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25BC364F96;
-        Mon,  1 Mar 2021 16:49:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14CC464F52;
+        Mon,  1 Mar 2021 16:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617360;
-        bh=WowKbzDglB4aIGygWZgj3Jds65P29fRNnU2/TlJNfwo=;
+        s=korg; t=1614617363;
+        bh=jqY5K+taFlk8VrEj0sTzwryz2GIEM3eA8b46QXsQxGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPkcbvx82MvJBNejRR7LV/0wg4Q8nLpWyisf8wLdMhvjHNTNaCfBlnRUeVx6xsXrJ
-         ZudtnzQ07NxUJ3IkVw5MiF7LQQEb4BrRy3huktcrTh7CXY7YEXlgSOtmRNEi5iSQMb
-         v6k6WTpUUGJh70P7EBC5ta1vwdhlHh/sipjDMSJI=
+        b=bQjAoZd4DYDXG241BeDHQtG7lYg6C5PYF07RjXXyFWrhb/fNjk4oEB4mXzlVR+/ET
+         lliL/RX2i4nQMrg+Uombp+3BwD0XM+L3AuB9MjrQwOtBLx+e1Ydjp3hH0pPvfXkrdQ
+         JOCrXg0Ds57NTDs3P4PrJPibqd4//LpO3G0vXYuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Jupeng Zhong <zhongjupeng@yulong.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/340] arm64: dts: armada-3720-turris-mox: rename u-boot mtd partition to a53-firmware
-Date:   Mon,  1 Mar 2021 17:09:51 +0100
-Message-Id: <20210301161050.636993651@linuxfoundation.org>
+Subject: [PATCH 5.4 048/340] Bluetooth: btusb: Fix memory leak in btusb_mtk_wmt_recv
+Date:   Mon,  1 Mar 2021 17:09:52 +0100
+Message-Id: <20210301161050.686702646@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,44 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Jupeng Zhong <zhongjupeng@yulong.com>
 
-[ Upstream commit a9d9bfcadfb43b856dbcf9419de75f7420d5a225 ]
+[ Upstream commit de71a6cb4bf24d8993b9ca90d1ddb131b60251a1 ]
 
-The partition called "u-boot" in reality contains TF-A and U-Boot, and
-TF-A is before U-Boot.
+In btusb_mtk_wmt_recv if skb_clone fails, the alocated skb should be
+released.
 
-Rename this parition to "a53-firmware" to avoid confusion for users,
-since they cannot simply build U-Boot from U-Boot repository and flash
-the resulting image there. Instead they have to build the firmware with
-the sources from the mox-boot-builder repository [1] and flash the
-a53-firmware.bin binary there.
+Omit the labels “err_out” and “err_free_skb” in this function
+implementation so that the desired exception handling code
+would be directly specified in the affected if branches.
 
-[1] https://gitlab.nic.cz/turris/mox-boot-builder
-
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Fixes: 7109d817db2e ("arm64: dts: marvell: add DTS for Turris Mox")
-Cc: Gregory CLEMENT <gregory.clement@bootlin.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: a1c49c434e15 ("btusb: Add protocol support for MediaTek MT7668U USB devices")
+Signed-off-by: Jupeng Zhong <zhongjupeng@yulong.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-index aa52927e2e9c2..fad70c2df7bc0 100644
---- a/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-+++ b/arch/arm64/boot/dts/marvell/armada-3720-turris-mox.dts
-@@ -202,7 +202,7 @@
- 			};
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index b92bd97b1c399..b467fd05c5e82 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2568,7 +2568,7 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
+ 		skb = bt_skb_alloc(HCI_WMT_MAX_EVENT_SIZE, GFP_ATOMIC);
+ 		if (!skb) {
+ 			hdev->stat.err_rx++;
+-			goto err_out;
++			return;
+ 		}
  
- 			partition@20000 {
--				label = "u-boot";
-+				label = "a53-firmware";
- 				reg = <0x20000 0x160000>;
- 			};
+ 		hci_skb_pkt_type(skb) = HCI_EVENT_PKT;
+@@ -2586,13 +2586,18 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
+ 		 */
+ 		if (test_bit(BTUSB_TX_WAIT_VND_EVT, &data->flags)) {
+ 			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
+-			if (!data->evt_skb)
+-				goto err_out;
++			if (!data->evt_skb) {
++				kfree_skb(skb);
++				return;
++			}
+ 		}
  
+ 		err = hci_recv_frame(hdev, skb);
+-		if (err < 0)
+-			goto err_free_skb;
++		if (err < 0) {
++			kfree_skb(data->evt_skb);
++			data->evt_skb = NULL;
++			return;
++		}
+ 
+ 		if (test_and_clear_bit(BTUSB_TX_WAIT_VND_EVT,
+ 				       &data->flags)) {
+@@ -2601,11 +2606,6 @@ static void btusb_mtk_wmt_recv(struct urb *urb)
+ 			wake_up_bit(&data->flags,
+ 				    BTUSB_TX_WAIT_VND_EVT);
+ 		}
+-err_out:
+-		return;
+-err_free_skb:
+-		kfree_skb(data->evt_skb);
+-		data->evt_skb = NULL;
+ 		return;
+ 	} else if (urb->status == -ENOENT) {
+ 		/* Avoid suspend failed when usb_kill_urb */
 -- 
 2.27.0
 
