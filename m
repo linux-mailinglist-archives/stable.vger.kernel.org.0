@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82EDB328E6D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3CF328E89
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235796AbhCATal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:30:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
+        id S241856AbhCATdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:33:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235045AbhCAT0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:26:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 963BF65006;
-        Mon,  1 Mar 2021 17:09:25 +0000 (UTC)
+        id S241532AbhCAT0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:26:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F347F64D9C;
+        Mon,  1 Mar 2021 17:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618566;
-        bh=RsxIiG5MEdXPhq0Kn0zDOwy1CiIYJXFtWCmklzWmEZY=;
+        s=korg; t=1614618492;
+        bh=XQr8aqBc77OR1K8JXKZAdE36XIhKdlILPehCZUiCqfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L4/X/FRh++CU0JyIMFK/po5nSgPGc4OuUG8KIbKPgsyU0QgVl2K6gasRXDg/0DAmU
-         VEwIdavNjp1re/HOx/WkbHuvPEB+EBgoxj5zI6n0bKZ24dqjIxwepZ+A9his42+wga
-         jIQHKMg7rwiJDJdx1i5MqaPpWzMIewJuD1AdZ5/0=
+        b=P9GkkEVLUVVTibaZCw3zjhyRxOgXU75Pd+0OtJrTDGzclAgmYNnmQe4XB03NMZ3OY
+         tol+8Rvt/1PpsvR50Q24Dl5zzKUDNtfw8JXkH8R+uDedLGNZCFn83W6vUF03OCPw85
+         9m+KOkACXKNL5AtsgH9Y+C0NwWnxtPZXVL9gyhag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tariq Toukan <tariqt@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 103/663] net/mlx5e: Dont change interrupt moderation params when DIM is enabled
-Date:   Mon,  1 Mar 2021 17:05:51 +0100
-Message-Id: <20210301161146.830770638@linuxfoundation.org>
+Subject: [PATCH 5.10 107/663] net/mlx5e: kTLS, Use refcounts to free kTLS RX priv context
+Date:   Mon,  1 Mar 2021 17:05:55 +0100
+Message-Id: <20210301161147.030048873@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -43,71 +43,156 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxim Mikityanskiy <maximmi@mellanox.com>
 
-[ Upstream commit 019f93bc4ba3a0dcb77f448ee77fc4c9c1b89565 ]
+[ Upstream commit b850bbff965129c34f50962638c0a66c82563536 ]
 
-When mlx5e_ethtool_set_coalesce doesn't change DIM state
-(enabled/disabled), it calls mlx5e_set_priv_channels_coalesce
-unconditionally, which in turn invokes a firmware command to set
-interrupt moderation parameters. It shouldn't happen while DIM manages
-those parameters dynamically (it might even be happening at the same
-time).
+wait_for_resync is unreliable - if it timeouts, priv_rx will be freed
+anyway. However, mlx5e_ktls_handle_get_psv_completion will be called
+sooner or later, leading to use-after-free. For example, it can happen
+if a CQ error happened, and ICOSQ stopped, but later on the queues are
+destroyed, and ICOSQ is flushed with mlx5e_free_icosq_descs.
 
-This patch fixes it by splitting mlx5e_set_priv_channels_coalesce into
-two functions (for RX and TX) and calling them only when DIM is disabled
-(for RX and TX respectively).
+This patch converts the lifecycle of priv_rx to fully refcount-based, so
+that the struct won't be freed before the refcount goes to zero.
 
-Fixes: cb3c7fd4f839 ("net/mlx5e: Support adaptive RX coalescing")
+Fixes: 0419d8c9d8f8 ("net/mlx5e: kTLS, Add kTLS RX resync support")
 Signed-off-by: Maxim Mikityanskiy <maximmi@mellanox.com>
 Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/mellanox/mlx5/core/en_ethtool.c   | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ .../mellanox/mlx5/core/en_accel/ktls_rx.c     | 64 +++++++++----------
+ 1 file changed, 30 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-index e596f050c4316..eab058ef6e9ff 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -522,7 +522,7 @@ static int mlx5e_get_coalesce(struct net_device *netdev,
- #define MLX5E_MAX_COAL_FRAMES		MLX5_MAX_CQ_COUNT
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+index 0f13b661f7f98..d06532d0baa43 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_accel/ktls_rx.c
+@@ -57,6 +57,20 @@ struct mlx5e_ktls_offload_context_rx {
+ 	struct mlx5e_ktls_rx_resync_ctx resync;
+ };
  
- static void
--mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
-+mlx5e_set_priv_channels_tx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
- {
- 	struct mlx5_core_dev *mdev = priv->mdev;
- 	int tc;
-@@ -537,6 +537,17 @@ mlx5e_set_priv_channels_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesc
- 						coal->tx_coalesce_usecs,
- 						coal->tx_max_coalesced_frames);
- 		}
-+	}
++static bool mlx5e_ktls_priv_rx_put(struct mlx5e_ktls_offload_context_rx *priv_rx)
++{
++	if (!refcount_dec_and_test(&priv_rx->resync.refcnt))
++		return false;
++
++	kfree(priv_rx);
++	return true;
 +}
 +
-+static void
-+mlx5e_set_priv_channels_rx_coalesce(struct mlx5e_priv *priv, struct ethtool_coalesce *coal)
++static void mlx5e_ktls_priv_rx_get(struct mlx5e_ktls_offload_context_rx *priv_rx)
 +{
-+	struct mlx5_core_dev *mdev = priv->mdev;
-+	int i;
++	refcount_inc(&priv_rx->resync.refcnt);
++}
 +
-+	for (i = 0; i < priv->channels.num; ++i) {
-+		struct mlx5e_channel *c = priv->channels.c[i];
+ static int mlx5e_ktls_create_tir(struct mlx5_core_dev *mdev, u32 *tirn, u32 rqtn)
+ {
+ 	int err, inlen;
+@@ -326,7 +340,7 @@ static void resync_handle_work(struct work_struct *work)
+ 	priv_rx = container_of(resync, struct mlx5e_ktls_offload_context_rx, resync);
  
- 		mlx5_core_modify_cq_moderation(mdev, &c->rq.cq.mcq,
- 					       coal->rx_coalesce_usecs,
-@@ -593,7 +604,10 @@ int mlx5e_ethtool_set_coalesce(struct mlx5e_priv *priv,
- 	reset_tx = !!coal->use_adaptive_tx_coalesce != priv->channels.params.tx_dim_enabled;
- 
- 	if (!reset_rx && !reset_tx) {
--		mlx5e_set_priv_channels_coalesce(priv, coal);
-+		if (!coal->use_adaptive_rx_coalesce)
-+			mlx5e_set_priv_channels_rx_coalesce(priv, coal);
-+		if (!coal->use_adaptive_tx_coalesce)
-+			mlx5e_set_priv_channels_tx_coalesce(priv, coal);
- 		priv->channels.params = new_channels.params;
- 		goto out;
+ 	if (unlikely(test_bit(MLX5E_PRIV_RX_FLAG_DELETING, priv_rx->flags))) {
+-		refcount_dec(&resync->refcnt);
++		mlx5e_ktls_priv_rx_put(priv_rx);
+ 		return;
  	}
+ 
+@@ -334,7 +348,7 @@ static void resync_handle_work(struct work_struct *work)
+ 	sq = &c->async_icosq;
+ 
+ 	if (resync_post_get_progress_params(sq, priv_rx))
+-		refcount_dec(&resync->refcnt);
++		mlx5e_ktls_priv_rx_put(priv_rx);
+ }
+ 
+ static void resync_init(struct mlx5e_ktls_rx_resync_ctx *resync,
+@@ -377,7 +391,11 @@ unlock:
+ 	return err;
+ }
+ 
+-/* Function is called with elevated refcount, it decreases it. */
++/* Function can be called with the refcount being either elevated or not.
++ * It decreases the refcount and may free the kTLS priv context.
++ * Refcount is not elevated only if tls_dev_del has been called, but GET_PSV was
++ * already in flight.
++ */
+ void mlx5e_ktls_handle_get_psv_completion(struct mlx5e_icosq_wqe_info *wi,
+ 					  struct mlx5e_icosq *sq)
+ {
+@@ -410,7 +428,7 @@ void mlx5e_ktls_handle_get_psv_completion(struct mlx5e_icosq_wqe_info *wi,
+ 	tls_offload_rx_resync_async_request_end(priv_rx->sk, cpu_to_be32(hw_seq));
+ 	priv_rx->stats->tls_resync_req_end++;
+ out:
+-	refcount_dec(&resync->refcnt);
++	mlx5e_ktls_priv_rx_put(priv_rx);
+ 	dma_unmap_single(dev, buf->dma_addr, PROGRESS_PARAMS_PADDED_SIZE, DMA_FROM_DEVICE);
+ 	kfree(buf);
+ }
+@@ -431,9 +449,9 @@ static bool resync_queue_get_psv(struct sock *sk)
+ 		return false;
+ 
+ 	resync = &priv_rx->resync;
+-	refcount_inc(&resync->refcnt);
++	mlx5e_ktls_priv_rx_get(priv_rx);
+ 	if (unlikely(!queue_work(resync->priv->tls->rx_wq, &resync->work)))
+-		refcount_dec(&resync->refcnt);
++		mlx5e_ktls_priv_rx_put(priv_rx);
+ 
+ 	return true;
+ }
+@@ -625,31 +643,6 @@ err_create_key:
+ 	return err;
+ }
+ 
+-/* Elevated refcount on the resync object means there are
+- * outstanding operations (uncompleted GET_PSV WQEs) that
+- * will read the resync / priv_rx objects once completed.
+- * Wait for them to avoid use-after-free.
+- */
+-static void wait_for_resync(struct net_device *netdev,
+-			    struct mlx5e_ktls_rx_resync_ctx *resync)
+-{
+-#define MLX5E_KTLS_RX_RESYNC_TIMEOUT 20000 /* msecs */
+-	unsigned long exp_time = jiffies + msecs_to_jiffies(MLX5E_KTLS_RX_RESYNC_TIMEOUT);
+-	unsigned int refcnt;
+-
+-	do {
+-		refcnt = refcount_read(&resync->refcnt);
+-		if (refcnt == 1)
+-			return;
+-
+-		msleep(20);
+-	} while (time_before(jiffies, exp_time));
+-
+-	netdev_warn(netdev,
+-		    "Failed waiting for kTLS RX resync refcnt to be released (%u).\n",
+-		    refcnt);
+-}
+-
+ void mlx5e_ktls_del_rx(struct net_device *netdev, struct tls_context *tls_ctx)
+ {
+ 	struct mlx5e_ktls_offload_context_rx *priv_rx;
+@@ -671,8 +664,7 @@ void mlx5e_ktls_del_rx(struct net_device *netdev, struct tls_context *tls_ctx)
+ 		wait_for_completion(&priv_rx->add_ctx);
+ 	resync = &priv_rx->resync;
+ 	if (cancel_work_sync(&resync->work))
+-		refcount_dec(&resync->refcnt);
+-	wait_for_resync(netdev, resync);
++		mlx5e_ktls_priv_rx_put(priv_rx);
+ 
+ 	priv_rx->stats->tls_del++;
+ 	if (priv_rx->rule.rule)
+@@ -680,5 +672,9 @@ void mlx5e_ktls_del_rx(struct net_device *netdev, struct tls_context *tls_ctx)
+ 
+ 	mlx5_core_destroy_tir(mdev, priv_rx->tirn);
+ 	mlx5_ktls_destroy_key(mdev, priv_rx->key_id);
+-	kfree(priv_rx);
++	/* priv_rx should normally be freed here, but if there is an outstanding
++	 * GET_PSV, deallocation will be delayed until the CQE for GET_PSV is
++	 * processed.
++	 */
++	mlx5e_ktls_priv_rx_put(priv_rx);
+ }
 -- 
 2.27.0
 
