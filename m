@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A65D32866B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDAD832867E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:12:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237149AbhCARKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:10:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59900 "EHLO mail.kernel.org"
+        id S237438AbhCARLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232292AbhCAREA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:04:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5248164F6B;
-        Mon,  1 Mar 2021 16:39:32 +0000 (UTC)
+        id S236702AbhCAREX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:04:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23BA864F3D;
+        Mon,  1 Mar 2021 16:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616772;
-        bh=Z4b2V/6q1F5NRoaIFhRTu6XdYCgovBEtkwPPrUXOSTk=;
+        s=korg; t=1614616775;
+        bh=HzurCqLV0TfP+8RSdkWQs69qCE664UcxCAttI8ilEZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FooPsWBFBHUehuab1WSLn8PnaSofbpqimExXMTSBiTO6dh1XUDqUpbw/oLKTDZDdE
-         pVHN/XJUkg27S5yjP1hWObgBE9rLR6X4ePQbw+x7NptULVwqK7AMB4s0XB3OvZvbwz
-         HIdbWD617E/pC6pm6u9/dM8KkJWMDhJwmSb7XcwU=
+        b=h1bZLyFSfA6AmvV4DO/ld6HxOSFfZ3KGHe5l3wMIEyO7/cAphNIy71sexPmkI+OR4
+         JqPF8vbLajo+0DZ+idvlaRbgf1+pqjeNhIOC9EyhraUkdwKJ+Q+2Blq2T6epf4H+Eo
+         HXx2ZbglzekUM8iO7ZRWYINf3uwj8xGvRK6DupAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Carlo Carraro <colrack@gmail.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/247] mac80211: fix potential overflow when multiplying to u32 integers
-Date:   Mon,  1 Mar 2021 17:11:21 +0100
-Message-Id: <20210301161034.652946361@linuxfoundation.org>
+Subject: [PATCH 4.19 062/247] bpf: Fix bpf_fib_lookup helper MTU check for SKB ctx
+Date:   Mon,  1 Mar 2021 17:11:22 +0100
+Message-Id: <20210301161034.703621763@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,38 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Jesper Dangaard Brouer <brouer@redhat.com>
 
-[ Upstream commit 6194f7e6473be78acdc5d03edd116944bdbb2c4e ]
+[ Upstream commit 2c0a10af688c02adcf127aad29e923e0056c6b69 ]
 
-The multiplication of the u32 variables tx_time and estimated_retx is
-performed using a 32 bit multiplication and the result is stored in
-a u64 result. This has a potential u32 overflow issue, so avoid this
-by casting tx_time to a u64 to force a 64 bit multiply.
+BPF end-user on Cilium slack-channel (Carlo Carraro) wants to use
+bpf_fib_lookup for doing MTU-check, but *prior* to extending packet size,
+by adjusting fib_params 'tot_len' with the packet length plus the expected
+encap size. (Just like the bpf_check_mtu helper supports). He discovered
+that for SKB ctx the param->tot_len was not used, instead skb->len was used
+(via MTU check in is_skb_forwardable() that checks against netdev MTU).
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: 050ac52cbe1f ("mac80211: code for on-demand Hybrid Wireless Mesh Protocol")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210205175352.208841-1-colin.king@canonical.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fix this by using fib_params 'tot_len' for MTU check. If not provided (e.g.
+zero) then keep existing TC behaviour intact. Notice that 'tot_len' for MTU
+check is done like XDP code-path, which checks against FIB-dst MTU.
+
+V16:
+- Revert V13 optimization, 2nd lookup is against egress/resulting netdev
+
+V13:
+- Only do ifindex lookup one time, calling dev_get_by_index_rcu().
+
+V10:
+- Use same method as XDP for 'tot_len' MTU check
+
+Fixes: 4c79579b44b1 ("bpf: Change bpf_fib_lookup to return lookup status")
+Reported-by: Carlo Carraro <colrack@gmail.com>
+Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/161287789444.790810.15247494756551413508.stgit@firesoul
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_hwmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
-index 6219b6b0c7e17..18158855d98c4 100644
---- a/net/mac80211/mesh_hwmp.c
-+++ b/net/mac80211/mesh_hwmp.c
-@@ -355,7 +355,7 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
- 	 */
- 	tx_time = (device_constant + 10 * test_frame_len / rate);
- 	estimated_retx = ((1 << (2 * ARITH_SHIFT)) / (s_unit - err));
--	result = (tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
-+	result = ((u64)tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
- 	return (u32)result;
- }
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 557bd5cc8f94c..bbf5dbb95644d 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -4500,6 +4500,7 @@ BPF_CALL_4(bpf_skb_fib_lookup, struct sk_buff *, skb,
+ {
+ 	struct net *net = dev_net(skb->dev);
+ 	int rc = -EAFNOSUPPORT;
++	bool check_mtu = false;
  
+ 	if (plen < sizeof(*params))
+ 		return -EINVAL;
+@@ -4507,22 +4508,28 @@ BPF_CALL_4(bpf_skb_fib_lookup, struct sk_buff *, skb,
+ 	if (flags & ~(BPF_FIB_LOOKUP_DIRECT | BPF_FIB_LOOKUP_OUTPUT))
+ 		return -EINVAL;
+ 
++	if (params->tot_len)
++		check_mtu = true;
++
+ 	switch (params->family) {
+ #if IS_ENABLED(CONFIG_INET)
+ 	case AF_INET:
+-		rc = bpf_ipv4_fib_lookup(net, params, flags, false);
++		rc = bpf_ipv4_fib_lookup(net, params, flags, check_mtu);
+ 		break;
+ #endif
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	case AF_INET6:
+-		rc = bpf_ipv6_fib_lookup(net, params, flags, false);
++		rc = bpf_ipv6_fib_lookup(net, params, flags, check_mtu);
+ 		break;
+ #endif
+ 	}
+ 
+-	if (!rc) {
++	if (rc == BPF_FIB_LKUP_RET_SUCCESS && !check_mtu) {
+ 		struct net_device *dev;
+ 
++		/* When tot_len isn't provided by user, check skb
++		 * against MTU of FIB lookup resulting net_device
++		 */
+ 		dev = dev_get_by_index_rcu(net, params->ifindex);
+ 		if (!is_skb_forwardable(dev, skb))
+ 			rc = BPF_FIB_LKUP_RET_FRAG_NEEDED;
 -- 
 2.27.0
 
