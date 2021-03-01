@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AA832910F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC05329105
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243191AbhCAUSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:18:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39814 "EHLO mail.kernel.org"
+        id S243153AbhCAUSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:18:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241503AbhCAULF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:11:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 108D2653BD;
-        Mon,  1 Mar 2021 18:00:21 +0000 (UTC)
+        id S241432AbhCAUKi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:10:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E392E653B1;
+        Mon,  1 Mar 2021 18:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621622;
-        bh=GlxxVNP9rhEar+fi8jeExJM4gGoPJ386ybd4Nou0H4k=;
+        s=korg; t=1614621625;
+        bh=vA3gJPn7S6dmA2TAtjIIkC3rHBGWeEv8HoqfLQelgR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7cYaCcmY07jnW4KzzQB3IrxKERjPGDkxZ5VSPAO2XDrlmv0w4Bj2fpA7uXJjowUs
-         CFwAe9LcfQ17b2EStSLUzDg5/6N9gj7VKJL+i0PxAELkEwvKH3AJ22dH7oyT34tEU5
-         HpyN2bWDdz9U0s49MK6zsAs1VAuzTPiOzSh6wIb0=
+        b=vWYTMENl2ChVIjboEzvsbTHXN8nj4bcAbH9Lx6zaNo7gXizFFxS/RqsiEhD6DfWhU
+         gGMrj0VEOX4baiccWTXsHh7IYDMW5d9+3UTawPSRXO0QFyrz1YRjmvka+bjGX19kkz
+         iXTan8hs5aGE728i4WauMSMHurzOjx87eBQ4aZFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com,
-        James Reynolds <jr@memlen.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 583/775] media: mceusb: Fix potential out-of-bounds shift
-Date:   Mon,  1 Mar 2021 17:12:31 +0100
-Message-Id: <20210301161230.257458398@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>
+Subject: [PATCH 5.11 584/775] USB: serial: option: update interface mapping for ZTE P685M
+Date:   Mon,  1 Mar 2021 17:12:32 +0100
+Message-Id: <20210301161230.299599858@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,36 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Reynolds <jr@memlen.com>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-commit 1b43bad31fb0e00f45baf5b05bd21eb8d8ce7f58 upstream.
+commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
 
-When processing a MCE_RSP_GETPORTSTATUS command, the bit index to set in
-ir->txports_cabled comes from response data, and isn't validated.
+This patch prepares for qmi_wwan driver support for the device.
+Previously "option" driver mapped itself to interfaces 0 and 3 (matching
+ff/ff/ff), while interface 3 is in fact a QMI port.
+Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
+and weren't supported previously at all.
+Without this patch, a possible conflict would exist if device ID was
+added to qmi_wwan driver for interface 3.
 
-As ir->txports_cabled is a u8, nothing should be done if the bit index
-is greater than 7.
+Update and simplify device ID to match interfaces 0-2 directly,
+to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
+with QMI (3), and ADB (4).
 
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
+
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
 Cc: stable@vger.kernel.org
-Reported-by: syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com
-Signed-off-by: James Reynolds <jr@memlen.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1169,7 +1169,7 @@ static void mceusb_handle_command(struct
- 		switch (subcmd) {
- 		/* the one and only 5-byte return value command */
- 		case MCE_RSP_GETPORTSTATUS:
--			if (buf_in[5] == 0)
-+			if (buf_in[5] == 0 && *hi < 8)
- 				ir->txports_cabled |= 1 << *hi;
- 			break;
- 
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1569,7 +1569,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
+-	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
++	  .driver_info = RSVD(3) | RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
 
 
