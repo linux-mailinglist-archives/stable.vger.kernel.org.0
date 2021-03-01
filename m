@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAAD4327D3F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDF7A327D46
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:31:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233599AbhCAL3h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 06:29:37 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:38579 "EHLO
+        id S232846AbhCALat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 06:30:49 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:42259 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233536AbhCAL3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:29:34 -0500
+        by vger.kernel.org with ESMTP id S233463AbhCALal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:30:41 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2B3D719413E1;
-        Mon,  1 Mar 2021 06:28:05 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 295881941430;
+        Mon,  1 Mar 2021 06:28:22 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 06:28:05 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 06:28:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4gdffk
-        KhSFcvJPMKxdB0YUAzOMYOrmTsvPTW7NwMpDg=; b=fNNTFhj0yVMAv2quFMbYb1
-        JQmHvQd79WHiriRaCKE8yJV+wb64hSPCLnNwaqLge9GUnN9yTNucuGTueboPWpNW
-        EqTKWgepQpS+5V1U47ihskqJRwJMMQ2b/cEzepsKHZ9i8vkgmWA0tvTZf8gsCG8M
-        +OvQ8f3Bx0gxw+KFBcTQ9CydyBDLVtGjFy1wJFZ4c+S/ZiB5Wq/yu1nirbuTgFwn
-        cC05H/+oy+o8BG4xkITIUj7f0r9SjFt4Un7l3pV+iXQQ9KQzs++5Y/BTAYD75DhZ
-        AlHN+nNIpLZZIlPmte0tWXaZct/ILS2SU9KLSltMkMPb5llXKjJ9y58DCccnvhQQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3Nu/tf
+        ypT6nuNr5OUvQPeAyY7YJf2itV7dyyBPbTC0E=; b=aTr/Upa/5dzwx9eWIvLWI8
+        UwE3aLTegw8TnSFgHN9L1dGTEFKjzhBmTedoZQe+dl3RspFxJDhJO2hdBRnxAb0u
+        6ofLZLxaUWGt5j7R86tygcWBOYhLhnyeZ6h5S0tVMg8Jac003kOThGd52Uzg+Qaw
+        6rPBkBO4JI0eEWfREYFwBHTjb+OgBaxNEWFo7N3Gv0khXC0/MMBEvLaoicSxiIsZ
+        egHGp2MHdF0oKykS/uuBNAWluYYp8ROkXltcq2BdIzpNIG4JgYbYVr8u6YHIt7rM
+        wYkZbicXCW39zwBqMMTjRyTLfSRlK2OMoXtY9kjrP5cCNEcEhOBaefB2ckP7vSZQ
         ==
-X-ME-Sender: <xms:xc88YBI6ilnh5LD7PjAbBu-uHfXv0c6X9KKad670jE5Gw17jeZho2Q>
-    <xme:xc88YEDMy49SM8WUJE09e2mMM4AD9Pp8PM5WBUbuJxwn_mQ8TVZS60UbHnW-KwB15
-    kEJ8G8VQi-UVg>
+X-ME-Sender: <xms:1s88YIIlTDezgEx1uVOpqgvgjh1rh3-P_SqCqXkEcZbiXLOVWn37iA>
+    <xme:1s88YILg7IxjvkPj-S7_pUpkGWjANWDDKTWU_Qi53fca2JTAiF_0SOUz2QAFLHizy
+    CqxAaNJgkZbfA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddvjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepieenucfrrghrrghmpehmrg
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepjeenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:xc88YCAKWsGvBjcO8DlC1Fd3HZ2CGS9sWFoMB0FaZjQWe6qugAxpgw>
-    <xmx:xc88YOA5kNOgRxmlnuwbEV3Lmm2elxMfjqQMuzz0NEv1CkJ9HLRnFg>
-    <xmx:xc88YFqh_XcoxK0KqhOvvyp-09pqPTG1_q2-kn_AwZ7gz5YhnfoEyw>
-    <xmx:xc88YDpn3Xc6yXFcEO9Xl9zWoMhcxKpWfW8IbidJNaHPIQPGwRAMOw>
+X-ME-Proxy: <xmx:1s88YIu7yH2JeeGJHPDmgYZ5V2zwHDEiM4Se_FRpYNf2eHKCWbC9yQ>
+    <xmx:1s88YFYo_pnPM-Ppt0xWAb13DwwYwLQGiB7GhcdBLAvlC1FSv2vIAQ>
+    <xmx:1s88YPY0AOnPbM_AaJnxXV830V-9LwHVJEPpTw_JuJDFb4ubmRJenw>
+    <xmx:1s88YOmqRFjGsXS5CoeeUTApSm4SZBOMQyndO2qhfeBIW0nzriVIKg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id DF7A2240065;
-        Mon,  1 Mar 2021 06:28:04 -0500 (EST)
-Subject: FAILED: patch "[PATCH] rcu: Pull deferred rcuog wake up to rcu_eqs_enter() callers" failed to apply to 4.14-stable tree
-To:     frederic@kernel.org, mingo@kernel.org, peterz@infradead.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id C52A724005B;
+        Mon,  1 Mar 2021 06:28:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] rcu/nocb: Trigger self-IPI on late deferred wake up before" failed to apply to 4.4-stable tree
+To:     frederic@kernel.org, mingo@kernel.org, paulmck@kernel.org,
+        peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 12:27:57 +0100
-Message-ID: <1614598077182173@kroah.com>
+Date:   Mon, 01 Mar 2021 12:28:20 +0100
+Message-ID: <1614598100234184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,57 +71,175 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 54b7429efffc99e845ba9381bee3244f012a06c2 Mon Sep 17 00:00:00 2001
+From f8bb5cae9616224a39cbb399de382d36ac41df10 Mon Sep 17 00:00:00 2001
 From: Frederic Weisbecker <frederic@kernel.org>
-Date: Mon, 1 Feb 2021 00:05:44 +0100
-Subject: [PATCH] rcu: Pull deferred rcuog wake up to rcu_eqs_enter() callers
+Date: Mon, 1 Feb 2021 00:05:46 +0100
+Subject: [PATCH] rcu/nocb: Trigger self-IPI on late deferred wake up before
+ user resume
 
-Deferred wakeup of rcuog kthreads upon RCU idle mode entry is going to
-be handled differently whether initiated by idle, user or guest. Prepare
-with pulling that control up to rcu_eqs_enter() callers.
+Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+kthread (rcuog) to be serviced.
 
+Unfortunately the call to rcu_user_enter() is already past the last
+rescheduling opportunity before we resume to userspace or to guest mode.
+We may escape there with the woken task ignored.
+
+The ultimate resort to fix every callsites is to trigger a self-IPI
+(nohz_full depends on arch to implement arch_irq_work_raise()) that will
+trigger a reschedule on IRQ tail or guest exit.
+
+Eventually every site that want a saner treatment will need to carefully
+place a call to rcu_nocb_flush_deferred_wakeup() before the last explicit
+need_resched() check upon resume.
+
+Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-2-frederic@kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-4-frederic@kernel.org
 
 diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 40e5e3dd253e..63032e5620b9 100644
+index 82838e93b498..4b1e5bd16492 100644
 --- a/kernel/rcu/tree.c
 +++ b/kernel/rcu/tree.c
-@@ -644,7 +644,6 @@ static noinstr void rcu_eqs_enter(bool user)
- 	trace_rcu_dyntick(TPS("Start"), rdp->dynticks_nesting, 0, atomic_read(&rdp->dynticks));
- 	WARN_ON_ONCE(IS_ENABLED(CONFIG_RCU_EQS_DEBUG) && !user && !is_idle_task(current));
- 	rdp = this_cpu_ptr(&rcu_data);
--	do_nocb_deferred_wakeup(rdp);
- 	rcu_prepare_for_idle();
- 	rcu_preempt_deferred_qs(current);
- 
-@@ -672,7 +671,10 @@ static noinstr void rcu_eqs_enter(bool user)
-  */
- void rcu_idle_enter(void)
- {
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
- 	lockdep_assert_irqs_disabled();
-+	do_nocb_deferred_wakeup(rdp);
- 	rcu_eqs_enter(false);
- }
+@@ -677,6 +677,18 @@ void rcu_idle_enter(void)
  EXPORT_SYMBOL_GPL(rcu_idle_enter);
-@@ -691,7 +693,14 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
-  */
- noinstr void rcu_user_enter(void)
- {
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
+ 
+ #ifdef CONFIG_NO_HZ_FULL
 +
++/*
++ * An empty function that will trigger a reschedule on
++ * IRQ tail once IRQs get re-enabled on userspace resume.
++ */
++static void late_wakeup_func(struct irq_work *work)
++{
++}
++
++static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
++	IRQ_WORK_INIT(late_wakeup_func);
++
+ /**
+  * rcu_user_enter - inform RCU that we are resuming userspace.
+  *
+@@ -694,12 +706,19 @@ noinstr void rcu_user_enter(void)
+ 
  	lockdep_assert_irqs_disabled();
-+
-+	instrumentation_begin();
-+	do_nocb_deferred_wakeup(rdp);
-+	instrumentation_end();
-+
+ 
++	/*
++	 * We may be past the last rescheduling opportunity in the entry code.
++	 * Trigger a self IPI that will fire and reschedule once we resume to
++	 * user/guest mode.
++	 */
+ 	instrumentation_begin();
+-	do_nocb_deferred_wakeup(rdp);
++	if (do_nocb_deferred_wakeup(rdp) && need_resched())
++		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+ 	instrumentation_end();
+ 
  	rcu_eqs_enter(true);
  }
++
  #endif /* CONFIG_NO_HZ_FULL */
+ 
+ /**
+diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
+index 7708ed161f4a..9226f4021a36 100644
+--- a/kernel/rcu/tree.h
++++ b/kernel/rcu/tree.h
+@@ -433,7 +433,7 @@ static bool rcu_nocb_try_bypass(struct rcu_data *rdp, struct rcu_head *rhp,
+ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_empty,
+ 				 unsigned long flags);
+ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp);
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp);
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp);
+ static void rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp);
+ static void rcu_spawn_cpu_nocb_kthread(int cpu);
+ static void __init rcu_spawn_nocb_kthreads(void);
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index d5b38c28abd1..384856e4d13e 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1631,8 +1631,8 @@ bool rcu_is_nocb_cpu(int cpu)
+  * Kick the GP kthread for this NOCB group.  Caller holds ->nocb_lock
+  * and this function releases it.
+  */
+-static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+-			   unsigned long flags)
++static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
++			 unsigned long flags)
+ 	__releases(rdp->nocb_lock)
+ {
+ 	bool needwake = false;
+@@ -1643,7 +1643,7 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
+ 				    TPS("AlreadyAwake"));
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	del_timer(&rdp->nocb_timer);
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+@@ -1656,6 +1656,8 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 	raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
+ 	if (needwake)
+ 		wake_up_process(rdp_gp->nocb_gp_kthread);
++
++	return needwake;
+ }
+ 
+ /*
+@@ -2152,20 +2154,23 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread(). */
+-static void do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
+ {
+ 	unsigned long flags;
+ 	int ndw;
++	int ret;
+ 
+ 	rcu_nocb_lock_irqsave(rdp, flags);
+ 	if (!rcu_nocb_need_deferred_wakeup(rdp)) {
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+ 	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+-	wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
++	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
++
++	return ret;
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread() from a timer handler. */
+@@ -2181,10 +2186,11 @@ static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
+  * This means we do an inexact common-case check.  Note that if
+  * we miss, ->nocb_timer will eventually clean things up.
+  */
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
+ 	if (rcu_nocb_need_deferred_wakeup(rdp))
+-		do_nocb_deferred_wakeup_common(rdp);
++		return do_nocb_deferred_wakeup_common(rdp);
++	return false;
+ }
+ 
+ void rcu_nocb_flush_deferred_wakeup(void)
+@@ -2523,8 +2529,9 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ 	return false;
+ }
+ 
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
++	return false;
+ }
+ 
+ static void rcu_spawn_cpu_nocb_kthread(int cpu)
 
