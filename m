@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 051FB327C45
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E25327C44
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234545AbhCAKfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:35:13 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:33197 "EHLO
+        id S234535AbhCAKfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:35:06 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:40791 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234586AbhCAKeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:34:01 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5E9D01940753;
-        Mon,  1 Mar 2021 05:32:53 -0500 (EST)
+        by vger.kernel.org with ESMTP id S234572AbhCAKds (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:33:48 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7C8081940773;
+        Mon,  1 Mar 2021 05:32:57 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:32:53 -0500
+  by compute6.internal (MEProxy); Mon, 01 Mar 2021 05:32:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LvTmfb
-        ys/8VGHBpgm5fWHE38gFQgb9tDAwWASHhzNtw=; b=r1OE3iNJE9U2p/oqMPOAtX
-        pfH03ai1zkqNjJBeglRA4b0jkQusCzeNnJ0BD1sJm6r88Q5CuSfc+Izu/YkHry/5
-        mYJycRuso/aDYlH8TfbRXWo39n7bDBVyWFczAHTS7E2ArUjcpZsI6VGhQiopWl8a
-        ts1NUFpcEiZqZYAIwzTOmjN7MS+j0r3P18xJnuS6FdGVAlJRDcg0Rr8wX40eJxkh
-        Qei4TH/cYE6rhhFjJE6t4td7NUy9RlTJdrTlvZYrqSlIxQaOOxfbtrzje+Fu+j0R
-        EZiblkqf9eGZVDwRSW53qCxR2xbjWFBJtUal/9BisH5FN39u2hTjJcGDHDW1v+GQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TaypH2
+        q96SsmgChOpB1oQNY7S60nwipUhlt0Sg6fuFE=; b=XXa3GwTzdteE41Bpp/SR5n
+        yi0g8Luyz7Yg6D99E4oXt25kMW/ggP1uq5EbA0YG1ft/Naz0irG+qmsFVrYSH29j
+        zg5TLqFUCry7GlWXV9DA9s5RBUJzzHSNtpSEhUaM1BBVC0ex9XGpnCvevxDYUqVE
+        KVmd0rnJWa5sH07Uf7c2WdnhFh2reklKUAabG5vYthehKPsWtqHNexvRbUxOMVVY
+        4y5Hi4uimGOf8dN00TcJdjip3w8oHSgM1mhLq+ammHLnC3c3yHRK3vXtYMmbwc4f
+        gVCFsq8u/xfNq9RDI1Y457r05pzHuDrduk+Ht1GnXrGLlaFEJV1QXdtl0BD7FxcQ
         ==
-X-ME-Sender: <xms:1cI8YP05-ndbQcZRnRm5HqX0YId_s8cieQd4ntiNFlK6aHM6fVb3OA>
-    <xme:1cI8YOEa1gjcS0ZNB7fZJGRtg86fefQ8qAIBpjnVx4CPPuFI1MsdoKeBlpNYkstYK
-    gLtNXRQMCNCCA>
+X-ME-Sender: <xms:2cI8YCWN2u2TITtCRvHeWuVtUBXDunF9slK60MNsO169J5exvH3OYA>
+    <xme:2cI8YC1MHnZxLTJnW30w-z6KCbxwRmUr971188mPmTSRcZ1LjQcYe625J5EIrokQv
+    53kv0jZGDqPTA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:1cI8YP7vG_w3tFcyUPlpr7E6ws5M82V5ZjllHNuCQem4Ruc14aTZow>
-    <xmx:1cI8YE3Pjji4xuek-F59IvU0AlH6kzg9V4a2tAJH43onxrHKIUKabg>
-    <xmx:1cI8YCE2TYCFS-r_k_BLnaVUgV9ZDFQo6rr4vAXoQGCqkqQJaj5xvA>
-    <xmx:1cI8YEOXoeGaCMrFFaoz8wHVtkyBMOEAKG0w_GsEVRSopKLeFhR4eg>
+X-ME-Proxy: <xmx:2cI8YBbKfYSrRNvjT7DGw2GY9Hso3fOEzpEcQ5FAw2FkmgJ206GK1A>
+    <xmx:2cI8YNrYZdyFR6o1hMJKS5z9WdK2tPYdsIuJBNr2vmN251ltjDbhBQ>
+    <xmx:2cI8YFrQvCVeCFEae8f9oHA8a8gF5IbzW5jqvBDeABP-aq4iPdoHoQ>
+    <xmx:2cI8YBlUz8UGFz6HZDYXuDk-CrTIo8vtAmCtDEWKXD17iud_w2UDtQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EEE961080057;
-        Mon,  1 Mar 2021 05:32:52 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drivers: soc: atmel: add null entry at the end of" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id EC9AF1080059;
+        Mon,  1 Mar 2021 05:32:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drivers: soc: atmel: add null entry at the end of" failed to apply to 5.11-stable tree
 To:     claudiu.beznea@microchip.com, arnd@arndb.de,
         nicolas.ferre@microchip.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:32:42 +0100
-Message-ID: <161459476232242@kroah.com>
+Date:   Mon, 01 Mar 2021 11:32:43 +0100
+Message-ID: <1614594763159213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
