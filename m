@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8181632909A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 294E6329072
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242726AbhCAULG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:11:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33543 "EHLO mail.kernel.org"
+        id S242919AbhCAUIp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:08:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242250AbhCAT5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:57:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B92A6537F;
-        Mon,  1 Mar 2021 17:55:35 +0000 (UTC)
+        id S242270AbhCAT5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:57:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B80165382;
+        Mon,  1 Mar 2021 17:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621335;
-        bh=5wRs4xs+bvCsvVbdSwKgCx+qcgephsDCtMs328Az7Hw=;
+        s=korg; t=1614621338;
+        bh=Br+XcuD1z8JWdKLrozAG5DU3Zh+cyMeiZ336oY82VSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=li5/vRRHrzBC0SOAt3vLU6QCs1dFwihHtNHDKorUuPHtqdGLdwZkZ+zPIZ5EfsN0+
-         6YhqoOMmC1s6qCUPtjzqw9usQdsVXY2ncaNiWRBjM+TgU7c5gPjvnre0jAt1LnllRR
-         yNZ6NqYd4ncDJr2yr8ffmivNjL4PrLf31YM/ux5c=
+        b=ohq8H6ojQ31ZcAdJzmW53o6+sTMOAh8EgxY1kJWnhSgqWIy5vtso34NH0WDddbH+K
+         w1QMngW7iBNli71og2AMp+ytyZR6A50mKXvDeyA/D390Tb69aPXxWhiz2tb6BnO4Q0
+         9FIfMAUHAlwtTfTzn4Xq00GhxOtf0Qc23XKl5Hmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Ruehl <chris.ruehl@gtsys.com.hk>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 479/775] phy: rockchip-emmc: emmc_phy_init() always return 0
-Date:   Mon,  1 Mar 2021 17:10:47 +0100
-Message-Id: <20210301161225.203316143@linuxfoundation.org>
+Subject: [PATCH 5.11 480/775] phy: cadence-torrent: Fix error code in cdns_torrent_phy_probe()
+Date:   Mon,  1 Mar 2021 17:10:48 +0100
+Message-Id: <20210301161225.252629306@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,48 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Ruehl <chris.ruehl@gtsys.com.hk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 39961bd6b70e5a5d7c4b5483ad8e1db6b5765c60 ]
+[ Upstream commit 266df28f9ac16b0dff553d78bc3fb1c084b96b9d ]
 
-rockchip_emmc_phy_init() return variable is not set with the error value
-if clk_get() failed. 'emmcclk' is optional, thus use clk_get_optional()
-and if the return value != NULL make error processing and set the
-return code accordingly.
+This error path should return -EINVAL, but currently it returns
+success.
 
-Fixes: 52c0624a10cce phy: rockchip-emmc: Set phyctrl_frqsel based on card clock
-Signed-off-by: Chris Ruehl <chris.ruehl@gtsys.com.hk>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://lore.kernel.org/r/20201210080454.17379-1-chris.ruehl@gtsys.com.hk
+Fixes: d09945eacad0 ("phy: cadence-torrent: Check total lane count for all subnodes is within limit")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/X9s7Wxq+b6ls0q7o@mwanda
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-emmc.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/phy/cadence/phy-cadence-torrent.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-emmc.c b/drivers/phy/rockchip/phy-rockchip-emmc.c
-index 1e424f263e7ab..496d199852aff 100644
---- a/drivers/phy/rockchip/phy-rockchip-emmc.c
-+++ b/drivers/phy/rockchip/phy-rockchip-emmc.c
-@@ -248,15 +248,17 @@ static int rockchip_emmc_phy_init(struct phy *phy)
- 	 * - SDHCI driver to get the PHY
- 	 * - SDHCI driver to init the PHY
- 	 *
--	 * The clock is optional, so upon any error we just set to NULL.
-+	 * The clock is optional, using clk_get_optional() to get the clock
-+	 * and do error processing if the return value != NULL
- 	 *
- 	 * NOTE: we don't do anything special for EPROBE_DEFER here.  Given the
- 	 * above expected use case, EPROBE_DEFER isn't sensible to expect, so
- 	 * it's just like any other error.
- 	 */
--	rk_phy->emmcclk = clk_get(&phy->dev, "emmcclk");
-+	rk_phy->emmcclk = clk_get_optional(&phy->dev, "emmcclk");
- 	if (IS_ERR(rk_phy->emmcclk)) {
--		dev_dbg(&phy->dev, "Error getting emmcclk: %d\n", ret);
-+		ret = PTR_ERR(rk_phy->emmcclk);
-+		dev_err(&phy->dev, "Error getting emmcclk: %d\n", ret);
- 		rk_phy->emmcclk = NULL;
+diff --git a/drivers/phy/cadence/phy-cadence-torrent.c b/drivers/phy/cadence/phy-cadence-torrent.c
+index f310e15d94cbc..591a15834b48f 100644
+--- a/drivers/phy/cadence/phy-cadence-torrent.c
++++ b/drivers/phy/cadence/phy-cadence-torrent.c
+@@ -2298,6 +2298,7 @@ static int cdns_torrent_phy_probe(struct platform_device *pdev)
+ 
+ 	if (total_num_lanes > MAX_NUM_LANES) {
+ 		dev_err(dev, "Invalid lane configuration\n");
++		ret = -EINVAL;
+ 		goto put_lnk_rst;
  	}
  
 -- 
