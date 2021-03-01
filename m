@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323743283DD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4DF43283E4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:28:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234247AbhCAQ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58310 "EHLO mail.kernel.org"
+        id S234553AbhCAQ07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:26:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237616AbhCAQWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:22:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14DF064EF0;
-        Mon,  1 Mar 2021 16:19:16 +0000 (UTC)
+        id S237648AbhCAQWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:22:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA73864EFD;
+        Mon,  1 Mar 2021 16:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615557;
-        bh=7y5iVSoS7KS6Cw0NOIIHkziGGfkdb4V154O3tUG9sQw=;
+        s=korg; t=1614615563;
+        bh=M34w/zap8absiL+D+1BoyhxGswPSwaINYkePrI6viOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZWtabsEN8Opm09oCUnPvtdLBNuEQZV0JTdKf8UMhmiWHDqAL41TxaIiq9mMf9HnJY
-         nZzq3CY19FwDjokexCqmuPqJ4voDa/AKClY6TVOEaWIjL8xp9O1Pl+gyOYu7fWLuAB
-         UaHiZZoMLszbF35gxAe++Q7tfQYLQh37NBK4R5mI=
+        b=D2JTX07vASjYmFNwNaQiQmR8VGk64yAQY4FIhzRtAPsPnLPMqw2Zs+4luru19NaqI
+         UU2D5qZd6r64VWKUfp6bP1zI/tAzpbYiFFBUMaRMOdECgTXjhatk2G4YjJ5s4ftfGc
+         DaONZGGICIEVs228lGEK7/p1cG9ehGl+Cgx5G4/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.4 73/93] btrfs: fix reloc root leak with 0 ref reloc roots on recovery
-Date:   Mon,  1 Mar 2021 17:13:25 +0100
-Message-Id: <20210301161010.476697131@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Subject: [PATCH 4.4 74/93] drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
+Date:   Mon,  1 Mar 2021 17:13:26 +0100
+Message-Id: <20210301161010.527998582@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -39,48 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-commit c78a10aebb275c38d0cfccae129a803fe622e305 upstream.
+commit 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e upstream.
 
-When recovering a relocation, if we run into a reloc root that has 0
-refs we simply add it to the reloc_control->reloc_roots list, and then
-clean it up later.  The problem with this is __del_reloc_root() doesn't
-do anything if the root isn't in the radix tree, which in this case it
-won't be because we never call __add_reloc_root() on the reloc_root.
+syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
+when num_pages is 0x100001, giving queue_size + queue_page_size
+bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
+condition.
 
-This exit condition simply isn't correct really.  During normal
-operation we can remove ourselves from the rb tree and then we're meant
-to clean up later at merge_reloc_roots() time, and this happens
-correctly.  During recovery we're depending on free_reloc_roots() to
-drop our references, but we're short-circuiting.
+queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
 
-Fix this by continuing to check if we're on the list and dropping
-ourselves from the reloc_control root list and dropping our reference
-appropriately.  Change the corresponding BUG_ON() to an ASSERT() that
-does the correct thing if we aren't in the rb tree.
+[1]
+Call Trace:
+ alloc_pages include/linux/gfp.h:547 [inline]
+ kmalloc_order+0x40/0x130 mm/slab_common.c:837
+ kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
+ kmalloc_large include/linux/slab.h:481 [inline]
+ __kmalloc+0x257/0x330 mm/slub.c:3959
+ kmalloc include/linux/slab.h:557 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
+ qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
+ qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/relocation.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1328,9 +1328,7 @@ static void __del_reloc_root(struct btrf
- 			RB_CLEAR_NODE(&node->rb_node);
- 		}
- 		spin_unlock(&rc->reloc_root_tree.lock);
--		if (!node)
--			return;
--		BUG_ON((struct btrfs_root *)node->data != root);
-+		ASSERT(!node || (struct btrfs_root *)node->data == root);
- 	}
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -639,6 +639,9 @@ static struct vmci_queue *qp_host_alloc_
  
- 	spin_lock(&root->fs_info->trans_lock);
+ 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
+ 
++	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
++		return NULL;
++
+ 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
+ 	if (queue) {
+ 		queue->q_header = NULL;
 
 
