@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9B632916D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43DB7329156
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242858AbhCAUZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:25:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
+        id S232297AbhCAUYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:24:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243210AbhCAUSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:18:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1936A64DCF;
-        Mon,  1 Mar 2021 18:03:26 +0000 (UTC)
+        id S243137AbhCAUS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:18:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA7065180;
+        Mon,  1 Mar 2021 18:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621807;
-        bh=/FSxBGnA2Olc9paa9qY+7DY8GR4LqnorU27kcoDcJFc=;
+        s=korg; t=1614621810;
+        bh=dX7ScFUt0rdSyYPxeVINzm8psJX8eoWSmit3uQhjedc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B37SkGUm/h3yIxAvp/4iu/xO52jTA6FB7GybWEO/4QTnS7aCT7zhr2uIRNtNOvkjm
-         X0fKC4c36XvX68ctAy4tkxtkdpFHgki1kZ2c15snIacx0PxtsCNz7fw2uKP8+GqBX8
-         ZqMSUjVQnrUa57wq9zD63UzDGisB/8moDX6ppR3g=
+        b=Hqi8gBG1XYwQdU2Qv8yGhWvghYMK2ApJGByu4Dp19/8t0TJ5MzsiJLA9hzuV8JZ0e
+         AyI/MUt6mJ9+dp6BZcsbutpPEMwTvf2fPFGr3bOFtTQmBFl2ffWaYQGCqcsBUtMa6H
+         QaBYZWYHiJ3FXuy98/+To+D1WRVLEqgerbFYD1o0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.11 651/775] crypto: sun4i-ss - initialize need_fallback
-Date:   Mon,  1 Mar 2021 17:13:39 +0100
-Message-Id: <20210301161233.556095953@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Pankaj Dubey <pankaj.dubey@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [PATCH 5.11 652/775] soc: samsung: exynos-asv: dont defer early on not-supported SoCs
+Date:   Mon,  1 Mar 2021 17:13:40 +0100
+Message-Id: <20210301161233.604440973@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,32 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit 4ec8977b921fd9d512701e009ce8082cb94b5c1c upstream.
+commit 0458b88267c637fb872b0359da9ff0b243081e9e upstream.
 
-The need_fallback is never initialized and seem to be always true at runtime.
-So all hardware operations are always bypassed.
+Check if the SoC is really supported before gathering the needed
+resources. This fixes endless deferred probe on some SoCs other than
+Exynos5422 (like Exynos5410).
 
-Fixes: 0ae1f46c55f87 ("crypto: sun4i-ss - fallback when length is not multiple of blocksize")
+Fixes: 5ea428595cc5 ("soc: samsung: Add Exynos Adaptive Supply Voltage driver")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
+Link: https://lore.kernel.org/r/20201207190517.262051-2-krzk@kernel.org
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/samsung/exynos-asv.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -194,7 +194,7 @@ static int sun4i_ss_cipher_poll(struct s
- 	unsigned int obo = 0;	/* offset in bufo*/
- 	unsigned int obl = 0;	/* length of data in bufo */
- 	unsigned long flags;
--	bool need_fallback;
-+	bool need_fallback = false;
+--- a/drivers/soc/samsung/exynos-asv.c
++++ b/drivers/soc/samsung/exynos-asv.c
+@@ -119,11 +119,6 @@ static int exynos_asv_probe(struct platf
+ 	u32 product_id = 0;
+ 	int ret, i;
  
- 	if (!areq->cryptlen)
- 		return 0;
+-	cpu_dev = get_cpu_device(0);
+-	ret = dev_pm_opp_get_opp_count(cpu_dev);
+-	if (ret < 0)
+-		return -EPROBE_DEFER;
+-
+ 	asv = devm_kzalloc(&pdev->dev, sizeof(*asv), GFP_KERNEL);
+ 	if (!asv)
+ 		return -ENOMEM;
+@@ -144,6 +139,11 @@ static int exynos_asv_probe(struct platf
+ 		return -ENODEV;
+ 	}
+ 
++	cpu_dev = get_cpu_device(0);
++	ret = dev_pm_opp_get_opp_count(cpu_dev);
++	if (ret < 0)
++		return -EPROBE_DEFER;
++
+ 	ret = of_property_read_u32(pdev->dev.of_node, "samsung,asv-bin",
+ 				   &asv->of_bin);
+ 	if (ret < 0)
 
 
