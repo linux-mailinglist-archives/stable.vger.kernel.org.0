@@ -2,93 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD147327BA2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2747327BA5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231701AbhCAKL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:11:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40322 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231655AbhCAKL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:11:57 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE04C061756
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 02:11:17 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id u125so13838930wmg.4
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 02:11:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=MX15dBiXZcWyzGAvFkLUhEhdCV72/Xas5u1znK0dMvo=;
-        b=rz8TKO5aIm0lGNGLoIJ6g2LZ6mkBp/InvHapV2RQ56HPWwABOPTeN1hP9F6GW3abf1
-         msm/oDG8qqAN5B1Ol/NSv2NeilnG6cZN3qlkZ+zAb7ui4faJhHUZRZ53IY58qPyWYx5M
-         5xtauoX7zVnWWHfg5oIAbYClCOmd3L/EXiezSG1CaeHx+l6rI9g2X4XqJX0sRQfLS+Wj
-         QvzUmwMGuGQymH2WuaWea1J4sswrjU5BT+ixrk/UCruJZj9GJnXTSaLpABi2xWhtKuzU
-         BzzFK6yM68L3aV9NcbN3T794EVrwrA4W1a22UzWXCgUH5wGbgCfEK5kZr59J1wN9rD1G
-         Vtlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=MX15dBiXZcWyzGAvFkLUhEhdCV72/Xas5u1znK0dMvo=;
-        b=VOkdeP28W0GdJE7k7Y7bgCTyyQFnwEIor1GyL1E7jPwx5DXij1PZAVilS1Ln4UctGP
-         KIXVj47Deo4iRTV5rAAOz3pP2uCRocgz6ErcUuXfWZnGn/lZx64vjoVtg2DIidRCjKZw
-         Sb1fsiQQhMbnDIYQ4hlwdmV9j8jwjTGcTASqA79cChSSB6jobssv6aaTG6Ah94WbjRCw
-         sF0Dcpu0uKaoiDHom0irPiPbO+/Q7c4vvIfQSERrrrTranzgjc6fk2IPhbgDPoM05fll
-         Qn/cfepSANXFzRb1CB4aTTT88rbT5wMjVVUiBxQkiZqVnvdpqno/4/9DoS9yHAFo3Gao
-         8DAw==
-X-Gm-Message-State: AOAM533YMOO8kJ6gUyf3U85ICWfl+P7vKQqK9gTX5G5a+UOb6ucTxVeH
-        HtlViC39lzjhfyEmENvbBqo=
-X-Google-Smtp-Source: ABdhPJylH92j0+/cB/cJVh9sPvVbryZ/lnJ8NjoeB/vnuY9rnQ4t8z2WXNlKjurEyhPUUNxYtyJ4qw==
-X-Received: by 2002:a1c:7301:: with SMTP id d1mr14910413wmb.33.1614593476136;
-        Mon, 01 Mar 2021 02:11:16 -0800 (PST)
-Received: from archlinux.localnet (80.142.94.90.dynamic.jazztel.es. [90.94.142.80])
-        by smtp.gmail.com with ESMTPSA id l15sm8530242wme.43.2021.03.01.02.11.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 02:11:15 -0800 (PST)
-From:   Diego Calleja <diegocg@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: -stable regression in Intel graphics, introduced in Linux 5.10.9
+        id S231964AbhCAKMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:12:06 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34189 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231821AbhCAKMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:12:06 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E86201940668;
+        Mon,  1 Mar 2021 05:11:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:11:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XXZshX
+        wuoeFvctpO1c3VxuH29TMAGNG4d8yJfatk8Gs=; b=LRTN1QnLodKDm+5mxVRvp3
+        lm2mOcO0yeR4F18mRRUhRMvIdxkeT/H6El9i7QSLpo62FsEmqFEJQG2txDjDZpu3
+        Ifb8vMzKy2fyKyR647G2WQHxRGHWH6wYDI+UBcsf4fMqYEBT2tdAX4hU7GBYN4GO
+        khagpHbUawoyPAyfHiN57wPXsSNlueFBZ9+V195R2YbRzgLtZRPwiNYDhd+8bXt9
+        fYsZ3TjEMNDDdnllQzzAouWlCbBjHuuQHKYFdOgyN7vz7SrElagJFe68cfrrdHwv
+        LAoi3CcQLiAjBNWZGv0IoBv6yN46dSbJ6+mMSFudSKmM0zM16dmDwDjomrC2U+EQ
+        ==
+X-ME-Sender: <xms:xr08YKfVuUxdf1TXWEBKkQd_OJ6c8xk3BDa7fWbAyZ_5WoBHf7D4Mg>
+    <xme:xr08YEMe_rALycHxR78FEntSFBWRhHFVVk3dKeqE4vnj347WNBWJ9Gj1yFh-dLyg0
+    RCHclmXEMlh5w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddutdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:xr08YLhsh6Jg11SPQx820Yem2UPemGwia6uPvUMmhDWW3V9VI8ZqHg>
+    <xmx:xr08YH8G2u184FHVkcGnMeNfmq2sDnnqYddNNwD9lpKA6CXMkQ_Fww>
+    <xmx:xr08YGuiAoOfsrJSxiSLNvX7HpbwbGbdROiHbTFvJBumXKOxpMd9vw>
+    <xmx:xr08YKLGRpbPYXYZqAaXDp25ki9Qr_xpVBWzsVy8e_rhioPMvMTWHA>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 79EF3240057;
+        Mon,  1 Mar 2021 05:11:18 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KEYS: trusted: Fix incorrect handling of tpm_get_random()" failed to apply to 4.19-stable tree
+To:     jarkko@kernel.org, James.Bottomley@HansenPartnership.com,
+        dhowells@redhat.com, key@linux.vnet.ibm.com, zohar@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 01 Mar 2021 11:11:13 +0100
-Message-ID: <1969510.QSeQnKm9EC@archlinux>
-In-Reply-To: <YDyvNoiRAQwT4boR@kroah.com>
-References: <3423617.kz1aARBMGD@archlinux> <1911334.sV3ZJath2r@archlinux> <YDyvNoiRAQwT4boR@kroah.com>
+Message-ID: <161459347322982@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-El lunes, 1 de marzo de 2021 10:09:10 (CET) Greg KH escribi=F3:
-> I do not see all 3 commits in Linus's tree already, am I missing
-> something?
->=20
-> What are the git ids that you are looking at?
 
-I used grep on the git log, the commits are there but seem to have differen=
-t commit ids (except for the first one)
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-commit e627d5923cae93fa4188f4c4afba6486169a1337
-Author: Chris Wilson <chris@chris-wilson.co.uk>
-Date:   Tue Jan 19 11:07:57 2021 +0000
+thanks,
 
-    drm/i915/gt: One more flush for Baytrail clear residuals
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
-commit d5109f739c9f14a3bda249cb48b16de1065932f0
-Author: Chris Wilson <chris@chris-wilson.co.uk>
-Date:   Mon Jan 25 22:02:47 2021 +0000
+From 5df16caada3fba3b21cb09b85cdedf99507f4ec1 Mon Sep 17 00:00:00 2001
+From: Jarkko Sakkinen <jarkko@kernel.org>
+Date: Fri, 29 Jan 2021 01:56:19 +0200
+Subject: [PATCH] KEYS: trusted: Fix incorrect handling of tpm_get_random()
 
-    drm/i915/gt: Flush before changing register state
+When tpm_get_random() was introduced, it defined the following API for the
+return value:
 
+1. A positive value tells how many bytes of random data was generated.
+2. A negative value on error.
 
-commit 81ce8f04aa96f7f6cae05770f68b5d15be91f5a2
-Author: Chris Wilson <chris@chris-wilson.co.uk>
-Date:   Wed Feb 10 12:27:28 2021 +0000
+However, in the call sites the API was used incorrectly, i.e. as it would
+only return negative values and otherwise zero. Returning he positive read
+counts to the user space does not make any possible sense.
 
-    drm/i915/gt: Correct surface base address for renderclear
+Fix this by returning -EIO when tpm_get_random() returns a positive value.
 
+Fixes: 41ab999c80f1 ("tpm: Move tpm_get_random api into the TPM device driver")
+Cc: stable@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Kent Yoder <key@linux.vnet.ibm.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+
+diff --git a/security/keys/trusted-keys/trusted_tpm1.c b/security/keys/trusted-keys/trusted_tpm1.c
+index 74d82093cbaa..204826b734ac 100644
+--- a/security/keys/trusted-keys/trusted_tpm1.c
++++ b/security/keys/trusted-keys/trusted_tpm1.c
+@@ -403,9 +403,12 @@ static int osap(struct tpm_buf *tb, struct osapsess *s,
+ 	int ret;
+ 
+ 	ret = tpm_get_random(chip, ononce, TPM_NONCE_SIZE);
+-	if (ret != TPM_NONCE_SIZE)
++	if (ret < 0)
+ 		return ret;
+ 
++	if (ret != TPM_NONCE_SIZE)
++		return -EIO;
++
+ 	tpm_buf_reset(tb, TPM_TAG_RQU_COMMAND, TPM_ORD_OSAP);
+ 	tpm_buf_append_u16(tb, type);
+ 	tpm_buf_append_u32(tb, handle);
+@@ -496,8 +499,12 @@ static int tpm_seal(struct tpm_buf *tb, uint16_t keytype,
+ 		goto out;
+ 
+ 	ret = tpm_get_random(chip, td->nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE)
+-		goto out;
++		return -EIO;
++
+ 	ordinal = htonl(TPM_ORD_SEAL);
+ 	datsize = htonl(datalen);
+ 	pcrsize = htonl(pcrinfosize);
+@@ -601,9 +608,12 @@ static int tpm_unseal(struct tpm_buf *tb,
+ 
+ 	ordinal = htonl(TPM_ORD_UNSEAL);
+ 	ret = tpm_get_random(chip, nonceodd, TPM_NONCE_SIZE);
++	if (ret < 0)
++		return ret;
++
+ 	if (ret != TPM_NONCE_SIZE) {
+ 		pr_info("trusted_key: tpm_get_random failed (%d)\n", ret);
+-		return ret;
++		return -EIO;
+ 	}
+ 	ret = TSS_authhmac(authdata1, keyauth, TPM_NONCE_SIZE,
+ 			   enonce1, nonceodd, cont, sizeof(uint32_t),
+@@ -1013,8 +1023,12 @@ static int trusted_instantiate(struct key *key,
+ 	case Opt_new:
+ 		key_len = payload->key_len;
+ 		ret = tpm_get_random(chip, payload->key, key_len);
++		if (ret < 0)
++			goto out;
++
+ 		if (ret != key_len) {
+ 			pr_info("trusted_key: key_create failed (%d)\n", ret);
++			ret = -EIO;
+ 			goto out;
+ 		}
+ 		if (tpm2)
 
