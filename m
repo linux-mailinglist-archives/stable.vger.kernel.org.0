@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8926832875F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DBA632873E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238156AbhCARXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:23:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57224 "EHLO mail.kernel.org"
+        id S237888AbhCARW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237988AbhCARQE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:16:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4D9765049;
-        Mon,  1 Mar 2021 16:46:10 +0000 (UTC)
+        id S237862AbhCARNi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:13:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F4546502D;
+        Mon,  1 Mar 2021 16:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617171;
-        bh=T5N5cxLsQvJY7duFiwBVY57v7LKXaW2XD6nWBcXQMoM=;
+        s=korg; t=1614617080;
+        bh=t5JGzOM7XQbD+lP+H98M51tM4YYq6+btNlal7pCD0Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CGYRzUFQXa2WXKGE3M4itkLQPI+WBO0ZdagR591b/AZxHj+io/tjgqoGWD3dyj1dc
-         kmtEvTVOYlm2z/IYvz4+mN2iE0nUfRVaisYArCl3RVfMDlMIYkGnE4hZXt7qXOPFYH
-         u6m05mBdJRI9OeXr8nTil7i6ugdwm6PVgpVvtNdU=
+        b=BBn0DEab6vpYmnCIR67u6/JCxq7Eo7b6BvKvvZQao2E+eVDoDk8Okz7FsWH07phyA
+         1zpnidjuZ7JCFfreitIT+Y4TuxgpEDG/o/X+jJJn2wvwtJCM4tjURwYCgNS3N6nqGg
+         CuqiRH38/AMbT8gFUrnGfdkDKUUj8NZH1k0Bk0U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 4.19 187/247] usb: musb: Fix runtime PM race in musb_queue_resume_work
-Date:   Mon,  1 Mar 2021 17:13:27 +0100
-Message-Id: <20210301161040.807618824@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.19 188/247] usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1
+Date:   Mon,  1 Mar 2021 17:13:28 +0100
+Message-Id: <20210301161040.858344989@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -39,88 +38,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 0eaa1a3714db34a59ce121de5733c3909c529463 upstream.
+commit a1679af85b2ae35a2b78ad04c18bb069c37330cc upstream.
 
-musb_queue_resume_work() would call the provided callback if the runtime
-PM status was 'active'. Otherwise, it would enqueue the request if the
-hardware was still suspended (musb->is_runtime_suspended is true).
+Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it must be set
+to 0 when the controller operates in full-speed. See the programming
+guide for DEPCFG command section 3.2.2.1 (v3.30a).
 
-This causes a race with the runtime PM handlers, as it is possible to be
-in the case where the runtime PM status is not yet 'active', but the
-hardware has been awaken (PM resume function has been called).
-
-When hitting the race, the resume work was not enqueued, which probably
-triggered other bugs further down the stack. For instance, a telnet
-connection on Ingenic SoCs would result in a 50/50 chance of a
-segmentation fault somewhere in the musb code.
-
-Rework the code so that either we call the callback directly if
-(musb->is_runtime_suspended == 0), or enqueue the query otherwise.
-
-Fixes: ea2f35c01d5e ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
-Cc: stable@vger.kernel.org # v4.9+
-Tested-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20210123142502.16980-1-paul@crapouillou.net
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/3f57026f993c0ce71498dbb06e49b3a47c4d0265.1612820995.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_core.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/usb/dwc3/gadget.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2108,32 +2108,35 @@ int musb_queue_resume_work(struct musb *
- {
- 	struct musb_pending_work *w;
- 	unsigned long flags;
-+	bool is_suspended;
- 	int error;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -593,7 +593,17 @@ static int dwc3_gadget_set_ep_config(str
+ 		params.param0 |= DWC3_DEPCFG_FIFO_NUMBER(dep->number >> 1);
  
- 	if (WARN_ON(!callback))
- 		return -EINVAL;
- 
--	if (pm_runtime_active(musb->controller))
--		return callback(musb, data);
-+	spin_lock_irqsave(&musb->list_lock, flags);
-+	is_suspended = musb->is_runtime_suspended;
- 
--	w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
--	if (!w)
--		return -ENOMEM;
-+	if (is_suspended) {
-+		w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
-+		if (!w) {
-+			error = -ENOMEM;
-+			goto out_unlock;
-+		}
+ 	if (desc->bInterval) {
+-		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(desc->bInterval - 1);
++		u8 bInterval_m1;
 +
-+		w->callback = callback;
-+		w->data = data;
- 
--	w->callback = callback;
--	w->data = data;
--	spin_lock_irqsave(&musb->list_lock, flags);
--	if (musb->is_runtime_suspended) {
- 		list_add_tail(&w->node, &musb->pending_list);
- 		error = 0;
--	} else {
--		dev_err(musb->controller, "could not add resume work %p\n",
--			callback);
--		devm_kfree(musb->controller, w);
--		error = -EINPROGRESS;
++		/*
++		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
++		 * must be set to 0 when the controller operates in full-speed.
++		 */
++		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
++		if (dwc->gadget.speed == USB_SPEED_FULL)
++			bInterval_m1 = 0;
++
++		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
+ 		dep->interval = 1 << (desc->bInterval - 1);
  	}
-+
-+out_unlock:
- 	spin_unlock_irqrestore(&musb->list_lock, flags);
  
-+	if (!is_suspended)
-+		error = callback(musb, data);
-+
- 	return error;
- }
- EXPORT_SYMBOL_GPL(musb_queue_resume_work);
 
 
