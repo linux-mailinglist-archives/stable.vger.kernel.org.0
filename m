@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F108328F23
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0404328F2E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:47:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231670AbhCATpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:45:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
+        id S241786AbhCATq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:46:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242164AbhCATfd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:35:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8257D65010;
-        Mon,  1 Mar 2021 17:10:45 +0000 (UTC)
+        id S237235AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:36:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C124964FC9;
+        Mon,  1 Mar 2021 17:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618646;
-        bh=zTCer9CEjzzvigX66N3JVX3LNdsvI6xdRW08i/j+1S4=;
+        s=korg; t=1614620608;
+        bh=/PPzW02UOMuKrTS27AFKolO34jLr6kzefiL5QelMfbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k01oHBfAad1BU9WNSUgIBMWMGUH2ztZ4mfMlYc2Jp8UA7fmLY70qy1CqiJ7cO/cTv
-         QrgMMg6jbCQZtbfDBCN1q8fjDNmnDCTZpBg4Wu/T7/eG5V71nPm+vBlf7uxtH1k4wM
-         la7yFlGZ/mH0CYMO9PXjOflIQpNxfmpXAL7U3aw4=
+        b=Salv/o09kYwfotFe4PCQHHkwsqVhRaYRsFivvczLAPrwAeNsnqrfNUpC3dBse7KgY
+         /G3BxNfQ1rVeB3E9Oait0f9M+kOgnqrljn/tyxiU11ojTM1yU832Il9Y6Q2fpSPeB6
+         8XgkEpKlPrmTTWVTZQqjNyhCbHH7EU4KU4pQ7wHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Alexander Lobakin <alobakin@pm.me>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/663] net: amd-xgbe: Fix network fluctuations when using 1G BELFUSE SFP
-Date:   Mon,  1 Mar 2021 17:06:21 +0100
-Message-Id: <20210301161148.332958239@linuxfoundation.org>
+Subject: [PATCH 5.11 215/775] MIPS: properly stop .eh_frame generation
+Date:   Mon,  1 Mar 2021 17:06:23 +0100
+Message-Id: <20210301161212.247779756@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +42,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Alexander Lobakin <alobakin@pm.me>
 
-[ Upstream commit 9eab3fdb419916f66a72d1572f68d82cd9b3f963 ]
+[ Upstream commit 894ef530012fb5078466efdfb2c15d8b2f1565cd ]
 
-Frequent link up/down events can happen when a Bel Fuse SFP part is
-connected to the amd-xgbe device. Try to avoid the frequent link
-issues by resetting the PHY as documented in Bel Fuse SFP datasheets.
+Commit 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly") added
+-fno-asynchronous-unwind-tables to KBUILD_CFLAGS to prevent compiler
+from emitting .eh_frame symbols.
+However, as MIPS heavily uses CFI, that's not enough. Use the
+approach taken for x86 (as it also uses CFI) and explicitly put CFI
+symbols into the .debug_frame section (except for VDSO).
+This allows us to drop .eh_frame from DISCARDS as it's no longer
+being generated.
 
-Fixes: e722ec82374b ("amd-xgbe: Update the BelFuse quirk to support SGMII")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 866b6a89c6d1 ("MIPS: Add DWARF unwinding to assembly")
+Suggested-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/include/asm/asm.h    | 18 ++++++++++++++++++
+ arch/mips/kernel/vmlinux.lds.S |  1 -
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index d3f72faecd1da..18e48b3bc402b 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -922,6 +922,9 @@ static bool xgbe_phy_belfuse_phy_quirks(struct xgbe_prv_data *pdata)
- 	if ((phy_id & 0xfffffff0) != 0x03625d10)
- 		return false;
+diff --git a/arch/mips/include/asm/asm.h b/arch/mips/include/asm/asm.h
+index 3682d1a0bb808..ea4b62ece3366 100644
+--- a/arch/mips/include/asm/asm.h
++++ b/arch/mips/include/asm/asm.h
+@@ -20,10 +20,27 @@
+ #include <asm/sgidefs.h>
+ #include <asm/asm-eva.h>
  
-+	/* Reset PHY - wait for self-clearing reset bit to clear */
-+	genphy_soft_reset(phy_data->phydev);
++#ifndef __VDSO__
++/*
++ * Emit CFI data in .debug_frame sections, not .eh_frame sections.
++ * We don't do DWARF unwinding at runtime, so only the offline DWARF
++ * information is useful to anyone. Note we should change this if we
++ * ever decide to enable DWARF unwinding at runtime.
++ */
++#define CFI_SECTIONS	.cfi_sections .debug_frame
++#else
++ /*
++  * For the vDSO, emit both runtime unwind information and debug
++  * symbols for the .dbg file.
++  */
++#define CFI_SECTIONS
++#endif
 +
- 	/* Disable RGMII mode */
- 	phy_write(phy_data->phydev, 0x18, 0x7007);
- 	reg = phy_read(phy_data->phydev, 0x18);
+ /*
+  * LEAF - declare leaf routine
+  */
+ #define LEAF(symbol)					\
++		CFI_SECTIONS;				\
+ 		.globl	symbol;				\
+ 		.align	2;				\
+ 		.type	symbol, @function;		\
+@@ -36,6 +53,7 @@ symbol:		.frame	sp, 0, ra;			\
+  * NESTED - declare nested routine entry point
+  */
+ #define NESTED(symbol, framesize, rpc)			\
++		CFI_SECTIONS;				\
+ 		.globl	symbol;				\
+ 		.align	2;				\
+ 		.type	symbol, @function;		\
+diff --git a/arch/mips/kernel/vmlinux.lds.S b/arch/mips/kernel/vmlinux.lds.S
+index 83e27a181206a..09fa4705ce8eb 100644
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -224,6 +224,5 @@ SECTIONS
+ 		*(.options)
+ 		*(.pdr)
+ 		*(.reginfo)
+-		*(.eh_frame)
+ 	}
+ }
 -- 
 2.27.0
 
