@@ -2,131 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C94327A5A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 10:05:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A9A327A5B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 10:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233361AbhCAJFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 04:05:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233768AbhCAJCS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 04:02:18 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 994DBC06178B
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 01:00:05 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id o188so4369242pfg.2
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 01:00:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=LhoaeTXtnyomokPUA9DbWF5d+eOhrMjgV+pLuUH4rJg=;
-        b=Hbk6Fr/lcafYkFG8LFHC19G6yY/6GFnt7EpqToA9naPjn6fYudCS966Yp9+HPpqmms
-         6bvVd+mnU9NxGrscnonwOi4D0BD8T8VphtbsMbD+0XAQcRWHTLrt2Ui/e2Cdq2VJDmpq
-         EHMOwz+gP0dZti6Yi/wHDZC8UBGpgWzZE2FLiOeLjcOiwCF0UA2yJcHCHZZ+1r4ZyupC
-         y2p5KQNKcmNVZMBlz5boJ4utypP9GCQGj6aaZs1CftlsC4F2CYQSoS5c6fAvKNwfSESw
-         flZGPvAWTALhJX69IbHoDVlx9NXOhI+tymyqT6RjVrlFZiqN1vXE4yXE3Oc7M1JCmEVi
-         j4IQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=LhoaeTXtnyomokPUA9DbWF5d+eOhrMjgV+pLuUH4rJg=;
-        b=JEP02ZeKLkLCUT5Nog4fx4wC5eCQD8pFOIalzg+OIUXEDm0+kkROZ3xxi8+swwZFnV
-         Dt0X8NZHJxL/+oSSOSW7IhH6YjFu2gINfxWZLtJ3YTcbZG5YT7bH72EqhW3D9eAru5Ys
-         YDSJj4OZ/+9V8HcByKx9ur47VSOMGReD2bMisOlaznCS09RIwQcQMvcwmV7EQgFXNUHC
-         quelaOR8MjanOe5ZPVxJlo1C5Zmb3bFkAHt+EF8aotT3j1t/SngUGTq8VQzNGAj480Fa
-         50JORc0rWsaW/dE/bDk3EVEpUFCaYhO+Z5qkkkbS/FnNOVpMgDtoPZbMCwH347aH26ac
-         8dfg==
-X-Gm-Message-State: AOAM5308GKY8eZHBLrKd8GwAwoFiRaYqPSz/eKm5asu8PG1GtF/AgyIb
-        +Vtqh3xLRDO72qi8qgNtOSBZY/QqdwedRQ==
-X-Google-Smtp-Source: ABdhPJzclGDmtG+JMt9+d8Vd9jbsSmoPpRJeA3bgh/Y4Ep2sTKF8Y3vaGieny1uWV5Aois8yUUGc4Q==
-X-Received: by 2002:a63:e42:: with SMTP id 2mr12954179pgo.100.1614589205052;
-        Mon, 01 Mar 2021 01:00:05 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q91sm7967836pjk.37.2021.03.01.01.00.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 01:00:04 -0800 (PST)
-Message-ID: <603cad14.1c69fb81.24d13.37de@mx.google.com>
-Date:   Mon, 01 Mar 2021 01:00:04 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S233530AbhCAJFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 04:05:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37668 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233399AbhCAJE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 04:04:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABABD64DD0;
+        Mon,  1 Mar 2021 09:04:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614589455;
+        bh=/Bv2eaMC1tr34WPMfmXTqLwWjNThz+303TYI+gL905I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ycHTev7rlqnUgnXvQ+AgAtHS+2Abe/3YKDUHJqqN39TWIAsMV1vlMbt//Z6ab1IFI
+         lqd3DRumP0+eGWVzMJ+PyElbIsj8k7F1Odumww9kfQ4WeLq0JrSPwIRK7IXEGgeNOR
+         n0MaqunZHoqffXL/WQmSZwoL/sNEJd54Qz8VlOoM=
+Date:   Mon, 1 Mar 2021 10:04:12 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Peng Tao <tao.peng@linux.alibaba.com>
+Cc:     alikernel-developer@linux.alibaba.com,
+        Liu Bo <bo.liu@linux.alibaba.com>,
+        Ma Jie Yue <majieyue@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Eryu Guan <eguan@linux.alibaba.com>,
+        Miklos Szeredi <mszeredi@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH CK 4.19 1/4] fuse: fix page dereference after free
+Message-ID: <YDyuDFlWKUL8127m@kroah.com>
+References: <1614569779-12114-1-git-send-email-tao.peng@linux.alibaba.com>
+ <1614569779-12114-2-git-send-email-tao.peng@linux.alibaba.com>
+ <YDygOH7MGVOAYk+H@kroah.com>
+ <c9807ed1-dcaa-4e9f-476e-4bcedf0745c4@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.258-61-g381f23792ef7b
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 35 runs,
- 1 regressions (v4.4.258-61-g381f23792ef7b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c9807ed1-dcaa-4e9f-476e-4bcedf0745c4@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 35 runs, 1 regressions (v4.4.258-61-g381f2379=
-2ef7b)
+On Mon, Mar 01, 2021 at 04:52:03PM +0800, Peng Tao wrote:
+> 
+> On 2021/3/1 16:05, Greg Kroah-Hartman wrote:
+> > On Mon, Mar 01, 2021 at 11:36:16AM +0800, Peng Tao wrote:
+> > > From: Miklos Szeredi <mszeredi@redhat.com>
+> > > 
+> > > commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
+> > > 
+> > > fix #32833505
+> > 
+> > What does this mean?
+> > 
+> > And why are you all backporting random stable kernel patches to your
+> > tree and not just taking all of them with a simple merge?
+> > 
+> > By selectivly cherry-picking patches like this, you are guaranteed to be
+> > doing more work, and have a much more insecure and buggy kernel.  The
+> > opposite of what your end goal should be, correct?
+> > 
+> 
+> Hi Greg,
+> 
+> My apology for the noise. It was due to a mistake in my git config. And
+> thanks for your suggestions. Our tree is actually a mixture of stable
+> backports and feature backports. I guess that's why the cherry-picking
+> method was chosen, since a simple merge creates too many conflicts and it is
+> error prone to fix them in one shoot.
 
-Regressions Summary
--------------------
+A "simple merge" will cause initial problems, but after you have
+resolved them the first time, all should be good.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
+As proof that this can work, see the android common kernel trees, which
+receive a "simple merge" into all of the different branches within a day
+or two of a stable release, with no problems at all.
 
+You need to take all stable patches, doing this cherry-picking will
+cause you problems and in the end, takes more time and effort!
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.258-61-g381f23792ef7b/plan/baseline/
+good luck,
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.258-61-g381f23792ef7b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      381f23792ef7bedbffadcd5b6d45e1559c9ad5ff =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/603c7ada50ed8f3d3baddcc1
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-6=
-1-g381f23792ef7b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-6=
-1-g381f23792ef7b/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/603c7ada50ed8f3=
-d3baddcc6
-        new failure (last pass: v4.4.258-8-gd58c8b6f6cef)
-        2 lines
-
-    2021-03-01 05:25:42.517000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+greg k-h
