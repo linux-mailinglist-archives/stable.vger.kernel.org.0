@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE895328E0D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33066328CE3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241469AbhCATW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:22:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42626 "EHLO mail.kernel.org"
+        id S233915AbhCATBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:01:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241356AbhCATRt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:17:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A95265218;
-        Mon,  1 Mar 2021 17:22:32 +0000 (UTC)
+        id S240792AbhCASx4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:53:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44CB064F74;
+        Mon,  1 Mar 2021 16:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619352;
-        bh=yiuWj05qntSQoIZVpSlCXmbJSHclE/b0ngrkouGBBJ8=;
+        s=korg; t=1614616674;
+        bh=qNyvTpgP2qBw/FEkZPhQTJ62tjrNOIOFhITedfrZER8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8GRHHNN7UK/kczL7XCq5wzntkKj5RVKmYemOTTXwFX+s+5wdhIiFzmoLH3MIbQah
-         k4dhSkP+RCjrz1P4aC52Mx9WFkTAf3mkfVez4gwwYetzRz40WK/AWwJQ7pJ5CeH2Gt
-         hLrMdaY76apeuW3o8AEaiITLZpF+SygitNuuDMQo=
+        b=Lw5JmbXgFpVerU6YLWiX6zzI4ViOhc42pAFsH8E/ew66tqIP0HNQ4oIgeAa9r/GAy
+         9yOWD55yx7Jxz41CaxzMHEb//8VFqvNGU1x5VOJ1G+c2KC3r7x2zR76qw2BLmhYuzW
+         AcWu75fYye+QfBpxIPGA7VWxDWNRzREUACxnQ5K0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 422/663] soundwire: bus: use sdw_update_no_pm when initializing a device
-Date:   Mon,  1 Mar 2021 17:11:10 +0100
-Message-Id: <20210301161202.755974449@linuxfoundation.org>
+        stable@vger.kernel.org, Jae Hyun Yoo <jae.hyun.yoo@intel.com>,
+        Vernon Mauery <vernon.mauery@linux.intel.com>,
+        John Wang <wangzhiqiang.bj@bytedance.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 055/247] soc: aspeed: snoop: Add clock control logic
+Date:   Mon,  1 Mar 2021 17:11:15 +0100
+Message-Id: <20210301161034.369309830@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
+References: <20210301161031.684018251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +41,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
 
-[ Upstream commit b04c975e654cfdea6d691cd403b5a81cce7e593d ]
+[ Upstream commit 3f94cf15583be554df7aaa651b8ff8e1b68fbe51 ]
 
-When a Slave device is resumed, it may resume the bus and restart the
-enumeration. During that process, we absolutely don't want to call
-regular read/write routines which will wait for the resume to
-complete, otherwise a deadlock occurs.
+If LPC SNOOP driver is registered ahead of lpc-ctrl module, LPC
+SNOOP block will be enabled without heart beating of LCLK until
+lpc-ctrl enables the LCLK. This issue causes improper handling on
+host interrupts when the host sends interrupt in that time frame.
+Then kernel eventually forcibly disables the interrupt with
+dumping stack and printing a 'nobody cared this irq' message out.
 
-Fixes: 60ee9be25571 ('soundwire: bus: add PM/no-PM versions of read/write functions')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210122070634.12825-2-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+To prevent this issue, all LPC sub-nodes should enable LCLK
+individually so this patch adds clock control logic into the LPC
+SNOOP driver.
+
+Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
+Signed-off-by: Jae Hyun Yoo <jae.hyun.yoo@intel.com>
+Signed-off-by: Vernon Mauery <vernon.mauery@linux.intel.com>
+Signed-off-by: John Wang <wangzhiqiang.bj@bytedance.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20201208091748.1920-1-wangzhiqiang.bj@bytedance.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/bus.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/misc/aspeed-lpc-snoop.c | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soundwire/bus.c b/drivers/soundwire/bus.c
-index 8eaf31e766773..0345f9af6e865 100644
---- a/drivers/soundwire/bus.c
-+++ b/drivers/soundwire/bus.c
-@@ -489,6 +489,18 @@ sdw_read_no_pm(struct sdw_slave *slave, u32 addr)
- 		return buf;
+diff --git a/drivers/misc/aspeed-lpc-snoop.c b/drivers/misc/aspeed-lpc-snoop.c
+index c10be21a1663d..b4a776bf44bc5 100644
+--- a/drivers/misc/aspeed-lpc-snoop.c
++++ b/drivers/misc/aspeed-lpc-snoop.c
+@@ -15,6 +15,7 @@
+  */
+ 
+ #include <linux/bitops.h>
++#include <linux/clk.h>
+ #include <linux/interrupt.h>
+ #include <linux/fs.h>
+ #include <linux/kfifo.h>
+@@ -71,6 +72,7 @@ struct aspeed_lpc_snoop_channel {
+ struct aspeed_lpc_snoop {
+ 	struct regmap		*regmap;
+ 	int			irq;
++	struct clk		*clk;
+ 	struct aspeed_lpc_snoop_channel chan[NUM_SNOOP_CHANNELS];
+ };
+ 
+@@ -286,22 +288,42 @@ static int aspeed_lpc_snoop_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
++	lpc_snoop->clk = devm_clk_get(dev, NULL);
++	if (IS_ERR(lpc_snoop->clk)) {
++		rc = PTR_ERR(lpc_snoop->clk);
++		if (rc != -EPROBE_DEFER)
++			dev_err(dev, "couldn't get clock\n");
++		return rc;
++	}
++	rc = clk_prepare_enable(lpc_snoop->clk);
++	if (rc) {
++		dev_err(dev, "couldn't enable clock\n");
++		return rc;
++	}
++
+ 	rc = aspeed_lpc_snoop_config_irq(lpc_snoop, pdev);
+ 	if (rc)
+-		return rc;
++		goto err;
+ 
+ 	rc = aspeed_lpc_enable_snoop(lpc_snoop, dev, 0, port);
+ 	if (rc)
+-		return rc;
++		goto err;
+ 
+ 	/* Configuration of 2nd snoop channel port is optional */
+ 	if (of_property_read_u32_index(dev->of_node, "snoop-ports",
+ 				       1, &port) == 0) {
+ 		rc = aspeed_lpc_enable_snoop(lpc_snoop, dev, 1, port);
+-		if (rc)
++		if (rc) {
+ 			aspeed_lpc_disable_snoop(lpc_snoop, 0);
++			goto err;
++		}
+ 	}
+ 
++	return 0;
++
++err:
++	clk_disable_unprepare(lpc_snoop->clk);
++
+ 	return rc;
  }
  
-+static int sdw_update_no_pm(struct sdw_slave *slave, u32 addr, u8 mask, u8 val)
-+{
-+	int tmp;
-+
-+	tmp = sdw_read_no_pm(slave, addr);
-+	if (tmp < 0)
-+		return tmp;
-+
-+	tmp = (tmp & ~mask) | val;
-+	return sdw_write_no_pm(slave, addr, tmp);
-+}
-+
- /**
-  * sdw_nread() - Read "n" contiguous SDW Slave registers
-  * @slave: SDW Slave
-@@ -1256,7 +1268,7 @@ static int sdw_initialize_slave(struct sdw_slave *slave)
- 	val = slave->prop.scp_int1_mask;
+@@ -313,6 +335,8 @@ static int aspeed_lpc_snoop_remove(struct platform_device *pdev)
+ 	aspeed_lpc_disable_snoop(lpc_snoop, 0);
+ 	aspeed_lpc_disable_snoop(lpc_snoop, 1);
  
- 	/* Enable SCP interrupts */
--	ret = sdw_update(slave, SDW_SCP_INTMASK1, val, val);
-+	ret = sdw_update_no_pm(slave, SDW_SCP_INTMASK1, val, val);
- 	if (ret < 0) {
- 		dev_err(slave->bus->dev,
- 			"SDW_SCP_INTMASK1 write failed:%d\n", ret);
-@@ -1271,7 +1283,7 @@ static int sdw_initialize_slave(struct sdw_slave *slave)
- 	val = prop->dp0_prop->imp_def_interrupts;
- 	val |= SDW_DP0_INT_PORT_READY | SDW_DP0_INT_BRA_FAILURE;
++	clk_disable_unprepare(lpc_snoop->clk);
++
+ 	return 0;
+ }
  
--	ret = sdw_update(slave, SDW_DP0_INTMASK, val, val);
-+	ret = sdw_update_no_pm(slave, SDW_DP0_INTMASK, val, val);
- 	if (ret < 0)
- 		dev_err(slave->bus->dev,
- 			"SDW_DP0_INTMASK read failed:%d\n", ret);
 -- 
 2.27.0
 
