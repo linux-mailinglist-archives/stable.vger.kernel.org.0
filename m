@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02567328D88
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED712328DE1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241192AbhCATNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:13:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37268 "EHLO mail.kernel.org"
+        id S235736AbhCATSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:18:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241141AbhCATI0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:08:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A29A8601FD;
-        Mon,  1 Mar 2021 17:46:15 +0000 (UTC)
+        id S241233AbhCATPX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:15:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDE2E601FF;
+        Mon,  1 Mar 2021 17:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620776;
-        bh=L4FfWZTenZvMaMil7pXM9i3yvfpIPXwz4PY8NI7x1Qk=;
+        s=korg; t=1614620781;
+        bh=N8XkJcekxhM2YUAzpa4OqIzptpZ0fPjKbI48L1UAiSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fa1Mn0Zba67C7BuSfw7SM2q7GszIzSIGH+1Y4M2G/ELUP+0Ld0Su7kzASJQ7YPOsm
-         Ngh8d7yfbm7actLLnFOUwfSdOouw9WZS5GWrA+8PXWWRGxIdFBnyLI4Vi8jzZ3PHL2
-         8nK2/neSBa9BgcCSk62uoodtStYkYTGWHTmGdg9w=
+        b=Fu11lI0A6mtysIftim8o30fG02fq+83xQXwsLmz6VLa7ZcMC4ab/eGyvKzACYThhZ
+         imP2Np3blU4opeBaJ+2ifWxFjNXqBDT5Z+CAwOj1+iG3M/vInIKA/TnSAwdnZOLs6P
+         5Jo7J7+hOILJfju8u3UEEVJtL0vDNMOJlBkY+YQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dom Cobley <popcornmix@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
         Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 276/775] drm/vc4: hdmi: Restore cec physical address on reconnect
-Date:   Mon,  1 Mar 2021 17:07:24 +0100
-Message-Id: <20210301161215.269269929@linuxfoundation.org>
+Subject: [PATCH 5.11 278/775] drm/vc4: hdmi: Update the CEC clock divider on HSM rate change
+Date:   Mon,  1 Mar 2021 17:07:26 +0100
+Message-Id: <20210301161215.367149168@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,76 +43,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dom Cobley <popcornmix@gmail.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 4d8602b8ec16f5721a4d1339c610a81f95df1856 ]
+[ Upstream commit 47fa9a80270e20a0c4ddaffca1f144d22cc59620 ]
 
-Currently we call cec_phys_addr_invalidate on a hotplug deassert.
-That may be due to a TV power cycling, or an AVR being switched
-on (and switching edid).
+As part of the enable sequence we might change the HSM clock rate if the
+pixel rate is different than the one we were already dealing with.
 
-This makes CEC unusable since our controller wouldn't have a physical
-address anymore.
+On the BCM2835 however, the CEC clock derives from the HSM clock so any
+rate change will need to be reflected in the CEC clock divider to output
+40kHz.
 
-Set it back up again on the hotplug assert.
-
-Fixes: 15b4511a4af6 ("drm/vc4: add HDMI CEC support")
-Signed-off-by: Dom Cobley <popcornmix@gmail.com>
+Fixes: cd4cb49dc5bb ("drm/vc4: hdmi: Adjust HSM clock rate depending on pixel rate")
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
 Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-6-maxime@cerno.tech
-(cherry picked from commit b06eecb5158e5f3eb47b9d05aea8c259985cc5f7)
+Link: https://patchwork.freedesktop.org/patch/msgid/20210111142309.193441-8-maxime@cerno.tech
+(cherry picked from commit a9dd0b9a5c3e11c79e6ff9c7fdf07c471732dcb6)
 Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 39 +++++++++++++++++++++++++---------
+ 1 file changed, 29 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 3d473638dbe18..a9a6552bdae93 100644
+index eff9014750e2d..a9f494590c578 100644
 --- a/drivers/gpu/drm/vc4/vc4_hdmi.c
 +++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -123,20 +123,32 @@ static enum drm_connector_status
+@@ -119,6 +119,27 @@ static void vc5_hdmi_reset(struct vc4_hdmi *vc4_hdmi)
+ 		   HDMI_READ(HDMI_CLOCK_STOP) | VC4_DVP_HT_CLOCK_STOP_PIXEL);
+ }
+ 
++#ifdef CONFIG_DRM_VC4_HDMI_CEC
++static void vc4_hdmi_cec_update_clk_div(struct vc4_hdmi *vc4_hdmi)
++{
++	u16 clk_cnt;
++	u32 value;
++
++	value = HDMI_READ(HDMI_CEC_CNTRL_1);
++	value &= ~VC4_HDMI_CEC_DIV_CLK_CNT_MASK;
++
++	/*
++	 * Set the clock divider: the hsm_clock rate and this divider
++	 * setting will give a 40 kHz CEC clock.
++	 */
++	clk_cnt = clk_get_rate(vc4_hdmi->hsm_clock) / CEC_CLOCK_FREQ;
++	value |= clk_cnt << VC4_HDMI_CEC_DIV_CLK_CNT_SHIFT;
++	HDMI_WRITE(HDMI_CEC_CNTRL_1, value);
++}
++#else
++static void vc4_hdmi_cec_update_clk_div(struct vc4_hdmi *vc4_hdmi) {}
++#endif
++
+ static enum drm_connector_status
  vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
  {
- 	struct vc4_hdmi *vc4_hdmi = connector_to_vc4_hdmi(connector);
-+	bool connected = false;
- 
- 	if (vc4_hdmi->hpd_gpio) {
- 		if (gpio_get_value_cansleep(vc4_hdmi->hpd_gpio) ^
- 		    vc4_hdmi->hpd_active_low)
--			return connector_status_connected;
--		cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
--		return connector_status_disconnected;
-+			connected = true;
-+	} else if (drm_probe_ddc(vc4_hdmi->ddc)) {
-+		connected = true;
-+	} else if (HDMI_READ(HDMI_HOTPLUG) & VC4_HDMI_HOTPLUG_CONNECTED) {
-+		connected = true;
+@@ -651,6 +672,8 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder)
+ 		return;
  	}
  
--	if (drm_probe_ddc(vc4_hdmi->ddc))
--		return connector_status_connected;
-+	if (connected) {
-+		if (connector->status != connector_status_connected) {
-+			struct edid *edid = drm_get_edid(connector, vc4_hdmi->ddc);
++	vc4_hdmi_cec_update_clk_div(vc4_hdmi);
 +
-+			if (edid) {
-+				cec_s_phys_addr_from_edid(vc4_hdmi->cec_adap, edid);
-+				vc4_hdmi->encoder.hdmi_monitor = drm_detect_hdmi_monitor(edid);
-+				kfree(edid);
-+			}
-+		}
+ 	/*
+ 	 * FIXME: When the pixel freq is 594MHz (4k60), this needs to be setup
+ 	 * at 300MHz.
+@@ -1467,7 +1490,6 @@ static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
+ {
+ 	struct cec_connector_info conn_info;
+ 	struct platform_device *pdev = vc4_hdmi->pdev;
+-	u16 clk_cnt;
+ 	u32 value;
+ 	int ret;
  
--	if (HDMI_READ(HDMI_HOTPLUG) & VC4_HDMI_HOTPLUG_CONNECTED)
- 		return connector_status_connected;
-+	}
+@@ -1486,17 +1508,14 @@ static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
+ 	cec_s_conn_info(vc4_hdmi->cec_adap, &conn_info);
+ 
+ 	HDMI_WRITE(HDMI_CEC_CPU_MASK_SET, 0xffffffff);
 +
- 	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
- 	return connector_status_disconnected;
- }
+ 	value = HDMI_READ(HDMI_CEC_CNTRL_1);
+-	value &= ~VC4_HDMI_CEC_DIV_CLK_CNT_MASK;
+-	/*
+-	 * Set the logical address to Unregistered and set the clock
+-	 * divider: the hsm_clock rate and this divider setting will
+-	 * give a 40 kHz CEC clock.
+-	 */
+-	clk_cnt = clk_get_rate(vc4_hdmi->hsm_clock) / CEC_CLOCK_FREQ;
+-	value |= VC4_HDMI_CEC_ADDR_MASK |
+-		 (clk_cnt << VC4_HDMI_CEC_DIV_CLK_CNT_SHIFT);
++	/* Set the logical address to Unregistered */
++	value |= VC4_HDMI_CEC_ADDR_MASK;
+ 	HDMI_WRITE(HDMI_CEC_CNTRL_1, value);
++
++	vc4_hdmi_cec_update_clk_div(vc4_hdmi);
++
+ 	ret = devm_request_threaded_irq(&pdev->dev, platform_get_irq(pdev, 0),
+ 					vc4_cec_irq_handler,
+ 					vc4_cec_irq_handler_thread, 0,
 -- 
 2.27.0
 
