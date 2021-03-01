@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5890328C72
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04309328C0B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240589AbhCASwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:52:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54286 "EHLO mail.kernel.org"
+        id S234856AbhCASoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:44:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240216AbhCASor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:44:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E281F6512A;
-        Mon,  1 Mar 2021 17:03:14 +0000 (UTC)
+        id S240489AbhCASjO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:39:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D0E064F73;
+        Mon,  1 Mar 2021 17:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618195;
-        bh=3qneO/z9THsDdEXwgnlEi5B1dAn4pxPOp7KHZyxBoUA=;
+        s=korg; t=1614618203;
+        bh=p1jbKXWV/kZaMl9zIQCpMgryw0BVKjtw9/utlqynU1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOySRbJSE+SrXgQ8CSUtGxE7LN60csLJP5c0lvd/urpcvgEX0l4sPLQhX1i16DhBU
-         gvc+4O+jj7nR2LeDAJYyLwxZD6yz8Q2W7A5DFZ9KHeCDdjCKwB7gdhdzk1zgy9m9Oz
-         ef6CZA38/Jqpvo+lhYKO2uRZaADHfy8l990GqLbE=
+        b=ca87E3Hh6vk9Ln/n1C7LyWw8WBzp455qxgXB10f+lXaXYnGNDQQrnMQxjUxPsYY4G
+         JvFB7RmLkQgWVPDBO5aIdxBqWgL8O7mh6jEpd4yRJ3PlBT9dHZq5sSym05J5GN33cA
+         H5+a56OQEkikWlqLAekuNl8k4yUbtw7KgBnv6ax0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Ming-Hung Tsai <mtsai@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 325/340] dm era: Verify the data block size hasnt changed
-Date:   Mon,  1 Mar 2021 17:14:29 +0100
-Message-Id: <20210301161104.292218049@linuxfoundation.org>
+Subject: [PATCH 5.4 328/340] dm era: Reinitialize bitset cache before digesting a new writeset
+Date:   Mon,  1 Mar 2021 17:14:32 +0100
+Message-Id: <20210301161104.436809945@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,47 +41,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit c8e846ff93d5eaa5384f6f325a1687ac5921aade upstream.
+commit 2524933307fd0036d5c32357c693c021ab09a0b0 upstream.
 
-dm-era doesn't support changing the data block size of existing devices,
-so check explicitly that the requested block size for a new target
-matches the one stored in the metadata.
+In case of devices with at most 64 blocks, the digestion of consecutive
+eras uses the writeset of the first era as the writeset of all eras to
+digest, leading to lost writes. That is, we lose the information about
+what blocks were written during the affected eras.
+
+The digestion code uses a dm_disk_bitset object to access the archived
+writesets. This structure includes a one word (64-bit) cache to reduce
+the number of array lookups.
+
+This structure is initialized only once, in metadata_digest_start(),
+when we kick off digestion.
+
+But, when we insert a new writeset into the writeset tree, before the
+digestion of the previous writeset is done, or equivalently when there
+are multiple writesets in the writeset tree to digest, then all these
+writesets are digested using the same cache and the cache is not
+re-initialized when moving from one writeset to the next.
+
+For devices with more than 64 blocks, i.e., the size of the cache, the
+cache is indirectly invalidated when we move to a next set of blocks, so
+we avoid the bug.
+
+But for devices with at most 64 blocks we end up using the same cached
+data for digesting all archived writesets, i.e., the cache is loaded
+when digesting the first writeset and it never gets reloaded, until the
+digestion is done.
+
+As a result, the writeset of the first era to digest is used as the
+writeset of all the following archived eras, leading to lost writes.
+
+Fix this by reinitializing the dm_disk_bitset structure, and thus
+invalidating the cache, every time the digestion code starts digesting a
+new writeset.
 
 Fixes: eec40579d84873 ("dm: add era target")
 Cc: stable@vger.kernel.org # v3.15+
 Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/md/dm-era-target.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 --- a/drivers/md/dm-era-target.c
 +++ b/drivers/md/dm-era-target.c
-@@ -564,6 +564,15 @@ static int open_metadata(struct era_meta
- 	}
+@@ -756,6 +756,12 @@ static int metadata_digest_lookup_writes
+ 	ws_unpack(&disk, &d->writeset);
+ 	d->value = cpu_to_le32(key);
  
- 	disk = dm_block_data(sblock);
++	/*
++	 * We initialise another bitset info to avoid any caching side effects
++	 * with the previous one.
++	 */
++	dm_disk_bitset_init(md->tm, &d->info);
 +
-+	/* Verify the data block size hasn't changed */
-+	if (le32_to_cpu(disk->data_block_size) != md->block_size) {
-+		DMERR("changing the data block size (from %u to %llu) is not supported",
-+		      le32_to_cpu(disk->data_block_size), md->block_size);
-+		r = -EINVAL;
-+		goto bad;
-+	}
-+
- 	r = dm_tm_open_with_sm(md->bm, SUPERBLOCK_LOCATION,
- 			       disk->metadata_space_map_root,
- 			       sizeof(disk->metadata_space_map_root),
-@@ -575,7 +584,6 @@ static int open_metadata(struct era_meta
+ 	d->nr_bits = min(d->writeset.nr_bits, md->nr_blocks);
+ 	d->current_bit = 0;
+ 	d->step = metadata_digest_transcribe_writeset;
+@@ -769,12 +775,6 @@ static int metadata_digest_start(struct
+ 		return 0;
  
- 	setup_infos(md);
+ 	memset(d, 0, sizeof(*d));
+-
+-	/*
+-	 * We initialise another bitset info to avoid any caching side
+-	 * effects with the previous one.
+-	 */
+-	dm_disk_bitset_init(md->tm, &d->info);
+ 	d->step = metadata_digest_lookup_writeset;
  
--	md->block_size = le32_to_cpu(disk->data_block_size);
- 	md->nr_blocks = le32_to_cpu(disk->nr_blocks);
- 	md->current_era = le32_to_cpu(disk->current_era);
- 
+ 	return 0;
 
 
