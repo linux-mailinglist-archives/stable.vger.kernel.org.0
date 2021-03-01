@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6031F328E2B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:26:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33925328D23
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232143AbhCATZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:25:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43898 "EHLO mail.kernel.org"
+        id S238148AbhCATG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:06:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235779AbhCATSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:18:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC4AC651B1;
-        Mon,  1 Mar 2021 17:12:47 +0000 (UTC)
+        id S240669AbhCATAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:00:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C242160201;
+        Mon,  1 Mar 2021 17:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618768;
-        bh=gbpTDs9dPGrfRvSfxK5g4DorA6fv3N4bKFCME0f10GQ=;
+        s=korg; t=1614620817;
+        bh=DoCdYEO5mmFpPMXA/qWydiSJ+ms6DE8UUWBij8etc7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gL43F+2vmKBzMTd4ph/KRXWdnI9dUTJ1ItnCOOILu0yvs36ZMY36EPzKDuRqxdbW1
-         NSYOfN7uTueUbiUcjF5mB3AtYhTJ+3553j5l/31L02P4KyYJu9qxtRSvUgjG9gGWP4
-         9tOtZ4vOOQqh0ocA2rau5Src0F3F1qN/VbdbJOV4=
+        b=q+lY7ln1FzLYiI4gWm0sUc1zowej6GcGGm5MXbVMLkf8f2TJ/D4EROu6PKvlDiYk9
+         I/IhzyAUjXSMC5JQsB5i0R7aZsH/mbCwBIrNMp+hgocevLN7k+b9ApckelXLGbsV3l
+         0P0WUOyYrY9EOIlQ6Q0peXNjQSCckuXHxWHhrxNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 210/663] mtd: parsers: afs: Fix freeing the part name memory in failure
+Subject: [PATCH 5.11 290/775] ASoC: SOF: sof-pci-dev: add missing Up-Extreme quirk
 Date:   Mon,  1 Mar 2021 17:07:38 +0100
-Message-Id: <20210301161152.178092648@linuxfoundation.org>
+Message-Id: <20210301161215.952342076@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 7b844cf445f0a7daa68be0ce71eb2c88d68b0c5d ]
+[ Upstream commit bd8036eb15263a720b8f846861c180b27d050a09 ]
 
-In the case of failure while parsing the partitions, the iterator should
-be pre decremented by one before starting to free the memory allocated
-by kstrdup(). Because in the failure case, kstrdup() will not succeed
-and thus no memory will be allocated for the current iteration.
+The UpExtreme board supports the community key and was missed in
+previous contributions. Add it to make sure the open firmware is
+picked by default without needing a symlink on the target.
 
-Fixes: 1fca1f6abb38 ("mtd: afs: simplify partition parsing")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210104041137.113075-5-manivannan.sadhasivam@linaro.org
+Fixes: 46207ca24545 ('ASoC: SOF: pci: change the default firmware path when the community key is used')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Link: https://lore.kernel.org/r/20210208231853.58761-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/afs.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/sof/sof-pci-dev.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/mtd/parsers/afs.c b/drivers/mtd/parsers/afs.c
-index 980e332bdac48..26116694c821b 100644
---- a/drivers/mtd/parsers/afs.c
-+++ b/drivers/mtd/parsers/afs.c
-@@ -370,10 +370,8 @@ static int parse_afs_partitions(struct mtd_info *mtd,
- 	return i;
- 
- out_free_parts:
--	while (i >= 0) {
-+	while (--i >= 0)
- 		kfree(parts[i].name);
--		i--;
--	}
- 	kfree(parts);
- 	*pparts = NULL;
- 	return ret;
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index 215711ac74509..9adf50b20a735 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -65,6 +65,13 @@ static const struct dmi_system_id community_key_platforms[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "UP-APL01"),
+ 		}
+ 	},
++	{
++		.ident = "Up Extreme",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "AAEON"),
++			DMI_MATCH(DMI_BOARD_NAME, "UP-WHL01"),
++		}
++	},
+ 	{
+ 		.ident = "Google Chromebooks",
+ 		.matches = {
 -- 
 2.27.0
 
