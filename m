@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5EA328A77
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA01B328A02
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239603AbhCASRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60800 "EHLO mail.kernel.org"
+        id S239147AbhCASJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:09:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239330AbhCASLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:11:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAEAC65318;
-        Mon,  1 Mar 2021 17:43:16 +0000 (UTC)
+        id S239319AbhCASDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:03:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA0DB65014;
+        Mon,  1 Mar 2021 17:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620597;
-        bh=nHulc3qNJOD32dHhJbh76NFZMYWASY3FofVxMqXy6bU=;
+        s=korg; t=1614618643;
+        bh=WFhLke/mMFwdpNRneuTRhMm2ax9AsNEYxH8qoLqz1KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=en+tq0HZG5dODi3mukgHZ8nG09SFgN/d4D8qyaXHOb+FGtGlI3xeyONDIyC7KqpjQ
-         4w5Xv9e9qjdwEAo0mYU63ewJzLd1/IzjIYdoUOCSHfrRhfuwFZT9nUiBcY1/rrzSqf
-         YiBSbOg1X7zl4YBmYeK17nBjwHGVY3rTJvYdjy6Q=
+        b=oQvdtmf8zk+w9zMN7JTTJ0HhI9GVknHvpiH5mHjzzkFEukoE4a4EdvQjYovYPQrHn
+         mOCEpbqdK9q4NdGNsVTFMuINkbfLfskuRXkv6pkm2SGrW+revbXaRSLFkXvQIu14/g
+         n2tkv059sWVH7C2dvxgFI9ReTQtT8KeoFotKRdko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Giulio Benetti <giulio.benetti@micronovasrl.com>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 211/775] drm/sun4i: tcon: fix inverted DCLK polarity
-Date:   Mon,  1 Mar 2021 17:06:19 +0100
-Message-Id: <20210301161212.072648373@linuxfoundation.org>
+Subject: [PATCH 5.10 132/663] net: amd-xgbe: Reset link when the link never comes back
+Date:   Mon,  1 Mar 2021 17:06:20 +0100
+Message-Id: <20210301161148.282060695@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giulio Benetti <giulio.benetti@micronovasrl.com>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit 67f4aeb2b41a0629abde3794d463547f60b0cbdd ]
+[ Upstream commit 84fe68eb67f9499309cffd97c1ba269de125ff14 ]
 
-During commit 88bc4178568b ("drm: Use new
-DRM_BUS_FLAG_*_(DRIVE|SAMPLE)_(POS|NEG)EDGE flags") DRM_BUS_FLAG_*
-macros have been changed to avoid ambiguity but just because of this
-ambiguity previous DRM_BUS_FLAG_PIXDATA_(POS/NEG)EDGE were used meaning
-_SAMPLE_ not _DRIVE_. This leads to DLCK inversion and need to fix but
-instead of swapping phase values, let's adopt an easier approach Maxime
-suggested:
-It turned out that bit 26 of SUN4I_TCON0_IO_POL_REG is dedicated to
-invert DCLK polarity and this makes things really easier than before. So
-let's handle DCLK polarity by adding SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE
-as bit 26 and activating according to bus_flags the same way it is done
-for all the other signals polarity.
+Normally, auto negotiation and reconnect should be automatically done by
+the hardware. But there seems to be an issue where auto negotiation has
+to be restarted manually. This happens because of link training and so
+even though still connected to the partner the link never "comes back".
+This needs an auto-negotiation restart.
 
-Fixes: 88bc4178568b ("drm: Use new DRM_BUS_FLAG_*_(DRIVE|SAMPLE)_(POS|NEG)EDGE flags")
-Suggested-by: Maxime Ripard <maxime@cerno.tech>
-Signed-off-by: Giulio Benetti <giulio.benetti@micronovasrl.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210114081732.9386-1-giulio.benetti@benettiengineering.com
+Also, a change in xgbe-mdio is needed to get ethtool to recognize the
+link down and get the link change message. This change is only
+required in a backplane connection mode.
+
+Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_tcon.c | 21 ++-------------------
- drivers/gpu/drm/sun4i/sun4i_tcon.h |  1 +
- 2 files changed, 3 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c   | 2 +-
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 8 ++++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.c b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-index 1e643bc7e786a..9f06dec0fc61d 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-@@ -569,30 +569,13 @@ static void sun4i_tcon0_mode_set_rgb(struct sun4i_tcon *tcon,
- 	if (info->bus_flags & DRM_BUS_FLAG_DE_LOW)
- 		val |= SUN4I_TCON0_IO_POL_DE_NEGATIVE;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 19ee4db0156d6..4e97b48695220 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -1345,7 +1345,7 @@ static void xgbe_phy_status(struct xgbe_prv_data *pdata)
+ 							     &an_restart);
+ 	if (an_restart) {
+ 		xgbe_phy_config_aneg(pdata);
+-		return;
++		goto adjust_link;
+ 	}
  
--	/*
--	 * On A20 and similar SoCs, the only way to achieve Positive Edge
--	 * (Rising Edge), is setting dclk clock phase to 2/3(240°).
--	 * By default TCON works in Negative Edge(Falling Edge),
--	 * this is why phase is set to 0 in that case.
--	 * Unfortunately there's no way to logically invert dclk through
--	 * IO_POL register.
--	 * The only acceptable way to work, triple checked with scope,
--	 * is using clock phase set to 0° for Negative Edge and set to 240°
--	 * for Positive Edge.
--	 * On A33 and similar SoCs there would be a 90° phase option,
--	 * but it divides also dclk by 2.
--	 * Following code is a way to avoid quirks all around TCON
--	 * and DOTCLOCK drivers.
--	 */
--	if (info->bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_POSEDGE)
--		clk_set_phase(tcon->dclk, 240);
--
- 	if (info->bus_flags & DRM_BUS_FLAG_PIXDATA_DRIVE_NEGEDGE)
--		clk_set_phase(tcon->dclk, 0);
-+		val |= SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE;
+ 	if (pdata->phy.link) {
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 087948085ae19..d3f72faecd1da 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -2610,6 +2610,14 @@ static int xgbe_phy_link_status(struct xgbe_prv_data *pdata, int *an_restart)
+ 	if (reg & MDIO_STAT1_LSTATUS)
+ 		return 1;
  
- 	regmap_update_bits(tcon->regs, SUN4I_TCON0_IO_POL_REG,
- 			   SUN4I_TCON0_IO_POL_HSYNC_POSITIVE |
- 			   SUN4I_TCON0_IO_POL_VSYNC_POSITIVE |
-+			   SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE |
- 			   SUN4I_TCON0_IO_POL_DE_NEGATIVE,
- 			   val);
- 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.h b/drivers/gpu/drm/sun4i/sun4i_tcon.h
-index ee555318e3c2f..e624f6977eb84 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.h
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.h
-@@ -113,6 +113,7 @@
- #define SUN4I_TCON0_IO_POL_REG			0x88
- #define SUN4I_TCON0_IO_POL_DCLK_PHASE(phase)		((phase & 3) << 28)
- #define SUN4I_TCON0_IO_POL_DE_NEGATIVE			BIT(27)
-+#define SUN4I_TCON0_IO_POL_DCLK_DRIVE_NEGEDGE		BIT(26)
- #define SUN4I_TCON0_IO_POL_HSYNC_POSITIVE		BIT(25)
- #define SUN4I_TCON0_IO_POL_VSYNC_POSITIVE		BIT(24)
- 
++	if (pdata->phy.autoneg == AUTONEG_ENABLE &&
++	    phy_data->port_mode == XGBE_PORT_MODE_BACKPLANE) {
++		if (!test_bit(XGBE_LINK_INIT, &pdata->dev_state)) {
++			netif_carrier_off(pdata->netdev);
++			*an_restart = 1;
++		}
++	}
++
+ 	/* No link, attempt a receiver reset cycle */
+ 	if (phy_data->rrc_count++ > XGBE_RRC_FREQUENCY) {
+ 		phy_data->rrc_count = 0;
 -- 
 2.27.0
 
