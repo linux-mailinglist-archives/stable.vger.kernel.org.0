@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A738C328F8C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B1D328EB7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242283AbhCATw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:52:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
+        id S242114AbhCATfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:35:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242198AbhCAToD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE08B651F3;
-        Mon,  1 Mar 2021 17:19:56 +0000 (UTC)
+        id S241889AbhCAT3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08F6E651FB;
+        Mon,  1 Mar 2021 17:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619197;
-        bh=E6XF8j4WUmRONjQdlpbT/dDDBQ+Edu+yQgaaG+u4nL0=;
+        s=korg; t=1614619202;
+        bh=alnWrZccUvBfsoVvvdznE4kZl6VBD8rXoxUhfQ2/FF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBZ6+8iTHWM1kLWyrqgEnHFatpirrf+0YTqhVfRA+LkqApuJJSmdhi9RwRJT3x7Jc
-         stnNYijzzO3my7mMsPc5X52UAL5FM+4AQjSVnwLmF4j+4Zt4PfNCDu3k7s2CRVhvds
-         KE+FVtBmFqKKbpkMOnfsvjTk//DVbsvqkTFwZfLk=
+        b=FuWqU+/i7Au7LEeh1ICEoB3+kpvFcgZx1vmqcBDOLcW5X6mozxnB9pi8tqvztrKUO
+         o6vv2my9w9+0GXKXpLgUg+WtKZdNmysH41UpeMkDcgm6u06OuUowUVz3puUx2acHZI
+         /9N6CVlK9vny8J0JWwjfpuOb4v0i/ZooIOEWgME8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.com>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 368/663] regulator: bd718x7, bd71828, Fix dvs voltage levels
-Date:   Mon,  1 Mar 2021 17:10:16 +0100
-Message-Id: <20210301161200.053279685@linuxfoundation.org>
+Subject: [PATCH 5.10 370/663] spi: Skip zero-length transfers in spi_transfer_one_message()
+Date:   Mon,  1 Mar 2021 17:10:18 +0100
+Message-Id: <20210301161200.154477680@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,82 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-[ Upstream commit c294554111a835598b557db789d9ad2379b512a2 ]
+[ Upstream commit b306320322c9cfaa465bc2c7367acf6072b1ac0e ]
 
-The ROHM BD718x7 and BD71828 drivers support setting HW state
-specific voltages from device-tree. This is used also by various
-in-tree DTS files.
+With the introduction of 26751de25d25 ("spi: bcm2835: Micro-optimise
+FIFO loops") it has become apparent that some users might initiate
+zero-length SPI transfers. A fact the micro-optimization omitted, and
+which turned out to cause crashes[1].
 
-These drivers do incorrectly try to compose bit-map using enum
-values. By a chance this works for first two valid levels having
-values 1 and 2 - but setting values for the rest of the levels
-do indicate capability of setting values for first levels as
-well. Luckily the regulators which support setting values for
-SUSPEND/LPSR do usually also support setting values for RUN
-and IDLE too - thus this has not been such a fatal issue.
+Instead of changing the micro-optimization itself, use a bigger hammer
+and skip zero-length transfers altogether for drivers using the default
+transfer_one_message() implementation.
 
-Fix this by defining the old enum values as bits and fixing the
-parsing code. This allows keeping existing IC specific drivers
-intact and only slightly changing the rohm-regulator.c
+Reported-by: Phil Elwell <phil@raspberrypi.com>
+Fixes: 26751de25d25 ("spi: bcm2835: Micro-optimise FIFO loops")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 
-Fixes: 21b72156ede8b ("regulator: bd718x7: Split driver to common and bd718x7 specific parts")
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20210212080023.GA880728@localhost.localdomain
+[1] https://github.com/raspberrypi/linux/issues/4100
+Link: https://lore.kernel.org/r/20210211180820.25757-1-nsaenzjulienne@suse.de
+
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/rohm-regulator.c |  9 ++++++---
- include/linux/mfd/rohm-generic.h   | 14 ++++++--------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ drivers/spi/spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/rohm-regulator.c b/drivers/regulator/rohm-regulator.c
-index 399002383b28b..5c558b153d55e 100644
---- a/drivers/regulator/rohm-regulator.c
-+++ b/drivers/regulator/rohm-regulator.c
-@@ -52,9 +52,12 @@ int rohm_regulator_set_dvs_levels(const struct rohm_dvs_config *dvs,
- 	char *prop;
- 	unsigned int reg, mask, omask, oreg = desc->enable_reg;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 7694e1ae5b0b2..4257a2d368f71 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1259,7 +1259,7 @@ static int spi_transfer_one_message(struct spi_controller *ctlr,
+ 			ptp_read_system_prets(xfer->ptp_sts);
+ 		}
  
--	for (i = 0; i < ROHM_DVS_LEVEL_MAX && !ret; i++) {
--		if (dvs->level_map & (1 << i)) {
--			switch (i + 1) {
-+	for (i = 0; i < ROHM_DVS_LEVEL_VALID_AMOUNT && !ret; i++) {
-+		int bit;
-+
-+		bit = BIT(i);
-+		if (dvs->level_map & bit) {
-+			switch (bit) {
- 			case ROHM_DVS_LEVEL_RUN:
- 				prop = "rohm,dvs-run-voltage";
- 				reg = dvs->run_reg;
-diff --git a/include/linux/mfd/rohm-generic.h b/include/linux/mfd/rohm-generic.h
-index 4283b5b33e040..2b85b9deb03ae 100644
---- a/include/linux/mfd/rohm-generic.h
-+++ b/include/linux/mfd/rohm-generic.h
-@@ -20,14 +20,12 @@ struct rohm_regmap_dev {
- 	struct regmap *regmap;
- };
+-		if (xfer->tx_buf || xfer->rx_buf) {
++		if ((xfer->tx_buf || xfer->rx_buf) && xfer->len) {
+ 			reinit_completion(&ctlr->xfer_completion);
  
--enum {
--	ROHM_DVS_LEVEL_UNKNOWN,
--	ROHM_DVS_LEVEL_RUN,
--	ROHM_DVS_LEVEL_IDLE,
--	ROHM_DVS_LEVEL_SUSPEND,
--	ROHM_DVS_LEVEL_LPSR,
--	ROHM_DVS_LEVEL_MAX = ROHM_DVS_LEVEL_LPSR,
--};
-+#define ROHM_DVS_LEVEL_RUN		BIT(0)
-+#define ROHM_DVS_LEVEL_IDLE		BIT(1)
-+#define ROHM_DVS_LEVEL_SUSPEND		BIT(2)
-+#define ROHM_DVS_LEVEL_LPSR		BIT(3)
-+#define ROHM_DVS_LEVEL_VALID_AMOUNT	4
-+#define ROHM_DVS_LEVEL_UNKNOWN		0
- 
- /**
-  * struct rohm_dvs_config - dynamic voltage scaling register descriptions
+ fallback_pio:
 -- 
 2.27.0
 
