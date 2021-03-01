@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B5CC328A4A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC78E328AF7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:27:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239400AbhCASO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:14:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58184 "EHLO mail.kernel.org"
+        id S235685AbhCAS0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:26:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239439AbhCASIo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70A23652BD;
-        Mon,  1 Mar 2021 17:36:28 +0000 (UTC)
+        id S239716AbhCASUX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:20:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E935652BF;
+        Mon,  1 Mar 2021 17:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620189;
-        bh=w7SuuQNvHSulPmFMX06aK9J/q1GaCsVQxM7UkukwzFE=;
+        s=korg; t=1614620191;
+        bh=gDv6SUpSo6UIzShK/ZKS1bJenGb6C1iukfvzRaraFrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y02rv8cEW5PrCNLxZCvEOl8gNcY8HHQgbWUV3lQIajNrnR/19YkRWFcSJLI0OxBgD
-         tHMg1i1pffRVIXu+33sYVtULLo0nSahsq0wCI+ADf85N35R8TmoPRtHxEjxBffStkp
-         piSHHt/QnMAY+SdEdH3ytYXzLRimwLo0bk2/OXfo=
+        b=r35ybL6rO+aY/mtj7emMJ7KjtZ3sgY9aolXO5M6lbyyfNL/AC2CMC4QU2imdKeiFW
+         q2xaircvW2WmGULGZyrzEgY/cL0uu0DV3+JMWDUiwd6E0nFf6hixOCpNy7ocU5ZTc0
+         vS6eLhPxvf6HxdJsBJ3y7G4GvtdvN5qvr+Gg3Ueo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 062/775] Bluetooth: Put HCI device if inquiry procedure interrupts
-Date:   Mon,  1 Mar 2021 17:03:50 +0100
-Message-Id: <20210301161204.746031668@linuxfoundation.org>
+Subject: [PATCH 5.11 063/775] memory: ti-aemif: Drop child node when jumping out loop
+Date:   Mon,  1 Mar 2021 17:03:51 +0100
+Message-Id: <20210301161204.795297382@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,36 +42,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 28a758c861ff290e39d4f1ee0aa5df0f0b9a45ee ]
+[ Upstream commit 94e9dd43cf327366388c8f146bccdc6322c0d999 ]
 
-Jump to the label done to decrement the reference count of HCI device
-hdev on path that the Inquiry procedure is interrupted.
+Call of_node_put() to decrement the reference count of the child node
+child_np when jumping out of the loop body of
+for_each_available_child_of_node(), which is a macro that increments and
+decrements the reference count of child node. If the loop is broken, the
+reference of the child node should be dropped manually.
 
-Fixes: 3e13fa1e1fab ("Bluetooth: Fix hci_inquiry ioctl usage")
+Fixes: 5a7c81547c1d ("memory: ti-aemif: introduce AEMIF driver")
 Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20210121090359.61763-1-bianpan2016@163.com
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/memory/ti-aemif.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 9d2c9a1c552fd..9f8573131b97e 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1362,8 +1362,10 @@ int hci_inquiry(void __user *arg)
- 		 * cleared). If it is interrupted by a signal, return -EINTR.
+diff --git a/drivers/memory/ti-aemif.c b/drivers/memory/ti-aemif.c
+index 159a16f5e7d67..51d20c2ccb755 100644
+--- a/drivers/memory/ti-aemif.c
++++ b/drivers/memory/ti-aemif.c
+@@ -378,8 +378,10 @@ static int aemif_probe(struct platform_device *pdev)
  		 */
- 		if (wait_on_bit(&hdev->flags, HCI_INQUIRY,
--				TASK_INTERRUPTIBLE))
--			return -EINTR;
-+				TASK_INTERRUPTIBLE)) {
-+			err = -EINTR;
-+			goto done;
-+		}
- 	}
- 
- 	/* for unlimited number of responses we will use buffer with
+ 		for_each_available_child_of_node(np, child_np) {
+ 			ret = of_aemif_parse_abus_config(pdev, child_np);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(child_np);
+ 				goto error;
++			}
+ 		}
+ 	} else if (pdata && pdata->num_abus_data > 0) {
+ 		for (i = 0; i < pdata->num_abus_data; i++, aemif->num_cs++) {
+@@ -405,8 +407,10 @@ static int aemif_probe(struct platform_device *pdev)
+ 		for_each_available_child_of_node(np, child_np) {
+ 			ret = of_platform_populate(child_np, NULL,
+ 						   dev_lookup, dev);
+-			if (ret < 0)
++			if (ret < 0) {
++				of_node_put(child_np);
+ 				goto error;
++			}
+ 		}
+ 	} else if (pdata) {
+ 		for (i = 0; i < pdata->num_sub_devices; i++) {
 -- 
 2.27.0
 
