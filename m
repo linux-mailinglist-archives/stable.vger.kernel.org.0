@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E743B328DBB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDFD328DFE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbhCATQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:16:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39774 "EHLO mail.kernel.org"
+        id S240456AbhCATWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:22:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241143AbhCATMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:12:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C416D65312;
-        Mon,  1 Mar 2021 17:43:02 +0000 (UTC)
+        id S241326AbhCATRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:17:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4456665308;
+        Mon,  1 Mar 2021 17:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620583;
-        bh=+0yWCGYX/eWleYB0xPjxvLFpfpYXEb8nti+BkNJmvRc=;
+        s=korg; t=1614620524;
+        bh=HcKQ6sigd6xlm8JyehdJlzLAtOZfX3tnxebHSF/tCLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkYxdB197TrOal4HYWZrzIxr6keqyh9TOTO/qJMo4QboOxoxpalWikvA5Nnzb/vgO
-         K+IZmmqNTCeSmeUFdxEfghaCYBpQP/1Qhe7TDV7+/xXbTdRwqaFXlWjr+UXXiPxYo5
-         iUV1wwKz9mwu71o2G4ljpA8Mn6n0h/JGOf3RqcTw=
+        b=s/61l9tLc+OTcfNyOU4L1rdQezQh/GqJqdioy32Esb4p2ovyuJXtrbnXjUW4WKmkk
+         MAh23ezk3wB6zEgpaXSunhKMJUFjQXkGvfQUySS1vZcWdGC4Uk/2sTSPmUhqffENyw
+         Aj3YkeimfYVkGzC8EcaFotWAJ9t4pAuk0sJ/8yBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        stable@vger.kernel.org,
+        Steen Hegelund <steen.hegelund@microchip.com>,
+        Bjarni Jonasson <bjarni.jonasson@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 165/775] net: ipa: initialize all resources
-Date:   Mon,  1 Mar 2021 17:05:33 +0100
-Message-Id: <20210301161209.793436218@linuxfoundation.org>
+Subject: [PATCH 5.11 167/775] net: phy: mscc: coma mode disabled for VSC8514
+Date:   Mon,  1 Mar 2021 17:05:35 +0100
+Message-Id: <20210301161209.894813968@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,46 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Bjarni Jonasson <bjarni.jonasson@microchip.com>
 
-[ Upstream commit 25c5a7e89b1de80f4b04ad5365b2e05fefd92279 ]
+[ Upstream commit ca0d7fd0a58dfc9503775dae7daee341c115e0c7 ]
 
-We configure the minimum and maximum number of various types of IPA
-resources in ipa_resource_config().  It iterates over resource types
-in the configuration data and assigns resource limits to each
-resource group for each type.
+The 'coma mode' (configurable through sw or hw) provides an
+optional feature that may be used to control when the PHYs become active.
+The typical usage is to synchronize the link-up time across
+all PHY instances. This patch releases coma mode if not done by hardware,
+otherwise the phys will not link-up.
 
-Unfortunately, we are repeatedly initializing the resource data for
-the first type, rather than initializing each of the types whose
-limits are specified.
-
-Fix this bug.
-
-Fixes: 4a0d7579d466e ("net: ipa: avoid going past end of resource group array")
-Signed-off-by: Alex Elder <elder@linaro.org>
+Fixes: e4f9ba642f0b ("net: phy: mscc: add support for VSC8514 PHY.")
+Signed-off-by: Steen Hegelund <steen.hegelund@microchip.com>
+Signed-off-by: Bjarni Jonasson <bjarni.jonasson@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/mscc/mscc.h      |  4 ++++
+ drivers/net/phy/mscc/mscc_main.c | 16 ++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/drivers/net/ipa/ipa_main.c b/drivers/net/ipa/ipa_main.c
-index 84bb8ae927252..eb1c8396bcdd9 100644
---- a/drivers/net/ipa/ipa_main.c
-+++ b/drivers/net/ipa/ipa_main.c
-@@ -581,10 +581,10 @@ ipa_resource_config(struct ipa *ipa, const struct ipa_resource_data *data)
- 		return -EINVAL;
+diff --git a/drivers/net/phy/mscc/mscc.h b/drivers/net/phy/mscc/mscc.h
+index 2028c319f14dd..a50235fdf7d99 100644
+--- a/drivers/net/phy/mscc/mscc.h
++++ b/drivers/net/phy/mscc/mscc.h
+@@ -140,6 +140,10 @@ enum rgmii_clock_delay {
+ #define MSCC_PHY_PAGE_1588		  0x1588 /* PTP (1588) */
+ #define MSCC_PHY_PAGE_TEST		  0x2a30 /* Test reg */
+ #define MSCC_PHY_PAGE_TR		  0x52b5 /* Token ring registers */
++#define MSCC_PHY_GPIO_CONTROL_2           14
++
++#define MSCC_PHY_COMA_MODE		  0x2000 /* input(1) / output(0) */
++#define MSCC_PHY_COMA_OUTPUT		  0x1000 /* value to output */
  
- 	for (i = 0; i < data->resource_src_count; i++)
--		ipa_resource_config_src(ipa, data->resource_src);
-+		ipa_resource_config_src(ipa, &data->resource_src[i]);
- 
- 	for (i = 0; i < data->resource_dst_count; i++)
--		ipa_resource_config_dst(ipa, data->resource_dst);
-+		ipa_resource_config_dst(ipa, &data->resource_dst[i]);
- 
- 	return 0;
+ /* Extended Page 1 Registers */
+ #define MSCC_PHY_CU_MEDIA_CRC_VALID_CNT	  18
+diff --git a/drivers/net/phy/mscc/mscc_main.c b/drivers/net/phy/mscc/mscc_main.c
+index 0e6e7076a740e..3a7705228ed59 100644
+--- a/drivers/net/phy/mscc/mscc_main.c
++++ b/drivers/net/phy/mscc/mscc_main.c
+@@ -1516,6 +1516,21 @@ static void vsc8584_get_base_addr(struct phy_device *phydev)
+ 	vsc8531->addr = addr;
  }
+ 
++static void vsc85xx_coma_mode_release(struct phy_device *phydev)
++{
++	/* The coma mode (pin or reg) provides an optional feature that
++	 * may be used to control when the PHYs become active.
++	 * Alternatively the COMA_MODE pin may be connected low
++	 * so that the PHYs are fully active once out of reset.
++	 */
++
++	/* Enable output (mode=0) and write zero to it */
++	vsc85xx_phy_write_page(phydev, MSCC_PHY_PAGE_EXTENDED_GPIO);
++	__phy_modify(phydev, MSCC_PHY_GPIO_CONTROL_2,
++		     MSCC_PHY_COMA_MODE | MSCC_PHY_COMA_OUTPUT, 0);
++	vsc85xx_phy_write_page(phydev, MSCC_PHY_PAGE_STANDARD);
++}
++
+ static int vsc8584_config_init(struct phy_device *phydev)
+ {
+ 	struct vsc8531_private *vsc8531 = phydev->priv;
+@@ -1962,6 +1977,7 @@ static int vsc8514_config_init(struct phy_device *phydev)
+ 		ret = vsc8514_config_host_serdes(phydev);
+ 		if (ret)
+ 			goto err;
++		vsc85xx_coma_mode_release(phydev);
+ 	}
+ 
+ 	phy_unlock_mdio_bus(phydev);
 -- 
 2.27.0
 
