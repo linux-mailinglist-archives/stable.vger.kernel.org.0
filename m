@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96458328DB6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 787FC328CF4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241298AbhCATQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:16:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39778 "EHLO mail.kernel.org"
+        id S240884AbhCATCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:02:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235221AbhCATJn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:09:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95BAC65056;
-        Mon,  1 Mar 2021 17:21:13 +0000 (UTC)
+        id S238112AbhCAS4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:56:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BD1D651F5;
+        Mon,  1 Mar 2021 17:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619274;
-        bh=SOMY2cf7ehxVdu/OpMFzygPChKujMvoZ5qG0kZLw4qA=;
+        s=korg; t=1614619199;
+        bh=ORluSZcnlpOLMcZTmsMboY6MswbuOCMKTiOq7fmiNR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XG/5qZY+3i7RcMixd7p15ovoZHNNjSr8PdyjiVcIOMN3wbD15Gt1JqfQj3i/M8BF4
-         CPlJCRoH/6josbQ+W9GFN/YIYcgCILjWPzd5jNQcB1s4YqxVvQL6rsO2FlehJv2Il3
-         Atw/WF1Xun9yt07cz1Fuj8iXdT6bCJUli/Ejo/7k=
+        b=hc6e58rpsq+9otd5NthuU0TLj9NNyRMFO+oL2tMl9fnMk6y/ONgc4WxzRrnjiYl9j
+         Gh7IdTGkmZEbk6dG37hvGj5NxVyL04ADyfaFTNX6etxtbmpb80g0suqWsSIIo0nydJ
+         5HC/h+aOufC3UztQE/oUOrqz6Xn6OLibCZJgx6qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Chen <ryan_chen@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Serge Semin <fancer.lancer@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 365/663] clk: aspeed: Fix APLL calculate formula from ast2600-A2
-Date:   Mon,  1 Mar 2021 17:10:13 +0100
-Message-Id: <20210301161159.906734969@linuxfoundation.org>
+Subject: [PATCH 5.10 369/663] spi: dw: Avoid stack content exposure
+Date:   Mon,  1 Mar 2021 17:10:17 +0100
+Message-Id: <20210301161200.103107910@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,81 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Chen <ryan_chen@aspeedtech.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6286ce1e3ece54799f12775f8ce2a1cba9cbcfc5 ]
+[ Upstream commit 386f771aad15dd535f2368b4adc9958c0160edd4 ]
 
-Starting from A2, the A-PLL calculation has changed. Use the
-existing formula for A0/A1 and the new formula for A2 onwards.
+Since "data" is u32, &data is a "u32 *" type, which means pointer math
+will move in u32-sized steps. This was meant to be a byte offset, so
+cast &data to "char *" to aim the copy into the correct location.
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-Link: https://lore.kernel.org/r/20210119061715.6043-1-ryan_chen@aspeedtech.com
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Seen with -Warray-bounds (and found by Coverity):
+
+In file included from ./include/linux/string.h:269,
+                 from ./arch/powerpc/include/asm/paca.h:15,
+                 from ./arch/powerpc/include/asm/current.h:13,
+                 from ./include/linux/mutex.h:14,
+                 from ./include/linux/notifier.h:14,
+                 from ./include/linux/clk.h:14,
+                 from drivers/spi/spi-dw-bt1.c:12:
+In function 'memcpy',
+    inlined from 'dw_spi_bt1_dirmap_copy_from_map' at drivers/spi/spi-dw-bt1.c:87:3:
+./include/linux/fortify-string.h:20:29: warning: '__builtin_memcpy' offset 4 is out of the bounds [0, 4] of object 'data' with type 'u32' {aka 'unsigned int'} [-Warray-bounds]
+   20 | #define __underlying_memcpy __builtin_memcpy
+      |                             ^
+./include/linux/fortify-string.h:191:9: note: in expansion of macro '__underlying_memcpy'
+  191 |  return __underlying_memcpy(p, q, size);
+      |         ^~~~~~~~~~~~~~~~~~~
+drivers/spi/spi-dw-bt1.c: In function 'dw_spi_bt1_dirmap_copy_from_map':
+drivers/spi/spi-dw-bt1.c:77:6: note: 'data' declared here
+   77 |  u32 data;
+      |      ^~~~
+
+Addresses-Coverity: CID 1497771 Out-of-bounds access
+Fixes: abf00907538e ("spi: dw: Add Baikal-T1 SPI Controller glue driver")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Acked-by: Serge Semin <fancer.lancer@gmail.com>
+Link: https://lore.kernel.org/r/20210211203714.1929862-1-keescook@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/spi/spi-dw-bt1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 177368cac6dd6..a55b37fc2c8bd 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -17,7 +17,8 @@
- 
- #define ASPEED_G6_NUM_CLKS		71
- 
--#define ASPEED_G6_SILICON_REV		0x004
-+#define ASPEED_G6_SILICON_REV		0x014
-+#define CHIP_REVISION_ID			GENMASK(23, 16)
- 
- #define ASPEED_G6_RESET_CTRL		0x040
- #define ASPEED_G6_RESET_CTRL2		0x050
-@@ -190,18 +191,34 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
- static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
- {
- 	unsigned int mult, div;
-+	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
- 
--	if (val & BIT(20)) {
--		/* Pass through mode */
--		mult = div = 1;
-+	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
-+		if (val & BIT(24)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * [(m + 1) / (n + 1)] / (p + 1) */
-+			u32 m = val & 0x1fff;
-+			u32 n = (val >> 13) & 0x3f;
-+			u32 p = (val >> 19) & 0xf;
-+
-+			mult = (m + 1);
-+			div = (n + 1) * (p + 1);
-+		}
- 	} else {
--		/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
--		u32 m = (val >> 5) & 0x3f;
--		u32 od = (val >> 4) & 0x1;
--		u32 n = val & 0xf;
-+		if (val & BIT(20)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
-+			u32 m = (val >> 5) & 0x3f;
-+			u32 od = (val >> 4) & 0x1;
-+			u32 n = val & 0xf;
- 
--		mult = (2 - od) * (m + 2);
--		div = n + 1;
-+			mult = (2 - od) * (m + 2);
-+			div = n + 1;
-+		}
- 	}
- 	return clk_hw_register_fixed_factor(NULL, name, "clkin", 0,
- 			mult, div);
+diff --git a/drivers/spi/spi-dw-bt1.c b/drivers/spi/spi-dw-bt1.c
+index c279b7891e3ac..bc9d5eab3c589 100644
+--- a/drivers/spi/spi-dw-bt1.c
++++ b/drivers/spi/spi-dw-bt1.c
+@@ -84,7 +84,7 @@ static void dw_spi_bt1_dirmap_copy_from_map(void *to, void __iomem *from, size_t
+ 	if (shift) {
+ 		chunk = min_t(size_t, 4 - shift, len);
+ 		data = readl_relaxed(from - shift);
+-		memcpy(to, &data + shift, chunk);
++		memcpy(to, (char *)&data + shift, chunk);
+ 		from += chunk;
+ 		to += chunk;
+ 		len -= chunk;
 -- 
 2.27.0
 
