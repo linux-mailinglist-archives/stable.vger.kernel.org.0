@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72118328DAF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:15:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7FB328E0F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241194AbhCATPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:15:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39804 "EHLO mail.kernel.org"
+        id S241474AbhCATW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:22:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236900AbhCATKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:10:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0226652DE;
-        Mon,  1 Mar 2021 17:38:55 +0000 (UTC)
+        id S241380AbhCATSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:18:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B91D465163;
+        Mon,  1 Mar 2021 17:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620336;
-        bh=sgpoTDeMHXbQua+lS2BnMkLkTPRZ47VR4rlXPMeXSvI=;
+        s=korg; t=1614618384;
+        bh=Aq2exbCTnBIDhLjBvwMCBNoOBrxAJTOKbnbmOO2YrzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vv5Y8rS8IkhM8aI7EdC1J5EuoXhmepRQH+Xg17CqeGuiMbTPOenNsojBIycKUqi+k
-         sENDO3Hqv0AO00SocKh3H47UQVCleSOL3aaVCuo91pC8WEGCCjKghCk682r+njqjwy
-         4UFObVr8MFqPoi9rbVjV3oYki5+hmpP34kOwDwhA=
+        b=hZQcP+IvoLtDDpI9djA+iq8JiG/wnQevlyrQYCUf+wGEezr+0ojZsxRUOiy9/uqEe
+         bFE5rmiAReO8POkGyIlNzq0u+8Uud8h13H7WCqmm6HehpDFvfguJoNLMT0BTjsiD9O
+         8thYMwUpRb9VS0vBsn7t7T8xXfhEfTEcOHTY49F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Phil Elwell <phil@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 117/775] mac80211: fix potential overflow when multiplying to u32 integers
-Date:   Mon,  1 Mar 2021 17:04:45 +0100
-Message-Id: <20210301161207.456971789@linuxfoundation.org>
+Subject: [PATCH 5.10 038/663] staging: vchiq: Fix bulk transfers on 64-bit builds
+Date:   Mon,  1 Mar 2021 17:04:46 +0100
+Message-Id: <20210301161143.675258456@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 6194f7e6473be78acdc5d03edd116944bdbb2c4e ]
+[ Upstream commit 88753cc19f087abe0d39644b844e67a59cfb5a3d ]
 
-The multiplication of the u32 variables tx_time and estimated_retx is
-performed using a 32 bit multiplication and the result is stored in
-a u64 result. This has a potential u32 overflow issue, so avoid this
-by casting tx_time to a u64 to force a 64 bit multiply.
+The recent change to the bulk transfer compat function missed the fact
+the relevant ioctl command is VCHIQ_IOC_QUEUE_BULK_TRANSMIT32, not
+VCHIQ_IOC_QUEUE_BULK_TRANSMIT, as any attempt to send a bulk block
+to the VPU would have shown.
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: 050ac52cbe1f ("mac80211: code for on-demand Hybrid Wireless Mesh Protocol")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210205175352.208841-1-colin.king@canonical.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: a4367cd2b231 ("staging: vchiq: convert compat bulk transfer")
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20210105162030.1415213-3-phil@raspberrypi.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_hwmp.c | 2 +-
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
-index 313eee12410ec..3db514c4c63ab 100644
---- a/net/mac80211/mesh_hwmp.c
-+++ b/net/mac80211/mesh_hwmp.c
-@@ -356,7 +356,7 @@ u32 airtime_link_metric_get(struct ieee80211_local *local,
- 	 */
- 	tx_time = (device_constant + 10 * test_frame_len / rate);
- 	estimated_retx = ((1 << (2 * ARITH_SHIFT)) / (s_unit - err));
--	result = (tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
-+	result = ((u64)tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
- 	return (u32)result;
- }
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+index 5bc9b394212b8..3d378da119e7a 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+@@ -1714,7 +1714,7 @@ vchiq_compat_ioctl_queue_bulk(struct file *file,
+ {
+ 	struct vchiq_queue_bulk_transfer32 args32;
+ 	struct vchiq_queue_bulk_transfer args;
+-	enum vchiq_bulk_dir dir = (cmd == VCHIQ_IOC_QUEUE_BULK_TRANSMIT) ?
++	enum vchiq_bulk_dir dir = (cmd == VCHIQ_IOC_QUEUE_BULK_TRANSMIT32) ?
+ 				  VCHIQ_BULK_TRANSMIT : VCHIQ_BULK_RECEIVE;
  
+ 	if (copy_from_user(&args32, argp, sizeof(args32)))
 -- 
 2.27.0
 
