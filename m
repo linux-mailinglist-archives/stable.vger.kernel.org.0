@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8BA23284A0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2239A328497
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbhCAQjW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:39:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36900 "EHLO mail.kernel.org"
+        id S234648AbhCAQiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:38:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232658AbhCAQc1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232664AbhCAQc1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:32:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5573364F37;
-        Mon,  1 Mar 2021 16:24:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D58464F38;
+        Mon,  1 Mar 2021 16:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615892;
-        bh=aFLZYQKHD5XXhZkBCdfI9AqNICh8NGX8A3+sn9WXcAY=;
+        s=korg; t=1614615895;
+        bh=ut975fHUjAck+3/CY27BEZDe/J62sZzzr2haTtNJ1JE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZVcrlM4HgH3ZQgCGM65nrfRiVeG/bxMSKA2Vhsww7QsDVhQ8hxuXzuhKSQp3ljXz
-         Cy0fnat89dVQTjGj0LYPfWChpJzYwsO/iT/2+bgF6zXrZwq7KzK64gVXvgtl7SeOV9
-         W5dPd7JmsfHjV4hWsr4g9X/LQOLUZzSUKf4KmOCo=
+        b=QcDndpzXRI4SghdGgFPHIdnyfGCYdksYF51J7g3Bpo5QW09jM9OFKoIltjp4YMa2+
+         0kStsOKvtYa3Gh6wrb2jwKZgmQKHgF0QmflZQzVWxHSb7VKr5THJnCqu111my3E76A
+         /wVfET6g9CSu3DAqJRNi5uY1+nkF2wIBgJKkwCXc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Paul Cercueil <paul@crapouillou.net>
-Subject: [PATCH 4.9 096/134] usb: musb: Fix runtime PM race in musb_queue_resume_work
-Date:   Mon,  1 Mar 2021 17:13:17 +0100
-Message-Id: <20210301161018.296433349@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 097/134] USB: serial: mos7840: fix error code in mos7840_write()
+Date:   Mon,  1 Mar 2021 17:13:18 +0100
+Message-Id: <20210301161018.334376009@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -39,88 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 0eaa1a3714db34a59ce121de5733c3909c529463 upstream.
+commit a70aa7dc60099bbdcbd6faca42a915d80f31161e upstream.
 
-musb_queue_resume_work() would call the provided callback if the runtime
-PM status was 'active'. Otherwise, it would enqueue the request if the
-hardware was still suspended (musb->is_runtime_suspended is true).
+This should return -ENOMEM instead of 0 if the kmalloc() fails.
 
-This causes a race with the runtime PM handlers, as it is possible to be
-in the case where the runtime PM status is not yet 'active', but the
-hardware has been awaken (PM resume function has been called).
-
-When hitting the race, the resume work was not enqueued, which probably
-triggered other bugs further down the stack. For instance, a telnet
-connection on Ingenic SoCs would result in a 50/50 chance of a
-segmentation fault somewhere in the musb code.
-
-Rework the code so that either we call the callback directly if
-(musb->is_runtime_suspended == 0), or enqueue the query otherwise.
-
-Fixes: ea2f35c01d5e ("usb: musb: Fix sleeping function called from invalid context for hdrc glue")
-Cc: stable@vger.kernel.org # v4.9+
-Tested-by: Tony Lindgren <tony@atomide.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20210123142502.16980-1-paul@crapouillou.net
+Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/musb/musb_core.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+ drivers/usb/serial/mos7840.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2097,32 +2097,35 @@ int musb_queue_resume_work(struct musb *
- {
- 	struct musb_pending_work *w;
- 	unsigned long flags;
-+	bool is_suspended;
- 	int error;
- 
- 	if (WARN_ON(!callback))
- 		return -EINVAL;
- 
--	if (pm_runtime_active(musb->controller))
--		return callback(musb, data);
-+	spin_lock_irqsave(&musb->list_lock, flags);
-+	is_suspended = musb->is_runtime_suspended;
- 
--	w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
--	if (!w)
--		return -ENOMEM;
-+	if (is_suspended) {
-+		w = devm_kzalloc(musb->controller, sizeof(*w), GFP_ATOMIC);
-+		if (!w) {
-+			error = -ENOMEM;
-+			goto out_unlock;
+--- a/drivers/usb/serial/mos7840.c
++++ b/drivers/usb/serial/mos7840.c
+@@ -1362,8 +1362,10 @@ static int mos7840_write(struct tty_stru
+ 	if (urb->transfer_buffer == NULL) {
+ 		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
+ 					       GFP_ATOMIC);
+-		if (!urb->transfer_buffer)
++		if (!urb->transfer_buffer) {
++			bytes_sent = -ENOMEM;
+ 			goto exit;
 +		}
-+
-+		w->callback = callback;
-+		w->data = data;
- 
--	w->callback = callback;
--	w->data = data;
--	spin_lock_irqsave(&musb->list_lock, flags);
--	if (musb->is_runtime_suspended) {
- 		list_add_tail(&w->node, &musb->pending_list);
- 		error = 0;
--	} else {
--		dev_err(musb->controller, "could not add resume work %p\n",
--			callback);
--		devm_kfree(musb->controller, w);
--		error = -EINPROGRESS;
  	}
-+
-+out_unlock:
- 	spin_unlock_irqrestore(&musb->list_lock, flags);
+ 	transfer_size = min(count, URB_TRANSFER_BUFFER_SIZE);
  
-+	if (!is_suspended)
-+		error = callback(musb, data);
-+
- 	return error;
- }
- EXPORT_SYMBOL_GPL(musb_queue_resume_work);
 
 
