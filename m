@@ -2,108 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 557CD328968
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 468FB3287F4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:36:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233398AbhCAR4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:56:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42742 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239011AbhCARu3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:50:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B69C164F47;
-        Mon,  1 Mar 2021 17:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618038;
-        bh=d4FduEAJdMaDDRP243VE1K2XEo86U7X0COC90qEgY3s=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHCn983EArIkS1TvgDK0kP9NQM9esoWWRM4QZJozS7rPhQjLTVxuxYez136/qke0p
-         Y53zB8qCdyctTW28o4sKddJXlIjFY6RDa1B4YRwAuR12PcgGtDJT3feDWntx0OnfS7
-         lA7Pyn7ag1FmxDO02r/iL5GjZMzEJ68cW+7PA18k=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        "David P. Reed" <dpreed@deepplum.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.4 285/340] x86/reboot: Force all cpus to exit VMX root if VMX is supported
-Date:   Mon,  1 Mar 2021 17:13:49 +0100
-Message-Id: <20210301161102.313852394@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S238151AbhCARa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:30:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238388AbhCAR0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 12:26:20 -0500
+Received: from mail-ej1-x632.google.com (mail-ej1-x632.google.com [IPv6:2a00:1450:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77D5DC061788
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 09:25:07 -0800 (PST)
+Received: by mail-ej1-x632.google.com with SMTP id ci14so10694374ejc.7
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 09:25:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=GpEoM8XXlnlHwcOGysQ91LiTB61WO4r0bs0983YXWto=;
+        b=VYuQmHEyerte3PnhH1vNwwvrPqh6VL2ebcEcfSmnYcPgkeskCB+2sPyARRbR+ir780
+         ymBp9TrkZA6WeARXd/fCqjX80SNREteVmsruZ9wynYzCGvQKxGKJjndIyRGXL/5/xEfI
+         AqzEXzZKM9RupyqKQfGeLUVINlEP3GO4RFZzhLf2vO+UHg9SDXEFHqjKMtzm34zOyfL+
+         YCJCnKLsCgIg4DLYtU+3EyMoopbBNTDPmQpgGh7miYP4RCC2qSnDnh3TEAekFUG20CD7
+         MctZTRfADVBsn48ESgiyAlUXS4R0O9lBFkfcdcVuyc9hpHnBBxrkIOVqfsynyb8O/srb
+         OL5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=GpEoM8XXlnlHwcOGysQ91LiTB61WO4r0bs0983YXWto=;
+        b=SGS4EhT78HEmIFQqCPcfeux6t5erxDE+gqaSN4kCsKEHy9mNLR/XbXIstzh3fCiqSZ
+         CcARf9cYg+qderXNbiptC8XYAz/We52SkOZ8N8uAZDn28+cT1yH5fY1ZhXWvrmFkh5Yu
+         2iFheDNsp0RQiqGjzr8NccGSphhYF4KkcW6wSLDxhLTCpFrXRGxBq47SXz7XrT2NfT57
+         dboQQvo0QIBiMArTdlGzsJgCCCaAVd9rIyZq7U3ARXuVAseZiUPeYUIG3VlCUWOz93Vz
+         iSa/2ydr3BVZHa71CBtwNK5xyBl7MwgKRdd13VAE95bPnDIU7WSEf+Q7R/Kj56n2DtcV
+         o7cQ==
+X-Gm-Message-State: AOAM531OzUXB8ovNUW9zaGSm4AzuOCKMP76IV19Djd5/tzsjE5Wuzfz6
+        pHwhoPHBvKPnnVJQZtWut8ROnRh99aNUMpuaC80yUA==
+X-Google-Smtp-Source: ABdhPJy2/fu9xyugRpxbHjUaenNq+oeZc8zhQcxyfobz9TKBVgNQu+vfv5TRaJJR7UjxZ2rmpCQXeCGsJkyBCHJXDeA=
+X-Received: by 2002:a17:906:4c85:: with SMTP id q5mr16848983eju.375.1614619505969;
+ Mon, 01 Mar 2021 09:25:05 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 1 Mar 2021 22:54:52 +0530
+Message-ID: <CA+G9fYufUB394TpDuO5-m2GEi=1LDZvsVcHmp-HyWbWV1tYjkA@mail.gmail.com>
+Subject: sun4i-ss-cipher.c:139:4: error: implicit declaration of function
+ 'kfree_sensitive'; did you mean 'kvfree_sensitive'?
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+On stable rc 4.19 arm build failed due to below error.
+the config file link provided.
 
-commit ed72736183c45a413a8d6974dd04be90f514cb6b upstream.
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=arm
+CROSS_COMPILE=arm-linux-gnueabihf- 'CC=sccache
+arm-linux-gnueabihf-gcc' 'HOSTCC=sccache gcc'
+drivers/crypto/sunxi-ss/sun4i-ss-cipher.c: In function 'sun4i_ss_opti_poll':
+drivers/crypto/sunxi-ss/sun4i-ss-cipher.c:139:4: error: implicit
+declaration of function 'kfree_sensitive'; did you mean
+'kvfree_sensitive'? [-Werror=implicit-function-declaration]
+  139 |    kfree_sensitive(backup_iv);
+      |    ^~~~~~~~~~~~~~~
+      |    kvfree_sensitive
+cc1: some warnings being treated as errors
+make[4]: *** [scripts/Makefile.build:304:
+drivers/crypto/sunxi-ss/sun4i-ss-cipher.o] Error 1
+make[4]: Target '__build' not remade because of errors.
 
-Force all CPUs to do VMXOFF (via NMI shootdown) during an emergency
-reboot if VMX is _supported_, as VMX being off on the current CPU does
-not prevent other CPUs from being in VMX root (post-VMXON).  This fixes
-a bug where a crash/panic reboot could leave other CPUs in VMX root and
-prevent them from being woken via INIT-SIPI-SIPI in the new kernel.
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-Fixes: d176720d34c7 ("x86: disable VMX on all CPUs on reboot")
-Cc: stable@vger.kernel.org
-Suggested-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: David P. Reed <dpreed@deepplum.com>
-[sean: reworked changelog and further tweaked comment]
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20201231002702.2223707-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/reboot.c |   29 ++++++++++-------------------
- 1 file changed, 10 insertions(+), 19 deletions(-)
+ref:
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1064179234#L462
 
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -538,29 +538,20 @@ static void emergency_vmx_disable_all(vo
- 	local_irq_disable();
- 
- 	/*
--	 * We need to disable VMX on all CPUs before rebooting, otherwise
--	 * we risk hanging up the machine, because the CPU ignore INIT
--	 * signals when VMX is enabled.
-+	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
-+	 * the machine, because the CPU blocks INIT when it's in VMX root.
- 	 *
--	 * We can't take any locks and we may be on an inconsistent
--	 * state, so we use NMIs as IPIs to tell the other CPUs to disable
--	 * VMX and halt.
-+	 * We can't take any locks and we may be on an inconsistent state, so
-+	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
- 	 *
--	 * For safety, we will avoid running the nmi_shootdown_cpus()
--	 * stuff unnecessarily, but we don't have a way to check
--	 * if other CPUs have VMX enabled. So we will call it only if the
--	 * CPU we are running on has VMX enabled.
--	 *
--	 * We will miss cases where VMX is not enabled on all CPUs. This
--	 * shouldn't do much harm because KVM always enable VMX on all
--	 * CPUs anyway. But we can miss it on the small window where KVM
--	 * is still enabling VMX.
-+	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
-+	 * doesn't prevent a different CPU from being in VMX root operation.
- 	 */
--	if (cpu_has_vmx() && cpu_vmx_enabled()) {
--		/* Disable VMX on this CPU. */
--		cpu_vmxoff();
-+	if (cpu_has_vmx()) {
-+		/* Safely force _this_ CPU out of VMX root operation. */
-+		__cpu_emergency_vmxoff();
- 
--		/* Halt and disable VMX on the other CPUs */
-+		/* Halt and exit VMX root operation on the other CPUs. */
- 		nmi_shootdown_cpus(vmxoff_nmi);
- 
- 	}
+confg:
+https://builds.tuxbuild.com/1pAEVBwRxCDBXf85dL6Kki6o8Yf/config
 
 
+steps to reproduce:
+
+# TuxMake is a command line tool and Python library that provides
+# portable and repeatable Linux kernel builds across a variety of
+# architectures, toolchains, kernel configurations, and make targets.
+#
+# TuxMake supports the concept of runtimes.
+# See https://docs.tuxmake.org/runtimes/, for that to work it requires
+# that you install podman or docker on your system.
+#
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+
+
+tuxmake --runtime podman --target-arch arm --toolchain gcc-9 --kconfig
+defconfig --kconfig-add
+https://builds.tuxbuild.com/1pAEVBwRxCDBXf85dL6Kki6o8Yf/config
+
+-- 
+Linaro LKFT
+https://lkft.linaro.org
