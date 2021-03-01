@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB54328C3B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94058328B6B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240254AbhCASrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:47:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
+        id S238587AbhCASd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240091AbhCASll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:41:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D370651A8;
-        Mon,  1 Mar 2021 17:12:24 +0000 (UTC)
+        id S239873AbhCAS0W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:26:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51E5465324;
+        Mon,  1 Mar 2021 17:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618745;
-        bh=NbpzCYMIvEbZs18qLNVRxseZKiihXVcW5iCjn6/ayIE=;
+        s=korg; t=1614620682;
+        bh=AMAovv1m707oJ1y9ptFW2suwX9WU19RRVpElkic2UbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F51wULWvzx/ctbYmACRWxyjQ8qMYojIvnip9eVNMfB5D/xOI4lqNVg/t2tw7QYAUK
-         DVOKrZ83nDBO0W8XbzpTWDeWdXGx+H1h++oxGr8ejQ/H8ZBhxf0QbCW30HpU6dozib
-         x2ulwEhw7dyNCoCcumjrvFx11ij1/+Wl+wtKiLYQ=
+        b=ynDc5Vv6J6W6G7Dr/s2atbfqYX561HK6ZnHoPBm3Qc/3tsgvKOdGhdsqlExaO6BrS
+         NCqqPDemEPcxlMwR1j7rJCLz7M8gUw0iAzmweH9iJsgLht94UKQynvyh/gK1QCH3RC
+         wUo40Zs1Iqa/l6xudZs5M0jF284z0yGuJrwW55Q0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 161/663] media: imx: Unregister csc/scaler only if registered
-Date:   Mon,  1 Mar 2021 17:06:49 +0100
-Message-Id: <20210301161149.740161178@linuxfoundation.org>
+Subject: [PATCH 5.11 242/775] mtd: parser: imagetag: fix error codes in bcm963xx_parse_imagetag_partitions()
+Date:   Mon,  1 Mar 2021 17:06:50 +0100
+Message-Id: <20210301161213.593420279@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit bb2216548a2b13cf2942a058b475438a7a6bb028 ]
+[ Upstream commit 12ba8f8ce29fdd277f3100052eddc1afd2f5ea3f ]
 
-The csc/scaler device pointer (imxmd->m2m_vdev) is assigned
-after the imx media device v4l2-async probe completes,
-therefore we need to check if the device is non-NULL
-before trying to unregister it.
+If the kstrtouint() calls fail, then this should return a negative
+error code but it currently returns success.
 
-This can be the case if the non-completed imx media device
-is unbinded (or the driver is removed), leading to a kernel oops.
-
-Fixes: a8ef0488cc59 ("media: imx: add csc/scaler mem2mem device")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: dd84cb022b31 ("mtd: bcm63xxpart: move imagetag parsing to its own parser")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/YBKFtNaFHGYBj+u4@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx-media-dev.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/parsers/parser_imagetag.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/staging/media/imx/imx-media-dev.c b/drivers/staging/media/imx/imx-media-dev.c
-index 6d2205461e565..338b8bd0bb076 100644
---- a/drivers/staging/media/imx/imx-media-dev.c
-+++ b/drivers/staging/media/imx/imx-media-dev.c
-@@ -53,6 +53,7 @@ static int imx6_media_probe_complete(struct v4l2_async_notifier *notifier)
- 	imxmd->m2m_vdev = imx_media_csc_scaler_device_init(imxmd);
- 	if (IS_ERR(imxmd->m2m_vdev)) {
- 		ret = PTR_ERR(imxmd->m2m_vdev);
-+		imxmd->m2m_vdev = NULL;
- 		goto unlock;
- 	}
+diff --git a/drivers/mtd/parsers/parser_imagetag.c b/drivers/mtd/parsers/parser_imagetag.c
+index d69607b482272..fab0949aabba1 100644
+--- a/drivers/mtd/parsers/parser_imagetag.c
++++ b/drivers/mtd/parsers/parser_imagetag.c
+@@ -83,6 +83,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid rootfs address: %*ph\n",
+ 				(int)sizeof(buf->flash_image_start),
+ 				buf->flash_image_start);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
  
-@@ -107,10 +108,14 @@ static int imx_media_remove(struct platform_device *pdev)
+@@ -92,6 +93,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid kernel address: %*ph\n",
+ 				(int)sizeof(buf->kernel_address),
+ 				buf->kernel_address);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
  
- 	v4l2_info(&imxmd->v4l2_dev, "Removing imx-media\n");
+@@ -100,6 +102,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid kernel length: %*ph\n",
+ 				(int)sizeof(buf->kernel_length),
+ 				buf->kernel_length);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
  
-+	if (imxmd->m2m_vdev) {
-+		imx_media_csc_scaler_device_unregister(imxmd->m2m_vdev);
-+		imxmd->m2m_vdev = NULL;
-+	}
-+
- 	v4l2_async_notifier_unregister(&imxmd->notifier);
- 	imx_media_unregister_ipu_internal_subdevs(imxmd);
- 	v4l2_async_notifier_cleanup(&imxmd->notifier);
--	imx_media_csc_scaler_device_unregister(imxmd->m2m_vdev);
- 	media_device_unregister(&imxmd->md);
- 	v4l2_device_unregister(&imxmd->v4l2_dev);
- 	media_device_cleanup(&imxmd->md);
+@@ -108,6 +111,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid total length: %*ph\n",
+ 				(int)sizeof(buf->total_length),
+ 				buf->total_length);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
 -- 
 2.27.0
 
