@@ -2,33 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1DEB328A93
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA40328A89
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239674AbhCASSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:18:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
+        id S239671AbhCASSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:18:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239391AbhCASME (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:12:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BEBE6506E;
-        Mon,  1 Mar 2021 17:23:52 +0000 (UTC)
+        id S239388AbhCASMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:12:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 093E96523B;
+        Mon,  1 Mar 2021 17:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619433;
-        bh=0B3xsWKObWnigkk+Ra5jtgY+kf4OamR3uM7hvF5huhk=;
+        s=korg; t=1614619551;
+        bh=8MmDUnRkyLspcQSq9Wxwgpo+uWhlxtI/wlQBMzxa4WE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOUCpo7ah6g913GN6sIZFODJA8i3PLRp/atymnG7rlY+Rmlrp09qwU0w0X1xsl4UG
-         cGIAa6YfKX1sd4ON1VP5sFaGS30inLcfIdqT2KAdVpDhvnIqPlpQZRKz9+eianVgJS
-         ME2FBNabj8pUzrgYCWU3sKprr8L/TwncQoIa2tNI=
+        b=t39ZrH1HBrrw/DRiDymYa2QXiWaPjC+/9l0eP2Upol6JBEZe/9J9BkDMiZrbSBb48
+         R/NHISBp83qKZa1Tjm7tA4JmnlZvc0oK/1KtDokaPD13+xnw9BgK9sVTN/PT8X3fCP
+         JKUvmuPSnKEghfu++DC7oR9squdKZCmJJYu5CwPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 452/663] vxlan: move debug check after netdev unregister
-Date:   Mon,  1 Mar 2021 17:11:40 +0100
-Message-Id: <20210301161204.254313557@linuxfoundation.org>
+Subject: [PATCH 5.10 455/663] ocfs2: fix a use after free on error
+Date:   Mon,  1 Mar 2021 17:11:43 +0100
+Message-Id: <20210301161204.401755317@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,104 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 92584ddf550ae72d492858c19d1f9025e07a9350 ]
+[ Upstream commit c57d117f2b2f2a19b570c36f2819ef8d8210af20 ]
 
-The debug check must be done after unregister_netdevice_many() call --
-the hlist_del_rcu() for this is done inside .ndo_stop.
+The error handling in this function frees "reg" but it is still on the
+"o2hb_all_regions" list so it will lead to a use after freew.  Joseph Qi
+points out that we need to clear the bit in the "o2hb_region_bitmap" as
+well
 
-This is the same with commit 0fda7600c2e1 ("geneve: move debug check after
-netdev unregister")
-
-Test commands:
-    ip netns del A
-    ip netns add A
-    ip netns add B
-
-    ip netns exec B ip link add vxlan0 type vxlan vni 100 local 10.0.0.1 \
-	    remote 10.0.0.2 dstport 4789 srcport 4789 4789
-    ip netns exec B ip link set vxlan0 netns A
-    ip netns exec A ip link set vxlan0 up
-    ip netns del B
-
-Splat looks like:
-[   73.176249][    T7] ------------[ cut here ]------------
-[   73.178662][    T7] WARNING: CPU: 4 PID: 7 at drivers/net/vxlan.c:4743 vxlan_exit_batch_net+0x52e/0x720 [vxlan]
-[   73.182597][    T7] Modules linked in: vxlan openvswitch nsh nf_conncount nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 mlx5_core nfp mlxfw ixgbevf tls sch_fq_codel nf_tables nfnetlink ip_tables x_tables unix
-[   73.190113][    T7] CPU: 4 PID: 7 Comm: kworker/u16:0 Not tainted 5.11.0-rc7+ #838
-[   73.193037][    T7] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-[   73.196986][    T7] Workqueue: netns cleanup_net
-[   73.198946][    T7] RIP: 0010:vxlan_exit_batch_net+0x52e/0x720 [vxlan]
-[   73.201509][    T7] Code: 00 01 00 00 0f 84 39 fd ff ff 48 89 ca 48 c1 ea 03 80 3c 1a 00 0f 85 a6 00 00 00 89 c2 48 83 c2 02 49 8b 14 d4 48 85 d2 74 ce <0f> 0b eb ca e8 b9 51 db dd 84 c0 0f 85 4a fe ff ff 48 c7 c2 80 bc
-[   73.208813][    T7] RSP: 0018:ffff888100907c10 EFLAGS: 00010286
-[   73.211027][    T7] RAX: 000000000000003c RBX: dffffc0000000000 RCX: ffff88800ec411f0
-[   73.213702][    T7] RDX: ffff88800a278000 RSI: ffff88800fc78c70 RDI: ffff88800fc78070
-[   73.216169][    T7] RBP: ffff88800b5cbdc0 R08: fffffbfff424de61 R09: fffffbfff424de61
-[   73.218463][    T7] R10: ffffffffa126f307 R11: fffffbfff424de60 R12: ffff88800ec41000
-[   73.220794][    T7] R13: ffff888100907d08 R14: ffff888100907c50 R15: ffff88800fc78c40
-[   73.223337][    T7] FS:  0000000000000000(0000) GS:ffff888114800000(0000) knlGS:0000000000000000
-[   73.225814][    T7] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   73.227616][    T7] CR2: 0000562b5cb4f4d0 CR3: 0000000105fbe001 CR4: 00000000003706e0
-[   73.229700][    T7] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   73.231820][    T7] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   73.233844][    T7] Call Trace:
-[   73.234698][    T7]  ? vxlan_err_lookup+0x3c0/0x3c0 [vxlan]
-[   73.235962][    T7]  ? ops_exit_list.isra.11+0x93/0x140
-[   73.237134][    T7]  cleanup_net+0x45e/0x8a0
-[ ... ]
-
-Fixes: 57b61127ab7d ("vxlan: speedup vxlan tunnels dismantle")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Link: https://lore.kernel.org/r/20210221154552.11749-1-ap420073@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lkml.kernel.org/r/YBk4M6HUG8jB/jc7@mwanda
+Fixes: 1cf257f51191 ("ocfs2: fix memory leak")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/ocfs2/cluster/heartbeat.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 977f77e2c2ce6..50cb8f045a1e5 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -4721,7 +4721,6 @@ static void vxlan_destroy_tunnels(struct net *net, struct list_head *head)
- 	struct vxlan_net *vn = net_generic(net, vxlan_net_id);
- 	struct vxlan_dev *vxlan, *next;
- 	struct net_device *dev, *aux;
--	unsigned int h;
+diff --git a/fs/ocfs2/cluster/heartbeat.c b/fs/ocfs2/cluster/heartbeat.c
+index 0179a73a3fa2c..12a7590601ddb 100644
+--- a/fs/ocfs2/cluster/heartbeat.c
++++ b/fs/ocfs2/cluster/heartbeat.c
+@@ -2042,7 +2042,7 @@ static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *g
+ 			o2hb_nego_timeout_handler,
+ 			reg, NULL, &reg->hr_handler_list);
+ 	if (ret)
+-		goto free;
++		goto remove_item;
  
- 	for_each_netdev_safe(net, dev, aux)
- 		if (dev->rtnl_link_ops == &vxlan_link_ops)
-@@ -4735,14 +4734,13 @@ static void vxlan_destroy_tunnels(struct net *net, struct list_head *head)
- 			unregister_netdevice_queue(vxlan->dev, head);
- 	}
+ 	ret = o2net_register_handler(O2HB_NEGO_APPROVE_MSG, reg->hr_key,
+ 			sizeof(struct o2hb_nego_msg),
+@@ -2057,6 +2057,12 @@ static struct config_item *o2hb_heartbeat_group_make_item(struct config_group *g
  
--	for (h = 0; h < PORT_HASH_SIZE; ++h)
--		WARN_ON_ONCE(!hlist_empty(&vn->sock_list[h]));
- }
- 
- static void __net_exit vxlan_exit_batch_net(struct list_head *net_list)
- {
- 	struct net *net;
- 	LIST_HEAD(list);
-+	unsigned int h;
- 
- 	rtnl_lock();
- 	list_for_each_entry(net, net_list, exit_list)
-@@ -4752,6 +4750,13 @@ static void __net_exit vxlan_exit_batch_net(struct list_head *net_list)
- 
- 	unregister_netdevice_many(&list);
- 	rtnl_unlock();
-+
-+	list_for_each_entry(net, net_list, exit_list) {
-+		struct vxlan_net *vn = net_generic(net, vxlan_net_id);
-+
-+		for (h = 0; h < PORT_HASH_SIZE; ++h)
-+			WARN_ON_ONCE(!hlist_empty(&vn->sock_list[h]));
-+	}
- }
- 
- static struct pernet_operations vxlan_net_ops = {
+ unregister_handler:
+ 	o2net_unregister_handler_list(&reg->hr_handler_list);
++remove_item:
++	spin_lock(&o2hb_live_lock);
++	list_del(&reg->hr_all_item);
++	if (o2hb_global_heartbeat_active())
++		clear_bit(reg->hr_region_num, o2hb_region_bitmap);
++	spin_unlock(&o2hb_live_lock);
+ free:
+ 	kfree(reg);
+ 	return ERR_PTR(ret);
 -- 
 2.27.0
 
