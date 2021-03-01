@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE859328CFC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A69B328D4A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240949AbhCATC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:02:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        id S241119AbhCATIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:08:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240680AbhCAS4i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:56:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A7D264DF2;
-        Mon,  1 Mar 2021 17:20:28 +0000 (UTC)
+        id S240827AbhCATES (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:04:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 104EA65212;
+        Mon,  1 Mar 2021 17:22:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619229;
-        bh=7/FwgIobElowJh+/y5HG6ENvOdWVSMoxLt70R9kxUAo=;
+        s=korg; t=1614619344;
+        bh=19yHZoK3HBP0lkuxRqJoUuivNNBKkBGfXJo4NM9PD30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHXSc1pOwyZ6cBAxUEz7oGiLDZ9QzbtBB1STsgW3PNi9Pp9i85XciY8sQqqUzt7O3
-         x2YpJHgUD26nDCyB8W8Q2m7gL7iHwqAYkBm+TlEAaoiIguWOtAB99tL8Qur7ZXbghC
-         C2MtwQ0TRU/lBaKDHDAc0BwSyhtZiFmwVxGD1Mlg=
+        b=vFTWVbL8s/q8S3tBh1LU//4JeldBehfwxB1iu+U1vj2XK0SJeEdBohRFlcjW9DykA
+         OGaSMFE5T0Jw/4RJFip3vgPWX33T61pVwzxo+NsfQAAXZR9qryNMIj/fK9IVTFZLWV
+         3dhntPu/scbl1zwvg33xABBqbGKtgje6GX/PZUGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
-        Lutz Pogrell <lutz.pogrell@cloud.ionos.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 379/663] RDMA/rtrs: Only allow addition of path to an already established session
-Date:   Mon,  1 Mar 2021 17:10:27 +0100
-Message-Id: <20210301161200.607905966@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        patches@armlinux.org.uk, Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 5.10 393/663] ARM: 9065/1: OABI compat: fix build when EPOLL is not enabled
+Date:   Mon,  1 Mar 2021 17:10:41 +0100
+Message-Id: <20210301161201.308823251@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -43,167 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 03e9b33a0fd677f554b03352646c13459bf60458 ]
+[ Upstream commit fd749fe4bcb00ad80d9eece709f804bb4ac6bf1e ]
 
-While adding a path from the client side to an already established
-session, it was possible to provide the destination IP to a different
-server. This is dangerous.
+When CONFIG_EPOLL is not set/enabled, sys_oabi-compat.c has build
+errors. Fix these by surrounding them with ifdef CONFIG_EPOLL/endif
+and providing stubs for the "EPOLL is not set" case.
 
-This commit adds an extra member to the rtrs_msg_conn_req structure, named
-first_conn; which is supposed to notify if the connection request is the
-first for that session or not.
+../arch/arm/kernel/sys_oabi-compat.c: In function 'sys_oabi_epoll_ctl':
+../arch/arm/kernel/sys_oabi-compat.c:257:6: error: implicit declaration of function 'ep_op_has_event' [-Werror=implicit-function-declaration]
+  257 |  if (ep_op_has_event(op) &&
+      |      ^~~~~~~~~~~~~~~
+../arch/arm/kernel/sys_oabi-compat.c:264:9: error: implicit declaration of function 'do_epoll_ctl'; did you mean 'sys_epoll_ctl'? [-Werror=implicit-function-declaration]
+  264 |  return do_epoll_ctl(epfd, op, fd, &kernel, false);
+      |         ^~~~~~~~~~~~
 
-On the server side, if a session does not exist but the first_conn
-received inside the rtrs_msg_conn_req structure is 1, the connection
-request is failed. This signifies that the connection request is for an
-already existing session, and since the server did not find one, it is an
-wrong connection request.
-
-Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20210212134525.103456-3-jinpu.wang@cloud.ionos.com
-Signed-off-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
-Reviewed-by: Lutz Pogrell <lutz.pogrell@cloud.ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c281634c8652 ("ARM: compat: remove KERNEL_DS usage in sys_oabi_epoll_ctl()")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com> # from an lkp .config file
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: Nicolas Pitre <nico@fluxnic.net>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: patches@armlinux.org.uk
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c |  7 +++++++
- drivers/infiniband/ulp/rtrs/rtrs-clt.h |  1 +
- drivers/infiniband/ulp/rtrs/rtrs-pri.h |  4 +++-
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 21 +++++++++++++++------
- 4 files changed, 26 insertions(+), 7 deletions(-)
+ arch/arm/kernel/sys_oabi-compat.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index 6115db7ca2030..fc0e90915678a 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -31,6 +31,8 @@
-  */
- #define RTRS_RECONNECT_SEED 8
+diff --git a/arch/arm/kernel/sys_oabi-compat.c b/arch/arm/kernel/sys_oabi-compat.c
+index 0203e545bbc8d..075a2e0ed2c15 100644
+--- a/arch/arm/kernel/sys_oabi-compat.c
++++ b/arch/arm/kernel/sys_oabi-compat.c
+@@ -248,6 +248,7 @@ struct oabi_epoll_event {
+ 	__u64 data;
+ } __attribute__ ((packed,aligned(4)));
  
-+#define FIRST_CONN 0x01
-+
- MODULE_DESCRIPTION("RDMA Transport Client");
- MODULE_LICENSE("GPL");
- 
-@@ -1674,6 +1676,7 @@ static int rtrs_rdma_route_resolved(struct rtrs_clt_con *con)
- 		.cid_num = cpu_to_le16(sess->s.con_num),
- 		.recon_cnt = cpu_to_le16(sess->s.recon_cnt),
- 	};
-+	msg.first_conn = sess->for_new_clt ? FIRST_CONN : 0;
- 	uuid_copy(&msg.sess_uuid, &sess->s.uuid);
- 	uuid_copy(&msg.paths_uuid, &clt->paths_uuid);
- 
-@@ -1759,6 +1762,8 @@ static int rtrs_rdma_conn_established(struct rtrs_clt_con *con,
- 		scnprintf(sess->hca_name, sizeof(sess->hca_name),
- 			  sess->s.dev->ib_dev->name);
- 		sess->s.src_addr = con->c.cm_id->route.addr.src_addr;
-+		/* set for_new_clt, to allow future reconnect on any path */
-+		sess->for_new_clt = 1;
- 	}
- 
- 	return 0;
-@@ -2682,6 +2687,8 @@ struct rtrs_clt *rtrs_clt_open(struct rtrs_clt_ops *ops,
- 			err = PTR_ERR(sess);
- 			goto close_all_sess;
- 		}
-+		if (!i)
-+			sess->for_new_clt = 1;
- 		list_add_tail_rcu(&sess->s.entry, &clt->paths_list);
- 
- 		err = init_sess(sess);
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.h b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-index 167acd3c90fcc..22da5d50c22c4 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
-@@ -142,6 +142,7 @@ struct rtrs_clt_sess {
- 	int			max_send_sge;
- 	u32			flags;
- 	struct kobject		kobj;
-+	u8			for_new_clt;
- 	struct rtrs_clt_stats	*stats;
- 	/* cache hca_port and hca_name to display in sysfs */
- 	u8			hca_port;
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-index 32de7ad4a0764..2e1d2f7e372ac 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-@@ -188,7 +188,9 @@ struct rtrs_msg_conn_req {
- 	__le16		recon_cnt;
- 	uuid_t		sess_uuid;
- 	uuid_t		paths_uuid;
--	u8		reserved[12];
-+	u8		first_conn : 1;
-+	u8		reserved_bits : 7;
-+	u8		reserved[11];
- };
- 
- /**
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 75e1e89e09b38..332418245dce3 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -1350,7 +1350,8 @@ static void free_srv(struct rtrs_srv *srv)
- }
- 
- static struct rtrs_srv *get_or_create_srv(struct rtrs_srv_ctx *ctx,
--					   const uuid_t *paths_uuid)
-+					  const uuid_t *paths_uuid,
-+					  bool first_conn)
++#ifdef CONFIG_EPOLL
+ asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
+ 				   struct oabi_epoll_event __user *event)
  {
- 	struct rtrs_srv *srv;
- 	int i;
-@@ -1363,12 +1364,20 @@ static struct rtrs_srv *get_or_create_srv(struct rtrs_srv_ctx *ctx,
- 			return srv;
- 		}
- 	}
-+	/*
-+	 * If this request is not the first connection request from the
-+	 * client for this session then fail and return error.
-+	 */
-+	if (!first_conn) {
-+		mutex_unlock(&ctx->srv_mutex);
-+		return ERR_PTR(-ENXIO);
-+	}
- 
- 	/* need to allocate a new srv */
- 	srv = kzalloc(sizeof(*srv), GFP_KERNEL);
- 	if  (!srv) {
- 		mutex_unlock(&ctx->srv_mutex);
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	}
- 
- 	INIT_LIST_HEAD(&srv->paths_list);
-@@ -1403,7 +1412,7 @@ err_free_chunks:
- 
- err_free_srv:
- 	kfree(srv);
--	return NULL;
-+	return ERR_PTR(-ENOMEM);
+@@ -298,6 +299,20 @@ asmlinkage long sys_oabi_epoll_wait(int epfd,
+ 	kfree(kbuf);
+ 	return err ? -EFAULT : ret;
  }
++#else
++asmlinkage long sys_oabi_epoll_ctl(int epfd, int op, int fd,
++				   struct oabi_epoll_event __user *event)
++{
++	return -EINVAL;
++}
++
++asmlinkage long sys_oabi_epoll_wait(int epfd,
++				    struct oabi_epoll_event __user *events,
++				    int maxevents, int timeout)
++{
++	return -EINVAL;
++}
++#endif
  
- static void put_srv(struct rtrs_srv *srv)
-@@ -1804,13 +1813,13 @@ static int rtrs_rdma_connect(struct rdma_cm_id *cm_id,
- 		goto reject_w_econnreset;
- 	}
- 	recon_cnt = le16_to_cpu(msg->recon_cnt);
--	srv = get_or_create_srv(ctx, &msg->paths_uuid);
-+	srv = get_or_create_srv(ctx, &msg->paths_uuid, msg->first_conn);
- 	/*
- 	 * "refcount == 0" happens if a previous thread calls get_or_create_srv
- 	 * allocate srv, but chunks of srv are not allocated yet.
- 	 */
--	if (!srv || refcount_read(&srv->refcount) == 0) {
--		err = -ENOMEM;
-+	if (IS_ERR(srv) || refcount_read(&srv->refcount) == 0) {
-+		err = PTR_ERR(srv);
- 		goto reject_w_err;
- 	}
- 	mutex_lock(&srv->paths_mutex);
+ struct oabi_sembuf {
+ 	unsigned short	sem_num;
 -- 
 2.27.0
 
