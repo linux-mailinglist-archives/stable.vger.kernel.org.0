@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2394F329197
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0967A3291E3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243360AbhCAU2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
+        id S243372AbhCAUfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:35:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243250AbhCAUX2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:23:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71E19653FD;
-        Mon,  1 Mar 2021 18:05:17 +0000 (UTC)
+        id S242009AbhCAU12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:27:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C97596541A;
+        Mon,  1 Mar 2021 18:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621918;
-        bh=NDRW62qnRvyWrPNdc9LmBSFs6kuxQsxGHc7S/pWcmUI=;
+        s=korg; t=1614622030;
+        bh=Pv9NNrYFiFCPxUMNwvBOzdGcfEdBNLjqcJM0rtlmYlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/EjGPfffezdRscPMfepTeqNH3Spw4OHiBIb/2Z5uoBleprS5SVn9YvG1o2P5KcvI
-         NDwpYwt9fe3eYuA92vsAmFwh3Q31p7u6c7NBMNnW+ZUG6MROOza3rrQwe7+M5NL/1E
-         0NW3lzkS5dc8+xWld1PzAH6H9I3eEc6QpcGFvZm0=
+        b=gT94LGea2fPz5GnXCGn0InOLo/W/TFDZ8t/I0LZs2H0AydXnX7RJbmYHstQgmASze
+         HI74mCJE+3NXNoJqSgk+SEjlfQkaDGYw15Qu4Gqw3M8uNant4qVvHdJn2FM0HeD6nM
+         Y4wYNWBXai0R4GImD6nC26AhbdEisamC/fUNsBCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
         Guenter Roeck <linux@roeck-us.net>,
-        Stephen Boyd <swboyd@chromium.org>,
         Wim Van Sebroeck <wim@linux-watchdog.org>
-Subject: [PATCH 5.11 690/775] watchdog: qcom: Remove incorrect usage of QCOM_WDT_ENABLE_IRQ
-Date:   Mon,  1 Mar 2021 17:14:18 +0100
-Message-Id: <20210301161235.485067760@linuxfoundation.org>
+Subject: [PATCH 5.11 691/775] watchdog: mei_wdt: request stop on unregister
+Date:   Mon,  1 Mar 2021 17:14:19 +0100
+Message-Id: <20210301161235.533111114@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,66 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit a4f3407c41605d14f09e490045d0609990cd5d94 upstream.
+commit 740c0a57b8f1e36301218bf549f3c9cc833a60be upstream.
 
-As per register documentation, QCOM_WDT_ENABLE_IRQ which is BIT(1)
-of watchdog control register is wakeup interrupt enable bit and
-not related to bark interrupt at all, BIT(0) is used for that.
-So remove incorrect usage of this bit when supporting bark irq for
-pre-timeout notification. Currently with this bit set and bark
-interrupt specified, pre-timeout notification and/or watchdog
-reset/bite does not occur.
+The MEI bus has a special behavior on suspend it destroys
+all the attached devices, this is due to the fact that also
+firmware context is not persistent across power flows.
 
-Fixes: 36375491a439 ("watchdog: qcom: support pre-timeout when the bark irq is available")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+If watchdog on MEI bus is ticking before suspending the firmware
+times out and reports that the OS is missing watchdog tick.
+Send the stop command to the firmware on watchdog unregistered
+to eliminate the false event on suspend.
+This does not make the things worse from the user-space perspective
+as a user-space should re-open watchdog device after
+suspending before this patch.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210126150241.10009-1-saiprakash.ranjan@codeaurora.org
+Link: https://lore.kernel.org/r/20210124114938.373885-1-tomas.winkler@intel.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/qcom-wdt.c |   13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
+ drivers/watchdog/mei_wdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/watchdog/qcom-wdt.c
-+++ b/drivers/watchdog/qcom-wdt.c
-@@ -22,7 +22,6 @@ enum wdt_reg {
- };
+--- a/drivers/watchdog/mei_wdt.c
++++ b/drivers/watchdog/mei_wdt.c
+@@ -382,6 +382,7 @@ static int mei_wdt_register(struct mei_w
  
- #define QCOM_WDT_ENABLE		BIT(0)
--#define QCOM_WDT_ENABLE_IRQ	BIT(1)
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
+ 	watchdog_stop_on_reboot(&wdt->wdd);
++	watchdog_stop_on_unregister(&wdt->wdd);
  
- static const u32 reg_offset_data_apcs_tmr[] = {
- 	[WDT_RST] = 0x38,
-@@ -63,16 +62,6 @@ struct qcom_wdt *to_qcom_wdt(struct watc
- 	return container_of(wdd, struct qcom_wdt, wdd);
- }
- 
--static inline int qcom_get_enable(struct watchdog_device *wdd)
--{
--	int enable = QCOM_WDT_ENABLE;
--
--	if (wdd->pretimeout)
--		enable |= QCOM_WDT_ENABLE_IRQ;
--
--	return enable;
--}
--
- static irqreturn_t qcom_wdt_isr(int irq, void *arg)
- {
- 	struct watchdog_device *wdd = arg;
-@@ -91,7 +80,7 @@ static int qcom_wdt_start(struct watchdo
- 	writel(1, wdt_addr(wdt, WDT_RST));
- 	writel(bark * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
- 	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
--	writel(qcom_get_enable(wdd), wdt_addr(wdt, WDT_EN));
-+	writel(QCOM_WDT_ENABLE, wdt_addr(wdt, WDT_EN));
- 	return 0;
- }
- 
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret)
 
 
