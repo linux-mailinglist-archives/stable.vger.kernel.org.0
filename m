@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E358C328752
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F111D3285EC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238105AbhCARW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:22:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52684 "EHLO mail.kernel.org"
+        id S236303AbhCARBA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:01:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235234AbhCAROD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:14:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7284065037;
-        Mon,  1 Mar 2021 16:45:34 +0000 (UTC)
+        id S234532AbhCAQyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:54:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0043C64FC7;
+        Mon,  1 Mar 2021 16:35:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617135;
-        bh=L9axuymLvZZRk+y/Eh2UbVJTEYHiwU1vYwcseXf5DHY=;
+        s=korg; t=1614616513;
+        bh=V+chLJniZ0j9cF1On9I10ascdGBRbfFzm8xz9sC2BYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+JL4piLnFMTRzwAKj8pJmp14A8664sB0teoUbgmLmV5ca/bhFOIIitr2cNzrL9uh
-         s6GMo1oGi61SobWkz/ZYplDo1KOGGeewPY2H3Gz3sgf2cEh5fTgfC9qhTl+wBe6JcN
-         8TS8a2ZbvR6twWKZzzvOXAd2C8Mx8aFa2MeoVkpI=
+        b=vEKzQqT8uqsQ9LvtaorvmylTTghFXWs9i4SJwT/h1UGmwKld7GyeESD4vEDRZkDWq
+         BHE6u17eNFY6PjCeEMQON1RbcvxBsOa9id6bry5g7NQisnrtKQHMuN3B8seOGJzF1f
+         M6Y2lf4+IPe8swq98AH2lNT+LJhGGXbFIgQNxHAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Denis Efremov <efremov@linux.com>,
-        Kurt Garloff <kurt@garloff.de>
-Subject: [PATCH 4.19 214/247] floppy: reintroduce O_NDELAY fix
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.14 161/176] f2fs: fix out-of-repair __setattr_copy()
 Date:   Mon,  1 Mar 2021 17:13:54 +0100
-Message-Id: <20210301161042.147410184@linuxfoundation.org>
+Message-Id: <20210301161029.024347763@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
-References: <20210301161031.684018251@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 8a0c014cd20516ade9654fc13b51345ec58e7be8 upstream.
+commit 2562515f0ad7342bde6456602c491b64c63fe950 upstream.
 
-This issue was originally fixed in 09954bad4 ("floppy: refactor open()
-flags handling").
+__setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
+two missing patches doesn't cover this inner function, fix it.
 
-The fix as a side-effect, however, introduce issue for open(O_ACCMODE)
-that is being used for ioctl-only open. I wrote a fix for that, but
-instead of it being merged, full revert of 09954bad4 was performed,
-re-introducing the O_NDELAY / O_NONBLOCK issue, and it strikes again.
+Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
+Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
 
-This is a forward-port of the original fix to current codebase; the
-original submission had the changelog below:
-
-====
-Commit 09954bad4 ("floppy: refactor open() flags handling"), as a
-side-effect, causes open(/dev/fdX, O_ACCMODE) to fail. It turns out that
-this is being used setfdprm userspace for ioctl-only open().
-
-Reintroduce back the original behavior wrt !(FMODE_READ|FMODE_WRITE)
-modes, while still keeping the original O_NDELAY bug fixed.
-
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2101221209060.5622@cbobk.fhfr.pm
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
 Cc: stable@vger.kernel.org
-Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
-Tested-by: Wim Osterholt <wim@djo.tudelft.nl>
-Reported-and-tested-by: Kurt Garloff <kurt@garloff.de>
-Fixes: 09954bad4 ("floppy: refactor open() flags handling")
-Fixes: f2791e7ead ("Revert "floppy: refactor open() flags handling"")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/floppy.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ fs/f2fs/file.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4074,21 +4074,22 @@ static int floppy_open(struct block_devi
- 	if (UFDCS->rawcmd == 1)
- 		UFDCS->rawcmd = 2;
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -729,7 +729,8 @@ static void __setattr_copy(struct inode
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
--	if (!(mode & FMODE_NDELAY)) {
--		if (mode & (FMODE_READ|FMODE_WRITE)) {
--			UDRS->last_checked = 0;
--			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
--			check_disk_change(bdev);
--			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
--				goto out;
--			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
--				goto out;
--		}
--		res = -EROFS;
--		if ((mode & FMODE_WRITE) &&
--		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+	if (mode & (FMODE_READ|FMODE_WRITE)) {
-+		UDRS->last_checked = 0;
-+		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
-+		check_disk_change(bdev);
-+		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
-+			goto out;
-+		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
- 			goto out;
+-		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
++		if (!in_group_p(inode->i_gid) &&
++			!capable_wrt_inode_uidgid(inode, CAP_FSETID))
+ 			mode &= ~S_ISGID;
+ 		set_acl_inode(inode, mode);
  	}
-+
-+	res = -EROFS;
-+
-+	if ((mode & FMODE_WRITE) &&
-+			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+		goto out;
-+
- 	mutex_unlock(&open_lock);
- 	mutex_unlock(&floppy_mutex);
- 	return 0;
 
 
