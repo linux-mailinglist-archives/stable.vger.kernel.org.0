@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3275332900E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:07:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF07C32901B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241391AbhCAUCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:02:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
+        id S242641AbhCAUC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:02:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242102AbhCATux (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:50:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D9C2650E9;
-        Mon,  1 Mar 2021 17:52:08 +0000 (UTC)
+        id S240616AbhCATwD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:52:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51E7364F47;
+        Mon,  1 Mar 2021 17:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621129;
-        bh=RKSdKI+qwVyvay4Xe+XbOhDTudYl3rSKU5nbfBq22Hg=;
+        s=korg; t=1614621158;
+        bh=mDkW+A7na7sxGBnFyX9RLqrq1Zd3Jfo798K584dNJHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3mWLj+YjIK1RTp5iQ36tHuPKLBdLaffymk3HhYjtvtQDRxKymP+gxedmxIXW6KfD
-         tTP8x/JAiPtU7kfepdfD3tzvIhXsZ/tbGG7nDBea/G5f3qUlKJkSapnf6AvgMJSfOu
-         axMvyG6jNY8X9oyHXWNGfsXtDUl8Kmo805gAMa/Y=
+        b=FJXyNZcIhccw0k0dTahYh4R+vG3RCIT/2j4+P3QBnt1bfPQDYFq9tWhVoWKnmvG/v
+         aE6gnijUWpPkCGN1D8QnCyycg69S5dGKWdRBNgU0e4kENztOCBgR46R3DNf3H+dtEi
+         5rDmBqf2Fya/SSRdLPyIP+lkzXtKhmcOW+TFVgmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Orson Zhai <orson.zhai@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 396/775] mmc: owl-mmc: Fix a resource leak in an error handling path and in the remove function
-Date:   Mon,  1 Mar 2021 17:09:24 +0100
-Message-Id: <20210301161221.162699328@linuxfoundation.org>
+Subject: [PATCH 5.11 397/775] mmc: sdhci-sprd: Fix some resource leaks in the remove function
+Date:   Mon,  1 Mar 2021 17:09:25 +0100
+Message-Id: <20210301161221.209406018@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,68 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5d15cbf63515c6183d2ed7c9dd0586b4db23ffb1 ]
+[ Upstream commit c9c256a8b0dc09c305c409d6264cc016af2ba38d ]
 
-'dma_request_chan()' calls should be balanced by a corresponding
-'dma_release_channel()' call.
+'sdhci_remove_host()' and 'sdhci_pltfm_free()' should be used in place of
+'mmc_remove_host()' and 'mmc_free_host()'.
 
-Add the missing call both in the error handling path of the probe function
-and in the remove function.
+This avoids some resource leaks, is more in line with the error handling
+path of the probe function, and is more consistent with other drivers.
 
-Fixes: ff65ffe46d28 ("mmc: Add Actions Semi Owl SoCs SD/MMC driver")
+Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
 Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201209194202.54099-1-christophe.jaillet@wanadoo.fr
+Acked-by: Orson Zhai <orson.zhai@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20201217204236.163446-1-christophe.jaillet@wanadoo.fr
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/owl-mmc.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci-sprd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/owl-mmc.c b/drivers/mmc/host/owl-mmc.c
-index 53b81582f1afe..5490962dc8e53 100644
---- a/drivers/mmc/host/owl-mmc.c
-+++ b/drivers/mmc/host/owl-mmc.c
-@@ -640,7 +640,7 @@ static int owl_mmc_probe(struct platform_device *pdev)
- 	owl_host->irq = platform_get_irq(pdev, 0);
- 	if (owl_host->irq < 0) {
- 		ret = -EINVAL;
--		goto err_free_host;
-+		goto err_release_channel;
- 	}
+diff --git a/drivers/mmc/host/sdhci-sprd.c b/drivers/mmc/host/sdhci-sprd.c
+index f85171edabeb9..5dc36efff47ff 100644
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -708,14 +708,14 @@ static int sdhci_sprd_remove(struct platform_device *pdev)
+ {
+ 	struct sdhci_host *host = platform_get_drvdata(pdev);
+ 	struct sdhci_sprd_host *sprd_host = TO_SPRD_HOST(host);
+-	struct mmc_host *mmc = host->mmc;
  
- 	ret = devm_request_irq(&pdev->dev, owl_host->irq, owl_irq_handler,
-@@ -648,19 +648,21 @@ static int owl_mmc_probe(struct platform_device *pdev)
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %d\n",
- 			owl_host->irq);
--		goto err_free_host;
-+		goto err_release_channel;
- 	}
+-	mmc_remove_host(mmc);
++	sdhci_remove_host(host, 0);
++
+ 	clk_disable_unprepare(sprd_host->clk_sdio);
+ 	clk_disable_unprepare(sprd_host->clk_enable);
+ 	clk_disable_unprepare(sprd_host->clk_2x_enable);
  
- 	ret = mmc_add_host(mmc);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to add host\n");
--		goto err_free_host;
-+		goto err_release_channel;
- 	}
- 
- 	dev_dbg(&pdev->dev, "Owl MMC Controller Initialized\n");
+-	mmc_free_host(mmc);
++	sdhci_pltfm_free(pdev);
  
  	return 0;
- 
-+err_release_channel:
-+	dma_release_channel(owl_host->dma);
- err_free_host:
- 	mmc_free_host(mmc);
- 
-@@ -674,6 +676,7 @@ static int owl_mmc_remove(struct platform_device *pdev)
- 
- 	mmc_remove_host(mmc);
- 	disable_irq(owl_host->irq);
-+	dma_release_channel(owl_host->dma);
- 	mmc_free_host(mmc);
- 
- 	return 0;
+ }
 -- 
 2.27.0
 
