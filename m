@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F37A732911C
+	by mail.lfdr.de (Postfix) with ESMTP id 76FFC32911B
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243243AbhCAUTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:19:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39924 "EHLO mail.kernel.org"
+        id S243240AbhCAUTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:19:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242682AbhCAUMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242750AbhCAUMI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:12:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A93E653AE;
-        Mon,  1 Mar 2021 18:00:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CE2653BF;
+        Mon,  1 Mar 2021 18:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621658;
-        bh=6AGQIxzvCGFo8hB/u5hdwwrA8eJ2quyqf4KtjlS9d6s=;
+        s=korg; t=1614621660;
+        bh=i8GrjKi5S2CmDKUeGWQRsVZoGcpllGlvwHk/OpVVssM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJnl+Zp2c6M53AK2F+HpWzHffKm3GO7BuLorNCEBg7J4VXudDMudCTRARaRmax3kf
-         hoYqjCJ+F3Dim4XdZIl43ue8yVzTxrhHKB7HhjWg5jhzL0fJUQGdigsEQJN4Sd+r41
-         CZ9Al3HLRCi7xDrpHj8iltlXbnH6DCbn44EnUL60=
+        b=Igc5DO4cNKF+gz9i086/F8mqTfwxUo/TN0aXtbk2t7yhMRNJsJf63TirR3GhMx4/A
+         2dg1d4ZZ98lWXYYwQKM7tJAN2KyrYSUIGICqjksq+I1YRUG+T+JQX8XxjW4LPYjTrC
+         1QlGO8nv9oYqY1xcnELv3dGVXCPhLzDCts9wA/Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saurav Kashyap <skashyap@marvell.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        GR-QLogic-Storage-Upstream@marvell.com,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        stable@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 566/775] scsi: bnx2fc: Fix Kconfig warning & CNIC build errors
-Date:   Mon,  1 Mar 2021 17:12:14 +0100
-Message-Id: <20210301161229.441874892@linuxfoundation.org>
+Subject: [PATCH 5.11 567/775] scsi: sd: sd_zbc: Dont pass GFP_NOIO to kvcalloc
+Date:   Mon,  1 Mar 2021 17:12:15 +0100
+Message-Id: <20210301161229.485607219@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -45,55 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit eefb816acb0162e94a85a857f3a55148f671d5a5 ]
+[ Upstream commit 9acced3f58ad24407c1f9ebf53a8892c1e24cdb5 ]
 
-CNIC depends on MMU, but since 'select' does not follow any dependency
-chains, SCSI_BNX2X_FCOE also needs to depend on MMU, so that erroneous
-configs are not generated, which cause build errors in cnic.
+Dan reported we're passing in GFP_NOIO to kvmalloc() which will then
+fallback to doing kmalloc() instead of an optional vmalloc() if the size
+exceeds kmalloc()s limits. This will break with drives that have zone
+numbers exceeding PAGE_SIZE/sizeof(u32).
 
-WARNING: unmet direct dependencies detected for CNIC
-  Depends on [n]: NETDEVICES [=y] && ETHERNET [=y] && NET_VENDOR_BROADCOM [=y] && PCI [=y] && (IPV6 [=n] || IPV6 [=n]=n) && MMU [=n]
-  Selected by [y]:
-  - SCSI_BNX2X_FCOE [=y] && SCSI_LOWLEVEL [=y] && SCSI [=y] && PCI [=y] && (IPV6 [=n] || IPV6 [=n]=n) && LIBFC [=y] && LIBFCOE [=y]
+Instead of passing in GFP_NOIO, enter an implicit GFP_NOIO allocation
+scope.
 
-riscv64-linux-ld: drivers/net/ethernet/broadcom/cnic.o: in function `.L154':
-cnic.c:(.text+0x1094): undefined reference to `uio_event_notify'
-riscv64-linux-ld: cnic.c:(.text+0x10bc): undefined reference to `uio_event_notify'
-riscv64-linux-ld: drivers/net/ethernet/broadcom/cnic.o: in function `.L1442':
-cnic.c:(.text+0x96a8): undefined reference to `__uio_register_device'
-riscv64-linux-ld: drivers/net/ethernet/broadcom/cnic.o: in function `.L0 ':
-cnic.c:(.text.unlikely+0x68): undefined reference to `uio_unregister_device'
-
-Link: https://lore.kernel.org/r/20210213192428.22537-1-rdunlap@infradead.org
-Fixes: 853e2bd2103a ("[SCSI] bnx2fc: Broadcom FCoE offload driver")
-Cc: Saurav Kashyap <skashyap@marvell.com>
-Cc: Javed Hasan <jhasan@marvell.com>
-Cc: GR-QLogic-Storage-Upstream@marvell.com
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/r/YCuvSfKw4qEQBr/t@mwanda
+Link: https://lore.kernel.org/r/5a6345e2989fd06c049ac4e4627f6acb492c15b8.1613569821.git.johannes.thumshirn@wdc.com
+Fixes: 5795eb443060: ("scsi: sd_zbc: emulate ZONE_APPEND commands")
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bnx2fc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/sd_zbc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/bnx2fc/Kconfig b/drivers/scsi/bnx2fc/Kconfig
-index 3cf7e08df8093..ecdc0f0f4f4e6 100644
---- a/drivers/scsi/bnx2fc/Kconfig
-+++ b/drivers/scsi/bnx2fc/Kconfig
-@@ -5,6 +5,7 @@ config SCSI_BNX2X_FCOE
- 	depends on (IPV6 || IPV6=n)
- 	depends on LIBFC
- 	depends on LIBFCOE
-+	depends on MMU
- 	select NETDEVICES
- 	select ETHERNET
- 	select NET_VENDOR_BROADCOM
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index cf07b7f935790..87a7274e4632b 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -688,6 +688,7 @@ int sd_zbc_revalidate_zones(struct scsi_disk *sdkp)
+ 	unsigned int nr_zones = sdkp->rev_nr_zones;
+ 	u32 max_append;
+ 	int ret = 0;
++	unsigned int flags;
+ 
+ 	/*
+ 	 * For all zoned disks, initialize zone append emulation data if not
+@@ -720,16 +721,19 @@ int sd_zbc_revalidate_zones(struct scsi_disk *sdkp)
+ 	    disk->queue->nr_zones == nr_zones)
+ 		goto unlock;
+ 
++	flags = memalloc_noio_save();
+ 	sdkp->zone_blocks = zone_blocks;
+ 	sdkp->nr_zones = nr_zones;
+-	sdkp->rev_wp_offset = kvcalloc(nr_zones, sizeof(u32), GFP_NOIO);
++	sdkp->rev_wp_offset = kvcalloc(nr_zones, sizeof(u32), GFP_KERNEL);
+ 	if (!sdkp->rev_wp_offset) {
+ 		ret = -ENOMEM;
++		memalloc_noio_restore(flags);
+ 		goto unlock;
+ 	}
+ 
+ 	ret = blk_revalidate_disk_zones(disk, sd_zbc_revalidate_zones_cb);
+ 
++	memalloc_noio_restore(flags);
+ 	kvfree(sdkp->rev_wp_offset);
+ 	sdkp->rev_wp_offset = NULL;
+ 
 -- 
 2.27.0
 
