@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B94328CC1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 712DF328E03
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240809AbhCAS6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:58:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58440 "EHLO mail.kernel.org"
+        id S241397AbhCATWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240567AbhCASwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:52:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55CF565122;
-        Mon,  1 Mar 2021 17:02:58 +0000 (UTC)
+        id S241336AbhCATRl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:17:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D3A364FAC;
+        Mon,  1 Mar 2021 17:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618178;
-        bh=+djcrApnSlZ9f2TiM4w5sE3WecMZCNcBkCK1nHE6GHI=;
+        s=korg; t=1614619927;
+        bh=jkYkVpAqzEwNzMLJMnx9H+tcjBK5LEBloeLvPcOnei0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deD2ND2KNuf8mHWRE7NCDQ/Wpb5ecvLrz8HKD8+iRMDXZr2WsLC3UM2p7H6mGCsYR
-         61dzLHfmtvFGomCUcUJw0IDLv15K3lQtH/bDtOogvWnz1GxLnuerSNXgcho2DZt+1I
-         8ELIjj9Lt6VwfJhpoFvFx60WszjZ+H01/HFFkaRU=
+        b=LXpJxCY4LMEVSz1A0SuTrkNuWlnuBsmDWw8zYluGFneItBz2BBQl46UU+xqol/3eh
+         xv3OWOIUriN86B8hotNVQ7JxV+b5MjpY2xqoO8b42o3Qq4i5VOxSuseIoCvlYW+ipm
+         b1XXxsBuaHFcjFnekbbrywil9w091CLboABULAuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 335/340] ipv6: icmp6: avoid indirect call for icmpv6_send()
-Date:   Mon,  1 Mar 2021 17:14:39 +0100
-Message-Id: <20210301161104.781460342@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 632/663] f2fs: enforce the immutable flag on open files
+Date:   Mon,  1 Mar 2021 17:14:40 +0100
+Message-Id: <20210301161213.125037321@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,109 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit cc7a21b6fbd945f8d8f61422ccd27203c1fafeb7 upstream.
+commit e0fcd01510ad025c9bbce704c5c2579294056141 upstream.
 
-If IPv6 is builtin, we do not need an expensive indirect call
-to reach icmp6_send().
+This patch ports commit 02b016ca7f99 ("ext4: enforce the immutable
+flag on open files") to f2fs.
 
-v2: put inline keyword before the type to avoid sparse warnings.
+According to the chattr man page, "a file with the 'i' attribute
+cannot be modified..."  Historically, this was only enforced when the
+file was opened, per the rest of the description, "... and the file
+can not be opened in write mode".
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+There is general agreement that we should standardize all file systems
+to prevent modifications even for files that were opened at the time
+the immutable flag is set.  Eventually, a change to enforce this at
+the VFS layer should be landing in mainline.
+
+Cc: stable@kernel.org
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/icmpv6.h |   22 +++++++++++++++++++++-
- net/ipv6/icmp.c        |    5 +++--
- net/ipv6/ip6_icmp.c    |   10 +++++-----
- 3 files changed, 29 insertions(+), 8 deletions(-)
+ fs/f2fs/file.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/include/linux/icmpv6.h
-+++ b/include/linux/icmpv6.h
-@@ -13,12 +13,32 @@ static inline struct icmp6hdr *icmp6_hdr
- #include <linux/netdevice.h>
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -59,6 +59,9 @@ static vm_fault_t f2fs_vm_page_mkwrite(s
+ 	bool need_alloc = true;
+ 	int err = 0;
  
- #if IS_ENABLED(CONFIG_IPV6)
--extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
- 
- typedef void ip6_icmp_send_t(struct sk_buff *skb, u8 type, u8 code, __u32 info,
- 			     const struct in6_addr *force_saddr);
-+#if IS_BUILTIN(CONFIG_IPV6)
-+void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-+		const struct in6_addr *force_saddr);
-+static inline void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info)
-+{
-+	icmp6_send(skb, type, code, info, NULL);
-+}
-+static inline int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
-+{
-+	BUILD_BUG_ON(fn != icmp6_send);
-+	return 0;
-+}
-+static inline int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn)
-+{
-+	BUILD_BUG_ON(fn != icmp6_send);
-+	return 0;
-+}
-+#else
-+extern void icmpv6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info);
- extern int inet6_register_icmp_sender(ip6_icmp_send_t *fn);
- extern int inet6_unregister_icmp_sender(ip6_icmp_send_t *fn);
-+#endif
++	if (unlikely(IS_IMMUTABLE(inode)))
++		return VM_FAULT_SIGBUS;
 +
- int ip6_err_gen_icmpv6_unreach(struct sk_buff *skb, int nhs, int type,
- 			       unsigned int data_len);
+ 	if (unlikely(f2fs_cp_error(sbi))) {
+ 		err = -EIO;
+ 		goto err;
+@@ -869,6 +872,14 @@ int f2fs_setattr(struct dentry *dentry,
+ 	if (unlikely(f2fs_cp_error(F2FS_I_SB(inode))))
+ 		return -EIO;
  
---- a/net/ipv6/icmp.c
-+++ b/net/ipv6/icmp.c
-@@ -426,8 +426,8 @@ static int icmp6_iif(const struct sk_buf
- /*
-  *	Send an ICMP message in response to a packet in error
-  */
--static void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
--		       const struct in6_addr *force_saddr)
-+void icmp6_send(struct sk_buff *skb, u8 type, u8 code, __u32 info,
-+		const struct in6_addr *force_saddr)
- {
- 	struct inet6_dev *idev = NULL;
- 	struct ipv6hdr *hdr = ipv6_hdr(skb);
-@@ -600,6 +600,7 @@ out:
- out_bh_enable:
- 	local_bh_enable();
- }
-+EXPORT_SYMBOL(icmp6_send);
- 
- /* Slightly more convenient version of icmp6_send.
-  */
---- a/net/ipv6/ip6_icmp.c
-+++ b/net/ipv6/ip6_icmp.c
-@@ -9,6 +9,8 @@
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 
-+#if !IS_BUILTIN(CONFIG_IPV6)
++	if (unlikely(IS_IMMUTABLE(inode)))
++		return -EPERM;
 +
- static ip6_icmp_send_t __rcu *ip6_icmp_send;
++	if (unlikely(IS_APPEND(inode) &&
++			(attr->ia_valid & (ATTR_MODE | ATTR_UID |
++				  ATTR_GID | ATTR_TIMES_SET))))
++		return -EPERM;
++
+ 	if ((attr->ia_valid & ATTR_SIZE) &&
+ 		!f2fs_is_compress_backend_ready(inode))
+ 		return -EOPNOTSUPP;
+@@ -4084,6 +4095,11 @@ static ssize_t f2fs_file_write_iter(stru
+ 		inode_lock(inode);
+ 	}
  
- int inet6_register_icmp_sender(ip6_icmp_send_t *fn)
-@@ -37,14 +39,12 @@ void icmpv6_send(struct sk_buff *skb, u8
- 
- 	rcu_read_lock();
- 	send = rcu_dereference(ip6_icmp_send);
--
--	if (!send)
--		goto out;
--	send(skb, type, code, info, NULL);
--out:
-+	if (send)
-+		send(skb, type, code, info, NULL);
- 	rcu_read_unlock();
- }
- EXPORT_SYMBOL(icmpv6_send);
-+#endif
- 
- #if IS_ENABLED(CONFIG_NF_NAT)
- #include <net/netfilter/nf_conntrack.h>
++	if (unlikely(IS_IMMUTABLE(inode))) {
++		ret = -EPERM;
++		goto unlock;
++	}
++
+ 	ret = generic_write_checks(iocb, from);
+ 	if (ret > 0) {
+ 		bool preallocated = false;
+@@ -4148,6 +4164,7 @@ write:
+ 		if (ret > 0)
+ 			f2fs_update_iostat(F2FS_I_SB(inode), APP_WRITE_IO, ret);
+ 	}
++unlock:
+ 	inode_unlock(inode);
+ out:
+ 	trace_f2fs_file_write_iter(inode, iocb->ki_pos,
 
 
