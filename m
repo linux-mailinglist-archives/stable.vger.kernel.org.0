@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F1FD329023
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22E6832902D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242677AbhCAUDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58878 "EHLO mail.kernel.org"
+        id S242716AbhCAUDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:03:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242240AbhCATww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:52:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C37B664F1F;
-        Mon,  1 Mar 2021 17:52:59 +0000 (UTC)
+        id S242423AbhCATxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:53:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63CA065235;
+        Mon,  1 Mar 2021 17:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621180;
-        bh=RwdxeTRdlT/938+the2CncQrnJvJBUSBapoL3GxywDw=;
+        s=korg; t=1614621182;
+        bh=LupQDcmM/NprTyGVtEWMUQjL3cYzSc6Sn40drk/ZSFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6J0w+9jV0b7f2QT+9WfF2kAfgUc8eXXVZL+uEqFAL/W4hBKnJCBQZOY3gZezcvCQ
-         XztWwtP/nal5Sks7wis0wVyJkO15lrxkaHnctFTix1IoA/7fcn5fyfJlaJeHkhrPV6
-         OpqKq0voMOAvhNVSYjvwf32Okut8nqwnW4rvBgmI=
+        b=grMBWoX/z/nMfkQxaqm5q+pR/4k7hzhmSb8IVoUyNdQcuRAr0ovySsSdfAiAALIiA
+         iAvhqqX6JVia8NW1G7y9tb7uqPRaQIUMs2vTGAwErBZ7zemSG5sLs6moyWUCQYnNW9
+         eQQpUCNKaTB29iTFIwHHSIWyolT4tr1wVa+FkYF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 422/775] powerpc/pseries/dlpar: handle ibm, configure-connector delay status
-Date:   Mon,  1 Mar 2021 17:09:50 +0100
-Message-Id: <20210301161222.430905818@linuxfoundation.org>
+Subject: [PATCH 5.11 423/775] powerpc/8xx: Fix software emulation interrupt
+Date:   Mon,  1 Mar 2021 17:09:51 +0100
+Message-Id: <20210301161222.479830055@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,63 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Lynch <nathanl@linux.ibm.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 768d70e19ba525debd571b36e6d0ab19956c63d7 ]
+[ Upstream commit 903178d0ce6bb30ef80a3604ab9ee2b57869fbc9 ]
 
-dlpar_configure_connector() has two problems in its handling of
-ibm,configure-connector's return status:
+For unimplemented instructions or unimplemented SPRs, the 8xx triggers
+a "Software Emulation Exception" (0x1000). That interrupt doesn't set
+reason bits in SRR1 as the "Program Check Exception" does.
 
-1. When the status is -2 (busy, call again), we call
-   ibm,configure-connector again immediately without checking whether
-   to schedule, which can result in monopolizing the CPU.
-2. Extended delay status (9900..9905) goes completely unhandled,
-   causing the configuration to unnecessarily terminate.
+Go through emulation_assist_interrupt() to set REASON_ILLEGAL.
 
-Fix both of these issues by using rtas_busy_delay().
-
-Fixes: ab519a011caa ("powerpc/pseries: Kernel DLPAR Infrastructure")
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Reviewed-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Fixes: fbbcc3bb139e ("powerpc/8xx: Remove SoftwareEmulation()")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210107025900.410369-1-nathanl@linux.ibm.com
+Link: https://lore.kernel.org/r/ad782af87a222efc79cfb06079b0fd23d4224eaf.1612515180.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/dlpar.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/head_8xx.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/dlpar.c b/arch/powerpc/platforms/pseries/dlpar.c
-index 16e86ba8aa209..f6b7749d6ada7 100644
---- a/arch/powerpc/platforms/pseries/dlpar.c
-+++ b/arch/powerpc/platforms/pseries/dlpar.c
-@@ -127,7 +127,6 @@ void dlpar_free_cc_nodes(struct device_node *dn)
- #define NEXT_PROPERTY   3
- #define PREV_PARENT     4
- #define MORE_MEMORY     5
--#define CALL_AGAIN	-2
- #define ERR_CFG_USE     -9003
+diff --git a/arch/powerpc/kernel/head_8xx.S b/arch/powerpc/kernel/head_8xx.S
+index 52702f3db6df6..9eb63cf6ac38e 100644
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -165,7 +165,7 @@ SystemCall:
+ /* On the MPC8xx, this is a software emulation interrupt.  It occurs
+  * for all unimplemented and illegal instructions.
+  */
+-	EXCEPTION(0x1000, SoftEmu, program_check_exception, EXC_XFER_STD)
++	EXCEPTION(0x1000, SoftEmu, emulation_assist_interrupt, EXC_XFER_STD)
  
- struct device_node *dlpar_configure_connector(__be32 drc_index,
-@@ -168,6 +167,9 @@ struct device_node *dlpar_configure_connector(__be32 drc_index,
- 
- 		spin_unlock(&rtas_data_buf_lock);
- 
-+		if (rtas_busy_delay(rc))
-+			continue;
-+
- 		switch (rc) {
- 		case COMPLETE:
- 			break;
-@@ -216,9 +218,6 @@ struct device_node *dlpar_configure_connector(__be32 drc_index,
- 			last_dn = last_dn->parent;
- 			break;
- 
--		case CALL_AGAIN:
--			break;
--
- 		case MORE_MEMORY:
- 		case ERR_CFG_USE:
- 		default:
+ 	. = 0x1100
+ /*
 -- 
 2.27.0
 
