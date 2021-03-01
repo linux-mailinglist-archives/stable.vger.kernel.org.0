@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C42E3284AF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B130E3285AD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234730AbhCAQkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:40:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
+        id S236522AbhCAQ4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:56:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232694AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:32:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AA464F70;
-        Mon,  1 Mar 2021 16:24:57 +0000 (UTC)
+        id S235742AbhCAQte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1934464FA8;
+        Mon,  1 Mar 2021 16:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615898;
-        bh=87jKld7AmQdJn4kxHXTqOJYAO+4A2BTYGY6SdrnOY7U=;
+        s=korg; t=1614616368;
+        bh=BZzsVErNgiH1I1NapwYKPOpvHbLEZOWfA8JSE17bWzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w0WZRnxgxVb7XGQjQVrQG6+wSzBatVnQl3eDv075FUZCdMzSA7dkh2gB9x5o1jbAQ
-         r+I08t4QRVoPsiRuVUdrTIDMSR+QalOwNgogcvdI+iSxYr0mpaPm5nIN60v+sIR1xt
-         ZoQgYgKY9rp5AvTnGBM01ZHH6NK4GRdLTuwTXz0c=
+        b=vUfPhkKE7sSLslJt/Q1j7fip1HiRuLk/kmoOAtf/dCdAQ1VDiJff+nWOif9PjmmlH
+         AtGaqdCOaVHOTcNTHJZmrED2juCJ085qj6irb7olxPl8VuCFJPNm7tUkvqgt4k/Hb4
+         9JgyxmevM/i7fsKIsQ170fQekVhncJqH4Mk+z3TM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leif Liddy <leif.liddy@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/134] spi: pxa2xx: Fix the controller numbering for Wildcat Point
+Subject: [PATCH 4.14 097/176] powerpc/8xx: Fix software emulation interrupt
 Date:   Mon,  1 Mar 2021 17:12:50 +0100
-Message-Id: <20210301161016.948803340@linuxfoundation.org>
+Message-Id: <20210301161025.801266931@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 54c5d3bfb0cfb7b31259765524567871dee11615 ]
+[ Upstream commit 903178d0ce6bb30ef80a3604ab9ee2b57869fbc9 ]
 
-Wildcat Point has two SPI controllers and added one is actually second one.
-Fix the numbering by adding the description of the first one.
+For unimplemented instructions or unimplemented SPRs, the 8xx triggers
+a "Software Emulation Exception" (0x1000). That interrupt doesn't set
+reason bits in SRR1 as the "Program Check Exception" does.
 
-Fixes: caba248db286 ("spi: spi-pxa2xx-pci: Add ID and driver type for WildcatPoint PCH")
-Cc: Leif Liddy <leif.liddy@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208163816.22147-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Go through emulation_assist_interrupt() to set REASON_ILLEGAL.
+
+Fixes: fbbcc3bb139e ("powerpc/8xx: Remove SoftwareEmulation()")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/ad782af87a222efc79cfb06079b0fd23d4224eaf.1612515180.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx-pci.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ arch/powerpc/kernel/head_8xx.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-pxa2xx-pci.c b/drivers/spi/spi-pxa2xx-pci.c
-index 58d2d48e16a53..c37e35aeafa44 100644
---- a/drivers/spi/spi-pxa2xx-pci.c
-+++ b/drivers/spi/spi-pxa2xx-pci.c
-@@ -21,7 +21,8 @@ enum {
- 	PORT_BSW1,
- 	PORT_BSW2,
- 	PORT_CE4100,
--	PORT_LPT,
-+	PORT_LPT0,
-+	PORT_LPT1,
- };
+diff --git a/arch/powerpc/kernel/head_8xx.S b/arch/powerpc/kernel/head_8xx.S
+index 43884af0e35c4..95ecfec96b495 100644
+--- a/arch/powerpc/kernel/head_8xx.S
++++ b/arch/powerpc/kernel/head_8xx.S
+@@ -301,7 +301,7 @@ SystemCall:
+ /* On the MPC8xx, this is a software emulation interrupt.  It occurs
+  * for all unimplemented and illegal instructions.
+  */
+-	EXCEPTION(0x1000, SoftEmu, program_check_exception, EXC_XFER_STD)
++	EXCEPTION(0x1000, SoftEmu, emulation_assist_interrupt, EXC_XFER_STD)
  
- struct pxa_spi_info {
-@@ -48,8 +49,10 @@ static struct dw_dma_slave bsw1_rx_param = { .src_id = 7 };
- static struct dw_dma_slave bsw2_tx_param = { .dst_id = 8 };
- static struct dw_dma_slave bsw2_rx_param = { .src_id = 9 };
- 
--static struct dw_dma_slave lpt_tx_param = { .dst_id = 0 };
--static struct dw_dma_slave lpt_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt1_tx_param = { .dst_id = 0 };
-+static struct dw_dma_slave lpt1_rx_param = { .src_id = 1 };
-+static struct dw_dma_slave lpt0_tx_param = { .dst_id = 2 };
-+static struct dw_dma_slave lpt0_rx_param = { .src_id = 3 };
- 
- static bool lpss_dma_filter(struct dma_chan *chan, void *param)
- {
-@@ -158,12 +161,19 @@ static struct pxa_spi_info spi_info_configs[] = {
- 		.num_chipselect = 1,
- 		.max_clk_rate = 50000000,
- 	},
--	[PORT_LPT] = {
-+	[PORT_LPT0] = {
- 		.type = LPSS_LPT_SSP,
- 		.port_id = 0,
- 		.setup = lpss_spi_setup,
--		.tx_param = &lpt_tx_param,
--		.rx_param = &lpt_rx_param,
-+		.tx_param = &lpt0_tx_param,
-+		.rx_param = &lpt0_rx_param,
-+	},
-+	[PORT_LPT1] = {
-+		.type = LPSS_LPT_SSP,
-+		.port_id = 1,
-+		.setup = lpss_spi_setup,
-+		.tx_param = &lpt1_tx_param,
-+		.rx_param = &lpt1_rx_param,
- 	},
- };
- 
-@@ -251,8 +261,9 @@ static const struct pci_device_id pxa2xx_spi_pci_devices[] = {
- 	{ PCI_VDEVICE(INTEL, 0x2290), PORT_BSW1 },
- 	{ PCI_VDEVICE(INTEL, 0x22ac), PORT_BSW2 },
- 	{ PCI_VDEVICE(INTEL, 0x2e6a), PORT_CE4100 },
--	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT },
--	{ },
-+	{ PCI_VDEVICE(INTEL, 0x9ce5), PORT_LPT0 },
-+	{ PCI_VDEVICE(INTEL, 0x9ce6), PORT_LPT1 },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, pxa2xx_spi_pci_devices);
- 
+ 	. = 0x1100
+ /*
 -- 
 2.27.0
 
