@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2324329164
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:26:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F1CD329172
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241293AbhCAUZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:25:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45782 "EHLO mail.kernel.org"
+        id S243114AbhCAU0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:26:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243214AbhCAUSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:18:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4137D65319;
-        Mon,  1 Mar 2021 18:03:38 +0000 (UTC)
+        id S243205AbhCAUSw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:18:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A91965225;
+        Mon,  1 Mar 2021 18:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621818;
-        bh=7huvN+C20SkmZILgftz3wqApWdpSaE+GDlgsLyMY1P8=;
+        s=korg; t=1614621830;
+        bh=UUXgxDay4hebN8voDxmb3sKyYbiChEgdwOuhSR/bO1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTqHDf++S7tbglSsaxdcC2p8u0/DxwZRRL+cp2VF2351Jmiu0Y8wtQXwJgnh5i3KH
-         2K64HtkkOhK+MnfZp92Se4Pn1EvQX0LYs4AFwaFJLIV2AQyyZvD8MZ50refOw4Opi+
-         gJCgLaTaouMR3PVGUooX2qJ9m+6TXN8qyLnvGR9E=
+        b=jBJ7p6F7aH63+yAza/u3j+BBVUqUdXaZaotntVuPYgtr8mZIms/XXtmQBdiSrR0ZN
+         TYgsocoXo4wsZcacnskdCUOHaaRtMprg6LOuMd7VR+7LG3VTbUs545NDK29YTDLUoM
+         5CBZtxBrIbtjNZzo0UXjLaoSj4pGve6Xd9PQxbnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Jianan <huangjianan@oppo.com>,
-        Chao Yu <yuchao0@huawei.com>, Gao Xiang <hsiangkao@redhat.com>
-Subject: [PATCH 5.11 628/775] erofs: initialized fields can only be observed after bit is set
-Date:   Mon,  1 Mar 2021 17:13:16 +0100
-Message-Id: <20210301161232.432812782@linuxfoundation.org>
+        stable@vger.kernel.org, stable@ger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.11 629/775] tpm_tis: Fix check_locality for correct locality acquisition
+Date:   Mon,  1 Mar 2021 17:13:17 +0100
+Message-Id: <20210301161232.483445657@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,82 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@redhat.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-commit ce063129181312f8781a047a50be439c5859747b upstream.
+commit 3d9ae54af1d02a7c0edc55c77d7df2b921e58a87 upstream.
 
-Currently, although set_bit() & test_bit() pairs are used as a fast-
-path for initialized configurations. However, these atomic ops are
-actually relaxed forms. Instead, load-acquire & store-release form is
-needed to make sure uninitialized fields won't be observed in advance
-here (yet no such corresponding bitops so use full barriers instead.)
+The TPM TIS specification says the TPM signals the acquisition of locality
+when the TMP_ACCESS_REQUEST_USE bit goes to one *and* the
+TPM_ACCESS_REQUEST_USE bit goes to zero.  Currently we only check the
+former not the latter, so check both.  Adding the check on
+TPM_ACCESS_REQUEST_USE should fix the case where the locality is
+re-requested before the TPM has released it.  In this case the locality may
+get released briefly before it is reacquired, which causes all sorts of
+problems. However, with the added check, TPM_ACCESS_REQUEST_USE should
+remain 1 until the second request for the locality is granted.
 
-Link: https://lore.kernel.org/r/20210209130618.15838-1-hsiangkao@aol.com
-Fixes: 62dc45979f3f ("staging: erofs: fix race of initializing xattrs of a inode at the same time")
-Fixes: 152a333a5895 ("staging: erofs: add compacted compression indexes support")
-Cc: <stable@vger.kernel.org> # 5.3+
-Reported-by: Huang Jianan <huangjianan@oppo.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
+Cc: stable@ger.kernel.org
+Fixes: 27084efee0c3 ("[PATCH] tpm: driver for next generation TPM chips")
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/xattr.c |   10 +++++++++-
- fs/erofs/zmap.c  |   10 +++++++++-
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/erofs/xattr.c
-+++ b/fs/erofs/xattr.c
-@@ -48,8 +48,14 @@ static int init_inode_xattrs(struct inod
- 	int ret = 0;
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -125,7 +125,8 @@ static bool check_locality(struct tpm_ch
+ 	if (rc < 0)
+ 		return false;
  
- 	/* the most case is that xattrs of this inode are initialized. */
--	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags))
-+	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags)) {
-+		/*
-+		 * paired with smp_mb() at the end of the function to ensure
-+		 * fields will only be observed after the bit is set.
-+		 */
-+		smp_mb();
- 		return 0;
-+	}
- 
- 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_XATTR_BIT, TASK_KILLABLE))
- 		return -ERESTARTSYS;
-@@ -137,6 +143,8 @@ static int init_inode_xattrs(struct inod
- 	}
- 	xattr_iter_end(&it, atomic_map);
- 
-+	/* paired with smp_mb() at the beginning of the function. */
-+	smp_mb();
- 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
- 
- out_unlock:
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -36,8 +36,14 @@ static int z_erofs_fill_inode_lazy(struc
- 	void *kaddr;
- 	struct z_erofs_map_header *h;
- 
--	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags))
-+	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags)) {
-+		/*
-+		 * paired with smp_mb() at the end of the function to ensure
-+		 * fields will only be observed after the bit is set.
-+		 */
-+		smp_mb();
- 		return 0;
-+	}
- 
- 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_Z_BIT, TASK_KILLABLE))
- 		return -ERESTARTSYS;
-@@ -83,6 +89,8 @@ static int z_erofs_fill_inode_lazy(struc
- 
- 	vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits +
- 					((h->h_clusterbits >> 5) & 7);
-+	/* paired with smp_mb() at the beginning of the function */
-+	smp_mb();
- 	set_bit(EROFS_I_Z_INITED_BIT, &vi->flags);
- unmap_done:
- 	kunmap_atomic(kaddr);
+-	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) ==
++	if ((access & (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID
++		       | TPM_ACCESS_REQUEST_USE)) ==
+ 	    (TPM_ACCESS_ACTIVE_LOCALITY | TPM_ACCESS_VALID)) {
+ 		priv->locality = l;
+ 		return true;
 
 
