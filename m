@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 938FF328D7C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB297328DC8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241117AbhCATMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:12:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S241320AbhCATRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:17:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240946AbhCATGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:06:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E23FD6526C;
-        Mon,  1 Mar 2021 17:35:52 +0000 (UTC)
+        id S241114AbhCATMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:12:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B73D652B4;
+        Mon,  1 Mar 2021 17:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620153;
-        bh=FLMp82SAN4JtOo9+0ryMpY2ma3al5ZgYRumOG6TdWb4=;
+        s=korg; t=1614620166;
+        bh=FuZJLOVRkD+XGRz9qS1NRIB3qa7LT/2s/xHFh43HFfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWiSldaI7TWv4hVx+gLNa3Vnx1WSNkZ20DfkFKUWl0PJaIHCT0wpmK3FTGH2JArw5
-         HO9KSB1Raeudy0OYvd85NVwkOCgzXABstWoIf6NP5vPFXiobGvwQiEac6OelttQiWT
-         iK+2pprZzqvTl22Meskk6SNK3KdwQ/CiXjvqZ8jk=
+        b=GNQZh2zsADxmvCsHti48x9GtXxU/hZx63jvoaTiqfg77QsQwW5T1fBh+G6EzLaPRH
+         utBaxK1838wSqJlQg2BsTQuhFGjeo9nCMvwVo+ho/TvAnM5jcugI9KKBR1iDu3iTrp
+         F1QgbjgqXf47We1yJ1xngylkWPVGoB7Ax7GV09PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 050/775] arm64: dts: allwinner: A64: Limit MMC2 bus frequency to 150 MHz
-Date:   Mon,  1 Mar 2021 17:03:38 +0100
-Message-Id: <20210301161204.192943165@linuxfoundation.org>
+Subject: [PATCH 5.11 054/775] arm64: dts: rockchip: rk3328: Add clock_in_out property to gmac2phy node
+Date:   Mon,  1 Mar 2021 17:03:42 +0100
+Message-Id: <20210301161204.374553258@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,59 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 948c657cc45e8ce48cb533d4e2106145fa765759 ]
+[ Upstream commit c6433083f5930fdf52ad47c8c0459719c810dc89 ]
 
-In contrast to the H6 (and later) manuals, the A64 datasheet does not
-specify any limitations in the maximum possible frequency for eMMC
-controllers.
-However experimentation has found that a 150 MHz limit similar to other
-SoCs and also the MMC0 and MMC1 controllers on the A64 seems to exist
-for the MMC2 controller.
+The gmac2phy is integrated with the PHY within the SoC. Any properties
+related to this integration can be included in the .dtsi file, instead
+of having board dts files specify them separately.
 
-Limit the frequency for the MMC2 controller to 150 MHz in the SoC .dtsi.
-The Pinebook seems to be the an odd exception, since it apparently seems
-to work with 200 MHz as well, so overwrite this in its board .dts file.
+Add the clock_in_out property to specify the direction of the PHY clock.
+This is the minimum required to have gmac2phy working on Linux. Other
+examples include assigned-clocks, assigned-clock-rates, and
+assigned-clock-parents properties, but the hardware default plus the
+implementation requesting the appropriate clock rate also works.
 
-Tested on a Pine64-LTS: 200 MHz HS-200 fails, 150 MHz HS-200 works.
-
-Fixes: 22be992faea7 ("arm64: allwinner: a64: Increase the MMC max frequency")
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210113152630.28810-7-andre.przywara@arm.com
+Fixes: 9c4cc910fe28 ("ARM64: dts: rockchip: Add gmac2phy node support for rk3328")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20210117100710.4857-2-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts | 1 +
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi         | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-index d07cf05549c32..7ae16541d14f5 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
-@@ -167,6 +167,7 @@
- 	pinctrl-0 = <&mmc2_pins>, <&mmc2_ds_pin>;
- 	vmmc-supply = <&reg_dcdc1>;
- 	vqmmc-supply = <&reg_eldo1>;
-+	max-frequency = <200000000>;
- 	bus-width = <8>;
- 	non-removable;
- 	cap-mmc-hw-reset;
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 19e9b8ca8432f..57786fc120c30 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -514,7 +514,7 @@
- 			resets = <&ccu RST_BUS_MMC2>;
- 			reset-names = "ahb";
- 			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
--			max-frequency = <200000000>;
-+			max-frequency = <150000000>;
- 			status = "disabled";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+index db0d5c8e5f96a..93c734d8a46c2 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -928,6 +928,7 @@
+ 		phy-mode = "rmii";
+ 		phy-handle = <&phy>;
+ 		snps,txpbl = <0x4>;
++		clock_in_out = "output";
+ 		status = "disabled";
+ 
+ 		mdio {
 -- 
 2.27.0
 
