@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1D5328FFF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4211C329128
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238015AbhCAUA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:00:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
+        id S241170AbhCAUUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:20:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241808AbhCATrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:47:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BF8264EE2;
-        Mon,  1 Mar 2021 17:28:49 +0000 (UTC)
+        id S243005AbhCAUNY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:13:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44FED652D4;
+        Mon,  1 Mar 2021 18:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619730;
-        bh=gIrkr9f+g407ocE3V1plKh5srxdKOJERSnGXU0ad9DU=;
+        s=korg; t=1614621695;
+        bh=dncZgWL8tHOt2jmvReuGmGPWJ5OUscCw7TzvDQUpXCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WinYKxzRkpF1jshWX/1xnePkxyRGDsWVkesEWLJLzHtLQ7zQ2gGPXezjcFvel2jRa
-         1QDQNaijzZS3ZAB3nVf2+v26Clp5Ve8WP6eDvRJkd6ES6uDyjPUFURvJY1PvNVkgAW
-         9hIbsMsqDJepP0rJaTasHONXUR22M0Rm03H8tla8=
+        b=C6rnwWZ2VPjwvGQkCeJel2zgomdTuP3nPNp9k+Iaiq96PLLd9OAGwzrrszbMeVzuS
+         XO4Rx4R0b5/gXyGNIRddaMfVrgGq9VIr4zdqdkRT86LthalzxEm7KfY77oxjokp4n0
+         BgvOZChBuDKl+di3Xo3BTI4P3KBYMHsHArnTfFxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        David Howells <dhowells@redhat.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Sumit Garg <sumit.garg@linaro.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.10 530/663] KEYS: trusted: Reserve TPM for seal and unseal operations
-Date:   Mon,  1 Mar 2021 17:12:58 +0100
-Message-Id: <20210301161208.070553311@linuxfoundation.org>
+        stable@vger.kernel.org, Alvin Lee <alvin.lee2@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.11 611/775] Revert "drm/amd/display: Update NV1x SR latency values"
+Date:   Mon,  1 Mar 2021 17:12:59 +0100
+Message-Id: <20210301161231.602944616@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,148 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 8c657a0590de585b1115847c17b34a58025f2f4b upstream.
+commit 910f1601addae3e430fc7d3cd589d7622c5df693 upstream.
 
-When TPM 2.0 trusted keys code was moved to the trusted keys subsystem,
-the operations were unwrapped from tpm_try_get_ops() and tpm_put_ops(),
-which are used to take temporarily the ownership of the TPM chip. The
-ownership is only taken inside tpm_send(), but this is not sufficient,
-as in the key load TPM2_CC_LOAD, TPM2_CC_UNSEAL and TPM2_FLUSH_CONTEXT
-need to be done as a one single atom.
+This reverts commit 4a3dea8932d3b1199680d2056dd91d31d94d70b7.
 
-Take the TPM chip ownership before sending anything with
-tpm_try_get_ops() and tpm_put_ops(), and use tpm_transmit_cmd() to send
-TPM commands instead of tpm_send(), reverting back to the old behaviour.
+This causes blank screens for some users.
 
-Fixes: 2e19e10131a0 ("KEYS: trusted: Move TPM2 trusted keys code")
-Reported-by: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1388
+Cc: Alvin Lee <alvin.lee2@amd.com>
+Cc: Jun Lei <Jun.Lei@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: Sumit Garg <sumit.garg@linaro.org>
-Acked-by Sumit Garg <sumit.garg@linaro.org>
-Tested-by: Mimi Zohar <zohar@linux.ibm.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm.h                    |    4 ----
- include/linux/tpm.h                       |    5 ++++-
- security/keys/trusted-keys/trusted_tpm2.c |   22 ++++++++++++++++++----
- 3 files changed, 22 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm.h
-+++ b/drivers/char/tpm/tpm.h
-@@ -164,8 +164,6 @@ extern const struct file_operations tpmr
- extern struct idr dev_nums_idr;
- 
- ssize_t tpm_transmit(struct tpm_chip *chip, u8 *buf, size_t bufsiz);
--ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
--			 size_t min_rsp_body_length, const char *desc);
- int tpm_get_timeouts(struct tpm_chip *);
- int tpm_auto_startup(struct tpm_chip *chip);
- 
-@@ -194,8 +192,6 @@ static inline void tpm_msleep(unsigned i
- int tpm_chip_start(struct tpm_chip *chip);
- void tpm_chip_stop(struct tpm_chip *chip);
- struct tpm_chip *tpm_find_get_ops(struct tpm_chip *chip);
--__must_check int tpm_try_get_ops(struct tpm_chip *chip);
--void tpm_put_ops(struct tpm_chip *chip);
- 
- struct tpm_chip *tpm_chip_alloc(struct device *dev,
- 				const struct tpm_class_ops *ops);
---- a/include/linux/tpm.h
-+++ b/include/linux/tpm.h
-@@ -397,6 +397,10 @@ static inline u32 tpm2_rc_value(u32 rc)
- #if defined(CONFIG_TCG_TPM) || defined(CONFIG_TCG_TPM_MODULE)
- 
- extern int tpm_is_tpm2(struct tpm_chip *chip);
-+extern __must_check int tpm_try_get_ops(struct tpm_chip *chip);
-+extern void tpm_put_ops(struct tpm_chip *chip);
-+extern ssize_t tpm_transmit_cmd(struct tpm_chip *chip, struct tpm_buf *buf,
-+				size_t min_rsp_body_length, const char *desc);
- extern int tpm_pcr_read(struct tpm_chip *chip, u32 pcr_idx,
- 			struct tpm_digest *digest);
- extern int tpm_pcr_extend(struct tpm_chip *chip, u32 pcr_idx,
-@@ -410,7 +414,6 @@ static inline int tpm_is_tpm2(struct tpm
- {
- 	return -ENODEV;
- }
--
- static inline int tpm_pcr_read(struct tpm_chip *chip, int pcr_idx,
- 			       struct tpm_digest *digest)
- {
---- a/security/keys/trusted-keys/trusted_tpm2.c
-+++ b/security/keys/trusted-keys/trusted_tpm2.c
-@@ -83,6 +83,12 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 	if (rc)
- 		return rc;
- 
-+	rc = tpm_buf_init(&buf, TPM2_ST_SESSIONS, TPM2_CC_CREATE);
-+	if (rc) {
-+		tpm_put_ops(chip);
-+		return rc;
-+	}
-+
- 	tpm_buf_append_u32(&buf, options->keyhandle);
- 	tpm2_buf_append_auth(&buf, TPM2_RS_PW,
- 			     NULL /* nonce */, 0,
-@@ -130,7 +136,7 @@ int tpm2_seal_trusted(struct tpm_chip *c
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "sealing data");
- 	if (rc)
- 		goto out;
- 
-@@ -157,6 +163,7 @@ out:
- 			rc = -EPERM;
- 	}
- 
-+	tpm_put_ops(chip);
- 	return rc;
- }
- 
-@@ -211,7 +218,7 @@ static int tpm2_load_cmd(struct tpm_chip
- 		goto out;
- 	}
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 4, "loading blob");
- 	if (!rc)
- 		*blob_handle = be32_to_cpup(
- 			(__be32 *) &buf.data[TPM_HEADER_SIZE]);
-@@ -260,7 +267,7 @@ static int tpm2_unseal_cmd(struct tpm_ch
- 			     options->blobauth /* hmac */,
- 			     TPM_DIGEST_SIZE);
- 
--	rc = tpm_send(chip, buf.data, tpm_buf_length(&buf));
-+	rc = tpm_transmit_cmd(chip, &buf, 6, "unsealing");
- 	if (rc > 0)
- 		rc = -EPERM;
- 
-@@ -304,12 +311,19 @@ int tpm2_unseal_trusted(struct tpm_chip
- 	u32 blob_handle;
- 	int rc;
- 
--	rc = tpm2_load_cmd(chip, payload, options, &blob_handle);
-+	rc = tpm_try_get_ops(chip);
- 	if (rc)
- 		return rc;
- 
-+	rc = tpm2_load_cmd(chip, payload, options, &blob_handle);
-+	if (rc)
-+		goto out;
-+
- 	rc = tpm2_unseal_cmd(chip, payload, options, blob_handle);
- 	tpm2_flush_context(chip, blob_handle);
- 
-+out:
-+	tpm_put_ops(chip);
-+
- 	return rc;
- }
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_resource.c
+@@ -408,8 +408,8 @@ static struct _vcs_dpi_soc_bounding_box_
+ 			},
+ 		},
+ 	.num_states = 5,
+-	.sr_exit_time_us = 11.6,
+-	.sr_enter_plus_exit_time_us = 13.9,
++	.sr_exit_time_us = 8.6,
++	.sr_enter_plus_exit_time_us = 10.9,
+ 	.urgent_latency_us = 4.0,
+ 	.urgent_latency_pixel_data_only_us = 4.0,
+ 	.urgent_latency_pixel_mixed_with_vm_data_us = 4.0,
 
 
