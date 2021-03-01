@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B412328F3C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB9F328EFC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:45:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242040AbhCATsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:48:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50724 "EHLO mail.kernel.org"
+        id S241658AbhCATlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:41:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233421AbhCATf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:35:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 853C765047;
-        Mon,  1 Mar 2021 17:18:25 +0000 (UTC)
+        id S241719AbhCATdQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:33:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8B6D651F0;
+        Mon,  1 Mar 2021 17:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619106;
-        bh=Q1Gt/h04qLVfGsVVVe+VRIucfDa5xdIzWfKEKP87pjI=;
+        s=korg; t=1614619183;
+        bh=SmWF1GTFjtoXWvYcuXgW5oDTOC+jBNtHG89hVlaooMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cy2gXMwOLXSgjaJ04kOIwrIEasgSpsLFGDBHIjJaoZjuZD0r20tbfw+frVpua8qGB
-         pmzUhCXqMj2m7/adJvDb9wR/wMwg4K8BdQKsCretH12BUrd+/5z5V6dgmR1Y3/3H7t
-         YxXqAuj4EgNzYA458MPSa6Dybi5Q4OpUsi7phOKU=
+        b=sWICAuKcFS7ZED8YmPKwpzet7i59rigN4EVySIUKOs07PXpbXzdVmaRVShCC6K3/h
+         y9tmVgEErNulf2yyV+xzX7mamwhGVOrFIjwsL1tEhdfKGkry5psQEyd7O1LhCkh5lD
+         nwHj+eGHDfG7kDlenFvJKMz66tpYoP4n+ZmDWRAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 326/663] powerpc/47x: Disable 256k page size
-Date:   Mon,  1 Mar 2021 17:09:34 +0100
-Message-Id: <20210301161157.980094995@linuxfoundation.org>
+Subject: [PATCH 5.10 333/663] ARM: 9046/1: decompressor: Do not clear SCTLR.nTLSMD for ARMv7+ cores
+Date:   Mon,  1 Mar 2021 17:09:41 +0100
+Message-Id: <20210301161158.327754858@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,39 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-[ Upstream commit 910a0cb6d259736a0c86e795d4c2f42af8d0d775 ]
+[ Upstream commit 2acb909750431030b65a0a2a17fd8afcbd813a84 ]
 
-PPC47x_TLBE_SIZE isn't defined for 256k pages, leading to a build
-break if 256k pages is selected.
+It was observed that decompressor running on hardware implementing ARM v8.2
+Load/Store Multiple Atomicity and Ordering Control (LSMAOC), say, as guest,
+would stuck just after:
 
-So change the kconfig so that 256k pages can't be selected for 47x.
+Uncompressing Linux... done, booting the kernel.
 
-Fixes: e7f75ad01d59 ("powerpc/47x: Base ppc476 support")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Expand change log to mention build break]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/2fed79b1154c872194f98bac4422c23918325e61.1611128938.git.christophe.leroy@csgroup.eu
+The reason is that it clears nTLSMD bit when disabling caches:
+
+  nTLSMD, bit [3]
+
+  When ARMv8.2-LSMAOC is implemented:
+
+    No Trap Load Multiple and Store Multiple to
+    Device-nGRE/Device-nGnRE/Device-nGnRnE memory.
+
+    0b0 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are trapped and
+        generate a stage 1 Alignment fault.
+
+    0b1 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are not trapped.
+
+  This bit is permitted to be cached in a TLB.
+
+  This field resets to 1.
+
+  Otherwise:
+
+  Reserved, RES1
+
+So as effect we start getting traps we are not quite ready for.
+
+Looking into history it seems that mask used for SCTLR clear came from
+the similar code for ARMv4, where bit[3] is the enable/disable bit for
+the write buffer. That not applicable to ARMv7 and onwards, so retire
+that bit from the masks.
+
+Fixes: 7d09e85448dfa78e3e58186c934449aaf6d49b50 ("[ARM] 4393/2: ARMv7: Add uncompressing code for the new CPU Id format")
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/head.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index 5181872f94523..31ed8083571ff 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -761,7 +761,7 @@ config PPC_64K_PAGES
- 
- config PPC_256K_PAGES
- 	bool "256k page size"
--	depends on 44x && !STDBINUTILS
-+	depends on 44x && !STDBINUTILS && !PPC_47x
- 	help
- 	  Make the page size 256k.
- 
+diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
+index 3a392983ac079..a0de09f994d88 100644
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -1175,9 +1175,9 @@ __armv4_mmu_cache_off:
+ __armv7_mmu_cache_off:
+ 		mrc	p15, 0, r0, c1, c0
+ #ifdef CONFIG_MMU
+-		bic	r0, r0, #0x000d
++		bic	r0, r0, #0x0005
+ #else
+-		bic	r0, r0, #0x000c
++		bic	r0, r0, #0x0004
+ #endif
+ 		mcr	p15, 0, r0, c1, c0	@ turn MMU and cache off
+ 		mov	r0, #0
 -- 
 2.27.0
 
