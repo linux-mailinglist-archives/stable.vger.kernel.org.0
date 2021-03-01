@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA64B3291C0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D95203291C2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243386AbhCAUc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:32:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47730 "EHLO mail.kernel.org"
+        id S243393AbhCAUca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:32:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242671AbhCAUZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:25:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B276514F;
-        Mon,  1 Mar 2021 18:06:22 +0000 (UTC)
+        id S241666AbhCAUZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:25:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 125E265280;
+        Mon,  1 Mar 2021 18:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621982;
-        bh=MHGYwXE7bIQKlpwi3NRGrBfhVHrSUrFMMo0/TudrHEU=;
+        s=korg; t=1614621985;
+        bh=1PQ3JsHWo4Nc9LXhJamVs6DwzFWqmCbPJVuiPP5Af5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W42eVElZwkiAHOkxl5G5IoZEh4W4Kl2tlInSJ9qMvmQPKdexQFZ5DUqnYPJZY4eZr
-         6GNgg4ltKSoR3434PzblfjGn2v2IrFdWWNZotlTrtG/mgx2pQwzrw/ATYcjoAFaNUU
-         ijBSSEIq6lImLBjsF7qIarY+2wTxh+Rb3fZk/6o0=
+        b=y13EpKFKa/B5mcxWxAY/8k3VnOJwXcYXrAuYkGK+NwSkzzDOabf2YtomGPQYRUueJ
+         t8/Em/rkb6GnhdHPDZQpn3tK33JUOauSvfG1Am9o8dgKebk9TEXrbnOsLPJ+I32cRq
+         NJ6f2pMnRXLLLnh5zmfdacZFyFtESOF/5Ss+PgRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.11 714/775] powerpc/32s: Add missing call to kuep_lock on syscall entry
-Date:   Mon,  1 Mar 2021 17:14:42 +0100
-Message-Id: <20210301161236.631530941@linuxfoundation.org>
+        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.11 715/775] spmi: spmi-pmic-arb: Fix hw_irq overflow
+Date:   Mon,  1 Mar 2021 17:14:43 +0100
+Message-Id: <20210301161236.681795934@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,38 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
 
-commit 57fdfbce89137ae85cd5cef48be168040a47dd13 upstream.
+commit d19db80a366576d3ffadf2508ed876b4c1faf959 upstream.
 
-Userspace Execution protection and fast syscall entry were implemented
-independently from each other and were both merged in kernel 5.2,
-leading to syscall entry missing userspace execution protection.
+Currently, when handling the SPMI summary interrupt, the hw_irq
+number is calculated based on SID, Peripheral ID, IRQ index and
+APID. This is then passed to irq_find_mapping() to see if a
+mapping exists for this hw_irq and if available, invoke the
+interrupt handler. Since the IRQ index uses an "int" type, hw_irq
+which is of unsigned long data type can take a large value when
+SID has its MSB set to 1 and the type conversion happens. Because
+of this, irq_find_mapping() returns 0 as there is no mapping
+for this hw_irq. This ends up invoking cleanup_irq() as if
+the interrupt is spurious whereas it is actually a valid
+interrupt. Fix this by using the proper data type (u32) for id.
 
-On syscall entry, execution of user space memory must be
-locked in the same way as on exception entry.
-
-Fixes: b86fb88855ea ("powerpc/32: implement fast entry for syscalls on non BOOKE")
 Cc: stable@vger.kernel.org
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/c65e105b63aaf74f91a14f845bc77192350b84a6.1612796617.git.christophe.leroy@csgroup.eu
+Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+Link: https://lore.kernel.org/r/1612812784-26369-1-git-send-email-subbaram@codeaurora.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/20210212031417.3148936-1-sboyd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/entry_32.S |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spmi/spmi-pmic-arb.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/kernel/entry_32.S
-+++ b/arch/powerpc/kernel/entry_32.S
-@@ -356,6 +356,9 @@ trace_syscall_entry_irq_off:
+--- a/drivers/spmi/spmi-pmic-arb.c
++++ b/drivers/spmi/spmi-pmic-arb.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0-only
+ /*
+- * Copyright (c) 2012-2015, 2017, The Linux Foundation. All rights reserved.
++ * Copyright (c) 2012-2015, 2017, 2021, The Linux Foundation. All rights reserved.
+  */
+ #include <linux/bitmap.h>
+ #include <linux/delay.h>
+@@ -505,8 +505,7 @@ static void cleanup_irq(struct spmi_pmic
+ static void periph_interrupt(struct spmi_pmic_arb *pmic_arb, u16 apid)
+ {
+ 	unsigned int irq;
+-	u32 status;
+-	int id;
++	u32 status, id;
+ 	u8 sid = (pmic_arb->apid_data[apid].ppid >> 8) & 0xF;
+ 	u8 per = pmic_arb->apid_data[apid].ppid & 0xFF;
  
- 	.globl	transfer_to_syscall
- transfer_to_syscall:
-+#ifdef CONFIG_PPC_BOOK3S_32
-+	kuep_lock r11, r12
-+#endif
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	andi.	r12,r9,MSR_EE
- 	beq-	trace_syscall_entry_irq_off
 
 
