@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3381932902B
+	by mail.lfdr.de (Postfix) with ESMTP id A535732902C
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242709AbhCAUD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57880 "EHLO mail.kernel.org"
+        id S242713AbhCAUDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:03:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242413AbhCATx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:53:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF0926535D;
-        Mon,  1 Mar 2021 17:53:18 +0000 (UTC)
+        id S242415AbhCATx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:53:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD1286535F;
+        Mon,  1 Mar 2021 17:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621199;
-        bh=hbI1nGScUybABbg1TzJWag93sTnmDwcY6fpq+B3xuOk=;
+        s=korg; t=1614621202;
+        bh=uDBMjpTaEvjCAKyjxlDVYfZCjpX8IVWnupmNgsgfLuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJ76T6mtREScR+VF/HRZBxZ1I1+T3SB4kaapbx97BmwtT/sU5te3G/22U8ArsOLLR
-         9yWwGzsfb0muFj+tSIRvT/HDVsopoeGbldKYw8wZ3rsBlYHwv3XcAW0TBD7qHgTzSl
-         DwJzOp8NERzEHJD2EBsBiMBE8n14DMhYZxPILyPU=
+        b=ag1F6kU38vGImLQW72MIX/C03ipnG3TzhQxWCLQFmgGVHmUQpWihaA16g8DJO73n8
+         XGpdVZnYFDVHsPCcvKEOz2Jm3C6XtFg6+vuVugzxo0OMogMBiJ4nUKDMbYdl0ybo32
+         1YQVXZ79ryX0kuBwZuTthd39+0l7BKvRzpOwHadA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Takeshi Saito <takeshi.saito.xv@renesas.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 399/775] mmc: renesas_sdhi_internal_dmac: Fix DMA buffer alignment from 8 to 128-bytes
-Date:   Mon,  1 Mar 2021 17:09:27 +0100
-Message-Id: <20210301161221.303895391@linuxfoundation.org>
+Subject: [PATCH 5.11 400/775] ARM: 9046/1: decompressor: Do not clear SCTLR.nTLSMD for ARMv7+ cores
+Date:   Mon,  1 Mar 2021 17:09:28 +0100
+Message-Id: <20210301161221.352986865@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,41 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Saito <takeshi.saito.xv@renesas.com>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-[ Upstream commit d7aefb2887601cf1fc3f86f55d43b2c9aece5e8f ]
+[ Upstream commit 2acb909750431030b65a0a2a17fd8afcbd813a84 ]
 
-According to the latest datasheet, the internal DMAC buffer alignment
-R-Car Gen3 SDHI HW should be 128-bytes. So, fix it.
+It was observed that decompressor running on hardware implementing ARM v8.2
+Load/Store Multiple Atomicity and Ordering Control (LSMAOC), say, as guest,
+would stuck just after:
 
-Signed-off-by: Takeshi Saito <takeshi.saito.xv@renesas.com>
-[shimoda: revise commit description, rebase]
-Fixes: 2a68ea7896e3 ("mmc: renesas-sdhi: add support for R-Car Gen3 SDHI DMAC")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Link: https://lore.kernel.org/r/1608114572-1892-2-git-send-email-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Uncompressing Linux... done, booting the kernel.
+
+The reason is that it clears nTLSMD bit when disabling caches:
+
+  nTLSMD, bit [3]
+
+  When ARMv8.2-LSMAOC is implemented:
+
+    No Trap Load Multiple and Store Multiple to
+    Device-nGRE/Device-nGnRE/Device-nGnRnE memory.
+
+    0b0 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are trapped and
+        generate a stage 1 Alignment fault.
+
+    0b1 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are not trapped.
+
+  This bit is permitted to be cached in a TLB.
+
+  This field resets to 1.
+
+  Otherwise:
+
+  Reserved, RES1
+
+So as effect we start getting traps we are not quite ready for.
+
+Looking into history it seems that mask used for SCTLR clear came from
+the similar code for ARMv4, where bit[3] is the enable/disable bit for
+the write buffer. That not applicable to ARMv7 and onwards, so retire
+that bit from the masks.
+
+Fixes: 7d09e85448dfa78e3e58186c934449aaf6d49b50 ("[ARM] 4393/2: ARMv7: Add uncompressing code for the new CPU Id format")
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 4 ++--
+ arch/arm/boot/compressed/head.S | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index fe13e1ea22dcc..f3e76d6b3e3fe 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -186,8 +186,8 @@ renesas_sdhi_internal_dmac_start_dma(struct tmio_mmc_host *host,
- 			mmc_get_dma_dir(data)))
- 		goto force_pio;
- 
--	/* This DMAC cannot handle if buffer is not 8-bytes alignment */
--	if (!IS_ALIGNED(sg_dma_address(sg), 8))
-+	/* This DMAC cannot handle if buffer is not 128-bytes alignment */
-+	if (!IS_ALIGNED(sg_dma_address(sg), 128))
- 		goto force_pio_with_unmap;
- 
- 	if (data->flags & MMC_DATA_READ) {
+diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
+index d9cce7238a365..73eee41826e2d 100644
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -1164,9 +1164,9 @@ __armv4_mmu_cache_off:
+ __armv7_mmu_cache_off:
+ 		mrc	p15, 0, r0, c1, c0
+ #ifdef CONFIG_MMU
+-		bic	r0, r0, #0x000d
++		bic	r0, r0, #0x0005
+ #else
+-		bic	r0, r0, #0x000c
++		bic	r0, r0, #0x0004
+ #endif
+ 		mcr	p15, 0, r0, c1, c0	@ turn MMU and cache off
+ 		mov	r0, #0
 -- 
 2.27.0
 
