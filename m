@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E69B4328471
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E709D328562
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231908AbhCAQfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:35:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        id S236018AbhCAQxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231521AbhCAQ3f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A574264F53;
-        Mon,  1 Mar 2021 16:23:53 +0000 (UTC)
+        id S235166AbhCAQqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:46:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DF3C64EFD;
+        Mon,  1 Mar 2021 16:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615834;
-        bh=fSi0IQR8VkifieCtuCA1OdSgP1hC6blVO0eHirRxd9g=;
+        s=korg; t=1614616306;
+        bh=TNCV2/JdytHhhnw4jkc8LwFbnEVqVyk1xkPUj+PwxMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f5IPKmT/jM8KVwZAtQNRvOWZY8KKM6N89IkZxuJKrZtU1OfM+8ZrwxXsjaYepYnXT
-         uI98CATI+fm7Am1kWaBQBG59czFtAVApYir53Y0K3h2/bGVnmRbTQKFBOLZI0ZdKM6
-         iyaUfA8iDRnBUrrvb/46yll+qdaqBN0bh+8P9CvY=
+        b=VJknyhnm7b+a2X/AKrzJ9RoI//8zz3OKguAeDAL9aSU6nNUS5+RtFbwZPxenSVq8Q
+         dqqX4sVLniyGGZCF6wl2hdb0MireLX0nlZSqnFmuOoTc6MvNCmWnrWk4qUX7iyo6k7
+         nZ4v1dAQkNs8O9Qfy9SAGLWSaQJUCRpUXE0M+zMI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vishnu Dasa <vdasa@vmware.com>,
         Jorgen Hansen <jhansen@vmware.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 077/134] VMCI: Use set_page_dirty_lock() when unregistering guest memory
-Date:   Mon,  1 Mar 2021 17:12:58 +0100
-Message-Id: <20210301161017.359165240@linuxfoundation.org>
+Subject: [PATCH 4.14 106/176] VMCI: Use set_page_dirty_lock() when unregistering guest memory
+Date:   Mon,  1 Mar 2021 17:12:59 +0100
+Message-Id: <20210301161026.244441922@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,7 +63,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-index 6ac3c59c9ae78..7c7ed3f8441ab 100644
+index d6210bf92c1f2..e096aae5f6546 100644
 --- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
 +++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
 @@ -732,7 +732,7 @@ static void qp_release_pages(struct page **pages,
