@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCABE3288F5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 794B73288DF
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:47:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238687AbhCARr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:47:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
+        id S238499AbhCARqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:46:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238317AbhCARls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:41:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8543650C2;
-        Mon,  1 Mar 2021 16:56:47 +0000 (UTC)
+        id S234768AbhCARlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:41:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8026A650C5;
+        Mon,  1 Mar 2021 16:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617808;
-        bh=iYHuuJGSUMX2lGtEJq+VRuy6rsSovSdoHrBsWOUB3do=;
+        s=korg; t=1614617811;
+        bh=YYLeQ54/dGtTNft2eTdEQGrkJblbugZPPGEfZLvTpG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFuisfpQKqykyDI0xeWA5/YbtF4kRGcIxDE6gkXqMU6nJu3bZqPEvRbgkug5FVhJA
-         4VsZMnHdxnaEq88DvAiJtcvq05ibgBsmim4huE6QI0+X/WHW82rrQqrTMbro9jFb77
-         +tzUGQNEa2edV64Priz/kkG0snpWkiDRIZ37MiNU=
+        b=sCtXxxttINrGWpp86mzhL8DRV+DQZEFzKOpXRDpM/MsALRk6x0Ztuo1oTHU1CHile
+         9+j8/VSWFz3TmKeHYU0GneyBGcfSSGOVJSoafKpEibErzDBH8YCwqDUexWYGnqTGxj
+         JLRCEQAIAe0LmWrYiYxmRqDu5pwGC9UYbJoMxHHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/340] soundwire: cadence: fix ACK/NAK handling
-Date:   Mon,  1 Mar 2021 17:12:28 +0100
-Message-Id: <20210301161058.347317488@linuxfoundation.org>
+        stable@vger.kernel.org, Simon South <simon@simonsouth.net>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 205/340] pwm: rockchip: rockchip_pwm_probe(): Remove superfluous clk_unprepare()
+Date:   Mon,  1 Mar 2021 17:12:29 +0100
+Message-Id: <20210301161058.396108332@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,52 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Simon South <simon@simonsouth.net>
 
-[ Upstream commit db9d9f944f95e7f3aa60ac00cbd502415152c421 ]
+[ Upstream commit d5d8d675865ccddfe4da26c85f22c55cec663bf2 ]
 
-The existing code reports a NAK only when ACK=0
-This is not aligned with the SoundWire 1.x specifications.
+If rockchip_pwm_probe() fails to register a PWM device it calls
+clk_unprepare() for the device's PWM clock, without having first disabled
+the clock and before jumping to an error handler that also unprepares
+it. This is likely to produce warnings from the kernel about the clock
+being unprepared when it is still enabled, and then being unprepared when
+it has already been unprepared.
 
-Table 32 in the SoundWire 1.2 specification shows that a Device shall
-not set NAK=1 if ACK=1. But Table 33 shows the Combined Response
-may very well be NAK=1/ACK=1, e.g. if another Device than the one
-addressed reports a parity error.
+Prevent these warnings by removing this unnecessary call to
+clk_unprepare().
 
-NAK=1 signals a 'Command_Aborted', regardless of the ACK bit value.
-
-Move the tests for NAK so that the NAK=1/ACK=1 combination is properly
-detected according to the specification.
-
-Fixes: 956baa1992f9a ('soundwire: cdns: Add sdw_master_ops and IO transfer support')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210115053738.22630-5-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 48cf973cae33 ("pwm: rockchip: Avoid glitches on already running PWMs")
+Signed-off-by: Simon South <simon@simonsouth.net>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pwm/pwm-rockchip.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index e3d06330d1258..f7d0f63921dc2 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -368,10 +368,10 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 		if (!(cdns->response_buf[i] & CDNS_MCP_RESP_ACK)) {
- 			no_ack = 1;
- 			dev_dbg_ratelimited(cdns->dev, "Msg Ack not received\n");
--			if (cdns->response_buf[i] & CDNS_MCP_RESP_NACK) {
--				nack = 1;
--				dev_err_ratelimited(cdns->dev, "Msg NACK received\n");
--			}
-+		}
-+		if (cdns->response_buf[i] & CDNS_MCP_RESP_NACK) {
-+			nack = 1;
-+			dev_err_ratelimited(cdns->dev, "Msg NACK received\n");
- 		}
- 	}
+diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
+index 73352e6fbccbf..6ad6aad215cf1 100644
+--- a/drivers/pwm/pwm-rockchip.c
++++ b/drivers/pwm/pwm-rockchip.c
+@@ -361,7 +361,6 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
  
+ 	ret = pwmchip_add(&pc->chip);
+ 	if (ret < 0) {
+-		clk_unprepare(pc->clk);
+ 		dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
+ 		goto err_pclk;
+ 	}
 -- 
 2.27.0
 
