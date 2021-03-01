@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA14A328B01
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF7D328A11
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239734AbhCAS1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:27:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
+        id S239259AbhCASL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:11:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239743AbhCASUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:20:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F03A4650C5;
-        Mon,  1 Mar 2021 17:43:35 +0000 (UTC)
+        id S238159AbhCASEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25AF065320;
+        Mon,  1 Mar 2021 17:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620616;
-        bh=wrH2oNQ2/u2XBaacYgNQwNV63cesyj4WCnlAqNNpDvY=;
+        s=korg; t=1614620657;
+        bh=szcTyCxuwgUNa++4Ndccoj2lfKzm/iCe/BfGwV47W4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bx01/ng2OoYFquAeVx4j3hVvZr1agKbN+KchL1oF0ma4CYuk+DCyVgSzWvukV6z3j
-         UXXDRIpoks0NWag29Y3Hw/UYTcs+R9nhZtcPgej7KldDN7rvdYaEWDP1zjAsGEEhVu
-         YGZAgr1Ty4jMT2Jy4koW/EnZw+H8RwjHBSE90sEU=
+        b=miVWYKEJnsPTPBm0J0wsKCxfgjR3Qgx8IqwQAbrc88NLne7gjmwoG8pCZ7YfLY5nB
+         aW6QKM4TAohInt+Jed5j3MAK8UPcLrSFN96A0OVqHqK4VZva+ScGInLnbV2WZgwSJD
+         bVpCEQkNGS3dXIWV39mgTCi+s4AEvfUK+Xbj8Uf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 200/775] media: vsp1: Fix an error handling path in the probe function
-Date:   Mon,  1 Mar 2021 17:06:08 +0100
-Message-Id: <20210301161211.525428211@linuxfoundation.org>
+Subject: [PATCH 5.11 202/775] media: media/pci: Fix memleak in empress_init
+Date:   Mon,  1 Mar 2021 17:06:10 +0100
+Message-Id: <20210301161211.623272916@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -45,41 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 7113469dafc2d545fa4fa9bc649c31dc27db492e ]
+[ Upstream commit 15d0c52241ecb1c9d802506bff6f5c3f7872c0df ]
 
-A previous 'rcar_fcp_get()' call must be undone in the error handling path,
-as already done in the remove function.
+When vb2_queue_init() fails, dev->empress_dev
+should be released just like other error handling
+paths.
 
-Fixes: 94fcdf829793 ("[media] v4l: vsp1: Add FCP support")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 2ada815fc48bb ("[media] saa7134: convert to vb2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vsp1/vsp1_drv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/pci/saa7134/saa7134-empress.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/vsp1/vsp1_drv.c b/drivers/media/platform/vsp1/vsp1_drv.c
-index dc62533cf32ce..aa66e4f5f3f34 100644
---- a/drivers/media/platform/vsp1/vsp1_drv.c
-+++ b/drivers/media/platform/vsp1/vsp1_drv.c
-@@ -882,8 +882,10 @@ static int vsp1_probe(struct platform_device *pdev)
- 	}
- 
- done:
--	if (ret)
-+	if (ret) {
- 		pm_runtime_disable(&pdev->dev);
-+		rcar_fcp_put(vsp1->fcp);
+diff --git a/drivers/media/pci/saa7134/saa7134-empress.c b/drivers/media/pci/saa7134/saa7134-empress.c
+index 39e3c7f8c5b46..76a37fbd84587 100644
+--- a/drivers/media/pci/saa7134/saa7134-empress.c
++++ b/drivers/media/pci/saa7134/saa7134-empress.c
+@@ -282,8 +282,11 @@ static int empress_init(struct saa7134_dev *dev)
+ 	q->lock = &dev->lock;
+ 	q->dev = &dev->pci->dev;
+ 	err = vb2_queue_init(q);
+-	if (err)
++	if (err) {
++		video_device_release(dev->empress_dev);
++		dev->empress_dev = NULL;
+ 		return err;
 +	}
- 
- 	return ret;
- }
+ 	dev->empress_dev->queue = q;
+ 	dev->empress_dev->device_caps = V4L2_CAP_READWRITE | V4L2_CAP_STREAMING |
+ 					V4L2_CAP_VIDEO_CAPTURE;
 -- 
 2.27.0
 
