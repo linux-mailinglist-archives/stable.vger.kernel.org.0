@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E04532854D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F515328453
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235815AbhCAQxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47108 "EHLO mail.kernel.org"
+        id S233335AbhCAQdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231851AbhCAQon (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34DB664F8F;
-        Mon,  1 Mar 2021 16:31:05 +0000 (UTC)
+        id S234798AbhCAQ3B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB9BD64E56;
+        Mon,  1 Mar 2021 16:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616266;
-        bh=hU55TOuqiB67RLjiAaZ2n3qpworMIA/dCdDbwYJDSTI=;
+        s=korg; t=1614615795;
+        bh=F+AV2NijNyiX/NQXq/tmZAYsujn83pkbZMkgLRnOdvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PT5FeEWyhEfqZok4r1LoapJIJ+VPJjnl02uDV+vLltveScC9B0/Lv8/nbYLvO2Kc7
-         YbKmgYy1NU5DApT4Qraydad5aEd28OnxGSBMqZzCo+oRZSoCiYAqKsbs3wZoa8e1lU
-         l9hT5pIeYcd6eXovFunUHicIBAZU3yA/5AYCIbeo=
+        b=1d7uvzVTAzCCK4/UnlNMfT+P2vFotHOYXEi2zCPICz2A6vA0plUOHif2J3aV77eGN
+         wfHoXfCtCk6aNXZCBi6gKT5fr8lyReJXomFy2fWDR9B+OGTPnghmZb4NVESeyQRRCO
+         wbOUpeBvfdKTskrKWLl/HCTEj5zocrh/2KLvfwWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/176] amba: Fix resource leak for drivers without .remove
+        stable@vger.kernel.org, Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 062/134] ARM: 9046/1: decompressor: Do not clear SCTLR.nTLSMD for ARMv7+ cores
 Date:   Mon,  1 Mar 2021 17:12:43 +0100
-Message-Id: <20210301161025.447222914@linuxfoundation.org>
+Message-Id: <20210301161016.601326910@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Vladimir Murzin <vladimir.murzin@arm.com>
 
-[ Upstream commit de5d7adb89367bbc87b4e5ce7afe7ae9bd86dc12 ]
+[ Upstream commit 2acb909750431030b65a0a2a17fd8afcbd813a84 ]
 
-Consider an amba driver with a .probe but without a .remove callback (e.g.
-pl061_gpio_driver). The function amba_probe() is called to bind a device
-and so dev_pm_domain_attach() and others are called. As there is no remove
-callback amba_remove() isn't called at unbind time however and so calling
-dev_pm_domain_detach() is missed and the pm domain keeps active.
+It was observed that decompressor running on hardware implementing ARM v8.2
+Load/Store Multiple Atomicity and Ordering Control (LSMAOC), say, as guest,
+would stuck just after:
 
-To fix this always use the core driver callbacks and handle missing amba
-callbacks there. For probe refuse registration as a driver without probe
-doesn't make sense.
+Uncompressing Linux... done, booting the kernel.
 
-Fixes: 7cfe249475fd ("ARM: AMBA: Add pclk support to AMBA bus infrastructure")
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210126165835.687514-2-u.kleine-koenig@pengutronix.de
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+The reason is that it clears nTLSMD bit when disabling caches:
+
+  nTLSMD, bit [3]
+
+  When ARMv8.2-LSMAOC is implemented:
+
+    No Trap Load Multiple and Store Multiple to
+    Device-nGRE/Device-nGnRE/Device-nGnRnE memory.
+
+    0b0 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are trapped and
+        generate a stage 1 Alignment fault.
+
+    0b1 All memory accesses by A32 and T32 Load Multiple and Store
+        Multiple at EL1 or EL0 that are marked at stage 1 as
+        Device-nGRE/Device-nGnRE/Device-nGnRnE memory are not trapped.
+
+  This bit is permitted to be cached in a TLB.
+
+  This field resets to 1.
+
+  Otherwise:
+
+  Reserved, RES1
+
+So as effect we start getting traps we are not quite ready for.
+
+Looking into history it seems that mask used for SCTLR clear came from
+the similar code for ARMv4, where bit[3] is the enable/disable bit for
+the write buffer. That not applicable to ARMv7 and onwards, so retire
+that bit from the masks.
+
+Fixes: 7d09e85448dfa78e3e58186c934449aaf6d49b50 ("[ARM] 4393/2: ARMv7: Add uncompressing code for the new CPU Id format")
+Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/amba/bus.c | 20 ++++++++++++--------
- 1 file changed, 12 insertions(+), 8 deletions(-)
+ arch/arm/boot/compressed/head.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/amba/bus.c b/drivers/amba/bus.c
-index 8a99fbe5759fe..a82d068a84b4c 100644
---- a/drivers/amba/bus.c
-+++ b/drivers/amba/bus.c
-@@ -279,10 +279,11 @@ static int amba_remove(struct device *dev)
- {
- 	struct amba_device *pcdev = to_amba_device(dev);
- 	struct amba_driver *drv = to_amba_driver(dev->driver);
--	int ret;
-+	int ret = 0;
- 
- 	pm_runtime_get_sync(dev);
--	ret = drv->remove(pcdev);
-+	if (drv->remove)
-+		ret = drv->remove(pcdev);
- 	pm_runtime_put_noidle(dev);
- 
- 	/* Undo the runtime PM settings in amba_probe() */
-@@ -299,7 +300,9 @@ static int amba_remove(struct device *dev)
- static void amba_shutdown(struct device *dev)
- {
- 	struct amba_driver *drv = to_amba_driver(dev->driver);
--	drv->shutdown(to_amba_device(dev));
-+
-+	if (drv->shutdown)
-+		drv->shutdown(to_amba_device(dev));
- }
- 
- /**
-@@ -312,12 +315,13 @@ static void amba_shutdown(struct device *dev)
-  */
- int amba_driver_register(struct amba_driver *drv)
- {
--	drv->drv.bus = &amba_bustype;
-+	if (!drv->probe)
-+		return -EINVAL;
- 
--#define SETFN(fn)	if (drv->fn) drv->drv.fn = amba_##fn
--	SETFN(probe);
--	SETFN(remove);
--	SETFN(shutdown);
-+	drv->drv.bus = &amba_bustype;
-+	drv->drv.probe = amba_probe;
-+	drv->drv.remove = amba_remove;
-+	drv->drv.shutdown = amba_shutdown;
- 
- 	return driver_register(&drv->drv);
- }
+diff --git a/arch/arm/boot/compressed/head.S b/arch/arm/boot/compressed/head.S
+index a67ed746b0e37..5fa0beba46ee5 100644
+--- a/arch/arm/boot/compressed/head.S
++++ b/arch/arm/boot/compressed/head.S
+@@ -1080,9 +1080,9 @@ __armv4_mmu_cache_off:
+ __armv7_mmu_cache_off:
+ 		mrc	p15, 0, r0, c1, c0
+ #ifdef CONFIG_MMU
+-		bic	r0, r0, #0x000d
++		bic	r0, r0, #0x0005
+ #else
+-		bic	r0, r0, #0x000c
++		bic	r0, r0, #0x0004
+ #endif
+ 		mcr	p15, 0, r0, c1, c0	@ turn MMU and cache off
+ 		mov	r12, lr
 -- 
 2.27.0
 
