@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F54328A35
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19B36328A0B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239521AbhCASN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58286 "EHLO mail.kernel.org"
+        id S238901AbhCASKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:10:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239271AbhCASIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:08:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8EC64E62;
-        Mon,  1 Mar 2021 17:13:54 +0000 (UTC)
+        id S239052AbhCASEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:04:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 178B864E4A;
+        Mon,  1 Mar 2021 17:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618834;
-        bh=gvmHwS7ZOav2q26xzaIqniB1AvIo8l+wxzWzd5FCu90=;
+        s=korg; t=1614620864;
+        bh=MYRzRrpG+IHMuJfrBPvXLvD5kn+prmL5VPf+V8lkX4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/2adm8iqNVN2TvMWnUT8l0HJNzpng+GGsDTiffXBLMNro9Th1DoijYEPJS+VfRnE
-         Ka+VF3N9VA/evCYKCKp01yppRgESwvEPB/eM5EpOewnrnbUl0dP4kW3B/Mp7kcSKze
-         wna3gTCQPqp6OEpnqHiVmsT7O0ZPlH8OUPoP7L5c=
+        b=W2xGMuOYbAfb3DDQWzPIPCO3h/Me5BAgLhnK97wcBe3kwj9aePuKtDr08HCwZwgSy
+         3BPlt65taxGqW4MQgeO686e4iqDouLXf2bfb7X+gWHWvFDwe64pHv8tMbhVB6Zr2Zy
+         fhuC687sZ9JyNeThr+QDW7sJ0/H/rblonF8vzY38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 227/663] KVM: x86: Restore all 64 bits of DR6 and DR7 during RSM on x86-64
-Date:   Mon,  1 Mar 2021 17:07:55 +0100
-Message-Id: <20210301161153.035114517@linuxfoundation.org>
+Subject: [PATCH 5.11 308/775] clk: meson: clk-pll: fix initializing the old rate (fallback) for a PLL
+Date:   Mon,  1 Mar 2021 17:07:56 +0100
+Message-Id: <20210301161216.842477054@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 2644312052d54e2e7543c7d186899a36ed22f0bf ]
+[ Upstream commit 2f290b7c67adf6459a17a4c978102af35cd62e4a ]
 
-Restore the full 64-bit values of DR6 and DR7 when emulating RSM on
-x86-64, as defined by both Intel's SDM and AMD's APM.
+The "rate" parameter in meson_clk_pll_set_rate() contains the new rate.
+Retrieve the old rate with clk_hw_get_rate() so we don't inifinitely try
+to switch from the new rate to the same rate again.
 
-Note, bits 63:32 of DR6 and DR7 are reserved, so this is a glorified nop
-unless the SMM handler is poking into SMRAM, which it most definitely
-shouldn't be doing since both Intel and AMD list the DR6 and DR7 fields
-as read-only.
-
-Fixes: 660a5d517aaa ("KVM: x86: save/load state on SMM switch")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210205012458.3872687-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 7a29a869434e8b ("clk: meson: Add support for Meson clock controller")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20201226121556.975418-2-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/emulate.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/meson/clk-pll.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/emulate.c b/arch/x86/kvm/emulate.c
-index 66a08322988f2..1453b9b794425 100644
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -2564,12 +2564,12 @@ static int rsm_load_state_64(struct x86_emulate_ctxt *ctxt,
- 	ctxt->_eip   = GET_SMSTATE(u64, smstate, 0x7f78);
- 	ctxt->eflags = GET_SMSTATE(u32, smstate, 0x7f70) | X86_EFLAGS_FIXED;
+diff --git a/drivers/clk/meson/clk-pll.c b/drivers/clk/meson/clk-pll.c
+index b17a13e9337c4..9404609b5ebfa 100644
+--- a/drivers/clk/meson/clk-pll.c
++++ b/drivers/clk/meson/clk-pll.c
+@@ -371,7 +371,7 @@ static int meson_clk_pll_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	if (parent_rate == 0 || rate == 0)
+ 		return -EINVAL;
  
--	val = GET_SMSTATE(u32, smstate, 0x7f68);
-+	val = GET_SMSTATE(u64, smstate, 0x7f68);
+-	old_rate = rate;
++	old_rate = clk_hw_get_rate(hw);
  
- 	if (ctxt->ops->set_dr(ctxt, 6, (val & DR6_VOLATILE) | DR6_FIXED_1))
- 		return X86EMUL_UNHANDLEABLE;
- 
--	val = GET_SMSTATE(u32, smstate, 0x7f60);
-+	val = GET_SMSTATE(u64, smstate, 0x7f60);
- 
- 	if (ctxt->ops->set_dr(ctxt, 7, (val & DR7_VOLATILE) | DR7_FIXED_1))
- 		return X86EMUL_UNHANDLEABLE;
+ 	ret = meson_clk_get_pll_settings(rate, parent_rate, &m, &n, pll);
+ 	if (ret)
 -- 
 2.27.0
 
