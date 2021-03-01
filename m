@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59FD8327F9D
+	by mail.lfdr.de (Postfix) with ESMTP id CAA78327F9E
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235708AbhCANfz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:35:55 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:56789 "EHLO
+        id S235792AbhCANgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:36:20 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:47953 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235715AbhCANf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:35:29 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 613061941F7E;
-        Mon,  1 Mar 2021 08:34:41 -0500 (EST)
+        by vger.kernel.org with ESMTP id S235806AbhCANfl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:35:41 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 189D71941F8B;
+        Mon,  1 Mar 2021 08:34:50 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:34:41 -0500
+  by compute1.internal (MEProxy); Mon, 01 Mar 2021 08:34:50 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=46uuY8
-        6vSK4WlL7vimq12TvUpJVy5+JF7mO+2dcYXpM=; b=ve998ArQKuEc6jRquKIOPZ
-        I0v3WXXMA8efLoOazbDOwhSijDPfrl9It70EVohZm6ZqHDEQOMOnMvcvBzn29U34
-        Y/iKrxJkG7FdHuYGATgHJ1uF+zAktCVT7K1JPRAyOiARdsjvt9T8fsVFMNQVyKOD
-        e0klSN/2I4xMwS4DFvfZO7qtWYHq5mUiK88kyScvfVupjuQBB6+6YtAzfBB+gteB
-        ljQTaCPEiVGxCtwLgpUP5mDCZ0xBCsx4zVJlVXFKhzoQGC3NCsWtJaCiMAKUDZj8
-        gT9sMXW0SD2XRC3QzTgMol23/BROvHVUgIs6SwBidXZ9YIWqPuJicMq4wTf7dK8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iGl8aZ
+        nsiVrsy68cS10jqTjr3zza7MoSYvU3xOmaoUA=; b=tEHe3Aw5c2sd+KGO3PkvjN
+        t+pN3FdhKsWCK0WEhOUY7OG5UFuiBaCSoKoZo6raMj7PsBpEtdVsHoWjL3k/PJn0
+        60trTlAvHPA/esRs2XhqFPIDhrqTOkAsJbGJ6mA3LLWuP16m7zqpNNcCGvA3Q8YY
+        bvdPbPCm6mSfjNQxB0XQcORQ4za4LRW1vsviePw9PGSwlpZx187wcMPuzhyCgTgL
+        cJAcu930MVgk4E/H0EmRhUMOPKpV6VyJAPfyuNQ8TPfr8qrC8i3tFGgi++idGcFc
+        jEshb9pJfjNeQdymc/dGt36cegIIXow7v2SBQwJEi6rSeOzjTmdaySw1+w53O4Fg
         ==
-X-ME-Sender: <xms:cO08YL2zUzEi41WX9ZtUqJKU4RdDmm5z4Id2whRl16wI_WI16uLNBg>
-    <xme:cO08YKFxURSZqFtvJTYQnZcGV4tOcgJolFNEJygODJeR6lgQvZBp6i15UGr7QybkA
-    0HTvqWxQS1mjg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehvdcutefuodetggdotefrodftvf
+X-ME-Sender: <xms:eO08YKc4pIXFWVDQTd_smQ7HtRSZsNRIgyl0mmupmpWXmeTDYankuQ>
+    <xme:eO08YIce6x5fmihHsT-dJ46ttI_L3qI1_3vIi9-dh_qLJBDl4hix7_98EQ2cNqaB9
+    EOpKD0MZazO1g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehfecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehvdcutefuodetggdote
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
     ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:cO08YL5fkCjb9xuZnoTHzVCnWY2JNs5t3ZuoiUvtMLnqLe_cKAaJGg>
-    <xmx:cO08YA3kiEdMUr-no3o-ggm_aKGlr0l-MJwCZnT8985kTYsBojRYYg>
-    <xmx:cO08YOGLbDDWFJpWkawMjI-plWtKyDO2SEBN7xh3IIsXf0s-P-0nGQ>
-    <xmx:ce08YJN21uYxnBAygwK23TTPz9KmrB0AD8CxJ6pCW17qyDKG-lN6YA>
+X-ME-Proxy: <xmx:eO08YGg2qF9ZZYAytcAYWRzlXyO1DPeIpXEhlMnv0lfoFBkS5gRY_g>
+    <xmx:eO08YMSjX0JB2NeNtc4NBTR2jSijP4fTsOXPpJddO-lMreRW6kvhfA>
+    <xmx:eO08YPxxHvlMOSoKKXflsCWOboQyDu_Tu7Dt0xef5UuWkylAOf9bHg>
+    <xmx:eu08YCPNKcu-uPvT9zXv4F9epp_0LD63OiF-xxm3B08Us6XpFtNdVw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 69CB11080054;
-        Mon,  1 Mar 2021 08:34:40 -0500 (EST)
-Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 564731080067;
+        Mon,  1 Mar 2021 08:34:48 -0500 (EST)
+Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()" failed to apply to 4.19-stable tree
 To:     rafael.j.wysocki@intel.com, yu.c.chen@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:34:38 +0100
-Message-ID: <161460567817999@kroah.com>
+Date:   Mon, 01 Mar 2021 14:34:39 +0100
+Message-ID: <161460567913047@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
