@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21A8C328FD9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B46F2328FD7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242571AbhCAT6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55162 "EHLO mail.kernel.org"
+        id S242561AbhCAT6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240364AbhCATqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:46:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74D8765120;
-        Mon,  1 Mar 2021 17:02:55 +0000 (UTC)
+        id S235503AbhCATqV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:46:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADDA96528F;
+        Mon,  1 Mar 2021 17:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618176;
-        bh=xmI+xH5TJI+0iWuL1ogIbW3fvfnqtxq3qULo2d1GKUQ=;
+        s=korg; t=1614619952;
+        bh=QhClLIPplYrAGzkYRZh3kFb3KAaJQQQcTn0+ZSLK4F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yB/x0zQ6f/CH9OXZg/38u1YucfTiFfItVxRMxKxCyQZTBQxb3DGFZlgeHuBtxdhrc
-         x1FlBu+Bu/BZlk4UPWiIBI8Fqx6U6hrgW+SjKhDfJV2PbSk0TWO9OpAcuyw6EEeLXk
-         v9h8JTjBsw2Li53rt9vjB9O1/FURl/Jz+XhGWwyg=
+        b=Lak8GRJKd8QKSyAcoPROLtaof/PT/Nkp+EIn8vue7fXb73c3RRBMUPe0imCLj1kmb
+         sFGEbttGFDpGZ1F1EeNwuxCyvRW0cCz9K8j/K+ZeO1UJjmjeZyZU9RKcuJsmyJsRPf
+         /mmtJBbN/V5EoxQDp4IOCdY8QXUuOdxTHUzJFy3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 334/340] xfrm: interface: use icmp_ndo_send helper
-Date:   Mon,  1 Mar 2021 17:14:38 +0100
-Message-Id: <20210301161104.731520824@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 5.10 640/663] gfs2: Recursive gfs2_quota_hold in gfs2_iomap_end
+Date:   Mon,  1 Mar 2021 17:14:48 +0100
+Message-Id: <20210301161213.524410868@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +38,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 45942ba890e6f35232727a5fa33d732681f4eb9f upstream.
+commit 7009fa9cd9a5262944b30eb7efb1f0561d074b68 upstream.
 
-Because xfrmi is calling icmp from network device context, it should use
-the ndo helper so that the rate limiting applies correctly.
+When starting an iomap write, gfs2_quota_lock_check -> gfs2_quota_lock
+-> gfs2_quota_hold is called from gfs2_iomap_begin.  At the end of the
+write, before unlocking the quotas, punch_hole -> gfs2_quota_hold can be
+called again in gfs2_iomap_end, which is incorrect and leads to a failed
+assertion.  Instead, move the call to gfs2_quota_unlock before the call
+to punch_hole to fix that.
 
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 64bc06bb32ee ("gfs2: iomap buffered write support")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/xfrm/xfrm_interface.c |    6 +++---
+ fs/gfs2/bmap.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -300,10 +300,10 @@ xfrmi_xmit2(struct sk_buff *skb, struct
- 			if (mtu < IPV6_MIN_MTU)
- 				mtu = IPV6_MIN_MTU;
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -1230,6 +1230,9 @@ static int gfs2_iomap_end(struct inode *
  
--			icmpv6_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
-+			icmpv6_ndo_send(skb, ICMPV6_PKT_TOOBIG, 0, mtu);
- 		} else {
--			icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
--				  htonl(mtu));
-+			icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
-+				      htonl(mtu));
+ 	gfs2_inplace_release(ip);
+ 
++	if (ip->i_qadata && ip->i_qadata->qa_qd_num)
++		gfs2_quota_unlock(ip);
++
+ 	if (length != written && (iomap->flags & IOMAP_F_NEW)) {
+ 		/* Deallocate blocks that were just allocated. */
+ 		loff_t blockmask = i_blocksize(inode) - 1;
+@@ -1242,9 +1245,6 @@ static int gfs2_iomap_end(struct inode *
  		}
+ 	}
  
- 		dst_release(dst);
+-	if (ip->i_qadata && ip->i_qadata->qa_qd_num)
+-		gfs2_quota_unlock(ip);
+-
+ 	if (unlikely(!written))
+ 		goto out_unlock;
+ 
 
 
