@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14967327D32
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FC06327D36
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:29:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233008AbhCAL2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 06:28:44 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:56727 "EHLO
+        id S232050AbhCAL3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 06:29:05 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:49651 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232252AbhCAL2n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:28:43 -0500
+        by vger.kernel.org with ESMTP id S233055AbhCAL3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:29:04 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5638919413B9;
-        Mon,  1 Mar 2021 06:27:56 -0500 (EST)
+        by mailforward.nyi.internal (Postfix) with ESMTP id D521119413E2;
+        Mon,  1 Mar 2021 06:27:57 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 06:27:56 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 06:27:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=MmOE1n
-        Y539CzLSaDrppAYSQWeEFZa5DrlK0c+87qfT0=; b=wXa7L4aMQZTrPwy8L0fCsk
-        60zRH29Xb7+mpB2K2ZqUcrJcojf/pFnnrvzH5oFpv9YJvdqVIuPwEWt+wnOMaqqf
-        7bJqGILV+YC6V53Dv9UepYLeDFZ/aDYfayGRt/jdsZeALPXvsiyPjuM+4E3qFTXq
-        5vepI832PZ/8IF7fs0DE4+DIoG6MAO9SEyL/yFXUJPtQlRK6HvOG0lB6NsPM0ciJ
-        WY5pf2dplEaylvLRtvLpWh3MtMmeTlQpJKbXIv1QHPAUg/lAuoAfkKhvqdYEXNsL
-        Ddyww+3yU5OypG07O6hPgiTn8YRpJNZNpu1LGYz2a+xn7El76Xqu25HqsrB4IrIA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=k8xE1t
+        xsQPeLzqedUYgcaMY40ee5PqYwlCE99Q8IJok=; b=Btl6mGGV1ziaf89R06o03J
+        GStr0tuWCoJ7NTbhrIEwnc5Hyb9TuBeHwnG8oovio1i1eDZ6ntpmz9ofLgEP/Ge5
+        v7wlm1XIO75/rVsb6KCegC+11S2ijOsgagLLArZdQ7c+FZoeVpLZb0/Z22HJrMLB
+        Rs+PN2U6h13Lj9oGw9y/RmMpbvIW+GhaG9zenGGLXMP3L2+siqUM20tQQpbbRxYV
+        EbQqOOBVfwqIyS2YeiTSCdfw4jWU5u72ACKrUI3adDb1cjqP5c8eMrFvDZCSFxyK
+        DOMSVoh+jcc3X/FcZ5T3UKy2Tx980KLmyD4RpaIASkhAJr2hluvJUFJ0EF3H2vxQ
         ==
-X-ME-Sender: <xms:vM88YCVZdU7gJcB5cHxJ6Jb5wppfVYrpjL9_JQ64sAOXKFL4wkMF6A>
-    <xme:vM88YFeui4QA7n5NQ-_YeCEeBm9vQg_Epv4Py4OMjWLD6nGlw9IRmXx2J2N3EIInQ
-    eulFqGfTFAH5Q>
+X-ME-Sender: <xms:vc88YF8glMOu14JGU-2XACtlb46Lka6ZXueR2GUe7nn2tjwW_EilUg>
+    <xme:vc88YNj2b9w2Y4UHpYbrxO4TEkd7BDw77p7UkenfqjCpYSf5Ifv5bR8PhrRuIWTr2
+    WAHe4LKnYJh0Q>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddvjecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddvjecutefuodetggdote
     efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
     fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
     hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:vM88YDXm4CLIjvqriJDrqbGpFFlveBvvNFUAD3OB0EoZ-CDHmrAX5A>
-    <xmx:vM88YGesRIWDeulun_z5h6XCwTXkSk9I2enougGV7NIZaQqhz9URiQ>
-    <xmx:vM88YHOyRBX5DNe8UrI0k8iX_GCtuuS_X5lVfaHJf9WJMiabdJsOow>
-    <xmx:vM88YFNi0JpE4cXv80QZHj2axR8CBKHGUu4Yw15oXpHKwIHY_glDlQ>
+X-ME-Proxy: <xmx:vc88YMGJ36Sp4NjxaC4YqWKVuX7lRqAEbobTRYz8VmKhT1krFYbbZg>
+    <xmx:vc88YM9ot9jYtCX_juwnN9XPHpt2G5uOYgC3hEn9nfjSOLsMSXjVSw>
+    <xmx:vc88YDyVfr0-1Svt7_IjACt54ytlwYEnwuwQvTItoFefD9F2HbqdiQ>
+    <xmx:vc88YOCUlwkVeb8vLf4wrVP-HSXUFjnzfpoUVmswRMiiU1nfDYn63w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 187EB24005A;
-        Mon,  1 Mar 2021 06:27:56 -0500 (EST)
-Subject: FAILED: patch "[PATCH] rcu/nocb: Perform deferred wake up before last idle's" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 98B3224005D;
+        Mon,  1 Mar 2021 06:27:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] rcu/nocb: Perform deferred wake up before last idle's" failed to apply to 4.19-stable tree
 To:     frederic@kernel.org, mingo@kernel.org, paulmck@kernel.org,
         peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 12:27:51 +0100
-Message-ID: <1614598071131184@kroah.com>
+Date:   Mon, 01 Mar 2021 12:27:52 +0100
+Message-ID: <161459807256115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
