@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95287328A0C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C31E43289C6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239150AbhCASKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:10:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
+        id S232258AbhCASFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:05:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238993AbhCASEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:04:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9342652AF;
-        Mon,  1 Mar 2021 17:34:41 +0000 (UTC)
+        id S239236AbhCAR7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:59:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 987F5652B0;
+        Mon,  1 Mar 2021 17:34:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620082;
-        bh=mTdq87/QC45TOubdZwuvEScvIL7xloOb9n+de1S67K4=;
+        s=korg; t=1614620085;
+        bh=ol4GagMuc4mN3qfoXuJEQyU4d5LRzXaTCQJgQOfhGME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GQRwF8+/eYAjjxQIaE/HJp7BMpNVsA/0vnOEB8Aa9N1VS1rdZG5ZYJ1cdPamdkgK1
-         cCcFlcAe7XR+BFk1LkScD3RGHhfsfhpo4hr80goJ7HUfoJagj+aDMsYr4zgvX3XCs6
-         R0MnGhifXiENfApwDbRTjhHaZShFEMQRejMw/qMo=
+        b=BjubmZhSCg//M7Y1Nl4vbC8H3w6Ae+P7EGX20wUgr26WjsLLtNIGBdwDARdw0R2Y9
+         2JhSKIu7nOqQHRhpCRqCPIQwa6UPqQMl4NuBVNbrp0TX8IW2KHFPHHBa1JSK7m9xDr
+         OgMgXckTKGcdq+CKwmxUIzNZCjHeUtMmghxHWT8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 023/775] ath10k: Fix error handling in case of CE pipe init failure
-Date:   Mon,  1 Mar 2021 17:03:11 +0100
-Message-Id: <20210301161202.857635718@linuxfoundation.org>
+Subject: [PATCH 5.11 024/775] Bluetooth: btqcomsmd: Fix a resource leak in error handling paths in the probe function
+Date:   Mon,  1 Mar 2021 17:03:12 +0100
+Message-Id: <20210301161202.909020120@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,48 +41,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Pillai <pillair@codeaurora.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 31561e8557cd1eeba5806ac9ce820f8323b2201b ]
+[ Upstream commit 9a39a927be01d89e53f04304ab99a8761e08910d ]
 
-Currently if the copy engine pipe init fails for snoc based
-chipsets, the rri is not freed.
+Some resource should be released in the error handling path of the probe
+function, as already done in the remove function.
 
-Fix this error handling for copy engine pipe init
-failure.
+The remove function was fixed in commit 5052de8deff5 ("soc: qcom: smd:
+Transition client drivers from smd to rpmsg")
 
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1-01040-QCAHLSWMTPLZ-1
-
-Fixes: 4945af5b264f ("ath10k: enable SRRI/DRRI support on ddr for WCN3990")
-Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1607713210-18320-1-git-send-email-pillair@codeaurora.org
+Fixes: 1511cc750c3d ("Bluetooth: Introduce Qualcomm WCNSS SMD based HCI driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/snoc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/bluetooth/btqcomsmd.c | 27 +++++++++++++++++++--------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
-index bf9a8cb713dc0..1c3307e3b1085 100644
---- a/drivers/net/wireless/ath/ath10k/snoc.c
-+++ b/drivers/net/wireless/ath/ath10k/snoc.c
-@@ -1045,12 +1045,13 @@ static int ath10k_snoc_hif_power_up(struct ath10k *ar,
- 	ret = ath10k_snoc_init_pipes(ar);
- 	if (ret) {
- 		ath10k_err(ar, "failed to initialize CE: %d\n", ret);
--		goto err_wlan_enable;
-+		goto err_free_rri;
- 	}
+diff --git a/drivers/bluetooth/btqcomsmd.c b/drivers/bluetooth/btqcomsmd.c
+index 98d53764871f5..2acb719e596f5 100644
+--- a/drivers/bluetooth/btqcomsmd.c
++++ b/drivers/bluetooth/btqcomsmd.c
+@@ -142,12 +142,16 @@ static int btqcomsmd_probe(struct platform_device *pdev)
+ 
+ 	btq->cmd_channel = qcom_wcnss_open_channel(wcnss, "APPS_RIVA_BT_CMD",
+ 						   btqcomsmd_cmd_callback, btq);
+-	if (IS_ERR(btq->cmd_channel))
+-		return PTR_ERR(btq->cmd_channel);
++	if (IS_ERR(btq->cmd_channel)) {
++		ret = PTR_ERR(btq->cmd_channel);
++		goto destroy_acl_channel;
++	}
+ 
+ 	hdev = hci_alloc_dev();
+-	if (!hdev)
+-		return -ENOMEM;
++	if (!hdev) {
++		ret = -ENOMEM;
++		goto destroy_cmd_channel;
++	}
+ 
+ 	hci_set_drvdata(hdev, btq);
+ 	btq->hdev = hdev;
+@@ -161,14 +165,21 @@ static int btqcomsmd_probe(struct platform_device *pdev)
+ 	hdev->set_bdaddr = qca_set_bdaddr_rome;
+ 
+ 	ret = hci_register_dev(hdev);
+-	if (ret < 0) {
+-		hci_free_dev(hdev);
+-		return ret;
+-	}
++	if (ret < 0)
++		goto hci_free_dev;
+ 
+ 	platform_set_drvdata(pdev, btq);
  
  	return 0;
++
++hci_free_dev:
++	hci_free_dev(hdev);
++destroy_cmd_channel:
++	rpmsg_destroy_ept(btq->cmd_channel);
++destroy_acl_channel:
++	rpmsg_destroy_ept(btq->acl_channel);
++
++	return ret;
+ }
  
--err_wlan_enable:
-+err_free_rri:
-+	ath10k_ce_free_rri(ar);
- 	ath10k_snoc_wlan_disable(ar);
- 
- 	return ret;
+ static int btqcomsmd_remove(struct platform_device *pdev)
 -- 
 2.27.0
 
