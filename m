@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDF43284BE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F743285C3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234888AbhCAQmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:42:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41872 "EHLO mail.kernel.org"
+        id S236593AbhCAQ6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:58:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234482AbhCAQfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:35:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 079D464F6A;
-        Mon,  1 Mar 2021 16:26:03 +0000 (UTC)
+        id S235798AbhCAQwZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:52:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE32864F24;
+        Mon,  1 Mar 2021 16:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615964;
-        bh=ccYvQCnf6qkevx1ti7nhlRohlJptkxbjNbSR8dXc6y8=;
+        s=korg; t=1614616435;
+        bh=Pji7FA7BcGREQtuJz9VCMROmp0X//GpurmGRsIPkta0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AO5ncW2BPIzw+CQmACQQo2X3pkeWpl++TTdvHULG1sDkjHS3h6Guyn/LaHrQw0GKi
-         4fq94hrfVA7sPr1uTbvPcvQpDb7U2F5DEaljQYTxaYdpK3270O3TErc4FFyD0P1yw5
-         WUkDYASnP8a5+UxtUz1ji9UEjWb4ij7VMpJltvho=
+        b=o/ESqH4iOaEggMp8iArri41sSg9dABD9rm/s3DYlwf+R9IWt/yymxsQpSKtMtJgGi
+         a4HPmRnKVsjk1e8Z7oh0zc2YWTF4aiBChs6Hjr1vXJZDTLQhCIwTxQNplrVimw6Ejk
+         9u/BV6bns7+hkEx4E0ZzPj/GUoWAewGCyO2po2B0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Ming-Hung Tsai <mtsai@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 122/134] dm era: Fix bitset memory leaks
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 4.14 150/176] watchdog: mei_wdt: request stop on unregister
 Date:   Mon,  1 Mar 2021 17:13:43 +0100
-Message-Id: <20210301161019.584586243@linuxfoundation.org>
+Message-Id: <20210301161028.458647231@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 904e6b266619c2da5c58b5dce14ae30629e39645 upstream.
+commit 740c0a57b8f1e36301218bf549f3c9cc833a60be upstream.
 
-Deallocate the memory allocated for the in-core bitsets when destroying
-the target and in error paths.
+The MEI bus has a special behavior on suspend it destroys
+all the attached devices, this is due to the fact that also
+firmware context is not persistent across power flows.
 
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: Ming-Hung Tsai <mtsai@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+If watchdog on MEI bus is ticking before suspending the firmware
+times out and reports that the OS is missing watchdog tick.
+Send the stop command to the firmware on watchdog unregistered
+to eliminate the false event on suspend.
+This does not make the things worse from the user-space perspective
+as a user-space should re-open watchdog device after
+suspending before this patch.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210124114938.373885-1-tomas.winkler@intel.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/watchdog/mei_wdt.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -46,6 +46,7 @@ struct writeset {
- static void writeset_free(struct writeset *ws)
- {
- 	vfree(ws->bits);
-+	ws->bits = NULL;
- }
+--- a/drivers/watchdog/mei_wdt.c
++++ b/drivers/watchdog/mei_wdt.c
+@@ -390,6 +390,7 @@ static int mei_wdt_register(struct mei_w
  
- static int setup_on_disk_bitset(struct dm_disk_bitset *info,
-@@ -812,6 +813,8 @@ static struct era_metadata *metadata_ope
+ 	watchdog_set_drvdata(&wdt->wdd, wdt);
+ 	watchdog_stop_on_reboot(&wdt->wdd);
++	watchdog_stop_on_unregister(&wdt->wdd);
  
- static void metadata_close(struct era_metadata *md)
- {
-+	writeset_free(&md->writesets[0]);
-+	writeset_free(&md->writesets[1]);
- 	destroy_persistent_data_objects(md);
- 	kfree(md);
- }
-@@ -849,6 +852,7 @@ static int metadata_resize(struct era_me
- 	r = writeset_alloc(&md->writesets[1], *new_size);
- 	if (r) {
- 		DMERR("%s: writeset_alloc failed for writeset 1", __func__);
-+		writeset_free(&md->writesets[0]);
- 		return r;
- 	}
- 
-@@ -859,6 +863,8 @@ static int metadata_resize(struct era_me
- 			    &value, &md->era_array_root);
- 	if (r) {
- 		DMERR("%s: dm_array_resize failed", __func__);
-+		writeset_free(&md->writesets[0]);
-+		writeset_free(&md->writesets[1]);
- 		return r;
- 	}
- 
+ 	ret = watchdog_register_device(&wdt->wdd);
+ 	if (ret) {
 
 
