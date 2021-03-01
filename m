@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83C16328466
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E8532855F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbhCAQfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:35:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34258 "EHLO mail.kernel.org"
+        id S236009AbhCAQxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231176AbhCAQ3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8F3764EF0;
-        Mon,  1 Mar 2021 16:23:28 +0000 (UTC)
+        id S235095AbhCAQqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:46:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A71EB64F93;
+        Mon,  1 Mar 2021 16:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615809;
-        bh=ZTSFfYD3fVBh0BvxBgUGaK/kFhFQQhUxdS1JXBjyTDY=;
+        s=korg; t=1614616278;
+        bh=+nZLZ+8DU1bB546hofKiUfN1z70R/SeU+DeYtpUD6Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FT+Bc+HNdKSzPGXumdmYXd5/2Vtb3H/n7I3Beq3rWzzvRiCN4un3mGSvr7irMCisZ
-         PWRYmI+LQrwPP2Gb37gSUboVoSE6Ik7M7p6+U7R2B/+pOjnlD10vfVx/FhOtjYubpC
-         9XS1un36YJ9Uso/ZV1nSWlNECsooZEkEnvw3QpA0=
+        b=k9ZQj7nkWqTcTN8P+fUW8NUpOviQwLI+Gw+EVG7w20ELTbFK1fB5Qk2ccRBMIFQIc
+         e+i41+rOFaoZ4uIPKEjceQBwjKbzSR/18weteFbQSZq3LZmR0oiPFA6m6TouDcs5jq
+         2m8kh8VnQz25cUPTBGEYY5wW+PDKuxt/ZCSQfLl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/134] media: lmedm04: Fix misuse of comma
+Subject: [PATCH 4.14 066/176] jffs2: fix use after free in jffs2_sum_write_data()
 Date:   Mon,  1 Mar 2021 17:12:19 +0100
-Message-Id: <20210301161015.451986676@linuxfoundation.org>
+Message-Id: <20210301161024.237346298@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 59a3e78f8cc33901fe39035c1ab681374bba95ad ]
+[ Upstream commit 19646447ad3a680d2ab08c097585b7d96a66126b ]
 
-There's a comma used instead of a semicolon that causes multiple
-statements to be executed after an if instead of just the intended
-single statement.
+clang static analysis reports this problem
 
-Replace the comma with a semicolon.
+fs/jffs2/summary.c:794:31: warning: Use of memory after it is freed
+                c->summary->sum_list_head = temp->u.next;
+                                            ^~~~~~~~~~~~
 
-Fixes: 15e1ce33182d ("[media] lmedm04: Fix usb_submit_urb BOGUS urb xfer, pipe 1 != type 3 in interrupt urb")
-Signed-off-by: Joe Perches <joe@perches.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+In jffs2_sum_write_data(), in a loop summary data is handles a node at
+a time.  When it has written out the node it is removed the summary list,
+and the node is deleted.  In the corner case when a
+JFFS2_FEATURE_RWCOMPAT_COPY is seen, a call is made to
+jffs2_sum_disable_collecting().  jffs2_sum_disable_collecting() deletes
+the whole list which conflicts with the loop's deleting the list by parts.
+
+To preserve the old behavior of stopping the write midway, bail out of
+the loop after disabling summary collection.
+
+Fixes: 6171586a7ae5 ("[JFFS2] Correct handling of JFFS2_FEATURE_RWCOMPAT_COPY nodes.")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb-v2/lmedm04.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/jffs2/summary.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/lmedm04.c b/drivers/media/usb/dvb-usb-v2/lmedm04.c
-index 5c4aa247d650f..ca4ed2af53207 100644
---- a/drivers/media/usb/dvb-usb-v2/lmedm04.c
-+++ b/drivers/media/usb/dvb-usb-v2/lmedm04.c
-@@ -446,7 +446,7 @@ static int lme2510_int_read(struct dvb_usb_adapter *adap)
- 	ep = usb_pipe_endpoint(d->udev, lme_int->lme_urb->pipe);
+diff --git a/fs/jffs2/summary.c b/fs/jffs2/summary.c
+index be7c8a6a57480..4fe64519870f1 100644
+--- a/fs/jffs2/summary.c
++++ b/fs/jffs2/summary.c
+@@ -783,6 +783,8 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
+ 					dbg_summary("Writing unknown RWCOMPAT_COPY node type %x\n",
+ 						    je16_to_cpu(temp->u.nodetype));
+ 					jffs2_sum_disable_collecting(c->summary);
++					/* The above call removes the list, nothing more to do */
++					goto bail_rwcompat;
+ 				} else {
+ 					BUG();	/* unknown node in summary information */
+ 				}
+@@ -794,6 +796,7 @@ static int jffs2_sum_write_data(struct jffs2_sb_info *c, struct jffs2_eraseblock
  
- 	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
--		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa),
-+		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa);
+ 		c->summary->sum_num--;
+ 	}
++ bail_rwcompat:
  
- 	lme_int->lme_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 	jffs2_sum_reset_collected(c->summary);
  
 -- 
 2.27.0
