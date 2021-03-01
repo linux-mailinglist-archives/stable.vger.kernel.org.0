@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1198328D09
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1390B328E4D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239816AbhCATD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34074 "EHLO mail.kernel.org"
+        id S241600AbhCAT1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:27:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240877AbhCAS6c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:58:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D88A3650B1;
-        Mon,  1 Mar 2021 17:40:02 +0000 (UTC)
+        id S241564AbhCATYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:24:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CF7865140;
+        Mon,  1 Mar 2021 17:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620403;
-        bh=DnB/h2aGJA4XsG1hB8hTJDeohe6ytuxM9noihFOxJgs=;
+        s=korg; t=1614618263;
+        bh=LhAKqvRNZIEa6tvIdsO+Nze2lhA7qS1Si39VQfZn+rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPv6cyj9AnuhqrCaSNqEOjQAf/jCfQ0KJgn9fQQY89HoeBRZ5in6HAEKcoVKIbKZm
-         Wlk5qw5cwpsFWA253x2/hBSyczZspSLBfgUhQO/ypj+MSyrKkdEhtLfjMzPCTrOM2V
-         5GQj6rZ5K6o1GJRA/ReMvy/qgxKrWJXM+aqhG6JE=
+        b=2IK/4mZIa2KAd81NxEDAuB4/RtAcEki3p+3VmxhBdtuzakbhnwcgNmtSmygcCAypS
+         80BPCdXunBYCQsKX95U3xdZa3/dG7RyzxYq00aYPWliAyW56dc1b/CYvuM5h7krZv+
+         qMscltuQiTVASVDEmNWg07NEfcz/XmfEWJytAwZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 100/775] bnxt_en: reverse order of TX disable and carrier off
-Date:   Mon,  1 Mar 2021 17:04:28 +0100
-Message-Id: <20210301161206.606726644@linuxfoundation.org>
+Subject: [PATCH 5.10 023/663] Bluetooth: hci_uart: Fix a race for write_work scheduling
+Date:   Mon,  1 Mar 2021 17:04:31 +0100
+Message-Id: <20210301161142.940546452@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Edwin Peer <edwin.peer@broadcom.com>
+From: Claire Chang <tientzu@chromium.org>
 
-[ Upstream commit 132e0b65dc2b8bfa9721bfce834191f24fd1d7ed ]
+[ Upstream commit afe0b1c86458f121b085271e4f3034017a90d4a3 ]
 
-A TX queue can potentially immediately timeout after it is stopped
-and the last TX timestamp on that queue was more than 5 seconds ago with
-carrier still up.  Prevent these intermittent false TX timeouts
-by bringing down carrier first before calling netif_tx_disable().
+In hci_uart_write_work, there is a loop/goto checking the value of
+HCI_UART_TX_WAKEUP. If HCI_UART_TX_WAKEUP is set again, it keeps trying
+hci_uart_dequeue; otherwise, it clears HCI_UART_SENDING and returns.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In hci_uart_tx_wakeup, if HCI_UART_SENDING is already set, it sets
+HCI_UART_TX_WAKEUP, skips schedule_work and assumes the running/pending
+hci_uart_write_work worker will do hci_uart_dequeue properly.
+
+However, if the HCI_UART_SENDING check in hci_uart_tx_wakeup is done after
+the loop breaks, but before HCI_UART_SENDING is cleared in
+hci_uart_write_work, the schedule_work is skipped incorrectly.
+
+Fix this race by changing the order of HCI_UART_SENDING and
+HCI_UART_TX_WAKEUP modification.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Fixes: 82f5169bf3d3 ("Bluetooth: hci_uart: add serdev driver support library")
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/hci_ldisc.c  | 7 +++----
+ drivers/bluetooth/hci_serdev.c | 4 ++--
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-index d10e4f85dd11a..1c96b7ba24f28 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8856,9 +8856,10 @@ void bnxt_tx_disable(struct bnxt *bp)
- 			txr->dev_state = BNXT_DEV_STATE_CLOSING;
- 		}
+diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
+index f83d67eafc9f0..8be4d807d1370 100644
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -127,10 +127,9 @@ int hci_uart_tx_wakeup(struct hci_uart *hu)
+ 	if (!test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		goto no_schedule;
+ 
+-	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state)) {
+-		set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
++	set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
++	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state))
+ 		goto no_schedule;
+-	}
+ 
+ 	BT_DBG("");
+ 
+@@ -174,10 +173,10 @@ restart:
+ 		kfree_skb(skb);
  	}
-+	/* Drop carrier first to prevent TX timeout */
-+	netif_carrier_off(bp->dev);
- 	/* Stop all TX queues */
- 	netif_tx_disable(bp->dev);
--	netif_carrier_off(bp->dev);
+ 
++	clear_bit(HCI_UART_SENDING, &hu->tx_state);
+ 	if (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state))
+ 		goto restart;
+ 
+-	clear_bit(HCI_UART_SENDING, &hu->tx_state);
+ 	wake_up_bit(&hu->tx_state, HCI_UART_SENDING);
  }
  
- void bnxt_tx_enable(struct bnxt *bp)
+diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
+index ef96ad06fa54e..9e03402ef1b37 100644
+--- a/drivers/bluetooth/hci_serdev.c
++++ b/drivers/bluetooth/hci_serdev.c
+@@ -83,9 +83,9 @@ static void hci_uart_write_work(struct work_struct *work)
+ 			hci_uart_tx_complete(hu, hci_skb_pkt_type(skb));
+ 			kfree_skb(skb);
+ 		}
+-	} while (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state));
+ 
+-	clear_bit(HCI_UART_SENDING, &hu->tx_state);
++		clear_bit(HCI_UART_SENDING, &hu->tx_state);
++	} while (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state));
+ }
+ 
+ /* ------- Interface to HCI layer ------ */
 -- 
 2.27.0
 
