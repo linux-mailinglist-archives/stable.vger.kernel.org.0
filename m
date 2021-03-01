@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A3A328C21
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E744328C54
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240332AbhCASqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:46:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49688 "EHLO mail.kernel.org"
+        id S237175AbhCAStl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:49:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234824AbhCASj4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DB56651F2;
-        Mon,  1 Mar 2021 17:19:48 +0000 (UTC)
+        id S240188AbhCASmT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91EEC651EB;
+        Mon,  1 Mar 2021 17:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619188;
-        bh=Eh/O+iCM2kFqxqCAQZQeyb8xqzRA/yyN/LdIHp8ZGuI=;
+        s=korg; t=1614619175;
+        bh=UoxtFuE9UUq9KB7qxaXV/6C1ls3EnmrdBcFKySKle28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OareaNaFHW1a1ImcycJiLEerCEJtbtEjTyl6tM6buV8+lJQxYKc82TWFO94MK8piU
-         hzpnwFwhsPpmZsWxrnqB20Wzxt1d+LvwshOYav4dzhCZWUPt+DEu60ewXasWvuaGNY
-         FPocr5Cvqp9zy2nE7RPBHMuj2B4kEhKydCn81AY4=
+        b=o8zPSn6xMTYAG58OP9rgN12HTEkm7QmLGgAC84FQ5aQMtB2ypRmknTd27+APyD9/v
+         X4/oEUjGufypvh1F+qdmw2zncW8pC1jfeO/T12PTAG+uxSm7oAOkhO0kmHHtRcrpxR
+         gKH6daBdHFj2V+9Rvk725qfguumGqVWgEd9/L9Hk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Orson Zhai <orson.zhai@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 325/663] KVM: PPC: Make the VMX instruction emulation routines static
-Date:   Mon,  1 Mar 2021 17:09:33 +0100
-Message-Id: <20210301161157.927554954@linuxfoundation.org>
+Subject: [PATCH 5.10 330/663] mmc: sdhci-sprd: Fix some resource leaks in the remove function
+Date:   Mon,  1 Mar 2021 17:09:38 +0100
+Message-Id: <20210301161158.176598423@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,74 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9236f57a9e51c72ce426ccd2e53e123de7196a0f ]
+[ Upstream commit c9c256a8b0dc09c305c409d6264cc016af2ba38d ]
 
-These are only used locally. It fixes these W=1 compile errors :
+'sdhci_remove_host()' and 'sdhci_pltfm_free()' should be used in place of
+'mmc_remove_host()' and 'mmc_free_host()'.
 
-../arch/powerpc/kvm/powerpc.c:1521:5: error: no previous prototype for ‘kvmppc_get_vmx_dword’ [-Werror=missing-prototypes]
- 1521 | int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1539:5: error: no previous prototype for ‘kvmppc_get_vmx_word’ [-Werror=missing-prototypes]
- 1539 | int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1557:5: error: no previous prototype for ‘kvmppc_get_vmx_hword’ [-Werror=missing-prototypes]
- 1557 | int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~~
-../arch/powerpc/kvm/powerpc.c:1575:5: error: no previous prototype for ‘kvmppc_get_vmx_byte’ [-Werror=missing-prototypes]
- 1575 | int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
-      |     ^~~~~~~~~~~~~~~~~~~
+This avoids some resource leaks, is more in line with the error handling
+path of the probe function, and is more consistent with other drivers.
 
-Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction mmio emulation with analyse_instr() input")
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210104143206.695198-19-clg@kaod.org
+Fixes: fb8bd90f83c4 ("mmc: sdhci-sprd: Add Spreadtrum's initial host controller")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Orson Zhai <orson.zhai@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20201217204236.163446-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/powerpc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci-sprd.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
-index 13999123b7358..32fa0fa3d4ff5 100644
---- a/arch/powerpc/kvm/powerpc.c
-+++ b/arch/powerpc/kvm/powerpc.c
-@@ -1518,7 +1518,7 @@ int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
- 	return emulated;
- }
- 
--int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
+diff --git a/drivers/mmc/host/sdhci-sprd.c b/drivers/mmc/host/sdhci-sprd.c
+index 58109c5b53e2e..19cbb6171b358 100644
+--- a/drivers/mmc/host/sdhci-sprd.c
++++ b/drivers/mmc/host/sdhci-sprd.c
+@@ -708,14 +708,14 @@ static int sdhci_sprd_remove(struct platform_device *pdev)
  {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1536,7 +1536,7 @@ int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
+ 	struct sdhci_host *host = platform_get_drvdata(pdev);
+ 	struct sdhci_sprd_host *sprd_host = TO_SPRD_HOST(host);
+-	struct mmc_host *mmc = host->mmc;
  
--int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1554,7 +1554,7 @@ int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
+-	mmc_remove_host(mmc);
++	sdhci_remove_host(host, 0);
++
+ 	clk_disable_unprepare(sprd_host->clk_sdio);
+ 	clk_disable_unprepare(sprd_host->clk_enable);
+ 	clk_disable_unprepare(sprd_host->clk_2x_enable);
  
--int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
-@@ -1572,7 +1572,7 @@ int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
- 	return result;
- }
+-	mmc_free_host(mmc);
++	sdhci_pltfm_free(pdev);
  
--int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
-+static int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
- {
- 	union kvmppc_one_reg reg;
- 	int vmx_offset = 0;
+ 	return 0;
+ }
 -- 
 2.27.0
 
