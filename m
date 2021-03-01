@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAA78327F9E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:37:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5B7327FA6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235792AbhCANgU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 08:36:20 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:47953 "EHLO
+        id S235800AbhCANhS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 08:37:18 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:34663 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235806AbhCANfl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:35:41 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 189D71941F8B;
-        Mon,  1 Mar 2021 08:34:50 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 08:34:50 -0500
+        by vger.kernel.org with ESMTP id S235851AbhCANhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:37:14 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6B6A51941FB4;
+        Mon,  1 Mar 2021 08:36:06 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:36:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iGl8aZ
-        nsiVrsy68cS10jqTjr3zza7MoSYvU3xOmaoUA=; b=tEHe3Aw5c2sd+KGO3PkvjN
-        t+pN3FdhKsWCK0WEhOUY7OG5UFuiBaCSoKoZo6raMj7PsBpEtdVsHoWjL3k/PJn0
-        60trTlAvHPA/esRs2XhqFPIDhrqTOkAsJbGJ6mA3LLWuP16m7zqpNNcCGvA3Q8YY
-        bvdPbPCm6mSfjNQxB0XQcORQ4za4LRW1vsviePw9PGSwlpZx187wcMPuzhyCgTgL
-        cJAcu930MVgk4E/H0EmRhUMOPKpV6VyJAPfyuNQ8TPfr8qrC8i3tFGgi++idGcFc
-        jEshb9pJfjNeQdymc/dGt36cegIIXow7v2SBQwJEi6rSeOzjTmdaySw1+w53O4Fg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tHTPHG
+        uRq1ZMR0CghscirmE3c6r+baIrPCSU/Ru6SOg=; b=Lq2rtwHa8k7fF/VMJrlPu7
+        cs0PGxqZ/04BAjH+uebhPXg+SpQCnZKQqSPj60SB17S9AjqCIsMq165S00vG9DDI
+        Crx+HmqKPo8LV1U/KZQ9PCNt2ZtpMYGYrIALfgNXPJONJkIhX7bZzIzljGkfVoUU
+        1gCaYQSZjA0RW5mcEhnH93gGzGMpSFyxSTVP41VYI+dfGJxgkJCp8HQmXl5FjNwq
+        FCf8Y0srA2RwwAXaPnUCZZ02iWepPxB0sMgSuoE1bN00ZxdqLwNxpahehzlGvTPL
+        wDV8OI3zx4p/gWKWPCLM+/QO9tLnlWRPPKCdS3jp6cfn+JNAEkhJVNWc1wGtt73g
         ==
-X-ME-Sender: <xms:eO08YKc4pIXFWVDQTd_smQ7HtRSZsNRIgyl0mmupmpWXmeTDYankuQ>
-    <xme:eO08YIce6x5fmihHsT-dJ46ttI_L3qI1_3vIi9-dh_qLJBDl4hix7_98EQ2cNqaB9
-    EOpKD0MZazO1g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:xe08YNhmy-vdMc8-auUdX_mllvQtIpsUrski_Ilha9P0hqAd_BZ3pA>
+    <xme:xe08YCD2FotLEhCN0QIV-fRxu0vXk3m9Gu9zmVbQuwh852Xf2cyKoJNSkUp_555-S
+    Z9MHj1BXi8Plg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehvdcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:eO08YGg2qF9ZZYAytcAYWRzlXyO1DPeIpXEhlMnv0lfoFBkS5gRY_g>
-    <xmx:eO08YMSjX0JB2NeNtc4NBTR2jSijP4fTsOXPpJddO-lMreRW6kvhfA>
-    <xmx:eO08YPxxHvlMOSoKKXflsCWOboQyDu_Tu7Dt0xef5UuWkylAOf9bHg>
-    <xmx:eu08YCPNKcu-uPvT9zXv4F9epp_0LD63OiF-xxm3B08Us6XpFtNdVw>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:xe08YNHjx3ZUmjSibBqu65D7vyoeLmoicPWCMcTemNBNUNDCson63Q>
+    <xmx:xe08YCQyWbGp5mIYvwPNLiFMm2oflzaBRH_HORxZPDNg1SGbidtpWA>
+    <xmx:xe08YKx1elPRYDi3IBuefJp6vj811jrvC_0cRWNBl47o2rZDkRQMeQ>
+    <xmx:xu08YPrdLvmec8JpenLRnt8FAsawoWTjwXjsHpq4oBoYkmq-TOLEKg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 564731080067;
-        Mon,  1 Mar 2021 08:34:48 -0500 (EST)
-Subject: FAILED: patch "[PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()" failed to apply to 4.19-stable tree
-To:     rafael.j.wysocki@intel.com, yu.c.chen@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 80DEB24005B;
+        Mon,  1 Mar 2021 08:36:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] virtio/s390: implement virtio-ccw revision 2 correctly" failed to apply to 4.14-stable tree
+To:     cohuck@redhat.com, gor@linux.ibm.com, pasic@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:34:39 +0100
-Message-ID: <161460567913047@kroah.com>
+Date:   Mon, 01 Mar 2021 14:36:03 +0100
+Message-ID: <161460576321113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,85 +70,57 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a45ee4d4e13b0e35a8ec7ea0bf9267243d57b302 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Thu, 7 Jan 2021 19:43:30 +0100
-Subject: [PATCH] cpufreq: intel_pstate: Change intel_pstate_get_hwp_max()
- argument
+From 182f709c5cff683e6732d04c78e328de0532284f Mon Sep 17 00:00:00 2001
+From: Cornelia Huck <cohuck@redhat.com>
+Date: Tue, 16 Feb 2021 12:06:45 +0100
+Subject: [PATCH] virtio/s390: implement virtio-ccw revision 2 correctly
 
-All of the callers of intel_pstate_get_hwp_max() access the struct
-cpudata object that corresponds to the given CPU already and the
-function itself needs to access that object (in order to update
-hwp_cap_cached), so modify the code to pass a struct cpudata pointer
-to it instead of the CPU number.
+CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
+and drivers should only rely on it being implemented when they
+negotiated at least that revision with the device.
 
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Tested-by: Chen Yu <yu.c.chen@intel.com>
+However, virtio_ccw_get_status() issued READ_STATUS for any
+device operating at least at revision 1. If the device accepts
+READ_STATUS regardless of the negotiated revision (which some
+implementations like QEMU do, even though the spec currently does
+not allow it), everything works as intended. While a device
+rejecting the command should also be handled gracefully, we will
+not be able to see any changes the device makes to the status,
+such as setting NEEDS_RESET or setting the status to zero after
+a completed reset.
 
-diff --git a/drivers/cpufreq/intel_pstate.c b/drivers/cpufreq/intel_pstate.c
-index 74bf54e6c993..3eb63daf2523 100644
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -819,13 +819,13 @@ static struct freq_attr *hwp_cpufreq_attrs[] = {
- 	NULL,
+We negotiated the revision to at most 1, as we never bumped the
+maximum revision; let's do that now and properly send READ_STATUS
+only if we are operating at least at revision 2.
+
+Cc: stable@vger.kernel.org
+Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210216110645.1087321-1-cohuck@redhat.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 5730572b52cd..54e686dca6de 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -117,7 +117,7 @@ struct virtio_rev_info {
  };
  
--static void intel_pstate_get_hwp_max(unsigned int cpu, int *phy_max,
-+static void intel_pstate_get_hwp_max(struct cpudata *cpu, int *phy_max,
- 				     int *current_max)
- {
- 	u64 cap;
+ /* the highest virtio-ccw revision we support */
+-#define VIRTIO_CCW_REV_MAX 1
++#define VIRTIO_CCW_REV_MAX 2
  
--	rdmsrl_on_cpu(cpu, MSR_HWP_CAPABILITIES, &cap);
--	WRITE_ONCE(all_cpu_data[cpu]->hwp_cap_cached, cap);
-+	rdmsrl_on_cpu(cpu->cpu, MSR_HWP_CAPABILITIES, &cap);
-+	WRITE_ONCE(cpu->hwp_cap_cached, cap);
- 	if (global.no_turbo || global.turbo_disabled)
- 		*current_max = HWP_GUARANTEED_PERF(cap);
- 	else
-@@ -1213,7 +1213,7 @@ static void update_qos_request(enum freq_qos_req_type type)
- 			continue;
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+ 	u8 old_status = vcdev->dma_area->status;
+ 	struct ccw1 *ccw;
  
- 		if (hwp_active)
--			intel_pstate_get_hwp_max(i, &turbo_max, &max_state);
-+			intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
- 		else
- 			turbo_max = cpu->pstate.turbo_pstate;
+-	if (vcdev->revision < 1)
++	if (vcdev->revision < 2)
+ 		return vcdev->dma_area->status;
  
-@@ -1723,7 +1723,7 @@ static void intel_pstate_get_cpu_pstates(struct cpudata *cpu)
- 	if (hwp_active && !hwp_mode_bdw) {
- 		unsigned int phy_max, current_max;
- 
--		intel_pstate_get_hwp_max(cpu->cpu, &phy_max, &current_max);
-+		intel_pstate_get_hwp_max(cpu, &phy_max, &current_max);
- 		cpu->pstate.turbo_freq = phy_max * cpu->pstate.scaling;
- 		cpu->pstate.turbo_pstate = phy_max;
- 	} else {
-@@ -2208,7 +2208,7 @@ static void intel_pstate_update_perf_limits(struct cpudata *cpu,
- 	 * rather than pure ratios.
- 	 */
- 	if (hwp_active) {
--		intel_pstate_get_hwp_max(cpu->cpu, &turbo_max, &max_state);
-+		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
- 	} else {
- 		max_state = global.no_turbo || global.turbo_disabled ?
- 			cpu->pstate.max_pstate : cpu->pstate.turbo_pstate;
-@@ -2323,7 +2323,7 @@ static void intel_pstate_verify_cpu_policy(struct cpudata *cpu,
- 	if (hwp_active) {
- 		int max_state, turbo_max;
- 
--		intel_pstate_get_hwp_max(cpu->cpu, &turbo_max, &max_state);
-+		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
- 		max_freq = max_state * cpu->pstate.scaling;
- 	} else {
- 		max_freq = intel_pstate_get_max_freq(cpu);
-@@ -2710,7 +2710,7 @@ static int intel_cpufreq_cpu_init(struct cpufreq_policy *policy)
- 	if (hwp_active) {
- 		u64 value;
- 
--		intel_pstate_get_hwp_max(policy->cpu, &turbo_max, &max_state);
-+		intel_pstate_get_hwp_max(cpu, &turbo_max, &max_state);
- 		policy->transition_delay_us = INTEL_CPUFREQ_TRANSITION_DELAY_HWP;
- 		rdmsrl_on_cpu(cpu->cpu, MSR_HWP_REQUEST, &value);
- 		WRITE_ONCE(cpu->hwp_req_cached, value);
+ 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
 
