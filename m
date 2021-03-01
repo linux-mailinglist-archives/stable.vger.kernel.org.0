@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E811532854A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C69A32845F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235744AbhCAQw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:52:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S234105AbhCAQeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:34:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233690AbhCAQoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02B3464EEC;
-        Mon,  1 Mar 2021 16:30:48 +0000 (UTC)
+        id S234782AbhCAQ3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4521F64E31;
+        Mon,  1 Mar 2021 16:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616249;
-        bh=DkiN/wfTE9YkG0XOdDXkLLB354QagtYR9k9VQueZTNM=;
+        s=korg; t=1614615781;
+        bh=Q5h96U+BDWH4AjP0R27+N24OwmlM9ICB3VQOUIK2axQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWN3dwCzNdWgc4Or1Fcmoj1s0L2jDGW//4PTMYcbOgHyLwELejK4Mu9EeXckB3Uhs
-         yBA7lXgiFH9e5Q/vkbVFtXARD+hLz0rhyJ0QAE3dLLQN7RTvhYRgryk5XYUT0ykQow
-         bhDHfIKwcN+JRw8oZUQs3la7sR3xQ5aTFYogsW8E=
+        b=Z5wBTwAk/11ioKv9LdB09sCdRHgPcCTJBNVbVxOdUP5BbSbqEqiMeNZCWVMH4Fc4p
+         yRDxABm52ayt3tdzNXM53eBtkE4MINcBhkTFiU7oPvGtZhu8/Rb5E042ddWCfl2l54
+         QO5BNpJ6b6fm7SaW9jSgcSH6+GGfC9LPwlbrJCwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 085/176] auxdisplay: ht16k33: Fix refresh rate handling
+Subject: [PATCH 4.9 057/134] regulator: axp20x: Fix reference cout leak
 Date:   Mon,  1 Mar 2021 17:12:38 +0100
-Message-Id: <20210301161025.194214948@linuxfoundation.org>
+Message-Id: <20210301161016.361981677@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit e89b0a426721a8ca5971bc8d70aa5ea35c020f90 ]
+[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
 
-Drop the call to msecs_to_jiffies(), as "HZ / fbdev->refresh_rate" is
-already the number of jiffies to wait.
+Decrements the reference count of device node and its child node.
 
-Fixes: 8992da44c6805d53 ("auxdisplay: ht16k33: Driver for LED controller")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/ht16k33.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/regulator/axp20x-regulator.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/auxdisplay/ht16k33.c b/drivers/auxdisplay/ht16k33.c
-index a93ded300740d..eec69213dad4f 100644
---- a/drivers/auxdisplay/ht16k33.c
-+++ b/drivers/auxdisplay/ht16k33.c
-@@ -125,8 +125,7 @@ static void ht16k33_fb_queue(struct ht16k33_priv *priv)
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index a3ade9e4ef478..86776d45b68e1 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -415,7 +415,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
+ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
  {
- 	struct ht16k33_fbdev *fbdev = &priv->fbdev;
+ 	struct device_node *np, *regulators;
+-	int ret;
++	int ret = 0;
+ 	u32 dcdcfreq = 0;
  
--	schedule_delayed_work(&fbdev->work,
--			      msecs_to_jiffies(HZ / fbdev->refresh_rate));
-+	schedule_delayed_work(&fbdev->work, HZ / fbdev->refresh_rate);
+ 	np = of_node_get(pdev->dev.parent->of_node);
+@@ -430,13 +430,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
+-			return ret;
+ 		}
+-
+ 		of_node_put(regulators);
+ 	}
+ 
+-	return 0;
++	of_node_put(np);
++	return ret;
  }
  
- /*
+ static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
