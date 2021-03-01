@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F30327E02
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0289327E06
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 13:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233604AbhCAMOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 07:14:21 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40443 "EHLO
+        id S233691AbhCAMO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 07:14:58 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60033 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233691AbhCAMOR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 07:14:17 -0500
+        by vger.kernel.org with ESMTP id S233437AbhCAMOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 07:14:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 517BE1941656;
-        Mon,  1 Mar 2021 07:13:00 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 01 Mar 2021 07:13:00 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2A050194162E;
+        Mon,  1 Mar 2021 07:14:04 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 07:14:04 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=SCuC0S
-        Alo1m/29npS9DXmUfFQzvkwUW5Sjj0n0fkBtQ=; b=C7lcOLwwr6nYVa+xRkGOia
-        iDOIBR36CCFf5Mr6LK1zvIaC8utFsAFQHpuW7vQyiGwFt9uXzXxWkfo5sDItf071
-        zzFj65YHjIoLRLwTWNrCdrhGx4A2vigTIyn7L08LPAPndntLKdhWSPWBftAn3jw6
-        XsaMqd5CIGeWtWM4rPEOZKYMl3Og0KFXLS6zvuPYwFi00n0UY1fkdCtJFrBfMGIx
-        oiTl5lmsqqbgCHDGk6x/DOybr8mBKS0rmuJdcCgEnDh67pZZsEtibsY0nikP+WU1
-        OP3gnqvk4Q8yw+n/9DJVNwldz4s51qMsLKxgTmfLAJdQ2J1J/t0v5dfQtf+fbr5w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=e8rcBS
+        pz4uI5Z+88lusL8EF50JA3gDUg6g0Bbt6ibwI=; b=KbPjSvACH3k58q+mus1dQF
+        ieaWfBKy7dk2CFQVIYgU1K7cw38XruCeyNGj2XFoMdRUjLJYkqJ9qDeeyoTqpeYh
+        +7fnQ67dWGFMuH3oGVo6THssSY52eJ+WElDOXpAPwXbJnBCIt5W8Yxv365QB+ZN0
+        qCwFmVbUZXFw5cJUHF298I5g/AeJtv9dTCvHzTP2C69Pt/+UFySunY7V9B5YcNB9
+        U8SkwLmYEK1F1FdJHHQjmdo5GMiwyXKT2ojcjuNsH4jRNN77RbdHKbaRziAQ2YNo
+        W5/X6EcpyImhlHQR29WbwxIHFkCy+4VcuO6BcPmgpO/FqVTNjnvjD8PXFFJkKJaQ
         ==
-X-ME-Sender: <xms:TNo8YHu7YR5Lyj9x35RjMBFICb6R8BXRsF4O5AOf7S15upZR9GE2jg>
-    <xme:TNo8YIdxZ4U7_bNkokUHyL5PO6YlovEqchDsFGXJoH5ilOqSeX35lEZ3IBjaZr1VU
-    XfrM-36MOVW_Q>
+X-ME-Sender: <xms:i9o8YDo4GKBlERla_txBnnvMUdfyntP8-6_ytVT85KKo45lnZCQuUg>
+    <xme:i9o8YNooQlYlXIEYXmXIOVx0Nd4z2ZOrDkZu_6aJcukgqf_w1GJJ8pG_KNadKMJOq
+    ILMZjZ3Ae0EjQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdefiecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpeegnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:TNo8YKz43m5HDbgvK92Y1pxWPwqTY08uQhXXO6Z8-_h1Zqo8XbTZRw>
-    <xmx:TNo8YGPVzTNYkZPZYCVOREGKl7sU2hPye4BMwzJMHa9qWDaU3b70DA>
-    <xmx:TNo8YH-R4smtHtF9MO3CIaYyp-jAl_vv1x0MilwsKKDspIgNofFn9w>
-    <xmx:TNo8YEH_WbQVi3WPQYb0HEpEe-UL3pb4vKqnGAlXLy6MxHB7BxYH3Q>
+X-ME-Proxy: <xmx:i9o8YAOZN9d6kPEySBFp7Gii5GQExti6PQPXxMGh6NKnPlf6KRKvnQ>
+    <xmx:i9o8YG5EzIOi4OljQqKDkF9G0ovpeUQmKiWJRIZ6DouEHhVuW2Ooag>
+    <xmx:i9o8YC67H1mcoHYfQNGYb3si-ONh-U6QwASItPHQ-AHCI02Z3ekrxg>
+    <xmx:jNo8YPXcLPMf5-m-N81oQjsfVC1pNvHrMvcaEncntHMOMdqDGkK9hA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B76DF1080054;
-        Mon,  1 Mar 2021 07:12:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: wait potential ->release() on resurrect" failed to apply to 5.11-stable tree
-To:     asml.silence@gmail.com, axboe@kernel.dk, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8FE5224005B;
+        Mon,  1 Mar 2021 07:14:03 -0500 (EST)
+Subject: FAILED: patch "[PATCH] io_uring: don't attempt IO reissue from the ring exit path" failed to apply to 5.11-stable tree
+To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 13:12:50 +0100
-Message-ID: <161460077010694@kroah.com>
+Date:   Mon, 01 Mar 2021 13:14:01 +0100
+Message-ID: <161460084192117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,81 +70,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 88f171ab7798a1ed0b9e39867ee16f307466e870 Mon Sep 17 00:00:00 2001
-From: Pavel Begunkov <asml.silence@gmail.com>
-Date: Sat, 20 Feb 2021 18:03:50 +0000
-Subject: [PATCH] io_uring: wait potential ->release() on resurrect
+From 7c977a58dc83366e488c217fd88b1469d242bee5 Mon Sep 17 00:00:00 2001
+From: Jens Axboe <axboe@kernel.dk>
+Date: Tue, 23 Feb 2021 19:17:35 -0700
+Subject: [PATCH] io_uring: don't attempt IO reissue from the ring exit path
 
-There is a short window where percpu_refs are already turned zero, but
-we try to do resurrect(). Play nicer and wait for ->release() to happen
-in this case and proceed as everything is ok. One downside for ctx refs
-is that we can ignore signal_pending() on a rare occasion, but someone
-else should check for it later if needed.
+If we're exiting the ring, just let the IO fail with -EAGAIN as nobody
+will care anyway. It's not the right context to reissue from.
 
-Cc: <stable@vger.kernel.org> # 5.5+
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index c98b673f0bb1..5cc02226bb38 100644
+index bf9ad810c621..275ad84e8227 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1104,6 +1104,21 @@ static inline void io_set_resource_node(struct io_kiocb *req)
- 	}
- }
- 
-+static bool io_refs_resurrect(struct percpu_ref *ref, struct completion *compl)
-+{
-+	if (!percpu_ref_tryget(ref)) {
-+		/* already at zero, wait for ->release() */
-+		if (!try_wait_for_completion(compl))
-+			synchronize_rcu();
+@@ -2839,6 +2839,13 @@ static bool io_rw_reissue(struct io_kiocb *req)
+ 		return false;
+ 	if ((req->flags & REQ_F_NOWAIT) || io_wq_current_is_worker())
+ 		return false;
++	/*
++	 * If ref is dying, we might be running poll reap from the exit work.
++	 * Don't attempt to reissue from that path, just let it fail with
++	 * -EAGAIN.
++	 */
++	if (percpu_ref_is_dying(&req->ctx->refs))
 +		return false;
-+	}
-+
-+	percpu_ref_resurrect(ref);
-+	reinit_completion(compl);
-+	percpu_ref_put(ref);
-+	return true;
-+}
-+
- static bool io_match_task(struct io_kiocb *head,
- 			  struct task_struct *task,
- 			  struct files_struct *files)
-@@ -7329,13 +7344,11 @@ static int io_rsrc_ref_quiesce(struct fixed_rsrc_data *data,
- 		flush_delayed_work(&ctx->rsrc_put_work);
  
- 		ret = wait_for_completion_interruptible(&data->done);
--		if (!ret)
-+		if (!ret || !io_refs_resurrect(&data->refs, &data->done))
- 			break;
+ 	lockdep_assert_held(&req->ctx->uring_lock);
  
--		percpu_ref_resurrect(&data->refs);
- 		io_sqe_rsrc_set_node(ctx, data, backup_node);
- 		backup_node = NULL;
--		reinit_completion(&data->done);
- 		mutex_unlock(&ctx->uring_lock);
- 		ret = io_run_task_work_sig();
- 		mutex_lock(&ctx->uring_lock);
-@@ -10070,10 +10083,8 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 
- 		mutex_lock(&ctx->uring_lock);
- 
--		if (ret) {
--			percpu_ref_resurrect(&ctx->refs);
--			goto out_quiesce;
--		}
-+		if (ret && io_refs_resurrect(&ctx->refs, &ctx->ref_comp))
-+			return ret;
- 	}
- 
- 	if (ctx->restricted) {
-@@ -10165,7 +10176,6 @@ static int __io_uring_register(struct io_ring_ctx *ctx, unsigned opcode,
- 	if (io_register_op_must_quiesce(opcode)) {
- 		/* bring the ctx back to life */
- 		percpu_ref_reinit(&ctx->refs);
--out_quiesce:
- 		reinit_completion(&ctx->ref_comp);
- 	}
- 	return ret;
 
