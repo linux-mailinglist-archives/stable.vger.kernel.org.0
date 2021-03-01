@@ -2,35 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7456328BB4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86945328C16
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240296AbhCASif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:38:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
+        id S240242AbhCASpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239954AbhCASbv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:31:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 025D965111;
-        Mon,  1 Mar 2021 17:02:26 +0000 (UTC)
+        id S240502AbhCASjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:39:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 211356508F;
+        Mon,  1 Mar 2021 17:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618147;
-        bh=0LIgmr85izHvY39Mlio2w1aY6c8wbGun+WgOgvSXamE=;
+        s=korg; t=1614619916;
+        bh=xl/RzlTfeoa9gNbStTQWMWCscnIf9VS68Kbwwf9cTas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRANeJAQVtgaPa7LLVjACeOgEUbuWktkvGYnCbv9TAzJ8DeyIjGiJQWH0f2c4+s2e
-         hZ7myyB+UETMqw4M4XHVAs6o4YjJaMuq/CstdVKihu4N7xB4zaSftulU26iH9DpBeR
-         V+vhJZmHgUWSQ9E09qynyofT/kSgGRrBSe9N7Dck=
+        b=iTNS8qgg4lFLQBF9LYscK9oe8xnDBVhWhHfI9VCRst1IIZu0MIEOwzgKZ/HOMxGgR
+         unzlhj8zyTq8HFZnM8krZc888oDTGYUpSWVS/YAEbWWpIZrDHF6bHYbIPg8VCdjY+g
+         AFzouaTnMtOHn/MsyUqarxSlv5kPf1jTdictNE1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 322/340] dm: fix deadlock when swapping to encrypted device
-Date:   Mon,  1 Mar 2021 17:14:26 +0100
-Message-Id: <20210301161104.146135315@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Kees Cook <keescook@chromium.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Will Drewry <wad@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Cyrill Gorcunov <gorcunov@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.10 620/663] kcmp: Support selection of SYS_kcmp without CHECKPOINT_RESTORE
+Date:   Mon,  1 Mar 2021 17:14:28 +0100
+Message-Id: <20210301161212.521569141@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,201 +49,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit a666e5c05e7c4aaabb2c5d58117b0946803d03d2 upstream.
+commit bfe3911a91047557eb0e620f95a370aee6a248c7 upstream.
 
-The system would deadlock when swapping to a dm-crypt device. The reason
-is that for each incoming write bio, dm-crypt allocates memory that holds
-encrypted data. These excessive allocations exhaust all the memory and the
-result is either deadlock or OOM trigger.
+Userspace has discovered the functionality offered by SYS_kcmp and has
+started to depend upon it. In particular, Mesa uses SYS_kcmp for
+os_same_file_description() in order to identify when two fd (e.g. device
+or dmabuf) point to the same struct file. Since they depend on it for
+core functionality, lift SYS_kcmp out of the non-default
+CONFIG_CHECKPOINT_RESTORE into the selectable syscall category.
 
-This patch limits the number of in-flight swap bios, so that the memory
-consumed by dm-crypt is limited. The limit is enforced if the target set
-the "limit_swap_bios" variable and if the bio has REQ_SWAP set.
+Rasmus Villemoes also pointed out that systemd uses SYS_kcmp to
+deduplicate the per-service file descriptor store.
 
-Non-swap bios are not affected becuase taking the semaphore would cause
-performance degradation.
+Note that some distributions such as Ubuntu are already enabling
+CHECKPOINT_RESTORE in their configs and so, by extension, SYS_kcmp.
 
-This is similar to request-based drivers - they will also block when the
-number of requests is over the limit.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Will Drewry <wad@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dave Airlie <airlied@gmail.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Cyrill Gorcunov <gorcunov@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch> # DRM depends on kcmp
+Acked-by: Rasmus Villemoes <linux@rasmusvillemoes.dk> # systemd uses kcmp
+Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210205220012.1983-1-chris@chris-wilson.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-core.h          |    4 ++
- drivers/md/dm-crypt.c         |    1 
- drivers/md/dm.c               |   60 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/device-mapper.h |    5 +++
- 4 files changed, 70 insertions(+)
+ drivers/gpu/drm/Kconfig                       |    3 +++
+ fs/eventpoll.c                                |    4 ++--
+ include/linux/eventpoll.h                     |    2 +-
+ init/Kconfig                                  |   11 +++++++++++
+ kernel/Makefile                               |    2 +-
+ tools/testing/selftests/seccomp/seccomp_bpf.c |    2 +-
+ 6 files changed, 19 insertions(+), 5 deletions(-)
 
---- a/drivers/md/dm-core.h
-+++ b/drivers/md/dm-core.h
-@@ -106,6 +106,10 @@ struct mapped_device {
- 
- 	struct block_device *bdev;
- 
-+	int swap_bios;
-+	struct semaphore swap_bios_semaphore;
-+	struct mutex swap_bios_lock;
-+
- 	struct dm_stats stats;
- 
- 	/* for blk-mq request-based DM support */
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -2737,6 +2737,7 @@ static int crypt_ctr(struct dm_target *t
- 	wake_up_process(cc->write_thread);
- 
- 	ti->num_flush_bios = 1;
-+	ti->limit_swap_bios = true;
- 
- 	return 0;
- 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -146,6 +146,16 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_
- #define DM_NUMA_NODE NUMA_NO_NODE
- static int dm_numa_node = DM_NUMA_NODE;
- 
-+#define DEFAULT_SWAP_BIOS	(8 * 1048576 / PAGE_SIZE)
-+static int swap_bios = DEFAULT_SWAP_BIOS;
-+static int get_swap_bios(void)
-+{
-+	int latch = READ_ONCE(swap_bios);
-+	if (unlikely(latch <= 0))
-+		latch = DEFAULT_SWAP_BIOS;
-+	return latch;
-+}
-+
- /*
-  * For mempools pre-allocation at the table loading time.
-  */
-@@ -972,6 +982,11 @@ void disable_write_zeroes(struct mapped_
- 	limits->max_write_zeroes_sectors = 0;
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -15,6 +15,9 @@ menuconfig DRM
+ 	select I2C_ALGOBIT
+ 	select DMA_SHARED_BUFFER
+ 	select SYNC_FILE
++# gallium uses SYS_kcmp for os_same_file_description() to de-duplicate
++# device and dmabuf fd. Let's make sure that is available for our userspace.
++	select KCMP
+ 	help
+ 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
+ 	  introduced in XFree86 4.0. If you say Y here, you need to select
+--- a/fs/eventpoll.c
++++ b/fs/eventpoll.c
+@@ -1062,7 +1062,7 @@ static struct epitem *ep_find(struct eve
+ 	return epir;
  }
  
-+static bool swap_bios_limit(struct dm_target *ti, struct bio *bio)
-+{
-+	return unlikely((bio->bi_opf & REQ_SWAP) != 0) && unlikely(ti->limit_swap_bios);
-+}
-+
- static void clone_endio(struct bio *bio)
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ static struct epitem *ep_find_tfd(struct eventpoll *ep, int tfd, unsigned long toff)
  {
- 	blk_status_t error = bio->bi_status;
-@@ -1009,6 +1024,11 @@ static void clone_endio(struct bio *bio)
- 		}
- 	}
+ 	struct rb_node *rbp;
+@@ -1104,7 +1104,7 @@ struct file *get_epoll_tfile_raw_ptr(str
  
-+	if (unlikely(swap_bios_limit(tio->ti, bio))) {
-+		struct mapped_device *md = io->md;
-+		up(&md->swap_bios_semaphore);
-+	}
-+
- 	free_tio(tio);
- 	dec_pending(io, error);
+ 	return file_raw;
  }
-@@ -1263,6 +1283,22 @@ void dm_remap_zone_report(struct dm_targ
+-#endif /* CONFIG_CHECKPOINT_RESTORE */
++#endif /* CONFIG_KCMP */
+ 
+ /**
+  * Adds a new entry to the tail of the list in a lockless way, i.e.
+--- a/include/linux/eventpoll.h
++++ b/include/linux/eventpoll.h
+@@ -18,7 +18,7 @@ struct file;
+ 
+ #ifdef CONFIG_EPOLL
+ 
+-#ifdef CONFIG_CHECKPOINT_RESTORE
++#ifdef CONFIG_KCMP
+ struct file *get_epoll_tfile_raw_ptr(struct file *file, int tfd, unsigned long toff);
+ #endif
+ 
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -1194,6 +1194,7 @@ endif # NAMESPACES
+ config CHECKPOINT_RESTORE
+ 	bool "Checkpoint/restore support"
+ 	select PROC_CHILDREN
++	select KCMP
+ 	default n
+ 	help
+ 	  Enables additional kernel features in a sake of checkpoint/restore.
+@@ -1737,6 +1738,16 @@ config ARCH_HAS_MEMBARRIER_CALLBACKS
+ config ARCH_HAS_MEMBARRIER_SYNC_CORE
+ 	bool
+ 
++config KCMP
++	bool "Enable kcmp() system call" if EXPERT
++	help
++	  Enable the kernel resource comparison system call. It provides
++	  user-space with the ability to compare two processes to see if they
++	  share a common resource, such as a file descriptor or even virtual
++	  memory space.
++
++	  If unsure, say N.
++
+ config RSEQ
+ 	bool "Enable rseq() system call" if EXPERT
+ 	default y
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -48,7 +48,7 @@ obj-y += livepatch/
+ obj-y += dma/
+ obj-y += entry/
+ 
+-obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
++obj-$(CONFIG_KCMP) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+ obj-$(CONFIG_STACKTRACE) += stacktrace.o
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -315,7 +315,7 @@ TEST(kcmp)
+ 	ret = __filecmp(getpid(), getpid(), 1, 1);
+ 	EXPECT_EQ(ret, 0);
+ 	if (ret != 0 && errno == ENOSYS)
+-		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_CHECKPOINT_RESTORE?)");
++		SKIP(return, "Kernel does not support kcmp() (missing CONFIG_KCMP?)");
  }
- EXPORT_SYMBOL_GPL(dm_remap_zone_report);
  
-+static noinline void __set_swap_bios_limit(struct mapped_device *md, int latch)
-+{
-+	mutex_lock(&md->swap_bios_lock);
-+	while (latch < md->swap_bios) {
-+		cond_resched();
-+		down(&md->swap_bios_semaphore);
-+		md->swap_bios--;
-+	}
-+	while (latch > md->swap_bios) {
-+		cond_resched();
-+		up(&md->swap_bios_semaphore);
-+		md->swap_bios++;
-+	}
-+	mutex_unlock(&md->swap_bios_lock);
-+}
-+
- static blk_qc_t __map_bio(struct dm_target_io *tio)
- {
- 	int r;
-@@ -1283,6 +1319,14 @@ static blk_qc_t __map_bio(struct dm_targ
- 	atomic_inc(&io->io_count);
- 	sector = clone->bi_iter.bi_sector;
- 
-+	if (unlikely(swap_bios_limit(ti, clone))) {
-+		struct mapped_device *md = io->md;
-+		int latch = get_swap_bios();
-+		if (unlikely(latch != md->swap_bios))
-+			__set_swap_bios_limit(md, latch);
-+		down(&md->swap_bios_semaphore);
-+	}
-+
- 	r = ti->type->map(ti, clone);
- 	switch (r) {
- 	case DM_MAPIO_SUBMITTED:
-@@ -1297,10 +1341,18 @@ static blk_qc_t __map_bio(struct dm_targ
- 			ret = generic_make_request(clone);
- 		break;
- 	case DM_MAPIO_KILL:
-+		if (unlikely(swap_bios_limit(ti, clone))) {
-+			struct mapped_device *md = io->md;
-+			up(&md->swap_bios_semaphore);
-+		}
- 		free_tio(tio);
- 		dec_pending(io, BLK_STS_IOERR);
- 		break;
- 	case DM_MAPIO_REQUEUE:
-+		if (unlikely(swap_bios_limit(ti, clone))) {
-+			struct mapped_device *md = io->md;
-+			up(&md->swap_bios_semaphore);
-+		}
- 		free_tio(tio);
- 		dec_pending(io, BLK_STS_DM_REQUEUE);
- 		break;
-@@ -1894,6 +1946,7 @@ static void cleanup_mapped_device(struct
- 	mutex_destroy(&md->suspend_lock);
- 	mutex_destroy(&md->type_lock);
- 	mutex_destroy(&md->table_devices_lock);
-+	mutex_destroy(&md->swap_bios_lock);
- 
- 	dm_mq_cleanup_mapped_device(md);
- }
-@@ -1963,6 +2016,10 @@ static struct mapped_device *alloc_dev(i
- 	init_waitqueue_head(&md->eventq);
- 	init_completion(&md->kobj_holder.completion);
- 
-+	md->swap_bios = get_swap_bios();
-+	sema_init(&md->swap_bios_semaphore, md->swap_bios);
-+	mutex_init(&md->swap_bios_lock);
-+
- 	md->disk->major = _major;
- 	md->disk->first_minor = minor;
- 	md->disk->fops = &dm_blk_dops;
-@@ -3245,6 +3302,9 @@ MODULE_PARM_DESC(reserved_bio_based_ios,
- module_param(dm_numa_node, int, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(dm_numa_node, "NUMA node for DM device memory allocations");
- 
-+module_param(swap_bios, int, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(swap_bios, "Maximum allowed inflight swap IOs");
-+
- MODULE_DESCRIPTION(DM_NAME " driver");
- MODULE_AUTHOR("Joe Thornber <dm-devel@redhat.com>");
- MODULE_LICENSE("GPL");
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -316,6 +316,11 @@ struct dm_target {
- 	 * whether or not its underlying devices have support.
- 	 */
- 	bool discards_supported:1;
-+
-+	/*
-+	 * Set if we need to limit the number of in-flight bios when swapping.
-+	 */
-+	bool limit_swap_bios:1;
- };
- 
- /* Each target can link one of these into the table */
+ TEST(mode_strict_support)
 
 
