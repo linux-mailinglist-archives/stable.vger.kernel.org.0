@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE9B328ECE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35060328E81
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:36:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241700AbhCATiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:38:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48614 "EHLO mail.kernel.org"
+        id S241651AbhCATcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:32:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234624AbhCATaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:30:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 187B1652CB;
-        Mon,  1 Mar 2021 17:38:03 +0000 (UTC)
+        id S241535AbhCAT0p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:26:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35748652D5;
+        Mon,  1 Mar 2021 17:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620284;
-        bh=lPB2PrdDTBYAWhetk7aZSH26SmxKUkZ262LFjrTMuo4=;
+        s=korg; t=1614620306;
+        bh=P+8iDqsVqhEpxgRJHtOxliIYjrl8ulY/Fx+XDMTY+NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aZvOdkKVCaRzF8000QxebtjADDLLEYCAEwkcUBI4i5VeBHeBdQfLjcLMiZbMDIpaE
-         RzcgENUcCQeEK5rObOOsm0FsV+fXqlh22DPyDKG+Hgr4xWW5SBGEK3AnAgwvpPCJl3
-         UUEdmTZmDgpryAAUtdSzmGlXFeH8YXPisKTMgbK8=
+        b=O0LhKV45NtkxvOHFDfpYkPGAXKsCsVk4svjfxH7yo04Crc/0GWNaR+vO54Z22NiR/
+         ByXSfbiv2tapGlGdffhClDCq/t6wCMOayO7GVGICf67MSpXeZtImQa7EFCzntkhRXw
+         4y90ev9orDRMLkxX8/e8ooqofcGuDqPRLl2mFduw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Peter Geis <pgwipeout@gmail.com>,
+        Nicolas Chauvet <kwizart@gmail.com>,
+        Matt Merhar <mattmerhar@protonmail.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 070/775] arm64: dts: renesas: beacon: Fix EEPROM compatible value
-Date:   Mon,  1 Mar 2021 17:03:58 +0100
-Message-Id: <20210301161205.140617939@linuxfoundation.org>
+Subject: [PATCH 5.11 075/775] opp: Correct debug message in _opp_add_static_v2()
+Date:   Mon,  1 Mar 2021 17:04:03 +0100
+Message-Id: <20210301161205.384112948@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,38 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 74477936a828a7c91a61ba7e625b7ce2299c8c98 ]
+[ Upstream commit d7b9d9b31a3e55dcc9b5c289abfafe31efa5b5c4 ]
 
-"make dtbs_check" fails with:
+The debug message always prints rate=0 instead of a proper value, fix it.
 
-    arch/arm64/boot/dts/renesas/r8a774b1-beacon-rzg2n-kit.dt.yaml: eeprom@50: compatible: 'oneOf' conditional failed, one must be fixed:
-	    'microchip,at24c64' does not match '^(atmel|catalyst|microchip|nxp|ramtron|renesas|rohm|st),(24(c|cs|lc|mac)[0-9]+|spd)$'
-
-Fix this by dropping the bogus "at" prefix.
-
-Fixes: a1d8a344f1ca0709 ("arm64: dts: renesas: Introduce r8a774a1-beacon-rzg2m-kit")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210128110136.2293490-1-geert+renesas@glider.be
+Fixes: 6c591eec67cb ("OPP: Add helpers for reading the binding properties")
+Tested-by: Peter Geis <pgwipeout@gmail.com>
+Tested-by: Nicolas Chauvet <kwizart@gmail.com>
+Tested-by: Matt Merhar <mattmerhar@protonmail.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+[ Viresh: Added Fixes tag ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/opp/of.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-index b93219a95afcd..ea937a926c0e3 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
-@@ -148,7 +148,7 @@
- 	};
+diff --git a/drivers/opp/of.c b/drivers/opp/of.c
+index 03cb387236c4c..d0c0336be39b4 100644
+--- a/drivers/opp/of.c
++++ b/drivers/opp/of.c
+@@ -755,7 +755,6 @@ static struct dev_pm_opp *_opp_add_static_v2(struct opp_table *opp_table,
+ 		struct device *dev, struct device_node *np)
+ {
+ 	struct dev_pm_opp *new_opp;
+-	u64 rate = 0;
+ 	u32 val;
+ 	int ret;
+ 	bool rate_not_available = false;
+@@ -772,7 +771,8 @@ static struct dev_pm_opp *_opp_add_static_v2(struct opp_table *opp_table,
  
- 	eeprom@50 {
--		compatible = "microchip,at24c64", "atmel,24c64";
-+		compatible = "microchip,24c64", "atmel,24c64";
- 		pagesize = <32>;
- 		read-only;	/* Manufacturing EEPROM programmed at factory */
- 		reg = <0x50>;
+ 	/* Check if the OPP supports hardware's hierarchy of versions or not */
+ 	if (!_opp_is_supported(dev, opp_table, np)) {
+-		dev_dbg(dev, "OPP not supported by hardware: %llu\n", rate);
++		dev_dbg(dev, "OPP not supported by hardware: %lu\n",
++			new_opp->rate);
+ 		goto free_opp;
+ 	}
+ 
 -- 
 2.27.0
 
