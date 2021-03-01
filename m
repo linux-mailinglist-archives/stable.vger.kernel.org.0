@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A53E32853D
+	by mail.lfdr.de (Postfix) with ESMTP id B5D7232853E
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235316AbhCAQv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:51:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
+        id S235346AbhCAQvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:51:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235300AbhCAQnx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 588DF64F4A;
-        Mon,  1 Mar 2021 16:30:04 +0000 (UTC)
+        id S235340AbhCAQoF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:44:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3852E64F48;
+        Mon,  1 Mar 2021 16:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616204;
-        bh=b3oRAKSxoYIMcb3tTe7J/dQcxTsgWB3yNv0wQQXamek=;
+        s=korg; t=1614616207;
+        bh=kKdG+sRyeAvIXVZfetldZ6MndIWfxk20Yc4PPcTH6Vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hbppT7iE8BUYspxKBZQHvPPTTBgva1juHWpJkUYdDZfyqWwccxwP6Wt7eZ744/euo
-         Ej6dqdjiFQTKb6HNVwiOABAlUply7Fj2ANiSTmE5CqV+xikkqTLOeffK2r0msoT27o
-         iB9xFdLeSihn5Y0V9e9g3VjuhicbOak+sNScyJYo=
+        b=xzTG4vkSvzcQTvbkHZa/bm512bTCejTIg/h5UqYLbv6Nm5+v9bC1I6tWrJXbM9clu
+         kOW8dXuiMHPQbWCKk3UKdkNgkJVDwCMD8rSohcvzVSMrDVQ/NQLTcY7ixZI/UFfwSb
+         Pz162QsceJQNF272FydavuN9C53RPDvQBWC7BTC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/176] HID: core: detect and skip invalid inputs to snto32()
-Date:   Mon,  1 Mar 2021 17:12:24 +0100
-Message-Id: <20210301161024.488925964@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 072/176] dmaengine: fsldma: Fix a resource leak in the remove function
+Date:   Mon,  1 Mar 2021 17:12:25 +0100
+Message-Id: <20210301161024.543669156@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -43,49 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a0312af1f94d13800e63a7d0a66e563582e39aec ]
+[ Upstream commit cbc0ad004c03ad7971726a5db3ec84dba3dcb857 ]
 
-Prevent invalid (0, 0) inputs to hid-core's snto32() function.
+A 'irq_dispose_mapping()' call is missing in the remove function.
+Add it.
 
-Maybe it is just the dummy device here that is causing this, but
-there are hundreds of calls to snto32(0, 0). Having n (bits count)
-of 0 is causing the current UBSAN trap with a shift value of
-0xffffffff (-1, or n - 1 in this function).
+This is needed to undo the 'irq_of_parse_and_map() call from the probe
+function and already part of the error handling path of the probe function.
 
-Either of the value to shift being 0 or the bits count being 0 can be
-handled by just returning 0 to the caller, avoiding the following
-complex shift + OR operations:
+It was added in the probe function only in commit d3f620b2c4fe ("fsldma:
+simplify IRQ probing and handling")
 
-	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
-
-Fixes: dde5845a529f ("[PATCH] Generic HID layer - code split")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: syzbot+1e911ad71dd4ea72e04a@syzkaller.appspotmail.com
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 77cd62e8082b ("fsldma: allow Freescale Elo DMA driver to be compiled as a module")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201212160516.92515-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/fsldma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index fe4e889af0090..71ee1267d2efc 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1129,6 +1129,9 @@ EXPORT_SYMBOL_GPL(hid_open_report);
+diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
+index 3eaece888e751..79166c8d5afc1 100644
+--- a/drivers/dma/fsldma.c
++++ b/drivers/dma/fsldma.c
+@@ -1318,6 +1318,7 @@ static int fsldma_of_remove(struct platform_device *op)
+ 		if (fdev->chan[i])
+ 			fsl_dma_chan_remove(fdev->chan[i]);
+ 	}
++	irq_dispose_mapping(fdev->irq);
  
- static s32 snto32(__u32 value, unsigned n)
- {
-+	if (!value || !n)
-+		return 0;
-+
- 	switch (n) {
- 	case 8:  return ((__s8)value);
- 	case 16: return ((__s16)value);
+ 	iounmap(fdev->regs);
+ 	kfree(fdev);
 -- 
 2.27.0
 
