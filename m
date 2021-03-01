@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F683289DB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:09:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4812328AE6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:26:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238998AbhCASGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:06:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52458 "EHLO mail.kernel.org"
+        id S239777AbhCASY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:24:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239222AbhCAR7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:59:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA0BE6534D;
-        Mon,  1 Mar 2021 17:44:47 +0000 (UTC)
+        id S239739AbhCASTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:19:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 107676534E;
+        Mon,  1 Mar 2021 17:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620688;
-        bh=PvLN8e7YTc6QoTIypQ2jxEJGTywRO8jPrjHFFs2U9zU=;
+        s=korg; t=1614620696;
+        bh=RdvySk7ALmoxG7/GzYcbVXfFdanWz8h3ZF6f4wQFiQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qYDGOEFhSL6OToQ09rZBVC4e1bCgsqLKub4FlWqoz6Bgwm3o8XklT3ETCwsV7hbZg
-         5MlmycgfyPXmwvqr9wbV2uoPuqrcU95m24Y1esnVCiGuNjPN48bPXybqDx3QOH/vDb
-         SyeKRXoZbD1PeibzXRQl7LXOLmKDHAQJCIL0hYTg=
+        b=gckIrRMQbXVcb56LufOM2ZHAiFho65hK72PWWeVgCW9XMot20kNt64vNCmvKrlDq1
+         xYphWa2LSpTe4jhTVLi1hDs4YH6GHcOfJN0esNo/q9lOGkL9aTXdWFmflMuub1kIYL
+         OwXJYT63/rRAe69y7a/SZjKZ8wKdBT/IXTGUQ8w4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Yu Zhao <yuzhao@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 244/775] crypto: talitos - Fix ctr(aes) on SEC1
-Date:   Mon,  1 Mar 2021 17:06:52 +0100
-Message-Id: <20210301161213.685759809@linuxfoundation.org>
+Subject: [PATCH 5.11 247/775] mm: proc: Invalidate TLB after clearing soft-dirty page state
+Date:   Mon,  1 Mar 2021 17:06:55 +0100
+Message-Id: <20210301161213.833821440@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,69 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 43a942d27eaaf33bca560121cbe42f3637e92880 ]
+[ Upstream commit 912efa17e5121693dfbadae29768f4144a3f9e62 ]
 
-While ctr(aes) requires the use of a special descriptor on SEC2 (see
-commit 70d355ccea89 ("crypto: talitos - fix ctr-aes-talitos")), that
-special descriptor doesn't work on SEC1, see commit e738c5f15562
-("powerpc/8xx: Add DT node for using the SEC engine of the MPC885").
+Since commit 0758cd830494 ("asm-generic/tlb: avoid potential double
+flush"), TLB invalidation is elided in tlb_finish_mmu() if no entries
+were batched via the tlb_remove_*() functions. Consequently, the
+page-table modifications performed by clear_refs_write() in response to
+a write to /proc/<pid>/clear_refs do not perform TLB invalidation.
+Although this is fine when simply aging the ptes, in the case of
+clearing the "soft-dirty" state we can end up with entries where
+pte_write() is false, yet a writable mapping remains in the TLB.
 
-However, the common nonsnoop descriptor works properly on SEC1 for
-ctr(aes).
+Fix this by avoiding the mmu_gather API altogether: managing both the
+'tlb_flush_pending' flag on the 'mm_struct' and explicit TLB
+invalidation for the sort-dirty path, much like mprotect() does already.
 
-Add a second template for ctr(aes) that will be registered
-only on SEC1.
-
-Fixes: 70d355ccea89 ("crypto: talitos - fix ctr-aes-talitos")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 0758cd830494 ("asm-generic/tlb: avoid potential double flush”)
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Yu Zhao <yuzhao@google.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lkml.kernel.org/r/20210127235347.1402-2-will@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ fs/proc/task_mmu.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index b656983c1ef4e..25c9f825b8b54 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -2765,6 +2765,22 @@ static struct talitos_alg_template driver_algs[] = {
- 				     DESC_HDR_SEL0_AESU |
- 				     DESC_HDR_MODE0_AESU_CTR,
- 	},
-+	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
-+		.alg.skcipher = {
-+			.base.cra_name = "ctr(aes)",
-+			.base.cra_driver_name = "ctr-aes-talitos",
-+			.base.cra_blocksize = 1,
-+			.base.cra_flags = CRYPTO_ALG_ASYNC |
-+					  CRYPTO_ALG_ALLOCATES_MEMORY,
-+			.min_keysize = AES_MIN_KEY_SIZE,
-+			.max_keysize = AES_MAX_KEY_SIZE,
-+			.ivsize = AES_BLOCK_SIZE,
-+			.setkey = skcipher_aes_setkey,
-+		},
-+		.desc_hdr_template = DESC_HDR_TYPE_COMMON_NONSNOOP_NO_AFEU |
-+				     DESC_HDR_SEL0_AESU |
-+				     DESC_HDR_MODE0_AESU_CTR,
-+	},
- 	{	.type = CRYPTO_ALG_TYPE_SKCIPHER,
- 		.alg.skcipher = {
- 			.base.cra_name = "ecb(des)",
-@@ -3182,6 +3198,12 @@ static struct talitos_crypto_alg *talitos_alg_alloc(struct device *dev,
- 			t_alg->algt.alg.skcipher.setkey ?: skcipher_setkey;
- 		t_alg->algt.alg.skcipher.encrypt = skcipher_encrypt;
- 		t_alg->algt.alg.skcipher.decrypt = skcipher_decrypt;
-+		if (!strcmp(alg->cra_name, "ctr(aes)") && !has_ftr_sec1(priv) &&
-+		    DESC_TYPE(t_alg->algt.desc_hdr_template) !=
-+		    DESC_TYPE(DESC_HDR_TYPE_AESU_CTR_NONSNOOP)) {
-+			devm_kfree(dev, t_alg);
-+			return ERR_PTR(-ENOTSUPP);
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 602e3a52884d8..3cec6fbef725e 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -1210,7 +1210,6 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+ 	struct mm_struct *mm;
+ 	struct vm_area_struct *vma;
+ 	enum clear_refs_types type;
+-	struct mmu_gather tlb;
+ 	int itype;
+ 	int rv;
+ 
+@@ -1249,7 +1248,6 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+ 			goto out_unlock;
+ 		}
+ 
+-		tlb_gather_mmu(&tlb, mm, 0, -1);
+ 		if (type == CLEAR_REFS_SOFT_DIRTY) {
+ 			for (vma = mm->mmap; vma; vma = vma->vm_next) {
+ 				if (!(vma->vm_flags & VM_SOFTDIRTY))
+@@ -1258,15 +1256,18 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
+ 				vma_set_page_prot(vma);
+ 			}
+ 
++			inc_tlb_flush_pending(mm);
+ 			mmu_notifier_range_init(&range, MMU_NOTIFY_SOFT_DIRTY,
+ 						0, NULL, mm, 0, -1UL);
+ 			mmu_notifier_invalidate_range_start(&range);
+ 		}
+ 		walk_page_range(mm, 0, mm->highest_vm_end, &clear_refs_walk_ops,
+ 				&cp);
+-		if (type == CLEAR_REFS_SOFT_DIRTY)
++		if (type == CLEAR_REFS_SOFT_DIRTY) {
+ 			mmu_notifier_invalidate_range_end(&range);
+-		tlb_finish_mmu(&tlb, 0, -1);
++			flush_tlb_mm(mm);
++			dec_tlb_flush_pending(mm);
 +		}
- 		break;
- 	case CRYPTO_ALG_TYPE_AEAD:
- 		alg = &t_alg->algt.alg.aead.base;
+ out_unlock:
+ 		mmap_write_unlock(mm);
+ out_mm:
 -- 
 2.27.0
 
