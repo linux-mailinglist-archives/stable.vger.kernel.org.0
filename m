@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE07328E9F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 354BF328F8B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242012AbhCATeY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:34:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48604 "EHLO mail.kernel.org"
+        id S242278AbhCATw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:52:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241718AbhCAT25 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:28:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50B8D64F7A;
-        Mon,  1 Mar 2021 17:06:48 +0000 (UTC)
+        id S242197AbhCAToD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 400FD652F9;
+        Mon,  1 Mar 2021 17:40:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618408;
-        bh=GBYnIhzviYEskKBCbud2gg9Box+OSWeHeuOJIooZhPU=;
+        s=korg; t=1614620455;
+        bh=ESh+qrw8wEVUcxAVIYmxnHPQXSSstdMEGhB96+bNHyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gk5+InolwbdO4o2cdy0ZMloiVo6o1v7qWmyOYdQn7Pnor0rCd5Imtkk/vTOIbKPWs
-         JHMNhhX2xu3YUI/xCSKUZOugR7NK+8Y3rDe8VqY1fEguV1BeQeTtp0ewu1wqFxAy1X
-         QaF2HmYmGvkmOiefDcz6Qu3GKuVphGj7MympNwPM=
+        b=yb+Ty/wdbYIb9QB86Z6Y9ah5gzdw+zgZxCKNXD/wMcRUx/xs0fV/E4rsFu/wQkYeB
+         f8f7vm+sshf7PJ4QdVXJMaD2xLs9kjB1xxMRbig9FrE8DWcaqTjo72TVjYdBpzpKFF
+         QXO+03LZyF0FreGCPV19+tOXc+ow6FwRl4J5KUe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
+        stable@vger.kernel.org,
+        Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/663] arm64: dts: meson: fix broken wifi node for Khadas VIM3L
-Date:   Mon,  1 Mar 2021 17:05:25 +0100
-Message-Id: <20210301161145.545939473@linuxfoundation.org>
+Subject: [PATCH 5.11 159/775] Bluetooth: hci_qca: Fixed issue during suspend
+Date:   Mon,  1 Mar 2021 17:05:27 +0100
+Message-Id: <20210301161209.498703774@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artem Lapkin <email2tema@gmail.com>
+From: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
 
-[ Upstream commit 39be8f441f78908e97ff913571e10ec03387a63a ]
+[ Upstream commit 55c0bd77479b60ea29fd390faf4545cfb3a1d79e ]
 
-move &sd_emmc_a ... from /* */ commented area, because cant load wifi fw
-without sd-uhs-sdr50 option on VIM3L
+If BT SoC is running with ROM FW then just return in
+qca_suspend function as ROM FW does not support
+in-band sleep.
 
-[   11.686590] brcmfmac: brcmf_chip_cores_check: CPU core not detected
-[   11.696382] brcmfmac: brcmf_sdio_probe_attach: brcmf_chip_attach failed!
-[   11.706240] brcmfmac: brcmf_sdio_probe: brcmf_sdio_probe_attach failed
-[   11.715890] brcmfmac: brcmf_ops_sdio_probe: F2 error, probe failed -19...
-[   13.718424] brcmfmac: brcmf_chip_recognition: chip backplane type 15 is not supported
-
-Signed-off-by: Artem Lapkin <art@khadas.com>
-Fixes: f1bb924e8f5b ("arm64: dts: meson: fix mmc0 tuning error on Khadas VIM3")
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
-Link: https://lore.kernel.org/r/20210129085041.1408540-1-art@khadas.com
+Fixes: 2be43abac5a8 ("Bluetooth: hci_qca: Wait for timeout during suspend")
+Signed-off-by: Venkata Lakshmi Narayana Gubba <gubbaven@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/bluetooth/hci_qca.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-index 4b517ca720597..06de0b1ce7267 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1-khadas-vim3l.dts
-@@ -89,13 +89,12 @@
- 	status = "okay";
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index ff2fb68a45b1e..de36af63e1825 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -77,7 +77,8 @@ enum qca_flags {
+ 	QCA_MEMDUMP_COLLECTION,
+ 	QCA_HW_ERROR_EVENT,
+ 	QCA_SSR_TRIGGERED,
+-	QCA_BT_OFF
++	QCA_BT_OFF,
++	QCA_ROM_FW
  };
  
--&sd_emmc_a {
--	sd-uhs-sdr50;
--};
--
- &usb {
- 	phys = <&usb2_phy0>, <&usb2_phy1>;
- 	phy-names = "usb2-phy0", "usb2-phy1";
- };
-  */
+ enum qca_capabilities {
+@@ -1664,6 +1665,7 @@ static int qca_setup(struct hci_uart *hu)
+ 	if (ret)
+ 		return ret;
  
-+&sd_emmc_a {
-+	sd-uhs-sdr50;
-+};
++	clear_bit(QCA_ROM_FW, &qca->flags);
+ 	/* Patch downloading has to be done without IBS mode */
+ 	set_bit(QCA_IBS_DISABLED, &qca->flags);
+ 
+@@ -1721,12 +1723,14 @@ retry:
+ 		hu->hdev->cmd_timeout = qca_cmd_timeout;
+ 	} else if (ret == -ENOENT) {
+ 		/* No patch/nvm-config found, run with original fw/config */
++		set_bit(QCA_ROM_FW, &qca->flags);
+ 		ret = 0;
+ 	} else if (ret == -EAGAIN) {
+ 		/*
+ 		 * Userspace firmware loader will return -EAGAIN in case no
+ 		 * patch/nvm-config is found, so run with original fw/config.
+ 		 */
++		set_bit(QCA_ROM_FW, &qca->flags);
+ 		ret = 0;
+ 	}
+ 
+@@ -2103,6 +2107,12 @@ static int __maybe_unused qca_suspend(struct device *dev)
+ 
+ 	set_bit(QCA_SUSPENDING, &qca->flags);
+ 
++	/* if BT SoC is running with default firmware then it does not
++	 * support in-band sleep
++	 */
++	if (test_bit(QCA_ROM_FW, &qca->flags))
++		return 0;
++
+ 	/* During SSR after memory dump collection, controller will be
+ 	 * powered off and then powered on.If controller is powered off
+ 	 * during SSR then we should wait until SSR is completed.
 -- 
 2.27.0
 
