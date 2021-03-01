@@ -2,88 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F81328299
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 16:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E733282A2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 16:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237291AbhCAPfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 10:35:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53430 "EHLO
+        id S237317AbhCAPhI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 10:37:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237281AbhCAPfD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 10:35:03 -0500
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D70C06178C
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 07:34:21 -0800 (PST)
-Received: by mail-qk1-x730.google.com with SMTP id z190so16871479qka.9
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 07:34:21 -0800 (PST)
+        with ESMTP id S237324AbhCAPg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 10:36:57 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 838E0C061788
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 07:36:15 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id i14so9879892pjz.4
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 07:36:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=8o5wiaij5UYSXhiWC+bZXUTl/d5DaYIBBJW4hei8xPE=;
-        b=bVPo7AsBkD8R8JFcQf2asAV0d3tEbYslpk2Yv0YTGryVMqGr2P4So9l4teAnJFOKJ6
-         BlJDhvCnEl1yP771vvgsFpYf7vvL+VumPV36cJbu/7GVpkeXNcKA0WUMXxb+jhiUBb4o
-         KRQosN1OBQYrI+Jz4s2oW2UYqdAkal06R5Ys6XwZTSCFA9F7vdBRT0qkoqruVI8aEvMm
-         oIlmeA74uhxT0FEmRu19flm3kWhe7UjiRkCHiRnW37RxKBmcoXUit723M7EQjqbTd9BU
-         C3gLq4nzI3Eta1hUvlnpF7wUImXHgacyGFyMejJxYI6zIRuZfPUGBzFiF1Afg/g9gc/e
-         bCqQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=e1rFb5goE9CuzT6Bx6yxAfrd4k0Lxo8EG0EuJVRaQx0=;
+        b=RRlEQXyi43fN5m2W2Uty6kpeL37RDSgr2kS+AkK9ARL3eN29/bj8wh/eaHo/oBEr2L
+         r4iW7E2giGmhi2fMLpaGjSTZTNOb4zyHrk6herCoWZWQVXTqtmflloaR1At21J/5Tg9R
+         fQgq0ng0PM6NMf3Hqquiqm1H6yC2xiZvp2KWp2oy9rME/o85Lv5B9XcTcqU55yr3OFeA
+         jdTqI+qM8NWouUIkKgyz12I5iPTfhSby64z2E2SLkcnAxPB8Ih5fxIrYFj/qzjqGv1FS
+         phkvyxInOljGe3V11QTsMCAanrPonHRKUauXOaL7Yb3Hxkxpxv+zzTACwKTAGAyTFzGU
+         hQMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=8o5wiaij5UYSXhiWC+bZXUTl/d5DaYIBBJW4hei8xPE=;
-        b=bvhrYGFTEADP9S4pDGMwXj+hUO1ffI0oTm900Hn/70Sh+cJmuwvMJwq7GiB61MbNl/
-         eipFwTadqAEQgKZ5URM7InrWYV88iPwnkj9JkazOPLCWIWpoUxelGzYaewcLjVNp9TsX
-         VAINfZYB9c1bcMicz2BZ9Mwjoo2B+69Zi5Q2bczOxxZBuGgp3cCSkgA381DMsK9ABzUg
-         DY+tqCZQj4eMDxmhbtJhx6SGmQTtbNu7MwvApZX1gc9y1t7s4NwKDvaEETtgkYTTrqr8
-         hZtDjiGD9uMnk9kPwungJ1IndnzfGA+uSVMj/BnIMtV/11gdpqMQfNrjLsBgAC9uke3x
-         k3VA==
-X-Gm-Message-State: AOAM531NmYBKvuQv5bCnjL05rMmuWCAHcURILG2cc90W6MnIt7ZLEk++
-        PtLR32CkglcNVTT4FPNuaYKUckKPql+ZSgvTLWnC6w==
-X-Google-Smtp-Source: ABdhPJxo/QBWJu3JxBMIxRYvNVb7rwJ/f/Rz49LoILx00gkog4kprX4rsfblT5OYcgYiAqe4m6P1J3ezhcTLqoLF2t4=
-X-Received: by 2002:a37:8cd:: with SMTP id 196mr14474597qki.434.1614612861002;
- Mon, 01 Mar 2021 07:34:21 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=e1rFb5goE9CuzT6Bx6yxAfrd4k0Lxo8EG0EuJVRaQx0=;
+        b=PwM5yVTbu6JYOZWMC15KQgtN38koIwMaKilYnJaKVMk+Le3dZtq0iMIAxQ6JD+5rp7
+         pPLr7jKd0OYxi6CBCyTyK+wjflK3jt9p2HTnKeLHPOFhKUhsXhRZWNwIBPkZNgJY3X10
+         mvHpiqSUygX59aWaJirYtzEoAnIY51IgMmBFABtPDYvwQ21RVKmE/EsmndWOUjk5Bel8
+         FMxGKdDcTwRkPhk9Md1C+jIUE/DpZjiHu/uDZKrlC2KGmUpSgIun6leN5GXnMqtEaWcb
+         bRWqz4OU/fu4qDXe1BGCj5CYymky5eLHJbQeWqbNTxq9kp8h9O8ekrjsHvq+ZDqJn25J
+         11VA==
+X-Gm-Message-State: AOAM533fDVzBipW27C859DXF3MM/VG9vQBQUgIg/zA6MjGB2SjN7P8Nj
+        a8RgwWGAeNJHKZEcEkEsX58g7wOAGhR+nA==
+X-Google-Smtp-Source: ABdhPJzuS6bYmTnGSYVSohtdSaPOPrGD8F2L5fv7rS7EYafoeTArM7UFEvu25kBMt2Kns36QyJEm5A==
+X-Received: by 2002:a17:90a:3489:: with SMTP id p9mr6513989pjb.68.1614612974875;
+        Mon, 01 Mar 2021 07:36:14 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 4sm19347838pjc.23.2021.03.01.07.36.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Mar 2021 07:36:14 -0800 (PST)
+Message-ID: <603d09ee.1c69fb81.4143d.c8e0@mx.google.com>
+Date:   Mon, 01 Mar 2021 07:36:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210212192658.3476137-1-dmitry.baryshkov@linaro.org> <YCeM+0JUEPQQkGsF@kroah.com>
-In-Reply-To: <YCeM+0JUEPQQkGsF@kroah.com>
-From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Date:   Mon, 1 Mar 2021 18:34:10 +0300
-Message-ID: <CAA8EJpo-U74KAyoHY=9wutk=iCOBMv6T1Ez-MEogYdPE6X1yCQ@mail.gmail.com>
-Subject: Re: [PATCH v2] misc: fastrpc: restrict user apps from sending kernel
- RPC messages
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        open list <linux-kernel@vger.kernel.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Jonathan Marek <jonathan@marek.ca>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.258-107-g203569ee3896
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 48 runs,
+ 1 regressions (v4.9.258-107-g203569ee3896)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 13 Feb 2021 at 11:25, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Feb 12, 2021 at 10:26:58PM +0300, Dmitry Baryshkov wrote:
-> > Verify that user applications are not using the kernel RPC message
-> > handle to restrict them from directly attaching to guest OS on the
-> > remote subsystem. This is a port of CVE-2019-2308 fix.
->
-> A port of the fix of what to what?
+stable-rc/queue/4.9 baseline: 48 runs, 1 regressions (v4.9.258-107-g203569e=
+e3896)
 
-I'm sorry for the confusion. It is a port of the original
-Qualcomm/CodeAurora fix to the upstream driver.
+Regressions Summary
+-------------------
 
-See https://source.codeaurora.org/quic/la/kernel/msm-4.9/commit/?id=cc2e11eeb988964af72309f71b0fb21c11ed6ca9,
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
 
-> Is this to go only into a stable tree (if so what ones and what is the
-> id in Linus's tree), or is it to go into Linus's tree like normal (if so
-> how can this be a port)?
 
-It's a port from QCI kernel, not a backport.
-So I'd prefer for it to go into Linus's tree (and then be backported
-to relevant -stable trees).
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.258-107-g203569ee3896/plan/baseline/
 
--- 
-With best wishes
-Dmitry
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.258-107-g203569ee3896
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      203569ee38962f14e2ad98c986950a1309b0405a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/603cd8eae466fcbdeeaddcc1
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.258-1=
+07-g203569ee3896/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.258-1=
+07-g203569ee3896/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/603cd8eae466fcb=
+deeaddcc6
+        failing since 0 day (last pass: v4.9.258-12-g80c6cbdf1f84, first fa=
+il: v4.9.258-88-g9173936eb9805)
+        2 lines
+
+    2021-03-01 12:07:02.580000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
