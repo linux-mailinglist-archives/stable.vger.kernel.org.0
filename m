@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D2B3286A9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:16:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 523943286AA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237735AbhCARNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237739AbhCARNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Mar 2021 12:13:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237375AbhCARIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237382AbhCARIP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:08:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A9ED64F7D;
-        Mon,  1 Mar 2021 16:40:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A35D64F7E;
+        Mon,  1 Mar 2021 16:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616849;
-        bh=SF3eeJA/4Z39bhrQBtZx/lKcl/gyGlloKOE/fgc8vsI=;
+        s=korg; t=1614616852;
+        bh=6QsqnqnjmOxLUlPsvlC6bQ7rf8487dlOe1i/yMnOgRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0CxAb7mWI1YjvTVUx2lOzxYPHq4WsYCrjHQahDbBOWzhMZDVZedQ/YstdOvQdWOW
-         lwozlIlXyKfMzfdOibV7ttbjrop/41cYaIDCw/MjGLgX7i4onTMdd2eCyG1wzSH6tD
-         mGFSqRZiLzlaquaZZdiVkwR1U9mxnYbo3ge7g8eU=
+        b=idQo+PaWmMaC0iXl1UwMNfTNDOr7xdgp4/qeZXXTis8een5GS3tEWiSt4QWroxNog
+         S2LgN6NeH4RZQDvZ3P1udvVIq35JKbBfzCI2kDsEzzmI0sPMK5MItYQe2QWzzGZrcA
+         c2IQehi1O4+0wspRvAL0zm5GrjrkQdZcAxL0PsJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ferry Toth <ftoth@exalondelft.nl>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 116/247] dmaengine: hsu: disable spurious interrupt
-Date:   Mon,  1 Mar 2021 17:12:16 +0100
-Message-Id: <20210301161037.355833607@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 117/247] mfd: bd9571mwv: Use devm_mfd_add_devices()
+Date:   Mon,  1 Mar 2021 17:12:17 +0100
+Message-Id: <20210301161037.402264099@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,74 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 035b73b2b3b2e074a56489a7bf84b6a8012c0e0d ]
+[ Upstream commit c58ad0f2b052b5675d6394e03713ee41e721b44c ]
 
-On Intel Tangier B0 and Anniedale the interrupt line, disregarding
-to have different numbers, is shared between HSU DMA and UART IPs.
-Thus on such SoCs we are expecting that IRQ handler is called in
-UART driver only. hsu_pci_irq was handling the spurious interrupt
-from HSU DMA by returning immediately. This wastes CPU time and
-since HSU DMA and HSU UART interrupt occur simultaneously they race
-to be handled causing delay to the HSU UART interrupt handling.
-Fix this by disabling the interrupt entirely.
+To remove mfd devices when unload this driver, should use
+devm_mfd_add_devices() instead.
 
-Fixes: 4831e0d9054c ("serial: 8250_mid: handle interrupt correctly in DMA case")
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210112223749.97036-1-ftoth@exalondelft.nl
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: d3ea21272094 ("mfd: Add ROHM BD9571MWV-M MFD PMIC driver")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/hsu/pci.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/mfd/bd9571mwv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/hsu/pci.c b/drivers/dma/hsu/pci.c
-index ad45cd344bbae..78836526d2e07 100644
---- a/drivers/dma/hsu/pci.c
-+++ b/drivers/dma/hsu/pci.c
-@@ -29,22 +29,12 @@
- static irqreturn_t hsu_pci_irq(int irq, void *dev)
- {
- 	struct hsu_dma_chip *chip = dev;
--	struct pci_dev *pdev = to_pci_dev(chip->dev);
- 	u32 dmaisr;
- 	u32 status;
- 	unsigned short i;
- 	int ret = 0;
- 	int err;
+diff --git a/drivers/mfd/bd9571mwv.c b/drivers/mfd/bd9571mwv.c
+index fab3cdc27ed64..19d57a45134c6 100644
+--- a/drivers/mfd/bd9571mwv.c
++++ b/drivers/mfd/bd9571mwv.c
+@@ -185,9 +185,9 @@ static int bd9571mwv_probe(struct i2c_client *client,
+ 		return ret;
+ 	}
  
--	/*
--	 * On Intel Tangier B0 and Anniedale the interrupt line, disregarding
--	 * to have different numbers, is shared between HSU DMA and UART IPs.
--	 * Thus on such SoCs we are expecting that IRQ handler is called in
--	 * UART driver only.
--	 */
--	if (pdev->device == PCI_DEVICE_ID_INTEL_MRFLD_HSU_DMA)
--		return IRQ_HANDLED;
--
- 	dmaisr = readl(chip->regs + HSU_PCI_DMAISR);
- 	for (i = 0; i < chip->hsu->nr_channels; i++) {
- 		if (dmaisr & 0x1) {
-@@ -108,6 +98,17 @@ static int hsu_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	if (ret)
- 		goto err_register_irq;
- 
-+	/*
-+	 * On Intel Tangier B0 and Anniedale the interrupt line, disregarding
-+	 * to have different numbers, is shared between HSU DMA and UART IPs.
-+	 * Thus on such SoCs we are expecting that IRQ handler is called in
-+	 * UART driver only. Instead of handling the spurious interrupt
-+	 * from HSU DMA here and waste CPU time and delay HSU UART interrupt
-+	 * handling, disable the interrupt entirely.
-+	 */
-+	if (pdev->device == PCI_DEVICE_ID_INTEL_MRFLD_HSU_DMA)
-+		disable_irq_nosync(chip->irq);
-+
- 	pci_set_drvdata(pdev, chip);
- 
- 	return 0;
+-	ret = mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO, bd9571mwv_cells,
+-			      ARRAY_SIZE(bd9571mwv_cells), NULL, 0,
+-			      regmap_irq_get_domain(bd->irq_data));
++	ret = devm_mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO,
++				   bd9571mwv_cells, ARRAY_SIZE(bd9571mwv_cells),
++				   NULL, 0, regmap_irq_get_domain(bd->irq_data));
+ 	if (ret) {
+ 		regmap_del_irq_chip(bd->irq, bd->irq_data);
+ 		return ret;
 -- 
 2.27.0
 
