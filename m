@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E952A328920
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8891328927
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231660AbhCARvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:51:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33918 "EHLO mail.kernel.org"
+        id S238952AbhCARvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:51:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231443AbhCARoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:44:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE08650D5;
-        Mon,  1 Mar 2021 16:58:26 +0000 (UTC)
+        id S231561AbhCARog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:44:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B6A964FD5;
+        Mon,  1 Mar 2021 16:58:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617907;
-        bh=SAfqGVoDVV7vGzd+ShP/ahMF4bUwHmopoaMbIMk9GZ4=;
+        s=korg; t=1614617910;
+        bh=+It9E0EKCRcROzafuCMxxPUMMTJMpI3sfqGoanMhYbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtxgmCwJuhBC3FqGR9QucI1KVZtvDfb/5nfPUXfR+Jn8wDP+8DcBejsylmiaGibGF
-         bLE7STwA8/tRU/J+BnQy2qkqcqeRfqB0YE6MROqZNdXbQ2VR0+D8EqPAATkG3Z4ODp
-         s/QjyDkDzNgNniunv7hlsyL5KFEjUOu44iSseGsQ=
+        b=zXtd0awHTn94/7HwScHmGaKaNLlrQ1E1NaAlvvIavAOsDVoZ/BNdjSw9wZNWYJTaW
+         ZMfeJu1i9pVJr02eukU811u+subUzi59+JIzfIO1VEeJE4N8ZW9emTMqdLm/vtxbae
+         iJbEjOo0S0KhJVjOMunH6lUM1MEpn01n4eqRCIWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.4 239/340] HID: wacom: Ignore attempts to overwrite the touch_max value from HID
-Date:   Mon,  1 Mar 2021 17:13:03 +0100
-Message-Id: <20210301161100.055680765@linuxfoundation.org>
+        stable@vger.kernel.org, "jeffrey.lin" <jeffrey.lin@rad-ic.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 240/340] Input: raydium_ts_i2c - do not send zero length
+Date:   Mon,  1 Mar 2021 17:13:04 +0100
+Message-Id: <20210301161100.105090610@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -39,67 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: jeffrey.lin <jeffrey.lin@rad-ic.com>
 
-commit 88f38846bfb1a452a3d47e38aeab20a4ceb74294 upstream.
+commit fafd320ae51b9c72d371585b2501f86640ea7b7d upstream.
 
-The `wacom_feature_mapping` function is careful to only set the the
-touch_max value a single time, but this care does not extend to the
-`wacom_wac_finger_event` function. In particular, if a device sends
-multiple HID_DG_CONTACTMAX items in a single feature report, the
-driver will end up retaining the value of last item.
+Add default write command package to prevent i2c quirk error of zero
+data length as Raydium touch firmware update is executed.
 
-The HID descriptor for the Cintiq Companion 2 does exactly this. It
-incorrectly sets a "Report Count" of 2, which will cause the driver
-to process two HID_DG_CONTACTCOUNT items. The first item has the actual
-count, while the second item should have been declared as a constant
-zero. The constant zero is the value the driver ends up using, however,
-since it is the last HID_DG_CONTACTCOUNT in the report.
-
-    Report ID (16),
-    Usage (Contact Count Maximum),  ; Contact count maximum (55h, static value)
-    Report Count (2),
-    Logical Maximum (10),
-    Feature (Variable),
-
-To address this, we add a check that the touch_max is not already set
-within the `wacom_wac_finger_event` function that processes the
-HID_DG_TOUCHMAX item. We emit a warning if the value is set and ignore
-the updated value.
-
-This could potentially cause problems if there is a tablet which has
-a similar issue but requires the last item to be used. This is unlikely,
-however, since it would have to have a different non-zero value for
-HID_DG_CONTACTMAX earlier in the same report, which makes no sense
-except in the case of a firmware bug. Note that cases where the
-HID_DG_CONTACTMAX items are in different reports is already handled
-(and similarly ignored) by `wacom_feature_mapping` as mentioned above.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/223
-Fixes: 184eccd40389 ("HID: wacom: generic: read HID_DG_CONTACTMAX from any feature report")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-CC: stable@vger.kernel.org
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: jeffrey.lin <jeffrey.lin@rad-ic.com>
+Link: https://lore.kernel.org/r/1608031217-7247-1-git-send-email-jeffrey.lin@raydium.corp-partner.google.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_wac.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/raydium_i2c_ts.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2600,7 +2600,12 @@ static void wacom_wac_finger_event(struc
- 		wacom_wac->is_invalid_bt_frame = !value;
- 		return;
- 	case HID_DG_CONTACTMAX:
--		features->touch_max = value;
-+		if (!features->touch_max) {
-+			features->touch_max = value;
-+		} else {
-+			hid_warn(hdev, "%s: ignoring attempt to overwrite non-zero touch_max "
-+				 "%d -> %d\n", __func__, features->touch_max, value);
-+		}
- 		return;
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -410,6 +410,7 @@ static int raydium_i2c_write_object(stru
+ 				    enum raydium_bl_ack state)
+ {
+ 	int error;
++	static const u8 cmd[] = { 0xFF, 0x39 };
+ 
+ 	error = raydium_i2c_send(client, RM_CMD_BOOT_WRT, data, len);
+ 	if (error) {
+@@ -418,7 +419,7 @@ static int raydium_i2c_write_object(stru
+ 		return error;
  	}
  
+-	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, NULL, 0);
++	error = raydium_i2c_send(client, RM_CMD_BOOT_ACK, cmd, sizeof(cmd));
+ 	if (error) {
+ 		dev_err(&client->dev, "Ack obj command failed: %d\n", error);
+ 		return error;
 
 
