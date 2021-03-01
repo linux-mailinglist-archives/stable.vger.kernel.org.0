@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CBE328834
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:38:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41323328851
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234787AbhCARf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:35:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S238796AbhCARit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237689AbhCAR1f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:27:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99B5065092;
-        Mon,  1 Mar 2021 16:51:22 +0000 (UTC)
+        id S237463AbhCAR3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:29:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABD5C6508F;
+        Mon,  1 Mar 2021 16:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617483;
-        bh=CIj8qgjMlzyjlaGymcb0pffzDxHnh5wMfbtKCR5tg+I=;
+        s=korg; t=1614617486;
+        bh=Ul8Be2rg6ebIpXmgEbayiVOTFpc0ZHSVmxl3kPdvAak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgegqYyVW8BjhWQ+p96hbGHyz5o5kM5ERhQaTMqAkPWdSd3wsJ5in7pW6vO40f0KP
-         0+2fMhVRSyjIUH5UrUXxEY6nWakCMr6vbRSd+7qRabLfEAQZtlNnN/u3lW+/8J2bBZ
-         l47l/FHt28uY+snAq/p2/DAWY1KFolyMIJxdcvWs=
+        b=be0WG2jRvKt6PlYJWpz8c4cBidm4HPoPddiHV46yuFI9+Kt2+klREupUOx8Fyczrl
+         deIk7xGRtN66F8eD+aYl2Pa0JtwTIjJogwLfVNhlwdWKzEIfBTt2e5vKAPpn/4/wfY
+         OJirP/UunO1OWc1I5fmvGP5U/ssOLplYHwj0nK50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 089/340] ASoC: cs42l56: fix up error handling in probe
-Date:   Mon,  1 Mar 2021 17:10:33 +0100
-Message-Id: <20210301161052.704802230@linuxfoundation.org>
+Subject: [PATCH 5.4 090/340] evm: Fix memleak in init_desc
+Date:   Mon,  1 Mar 2021 17:10:34 +0100
+Message-Id: <20210301161052.755490611@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,44 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 856fe64da84c95a1d415564b981ae3908eea2a76 ]
+[ Upstream commit ccf11dbaa07b328fa469415c362d33459c140a37 ]
 
-There are two issues with this code.  The first error path forgot to set
-the error code and instead returns success.  The second error path
-doesn't clean up.
+tmp_tfm is allocated, but not freed on subsequent kmalloc failure, which
+leads to a memory leak.  Free tmp_tfm.
 
-Fixes: 272b5edd3b8f ("ASoC: Add support for CS42L56 CODEC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/X9NE/9nK9/TuxuL+@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: d46eb3699502b ("evm: crypto hash replaced by shash")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+[zohar@linux.ibm.com: formatted/reworded patch description]
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs42l56.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/integrity/evm/evm_crypto.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/cs42l56.c b/sound/soc/codecs/cs42l56.c
-index ac569ab3d30f4..51d7a87ab4c3b 100644
---- a/sound/soc/codecs/cs42l56.c
-+++ b/sound/soc/codecs/cs42l56.c
-@@ -1248,6 +1248,7 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
- 		dev_err(&i2c_client->dev,
- 			"CS42L56 Device ID (%X). Expected %X\n",
- 			devid, CS42L56_DEVID);
-+		ret = -EINVAL;
- 		goto err_enable;
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index ee6bd945f3d6a..25dac691491b1 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -75,7 +75,7 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ {
+ 	long rc;
+ 	const char *algo;
+-	struct crypto_shash **tfm, *tmp_tfm;
++	struct crypto_shash **tfm, *tmp_tfm = NULL;
+ 	struct shash_desc *desc;
+ 
+ 	if (type == EVM_XATTR_HMAC) {
+@@ -120,13 +120,16 @@ unlock:
+ alloc:
+ 	desc = kmalloc(sizeof(*desc) + crypto_shash_descsize(*tfm),
+ 			GFP_KERNEL);
+-	if (!desc)
++	if (!desc) {
++		crypto_free_shash(tmp_tfm);
+ 		return ERR_PTR(-ENOMEM);
++	}
+ 
+ 	desc->tfm = *tfm;
+ 
+ 	rc = crypto_shash_init(desc);
+ 	if (rc) {
++		crypto_free_shash(tmp_tfm);
+ 		kfree(desc);
+ 		return ERR_PTR(rc);
  	}
- 	alpha_rev = reg & CS42L56_AREV_MASK;
-@@ -1305,7 +1306,7 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
- 	ret =  devm_snd_soc_register_component(&i2c_client->dev,
- 			&soc_component_dev_cs42l56, &cs42l56_dai, 1);
- 	if (ret < 0)
--		return ret;
-+		goto err_enable;
- 
- 	return 0;
- 
 -- 
 2.27.0
 
