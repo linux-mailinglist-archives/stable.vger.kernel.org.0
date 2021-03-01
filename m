@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57B7B328469
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D7D328563
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234491AbhCAQfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:35:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36290 "EHLO mail.kernel.org"
+        id S236042AbhCAQxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231570AbhCAQ3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F23A64DE7;
-        Mon,  1 Mar 2021 16:24:01 +0000 (UTC)
+        id S235261AbhCAQrX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:47:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF6CF64E68;
+        Mon,  1 Mar 2021 16:31:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615842;
-        bh=34MhfOjOsAhvlIzJLNlMAS3wekqSunu/DQFMPScfV5o=;
+        s=korg; t=1614616312;
+        bh=iRkAtZne3DbaehCo6gRHRnt87bPtYKLGOYt5u8xOlxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ne6E+I+oWnYSa4A0Ig2Myzg2wFd6QJ0sNnLChdBKCEb24ujFlRCZiFfpCXLCHC5GD
-         oX2kqYWLhLc2bOeK+dZhmIuYa6eN5PbkH4AFpWZlfigjfM61tAYv7fCYi3Ri08L++M
-         uUxBxeNtMeYNCM0XDXQ+w+zH/qEgrl1RmZmbuTwU=
+        b=UcI/MfrQMpnEONPT/wGL9mpgrz+M+TY/Vzp5i4M9Tf0v8Xmx7Dm+LKCN3jkGkzg5O
+         s0+RaTqT24h3pjTDohcPk1KQ8i7jFN4CfCBgCavA1h1aTXXytAp1KA/Dp+itCXX/EV
+         aFS6EuLQvze4JP0FD/5FacGXma0tHjTusdWH2Yxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slawomir Laba <slawomirx.laba@intel.com>,
-        Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 080/134] i40e: Fix flow for IPv6 next header (extension header)
+Subject: [PATCH 4.14 108/176] drm/msm/dsi: Correct io_start for MSM8994 (20nm PHY)
 Date:   Mon,  1 Mar 2021 17:13:01 +0100
-Message-Id: <20210301161017.508715552@linuxfoundation.org>
+Message-Id: <20210301161026.344911233@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slawomir Laba <slawomirx.laba@intel.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 92c6058024e87087cf1b99b0389d67c0a886360e ]
+[ Upstream commit 33a7808ce1aea6e2edc1af25db25928137940c02 ]
 
-When a packet contains an IPv6 header with next header which is
-an extension header and not a protocol one, the kernel function
-skb_transport_header called with such sk_buff will return a
-pointer to the extension header and not to the TCP one.
+The previous registers were *almost* correct, but instead of
+PHYs, they were pointing at DSI PLLs, resulting in the PHY id
+autodetection failing miserably.
 
-The above explained call caused a problem with packet processing
-for skb with encapsulation for tunnel with I40E_TX_CTX_EXT_IP_IPV6.
-The extension header was not skipped at all.
-
-The ipv6_skip_exthdr function does check if next header of the IPV6
-header is an extension header and doesn't modify the l4_proto pointer
-if it points to a protocol header value so its safe to omit the
-comparison of exthdr and l4.hdr pointers. The ipv6_skip_exthdr can
-return value -1. This means that the skipping process failed
-and there is something wrong with the packet so it will be dropped.
-
-Fixes: a3fd9d8876a5 ("i40e/i40evf: Handle IPv6 extension headers in checksum offload")
-Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
-Signed-off-by: Przemyslaw Patynowski <przemyslawx.patynowski@intel.com>
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: dcefc117cc19 ("drm/msm/dsi: Add support for msm8x94")
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_txrx.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-index 2e12ccf73dba0..877b49cc9d3c3 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-@@ -2452,13 +2452,16 @@ static int i40e_tx_enable_csum(struct sk_buff *skb, u32 *tx_flags,
+diff --git a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c
+index 1ca6c69516f57..4c037d855b272 100644
+--- a/drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c
++++ b/drivers/gpu/drm/msm/dsi/phy/dsi_phy_20nm.c
+@@ -147,7 +147,7 @@ const struct msm_dsi_phy_cfg dsi_phy_20nm_cfgs = {
+ 		.disable = dsi_20nm_phy_disable,
+ 		.init = msm_dsi_phy_init_common,
+ 	},
+-	.io_start = { 0xfd998300, 0xfd9a0300 },
++	.io_start = { 0xfd998500, 0xfd9a0500 },
+ 	.num_dsi_phy = 2,
+ };
  
- 			l4_proto = ip.v4->protocol;
- 		} else if (*tx_flags & I40E_TX_FLAGS_IPV6) {
-+			int ret;
-+
- 			tunnel |= I40E_TX_CTX_EXT_IP_IPV6;
- 
- 			exthdr = ip.hdr + sizeof(*ip.v6);
- 			l4_proto = ip.v6->nexthdr;
--			if (l4.hdr != exthdr)
--				ipv6_skip_exthdr(skb, exthdr - skb->data,
--						 &l4_proto, &frag_off);
-+			ret = ipv6_skip_exthdr(skb, exthdr - skb->data,
-+					       &l4_proto, &frag_off);
-+			if (ret < 0)
-+				return -1;
- 		}
- 
- 		/* define outer transport */
 -- 
 2.27.0
 
