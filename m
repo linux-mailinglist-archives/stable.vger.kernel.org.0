@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6813284EC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:49:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46DEA3284F0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:49:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233282AbhCAQpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:45:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41580 "EHLO mail.kernel.org"
+        id S234696AbhCAQpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:45:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234861AbhCAQih (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234868AbhCAQih (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:38:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B3D464F7B;
-        Mon,  1 Mar 2021 16:27:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6AE764F79;
+        Mon,  1 Mar 2021 16:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616054;
-        bh=0O2i0iS5MXZeNwF+C9VmrK5U3MbLikGOgeAx/O1O7e8=;
+        s=korg; t=1614616060;
+        bh=d3YUXZztKby0D0Q3ZtM+QVD+Ro0KFageUqKkSOCjukY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFkgW9uAe4rY30gW6MkkOAeokdsXl+oUq5BTTY0Efm73qdtdSxc3otpvay9DLMaDR
-         8RnK3DDoPf4LNWf2mqicoLd8rJyqnDgu440bxB8FMiBYOr209nwrQT+bt56W0otb5m
-         lF8/Oh07mw11pTWQc2Sidzn8dutAGXWwWoGAKHv4=
+        b=YYvkq55CT4zFZFxnpaomre+BepKpxEJCpLofrWZBpn+26TjHiVzZM0x88mXZOUoJd
+         dTYjZpaVAocPRdcNNcfAJ72xMImnHcHuvq5WPQVIARQOlM7x3injQ9pt6XUxY/tJrW
+         +paBBSsYYikx73f6UEemhd8NW6E6EFAu+M0SPGUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 019/176] arm64: dts: exynos: correct PMIC interrupt trigger level on Espresso
-Date:   Mon,  1 Mar 2021 17:11:32 +0100
-Message-Id: <20210301161021.931031111@linuxfoundation.org>
+Subject: [PATCH 4.14 020/176] cpufreq: brcmstb-avs-cpufreq: Fix resource leaks in ->remove()
+Date:   Mon,  1 Mar 2021 17:11:33 +0100
+Message-Id: <20210301161021.973430389@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -39,36 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1fea2eb2f5bbd3fbbe2513d2386b5f6e6db17fd7 ]
+[ Upstream commit 3657f729b6fb5f2c0bf693742de2dcd49c572aa1 ]
 
-The Samsung PMIC datasheets describe the interrupt line as active low
-with a requirement of acknowledge from the CPU.  Without specifying the
-interrupt type in Devicetree, kernel might apply some fixed
-configuration, not necessarily working for this hardware.
+If 'cpufreq_unregister_driver()' fails, just WARN and continue, so that
+other resources are freed.
 
-Fixes: 9589f7721e16 ("arm64: dts: Add S2MPS15 PMIC node on exynos7-espresso")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201210212903.216728-8-krzk@kernel.org
+Fixes: de322e085995 ("cpufreq: brcmstb-avs-cpufreq: AVS CPUfreq driver for Broadcom STB SoCs")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+[ Viresh: Updated Subject ]
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/exynos/exynos7-espresso.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/brcmstb-avs-cpufreq.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-index c8824b918693d..a85ad9f55cda0 100644
---- a/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos7-espresso.dts
-@@ -88,7 +88,7 @@
- 	s2mps15_pmic@66 {
- 		compatible = "samsung,s2mps15-pmic";
- 		reg = <0x66>;
--		interrupts = <2 IRQ_TYPE_NONE>;
-+		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
- 		interrupt-parent = <&gpa0>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pmic_irq>;
+diff --git a/drivers/cpufreq/brcmstb-avs-cpufreq.c b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+index 39c462711eae0..815dd7c33e469 100644
+--- a/drivers/cpufreq/brcmstb-avs-cpufreq.c
++++ b/drivers/cpufreq/brcmstb-avs-cpufreq.c
+@@ -1033,8 +1033,7 @@ static int brcm_avs_cpufreq_remove(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	ret = cpufreq_unregister_driver(&brcm_avs_driver);
+-	if (ret)
+-		return ret;
++	WARN_ON(ret);
+ 
+ 	brcm_avs_cpufreq_debug_exit(pdev);
+ 
 -- 
 2.27.0
 
