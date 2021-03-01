@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20AF328630
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:07:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9D0632863A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236997AbhCARFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:05:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59144 "EHLO mail.kernel.org"
+        id S237084AbhCARG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:06:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236108AbhCAQ7H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:59:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8984464F6D;
-        Mon,  1 Mar 2021 16:37:23 +0000 (UTC)
+        id S236305AbhCAQ7I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:59:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BC3164FE6;
+        Mon,  1 Mar 2021 16:37:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616644;
-        bh=Jr7Bt1lZrWD1JwraGMPIFqP0U3pkzDgg51wvpVbDEi0=;
+        s=korg; t=1614616646;
+        bh=U4gpjEH5KvuTWwx96C83h7DEpIQspjs7Ny4E5BcyH7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ySw0O01sqJwhL1I7pCbQpjPyE76NSJokVcpWGqjJcNVm7efInYRcm8wkTCk1L8eDe
-         CYbD87i5q0JERSX257aUYbZHJwLPnxWRf0X7Bo+wOrCQAdpg200lu5m2aZkjXQ3xKV
-         CbD6uHz3QUzhQsUAFv0ULPGHwgZAmoZ2BWKjS9Fk=
+        b=kPLr2r9G4nidA7fa0sYV0ucVFmUNcpj3yWp8i52NIcNzhuoF0n1zB70fbk8X/lvV0
+         WcbbW2TzjeZV4w64r97LEGDfVlQqARx7H7prT2fFPm0U0TZqD1dh3pQzMLKPCuV0Iw
+         Ula40k/cZOe26ElN2b8ZVfVRGDzi80RMOBm0rTSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/247] memory: ti-aemif: Drop child node when jumping out loop
-Date:   Mon,  1 Mar 2021 17:11:05 +0100
-Message-Id: <20210301161033.878962466@linuxfoundation.org>
+Subject: [PATCH 4.19 046/247] ARM: dts: Configure missing thermal interrupt for 4430
+Date:   Mon,  1 Mar 2021 17:11:06 +0100
+Message-Id: <20210301161033.928636454@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,53 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 94e9dd43cf327366388c8f146bccdc6322c0d999 ]
+[ Upstream commit 44f416879a442600b006ef7dec3a6dc98bcf59c6 ]
 
-Call of_node_put() to decrement the reference count of the child node
-child_np when jumping out of the loop body of
-for_each_available_child_of_node(), which is a macro that increments and
-decrements the reference count of child node. If the loop is broken, the
-reference of the child node should be dropped manually.
+We have gpio_86 wired internally to the bandgap thermal shutdown
+interrupt on 4430 like we have it on 4460 according to the TRM.
+This can be found easily by searching for TSHUT.
 
-Fixes: 5a7c81547c1d ("memory: ti-aemif: introduce AEMIF driver")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121090359.61763-1-bianpan2016@163.com
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+For some reason the thermal shutdown interrupt was never added
+for 4430, let's add it. I believe this is needed for the thermal
+shutdown interrupt handler ti_bandgap_tshut_irq_handler() to call
+orderly_poweroff().
+
+Fixes: aa9bb4bb8878 ("arm: dts: add omap4430 thermal data")
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Cc: Eduardo Valentin <edubezval@gmail.com>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/ti-aemif.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/omap443x.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/memory/ti-aemif.c b/drivers/memory/ti-aemif.c
-index 475e5b3790edb..be3d978648f57 100644
---- a/drivers/memory/ti-aemif.c
-+++ b/drivers/memory/ti-aemif.c
-@@ -381,8 +381,10 @@ static int aemif_probe(struct platform_device *pdev)
- 		 */
- 		for_each_available_child_of_node(np, child_np) {
- 			ret = of_aemif_parse_abus_config(pdev, child_np);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(child_np);
- 				goto error;
-+			}
- 		}
- 	} else if (pdata && pdata->num_abus_data > 0) {
- 		for (i = 0; i < pdata->num_abus_data; i++, aemif->num_cs++) {
-@@ -408,8 +410,10 @@ static int aemif_probe(struct platform_device *pdev)
- 		for_each_available_child_of_node(np, child_np) {
- 			ret = of_platform_populate(child_np, NULL,
- 						   dev_lookup, dev);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(child_np);
- 				goto error;
-+			}
- 		}
- 	} else if (pdata) {
- 		for (i = 0; i < pdata->num_sub_devices; i++) {
+diff --git a/arch/arm/boot/dts/omap443x.dtsi b/arch/arm/boot/dts/omap443x.dtsi
+index 86b9caf461dfa..6e320efd9fc1d 100644
+--- a/arch/arm/boot/dts/omap443x.dtsi
++++ b/arch/arm/boot/dts/omap443x.dtsi
+@@ -33,10 +33,12 @@
+ 	};
+ 
+ 	ocp {
++		/* 4430 has only gpio_86 tshut and no talert interrupt */
+ 		bandgap: bandgap@4a002260 {
+ 			reg = <0x4a002260 0x4
+ 			       0x4a00232C 0x4>;
+ 			compatible = "ti,omap4430-bandgap";
++			gpios = <&gpio3 22 GPIO_ACTIVE_HIGH>;
+ 
+ 			#thermal-sensor-cells = <0>;
+ 		};
 -- 
 2.27.0
 
