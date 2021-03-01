@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FE9E327FDC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:46:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 775CC327FD4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 14:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235807AbhCANpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235841AbhCANpw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Mar 2021 08:45:52 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:52395 "EHLO
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:39657 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235836AbhCANpv (ORCPT
+        by vger.kernel.org with ESMTP id S235807AbhCANpv (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 08:45:51 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 16AAF194213B;
-        Mon,  1 Mar 2021 08:44:43 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 08:44:43 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A80ED194213F;
+        Mon,  1 Mar 2021 08:44:51 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 08:44:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=WUq6uy
-        p/cfom/i3fjDDg4S1QC5+ndPJEv4YQqXcKVdc=; b=DcduKEKDjcVaWv2Jjl2WQc
-        Jq2LbqsxeTJiar2dRS6xZBaCfcyHFNbKSLEsZ9Srrx02qExcw+vwMXpl3M6PgQNO
-        mFvqb+P3TbFVwuuWRPHKuoUn2V1PDnO235Vf8te8XHKCN5iUMc9sfQfA3GmSUT/1
-        RSKFTua82phF/Km9yBOWi2cufEUkwKDZ29KQOG1Xp0+V099oe5jlnC8NBMnt1Wbn
-        qSKRFsqo6yX6KcB2wXi40aBNzt9N95ABSmpqR3P8dnC3/rScuVKqHcPqqNcHlSQe
-        GeFEM8CM7JlJ9sNrJ8IwBQO5fC9+JJSBcGSrUrGszDgPq+1iNEmB2A+yEKI/KD7g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+7qd/w
+        SRCCgMVAv3Dq5IE7QNRCjHSbhsjcwpT2dRA5c=; b=IWO9u6tOe2c9SXeXzIxbSZ
+        AUS3GZetsDBBgHS2nYbRiRnVsuFcTnR1Kd0yC4vJgY7OWgTCUs5DeoYhgeAWQ9+F
+        q5bh/sx4JyaFycP7AGu8/NoNYzb+bElerrWuiSRU6yfADDmELoL1nSBdBZ7E9GWs
+        RUaSJdjyzwA7DsNrOnW/e2iN3hsVEvkWB+zDIqnHzXpqTIacEdFOTA8H6yLtsMyE
+        ybBlh2ektv1F3eo5j+XoypwlSDAJ4d9Jr/W5e6TMPF4aRclgwaFoNMIY/ESYC/0R
+        Xjqm3Rp5HKCUJcZoCLer/sRQkruV/0toTqqK3MIUVJFX+CEAS4ObcMV6c3+LuniQ
         ==
-X-ME-Sender: <xms:yu88YCABbrUBWdZc9--LplZIZ5g9--d2HVSF6Enl3OKeRlrp6ziHEg>
-    <xme:yu88YNOoCG2hCnBoZ4dCJgrwk2Az6rSqJNRQVc77CYW-G_m8WlQafN8ioZFSeao83
-    71DnrCzGoSizQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehhecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:0-88YPMXGqYZdt2aY1PK6paWq4YuJBSwXhPLAF4e11cJMe765tvQuQ>
+    <xme:0-88YKn0h1kF5n-R3_wnwK1UwYJTNsRQ3oA_gFgKz8STs9xvkbA-NdIo3Cle96Kg3
+    qCf-0Mp6WsxbA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    ufhiiigvpeehnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:yu88YDxIlhjgCg0UVO_jyAKZ_PmOGzCwRWptqhE-2dJfUmqH02IBhA>
-    <xmx:yu88YFUJgG76tLYRKUorTmbE4oBO83F1CjSAq5YNb7dRM6HMKkLcAw>
-    <xmx:yu88YNOyHNlVCy6jWwIBxRrqGAlYhGXXWhxUKvDtl2LU8hz5jRcX5Q>
-    <xmx:y-88YM64kM2R94yJSh6BjP027VsCDA0WkWHgq8GnRHd0gV9COfCPXw>
+X-ME-Proxy: <xmx:0-88YJbRELX3dHmMedW7iWZxAeiIGc0QmZXmwDV03Xwdeysy5XRpCQ>
+    <xmx:0-88YIQLaZkfWELUo1_XLBBo_7aUCQ0TnDlGOftZduT89ojJQyMJVA>
+    <xmx:0-88YLXedXsvntXKNG-G_4AheWqPMVLEsP3-Y_lbDYe4U1KPved_OQ>
+    <xmx:0-88YGB7xSw2HVkntBVhBxYtvFaLTUJ7JObM4-U2MBJ0SQ9Sr5jT_A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6FA001080063;
-        Mon,  1 Mar 2021 08:44:42 -0500 (EST)
-Subject: FAILED: patch "[PATCH] dm table: fix DAX iterate_devices based device capability" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3209224005C;
+        Mon,  1 Mar 2021 08:44:51 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dm table: fix DAX iterate_devices based device capability" failed to apply to 4.19-stable tree
 To:     jefflexu@linux.alibaba.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 14:44:40 +0100
-Message-ID: <1614606280233112@kroah.com>
+Date:   Mon, 01 Mar 2021 14:44:41 +0100
+Message-ID: <1614606281251142@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
