@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D629328661
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:10:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A68632866D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235203AbhCARJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:09:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
+        id S236732AbhCARKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:10:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236732AbhCARDS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:03:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E01664F41;
-        Mon,  1 Mar 2021 16:38:49 +0000 (UTC)
+        id S236430AbhCARED (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:04:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6CF64F43;
+        Mon,  1 Mar 2021 16:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616729;
-        bh=fmbSu24eqr+lHWwTXRM8r1N6uGDrLtYgM8NhiwJxrnE=;
+        s=korg; t=1614616735;
+        bh=uR4f3vgveoyAMQixU9XiNcIvMiRtKl98VOTLkSCI7OM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcCz6BN+HmApZRhzSE+k6BZni5vR/dcB6fiJGWK+AQqNypE7EBwXN8FHPITAPVtX9
-         m7wt06kfitMR7IcNZIYdqN+z1UpPF7SZLiPQmT9ZgFbk7DUXoZDgymrOu7PIMFoSr2
-         LK+MmqQ17WaFWh5VOZ1Xzm+Txwkmhm4a69OegQKA=
+        b=tb7Jas6MGBhjo0SyTKvtmMrrS1Fi9LsDLSZH6yoXiqbayxSElRnpxyFe2efcCp+vV
+         5oemQLtA/GF2r05cBYI7fvoz/6TnHEVf8fW2ytPF1LKcfEyns2dx8wizVzJ5R4A13f
+         CKz0pDO8ZmwnFxZ9Co/ojOIDoNQ81/s/wnQ+P60A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Chenyang Li <lichenyang@loongson.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/247] crypto: sun4i-ss - fix kmap usage
-Date:   Mon,  1 Mar 2021 17:11:36 +0100
-Message-Id: <20210301161035.410969195@linuxfoundation.org>
+Subject: [PATCH 4.19 077/247] drm/amdgpu: Fix macro name _AMDGPU_TRACE_H_ in preprocessor if condition
+Date:   Mon,  1 Mar 2021 17:11:37 +0100
+Message-Id: <20210301161035.460602125@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -40,252 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Chenyang Li <lichenyang@loongson.cn>
 
-[ Upstream commit 9bc3dd24e7dccd50757db743a3635ad5b0497e6e ]
+[ Upstream commit 956e20eb0fbb206e5e795539db5469db099715c8 ]
 
-With the recent kmap change, some tests which were conditional on
-CONFIG_DEBUG_HIGHMEM now are enabled by default.
-This permit to detect a problem in sun4i-ss usage of kmap.
+Add an underscore in amdgpu_trace.h line 24 "_AMDGPU_TRACE_H".
 
-sun4i-ss uses two kmap via sg_miter (one for input, one for output), but
-using two kmap at the same time is hard:
-"the ordering has to be correct and with sg_miter that's probably hard to get
-right." (quoting Tlgx)
-
-So the easiest solution is to never have two sg_miter/kmap open at the same time.
-After each use of sg_miter, I store the current index, for being able to
-resume sg_miter to the right place.
-
-Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Signed-off-by: Chenyang Li <lichenyang@loongson.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-cipher.c | 109 +++++++++++++---------
- 1 file changed, 65 insertions(+), 44 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-index 22e4918579254..178096e4e77da 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
-@@ -34,6 +34,8 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	unsigned int ileft = areq->cryptlen;
- 	unsigned int oleft = areq->cryptlen;
- 	unsigned int todo;
-+	unsigned long pi = 0, po = 0; /* progress for in and out */
-+	bool miter_err;
- 	struct sg_mapping_iter mi, mo;
- 	unsigned int oi, oo; /* offset for in and out */
- 	unsigned long flags;
-@@ -64,39 +66,51 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	}
- 	writel(mode, ss->base + SS_CTL);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+index 7206a0025b17a..db9907fb99f3f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_trace.h
+@@ -21,7 +21,7 @@
+  *
+  */
  
--	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
--		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
--	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
--		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
--	sg_miter_next(&mi);
--	sg_miter_next(&mo);
--	if (!mi.addr || !mo.addr) {
--		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
--		err = -EINVAL;
--		goto release_ss;
--	}
+-#if !defined(_AMDGPU_TRACE_H) || defined(TRACE_HEADER_MULTI_READ)
++#if !defined(_AMDGPU_TRACE_H_) || defined(TRACE_HEADER_MULTI_READ)
+ #define _AMDGPU_TRACE_H_
  
- 	ileft = areq->cryptlen / 4;
- 	oleft = areq->cryptlen / 4;
- 	oi = 0;
- 	oo = 0;
- 	do {
--		todo = min(rx_cnt, ileft);
--		todo = min_t(size_t, todo, (mi.length - oi) / 4);
--		if (todo) {
--			ileft -= todo;
--			writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
--			oi += todo * 4;
--		}
--		if (oi == mi.length) {
--			sg_miter_next(&mi);
--			oi = 0;
-+		if (ileft) {
-+			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
-+					SG_MITER_FROM_SG | SG_MITER_ATOMIC);
-+			if (pi)
-+				sg_miter_skip(&mi, pi);
-+			miter_err = sg_miter_next(&mi);
-+			if (!miter_err || !mi.addr) {
-+				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+				err = -EINVAL;
-+				goto release_ss;
-+			}
-+			todo = min(rx_cnt, ileft);
-+			todo = min_t(size_t, todo, (mi.length - oi) / 4);
-+			if (todo) {
-+				ileft -= todo;
-+				writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
-+				oi += todo * 4;
-+			}
-+			if (oi == mi.length) {
-+				pi += mi.length;
-+				oi = 0;
-+			}
-+			sg_miter_stop(&mi);
- 		}
- 
- 		spaces = readl(ss->base + SS_FCSR);
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
- 
-+		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
-+			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
-+		if (po)
-+			sg_miter_skip(&mo, po);
-+		miter_err = sg_miter_next(&mo);
-+		if (!miter_err || !mo.addr) {
-+			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+			err = -EINVAL;
-+			goto release_ss;
-+		}
- 		todo = min(tx_cnt, oleft);
- 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
- 		if (todo) {
-@@ -105,9 +119,10 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 			oo += todo * 4;
- 		}
- 		if (oo == mo.length) {
--			sg_miter_next(&mo);
- 			oo = 0;
-+			po += mo.length;
- 		}
-+		sg_miter_stop(&mo);
- 	} while (oleft);
- 
- 	if (areq->iv) {
-@@ -118,8 +133,6 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	}
- 
- release_ss:
--	sg_miter_stop(&mi);
--	sg_miter_stop(&mo);
- 	writel(0, ss->base + SS_CTL);
- 	spin_unlock_irqrestore(&ss->slock, flags);
- 	return err;
-@@ -148,6 +161,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	unsigned int oleft = areq->cryptlen;
- 	unsigned int todo;
- 	struct sg_mapping_iter mi, mo;
-+	unsigned long pi = 0, po = 0; /* progress for in and out */
-+	bool miter_err;
- 	unsigned int oi, oo;	/* offset for in and out */
- 	char buf[4 * SS_RX_MAX];/* buffer for linearize SG src */
- 	char bufo[4 * SS_TX_MAX]; /* buffer for linearize SG dst */
-@@ -200,17 +215,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	}
- 	writel(mode, ss->base + SS_CTL);
- 
--	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
--		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
--	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
--		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
--	sg_miter_next(&mi);
--	sg_miter_next(&mo);
--	if (!mi.addr || !mo.addr) {
--		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
--		err = -EINVAL;
--		goto release_ss;
--	}
- 	ileft = areq->cryptlen;
- 	oleft = areq->cryptlen;
- 	oi = 0;
-@@ -218,6 +222,16 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 
- 	while (oleft) {
- 		if (ileft) {
-+			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
-+				       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
-+			if (pi)
-+				sg_miter_skip(&mi, pi);
-+			miter_err = sg_miter_next(&mi);
-+			if (!miter_err || !mi.addr) {
-+				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+				err = -EINVAL;
-+				goto release_ss;
-+			}
- 			/*
- 			 * todo is the number of consecutive 4byte word that we
- 			 * can read from current SG
-@@ -250,31 +264,38 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				}
- 			}
- 			if (oi == mi.length) {
--				sg_miter_next(&mi);
-+				pi += mi.length;
- 				oi = 0;
- 			}
-+			sg_miter_stop(&mi);
- 		}
- 
- 		spaces = readl(ss->base + SS_FCSR);
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
--		dev_dbg(ss->dev,
--			"%x %u/%zu %u/%u cnt=%u %u/%zu %u/%u cnt=%u %u\n",
--			mode,
--			oi, mi.length, ileft, areq->cryptlen, rx_cnt,
--			oo, mo.length, oleft, areq->cryptlen, tx_cnt, ob);
- 
- 		if (!tx_cnt)
- 			continue;
-+		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
-+			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
-+		if (po)
-+			sg_miter_skip(&mo, po);
-+		miter_err = sg_miter_next(&mo);
-+		if (!miter_err || !mo.addr) {
-+			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+			err = -EINVAL;
-+			goto release_ss;
-+		}
- 		/* todo in 4bytes word */
- 		todo = min(tx_cnt, oleft / 4);
- 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
-+
- 		if (todo) {
- 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
- 			oleft -= todo * 4;
- 			oo += todo * 4;
- 			if (oo == mo.length) {
--				sg_miter_next(&mo);
-+				po += mo.length;
- 				oo = 0;
- 			}
- 		} else {
-@@ -299,12 +320,14 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				obo += todo;
- 				oo += todo;
- 				if (oo == mo.length) {
-+					po += mo.length;
- 					sg_miter_next(&mo);
- 					oo = 0;
- 				}
- 			} while (obo < obl);
- 			/* bufo must be fully used here */
- 		}
-+		sg_miter_stop(&mo);
- 	}
- 	if (areq->iv) {
- 		for (i = 0; i < 4 && i < ivsize / 4; i++) {
-@@ -314,8 +337,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	}
- 
- release_ss:
--	sg_miter_stop(&mi);
--	sg_miter_stop(&mo);
- 	writel(0, ss->base + SS_CTL);
- 	spin_unlock_irqrestore(&ss->slock, flags);
- 
+ #include <linux/stringify.h>
 -- 
 2.27.0
 
