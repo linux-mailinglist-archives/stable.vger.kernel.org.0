@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD444328550
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88A2432845A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235894AbhCAQxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46974 "EHLO mail.kernel.org"
+        id S233645AbhCAQdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234206AbhCAQoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 550CF64F92;
-        Mon,  1 Mar 2021 16:31:03 +0000 (UTC)
+        id S234854AbhCAQ3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1778664F4C;
+        Mon,  1 Mar 2021 16:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616263;
-        bh=9v6hiTOhHoo3JTUkdjhFaOm31lrLVq5Lig8njV81gxM=;
+        s=korg; t=1614615767;
+        bh=h5ID4jmO0po2Uhe8PSiE3HsJUspz43kDkKDsUio43LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KWLRbvEwTJkK+FHHv4wO/YtJ5cIla1OdalducX82hDiVktCHzZSTTI1wKq42Zg82o
-         WGxKigOMzSAJSnaYoNNJesgFY7aBu1ez9o8R3XjIPCsqgMVQwLYbbjraa47zS+5XK6
-         RmQfbFOGsx+v+UkePM60zRpmlWcDdiHOhciRxLA0=
+        b=wRRBOxUKETUSnJt88wtsCBXEG7LoTiGfJHLeX+qWXzdDXezeONyrXw7UNsYlCDgIL
+         PyjM+ISNQIbl0C70ULJcRc+slpkSpxckOljl/0+Epx6bEn9WMif1yVuN1b8msJ6eik
+         wv5J9/rvume+vHdBz2L4HkFF/5WjzMXOWbsJh8Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 063/176] ima: Free IMA measurement buffer on error
+Subject: [PATCH 4.9 035/134] media: media/pci: Fix memleak in empress_init
 Date:   Mon,  1 Mar 2021 17:12:16 +0100
-Message-Id: <20210301161024.082590969@linuxfoundation.org>
+Message-Id: <20210301161015.309137880@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 6d14c6517885fa68524238787420511b87d671df ]
+[ Upstream commit 15d0c52241ecb1c9d802506bff6f5c3f7872c0df ]
 
-IMA allocates kernel virtual memory to carry forward the measurement
-list, from the current kernel to the next kernel on kexec system call,
-in ima_add_kexec_buffer() function.  In error code paths this memory
-is not freed resulting in memory leak.
+When vb2_queue_init() fails, dev->empress_dev
+should be released just like other error handling
+paths.
 
-Free the memory allocated for the IMA measurement list in
-the error code paths in ima_add_kexec_buffer() function.
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Fixes: 7b8589cc29e7 ("ima: on soft reboot, save the measurement list")
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Fixes: 2ada815fc48bb ("[media] saa7134: convert to vb2")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/integrity/ima/ima_kexec.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/pci/saa7134/saa7134-empress.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/security/integrity/ima/ima_kexec.c b/security/integrity/ima/ima_kexec.c
-index e473eee913cba..40bc385a80768 100644
---- a/security/integrity/ima/ima_kexec.c
-+++ b/security/integrity/ima/ima_kexec.c
-@@ -122,6 +122,7 @@ void ima_add_kexec_buffer(struct kimage *image)
- 	ret = kexec_add_buffer(&kbuf);
- 	if (ret) {
- 		pr_err("Error passing over kexec measurement buffer.\n");
-+		vfree(kexec_buffer);
- 		return;
- 	}
+diff --git a/drivers/media/pci/saa7134/saa7134-empress.c b/drivers/media/pci/saa7134/saa7134-empress.c
+index f0fe2524259f0..522e1e18850fb 100644
+--- a/drivers/media/pci/saa7134/saa7134-empress.c
++++ b/drivers/media/pci/saa7134/saa7134-empress.c
+@@ -297,8 +297,11 @@ static int empress_init(struct saa7134_dev *dev)
+ 	q->lock = &dev->lock;
+ 	q->dev = &dev->pci->dev;
+ 	err = vb2_queue_init(q);
+-	if (err)
++	if (err) {
++		video_device_release(dev->empress_dev);
++		dev->empress_dev = NULL;
+ 		return err;
++	}
+ 	dev->empress_dev->queue = q;
  
+ 	video_set_drvdata(dev->empress_dev, dev);
 -- 
 2.27.0
 
