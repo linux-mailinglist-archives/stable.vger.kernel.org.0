@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E627E32885F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 758AD328879
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238845AbhCARjE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:39:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54072 "EHLO mail.kernel.org"
+        id S237492AbhCARki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:40:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238255AbhCARb5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:31:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB2F764FAD;
-        Mon,  1 Mar 2021 16:52:50 +0000 (UTC)
+        id S234546AbhCARcY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:32:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB31264FB0;
+        Mon,  1 Mar 2021 16:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617571;
-        bh=PgDSgZqrvvOkcyr9qGOOslp/TrvKbVhry7bKma5hm0U=;
+        s=korg; t=1614617574;
+        bh=K3zFdSugw5RpzV+D0gNYLLx4Aa5zaNQQQYqtTxNcb/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzJKkNIWh/gmUx2Hduwt29EDLx4a6QXN7SEF33MjXPJrolLR8rrlBv0iamrSzGd9S
-         08mtcBFQt2vqqQrZ87CBqs2He1x9DXYiaBE1Qfgui53JIPhIQ2UmJ+q9ijW2x63Fea
-         EZC38GsRb3ncUJh4BS9t0ONb+0WyCWJ7dJt1kIqs=
+        b=jQgjFE1nPfrI/crceCxBPu7OdQHJZtq2WzHpZm6XGJAKEeP0kPZbRmy+iNXt691NG
+         9+RN7B8F87qIso0GmAwCvHbb/ExZsmM8OzuAueb9J6/n6pr2RqdctiCF12PsXZY7t+
+         YsMtXxuSoMNXjt7FyfQ1c8YBDPf+JIAniS7gLv4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 120/340] ASoC: simple-card-utils: Fix device module clock
-Date:   Mon,  1 Mar 2021 17:11:04 +0100
-Message-Id: <20210301161054.240119353@linuxfoundation.org>
+Subject: [PATCH 5.4 121/340] fs/jfs: fix potential integer overflow on shift of a int
+Date:   Mon,  1 Mar 2021 17:11:05 +0100
+Message-Id: <20210301161054.290891384@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,55 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 1e30f642cf2939bbdac82ea0dd3071232670b5ab ]
+[ Upstream commit 4208c398aae4c2290864ba15c3dab7111f32bec1 ]
 
-If "clocks = <&xxx>" is specified from the CPU or Codec component
-device node, the clock is not getting enabled. Thus audio playback
-or capture fails.
+The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
+arithmetic and then assigned to a signed 64 bit integer. In the case where
+l2nb is 32 or more this can lead to an overflow.  Avoid this by shifting
+the value 1LL instead.
 
-Fix this by populating "simple_dai->clk" field when clocks property
-is specified from device node as well. Also tidy up by re-organising
-conditional statements of parsing logic.
-
-Fixes: bb6fc620c2ed ("ASoC: simple-card-utils: add asoc_simple_card_parse_clk()")
-Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/1612939421-19900-2-git-send-email-spujar@nvidia.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Addresses-Coverity: ("Uninitentional integer overflow")
+Fixes: b40c2e665cd5 ("fs/jfs: TRIM support for JFS Filesystem")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/simple-card-utils.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/jfs/jfs_dmap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/generic/simple-card-utils.c b/sound/soc/generic/simple-card-utils.c
-index 9b794775df537..edad6721251f4 100644
---- a/sound/soc/generic/simple-card-utils.c
-+++ b/sound/soc/generic/simple-card-utils.c
-@@ -172,16 +172,15 @@ int asoc_simple_parse_clk(struct device *dev,
- 	 *  or device's module clock.
- 	 */
- 	clk = devm_get_clk_from_child(dev, node, NULL);
--	if (!IS_ERR(clk)) {
--		simple_dai->sysclk = clk_get_rate(clk);
-+	if (IS_ERR(clk))
-+		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
- 
-+	if (!IS_ERR(clk)) {
- 		simple_dai->clk = clk;
--	} else if (!of_property_read_u32(node, "system-clock-frequency", &val)) {
-+		simple_dai->sysclk = clk_get_rate(clk);
-+	} else if (!of_property_read_u32(node, "system-clock-frequency",
-+					 &val)) {
- 		simple_dai->sysclk = val;
--	} else {
--		clk = devm_get_clk_from_child(dev, dlc->of_node, NULL);
--		if (!IS_ERR(clk))
--			simple_dai->sysclk = clk_get_rate(clk);
- 	}
- 
- 	if (of_property_read_bool(node, "system-clock-direction-out"))
+diff --git a/fs/jfs/jfs_dmap.c b/fs/jfs/jfs_dmap.c
+index caade185e568d..6fe82ce8663ef 100644
+--- a/fs/jfs/jfs_dmap.c
++++ b/fs/jfs/jfs_dmap.c
+@@ -1656,7 +1656,7 @@ s64 dbDiscardAG(struct inode *ip, int agno, s64 minlen)
+ 		} else if (rc == -ENOSPC) {
+ 			/* search for next smaller log2 block */
+ 			l2nb = BLKSTOL2(nblocks) - 1;
+-			nblocks = 1 << l2nb;
++			nblocks = 1LL << l2nb;
+ 		} else {
+ 			/* Trim any already allocated blocks */
+ 			jfs_error(bmp->db_ipbmap->i_sb, "-EIO\n");
 -- 
 2.27.0
 
