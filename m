@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC143329043
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F23932904B
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242790AbhCAUD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:03:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
+        id S232605AbhCAUFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:05:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242611AbhCATyN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:54:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D848064FE1;
-        Mon,  1 Mar 2021 17:54:28 +0000 (UTC)
+        id S236826AbhCATyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:54:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7843365365;
+        Mon,  1 Mar 2021 17:54:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621269;
-        bh=SVvwAv75TrcbfHIFGGl1zVyBbXg6J0DTdJJ2z64Ys8o=;
+        s=korg; t=1614621272;
+        bh=RpWlMqKLpjC0+hoFIfV83hBF/JaoP8PGOoi1vm9co04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MO4YKKUhBDVPjK/jTxjn0y8wbJu8KjX+u/NzE6GVTmrE02VpBRjum+iRvyFRttv4Y
-         tCGK0pdxQAB3JFBUDvOEWIBbXxUKBcHKZbhkfkEkaLFgBEsrbhgMX3H6bDcnQjPJ3t
-         LsfftsvDqKwlkOqGow27aZyKIUQzNyfxkME97ggo=
+        b=nIiBb8OpmeMaolaGxlNdyc64Pou+xZS2W+kYytwKFBENHYktVI8wkKcEJSBUcnJ0B
+         TMmshe+xn8+Xm+iwUTloOKnE0tkT9xjoBXnzimSRz84hIoHeEY1MGMCf5NkCPi8SDd
+         TFi237n0kdLeJLOm78t5XxnpBtNYZGWKm8/pbOuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Li <yieli@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 454/775] nfsd: register pernet ops last, unregister first
-Date:   Mon,  1 Mar 2021 17:10:22 +0100
-Message-Id: <20210301161223.984389757@linuxfoundation.org>
+Subject: [PATCH 5.11 455/775] svcrdma: Hold private mutex while invoking rdma_accept()
+Date:   Mon,  1 Mar 2021 17:10:23 +0100
+Message-Id: <20210301161224.039557981@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,85 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit bd5ae9288d6451bd346a1b4a59d4fe7e62ba29b7 ]
+[ Upstream commit 0ac24c320c4d89a9de6ec802591398b8675c7b3c ]
 
-These pernet operations may depend on stuff set up or torn down in the
-module init/exit functions.  And they may be called at any time in
-between.  So it makes more sense for them to be the last to be
-registered in the init function, and the first to be unregistered in the
-exit function.
+RDMA core mutex locking was restructured by commit d114c6feedfe
+("RDMA/cma: Add missing locking to rdma_accept()") [Aug 2020]. When
+lock debugging is enabled, the RPC/RDMA server trips over the new
+lockdep assertion in rdma_accept() because it doesn't call
+rdma_accept() from its CM event handler.
 
-In particular, without this, the drc slab is being destroyed before all
-the per-net drcs are shut down, resulting in an "Objects remaining in
-nfsd_drc on __kmem_cache_shutdown()" warning in exit_nfsd.
+As a temporary fix, have svc_rdma_accept() take the handler_mutex
+explicitly. In the meantime, let's consider how to restructure the
+RPC/RDMA transport to invoke rdma_accept() from the proper context.
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Fixes: 3ba75830ce17 "nfsd4: drc containerization"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Calls to svc_rdma_accept() are serialized with calls to
+svc_rdma_free() by the generic RPC server layer.
+
+Suggested-by: Jason Gunthorpe <jgg@nvidia.com>
+Link: https://lore.kernel.org/linux-rdma/20210209154014.GO4247@nvidia.com/
+Fixes: d114c6feedfe ("RDMA/cma: Add missing locking to rdma_accept()")
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ net/sunrpc/xprtrdma/svc_rdma_transport.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index f6d5d783f4a45..0759e589ab52b 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1522,12 +1522,9 @@ static int __init init_nfsd(void)
- 	int retval;
- 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
+diff --git a/net/sunrpc/xprtrdma/svc_rdma_transport.c b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+index afba4e9d5425d..c895f80df659c 100644
+--- a/net/sunrpc/xprtrdma/svc_rdma_transport.c
++++ b/net/sunrpc/xprtrdma/svc_rdma_transport.c
+@@ -475,9 +475,6 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
+ 	if (!svc_rdma_post_recvs(newxprt))
+ 		goto errout;
  
--	retval = register_pernet_subsys(&nfsd_net_ops);
--	if (retval < 0)
--		return retval;
- 	retval = register_cld_notifier();
- 	if (retval)
--		goto out_unregister_pernet;
-+		return retval;
- 	retval = nfsd4_init_slabs();
- 	if (retval)
- 		goto out_unregister_notifier;
-@@ -1544,9 +1541,14 @@ static int __init init_nfsd(void)
- 		goto out_free_lockd;
- 	retval = register_filesystem(&nfsd_fs_type);
- 	if (retval)
-+		goto out_free_exports;
-+	retval = register_pernet_subsys(&nfsd_net_ops);
-+	if (retval < 0)
- 		goto out_free_all;
- 	return 0;
- out_free_all:
-+	unregister_pernet_subsys(&nfsd_net_ops);
-+out_free_exports:
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
- out_free_lockd:
-@@ -1559,13 +1561,12 @@ out_free_slabs:
- 	nfsd4_free_slabs();
- out_unregister_notifier:
- 	unregister_cld_notifier();
--out_unregister_pernet:
--	unregister_pernet_subsys(&nfsd_net_ops);
- 	return retval;
- }
- 
- static void __exit exit_nfsd(void)
- {
-+	unregister_pernet_subsys(&nfsd_net_ops);
- 	nfsd_drc_slab_free();
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
-@@ -1575,7 +1576,6 @@ static void __exit exit_nfsd(void)
- 	nfsd4_exit_pnfs();
- 	unregister_filesystem(&nfsd_fs_type);
- 	unregister_cld_notifier();
--	unregister_pernet_subsys(&nfsd_net_ops);
- }
- 
- MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
+-	/* Swap out the handler */
+-	newxprt->sc_cm_id->event_handler = svc_rdma_cma_handler;
+-
+ 	/* Construct RDMA-CM private message */
+ 	pmsg.cp_magic = rpcrdma_cmp_magic;
+ 	pmsg.cp_version = RPCRDMA_CMP_VERSION;
+@@ -498,7 +495,10 @@ static struct svc_xprt *svc_rdma_accept(struct svc_xprt *xprt)
+ 	}
+ 	conn_param.private_data = &pmsg;
+ 	conn_param.private_data_len = sizeof(pmsg);
++	rdma_lock_handler(newxprt->sc_cm_id);
++	newxprt->sc_cm_id->event_handler = svc_rdma_cma_handler;
+ 	ret = rdma_accept(newxprt->sc_cm_id, &conn_param);
++	rdma_unlock_handler(newxprt->sc_cm_id);
+ 	if (ret) {
+ 		trace_svcrdma_accept_err(newxprt, ret);
+ 		goto errout;
 -- 
 2.27.0
 
