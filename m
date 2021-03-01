@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EEF327CF6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:18:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EB07327CFB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 12:20:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbhCALSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 06:18:23 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59429 "EHLO
+        id S232068AbhCALTH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 06:19:07 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59833 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232033AbhCALSW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:18:22 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7307C1941159;
-        Mon,  1 Mar 2021 06:17:32 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 01 Mar 2021 06:17:32 -0500
+        by vger.kernel.org with ESMTP id S232268AbhCALTB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 06:19:01 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id CEA2A19411B2;
+        Mon,  1 Mar 2021 06:18:11 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 01 Mar 2021 06:18:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=gdc+nz
-        KRCXzeIJViAwmg6itlLjppCsKg8LTuEe9jZFA=; b=knz5fGSxitiiVqZEUqFGsU
-        LtkIFbjq7fd5MFeiao+iCQmrb5eJjPa3cMJ2SmoTEZp8E0e8QlHX/qIo6uYqPSNj
-        PIfFM9W9UYLxQh0vTWyKcc+o/nio3b3Za7tlUDbQ149h2T4EGeD+TleS9tIpG/6c
-        jAmrUceiU6M+M7BTpsXi0Mn4D9W98+GY8bdPAHJu9GeOKasoR+wmLtY6GtzoRlBo
-        8UQLp2lm/d6xavjhPc/5UtXaJd415pbA4wwU4r7pukVvGbv9OD17CofkWN4z5oEX
-        nAJ2N8el8tErTOfFlCRV+StPAt61zQQrFzTRfl7YfULNC1pD31OsennVydQbPTeg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=omnacb
+        moN1y+wuCkPBJrfV8tLB4qxsYxf2AluUIU81Q=; b=iZ8avaN1pHcGHAgG6E5RAh
+        4/OIGSOiOyraF+KdUov0FAlV5bu4EwAwrqtZLFwyFHzgZlT8YEp+1Yc803YWWe4q
+        79FbteBEEiAWUNfWFiaC7BbTqs2K3eRmn3f1UWe621Bko4m2/9d0BzPtQ3DTBwOl
+        x99FtP/U0vdM7j13kzekoGVlIoCiqaLRNrQi4dsuK02SpMVNnIIfu1H0VH9YRkaz
+        noKpEtSLhYlsVIjdFkWHsiYyAo8iEyxpxJaudPlENW/h3gfq4xpJsVHKWRPRiNrj
+        WgUel/J/X+R2GmmZXglP2rXgJALqDtFUpX0A75QLaq6TS0+8gQiZnSH41QzcpjLg
         ==
-X-ME-Sender: <xms:TM08YEweNmR4Gktql5Xb-_jfjAG9-t4SsIGCi6-C_W7bZfWGiVUJ_Q>
-    <xme:TM08YIOvyIjqhaKl76qQ0eiOeqKh8i-Oft-mjLfayYFvpdx2wj6lBT9oW02T7UFgh
-    dhNgyCdppCqBw>
+X-ME-Sender: <xms:c808YFX3bAzuEr-wgshBavWIzwmrbxzP0ojuU7xvJFmzJwQvyejx3Q>
+    <xme:c808YFgubVHH7J7pDvHq-B7oL-cxoNhvfgcUnKtbpvAEEEI8Sq4BAsLbJNFeLHgeo
+    OELnBS8fpJg2w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddvhecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
-    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
-    ufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
-    homh
-X-ME-Proxy: <xmx:TM08YDNiC5OQO8PHmujx58oTG6eHL0cLM8NqDDN1ERGaxLPArDFiPg>
-    <xmx:TM08YKSOwVhjsPFy5XVmugPn3-FgC7ZVSr-0ClGQnYYRG_Iz5Wq87A>
-    <xmx:TM08YFAdwHYX73RCJdSHsNKWEZhZ-LtkYMd9EuYpWQEqfqSHg7jb-w>
-    <xmx:TM08YNFvWbOIAHBqhmm5neLnTLWvY0asmZWme_-9YBpUhdLVtbQgHw>
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:c808YOTAZG2kO5AmUoHXI7BFqsyZtuIhxXg22KMOg_DMC0UoJDNeOA>
+    <xmx:c808YAHmDWX96oWRwlZtaghByxv5uwDW3Yrl7uttWDHe3SsqqxNW9Q>
+    <xmx:c808YOndenmsOsx0aVoA4sOkGWObN3Fj9asa5LjFXUV9VGoV9v_NNQ>
+    <xmx:c808YNx2cg11Q_8sBhz9u1NQYdyci1K3qLarZ1imU7CN4w9ax5dF0w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 04EF41080063;
-        Mon,  1 Mar 2021 06:17:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] media: v4l: ioctl: Fix memory leak in video_usercopy" failed to apply to 5.10-stable tree
-To:     sakari.ailus@linux.intel.com, arnd@arndb.de, arnd@kernel.org,
-        hverkuil-cisco@xs4all.nl, laurent.pinchart@ideasonboard.com,
-        mchehab+huawei@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id F22DF240057;
+        Mon,  1 Mar 2021 06:18:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] media: smipcie: fix interrupt handling and IR timeout" failed to apply to 5.4-stable tree
+To:     sean@mess.org, lazlev@web.de, mchehab+huawei@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 12:17:24 +0100
-Message-ID: <16145974441240@kroah.com>
+Date:   Mon, 01 Mar 2021 12:18:09 +0100
+Message-ID: <161459748923477@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,101 +70,106 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fb18802a338b36f675a388fc03d2aa504a0d0899 Mon Sep 17 00:00:00 2001
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Date: Sat, 19 Dec 2020 23:29:58 +0100
-Subject: [PATCH] media: v4l: ioctl: Fix memory leak in video_usercopy
+From 6532923237b427ed30cc7b4486f6f1ccdee3c647 Mon Sep 17 00:00:00 2001
+From: Sean Young <sean@mess.org>
+Date: Fri, 29 Jan 2021 11:54:53 +0100
+Subject: [PATCH] media: smipcie: fix interrupt handling and IR timeout
 
-When an IOCTL with argument size larger than 128 that also used array
-arguments were handled, two memory allocations were made but alas, only
-the latter one of them was released. This happened because there was only
-a single local variable to hold such a temporary allocation.
+After the first IR message, interrupts are no longer received. In addition,
+the code generates a timeout IR message of 10ms but sets the timeout value
+to 100ms, so no timeout was ever generated.
 
-Fix this by adding separate variables to hold the pointers to the
-temporary allocations.
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204317
 
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
-Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: a49a7a4635de ("media: smipcie: add universal ir capability")
+Tested-by: Laz Lev <lazlev@web.de>
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 3198abdd538c..9906b41004e9 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -3283,7 +3283,7 @@ video_usercopy(struct file *file, unsigned int orig_cmd, unsigned long arg,
- 	       v4l2_kioctl func)
+diff --git a/drivers/media/pci/smipcie/smipcie-ir.c b/drivers/media/pci/smipcie/smipcie-ir.c
+index e6b74e161a05..c0604d9c7011 100644
+--- a/drivers/media/pci/smipcie/smipcie-ir.c
++++ b/drivers/media/pci/smipcie/smipcie-ir.c
+@@ -60,38 +60,44 @@ static void smi_ir_decode(struct smi_rc *ir)
  {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -3318,27 +3318,21 @@ video_usercopy(struct file *file, unsigned int orig_cmd, unsigned long arg,
- 	has_array_args = err;
+ 	struct smi_dev *dev = ir->dev;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+-	u32 dwIRControl, dwIRData;
+-	u8 index, ucIRCount, readLoop;
++	u32 control, data;
++	u8 index, ir_count, read_loop;
  
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kvmalloc(array_size, GFP_KERNEL);
-+		array_buf = kvmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
- 		if (in_compat_syscall())
--			err = v4l2_compat_get_array_args(file, mbuf, user_ptr,
--							 array_size, orig_cmd,
--							 parg);
-+			err = v4l2_compat_get_array_args(file, array_buf,
-+							 user_ptr, array_size,
-+							 orig_cmd, parg);
- 		else
--			err = copy_from_user(mbuf, user_ptr, array_size) ?
-+			err = copy_from_user(array_buf, user_ptr, array_size) ?
- 								-EFAULT : 0;
- 		if (err)
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
+-	dwIRControl = smi_read(IR_Init_Reg);
++	control = smi_read(IR_Init_Reg);
+ 
+-	if (dwIRControl & rbIRVld) {
+-		ucIRCount = (u8) smi_read(IR_Data_Cnt);
++	dev_dbg(&rc_dev->dev, "ircontrol: 0x%08x\n", control);
+ 
+-		readLoop = ucIRCount/4;
+-		if (ucIRCount % 4)
+-			readLoop += 1;
+-		for (index = 0; index < readLoop; index++) {
+-			dwIRData = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++	if (control & rbIRVld) {
++		ir_count = (u8)smi_read(IR_Data_Cnt);
+ 
+-			ir->irData[index*4 + 0] = (u8)(dwIRData);
+-			ir->irData[index*4 + 1] = (u8)(dwIRData >> 8);
+-			ir->irData[index*4 + 2] = (u8)(dwIRData >> 16);
+-			ir->irData[index*4 + 3] = (u8)(dwIRData >> 24);
++		dev_dbg(&rc_dev->dev, "ircount %d\n", ir_count);
++
++		read_loop = ir_count / 4;
++		if (ir_count % 4)
++			read_loop += 1;
++		for (index = 0; index < read_loop; index++) {
++			data = smi_read(IR_DATA_BUFFER_BASE + (index * 4));
++			dev_dbg(&rc_dev->dev, "IRData 0x%08x\n", data);
++
++			ir->irData[index * 4 + 0] = (u8)(data);
++			ir->irData[index * 4 + 1] = (u8)(data >> 8);
++			ir->irData[index * 4 + 2] = (u8)(data >> 16);
++			ir->irData[index * 4 + 3] = (u8)(data >> 24);
+ 		}
+-		smi_raw_process(rc_dev, ir->irData, ucIRCount);
+-		smi_set(IR_Init_Reg, rbIRVld);
++		smi_raw_process(rc_dev, ir->irData, ir_count);
  	}
  
- 	/* Handles IOCTL */
-@@ -3360,12 +3354,13 @@ video_usercopy(struct file *file, unsigned int orig_cmd, unsigned long arg,
- 		if (in_compat_syscall()) {
- 			int put_err;
+-	if (dwIRControl & rbIRhighidle) {
++	if (control & rbIRhighidle) {
+ 		struct ir_raw_event rawir = {};
  
--			put_err = v4l2_compat_put_array_args(file, user_ptr, mbuf,
--							     array_size, orig_cmd,
--							     parg);
-+			put_err = v4l2_compat_put_array_args(file, user_ptr,
-+							     array_buf,
-+							     array_size,
-+							     orig_cmd, parg);
- 			if (put_err)
- 				err = put_err;
--		} else if (copy_to_user(user_ptr, mbuf, array_size)) {
-+		} else if (copy_to_user(user_ptr, array_buf, array_size)) {
- 			err = -EFAULT;
- 		}
- 		goto out_array_args;
-@@ -3381,6 +3376,7 @@ video_usercopy(struct file *file, unsigned int orig_cmd, unsigned long arg,
- 	if (video_put_user((void __user *)arg, parg, cmd, orig_cmd))
- 		err = -EFAULT;
- out:
-+	kvfree(array_buf);
- 	kvfree(mbuf);
- 	return err;
++		dev_dbg(&rc_dev->dev, "high idle\n");
++
+ 		rawir.pulse = 0;
+ 		rawir.duration = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
+ 		ir_raw_event_store_with_filter(rc_dev, &rawir);
+-		smi_set(IR_Init_Reg, rbIRhighidle);
+ 	}
+ 
++	smi_set(IR_Init_Reg, rbIRVld);
+ 	ir_raw_event_handle(rc_dev);
+ }
+ 
+@@ -150,7 +156,7 @@ int smi_ir_init(struct smi_dev *dev)
+ 	rc_dev->dev.parent = &dev->pci_dev->dev;
+ 
+ 	rc_dev->map_name = dev->info->rc_map;
+-	rc_dev->timeout = MS_TO_US(100);
++	rc_dev->timeout = SMI_SAMPLE_PERIOD * SMI_SAMPLE_IDLEMIN;
+ 	rc_dev->rx_resolution = SMI_SAMPLE_PERIOD;
+ 
+ 	ir->rc_dev = rc_dev;
+@@ -173,7 +179,7 @@ void smi_ir_exit(struct smi_dev *dev)
+ 	struct smi_rc *ir = &dev->ir;
+ 	struct rc_dev *rc_dev = ir->rc_dev;
+ 
+-	smi_ir_stop(ir);
+ 	rc_unregister_device(rc_dev);
++	smi_ir_stop(ir);
+ 	ir->rc_dev = NULL;
  }
 
