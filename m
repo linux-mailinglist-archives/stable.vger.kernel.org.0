@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98BA9328504
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F0E3284E5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:45:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233119AbhCAQra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:47:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41536 "EHLO mail.kernel.org"
+        id S231605AbhCAQo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234021AbhCAQjC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:39:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BCA764F87;
-        Mon,  1 Mar 2021 16:28:16 +0000 (UTC)
+        id S234837AbhCAQie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:38:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FFB764F3D;
+        Mon,  1 Mar 2021 16:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616097;
-        bh=VzcM2zK0CXIH9uHqMj0F35NuxWY5WDsoXlYHg6auVLU=;
+        s=korg; t=1614616028;
+        bh=SNrveaONStfhkIgdfPH3/YzlfHnCc4muwdickba39/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iT1J/IORtXVOAo9Nn0yapmBdtlua8mmOxCbosQmJCD+ouRKctFhx7jAAHEo6yqb+f
-         e6AL4Q9OnXxFspSkcnUaS8q9kJe6oBk0FiedMo8stOxQdUDNva5R8JcUwoILtv+kNs
-         thzyjpkt7PaNIurrqJnmtCmjwcTd6KwZR2wDeR8o=
+        b=mXadaVdJGsYQIhmT/dBrRaefJdMFdkTtvEekLW9B7bz/HnQazHnQpe1BCvp4bs1BC
+         y2V3m8PyZiz7N7nZbm+dVGU2VR+P5xV+iIMRqu5T9G0WmnDDnfPEkq4SuJ1jgLq+QZ
+         mkKdm9PymOVacWogM4Hy48upx36mxk8jtVE3s+us=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Daniel Thompson <daniel.thompson@linaro.org>
-Subject: [PATCH 4.14 009/176] kdb: Make memory allocations more robust
-Date:   Mon,  1 Mar 2021 17:11:22 +0100
-Message-Id: <20210301161021.416348129@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
+        Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.14 010/176] MIPS: vmlinux.lds.S: add missing PAGE_ALIGNED_DATA() section
+Date:   Mon,  1 Mar 2021 17:11:23 +0100
+Message-Id: <20210301161021.465841714@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -39,40 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Garg <sumit.garg@linaro.org>
+From: Alexander Lobakin <alobakin@pm.me>
 
-commit 93f7a6d818deef69d0ba652d46bae6fbabbf365c upstream.
+commit 8ac7c87acdcac156670f9920c8acbd84308ff4b1 upstream.
 
-Currently kdb uses in_interrupt() to determine whether its library
-code has been called from the kgdb trap handler or from a saner calling
-context such as driver init. This approach is broken because
-in_interrupt() alone isn't able to determine kgdb trap handler entry from
-normal task context. This can happen during normal use of basic features
-such as breakpoints and can also be trivially reproduced using:
-echo g > /proc/sysrq-trigger
+MIPS uses its own declaration of rwdata, and thus it should be kept
+in sync with the asm-generic one. Currently PAGE_ALIGNED_DATA() is
+missing from the linker script, which emits the following ld
+warnings:
 
-We can improve this by adding check for in_dbg_master() instead which
-explicitly determines if we are running in debugger context.
+mips-alpine-linux-musl-ld: warning: orphan section
+`.data..page_aligned' from `arch/mips/kernel/vdso.o' being placed
+in section `.data..page_aligned'
+mips-alpine-linux-musl-ld: warning: orphan section
+`.data..page_aligned' from `arch/mips/vdso/vdso-image.o' being placed
+in section `.data..page_aligned'
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
-Link: https://lore.kernel.org/r/1611313556-4004-1-git-send-email-sumit.garg@linaro.org
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
+Add the necessary declaration, so the mentioned structures will be
+placed in vmlinux as intended:
+
+ffffffff80630580 D __end_once
+ffffffff80630580 D __start___dyndbg
+ffffffff80630580 D __start_once
+ffffffff80630580 D __stop___dyndbg
+ffffffff80634000 d mips_vdso_data
+ffffffff80638000 d vdso_data
+ffffffff80638580 D _gp
+ffffffff8063c000 T __init_begin
+ffffffff8063c000 D _edata
+ffffffff8063c000 T _sinittext
+
+->
+
+ffffffff805a4000 D __end_init_task
+ffffffff805a4000 D __nosave_begin
+ffffffff805a4000 D __nosave_end
+ffffffff805a4000 d mips_vdso_data
+ffffffff805a8000 d vdso_data
+ffffffff805ac000 D mmlist_lock
+ffffffff805ac080 D tasklist_lock
+
+Fixes: ebb5e78cc634 ("MIPS: Initial implementation of a VDSO")
+Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Cc: stable@vger.kernel.org # 4.4+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/debug/kdb/kdb_private.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/debug/kdb/kdb_private.h
-+++ b/kernel/debug/kdb/kdb_private.h
-@@ -233,7 +233,7 @@ extern struct task_struct *kdb_curr_task
- #define	kdb_do_each_thread(g, p) do_each_thread(g, p)
- #define	kdb_while_each_thread(g, p) while_each_thread(g, p)
+--- a/arch/mips/kernel/vmlinux.lds.S
++++ b/arch/mips/kernel/vmlinux.lds.S
+@@ -93,6 +93,7 @@ SECTIONS
  
--#define GFP_KDB (in_interrupt() ? GFP_ATOMIC : GFP_KERNEL)
-+#define GFP_KDB (in_dbg_master() ? GFP_ATOMIC : GFP_KERNEL)
- 
- extern void *debug_kmalloc(size_t size, gfp_t flags);
- extern void debug_kfree(void *);
+ 		INIT_TASK_DATA(THREAD_SIZE)
+ 		NOSAVE_DATA
++		PAGE_ALIGNED_DATA(PAGE_SIZE)
+ 		CACHELINE_ALIGNED_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
+ 		READ_MOSTLY_DATA(1 << CONFIG_MIPS_L1_CACHE_SHIFT)
+ 		DATA_DATA
 
 
