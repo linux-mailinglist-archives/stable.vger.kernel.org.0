@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA01B328A02
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 175A23289DD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239147AbhCASJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:09:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
+        id S238199AbhCASHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:07:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239319AbhCASDh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:03:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA0DB65014;
-        Mon,  1 Mar 2021 17:10:42 +0000 (UTC)
+        id S238446AbhCASBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:01:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 795A965319;
+        Mon,  1 Mar 2021 17:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618643;
-        bh=WFhLke/mMFwdpNRneuTRhMm2ax9AsNEYxH8qoLqz1KY=;
+        s=korg; t=1614620600;
+        bh=aCzIOW8nxMmO1Kpwz8TKbV75oBREFmR3a8tv0qBT4qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQvdtmf8zk+w9zMN7JTTJ0HhI9GVknHvpiH5mHjzzkFEukoE4a4EdvQjYovYPQrHn
-         mOCEpbqdK9q4NdGNsVTFMuINkbfLfskuRXkv6pkm2SGrW+revbXaRSLFkXvQIu14/g
-         n2tkv059sWVH7C2dvxgFI9ReTQtT8KeoFotKRdko=
+        b=zmeIUwJyBWkgTvOgl0MlGFjQcEllfm7443XW+PnK26uIJvOktSsoKzF6AuzU/uan4
+         JZtx8rnkOq171iEe19Xj+O6ejvNity68NCZG/sBJyJbK9DlaZnqMkTny0E0HFBDnZN
+         APgLrAyHx18COOXAEU55s69Kx7M4YkJEfoLqu2oE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Rui Miguel Silva <rmfrfs@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 132/663] net: amd-xgbe: Reset link when the link never comes back
+Subject: [PATCH 5.11 212/775] media: imx7: csi: Fix regression for parallel cameras on i.MX6UL
 Date:   Mon,  1 Mar 2021 17:06:20 +0100
-Message-Id: <20210301161148.282060695@linuxfoundation.org>
+Message-Id: <20210301161212.111978371@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 84fe68eb67f9499309cffd97c1ba269de125ff14 ]
+[ Upstream commit 9bac67214fbf4b5f23463f7742ccf69bfe684cbd ]
 
-Normally, auto negotiation and reconnect should be automatically done by
-the hardware. But there seems to be an issue where auto negotiation has
-to be restarted manually. This happens because of link training and so
-even though still connected to the partner the link never "comes back".
-This needs an auto-negotiation restart.
+Commit 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as
+a CSI mux") made an incorrect assumption that for imx7-media-csi,
+the bound subdev must always be a CSI mux. On i.MX6UL/i.MX6ULL there
+is no CSI mux at all, so do not return an error when the entity is not a
+video mux and assign the IMX_MEDIA_GRP_ID_CSI_MUX group id only when
+appropriate.
 
-Also, a change in xgbe-mdio is needed to get ethtool to recognize the
-link down and get the link change message. This change is only
-required in a backplane connection mode.
+This is the same approach as done in imx-media-csi.c and it fixes the
+csi probe regression on i.MX6UL.
 
-Fixes: abf0a1c2b26a ("amd-xgbe: Add support for SFP+ modules")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested on a imx6ull-evk board.
+
+Fixes: 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as a CSI mux")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Rui Miguel Silva <rmfrfs@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-mdio.c   | 2 +-
- drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 8 ++++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ drivers/staging/media/imx/imx7-media-csi.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-index 19ee4db0156d6..4e97b48695220 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-@@ -1345,7 +1345,7 @@ static void xgbe_phy_status(struct xgbe_prv_data *pdata)
- 							     &an_restart);
- 	if (an_restart) {
- 		xgbe_phy_config_aneg(pdata);
--		return;
-+		goto adjust_link;
- 	}
+diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
+index a3f3df9017046..31e36168f9d0f 100644
+--- a/drivers/staging/media/imx/imx7-media-csi.c
++++ b/drivers/staging/media/imx/imx7-media-csi.c
+@@ -1164,12 +1164,12 @@ static int imx7_csi_notify_bound(struct v4l2_async_notifier *notifier,
+ 	struct imx7_csi *csi = imx7_csi_notifier_to_dev(notifier);
+ 	struct media_pad *sink = &csi->sd.entity.pads[IMX7_CSI_PAD_SINK];
  
- 	if (pdata->phy.link) {
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-index 087948085ae19..d3f72faecd1da 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
-@@ -2610,6 +2610,14 @@ static int xgbe_phy_link_status(struct xgbe_prv_data *pdata, int *an_restart)
- 	if (reg & MDIO_STAT1_LSTATUS)
- 		return 1;
+-	/* The bound subdev must always be the CSI mux */
+-	if (WARN_ON(sd->entity.function != MEDIA_ENT_F_VID_MUX))
+-		return -ENXIO;
+-
+-	/* Mark it as such via its group id */
+-	sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
++	/*
++	 * If the subdev is a video mux, it must be one of the CSI
++	 * muxes. Mark it as such via its group id.
++	 */
++	if (sd->entity.function == MEDIA_ENT_F_VID_MUX)
++		sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
  
-+	if (pdata->phy.autoneg == AUTONEG_ENABLE &&
-+	    phy_data->port_mode == XGBE_PORT_MODE_BACKPLANE) {
-+		if (!test_bit(XGBE_LINK_INIT, &pdata->dev_state)) {
-+			netif_carrier_off(pdata->netdev);
-+			*an_restart = 1;
-+		}
-+	}
-+
- 	/* No link, attempt a receiver reset cycle */
- 	if (phy_data->rrc_count++ > XGBE_RRC_FREQUENCY) {
- 		phy_data->rrc_count = 0;
+ 	return v4l2_create_fwnode_links_to_pad(sd, sink);
+ }
 -- 
 2.27.0
 
