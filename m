@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A269D329131
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4687D32913D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240596AbhCAUVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:21:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39924 "EHLO mail.kernel.org"
+        id S243127AbhCAUXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:23:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238669AbhCAUNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:13:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F4A653CF;
-        Mon,  1 Mar 2021 18:02:05 +0000 (UTC)
+        id S242407AbhCAUQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:16:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B51653D2;
+        Mon,  1 Mar 2021 18:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621726;
-        bh=T1pp/baZMyBm9ebUv0FYbUIXiA0F/tVQAKGSVMsPi5A=;
+        s=korg; t=1614621731;
+        bh=yGdYWvNuFZncbwZNiLQfD7jXjmOmiTOQhKTxlaNTqVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VK2k8FGdEbZKJSji+Egylcjyy5JYRsHGt283Uhf3lfjje45lXddQbb2Go26in9Z7n
-         mzZv8adijVdqR10o/C52IRp/WTpscY5vO2IoWzqVHjqfm202KKlmEGkZ1wunLkdTza
-         1GdmftFrKkNKuJ5TAu/Q3Up4MS2A0mMLSMmz+jH8=
+        b=ztu+G5eCo98yHhF5DIavrdTe/6r39OaQZZyTWE3WENSx7osKLwPzDMsDq32hRtD9Y
+         8dIgCeUo8O8YUQ0V5tKrLqcAzMhn9heSgvUSadBQ/qoeNXqSJOOQhD2XL/EvA0Tck9
+         71k/Xct8HLZK5n8FRCOWgwpSXaZ/wvP9XoCmviaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.11 621/775] drm/nouveau/kms: handle mDP connectors
-Date:   Mon,  1 Mar 2021 17:13:09 +0100
-Message-Id: <20210301161232.084425546@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Chris Wilson <chris@chris-wilson.co.uk>
+Subject: [PATCH 5.11 622/775] drm/modes: Switch to 64bit maths to avoid integer overflow
+Date:   Mon,  1 Mar 2021 17:13:10 +0100
+Message-Id: <20210301161232.133522074@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,50 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karol Herbst <kherbst@redhat.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit d1f5a3fc85566e9ddce9361ef180f070367e6eab upstream.
+commit 5b34ab52401f0f1f191bcb83a182c83b506f4763 upstream.
 
-In some cases we have the handle those explicitly as the fallback
-connector type detection fails and marks those as eDP connectors.
-
-Attempting to use such a connector with mutter leads to a crash of mutter
-as it ends up with two eDP displays.
-
-Information is taken from the official DCB documentation.
+The new >8k CEA modes have dotclocks reaching 5.94 GHz, which
+means our clock*1000 will now overflow the 32bit unsigned
+integer. Switch to 64bit maths to avoid it.
 
 Cc: stable@vger.kernel.org
-Cc: dri-devel@lists.freedesktop.org
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Reported-by: Mark Pearson <markpearson@lenovo.com>
-Tested-by: Mark Pearson <markpearson@lenovo.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201022194256.30978-1-ville.syrjala@linux.intel.com
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h |    1 +
- drivers/gpu/drm/nouveau/nouveau_connector.c             |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/gpu/drm/drm_modes.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
-+++ b/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
-@@ -14,6 +14,7 @@ enum dcb_connector_type {
- 	DCB_CONNECTOR_LVDS_SPWG = 0x41,
- 	DCB_CONNECTOR_DP = 0x46,
- 	DCB_CONNECTOR_eDP = 0x47,
-+	DCB_CONNECTOR_mDP = 0x48,
- 	DCB_CONNECTOR_HDMI_0 = 0x60,
- 	DCB_CONNECTOR_HDMI_1 = 0x61,
- 	DCB_CONNECTOR_HDMI_C = 0x63,
---- a/drivers/gpu/drm/nouveau/nouveau_connector.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
-@@ -1210,6 +1210,7 @@ drm_conntype_from_dcb(enum dcb_connector
- 	case DCB_CONNECTOR_DMS59_DP0:
- 	case DCB_CONNECTOR_DMS59_DP1:
- 	case DCB_CONNECTOR_DP       :
-+	case DCB_CONNECTOR_mDP      :
- 	case DCB_CONNECTOR_USB_C    : return DRM_MODE_CONNECTOR_DisplayPort;
- 	case DCB_CONNECTOR_eDP      : return DRM_MODE_CONNECTOR_eDP;
- 	case DCB_CONNECTOR_HDMI_0   :
+--- a/drivers/gpu/drm/drm_modes.c
++++ b/drivers/gpu/drm/drm_modes.c
+@@ -762,7 +762,7 @@ int drm_mode_vrefresh(const struct drm_d
+ 	if (mode->htotal == 0 || mode->vtotal == 0)
+ 		return 0;
+ 
+-	num = mode->clock * 1000;
++	num = mode->clock;
+ 	den = mode->htotal * mode->vtotal;
+ 
+ 	if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+@@ -772,7 +772,7 @@ int drm_mode_vrefresh(const struct drm_d
+ 	if (mode->vscan > 1)
+ 		den *= mode->vscan;
+ 
+-	return DIV_ROUND_CLOSEST(num, den);
++	return DIV_ROUND_CLOSEST_ULL(mul_u32_u32(num, 1000), den);
+ }
+ EXPORT_SYMBOL(drm_mode_vrefresh);
+ 
 
 
