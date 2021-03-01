@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 861E3328F44
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA86328F5A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbhCATsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:48:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
+        id S241975AbhCATuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:50:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235942AbhCATjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:39:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E0B764F0D;
-        Mon,  1 Mar 2021 17:48:44 +0000 (UTC)
+        id S241581AbhCATlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:41:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A7BC64F0E;
+        Mon,  1 Mar 2021 17:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620925;
-        bh=16Xium9/mJhPOnQgINPgCCZJEyE+4Txv8T3M1DusMBg=;
+        s=korg; t=1614620927;
+        bh=g1usZ+0fyh63Zw3piHj29Zi3LnenuyArO9xSGTFUz3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GKllmwcKdxU81gq27nmTFKMGZEVcX7/kcNFsdsbJ2smQ5t8DkuFhER3C55Rpg4M+P
-         vWJmyXNF8VcJizTEOEezuJN1MyhwkQadHEI8ezyuNHJ+gxxclBCpNJezCFsiGMOJ8J
-         deH5QofTWgIhesM94W0lP+GdCUdrrd/AOTtTnt1s=
+        b=bXKmh0z2pLBQTsgH0WHR/xYTwduYnTiNTTXB2tgksQ/BT2k5U9IsYOnpoepWbQK+s
+         qoth0bX2ENbTQGkfhI+h2+mVzlpyomdENpUlxybun+yT1wb5l12UH0X/MIjNRFQ9wr
+         U/BFwtMNTy6RV1XmGPAW5g9OzUcTHt1T/I1JJimY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
+        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 328/775] dmaengine: qcom: Always inline gpi_update_reg
-Date:   Mon,  1 Mar 2021 17:08:16 +0100
-Message-Id: <20210301161217.829947027@linuxfoundation.org>
+Subject: [PATCH 5.11 329/775] dmaengine: ti: k3-udma: Set rflow count for BCDMA split channels
+Date:   Mon,  1 Mar 2021 17:08:17 +0100
+Message-Id: <20210301161217.875590942@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,47 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 0a6d3038d914b51d6860f23ea2b508590e8340de ]
+[ Upstream commit aecf9d38361090857aa58708e500ee79bed1e273 ]
 
-When building with CONFIG_UBSAN_UNSIGNED_OVERFLOW, clang decides not to
-inline gpi_update_reg, which causes a linkage failure around __bad_mask:
+BCDMA RX channels have one flow per channel, therefore set the rflow_cnt
+to rchan_cnt.
 
-ld.lld: error: undefined symbol: __bad_mask
->>> referenced by bitfield.h:119 (include/linux/bitfield.h:119)
->>>               dma/qcom/gpi.o:(gpi_update_reg) in archive drivers/built-in.a
->>> referenced by bitfield.h:119 (include/linux/bitfield.h:119)
->>>               dma/qcom/gpi.o:(gpi_update_reg) in archive drivers/built-in.a
+Without this patch, request for BCDMA RX channel allocation fails as
+rflow_cnt is 0 thus fails to reserve a rflow for the channel.
 
-If gpi_update_reg is not inlined, the mask value will not be known at
-compile time so the check in field_multiplier stays in the final
-object file, causing the above linkage failure. Always inline
-gpi_update_reg so that this check can never fail.
-
-Fixes: 5d0c3533a19f ("dmaengine: qcom: Add GPI dma driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1243
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Link: https://lore.kernel.org/r/20210112191214.1264793-1-natechancellor@gmail.com
+Fixes: 8844898028d4 ("dmaengine: ti: k3-udma: Add support for BCDMA channel TPL handling")
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20210112141403.30286-1-vigneshr@ti.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/gpi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ti/k3-udma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
-index 1a0bf6b0567a5..e48eb397f433d 100644
---- a/drivers/dma/qcom/gpi.c
-+++ b/drivers/dma/qcom/gpi.c
-@@ -584,7 +584,7 @@ static inline void gpi_write_reg_field(struct gpii *gpii, void __iomem *addr,
- 	gpi_write_reg(gpii, addr, val);
- }
- 
--static inline void
-+static __always_inline void
- gpi_update_reg(struct gpii *gpii, u32 offset, u32 mask, u32 val)
- {
- 	void __iomem *addr = gpii->regs + offset;
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index f474a12323354..46bc1a419bdfb 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -4306,6 +4306,7 @@ static int udma_get_mmrs(struct platform_device *pdev, struct udma_dev *ud)
+ 		ud->bchan_cnt = BCDMA_CAP2_BCHAN_CNT(cap2);
+ 		ud->tchan_cnt = BCDMA_CAP2_TCHAN_CNT(cap2);
+ 		ud->rchan_cnt = BCDMA_CAP2_RCHAN_CNT(cap2);
++		ud->rflow_cnt = ud->rchan_cnt;
+ 		break;
+ 	case DMA_TYPE_PKTDMA:
+ 		cap4 = udma_read(ud->mmrs[MMR_GCFG], 0x30);
 -- 
 2.27.0
 
