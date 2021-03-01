@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B41593289FA
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1C683289A5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:03:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhCASJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:09:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54092 "EHLO mail.kernel.org"
+        id S238663AbhCASBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:01:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238960AbhCASCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:02:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9945E651D5;
-        Mon,  1 Mar 2021 17:17:40 +0000 (UTC)
+        id S236811AbhCARyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:54:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C757C64F95;
+        Mon,  1 Mar 2021 17:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619061;
-        bh=U/IgthPYfK2vQ3LO/QcjtFLaKIoHRiltgLmmsYS5/Cw=;
+        s=korg; t=1614619069;
+        bh=9TAtc3AALJ+x24LXjdljtfOseMQZUmjCax3PlP1uWbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlcapZTe3D0KFswzhKUaZWSeteljt6sLQRV0UNOFU2CL3WBOEATh/x9/hn13Hsa4F
-         0UF59v+1Jp6A416Io2YO8sPJSFcqnIXn3cxU1Hp7cxpKu0yJEJ961HXpZIPtcKbswH
-         1ZhawHBpqC1AuAVGVA0/5H0BrSz+MEzjJ1DLhR1Y=
+        b=xakicuarfgxmuP4clAcNj9jJD5kAnw/d9LIcNInIQIe7PgpyqWjgycWVq6cGIk6go
+         37tw7JTpUs3fReMRMovMbR9Zo3TQ2B+jiRxyZcfsq2gGeHLvqV8t+iwYrEQ4rHyDMX
+         PKMmjPqJaGZJk/BTCeSUD6RWwEn21y7s8OFO8uKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 317/663] auxdisplay: ht16k33: Fix refresh rate handling
-Date:   Mon,  1 Mar 2021 17:09:25 +0100
-Message-Id: <20210301161157.535023324@linuxfoundation.org>
+Subject: [PATCH 5.10 320/663] objtool: Fix ".cold" section suffix check for newer versions of GCC
+Date:   Mon,  1 Mar 2021 17:09:28 +0100
+Message-Id: <20210301161157.687094804@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,35 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-[ Upstream commit e89b0a426721a8ca5971bc8d70aa5ea35c020f90 ]
+[ Upstream commit 34ca59e109bdf69704c33b8eeffaa4c9f71076e5 ]
 
-Drop the call to msecs_to_jiffies(), as "HZ / fbdev->refresh_rate" is
-already the number of jiffies to wait.
+With my version of GCC 9.3.1 the ".cold" subfunctions no longer have a
+numbered suffix, so the trailing period is no longer there.
 
-Fixes: 8992da44c6805d53 ("auxdisplay: ht16k33: Driver for LED controller")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Miguel Ojeda <ojeda@kernel.org>
+Presumably this doesn't yet trigger a user-visible bug since most of the
+subfunction detection logic is duplicated.   I only found it when
+testing vmlinux.o validation.
+
+Fixes: 54262aa28301 ("objtool: Fix sibling call detection")
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lore.kernel.org/r/ca0b5a57f08a2fbb48538dd915cc253b5edabb40.1611263461.git.jpoimboe@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/auxdisplay/ht16k33.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/objtool/check.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/auxdisplay/ht16k33.c b/drivers/auxdisplay/ht16k33.c
-index d951d54b26f52..d8602843e8a53 100644
---- a/drivers/auxdisplay/ht16k33.c
-+++ b/drivers/auxdisplay/ht16k33.c
-@@ -117,8 +117,7 @@ static void ht16k33_fb_queue(struct ht16k33_priv *priv)
- {
- 	struct ht16k33_fbdev *fbdev = &priv->fbdev;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 48e22e3c6f186..dc24aac08edd6 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -850,8 +850,8 @@ static int add_jump_destinations(struct objtool_file *file)
+ 			 * case where the parent function's only reference to a
+ 			 * subfunction is through a jump table.
+ 			 */
+-			if (!strstr(insn->func->name, ".cold.") &&
+-			    strstr(insn->jump_dest->func->name, ".cold.")) {
++			if (!strstr(insn->func->name, ".cold") &&
++			    strstr(insn->jump_dest->func->name, ".cold")) {
+ 				insn->func->cfunc = insn->jump_dest->func;
+ 				insn->jump_dest->func->pfunc = insn->func;
  
--	schedule_delayed_work(&fbdev->work,
--			      msecs_to_jiffies(HZ / fbdev->refresh_rate));
-+	schedule_delayed_work(&fbdev->work, HZ / fbdev->refresh_rate);
- }
- 
- /*
 -- 
 2.27.0
 
