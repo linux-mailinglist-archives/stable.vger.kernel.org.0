@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F303285B8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA143284B2
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236014AbhCAQ5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:57:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
+        id S234887AbhCAQlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:41:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235517AbhCAQvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:51:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE4C564FBC;
-        Mon,  1 Mar 2021 16:33:39 +0000 (UTC)
+        id S234149AbhCAQeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:34:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1649164F60;
+        Mon,  1 Mar 2021 16:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616420;
-        bh=M34w/zap8absiL+D+1BoyhxGswPSwaINYkePrI6viOY=;
+        s=korg; t=1614615947;
+        bh=vDv+sTBIFrKQiS+hGgvqHq46Y1JQixVPifA1KzR0Sps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k7CBsBVZaKRJol0nkERrPByqtsXsf0t9F4QwHUKn1QdY2zNgIZlGbg9vc4JdbMAgB
-         Vkt16sPOl3x0ozzg3HXoF5JYLeh8vA8V7AUGqtdpmwakwi2hv9+w8YoPot+JbxUAxq
-         60uv1LbRK8UVBYM2PzQ0RfbsLPu3PpntcYWDNOC0=
+        b=gk3EhcUPDyjmdsx4FAZMoK3SF1R7JeimuTkIWJeAhYZTW+SSt7eN6hiQMQS9woiin
+         Ad610bTwSVnViSsYCHoBogivKiZDPZmCNLZ7NdYKFnaOA/pQY+arsN9YMld+HZ4GnX
+         Fmw5G+SbUmodDiSwacJDXgQbZ7d89FgdnXDeePRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Subject: [PATCH 4.14 145/176] drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.9 117/134] f2fs: fix out-of-repair __setattr_copy()
 Date:   Mon,  1 Mar 2021 17:13:38 +0100
-Message-Id: <20210301161028.215905893@linuxfoundation.org>
+Message-Id: <20210301161019.347505696@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e upstream.
+commit 2562515f0ad7342bde6456602c491b64c63fe950 upstream.
 
-syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
-when num_pages is 0x100001, giving queue_size + queue_page_size
-bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
-condition.
+__setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
+two missing patches doesn't cover this inner function, fix it.
 
-queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
+Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
+Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
 
-[1]
-Call Trace:
- alloc_pages include/linux/gfp.h:547 [inline]
- kmalloc_order+0x40/0x130 mm/slab_common.c:837
- kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
- kmalloc_large include/linux/slab.h:481 [inline]
- __kmalloc+0x257/0x330 mm/slub.c:3959
- kmalloc include/linux/slab.h:557 [inline]
- kzalloc include/linux/slab.h:682 [inline]
- qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
- qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
- qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
-
-Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
+Cc: stable@vger.kernel.org
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/file.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -639,6 +639,9 @@ static struct vmci_queue *qp_host_alloc_
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -682,7 +682,8 @@ static void __setattr_copy(struct inode
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
- 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
- 
-+	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
-+		return NULL;
-+
- 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
- 	if (queue) {
- 		queue->q_header = NULL;
+-		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
++		if (!in_group_p(inode->i_gid) &&
++			!capable_wrt_inode_uidgid(inode, CAP_FSETID))
+ 			mode &= ~S_ISGID;
+ 		set_acl_inode(inode, mode);
+ 	}
 
 
