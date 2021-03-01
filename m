@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE0A3290E8
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:21:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EB553290EA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:21:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242468AbhCAURQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:17:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37640 "EHLO mail.kernel.org"
+        id S242964AbhCAURU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:17:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242382AbhCAUHJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242360AbhCAUHJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:07:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B81FB653A8;
-        Mon,  1 Mar 2021 17:59:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65084653A9;
+        Mon,  1 Mar 2021 17:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621562;
-        bh=Yew9bKmg9JYsblQ5sw1CW89HqSXIK+x2rqcYWQHtVWU=;
+        s=korg; t=1614621565;
+        bh=Ph39ukhHNn64Qp+Lp14z1tuqyChN+Y7Q8EkecGp+96U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQTEx5FEppdw+6Zr0Pm7bChEe4jvRFH8SAqrv9CNoAa6kfQEJAAEz4+wGcPq2i4hj
-         Tjpwsn/nmlFHighr4BOvkfSBR+RdfGIJku/HViyEVZ3XMIw3nShUDQunTBDpsFzrz5
-         aRyoBEUTfDYHAlXI2uXxGah6J7LAtvq+AuVvYnto=
+        b=Ngn969lN0Tz/Y0bBG74duwYSCdwxYdasTg3XGdYe5nIJWz03GkCobAM6B+0QoQZQu
+         mmvhtM8FXpY7SA6/PDXetiBuQSapIt92NozW2QUkmgUy+D9479rthOYLu9AvOwAipR
+         gYD1MmQ/ytmjmJfyuzNgyEQTgrCuy1uJIJX0kJnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jeff LaBundy <jeff@labundy.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 532/775] octeontx2-af: Fix an off by one in rvu_dbg_qsize_write()
-Date:   Mon,  1 Mar 2021 17:11:40 +0100
-Message-Id: <20210301161227.781752388@linuxfoundation.org>
+Subject: [PATCH 5.11 533/775] pwm: iqs620a: Fix overflow and optimize calculations
+Date:   Mon,  1 Mar 2021 17:11:41 +0100
+Message-Id: <20210301161227.829507175@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,34 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 3a2eb515d1367c0f667b76089a6e727279c688b8 ]
+[ Upstream commit 72d6b2459dbd539c1369149e501fdc3dc8ddef16 ]
 
-This code does not allocate enough memory for the NUL terminator so it
-ends up putting it one character beyond the end of the buffer.
+If state->duty_cycle is 0x100000000000000, the previous calculation of
+duty_scale overflows and yields a duty cycle ratio of 0% instead of
+100%. Fix this by clamping the requested duty cycle to the maximal
+possible duty cycle first. This way it is possible to use a native
+integer division instead of a (depending on the architecture) more
+expensive 64bit division.
 
-Fixes: 8756828a8148 ("octeontx2-af: Add NPA aura and pool contexts to debugfs")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+With this change in place duty_scale cannot be bigger than 256 which
+allows to simplify the calculation of duty_val.
+
+Fixes: 6f0841a8197b ("pwm: Add support for Azoteq IQS620A PWM generator")
+Tested-by: Jeff LaBundy <jeff@labundy.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-iqs620a.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-index d27543c1a166a..bb3fdaf337519 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
-@@ -385,7 +385,7 @@ static ssize_t rvu_dbg_qsize_write(struct file *filp,
- 	u16 pcifunc;
- 	int ret, lf;
+diff --git a/drivers/pwm/pwm-iqs620a.c b/drivers/pwm/pwm-iqs620a.c
+index 5ede8255926ef..14b18fb4f5274 100644
+--- a/drivers/pwm/pwm-iqs620a.c
++++ b/drivers/pwm/pwm-iqs620a.c
+@@ -46,7 +46,8 @@ static int iqs620_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ {
+ 	struct iqs620_pwm_private *iqs620_pwm;
+ 	struct iqs62x_core *iqs62x;
+-	u64 duty_scale;
++	unsigned int duty_cycle;
++	unsigned int duty_scale;
+ 	int ret;
  
--	cmd_buf = memdup_user(buffer, count);
-+	cmd_buf = memdup_user(buffer, count + 1);
- 	if (IS_ERR(cmd_buf))
- 		return -ENOMEM;
+ 	if (state->polarity != PWM_POLARITY_NORMAL)
+@@ -70,7 +71,8 @@ static int iqs620_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	 * For lower duty cycles (e.g. 0), the PWM output is simply disabled to
+ 	 * allow an external pull-down resistor to hold the GPIO3/LTX pin low.
+ 	 */
+-	duty_scale = div_u64(state->duty_cycle * 256, IQS620_PWM_PERIOD_NS);
++	duty_cycle = min_t(u64, state->duty_cycle, IQS620_PWM_PERIOD_NS);
++	duty_scale = duty_cycle * 256 / IQS620_PWM_PERIOD_NS;
  
+ 	mutex_lock(&iqs620_pwm->lock);
+ 
+@@ -82,7 +84,7 @@ static int iqs620_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	}
+ 
+ 	if (duty_scale) {
+-		u8 duty_val = min_t(u64, duty_scale - 1, 0xff);
++		u8 duty_val = duty_scale - 1;
+ 
+ 		ret = regmap_write(iqs62x->regmap, IQS620_PWM_DUTY_CYCLE,
+ 				   duty_val);
 -- 
 2.27.0
 
