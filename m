@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC689328EDF
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B659A328EA1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235904AbhCATjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:39:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S242021AbhCATe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:34:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241948AbhCATaA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:30:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE62465011;
-        Mon,  1 Mar 2021 17:49:16 +0000 (UTC)
+        id S241752AbhCAT3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:29:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B67A1651BF;
+        Mon,  1 Mar 2021 17:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620957;
-        bh=tHg2+MikqaDYNqnDZ5PJAXhsh+XyAi4vbJvxI0/c9EI=;
+        s=korg; t=1614618998;
+        bh=Rh+Y3qbRoDXJ60BNGZS75Fm1ObrDfLuiNCMDohEsR+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XZYXywb2pragNNGwOGNxHdHoBt/ZK1E2NgColKQE9YdostYvQmihoHBm9Ak9a6yWO
-         N2Sc02qkuzNh1oIjNIZRUEiXP6j+pdeNVPOguwZBmCnWzuLN/5AB9WW+jG+jFBiaUK
-         JCuK5r0EkgF5bgqu8C9ppQlBO/iPQr8rMNcKdU/8=
+        b=EC5/SDZo2rxyv29c2eqSlABdkZ0xqVuui8NwhCESmQFpGOrftWQWjqeFTeEhwMtng
+         m4DVGLUKAE0h/WPX/zUW+B3KlQByV6Kepkfw0JgT1UH6lJlxowrjsCCcw+M9glb6Tt
+         6sEz9Uln6j3apKcpZ4bhw4MEX5jaNu5b/wtzshsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Guoqing Jiang <guoqing.jiang@cloud.ionos.com>,
-        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
-        Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 342/775] RDMA/rtrs-srv: Jump to dereg_mr label if allocate iu fails
-Date:   Mon,  1 Mar 2021 17:08:30 +0100
-Message-Id: <20210301161218.521252985@linuxfoundation.org>
+Subject: [PATCH 5.10 264/663] regulator: qcom-rpmh-regulator: add pm8009-1 chip revision
+Date:   Mon,  1 Mar 2021 17:08:32 +0100
+Message-Id: <20210301161154.876964311@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit f77c4839ee8f4612dcb6601602329096030bd813 ]
+[ Upstream commit 951384cabc5dfb09251d440dbc26058eba86f97e ]
 
-The rtrs_iu_free is called in rtrs_iu_alloc if memory is limited, so we
-don't need to free the same iu again.
+PM8009 has special revision (P=1), which is to be used for sm8250
+platform. The major difference is the S2 regulator which supplies 0.95 V
+instead of 2.848V. Declare regulators data to be used for this chip
+revision. The datasheet calls the chip just pm8009-1, so use the same
+name.
 
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20201217141915.56989-7-jinpu.wang@cloud.ionos.com
-Signed-off-by: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Reviewed-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Fixes: 06369bcc15a1 ("regulator: qcom-rpmh: Add support for SM8150")
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20201231122348.637917-4-dmitry.baryshkov@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/regulator/qcom-rpmh-regulator.c | 26 +++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 341661f42add0..92a216ddd9fd3 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -651,7 +651,7 @@ static int map_cont_bufs(struct rtrs_srv_sess *sess)
- 			if (!srv_mr->iu) {
- 				err = -ENOMEM;
- 				rtrs_err(ss, "rtrs_iu_alloc(), err: %d\n", err);
--				goto free_iu;
-+				goto dereg_mr;
- 			}
- 		}
- 		/* Eventually dma addr for each chunk can be cached */
-@@ -667,7 +667,6 @@ err:
- 			srv_mr = &sess->mrs[mri];
- 			sgt = &srv_mr->sgt;
- 			mr = srv_mr->mr;
--free_iu:
- 			rtrs_iu_free(srv_mr->iu, sess->s.dev->ib_dev, 1);
- dereg_mr:
- 			ib_dereg_mr(mr);
+diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
+index a22c4b5f64f7e..ba838c4cf2b8b 100644
+--- a/drivers/regulator/qcom-rpmh-regulator.c
++++ b/drivers/regulator/qcom-rpmh-regulator.c
+@@ -732,6 +732,15 @@ static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
+ 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
+ };
+ 
++static const struct rpmh_vreg_hw_data pmic5_hfsmps515_1 = {
++	.regulator_type = VRM,
++	.ops = &rpmh_regulator_vrm_ops,
++	.voltage_range = REGULATOR_LINEAR_RANGE(900000, 0, 4, 16000),
++	.n_voltages = 5,
++	.pmic_mode_map = pmic_mode_map_pmic5_smps,
++	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
++};
++
+ static const struct rpmh_vreg_hw_data pmic5_bob = {
+ 	.regulator_type = VRM,
+ 	.ops = &rpmh_regulator_vrm_bypass_ops,
+@@ -878,6 +887,19 @@ static const struct rpmh_vreg_init_data pm8009_vreg_data[] = {
+ 	{},
+ };
+ 
++static const struct rpmh_vreg_init_data pm8009_1_vreg_data[] = {
++	RPMH_VREG("smps1",  "smp%s1",  &pmic5_hfsmps510, "vdd-s1"),
++	RPMH_VREG("smps2",  "smp%s2",  &pmic5_hfsmps515_1, "vdd-s2"),
++	RPMH_VREG("ldo1",   "ldo%s1",  &pmic5_nldo,      "vdd-l1"),
++	RPMH_VREG("ldo2",   "ldo%s2",  &pmic5_nldo,      "vdd-l2"),
++	RPMH_VREG("ldo3",   "ldo%s3",  &pmic5_nldo,      "vdd-l3"),
++	RPMH_VREG("ldo4",   "ldo%s4",  &pmic5_nldo,      "vdd-l4"),
++	RPMH_VREG("ldo5",   "ldo%s5",  &pmic5_pldo,      "vdd-l5-l6"),
++	RPMH_VREG("ldo6",   "ldo%s6",  &pmic5_pldo,      "vdd-l5-l6"),
++	RPMH_VREG("ldo7",   "ldo%s6",  &pmic5_pldo_lv,   "vdd-l7"),
++	{},
++};
++
+ static const struct rpmh_vreg_init_data pm6150_vreg_data[] = {
+ 	RPMH_VREG("smps1",  "smp%s1",  &pmic5_ftsmps510, "vdd-s1"),
+ 	RPMH_VREG("smps2",  "smp%s2",  &pmic5_ftsmps510, "vdd-s2"),
+@@ -976,6 +998,10 @@ static const struct of_device_id __maybe_unused rpmh_regulator_match_table[] = {
+ 		.compatible = "qcom,pm8009-rpmh-regulators",
+ 		.data = pm8009_vreg_data,
+ 	},
++	{
++		.compatible = "qcom,pm8009-1-rpmh-regulators",
++		.data = pm8009_1_vreg_data,
++	},
+ 	{
+ 		.compatible = "qcom,pm8150-rpmh-regulators",
+ 		.data = pm8150_vreg_data,
 -- 
 2.27.0
 
