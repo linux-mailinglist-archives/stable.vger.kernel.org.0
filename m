@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA15E32863C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7A01328640
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:09:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236760AbhCARHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:07:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59056 "EHLO mail.kernel.org"
+        id S236687AbhCARHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:07:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236171AbhCAQ7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:59:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD9D064F6E;
-        Mon,  1 Mar 2021 16:37:28 +0000 (UTC)
+        id S235974AbhCAQ7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:59:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 508AD64FE5;
+        Mon,  1 Mar 2021 16:37:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616649;
-        bh=oRub4xv8W0NZ8tF5cce6iXtDLegYB2MBSzu+W8EFiVw=;
+        s=korg; t=1614616651;
+        bh=dbmBbJIQd5Su2jJKkyvUXkfSRniCgdQy9uxz8YeJee8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/8kq7FigFKU/8/n30l30i8aRYpN6z0Kw5rLGXtEAowDKh676PivuvvTJbIwU5gvL
-         D2NF018zDakIdkQ5ajWn2WC3vLq1g31Ls3cS+EmNI6irI4dZQQkpB7Bp7xQE0MhnFO
-         aPZ1jUXzFA9bJW6Hj9WKk6bGtsG9sQmGTd3yWnQ0=
+        b=jwGtOgohyQf+BmVQILelSH+YUZyltYqEghcPzgsknhbAgIvuouBDiWCfjlYci9G3Q
+         p2FUv9MBsPALwcOL4rx/gamlRGIgqGVKndqmdG+YDWqGzhxlQ/9eTVs7qEXfXaSMYW
+         MYYxhJpYue5ApqdKDRMkaJlZMcgM2ap6HC7feHHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        stable@vger.kernel.org, Boris ARZUR <boris@konbu.org>,
         Douglas Anderson <dianders@chromium.org>,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/247] usb: dwc2: Do not update data length if it is 0 on inbound transfers
-Date:   Mon,  1 Mar 2021 17:11:07 +0100
-Message-Id: <20210301161033.979931976@linuxfoundation.org>
+Subject: [PATCH 4.19 048/247] usb: dwc2: Abort transaction after errors with unknown reason
+Date:   Mon,  1 Mar 2021 17:11:08 +0100
+Message-Id: <20210301161034.028343874@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -44,59 +44,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 415fa1c7305dedbb345e2cc8ac91769bc1c83f1a ]
+[ Upstream commit f74b68c61cbc4b2245022fcce038509333d63f6f ]
 
-The DWC2 documentation states that transfers with zero data length should
-set the number of packets to 1 and the transfer length to 0. This is not
-currently the case for inbound transfers: the transfer length is set to
-the maximum packet length. This can have adverse effects if the chip
-actually does transfer data as it is programmed to do. Follow chip
-documentation and keep the transfer length set to 0 in that situation.
+In some situations, the following error messages are reported.
 
-Fixes: 56f5b1cff22a1 ("staging: Core files for the DWC2 driver")
+dwc2 ff540000.usb: dwc2_hc_chhltd_intr_dma: Channel 1 - ChHltd set, but reason is unknown
+dwc2 ff540000.usb: hcint 0x00000002, intsts 0x04000021
+
+This is sometimes followed by:
+
+dwc2 ff540000.usb: dwc2_update_urb_state_abn(): trimming xfer length
+
+and then:
+
+WARNING: CPU: 0 PID: 0 at kernel/v4.19/drivers/usb/dwc2/hcd.c:2913
+			dwc2_assign_and_init_hc+0x98c/0x990
+
+The warning suggests that an odd buffer address is to be used for DMA.
+
+After an error is observed, the receive buffer may be full
+(urb->actual_length >= urb->length). However, the urb is still left in
+the queue unless three errors were observed in a row. When it is queued
+again, the dwc2 hcd code translates this into a 1-block transfer.
+If urb->actual_length (ie the total expected receive length) is not
+DMA-aligned, the buffer pointer programmed into the chip will be
+unaligned. This results in the observed warning.
+
+To solve the problem, abort input transactions after an error with
+unknown cause if the entire packet was already received. This may be
+a bit drastic, but we don't really know why the transfer was aborted
+even though the entire packet was received. Aborting the transfer in
+this situation is less risky than accepting a potentially corrupted
+packet.
+
+With this patch in place, the 'ChHltd set' and 'trimming xfer length'
+messages are still observed, but there are no more transfer attempts
+with odd buffer addresses.
+
+Fixes: 151d0cbdbe860 ("usb: dwc2: make the scheduler handle excessive NAKs better")
+Cc: Boris ARZUR <boris@konbu.org>
+Cc: Douglas Anderson <dianders@chromium.org>
 Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
 Reviewed-by: Douglas Anderson <dianders@chromium.org>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20210113112052.17063-2-nsaenzjulienne@suse.de
+Link: https://lore.kernel.org/r/20210113112052.17063-3-nsaenzjulienne@suse.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/hcd.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/usb/dwc2/hcd_intr.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index a5c8329fd4625..56a35e0160392 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -1512,19 +1512,20 @@ static void dwc2_hc_start_transfer(struct dwc2_hsotg *hsotg,
- 			if (num_packets > max_hc_pkt_count) {
- 				num_packets = max_hc_pkt_count;
- 				chan->xfer_len = num_packets * chan->max_packet;
-+			} else if (chan->ep_is_in) {
-+				/*
-+				 * Always program an integral # of max packets
-+				 * for IN transfers.
-+				 * Note: This assumes that the input buffer is
-+				 * aligned and sized accordingly.
-+				 */
-+				chan->xfer_len = num_packets * chan->max_packet;
- 			}
- 		} else {
- 			/* Need 1 packet for transfer length of 0 */
- 			num_packets = 1;
- 		}
- 
--		if (chan->ep_is_in)
--			/*
--			 * Always program an integral # of max packets for IN
--			 * transfers
--			 */
--			chan->xfer_len = num_packets * chan->max_packet;
--
- 		if (chan->ep_type == USB_ENDPOINT_XFER_INT ||
- 		    chan->ep_type == USB_ENDPOINT_XFER_ISOC)
- 			/*
+diff --git a/drivers/usb/dwc2/hcd_intr.c b/drivers/usb/dwc2/hcd_intr.c
+index a052d39b4375e..12819e019e13c 100644
+--- a/drivers/usb/dwc2/hcd_intr.c
++++ b/drivers/usb/dwc2/hcd_intr.c
+@@ -1977,6 +1977,18 @@ error:
+ 		qtd->error_count++;
+ 		dwc2_update_urb_state_abn(hsotg, chan, chnum, qtd->urb,
+ 					  qtd, DWC2_HC_XFER_XACT_ERR);
++		/*
++		 * We can get here after a completed transaction
++		 * (urb->actual_length >= urb->length) which was not reported
++		 * as completed. If that is the case, and we do not abort
++		 * the transfer, a transfer of size 0 will be enqueued
++		 * subsequently. If urb->actual_length is not DMA-aligned,
++		 * the buffer will then point to an unaligned address, and
++		 * the resulting behavior is undefined. Bail out in that
++		 * situation.
++		 */
++		if (qtd->urb->actual_length >= qtd->urb->length)
++			qtd->error_count = 3;
+ 		dwc2_hcd_save_data_toggle(hsotg, chan, chnum, qtd);
+ 		dwc2_halt_channel(hsotg, chan, qtd, DWC2_HC_XFER_XACT_ERR);
+ 	}
 -- 
 2.27.0
 
