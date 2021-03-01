@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B4BD328A2B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A44328A61
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239491AbhCASNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
+        id S234830AbhCASQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239167AbhCASGi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:06:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BDE464F97;
-        Mon,  1 Mar 2021 17:50:06 +0000 (UTC)
+        id S235908AbhCASJC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:09:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A79276503A;
+        Mon,  1 Mar 2021 17:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621007;
-        bh=6D0Z8dqC8Mexw3WoCc4cXSrcmIsTDdM4K8raB50DivI=;
+        s=korg; t=1614618968;
+        bh=U2+6gTmH/NBd3LfZo/E+AVn8ZOP80TPgObgc60h1xEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ZTlrDCeXC4uwWpxfRLt6KYOx2Zp/i2Iv4zaYG10aOwhGeLXnKJM0BzeIy3/BftyU
-         hn2tyvkPhY8k3p+veH6lium1Vc2hxZIqITFsduCEjxEf0GD9KqGgQCb9GLysc+Vl6x
-         2U5ZbHPfjYHaMd2gu1wDXIHXBlfBVUCxu1B+86QA=
+        b=mQrecGswXx9s3E9Tfv6txvgD9ehNF78PPnzXkmaITpH9rdIAtNHzWH7p7Q7SZ0z9H
+         AgR1BKay/ASHBsoHTnnMkKYJpJY+4HAbf6crg6YRGorTgCKqHFNajzGYsGJFr8nlmH
+         VQLywxb3L9gziRom4W/1TvRBgb3FQ0tb/x3maJWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Benn <evanbenn@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 359/775] platform/chrome: cros_ec_proto: Use EC_HOST_EVENT_MASK not BIT
-Date:   Mon,  1 Mar 2021 17:08:47 +0100
-Message-Id: <20210301161219.362411877@linuxfoundation.org>
+Subject: [PATCH 5.10 283/663] power: supply: cpcap-charger: Fix power_supply_put on null battery pointer
+Date:   Mon,  1 Mar 2021 17:08:51 +0100
+Message-Id: <20210301161155.823518269@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Benn <evanbenn@chromium.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 0944ea07baa748741563c8842122010fa9017d16 ]
+[ Upstream commit 39196cfe10dd2b46ee28b44abbc0db4f4cb7822f ]
 
-The host_event_code enum is 1-based, use EC_HOST_EVENT_MASK not BIT to
-generate the intended mask. This patch changes the behaviour of the
-mask, a following patch will restore the intended behaviour:
-'Add LID and BATTERY to default mask'
+Currently if the pointer battery is null there is a null pointer
+dereference on the call to power_supply_put.  Fix this by only
+performing the put if battery is not null.
 
-Fixes: c214e564acb2 ("platform/chrome: cros_ec_proto: ignore unnecessary wakeups on old ECs")
-Signed-off-by: Evan Benn <evanbenn@chromium.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Link: https://lore.kernel.org/r/20201209220306.1.I6133572c0ab3c6b95426f804bac2d3833e24acb1@changeid
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 4bff91bb3231 ("power: supply: cpcap-charger: Fix missing power_supply_put()")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/power/supply/cpcap-charger.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
-index 7c92a6e22d75d..3ad60190e11c6 100644
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -526,11 +526,11 @@ int cros_ec_query_all(struct cros_ec_device *ec_dev)
- 		 * power), not wake up.
- 		 */
- 		ec_dev->host_event_wake_mask = U32_MAX &
--			~(BIT(EC_HOST_EVENT_AC_DISCONNECTED) |
--			  BIT(EC_HOST_EVENT_BATTERY_LOW) |
--			  BIT(EC_HOST_EVENT_BATTERY_CRITICAL) |
--			  BIT(EC_HOST_EVENT_PD_MCU) |
--			  BIT(EC_HOST_EVENT_BATTERY_STATUS));
-+			~(EC_HOST_EVENT_MASK(EC_HOST_EVENT_AC_DISCONNECTED) |
-+			  EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_LOW) |
-+			  EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_CRITICAL) |
-+			  EC_HOST_EVENT_MASK(EC_HOST_EVENT_PD_MCU) |
-+			  EC_HOST_EVENT_MASK(EC_HOST_EVENT_BATTERY_STATUS));
- 		/*
- 		 * Old ECs may not support this command. Complain about all
- 		 * other errors.
+diff --git a/drivers/power/supply/cpcap-charger.c b/drivers/power/supply/cpcap-charger.c
+index 2c5f2246c6eaa..22fff01425d63 100644
+--- a/drivers/power/supply/cpcap-charger.c
++++ b/drivers/power/supply/cpcap-charger.c
+@@ -301,8 +301,9 @@ cpcap_charger_get_bat_const_charge_voltage(struct cpcap_charger_ddata *ddata)
+ 				&prop);
+ 		if (!error)
+ 			voltage = prop.intval;
++
++		power_supply_put(battery);
+ 	}
+-	power_supply_put(battery);
+ 
+ 	return voltage;
+ }
 -- 
 2.27.0
 
