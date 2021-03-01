@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A80328894
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DF3E32889E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238571AbhCARnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56554 "EHLO mail.kernel.org"
+        id S238634AbhCARnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238654AbhCARej (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:34:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 896BD64F33;
-        Mon,  1 Mar 2021 16:54:14 +0000 (UTC)
+        id S236918AbhCARfp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:35:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59F6D64F24;
+        Mon,  1 Mar 2021 16:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617655;
-        bh=oGjH/WxFSevkoUmxsuaDJh/WFcTzXRcAeebBI+2BCXc=;
+        s=korg; t=1614617657;
+        bh=TEaw49BOomwqJohOD4Zy3tOagWEnNXGwXCR/F901DY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=my3tXzWYj0vzpOdNwIrfE0E6MYV2k8Soz1+nfNONPxDkNV43DHUU1gc/j1tDDT49+
-         qLy0QTxR6iH3mgfVH5wet/asvW5UlrnwO5Jk5eMFG2ioQWp3aoW62Q6Z3knF1Kfhsu
-         Q3EtxUMRW47tlEnQgccpuTFqrD2921DGkPvR833g=
+        b=VYjsST9Q2Gb/+RBqBpt7vsvbJi0iwtao3OedQw0WlpQiFqpPVvSAdcpLdqtFsGC59
+         k3A6jeFktULVLYfVteo6r2S1aUT/38Emfqirkdl90oCp2N+IgZdJvXQaQBSCXmclku
+         GccwK2Zw7NC7I81TXI4cj0lBFHNmagyir0OhTPOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Yishai Hadas <yishaih@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 149/340] clocksource/drivers/mxs_timer: Add missing semicolon when DEBUG is defined
-Date:   Mon,  1 Mar 2021 17:11:33 +0100
-Message-Id: <20210301161055.647802216@linuxfoundation.org>
+Subject: [PATCH 5.4 150/340] RDMA/mlx5: Use the correct obj_id upon DEVX TIR creation
+Date:   Mon,  1 Mar 2021 17:11:34 +0100
+Message-Id: <20210301161055.699548601@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,43 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Yishai Hadas <yishaih@nvidia.com>
 
-[ Upstream commit 7da390694afbaed8e0f05717a541dfaf1077ba51 ]
+[ Upstream commit 8798e4ad0abe0ba1221928a46561981c510be0c6 ]
 
-When DEBUG is defined this error occurs
+Use the correct obj_id upon DEVX TIR creation by strictly taking the tirn
+24 bits and not the general obj_id which is 32 bits.
 
-drivers/clocksource/mxs_timer.c:138:1: error:
-  expected ‘;’ before ‘}’ token
-
-The preceding statement needs a semicolon.
-Replace pr_info() with pr_debug() and remove the unneeded ifdef.
-
-Fixes: eb8703e2ef7c ("clockevents/drivers/mxs: Migrate to new 'set-state' interface")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210118211955.763609-1-trix@redhat.com
+Fixes: 7efce3691d33 ("IB/mlx5: Add obj create and destroy functionality")
+Link: https://lore.kernel.org/r/20201230130121.180350-2-leon@kernel.org
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/mxs_timer.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/infiniband/hw/mlx5/devx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/mxs_timer.c b/drivers/clocksource/mxs_timer.c
-index f6ddae30933f7..dae8c0c2e606f 100644
---- a/drivers/clocksource/mxs_timer.c
-+++ b/drivers/clocksource/mxs_timer.c
-@@ -138,10 +138,7 @@ static void mxs_irq_clear(char *state)
- 
- 	/* Clear pending interrupt */
- 	timrot_irq_acknowledge();
--
--#ifdef DEBUG
--	pr_info("%s: changing mode to %s\n", __func__, state)
--#endif /* DEBUG */
-+	pr_debug("%s: changing mode to %s\n", __func__, state);
- }
- 
- static int mxs_shutdown(struct clock_event_device *evt)
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index fd75a9043bf15..4d6f25fdcc0ef 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -1118,7 +1118,9 @@ static void devx_obj_build_destroy_cmd(void *in, void *out, void *din,
+ 		MLX5_SET(general_obj_in_cmd_hdr, din, opcode, MLX5_CMD_OP_DESTROY_RQT);
+ 		break;
+ 	case MLX5_CMD_OP_CREATE_TIR:
+-		MLX5_SET(general_obj_in_cmd_hdr, din, opcode, MLX5_CMD_OP_DESTROY_TIR);
++		*obj_id = MLX5_GET(create_tir_out, out, tirn);
++		MLX5_SET(destroy_tir_in, din, opcode, MLX5_CMD_OP_DESTROY_TIR);
++		MLX5_SET(destroy_tir_in, din, tirn, *obj_id);
+ 		break;
+ 	case MLX5_CMD_OP_CREATE_TIS:
+ 		MLX5_SET(general_obj_in_cmd_hdr, din, opcode, MLX5_CMD_OP_DESTROY_TIS);
 -- 
 2.27.0
 
