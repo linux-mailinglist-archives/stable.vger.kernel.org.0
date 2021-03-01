@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 285F7328411
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97F25328413
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234729AbhCAQ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59972 "EHLO mail.kernel.org"
+        id S234741AbhCAQ2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237848AbhCAQYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:24:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2480764F3E;
-        Mon,  1 Mar 2021 16:21:15 +0000 (UTC)
+        id S233630AbhCAQYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:24:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB45164EC4;
+        Mon,  1 Mar 2021 16:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615676;
-        bh=OZF7VyPZXF1k+HyKccLEAUYuA12AE4l7p/jHgBmKTpE=;
+        s=korg; t=1614615647;
+        bh=fggumwaUnRufx7qx4y6eor8MCt+pJxBONCKC/+HB41E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rESyObtyn2Pv0+KMiIFDZr7rPFbsRiWwLJV7kpuIFCCSeziCOh3dHJLbG1Myo5lBJ
-         UIZBDnGZ/wjS7aunubG/uccvRrAtaWs2d3K7NkmblyAtW/NFy0JrrWmC9rkYUXNcVX
-         FXIqhLKc29+oIhpZm3QA7YsJ5pzJkQ3FGCCaL2Pw=
+        b=j44jVyCz51jTybmz5hS8sFuv11wESXXq7z19u7RnF4sO8JOXHhoA2K726BlpWc1uA
+         8k0m2naTnpyUVafVx+RrtSMg3Kf+e3JwgJE1uJgqurEvXVLy3uc8Ovpng8xKyoCK8r
+         KM0/2YPwUWGadS52ylfnpcQozgTxhHOx63K6l/iQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rustam Kovhaev <rkovhaev@gmail.com>,
-        syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 003/134] ntfs: check for valid standard information attribute
-Date:   Mon,  1 Mar 2021 17:11:44 +0100
-Message-Id: <20210301161013.751727028@linuxfoundation.org>
+        stable@vger.kernel.org, linux-crypto@vger.kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Jann Horn <jannh@google.com>, Theodore Tso <tytso@mit.edu>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.9 011/134] random: fix the RNDRESEEDCRNG ioctl
+Date:   Mon,  1 Mar 2021 17:11:52 +0100
+Message-Id: <20210301161014.138128462@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -42,43 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 4dfe6bd94959222e18d512bdf15f6bf9edb9c27c upstream.
+commit 11a0b5e0ec8c13bef06f7414f9e914506140d5cb upstream.
 
-Mounting a corrupted filesystem with NTFS resulted in a kernel crash.
+The RNDRESEEDCRNG ioctl reseeds the primary_crng from itself, which
+doesn't make sense.  Reseed it from the input_pool instead.
 
-We should check for valid STANDARD_INFORMATION attribute offset and length
-before trying to access it
-
-Link: https://lkml.kernel.org/r/20210217155930.1506815-1-rkovhaev@gmail.com
-Link: https://syzkaller.appspot.com/bug?extid=c584225dabdea2f71969
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-Reported-by: syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com
-Tested-by: syzbot+c584225dabdea2f71969@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d848e5f8e1eb ("random: add new ioctl RNDRESEEDCRNG")
+Cc: stable@vger.kernel.org
+Cc: linux-crypto@vger.kernel.org
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jann Horn <jannh@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20210112192818.69921-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ntfs/inode.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -661,6 +661,12 @@ static int ntfs_read_locked_inode(struct
- 	}
- 	a = ctx->attr;
- 	/* Get the standard information attribute value. */
-+	if ((u8 *)a + le16_to_cpu(a->data.resident.value_offset)
-+			+ le32_to_cpu(a->data.resident.value_length) >
-+			(u8 *)ctx->mrec + vol->mft_record_size) {
-+		ntfs_error(vi->i_sb, "Corrupt standard information attribute in inode.");
-+		goto unm_err_out;
-+	}
- 	si = (STANDARD_INFORMATION*)((u8*)a +
- 			le16_to_cpu(a->data.resident.value_offset));
- 
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1913,7 +1913,7 @@ static long random_ioctl(struct file *f,
+ 			return -EPERM;
+ 		if (crng_init < 2)
+ 			return -ENODATA;
+-		crng_reseed(&primary_crng, NULL);
++		crng_reseed(&primary_crng, &input_pool);
+ 		crng_global_init_time = jiffies - 1;
+ 		return 0;
+ 	default:
 
 
