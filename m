@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82473328F0E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C30328F33
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241755AbhCATmn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:42:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50858 "EHLO mail.kernel.org"
+        id S241702AbhCATrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:47:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242095AbhCATfL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:35:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A079865273;
-        Mon,  1 Mar 2021 17:30:08 +0000 (UTC)
+        id S234826AbhCATgJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:36:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93477650F3;
+        Mon,  1 Mar 2021 17:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619809;
-        bh=6jbua2UHxglhLLVTcJHBXmMy+TvtkbpIqWQxKJ7beZU=;
+        s=korg; t=1614618062;
+        bh=lJlcJo5vjrIG2dfiBblGpI5tolIwegM+Ah7c4SbmBTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joPQJVoZocI+paeqRobDxb0fqBGuP+ZFxzeoNWgv4UAz7kgCweSKBP41ICDY2HlcI
-         FP4A3tV+swTPyACVGqr/701Mk+rh7DKbPP2FcKiV83dnWcqO6mPNUGaXU/5Mh+E1zx
-         ms5UOT3+VVo4GtapOTHYOpHbe90RMCCazfNUhCV0=
+        b=uGVHfWezO5jn1WUAf85OZfeQX2q0xwwMhVfq4GUij1jklJ2cXlhkx5HtQ3QqfXI/w
+         4y0lZ55KdYsPewldEKRSoTo3WCfC6f6p9WdB9q+9WlDJneK1O3+40h9ZhN27x+pwj/
+         RkckaHw8DW1gbFPWKXW7rEbg1tU/wt7w6NMHbRI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Amey Narkhede <ameynarkhede03@gmail.com>
-Subject: [PATCH 5.10 559/663] staging: gdm724x: Fix DMA from stack
+        stable@vger.kernel.org, stable@ger.kernel.org,
+        James Bottomley <James.Bottomley@HansenPartnership.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.4 263/340] tpm_tis: Clean up locality release
 Date:   Mon,  1 Mar 2021 17:13:27 +0100
-Message-Id: <20210301161209.534644063@linuxfoundation.org>
+Message-Id: <20210301161101.238940754@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +41,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amey Narkhede <ameynarkhede03@gmail.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
 
-commit 7c3a0635cd008eaca9a734dc802709ee0b81cac5 upstream.
+commit e42acf104d6e0bd7ccd2f09103d5be5e6d3c637c upstream.
 
-Stack allocated buffers cannot be used for DMA
-on all architectures so allocate hci_packet buffer
-using kmalloc.
+The current release locality code seems to be based on the
+misunderstanding that the TPM interrupts when a locality is released:
+it doesn't, only when the locality is acquired.
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Amey Narkhede <ameynarkhede03@gmail.com>
-Link: https://lore.kernel.org/r/20210211053819.34858-1-ameynarkhede03@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Furthermore, there seems to be no point in waiting for the locality to
+be released.  All it does is penalize the last TPM user.  However, if
+there's no next TPM user, this is a pointless wait and if there is a
+next TPM user, they'll pay the penalty waiting for the new locality
+(or possibly not if it's the same as the old locality).
+
+Fix the code by making release_locality as simple write to release
+with no waiting for completion.
+
+Cc: stable@ger.kernel.org
+Fixes: 33bafe90824b ("tpm_tis: verify locality released before returning from release_locality")
+Signed-off-by: James Bottomley <James.Bottomley@HansenPartnership.com>
+Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/gdm724x/gdm_usb.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c |   47 ----------------------------------------
+ 1 file changed, 1 insertion(+), 46 deletions(-)
 
---- a/drivers/staging/gdm724x/gdm_usb.c
-+++ b/drivers/staging/gdm724x/gdm_usb.c
-@@ -56,20 +56,24 @@ static int gdm_usb_recv(void *priv_dev,
- 
- static int request_mac_address(struct lte_udev *udev)
- {
--	u8 buf[16] = {0,};
--	struct hci_packet *hci = (struct hci_packet *)buf;
-+	struct hci_packet *hci;
- 	struct usb_device *usbdev = udev->usbdev;
- 	int actual;
- 	int ret = -1;
- 
-+	hci = kmalloc(struct_size(hci, data, 1), GFP_KERNEL);
-+	if (!hci)
-+		return -ENOMEM;
-+
- 	hci->cmd_evt = gdm_cpu_to_dev16(udev->gdm_ed, LTE_GET_INFORMATION);
- 	hci->len = gdm_cpu_to_dev16(udev->gdm_ed, 1);
- 	hci->data[0] = MAC_ADDRESS;
- 
--	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), buf, 5,
-+	ret = usb_bulk_msg(usbdev, usb_sndbulkpipe(usbdev, 2), hci, 5,
- 			   &actual, 1000);
- 
- 	udev->request_mac_addr = 1;
-+	kfree(hci);
- 
- 	return ret;
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -135,58 +135,13 @@ static bool check_locality(struct tpm_ch
+ 	return false;
  }
+ 
+-static bool locality_inactive(struct tpm_chip *chip, int l)
+-{
+-	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
+-	int rc;
+-	u8 access;
+-
+-	rc = tpm_tis_read8(priv, TPM_ACCESS(l), &access);
+-	if (rc < 0)
+-		return false;
+-
+-	if ((access & (TPM_ACCESS_VALID | TPM_ACCESS_ACTIVE_LOCALITY))
+-	    == TPM_ACCESS_VALID)
+-		return true;
+-
+-	return false;
+-}
+-
+ static int release_locality(struct tpm_chip *chip, int l)
+ {
+ 	struct tpm_tis_data *priv = dev_get_drvdata(&chip->dev);
+-	unsigned long stop, timeout;
+-	long rc;
+ 
+ 	tpm_tis_write8(priv, TPM_ACCESS(l), TPM_ACCESS_ACTIVE_LOCALITY);
+ 
+-	stop = jiffies + chip->timeout_a;
+-
+-	if (chip->flags & TPM_CHIP_FLAG_IRQ) {
+-again:
+-		timeout = stop - jiffies;
+-		if ((long)timeout <= 0)
+-			return -1;
+-
+-		rc = wait_event_interruptible_timeout(priv->int_queue,
+-						      (locality_inactive(chip, l)),
+-						      timeout);
+-
+-		if (rc > 0)
+-			return 0;
+-
+-		if (rc == -ERESTARTSYS && freezing(current)) {
+-			clear_thread_flag(TIF_SIGPENDING);
+-			goto again;
+-		}
+-	} else {
+-		do {
+-			if (locality_inactive(chip, l))
+-				return 0;
+-			tpm_msleep(TPM_TIMEOUT);
+-		} while (time_before(jiffies, stop));
+-	}
+-	return -1;
++	return 0;
+ }
+ 
+ static int request_locality(struct tpm_chip *chip, int l)
 
 
