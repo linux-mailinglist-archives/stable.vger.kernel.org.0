@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 948B2328A3C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7761328A45
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239554AbhCASNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:13:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
+        id S235648AbhCASOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:14:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239378AbhCASIg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239375AbhCASIg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 13:08:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 702D46523E;
-        Mon,  1 Mar 2021 17:26:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25B7B65247;
+        Mon,  1 Mar 2021 17:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619579;
-        bh=8tTmOVdS1/PkhguOWQ0gRjVoSUMEQ+s3z+eGgd/9ks8=;
+        s=korg; t=1614619590;
+        bh=a0ZdU/Z3Td2sBmD22wWF9W0sf6E9aJas/CgBtjEisxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8P14yAwzLcNlyOAw9YkTkceNkf8qtuJBwDnNcKiV3D3pfJ7kYk2KNz80FWFNK14o
-         lYYBjuLpyJEZL+teZ+8tRtNVCXIfgICdquqTKuqcdHeN9F6m0zNA1h7R/gPIDPjjmF
-         /7TZWczZ63AuPXrMoDsKsjPbL2o9PcnGYFxHHO9o=
+        b=Qra6x4U/IJqEMzL7OzZVdczvCmfJrW9BAGO1u54+ZpJCS/SzsHCRpat4zaLzxNA8I
+         G5LLzNPfbbO0l2f1zgxmu/T6u5HKhHUtbuweA42iC49p2idwer/yLhPPYl166oYbZV
+         oqmCu0lk/6WpG8bwKGgs8qWaFLZttftykklkoxjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YunQiang Su <syq@debian.org>,
-        Aurelien Jarno <aurelien@aurel32.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 506/663] MIPS: Support binutils configured with --enable-mips-fix-loongson3-llsc=yes
-Date:   Mon,  1 Mar 2021 17:12:34 +0100
-Message-Id: <20210301161206.877659270@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Kai Krakow <kai@kaishome.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 509/663] Revert "bcache: Kill btree_io_wq"
+Date:   Mon,  1 Mar 2021 17:12:37 +0100
+Message-Id: <20210301161207.028176866@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,90 +39,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Kai Krakow <kai@kaishome.de>
 
-commit 5373ae67c3aad1ab306cc722b5a80b831eb4d4d1 upstream.
+commit 9f233ffe02e5cef611100cd8c5bcf4de26ca7bef upstream.
 
->From version 2.35, binutils can be configured with
---enable-mips-fix-loongson3-llsc=yes, which means it defaults to
--mfix-loongson3-llsc. This breaks labels which might then point at the
-wrong instruction.
+This reverts commit 56b30770b27d54d68ad51eccc6d888282b568cee.
 
-The workaround to explicitly pass -mno-fix-loongson3-llsc has been
-added in Linux version 5.1, but is only enabled when building a Loongson
-64 kernel. As vendors might use a common toolchain for building Loongson
-and non-Loongson kernels, just move that workaround to
-arch/mips/Makefile. At the same time update the comments to reflect the
-current status.
+With the btree using the `system_wq`, I seem to see a lot more desktop
+latency than I should.
 
-Cc: stable@vger.kernel.org # 5.1+
-Cc: YunQiang Su <syq@debian.org>
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+After some more investigation, it looks like the original assumption
+of 56b3077 no longer is true, and bcache has a very high potential of
+congesting the `system_wq`. In turn, this introduces laggy desktop
+performance, IO stalls (at least with btrfs), and input events may be
+delayed.
+
+So let's revert this. It's important to note that the semantics of
+using `system_wq` previously mean that `btree_io_wq` should be created
+before and destroyed after other bcache wqs to keep the same
+assumptions.
+
+Cc: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org # 5.4+
+Signed-off-by: Kai Krakow <kai@kaishome.de>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Makefile            |   19 +++++++++++++++++++
- arch/mips/loongson64/Platform |   22 ----------------------
- 2 files changed, 19 insertions(+), 22 deletions(-)
+ drivers/md/bcache/bcache.h |    2 ++
+ drivers/md/bcache/btree.c  |   21 +++++++++++++++++++--
+ drivers/md/bcache/super.c  |    4 ++++
+ 3 files changed, 25 insertions(+), 2 deletions(-)
 
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(cal
- #
- cflags-y += -fno-stack-check
+--- a/drivers/md/bcache/bcache.h
++++ b/drivers/md/bcache/bcache.h
+@@ -1042,5 +1042,7 @@ void bch_debug_exit(void);
+ void bch_debug_init(void);
+ void bch_request_exit(void);
+ int bch_request_init(void);
++void bch_btree_exit(void);
++int bch_btree_init(void);
  
-+# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
-+# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
-+# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
-+# for a description).
-+#
-+# We disable this in order to prevent the assembler meddling with the
-+# instruction that labels refer to, ie. if we label an ll instruction:
-+#
-+# 1: ll v0, 0(a0)
-+#
-+# ...then with the assembler fix applied the label may actually point at a sync
-+# instruction inserted by the assembler, and if we were using the label in an
-+# exception table the table would no longer contain the address of the ll
-+# instruction.
-+#
-+# Avoid this by explicitly disabling that assembler behaviour.
-+#
-+cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
+ #endif /* _BCACHE_H */
+--- a/drivers/md/bcache/btree.c
++++ b/drivers/md/bcache/btree.c
+@@ -99,6 +99,8 @@
+ #define PTR_HASH(c, k)							\
+ 	(((k)->ptr[0] >> c->bucket_bits) | PTR_GEN(k, 0))
+ 
++static struct workqueue_struct *btree_io_wq;
 +
- #
- # CPU-dependent compiler/assembler options for optimization.
- #
---- a/arch/mips/loongson64/Platform
-+++ b/arch/mips/loongson64/Platform
-@@ -6,28 +6,6 @@
- cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+ #define insert_lock(s, b)	((b)->level <= (s)->lock)
  
- #
--# Some versions of binutils, not currently mainline as of 2019/02/04, support
--# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
--# to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h for a
--# description).
--#
--# We disable this in order to prevent the assembler meddling with the
--# instruction that labels refer to, ie. if we label an ll instruction:
--#
--# 1: ll v0, 0(a0)
--#
--# ...then with the assembler fix applied the label may actually point at a sync
--# instruction inserted by the assembler, and if we were using the label in an
--# exception table the table would no longer contain the address of the ll
--# instruction.
--#
--# Avoid this by explicitly disabling that assembler behaviour. If upstream
--# binutils does not merge support for the flag then we can revisit & remove
--# this later - for now it ensures vendor toolchains don't cause problems.
--#
--cflags-$(CONFIG_CPU_LOONGSON64)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
--
--#
- # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
- # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
- # that GCC might generate R2 code for -march=loongson3a which then is rejected
+ 
+@@ -308,7 +310,7 @@ static void __btree_node_write_done(stru
+ 	btree_complete_write(b, w);
+ 
+ 	if (btree_node_dirty(b))
+-		schedule_delayed_work(&b->work, 30 * HZ);
++		queue_delayed_work(btree_io_wq, &b->work, 30 * HZ);
+ 
+ 	closure_return_with_destructor(cl, btree_node_write_unlock);
+ }
+@@ -481,7 +483,7 @@ static void bch_btree_leaf_dirty(struct
+ 	BUG_ON(!i->keys);
+ 
+ 	if (!btree_node_dirty(b))
+-		schedule_delayed_work(&b->work, 30 * HZ);
++		queue_delayed_work(btree_io_wq, &b->work, 30 * HZ);
+ 
+ 	set_btree_node_dirty(b);
+ 
+@@ -2764,3 +2766,18 @@ void bch_keybuf_init(struct keybuf *buf)
+ 	spin_lock_init(&buf->lock);
+ 	array_allocator_init(&buf->freelist);
+ }
++
++void bch_btree_exit(void)
++{
++	if (btree_io_wq)
++		destroy_workqueue(btree_io_wq);
++}
++
++int __init bch_btree_init(void)
++{
++	btree_io_wq = create_singlethread_workqueue("bch_btree_io");
++	if (!btree_io_wq)
++		return -ENOMEM;
++
++	return 0;
++}
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -2833,6 +2833,7 @@ static void bcache_exit(void)
+ 		destroy_workqueue(bcache_wq);
+ 	if (bch_journal_wq)
+ 		destroy_workqueue(bch_journal_wq);
++	bch_btree_exit();
+ 
+ 	if (bcache_major)
+ 		unregister_blkdev(bcache_major, "bcache");
+@@ -2888,6 +2889,9 @@ static int __init bcache_init(void)
+ 		return bcache_major;
+ 	}
+ 
++	if (bch_btree_init())
++		goto err;
++
+ 	bcache_wq = alloc_workqueue("bcache", WQ_MEM_RECLAIM, 0);
+ 	if (!bcache_wq)
+ 		goto err;
 
 
