@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62434328C24
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:46:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BAA7328B95
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:40:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240370AbhCASqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:46:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51608 "EHLO mail.kernel.org"
+        id S240195AbhCAShw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:37:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234867AbhCASjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D0464EF2;
-        Mon,  1 Mar 2021 17:51:17 +0000 (UTC)
+        id S238184AbhCAS3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:29:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 279C6651C9;
+        Mon,  1 Mar 2021 17:17:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621078;
-        bh=z1uUYphWQyaAuJdnaeiW0jYDgrFF6UeV+hFvZYlHf+0=;
+        s=korg; t=1614619028;
+        bh=GK0BxHM626Jwk9E0yJCZ+U8nu3PAx4+BikiFzi3SDAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvm+CsCuZf960+h8n6AGGdzmU+5EeZuD3Obdazhp0RN3su/g7vgRo4jZdoUPuhsvy
-         SGCvCzpei28BLTolRFXipGYfnphNJrUss0TsQYe0hX18x/QGwYpPq6exWibN3GLjyl
-         Ya0/mS3mRqRP14M5W33kTpNxFCjarsAQQ2f5FXyw=
+        b=M95G5j5gsyJVI1ncR0mvcD0AkxuHSZC/nbQx3DM6CfT7YUn2r3oiV43JP2RhWytOf
+         sUvzVaWYBGiJkFTc4zfy3zpRRyBHAXdjTIZGejTB9wg4BOvoIHEcSqqyX+0MDWeOtA
+         mTc3OKXK/A86ol1XXWJqofI1lP+YleFMgnz5bie0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 385/775] tools/testing/scatterlist: Fix overflow of max segment size
-Date:   Mon,  1 Mar 2021 17:09:13 +0100
-Message-Id: <20210301161220.630657927@linuxfoundation.org>
+Subject: [PATCH 5.10 306/663] regulator: axp20x: Fix reference cout leak
+Date:   Mon,  1 Mar 2021 17:09:14 +0100
+Message-Id: <20210301161156.984055493@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 96667052149da3855c4361925324b690c687152f ]
+[ Upstream commit e78bf6be7edaacb39778f3a89416caddfc6c6d70 ]
 
-Because SCATTERLIST_MAX_SEGMENT was removed and replaced with UINT_MAX,
-the test overflows the max_sgement variable. Remove this case.
+Decrements the reference count of device node and its child node.
 
-Fixes: 7a60c2dd0f57 ("drm: Remove SCATTERLIST_MAX_SEGMENT")
-Link: https://lore.kernel.org/r/20210125120527.836363-1-leon@kernel.org
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: dfe7a1b058bb ("regulator: AXP20x: Add support for regulators subsystem")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210120123313.107640-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/scatterlist/main.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/regulator/axp20x-regulator.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/scatterlist/main.c b/tools/testing/scatterlist/main.c
-index 71c960dcd8a42..652254754b4cb 100644
---- a/tools/testing/scatterlist/main.c
-+++ b/tools/testing/scatterlist/main.c
-@@ -55,7 +55,6 @@ int main(void)
- 	struct test *test, tests[] = {
- 		{ -EINVAL, 1, pfn(0), NULL, PAGE_SIZE, 0, 1 },
- 		{ 0, 1, pfn(0), NULL, PAGE_SIZE, PAGE_SIZE + 1, 1 },
--		{ 0, 1, pfn(0), NULL, PAGE_SIZE, sgmax + 1, 1 },
- 		{ 0, 1, pfn(0), NULL, PAGE_SIZE, sgmax, 1 },
- 		{ 0, 1, pfn(0), NULL, 1, sgmax, 1 },
- 		{ 0, 2, pfn(0, 1), NULL, 2 * PAGE_SIZE, sgmax, 1 },
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index 90cb8445f7216..d260c442b788d 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -1070,7 +1070,7 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
+ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ {
+ 	struct device_node *np, *regulators;
+-	int ret;
++	int ret = 0;
+ 	u32 dcdcfreq = 0;
+ 
+ 	np = of_node_get(pdev->dev.parent->of_node);
+@@ -1085,13 +1085,12 @@ static int axp20x_regulator_parse_dt(struct platform_device *pdev)
+ 		ret = axp20x_set_dcdc_freq(pdev, dcdcfreq);
+ 		if (ret < 0) {
+ 			dev_err(&pdev->dev, "Error setting dcdc frequency: %d\n", ret);
+-			return ret;
+ 		}
+-
+ 		of_node_put(regulators);
+ 	}
+ 
+-	return 0;
++	of_node_put(np);
++	return ret;
+ }
+ 
+ static int axp20x_set_dcdc_workmode(struct regulator_dev *rdev, int id, u32 workmode)
 -- 
 2.27.0
 
