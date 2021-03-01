@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AE13291A5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E89332919A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243135AbhCAU3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:29:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48272 "EHLO mail.kernel.org"
+        id S243367AbhCAU2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243263AbhCAUXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:23:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE0FD64FD6;
-        Mon,  1 Mar 2021 18:05:00 +0000 (UTC)
+        id S243220AbhCAUXX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:23:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74E39651E0;
+        Mon,  1 Mar 2021 18:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621901;
-        bh=2vyHBnX6YcabTICcKqGF/9Jh0f4R8QeEyCeAD/U3Uyg=;
+        s=korg; t=1614621904;
+        bh=v9F3rPspb0CiLc1VvoNlM9/+8X8I7v7LA5L/pB1Kkr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1uLQRLBXkmJ6YUwuFb3JZa0XwuxE1GhKcnAIPXfjCsK7imTY8t5CSYwBzpqn7BbFF
-         yalUejd/dPZyZPriFQkb4Dj0v2In1kPRfwXx6/DFPrjwKy1DKJTqpDnRjaSu2Gge/f
-         b9COxagdd8Qyao6z6yRAwV4pY3yEPfC6/hW1Lzcw=
+        b=werYVk8OSZvF5OCQ+zsp8HJx7TvQPC9pbZN6xELzMcQHbcjpFdhSmWDX1xcA21Tta
+         /7HjBBeMHnd0R8pqgr+B2rMFzac9gxYe8nWWNiS5SC5frGoMjoxPOhAcAf3RUEHTHj
+         qjlI4jaBpIUUomDJSonc2SI+DFxfcHHwWaqG7yj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, qiuguorui1 <qiuguorui1@huawei.com>,
+        stable@vger.kernel.org, He Zhe <zhe.he@windriver.com>,
         Will Deacon <will@kernel.org>
-Subject: [PATCH 5.11 685/775] arm64: kexec_file: fix memory leakage in create_dtb() when fdt_open_into() fails
-Date:   Mon,  1 Mar 2021 17:14:13 +0100
-Message-Id: <20210301161235.232961651@linuxfoundation.org>
+Subject: [PATCH 5.11 686/775] arm64: uprobe: Return EOPNOTSUPP for AARCH32 instruction probing
+Date:   Mon,  1 Mar 2021 17:14:14 +0100
+Message-Id: <20210301161235.283315612@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,36 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: qiuguorui1 <qiuguorui1@huawei.com>
+From: He Zhe <zhe.he@windriver.com>
 
-commit 656d1d58d8e0958d372db86c24f0b2ea36f50888 upstream.
+commit d47422d953e258ad587b5edf2274eb95d08bdc7d upstream.
 
-in function create_dtb(), if fdt_open_into() fails, we need to vfree
-buf before return.
+As stated in linux/errno.h, ENOTSUPP should never be seen by user programs.
+When we set up uprobe with 32-bit perf and arm64 kernel, we would see the
+following vague error without useful hint.
 
-Fixes: 52b2a8af7436 ("arm64: kexec_file: load initrd and device-tree")
-Cc: stable@vger.kernel.org # v5.0
-Signed-off-by: qiuguorui1 <qiuguorui1@huawei.com>
-Link: https://lore.kernel.org/r/20210218125900.6810-1-qiuguorui1@huawei.com
+The sys_perf_event_open() syscall returned with 524 (INTERNAL ERROR:
+strerror_r(524, [buf], 128)=22)
+
+Use EOPNOTSUPP instead to indicate such cases.
+
+Signed-off-by: He Zhe <zhe.he@windriver.com>
+Link: https://lore.kernel.org/r/20210223082535.48730-1-zhe.he@windriver.com
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/machine_kexec_file.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/probes/uprobes.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kernel/machine_kexec_file.c
-+++ b/arch/arm64/kernel/machine_kexec_file.c
-@@ -182,8 +182,10 @@ static int create_dtb(struct kimage *ima
+--- a/arch/arm64/kernel/probes/uprobes.c
++++ b/arch/arm64/kernel/probes/uprobes.c
+@@ -38,7 +38,7 @@ int arch_uprobe_analyze_insn(struct arch
  
- 		/* duplicate a device tree blob */
- 		ret = fdt_open_into(initial_boot_params, buf, buf_size);
--		if (ret)
-+		if (ret) {
-+			vfree(buf);
- 			return -EINVAL;
-+		}
+ 	/* TODO: Currently we do not support AARCH32 instruction probing */
+ 	if (mm->context.flags & MMCF_AARCH32)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	else if (!IS_ALIGNED(addr, AARCH64_INSN_SIZE))
+ 		return -EINVAL;
  
- 		ret = setup_dtb(image, initrd_load_addr, initrd_len,
- 				cmdline, buf);
 
 
