@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3603732847D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7551328567
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232897AbhCAQgs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:36:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36940 "EHLO mail.kernel.org"
+        id S236055AbhCAQxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231709AbhCAQ37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:29:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44EEB64F1B;
-        Mon,  1 Mar 2021 16:23:45 +0000 (UTC)
+        id S235206AbhCAQra (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:47:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E224364F9E;
+        Mon,  1 Mar 2021 16:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615825;
-        bh=x6O3dtjGOI4sJSCTP/KSgpzM9vY1gViK+mI/rO9wgqs=;
+        s=korg; t=1614616323;
+        bh=D0L6W3+EeJJ+hjA1vyBuH/qEOtsuZU+i9pK0t8mlPXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r7yk8IV1N2bf+jYlv/++2GX3W+pizcVXJnvUOHqTjJ5p4leDVsFCtspenuA9eIv4k
-         I9Arr9YfPKUu8TkixW+9CYYDhLf3LNO+Dy/JNxc2GDtOtaY9V1TpCsioGLZdCYx6Nc
-         es77VtkuicrDIcxuCK+G1o8iZJOymmcQSDtNvNJI=
+        b=XkgRVthVv2JJkl6B7n4LS4bYy3LudJpYxJuvgno8v+O9lcsVzGHeLqyRMzXvsiC9U
+         ID+soPWw2kJCg9j2o8Rt+g2TLGm5JZOxbHTl39w6WTU8BqCPBgXVmjEHdqYyo7yhd/
+         B2kHbIyofirLu+ygFw2q08a9whbOO1yhSJKmAwCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 066/134] RDMA/rxe: Fix coding error in rxe_recv.c
+Subject: [PATCH 4.14 094/176] spi: stm32: properly handle 0 byte transfer
 Date:   Mon,  1 Mar 2021 17:12:47 +0100
-Message-Id: <20210301161016.801339417@linuxfoundation.org>
+Message-Id: <20210301161025.650838171@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit 7d9ae80e31df57dd3253e1ec514f0000aa588a81 ]
+[ Upstream commit 2269f5a8b1a7b38651d62676b98182828f29d11a ]
 
-check_type_state() in rxe_recv.c is written as if the type bits in the
-packet opcode were a bit mask which is not correct. This patch corrects
-this code to compare all 3 type bits to the required type.
+On 0 byte transfer request, return straight from the
+xfer function after finalizing the transfer.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/20210127214500.3707-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Link: https://lore.kernel.org/r/1612551572-495-2-git-send-email-alain.volmat@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/spi/spi-stm32.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index db6bb026ae902..ece4fe838e755 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -36,21 +36,26 @@
- #include "rxe.h"
- #include "rxe_loc.h"
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index d919803540510..c8e546439fff2 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -992,6 +992,10 @@ static int stm32_spi_transfer_one(struct spi_master *master,
+ 	struct stm32_spi *spi = spi_master_get_devdata(master);
+ 	int ret;
  
-+/* check that QP matches packet opcode type and is in a valid state */
- static int check_type_state(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
- 			    struct rxe_qp *qp)
- {
-+	unsigned int pkt_type;
++	/* Don't do anything on 0 bytes transfers */
++	if (transfer->len == 0)
++		return 0;
 +
- 	if (unlikely(!qp->valid))
- 		goto err1;
- 
-+	pkt_type = pkt->opcode & 0xe0;
-+
- 	switch (qp_type(qp)) {
- 	case IB_QPT_RC:
--		if (unlikely((pkt->opcode & IB_OPCODE_RC) != 0)) {
-+		if (unlikely(pkt_type != IB_OPCODE_RC)) {
- 			pr_warn_ratelimited("bad qp type\n");
- 			goto err1;
- 		}
- 		break;
- 	case IB_QPT_UC:
--		if (unlikely(!(pkt->opcode & IB_OPCODE_UC))) {
-+		if (unlikely(pkt_type != IB_OPCODE_UC)) {
- 			pr_warn_ratelimited("bad qp type\n");
- 			goto err1;
- 		}
-@@ -58,7 +63,7 @@ static int check_type_state(struct rxe_dev *rxe, struct rxe_pkt_info *pkt,
- 	case IB_QPT_UD:
- 	case IB_QPT_SMI:
- 	case IB_QPT_GSI:
--		if (unlikely(!(pkt->opcode & IB_OPCODE_UD))) {
-+		if (unlikely(pkt_type != IB_OPCODE_UD)) {
- 			pr_warn_ratelimited("bad qp type\n");
- 			goto err1;
- 		}
+ 	spi->tx_buf = transfer->tx_buf;
+ 	spi->rx_buf = transfer->rx_buf;
+ 	spi->tx_len = spi->tx_buf ? transfer->len : 0;
 -- 
 2.27.0
 
