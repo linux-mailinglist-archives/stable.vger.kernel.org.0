@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED49328057
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:09:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6174D32805D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 15:11:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236190AbhCAOJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 09:09:38 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51653 "EHLO
+        id S236223AbhCAOKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 09:10:21 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60297 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236128AbhCAOJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 09:09:18 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A699C19422EA;
-        Mon,  1 Mar 2021 09:08:28 -0500 (EST)
+        by vger.kernel.org with ESMTP id S236202AbhCAOKL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 09:10:11 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6B39019422D0;
+        Mon,  1 Mar 2021 09:08:55 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 01 Mar 2021 09:08:28 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 09:08:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6msIyp
-        /bORS8nDCB8svNWWZTAr98igcZxVRzA0BIpZs=; b=MgDpbQubCiGfbfVG+wvc08
-        VJ6G/5Q5xj2izf2iHVy7wV0h7a5m98SIg6AfidFrblbrEsF0vI++vzg1uEg6Iv/S
-        N6Db/bGk+/r02AhDKgvBUaAYe6COuC4xBemWdAfgzcmqL8tALXqXpJuFebTrkENK
-        SvZz1dUnHX3+yeSqLGRPJJILfFg3MkR9ArObs8fIgLQzBmHfUv67TdSGs/kFBBiy
-        1M6NF0r+aHtgVw5olMCbQv5WyEmw3WwAdzqij/oaMFZPRTdubexe226OFZu0MB/1
-        +sGVb1Kiq8DY2e7NwO/gGoChMXtMITLl5hTYa7Ir47B00NfWOG8jhxn8E+M45u9Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cH89vD
+        IKTyiCvJ2AwrhpvuC4VAuj5np2uu8YSJzX+Ko=; b=vrCJLXR+31yeZyXtoWB2QN
+        Msr5S2mJ4CDKKIn/luz7p9ZLSiQP09oixJnz/XiWNrcLdNqxTpuX4OE+0MYILpwF
+        uqhla0IqYfnbxudNgJ6AL8PgeLyn6rTFtq2x0H3ZMccWJEOooNbWckcwYit5PpJ4
+        K9npehm05+xfyRssk8w6rrMELBrZKJOlXCfk5MDgIbeBxjUqF0tEzUrnahAkdlz4
+        EqNoOk9pm1RDvlro+zsJ45tnzXD4MWlx/XIbZuIBqi4GOvgNdPzOkuOnZsn81h6c
+        NTRlVdGAa+1f0E4w0yFLhTTQUEja7EQMwUyMy7Kt4SJojQsz8Z+dCDWZ618sWSjw
         ==
-X-ME-Sender: <xms:W_U8YNMs0GyKyj9RlOO07kdRU0Qdtk9BdmrO9yPSDO07ZLfcxEJxZQ>
-    <xme:W_U8YESTBEcoFg_dlGM-sZkEu0EJ9LNkYqf1RY0HAQ5c5rrdzCE12POxSdTztliGb
-    W66KqT1iiyA6w>
+X-ME-Sender: <xms:dvU8YATIf6cdo4nbXf0fr9D7pR74GOtKuQq1KRjlpGNI6q1NeZ47Eg>
+    <xme:dvU8YNzdwUK9Yx3a8hMxcJO-kcECUHweq3gB7CB9n-2x0liL4kT8hv9vigbV5XeBJ
+    ejlybTvbt2bgw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdehlecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
     qeenucggtffrrghtthgvrhhnpeekhffhfefgfeehfeefudeguedvvdevgffgffdtudeuje
     fhhffgveeutddvtdejgfenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghen
-    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrh
     grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:W_U8YLZ-hu92mOsbbCf-gLrQDVtFRJShyowITDiJYNqOdLWgYWjcxA>
-    <xmx:W_U8YB1vtScln4wMi3GG6TVBNIf47x2jnm8l-pM5KOwKzM-MeuXwfg>
-    <xmx:W_U8YLVlTrNLWqEKVHbjnZFsXzdMsRNJk2tgPrnS92YDQ0SN8PZC5A>
-    <xmx:XPU8YMunAzyPEHqaj9Y0Oi6hiL3FgMmqza-LVcrv6xElMwGoyXea1w>
+X-ME-Proxy: <xmx:dvU8YN12D-A2pBbbw2QDuUnN_nhYfyBY-6_qGoq3EuzykBhgM5uOag>
+    <xmx:dvU8YECW_8m4PeNPhCIEp6RyCDaIG3FSrNMS7kZDLaz8MiIwnuI2Vw>
+    <xmx:dvU8YJg9FOL1rUjQ_V1BnXHW4FkIPALzxeoRcfbaref3SN6H2xz8oA>
+    <xmx:d_U8YHYzlyuCKM9XE2i4VzmjEKkFsg2BQbKPyzy8hc9paSGxpAfDlA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A5E7F1080054;
-        Mon,  1 Mar 2021 09:08:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/i915: Disable atomics in L3 for gen9" failed to apply to 5.11-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 39A0A108005F;
+        Mon,  1 Mar 2021 09:08:54 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: Disable atomics in L3 for gen9" failed to apply to 5.10-stable tree
 To:     chris@chris-wilson.co.uk, jason@jlekstrand.net,
         jason@jlesktrand.net, joonas.lahtinen@linux.intel.com,
         mika.kuoppala@linux.intel.com, rodrigo.vivi@intel.com,
         tvrtko.ursulin@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 15:08:26 +0100
-Message-ID: <1614607706196204@kroah.com>
+Date:   Mon, 01 Mar 2021 15:08:52 +0100
+Message-ID: <161460773212463@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +62,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
