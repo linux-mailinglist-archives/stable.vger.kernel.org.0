@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D79C328439
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2068328521
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232143AbhCAQbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:31:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34258 "EHLO mail.kernel.org"
+        id S235755AbhCAQta (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:49:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234530AbhCAQ04 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:26:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEEFC64EDE;
-        Mon,  1 Mar 2021 16:21:35 +0000 (UTC)
+        id S234740AbhCAQmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:42:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C65EC64EE9;
+        Mon,  1 Mar 2021 16:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615696;
-        bh=BAZTcyNR0ah3RKQxrFNX57aT/FoDscx82hwvIndlBj8=;
+        s=korg; t=1614616164;
+        bh=YWDS2KWFnwak+5TNRU0rdnSUjl8eATSGdQzhydjAzME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/4pOGeld3erqbXVKavDNHQNXKA2zlSYYxyweA+vD8iWc9Z3WXkKrOV9VIeSnes7f
-         WTc0m781loZ9HXJ/FoT4yaxsPdWuEWDOMqFs/8y28HpJ6IITuvHG2sHQU5tVmAr1BN
-         K8DwbM9lmXwsQYTexgQ6Nw9MncdGy/fmmZhb3ils=
+        b=jVVx+1MHpNwVhCiqoR3ofRAIeOTjWbOx51Zk6olzVq1NtCaS1B3KCBjfR+kxyauJ0
+         UZ47EGv1e0HHXlws/KE1r2e5ipT7jCKP91fW8pxYmIm0XCqKyuNpmw/VouluPhWiny
+         cCPuTJoB+VsUTxGVL2jGjRvDYXqT/JOMuemfrsAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 027/134] mac80211: fix potential overflow when multiplying to u32 integers
-Date:   Mon,  1 Mar 2021 17:12:08 +0100
-Message-Id: <20210301161014.913564170@linuxfoundation.org>
+Subject: [PATCH 4.14 056/176] media: pxa_camera: declare variable when DEBUG is defined
+Date:   Mon,  1 Mar 2021 17:12:09 +0100
+Message-Id: <20210301161023.727184510@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 6194f7e6473be78acdc5d03edd116944bdbb2c4e ]
+[ Upstream commit 031b9212eeee365443aaef013360ea6cded7b2c4 ]
 
-The multiplication of the u32 variables tx_time and estimated_retx is
-performed using a 32 bit multiplication and the result is stored in
-a u64 result. This has a potential u32 overflow issue, so avoid this
-by casting tx_time to a u64 to force a 64 bit multiply.
+When DEBUG is defined this error occurs
 
-Addresses-Coverity: ("Unintentional integer overflow")
-Fixes: 050ac52cbe1f ("mac80211: code for on-demand Hybrid Wireless Mesh Protocol")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210205175352.208841-1-colin.king@canonical.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+drivers/media/platform/pxa_camera.c:1410:7: error:
+  ‘i’ undeclared (first use in this function)
+  for (i = 0; i < vb->num_planes; i++)
+       ^
+The variable 'i' is missing, so declare it.
+
+Fixes: 6f28435d1c15 ("[media] media: platform: pxa_camera: trivial move of functions")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mesh_hwmp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/pxa_camera.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mac80211/mesh_hwmp.c b/net/mac80211/mesh_hwmp.c
-index 2fbd100b9e73d..a8b837d0498a4 100644
---- a/net/mac80211/mesh_hwmp.c
-+++ b/net/mac80211/mesh_hwmp.c
-@@ -355,7 +355,7 @@ static u32 airtime_link_metric_get(struct ieee80211_local *local,
- 	 */
- 	tx_time = (device_constant + 10 * test_frame_len / rate);
- 	estimated_retx = ((1 << (2 * ARITH_SHIFT)) / (s_unit - err));
--	result = (tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
-+	result = ((u64)tx_time * estimated_retx) >> (2 * ARITH_SHIFT);
- 	return (u32)result;
- }
+diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
+index d270a23299cc7..18dce48a6828d 100644
+--- a/drivers/media/platform/pxa_camera.c
++++ b/drivers/media/platform/pxa_camera.c
+@@ -1450,6 +1450,9 @@ static int pxac_vb2_prepare(struct vb2_buffer *vb)
+ 	struct pxa_camera_dev *pcdev = vb2_get_drv_priv(vb->vb2_queue);
+ 	struct pxa_buffer *buf = vb2_to_pxa_buffer(vb);
+ 	int ret = 0;
++#ifdef DEBUG
++	int i;
++#endif
  
+ 	switch (pcdev->channels) {
+ 	case 1:
 -- 
 2.27.0
 
