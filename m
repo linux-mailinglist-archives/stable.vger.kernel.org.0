@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D63328528
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D82C1328538
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbhCAQuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:50:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46442 "EHLO mail.kernel.org"
+        id S234999AbhCAQus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:50:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235083AbhCAQnC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F12464EED;
-        Mon,  1 Mar 2021 16:29:29 +0000 (UTC)
+        id S235231AbhCAQn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:43:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F71864E56;
+        Mon,  1 Mar 2021 16:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616170;
-        bh=iTx3XB6XDAxQbf/VV9LMH5cUp36i7ylT2THMU9dESik=;
+        s=korg; t=1614616173;
+        bh=BsO4Uv8LBj3ChvYWgAXOT42OD+0vbxy+6cRxf8KA+FQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkHiUyOCn5rrX6/AD6NJmvyGMbQaerB+SdCOIqwH8cGMywnYUPBNpgmGkDHns2hd7
-         zBxOqCLsh9dhw2YdxHIGJJx6Ba4XdEYcCbqordduSHsFksVOga8pfGto36Xb9cZEbq
-         seWScIpkcIBpanO1azMg2WvjvHQsRQrfIS9/BBXc=
+        b=2HaG1hT7hk/twEoR1Pz5HlrkN1Qr4HjcRMsa0bjADDgYfgLYYX3msRhWaTubKWPfw
+         FCHbGJsLzkf1h01A8Z6wxYFY48G/4Mk1kYjP7ZGODwrf28+JAaxdwmQgyrri27aqVS
+         LCytd9+D+YUrEdQIa+1YAgxXkmWazeSKPDlJLBxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Till=20D=C3=B6rges?= <doerges@pre-sense.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 057/176] media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values
-Date:   Mon,  1 Mar 2021 17:12:10 +0100
-Message-Id: <20210301161023.778956270@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 058/176] ata: ahci_brcm: Add back regulators management
+Date:   Mon,  1 Mar 2021 17:12:11 +0100
+Message-Id: <20210301161023.830910647@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -42,77 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit dc9455ffae02d7b7fb51ba1e007fffcb9dc5d890 ]
+[ Upstream commit 10340f8d7b6dd54e616339c8ccb2f397133ebea0 ]
 
-The Renkforce RF AC4K 300 Action Cam 4K reports invalid bFormatIndex and
-bFrameIndex values when negotiating the video probe and commit controls.
-The UVC descriptors report a single supported format and frame size,
-with bFormatIndex and bFrameIndex both equal to 2, but the video probe
-and commit controls report bFormatIndex and bFrameIndex set to 1.
+While reworking the resources management and departing from using
+ahci_platform_enable_resources() which did not allow a proper step
+separation like we need, we unfortunately lost the ability to control
+AHCI regulators. This broke some Broadcom STB systems that do expect
+regulators to be turned on to link up with attached hard drives.
 
-The device otherwise operates correctly, but the driver rejects the
-values and fails the format try operation. Fix it by ignoring the
-invalid indices, and assuming that the format and frame requested by the
-driver are accepted by the device.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210767
-
-Fixes: 8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
-Reported-by: Till Dörges <doerges@pre-sense.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: c0cdf2ac4b5b ("ata: ahci_brcm: Fix AHCI resources management")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/ata/ahci_brcm.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 644afd55c0f0f..08a3a8ad79d75 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -253,7 +253,9 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		goto done;
+diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
+index 8beb81b24f142..52a242e99b043 100644
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -280,6 +280,10 @@ static int brcm_ahci_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
- 	/* After the probe, update fmt with the values returned from
--	 * negotiation with the device.
-+	 * negotiation with the device. Some devices return invalid bFormatIndex
-+	 * and bFrameIndex values, in which case we can only assume they have
-+	 * accepted the requested format as-is.
++	ret = ahci_platform_enable_regulators(hpriv);
++	if (ret)
++		goto out_disable_clks;
++
+ 	brcm_sata_init(priv);
+ 	brcm_sata_phys_enable(priv);
+ 	brcm_sata_alpm_init(hpriv);
+@@ -309,6 +313,8 @@ out_disable_platform_phys:
+ 	ahci_platform_disable_phys(hpriv);
+ out_disable_phys:
+ 	brcm_sata_phys_disable(priv);
++	ahci_platform_disable_regulators(hpriv);
++out_disable_clks:
+ 	ahci_platform_disable_clks(hpriv);
+ 	return ret;
+ }
+@@ -372,6 +378,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out_reset;
+ 
++	ret = ahci_platform_enable_regulators(hpriv);
++	if (ret)
++		goto out_disable_clks;
++
+ 	/* Must be first so as to configure endianness including that
+ 	 * of the standard AHCI register space.
  	 */
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (probe->bFormatIndex == stream->format[i].index) {
-@@ -262,11 +264,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
+@@ -381,7 +391,7 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 	priv->port_mask = brcm_ahci_get_portmask(hpriv, priv);
+ 	if (!priv->port_mask) {
+ 		ret = -ENODEV;
+-		goto out_disable_clks;
++		goto out_disable_regulators;
  	}
  
--	if (i == stream->nformats) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
-+	if (i == stream->nformats)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFormatIndex %u, using default\n",
- 			  probe->bFormatIndex);
--		return -EINVAL;
--	}
- 
- 	for (i = 0; i < format->nframes; ++i) {
- 		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
-@@ -275,11 +276,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
- 	}
- 
--	if (i == format->nframes) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
-+	if (i == format->nframes)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFrameIndex %u, using default\n",
- 			  probe->bFrameIndex);
--		return -EINVAL;
--	}
- 
- 	fmt->fmt.pix.width = frame->wWidth;
- 	fmt->fmt.pix.height = frame->wHeight;
+ 	/* Must be done before ahci_platform_enable_phys() */
+@@ -413,6 +423,8 @@ out_disable_platform_phys:
+ 	ahci_platform_disable_phys(hpriv);
+ out_disable_phys:
+ 	brcm_sata_phys_disable(priv);
++out_disable_regulators:
++	ahci_platform_disable_regulators(hpriv);
+ out_disable_clks:
+ 	ahci_platform_disable_clks(hpriv);
+ out_reset:
 -- 
 2.27.0
 
