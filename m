@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2922C328FD3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDDE32906F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242541AbhCAT6d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55190 "EHLO mail.kernel.org"
+        id S242913AbhCAUIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:08:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241112AbhCATpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:45:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D0865204;
-        Mon,  1 Mar 2021 17:21:38 +0000 (UTC)
+        id S242138AbhCAT4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:56:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C349265385;
+        Mon,  1 Mar 2021 17:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619299;
-        bh=llfHeX/lNNBCEFyniCGYerQoTFVk9xscOn4YWtWXBjY=;
+        s=korg; t=1614621355;
+        bh=lVFdrt+9pEtU9baYoDdQgmoFcvjFYD83DZSumqfnJh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i1f5qZEgrRZxLgA4qSBcMmY3pUz0jh9MgIRHMgz5VzElgrrlxtGuxbW/Mtt8r2ST3
-         ZIul2/d8guJKGq0fzxqe9IyaxZAKQOGeTwkD3lgOIZn5iSzqH94O7JEDmJFB4zrsa0
-         BJGJ+QoNJLGyjQtJxBjCuXWw1KfZobIWRHQwFw5c=
+        b=UsoucTYy51pI/3JBXXXFFETPMuABCbbVNAw/LSFJKdVvzAgjwEjzhpDMtlA0z7YJ6
+         c0aZ/BnWb7chTw1NCWvLY5+xl6rlPXM9vD83y4C8mooToYL3U00Huow69uaJRDSH6v
+         AkeK4Rh4C7te2NsaSlr6e7hjNC2y4ZqwpRIfnRrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishnu Dasa <vdasa@vmware.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
+        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
+        Trent Piepho <tpiepho@gmail.com>,
+        Simon South <simon@simonsouth.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 405/663] VMCI: Use set_page_dirty_lock() when unregistering guest memory
+Subject: [PATCH 5.11 485/775] pwm: rockchip: Enable APB clock during register access while probing
 Date:   Mon,  1 Mar 2021 17:10:53 +0100
-Message-Id: <20210301161201.906766670@linuxfoundation.org>
+Message-Id: <20210301161225.501726369@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorgen Hansen <jhansen@vmware.com>
+From: Simon South <simon@simonsouth.net>
 
-[ Upstream commit 5a16c535409f8dcb7568e20737309e3027ae3e49 ]
+[ Upstream commit d9b657a5cdbd960de35dee7e06473caf44a9016f ]
 
-When the VMCI host support releases guest memory in the case where
-the VM was killed, the pinned guest pages aren't locked. Use
-set_page_dirty_lock() instead of set_page_dirty().
+Commit 457f74abbed0 ("pwm: rockchip: Keep enabled PWMs running while
+probing") modified rockchip_pwm_probe() to access a PWM device's registers
+directly to check whether or not the device is enabled, but did not also
+change the function so it first enables the device's APB clock to be
+certain the device can respond. This risks hanging the kernel on systems
+with PWM devices that use more than a single clock.
 
-Testing done: Killed VM while having an active VMCI based vSocket
-connection and observed warning from ext4. With this fix, no
-warning was observed. Ran various vSocket tests without issues.
+Avoid this by enabling the device's APB clock before accessing its
+registers (and disabling the clock when register access is complete).
 
-Fixes: 06164d2b72aa ("VMCI: queue pairs implementation.")
-Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
-Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
-Link: https://lore.kernel.org/r/1611160360-30299-1-git-send-email-jhansen@vmware.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 457f74abbed0 ("pwm: rockchip: Keep enabled PWMs running while probing")
+Reported-by: Thierry Reding <thierry.reding@gmail.com>
+Suggested-by: Trent Piepho <tpiepho@gmail.com>
+Signed-off-by: Simon South <simon@simonsouth.net>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-rockchip.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-index c49065887e8f5..df6b19c4c49b5 100644
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -630,7 +630,7 @@ static void qp_release_pages(struct page **pages,
+diff --git a/drivers/pwm/pwm-rockchip.c b/drivers/pwm/pwm-rockchip.c
+index 389a5e1404128..e6929bc739684 100644
+--- a/drivers/pwm/pwm-rockchip.c
++++ b/drivers/pwm/pwm-rockchip.c
+@@ -330,9 +330,9 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
- 	for (i = 0; i < num_pages; i++) {
- 		if (dirty)
--			set_page_dirty(pages[i]);
-+			set_page_dirty_lock(pages[i]);
+-	ret = clk_prepare(pc->pclk);
++	ret = clk_prepare_enable(pc->pclk);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "Can't prepare APB clk: %d\n", ret);
++		dev_err(&pdev->dev, "Can't prepare enable APB clk: %d\n", ret);
+ 		goto err_clk;
+ 	}
  
- 		put_page(pages[i]);
- 		pages[i] = NULL;
+@@ -362,10 +362,12 @@ static int rockchip_pwm_probe(struct platform_device *pdev)
+ 	if ((ctrl & enable_conf) != enable_conf)
+ 		clk_disable(pc->clk);
+ 
++	clk_disable(pc->pclk);
++
+ 	return 0;
+ 
+ err_pclk:
+-	clk_unprepare(pc->pclk);
++	clk_disable_unprepare(pc->pclk);
+ err_clk:
+ 	clk_disable_unprepare(pc->clk);
+ 
 -- 
 2.27.0
 
