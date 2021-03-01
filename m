@@ -2,106 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E11AF327583
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 01:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6CF032766F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 04:36:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231176AbhCAAN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Feb 2021 19:13:58 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:58158 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230167AbhCAAN5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 19:13:57 -0500
-Received: from [2a02:1811:d34:3700:3b8d:b310:d327:e418] (helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1lGWBW-0007iO-Rr; Mon, 01 Mar 2021 01:13:14 +0100
-Received: from ben by deadeye with local (Exim 4.94)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1lGWBV-004W9a-BQ; Mon, 01 Mar 2021 01:13:13 +0100
-Message-ID: <66826ac72356b00814f51487dd1008298e52ed9b.camel@decadent.org.uk>
-Subject: futex breakage in 4.9 stable branch
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org,
-        Lee Jones <lee.jones@linaro.org>,
-        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>
-Cc:     lwn@lwn.net, jslaby@suse.cz
-Date:   Mon, 01 Mar 2021 01:13:08 +0100
-In-Reply-To: <161408880177110@kroah.com>
-References: <161408880177110@kroah.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-YUn168QV9efsPaMvpgQb"
-User-Agent: Evolution 3.38.2-1 
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2a02:1811:d34:3700:3b8d:b310:d327:e418
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+        id S231657AbhCADf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Feb 2021 22:35:59 -0500
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:47365 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231605AbhCADf7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 22:35:59 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=tao.peng@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0UPsyQO4_1614569714;
+Received: from localhost(mailfrom:tao.peng@linux.alibaba.com fp:SMTPD_---0UPsyQO4_1614569714)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 01 Mar 2021 11:35:15 +0800
+From:   Peng Tao <tao.peng@linux.alibaba.com>
+To:     alikernel-developer@linux.alibaba.com
+Cc:     Liu Bo <bo.liu@linux.alibaba.com>,
+        Ma Jie Yue <majieyue@linux.alibaba.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Eryu Guan <eguan@linux.alibaba.com>,
+        Miklos Szeredi <mszeredi@redhat.com>, <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Peng Tao <tao.peng@linux.alibaba.com>
+Subject: [PATCH CK 4.19 1/4] fuse: fix page dereference after free
+Date:   Mon,  1 Mar 2021 11:36:16 +0800
+Message-Id: <1614569779-12114-2-git-send-email-tao.peng@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1614569779-12114-1-git-send-email-tao.peng@linux.alibaba.com>
+References: <1614569779-12114-1-git-send-email-tao.peng@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Miklos Szeredi <mszeredi@redhat.com>
 
---=-YUn168QV9efsPaMvpgQb
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+commit d78092e4937de9ce55edcb4ee4c5e3c707be0190 upstream.
 
-On Tue, 2021-02-23 at 15:00 +0100, Greg Kroah-Hartman wrote:
-> I'm announcing the release of the 4.9.258 kernel.
->=20
-> All users of the 4.9 kernel series must upgrade.
->=20
-> The updated 4.9.y git tree can be found at:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0git://git.kernel.org/pub/=
-scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-> and can be browsed at the normal kernel.org git web browser:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
+fix #32833505
 
-The backported futex fixes are still incomplete/broken in this version.
-If I enable lockdep and run the futex self-tests (from 5.10):
+After unlock_request() pages from the ap->pages[] array may be put (e.g. by
+aborting the connection) and the pages can be freed.
 
-- on 4.9.246, they pass with no lockdep output
-- on 4.9.257 and 4.9.258, they pass but futex_requeue_pi trigers a
-  lockdep splat
+Prevent use after free by grabbing a reference to the page before calling
+unlock_request().
 
-I have a local branch that essentially updates futex and rtmutex in
-4.9-stable to match 4.14-stable.  With this, the tests pass and lockdep
-is happy.
+The original patch was created by Pradeep P V K.
 
-Unfortunately, that branch has about another 60 commits.  Further, the
-more we change futex in 4.9, the more difficult it is going to be to
-update the 4.9-rt branch.  But I don't see any better option available
-at the moment.
+Reported-by: Pradeep P V K <ppvk@codeaurora.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Peng Tao <tao.peng@linux.alibaba.com>
+---
+ fs/fuse/dev.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-Thoughts?
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index 3202ead..8ad877a 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -877,15 +877,16 @@ static int fuse_try_move_page(struct fuse_copy_state *cs, struct page **pagep)
+ 	struct page *newpage;
+ 	struct pipe_buffer *buf = cs->pipebufs;
+ 
++	get_page(oldpage);
+ 	err = unlock_request(cs->req);
+ 	if (err)
+-		return err;
++		goto out_put_old;
+ 
+ 	fuse_copy_finish(cs);
+ 
+ 	err = pipe_buf_confirm(cs->pipe, buf);
+ 	if (err)
+-		return err;
++		goto out_put_old;
+ 
+ 	BUG_ON(!cs->nr_segs);
+ 	cs->currbuf = buf;
+@@ -925,7 +926,7 @@ static int fuse_try_move_page(struct fuse_copy_state *cs, struct page **pagep)
+ 	err = replace_page_cache_page(oldpage, newpage, GFP_KERNEL);
+ 	if (err) {
+ 		unlock_page(newpage);
+-		return err;
++		goto out_put_old;
+ 	}
+ 
+ 	get_page(newpage);
+@@ -944,14 +945,19 @@ static int fuse_try_move_page(struct fuse_copy_state *cs, struct page **pagep)
+ 	if (err) {
+ 		unlock_page(newpage);
+ 		put_page(newpage);
+-		return err;
++		goto out_put_old;
+ 	}
+ 
+ 	unlock_page(oldpage);
++	/* Drop ref for ap->pages[] array */
+ 	put_page(oldpage);
+ 	cs->len = 0;
+ 
+-	return 0;
++	err = 0;
++out_put_old:
++	/* Drop ref obtained in this function */
++	put_page(oldpage);
++	return err;
+ 
+ out_fallback_unlock:
+ 	unlock_page(newpage);
+@@ -960,10 +966,10 @@ static int fuse_try_move_page(struct fuse_copy_state *cs, struct page **pagep)
+ 	cs->offset = buf->offset;
+ 
+ 	err = lock_request(cs->req);
+-	if (err)
+-		return err;
++	if (!err)
++		err = 1;
+ 
+-	return 1;
++	goto out_put_old;
+ }
+ 
+ static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
+@@ -975,14 +981,16 @@ static int fuse_ref_page(struct fuse_copy_state *cs, struct page *page,
+ 	if (cs->nr_segs == cs->pipe->buffers)
+ 		return -EIO;
+ 
++	get_page(page);
+ 	err = unlock_request(cs->req);
+-	if (err)
++	if (err) {
++		put_page(page);
+ 		return err;
++	}
+ 
+ 	fuse_copy_finish(cs);
+ 
+ 	buf = cs->pipebufs;
+-	get_page(page);
+ 	buf->page = page;
+ 	buf->offset = offset;
+ 	buf->len = count;
+-- 
+1.8.3.1
 
-Ben.
-
---=20
-Ben Hutchings
-I'm always amazed by the number of people who take up solipsism because
-they heard someone else explain it. - E*Borg on alt.fan.pratchett
-
---=-YUn168QV9efsPaMvpgQb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmA8MZQACgkQ57/I7JWG
-EQnKVg/9FdQqGBfLCDP5gL+FeOrGcHw1ICY9UR9yQLjWY7mDlTxMmEXUABQOjpS3
-G7QX7Vf1zQwfWGqogEQopgIsa/FRYGt9dOs/689DnI2Qt9evo+zhvfVvEvyrVsBl
-eH6V5CG0mgJxtYcgQcKuUWS/vn0nzaVApWsbLsZeVDpc2U0TVJeIrN6vYlRcsCkP
-8NSsYPb9NiQZOUu35HD3Bx6JWZLm2CBRJVG5iE4ErTR2rVgrnIHSSfIxRLjnGo/8
-KgNAgYJUnayQlOU4MHs2QlPC0xOjfEUDttGpFVOIu4AmhvDr6N+3EPETU4m8U0tU
-x8Hxyg+8njW22Zrh8pcxgKoqb20z7o6tLsg2Xzp3UFkbhFtPQlVXwmEFYzpL7Huy
-l7sC5kQzcGExoS2noWW//1+Y3WGnwZJJT4VGlTOAqHqNSTLAsLNVCnQI3LQ1Oaf3
-+VOUA8vuL+nIsHRzFloSSKPbTmQMe/AqnBL8kh2cwCMD0eKMr936L43cGBQ3jZF9
-IpVYqOLrzk8mA3DBm8VEie+R/uslmodxfJqY20V+DmOMW+kNelBDmvl1gfkN3Vxn
-vIxBw3OBfgwWJAnwgMLbnqaKGmpTEHsiJmt8nxW3wM5X90PrVfCY1Vd+pFCA6w2q
-DbRJTEWcVHYmZ1mG/Z5sqGIYrbzDl6SFNSz5Zbi6LdvfnCLHiH8=
-=d0ry
------END PGP SIGNATURE-----
-
---=-YUn168QV9efsPaMvpgQb--
