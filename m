@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB891328FE0
+	by mail.lfdr.de (Postfix) with ESMTP id 300D2328FDF
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242603AbhCAT6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
+        id S242597AbhCAT6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242142AbhCATsM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:48:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 670AF650DB;
-        Mon,  1 Mar 2021 17:51:26 +0000 (UTC)
+        id S242187AbhCATsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:48:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D6DC64EDD;
+        Mon,  1 Mar 2021 17:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621086;
-        bh=SqdtV+EUARiF+C+CSOpylmeEioH0duBV0cG7SItaOCA=;
+        s=korg; t=1614621090;
+        bh=9oUCP0n7MlxV68K9/F0sEWq+TeNgdQD93VaeCCaFbwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aexGEneVAlDoJC5QXICD6Z95Nr1zryS7YC4NZok4ATckauNkWM/opy8a0ENX+9LJd
-         u3ge2ClnLMAq7XdyXXXcZueMm83KO4gk/VuZeijUn0Zqs5U5s68KXeZn+tqorQOeSH
-         GoSjfscgS9ISiAZzt2wJ4WMut3/JbAUXlRQPe9zs=
+        b=luno9qslNer7dLehf7w+0XJZPUkkOm8YdC4eIhHOBYjAFuA5U6RAuFndWS8dFLByn
+         yRMDETBhwWTivgJQw5CWwN/TIh6AcVi3Fls2dpmpPtV9MEK1q7b2uXe7w81CvjI9ns
+         fioxp3ySIQSQh9PdNw+b6Rl9gwEyBSz9YhdIVliI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 388/775] IB/umad: Return EPOLLERR in case of when device disassociated
-Date:   Mon,  1 Mar 2021 17:09:16 +0100
-Message-Id: <20210301161220.778975113@linuxfoundation.org>
+Subject: [PATCH 5.11 389/775] KVM: PPC: Make the VMX instruction emulation routines static
+Date:   Mon,  1 Mar 2021 17:09:17 +0100
+Message-Id: <20210301161220.820774126@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,64 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-[ Upstream commit def4cd43f522253645b72c97181399c241b54536 ]
+[ Upstream commit 9236f57a9e51c72ce426ccd2e53e123de7196a0f ]
 
-Currently, polling a umad device will always works, even if the device was
-disassociated. A disassociated device should immediately return EPOLLERR
-from poll(). Otherwise userspace is endlessly hung on poll() with no idea
-that the device has been removed from the system.
+These are only used locally. It fixes these W=1 compile errors :
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Link: https://lore.kernel.org/r/20210125121339.837518-3-leon@kernel.org
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+../arch/powerpc/kvm/powerpc.c:1521:5: error: no previous prototype for ‘kvmppc_get_vmx_dword’ [-Werror=missing-prototypes]
+ 1521 | int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
+      |     ^~~~~~~~~~~~~~~~~~~~
+../arch/powerpc/kvm/powerpc.c:1539:5: error: no previous prototype for ‘kvmppc_get_vmx_word’ [-Werror=missing-prototypes]
+ 1539 | int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
+      |     ^~~~~~~~~~~~~~~~~~~
+../arch/powerpc/kvm/powerpc.c:1557:5: error: no previous prototype for ‘kvmppc_get_vmx_hword’ [-Werror=missing-prototypes]
+ 1557 | int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
+      |     ^~~~~~~~~~~~~~~~~~~~
+../arch/powerpc/kvm/powerpc.c:1575:5: error: no previous prototype for ‘kvmppc_get_vmx_byte’ [-Werror=missing-prototypes]
+ 1575 | int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
+      |     ^~~~~~~~~~~~~~~~~~~
+
+Fixes: acc9eb9305fe ("KVM: PPC: Reimplement LOAD_VMX/STORE_VMX instruction mmio emulation with analyse_instr() input")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210104143206.695198-19-clg@kaod.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/user_mad.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/kvm/powerpc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
-index 7ec1918431f70..dd7f3b437c6be 100644
---- a/drivers/infiniband/core/user_mad.c
-+++ b/drivers/infiniband/core/user_mad.c
-@@ -397,6 +397,11 @@ static ssize_t ib_umad_read(struct file *filp, char __user *buf,
- 		mutex_lock(&file->mutex);
- 	}
- 
-+	if (file->agents_dead) {
-+		mutex_unlock(&file->mutex);
-+		return -EIO;
-+	}
-+
- 	packet = list_entry(file->recv_list.next, struct ib_umad_packet, list);
- 	list_del(&packet->list);
- 
-@@ -658,10 +663,14 @@ static __poll_t ib_umad_poll(struct file *filp, struct poll_table_struct *wait)
- 	/* we will always be able to post a MAD send */
- 	__poll_t mask = EPOLLOUT | EPOLLWRNORM;
- 
-+	mutex_lock(&file->mutex);
- 	poll_wait(filp, &file->recv_wait, wait);
- 
- 	if (!list_empty(&file->recv_list))
- 		mask |= EPOLLIN | EPOLLRDNORM;
-+	if (file->agents_dead)
-+		mask = EPOLLERR;
-+	mutex_unlock(&file->mutex);
- 
- 	return mask;
+diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+index cf52d26f49cd7..25966ae3271ef 100644
+--- a/arch/powerpc/kvm/powerpc.c
++++ b/arch/powerpc/kvm/powerpc.c
+@@ -1518,7 +1518,7 @@ int kvmppc_handle_vmx_load(struct kvm_vcpu *vcpu,
+ 	return emulated;
  }
-@@ -1341,6 +1350,7 @@ static void ib_umad_kill_port(struct ib_umad_port *port)
- 	list_for_each_entry(file, &port->file_list, port_list) {
- 		mutex_lock(&file->mutex);
- 		file->agents_dead = 1;
-+		wake_up_interruptible(&file->recv_wait);
- 		mutex_unlock(&file->mutex);
  
- 		for (id = 0; id < IB_UMAD_MAX_AGENTS; ++id)
+-int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
++static int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
+ {
+ 	union kvmppc_one_reg reg;
+ 	int vmx_offset = 0;
+@@ -1536,7 +1536,7 @@ int kvmppc_get_vmx_dword(struct kvm_vcpu *vcpu, int index, u64 *val)
+ 	return result;
+ }
+ 
+-int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
++static int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
+ {
+ 	union kvmppc_one_reg reg;
+ 	int vmx_offset = 0;
+@@ -1554,7 +1554,7 @@ int kvmppc_get_vmx_word(struct kvm_vcpu *vcpu, int index, u64 *val)
+ 	return result;
+ }
+ 
+-int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
++static int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
+ {
+ 	union kvmppc_one_reg reg;
+ 	int vmx_offset = 0;
+@@ -1572,7 +1572,7 @@ int kvmppc_get_vmx_hword(struct kvm_vcpu *vcpu, int index, u64 *val)
+ 	return result;
+ }
+ 
+-int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
++static int kvmppc_get_vmx_byte(struct kvm_vcpu *vcpu, int index, u64 *val)
+ {
+ 	union kvmppc_one_reg reg;
+ 	int vmx_offset = 0;
 -- 
 2.27.0
 
