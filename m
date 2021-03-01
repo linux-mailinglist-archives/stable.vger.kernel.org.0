@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4812328AE6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:26:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C5C3289C7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:06:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239777AbhCASY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:24:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
+        id S238763AbhCASFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:05:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239739AbhCASTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:19:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 107676534E;
-        Mon,  1 Mar 2021 17:44:55 +0000 (UTC)
+        id S239253AbhCAR7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:59:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF89A65350;
+        Mon,  1 Mar 2021 17:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620696;
-        bh=RdvySk7ALmoxG7/GzYcbVXfFdanWz8h3ZF6f4wQFiQs=;
+        s=korg; t=1614620699;
+        bh=/27xXjn+BzMKfvVCFqecqZkHe/uF80iAWHeGTl+SgVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gckIrRMQbXVcb56LufOM2ZHAiFho65hK72PWWeVgCW9XMot20kNt64vNCmvKrlDq1
-         xYphWa2LSpTe4jhTVLi1hDs4YH6GHcOfJN0esNo/q9lOGkL9aTXdWFmflMuub1kIYL
-         OwXJYT63/rRAe69y7a/SZjKZ8wKdBT/IXTGUQ8w4=
+        b=d0jWd+t1gRm5shASdZFgcGxKKf+0aLehb22jtn08N5nrJ8j7BPh7H3mY6Rts4j6MO
+         pdYOSE9A3fBf9LmIHfHHXDWQhPprdTlN7tTkgWQWfYsYs1Po+QlGQFvKiD6/A/wd14
+         xSG+8ls3ymWRu5KdcabLNYlKN7EmNT2OuQw+T+Sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Yu Zhao <yuzhao@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 247/775] mm: proc: Invalidate TLB after clearing soft-dirty page state
-Date:   Mon,  1 Mar 2021 17:06:55 +0100
-Message-Id: <20210301161213.833821440@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 248/775] ata: ahci_brcm: Add back regulators management
+Date:   Mon,  1 Mar 2021 17:06:56 +0100
+Message-Id: <20210301161213.884369908@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,76 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 912efa17e5121693dfbadae29768f4144a3f9e62 ]
+[ Upstream commit 10340f8d7b6dd54e616339c8ccb2f397133ebea0 ]
 
-Since commit 0758cd830494 ("asm-generic/tlb: avoid potential double
-flush"), TLB invalidation is elided in tlb_finish_mmu() if no entries
-were batched via the tlb_remove_*() functions. Consequently, the
-page-table modifications performed by clear_refs_write() in response to
-a write to /proc/<pid>/clear_refs do not perform TLB invalidation.
-Although this is fine when simply aging the ptes, in the case of
-clearing the "soft-dirty" state we can end up with entries where
-pte_write() is false, yet a writable mapping remains in the TLB.
+While reworking the resources management and departing from using
+ahci_platform_enable_resources() which did not allow a proper step
+separation like we need, we unfortunately lost the ability to control
+AHCI regulators. This broke some Broadcom STB systems that do expect
+regulators to be turned on to link up with attached hard drives.
 
-Fix this by avoiding the mmu_gather API altogether: managing both the
-'tlb_flush_pending' flag on the 'mm_struct' and explicit TLB
-invalidation for the sort-dirty path, much like mprotect() does already.
-
-Fixes: 0758cd830494 ("asm-generic/tlb: avoid potential double flush”)
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Yu Zhao <yuzhao@google.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Link: https://lkml.kernel.org/r/20210127235347.1402-2-will@kernel.org
+Fixes: c0cdf2ac4b5b ("ata: ahci_brcm: Fix AHCI resources management")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/task_mmu.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/ata/ahci_brcm.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
-index 602e3a52884d8..3cec6fbef725e 100644
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -1210,7 +1210,6 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	enum clear_refs_types type;
--	struct mmu_gather tlb;
- 	int itype;
- 	int rv;
+diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
+index 49f7acbfcf01e..5b32df5d33adc 100644
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -377,6 +377,10 @@ static int __maybe_unused brcm_ahci_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
  
-@@ -1249,7 +1248,6 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 			goto out_unlock;
- 		}
++	ret = ahci_platform_enable_regulators(hpriv);
++	if (ret)
++		goto out_disable_clks;
++
+ 	brcm_sata_init(priv);
+ 	brcm_sata_phys_enable(priv);
+ 	brcm_sata_alpm_init(hpriv);
+@@ -406,6 +410,8 @@ out_disable_platform_phys:
+ 	ahci_platform_disable_phys(hpriv);
+ out_disable_phys:
+ 	brcm_sata_phys_disable(priv);
++	ahci_platform_disable_regulators(hpriv);
++out_disable_clks:
+ 	ahci_platform_disable_clks(hpriv);
+ 	return ret;
+ }
+@@ -490,6 +496,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto out_reset;
  
--		tlb_gather_mmu(&tlb, mm, 0, -1);
- 		if (type == CLEAR_REFS_SOFT_DIRTY) {
- 			for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 				if (!(vma->vm_flags & VM_SOFTDIRTY))
-@@ -1258,15 +1256,18 @@ static ssize_t clear_refs_write(struct file *file, const char __user *buf,
- 				vma_set_page_prot(vma);
- 			}
++	ret = ahci_platform_enable_regulators(hpriv);
++	if (ret)
++		goto out_disable_clks;
++
+ 	/* Must be first so as to configure endianness including that
+ 	 * of the standard AHCI register space.
+ 	 */
+@@ -499,7 +509,7 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 	priv->port_mask = brcm_ahci_get_portmask(hpriv, priv);
+ 	if (!priv->port_mask) {
+ 		ret = -ENODEV;
+-		goto out_disable_clks;
++		goto out_disable_regulators;
+ 	}
  
-+			inc_tlb_flush_pending(mm);
- 			mmu_notifier_range_init(&range, MMU_NOTIFY_SOFT_DIRTY,
- 						0, NULL, mm, 0, -1UL);
- 			mmu_notifier_invalidate_range_start(&range);
- 		}
- 		walk_page_range(mm, 0, mm->highest_vm_end, &clear_refs_walk_ops,
- 				&cp);
--		if (type == CLEAR_REFS_SOFT_DIRTY)
-+		if (type == CLEAR_REFS_SOFT_DIRTY) {
- 			mmu_notifier_invalidate_range_end(&range);
--		tlb_finish_mmu(&tlb, 0, -1);
-+			flush_tlb_mm(mm);
-+			dec_tlb_flush_pending(mm);
-+		}
- out_unlock:
- 		mmap_write_unlock(mm);
- out_mm:
+ 	/* Must be done before ahci_platform_enable_phys() */
+@@ -524,6 +534,8 @@ out_disable_platform_phys:
+ 	ahci_platform_disable_phys(hpriv);
+ out_disable_phys:
+ 	brcm_sata_phys_disable(priv);
++out_disable_regulators:
++	ahci_platform_disable_regulators(hpriv);
+ out_disable_clks:
+ 	ahci_platform_disable_clks(hpriv);
+ out_reset:
 -- 
 2.27.0
 
