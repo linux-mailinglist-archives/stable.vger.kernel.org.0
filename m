@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C8432920E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1535C3291DE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243620AbhCAUij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:38:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S243136AbhCAUfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:35:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239209AbhCAUbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:31:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C980C64E62;
-        Mon,  1 Mar 2021 18:08:37 +0000 (UTC)
+        id S243305AbhCAU1r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:27:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CB4665419;
+        Mon,  1 Mar 2021 18:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622118;
-        bh=mDNce7JorKvDfVda5uTF6y2n3mrETWCjGAl4Rk/5v2w=;
+        s=korg; t=1614622035;
+        bh=3kdEAUwMrV96dLyB5h7f1gwsz1KI6KtBnglQONXkQq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vU0zw3QKkVdC/QzLAR9D/tPDrKfHmOu+mz3NoATlTJfEdBE3phEDByxllr/7cMJc/
-         Zmv52htwYXMsuQqk+T7AfAqzAfJy1+gzk1PPnmHSDFC7elUwAlurZ5YqZ0m3Njybsy
-         4fSVRlR2oVsGXz463yXd4c5pQHJr8s3QMCwe3bX4=
+        b=P0UwWIBBAH0eTPPAu29pWTf084HBR+R+QPZcsfi8gGb+bWPjIvSqI7ta2za1OwrAK
+         +8n9DEDT+xDO1sJytiF0Eo5DbPlr6fvgUH41MkSd/ZSY9l6GlwfzaCodkb1bbptwQm
+         gTEeRJTmr6cZNmAfi1f8KLwuBEzIWjEJAHShv26A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.11 733/775] virtio/s390: implement virtio-ccw revision 2 correctly
-Date:   Mon,  1 Mar 2021 17:15:01 +0100
-Message-Id: <20210301161237.561576691@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.11 734/775] um: mm: check more comprehensively for stub changes
+Date:   Mon,  1 Mar 2021 17:15:02 +0100
+Message-Id: <20210301161237.613258703@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,59 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 182f709c5cff683e6732d04c78e328de0532284f upstream.
+commit 47da29763ec9a153b9b685bff9db659e4e09e494 upstream.
 
-CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
-and drivers should only rely on it being implemented when they
-negotiated at least that revision with the device.
+If userspace tries to change the stub, we need to kill it,
+because otherwise it can escape the virtual machine. In a
+few cases the stub checks weren't good, e.g. if userspace
+just tries to
 
-However, virtio_ccw_get_status() issued READ_STATUS for any
-device operating at least at revision 1. If the device accepts
-READ_STATUS regardless of the negotiated revision (which some
-implementations like QEMU do, even though the spec currently does
-not allow it), everything works as intended. While a device
-rejecting the command should also be handled gracefully, we will
-not be able to see any changes the device makes to the status,
-such as setting NEEDS_RESET or setting the status to zero after
-a completed reset.
+	mmap(0x100000 - 0x1000, 0x3000, ...)
 
-We negotiated the revision to at most 1, as we never bumped the
-maximum revision; let's do that now and properly send READ_STATUS
-only if we are operating at least at revision 2.
+it could succeed to get a new private/anonymous mapping
+replacing the stubs. Fix this by checking everywhere, and
+checking for _overlap_, not just direct changes.
 
 Cc: stable@vger.kernel.org
-Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210216110645.1087321-1-cohuck@redhat.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 3963333fe676 ("uml: cover stubs with a VMA")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/virtio/virtio_ccw.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/um/kernel/tlb.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -117,7 +117,7 @@ struct virtio_rev_info {
- };
+--- a/arch/um/kernel/tlb.c
++++ b/arch/um/kernel/tlb.c
+@@ -125,6 +125,9 @@ static int add_mmap(unsigned long virt,
+ 	struct host_vm_op *last;
+ 	int fd = -1, ret = 0;
  
- /* the highest virtio-ccw revision we support */
--#define VIRTIO_CCW_REV_MAX 1
-+#define VIRTIO_CCW_REV_MAX 2
++	if (virt + len > STUB_START && virt < STUB_END)
++		return -EINVAL;
++
+ 	if (hvc->userspace)
+ 		fd = phys_mapping(phys, &offset);
+ 	else
+@@ -162,7 +165,7 @@ static int add_munmap(unsigned long addr
+ 	struct host_vm_op *last;
+ 	int ret = 0;
  
- struct virtio_ccw_vq_info {
- 	struct virtqueue *vq;
-@@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct v
- 	u8 old_status = vcdev->dma_area->status;
- 	struct ccw1 *ccw;
+-	if ((addr >= STUB_START) && (addr < STUB_END))
++	if (addr + len > STUB_START && addr < STUB_END)
+ 		return -EINVAL;
  
--	if (vcdev->revision < 1)
-+	if (vcdev->revision < 2)
- 		return vcdev->dma_area->status;
+ 	if (hvc->index != 0) {
+@@ -192,6 +195,9 @@ static int add_mprotect(unsigned long ad
+ 	struct host_vm_op *last;
+ 	int ret = 0;
  
- 	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
++	if (addr + len > STUB_START && addr < STUB_END)
++		return -EINVAL;
++
+ 	if (hvc->index != 0) {
+ 		last = &hvc->ops[hvc->index - 1];
+ 		if ((last->type == MPROTECT) &&
+@@ -472,6 +478,10 @@ void flush_tlb_page(struct vm_area_struc
+ 	struct mm_id *mm_id;
+ 
+ 	address &= PAGE_MASK;
++
++	if (address >= STUB_START && address < STUB_END)
++		goto kill;
++
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+ 		goto kill;
 
 
