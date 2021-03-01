@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B58D3290EE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB9B3290FB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243019AbhCAURs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:17:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39814 "EHLO mail.kernel.org"
+        id S243088AbhCAUSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:18:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242723AbhCAUH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:07:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0EA4653AB;
-        Mon,  1 Mar 2021 17:59:29 +0000 (UTC)
+        id S242739AbhCAUIG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:08:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB90F6539D;
+        Mon,  1 Mar 2021 17:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621570;
-        bh=C42RWvOcA2qkUV0kar38veN2oPe7cDzW31YvZ+0SA5c=;
+        s=korg; t=1614621573;
+        bh=nyr4Eem315W065NlttbVqsORoV2uycVI18g+NiH7aXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=flyXQXK00gaM3NRVxLZlGQcQ7jAxSuRqRnw7X4Ou7J8gV/BjBCdetjMEfgXsXvgYO
-         tGwGJEv9V3L0QXqsdjuhCc3VdEDJO3sml9eaW5/6q5iM3QXTRg4s0DeQT+IJnMzPXl
-         fzqJ+JPNZdVsQjBS8JfV2WqjjDeaSIgrb0n9FlY4=
+        b=hKR+3dXSRARsPlfDSDMrCxpXeUEnjrSQ6+ZwypQLywJ8hOHQzSsGcWjBoXt4ilNxF
+         Rs+3bZJf4+SPqmug+3OzNSvnf2PxvwQoeyioTTE2kWQlQkVI7iyhdGYZuhq0hcXBWj
+         KqpBxHFTBn11FXazY0lXntcEjvdrcNISH+BijNHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 535/775] ice: Account for port VLAN in VF max packet size calculation
-Date:   Mon,  1 Mar 2021 17:11:43 +0100
-Message-Id: <20210301161227.925491760@linuxfoundation.org>
+Subject: [PATCH 5.11 536/775] ice: Fix state bits on LLDP mode switch
+Date:   Mon,  1 Mar 2021 17:11:44 +0100
+Message-Id: <20210301161227.975518422@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,111 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brett Creeley <brett.creeley@intel.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-[ Upstream commit a6aa7c8f998f4afddd73410aa043dad38162ce9e ]
+[ Upstream commit 0d4907f65dc8fc5e897ad19956fca1acb3b33bc8 ]
 
-Currently if an AVF driver doesn't account for the possibility of a
-port VLAN when determining its max packet size then packets at MTU will
-be dropped. It is not the VF driver's responsibility to account for a
-port VLAN so fix this. To fix this, do the following:
+DCBX_CAP bits were not being adjusted when switching
+between SW and FW controlled LLDP.
 
-1. Add a function that determines the max packet size a VF is allowed by
-   using the port's max packet size and whether the VF is in a port
-   VLAN. If a port VLAN is configured then a VF's max packet size will
-   always be the port's max packet size minus VLAN_HLEN. Otherwise it
-   will be the port's max packet size.
+Adjust bits to correctly indicate which mode the
+LLDP logic is in.
 
-2. Use this function to verify the max packet size from the VF.
-
-3. If there is a port VLAN configured then add 4 bytes (VLAN_HLEN) to
-   the VF's max packet size configuration.
-
-Also, the VIRTCHNL_OP_GET_VF_RESOURCES message provides the capability
-to communicate a VF's max packet size. Use the new function for this
-purpose.
-
-Fixes: 1071a8358a28 ("ice: Implement virtchnl commands for AVF support")
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Fixes: b94b013eb626 ("ice: Implement DCBNL support")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/intel/ice/ice_virtchnl_pf.c  | 33 ++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice.h         | 2 --
+ drivers/net/ethernet/intel/ice/ice_dcb_nl.c  | 4 ++++
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 7 +++++++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index ec7f6c64132ee..b3161c5def465 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -1878,6 +1878,29 @@ static int ice_vc_get_ver_msg(struct ice_vf *vf, u8 *msg)
- 				     sizeof(struct virtchnl_version_info));
- }
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index fa1e128c24eca..619d93f8b54c4 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -443,9 +443,7 @@ struct ice_pf {
+ 	struct ice_hw_port_stats stats_prev;
+ 	struct ice_hw hw;
+ 	u8 stat_prev_loaded:1; /* has previous stats been loaded */
+-#ifdef CONFIG_DCB
+ 	u16 dcbx_cap;
+-#endif /* CONFIG_DCB */
+ 	u32 tx_timeout_count;
+ 	unsigned long tx_timeout_last_recovery;
+ 	u32 tx_timeout_recovery_level;
+diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
+index 842d44b63480f..8c133a8be6add 100644
+--- a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
++++ b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
+@@ -160,6 +160,10 @@ static u8 ice_dcbnl_setdcbx(struct net_device *netdev, u8 mode)
+ {
+ 	struct ice_pf *pf = ice_netdev_to_pf(netdev);
  
-+/**
-+ * ice_vc_get_max_frame_size - get max frame size allowed for VF
-+ * @vf: VF used to determine max frame size
-+ *
-+ * Max frame size is determined based on the current port's max frame size and
-+ * whether a port VLAN is configured on this VF. The VF is not aware whether
-+ * it's in a port VLAN so the PF needs to account for this in max frame size
-+ * checks and sending the max frame size to the VF.
-+ */
-+static u16 ice_vc_get_max_frame_size(struct ice_vf *vf)
-+{
-+	struct ice_vsi *vsi = vf->pf->vsi[vf->lan_vsi_idx];
-+	struct ice_port_info *pi = vsi->port_info;
-+	u16 max_frame_size;
++	/* if FW LLDP agent is running, DCBNL not allowed to change mode */
++	if (test_bit(ICE_FLAG_FW_LLDP_AGENT, pf->flags))
++		return ICE_DCB_NO_HW_CHG;
 +
-+	max_frame_size = pi->phy.link_info.max_frame_size;
-+
-+	if (vf->port_vlan_info)
-+		max_frame_size -= VLAN_HLEN;
-+
-+	return max_frame_size;
-+}
-+
- /**
-  * ice_vc_get_vf_res_msg
-  * @vf: pointer to the VF info
-@@ -1960,6 +1983,7 @@ static int ice_vc_get_vf_res_msg(struct ice_vf *vf, u8 *msg)
- 	vfres->max_vectors = pf->num_msix_per_vf;
- 	vfres->rss_key_size = ICE_VSIQF_HKEY_ARRAY_SIZE;
- 	vfres->rss_lut_size = ICE_VSIQF_HLUT_ARRAY_SIZE;
-+	vfres->max_mtu = ice_vc_get_max_frame_size(vf);
+ 	/* No support for LLD_MANAGED modes or CEE+IEEE */
+ 	if ((mode & DCB_CAP_DCBX_LLD_MANAGED) ||
+ 	    ((mode & DCB_CAP_DCBX_VER_IEEE) && (mode & DCB_CAP_DCBX_VER_CEE)) ||
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 69c113a4de7e6..d27b9cb3e8082 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -8,6 +8,7 @@
+ #include "ice_fltr.h"
+ #include "ice_lib.h"
+ #include "ice_dcb_lib.h"
++#include <net/dcbnl.h>
  
- 	vfres->vsi_res[0].vsi_id = vf->lan_vsi_num;
- 	vfres->vsi_res[0].vsi_type = VIRTCHNL_VSI_SRIOV;
-@@ -2952,6 +2976,8 @@ static int ice_vc_cfg_qs_msg(struct ice_vf *vf, u8 *msg)
- 
- 		/* copy Rx queue info from VF into VSI */
- 		if (qpi->rxq.ring_len > 0) {
-+			u16 max_frame_size = ice_vc_get_max_frame_size(vf);
+ struct ice_stats {
+ 	char stat_string[ETH_GSTRING_LEN];
+@@ -1238,6 +1239,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
+ 			status = ice_init_pf_dcb(pf, true);
+ 			if (status)
+ 				dev_warn(dev, "Fail to init DCB\n");
 +
- 			num_rxq++;
- 			vsi->rx_rings[i]->dma = qpi->rxq.dma_ring_addr;
- 			vsi->rx_rings[i]->count = qpi->rxq.ring_len;
-@@ -2964,7 +2990,7 @@ static int ice_vc_cfg_qs_msg(struct ice_vf *vf, u8 *msg)
- 			}
- 			vsi->rx_buf_len = qpi->rxq.databuffer_size;
- 			vsi->rx_rings[i]->rx_buf_len = vsi->rx_buf_len;
--			if (qpi->rxq.max_pkt_size >= (16 * 1024) ||
-+			if (qpi->rxq.max_pkt_size > max_frame_size ||
- 			    qpi->rxq.max_pkt_size < 64) {
- 				v_ret = VIRTCHNL_STATUS_ERR_PARAM;
- 				goto error_param;
-@@ -2972,6 +2998,11 @@ static int ice_vc_cfg_qs_msg(struct ice_vf *vf, u8 *msg)
++			pf->dcbx_cap &= ~DCB_CAP_DCBX_LLD_MANAGED;
++			pf->dcbx_cap |= DCB_CAP_DCBX_HOST;
+ 		} else {
+ 			enum ice_status status;
+ 			bool dcbx_agent_status;
+@@ -1280,6 +1284,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
+ 			if (status)
+ 				dev_dbg(dev, "Fail to enable MIB change events\n");
+ 
++			pf->dcbx_cap &= ~DCB_CAP_DCBX_HOST;
++			pf->dcbx_cap |= DCB_CAP_DCBX_LLD_MANAGED;
++
+ 			ice_nway_reset(netdev);
  		}
- 
- 		vsi->max_frame = qpi->rxq.max_pkt_size;
-+		/* add space for the port VLAN since the VF driver is not
-+		 * expected to account for it in the MTU calculation
-+		 */
-+		if (vf->port_vlan_info)
-+			vsi->max_frame += VLAN_HLEN;
  	}
- 
- 	/* VF can request to configure less than allocated queues or default
 -- 
 2.27.0
 
