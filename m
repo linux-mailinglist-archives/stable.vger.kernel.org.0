@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C01328D26
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE859328CFC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234447AbhCATGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:06:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
+        id S240949AbhCATC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:02:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240802AbhCATBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:01:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 722FF651F4;
-        Mon,  1 Mar 2021 17:20:07 +0000 (UTC)
+        id S240680AbhCAS4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:56:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A7D264DF2;
+        Mon,  1 Mar 2021 17:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619208;
-        bh=U0YhMBcJe6UFeDB8hA3gegGjlHGfwXl7GX4r0hE1ycc=;
+        s=korg; t=1614619229;
+        bh=7/FwgIobElowJh+/y5HG6ENvOdWVSMoxLt70R9kxUAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=il/Mmd1TxeBasTVlHNQJgNlEecEw/qHCN3YqjmloIRmMEf7k/NtY/f/2TOavP7O1u
-         bGW6UnL/uSLpBOuZkpRsI+cehnyPvNOiEJO8h2KojrgPqgM6DEzpgVzKFJ9IELuSVL
-         NyysaQ4uQvWWK0/MbTdExYMvyiYrnsARC9Gk/jOA=
+        b=iHXSc1pOwyZ6cBAxUEz7oGiLDZ9QzbtBB1STsgW3PNi9Pp9i85XciY8sQqqUzt7O3
+         x2YpJHgUD26nDCyB8W8Q2m7gL7iHwqAYkBm+TlEAaoiIguWOtAB99tL8Qur7ZXbghC
+         C2MtwQ0TRU/lBaKDHDAc0BwSyhtZiFmwVxGD1Mlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Fraser <nfraser@codeweavers.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Frank Ch. Eigler" <fche@redhat.com>,
-        Huw Davies <huw@codeweavers.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kim Phillips <kim.phillips@amd.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Remi Bernon <rbernon@codeweavers.com>,
-        Song Liu <songliubraving@fb.com>,
-        Tommi Rantala <tommi.t.rantala@nokia.com>,
-        Ulrich Czekalla <uczekalla@codeweavers.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Lutz Pogrell <lutz.pogrell@cloud.ionos.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 372/663] perf symbols: Fix return value when loading PE DSO
-Date:   Mon,  1 Mar 2021 17:10:20 +0100
-Message-Id: <20210301161200.256228519@linuxfoundation.org>
+Subject: [PATCH 5.10 379/663] RDMA/rtrs: Only allow addition of path to an already established session
+Date:   Mon,  1 Mar 2021 17:10:27 +0100
+Message-Id: <20210301161200.607905966@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -53,58 +43,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Fraser <nfraser@codeweavers.com>
+From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
 
-[ Upstream commit 77771a97011fa9146ccfaf2983a3a2885dc57b6f ]
+[ Upstream commit 03e9b33a0fd677f554b03352646c13459bf60458 ]
 
-The first time dso__load() was called on a PE file it always returned -1
-error. This caused the first call to map__find_symbol() to always fail
-on a PE file so the first sample from each PE file always had symbol
-<unknown>. Subsequent samples succeed however because the DSO is already
-loaded.
+While adding a path from the client side to an already established
+session, it was possible to provide the destination IP to a different
+server. This is dangerous.
 
-This fixes dso__load() to return 0 when successfully loading a DSO with
-libbfd.
+This commit adds an extra member to the rtrs_msg_conn_req structure, named
+first_conn; which is supposed to notify if the connection request is the
+first for that session or not.
 
-Fixes: eac9a4342e5447ca ("perf symbols: Try reading the symbol table with libbfd")
-Signed-off-by: Nicholas Fraser <nfraser@codeweavers.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Frank Ch. Eigler <fche@redhat.com>
-Cc: Huw Davies <huw@codeweavers.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Kim Phillips <kim.phillips@amd.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Remi Bernon <rbernon@codeweavers.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Tommi Rantala <tommi.t.rantala@nokia.com>
-Cc: Ulrich Czekalla <uczekalla@codeweavers.com>
-Link: http://lore.kernel.org/lkml/1671b43b-09c3-1911-dbf8-7f030242fbf7@codeweavers.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+On the server side, if a session does not exist but the first_conn
+received inside the rtrs_msg_conn_req structure is 1, the connection
+request is failed. This signifies that the connection request is for an
+already existing session, and since the server did not find one, it is an
+wrong connection request.
+
+Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
+Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20210212134525.103456-3-jinpu.wang@cloud.ionos.com
+Signed-off-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Reviewed-by: Lutz Pogrell <lutz.pogrell@cloud.ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c |  7 +++++++
+ drivers/infiniband/ulp/rtrs/rtrs-clt.h |  1 +
+ drivers/infiniband/ulp/rtrs/rtrs-pri.h |  4 +++-
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 21 +++++++++++++++------
+ 4 files changed, 26 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/util/symbol.c b/tools/perf/util/symbol.c
-index da6036ba0cea4..4d569ad7db02d 100644
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -1866,8 +1866,10 @@ int dso__load(struct dso *dso, struct map *map)
- 		if (nsexit)
- 			nsinfo__mountns_enter(dso->nsinfo, &nsc);
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index 6115db7ca2030..fc0e90915678a 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -31,6 +31,8 @@
+  */
+ #define RTRS_RECONNECT_SEED 8
  
--		if (bfdrc == 0)
-+		if (bfdrc == 0) {
-+			ret = 0;
- 			break;
-+		}
++#define FIRST_CONN 0x01
++
+ MODULE_DESCRIPTION("RDMA Transport Client");
+ MODULE_LICENSE("GPL");
  
- 		if (!is_reg || sirc < 0)
- 			continue;
+@@ -1674,6 +1676,7 @@ static int rtrs_rdma_route_resolved(struct rtrs_clt_con *con)
+ 		.cid_num = cpu_to_le16(sess->s.con_num),
+ 		.recon_cnt = cpu_to_le16(sess->s.recon_cnt),
+ 	};
++	msg.first_conn = sess->for_new_clt ? FIRST_CONN : 0;
+ 	uuid_copy(&msg.sess_uuid, &sess->s.uuid);
+ 	uuid_copy(&msg.paths_uuid, &clt->paths_uuid);
+ 
+@@ -1759,6 +1762,8 @@ static int rtrs_rdma_conn_established(struct rtrs_clt_con *con,
+ 		scnprintf(sess->hca_name, sizeof(sess->hca_name),
+ 			  sess->s.dev->ib_dev->name);
+ 		sess->s.src_addr = con->c.cm_id->route.addr.src_addr;
++		/* set for_new_clt, to allow future reconnect on any path */
++		sess->for_new_clt = 1;
+ 	}
+ 
+ 	return 0;
+@@ -2682,6 +2687,8 @@ struct rtrs_clt *rtrs_clt_open(struct rtrs_clt_ops *ops,
+ 			err = PTR_ERR(sess);
+ 			goto close_all_sess;
+ 		}
++		if (!i)
++			sess->for_new_clt = 1;
+ 		list_add_tail_rcu(&sess->s.entry, &clt->paths_list);
+ 
+ 		err = init_sess(sess);
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.h b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
+index 167acd3c90fcc..22da5d50c22c4 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.h
+@@ -142,6 +142,7 @@ struct rtrs_clt_sess {
+ 	int			max_send_sge;
+ 	u32			flags;
+ 	struct kobject		kobj;
++	u8			for_new_clt;
+ 	struct rtrs_clt_stats	*stats;
+ 	/* cache hca_port and hca_name to display in sysfs */
+ 	u8			hca_port;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+index 32de7ad4a0764..2e1d2f7e372ac 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+@@ -188,7 +188,9 @@ struct rtrs_msg_conn_req {
+ 	__le16		recon_cnt;
+ 	uuid_t		sess_uuid;
+ 	uuid_t		paths_uuid;
+-	u8		reserved[12];
++	u8		first_conn : 1;
++	u8		reserved_bits : 7;
++	u8		reserved[11];
+ };
+ 
+ /**
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index 75e1e89e09b38..332418245dce3 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -1350,7 +1350,8 @@ static void free_srv(struct rtrs_srv *srv)
+ }
+ 
+ static struct rtrs_srv *get_or_create_srv(struct rtrs_srv_ctx *ctx,
+-					   const uuid_t *paths_uuid)
++					  const uuid_t *paths_uuid,
++					  bool first_conn)
+ {
+ 	struct rtrs_srv *srv;
+ 	int i;
+@@ -1363,12 +1364,20 @@ static struct rtrs_srv *get_or_create_srv(struct rtrs_srv_ctx *ctx,
+ 			return srv;
+ 		}
+ 	}
++	/*
++	 * If this request is not the first connection request from the
++	 * client for this session then fail and return error.
++	 */
++	if (!first_conn) {
++		mutex_unlock(&ctx->srv_mutex);
++		return ERR_PTR(-ENXIO);
++	}
+ 
+ 	/* need to allocate a new srv */
+ 	srv = kzalloc(sizeof(*srv), GFP_KERNEL);
+ 	if  (!srv) {
+ 		mutex_unlock(&ctx->srv_mutex);
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+ 	INIT_LIST_HEAD(&srv->paths_list);
+@@ -1403,7 +1412,7 @@ err_free_chunks:
+ 
+ err_free_srv:
+ 	kfree(srv);
+-	return NULL;
++	return ERR_PTR(-ENOMEM);
+ }
+ 
+ static void put_srv(struct rtrs_srv *srv)
+@@ -1804,13 +1813,13 @@ static int rtrs_rdma_connect(struct rdma_cm_id *cm_id,
+ 		goto reject_w_econnreset;
+ 	}
+ 	recon_cnt = le16_to_cpu(msg->recon_cnt);
+-	srv = get_or_create_srv(ctx, &msg->paths_uuid);
++	srv = get_or_create_srv(ctx, &msg->paths_uuid, msg->first_conn);
+ 	/*
+ 	 * "refcount == 0" happens if a previous thread calls get_or_create_srv
+ 	 * allocate srv, but chunks of srv are not allocated yet.
+ 	 */
+-	if (!srv || refcount_read(&srv->refcount) == 0) {
+-		err = -ENOMEM;
++	if (IS_ERR(srv) || refcount_read(&srv->refcount) == 0) {
++		err = PTR_ERR(srv);
+ 		goto reject_w_err;
+ 	}
+ 	mutex_lock(&srv->paths_mutex);
 -- 
 2.27.0
 
