@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60772328779
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 037D6328776
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238259AbhCARYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:24:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36400 "EHLO mail.kernel.org"
+        id S238254AbhCARYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:24:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238019AbhCARSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:18:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40F6464D9E;
-        Mon,  1 Mar 2021 16:46:42 +0000 (UTC)
+        id S238046AbhCARSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:18:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F282664E75;
+        Mon,  1 Mar 2021 16:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617202;
-        bh=VMFUm4Hnw2KI51sSxLL0u3mOSVdwpmD1Jfzca45bw2s=;
+        s=korg; t=1614617208;
+        bh=qlN6aSjYOdN8CSB3OeHLQN8lVTjIVBG/rzVjxGpX/xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WccSXPzJYn04nNQCV9YLmiyNfxMI/SSzZrAFB/Wo6grx7k9OtrBWbnrEhJRdQnPnn
-         dhVJxLW5+S+t7fmc/CHFi7WJuGrihzmySd9nSL/kMkn/z5kF451Q/NivJj/qnotR27
-         bZQN0tMVPlfN/hvKErnOrtmZNzjZFM5Nm/z7sy8E=
+        b=bB2u7ZhssMs+cX1Sii6a0VTo18oEYTNYVlBvV+H5P3oJ/mKYhmieyg4sXWlQLY3sC
+         X3SdFMEQ6xl0N5jS/JbLU+1/nPZY2AeO9x4ILK+uG4CgQnj8S5U26MybcsuzAeuRCV
+         3H22IHBsJ91OMG6JqkZOuQvgNdYFleZBA4VGaTyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Florian Westphal <fw@strlen.de>,
+        Harald Welte <laforge@gnumonks.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 239/247] icmp: introduce helper for natd source address in network device context
-Date:   Mon,  1 Mar 2021 17:14:19 +0100
-Message-Id: <20210301161043.407029143@linuxfoundation.org>
+Subject: [PATCH 4.19 240/247] gtp: use icmp_ndo_send helper
+Date:   Mon,  1 Mar 2021 17:14:20 +0100
+Message-Id: <20210301161043.454714787@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -42,137 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 0b41713b606694257b90d61ba7e2712d8457648b upstream.
+commit e0fce6f945a26d4e953a147fe7ca11410322c9fe upstream.
 
-This introduces a helper function to be called only by network drivers
-that wraps calls to icmp[v6]_send in a conntrack transformation, in case
-NAT has been used. We don't want to pollute the non-driver path, though,
-so we introduce this as a helper to be called by places that actually
-make use of this, as suggested by Florian.
+Because gtp is calling icmp from network device context, it should use
+the ndo helper so that the rate limiting applies correctly.
 
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Florian Westphal <fw@strlen.de>
+Cc: Harald Welte <laforge@gnumonks.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/icmpv6.h |    6 ++++++
- include/net/icmp.h     |    6 ++++++
- net/ipv4/icmp.c        |   33 +++++++++++++++++++++++++++++++++
- net/ipv6/ip6_icmp.c    |   34 ++++++++++++++++++++++++++++++++++
- 4 files changed, 79 insertions(+)
+ drivers/net/gtp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/icmpv6.h
-+++ b/include/linux/icmpv6.h
-@@ -31,6 +31,12 @@ static inline void icmpv6_send(struct sk
- }
- #endif
+--- a/drivers/net/gtp.c
++++ b/drivers/net/gtp.c
+@@ -550,8 +550,8 @@ static int gtp_build_skb_ip4(struct sk_b
+ 	    mtu < ntohs(iph->tot_len)) {
+ 		netdev_dbg(dev, "packet too big, fragmentation needed\n");
+ 		memset(IPCB(skb), 0, sizeof(*IPCB(skb)));
+-		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
+-			  htonl(mtu));
++		icmp_ndo_send(skb, ICMP_DEST_UNREACH, ICMP_FRAG_NEEDED,
++			      htonl(mtu));
+ 		goto err_rt;
+ 	}
  
-+#if IS_ENABLED(CONFIG_NF_NAT)
-+void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info);
-+#else
-+#define icmpv6_ndo_send icmpv6_send
-+#endif
-+
- extern int				icmpv6_init(void);
- extern int				icmpv6_err_convert(u8 type, u8 code,
- 							   int *err);
---- a/include/net/icmp.h
-+++ b/include/net/icmp.h
-@@ -47,6 +47,12 @@ static inline void icmp_send(struct sk_b
- 	__icmp_send(skb_in, type, code, info, &IPCB(skb_in)->opt);
- }
- 
-+#if IS_ENABLED(CONFIG_NF_NAT)
-+void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info);
-+#else
-+#define icmp_ndo_send icmp_send
-+#endif
-+
- int icmp_rcv(struct sk_buff *skb);
- void icmp_err(struct sk_buff *skb, u32 info);
- int icmp_init(void);
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -755,6 +755,39 @@ out:;
- }
- EXPORT_SYMBOL(__icmp_send);
- 
-+#if IS_ENABLED(CONFIG_NF_NAT)
-+#include <net/netfilter/nf_conntrack.h>
-+void icmp_ndo_send(struct sk_buff *skb_in, int type, int code, __be32 info)
-+{
-+	struct sk_buff *cloned_skb = NULL;
-+	enum ip_conntrack_info ctinfo;
-+	struct nf_conn *ct;
-+	__be32 orig_ip;
-+
-+	ct = nf_ct_get(skb_in, &ctinfo);
-+	if (!ct || !(ct->status & IPS_SRC_NAT)) {
-+		icmp_send(skb_in, type, code, info);
-+		return;
-+	}
-+
-+	if (skb_shared(skb_in))
-+		skb_in = cloned_skb = skb_clone(skb_in, GFP_ATOMIC);
-+
-+	if (unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head ||
-+	    (skb_network_header(skb_in) + sizeof(struct iphdr)) >
-+	    skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in,
-+	    skb_network_offset(skb_in) + sizeof(struct iphdr))))
-+		goto out;
-+
-+	orig_ip = ip_hdr(skb_in)->saddr;
-+	ip_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.ip;
-+	icmp_send(skb_in, type, code, info);
-+	ip_hdr(skb_in)->saddr = orig_ip;
-+out:
-+	consume_skb(cloned_skb);
-+}
-+EXPORT_SYMBOL(icmp_ndo_send);
-+#endif
- 
- static void icmp_socket_deliver(struct sk_buff *skb, u32 info)
- {
---- a/net/ipv6/ip6_icmp.c
-+++ b/net/ipv6/ip6_icmp.c
-@@ -45,4 +45,38 @@ out:
- 	rcu_read_unlock();
- }
- EXPORT_SYMBOL(icmpv6_send);
-+
-+#if IS_ENABLED(CONFIG_NF_NAT)
-+#include <net/netfilter/nf_conntrack.h>
-+void icmpv6_ndo_send(struct sk_buff *skb_in, u8 type, u8 code, __u32 info)
-+{
-+	struct sk_buff *cloned_skb = NULL;
-+	enum ip_conntrack_info ctinfo;
-+	struct in6_addr orig_ip;
-+	struct nf_conn *ct;
-+
-+	ct = nf_ct_get(skb_in, &ctinfo);
-+	if (!ct || !(ct->status & IPS_SRC_NAT)) {
-+		icmpv6_send(skb_in, type, code, info);
-+		return;
-+	}
-+
-+	if (skb_shared(skb_in))
-+		skb_in = cloned_skb = skb_clone(skb_in, GFP_ATOMIC);
-+
-+	if (unlikely(!skb_in || skb_network_header(skb_in) < skb_in->head ||
-+	    (skb_network_header(skb_in) + sizeof(struct ipv6hdr)) >
-+	    skb_tail_pointer(skb_in) || skb_ensure_writable(skb_in,
-+	    skb_network_offset(skb_in) + sizeof(struct ipv6hdr))))
-+		goto out;
-+
-+	orig_ip = ipv6_hdr(skb_in)->saddr;
-+	ipv6_hdr(skb_in)->saddr = ct->tuplehash[0].tuple.src.u3.in6;
-+	icmpv6_send(skb_in, type, code, info);
-+	ipv6_hdr(skb_in)->saddr = orig_ip;
-+out:
-+	consume_skb(cloned_skb);
-+}
-+EXPORT_SYMBOL(icmpv6_ndo_send);
-+#endif
- #endif
 
 
