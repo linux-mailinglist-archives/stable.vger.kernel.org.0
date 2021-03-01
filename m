@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45476328DE5
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BCE2328E2F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:26:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240412AbhCATTR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:19:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43896 "EHLO mail.kernel.org"
+        id S241441AbhCATZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:25:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241251AbhCATPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E6C86529E;
-        Mon,  1 Mar 2021 17:32:56 +0000 (UTC)
+        id S241392AbhCATVB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:21:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D82F865127;
+        Mon,  1 Mar 2021 17:03:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619977;
-        bh=K0J7as9wFhYoyMSPxRC+Khg1wn1se4ke0OPxdrssz3k=;
+        s=korg; t=1614618206;
+        bh=4sHXrqDz9kVEAjtox2y2yr6ns0ba4hNjeAYi0ZHiqAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6pWg96MCRtMWJTBwsnfuk2vuIz3CHZbL8sRnwrjZwyulhsbW4TQJetfVKA6v2jPK
-         CaT5XtDMfO2jD6je3zCMB+kuJJkVKu8TdfeyKrM0RHrvNlGMVIGSLoo0pQgGu9Azzn
-         1duvcc75mP+lVyL5FE/EDrV2OZsTsBJbpzmh64k8=
+        b=BlXpdfmTq4QoDG1qqt07R5cIksz+QcuFrCWvuGSoYtDR0MPp0sLW3hREaW755oVlN
+         nqUlUgkwoJj+2rWnqCF1IOkPHPquw0fwOnAfzhB6vY3WLHq1brKSzWjLSxO8MyEWki
+         BWnBvvGSBt6qxHjx09m8UfCcsJ2vdrwWetlAHZds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Shawn Guo <shawn.guo@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5.10 622/663] cpufreq: qcom-hw: drop devm_xxx() calls from init/exit hooks
-Date:   Mon,  1 Mar 2021 17:14:30 +0100
-Message-Id: <20210301161212.622073587@linuxfoundation.org>
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 329/340] dm era: only resize metadata in preresume
+Date:   Mon,  1 Mar 2021 17:14:33 +0100
+Message-Id: <20210301161104.485543932@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+References: <20210301161048.294656001@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,139 +39,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shawn Guo <shawn.guo@linaro.org>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 67fc209b527d023db4d087c68e44e9790aa089ef upstream.
+commit cca2c6aebe86f68103a8615074b3578e854b5016 upstream.
 
-Commit f17b3e44320b ("cpufreq: qcom-hw: Use
-devm_platform_ioremap_resource() to simplify code") introduces
-a regression on platforms using the driver, by failing to initialise
-a policy, when one is created post hotplug.
+Metadata resize shouldn't happen in the ctr. The ctr loads a temporary
+(inactive) table that will only become active upon resume. That is why
+resize should always be done in terms of resume. Otherwise a load (ctr)
+whose inactive table never becomes active will incorrectly resize the
+metadata.
 
-When all the CPUs of a policy are hoptplugged out, the call to .exit()
-and later to devm_iounmap() does not release the memory region that was
-requested during devm_platform_ioremap_resource().  Therefore,
-a subsequent call to .init() will result in the following error, which
-will prevent a new policy to be initialised:
+Also, perform the resize directly in preresume, instead of using the
+worker to do it.
 
-[ 3395.915416] CPU4: shutdown
-[ 3395.938185] psci: CPU4 killed (polled 0 ms)
-[ 3399.071424] CPU5: shutdown
-[ 3399.094316] psci: CPU5 killed (polled 0 ms)
-[ 3402.139358] CPU6: shutdown
-[ 3402.161705] psci: CPU6 killed (polled 0 ms)
-[ 3404.742939] CPU7: shutdown
-[ 3404.765592] psci: CPU7 killed (polled 0 ms)
-[ 3411.492274] Detected VIPT I-cache on CPU4
-[ 3411.492337] GICv3: CPU4: found redistributor 400 region 0:0x0000000017ae0000
-[ 3411.492448] CPU4: Booted secondary processor 0x0000000400 [0x516f802d]
-[ 3411.503654] qcom-cpufreq-hw 17d43000.cpufreq: can't request region for resource [mem 0x17d45800-0x17d46bff]
+The worker might run other metadata operations, e.g., it could start
+digestion, before resizing the metadata. These operations will end up
+using the old size.
 
-With that being said, the original code was tricky and skipping memory
-region request intentionally to hide this issue.  The true cause is that
-those devm_xxx() device managed functions shouldn't be used for cpufreq
-init/exit hooks, because &pdev->dev is alive across the hooks and will
-not trigger auto resource free-up.  Let's drop the use of device managed
-functions and manually allocate/free resources, so that the issue can be
-fixed properly.
+This could lead to errors, like:
 
-Cc: v5.10+ <stable@vger.kernel.org> # v5.10+
-Fixes: f17b3e44320b ("cpufreq: qcom-hw: Use devm_platform_ioremap_resource() to simplify code")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+  device-mapper: era: metadata_digest_transcribe_writeset: dm_array_set_value failed
+  device-mapper: era: process_old_eras: digest step failed, stopping digestion
+
+The reason of the above error is that the worker started the digestion
+of the archived writeset using the old, larger size.
+
+As a result, metadata_digest_transcribe_writeset tried to write beyond
+the end of the era array.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c |   40 ++++++++++++++++++++++++++++++--------
- 1 file changed, 32 insertions(+), 8 deletions(-)
+ drivers/md/dm-era-target.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -32,6 +32,7 @@ struct qcom_cpufreq_soc_data {
- 
- struct qcom_cpufreq_data {
- 	void __iomem *base;
-+	struct resource *res;
- 	const struct qcom_cpufreq_soc_data *soc_data;
- };
- 
-@@ -280,6 +281,7 @@ static int qcom_cpufreq_hw_cpu_init(stru
- 	struct of_phandle_args args;
- 	struct device_node *cpu_np;
- 	struct device *cpu_dev;
-+	struct resource *res;
- 	void __iomem *base;
- 	struct qcom_cpufreq_data *data;
- 	int ret, index;
-@@ -303,18 +305,33 @@ static int qcom_cpufreq_hw_cpu_init(stru
- 
- 	index = args.args[0];
- 
--	base = devm_platform_ioremap_resource(pdev, index);
--	if (IS_ERR(base))
--		return PTR_ERR(base);
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, index);
-+	if (!res) {
-+		dev_err(dev, "failed to get mem resource %d\n", index);
-+		return -ENODEV;
-+	}
-+
-+	if (!request_mem_region(res->start, resource_size(res), res->name)) {
-+		dev_err(dev, "failed to request resource %pR\n", res);
-+		return -EBUSY;
-+	}
- 
--	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	base = ioremap(res->start, resource_size(res));
-+	if (IS_ERR(base)) {
-+		dev_err(dev, "failed to map resource %pR\n", res);
-+		ret = PTR_ERR(base);
-+		goto release_region;
-+	}
-+
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
- 	if (!data) {
- 		ret = -ENOMEM;
--		goto error;
-+		goto unmap_base;
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -1501,15 +1501,6 @@ static int era_ctr(struct dm_target *ti,
  	}
+ 	era->md = md;
  
- 	data->soc_data = of_device_get_match_data(&pdev->dev);
- 	data->base = base;
-+	data->res = res;
+-	era->nr_blocks = calc_nr_blocks(era);
+-
+-	r = metadata_resize(era->md, &era->nr_blocks);
+-	if (r) {
+-		ti->error = "couldn't resize metadata";
+-		era_destroy(era);
+-		return -ENOMEM;
+-	}
+-
+ 	era->wq = alloc_ordered_workqueue("dm-" DM_MSG_PREFIX, WQ_MEM_RECLAIM);
+ 	if (!era->wq) {
+ 		ti->error = "could not create workqueue for metadata object";
+@@ -1586,9 +1577,17 @@ static int era_preresume(struct dm_targe
+ 	dm_block_t new_size = calc_nr_blocks(era);
  
- 	/* HW should be in enabled state to proceed */
- 	if (!(readl_relaxed(base + data->soc_data->reg_enable) & 0x1)) {
-@@ -349,7 +366,11 @@ static int qcom_cpufreq_hw_cpu_init(stru
+ 	if (era->nr_blocks != new_size) {
+-		r = in_worker1(era, metadata_resize, &new_size);
+-		if (r)
++		r = metadata_resize(era->md, &new_size);
++		if (r) {
++			DMERR("%s: metadata_resize failed", __func__);
++			return r;
++		}
++
++		r = metadata_commit(era->md);
++		if (r) {
++			DMERR("%s: metadata_commit failed", __func__);
+ 			return r;
++		}
  
- 	return 0;
- error:
--	devm_iounmap(dev, base);
-+	kfree(data);
-+unmap_base:
-+	iounmap(data->base);
-+release_region:
-+	release_mem_region(res->start, resource_size(res));
- 	return ret;
- }
- 
-@@ -357,12 +378,15 @@ static int qcom_cpufreq_hw_cpu_exit(stru
- {
- 	struct device *cpu_dev = get_cpu_device(policy->cpu);
- 	struct qcom_cpufreq_data *data = policy->driver_data;
--	struct platform_device *pdev = cpufreq_get_driver_data();
-+	struct resource *res = data->res;
-+	void __iomem *base = data->base;
- 
- 	dev_pm_opp_remove_all_dynamic(cpu_dev);
- 	dev_pm_opp_of_cpumask_remove_table(policy->related_cpus);
- 	kfree(policy->freq_table);
--	devm_iounmap(&pdev->dev, data->base);
-+	kfree(data);
-+	iounmap(base);
-+	release_mem_region(res->start, resource_size(res));
- 
- 	return 0;
- }
+ 		era->nr_blocks = new_size;
+ 	}
 
 
