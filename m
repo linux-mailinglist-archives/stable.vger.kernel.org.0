@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9DC7328498
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A4C328579
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234673AbhCAQiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:38:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36926 "EHLO mail.kernel.org"
+        id S232958AbhCAQyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:54:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232663AbhCAQc1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:32:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F55C64F2B;
-        Mon,  1 Mar 2021 16:24:44 +0000 (UTC)
+        id S235733AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A780364FA5;
+        Mon,  1 Mar 2021 16:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615884;
-        bh=ymdq+xzvkAsE44SwFhAffqL61NBddWlAT9+XphAUN6I=;
+        s=korg; t=1614616357;
+        bh=5f9yO/0BlGgWgb6yLh38/lcQKvAJLvKhHPEirEPXOa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b2jUijpfYQ3zMeXRT4ItgIKzLO6957J+0mga7uLXZBmZXmXsm8B++1xvhSYuPrF5z
-         qKSJ4gGBEl4FbMCHjiI+TA5fmge6VWoX+aN2SoRFaGLcmt3rd32aSYs8exaOjc808H
-         PWFWjLaX7h0EL0Vi3BTRUoD7OGFU+7zDVrOSAQPQ=
+        b=COVqwrOWPITaGumzFvc7Fj38mokdCcmQGYXW4JdzXdk3dTzpZA3+W6Fy+Nbr+EOBv
+         2QkqHpf24JESnyo1TkbRij8agXmyfUDO2Up61D9iTOlV2CHEM5d+y7jbL/gwNJafpw
+         wedgEwAM5MT4fUuqYkSilI0371w0JnjSeYqlwzzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ludvig Norgren Guldhag <ludvigng@gmail.com>,
-        Marcos Paulo de Souza <mpdesouza@suse.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 094/134] Input: i8042 - add ASUS Zenbook Flip to noselftest list
+        Calvin Johnson <calvin.johnson@oss.nxp.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.14 122/176] ACPI: property: Fix fwnode string properties matching
 Date:   Mon,  1 Mar 2021 17:13:15 +0100
-Message-Id: <20210301161018.197046759@linuxfoundation.org>
+Message-Id: <20210301161027.052004809@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +43,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcos Paulo de Souza <mpdesouza@suse.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit b5d6e7ab7fe7d186878142e9fc1a05e4c3b65eb9 upstream.
+commit e1e6bd2995ac0e1ad0c2a2d906a06f59ce2ed293 upstream.
 
-After commit 77b425399f6d ("Input: i8042 - use chassis info to skip
-selftest on Asus laptops"), all modern Asus laptops have the i8042
-selftest disabled. It has done by using chassys type "10" (laptop).
+Property matching does not work for ACPI fwnodes if the value of the
+given property is not represented as a package in the _DSD package
+containing it.  For example, the "compatible" property in the _DSD
+below
 
-The Asus Zenbook Flip suffers from similar suspend/resume issues, but
-it _sometimes_ work and sometimes it doesn't. Setting noselftest makes
-it work reliably. In this case, we need to add chassis type "31"
-(convertible) in order to avoid selftest in this device.
+  Name (_DSD, Package () {
+    ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+    Package () {
+      Package () {"compatible", "ethernet-phy-ieee802.3-c45"}
+    }
+  })
 
-Reported-by: Ludvig Norgren Guldhag <ludvigng@gmail.com>
-Signed-off-by: Marcos Paulo de Souza <mpdesouza@suse.com>
-Link: https://lore.kernel.org/r/20210219164638.761-1-mpdesouza@suse.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+will not be found by fwnode_property_match_string(), because the ACPI
+code handling device properties does not regard the single value as a
+"list" in that case.
+
+Namely, fwnode_property_match_string() invoked to match a given
+string property value first calls fwnode_property_read_string_array()
+with the last two arguments equal to NULL and 0, respectively, in
+order to count the items in the value of the given property, with the
+assumption that this value may be an array.  For ACPI fwnodes, that
+operation is carried out by acpi_node_prop_read() which calls
+acpi_data_prop_read() for this purpose.  However, when the return
+(val) pointer is NULL, that function only looks for a property whose
+value is a package without checking the single-value case at all.
+
+To fix that, make acpi_data_prop_read() check the single-value
+case if its return pointer argument is NULL and modify
+acpi_data_prop_read_single() handling that case to attempt to
+read the value of the property if the return pointer is NULL
+and return 1 if that succeeds.
+
+Fixes: 3708184afc77 ("device property: Move FW type specific functionality to FW specific files")
+Reported-by: Calvin Johnson <calvin.johnson@oss.nxp.com>
+Cc: 4.13+ <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/acpi/property.c |   44 +++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 33 insertions(+), 11 deletions(-)
 
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -579,6 +579,10 @@ static const struct dmi_system_id i8042_
- 			DMI_MATCH(DMI_SYS_VENDOR, "Sony Corporation"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "VGN-CS"),
- 		},
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+			DMI_MATCH(DMI_CHASSIS_TYPE, "31"), /* Convertible Notebook */
-+		},
- 	},
- 	{ }
- };
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -688,9 +688,6 @@ static int acpi_data_prop_read_single(co
+ 	const union acpi_object *obj;
+ 	int ret;
+ 
+-	if (!val)
+-		return -EINVAL;
+-
+ 	if (proptype >= DEV_PROP_U8 && proptype <= DEV_PROP_U64) {
+ 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_INTEGER, &obj);
+ 		if (ret)
+@@ -700,28 +697,43 @@ static int acpi_data_prop_read_single(co
+ 		case DEV_PROP_U8:
+ 			if (obj->integer.value > U8_MAX)
+ 				return -EOVERFLOW;
+-			*(u8 *)val = obj->integer.value;
++
++			if (val)
++				*(u8 *)val = obj->integer.value;
++
+ 			break;
+ 		case DEV_PROP_U16:
+ 			if (obj->integer.value > U16_MAX)
+ 				return -EOVERFLOW;
+-			*(u16 *)val = obj->integer.value;
++
++			if (val)
++				*(u16 *)val = obj->integer.value;
++
+ 			break;
+ 		case DEV_PROP_U32:
+ 			if (obj->integer.value > U32_MAX)
+ 				return -EOVERFLOW;
+-			*(u32 *)val = obj->integer.value;
++
++			if (val)
++				*(u32 *)val = obj->integer.value;
++
+ 			break;
+ 		default:
+-			*(u64 *)val = obj->integer.value;
++			if (val)
++				*(u64 *)val = obj->integer.value;
++
+ 			break;
+ 		}
++
++		if (!val)
++			return 1;
+ 	} else if (proptype == DEV_PROP_STRING) {
+ 		ret = acpi_data_get_property(data, propname, ACPI_TYPE_STRING, &obj);
+ 		if (ret)
+ 			return ret;
+ 
+-		*(char **)val = obj->string.pointer;
++		if (val)
++			*(char **)val = obj->string.pointer;
+ 
+ 		return 1;
+ 	} else {
+@@ -735,7 +747,7 @@ int acpi_dev_prop_read_single(struct acp
+ {
+ 	int ret;
+ 
+-	if (!adev)
++	if (!adev || !val)
+ 		return -EINVAL;
+ 
+ 	ret = acpi_data_prop_read_single(&adev->data, propname, proptype, val);
+@@ -829,10 +841,20 @@ static int acpi_data_prop_read(const str
+ 	const union acpi_object *items;
+ 	int ret;
+ 
+-	if (val && nval == 1) {
++	if (nval == 1 || !val) {
+ 		ret = acpi_data_prop_read_single(data, propname, proptype, val);
+-		if (ret >= 0)
++		/*
++		 * The overflow error means that the property is there and it is
++		 * single-value, but its type does not match, so return.
++		 */
++		if (ret >= 0 || ret == -EOVERFLOW)
+ 			return ret;
++
++		/*
++		 * Reading this property as a single-value one failed, but its
++		 * value may still be represented as one-element array, so
++		 * continue.
++		 */
+ 	}
+ 
+ 	ret = acpi_data_get_property_array(data, propname, ACPI_TYPE_ANY, &obj);
 
 
