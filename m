@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AAC13285A3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC92C3284B0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236040AbhCAQzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:55:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
+        id S234824AbhCAQlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:41:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235768AbhCAQto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:49:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2570164FAB;
-        Mon,  1 Mar 2021 16:32:53 +0000 (UTC)
+        id S232698AbhCAQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:32:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 761B964F58;
+        Mon,  1 Mar 2021 16:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616374;
-        bh=kHon70kWAYhhYOOULaiv5qBZIdy+fNfZnePZ8O+g/5Q=;
+        s=korg; t=1614615907;
+        bh=YaxCMftwgxD6JmXs/9OR16eB/9zxdm6NwX39b2sOag8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLTpPP+wvtwLuzZBvR5Xs46X7mm0/7iyf1f5KXIdqJ+WQM114vWlt1Kko0odxhlVQ
-         nNOS/MhIyOn+wGhmKQsHLCYP4Hhb0xzqduP4FU1HRMp6S+hU+BmlnKGRY+Zk67ydib
-         bfwD2xSlj2NtSVsl//JgYOCI7zk/SNn1ZR1FKbJE=
+        b=T57LyZvwl7l2o4f6783FdFgj4QnVriTjjXOYvgs90rxkjHUNc1qZUM8uoTYxMMNPk
+         Gw4G+tjU6xL4dEeFYe4CIXnbm0751gk0nLSh1VMVBKpWWkd88ASfia4iSY7l6C2cs3
+         AhJeYPh0M13cF2isKUlrCwBm7NjeTRjBghkfmhOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 099/176] perf intel-pt: Fix missing CYC processing in PSB
-Date:   Mon,  1 Mar 2021 17:12:52 +0100
-Message-Id: <20210301161025.901508265@linuxfoundation.org>
+Subject: [PATCH 4.9 072/134] Input: elo - fix an error code in elo_connect()
+Date:   Mon,  1 Mar 2021 17:12:53 +0100
+Message-Id: <20210301161017.101158106@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 03fb0f859b45d1eb05c984ab4bd3bef67e45ede2 ]
+[ Upstream commit 0958351e93fa0ac142f6dd8bd844441594f30a57 ]
 
-Add missing CYC packet processing when walking through PSB+. This
-improves the accuracy of timestamps that follow PSB+, until the next
-MTC.
+If elo_setup_10() fails then this should return an error code instead
+of success.
 
-Fixes: 3d49807870f08 ("perf tools: Add new Intel PT packet definitions")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/r/20210205175350.23817-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: fae3006e4b42 ("Input: elo - add support for non-pressure-sensitive touchscreens")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YBKFd5CvDu+jVmfW@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/touchscreen/elo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-index 6522b6513895c..e2f038f84dbc1 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1596,6 +1596,9 @@ static int intel_pt_walk_psbend(struct intel_pt_decoder *decoder)
- 			break;
+diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
+index 8051a4b704ea3..e2e31cbd6b2c3 100644
+--- a/drivers/input/touchscreen/elo.c
++++ b/drivers/input/touchscreen/elo.c
+@@ -345,8 +345,10 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
+ 	switch (elo->id) {
  
- 		case INTEL_PT_CYC:
-+			intel_pt_calc_cyc_timestamp(decoder);
-+			break;
-+
- 		case INTEL_PT_VMCS:
- 		case INTEL_PT_MNT:
- 		case INTEL_PT_PAD:
+ 	case 0: /* 10-byte protocol */
+-		if (elo_setup_10(elo))
++		if (elo_setup_10(elo)) {
++			err = -EIO;
+ 			goto fail3;
++		}
+ 
+ 		break;
+ 
 -- 
 2.27.0
 
