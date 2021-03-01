@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0110B3283EE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44B373283FE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231549AbhCAQ1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:27:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57354 "EHLO mail.kernel.org"
+        id S232661AbhCAQ2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237834AbhCAQXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:23:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33C2564F1B;
-        Mon,  1 Mar 2021 16:19:42 +0000 (UTC)
+        id S232326AbhCAQXm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:23:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2EE64F27;
+        Mon,  1 Mar 2021 16:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615582;
-        bh=0pAdrMMTTslJNVrXzRb49jW5Vh5eg5nxiygi28VdCUw=;
+        s=korg; t=1614615585;
+        bh=8uAE7Kjr3jKjAAotgeKAhm59IaP0pK281vQmxuvNvXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l4W3iBiGQFeyVm4ewS6X30lVhtxH4Ybl1NvTyCPOB9GqftC/+yCo5AMuKuDuBOU3d
-         oZLhSbk7RQ/5jxyuz0RtzgGbVC6daysPrtvWEsj3MLYMkxpziinc9DZG22hs4930Rb
-         Xm/i1P4BWAIFeVcJPTzeNS6o2COkj0OCISmU8ZFA=
+        b=1cyuPeNkSc23MikAaDJ6os1R4XqOSaOTdepeD2tnofWZL5wYBNMtKYKX/HGdrZTKC
+         NDFev3U4tPnB1uIinkjkJq3KzobIIumOnIDm+x0j1BSQUHBdE38y2gnZ1sqIvRYQFU
+         LWyEm8J+b8vduhDC2wBMsab7kSzQ7wPU1ONk5/xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.4 81/93] module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for undefined symbols
-Date:   Mon,  1 Mar 2021 17:13:33 +0100
-Message-Id: <20210301161010.858813090@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.4 82/93] gpio: pcf857x: Fix missing first interrupt
+Date:   Mon,  1 Mar 2021 17:13:34 +0100
+Message-Id: <20210301161010.908180451@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,80 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Maxim Kiselev <bigunclemax@gmail.com>
 
-commit ebfac7b778fac8b0e8e92ec91d0b055f046b4604 upstream.
+commit a8002a35935aaefcd6a42ad3289f62bab947f2ca upstream.
 
-clang-12 -fno-pic (since
-https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6)
-can emit `call __stack_chk_fail@PLT` instead of `call __stack_chk_fail`
-on x86.  The two forms should have identical behaviors on x86-64 but the
-former causes GNU as<2.37 to produce an unreferenced undefined symbol
-_GLOBAL_OFFSET_TABLE_.
+If no n_latch value will be provided at driver probe then all pins will
+be used as an input:
 
-(On x86-32, there is an R_386_PC32 vs R_386_PLT32 difference but the
-linker behavior is identical as far as Linux kernel is concerned.)
+    gpio->out = ~n_latch;
 
-Simply ignore _GLOBAL_OFFSET_TABLE_ for now, like what
-scripts/mod/modpost.c:ignore_undef_symbol does. This also fixes the
-problem for gcc/clang -fpie and -fpic, which may emit `call foo@PLT` for
-external function calls on x86.
+In that case initial state for all pins is "one":
 
-Note: ld -z defs and dynamic loaders do not error for unreferenced
-undefined symbols so the module loader is reading too much.  If we ever
-need to ignore more symbols, the code should be refactored to ignore
-unreferenced symbols.
+    gpio->status = gpio->out;
 
-Cc: <stable@vger.kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1250
-Link: https://sourceware.org/bugzilla/show_bug.cgi?id=27178
-Reported-by: Marco Elver <elver@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Marco Elver <elver@google.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+So if pcf857x IRQ happens with change pin value from "zero" to "one"
+then we miss it, because of "one" from IRQ and "one" from initial state
+leaves corresponding pin unchanged:
+change = (gpio->status ^ status) & gpio->irq_enabled;
+
+The right solution will be to read actual state at driver probe.
+
+Cc: stable@vger.kernel.org
+Fixes: 6e20a0a429bd ("gpio: pcf857x: enable gpio_to_irq() support")
+Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/module.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-pcf857x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2107,6 +2107,21 @@ static int verify_export_symbols(struct
- 	return 0;
- }
+--- a/drivers/gpio/gpio-pcf857x.c
++++ b/drivers/gpio/gpio-pcf857x.c
+@@ -370,7 +370,7 @@ static int pcf857x_probe(struct i2c_clie
+ 	 * reset state.  Otherwise it flags pins to be driven low.
+ 	 */
+ 	gpio->out = ~n_latch;
+-	gpio->status = gpio->out;
++	gpio->status = gpio->read(gpio->client);
  
-+static bool ignore_undef_symbol(Elf_Half emachine, const char *name)
-+{
-+	/*
-+	 * On x86, PIC code and Clang non-PIC code may have call foo@PLT. GNU as
-+	 * before 2.37 produces an unreferenced _GLOBAL_OFFSET_TABLE_ on x86-64.
-+	 * i386 has a similar problem but may not deserve a fix.
-+	 *
-+	 * If we ever have to ignore many symbols, consider refactoring the code to
-+	 * only warn if referenced by a relocation.
-+	 */
-+	if (emachine == EM_386 || emachine == EM_X86_64)
-+		return !strcmp(name, "_GLOBAL_OFFSET_TABLE_");
-+	return false;
-+}
-+
- /* Change all symbols so that st_value encodes the pointer directly. */
- static int simplify_symbols(struct module *mod, const struct load_info *info)
- {
-@@ -2148,8 +2163,10 @@ static int simplify_symbols(struct modul
- 				break;
- 			}
- 
--			/* Ok if weak.  */
--			if (!ksym && ELF_ST_BIND(sym[i].st_info) == STB_WEAK)
-+			/* Ok if weak or ignored.  */
-+			if (!ksym &&
-+			    (ELF_ST_BIND(sym[i].st_info) == STB_WEAK ||
-+			     ignore_undef_symbol(info->hdr->e_machine, name)))
- 				break;
- 
- 			pr_warn("%s: Unknown symbol %s (err %li)\n",
+ 	status = gpiochip_add(&gpio->chip);
+ 	if (status < 0)
 
 
