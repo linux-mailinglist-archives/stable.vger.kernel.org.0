@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 044E032905E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5AA32904E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242676AbhCAUHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:07:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58658 "EHLO mail.kernel.org"
+        id S236656AbhCAUFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:05:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242618AbhCATyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:54:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C561F6536D;
-        Mon,  1 Mar 2021 17:54:42 +0000 (UTC)
+        id S242619AbhCATyS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:54:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CFB56536F;
+        Mon,  1 Mar 2021 17:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621283;
-        bh=a95dD9fyaDHk59oRtI2E2KSaWLhHuu1ZcF9nWTL0Nog=;
+        s=korg; t=1614621286;
+        bh=6xvVRxzeLV5b1atLMobY5I5mruK1/6dvlLc8rtZoB9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XtmLFBOmKkx0oIAoDO8eVccRHYTumTJkHLqqRNVg5KMMp7eaj6OMv4l1ioRCBfch/
-         TlQa5qPajM98YJzgq2MnimcDCr3lFy8jdx3TRWrt4Q1JJ2MWy3rrEInFOBAdkGUiik
-         4QTaf+IRFG1Osu7WataT4rrSr0QJ/c7d4HHKdwcU=
+        b=r1AYQfJj8vgodxy3jc0RAZgsnfzH3qMSNnfsxQg7faQ8ch9TMcBS/O11hIy2ZrpQd
+         cST4OC5DiU+uMdxe70boIvLUKBYQIna8qTeEw1THHKogLI4iIf7Os5wieKiPfteRZ7
+         hbkO4q6zUUlco7QH9rqYG48Vart4TfkzacL2+uPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Matityahu <mitm@nvidia.com>,
-        Avihai Horon <avihaih@nvidia.com>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
         Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 458/775] RDMA/ucma: Fix use-after-free bug in ucma_create_uevent
-Date:   Mon,  1 Mar 2021 17:10:26 +0100
-Message-Id: <20210301161224.189178822@linuxfoundation.org>
+Subject: [PATCH 5.11 459/775] RDMA/rtrs-srv: Fix stack-out-of-bounds
+Date:   Mon,  1 Mar 2021 17:10:27 +0100
+Message-Id: <20210301161224.237599127@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,233 +42,203 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avihai Horon <avihaih@nvidia.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit fe454dc31e84f8c14cb8942fcb61666c9f40745b ]
+[ Upstream commit e6daa8f61d8def10f0619fe51b4c794f69598e4f ]
 
-ucma_process_join() allocates struct ucma_multicast mc and frees it if an
-error occurs during its run.  Specifically, if an error occurs in
-copy_to_user(), a use-after-free might happen in the following scenario:
+  BUG: KASAN: stack-out-of-bounds in _mlx4_ib_post_send+0x1bd2/0x2770 [mlx4_ib]
+  Read of size 4 at addr ffff8880d5a7f980 by task kworker/0:1H/565
 
-1. mc struct is allocated.
-2. rdma_join_multicast() is called and succeeds. During its run,
-   cma_iboe_join_multicast() enqueues a work that will later use the
-   aforementioned mc struct.
-3. copy_to_user() is called and fails.
-4. mc struct is deallocated.
-5. The work that was enqueued by cma_iboe_join_multicast() is run and
-   calls ucma_create_uevent() which tries to access mc struct (which is
-   freed by now).
+  CPU: 0 PID: 565 Comm: kworker/0:1H Tainted: G           O      5.4.84-storage #5.4.84-1+feature+linux+5.4.y+dbg+20201216.1319+b6b887b~deb10
+  Hardware name: Supermicro H8QG6/H8QG6, BIOS 3.00       09/04/2012
+  Workqueue: ib-comp-wq ib_cq_poll_work [ib_core]
+  Call Trace:
+   dump_stack+0x96/0xe0
+   print_address_description.constprop.4+0x1f/0x300
+   ? irq_work_claim+0x2e/0x50
+   __kasan_report.cold.8+0x78/0x92
+   ? _mlx4_ib_post_send+0x1bd2/0x2770 [mlx4_ib]
+   kasan_report+0x10/0x20
+   _mlx4_ib_post_send+0x1bd2/0x2770 [mlx4_ib]
+   ? check_chain_key+0x1d7/0x2e0
+   ? _mlx4_ib_post_recv+0x630/0x630 [mlx4_ib]
+   ? lockdep_hardirqs_on+0x1a8/0x290
+   ? stack_depot_save+0x218/0x56e
+   ? do_profile_hits.isra.6.cold.13+0x1d/0x1d
+   ? check_chain_key+0x1d7/0x2e0
+   ? save_stack+0x4d/0x80
+   ? save_stack+0x19/0x80
+   ? __kasan_slab_free+0x125/0x170
+   ? kfree+0xe7/0x3b0
+   rdma_write_sg+0x5b0/0x950 [rtrs_server]
 
-Fix this bug by cancelling the work enqueued by cma_iboe_join_multicast().
-Since cma_work_handler() frees struct cma_work, we don't use it in
-cma_iboe_join_multicast() so we can safely cancel the work later.
+The problem is when we send imm_wr, the type should be ib_rdma_wr, so hw
+driver like mlx4 can do rdma_wr(wr), so fix it by use the ib_rdma_wr as
+type for imm_wr.
 
-The following syzkaller report revealed it:
-
-   BUG: KASAN: use-after-free in ucma_create_uevent+0x2dd/0x;3f0 drivers/infiniband/core/ucma.c:272
-   Read of size 8 at addr ffff88810b3ad110 by task kworker/u8:1/108
-
-   CPU: 1 PID: 108 Comm: kworker/u8:1 Not tainted 5.10.0-rc6+ #257
-   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS   rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-   Workqueue: rdma_cm cma_work_handler
-   Call Trace:
-    __dump_stack lib/dump_stack.c:77 [inline]
-    dump_stack+0xbe/0xf9 lib/dump_stack.c:118
-    print_address_description.constprop.0+0x3e/0×60 mm/kasan/report.c:385
-    __kasan_report mm/kasan/report.c:545 [inline]
-    kasan_report.cold+0x1f/0×37 mm/kasan/report.c:562
-    ucma_create_uevent+0x2dd/0×3f0 drivers/infiniband/core/ucma.c:272
-    ucma_event_handler+0xb7/0×3c0 drivers/infiniband/core/ucma.c:349
-    cma_cm_event_handler+0x5d/0×1c0 drivers/infiniband/core/cma.c:1977
-    cma_work_handler+0xfa/0×190 drivers/infiniband/core/cma.c:2718
-    process_one_work+0x54c/0×930 kernel/workqueue.c:2272
-    worker_thread+0x82/0×830 kernel/workqueue.c:2418
-    kthread+0x1ca/0×220 kernel/kthread.c:292
-    ret_from_fork+0x1f/0×30 arch/x86/entry/entry_64.S:296
-
-   Allocated by task 359:
-     kasan_save_stack+0x1b/0×40 mm/kasan/common.c:48
-     kasan_set_track mm/kasan/common.c:56 [inline]
-     __kasan_kmalloc mm/kasan/common.c:461 [inline]
-     __kasan_kmalloc.constprop.0+0xc2/0xd0 mm/kasan/common.c:434
-     kmalloc include/linux/slab.h:552 [inline]
-     kzalloc include/linux/slab.h:664 [inline]
-     ucma_process_join+0x16e/0×3f0 drivers/infiniband/core/ucma.c:1453
-     ucma_join_multicast+0xda/0×140 drivers/infiniband/core/ucma.c:1538
-     ucma_write+0x1f7/0×280 drivers/infiniband/core/ucma.c:1724
-     vfs_write fs/read_write.c:603 [inline]
-     vfs_write+0x191/0×4c0 fs/read_write.c:585
-     ksys_write+0x1a1/0×1e0 fs/read_write.c:658
-     do_syscall_64+0x2d/0×40 arch/x86/entry/common.c:46
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-   Freed by task 359:
-     kasan_save_stack+0x1b/0×40 mm/kasan/common.c:48
-     kasan_set_track+0x1c/0×30 mm/kasan/common.c:56
-     kasan_set_free_info+0x1b/0×30 mm/kasan/generic.c:355
-     __kasan_slab_free+0x112/0×160 mm/kasan/common.c:422
-     slab_free_hook mm/slub.c:1544 [inline]
-     slab_free_freelist_hook mm/slub.c:1577 [inline]
-     slab_free mm/slub.c:3142 [inline]
-     kfree+0xb3/0×3e0 mm/slub.c:4124
-     ucma_process_join+0x22d/0×3f0 drivers/infiniband/core/ucma.c:1497
-     ucma_join_multicast+0xda/0×140 drivers/infiniband/core/ucma.c:1538
-     ucma_write+0x1f7/0×280 drivers/infiniband/core/ucma.c:1724
-     vfs_write fs/read_write.c:603 [inline]
-     vfs_write+0x191/0×4c0 fs/read_write.c:585
-     ksys_write+0x1a1/0×1e0 fs/read_write.c:658
-     do_syscall_64+0x2d/0×40 arch/x86/entry/common.c:46
-     entry_SYSCALL_64_after_hwframe+0x44/0xa9
-     The buggy address belongs to the object at ffff88810b3ad100
-     which belongs to the cache kmalloc-192 of size 192
-     The buggy address is located 16 bytes inside of
-     192-byte region [ffff88810b3ad100, ffff88810b3ad1c0)
-
-Fixes: b5de0c60cc30 ("RDMA/cma: Fix use after free race in roce multicast join")
-Link: https://lore.kernel.org/r/20210211090517.1278415-1-leon@kernel.org
-Reported-by: Amit Matityahu <mitm@nvidia.com>
-Signed-off-by: Avihai Horon <avihaih@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20210212134525.103456-2-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 70 ++++++++++++++++++++---------------
- 1 file changed, 41 insertions(+), 29 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 64 +++++++++++++-------------
+ 1 file changed, 33 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index c51b84b2d2f37..e3638f80e1d52 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -352,7 +352,13 @@ struct ib_device *cma_get_ib_dev(struct cma_device *cma_dev)
- 
- struct cma_multicast {
- 	struct rdma_id_private *id_priv;
--	struct ib_sa_multicast *sa_mc;
-+	union {
-+		struct ib_sa_multicast *sa_mc;
-+		struct {
-+			struct work_struct work;
-+			struct rdma_cm_event event;
-+		} iboe_join;
-+	};
- 	struct list_head	list;
- 	void			*context;
- 	struct sockaddr_storage	addr;
-@@ -1823,6 +1829,8 @@ static void destroy_mc(struct rdma_id_private *id_priv,
- 			cma_igmp_send(ndev, &mgid, false);
- 			dev_put(ndev);
- 		}
-+
-+		cancel_work_sync(&mc->iboe_join.work);
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index d017ede304b76..1150d50b5d1e4 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -222,7 +222,8 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 	dma_addr_t dma_addr = sess->dma_addr[id->msg_id];
+ 	struct rtrs_srv_mr *srv_mr;
+ 	struct rtrs_srv *srv = sess->srv;
+-	struct ib_send_wr inv_wr, imm_wr;
++	struct ib_send_wr inv_wr;
++	struct ib_rdma_wr imm_wr;
+ 	struct ib_rdma_wr *wr = NULL;
+ 	enum ib_send_flags flags;
+ 	size_t sg_cnt;
+@@ -274,15 +275,15 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 	if (need_inval && always_invalidate) {
+ 		wr->wr.next = &rwr.wr;
+ 		rwr.wr.next = &inv_wr;
+-		inv_wr.next = &imm_wr;
++		inv_wr.next = &imm_wr.wr;
+ 	} else if (always_invalidate) {
+ 		wr->wr.next = &rwr.wr;
+-		rwr.wr.next = &imm_wr;
++		rwr.wr.next = &imm_wr.wr;
+ 	} else if (need_inval) {
+ 		wr->wr.next = &inv_wr;
+-		inv_wr.next = &imm_wr;
++		inv_wr.next = &imm_wr.wr;
+ 	} else {
+-		wr->wr.next = &imm_wr;
++		wr->wr.next = &imm_wr.wr;
  	}
- 	kfree(mc);
- }
-@@ -2683,6 +2691,28 @@ static int cma_query_ib_route(struct rdma_id_private *id_priv,
- 	return (id_priv->query_id < 0) ? id_priv->query_id : 0;
- }
- 
-+static void cma_iboe_join_work_handler(struct work_struct *work)
-+{
-+	struct cma_multicast *mc =
-+		container_of(work, struct cma_multicast, iboe_join.work);
-+	struct rdma_cm_event *event = &mc->iboe_join.event;
-+	struct rdma_id_private *id_priv = mc->id_priv;
-+	int ret;
-+
-+	mutex_lock(&id_priv->handler_mutex);
-+	if (READ_ONCE(id_priv->state) == RDMA_CM_DESTROYING ||
-+	    READ_ONCE(id_priv->state) == RDMA_CM_DEVICE_REMOVAL)
-+		goto out_unlock;
-+
-+	ret = cma_cm_event_handler(id_priv, event);
-+	WARN_ON(ret);
-+
-+out_unlock:
-+	mutex_unlock(&id_priv->handler_mutex);
-+	if (event->event == RDMA_CM_EVENT_MULTICAST_JOIN)
-+		rdma_destroy_ah_attr(&event->param.ud.ah_attr);
-+}
-+
- static void cma_work_handler(struct work_struct *_work)
- {
- 	struct cma_work *work = container_of(_work, struct cma_work, work);
-@@ -4478,10 +4508,7 @@ static int cma_ib_mc_handler(int status, struct ib_sa_multicast *multicast)
- 	cma_make_mc_event(status, id_priv, multicast, &event, mc);
- 	ret = cma_cm_event_handler(id_priv, &event);
- 	rdma_destroy_ah_attr(&event.param.ud.ah_attr);
--	if (ret) {
--		destroy_id_handler_unlock(id_priv);
--		return 0;
--	}
-+	WARN_ON(ret);
- 
- out:
- 	mutex_unlock(&id_priv->handler_mutex);
-@@ -4604,7 +4631,6 @@ static void cma_iboe_set_mgid(struct sockaddr *addr, union ib_gid *mgid,
- static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 				   struct cma_multicast *mc)
- {
--	struct cma_work *work;
- 	struct rdma_dev_addr *dev_addr = &id_priv->id.route.addr.dev_addr;
- 	int err = 0;
- 	struct sockaddr *addr = (struct sockaddr *)&mc->addr;
-@@ -4618,10 +4644,6 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 	if (cma_zero_addr(addr))
- 		return -EINVAL;
- 
--	work = kzalloc(sizeof *work, GFP_KERNEL);
--	if (!work)
--		return -ENOMEM;
--
- 	gid_type = id_priv->cma_dev->default_gid_type[id_priv->id.port_num -
- 		   rdma_start_port(id_priv->cma_dev->device)];
- 	cma_iboe_set_mgid(addr, &ib.rec.mgid, gid_type);
-@@ -4632,10 +4654,9 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 
- 	if (dev_addr->bound_dev_if)
- 		ndev = dev_get_by_index(dev_addr->net, dev_addr->bound_dev_if);
--	if (!ndev) {
--		err = -ENODEV;
--		goto err_free;
--	}
-+	if (!ndev)
-+		return -ENODEV;
-+
- 	ib.rec.rate = iboe_get_rate(ndev);
- 	ib.rec.hop_limit = 1;
- 	ib.rec.mtu = iboe_get_mtu(ndev->mtu);
-@@ -4653,24 +4674,15 @@ static int cma_iboe_join_multicast(struct rdma_id_private *id_priv,
- 			err = -ENOTSUPP;
+ 	/*
+ 	 * From time to time we have to post signaled sends,
+@@ -300,7 +301,7 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 		inv_wr.ex.invalidate_rkey = rkey;
  	}
- 	dev_put(ndev);
--	if (err || !ib.rec.mtu) {
--		if (!err)
--			err = -EINVAL;
--		goto err_free;
--	}
-+	if (err || !ib.rec.mtu)
-+		return err ?: -EINVAL;
-+
- 	rdma_ip2gid((struct sockaddr *)&id_priv->id.route.addr.src_addr,
- 		    &ib.rec.port_gid);
--	work->id = id_priv;
--	INIT_WORK(&work->work, cma_work_handler);
--	cma_make_mc_event(0, id_priv, &ib, &work->event, mc);
--	/* Balances with cma_id_put() in cma_work_handler */
--	cma_id_get(id_priv);
--	queue_work(cma_wq, &work->work);
-+	INIT_WORK(&mc->iboe_join.work, cma_iboe_join_work_handler);
-+	cma_make_mc_event(0, id_priv, &ib, &mc->iboe_join.event, mc);
-+	queue_work(cma_wq, &mc->iboe_join.work);
- 	return 0;
--
--err_free:
--	kfree(work);
--	return err;
- }
  
- int rdma_join_multicast(struct rdma_cm_id *id, struct sockaddr *addr,
+-	imm_wr.next = NULL;
++	imm_wr.wr.next = NULL;
+ 	if (always_invalidate) {
+ 		struct rtrs_msg_rkey_rsp *msg;
+ 
+@@ -321,22 +322,22 @@ static int rdma_write_sg(struct rtrs_srv_op *id)
+ 		list.addr   = srv_mr->iu->dma_addr;
+ 		list.length = sizeof(*msg);
+ 		list.lkey   = sess->s.dev->ib_pd->local_dma_lkey;
+-		imm_wr.sg_list = &list;
+-		imm_wr.num_sge = 1;
+-		imm_wr.opcode = IB_WR_SEND_WITH_IMM;
++		imm_wr.wr.sg_list = &list;
++		imm_wr.wr.num_sge = 1;
++		imm_wr.wr.opcode = IB_WR_SEND_WITH_IMM;
+ 		ib_dma_sync_single_for_device(sess->s.dev->ib_dev,
+ 					      srv_mr->iu->dma_addr,
+ 					      srv_mr->iu->size, DMA_TO_DEVICE);
+ 	} else {
+-		imm_wr.sg_list = NULL;
+-		imm_wr.num_sge = 0;
+-		imm_wr.opcode = IB_WR_RDMA_WRITE_WITH_IMM;
++		imm_wr.wr.sg_list = NULL;
++		imm_wr.wr.num_sge = 0;
++		imm_wr.wr.opcode = IB_WR_RDMA_WRITE_WITH_IMM;
+ 	}
+-	imm_wr.send_flags = flags;
+-	imm_wr.ex.imm_data = cpu_to_be32(rtrs_to_io_rsp_imm(id->msg_id,
++	imm_wr.wr.send_flags = flags;
++	imm_wr.wr.ex.imm_data = cpu_to_be32(rtrs_to_io_rsp_imm(id->msg_id,
+ 							     0, need_inval));
+ 
+-	imm_wr.wr_cqe   = &io_comp_cqe;
++	imm_wr.wr.wr_cqe   = &io_comp_cqe;
+ 	ib_dma_sync_single_for_device(sess->s.dev->ib_dev, dma_addr,
+ 				      offset, DMA_BIDIRECTIONAL);
+ 
+@@ -363,7 +364,8 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ {
+ 	struct rtrs_sess *s = con->c.sess;
+ 	struct rtrs_srv_sess *sess = to_srv_sess(s);
+-	struct ib_send_wr inv_wr, imm_wr, *wr = NULL;
++	struct ib_send_wr inv_wr, *wr = NULL;
++	struct ib_rdma_wr imm_wr;
+ 	struct ib_reg_wr rwr;
+ 	struct rtrs_srv *srv = sess->srv;
+ 	struct rtrs_srv_mr *srv_mr;
+@@ -400,15 +402,15 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 	if (need_inval && always_invalidate) {
+ 		wr = &inv_wr;
+ 		inv_wr.next = &rwr.wr;
+-		rwr.wr.next = &imm_wr;
++		rwr.wr.next = &imm_wr.wr;
+ 	} else if (always_invalidate) {
+ 		wr = &rwr.wr;
+-		rwr.wr.next = &imm_wr;
++		rwr.wr.next = &imm_wr.wr;
+ 	} else if (need_inval) {
+ 		wr = &inv_wr;
+-		inv_wr.next = &imm_wr;
++		inv_wr.next = &imm_wr.wr;
+ 	} else {
+-		wr = &imm_wr;
++		wr = &imm_wr.wr;
+ 	}
+ 	/*
+ 	 * From time to time we have to post signalled sends,
+@@ -417,13 +419,13 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 	flags = (atomic_inc_return(&con->wr_cnt) % srv->queue_depth) ?
+ 		0 : IB_SEND_SIGNALED;
+ 	imm = rtrs_to_io_rsp_imm(id->msg_id, errno, need_inval);
+-	imm_wr.next = NULL;
++	imm_wr.wr.next = NULL;
+ 	if (always_invalidate) {
+ 		struct ib_sge list;
+ 		struct rtrs_msg_rkey_rsp *msg;
+ 
+ 		srv_mr = &sess->mrs[id->msg_id];
+-		rwr.wr.next = &imm_wr;
++		rwr.wr.next = &imm_wr.wr;
+ 		rwr.wr.opcode = IB_WR_REG_MR;
+ 		rwr.wr.wr_cqe = &local_reg_cqe;
+ 		rwr.wr.num_sge = 0;
+@@ -440,21 +442,21 @@ static int send_io_resp_imm(struct rtrs_srv_con *con, struct rtrs_srv_op *id,
+ 		list.addr   = srv_mr->iu->dma_addr;
+ 		list.length = sizeof(*msg);
+ 		list.lkey   = sess->s.dev->ib_pd->local_dma_lkey;
+-		imm_wr.sg_list = &list;
+-		imm_wr.num_sge = 1;
+-		imm_wr.opcode = IB_WR_SEND_WITH_IMM;
++		imm_wr.wr.sg_list = &list;
++		imm_wr.wr.num_sge = 1;
++		imm_wr.wr.opcode = IB_WR_SEND_WITH_IMM;
+ 		ib_dma_sync_single_for_device(sess->s.dev->ib_dev,
+ 					      srv_mr->iu->dma_addr,
+ 					      srv_mr->iu->size, DMA_TO_DEVICE);
+ 	} else {
+-		imm_wr.sg_list = NULL;
+-		imm_wr.num_sge = 0;
+-		imm_wr.opcode = IB_WR_RDMA_WRITE_WITH_IMM;
++		imm_wr.wr.sg_list = NULL;
++		imm_wr.wr.num_sge = 0;
++		imm_wr.wr.opcode = IB_WR_RDMA_WRITE_WITH_IMM;
+ 	}
+-	imm_wr.send_flags = flags;
+-	imm_wr.wr_cqe   = &io_comp_cqe;
++	imm_wr.wr.send_flags = flags;
++	imm_wr.wr.wr_cqe   = &io_comp_cqe;
+ 
+-	imm_wr.ex.imm_data = cpu_to_be32(imm);
++	imm_wr.wr.ex.imm_data = cpu_to_be32(imm);
+ 
+ 	err = ib_post_send(id->con->c.qp, wr, NULL);
+ 	if (unlikely(err))
 -- 
 2.27.0
 
