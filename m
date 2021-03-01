@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE17C328DF9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:22:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C28328D85
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236955AbhCATV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:21:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44046 "EHLO mail.kernel.org"
+        id S241166AbhCATM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:12:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241281AbhCATPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:15:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D2B564FE8;
-        Mon,  1 Mar 2021 17:01:42 +0000 (UTC)
+        id S241140AbhCATIZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:08:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83D1C65288;
+        Mon,  1 Mar 2021 17:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618102;
-        bh=l928y19gtzyetZKDVmTkOY7/iHJ4TheR2FLIIY9dR3M=;
+        s=korg; t=1614619864;
+        bh=9Zlh6iVRD7MSNIxj5N0hUbFyCNZiJpzx0EcrhIk+OFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OENPns7U+AeIKiB4ju+lo3Tk8542pJE2vqGQ3Wuoe7aq783YcCZyonPEu7O+muzQh
-         qdO3vkhVgKXj3tcJGmdu+OKzeXlCaBvampH+CE6AgYOcxyawZxO9fI6XaY13pdSsrt
-         JoMpEVzUyoVNMZcZrXRiOvjQdwqAQxb+a1St/seI=
+        b=ZRALueksmH5Ur9+vdLsF+tvChm5H5QOYtgPlw/5mjPrO3Eoe5f8e5WzOPmofDBDW0
+         ooc72hQ6R1eGHInRDzRnxms36hnBg7v8GiO+woziTaf46BtIsVPTPlLRqbnsmzp2U9
+         bTRtxueYlJm/+j8SvXeObEZbPSoFwBtfNug7rLKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 308/340] mmc: sdhci-esdhc-imx: fix kernel panic when remove module
-Date:   Mon,  1 Mar 2021 17:14:12 +0100
-Message-Id: <20210301161103.442563152@linuxfoundation.org>
+        stable@vger.kernel.org, Hari Bathini <hbathini@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 608/663] powerpc/kexec_file: fix FDT size estimation for kdump kernel
+Date:   Mon,  1 Mar 2021 17:14:16 +0100
+Message-Id: <20210301161211.925155666@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +39,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-commit a56f44138a2c57047f1ea94ea121af31c595132b upstream.
+commit 2377c92e37fe97bc5b365f55cf60f56dfc4849f5 upstream.
 
-In sdhci_esdhc_imx_remove() the SDHCI_INT_STATUS in read. Under some
-circumstances, this may be done while the device is runtime suspended,
-triggering the below splat.
+On systems with large amount of memory, loading kdump kernel through
+kexec_file_load syscall may fail with the below error:
 
-Fix the problem by adding a pm_runtime_get_sync(), before reading the
-register, which will turn on clocks etc making the device accessible again.
+    "Failed to update fdt with linux,drconf-usable-memory property"
 
-[ 1811.323148] mmc1: card aaaa removed
-[ 1811.347483] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-[ 1811.354988] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core [last unloaded: mmc_core]
-[ 1811.365726] CPU: 0 PID: 3464 Comm: rmmod Not tainted 5.10.1-sd-99871-g53835a2e8186 #5
-[ 1811.373559] Hardware name: Freescale i.MX8DXL EVK (DT)
-[ 1811.378705] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-[ 1811.384723] pc : sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
-[ 1811.391090] lr : platform_drv_remove+0x2c/0x50
-[ 1811.395536] sp : ffff800012c7bcb0
-[ 1811.398855] x29: ffff800012c7bcb0 x28: ffff00002c72b900
-[ 1811.404181] x27: 0000000000000000 x26: 0000000000000000
-[ 1811.409497] x25: 0000000000000000 x24: 0000000000000000
-[ 1811.414814] x23: ffff0000042b3890 x22: ffff800009127120
-[ 1811.420131] x21: ffff00002c4c9580 x20: ffff0000042d0810
-[ 1811.425456] x19: ffff0000042d0800 x18: 0000000000000020
-[ 1811.430773] x17: 0000000000000000 x16: 0000000000000000
-[ 1811.436089] x15: 0000000000000004 x14: ffff000004019c10
-[ 1811.441406] x13: 0000000000000000 x12: 0000000000000020
-[ 1811.446723] x11: 0101010101010101 x10: 7f7f7f7f7f7f7f7f
-[ 1811.452040] x9 : fefefeff6364626d x8 : 7f7f7f7f7f7f7f7f
-[ 1811.457356] x7 : 78725e6473607372 x6 : 0000000080808080
-[ 1811.462673] x5 : 0000000000000000 x4 : 0000000000000000
-[ 1811.467990] x3 : ffff800011ac1cb0 x2 : 0000000000000000
-[ 1811.473307] x1 : ffff8000091214d4 x0 : ffff8000133a0030
-[ 1811.478624] Call trace:
-[ 1811.481081]  sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
-[ 1811.487098]  platform_drv_remove+0x2c/0x50
-[ 1811.491198]  __device_release_driver+0x188/0x230
-[ 1811.495818]  driver_detach+0xc0/0x14c
-[ 1811.499487]  bus_remove_driver+0x5c/0xb0
-[ 1811.503413]  driver_unregister+0x30/0x60
-[ 1811.507341]  platform_driver_unregister+0x14/0x20
-[ 1811.512048]  sdhci_esdhc_imx_driver_exit+0x1c/0x3a8 [sdhci_esdhc_imx]
-[ 1811.518495]  __arm64_sys_delete_module+0x19c/0x230
-[ 1811.523291]  el0_svc_common.constprop.0+0x78/0x1a0
-[ 1811.528086]  do_el0_svc+0x24/0x90
-[ 1811.531405]  el0_svc+0x14/0x20
-[ 1811.534461]  el0_sync_handler+0x1a4/0x1b0
-[ 1811.538474]  el0_sync+0x174/0x180
-[ 1811.541801] Code: a9025bf5 f9403e95 f9400ea0 9100c000 (b9400000)
-[ 1811.547902] ---[ end trace 3fb1a3bd48ff7be5 ]---
+This happens because the size estimation for kdump kernel's FDT does
+not account for the additional space needed to setup usable memory
+properties. Fix it by accounting for the space needed to include
+linux,usable-memory & linux,drconf-usable-memory properties while
+estimating kdump kernel's FDT size.
 
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Cc: stable@vger.kernel.org # v4.0+
-Link: https://lore.kernel.org/r/20210210181933.29263-1-Frank.Li@nxp.com
-[Ulf: Clarified the commit message a bit]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 6ecd0163d360 ("powerpc/kexec_file: Add appropriate regions for memory reserve map")
+Cc: stable@vger.kernel.org # v5.9+
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/161243826811.119001.14083048209224609814.stgit@hbathini
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-esdhc-imx.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/kexec.h  |    1 +
+ arch/powerpc/kexec/elf_64.c       |    2 +-
+ arch/powerpc/kexec/file_load_64.c |   35 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1589,9 +1589,10 @@ static int sdhci_esdhc_imx_remove(struct
- 	struct sdhci_host *host = platform_get_drvdata(pdev);
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
--	int dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
-+	int dead;
+--- a/arch/powerpc/include/asm/kexec.h
++++ b/arch/powerpc/include/asm/kexec.h
+@@ -136,6 +136,7 @@ int load_crashdump_segments_ppc64(struct
+ int setup_purgatory_ppc64(struct kimage *image, const void *slave_code,
+ 			  const void *fdt, unsigned long kernel_load_addr,
+ 			  unsigned long fdt_load_addr);
++unsigned int kexec_fdt_totalsize_ppc64(struct kimage *image);
+ int setup_new_fdt_ppc64(const struct kimage *image, void *fdt,
+ 			unsigned long initrd_load_addr,
+ 			unsigned long initrd_len, const char *cmdline);
+--- a/arch/powerpc/kexec/elf_64.c
++++ b/arch/powerpc/kexec/elf_64.c
+@@ -102,7 +102,7 @@ static void *elf64_load(struct kimage *i
+ 		pr_debug("Loaded initrd at 0x%lx\n", initrd_load_addr);
+ 	}
  
- 	pm_runtime_get_sync(&pdev->dev);
-+	dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_put_noidle(&pdev->dev);
+-	fdt_size = fdt_totalsize(initial_boot_params) * 2;
++	fdt_size = kexec_fdt_totalsize_ppc64(image);
+ 	fdt = kmalloc(fdt_size, GFP_KERNEL);
+ 	if (!fdt) {
+ 		pr_err("Not enough memory for the device tree.\n");
+--- a/arch/powerpc/kexec/file_load_64.c
++++ b/arch/powerpc/kexec/file_load_64.c
+@@ -21,6 +21,7 @@
+ #include <linux/memblock.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
++#include <asm/setup.h>
+ #include <asm/drmem.h>
+ #include <asm/kexec_ranges.h>
+ #include <asm/crashdump-ppc64.h>
+@@ -926,6 +927,40 @@ out:
+ }
  
+ /**
++ * kexec_fdt_totalsize_ppc64 - Return the estimated size needed to setup FDT
++ *                             for kexec/kdump kernel.
++ * @image:                     kexec image being loaded.
++ *
++ * Returns the estimated size needed for kexec/kdump kernel FDT.
++ */
++unsigned int kexec_fdt_totalsize_ppc64(struct kimage *image)
++{
++	unsigned int fdt_size;
++	u64 usm_entries;
++
++	/*
++	 * The below estimate more than accounts for a typical kexec case where
++	 * the additional space is to accommodate things like kexec cmdline,
++	 * chosen node with properties for initrd start & end addresses and
++	 * a property to indicate kexec boot..
++	 */
++	fdt_size = fdt_totalsize(initial_boot_params) + (2 * COMMAND_LINE_SIZE);
++	if (image->type != KEXEC_TYPE_CRASH)
++		return fdt_size;
++
++	/*
++	 * For kdump kernel, also account for linux,usable-memory and
++	 * linux,drconf-usable-memory properties. Get an approximate on the
++	 * number of usable memory entries and use for FDT size estimation.
++	 */
++	usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
++		       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
++	fdt_size += (unsigned int)(usm_entries * sizeof(u64));
++
++	return fdt_size;
++}
++
++/**
+  * setup_new_fdt_ppc64 - Update the flattend device-tree of the kernel
+  *                       being loaded.
+  * @image:               kexec image being loaded.
 
 
