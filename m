@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7BFA328957
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F11328954
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238673AbhCARzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:55:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40494 "EHLO mail.kernel.org"
+        id S238397AbhCARzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238973AbhCARtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238970AbhCARtB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:49:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C842650E3;
-        Mon,  1 Mar 2021 16:59:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19CAD650E6;
+        Mon,  1 Mar 2021 16:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617987;
-        bh=rs87uBFd5nCZoo/axef7avaywMygx+U0J16HvEfWy9o=;
+        s=korg; t=1614617989;
+        bh=sTMTOH1a9bWdZBA7rXXjxIeWPEp360MpiNzx+8H/OqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Da4MZf4bFE3bru2YC7OhpsM1gqnfH/2S4ClU2vGQOfC7QaAw3r2/2/jz9dk303MVO
-         h3iqBBsOqRTZmu0crnOKP75SrkFovyGjXxTzpH+mOVpHYI/qeQpaQzIJiYcC6WzmiG
-         jxdfNPc6egS9NNJr86KFwpn9vmMd9XWc0UEjLsSU=
+        b=kBjEEqunkFnrylwFGuAv9YebB+n/fc9snMUgS1WBTmgZC/vRvGtbK6sUekCnLHrwL
+         zY8aDSBRFFqBaFHxmEyZKKZOFPU/30C9TuLQnqt8kJ8n9oTa4JC8oJP9p6B+1Fr9j9
+         C8HU1Aa3PEcYw+Mz+MmTlsgDhtshzeHVqSh+KNu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 268/340] btrfs: fix extent buffer leak on failure to copy root
-Date:   Mon,  1 Mar 2021 17:13:32 +0100
-Message-Id: <20210301161101.481313004@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 269/340] crypto: arm64/sha - add missing module aliases
+Date:   Mon,  1 Mar 2021 17:13:33 +0100
+Message-Id: <20210301161101.535399037@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -39,37 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 72c9925f87c8b74f36f8e75a4cd93d964538d3ca upstream.
+commit 0df07d8117c3576f1603b05b84089742a118d10a upstream.
 
-At btrfs_copy_root(), if the call to btrfs_inc_ref() fails we end up
-returning without unlocking and releasing our reference on the extent
-buffer named "cow" we previously allocated with btrfs_alloc_tree_block().
+The accelerated, instruction based implementations of SHA1, SHA2 and
+SHA3 are autoloaded based on CPU capabilities, given that the code is
+modest in size, and widely used, which means that resolving the algo
+name, loading all compatible modules and picking the one with the
+highest priority is taken to be suboptimal.
 
-So fix that by unlocking the extent buffer and dropping our reference on
-it before returning.
+However, if these algorithms are requested before this CPU feature
+based matching and autoloading occurs, these modules are not even
+considered, and we end up with suboptimal performance.
 
-Fixes: be20aa9dbadc8c ("Btrfs: Add mount option to turn off data cow")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+So add the missing module aliases for the various SHA implementations.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/crypto/sha1-ce-glue.c   |    1 +
+ arch/arm64/crypto/sha2-ce-glue.c   |    2 ++
+ arch/arm64/crypto/sha3-ce-glue.c   |    4 ++++
+ arch/arm64/crypto/sha512-ce-glue.c |    2 ++
+ 4 files changed, 9 insertions(+)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -261,6 +261,8 @@ int btrfs_copy_root(struct btrfs_trans_h
- 	else
- 		ret = btrfs_inc_ref(trans, root, cow, 0);
- 	if (ret) {
-+		btrfs_tree_unlock(cow);
-+		free_extent_buffer(cow);
- 		btrfs_abort_transaction(trans, ret);
- 		return ret;
- 	}
+--- a/arch/arm64/crypto/sha1-ce-glue.c
++++ b/arch/arm64/crypto/sha1-ce-glue.c
+@@ -19,6 +19,7 @@
+ MODULE_DESCRIPTION("SHA1 secure hash using ARMv8 Crypto Extensions");
+ MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_CRYPTO("sha1");
+ 
+ struct sha1_ce_state {
+ 	struct sha1_state	sst;
+--- a/arch/arm64/crypto/sha2-ce-glue.c
++++ b/arch/arm64/crypto/sha2-ce-glue.c
+@@ -19,6 +19,8 @@
+ MODULE_DESCRIPTION("SHA-224/SHA-256 secure hash using ARMv8 Crypto Extensions");
+ MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_CRYPTO("sha224");
++MODULE_ALIAS_CRYPTO("sha256");
+ 
+ struct sha256_ce_state {
+ 	struct sha256_state	sst;
+--- a/arch/arm64/crypto/sha3-ce-glue.c
++++ b/arch/arm64/crypto/sha3-ce-glue.c
+@@ -23,6 +23,10 @@
+ MODULE_DESCRIPTION("SHA3 secure hash using ARMv8 Crypto Extensions");
+ MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_CRYPTO("sha3-224");
++MODULE_ALIAS_CRYPTO("sha3-256");
++MODULE_ALIAS_CRYPTO("sha3-384");
++MODULE_ALIAS_CRYPTO("sha3-512");
+ 
+ asmlinkage void sha3_ce_transform(u64 *st, const u8 *data, int blocks,
+ 				  int md_len);
+--- a/arch/arm64/crypto/sha512-ce-glue.c
++++ b/arch/arm64/crypto/sha512-ce-glue.c
+@@ -23,6 +23,8 @@
+ MODULE_DESCRIPTION("SHA-384/SHA-512 secure hash using ARMv8 Crypto Extensions");
+ MODULE_AUTHOR("Ard Biesheuvel <ard.biesheuvel@linaro.org>");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS_CRYPTO("sha384");
++MODULE_ALIAS_CRYPTO("sha512");
+ 
+ asmlinkage void sha512_ce_transform(struct sha512_state *sst, u8 const *src,
+ 				    int blocks);
 
 
