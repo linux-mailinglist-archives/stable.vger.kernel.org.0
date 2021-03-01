@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF3F6328E2E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:26:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53F6B328D1F
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235517AbhCATZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:25:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45078 "EHLO mail.kernel.org"
+        id S240635AbhCATGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:06:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241367AbhCATUc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:20:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A04E6528C;
-        Mon,  1 Mar 2021 17:31:28 +0000 (UTC)
+        id S235033AbhCAS7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:59:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 546A964FA5;
+        Mon,  1 Mar 2021 17:31:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619889;
-        bh=vbhUR/A4No+Gdh79vv14FfoQRNr1mpAYBxH2HMMg3h4=;
+        s=korg; t=1614619891;
+        bh=clNgsSlW6BodqZSmbhyAxuKEX+FLcS59BXvNc8EeZLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEiGdDWCX9bFoFlTM+hhj9HwHGj1s1XyZ/Ma7qciLhVaUY/YBvCN/SJRtsX4wHH4n
-         pyBh+ltxnNkE/MKhYIuLZm8iaPYXLRVfrv2KFDgXOWqUFOyI0e+1cGZuDgALAd16pP
-         9p4XAO0fa8h3RHiCnJkgK2KnN0ixK64nZA3t+30U=
+        b=sMfK4OXVuT1nLCOUqQ8veVM3iOyD/gf0RkXJs8tnkwlaFA6hS2fQI66p+lkb3hBk4
+         TWB5VBzgsZRU9GWPxRX2HED3OPYFIamK6FtUz6XsvzSid1Imv5yY/4SronOJnrt6Q+
+         eLvCztsgLrTjxtaaoqqHY96LnTINFTbPO/OslCOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.10 616/663] mfd: gateworks-gsc: Fix interrupt type
-Date:   Mon,  1 Mar 2021 17:14:24 +0100
-Message-Id: <20210301161212.322709976@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: [PATCH 5.10 617/663] printk: fix deadlock when kernel panic
+Date:   Mon,  1 Mar 2021 17:14:25 +0100
+Message-Id: <20210301161212.371954534@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,32 +40,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 8d9bf3c3e1451fc8de7b590040a868ade26d6b22 upstream.
+commit 8a8109f303e25a27f92c1d8edd67d7cbbc60a4eb upstream.
 
-The Gateworks System Controller has an active-low interrupt.
-Fix the interrupt request type.
+printk_safe_flush_on_panic() caused the following deadlock on our
+server:
 
+CPU0:                                         CPU1:
+panic                                         rcu_dump_cpu_stacks
+  kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
+    register_nmi_handler(crash_nmi_callback)      printk_safe_flush
+                                                    __printk_safe_flush
+                                                      raw_spin_lock_irqsave(&read_lock)
+    // send NMI to other processors
+    apic_send_IPI_allbutself(NMI_VECTOR)
+                                                        // NMI interrupt, dead loop
+                                                        crash_nmi_callback
+  printk_safe_flush_on_panic
+    printk_safe_flush
+      __printk_safe_flush
+        // deadlock
+        raw_spin_lock_irqsave(&read_lock)
+
+DEADLOCK: read_lock is taken on CPU1 and will never get released.
+
+It happens when panic() stops a CPU by NMI while it has been in
+the middle of printk_safe_flush().
+
+Handle the lock the same way as logbuf_lock. The printk_safe buffers
+are flushed only when both locks can be safely taken. It can avoid
+the deadlock _in this particular case_ at expense of losing contents
+of printk_safe buffers.
+
+Note: It would actually be safe to re-init the locks when all CPUs were
+      stopped by NMI. But it would require passing this information
+      from arch-specific code. It is not worth the complexity.
+      Especially because logbuf_lock and printk_safe buffers have been
+      obsoleted by the lockless ring buffer.
+
+Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
 Cc: <stable@vger.kernel.org>
-Fixes: d85234994b2f ("mfd: Add Gateworks System Controller core driver")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210210034823.64867-1-songmuchun@bytedance.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/gateworks-gsc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/printk/printk_safe.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/mfd/gateworks-gsc.c
-+++ b/drivers/mfd/gateworks-gsc.c
-@@ -234,7 +234,7 @@ static int gsc_probe(struct i2c_client *
+--- a/kernel/printk/printk_safe.c
++++ b/kernel/printk/printk_safe.c
+@@ -45,6 +45,8 @@ struct printk_safe_seq_buf {
+ static DEFINE_PER_CPU(struct printk_safe_seq_buf, safe_print_seq);
+ static DEFINE_PER_CPU(int, printk_context);
  
- 	ret = devm_regmap_add_irq_chip(dev, gsc->regmap, client->irq,
- 				       IRQF_ONESHOT | IRQF_SHARED |
--				       IRQF_TRIGGER_FALLING, 0,
-+				       IRQF_TRIGGER_LOW, 0,
- 				       &gsc_irq_chip, &irq_data);
- 	if (ret)
- 		return ret;
++static DEFINE_RAW_SPINLOCK(safe_read_lock);
++
+ #ifdef CONFIG_PRINTK_NMI
+ static DEFINE_PER_CPU(struct printk_safe_seq_buf, nmi_print_seq);
+ #endif
+@@ -180,8 +182,6 @@ static void report_message_lost(struct p
+  */
+ static void __printk_safe_flush(struct irq_work *work)
+ {
+-	static raw_spinlock_t read_lock =
+-		__RAW_SPIN_LOCK_INITIALIZER(read_lock);
+ 	struct printk_safe_seq_buf *s =
+ 		container_of(work, struct printk_safe_seq_buf, work);
+ 	unsigned long flags;
+@@ -195,7 +195,7 @@ static void __printk_safe_flush(struct i
+ 	 * different CPUs. This is especially important when printing
+ 	 * a backtrace.
+ 	 */
+-	raw_spin_lock_irqsave(&read_lock, flags);
++	raw_spin_lock_irqsave(&safe_read_lock, flags);
+ 
+ 	i = 0;
+ more:
+@@ -232,7 +232,7 @@ more:
+ 
+ out:
+ 	report_message_lost(s);
+-	raw_spin_unlock_irqrestore(&read_lock, flags);
++	raw_spin_unlock_irqrestore(&safe_read_lock, flags);
+ }
+ 
+ /**
+@@ -278,6 +278,14 @@ void printk_safe_flush_on_panic(void)
+ 		raw_spin_lock_init(&logbuf_lock);
+ 	}
+ 
++	if (raw_spin_is_locked(&safe_read_lock)) {
++		if (num_online_cpus() > 1)
++			return;
++
++		debug_locks_off();
++		raw_spin_lock_init(&safe_read_lock);
++	}
++
+ 	printk_safe_flush();
+ }
+ 
 
 
