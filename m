@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CCA1328C6C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C463A328CAC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240528AbhCASv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:51:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53406 "EHLO mail.kernel.org"
+        id S237049AbhCAS45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:56:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240243AbhCASpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:45:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31C7E64FF5;
-        Mon,  1 Mar 2021 17:06:50 +0000 (UTC)
+        id S240395AbhCASvT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:51:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBFD865166;
+        Mon,  1 Mar 2021 17:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618411;
-        bh=fodgHe8hvVgcYBNGP3V8gy+9j/9DxZ2QYO60B4Omja0=;
+        s=korg; t=1614618417;
+        bh=0hy/Litt/zTFvA1HJE9o6wOGall1zdTH4sHAIwi4Wjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MaHcmZfqAFFa4r48+m66WIa0JCagLiOaZkA9uRRtNxx1126BJsTzjEJ47PveoOcyd
-         LceqRQkJQVYTL3+Leeew+FXqTBdsSgYOly26JolbjNVwdqnb33Z1I0wnBiFJ53lZ3L
-         geY6PoKthGufK//m+ZjWSky/GbMsFEbz5cBD+Px4=
+        b=af4zszYDrOzQkrdqoUSH7mQg0Q/6EHZcRY+M7Z90sASSNS+xdKu2JPjgcDbKlUvMb
+         1rM/C4LrdVvqcORI9fdveWlJhh30kJPt1pUBi8XSmmrCt9mrMAbPgtoAhA4le/d4vz
+         04UdvJGV2muZSygi7X4cicbkow+/85pWhhMPDVik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Jorge Ramirez-Ortiz <jorge@foundries.io>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/663] iwlwifi: mvm: set enabled in the PPAG command properly
-Date:   Mon,  1 Mar 2021 17:05:26 +0100
-Message-Id: <20210301161145.591180142@linuxfoundation.org>
+Subject: [PATCH 5.10 080/663] optee: simplify i2c access
+Date:   Mon,  1 Mar 2021 17:05:28 +0100
+Message-Id: <20210301161145.693534566@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,39 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit efaa85cf2294d5e10a724e24356507eeb3836f72 ]
+[ Upstream commit 67bc809752796acb2641ca343cad5b45eef31d7c ]
 
-When version 2 of the PER_PLATFORM_ANT_GAIN_CMD was implemented, we
-started copying the values from the command that we have stored into a
-local instance.  But we accidentally forgot to copy the enabled flag,
-so in practice PPAG is never really enabled.  Fix this by copying the
-flag from our stored data a we should.
+Storing a bogus i2c_client structure on the stack adds overhead and
+causes a compile-time warning:
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Fixes: f2134f66f40e ("iwlwifi: acpi: support ppag table command v2")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210131201908.24d7bf754ad5.I0e8abc2b8747508b6118242533d68c856ca6dffb@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+drivers/tee/optee/rpc.c:493:6: error: stack frame size of 1056 bytes in function 'optee_handle_rpc' [-Werror,-Wframe-larger-than=]
+void optee_handle_rpc(struct tee_context *ctx, struct optee_rpc_param *param,
+
+Change the implementation of handle_rpc_func_cmd_i2c_transfer() to
+open-code the i2c_transfer() call, which makes it easier to read
+and avoids the warning.
+
+Fixes: c05210ab9757 ("drivers: optee: allow op-tee to access devices on the i2c bus")
+Tested-by: Jorge Ramirez-Ortiz <jorge@foundries.io>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tee/optee/rpc.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-index 6385b9641126b..059ce227151ea 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
-@@ -1034,6 +1034,8 @@ int iwl_mvm_ppag_send_cmd(struct iwl_mvm *mvm)
- 		return 0;
+diff --git a/drivers/tee/optee/rpc.c b/drivers/tee/optee/rpc.c
+index 1e3614e4798f0..6cbb3643c6c48 100644
+--- a/drivers/tee/optee/rpc.c
++++ b/drivers/tee/optee/rpc.c
+@@ -54,8 +54,9 @@ bad:
+ static void handle_rpc_func_cmd_i2c_transfer(struct tee_context *ctx,
+ 					     struct optee_msg_arg *arg)
+ {
+-	struct i2c_client client = { 0 };
+ 	struct tee_param *params;
++	struct i2c_adapter *adapter;
++	struct i2c_msg msg = { };
+ 	size_t i;
+ 	int ret = -EOPNOTSUPP;
+ 	u8 attr[] = {
+@@ -85,48 +86,48 @@ static void handle_rpc_func_cmd_i2c_transfer(struct tee_context *ctx,
+ 			goto bad;
  	}
  
-+	ppag_table.v1.enabled = mvm->fwrt.ppag_table.v1.enabled;
+-	client.adapter = i2c_get_adapter(params[0].u.value.b);
+-	if (!client.adapter)
++	adapter = i2c_get_adapter(params[0].u.value.b);
++	if (!adapter)
+ 		goto bad;
+ 
+ 	if (params[1].u.value.a & OPTEE_MSG_RPC_CMD_I2C_FLAGS_TEN_BIT) {
+-		if (!i2c_check_functionality(client.adapter,
++		if (!i2c_check_functionality(adapter,
+ 					     I2C_FUNC_10BIT_ADDR)) {
+-			i2c_put_adapter(client.adapter);
++			i2c_put_adapter(adapter);
+ 			goto bad;
+ 		}
+ 
+-		client.flags = I2C_CLIENT_TEN;
++		msg.flags = I2C_M_TEN;
+ 	}
+ 
+-	client.addr = params[0].u.value.c;
+-	snprintf(client.name, I2C_NAME_SIZE, "i2c%d", client.adapter->nr);
++	msg.addr = params[0].u.value.c;
++	msg.buf  = params[2].u.memref.shm->kaddr;
++	msg.len  = params[2].u.memref.size;
+ 
+ 	switch (params[0].u.value.a) {
+ 	case OPTEE_MSG_RPC_CMD_I2C_TRANSFER_RD:
+-		ret = i2c_master_recv(&client, params[2].u.memref.shm->kaddr,
+-				      params[2].u.memref.size);
++		msg.flags |= I2C_M_RD;
+ 		break;
+ 	case OPTEE_MSG_RPC_CMD_I2C_TRANSFER_WR:
+-		ret = i2c_master_send(&client, params[2].u.memref.shm->kaddr,
+-				      params[2].u.memref.size);
+ 		break;
+ 	default:
+-		i2c_put_adapter(client.adapter);
++		i2c_put_adapter(adapter);
+ 		goto bad;
+ 	}
+ 
++	ret = i2c_transfer(adapter, &msg, 1);
 +
- 	cmd_ver = iwl_fw_lookup_cmd_ver(mvm->fw, PHY_OPS_GROUP,
- 					PER_PLATFORM_ANT_GAIN_CMD,
- 					IWL_FW_CMD_VER_UNKNOWN);
+ 	if (ret < 0) {
+ 		arg->ret = TEEC_ERROR_COMMUNICATION;
+ 	} else {
+-		params[3].u.value.a = ret;
++		params[3].u.value.a = msg.len;
+ 		if (optee_to_msg_param(arg->params, arg->num_params, params))
+ 			arg->ret = TEEC_ERROR_BAD_PARAMETERS;
+ 		else
+ 			arg->ret = TEEC_SUCCESS;
+ 	}
+ 
+-	i2c_put_adapter(client.adapter);
++	i2c_put_adapter(adapter);
+ 	kfree(params);
+ 	return;
+ bad:
 -- 
 2.27.0
 
