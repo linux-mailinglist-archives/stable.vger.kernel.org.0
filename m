@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7076C328E59
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08180328F74
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241641AbhCAT2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:28:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46150 "EHLO mail.kernel.org"
+        id S236504AbhCATv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:51:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241553AbhCATYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F14D26521E;
-        Mon,  1 Mar 2021 17:23:15 +0000 (UTC)
+        id S241800AbhCATmx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:42:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B04E265059;
+        Mon,  1 Mar 2021 17:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619396;
-        bh=dfiwfjdih95kPmNueKLfJksMl9tfBhr/oXqsr+opQjM=;
+        s=korg; t=1614619402;
+        bh=EO+8u2DxYYrNicYfK2R+0Q76c4AZJtVdWi3S8dv55iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7UOk467exbUHH83sLFxcuqIcKKQ/obtXExXjQmxaXNtTlFUbWcbKRPx1ozXpKes3
-         J5YiABYUWdL+jqs1gNO5XvMpuik3fTxJFNRV/CO/S/dZkHaa04V6dQ96qxRAvmcuOX
-         9CUtNfIr7fF/pl/jgE/emCDUOOiRj8GH1NRFHj38=
+        b=RHSZOMveUo5LPXCkMXR6a8sjXULca0G+Fypb0pMwiAqbIY+iPpSXOhJ/6BNTGwsyR
+         C7GducSIDEqgsB2fpQtqaun07hC1pRqxfZT5xyy4IO6zQSa9MemrQY/uBZeolBlMqn
+         4M4z164MkfVcWGFZEK9ANWsENdWCyFuwq0BmvqaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andreas Oetken <andreas.oetken@siemens.com>,
-        Ley Foon Tan <ley.foon.tan@intel.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 440/663] nios2: fixed broken sys_clone syscall
-Date:   Mon,  1 Mar 2021 17:11:28 +0100
-Message-Id: <20210301161203.666460554@linuxfoundation.org>
+Subject: [PATCH 5.10 442/663] octeontx2-af: Fix an off by one in rvu_dbg_qsize_write()
+Date:   Mon,  1 Mar 2021 17:11:30 +0100
+Message-Id: <20210301161203.768226053@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -42,39 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Oetken <andreas.oetken@siemens.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9abcfcb20320e8f693e89d86573b58e6289931cb ]
+[ Upstream commit 3a2eb515d1367c0f667b76089a6e727279c688b8 ]
 
-The tls pointer must be pushed on the stack prior to calling nios2_clone
-as it is the 5th function argument. Prior handling of the tls pointer was
-done inside former called function copy_thread_tls using the r8 register
-from the current_pt_regs directly. This was a bad design and resulted in
-the current bug introduced in 04bd52fb.
+This code does not allocate enough memory for the NUL terminator so it
+ends up putting it one character beyond the end of the buffer.
 
-Fixes: 04bd52fb ("nios2: enable HAVE_COPY_THREAD_TLS, switch to kernel_clone_args")
-Signed-off-by: Andreas Oetken <andreas.oetken@siemens.com>
-Signed-off-by: Ley Foon Tan <ley.foon.tan@intel.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Fixes: 8756828a8148 ("octeontx2-af: Add NPA aura and pool contexts to debugfs")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/nios2/kernel/entry.S | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/nios2/kernel/entry.S b/arch/nios2/kernel/entry.S
-index da8442450e460..0794cd7803dfe 100644
---- a/arch/nios2/kernel/entry.S
-+++ b/arch/nios2/kernel/entry.S
-@@ -389,7 +389,10 @@ ENTRY(ret_from_interrupt)
-  */
- ENTRY(sys_clone)
- 	SAVE_SWITCH_STACK
-+	subi    sp, sp, 4 /* make space for tls pointer */
-+	stw     r8, 0(sp) /* pass tls pointer (r8) via stack (5th argument) */
- 	call	nios2_clone
-+	addi    sp, sp, 4
- 	RESTORE_SWITCH_STACK
- 	ret
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+index 77adad4adb1bc..809f50ab0432e 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/rvu_debugfs.c
+@@ -332,7 +332,7 @@ static ssize_t rvu_dbg_qsize_write(struct file *filp,
+ 	u16 pcifunc;
+ 	int ret, lf;
+ 
+-	cmd_buf = memdup_user(buffer, count);
++	cmd_buf = memdup_user(buffer, count + 1);
+ 	if (IS_ERR(cmd_buf))
+ 		return -ENOMEM;
  
 -- 
 2.27.0
