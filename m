@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA413283A4
+	by mail.lfdr.de (Postfix) with ESMTP id 8FD123283A5
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237684AbhCAQWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:22:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56664 "EHLO mail.kernel.org"
+        id S237712AbhCAQWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:22:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237798AbhCAQUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237802AbhCAQUw (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:20:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04A2264E22;
-        Mon,  1 Mar 2021 16:18:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E47164EE1;
+        Mon,  1 Mar 2021 16:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615494;
-        bh=KN0mQ0RcyQ10XRw1zZxBSot2P22F9YHZ4KB9utzW9C8=;
+        s=korg; t=1614615497;
+        bh=6V4ez3GfVotq2a/RmAVT+2/Lwq9gacoPl2fJZ3F4nxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XqcRn3EZ/r1DvE7nWtJ6UDvtJPOdXqLqOT9BdTsec2VKC1yZnN2aTFlhFS/z+HECV
-         jWsKlqnr0qXtVqNN3PuLvzwCMFDfZtDw3u4VQ1z//KTSAUclrD1UidUxL3WoEYNuFJ
-         TQz3bxNzBU/GJaQw4zw9nGz+6Sc9/8bX61uQGCkk=
+        b=Rm9xR0ONu1VaExBvXS5TcxqtakxQ1sRNAvkIjBvlOImDtBy4n01cWy6ppH8mIe+ZW
+         goTpQYt5CD59E0e0rYCzvCLUglCXL6TclpVgzOY7Is5wmm/zsg+7h+wvOzKrst2kN9
+         pC6SSI0Y+oBAkHADNwyTq2jHK7gIrv4HvzBnJxGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 49/93] perf intel-pt: Fix missing CYC processing in PSB
-Date:   Mon,  1 Mar 2021 17:13:01 +0100
-Message-Id: <20210301161009.316077353@linuxfoundation.org>
+Subject: [PATCH 4.4 50/93] perf test: Fix unaligned access in sample parsing test
+Date:   Mon,  1 Mar 2021 17:13:02 +0100
+Message-Id: <20210301161009.362447342@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,39 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 03fb0f859b45d1eb05c984ab4bd3bef67e45ede2 ]
+[ Upstream commit c5c97cadd7ed13381cb6b4bef5c841a66938d350 ]
 
-Add missing CYC packet processing when walking through PSB+. This
-improves the accuracy of timestamps that follow PSB+, until the next
-MTC.
+The ubsan reported the following error.  It was because sample's raw
+data missed u32 padding at the end.  So it broke the alignment of the
+array after it.
 
-Fixes: 3d49807870f08 ("perf tools: Add new Intel PT packet definitions")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
+The raw data contains an u32 size prefix so the data size should have
+an u32 padding after 8-byte aligned data.
+
+27: Sample parsing  :util/synthetic-events.c:1539:4:
+  runtime error: store to misaligned address 0x62100006b9bc for type
+  '__u64' (aka 'unsigned long long'), which requires 8 byte alignment
+0x62100006b9bc: note: pointer points here
+  00 00 00 00 ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff
+              ^
+    #0 0x561532a9fc96 in perf_event__synthesize_sample util/synthetic-events.c:1539:13
+    #1 0x5615327f4a4f in do_test tests/sample-parsing.c:284:8
+    #2 0x5615327f3f50 in test__sample_parsing tests/sample-parsing.c:381:9
+    #3 0x56153279d3a1 in run_test tests/builtin-test.c:424:9
+    #4 0x56153279c836 in test_and_print tests/builtin-test.c:454:9
+    #5 0x56153279b7eb in __cmd_test tests/builtin-test.c:675:4
+    #6 0x56153279abf0 in cmd_test tests/builtin-test.c:821:9
+    #7 0x56153264e796 in run_builtin perf.c:312:11
+    #8 0x56153264cf03 in handle_internal_command perf.c:364:8
+    #9 0x56153264e47d in run_argv perf.c:408:2
+    #10 0x56153264c9a9 in main perf.c:538:3
+    #11 0x7f137ab6fbbc in __libc_start_main (/lib64/libc.so.6+0x38bbc)
+    #12 0x561532596828 in _start ...
+
+SUMMARY: UndefinedBehaviorSanitizer: misaligned-pointer-use
+ util/synthetic-events.c:1539:4 in
+
+Fixes: 045f8cd8542d ("perf tests: Add a sample parsing test")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/r/20210205175350.23817-2-adrian.hunter@intel.com
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20210214091638.519643-1-namhyung@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/tests/sample-parsing.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-index c1944765533c8..28f9e88c65bac 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1478,6 +1478,9 @@ static int intel_pt_walk_psbend(struct intel_pt_decoder *decoder)
- 			break;
- 
- 		case INTEL_PT_CYC:
-+			intel_pt_calc_cyc_timestamp(decoder);
-+			break;
-+
- 		case INTEL_PT_VMCS:
- 		case INTEL_PT_MNT:
- 		case INTEL_PT_PAD:
+diff --git a/tools/perf/tests/sample-parsing.c b/tools/perf/tests/sample-parsing.c
+index 30c02181e78b2..bdef02599b4e3 100644
+--- a/tools/perf/tests/sample-parsing.c
++++ b/tools/perf/tests/sample-parsing.c
+@@ -167,7 +167,7 @@ static int do_test(u64 sample_type, u64 sample_regs, u64 read_format)
+ 		.data = {1, 211, 212, 213},
+ 	};
+ 	u64 regs[64];
+-	const u64 raw_data[] = {0x123456780a0b0c0dULL, 0x1102030405060708ULL};
++	const u32 raw_data[] = {0x12345678, 0x0a0b0c0d, 0x11020304, 0x05060708, 0 };
+ 	const u64 data[] = {0x2211443366558877ULL, 0, 0xaabbccddeeff4321ULL};
+ 	struct perf_sample sample = {
+ 		.ip		= 101,
 -- 
 2.27.0
 
