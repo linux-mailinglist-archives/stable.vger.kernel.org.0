@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF9C328889
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE72B328883
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:45:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234875AbhCARmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:42:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54078 "EHLO mail.kernel.org"
+        id S238311AbhCARlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:41:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238500AbhCARdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:33:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECF26650AB;
-        Mon,  1 Mar 2021 16:53:27 +0000 (UTC)
+        id S238588AbhCARd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:33:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4825650AC;
+        Mon,  1 Mar 2021 16:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617608;
-        bh=xdwfSV7ZBz4TERZnDslXSd0AhoF7MXiDomkSzH4L09I=;
+        s=korg; t=1614617611;
+        bh=AMAovv1m707oJ1y9ptFW2suwX9WU19RRVpElkic2UbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euuo6RneKTkzeft2fFWXeTJOUso5UAqlWL+m90zTyLnJibIC5XE4nLcJX19MtzeSK
-         Y9vByGxibioszZjBd+/0Ab6qQrNg005QfSv0/xdRRkTka4FJW/Jq9/9ZE6bHeD6Yf4
-         LRcRSHgBq9C9fwZu56OoE1HRw5LZB/OljAi86+R0=
+        b=n07RQnIo3BxCAcevikPS8K5k6IW39luOAtdrb5fpwyO7u7/twGUADvuHHEAC4L4fl
+         nGI70suhOUUU3EB81ZseFn7D2d1MPgx/SQQM9P+QlMk2+xsqYV21fUKm7UGesWPGv2
+         /m32rQ35hOkIgF4q8H8AsUC26f57ckhvMQOKtHho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Quentin Perret <qperret@google.com>,
-        Valentin Schneider <valentin.schneider@arm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 103/340] sched/eas: Dont update misfit status if the task is pinned
-Date:   Mon,  1 Mar 2021 17:10:47 +0100
-Message-Id: <20210301161053.397919838@linuxfoundation.org>
+Subject: [PATCH 5.4 104/340] mtd: parser: imagetag: fix error codes in bcm963xx_parse_imagetag_partitions()
+Date:   Mon,  1 Mar 2021 17:10:48 +0100
+Message-Id: <20210301161053.449674613@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,51 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0ae78eec8aa64e645866e75005162603a77a0f49 ]
+[ Upstream commit 12ba8f8ce29fdd277f3100052eddc1afd2f5ea3f ]
 
-If the task is pinned to a cpu, setting the misfit status means that
-we'll unnecessarily continuously attempt to migrate the task but fail.
+If the kstrtouint() calls fail, then this should return a negative
+error code but it currently returns success.
 
-This continuous failure will cause the balance_interval to increase to
-a high value, and eventually cause unnecessary significant delays in
-balancing the system when real imbalance happens.
-
-Caught while testing uclamp where rt-app calibration loop was pinned to
-cpu 0, shortly after which we spawn another task with high util_clamp
-value. The task was failing to migrate after over 40ms of runtime due to
-balance_interval unnecessary expanded to a very high value from the
-calibration loop.
-
-Not done here, but it could be useful to extend the check for pinning to
-verify that the affinity of the task has a cpu that fits. We could end
-up in a similar situation otherwise.
-
-Fixes: 3b1baa6496e6 ("sched/fair: Add 'group_misfit_task' load-balance type")
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Quentin Perret <qperret@google.com>
-Acked-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20210119120755.2425264-1-qais.yousef@arm.com
+Fixes: dd84cb022b31 ("mtd: bcm63xxpart: move imagetag parsing to its own parser")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/YBKFtNaFHGYBj+u4@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/parsers/parser_imagetag.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 3dd7c10d6a582..611adca1e6d0c 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3814,7 +3814,7 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq)
- 	if (!static_branch_unlikely(&sched_asym_cpucapacity))
- 		return;
+diff --git a/drivers/mtd/parsers/parser_imagetag.c b/drivers/mtd/parsers/parser_imagetag.c
+index d69607b482272..fab0949aabba1 100644
+--- a/drivers/mtd/parsers/parser_imagetag.c
++++ b/drivers/mtd/parsers/parser_imagetag.c
+@@ -83,6 +83,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid rootfs address: %*ph\n",
+ 				(int)sizeof(buf->flash_image_start),
+ 				buf->flash_image_start);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
  
--	if (!p) {
-+	if (!p || p->nr_cpus_allowed == 1) {
- 		rq->misfit_task_load = 0;
- 		return;
- 	}
+@@ -92,6 +93,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid kernel address: %*ph\n",
+ 				(int)sizeof(buf->kernel_address),
+ 				buf->kernel_address);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
+@@ -100,6 +102,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid kernel length: %*ph\n",
+ 				(int)sizeof(buf->kernel_length),
+ 				buf->kernel_length);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
+@@ -108,6 +111,7 @@ static int bcm963xx_parse_imagetag_partitions(struct mtd_info *master,
+ 			pr_err("invalid total length: %*ph\n",
+ 				(int)sizeof(buf->total_length),
+ 				buf->total_length);
++			ret = -EINVAL;
+ 			goto out;
+ 		}
+ 
 -- 
 2.27.0
 
