@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 371B1329109
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7869329108
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243170AbhCAUSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:18:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S243165AbhCAUSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:18:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242524AbhCAULF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242393AbhCAULF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:11:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75491653AC;
-        Mon,  1 Mar 2021 18:00:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29692653B9;
+        Mon,  1 Mar 2021 18:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621631;
-        bh=s+aaXPqrHCTQ9V2Uj2CiZAabX8mPTJa7S+xju2xNISY=;
+        s=korg; t=1614621633;
+        bh=Dil/pehxk/Kq79WvBIhM/P2vNc3BGhXt7jbenkSN/Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehvJUIqNBAGdD57Ybj9Y+tDn+uqzT5AVNArVH8CytTPW+dr+joNe4S8LRvlTsaS+t
-         1EP17otnObNMQ+LI2b85UYyoxwTZaCl3dSivrU3BAArzbiz1NAAdRFqpucG49cNoVo
-         xNIR8BeJUTq8zTArWSnQ3ygSD/8klG0Z9rTlYTXg=
+        b=tETX2u6e16qsMPNCrl3Bn/QWPe1XcNCW1lvuZ6HaNho8rG2QFxsPadhjeMuT4LFxT
+         WA5y64KK18WbJxNcUqA+oT1hLLPDWpFhWHY2FqDmF/Pu7i07CV2VEN4i12vEEFMVer
+         KnjVF2ExxY0m23Z0ixLSmsAHH+79fQ5SJqAXld60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.11 586/775] usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1
-Date:   Mon,  1 Mar 2021 17:12:34 +0100
-Message-Id: <20210301161230.400080060@linuxfoundation.org>
+Subject: [PATCH 5.11 587/775] usb: dwc3: gadget: Fix dep->interval for fullspeed interrupt
+Date:   Mon,  1 Mar 2021 17:12:35 +0100
+Message-Id: <20210301161230.448360659@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,41 +40,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit a1679af85b2ae35a2b78ad04c18bb069c37330cc upstream.
+commit 4b049f55ed95cd889bcdb3034fd75e1f01852b38 upstream.
 
-Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it must be set
-to 0 when the controller operates in full-speed. See the programming
-guide for DEPCFG command section 3.2.2.1 (v3.30a).
+The dep->interval captures the number of frames/microframes per interval
+from bInterval. Fullspeed interrupt endpoint bInterval is the number of
+frames per interval and not 2^(bInterval - 1). So fix it here. This
+change is only for debugging purpose and should not affect the interrupt
+endpoint operation.
 
 Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/3f57026f993c0ce71498dbb06e49b3a47c4d0265.1612820995.git.Thinh.Nguyen@synopsys.com
+Link: https://lore.kernel.org/r/1263b563dedc4ab8b0fb854fba06ce4bc56bd495.1612820995.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -605,7 +605,17 @@ static int dwc3_gadget_set_ep_config(str
- 		params.param0 |= DWC3_DEPCFG_FIFO_NUMBER(dep->number >> 1);
+@@ -615,8 +615,13 @@ static int dwc3_gadget_set_ep_config(str
+ 		if (dwc->gadget->speed == USB_SPEED_FULL)
+ 			bInterval_m1 = 0;
  
- 	if (desc->bInterval) {
--		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(desc->bInterval - 1);
-+		u8 bInterval_m1;
++		if (usb_endpoint_type(desc) == USB_ENDPOINT_XFER_INT &&
++		    dwc->gadget->speed == USB_SPEED_FULL)
++			dep->interval = desc->bInterval;
++		else
++			dep->interval = 1 << (desc->bInterval - 1);
 +
-+		/*
-+		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
-+		 * must be set to 0 when the controller operates in full-speed.
-+		 */
-+		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
-+		if (dwc->gadget->speed == USB_SPEED_FULL)
-+			bInterval_m1 = 0;
-+
-+		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
- 		dep->interval = 1 << (desc->bInterval - 1);
+ 		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
+-		dep->interval = 1 << (desc->bInterval - 1);
  	}
  
+ 	return dwc3_send_gadget_ep_cmd(dep, DWC3_DEPCMD_SETEPCONFIG, &params);
 
 
