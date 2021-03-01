@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B2632918B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C9C329191
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243276AbhCAU1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:27:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S243343AbhCAU2D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:28:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238711AbhCAUVR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:21:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0B02651D5;
-        Mon,  1 Mar 2021 18:04:52 +0000 (UTC)
+        id S243113AbhCAUVn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:21:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7474A61606;
+        Mon,  1 Mar 2021 18:04:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621893;
-        bh=OVUP3hpq4sPVzg+WMZs4HT5LnDJMZeVlsL/StL5zzxo=;
+        s=korg; t=1614621896;
+        bh=UvceciPEeWPgXBWJOJhZZP7frtuG3BFUY3guUdyCiyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMwpJ3AwQ5hmOf9nHj0t7j9z16q8WDkIeLDAFzdV2Koy8oqsFWvO4I2R1sgI72Zqm
-         yHi2eVrHdeZMg7LS+Eo4OmnwsTMTRkG2sxNzImxeCQpmiAB26NVOMPTjWp4fIVmi+J
-         pk1BqJs0kFQnC+uvBVk8H6dnTTRH99bvI+HSfrx8=
+        b=Kmehy3AP0Ws5wob+H4QRkOPAGyWYMi2rQgB8v5tqbAY8ubChd82J/qTzHK7rCj2RK
+         /Z5mKMYo0uz9v2BHRQk+w+338GX2VDwcIC96Gc43Z7aP/ME1HHn0I/vr9uEXPiff6q
+         4Lq0joXRU4Ez43AdqZC7zczuWSb3eaMpSrKDm+WY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: [PATCH 5.11 682/775] arm64: Extend workaround for erratum 1024718 to all versions of Cortex-A55
-Date:   Mon,  1 Mar 2021 17:14:10 +0100
-Message-Id: <20210301161235.086937434@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Isaac J. Manjarres" <isaacm@codeaurora.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.11 683/775] iommu/arm-smmu-qcom: Fix mask extraction for bootloader programmed SMRs
+Date:   Mon,  1 Mar 2021 17:14:11 +0100
+Message-Id: <20210301161235.133391024@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,52 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Isaac J. Manjarres <isaacm@codeaurora.org>
 
-commit c0b15c25d25171db4b70cc0b7dbc1130ee94017d upstream.
+commit dead723e6f049e9fb6b05e5b93456982798ea961 upstream.
 
-The erratum 1024718 affects Cortex-A55 r0p0 to r2p0. However
-we apply the work around for r0p0 - r1p0. Unfortunately this
-won't be fixed for the future revisions for the CPU. Thus
-extend the work around for all versions of A55, to cover
-for r2p0 and any future revisions.
+When extracting the mask for a SMR that was programmed by the
+bootloader, the SMR's valid bit is also extracted and is treated
+as part of the mask, which is not correct. Consider the scenario
+where an SMMU master whose context is determined by a bootloader
+programmed SMR is removed (omitting parts of device/driver core):
 
+->iommu_release_device()
+ -> arm_smmu_release_device()
+  -> arm_smmu_master_free_smes()
+   -> arm_smmu_free_sme() /* Assume that the SME is now free */
+   -> arm_smmu_write_sme()
+    -> arm_smmu_write_smr() /* Construct SMR value using mask and SID */
+
+Since the valid bit was considered as part of the mask, the SMR will
+be programmed as valid.
+
+Fix the SMR mask extraction step for bootloader programmed SMRs
+by masking out the valid bit when we know that we're already
+working with a valid SMR.
+
+Fixes: 07a7f2caaa5a ("iommu/arm-smmu-qcom: Read back stream mappings")
+Signed-off-by: Isaac J. Manjarres <isaacm@codeaurora.org>
 Cc: stable@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20210203230057.3961239-1-suzuki.poulose@arm.com
-[will: Update Kconfig help text]
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/1611611545-19055-1-git-send-email-isaacm@codeaurora.org
 Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/Kconfig             |    2 +-
- arch/arm64/kernel/cpufeature.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -522,7 +522,7 @@ config ARM64_ERRATUM_1024718
- 	help
- 	  This option adds a workaround for ARM Cortex-A55 Erratum 1024718.
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom.c
+@@ -206,6 +206,8 @@ static int qcom_smmu_cfg_probe(struct ar
+ 		smr = arm_smmu_gr0_read(smmu, ARM_SMMU_GR0_SMR(i));
  
--	  Affected Cortex-A55 cores (r0p0, r0p1, r1p0) could cause incorrect
-+	  Affected Cortex-A55 cores (all revisions) could cause incorrect
- 	  update of the hardware dirty bit when the DBM/AP bits are updated
- 	  without a break-before-make. The workaround is to disable the usage
- 	  of hardware DBM locally on the affected cores. CPUs not affected by
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1455,7 +1455,7 @@ static bool cpu_has_broken_dbm(void)
- 	/* List of CPUs which have broken DBM support. */
- 	static const struct midr_range cpus[] = {
- #ifdef CONFIG_ARM64_ERRATUM_1024718
--		MIDR_RANGE(MIDR_CORTEX_A55, 0, 0, 1, 0),  // A55 r0p0 -r1p0
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A55),
- 		/* Kryo4xx Silver (rdpe => r1p0) */
- 		MIDR_REV(MIDR_QCOM_KRYO_4XX_SILVER, 0xd, 0xe),
- #endif
+ 		if (FIELD_GET(ARM_SMMU_SMR_VALID, smr)) {
++			/* Ignore valid bit for SMR mask extraction. */
++			smr &= ~ARM_SMMU_SMR_VALID;
+ 			smmu->smrs[i].id = FIELD_GET(ARM_SMMU_SMR_ID, smr);
+ 			smmu->smrs[i].mask = FIELD_GET(ARM_SMMU_SMR_MASK, smr);
+ 			smmu->smrs[i].valid = true;
 
 
