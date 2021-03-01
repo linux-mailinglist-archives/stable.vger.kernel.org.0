@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7551328567
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23301328596
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236055AbhCAQxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50620 "EHLO mail.kernel.org"
+        id S234885AbhCAQya (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:54:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235206AbhCAQra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:47:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E224364F9E;
-        Mon,  1 Mar 2021 16:32:02 +0000 (UTC)
+        id S235732AbhCAQtf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:49:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED8FC64F26;
+        Mon,  1 Mar 2021 16:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616323;
-        bh=D0L6W3+EeJJ+hjA1vyBuH/qEOtsuZU+i9pK0t8mlPXk=;
+        s=korg; t=1614616354;
+        bh=dZDuYGpAecR4SZKdufLNZDrBQ7R3UW6Uz7HS7zGTTVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XkgRVthVv2JJkl6B7n4LS4bYy3LudJpYxJuvgno8v+O9lcsVzGHeLqyRMzXvsiC9U
-         ID+soPWw2kJCg9j2o8Rt+g2TLGm5JZOxbHTl39w6WTU8BqCPBgXVmjEHdqYyo7yhd/
-         B2kHbIyofirLu+ygFw2q08a9whbOO1yhSJKmAwCc=
+        b=RdNb5e6a9fnAAMRq8G9FFbFVe3z7jpMsXN2sD+cfjkliD7pD0sz1koIGxAbLDWNtf
+         f5R8eiwY42ww5L9ho4gwiEJgpMUU7hao/pr0j1pdCKGMbhyKCxSBO3GYmvh62IPM7+
+         pPX9VpPTiFCHvyTzQzGwRSLNGGabE+u9TilrzIeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 094/176] spi: stm32: properly handle 0 byte transfer
-Date:   Mon,  1 Mar 2021 17:12:47 +0100
-Message-Id: <20210301161025.650838171@linuxfoundation.org>
+Subject: [PATCH 4.14 095/176] mfd: wm831x-auxadc: Prevent use after free in wm831x_auxadc_read_irq()
+Date:   Mon,  1 Mar 2021 17:12:48 +0100
+Message-Id: <20210301161025.701539398@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -40,37 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2269f5a8b1a7b38651d62676b98182828f29d11a ]
+[ Upstream commit 26783d74cc6a440ee3ef9836a008a697981013d0 ]
 
-On 0 byte transfer request, return straight from the
-xfer function after finalizing the transfer.
+The "req" struct is always added to the "wm831x->auxadc_pending" list,
+but it's only removed from the list on the success path.  If a failure
+occurs then the "req" struct is freed but it's still on the list,
+leading to a use after free.
 
-Fixes: dcbe0d84dfa5 ("spi: add driver for STM32 SPI controller")
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1612551572-495-2-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 78bb3688ea18 ("mfd: Support multiple active WM831x AUXADC conversions")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mfd/wm831x-auxadc.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index d919803540510..c8e546439fff2 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -992,6 +992,10 @@ static int stm32_spi_transfer_one(struct spi_master *master,
- 	struct stm32_spi *spi = spi_master_get_devdata(master);
- 	int ret;
+diff --git a/drivers/mfd/wm831x-auxadc.c b/drivers/mfd/wm831x-auxadc.c
+index fd789d2eb0f52..9f7ae1e1ebcd6 100644
+--- a/drivers/mfd/wm831x-auxadc.c
++++ b/drivers/mfd/wm831x-auxadc.c
+@@ -98,11 +98,10 @@ static int wm831x_auxadc_read_irq(struct wm831x *wm831x,
+ 	wait_for_completion_timeout(&req->done, msecs_to_jiffies(500));
  
-+	/* Don't do anything on 0 bytes transfers */
-+	if (transfer->len == 0)
-+		return 0;
-+
- 	spi->tx_buf = transfer->tx_buf;
- 	spi->rx_buf = transfer->rx_buf;
- 	spi->tx_len = spi->tx_buf ? transfer->len : 0;
+ 	mutex_lock(&wm831x->auxadc_lock);
+-
+-	list_del(&req->list);
+ 	ret = req->val;
+ 
+ out:
++	list_del(&req->list);
+ 	mutex_unlock(&wm831x->auxadc_lock);
+ 
+ 	kfree(req);
 -- 
 2.27.0
 
