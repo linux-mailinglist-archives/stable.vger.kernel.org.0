@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD418328B73
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC6A8328B98
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:40:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235292AbhCASe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:34:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41704 "EHLO mail.kernel.org"
+        id S240208AbhCASiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239999AbhCAS2Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:28:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A94F652A8;
-        Mon,  1 Mar 2021 17:33:33 +0000 (UTC)
+        id S234320AbhCASaC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:30:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3584364FB3;
+        Mon,  1 Mar 2021 17:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620014;
-        bh=QOhJceIL0u1BL/LPk2HuUcDdu1yh6F7Xpxzv3g4PCtE=;
+        s=korg; t=1614620033;
+        bh=KzQsJ5aEGj2xjDsBpmO+RjDu/gDmsIICdX3nKEzsAkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kg93kPtrmTZllm4d4tY4O3QaMH+/5BXQw/4p+kLW3TsJYlFFkoDSsVEuRq+YhSnNO
-         5id03h6ZYfZ0Ct/aDtB3M0wyggOPT7vEG29EsqeAai6wfNhpz3qWQIkuK1REk4z3Z+
-         U/AAzOUvkf1OUohvBWcsJQFZctuyLch7KVsUToa8=
+        b=cRWcRxCxzSBt7xscziPSePjIiLybo0zBVMIzLUG7bKLBKmNNC+WrrpqkgAi1c5yak
+         lByrTmqYE32cPwDT1JKgQovH8nqeu7/o/uv5z3kZe0JZtRXGyWjBFr+voB0hVPBvVC
+         1zMQ5I96+M/+vOksSdjvUrEmjEKxLH0oInxzcaGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.10 654/663] dm era: only resize metadata in preresume
-Date:   Mon,  1 Mar 2021 17:15:02 +0100
-Message-Id: <20210301161214.208425271@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com,
+        Vlad Buslov <vladbu@nvidia.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 661/663] net: sched: fix police ext initialization
+Date:   Mon,  1 Mar 2021 17:15:09 +0100
+Message-Id: <20210301161214.563707694@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,80 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit cca2c6aebe86f68103a8615074b3578e854b5016 upstream.
+commit 396d7f23adf9e8c436dd81a69488b5b6a865acf8 upstream.
 
-Metadata resize shouldn't happen in the ctr. The ctr loads a temporary
-(inactive) table that will only become active upon resume. That is why
-resize should always be done in terms of resume. Otherwise a load (ctr)
-whose inactive table never becomes active will incorrectly resize the
-metadata.
+When police action is created by cls API tcf_exts_validate() first
+conditional that calls tcf_action_init_1() directly, the action idr is not
+updated according to latest changes in action API that require caller to
+commit newly created action to idr with tcf_idr_insert_many(). This results
+such action not being accessible through act API and causes crash reported
+by syzbot:
 
-Also, perform the resize directly in preresume, instead of using the
-worker to do it.
+==================================================================
+BUG: KASAN: null-ptr-deref in instrument_atomic_read include/linux/instrumented.h:71 [inline]
+BUG: KASAN: null-ptr-deref in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+BUG: KASAN: null-ptr-deref in __tcf_idr_release net/sched/act_api.c:178 [inline]
+BUG: KASAN: null-ptr-deref in tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+Read of size 4 at addr 0000000000000010 by task kworker/u4:5/204
 
-The worker might run other metadata operations, e.g., it could start
-digestion, before resizing the metadata. These operations will end up
-using the old size.
+CPU: 0 PID: 204 Comm: kworker/u4:5 Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ __kasan_report mm/kasan/report.c:400 [inline]
+ kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ __tcf_idr_release net/sched/act_api.c:178 [inline]
+ tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+ tc_action_net_exit include/net/act_api.h:151 [inline]
+ police_exit_net+0x168/0x360 net/sched/act_police.c:390
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
+ cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
+ process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+==================================================================
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 204 Comm: kworker/u4:5 Tainted: G    B             5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: netns cleanup_net
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ panic+0x306/0x73d kernel/panic.c:231
+ end_report+0x58/0x5e mm/kasan/report.c:100
+ __kasan_report mm/kasan/report.c:403 [inline]
+ kasan_report.cold+0x67/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ __tcf_idr_release net/sched/act_api.c:178 [inline]
+ tcf_idrinfo_destroy+0x129/0x1d0 net/sched/act_api.c:598
+ tc_action_net_exit include/net/act_api.h:151 [inline]
+ police_exit_net+0x168/0x360 net/sched/act_police.c:390
+ ops_exit_list+0x10d/0x160 net/core/net_namespace.c:190
+ cleanup_net+0x4ea/0xb10 net/core/net_namespace.c:604
+ process_one_work+0x98d/0x15f0 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+Kernel Offset: disabled
 
-This could lead to errors, like:
+Fix the issue by calling tcf_idr_insert_many() after successful action
+initialization.
 
-  device-mapper: era: metadata_digest_transcribe_writeset: dm_array_set_value failed
-  device-mapper: era: process_old_eras: digest step failed, stopping digestion
-
-The reason of the above error is that the worker started the digestion
-of the archived writeset using the old, larger size.
-
-As a result, metadata_digest_transcribe_writeset tried to write beyond
-the end of the era array.
-
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 0fedc63fadf0 ("net_sched: commit action insertions together")
+Reported-by: syzbot+151e3e714d34ae4ce7e8@syzkaller.appspotmail.com
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ include/net/act_api.h |    1 +
+ net/sched/act_api.c   |    2 +-
+ net/sched/cls_api.c   |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -1501,15 +1501,6 @@ static int era_ctr(struct dm_target *ti,
- 	}
- 	era->md = md;
+--- a/include/net/act_api.h
++++ b/include/net/act_api.h
+@@ -166,6 +166,7 @@ int tcf_idr_create_from_flags(struct tc_
+ 			      struct nlattr *est, struct tc_action **a,
+ 			      const struct tc_action_ops *ops, int bind,
+ 			      u32 flags);
++void tcf_idr_insert_many(struct tc_action *actions[]);
+ void tcf_idr_cleanup(struct tc_action_net *tn, u32 index);
+ int tcf_idr_check_alloc(struct tc_action_net *tn, u32 *index,
+ 			struct tc_action **a, int bind);
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -888,7 +888,7 @@ static const struct nla_policy tcf_actio
+ 	[TCA_ACT_HW_STATS]	= NLA_POLICY_BITFIELD32(TCA_ACT_HW_STATS_ANY),
+ };
  
--	era->nr_blocks = calc_nr_blocks(era);
--
--	r = metadata_resize(era->md, &era->nr_blocks);
--	if (r) {
--		ti->error = "couldn't resize metadata";
--		era_destroy(era);
--		return -ENOMEM;
--	}
--
- 	era->wq = alloc_ordered_workqueue("dm-" DM_MSG_PREFIX, WQ_MEM_RECLAIM);
- 	if (!era->wq) {
- 		ti->error = "could not create workqueue for metadata object";
-@@ -1584,9 +1575,17 @@ static int era_preresume(struct dm_targe
- 	dm_block_t new_size = calc_nr_blocks(era);
+-static void tcf_idr_insert_many(struct tc_action *actions[])
++void tcf_idr_insert_many(struct tc_action *actions[])
+ {
+ 	int i;
  
- 	if (era->nr_blocks != new_size) {
--		r = in_worker1(era, metadata_resize, &new_size);
--		if (r)
-+		r = metadata_resize(era->md, &new_size);
-+		if (r) {
-+			DMERR("%s: metadata_resize failed", __func__);
-+			return r;
-+		}
-+
-+		r = metadata_commit(era->md);
-+		if (r) {
-+			DMERR("%s: metadata_commit failed", __func__);
- 			return r;
-+		}
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -3065,6 +3065,7 @@ int tcf_exts_validate(struct net *net, s
+ 			act->type = exts->type = TCA_OLD_COMPAT;
+ 			exts->actions[0] = act;
+ 			exts->nr_actions = 1;
++			tcf_idr_insert_many(exts->actions);
+ 		} else if (exts->action && tb[exts->action]) {
+ 			int err;
  
- 		era->nr_blocks = new_size;
- 	}
 
 
