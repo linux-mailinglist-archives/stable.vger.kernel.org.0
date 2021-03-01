@@ -2,114 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5807D3287B4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:30:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A1A32872C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238454AbhCAR2I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:28:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37354 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236769AbhCARSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:18:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1F5864F8F;
-        Mon,  1 Mar 2021 16:47:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617228;
-        bh=gRIT0VF9fiR/03qrO6Qr37uVPBAtkSGVbL9WsCTeM3c=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+vBbocXZMUopPl7NmY8Keh8v1EVySB9MDA9y4JlgfONHq/qeNktFuSae5ajqNL3d
-         0wf45OaEistfq7Ei2aK6rf1IFxNOdHZB27DPTngOECOUeJHvS4lpnQOjz6GyfKPxXH
-         m22zsL/OATyQEdDAiOEo5Qha/Ejp5k8yFI/JOOQQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com,
-        Takeshi Misawa <jeliantsurux@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.19 247/247] net: qrtr: Fix memory leak in qrtr_tun_open
-Date:   Mon,  1 Mar 2021 17:14:27 +0100
-Message-Id: <20210301161043.797217519@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
-References: <20210301161031.684018251@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S237969AbhCARVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:21:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46288 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237845AbhCARNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 12:13:32 -0500
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5B4C061756
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 09:12:50 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id ci14so10618325ejc.7
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 09:12:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=ayu9AHyZhIABG1EhmEXigbQRPEQI/pM8e7EiHDOXPhU=;
+        b=f0qv2OATTMI00a0bd7X8pHQ0Fung7NNhgJYQ5HhDXtscW2IfLMkXtlPJkP7sbEOvJJ
+         o/zucH+B98SrIVI+d9pezmnvn5YQz6CpGpMC5BpOjGgUA0NPs8YW23RlBeni5EZz4cU8
+         vvigTLe52sG2wushiqV+0+JPdIXtaEPDAsr1AyF8ij0P3anbZiEOJuOYCg7e6Fd+v59s
+         oZ6QyNSx+/uY69wIS5o7mkKXmI0SeIsDwlfty0FjeEJLnMXuKFeLeI4KxD1qv/nptm+R
+         +qso1heXlgx+512EOlJ14rEPMifUPfUB0uYEwuTLlDZQlpwEJlgbZN0V8eXOHRF4VL6c
+         BvBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=ayu9AHyZhIABG1EhmEXigbQRPEQI/pM8e7EiHDOXPhU=;
+        b=LYzjJutrfSLjlg+45vivQqZzrPstrW4+khXdpGt3KXvRxaZw3C7Ln9iocceXHkBqLV
+         qIjfbRi7OkHXTKSNAEa5kk/xl+e+ch1WerXVPx1fXuHbCZWVK8KENYL8kVkyTq5De0aI
+         zTPqoBeem97UCAtqwxzZxoSLkEGFOl6rCYhWoXR8xmtspARObtJ9xZCwnyQAXdb4WU27
+         d1gLdjh8lcKYC41qyAqCkPAk+Q6+8nPVXxRFavXVKilM78RKCgf1i25sPcdqSIvlDxMG
+         UUmrKnFgaMTEeo8G2Q5groMI4HQVRvCdveAXFg1SebMr/72++v9+o774JhCsh/drgGsl
+         SDFQ==
+X-Gm-Message-State: AOAM532vq9lKEgSxlX6yIDUhelLjIl4pkcLqNwqxHFSuso683n9habt7
+        GlrO2J08ktn2aqkzoYzM+OO8XBpVIVSDBEj2z4YJ7Vk0FyrUNJ3i
+X-Google-Smtp-Source: ABdhPJyiBHloAF1n20TBHbeTdXanBvBLVL+njrFYN2hbpRNrGfWQhkRDItfp/g+lBhewiKXHaVyOsYu/4BU+6dOAJek=
+X-Received: by 2002:a17:906:444d:: with SMTP id i13mr16504670ejp.170.1614618768068;
+ Mon, 01 Mar 2021 09:12:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 1 Mar 2021 22:42:34 +0530
+Message-ID: <CA+G9fYvxM8ECmog5rGSesSUmw3NsmXYZfdg957-37B_BDm=R9Q@mail.gmail.com>
+Subject: sparc: icmpv6.h:70:2: error: implicit declaration of function
+ '__icmpv6_send'; did you mean 'icmpv6_send'? [-Werror=implicit-function-declaration]
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sahaj Sarup <sahaj.sarup@linaro.org>
+Cc:     linux-stable <stable@vger.kernel.org>, lkft-triage@lists.linaro.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Misawa <jeliantsurux@gmail.com>
+On stable rc 5.11 sparc allnoconfig and tinyconfig failed with gcc-8,
+gcc-9 and gcc-10.
 
-commit fc0494ead6398609c49afa37bc949b61c5c16b91 upstream.
+make --silent --keep-going --jobs=8
+O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=sparc
+CROSS_COMPILE=sparc64-linux-gnu- 'CC=sccache sparc64-linux-gnu-gcc'
+'HOSTCC=sccache gcc'
+<stdin>:1335:2: warning: #warning syscall rseq not implemented [-Wcpp]
+In file included from include/net/ndisc.h:50,
+                 from include/net/ipv6.h:21,
+                 from include/linux/sunrpc/clnt.h:28,
+                 from include/linux/nfs_fs.h:32,
+                 from init/do_mounts.c:22:
+include/linux/icmpv6.h: In function 'icmpv6_ndo_send':
+include/linux/icmpv6.h:70:2: error: implicit declaration of function
+'__icmpv6_send'; did you mean 'icmpv6_send'?
+[-Werror=implicit-function-declaration]
+   70 |  __icmpv6_send(skb_in, type, code, info, &parm);
+      |  ^~~~~~~~~~~~~
+      |  icmpv6_send
+cc1: some warnings being treated as errors
+make[2]: *** [scripts/Makefile.build:304: init/do_mounts.o] Error 1
 
-If qrtr_endpoint_register() failed, tun is leaked.
-Fix this, by freeing tun in error path.
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-syzbot report:
-BUG: memory leak
-unreferenced object 0xffff88811848d680 (size 64):
-  comm "syz-executor684", pid 10171, jiffies 4294951561 (age 26.070s)
-  hex dump (first 32 bytes):
-    80 dd 0a 84 ff ff ff ff 00 00 00 00 00 00 00 00  ................
-    90 d6 48 18 81 88 ff ff 90 d6 48 18 81 88 ff ff  ..H.......H.....
-  backtrace:
-    [<0000000018992a50>] kmalloc include/linux/slab.h:552 [inline]
-    [<0000000018992a50>] kzalloc include/linux/slab.h:682 [inline]
-    [<0000000018992a50>] qrtr_tun_open+0x22/0x90 net/qrtr/tun.c:35
-    [<0000000003a453ef>] misc_open+0x19c/0x1e0 drivers/char/misc.c:141
-    [<00000000dec38ac8>] chrdev_open+0x10d/0x340 fs/char_dev.c:414
-    [<0000000079094996>] do_dentry_open+0x1e6/0x620 fs/open.c:817
-    [<000000004096d290>] do_open fs/namei.c:3252 [inline]
-    [<000000004096d290>] path_openat+0x74a/0x1b00 fs/namei.c:3369
-    [<00000000b8e64241>] do_filp_open+0xa0/0x190 fs/namei.c:3396
-    [<00000000a3299422>] do_sys_openat2+0xed/0x230 fs/open.c:1172
-    [<000000002c1bdcef>] do_sys_open fs/open.c:1188 [inline]
-    [<000000002c1bdcef>] __do_sys_openat fs/open.c:1204 [inline]
-    [<000000002c1bdcef>] __se_sys_openat fs/open.c:1199 [inline]
-    [<000000002c1bdcef>] __x64_sys_openat+0x7f/0xe0 fs/open.c:1199
-    [<00000000f3a5728f>] do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-    [<000000004b38b7ec>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Ref:
+https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1064179275#L62
 
-Fixes: 28fb4e59a47d ("net: qrtr: Expose tunneling endpoint to user space")
-Reported-by: syzbot+5d6e4af21385f5cfc56a@syzkaller.appspotmail.com
-Signed-off-by: Takeshi Misawa <jeliantsurux@gmail.com>
-Link: https://lore.kernel.org/r/20210221234427.GA2140@DESKTOP
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/qrtr/tun.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
-
---- a/net/qrtr/tun.c
-+++ b/net/qrtr/tun.c
-@@ -31,6 +31,7 @@ static int qrtr_tun_send(struct qrtr_end
- static int qrtr_tun_open(struct inode *inode, struct file *filp)
- {
- 	struct qrtr_tun *tun;
-+	int ret;
- 
- 	tun = kzalloc(sizeof(*tun), GFP_KERNEL);
- 	if (!tun)
-@@ -43,7 +44,16 @@ static int qrtr_tun_open(struct inode *i
- 
- 	filp->private_data = tun;
- 
--	return qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
-+	ret = qrtr_endpoint_register(&tun->ep, QRTR_EP_NID_AUTO);
-+	if (ret)
-+		goto out;
-+
-+	return 0;
-+
-+out:
-+	filp->private_data = NULL;
-+	kfree(tun);
-+	return ret;
- }
- 
- static ssize_t qrtr_tun_read_iter(struct kiocb *iocb, struct iov_iter *to)
-
-
+-- 
+Linaro LKFT
+https://lkft.linaro.org
