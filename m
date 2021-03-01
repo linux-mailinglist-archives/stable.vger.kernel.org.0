@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AE132911E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 863C132912D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243248AbhCAUTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:19:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40430 "EHLO mail.kernel.org"
+        id S242830AbhCAUUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:20:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238630AbhCAUMX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:12:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7200A6505C;
-        Mon,  1 Mar 2021 18:01:13 +0000 (UTC)
+        id S242995AbhCAUNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:13:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 397D665081;
+        Mon,  1 Mar 2021 18:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621674;
-        bh=0z3WB6fxxIRpXJVqt7kYMNPzomhDGaiSxTU+Sip1pak=;
+        s=korg; t=1614621676;
+        bh=8tTmOVdS1/PkhguOWQ0gRjVoSUMEQ+s3z+eGgd/9ks8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFjXK6tzDyUd4Pl4KuTHpdgXfM6WyGEm7Y58pK9Y9wLSFrv//sELPUVlaWT2B9Gc6
-         7LONq77RrfIUmUs0SyZ97f974c4el2/MPm1HqJWwV19PvhtB6HmxmpJla3B1JJYkr/
-         yHZ9y9xpwOwwOegZUQDbYKk8sVTpF/HMgVYDacug=
+        b=T5atRPyZbAqUpi3qW6tLCgauemgS90RRxGVp9+uKLpOgmbzrRroPO0JJbw81AJkLp
+         JU5Zd1SjMRl+5bfIAfB8DiubHpB4LfN4IlOJluzhFwuyNOGwaQADTfXErkyT1ls8D+
+         aoHLWp1V9TuwygEZvGP1DQkaMBSjsAfUb7ag4o7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>,
+        stable@vger.kernel.org, YunQiang Su <syq@debian.org>,
+        Aurelien Jarno <aurelien@aurel32.net>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.11 603/775] MIPS: Ingenic: Disable HPTLB for D0 XBurst CPUs too
-Date:   Mon,  1 Mar 2021 17:12:51 +0100
-Message-Id: <20210301161231.207959296@linuxfoundation.org>
+Subject: [PATCH 5.11 604/775] MIPS: Support binutils configured with --enable-mips-fix-loongson3-llsc=yes
+Date:   Mon,  1 Mar 2021 17:12:52 +0100
+Message-Id: <20210301161231.259324980@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,52 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Aurelien Jarno <aurelien@aurel32.net>
 
-commit a5360958a3cd1d876aae1f504ae014658513e1af upstream.
+commit 5373ae67c3aad1ab306cc722b5a80b831eb4d4d1 upstream.
 
-The JZ4760 has the HPTLB as well, but has a XBurst CPU with a D0 CPUID.
+>From version 2.35, binutils can be configured with
+--enable-mips-fix-loongson3-llsc=yes, which means it defaults to
+-mfix-loongson3-llsc. This breaks labels which might then point at the
+wrong instruction.
 
-Disable the HPTLB for all XBurst CPUs with a D0 CPUID. In the case where
-there is no HPTLB (e.g. for older SoCs), this won't have any side
-effect.
+The workaround to explicitly pass -mno-fix-loongson3-llsc has been
+added in Linux version 5.1, but is only enabled when building a Loongson
+64 kernel. As vendors might use a common toolchain for building Loongson
+and non-Loongson kernels, just move that workaround to
+arch/mips/Makefile. At the same time update the comments to reflect the
+current status.
 
-Fixes: b02efeb05699 ("MIPS: Ingenic: Disable abandoned HPTLB function.")
-Cc: <stable@vger.kernel.org> # 5.4
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Cc: stable@vger.kernel.org # 5.1+
+Cc: YunQiang Su <syq@debian.org>
+Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/kernel/cpu-probe.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/mips/Makefile            |   19 +++++++++++++++++++
+ arch/mips/loongson64/Platform |   22 ----------------------
+ 2 files changed, 19 insertions(+), 22 deletions(-)
 
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1830,16 +1830,17 @@ static inline void cpu_probe_ingenic(str
- 		 */
- 		case PRID_COMP_INGENIC_D0:
- 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
--			break;
-+			fallthrough;
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(cal
+ #
+ cflags-y += -fno-stack-check
  
- 		/*
- 		 * The config0 register in the XBurst CPUs with a processor ID of
--		 * PRID_COMP_INGENIC_D1 has an abandoned huge page tlb mode, this
--		 * mode is not compatible with the MIPS standard, it will cause
--		 * tlbmiss and into an infinite loop (line 21 in the tlb-funcs.S)
--		 * when starting the init process. After chip reset, the default
--		 * is HPTLB mode, Write 0xa9000000 to cp0 register 5 sel 4 to
--		 * switch back to VTLB mode to prevent getting stuck.
-+		 * PRID_COMP_INGENIC_D0 or PRID_COMP_INGENIC_D1 has an abandoned
-+		 * huge page tlb mode, this mode is not compatible with the MIPS
-+		 * standard, it will cause tlbmiss and into an infinite loop
-+		 * (line 21 in the tlb-funcs.S) when starting the init process.
-+		 * After chip reset, the default is HPTLB mode, Write 0xa9000000
-+		 * to cp0 register 5 sel 4 to switch back to VTLB mode to prevent
-+		 * getting stuck.
- 		 */
- 		case PRID_COMP_INGENIC_D1:
- 			write_c0_page_ctrl(XBURST_PAGECTRL_HPTLB_DIS);
++# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
++# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
++# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
++# for a description).
++#
++# We disable this in order to prevent the assembler meddling with the
++# instruction that labels refer to, ie. if we label an ll instruction:
++#
++# 1: ll v0, 0(a0)
++#
++# ...then with the assembler fix applied the label may actually point at a sync
++# instruction inserted by the assembler, and if we were using the label in an
++# exception table the table would no longer contain the address of the ll
++# instruction.
++#
++# Avoid this by explicitly disabling that assembler behaviour.
++#
++cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
++
+ #
+ # CPU-dependent compiler/assembler options for optimization.
+ #
+--- a/arch/mips/loongson64/Platform
++++ b/arch/mips/loongson64/Platform
+@@ -6,28 +6,6 @@
+ cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+ 
+ #
+-# Some versions of binutils, not currently mainline as of 2019/02/04, support
+-# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
+-# to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h for a
+-# description).
+-#
+-# We disable this in order to prevent the assembler meddling with the
+-# instruction that labels refer to, ie. if we label an ll instruction:
+-#
+-# 1: ll v0, 0(a0)
+-#
+-# ...then with the assembler fix applied the label may actually point at a sync
+-# instruction inserted by the assembler, and if we were using the label in an
+-# exception table the table would no longer contain the address of the ll
+-# instruction.
+-#
+-# Avoid this by explicitly disabling that assembler behaviour. If upstream
+-# binutils does not merge support for the flag then we can revisit & remove
+-# this later - for now it ensures vendor toolchains don't cause problems.
+-#
+-cflags-$(CONFIG_CPU_LOONGSON64)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
+-
+-#
+ # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
+ # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
+ # that GCC might generate R2 code for -march=loongson3a which then is rejected
 
 
