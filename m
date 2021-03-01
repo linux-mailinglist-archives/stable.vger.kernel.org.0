@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF882328C04
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1AE328CA9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240581AbhCASnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:43:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S240747AbhCAS4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240487AbhCASjM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:39:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AD9F64FB5;
-        Mon,  1 Mar 2021 17:35:03 +0000 (UTC)
+        id S239809AbhCASuB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:50:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 747CA652AB;
+        Mon,  1 Mar 2021 17:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620104;
-        bh=lmSM0n8siN8+vSOfprrYX0alrU89oLxHOxywOPrgswM=;
+        s=korg; t=1614620049;
+        bh=79rOFTT/IovUaux/wNo6aWc/xiSNmYmvGDLS2CxSZ5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJqG78Q6mZvkan5KmEa9PcC+ay/BLrlroIkbMt7OogdJ675SpSs0iJ3YI2fH3JwM8
-         Rq29YtOQstID6YcPyfzLvaIWxNIXY/NEH8wQOVT9v2XoW2zk3M3IMKc+w0n0Wu3VXL
-         CFx62lC/vxQK9J/fUY6f9dD7bsh2CVSDFlYqS3Fc=
+        b=W0YAteETOOLmcD1oGt4mdv+DfngEi+NbyEYHeCJJ4PfLKOp6XTYZ5IRsV92XKwmJZ
+         I6s0yI/ZcqeNtDkq9E1F5yAniJhAvsNXRuMeX0ebpPK4KZgGVmQAnFSeL7UJx74Btc
+         FLsMq6wopjj3x4v5kdWHiOUOJ4/FpC92MvpwaJtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Michael Walle <michael@walle.cc>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.11 004/775] debugfs: do not attempt to create a new file before the filesystem is initalized
-Date:   Mon,  1 Mar 2021 17:02:52 +0100
-Message-Id: <20210301161201.917145633@linuxfoundation.org>
+        stable@vger.kernel.org, Ludovic Pouzenc <bugreports@pouzenc.fr>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.11 012/775] virt: vbox: Do not use wait_event_interruptible when called from kernel context
+Date:   Mon,  1 Mar 2021 17:03:00 +0100
+Message-Id: <20210301161202.316680122@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,36 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 56348560d495d2501e87db559a61de717cd3ab02 upstream.
+commit c35901b39ddc20077f4ae7b9f7bf344487f62212 upstream.
 
-Some subsystems want to add debugfs files at early boot, way before
-debugfs is initialized.  This seems to work somehow as the vfs layer
-will not allow it to happen, but let's be explicit and test to ensure we
-are properly up and running before allowing files to be created.
+Do not use wait_event_interruptible when vbg_hgcm_call() gets called from
+kernel-context, such as it being called by the vboxsf filesystem code.
 
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+This fixes some filesystem related system calls on shared folders
+unexpectedly failing with -EINTR.
+
+Fixes: 0532a1b0d045 ("virt: vbox: Implement passing requestor info to the host for VirtualBox 6.0.x")
+Reported-by: Ludovic Pouzenc <bugreports@pouzenc.fr>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Cc: stable <stable@vger.kernel.org>
-Reported-by: Michael Walle <michael@walle.cc>
-Reported-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210218100818.3622317-2-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210121150754.147598-1-hdegoede@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/inode.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/virt/vboxguest/vboxguest_utils.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -318,6 +318,9 @@ static struct dentry *start_creating(con
- 	if (!(debugfs_allow & DEBUGFS_ALLOW_API))
- 		return ERR_PTR(-EPERM);
+--- a/drivers/virt/vboxguest/vboxguest_utils.c
++++ b/drivers/virt/vboxguest/vboxguest_utils.c
+@@ -468,7 +468,7 @@ static int hgcm_cancel_call(struct vbg_d
+  *               Cancellation fun.
+  */
+ static int vbg_hgcm_do_call(struct vbg_dev *gdev, struct vmmdev_hgcm_call *call,
+-			    u32 timeout_ms, bool *leak_it)
++			    u32 timeout_ms, bool interruptible, bool *leak_it)
+ {
+ 	int rc, cancel_rc, ret;
+ 	long timeout;
+@@ -495,10 +495,15 @@ static int vbg_hgcm_do_call(struct vbg_d
+ 	else
+ 		timeout = msecs_to_jiffies(timeout_ms);
  
-+	if (!debugfs_initialized())
-+		return ERR_PTR(-ENOENT);
-+
- 	pr_debug("creating file '%s'\n", name);
+-	timeout = wait_event_interruptible_timeout(
+-					gdev->hgcm_wq,
+-					hgcm_req_done(gdev, &call->header),
+-					timeout);
++	if (interruptible) {
++		timeout = wait_event_interruptible_timeout(gdev->hgcm_wq,
++							   hgcm_req_done(gdev, &call->header),
++							   timeout);
++	} else {
++		timeout = wait_event_timeout(gdev->hgcm_wq,
++					     hgcm_req_done(gdev, &call->header),
++					     timeout);
++	}
  
- 	if (IS_ERR(parent))
+ 	/* timeout > 0 means hgcm_req_done has returned true, so success */
+ 	if (timeout > 0)
+@@ -631,7 +636,8 @@ int vbg_hgcm_call(struct vbg_dev *gdev,
+ 	hgcm_call_init_call(call, client_id, function, parms, parm_count,
+ 			    bounce_bufs);
+ 
+-	ret = vbg_hgcm_do_call(gdev, call, timeout_ms, &leak_it);
++	ret = vbg_hgcm_do_call(gdev, call, timeout_ms,
++			       requestor & VMMDEV_REQUESTOR_USERMODE, &leak_it);
+ 	if (ret == 0) {
+ 		*vbox_status = call->header.result;
+ 		ret = hgcm_call_copy_back_result(call, parms, parm_count,
 
 
