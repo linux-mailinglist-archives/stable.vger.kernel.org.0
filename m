@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA19329130
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A269D329131
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243006AbhCAUVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:21:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39932 "EHLO mail.kernel.org"
+        id S240596AbhCAUVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:21:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238029AbhCAUNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238669AbhCAUNx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:13:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF22B653CE;
-        Mon,  1 Mar 2021 18:02:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F4A653CF;
+        Mon,  1 Mar 2021 18:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621723;
-        bh=W1hm5GIBYobn9uPDOazvxq3tsbEPdmM9atw7OTl5GQk=;
+        s=korg; t=1614621726;
+        bh=T1pp/baZMyBm9ebUv0FYbUIXiA0F/tVQAKGSVMsPi5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsyGJkhEVz9MqsLQLjnyHr6Itw4hAlErZYtLhjIgzBTHG2cN8Rsg+D5GoxdMDF9NN
-         mQGYAuuSMTWepbk6G7EXWoqGF90S8ZI3TzakG9KyblZR5KU0wC3WIQOj7MyIGzwS3f
-         hIkftktxJem5iVvI/v0VhgdrusuQwFvR+grwrxdk=
+        b=VK2k8FGdEbZKJSji+Egylcjyy5JYRsHGt283Uhf3lfjje45lXddQbb2Go26in9Z7n
+         mzZv8adijVdqR10o/C52IRp/WTpscY5vO2IoWzqVHjqfm202KKlmEGkZ1wunLkdTza
+         1GdmftFrKkNKuJ5TAu/Q3Up4MS2A0mMLSMmz+jH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.11 620/775] drm/ttm: Fix a memory leak
-Date:   Mon,  1 Mar 2021 17:13:08 +0100
-Message-Id: <20210301161232.033918458@linuxfoundation.org>
+        stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Mark Pearson <markpearson@lenovo.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.11 621/775] drm/nouveau/kms: handle mDP connectors
+Date:   Mon,  1 Mar 2021 17:13:09 +0100
+Message-Id: <20210301161232.084425546@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,59 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Karol Herbst <kherbst@redhat.com>
 
-commit 7a8a4b0729a8807e37196e44629b31ee03f88872 upstream.
+commit d1f5a3fc85566e9ddce9361ef180f070367e6eab upstream.
 
-Free the memory on failure.
-Also no need to re-alloc memory on retry.
+In some cases we have the handle those explicitly as the fallback
+connector type detection fails and marks those as eDP connectors.
 
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210219042547.44855-1-xinhui.pan@amd.com
-Reviewed-by: Christian König <christian.koenig@amd.com>
-CC: stable@vger.kernel.org # 5.11
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Attempting to use such a connector with mutter leads to a crash of mutter
+as it ends up with two eDP displays.
+
+Information is taken from the official DCB documentation.
+
+Cc: stable@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: Ben Skeggs <bskeggs@redhat.com>
+Reported-by: Mark Pearson <markpearson@lenovo.com>
+Tested-by: Mark Pearson <markpearson@lenovo.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ttm/ttm_bo.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h |    1 +
+ drivers/gpu/drm/nouveau/nouveau_connector.c             |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/ttm/ttm_bo.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo.c
-@@ -967,8 +967,10 @@ static int ttm_bo_bounce_temp_buffer(str
- 		return ret;
- 	/* move to the bounce domain */
- 	ret = ttm_bo_handle_move_mem(bo, &hop_mem, false, ctx, NULL);
--	if (ret)
-+	if (ret) {
-+		ttm_resource_free(bo, &hop_mem);
- 		return ret;
-+	}
- 	return 0;
- }
- 
-@@ -1000,18 +1002,19 @@ static int ttm_bo_move_buffer(struct ttm
- 	 * stop and the driver will be called to make
- 	 * the second hop.
- 	 */
--bounce:
- 	ret = ttm_bo_mem_space(bo, placement, &mem, ctx);
- 	if (ret)
- 		return ret;
-+bounce:
- 	ret = ttm_bo_handle_move_mem(bo, &mem, false, ctx, &hop);
- 	if (ret == -EMULTIHOP) {
- 		ret = ttm_bo_bounce_temp_buffer(bo, &mem, ctx, &hop);
- 		if (ret)
--			return ret;
-+			goto out;
- 		/* try and move to final place now. */
- 		goto bounce;
- 	}
-+out:
- 	if (ret)
- 		ttm_resource_free(bo, &mem);
- 	return ret;
+--- a/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
++++ b/drivers/gpu/drm/nouveau/include/nvkm/subdev/bios/conn.h
+@@ -14,6 +14,7 @@ enum dcb_connector_type {
+ 	DCB_CONNECTOR_LVDS_SPWG = 0x41,
+ 	DCB_CONNECTOR_DP = 0x46,
+ 	DCB_CONNECTOR_eDP = 0x47,
++	DCB_CONNECTOR_mDP = 0x48,
+ 	DCB_CONNECTOR_HDMI_0 = 0x60,
+ 	DCB_CONNECTOR_HDMI_1 = 0x61,
+ 	DCB_CONNECTOR_HDMI_C = 0x63,
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -1210,6 +1210,7 @@ drm_conntype_from_dcb(enum dcb_connector
+ 	case DCB_CONNECTOR_DMS59_DP0:
+ 	case DCB_CONNECTOR_DMS59_DP1:
+ 	case DCB_CONNECTOR_DP       :
++	case DCB_CONNECTOR_mDP      :
+ 	case DCB_CONNECTOR_USB_C    : return DRM_MODE_CONNECTOR_DisplayPort;
+ 	case DCB_CONNECTOR_eDP      : return DRM_MODE_CONNECTOR_eDP;
+ 	case DCB_CONNECTOR_HDMI_0   :
 
 
