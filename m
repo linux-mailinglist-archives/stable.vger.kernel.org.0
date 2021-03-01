@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A9E328841
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C330032883D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237677AbhCARhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:37:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54264 "EHLO mail.kernel.org"
+        id S234647AbhCARgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:36:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232328AbhCAR3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:29:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8A8164FAA;
-        Mon,  1 Mar 2021 16:52:04 +0000 (UTC)
+        id S237022AbhCAR3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:29:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90EA364FA9;
+        Mon,  1 Mar 2021 16:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617525;
-        bh=uOr/pal+EAvjgJQuUFSGE56lUbDijpldKkbxEcaGn0I=;
+        s=korg; t=1614617528;
+        bh=faMhqg7MTXA7pMuXGSSphENxSm56Mt6CGd7TSgtR5TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=io/DvFpBlxSUKTCYqra1PzUAltWmnbcTDBQ+U/hXd1BmpwIV/oM0FfDHWG8Xh2kCo
-         zVAZaK3rgf/CkXAfHY5Hzwb7rS8MBjRUmJ+QasQXA8ZRsVOo1aIscTV3sfl3cs00CL
-         S9s7QxXVf1+EdZiFBBHWOhvDSPEd3pkdNU/k7gDI=
+        b=X6+oOSXUVF7dI/k8llAhSzAuuEKA48QTyyRy1KvREFtiBI+IreMrCYuuJXM6QbSvT
+         sTX1PFluJvy6aNwjDtdvs5YiNmfcSvWB0DUasomaba5pyKpDEIYX7XPzw7VAWMnduh
+         rue2LMifivd1wykpFigduKnjd76XNaYCTBHK+H+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Frantisek Hrbata <frantisek@hrbata.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/340] crypto: talitos - Work around SEC6 ERRATA (AES-CTR mode data size error)
-Date:   Mon,  1 Mar 2021 17:10:49 +0100
-Message-Id: <20210301161053.498588303@linuxfoundation.org>
+Subject: [PATCH 5.4 106/340] drm/nouveau: bail out of nouveau_channel_new if channel init fails
+Date:   Mon,  1 Mar 2021 17:10:50 +0100
+Message-Id: <20210301161053.550771990@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,157 +41,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Frantisek Hrbata <frantisek@hrbata.com>
 
-[ Upstream commit 416b846757bcea20006a9197e67ba3a8b5b2a680 ]
+[ Upstream commit eaba3b28401f50e22d64351caa8afe8d29509f27 ]
 
-Talitos Security Engine AESU considers any input
-data size that is not a multiple of 16 bytes to be an error.
-This is not a problem in general, except for Counter mode
-that is a stream cipher and can have an input of any size.
+Unprivileged user can crash kernel by using DRM_IOCTL_NOUVEAU_CHANNEL_ALLOC
+ioctl. This was reported by trinity[1] fuzzer.
 
-Test Manager for ctr(aes) fails on 4th test vector which has
-a length of 499 while all previous vectors which have a 16 bytes
-multiple length succeed.
+[   71.073906] nouveau 0000:01:00.0: crashme[1329]: channel failed to initialise, -17
+[   71.081730] BUG: kernel NULL pointer dereference, address: 00000000000000a0
+[   71.088928] #PF: supervisor read access in kernel mode
+[   71.094059] #PF: error_code(0x0000) - not-present page
+[   71.099189] PGD 119590067 P4D 119590067 PUD 1054f5067 PMD 0
+[   71.104842] Oops: 0000 [#1] SMP NOPTI
+[   71.108498] CPU: 2 PID: 1329 Comm: crashme Not tainted 5.8.0-rc6+ #2
+[   71.114993] Hardware name: AMD Pike/Pike, BIOS RPK1506A 09/03/2014
+[   71.121213] RIP: 0010:nouveau_abi16_ioctl_channel_alloc+0x108/0x380 [nouveau]
+[   71.128339] Code: 48 89 9d f0 00 00 00 41 8b 4c 24 04 41 8b 14 24 45 31 c0 4c 8d 4b 10 48 89 ee 4c 89 f7 e8 10 11 00 00 85 c0 75 78 48 8b 43 10 <8b> 90 a0 00 00 00 41 89 54 24 08 80 7d 3d 05 0f 86 bb 01 00 00 41
+[   71.147074] RSP: 0018:ffffb4a1809cfd38 EFLAGS: 00010246
+[   71.152526] RAX: 0000000000000000 RBX: ffff98cedbaa1d20 RCX: 00000000000003bf
+[   71.159651] RDX: 00000000000003be RSI: 0000000000000000 RDI: 0000000000030160
+[   71.166774] RBP: ffff98cee776de00 R08: ffffdc0144198a08 R09: ffff98ceeefd4000
+[   71.173901] R10: ffff98cee7e81780 R11: 0000000000000001 R12: ffffb4a1809cfe08
+[   71.181214] R13: ffff98cee776d000 R14: ffff98cec519e000 R15: ffff98cee776def0
+[   71.188339] FS:  00007fd926250500(0000) GS:ffff98ceeac80000(0000) knlGS:0000000000000000
+[   71.196418] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   71.202155] CR2: 00000000000000a0 CR3: 0000000106622000 CR4: 00000000000406e0
+[   71.209297] Call Trace:
+[   71.211777]  ? nouveau_abi16_ioctl_getparam+0x1f0/0x1f0 [nouveau]
+[   71.218053]  drm_ioctl_kernel+0xac/0xf0 [drm]
+[   71.222421]  drm_ioctl+0x211/0x3c0 [drm]
+[   71.226379]  ? nouveau_abi16_ioctl_getparam+0x1f0/0x1f0 [nouveau]
+[   71.232500]  nouveau_drm_ioctl+0x57/0xb0 [nouveau]
+[   71.237285]  ksys_ioctl+0x86/0xc0
+[   71.240595]  __x64_sys_ioctl+0x16/0x20
+[   71.244340]  do_syscall_64+0x4c/0x90
+[   71.248110]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   71.253162] RIP: 0033:0x7fd925d4b88b
+[   71.256731] Code: Bad RIP value.
+[   71.259955] RSP: 002b:00007ffc743592d8 EFLAGS: 00000206 ORIG_RAX: 0000000000000010
+[   71.267514] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fd925d4b88b
+[   71.274637] RDX: 0000000000601080 RSI: 00000000c0586442 RDI: 0000000000000003
+[   71.281986] RBP: 00007ffc74359340 R08: 00007fd926016ce0 R09: 00007fd926016ce0
+[   71.289111] R10: 0000000000000003 R11: 0000000000000206 R12: 0000000000400620
+[   71.296235] R13: 00007ffc74359420 R14: 0000000000000000 R15: 0000000000000000
+[   71.303361] Modules linked in: rfkill sunrpc snd_hda_codec_realtek snd_hda_codec_generic ledtrig_audio snd_hda_intel snd_intel_dspcfg snd_hda_codec snd_hda_core edac_mce_amd snd_hwdep kvm_amd snd_seq ccp snd_seq_device snd_pcm kvm snd_timer snd irqbypass soundcore sp5100_tco pcspkr crct10dif_pclmul crc32_pclmul ghash_clmulni_intel wmi_bmof joydev i2c_piix4 fam15h_power k10temp acpi_cpufreq ip_tables xfs libcrc32c sd_mod t10_pi sg nouveau video mxm_wmi i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops ttm broadcom bcm_phy_lib ata_generic ahci drm e1000 crc32c_intel libahci serio_raw tg3 libata firewire_ohci firewire_core wmi crc_itu_t dm_mirror dm_region_hash dm_log dm_mod
+[   71.365269] CR2: 00000000000000a0
 
-As suggested by Freescale, round up the input data length to the
-nearest 16 bytes.
+simplified reproducer
+---------------------------------8<----------------------------------------
+/*
+ * gcc -o crashme crashme.c
+ * ./crashme /dev/dri/renderD128
+ */
 
-Fixes: 5e75ae1b3cef ("crypto: talitos - add new crypto modes")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+struct drm_nouveau_channel_alloc {
+	uint32_t     fb_ctxdma_handle;
+	uint32_t     tt_ctxdma_handle;
+
+	int          channel;
+	uint32_t     pushbuf_domains;
+
+	/* Notifier memory */
+	uint32_t     notifier_handle;
+
+	/* DRM-enforced subchannel assignments */
+	struct {
+		uint32_t handle;
+		uint32_t grclass;
+	} subchan[8];
+	uint32_t nr_subchan;
+};
+
+static struct drm_nouveau_channel_alloc channel;
+
+int main(int argc, char *argv[]) {
+	int fd;
+	int rv;
+
+	if (argc != 2)
+		die("usage: %s <dev>", 0, argv[0]);
+
+	if ((fd = open(argv[1], O_RDONLY)) == -1)
+		die("open %s", errno, argv[1]);
+
+	if (ioctl(fd, DRM_IOCTL_NOUVEAU_CHANNEL_ALLOC, &channel) == -1 &&
+			errno == EACCES)
+		die("ioctl %s", errno, argv[1]);
+
+	close(fd);
+
+	printf("PASS\n");
+
+	return 0;
+}
+---------------------------------8<----------------------------------------
+
+[1] https://github.com/kernelslacker/trinity
+
+Fixes: eeaf06ac1a55 ("drm/nouveau/svm: initial support for shared virtual memory")
+Signed-off-by: Frantisek Hrbata <frantisek@hrbata.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/talitos.c | 28 ++++++++++++++++------------
- drivers/crypto/talitos.h |  1 +
- 2 files changed, 17 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_chan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
-index b7c66fc0ae0c2..8ef6e93e43f3c 100644
---- a/drivers/crypto/talitos.c
-+++ b/drivers/crypto/talitos.c
-@@ -1097,11 +1097,12 @@ static void ipsec_esp_decrypt_hwauth_done(struct device *dev,
-  */
- static int sg_to_link_tbl_offset(struct scatterlist *sg, int sg_count,
- 				 unsigned int offset, int datalen, int elen,
--				 struct talitos_ptr *link_tbl_ptr)
-+				 struct talitos_ptr *link_tbl_ptr, int align)
- {
- 	int n_sg = elen ? sg_count + 1 : sg_count;
- 	int count = 0;
- 	int cryptlen = datalen + elen;
-+	int padding = ALIGN(cryptlen, align) - cryptlen;
- 
- 	while (cryptlen && sg && n_sg--) {
- 		unsigned int len = sg_dma_len(sg);
-@@ -1125,7 +1126,7 @@ static int sg_to_link_tbl_offset(struct scatterlist *sg, int sg_count,
- 			offset += datalen;
- 		}
- 		to_talitos_ptr(link_tbl_ptr + count,
--			       sg_dma_address(sg) + offset, len, 0);
-+			       sg_dma_address(sg) + offset, sg_next(sg) ? len : len + padding, 0);
- 		to_talitos_ptr_ext_set(link_tbl_ptr + count, 0, 0);
- 		count++;
- 		cryptlen -= len;
-@@ -1148,10 +1149,11 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
- 			      unsigned int len, struct talitos_edesc *edesc,
- 			      struct talitos_ptr *ptr, int sg_count,
- 			      unsigned int offset, int tbl_off, int elen,
--			      bool force)
-+			      bool force, int align)
- {
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	bool is_sec1 = has_ftr_sec1(priv);
-+	int aligned_len = ALIGN(len, align);
- 
- 	if (!src) {
- 		to_talitos_ptr(ptr, 0, 0, is_sec1);
-@@ -1159,22 +1161,22 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
+diff --git a/drivers/gpu/drm/nouveau/nouveau_chan.c b/drivers/gpu/drm/nouveau/nouveau_chan.c
+index 282fd90b65e13..9ce7b0d4b8764 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_chan.c
++++ b/drivers/gpu/drm/nouveau/nouveau_chan.c
+@@ -497,6 +497,7 @@ nouveau_channel_new(struct nouveau_drm *drm, struct nvif_device *device,
+ 	if (ret) {
+ 		NV_PRINTK(err, cli, "channel failed to initialise, %d\n", ret);
+ 		nouveau_channel_del(pchan);
++		goto done;
  	}
- 	to_talitos_ptr_ext_set(ptr, elen, is_sec1);
- 	if (sg_count == 1 && !force) {
--		to_talitos_ptr(ptr, sg_dma_address(src) + offset, len, is_sec1);
-+		to_talitos_ptr(ptr, sg_dma_address(src) + offset, aligned_len, is_sec1);
- 		return sg_count;
- 	}
- 	if (is_sec1) {
--		to_talitos_ptr(ptr, edesc->dma_link_tbl + offset, len, is_sec1);
-+		to_talitos_ptr(ptr, edesc->dma_link_tbl + offset, aligned_len, is_sec1);
- 		return sg_count;
- 	}
- 	sg_count = sg_to_link_tbl_offset(src, sg_count, offset, len, elen,
--					 &edesc->link_tbl[tbl_off]);
-+					 &edesc->link_tbl[tbl_off], align);
- 	if (sg_count == 1 && !force) {
- 		/* Only one segment now, so no link tbl needed*/
- 		copy_talitos_ptr(ptr, &edesc->link_tbl[tbl_off], is_sec1);
- 		return sg_count;
- 	}
- 	to_talitos_ptr(ptr, edesc->dma_link_tbl +
--			    tbl_off * sizeof(struct talitos_ptr), len, is_sec1);
-+			    tbl_off * sizeof(struct talitos_ptr), aligned_len, is_sec1);
- 	to_talitos_ptr_ext_or(ptr, DESC_PTR_LNKTBL_JUMP, is_sec1);
  
- 	return sg_count;
-@@ -1186,7 +1188,7 @@ static int talitos_sg_map(struct device *dev, struct scatterlist *src,
- 			  unsigned int offset, int tbl_off)
- {
- 	return talitos_sg_map_ext(dev, src, len, edesc, ptr, sg_count, offset,
--				  tbl_off, 0, false);
-+				  tbl_off, 0, false, 1);
- }
- 
- /*
-@@ -1255,7 +1257,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
- 
- 	ret = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[4],
- 				 sg_count, areq->assoclen, tbl_off, elen,
--				 false);
-+				 false, 1);
- 
- 	if (ret > 1) {
- 		tbl_off += ret;
-@@ -1275,7 +1277,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
- 		elen = 0;
- 	ret = talitos_sg_map_ext(dev, areq->dst, cryptlen, edesc, &desc->ptr[5],
- 				 sg_count, areq->assoclen, tbl_off, elen,
--				 is_ipsec_esp && !encrypt);
-+				 is_ipsec_esp && !encrypt, 1);
- 	tbl_off += ret;
- 
- 	if (!encrypt && is_ipsec_esp) {
-@@ -1583,6 +1585,8 @@ static int common_nonsnoop(struct talitos_edesc *edesc,
- 	bool sync_needed = false;
- 	struct talitos_private *priv = dev_get_drvdata(dev);
- 	bool is_sec1 = has_ftr_sec1(priv);
-+	bool is_ctr = (desc->hdr & DESC_HDR_SEL0_MASK) == DESC_HDR_SEL0_AESU &&
-+		      (desc->hdr & DESC_HDR_MODE0_AESU_MASK) == DESC_HDR_MODE0_AESU_CTR;
- 
- 	/* first DWORD empty */
- 
-@@ -1603,8 +1607,8 @@ static int common_nonsnoop(struct talitos_edesc *edesc,
- 	/*
- 	 * cipher in
- 	 */
--	sg_count = talitos_sg_map(dev, areq->src, cryptlen, edesc,
--				  &desc->ptr[3], sg_count, 0, 0);
-+	sg_count = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[3],
-+				      sg_count, 0, 0, 0, false, is_ctr ? 16 : 1);
- 	if (sg_count > 1)
- 		sync_needed = true;
- 
-diff --git a/drivers/crypto/talitos.h b/drivers/crypto/talitos.h
-index 1469b956948ab..32825119e8805 100644
---- a/drivers/crypto/talitos.h
-+++ b/drivers/crypto/talitos.h
-@@ -344,6 +344,7 @@ static inline bool has_ftr_sec1(struct talitos_private *priv)
- 
- /* primary execution unit mode (MODE0) and derivatives */
- #define	DESC_HDR_MODE0_ENCRYPT		cpu_to_be32(0x00100000)
-+#define	DESC_HDR_MODE0_AESU_MASK	cpu_to_be32(0x00600000)
- #define	DESC_HDR_MODE0_AESU_CBC		cpu_to_be32(0x00200000)
- #define	DESC_HDR_MODE0_AESU_CTR		cpu_to_be32(0x00600000)
- #define	DESC_HDR_MODE0_DEU_CBC		cpu_to_be32(0x00400000)
+ 	ret = nouveau_svmm_join((*pchan)->vmm->svmm, (*pchan)->inst);
 -- 
 2.27.0
 
