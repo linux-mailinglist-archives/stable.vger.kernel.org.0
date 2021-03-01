@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0B0329158
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D447432915D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:26:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238045AbhCAUYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:24:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S238462AbhCAUY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:24:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243160AbhCAUSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:18:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0039A6504D;
-        Mon,  1 Mar 2021 18:03:43 +0000 (UTC)
+        id S243187AbhCAUSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:18:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC60264E6B;
+        Mon,  1 Mar 2021 18:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621824;
-        bh=AeM1sUaPQEBLlCCsPmlL8E90/x6jk0T8/zUba93pCt0=;
+        s=korg; t=1614621827;
+        bh=r2VPzvxFEFbMQ68XySd8NpVTfVBPBlK55qBkXmb97wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnC06hQbjFLhWBxnSICFl5uQP6Y1AUN/cU4IUEaRshoT47c/XCujbfp9Q0RR1grtW
-         xa81zqy+fVKJsTepyuAuG9jjt5vXquiw+HOAgcAF7rljKghGr1EdJE6sLu9up7m8El
-         wbmsBJBp8SGn5uXJxf+lTqAyUpSNDhekvQCT2s6s=
+        b=VCYFan0MPR6JBPyS9qAqO68EkroO1g3RHJc1FbiCjTTkrZheiEUTqmCTyPOx8DuAM
+         DEkKl7/xFbcmm0NG6gP0y61FKMisJpvwHYn+ghDZziqFady52fyTy5/ptRQEL8gBy1
+         BYXlCBIdbSQcSczyDZY/RNjMZ680efd/1mjsLjKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricky Wu <ricky_wu@realtek.com>
-Subject: [PATCH 5.11 656/775] misc: rtsx: init of rts522a add OCP power off when no card is present
-Date:   Mon,  1 Mar 2021 17:13:44 +0100
-Message-Id: <20210301161233.800668160@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Subject: [PATCH 5.11 657/775] drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
+Date:   Mon,  1 Mar 2021 17:13:45 +0100
+Message-Id: <20210301161233.849311774@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -38,34 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricky Wu <ricky_wu@realtek.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-commit 920fd8a70619074eac7687352c8f1c6f3c2a64a5 upstream.
+commit 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e upstream.
 
-Power down OCP for power consumption
-when no SD/MMC card is present
+syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
+when num_pages is 0x100001, giving queue_size + queue_page_size
+bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
+condition.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ricky Wu <ricky_wu@realtek.com>
-Link: https://lore.kernel.org/r/20210204083115.9471-1-ricky_wu@realtek.com
+queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
+
+[1]
+Call Trace:
+ alloc_pages include/linux/gfp.h:547 [inline]
+ kmalloc_order+0x40/0x130 mm/slab_common.c:837
+ kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
+ kmalloc_large include/linux/slab.h:481 [inline]
+ __kmalloc+0x257/0x330 mm/slub.c:3959
+ kmalloc include/linux/slab.h:557 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
+ qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
+ qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
+
+Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/cardreader/rts5227.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/misc/cardreader/rts5227.c
-+++ b/drivers/misc/cardreader/rts5227.c
-@@ -398,6 +398,11 @@ static int rts522a_extra_init_hw(struct
- {
- 	rts5227_extra_init_hw(pcr);
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -537,6 +537,9 @@ static struct vmci_queue *qp_host_alloc_
  
-+	/* Power down OCP for power consumption */
-+	if (!pcr->card_exist)
-+		rtsx_pci_write_register(pcr, FPDCTL, OC_POWER_DOWN,
-+				OC_POWER_DOWN);
+ 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
+ 
++	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
++		return NULL;
 +
- 	rtsx_pci_write_register(pcr, FUNC_FORCE_CTL, FUNC_FORCE_UPME_XMT_DBG,
- 		FUNC_FORCE_UPME_XMT_DBG);
- 	rtsx_pci_write_register(pcr, PCLK_CTL, 0x04, 0x04);
+ 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
+ 	if (queue) {
+ 		queue->q_header = NULL;
 
 
