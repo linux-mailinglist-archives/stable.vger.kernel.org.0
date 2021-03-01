@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1677A329223
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A4B32921A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236731AbhCAUjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:39:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51900 "EHLO mail.kernel.org"
+        id S243655AbhCAUiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:38:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243508AbhCAUdX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:33:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9727C64F15;
-        Mon,  1 Mar 2021 18:09:10 +0000 (UTC)
+        id S243437AbhCAUc6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:32:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 353296503F;
+        Mon,  1 Mar 2021 18:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622151;
-        bh=Un2jYswws1ByDrwhtiyuuxeMrwd3O2Oegrx4yVkBNpI=;
+        s=korg; t=1614622153;
+        bh=SOAigHL47hsULGlPPzpozP3UHX5sHtQj1aRe3XJC67U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQbo2sxy0YHu3/rzuIPxAqX4ya3ZhnvxrLE72K8TIgIelXYZ5dFZhQQDylo8BcPzt
-         +s1Ksxhur+OAGJwP/V4gV8ZZqhS3Cv0+IvIAhRea4DGoOYO8pxsB5vF+F1sqxQ3N5v
-         qrcrMR5rqfk2uqERl0sN39p6mHNrwYkJEHtipmtY=
+        b=xDUFWyt1SyT5jpV2yRem3f5m3ovrqVX4byzJDnIjSRx5c0vOLknzjfmVq+RqKrych
+         qTRg2xCYUUGR86ekOYOih5kPy3JRW7powJBDz13yfjwjCVI+e2mSsphoeChK3hpK+w
+         iKa5vZ23I9XOGrkIdooM6SbpV9Rj5WhbMkfAM2ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 759/775] dm writecache: fix writing beyond end of underlying device when shrinking
-Date:   Mon,  1 Mar 2021 17:15:27 +0100
-Message-Id: <20210301161238.826785617@linuxfoundation.org>
+Subject: [PATCH 5.11 760/775] dm era: Recover committed writeset after crash
+Date:   Mon,  1 Mar 2021 17:15:28 +0100
+Message-Id: <20210301161238.873135358@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,78 +39,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Nikos Tsironis <ntsironis@arrikto.com>
 
-commit 4134455f2aafdfeab50cabb4cccb35e916034b93 upstream.
+commit de89afc1e40fdfa5f8b666e5d07c43d21a1d3be0 upstream.
 
-Do not attempt to write any data beyond the end of the underlying data
-device while shrinking it.
+Following a system crash, dm-era fails to recover the committed writeset
+for the current era, leading to lost writes. That is, we lose the
+information about what blocks were written during the affected era.
 
-The DM writecache device must be suspended when the underlying data
-device is shrunk.
+dm-era assumes that the writeset of the current era is archived when the
+device is suspended. So, when resuming the device, it just moves on to
+the next era, ignoring the committed writeset.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
+This assumption holds when the device is properly shut down. But, when
+the system crashes, the code that suspends the target never runs, so the
+writeset for the current era is not archived.
+
+There are three issues that cause the committed writeset to get lost:
+
+1. dm-era doesn't load the committed writeset when opening the metadata
+2. The code that resizes the metadata wipes the information about the
+   committed writeset (assuming it was loaded at step 1)
+3. era_preresume() starts a new era, without taking into account that
+   the current era might not have been archived, due to a system crash.
+
+To fix this:
+
+1. Load the committed writeset when opening the metadata
+2. Fix the code that resizes the metadata to make sure it doesn't wipe
+   the loaded writeset
+3. Fix era_preresume() to check for a loaded writeset and archive it,
+   before starting a new era.
+
+Fixes: eec40579d84873 ("dm: add era target")
+Cc: stable@vger.kernel.org # v3.15+
+Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-writecache.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/md/dm-era-target.c |   17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -148,6 +148,7 @@ struct dm_writecache {
- 	size_t metadata_sectors;
- 	size_t n_blocks;
- 	uint64_t seq_count;
-+	sector_t data_device_sectors;
- 	void *block_start;
- 	struct wc_entry *entries;
- 	unsigned block_size;
-@@ -977,6 +978,8 @@ static void writecache_resume(struct dm_
+--- a/drivers/md/dm-era-target.c
++++ b/drivers/md/dm-era-target.c
+@@ -71,8 +71,6 @@ static size_t bitset_size(unsigned nr_bi
+  */
+ static int writeset_alloc(struct writeset *ws, dm_block_t nr_blocks)
+ {
+-	ws->md.nr_bits = nr_blocks;
+-	ws->md.root = INVALID_WRITESET_ROOT;
+ 	ws->bits = vzalloc(bitset_size(nr_blocks));
+ 	if (!ws->bits) {
+ 		DMERR("%s: couldn't allocate in memory bitset", __func__);
+@@ -85,12 +83,14 @@ static int writeset_alloc(struct writese
+ /*
+  * Wipes the in-core bitset, and creates a new on disk bitset.
+  */
+-static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws)
++static int writeset_init(struct dm_disk_bitset *info, struct writeset *ws,
++			 dm_block_t nr_blocks)
+ {
+ 	int r;
  
- 	wc_lock(wc);
+-	memset(ws->bits, 0, bitset_size(ws->md.nr_bits));
++	memset(ws->bits, 0, bitset_size(nr_blocks));
  
-+	wc->data_device_sectors = i_size_read(wc->dev->bdev->bd_inode) >> SECTOR_SHIFT;
-+
- 	if (WC_MODE_PMEM(wc)) {
- 		persistent_memory_invalidate_cache(wc->memory_map, wc->memory_map_size);
- 	} else {
-@@ -1646,6 +1649,10 @@ static bool wc_add_block(struct writebac
- 	void *address = memory_data(wc, e);
++	ws->md.nr_bits = nr_blocks;
+ 	r = setup_on_disk_bitset(info, ws->md.nr_bits, &ws->md.root);
+ 	if (r) {
+ 		DMERR("%s: setup_on_disk_bitset failed", __func__);
+@@ -579,6 +579,7 @@ static int open_metadata(struct era_meta
+ 	md->nr_blocks = le32_to_cpu(disk->nr_blocks);
+ 	md->current_era = le32_to_cpu(disk->current_era);
  
- 	persistent_memory_flush_cache(address, block_size);
-+
-+	if (unlikely(bio_end_sector(&wb->bio) >= wc->data_device_sectors))
-+		return true;
-+
- 	return bio_add_page(&wb->bio, persistent_memory_page(address),
- 			    block_size, persistent_memory_page_offset(address)) != 0;
- }
-@@ -1717,6 +1724,9 @@ static void __writecache_writeback_pmem(
- 		if (writecache_has_error(wc)) {
- 			bio->bi_status = BLK_STS_IOERR;
- 			bio_endio(bio);
-+		} else if (unlikely(!bio_sectors(bio))) {
-+			bio->bi_status = BLK_STS_OK;
-+			bio_endio(bio);
- 		} else {
- 			submit_bio(bio);
- 		}
-@@ -1760,6 +1770,14 @@ static void __writecache_writeback_ssd(s
- 			e = f;
- 		}
++	ws_unpack(&disk->current_writeset, &md->current_writeset->md);
+ 	md->writeset_tree_root = le64_to_cpu(disk->writeset_tree_root);
+ 	md->era_array_root = le64_to_cpu(disk->era_array_root);
+ 	md->metadata_snap = le64_to_cpu(disk->metadata_snap);
+@@ -870,7 +871,6 @@ static int metadata_era_archive(struct e
+ 	}
  
-+		if (unlikely(to.sector + to.count > wc->data_device_sectors)) {
-+			if (to.sector >= wc->data_device_sectors) {
-+				writecache_copy_endio(0, 0, c);
-+				continue;
-+			}
-+			from.count = to.count = wc->data_device_sectors - to.sector;
-+		}
-+
- 		dm_kcopyd_copy(wc->dm_kcopyd, &from, 1, &to, 0, writecache_copy_endio, c);
+ 	ws_pack(&md->current_writeset->md, &value);
+-	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
  
- 		__writeback_throttle(wc, wbl);
+ 	keys[0] = md->current_era;
+ 	__dm_bless_for_disk(&value);
+@@ -882,6 +882,7 @@ static int metadata_era_archive(struct e
+ 		return r;
+ 	}
+ 
++	md->current_writeset->md.root = INVALID_WRITESET_ROOT;
+ 	md->archived_writesets = true;
+ 
+ 	return 0;
+@@ -898,7 +899,7 @@ static int metadata_new_era(struct era_m
+ 	int r;
+ 	struct writeset *new_writeset = next_writeset(md);
+ 
+-	r = writeset_init(&md->bitset_info, new_writeset);
++	r = writeset_init(&md->bitset_info, new_writeset, md->nr_blocks);
+ 	if (r) {
+ 		DMERR("%s: writeset_init failed", __func__);
+ 		return r;
+@@ -951,7 +952,7 @@ static int metadata_commit(struct era_me
+ 	int r;
+ 	struct dm_block *sblock;
+ 
+-	if (md->current_writeset->md.root != SUPERBLOCK_LOCATION) {
++	if (md->current_writeset->md.root != INVALID_WRITESET_ROOT) {
+ 		r = dm_bitset_flush(&md->bitset_info, md->current_writeset->md.root,
+ 				    &md->current_writeset->md.root);
+ 		if (r) {
+@@ -1565,7 +1566,7 @@ static int era_preresume(struct dm_targe
+ 
+ 	start_worker(era);
+ 
+-	r = in_worker0(era, metadata_new_era);
++	r = in_worker0(era, metadata_era_rollover);
+ 	if (r) {
+ 		DMERR("%s: metadata_era_rollover failed", __func__);
+ 		return r;
 
 
