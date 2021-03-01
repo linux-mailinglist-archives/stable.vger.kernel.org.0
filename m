@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B30F3285EB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74288328777
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236561AbhCARAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:00:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54002 "EHLO mail.kernel.org"
+        id S238240AbhCARYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:24:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235503AbhCAQyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:54:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36A1464F59;
-        Mon,  1 Mar 2021 16:34:44 +0000 (UTC)
+        id S238035AbhCARS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:18:29 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC9C64EBE;
+        Mon,  1 Mar 2021 16:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616484;
-        bh=/HHHEAURaIWnwAXG4Ir+ZuS7Q8itwrj9biVWrqa6Vg0=;
+        s=korg; t=1614617205;
+        bh=GoN/ez8d53JBJoTOnaBAX2eFBXESWRbKo7b1nIeshwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWM8n32OYBz8b9vZ96x1ITuWuJhx+qA6fvUX++E47cRWz/YnIEN8TOcMkK48cilLu
-         2rB8K84PlIJE07VjruFY5wrLb9xo6IFhdgcHZ/uuGP8Uv9LQ1lIGH27MnyVVqZAUAd
-         zUXa433+9cTL8Pl47WusNIovgl7Q3nTFhJCSo7wE=
+        b=Z4WpotnvuNlDy+I2ufMpzAKKc0qcrCejZ2RBHimQvFqFYrWP4TKmYBq6ARRbBNXqM
+         a7jpVsUoPo19sw+KNQM8L1Ye2KJ3FIF+T2H3iKhGA1t0UwBZ3Ttf58eC/SxkwbYYLA
+         YKQjfqxCOSP7wDcEZnWvPWotPiPXQFzNJQQ8PENk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 168/176] dm era: Reinitialize bitset cache before digesting a new writeset
-Date:   Mon,  1 Mar 2021 17:14:01 +0100
-Message-Id: <20210301161029.372077834@linuxfoundation.org>
+        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Ira Weiny <ira.weiny@intel.com>, Coly Li <colyli@suse.com>,
+        Richard Palethorpe <rpalethorpe@suse.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 222/247] libnvdimm/dimm: Avoid race between probe and available_slots_show()
+Date:   Mon,  1 Mar 2021 17:14:02 +0100
+Message-Id: <20210301161042.551402638@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
+References: <20210301161031.684018251@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,80 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 2524933307fd0036d5c32357c693c021ab09a0b0 upstream.
+commit 7018c897c2f243d4b5f1b94bc6b4831a7eab80fb upstream
 
-In case of devices with at most 64 blocks, the digestion of consecutive
-eras uses the writeset of the first era as the writeset of all eras to
-digest, leading to lost writes. That is, we lose the information about
-what blocks were written during the affected eras.
+Richard reports that the following test:
 
-The digestion code uses a dm_disk_bitset object to access the archived
-writesets. This structure includes a one word (64-bit) cache to reduce
-the number of array lookups.
+(while true; do
+     cat /sys/bus/nd/devices/nmem*/available_slots 2>&1 > /dev/null
+ done) &
 
-This structure is initialized only once, in metadata_digest_start(),
-when we kick off digestion.
+while true; do
+     for i in $(seq 0 4); do
+         echo nmem$i > /sys/bus/nd/drivers/nvdimm/bind
+     done
+     for i in $(seq 0 4); do
+         echo nmem$i > /sys/bus/nd/drivers/nvdimm/unbind
+     done
+ done
 
-But, when we insert a new writeset into the writeset tree, before the
-digestion of the previous writeset is done, or equivalently when there
-are multiple writesets in the writeset tree to digest, then all these
-writesets are digested using the same cache and the cache is not
-re-initialized when moving from one writeset to the next.
+...fails with a crash signature like:
 
-For devices with more than 64 blocks, i.e., the size of the cache, the
-cache is indirectly invalidated when we move to a next set of blocks, so
-we avoid the bug.
+    divide error: 0000 [#1] SMP KASAN PTI
+    RIP: 0010:nd_label_nfree+0x134/0x1a0 [libnvdimm]
+    [..]
+    Call Trace:
+     available_slots_show+0x4e/0x120 [libnvdimm]
+     dev_attr_show+0x42/0x80
+     ? memset+0x20/0x40
+     sysfs_kf_seq_show+0x218/0x410
 
-But for devices with at most 64 blocks we end up using the same cached
-data for digesting all archived writesets, i.e., the cache is loaded
-when digesting the first writeset and it never gets reloaded, until the
-digestion is done.
+The root cause is that available_slots_show() consults driver-data, but
+fails to synchronize against device-unbind setting up a TOCTOU race to
+access uninitialized memory.
 
-As a result, the writeset of the first era to digest is used as the
-writeset of all the following archived eras, leading to lost writes.
+Validate driver-data under the device-lock.
 
-Fix this by reinitializing the dm_disk_bitset structure, and thus
-invalidating the cache, every time the digestion code starts digesting a
-new writeset.
-
-Fixes: eec40579d84873 ("dm: add era target")
-Cc: stable@vger.kernel.org # v3.15+
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver infrastructure")
+Cc: <stable@vger.kernel.org>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Coly Li <colyli@suse.com>
+Reported-by: Richard Palethorpe <rpalethorpe@suse.com>
+Acked-by: Richard Palethorpe <rpalethorpe@suse.com>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+[sudip: use device_lock()]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-era-target.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/nvdimm/dimm_devs.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-era-target.c
-+++ b/drivers/md/dm-era-target.c
-@@ -755,6 +755,12 @@ static int metadata_digest_lookup_writes
- 	ws_unpack(&disk, &d->writeset);
- 	d->value = cpu_to_le32(key);
+--- a/drivers/nvdimm/dimm_devs.c
++++ b/drivers/nvdimm/dimm_devs.c
+@@ -359,16 +359,16 @@ static ssize_t state_show(struct device
+ }
+ static DEVICE_ATTR_RO(state);
  
-+	/*
-+	 * We initialise another bitset info to avoid any caching side effects
-+	 * with the previous one.
-+	 */
-+	dm_disk_bitset_init(md->tm, &d->info);
+-static ssize_t available_slots_show(struct device *dev,
+-		struct device_attribute *attr, char *buf)
++static ssize_t __available_slots_show(struct nvdimm_drvdata *ndd, char *buf)
+ {
+-	struct nvdimm_drvdata *ndd = dev_get_drvdata(dev);
++	struct device *dev;
+ 	ssize_t rc;
+ 	u32 nfree;
+ 
+ 	if (!ndd)
+ 		return -ENXIO;
+ 
++	dev = ndd->dev;
+ 	nvdimm_bus_lock(dev);
+ 	nfree = nd_label_nfree(ndd);
+ 	if (nfree - 1 > nfree) {
+@@ -380,6 +380,18 @@ static ssize_t available_slots_show(stru
+ 	nvdimm_bus_unlock(dev);
+ 	return rc;
+ }
 +
- 	d->nr_bits = min(d->writeset.nr_bits, md->nr_blocks);
- 	d->current_bit = 0;
- 	d->step = metadata_digest_transcribe_writeset;
-@@ -768,12 +774,6 @@ static int metadata_digest_start(struct
- 		return 0;
++static ssize_t available_slots_show(struct device *dev,
++				    struct device_attribute *attr, char *buf)
++{
++	ssize_t rc;
++
++	device_lock(dev);
++	rc = __available_slots_show(dev_get_drvdata(dev), buf);
++	device_unlock(dev);
++
++	return rc;
++}
+ static DEVICE_ATTR_RO(available_slots);
  
- 	memset(d, 0, sizeof(*d));
--
--	/*
--	 * We initialise another bitset info to avoid any caching side
--	 * effects with the previous one.
--	 */
--	dm_disk_bitset_init(md->tm, &d->info);
- 	d->step = metadata_digest_lookup_writeset;
- 
- 	return 0;
+ static struct attribute *nvdimm_attributes[] = {
 
 
