@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D447432915D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E89D32917A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238462AbhCAUY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:24:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
+        id S236391AbhCAU1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:27:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243187AbhCAUSp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:18:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC60264E6B;
-        Mon,  1 Mar 2021 18:03:46 +0000 (UTC)
+        id S242944AbhCAUVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:21:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7AA06653EE;
+        Mon,  1 Mar 2021 18:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621827;
-        bh=r2VPzvxFEFbMQ68XySd8NpVTfVBPBlK55qBkXmb97wE=;
+        s=korg; t=1614621850;
+        bh=eCjytbrzNgFTMozE8yJrwlEMCfqMOUqtSTSS+MWopow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCYFan0MPR6JBPyS9qAqO68EkroO1g3RHJc1FbiCjTTkrZheiEUTqmCTyPOx8DuAM
-         DEkKl7/xFbcmm0NG6gP0y61FKMisJpvwHYn+ghDZziqFady52fyTy5/ptRQEL8gBy1
-         BYXlCBIdbSQcSczyDZY/RNjMZ680efd/1mjsLjKI=
+        b=qiIk30xjhLYuAup+D7xZJApVnQR87zngkwETOG4yx4tp64mIdgwflrYA9Qch3iQvR
+         uZgA3bpt717m+qNKMoCPPaJcBpfwLqDaMvrCzGPu6wTplayjg6zm9NcPmszEJbwcGM
+         GmKBb/eDzhUClVE0fDYG+FgZKlXxcui1rXn1SKEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Subject: [PATCH 5.11 657/775] drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
-Date:   Mon,  1 Mar 2021 17:13:45 +0100
-Message-Id: <20210301161233.849311774@linuxfoundation.org>
+        stable@vger.kernel.org, Frank Wunderlich <frank-w@public-files.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 5.11 659/775] dts64: mt7622: fix slow sd card access
+Date:   Mon,  1 Mar 2021 17:13:47 +0100
+Message-Id: <20210301161233.947174106@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,50 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Frank Wunderlich <frank-w@public-files.de>
 
-commit 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e upstream.
+commit dc2e76175417e69c41d927dba75a966399f18354 upstream.
 
-syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
-when num_pages is 0x100001, giving queue_size + queue_page_size
-bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
-condition.
+Fix extreme slow speed (200MB takes ~20 min) on writing sdcard on
+bananapi-r64 by adding reset-control for mmc1 like it's done for mmc0/emmc.
 
-queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
-
-[1]
-Call Trace:
- alloc_pages include/linux/gfp.h:547 [inline]
- kmalloc_order+0x40/0x130 mm/slab_common.c:837
- kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
- kmalloc_large include/linux/slab.h:481 [inline]
- __kmalloc+0x257/0x330 mm/slub.c:3959
- kmalloc include/linux/slab.h:557 [inline]
- kzalloc include/linux/slab.h:682 [inline]
- qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
- qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
- qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
-
-Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: 2c002a3049f7 ("arm64: dts: mt7622: add mmc related device nodes")
+Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210113180919.49523-1-linux@fw-web.de
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_queue_pair.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/mediatek/mt7622.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
-+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
-@@ -537,6 +537,9 @@ static struct vmci_queue *qp_host_alloc_
+--- a/arch/arm64/boot/dts/mediatek/mt7622.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt7622.dtsi
+@@ -698,6 +698,8 @@
+ 		clocks = <&pericfg CLK_PERI_MSDC30_1_PD>,
+ 			 <&topckgen CLK_TOP_AXI_SEL>;
+ 		clock-names = "source", "hclk";
++		resets = <&pericfg MT7622_PERI_MSDC1_SW_RST>;
++		reset-names = "hrst";
+ 		status = "disabled";
+ 	};
  
- 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
- 
-+	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
-+		return NULL;
-+
- 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
- 	if (queue) {
- 		queue->q_header = NULL;
 
 
