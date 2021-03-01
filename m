@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC78E328AF7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:27:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29449328B23
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235685AbhCAS0S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:26:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37550 "EHLO mail.kernel.org"
+        id S231229AbhCAS3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:29:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239716AbhCASUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:20:23 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E935652BF;
-        Mon,  1 Mar 2021 17:36:30 +0000 (UTC)
+        id S239778AbhCASW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:22:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30B8E64F27;
+        Mon,  1 Mar 2021 17:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620191;
-        bh=gDv6SUpSo6UIzShK/ZKS1bJenGb6C1iukfvzRaraFrg=;
+        s=korg; t=1614620224;
+        bh=M/Wzp/yaPJZRQLQCr/JIpsr3kwnsfJx+avnKzXmsnEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r35ybL6rO+aY/mtj7emMJ7KjtZ3sgY9aolXO5M6lbyyfNL/AC2CMC4QU2imdKeiFW
-         q2xaircvW2WmGULGZyrzEgY/cL0uu0DV3+JMWDUiwd6E0nFf6hixOCpNy7ocU5ZTc0
-         vS6eLhPxvf6HxdJsBJ3y7G4GvtdvN5qvr+Gg3Ueo=
+        b=rPf8/oB5pQ7Imz7QAlPkP2XwqvdBWDXFlmx7AkHKrcy/swuwUL5QuVI6wTWAXf1Bs
+         cJzPA58JZQDPABhPcrnaMsGCR+h9z/nLBDCTklZd+JZlD8ujVjiR+w0SvnFyPUU2eo
+         ZC0k5S87gu6D7Qt8xTUjDMXcIyrmbw5D/Es4ALY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 063/775] memory: ti-aemif: Drop child node when jumping out loop
-Date:   Mon,  1 Mar 2021 17:03:51 +0100
-Message-Id: <20210301161204.795297382@linuxfoundation.org>
+Subject: [PATCH 5.11 068/775] staging: rtl8723bs: wifi_regd.c: Fix incorrect number of regulatory rules
+Date:   Mon,  1 Mar 2021 17:03:56 +0100
+Message-Id: <20210301161205.047275731@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,53 +39,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 94e9dd43cf327366388c8f146bccdc6322c0d999 ]
+[ Upstream commit 61834c967a929f6b4b7fcb91f43fa225cc29aa19 ]
 
-Call of_node_put() to decrement the reference count of the child node
-child_np when jumping out of the loop body of
-for_each_available_child_of_node(), which is a macro that increments and
-decrements the reference count of child node. If the loop is broken, the
-reference of the child node should be dropped manually.
+The custom regulatory ruleset in the rtl8723bs driver lists an incorrect
+number of rules: one too many. This results in an out-of-bounds access,
+as detected by KASAN. This was possible thanks to the newly added support
+for KASAN on ARMv7.
 
-Fixes: 5a7c81547c1d ("memory: ti-aemif: introduce AEMIF driver")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121090359.61763-1-bianpan2016@163.com
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fix this by filling in the correct number of rules given.
+
+KASAN report:
+
+==================================================================
+BUG: KASAN: global-out-of-bounds in cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211]
+Read of size 4 at addr bf20c254 by task ip/971
+
+CPU: 2 PID: 971 Comm: ip Tainted: G         C        5.11.0-rc2-00020-gf7fe528a7ebe #1
+Hardware name: Allwinner sun8i Family
+[<c0113338>] (unwind_backtrace) from [<c010e8a4>] (show_stack+0x10/0x14)
+[<c010e8a4>] (show_stack) from [<c0e0f868>] (dump_stack+0x9c/0xb4)
+[<c0e0f868>] (dump_stack) from [<c0388284>] (print_address_description.constprop.2+0x1dc/0x2dc)
+[<c0388284>] (print_address_description.constprop.2) from [<c03885cc>] (kasan_report+0x1a8/0x1c4)
+[<c03885cc>] (kasan_report) from [<bf00a354>] (cfg80211_does_bw_fit_range+0x14/0x4c [cfg80211])
+[<bf00a354>] (cfg80211_does_bw_fit_range [cfg80211]) from [<bf00b41c>] (freq_reg_info_regd.part.6+0x108/0x124 [>
+[<bf00b41c>] (freq_reg_info_regd.part.6 [cfg80211]) from [<bf00df00>] (handle_channel_custom.constprop.12+0x48/>
+[<bf00df00>] (handle_channel_custom.constprop.12 [cfg80211]) from [<bf00e150>] (wiphy_apply_custom_regulatory+0>
+[<bf00e150>] (wiphy_apply_custom_regulatory [cfg80211]) from [<bf1fb9e8>] (rtw_regd_init+0x60/0x70 [r8723bs])
+[<bf1fb9e8>] (rtw_regd_init [r8723bs]) from [<bf1ee5a8>] (rtw_cfg80211_init_wiphy+0x164/0x1e8 [r8723bs])
+[<bf1ee5a8>] (rtw_cfg80211_init_wiphy [r8723bs]) from [<bf1f8d50>] (_netdev_open+0xe4/0x28c [r8723bs])
+[<bf1f8d50>] (_netdev_open [r8723bs]) from [<bf1f8f58>] (netdev_open+0x60/0x88 [r8723bs])
+[<bf1f8f58>] (netdev_open [r8723bs]) from [<c0bb3730>] (__dev_open+0x178/0x220)
+[<c0bb3730>] (__dev_open) from [<c0bb3cdc>] (__dev_change_flags+0x258/0x2c4)
+[<c0bb3cdc>] (__dev_change_flags) from [<c0bb3d88>] (dev_change_flags+0x40/0x80)
+[<c0bb3d88>] (dev_change_flags) from [<c0bc86fc>] (do_setlink+0x538/0x1160)
+[<c0bc86fc>] (do_setlink) from [<c0bcf9e8>] (__rtnl_newlink+0x65c/0xad8)
+[<c0bcf9e8>] (__rtnl_newlink) from [<c0bcfeb0>] (rtnl_newlink+0x4c/0x6c)
+[<c0bcfeb0>] (rtnl_newlink) from [<c0bc67c8>] (rtnetlink_rcv_msg+0x1f8/0x454)
+[<c0bc67c8>] (rtnetlink_rcv_msg) from [<c0c330e4>] (netlink_rcv_skb+0xc4/0x1e0)
+[<c0c330e4>] (netlink_rcv_skb) from [<c0c32478>] (netlink_unicast+0x2c8/0x3c4)
+[<c0c32478>] (netlink_unicast) from [<c0c32894>] (netlink_sendmsg+0x320/0x5f0)
+[<c0c32894>] (netlink_sendmsg) from [<c0b75eb0>] (____sys_sendmsg+0x320/0x3e0)
+[<c0b75eb0>] (____sys_sendmsg) from [<c0b78394>] (___sys_sendmsg+0xe8/0x12c)
+[<c0b78394>] (___sys_sendmsg) from [<c0b78a50>] (__sys_sendmsg+0xc0/0x120)
+[<c0b78a50>] (__sys_sendmsg) from [<c0100060>] (ret_fast_syscall+0x0/0x58)
+Exception stack(0xc5693fa8 to 0xc5693ff0)
+3fa0:                   00000074 c7a39800 00000003 b6cee648 00000000 00000000
+3fc0: 00000074 c7a39800 00000001 00000128 78d18349 00000000 b6ceeda0 004f7cb0
+3fe0: 00000128 b6cee5e8 aeca151f aec1d746
+
+The buggy address belongs to the variable:
+ rtw_drv_halt+0xf908/0x6b4 [r8723bs]
+
+Memory state around the buggy address:
+ bf20c100: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
+ bf20c180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>bf20c200: 00 00 00 00 00 00 00 00 00 00 04 f9 f9 f9 f9 f9
+                                         ^
+ bf20c280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ bf20c300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
+
+Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20210108141401.31741-1-wens@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/ti-aemif.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/staging/rtl8723bs/os_dep/wifi_regd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/ti-aemif.c b/drivers/memory/ti-aemif.c
-index 159a16f5e7d67..51d20c2ccb755 100644
---- a/drivers/memory/ti-aemif.c
-+++ b/drivers/memory/ti-aemif.c
-@@ -378,8 +378,10 @@ static int aemif_probe(struct platform_device *pdev)
- 		 */
- 		for_each_available_child_of_node(np, child_np) {
- 			ret = of_aemif_parse_abus_config(pdev, child_np);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(child_np);
- 				goto error;
-+			}
- 		}
- 	} else if (pdata && pdata->num_abus_data > 0) {
- 		for (i = 0; i < pdata->num_abus_data; i++, aemif->num_cs++) {
-@@ -405,8 +407,10 @@ static int aemif_probe(struct platform_device *pdev)
- 		for_each_available_child_of_node(np, child_np) {
- 			ret = of_platform_populate(child_np, NULL,
- 						   dev_lookup, dev);
--			if (ret < 0)
-+			if (ret < 0) {
-+				of_node_put(child_np);
- 				goto error;
-+			}
- 		}
- 	} else if (pdata) {
- 		for (i = 0; i < pdata->num_sub_devices; i++) {
+diff --git a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
+index 2833fc6901e6e..3f04b7a954ba0 100644
+--- a/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
++++ b/drivers/staging/rtl8723bs/os_dep/wifi_regd.c
+@@ -34,7 +34,7 @@
+ 	NL80211_RRF_PASSIVE_SCAN)
+ 
+ static const struct ieee80211_regdomain rtw_regdom_rd = {
+-	.n_reg_rules = 3,
++	.n_reg_rules = 2,
+ 	.alpha2 = "99",
+ 	.reg_rules = {
+ 		RTW_2GHZ_CH01_11,
 -- 
 2.27.0
 
