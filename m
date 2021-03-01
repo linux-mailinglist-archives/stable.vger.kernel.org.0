@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2E6328FEC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:02:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E724328FF9
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234687AbhCAT7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:59:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58018 "EHLO mail.kernel.org"
+        id S235310AbhCAUAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:00:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240811AbhCATtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:49:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 796FF64FFE;
-        Mon,  1 Mar 2021 17:51:32 +0000 (UTC)
+        id S241250AbhCATtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:49:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41955650DD;
+        Mon,  1 Mar 2021 17:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621093;
-        bh=JNHFnso0xQGoEgZeY0wSr2b8I2qce0XEpseJ+QIzKdQ=;
+        s=korg; t=1614621095;
+        bh=ab7Zg9wtJrPmmr7gFvEqneqxeMdWAgEPIn5deFbMpHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLddvEqj/WhHW3hfK2N3yewfjAN/hr1tUUO1aWAgwceCEth37Tk0nDnWVsCjMRiV+
-         KIQ5rkxdnclnJ/f+r/0D57os7N/vH4M8c0lQUOjqbsbdQEurhobT0rw8QbZgffj1AT
-         lXGLb1GT8xm7WNwV/nA+0tjaQyhewIXFaZROkN2U=
+        b=Ln8qLmYs1l1b3RhVoWgFFNvtxHLroizqmmpe0xnJ9gTkr1KGk8NIyq0wB+XZlo4G/
+         +AIdctzbMjmq2YYGR80C03ah27gRcmH1Jz9TBqEzYXTtFrk+l2/Il9MlXu2EIglJ/E
+         7auSvxN4hpmujJ31j+9CwWf9XiT1tMtuS6NR+lSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 390/775] powerpc/kvm: Force selection of CONFIG_PPC_FPU
-Date:   Mon,  1 Mar 2021 17:09:18 +0100
-Message-Id: <20210301161220.870751066@linuxfoundation.org>
+Subject: [PATCH 5.11 391/775] powerpc/47x: Disable 256k page size
+Date:   Mon,  1 Mar 2021 17:09:19 +0100
+Message-Id: <20210301161220.919850860@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,36 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 27f699579b64dbf27caf31e5c0eac567ec0aa8b8 ]
+[ Upstream commit 910a0cb6d259736a0c86e795d4c2f42af8d0d775 ]
 
-book3s/32 kvm is designed with the assumption that
-an FPU is always present.
+PPC47x_TLBE_SIZE isn't defined for 256k pages, leading to a build
+break if 256k pages is selected.
 
-Force selection of FPU support in the kernel when
-build KVM.
+So change the kconfig so that 256k pages can't be selected for 47x.
 
-Fixes: 7d68c8916950 ("powerpc/32s: Allow deselecting CONFIG_PPC_FPU on mpc832x")
+Fixes: e7f75ad01d59 ("powerpc/47x: Base ppc476 support")
 Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Expand change log to mention build break]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/74461a99fa1466f361532ca794ca0753be3d9f86.1611038044.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/r/2fed79b1154c872194f98bac4422c23918325e61.1611128938.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
-index 549591d9aaa2c..e45644657d49d 100644
---- a/arch/powerpc/kvm/Kconfig
-+++ b/arch/powerpc/kvm/Kconfig
-@@ -54,6 +54,7 @@ config KVM_BOOK3S_32
- 	select KVM
- 	select KVM_BOOK3S_32_HANDLER
- 	select KVM_BOOK3S_PR_POSSIBLE
-+	select PPC_FPU
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index 107bb4319e0e0..a685e42d39932 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -772,7 +772,7 @@ config PPC_64K_PAGES
+ 
+ config PPC_256K_PAGES
+ 	bool "256k page size"
+-	depends on 44x && !STDBINUTILS
++	depends on 44x && !STDBINUTILS && !PPC_47x
  	help
- 	  Support running unmodified book3s_32 guest kernels
- 	  in virtual machines on book3s_32 host processors.
+ 	  Make the page size 256k.
+ 
 -- 
 2.27.0
 
