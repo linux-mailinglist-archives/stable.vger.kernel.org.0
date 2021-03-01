@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7965A328EA7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1832328F98
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242046AbhCATex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:34:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49354 "EHLO mail.kernel.org"
+        id S242375AbhCATxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:53:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241842AbhCAT30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31F2365091;
-        Mon,  1 Mar 2021 17:35:38 +0000 (UTC)
+        id S242293AbhCAToX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:44:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC4D364FF9;
+        Mon,  1 Mar 2021 17:35:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620139;
-        bh=Ov1FRcWzGzo0rgYRc4DCloup+hqr9XQwv0SX7hOO8aQ=;
+        s=korg; t=1614620142;
+        bh=iLhmkhBZZ3ZZQxpBdmX5lIilipZXosQZXgZBVF9VSEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOOYRXGvbd3Uokw6BObPMwNdIAWK0pN31NEbu/c0F/DmvemjUTsttq7T7SAeVl1bz
-         zDme115KyMlex4sbFxuUScxOQb/qNdz7zOooRjAGXNJYYljTwM0cEkaigbdpHWMKQ1
-         b9l7M7Bivjh/dZEG7iCpxDftqlDVMibK01KbbruM=
+        b=iUVF+7ANNWoW6LN4Vlg3lfz3kP7+S8/3wLQkFN38MLJ2umQJ6C/8iHom4z2Mj0PGl
+         mQZoP5HMcTOyMdLpoQY4vlHYBklLClsqBVVqChaS/YCu+Xug6i5bOrojDhFQRRdrv5
+         33Bxm/AeHwEb6m3t1fDj/AwDka54/qI0rrGsSGs0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 045/775] firmware: arm_scmi: Fix call site of scmi_notification_exit
-Date:   Mon,  1 Mar 2021 17:03:33 +0100
-Message-Id: <20210301161203.950832539@linuxfoundation.org>
+Subject: [PATCH 5.11 046/775] arm64: dts: allwinner: A64: properly connect USB PHY to port 0
+Date:   Mon,  1 Mar 2021 17:03:34 +0100
+Message-Id: <20210301161204.000322060@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,45 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit a90b6543bf062d65292b2c76f1630507d1c9d8ec ]
+[ Upstream commit cc72570747e43335f4933a24dd74d5653639176a ]
 
-Call scmi_notification_exit() only when SCMI platform driver instance has
-been really successfully removed.
+In recent Allwinner SoCs the first USB host controller (HCI0) shares
+the first PHY with the MUSB controller. Probably to make this sharing
+work, we were avoiding to declare this in the DT. This has two
+shortcomings:
+- U-Boot (which uses the same .dts) cannot use this port in host mode
+  without a PHY linked, so we were loosing one USB port there.
+- It requires the MUSB driver to be enabled and loaded, although we
+  don't actually use it.
 
-Link: https://lore.kernel.org/r/20210112191326.29091-1-cristian.marussi@arm.com
-Fixes: 6b8a69131dc63 ("firmware: arm_scmi: Enable notification core")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-[sudeep.holla: Move the call outside the list mutex locking]
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+To avoid those issues, let's add this PHY link to the A64 .dtsi file.
+After all PHY port 0 *is* connected to HCI0, so we should describe
+it as this. Remove the part from the Pinebook DTS which already had
+this property.
+
+This makes it work in U-Boot, also improves compatiblity when no MUSB
+driver is loaded (for instance in distribution installers).
+
+Fixes: dc03a047df1d ("arm64: allwinner: a64: add EHCI0/OHCI0 nodes to A64 DTSI")
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210113152630.28810-2-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/driver.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts | 4 ----
+ arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi         | 4 ++++
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index 5392e1fc6b4ef..cacdf1589b101 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -848,8 +848,6 @@ static int scmi_remove(struct platform_device *pdev)
- 	struct scmi_info *info = platform_get_drvdata(pdev);
- 	struct idr *idr = &info->tx_idr;
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
+index 896f34fd9fc3a..d07cf05549c32 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinebook.dts
+@@ -126,8 +126,6 @@
+ };
  
--	scmi_notification_exit(&info->handle);
--
- 	mutex_lock(&scmi_list_mutex);
- 	if (info->users)
- 		ret = -EBUSY;
-@@ -860,6 +858,8 @@ static int scmi_remove(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
+ &ehci0 {
+-	phys = <&usbphy 0>;
+-	phy-names = "usb";
+ 	status = "okay";
+ };
  
-+	scmi_notification_exit(&info->handle);
-+
- 	/* Safe to free channels since no more users */
- 	ret = idr_for_each(idr, info->desc->ops->chan_free, idr);
- 	idr_destroy(&info->tx_idr);
+@@ -177,8 +175,6 @@
+ };
+ 
+ &ohci0 {
+-	phys = <&usbphy 0>;
+-	phy-names = "usb";
+ 	status = "okay";
+ };
+ 
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+index 51cc30e84e261..19e9b8ca8432f 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
+@@ -593,6 +593,8 @@
+ 				 <&ccu CLK_USB_OHCI0>;
+ 			resets = <&ccu RST_BUS_OHCI0>,
+ 				 <&ccu RST_BUS_EHCI0>;
++			phys = <&usbphy 0>;
++			phy-names = "usb";
+ 			status = "disabled";
+ 		};
+ 
+@@ -603,6 +605,8 @@
+ 			clocks = <&ccu CLK_BUS_OHCI0>,
+ 				 <&ccu CLK_USB_OHCI0>;
+ 			resets = <&ccu RST_BUS_OHCI0>;
++			phys = <&usbphy 0>;
++			phy-names = "usb";
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.27.0
 
