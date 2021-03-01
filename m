@@ -2,102 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47D9327B48
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 10:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79229327B59
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 10:58:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234288AbhCAJzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 04:55:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234324AbhCAJxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 04:53:45 -0500
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015E5C06174A
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 01:53:04 -0800 (PST)
-Received: by mail-wm1-x331.google.com with SMTP id o7-20020a05600c4fc7b029010a0247d5f0so2670702wmq.1
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 01:53:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gCxNwSmtosKjBOsP3oJostPTdxL4pw1j5WTp0Gs5jN4=;
-        b=aT/lpsg3hVIo/j/sXTbm1YQnEo2Mhu8qNhuBG1++3ci9SmJZnTW1ScmMGSFirtKKo+
-         6p/wq16Ys3GaxMJGktYpmGy9yfrOinrwYQg8YIxDxaODMfAeY07P6X6DxvfKufZ+/jKz
-         jcvC1b842TLcrMDiduAHx5Mt88Yg6pXG8VfZE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=gCxNwSmtosKjBOsP3oJostPTdxL4pw1j5WTp0Gs5jN4=;
-        b=M08ENUEX2ZRxjEOyHpanA7nS78XxC8WzwagN/WVkakYFX4D7wj+VpmLWLC4kM630gR
-         Zx4JasnWAoJrRO+aZs9GZlrXustgsj2sNAPK5O8ifj7hasagmmx9S06U5rd5sbXuURgN
-         +R27Xh8RU+1T2I3ou103zbm58cAi6MVeCxTcTS7punNy/1ospY4VbMNfrPRiD9gDE6f4
-         tLKETBJHLOre5oUJkfRtiWHqjoSDdUvP68XOn7tD5wbRWZhrVc5LghWjmrf24VDoLs/0
-         Norc+KTEadOlGPpxnGAecUryVriPYWW1R2/Fd+m8s73RsDZyzGUW5iCIwHqRnfxIYcnA
-         iAiQ==
-X-Gm-Message-State: AOAM531hA5UJ0oUNcmkDR4axzviOF1U0IyC7NJ3Yoml9IbG6k60pzxdA
-        VMLH/+eTIdzofS+ky2hjwRKiaA==
-X-Google-Smtp-Source: ABdhPJzS9tzgwkxeKN9NVWheGzS19gf3IPi0FqJ1+eBzNy1c7Bj1uTvARfgNW1EOExC3AnAg0STfPw==
-X-Received: by 2002:a7b:c242:: with SMTP id b2mr13089760wmj.119.1614592381781;
-        Mon, 01 Mar 2021 01:53:01 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id c9sm21770155wmb.33.2021.03.01.01.53.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 01:53:00 -0800 (PST)
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-To:     DRI Development <dri-devel@lists.freedesktop.org>
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
-        John Hubbard <jhubbard@nvidia.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Russell King <linux+etnaviv@armlinux.org.uk>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        etnaviv@lists.freedesktop.org
-Subject: [PATCH 1/2] drm/etnaviv: Use FOLL_FORCE for userptr
-Date:   Mon,  1 Mar 2021 10:52:53 +0100
-Message-Id: <20210301095254.1946084-1-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.30.0
+        id S233361AbhCAJ61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 04:58:27 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:35679 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234399AbhCAJ4u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 04:56:50 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 63CFD1940B35;
+        Mon,  1 Mar 2021 04:56:01 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 04:56:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HPWvO/
+        WwKsRoD5n40O+ejeArxqDzloN8V98GlaF4b+I=; b=UavfUC6IAuOrX8OurqDGmB
+        GrM4ajBfYAr1EMu62T4xL/dDXIoO3SfP8Pz4a97pA8hBPRf0jjvNgmKaWG61C1uy
+        P/oDd1jBFPR7q7j3RfbFh+ZSPIWr+Ln0JHF6hRE8RtBVvfmM3hmUiEtx8vFsI8MF
+        GHdyQWv5HDHiEibALuK1NIJaY6HO7NvX6xf4HpNx6ui0VcZvAyEnncZm3XmK4fSa
+        eNrZt9mBWvDAyXGImzSQMCdu3FN9MaBjUMNhveBpC3/HH6Y45Sz7nFnYrBkxTYJ9
+        A4qWDstzLu1HablZZxmRhlkHS4Cls3ZLohCtObdHPO9+xDytIqx9exQwTcYIB9hw
+        ==
+X-ME-Sender: <xms:Mbo8YD0KSzzCTyJq5ynXLWCco6fGF0jbZwOkPWKxqXHr8WvGwWpr1w>
+    <xme:Mbo8YM8zNduhQGCWn7INps0Vo3OSJNbNe_FIGJUWdThWl-gJ4-Gg6El8YyEURzk0Q
+    VtS0lOshwGQTg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddtjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
+    flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
+    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
+    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Mbo8YLvJNcqeXcBbnLH6disy_fPIzBre7yhi-nfixyeGz0aaVdXccg>
+    <xmx:Mbo8YHD0cvw1EA4iRM1hGGEOM-ZXSKLNLs-i4afGSCzyJDpo_3QIhQ>
+    <xmx:Mbo8YLXB7hTADOw4AejFAddqmZr5u9PysX6qkvmtYo0PQIu4M4JZFQ>
+    <xmx:Mbo8YOeU_rZq_TpsuN3AKG4ctt5TNwqExDHsmExd7IUPfU56wDgkKw>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id DFDDC24005A;
+        Mon,  1 Mar 2021 04:56:00 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Don't avoid stopping the stream at" failed to apply to 5.10-stable tree
+To:     tiwai@suse.de, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 01 Mar 2021 10:55:57 +0100
+Message-ID: <161459255713788@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Nothing checks userptr.ro except this call to pup_fast, which means
-there's nothing actually preventing userspace from writing to this.
-Which means you can just read-only mmap any file you want, userptr it
-and then write to it with the gpu. Not good.
 
-The right way to handle this is FOLL_WRITE | FOLL_FORCE, which will
-break any COW mappings and update tracking for MAY_WRITE mappings so
-there's no exploit and the vm isn't confused about what's going on.
-For any legit use case there's no difference from what userspace can
-observe and do.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cc: stable@vger.kernel.org
-Cc: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Russell King <linux+etnaviv@armlinux.org.uk>
-Cc: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: etnaviv@lists.freedesktop.org
----
- drivers/gpu/drm/etnaviv/etnaviv_gem.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+thanks,
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-index 6d38c5c17f23..a9e696d05b33 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-@@ -689,7 +689,7 @@ static int etnaviv_gem_userptr_get_pages(struct etnaviv_gem_object *etnaviv_obj)
- 		struct page **pages = pvec + pinned;
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 257d2d7e9e798305d65825cb82b0a7d1c0511e89 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Sat, 6 Feb 2021 21:30:52 +0100
+Subject: [PATCH] ALSA: usb-audio: Don't avoid stopping the stream at
+ disconnection
+
+In the later patch, we're going to issue the PCM sync_stop calls at
+disconnection.  But currently the USB-audio driver can't handle it
+because it has a check of shutdown flag for stopping the URBs.  This
+is basically superfluous (the stopping URBs are safe at disconnection
+state), so let's drop the check.
+
+Fixes: dc5eafe7787c ("ALSA: usb-audio: Support PCM sync_stop")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210206203052.15606-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index 4390075b2c6f..102d53515a76 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -890,9 +890,6 @@ static int stop_urbs(struct snd_usb_endpoint *ep, bool force)
+ {
+ 	unsigned int i;
  
- 		ret = pin_user_pages_fast(ptr, num_pages,
--					  !userptr->ro ? FOLL_WRITE : 0, pages);
-+					  FOLL_WRITE | FOLL_FORCE, pages);
- 		if (ret < 0) {
- 			unpin_user_pages(pvec, pinned);
- 			kvfree(pvec);
--- 
-2.30.0
+-	if (!force && atomic_read(&ep->chip->shutdown)) /* to be sure... */
+-		return -EBADFD;
+-
+ 	if (!force && atomic_read(&ep->running))
+ 		return -EBUSY;
+ 
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index dcadf8f164b2..bf5a0f3c1fad 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -270,10 +270,7 @@ static int snd_usb_pcm_sync_stop(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_usb_substream *subs = substream->runtime->private_data;
+ 
+-	if (!snd_usb_lock_shutdown(subs->stream->chip)) {
+-		sync_pending_stops(subs);
+-		snd_usb_unlock_shutdown(subs->stream->chip);
+-	}
++	sync_pending_stops(subs);
+ 	return 0;
+ }
+ 
 
