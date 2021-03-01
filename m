@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E548328533
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E986C32850A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbhCAQub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:50:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46812 "EHLO mail.kernel.org"
+        id S235322AbhCAQr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:47:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235153AbhCAQnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C254364F47;
-        Mon,  1 Mar 2021 16:29:52 +0000 (UTC)
+        id S231848AbhCAQjV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:39:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10A7864F8C;
+        Mon,  1 Mar 2021 16:28:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616193;
-        bh=I+/Qt8wNvswLieb34kwTLegTpmM9jm2d6FVTDqfsMpo=;
+        s=korg; t=1614616106;
+        bh=0bMpJi6ha4zhBMvaKTojmeQc8jHDDwZtpVVqENikCEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6YpS5OSNnlOzjdp4+R2Rr+BzJFXh0gI4dmyUV5nE3US7NRSAgYZ+hC+espJsWDZq
-         yxxppoziy2B37+EIm6nfJtoGZxoYnW88wBMdLSgYzRRclkW5feZ1RQcDq5HmTkeLSw
-         Kjiz7JjtCwNxI4MgD3r4kd73r8UqchYlQNh2cp9Y=
+        b=Qt4LjynISjrquLELKPtpKLV/oKdYLY+Hbt1EEP9K2Wr0oMWJsJmJZI8VtjjP/NzWg
+         ccX2OcXUrzeoZPi3PwdVtHMDpsTxeI08FP5ayfQSthZTayqlwevYprGv7P4NczJuxr
+         SwTsahePwEhehBf7XkumXb9KegisRpYLz7qFNf9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
+        stable@vger.kernel.org, Lijun Pan <ljp@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/176] b43: N-PHY: Fix the update of coef for the PHY revision >= 3case
-Date:   Mon,  1 Mar 2021 17:11:49 +0100
-Message-Id: <20210301161022.775861097@linuxfoundation.org>
+Subject: [PATCH 4.14 037/176] ibmvnic: skip send_request_unmap for timeout reset
+Date:   Mon,  1 Mar 2021 17:11:50 +0100
+Message-Id: <20210301161022.823990564@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -41,48 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Lijun Pan <ljp@linux.ibm.com>
 
-[ Upstream commit 4773acf3d4b50768bf08e9e97a204819e9ea0895 ]
+[ Upstream commit 7d3a7b9ea59ddb223aec59b45fa1713c633aaed4 ]
 
-The documentation for the PHY update [1] states:
+Timeout reset will trigger the VIOS to unmap it automatically,
+similarly as FAILVOER and MOBILITY events. If we unmap it
+in the linux side, we will see errors like
+"30000003: Error 4 in REQUEST_UNMAP_RSP".
+So, don't call send_request_unmap for timeout reset.
 
-Loop 4 times with index i
-
-    If PHY Revision >= 3
-        Copy table[i] to coef[i]
-    Otherwise
-        Set coef[i] to 0
-
-the copy of the table to coef is currently implemented the wrong way
-around, table is being updated from uninitialized values in coeff.
-Fix this by swapping the assignment around.
-
-[1] https://bcm-v4.sipsolutions.net/802.11/PHY/N/RestoreCal/
-
-Fixes: 2f258b74d13c ("b43: N-PHY: implement restoring general configuration")
-Addresses-Coverity: ("Uninitialized scalar variable")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Fixes: ed651a10875f ("ibmvnic: Updated reset handling")
+Signed-off-by: Lijun Pan <ljp@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
-index a5557d70689f4..d1afa74aa144b 100644
---- a/drivers/net/wireless/broadcom/b43/phy_n.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_n.c
-@@ -5320,7 +5320,7 @@ static void b43_nphy_restore_cal(struct b43_wldev *dev)
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index ec2dce057395a..4771dbee96819 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -201,8 +201,13 @@ static void free_long_term_buff(struct ibmvnic_adapter *adapter,
+ 	if (!ltb->buff)
+ 		return;
  
- 	for (i = 0; i < 4; i++) {
- 		if (dev->phy.rev >= 3)
--			table[i] = coef[i];
-+			coef[i] = table[i];
- 		else
- 			coef[i] = 0;
- 	}
++	/* VIOS automatically unmaps the long term buffer at remote
++	 * end for the following resets:
++	 * FAILOVER, MOBILITY, TIMEOUT.
++	 */
+ 	if (adapter->reset_reason != VNIC_RESET_FAILOVER &&
+-	    adapter->reset_reason != VNIC_RESET_MOBILITY)
++	    adapter->reset_reason != VNIC_RESET_MOBILITY &&
++	    adapter->reset_reason != VNIC_RESET_TIMEOUT)
+ 		send_request_unmap(adapter, ltb->map_id);
+ 	dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
+ }
 -- 
 2.27.0
 
