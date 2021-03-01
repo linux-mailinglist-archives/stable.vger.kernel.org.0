@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E297328FDB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C813329174
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242584AbhCAT6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55160 "EHLO mail.kernel.org"
+        id S243130AbhCAU0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:26:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241804AbhCATrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:47:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ED4865112;
-        Mon,  1 Mar 2021 17:02:32 +0000 (UTC)
+        id S242895AbhCAUVH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:21:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05C2F653EF;
+        Mon,  1 Mar 2021 18:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618153;
-        bh=+vBo/MOROXcU9w+ocTZDlPGk6TPmPXJ3ZB9GZDGhz3M=;
+        s=korg; t=1614621863;
+        bh=rfjT8llz/QoNVZhhi58/+AphCSIH4G1rkQJTus+4BDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naxnvYOI3uaXEM0gs0C4Pq9qRqaQnd0LTXMF5PhJ3I9E7OnUwbyUGITVLzVheQNJe
-         fmjTuXB9fO+g2VeK+ncWI0GWx2sc4Fbdhgx4t0dgDEroyyBed3yPeMaGBnnBXvVX5/
-         P9s6DIlZ3X0QKBCTtaU/qVngpJbD4erxpbKRja3g=
+        b=UVgCrRS+jGk3FNef8Ui83rgiOfXf+0YfwLsN8lD2hBHIyw0tcE1jtH+wgTqG1xvsm
+         Zj6hrH4AtFv0nUP6nIc3fIgq4h5PLhVuxGnhql8fwnWRrAUO1e8KfGmbQlW25sG+Lw
+         kFE0gGBzAUg8dv2BGPUpGf7hV5FIXkoiLuoOzbmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Takahiro Kuwano <Takahiro.Kuwano@infineon.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>
-Subject: [PATCH 5.4 295/340] mtd: spi-nor: sfdp: Fix last erase region marking
-Date:   Mon,  1 Mar 2021 17:13:59 +0100
-Message-Id: <20210301161102.818698674@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        "David P. Reed" <dpreed@deepplum.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.11 672/775] x86/reboot: Force all cpus to exit VMX root if VMX is supported
+Date:   Mon,  1 Mar 2021 17:14:00 +0100
+Message-Id: <20210301161234.589477202@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 9166f4af32db74e1544a2149aef231ff24515ea3 upstream.
+commit ed72736183c45a413a8d6974dd04be90f514cb6b upstream.
 
-The place of spi_nor_region_mark_end() must be moved, because 'i' is
-re-used for the index of erase[].
+Force all CPUs to do VMXOFF (via NMI shootdown) during an emergency
+reboot if VMX is _supported_, as VMX being off on the current CPU does
+not prevent other CPUs from being in VMX root (post-VMXON).  This fixes
+a bug where a crash/panic reboot could leave other CPUs in VMX root and
+prevent them from being woken via INIT-SIPI-SIPI in the new kernel.
 
-Fixes: b038e8e3be72 ("mtd: spi-nor: parse SFDP Sector Map Parameter Table")
+Fixes: d176720d34c7 ("x86: disable VMX on all CPUs on reboot")
 Cc: stable@vger.kernel.org
-Signed-off-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
-[ta: Add Fixes tag and Cc to stable]
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/02ce8d84b7989ebee33382f6494df53778dd508e.1601612872.git.Takahiro.Kuwano@infineon.com
+Suggested-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: David P. Reed <dpreed@deepplum.com>
+[sean: reworked changelog and further tweaked comment]
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20201231002702.2223707-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/spi-nor/spi-nor.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/reboot.c |   30 ++++++++++--------------------
+ 1 file changed, 10 insertions(+), 20 deletions(-)
 
---- a/drivers/mtd/spi-nor/spi-nor.c
-+++ b/drivers/mtd/spi-nor/spi-nor.c
-@@ -3770,6 +3770,7 @@ spi_nor_init_non_uniform_erase_map(struc
- 		offset = (region[i].offset & ~SNOR_ERASE_FLAGS_MASK) +
- 			 region[i].size;
- 	}
-+	spi_nor_region_mark_end(&region[i - 1]);
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -538,31 +538,21 @@ static void emergency_vmx_disable_all(vo
+ 	local_irq_disable();
  
- 	save_uniform_erase_type = map->uniform_erase_type;
- 	map->uniform_erase_type = spi_nor_sort_erase_mask(map,
-@@ -3793,8 +3794,6 @@ spi_nor_init_non_uniform_erase_map(struc
- 		if (!(regions_erase_type & BIT(erase[i].idx)))
- 			spi_nor_set_erase_type(&erase[i], 0, 0xFF);
+ 	/*
+-	 * We need to disable VMX on all CPUs before rebooting, otherwise
+-	 * we risk hanging up the machine, because the CPU ignores INIT
+-	 * signals when VMX is enabled.
++	 * Disable VMX on all CPUs before rebooting, otherwise we risk hanging
++	 * the machine, because the CPU blocks INIT when it's in VMX root.
+ 	 *
+-	 * We can't take any locks and we may be on an inconsistent
+-	 * state, so we use NMIs as IPIs to tell the other CPUs to disable
+-	 * VMX and halt.
++	 * We can't take any locks and we may be on an inconsistent state, so
++	 * use NMIs as IPIs to tell the other CPUs to exit VMX root and halt.
+ 	 *
+-	 * For safety, we will avoid running the nmi_shootdown_cpus()
+-	 * stuff unnecessarily, but we don't have a way to check
+-	 * if other CPUs have VMX enabled. So we will call it only if the
+-	 * CPU we are running on has VMX enabled.
+-	 *
+-	 * We will miss cases where VMX is not enabled on all CPUs. This
+-	 * shouldn't do much harm because KVM always enable VMX on all
+-	 * CPUs anyway. But we can miss it on the small window where KVM
+-	 * is still enabling VMX.
++	 * Do the NMI shootdown even if VMX if off on _this_ CPU, as that
++	 * doesn't prevent a different CPU from being in VMX root operation.
+ 	 */
+-	if (cpu_has_vmx() && cpu_vmx_enabled()) {
+-		/* Disable VMX on this CPU. */
+-		cpu_vmxoff();
++	if (cpu_has_vmx()) {
++		/* Safely force _this_ CPU out of VMX root operation. */
++		__cpu_emergency_vmxoff();
  
--	spi_nor_region_mark_end(&region[i - 1]);
+-		/* Halt and disable VMX on the other CPUs */
++		/* Halt and exit VMX root operation on the other CPUs. */
+ 		nmi_shootdown_cpus(vmxoff_nmi);
 -
- 	return 0;
+ 	}
  }
  
 
