@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C96F03290A1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F3D3290BA
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:16:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234583AbhCAULv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:11:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34880 "EHLO mail.kernel.org"
+        id S235899AbhCAUNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:13:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241438AbhCAUCa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:02:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0454965393;
-        Mon,  1 Mar 2021 17:57:37 +0000 (UTC)
+        id S242667AbhCAUDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:03:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E697D65397;
+        Mon,  1 Mar 2021 17:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621458;
-        bh=d6aQ1+kuuHSg6bJrMOou/UDsHvYpPIcNTrxthAwvGhA=;
+        s=korg; t=1614621472;
+        bh=lciBhy/oZ0sLenJ1ioMIPds6KMH2ZlwmVE6yXClkjqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9AwC9Cf4g1Whq+hFexuAmHaDPy/Lq9q5Z27mP3CLaBHj0itZ2EIvdfYCTHK2cFOw
-         qz1Q7+3dEFWWWpK35RpYkZM74okflHI2eXdLmFN8dCZQLYt3mrGaSCMC8yGu29ZaG3
-         /bO84pvTnT7NAqdmm+M6pFfhORCog9Sp+6Nb7Udw=
+        b=Lvy1i7MfOE/+tYhn3IIx4O1aTBdauN/YrViGrgw2XsFromPgrEEyu+LZ0cz8h9q7o
+         lgTNfmPzxdY8fgWs3ED6JQbd6TniXQaK8dqX0mcmQ0IDxk5MutWM61zjJDC3+epoec
+         MpepHbj/FPubl7/Vq8MRaTiiTATPuZc91kpfBs9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jordan Crouse <jcrouse@codeaurora.org>,
         Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 496/775] drm/msm: Fix race of GPU init vs timestamp power management.
-Date:   Mon,  1 Mar 2021 17:11:04 +0100
-Message-Id: <20210301161226.022574567@linuxfoundation.org>
+Subject: [PATCH 5.11 497/775] drm/msm: Fix races managing the OOB state for timestamp vs timestamps.
+Date:   Mon,  1 Mar 2021 17:11:05 +0100
+Message-Id: <20210301161226.075224950@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,14 +43,20 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Anholt <eric@anholt.net>
 
-[ Upstream commit 7a7cbf2a819740674455ad36155c662367261296 ]
+[ Upstream commit 5f98b33b04c02c0d9088c7486c59d058696782f9 ]
 
-We were using the same force-poweron bit in the two codepaths, so they
-could race to have one of them lose GPU power early.
+Now that we're not racing with GPU setup, also fix races of timestamps
+against other timestamps.  In freedreno CI, we were seeing this path trigger
+timeouts on setting the GMU bit, producing:
 
-freedreno CI was seeing intermittent errors like:
 [drm:_a6xx_gmu_set_oob] *ERROR* Timeout waiting for GMU OOB set GPU_SET: 0x0
-and this issue could have contributed to it.
+
+and this triggered especially on the first set of tests right after
+boot (it's probably easier to lose the race than one might think,
+given that we start many tests in parallel, and waiting for NFS to
+page in code probably means that lots of tests hit the same point of
+screen init at the same time).  As of this patch, the message seems to
+have completely gone away.
 
 Signed-off-by: Eric Anholt <eric@anholt.net>
 Fixes: 4b565ca5a2cb ("drm/msm: Add A6XX device support")
@@ -58,103 +64,28 @@ Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
 Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 25 ++++++++++++++++++++++---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.h |  8 ++++++++
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c |  4 ++--
- 3 files changed, 32 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-index e6703ae987608..b3318f86aabc0 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -264,6 +264,16 @@ int a6xx_gmu_set_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
- 		}
- 		name = "GPU_SET";
- 		break;
-+	case GMU_OOB_PERFCOUNTER_SET:
-+		if (gmu->legacy) {
-+			request = GMU_OOB_PERFCOUNTER_REQUEST;
-+			ack = GMU_OOB_PERFCOUNTER_ACK;
-+		} else {
-+			request = GMU_OOB_PERFCOUNTER_REQUEST_NEW;
-+			ack = GMU_OOB_PERFCOUNTER_ACK_NEW;
-+		}
-+		name = "PERFCOUNTER";
-+		break;
- 	case GMU_OOB_BOOT_SLUMBER:
- 		request = GMU_OOB_BOOT_SLUMBER_REQUEST;
- 		ack = GMU_OOB_BOOT_SLUMBER_ACK;
-@@ -301,9 +311,14 @@ int a6xx_gmu_set_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
- void a6xx_gmu_clear_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
- {
- 	if (!gmu->legacy) {
--		WARN_ON(state != GMU_OOB_GPU_SET);
--		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
--			1 << GMU_OOB_GPU_SET_CLEAR_NEW);
-+		if (state == GMU_OOB_GPU_SET) {
-+			gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
-+				1 << GMU_OOB_GPU_SET_CLEAR_NEW);
-+		} else {
-+			WARN_ON(state != GMU_OOB_PERFCOUNTER_SET);
-+			gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
-+				1 << GMU_OOB_PERFCOUNTER_CLEAR_NEW);
-+		}
- 		return;
- 	}
- 
-@@ -312,6 +327,10 @@ void a6xx_gmu_clear_oob(struct a6xx_gmu *gmu, enum a6xx_gmu_oob_state state)
- 		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
- 			1 << GMU_OOB_GPU_SET_CLEAR);
- 		break;
-+	case GMU_OOB_PERFCOUNTER_SET:
-+		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
-+			1 << GMU_OOB_PERFCOUNTER_CLEAR);
-+		break;
- 	case GMU_OOB_BOOT_SLUMBER:
- 		gmu_write(gmu, REG_A6XX_GMU_HOST2GMU_INTR_SET,
- 			1 << GMU_OOB_BOOT_SLUMBER_CLEAR);
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-index c6d2bced8e5de..9fa278de2106a 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.h
-@@ -156,6 +156,7 @@ enum a6xx_gmu_oob_state {
- 	GMU_OOB_BOOT_SLUMBER = 0,
- 	GMU_OOB_GPU_SET,
- 	GMU_OOB_DCVS_SET,
-+	GMU_OOB_PERFCOUNTER_SET,
- };
- 
- /* These are the interrupt / ack bits for each OOB request that are set
-@@ -190,6 +191,13 @@ enum a6xx_gmu_oob_state {
- #define GMU_OOB_GPU_SET_ACK_NEW		31
- #define GMU_OOB_GPU_SET_CLEAR_NEW	31
- 
-+#define GMU_OOB_PERFCOUNTER_REQUEST	17
-+#define GMU_OOB_PERFCOUNTER_ACK		25
-+#define GMU_OOB_PERFCOUNTER_CLEAR	25
-+
-+#define GMU_OOB_PERFCOUNTER_REQUEST_NEW	28
-+#define GMU_OOB_PERFCOUNTER_ACK_NEW	30
-+#define GMU_OOB_PERFCOUNTER_CLEAR_NEW	30
- 
- void a6xx_hfi_init(struct a6xx_gmu *gmu);
- int a6xx_hfi_start(struct a6xx_gmu *gmu, int boot_state);
 diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index 3b798e883f822..2dc6b342cf9b5 100644
+index 2dc6b342cf9b5..0366419d8bfed 100644
 --- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
 +++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1171,12 +1171,12 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+@@ -1169,6 +1169,9 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
+ {
+ 	struct adreno_gpu *adreno_gpu = to_adreno_gpu(gpu);
  	struct a6xx_gpu *a6xx_gpu = to_a6xx_gpu(adreno_gpu);
++	static DEFINE_MUTEX(perfcounter_oob);
++
++	mutex_lock(&perfcounter_oob);
  
  	/* Force the GPU power on so we can read this register */
--	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_GPU_SET);
-+	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
- 
- 	*value = gpu_read64(gpu, REG_A6XX_RBBM_PERFCTR_CP_0_LO,
+ 	a6xx_gmu_set_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+@@ -1177,6 +1180,7 @@ static int a6xx_get_timestamp(struct msm_gpu *gpu, uint64_t *value)
  		REG_A6XX_RBBM_PERFCTR_CP_0_HI);
  
--	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_GPU_SET);
-+	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
+ 	a6xx_gmu_clear_oob(&a6xx_gpu->gmu, GMU_OOB_PERFCOUNTER_SET);
++	mutex_unlock(&perfcounter_oob);
  	return 0;
  }
  
