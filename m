@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45ECC328F9B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F108328F23
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:46:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242383AbhCATxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:53:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55184 "EHLO mail.kernel.org"
+        id S231670AbhCATpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:45:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242311AbhCATo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E63165316;
-        Mon,  1 Mar 2021 17:43:11 +0000 (UTC)
+        id S242164AbhCATfd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:35:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8257D65010;
+        Mon,  1 Mar 2021 17:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620591;
-        bh=01hc1qzVN40yBblDOo6s5Modw8MJb+MRClR0CBk5ono=;
+        s=korg; t=1614618646;
+        bh=zTCer9CEjzzvigX66N3JVX3LNdsvI6xdRW08i/j+1S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLzQc0J4SayRU7KWkU+7tdeMGEwnEHm63Q20JhjZbcYzxf2zDhBLLlCWiDAXiwNhB
-         SEcrHna6OfNb+GV7wqXJKLvBDtdx5CfzaIr0d7s+4LdLUGmF3Xyj+leE18ZlU9mC07
-         iU1DUu96XX8UNHeLOBJmqCi762i7ZrWBMkk+he1w=
+        b=k01oHBfAad1BU9WNSUgIBMWMGUH2ztZ4mfMlYc2Jp8UA7fmLY70qy1CqiJ7cO/cTv
+         QrgMMg6jbCQZtbfDBCN1q8fjDNmnDCTZpBg4Wu/T7/eG5V71nPm+vBlf7uxtH1k4wM
+         la7yFlGZ/mH0CYMO9PXjOflIQpNxfmpXAL7U3aw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        Qais Yousef <qais.yousef@arm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 209/775] crypto: bcm - Rename struct device_private to bcm_device_private
-Date:   Mon,  1 Mar 2021 17:06:17 +0100
-Message-Id: <20210301161211.968744688@linuxfoundation.org>
+Subject: [PATCH 5.10 133/663] net: amd-xgbe: Fix network fluctuations when using 1G BELFUSE SFP
+Date:   Mon,  1 Mar 2021 17:06:21 +0100
+Message-Id: <20210301161148.332958239@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit f7f2b43eaf6b4cfe54c75100709be31d5c4b52c8 ]
+[ Upstream commit 9eab3fdb419916f66a72d1572f68d82cd9b3f963 ]
 
-Renaming 'struct device_private' to 'struct bcm_device_private',
-because it clashes with 'struct device_private' from
-'drivers/base/base.h'.
+Frequent link up/down events can happen when a Bel Fuse SFP part is
+connected to the amd-xgbe device. Try to avoid the frequent link
+issues by resetting the PHY as documented in Bel Fuse SFP datasheets.
 
-While it's not a functional problem, it's causing two distinct
-type hierarchies in BTF data. It also breaks build with options:
-  CONFIG_DEBUG_INFO_BTF=y
-  CONFIG_CRYPTO_DEV_BCM_SPU=y
-
-as reported by Qais Yousef [1].
-
-[1] https://lore.kernel.org/lkml/20201229151352.6hzmjvu3qh6p2qgg@e107158-lin/
-
-Fixes: 9d12ba86f818 ("crypto: brcm - Add Broadcom SPU driver")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Tested-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: e722ec82374b ("amd-xgbe: Update the BelFuse quirk to support SGMII")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/bcm/cipher.c | 2 +-
- drivers/crypto/bcm/cipher.h | 4 ++--
- drivers/crypto/bcm/util.c   | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index 30390a7324b29..0e5537838ef36 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -42,7 +42,7 @@
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index d3f72faecd1da..18e48b3bc402b 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -922,6 +922,9 @@ static bool xgbe_phy_belfuse_phy_quirks(struct xgbe_prv_data *pdata)
+ 	if ((phy_id & 0xfffffff0) != 0x03625d10)
+ 		return false;
  
- /* ================= Device Structure ================== */
- 
--struct device_private iproc_priv;
-+struct bcm_device_private iproc_priv;
- 
- /* ==================== Parameters ===================== */
- 
-diff --git a/drivers/crypto/bcm/cipher.h b/drivers/crypto/bcm/cipher.h
-index 0ad5892b445d3..71281a3bdbdc0 100644
---- a/drivers/crypto/bcm/cipher.h
-+++ b/drivers/crypto/bcm/cipher.h
-@@ -420,7 +420,7 @@ struct spu_hw {
- 	u32 num_chan;
- };
- 
--struct device_private {
-+struct bcm_device_private {
- 	struct platform_device *pdev;
- 
- 	struct spu_hw spu;
-@@ -467,6 +467,6 @@ struct device_private {
- 	struct mbox_chan **mbox;
- };
- 
--extern struct device_private iproc_priv;
-+extern struct bcm_device_private iproc_priv;
- 
- #endif
-diff --git a/drivers/crypto/bcm/util.c b/drivers/crypto/bcm/util.c
-index 2b304fc780595..77aeedb840555 100644
---- a/drivers/crypto/bcm/util.c
-+++ b/drivers/crypto/bcm/util.c
-@@ -348,7 +348,7 @@ char *spu_alg_name(enum spu_cipher_alg alg, enum spu_cipher_mode mode)
- static ssize_t spu_debugfs_read(struct file *filp, char __user *ubuf,
- 				size_t count, loff_t *offp)
- {
--	struct device_private *ipriv;
-+	struct bcm_device_private *ipriv;
- 	char *buf;
- 	ssize_t ret, out_offset, out_count;
- 	int i;
++	/* Reset PHY - wait for self-clearing reset bit to clear */
++	genphy_soft_reset(phy_data->phydev);
++
+ 	/* Disable RGMII mode */
+ 	phy_write(phy_data->phydev, 0x18, 0x7007);
+ 	reg = phy_read(phy_data->phydev, 0x18);
 -- 
 2.27.0
 
