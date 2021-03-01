@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 274D8328419
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7BA328410
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:30:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234759AbhCAQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
+        id S234724AbhCAQ2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237916AbhCAQYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237918AbhCAQYV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:24:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E04E864F42;
-        Mon,  1 Mar 2021 16:21:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E1964F57;
+        Mon,  1 Mar 2021 16:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615682;
-        bh=VKTIRyt0y8hEJ2G/49fn5QcVOLV6Hs8zJtrElO/639I=;
+        s=korg; t=1614615685;
+        bh=kR0vZx/5q9t8Z2Vj1kZVCDInUAnIfVcMJSDATjM3KCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kx0/DUmZNY+Sej2fdReiLpJfmvk6IwDaYp2qSqOl8lmIWdPbc4nzM8y7RClSYrS7h
-         tF/xrijtty5JIgqYpJdAAdbv75dWv2etrgrC5WBWOovC/VtEjLEWG+4dpb/R1q3IqP
-         HC7b9TfwDOTdMvFsZqAPhSeejFU0HmPVUcuzmjyo=
+        b=lleI0mdy41DWx0WaXw7hn+A9/nCEgMdwX6M7FTBkqVV9rYxhMSI0vFyXh93dkbr1B
+         0K7YB6C0Xvg7v0DpF6Yeoh6zG36DVpmcr/TFKq5CU9o9lEztSM6Ov8e17VoO9dMj03
+         uO8p6ZaHE7p3TzKm1y5YkNSuGI5U57j9hgIGAsN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Douglas Anderson <dianders@chromium.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Vincent Knecht <vincent.knecht@mailoo.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/134] usb: dwc2: Make "trimming xfer length" a debug message
-Date:   Mon,  1 Mar 2021 17:12:03 +0100
-Message-Id: <20210301161014.659447810@linuxfoundation.org>
+Subject: [PATCH 4.9 023/134] arm64: dts: msm8916: Fix reserved and rfsa nodes unit address
+Date:   Mon,  1 Mar 2021 17:12:04 +0100
+Message-Id: <20210301161014.702388807@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -42,46 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Vincent Knecht <vincent.knecht@mailoo.org>
 
-[ Upstream commit 1a9e38cabd80356ffb98c2c88fec528ea9644fd5 ]
+[ Upstream commit d5ae2528b0b56cf054b27d48b0cb85330900082f ]
 
-With some USB network adapters, such as DM96xx, the following message
-is seen for each maximum size receive packet.
+Fix `reserved` and `rfsa` unit address according to their reg address
 
-dwc2 ff540000.usb: dwc2_update_urb_state(): trimming xfer length
+Fixes: 7258e10e6a0b ("ARM: dts: msm8916: Update reserved-memory")
 
-This happens because the packet size requested by the driver is 1522
-bytes, wMaxPacketSize is 64, the dwc2 driver configures the chip to
-receive 24*64 = 1536 bytes, and the chip does indeed send more than
-1522 bytes of data. Since the event does not indicate an error condition,
-the message is just noise. Demote it to debug level.
-
-Fixes: 7359d482eb4d3 ("staging: HCD files for the DWC2 driver")
-Tested-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Link: https://lore.kernel.org/r/20210113112052.17063-4-nsaenzjulienne@suse.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+Link: https://lore.kernel.org/r/20210123104417.518105-1-vincent.knecht@mailoo.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/hcd_intr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/dwc2/hcd_intr.c b/drivers/usb/dwc2/hcd_intr.c
-index c80bfd353758b..e39210bd97100 100644
---- a/drivers/usb/dwc2/hcd_intr.c
-+++ b/drivers/usb/dwc2/hcd_intr.c
-@@ -488,7 +488,7 @@ static int dwc2_update_urb_state(struct dwc2_hsotg *hsotg,
- 						      &short_read);
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index fb5001a6879c7..c2557cf43b3dc 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -62,7 +62,7 @@
+ 			no-map;
+ 		};
  
- 	if (urb->actual_length + xfer_length > urb->length) {
--		dev_warn(hsotg->dev, "%s(): trimming xfer length\n", __func__);
-+		dev_dbg(hsotg->dev, "%s(): trimming xfer length\n", __func__);
- 		xfer_length = urb->length - urb->actual_length;
- 	}
+-		reserved@8668000 {
++		reserved@86680000 {
+ 			reg = <0x0 0x86680000 0x0 0x80000>;
+ 			no-map;
+ 		};
+@@ -72,7 +72,7 @@
+ 			no-map;
+ 		};
  
+-		rfsa@867e00000 {
++		rfsa@867e0000 {
+ 			reg = <0x0 0x867e0000 0x0 0x20000>;
+ 			no-map;
+ 		};
 -- 
 2.27.0
 
