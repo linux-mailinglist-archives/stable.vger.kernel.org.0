@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8957D328A7A
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E57632897E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239616AbhCASRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
+        id S239000AbhCAR5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:57:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239048AbhCASLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:11:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9B964FAD;
-        Mon,  1 Mar 2021 17:34:05 +0000 (UTC)
+        id S238968AbhCARvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:51:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02B90650A2;
+        Mon,  1 Mar 2021 17:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620046;
-        bh=DRL8Qftwm1Qrd2JQGS5Zl6XByw9sbS+8gog7OZHIZ1s=;
+        s=korg; t=1614620054;
+        bh=gsSBsaN2vV5sf5GBB8ILF0HW3IXBAhVe7GPY5Ie63t4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDLTPkxpv38kNGe+J/SGaYThVaYKvLYwEPd09+yNN5U7aW10pUpdbsyvRH6ZEsRMo
-         rfch9PeuznfdnV5j0H/Smd591rE5qwCXNxWRjplAWZosPVgUK9x3YQFc9ZpE7IQ9tr
-         DPr12mwWNt5Gd2EeB4w1pvt8IVzHSKmYsQlG/ZHI=
+        b=oZxNxsdL1n3JI4+QInKafNe3zBHfkBvSQhVg3w/CHKjVoxIN1+kDGkX/9p2yRFLXo
+         acyUsT1rjGxzKnoPPOasGJoZpvemdOy8Xtuq+PcUso7P2YEo2t0DPNN8NmT0YJm0Yt
+         L+VZqD68lvE5Vj7rRw3CTrp+1IIH4S1rVgtPbrvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.11 011/775] PCI: Decline to resize resources if boot config must be preserved
-Date:   Mon,  1 Mar 2021 17:02:59 +0100
-Message-Id: <20210301161202.265285771@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 014/775] ALSA: usb-audio: Fix PCM buffer allocation in non-vmalloc mode
+Date:   Mon,  1 Mar 2021 17:03:02 +0100
+Message-Id: <20210301161202.415686082@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,42 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 729e3a669d1b62e9876a671ac03ccba399a23b68 upstream.
+commit fb3c293b82c31a9a68fbcf4e7a45fadd8a47ea2b upstream.
 
-The _DSM #5 method in the ACPI host bridge object tells us whether the OS
-must preserve the resource assignments done by firmware. If this is the
-case, we should not permit drivers to resize BARs on the fly. Make
-pci_resize_resource() take this into account.
+The commit f274baa49be6 ("ALSA: usb-audio: Allow non-vmalloc buffer
+for PCM buffers") introduced the mode to allocate coherent pages for
+PCM buffers, and it used bus->controller device as its DMA device.
+It turned out, however, that bus->sysdev is a more appropriate device
+to be used for DMA mapping in HCD code.
 
-Link: https://lore.kernel.org/r/20210109095353.13417-1-ardb@kernel.org
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org	# v5.4+
+This patch corrects the device reference accordingly.
+
+Note that, on most platforms, both point to the very same device,
+hence this patch doesn't change anything practically.  But on
+platforms like xhcd-plat hcd, the change becomes effective.
+
+Fixes: f274baa49be6 ("ALSA: usb-audio: Allow non-vmalloc buffer for PCM buffers")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210205144559.29555-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/setup-res.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/usb/pcm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/setup-res.c
-+++ b/drivers/pci/setup-res.c
-@@ -410,10 +410,16 @@ EXPORT_SYMBOL(pci_release_resource);
- int pci_resize_resource(struct pci_dev *dev, int resno, int size)
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -1558,7 +1558,7 @@ void snd_usb_preallocate_buffer(struct s
  {
- 	struct resource *res = dev->resource + resno;
-+	struct pci_host_bridge *host;
- 	int old, ret;
- 	u32 sizes;
- 	u16 cmd;
+ 	struct snd_pcm *pcm = subs->stream->pcm;
+ 	struct snd_pcm_substream *s = pcm->streams[subs->direction].substream;
+-	struct device *dev = subs->dev->bus->controller;
++	struct device *dev = subs->dev->bus->sysdev;
  
-+	/* Check if we must preserve the firmware's resource assignment */
-+	host = pci_find_host_bridge(dev->bus);
-+	if (host->preserve_config)
-+		return -ENOTSUPP;
-+
- 	/* Make sure the resource isn't assigned before resizing it. */
- 	if (!(res->flags & IORESOURCE_UNSET))
- 		return -EBUSY;
+ 	if (snd_usb_use_vmalloc)
+ 		snd_pcm_set_managed_buffer(s, SNDRV_DMA_TYPE_VMALLOC,
 
 
