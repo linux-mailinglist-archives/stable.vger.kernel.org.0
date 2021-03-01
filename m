@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED96328E53
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5022328E69
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:32:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241617AbhCAT14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:27:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47282 "EHLO mail.kernel.org"
+        id S232677AbhCATaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:30:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237255AbhCATYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:24:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B280965221;
-        Mon,  1 Mar 2021 17:23:55 +0000 (UTC)
+        id S241445AbhCATZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:25:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62F0964DEF;
+        Mon,  1 Mar 2021 17:24:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619436;
-        bh=acG8srrmjBQL3sAMaa1q5QeVIPk67vTYRqvTEiuXr1c=;
+        s=korg; t=1614619453;
+        bh=6Ll9Un/47s7RZ7EhTxQBer5sNtJ3tvhD9w6KGs9phic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q353ORHjPi/56HEf6WJs+mJMPE/8NSiJqed6dPgn71aYcf8YqiKIhJFhS/mwpMf40
-         ov7zmIH44OvL55ZR+z7YWgWEq8+vnZDJOivOaxDuR9/TyiqdFj4IFsFBi7F15TuwXK
-         E1L2qbOiAOEQ5CXkn5F/JElFmlU2ZMEvc7mT0Nso=
+        b=Pc3GpnORogUG8fcoN5R18Bd96kuglLGnR8aQXmDt7k54zjBayyGGZ9x/GRvfIsuA8
+         gKmKGfSB+/5W23mtNVa1s/+RasiLcQrB/8BocNsh5Q4UxnDYXfvC8OKxO8o5hdW0pw
+         R+A4VTnNpTpjd7h2d0WLDVpXrd4C1oj3hVaC/k+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Jonathan Marek <jonathan@marek.ca>,
+        stable@vger.kernel.org, Magnum Shan <magnum.shan@unisoc.com>,
+        Chunyan Zhang <chunyan.zhang@unisoc.com>,
+        Baolin Wang <baolin.wang7@gmail.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 426/663] misc: fastrpc: fix incorrect usage of dma_map_sgtable
-Date:   Mon,  1 Mar 2021 17:11:14 +0100
-Message-Id: <20210301161202.959571315@linuxfoundation.org>
+Subject: [PATCH 5.10 430/663] mailbox: sprd: correct definition of SPRD_OUTBOX_FIFO_FULL
+Date:   Mon,  1 Mar 2021 17:11:18 +0100
+Message-Id: <20210301161203.165523116@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,44 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Magnum Shan <magnum.shan@unisoc.com>
 
-[ Upstream commit b212658aebda82f92967bcbd4c7380d607c3d803 ]
+[ Upstream commit 4450f128c51160bfded6b483eba37d0628d7adb2 ]
 
-dma_map_sgtable() returns 0 on success, which is the opposite of what this
-code was doing.
+According to the specification, bit[2] represents SPRD_OUTBOX_FIFO_FULL,
+not bit[0], so correct it.
 
-Fixes: 7cd7edb89437 ("misc: fastrpc: fix common struct sg_table related issues")
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20210208200401.31100-1-jonathan@marek.ca
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ca27fc26cd22 ("mailbox: sprd: Add Spreadtrum mailbox driver")
+Signed-off-by: Magnum Shan <magnum.shan@unisoc.com>
+Signed-off-by: Chunyan Zhang <chunyan.zhang@unisoc.com>
+Reviewed-by: Baolin Wang <baolin.wang7@gmail.com>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/mailbox/sprd-mailbox.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 994ab67bc2dce..815d01f785dff 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -520,12 +520,13 @@ fastrpc_map_dma_buf(struct dma_buf_attachment *attachment,
- {
- 	struct fastrpc_dma_buf_attachment *a = attachment->priv;
- 	struct sg_table *table;
-+	int ret;
+diff --git a/drivers/mailbox/sprd-mailbox.c b/drivers/mailbox/sprd-mailbox.c
+index f6fab24ae8a9a..4c325301a2fe8 100644
+--- a/drivers/mailbox/sprd-mailbox.c
++++ b/drivers/mailbox/sprd-mailbox.c
+@@ -35,7 +35,7 @@
+ #define SPRD_MBOX_IRQ_CLR			BIT(0)
  
- 	table = &a->sgt;
- 
--	if (!dma_map_sgtable(attachment->dev, table, dir, 0))
--		return ERR_PTR(-ENOMEM);
--
-+	ret = dma_map_sgtable(attachment->dev, table, dir, 0);
-+	if (ret)
-+		table = ERR_PTR(ret);
- 	return table;
- }
- 
+ /* Bit and mask definiation for outbox's SPRD_MBOX_FIFO_STS register */
+-#define SPRD_OUTBOX_FIFO_FULL			BIT(0)
++#define SPRD_OUTBOX_FIFO_FULL			BIT(2)
+ #define SPRD_OUTBOX_FIFO_WR_SHIFT		16
+ #define SPRD_OUTBOX_FIFO_RD_SHIFT		24
+ #define SPRD_OUTBOX_FIFO_POS_MASK		GENMASK(7, 0)
 -- 
 2.27.0
 
