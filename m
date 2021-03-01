@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A06F328A79
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE8D7328A2A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239612AbhCASRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60784 "EHLO mail.kernel.org"
+        id S239485AbhCASNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:13:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239314AbhCASLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:11:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E522065002;
-        Mon,  1 Mar 2021 17:09:11 +0000 (UTC)
+        id S239004AbhCASGj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:06:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC5F65188;
+        Mon,  1 Mar 2021 17:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618552;
-        bh=3TSOCWSbxMbv+ZLvWWzVp+G1pgJtUN/C9RJnkdffBhg=;
+        s=korg; t=1614618604;
+        bh=TOlxSGGkEhs9SmZQvemrGPJ+SGT+fe0WY6biY6ueGMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/ZmKozy9lLjGPNtSnTKEJKPvsEPBt79ZLJiLQINg1dOCt9KpKhGVQG8HI3zKd5g3
-         uVJOKFkdkJbny0k7XiyPd/p31DE1Vs60KGXtKRPdlE7aw9TWUEj7NygL8p3VoEP1pY
-         4yoTuok/IOj/TwOaSZquKM5NOliANAmbgEokBBjE=
+        b=o77t7uLyvAw0WXuEPNMPELFPBj7/D7JEPj1vCdaHA7nShb+mvcdymB+tEKAOm3pB3
+         OJFGfRNZ8+6QSjr5TRroTnhgS4z40fYmR+4/o3HWmMMJG4CNu4tfjynFc3XHEzSK3q
+         cqL2RkBLt/hfovbs6J9WGxI4OAdkjeXaoY9P/IUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 127/663] net: dsa: felix: perform teardown in reverse order of setup
-Date:   Mon,  1 Mar 2021 17:06:15 +0100
-Message-Id: <20210301161148.028960679@linuxfoundation.org>
+Subject: [PATCH 5.10 130/663] net: amd-xgbe: Reset the PHY rx data path when mailbox command timeout
+Date:   Mon,  1 Mar 2021 17:06:18 +0100
+Message-Id: <20210301161148.183037207@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,48 +42,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 
-[ Upstream commit d19741b0f54487cf3a11307900f8633935cd2849 ]
+[ Upstream commit 30b7edc82ec82578f4f5e6706766f0a9535617d3 ]
 
-In general it is desirable that cleanup is the reverse process of setup.
-In this case I am not seeing any particular issue, but with the
-introduction of devlink-sb for felix, a non-obvious decision had to be
-made as to where to put its cleanup method. When there's a convention in
-place, that decision becomes obvious.
+Sometimes mailbox commands timeout when the RX data path becomes
+unresponsive. This prevents the submission of new mailbox commands to DXIO.
+This patch identifies the timeout and resets the RX data path so that the
+next message can be submitted properly.
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 549b32af9f7c ("amd-xgbe: Simplify mailbox interface rate change code")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/ocelot/felix.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-common.h | 14 +++++++++++
+ drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c | 28 ++++++++++++++++++++-
+ 2 files changed, 41 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
-index 89d7c9b231863..7e506a1d8b2ff 100644
---- a/drivers/net/dsa/ocelot/felix.c
-+++ b/drivers/net/dsa/ocelot/felix.c
-@@ -635,14 +635,14 @@ static void felix_teardown(struct dsa_switch *ds)
- 	struct felix *felix = ocelot_to_felix(ocelot);
- 	int port;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-common.h b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+index b40d4377cc71d..b2cd3bdba9f89 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-common.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-common.h
+@@ -1279,10 +1279,18 @@
+ #define MDIO_PMA_10GBR_FECCTRL		0x00ab
+ #endif
  
--	if (felix->info->mdio_bus_free)
--		felix->info->mdio_bus_free(ocelot);
-+	ocelot_deinit_timestamp(ocelot);
-+	ocelot_deinit(ocelot);
- 
- 	for (port = 0; port < ocelot->num_phys_ports; port++)
- 		ocelot_deinit_port(ocelot, port);
--	ocelot_deinit_timestamp(ocelot);
--	/* stop workqueue thread */
--	ocelot_deinit(ocelot);
++#ifndef MDIO_PMA_RX_CTRL1
++#define MDIO_PMA_RX_CTRL1		0x8051
++#endif
 +
-+	if (felix->info->mdio_bus_free)
-+		felix->info->mdio_bus_free(ocelot);
+ #ifndef MDIO_PCS_DIG_CTRL
+ #define MDIO_PCS_DIG_CTRL		0x8000
+ #endif
+ 
++#ifndef MDIO_PCS_DIGITAL_STAT
++#define MDIO_PCS_DIGITAL_STAT		0x8010
++#endif
++
+ #ifndef MDIO_AN_XNP
+ #define MDIO_AN_XNP			0x0016
+ #endif
+@@ -1358,6 +1366,8 @@
+ #define XGBE_KR_TRAINING_ENABLE		BIT(1)
+ 
+ #define XGBE_PCS_CL37_BP		BIT(12)
++#define XGBE_PCS_PSEQ_STATE_MASK	0x1c
++#define XGBE_PCS_PSEQ_STATE_POWER_GOOD	0x10
+ 
+ #define XGBE_AN_CL37_INT_CMPLT		BIT(0)
+ #define XGBE_AN_CL37_INT_MASK		0x01
+@@ -1375,6 +1385,10 @@
+ #define XGBE_PMA_CDR_TRACK_EN_OFF	0x00
+ #define XGBE_PMA_CDR_TRACK_EN_ON	0x01
+ 
++#define XGBE_PMA_RX_RST_0_MASK		BIT(4)
++#define XGBE_PMA_RX_RST_0_RESET_ON	0x10
++#define XGBE_PMA_RX_RST_0_RESET_OFF	0x00
++
+ /* Bit setting and getting macros
+  *  The get macro will extract the current bit field value from within
+  *  the variable
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+index 859ded0c06b05..087948085ae19 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-phy-v2.c
+@@ -1953,6 +1953,27 @@ static void xgbe_phy_set_redrv_mode(struct xgbe_prv_data *pdata)
+ 	xgbe_phy_put_comm_ownership(pdata);
  }
  
- static int felix_hwtstamp_get(struct dsa_switch *ds, int port,
++static void xgbe_phy_rx_reset(struct xgbe_prv_data *pdata)
++{
++	int reg;
++
++	reg = XMDIO_READ_BITS(pdata, MDIO_MMD_PCS, MDIO_PCS_DIGITAL_STAT,
++			      XGBE_PCS_PSEQ_STATE_MASK);
++	if (reg == XGBE_PCS_PSEQ_STATE_POWER_GOOD) {
++		/* Mailbox command timed out, reset of RX block is required.
++		 * This can be done by asseting the reset bit and wait for
++		 * its compeletion.
++		 */
++		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
++				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_ON);
++		ndelay(20);
++		XMDIO_WRITE_BITS(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_RX_CTRL1,
++				 XGBE_PMA_RX_RST_0_MASK, XGBE_PMA_RX_RST_0_RESET_OFF);
++		usleep_range(40, 50);
++		netif_err(pdata, link, pdata->netdev, "firmware mailbox reset performed\n");
++	}
++}
++
+ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 					unsigned int cmd, unsigned int sub_cmd)
+ {
+@@ -1960,9 +1981,11 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 	unsigned int wait;
+ 
+ 	/* Log if a previous command did not complete */
+-	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS))
++	if (XP_IOREAD_BITS(pdata, XP_DRIVER_INT_RO, STATUS)) {
+ 		netif_dbg(pdata, link, pdata->netdev,
+ 			  "firmware mailbox not ready for command\n");
++		xgbe_phy_rx_reset(pdata);
++	}
+ 
+ 	/* Construct the command */
+ 	XP_SET_BITS(s0, XP_DRIVER_SCRATCH_0, COMMAND, cmd);
+@@ -1984,6 +2007,9 @@ static void xgbe_phy_perform_ratechange(struct xgbe_prv_data *pdata,
+ 
+ 	netif_dbg(pdata, link, pdata->netdev,
+ 		  "firmware mailbox command did not complete\n");
++
++	/* Reset on error */
++	xgbe_phy_rx_reset(pdata);
+ }
+ 
+ static void xgbe_phy_rrc(struct xgbe_prv_data *pdata)
 -- 
 2.27.0
 
