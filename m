@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDB132853B
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD3D532847C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:37:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbhCAQvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:51:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46972 "EHLO mail.kernel.org"
+        id S232733AbhCAQgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:36:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235301AbhCAQnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:43:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61B3464F46;
-        Mon,  1 Mar 2021 16:30:01 +0000 (UTC)
+        id S231673AbhCAQaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:30:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8D7964EE2;
+        Mon,  1 Mar 2021 16:23:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616201;
-        bh=fKDD0BSkgLr84muZmQPowt+pExksggudOcHRFRzsKhU=;
+        s=korg; t=1614615820;
+        bh=/pQHnMuAejkyeUcMTUlha1OzfNW60oKJFy4c+C1WALA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfKKBpmpE/uL0wVuD4T2zbxNKYrsKQ/g3HqT2T8cJqKktr3o58m00gP47AguRghnT
-         CCchEnE4BmPVYv/xx9f91KxREIESG1mM6+U0hjdqpNC94vgeFWNqDQoIS0qsWKFQDT
-         gzP8ObAT5dvuFDqVUCPcMQNEyZE5kf9Y1DoMEsAo=
+        b=qoNEVPVe6GvpcYckiwxs9JWTZd0yll2D01Le7dE0xPcxweGr+YojIlEjfalZk6xV/
+         81dLDL1CR3vwC+KGU/K9eOYmEMQknWLe/wGR2iUjz00QPV+yvD1quAE0lSnmtKVbVS
+         a61jXcbXzHvo7fdGAJRlNPIhnW5WuEXTdCgIjAj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pratyush Yadav <p.yadav@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Till=20D=C3=B6rges?= <doerges@pre-sense.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 070/176] spi: cadence-quadspi: Abort read if dummy cycles required are too many
+Subject: [PATCH 4.9 042/134] media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values
 Date:   Mon,  1 Mar 2021 17:12:23 +0100
-Message-Id: <20210301161024.440493720@linuxfoundation.org>
+Message-Id: <20210301161015.640909840@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratyush Yadav <p.yadav@ti.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit ceeda328edeeeeac7579e9dbf0610785a3b83d39 ]
+[ Upstream commit dc9455ffae02d7b7fb51ba1e007fffcb9dc5d890 ]
 
-The controller can only support up to 31 dummy cycles. If the command
-requires more it falls back to using 31. This command is likely to fail
-because the correct number of cycles are not waited upon. Rather than
-silently issuing an incorrect command, fail loudly so the caller can get
-a chance to find out the command can't be supported by the controller.
+The Renkforce RF AC4K 300 Action Cam 4K reports invalid bFormatIndex and
+bFrameIndex values when negotiating the video probe and commit controls.
+The UVC descriptors report a single supported format and frame size,
+with bFormatIndex and bFrameIndex both equal to 2, but the video probe
+and commit controls report bFormatIndex and bFrameIndex set to 1.
 
-Fixes: 140623410536 ("mtd: spi-nor: Add driver for Cadence Quad SPI Flash Controller")
-Signed-off-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/20201222184425.7028-3-p.yadav@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The device otherwise operates correctly, but the driver rejects the
+values and fails the format try operation. Fix it by ignoring the
+invalid indices, and assuming that the format and frame requested by the
+driver are accepted by the device.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=210767
+
+Fixes: 8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
+Reported-by: Till Dörges <doerges@pre-sense.de>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/cadence-quadspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_v4l2.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/cadence-quadspi.c b/drivers/mtd/spi-nor/cadence-quadspi.c
-index ff4edf4bb23c5..e58923d25f4a5 100644
---- a/drivers/mtd/spi-nor/cadence-quadspi.c
-+++ b/drivers/mtd/spi-nor/cadence-quadspi.c
-@@ -465,7 +465,7 @@ static int cqspi_indirect_read_setup(struct spi_nor *nor,
- 	/* Setup dummy clock cycles */
- 	dummy_clk = nor->read_dummy;
- 	if (dummy_clk > CQSPI_DUMMY_CLKS_MAX)
--		dummy_clk = CQSPI_DUMMY_CLKS_MAX;
-+		return -EOPNOTSUPP;
+diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
+index 5156c971c241c..6a19cf94705b1 100644
+--- a/drivers/media/usb/uvc/uvc_v4l2.c
++++ b/drivers/media/usb/uvc/uvc_v4l2.c
+@@ -258,7 +258,9 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
+ 		goto done;
  
- 	if (dummy_clk / 8) {
- 		reg |= (1 << CQSPI_REG_RD_INSTR_MODE_EN_LSB);
+ 	/* After the probe, update fmt with the values returned from
+-	 * negotiation with the device.
++	 * negotiation with the device. Some devices return invalid bFormatIndex
++	 * and bFrameIndex values, in which case we can only assume they have
++	 * accepted the requested format as-is.
+ 	 */
+ 	for (i = 0; i < stream->nformats; ++i) {
+ 		if (probe->bFormatIndex == stream->format[i].index) {
+@@ -267,11 +269,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
+ 		}
+ 	}
+ 
+-	if (i == stream->nformats) {
+-		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
++	if (i == stream->nformats)
++		uvc_trace(UVC_TRACE_FORMAT,
++			  "Unknown bFormatIndex %u, using default\n",
+ 			  probe->bFormatIndex);
+-		return -EINVAL;
+-	}
+ 
+ 	for (i = 0; i < format->nframes; ++i) {
+ 		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
+@@ -280,11 +281,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
+ 		}
+ 	}
+ 
+-	if (i == format->nframes) {
+-		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
++	if (i == format->nframes)
++		uvc_trace(UVC_TRACE_FORMAT,
++			  "Unknown bFrameIndex %u, using default\n",
+ 			  probe->bFrameIndex);
+-		return -EINVAL;
+-	}
+ 
+ 	fmt->fmt.pix.width = frame->wWidth;
+ 	fmt->fmt.pix.height = frame->wHeight;
 -- 
 2.27.0
 
