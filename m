@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4AB328858
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC190328857
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238821AbhCARi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:38:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54070 "EHLO mail.kernel.org"
+        id S238826AbhCARi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:38:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238224AbhCARbu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:31:50 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E9996509B;
-        Mon,  1 Mar 2021 16:52:42 +0000 (UTC)
+        id S238236AbhCARb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:31:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A4B6509E;
+        Mon,  1 Mar 2021 16:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617563;
-        bh=qA2TRLyly4mfWKsGE8VnSuu01WrBUCQNqc7S0NQ+JhI=;
+        s=korg; t=1614617565;
+        bh=Uo3UbnlrwPmUwoHEihjTz1E1u6rv3qPyoavfcH3B5Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJC+53Yigf1u2DoDzxTPnTfLEysJafHJlBs66ApLqlGH17FkfrVZbDN0pCQzI6DOY
-         x+52p4QzBzkE2WVt351YfgO+VKOSgpCH91Oq3m4VNbn8XC8Vmqy1JsgEdKF73dpZFN
-         xqcOanFsIf/XzS19Rzg3RL2C8yol6bXHutBIotsE=
+        b=hX8yO8G6aKr/QGnCWn6yQ+cYw9x6yDviXQ1NkA+F4ZkShqRi/VcItkTikMuYld7ts
+         hKlLaf4qx91OVhcFuen2V73xWAttZ7rbxUR1h9KpYQlDlxF0X4XFDPmOKSlrn0eRt1
+         nyzC0h9SWtnxM9pUSZKsOTNlOiskDh+K3nt7xxCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 117/340] crypto: ecdh_helper - Ensure len >= secret.len in decode_key()
-Date:   Mon,  1 Mar 2021 17:11:01 +0100
-Message-Id: <20210301161054.096001322@linuxfoundation.org>
+Subject: [PATCH 5.4 118/340] ima: Free IMA measurement buffer on error
+Date:   Mon,  1 Mar 2021 17:11:02 +0100
+Message-Id: <20210301161054.148567894@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,39 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
+From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 
-[ Upstream commit a53ab94eb6850c3657392e2d2ce9b38c387a2633 ]
+[ Upstream commit 6d14c6517885fa68524238787420511b87d671df ]
 
-The length ('len' parameter) passed to crypto_ecdh_decode_key() is never
-checked against the length encoded in the passed buffer ('buf'
-parameter). This could lead to an out-of-bounds access when the passed
-length is less than the encoded length.
+IMA allocates kernel virtual memory to carry forward the measurement
+list, from the current kernel to the next kernel on kexec system call,
+in ima_add_kexec_buffer() function.  In error code paths this memory
+is not freed resulting in memory leak.
 
-Add a check to prevent that.
+Free the memory allocated for the IMA measurement list in
+the error code paths in ima_add_kexec_buffer() function.
 
-Fixes: 3c4b23901a0c7 ("crypto: ecdh - Add ECDH software support")
-Signed-off-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+Fixes: 7b8589cc29e7 ("ima: on soft reboot, save the measurement list")
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/ecdh_helper.c | 3 +++
- 1 file changed, 3 insertions(+)
+ security/integrity/ima/ima_kexec.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/crypto/ecdh_helper.c b/crypto/ecdh_helper.c
-index 66fcb2ea81544..fca63b559f655 100644
---- a/crypto/ecdh_helper.c
-+++ b/crypto/ecdh_helper.c
-@@ -67,6 +67,9 @@ int crypto_ecdh_decode_key(const char *buf, unsigned int len,
- 	if (secret.type != CRYPTO_KPP_SECRET_TYPE_ECDH)
- 		return -EINVAL;
+diff --git a/security/integrity/ima/ima_kexec.c b/security/integrity/ima/ima_kexec.c
+index 9e94eca48b898..37b1244e3a166 100644
+--- a/security/integrity/ima/ima_kexec.c
++++ b/security/integrity/ima/ima_kexec.c
+@@ -120,6 +120,7 @@ void ima_add_kexec_buffer(struct kimage *image)
+ 	ret = kexec_add_buffer(&kbuf);
+ 	if (ret) {
+ 		pr_err("Error passing over kexec measurement buffer.\n");
++		vfree(kexec_buffer);
+ 		return;
+ 	}
  
-+	if (unlikely(len < secret.len))
-+		return -EINVAL;
-+
- 	ptr = ecdh_unpack_data(&params->curve_id, ptr, sizeof(params->curve_id));
- 	ptr = ecdh_unpack_data(&params->key_size, ptr, sizeof(params->key_size));
- 	if (secret.len != crypto_ecdh_key_len(params))
 -- 
 2.27.0
 
