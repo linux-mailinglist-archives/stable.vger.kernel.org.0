@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 301B8328B90
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:39:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA46328C43
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:53:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239802AbhCAShY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:37:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
+        id S237573AbhCASrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:47:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234882AbhCAS3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:29:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E3F46528D;
-        Mon,  1 Mar 2021 17:32:23 +0000 (UTC)
+        id S235801AbhCASmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D453565298;
+        Mon,  1 Mar 2021 17:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619944;
-        bh=xOWbgxp3vEq+RDS7HFsY+tPWOzL+E97JnpPwj0+LSvs=;
+        s=korg; t=1614619963;
+        bh=Wl6dcThoMspX2Rdzvq+kVThvUDBfqAE3i4Y2e5F4jaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DLkXqo2UCuRfWxJvHcDStf+qiq7tQQ1TnrciBJ1ycKPaGQvitdCGKOK4CYAqS3ta/
-         Au4hrJlgK02bVP7cOCqSFgvwwGX7f/7QdP+aQ7dxpovzim6k9TmHaImcmkZEuXm9rP
-         C3yXH6qMvE30F+C70VlpcFeoxeL9OB81J4KblCMk=
+        b=qelewn3+TrwXX0L88dHxHuoUiC7qpnwXDMhVgJlJKucGdfGpKDIiDBBluDlxBMstn
+         GQLTX1BKKRg+eIBvIz40GdX16tcAmyeiwdHYT0eqEhD9ta2IyaCrfICDsj6CsyNWUB
+         dkEkCQpotHAfkw1zvcnBrGlUGqO64NWGFSlOgJAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.10 638/663] gfs2: Dont skip dlm unlock if glock has an lvb
-Date:   Mon,  1 Mar 2021 17:14:46 +0100
-Message-Id: <20210301161213.422467223@linuxfoundation.org>
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.10 644/663] dm table: fix zoned iterate_devices based device capability checks
+Date:   Mon,  1 Mar 2021 17:14:52 +0100
+Message-Id: <20210301161213.714760592@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,65 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit 78178ca844f0eb88f21f31c7fde969384be4c901 upstream.
+commit 24f6b6036c9eec21191646930ad42808e6180510 upstream.
 
-Patch fb6791d100d1 was designed to allow gfs2 to unmount quicker by
-skipping the step where it tells dlm to unlock glocks in EX with lvbs.
-This was done because when gfs2 unmounts a file system, it destroys the
-dlm lockspace shortly after it destroys the glocks so it doesn't need to
-unlock them all: the unlock is implied when the lockspace is destroyed
-by dlm.
+Fix dm_table_supports_zoned_model() and invert logic of both
+iterate_devices_callout_fn so that all devices' zoned capabilities are
+properly checked.
 
-However, that patch introduced a use-after-free in dlm: as part of its
-normal dlm_recoverd process, it can call ls_recovery to recover dead
-locks. In so doing, it can call recover_rsbs which calls recover_lvb for
-any mastered rsbs. Func recover_lvb runs through the list of lkbs queued
-to the given rsb (if the glock is cached but unlocked, it will still be
-queued to the lkb, but in NL--Unlocked--mode) and if it has an lvb,
-copies it to the rsb, thus trying to preserve the lkb. However, when
-gfs2 skips the dlm unlock step, it frees the glock and its lvb, which
-means dlm's function recover_lvb references the now freed lvb pointer,
-copying the freed lvb memory to the rsb.
+Add one more parameter to dm_table_any_dev_attr(), which is actually
+used as the @data parameter of iterate_devices_callout_fn, so that
+dm_table_matches_zone_sectors() can be replaced by
+dm_table_any_dev_attr().
 
-This patch changes the check in gdlm_put_lock so that it calls
-dlm_unlock for all glocks that contain an lvb pointer.
-
-Fixes: fb6791d100d1 ("GFS2: skip dlm_unlock calls in unmount")
-Cc: stable@vger.kernel.org # v3.8+
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: dd88d313bef02 ("dm table: add zoned block devices validation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/lock_dlm.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/md/dm-table.c |   48 ++++++++++++++++--------------------------------
+ 1 file changed, 16 insertions(+), 32 deletions(-)
 
---- a/fs/gfs2/lock_dlm.c
-+++ b/fs/gfs2/lock_dlm.c
-@@ -284,7 +284,6 @@ static void gdlm_put_lock(struct gfs2_gl
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1323,10 +1323,10 @@ struct dm_target *dm_table_find_target(s
+  * should use the iteration structure like dm_table_supports_nowait() or
+  * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
+  * uses an @anti_func that handle semantics of counter examples, e.g. not
+- * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func, data);
+  */
+ static bool dm_table_any_dev_attr(struct dm_table *t,
+-				  iterate_devices_callout_fn func)
++				  iterate_devices_callout_fn func, void *data)
  {
- 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
- 	struct lm_lockstruct *ls = &sdp->sd_lockstruct;
--	int lvb_needs_unlock = 0;
- 	int error;
+ 	struct dm_target *ti;
+ 	unsigned int i;
+@@ -1335,7 +1335,7 @@ static bool dm_table_any_dev_attr(struct
+ 		ti = dm_table_get_target(t, i);
  
- 	if (gl->gl_lksb.sb_lkid == 0) {
-@@ -297,13 +296,10 @@ static void gdlm_put_lock(struct gfs2_gl
- 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
- 	gfs2_update_request_times(gl);
+ 		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti, func, NULL))
++		    ti->type->iterate_devices(ti, func, data))
+ 			return true;
+         }
  
--	/* don't want to skip dlm_unlock writing the lvb when lock is ex */
--
--	if (gl->gl_lksb.sb_lvbptr && (gl->gl_state == LM_ST_EXCLUSIVE))
--		lvb_needs_unlock = 1;
-+	/* don't want to skip dlm_unlock writing the lvb when lock has one */
+@@ -1378,13 +1378,13 @@ bool dm_table_has_no_data_devices(struct
+ 	return true;
+ }
  
- 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
--	    !lvb_needs_unlock) {
-+	    !gl->gl_lksb.sb_lvbptr) {
- 		gfs2_glock_free(gl);
- 		return;
+-static int device_is_zoned_model(struct dm_target *ti, struct dm_dev *dev,
+-				 sector_t start, sector_t len, void *data)
++static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
++				  sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	enum blk_zoned_model *zoned_model = data;
+ 
+-	return q && blk_queue_zoned_model(q) == *zoned_model;
++	return !q || blk_queue_zoned_model(q) != *zoned_model;
+ }
+ 
+ static bool dm_table_supports_zoned_model(struct dm_table *t,
+@@ -1401,37 +1401,20 @@ static bool dm_table_supports_zoned_mode
+ 			return false;
+ 
+ 		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_is_zoned_model, &zoned_model))
++		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
+ 			return false;
  	}
+ 
+ 	return true;
+ }
+ 
+-static int device_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
+-				       sector_t start, sector_t len, void *data)
++static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
++					   sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	unsigned int *zone_sectors = data;
+ 
+-	return q && blk_queue_zone_sectors(q) == *zone_sectors;
+-}
+-
+-static bool dm_table_matches_zone_sectors(struct dm_table *t,
+-					  unsigned int zone_sectors)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_matches_zone_sectors, &zone_sectors))
+-			return false;
+-	}
+-
+-	return true;
++	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
+ }
+ 
+ static int validate_hardware_zoned_model(struct dm_table *table,
+@@ -1451,7 +1434,7 @@ static int validate_hardware_zoned_model
+ 	if (!zone_sectors || !is_power_of_2(zone_sectors))
+ 		return -EINVAL;
+ 
+-	if (!dm_table_matches_zone_sectors(table, zone_sectors)) {
++	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
+ 		DMERR("%s: zone sectors is not consistent across all devices",
+ 		      dm_device_name(table->md));
+ 		return -EINVAL;
+@@ -1837,11 +1820,11 @@ void dm_table_set_restrictions(struct dm
+ 	else
+ 		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
+ 
+-	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
++	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled, NULL))
+ 		dax_write_cache(t->md->dax_dev, true);
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_any_dev_attr(t, device_is_rotational))
++	if (dm_table_any_dev_attr(t, device_is_rotational, NULL))
+ 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
+ 	else
+ 		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+@@ -1860,7 +1843,7 @@ void dm_table_set_restrictions(struct dm
+ 	 * them as well.  Only targets that support iterate_devices are considered:
+ 	 * don't want error, zero, etc to require stable pages.
+ 	 */
+-	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
++	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
+ 		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
+ 	else
+ 		blk_queue_flag_clear(QUEUE_FLAG_STABLE_WRITES, q);
+@@ -1871,7 +1854,8 @@ void dm_table_set_restrictions(struct dm
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
++	if (blk_queue_add_random(q) &&
++	    dm_table_any_dev_attr(t, device_is_not_random, NULL))
+ 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
+ 
+ 	/*
 
 
