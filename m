@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4689E3290A6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C885D3290A5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:12:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242797AbhCAUMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:12:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37630 "EHLO mail.kernel.org"
+        id S242789AbhCAUMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:12:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242582AbhCAUCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:02:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8850C65394;
-        Mon,  1 Mar 2021 17:57:43 +0000 (UTC)
+        id S242567AbhCAUC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:02:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C95D65392;
+        Mon,  1 Mar 2021 17:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621464;
-        bh=BaMT1W2QKF/Ej5o8voNVnRg3XEAvWOyRn/mZhTTy/9g=;
+        s=korg; t=1614621466;
+        bh=EDo52cRFM/T0AsGXpARceRrKlJCWVWawT+Cp8Z2v+t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=psvdAl5uo5MC7+fUAt6VJaR3CoCLWPR262eZg2KmiUQYUZpwE6UW9IU5db9OtaBb2
-         lqoNHSCKBfmkto9epsxCfXIypHKUgE7569WQUU0ZXSFnJm2MVJNHKZPWWaBVtD873Z
-         S71JR7lf/xYpHI9otMROPWkecr/o/Bku9LtLSwW0=
+        b=L4KptLkBkU/Q4HeKcP8SyOIxywfmQqmbUG4Rspe228kqlrkTr0fjydPV3XYStPIb6
+         GYTJEJKddDtU2Kqbg43IXhCFEYoGsoOUQ2zY8ZbVfVFbTHCob8lTF8sZj+C1ynz+Rc
+         YFmyF5bhQhoy91xEo8uZ2zJS9qSlBO+NtSVLx2os=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Andrzej=20Sawu=C5=82a?= <andrzej.sawula@intel.com>,
+        Dawid Lukwinski <dawid.lukwinski@intel.com>,
         Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
         Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
         Tony Brelinski <tonyx.brelinski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 524/775] i40e: Add zero-initialization of AQ command structures
-Date:   Mon,  1 Mar 2021 17:11:32 +0100
-Message-Id: <20210301161227.409449113@linuxfoundation.org>
+Subject: [PATCH 5.11 525/775] i40e: Fix overwriting flow control settings during driver loading
+Date:   Mon,  1 Mar 2021 17:11:33 +0100
+Message-Id: <20210301161227.458559579@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -47,55 +46,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-[ Upstream commit d2c788f739b6f68090e968a2ee31b543701e795f ]
+[ Upstream commit 4cdb9f80dcd46aab3c0020b4a6920c22735c5d6e ]
 
-Zero-initialize AQ command data structures to comply with
-API specifications.
+During driver loading flow control settings were written to FW
+using a variable which was always zero, since it was being set
+only by ethtool. This behavior has been corrected and driver
+no longer overwrites the default FW/NVM settings.
 
-Fixes: 2f4b411a3d67 ("i40e: Enable cloud filters via tc-flower")
-Fixes: f4492db16df8 ("i40e: Add NPAR BW get and set functions")
-Signed-off-by: Andrzej Sawuła <andrzej.sawula@intel.com>
+Fixes: 373149fc99a0 ("i40e: Decrease the scope of rtnl lock")
+Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
 Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Reviewed-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
 Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
 Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 27 ---------------------
+ 1 file changed, 27 deletions(-)
 
 diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 1db482d310c2d..9b1251a710c09 100644
+index 9b1251a710c09..bcfa6dcac29f7 100644
 --- a/drivers/net/ethernet/intel/i40e/i40e_main.c
 +++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7667,6 +7667,8 @@ int i40e_add_del_cloud_filter(struct i40e_vsi *vsi,
- 	if (filter->flags >= ARRAY_SIZE(flag_table))
- 		return I40E_ERR_CONFIG;
+@@ -10005,7 +10005,6 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	int old_recovery_mode_bit = test_bit(__I40E_RECOVERY_MODE, pf->state);
+ 	struct i40e_vsi *vsi = pf->vsi[pf->lan_vsi];
+ 	struct i40e_hw *hw = &pf->hw;
+-	u8 set_fc_aq_fail = 0;
+ 	i40e_status ret;
+ 	u32 val;
+ 	int v;
+@@ -10131,13 +10130,6 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 			 i40e_stat_str(&pf->hw, ret),
+ 			 i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
  
-+	memset(&cld_filter, 0, sizeof(cld_filter));
-+
- 	/* copy element needed to add cloud filter from filter */
- 	i40e_set_cld_element(filter, &cld_filter);
+-	/* make sure our flow control settings are restored */
+-	ret = i40e_set_fc(&pf->hw, &set_fc_aq_fail, true);
+-	if (ret)
+-		dev_dbg(&pf->pdev->dev, "setting flow control: ret = %s last_status = %s\n",
+-			i40e_stat_str(&pf->hw, ret),
+-			i40e_aq_str(&pf->hw, pf->hw.aq.asq_last_status));
+-
+ 	/* Rebuild the VSIs and VEBs that existed before reset.
+ 	 * They are still in our local switch element arrays, so only
+ 	 * need to rebuild the switch model in the HW.
+@@ -14720,7 +14712,6 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	int err;
+ 	u32 val;
+ 	u32 i;
+-	u8 set_fc_aq_fail;
  
-@@ -7734,6 +7736,8 @@ int i40e_add_del_cloud_filter_big_buf(struct i40e_vsi *vsi,
- 	    !ipv6_addr_any(&filter->ip.v6.src_ip6))
- 		return -EOPNOTSUPP;
+ 	err = pci_enable_device_mem(pdev);
+ 	if (err)
+@@ -15054,24 +15045,6 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	}
+ 	INIT_LIST_HEAD(&pf->vsi[pf->lan_vsi]->ch_list);
  
-+	memset(&cld_filter, 0, sizeof(cld_filter));
-+
- 	/* copy element needed to add cloud filter from filter */
- 	i40e_set_cld_element(filter, &cld_filter.element);
- 
-@@ -11709,6 +11713,8 @@ i40e_status i40e_set_partition_bw_setting(struct i40e_pf *pf)
- 	struct i40e_aqc_configure_partition_bw_data bw_data;
- 	i40e_status status;
- 
-+	memset(&bw_data, 0, sizeof(bw_data));
-+
- 	/* Set the valid bit for this PF */
- 	bw_data.pf_valid_bits = cpu_to_le16(BIT(pf->hw.pf_id));
- 	bw_data.max_bw[pf->hw.pf_id] = pf->max_bw & I40E_ALT_BW_VALUE_MASK;
+-	/* Make sure flow control is set according to current settings */
+-	err = i40e_set_fc(hw, &set_fc_aq_fail, true);
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_GET)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on get_phy_cap\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_SET)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on set_phy_config\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-	if (set_fc_aq_fail & I40E_SET_FC_AQ_FAIL_UPDATE)
+-		dev_dbg(&pf->pdev->dev,
+-			"Set fc with err %s aq_err %s on get_link_info\n",
+-			i40e_stat_str(hw, err),
+-			i40e_aq_str(hw, hw->aq.asq_last_status));
+-
+ 	/* if FDIR VSI was set up, start it now */
+ 	for (i = 0; i < pf->num_alloc_vsi; i++) {
+ 		if (pf->vsi[i] && pf->vsi[i]->type == I40E_VSI_FDIR) {
 -- 
 2.27.0
 
