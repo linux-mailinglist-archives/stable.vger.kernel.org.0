@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC88C328866
+	by mail.lfdr.de (Postfix) with ESMTP id 4A1F2328865
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:40:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238863AbhCARjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:39:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S238868AbhCARjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:39:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238277AbhCARcD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:32:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BFBD6509A;
-        Mon,  1 Mar 2021 16:52:31 +0000 (UTC)
+        id S232661AbhCARcV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:32:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB9F064FAB;
+        Mon,  1 Mar 2021 16:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617551;
-        bh=7tTkxjGy63OQ5sfCWcrFSALjIm4rXMCjvMrCY6irvnQ=;
+        s=korg; t=1614617557;
+        bh=dZd3b8yUQP9MOR6f2WP5mpHFDIVdHIaeaadWRYBVsyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LF/iL7L9qwdaIBvfXwiwonJf+su/oITgJv+dgt+nogSpy794Jwu57+lxADlMWthJ1
-         9JjL/N3VJi7psiLfYWl4xwza98hcYfr924p5q0fSA/nUKRKiKvBd3j3EsGX6ZGBvxT
-         XnpoZ10+upLbeCPptuNvmiZzwYweou/Fsl/WpY4E=
+        b=WYKPaB6mO4HJw6JOHsHnfHCw1c/zrOT0eZl5EQSsFE/2Ll0SaBXNaKv3HCPUQCvOG
+         +MRVWT3ZL4P/ppUmohDzqPiGwvPiMAc0Jzc4JS48NUZFJf7kTziv4J+LRXjzCwmP/J
+         Y3yM7XeLsgJPQIEArlN3XAV19j6sOjg0LqbAaNOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Hui Wang <hui.wang@canonical.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/340] ASoC: SOF: debug: Fix a potential issue on string buffer termination
-Date:   Mon,  1 Mar 2021 17:10:58 +0100
-Message-Id: <20210301161053.949333311@linuxfoundation.org>
+Subject: [PATCH 5.4 115/340] btrfs: clarify error returns values in __load_free_space_cache
+Date:   Mon,  1 Mar 2021 17:10:59 +0100
+Message-Id: <20210301161053.998593925@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -42,38 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 9037c3bde65d339017ef41d81cb58069ffc321d4 ]
+[ Upstream commit 3cc64e7ebfb0d7faaba2438334c43466955a96e8 ]
 
-The function simple_write_to_buffer() doesn't add string termination
-at the end of buf, we need to handle it on our own. This change refers
-to the function tokenize_input() in debug.c and the function
-sof_dfsentry_trace_filter_write() in trace.c.
+Return value in __load_free_space_cache is not properly set after
+(unlikely) memory allocation failures and 0 is returned instead.
+This is not a problem for the caller load_free_space_cache because only
+value 1 is considered as 'cache loaded' but for clarity it's better
+to set the errors accordingly.
 
-Fixes: 091c12e1f50c ("ASoC: SOF: debug: add new debugfs entries for IPC flood test")
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210208103857.75705-1-hui.wang@canonical.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: a67509c30079 ("Btrfs: add a io_ctl struct and helpers for dealing with the space cache")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/free-space-cache.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/debug.c b/sound/soc/sof/debug.c
-index 5529e8eeca462..08726034ff090 100644
---- a/sound/soc/sof/debug.c
-+++ b/sound/soc/sof/debug.c
-@@ -135,7 +135,7 @@ static ssize_t sof_dfsentry_write(struct file *file, const char __user *buffer,
- 	char *string;
- 	int ret;
+diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
+index 6e6be922b937d..23f59d463e24e 100644
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -744,8 +744,10 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 	while (num_entries) {
+ 		e = kmem_cache_zalloc(btrfs_free_space_cachep,
+ 				      GFP_NOFS);
+-		if (!e)
++		if (!e) {
++			ret = -ENOMEM;
+ 			goto free_cache;
++		}
  
--	string = kzalloc(count, GFP_KERNEL);
-+	string = kzalloc(count+1, GFP_KERNEL);
- 	if (!string)
- 		return -ENOMEM;
+ 		ret = io_ctl_read_entry(&io_ctl, e, &type);
+ 		if (ret) {
+@@ -754,6 +756,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 		}
  
+ 		if (!e->bytes) {
++			ret = -1;
+ 			kmem_cache_free(btrfs_free_space_cachep, e);
+ 			goto free_cache;
+ 		}
+@@ -774,6 +777,7 @@ static int __load_free_space_cache(struct btrfs_root *root, struct inode *inode,
+ 			e->bitmap = kmem_cache_zalloc(
+ 					btrfs_free_space_bitmap_cachep, GFP_NOFS);
+ 			if (!e->bitmap) {
++				ret = -ENOMEM;
+ 				kmem_cache_free(
+ 					btrfs_free_space_cachep, e);
+ 				goto free_cache;
 -- 
 2.27.0
 
