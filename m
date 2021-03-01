@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7605328397
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40ECC328364
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235469AbhCAQWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:22:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57258 "EHLO mail.kernel.org"
+        id S237699AbhCAQSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:18:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237731AbhCAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 978DD64EAE;
-        Mon,  1 Mar 2021 16:17:12 +0000 (UTC)
+        id S237688AbhCAQRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:17:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B59F64DE5;
+        Mon,  1 Mar 2021 16:16:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615433;
-        bh=GuFZUTlsmQ05FkrB4261N8Wq4tDh1IRG/jfj/9sL4lQ=;
+        s=korg; t=1614615383;
+        bh=ADR4RqQ7UnHNWLhicJav5VyFALEwfAJCpTjVjswRJ/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXf1qedYMLswg99NFCwJlf2mxooppShBSvbKs3sOTSUF3KyX7ryEL5nuJg9ks4R0N
-         Uk8/K/xIM+OCClmiIy7oSX16RIOMYCjG/vSiXADGawRdpQzwgxtJhy1jOMYZypW/Lo
-         cK5bMoIf8uxlpmKSDhBndMQIG0G8OwE79ljdll2Q=
+        b=YxkHPaAtsg3IJcic7YVoMNDqY3GwCh0HPnj09ykyvgY1qZ19BFkHUBTiBlFTzKX5s
+         h6OzKjn4KZhsnGFuUBUDehRjXcHRxpfFq6ZyfZpKRxtSpwDjpoGBChEmfNwPqB4q+2
+         YJDMsIKI/U2Dx4ah7MyyaYNUPTYEK2tj5IRc4SeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christopher William Snowhill <chris@kode54.net>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/93] Bluetooth: Fix initializing response id after clearing struct
-Date:   Mon,  1 Mar 2021 17:12:21 +0100
-Message-Id: <20210301161007.359944148@linuxfoundation.org>
+Subject: [PATCH 4.4 10/93] ARM: dts: exynos: correct PMIC interrupt trigger level on Spring
+Date:   Mon,  1 Mar 2021 17:12:22 +0100
+Message-Id: <20210301161007.407919540@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,37 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christopher William Snowhill <chris@kode54.net>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit a5687c644015a097304a2e47476c0ecab2065734 ]
+[ Upstream commit 77e6a5467cb8657cf8b5e610a30a4c502085e4f9 ]
 
-Looks like this was missed when patching the source to clear the structures
-throughout, causing this one instance to clear the struct after the response
-id is assigned.
+The Samsung PMIC datasheets describe the interrupt line as active low
+with a requirement of acknowledge from the CPU.  Without specifying the
+interrupt type in Devicetree, kernel might apply some fixed
+configuration, not necessarily working for this hardware.
 
-Fixes: eddb7732119d ("Bluetooth: A2MP: Fix not initializing all members")
-Signed-off-by: Christopher William Snowhill <chris@kode54.net>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 53dd4138bb0a ("ARM: dts: Add exynos5250-spring device tree")
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20201210212903.216728-4-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/a2mp.c | 2 +-
+ arch/arm/boot/dts/exynos5250-spring.dts | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/a2mp.c b/net/bluetooth/a2mp.c
-index 8f918155685db..242ef2abd0911 100644
---- a/net/bluetooth/a2mp.c
-+++ b/net/bluetooth/a2mp.c
-@@ -388,9 +388,9 @@ static int a2mp_getampassoc_req(struct amp_mgr *mgr, struct sk_buff *skb,
- 	hdev = hci_dev_get(req->id);
- 	if (!hdev || hdev->amp_type == AMP_TYPE_BREDR || tmp) {
- 		struct a2mp_amp_assoc_rsp rsp;
--		rsp.id = req->id;
- 
- 		memset(&rsp, 0, sizeof(rsp));
-+		rsp.id = req->id;
- 
- 		if (tmp) {
- 			rsp.status = A2MP_STATUS_COLLISION_OCCURED;
+diff --git a/arch/arm/boot/dts/exynos5250-spring.dts b/arch/arm/boot/dts/exynos5250-spring.dts
+index c1edd6d038a90..4b3bd43f77213 100644
+--- a/arch/arm/boot/dts/exynos5250-spring.dts
++++ b/arch/arm/boot/dts/exynos5250-spring.dts
+@@ -112,7 +112,7 @@
+ 		compatible = "samsung,s5m8767-pmic";
+ 		reg = <0x66>;
+ 		interrupt-parent = <&gpx3>;
+-		interrupts = <2 IRQ_TYPE_NONE>;
++		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&s5m8767_irq &s5m8767_dvs &s5m8767_ds>;
+ 		wakeup-source;
 -- 
 2.27.0
 
