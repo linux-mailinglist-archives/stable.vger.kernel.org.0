@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076D4328391
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:22:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544B332839D
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:23:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235542AbhCAQV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:21:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57276 "EHLO mail.kernel.org"
+        id S237560AbhCAQWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:22:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237739AbhCAQTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:19:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A518464EDE;
-        Mon,  1 Mar 2021 16:17:46 +0000 (UTC)
+        id S237741AbhCAQTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:19:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2E3C64EDD;
+        Mon,  1 Mar 2021 16:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615467;
-        bh=3gw/aUdt7iJWovuAIdHc1iNkCndxBO6Jk1QbTfB83MU=;
+        s=korg; t=1614615472;
+        bh=zjtY9lX6ynw9m1OzGq5jZwhCciuKThvXh6BfiXqk3vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i0MuPnaT/IsxrzyM8KEFYYul1LShzsQ/+//I5EuSNPiG/uziDyKdCc33oXpRS2Qc2
-         UpeUw1GOv9cxxx5dwv3OpIK4/HkNayHHKQVxrnn5zCVbFGwBIeE2V8Syhlx8ByElUu
-         wZt/J7xQqRIf52T8PB0IEELUzB2NHoOdGkLMPjm8=
+        b=XDQMTcTHaHy0p6dLDuEP7Ez/YruY1pdwfusck+JoqNvCQ++hBeVZF91ueytw9DWF3
+         VTbEq7FWui5+WNrdfgilQrSvLp+g+xgV2Halr6jHd44aUoR3l3ro3Dywsa1XqATP9Q
+         9JAWVKe6BRB60gKFxDpLQDD2O2fl0B3duu2/A/cE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 40/93] isofs: release buffer head before return
-Date:   Mon,  1 Mar 2021 17:12:52 +0100
-Message-Id: <20210301161008.880790919@linuxfoundation.org>
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 41/93] IB/umad: Return EIO in case of when device disassociated
+Date:   Mon,  1 Mar 2021 17:12:53 +0100
+Message-Id: <20210301161008.927338196@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -39,46 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 0a6dc67a6aa45f19bd4ff89b4f468fc50c4b8daa ]
+[ Upstream commit 4fc5461823c9cad547a9bdfbf17d13f0da0d6bb5 ]
 
-Release the buffer_head before returning error code in
-do_isofs_readdir() and isofs_find_entry().
+MAD message received by the user has EINVAL error in all flows
+including when the device is disassociated. That makes it impossible
+for the applications to treat such flow differently.
 
-Fixes: 2deb1acc653c ("isofs: fix access to unallocated memory when reading corrupted filesystem")
-Link: https://lore.kernel.org/r/20210118120455.118955-1-bianpan2016@163.com
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Change it to return EIO, so the applications will be able to perform
+disassociation recovery.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Link: https://lore.kernel.org/r/20210125121339.837518-2-leon@kernel.org
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/isofs/dir.c   | 1 +
- fs/isofs/namei.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/infiniband/core/user_mad.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/isofs/dir.c b/fs/isofs/dir.c
-index b943cbd963bb9..2e7d74c7beed8 100644
---- a/fs/isofs/dir.c
-+++ b/fs/isofs/dir.c
-@@ -151,6 +151,7 @@ static int do_isofs_readdir(struct inode *inode, struct file *file,
- 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
- 			       " in block %lu of inode %lu\n", block,
- 			       inode->i_ino);
-+			brelse(bh);
- 			return -EIO;
- 		}
+diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
+index e9e75f40714cb..27bc51409f559 100644
+--- a/drivers/infiniband/core/user_mad.c
++++ b/drivers/infiniband/core/user_mad.c
+@@ -342,6 +342,11 @@ static ssize_t ib_umad_read(struct file *filp, char __user *buf,
  
-diff --git a/fs/isofs/namei.c b/fs/isofs/namei.c
-index 7b543e6b6526d..696f255d15325 100644
---- a/fs/isofs/namei.c
-+++ b/fs/isofs/namei.c
-@@ -101,6 +101,7 @@ isofs_find_entry(struct inode *dir, struct dentry *dentry,
- 			printk(KERN_NOTICE "iso9660: Corrupted directory entry"
- 			       " in block %lu of inode %lu\n", block,
- 			       dir->i_ino);
-+			brelse(bh);
- 			return 0;
- 		}
+ 	mutex_lock(&file->mutex);
+ 
++	if (file->agents_dead) {
++		mutex_unlock(&file->mutex);
++		return -EIO;
++	}
++
+ 	while (list_empty(&file->recv_list)) {
+ 		mutex_unlock(&file->mutex);
+ 
+@@ -484,7 +489,7 @@ static ssize_t ib_umad_write(struct file *filp, const char __user *buf,
+ 
+ 	agent = __get_agent(file, packet->mad.hdr.id);
+ 	if (!agent) {
+-		ret = -EINVAL;
++		ret = -EIO;
+ 		goto err_up;
+ 	}
  
 -- 
 2.27.0
