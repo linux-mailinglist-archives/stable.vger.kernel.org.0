@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D13F1328FC7
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AA4D328FED
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242462AbhCAT6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:58:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55164 "EHLO mail.kernel.org"
+        id S238393AbhCAT7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:59:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235696AbhCATor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:47 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19CD46519B;
-        Mon,  1 Mar 2021 17:11:32 +0000 (UTC)
+        id S235541AbhCATtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:49:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A92B964E99;
+        Mon,  1 Mar 2021 17:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618693;
-        bh=e0D/MCCFCmYYeI5pbSDk5j7pZRuKlZF+nY4kUP7iCYI=;
+        s=korg; t=1614618711;
+        bh=QFB+sBydQrLBrZapm5YAHdOQ+oJ0mC6rxIV2Y0vr4qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4NKx4tx+6exDD7lKbE5DzOfW4feH/CsmCgSfpZFCmtgKGo4yHnVLvIzrVhlcaohT
-         NqpnMkuq9dxfYhtWVgjYwFTwa9a6qzyg1CacHD5OeTK4beJmBCEzhsGriRJiDSAJKk
-         k2w86thXmDpvA9EzAOfmOy6oJQytafQ+QuvgYcXI=
+        b=EFN/vXMzqoVeafPk9zDmLJIYHz+CAkslBoMxYxmxsXLA05hvN18MA7wx/I8uMgvVy
+         p/WPuBrN5LBLJwtuFnB7w84iNSWvf/Xusrxqu3VbNb9UDpKTWGpqlp/qG65TazldFz
+         Ao6tnT2XdWQZbN7MgNf+h9gvXaDic+onK2164o2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 182/663] drm/amdgpu: toggle on DF Cstate after finishing xgmi injection
-Date:   Mon,  1 Mar 2021 17:07:10 +0100
-Message-Id: <20210301161150.781505150@linuxfoundation.org>
+Subject: [PATCH 5.10 188/663] media: lmedm04: Fix misuse of comma
+Date:   Mon,  1 Mar 2021 17:07:16 +0100
+Message-Id: <20210301161151.082284594@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,32 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit fe2d9f5abf19f2b3688b3b8da4e42f8d07886847 ]
+[ Upstream commit 59a3e78f8cc33901fe39035c1ab681374bba95ad ]
 
-Fixes: 5c23e9e05e42 ("drm/amdgpu: Update RAS XGMI error inject sequence")
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+There's a comma used instead of a semicolon that causes multiple
+statements to be executed after an if instead of just the intended
+single statement.
+
+Replace the comma with a semicolon.
+
+Fixes: 15e1ce33182d ("[media] lmedm04: Fix usb_submit_urb BOGUS urb xfer, pipe 1 != type 3 in interrupt urb")
+Signed-off-by: Joe Perches <joe@perches.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c | 2 +-
+ drivers/media/usb/dvb-usb-v2/lmedm04.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-index 82cd8e55595af..eb22a190c2423 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ras.c
-@@ -844,7 +844,7 @@ static int amdgpu_ras_error_inject_xgmi(struct amdgpu_device *adev,
- 	if (amdgpu_dpm_allow_xgmi_power_down(adev, true))
- 		dev_warn(adev->dev, "Failed to allow XGMI power down");
+diff --git a/drivers/media/usb/dvb-usb-v2/lmedm04.c b/drivers/media/usb/dvb-usb-v2/lmedm04.c
+index 5a7a9522d46da..9ddda8d68ee0f 100644
+--- a/drivers/media/usb/dvb-usb-v2/lmedm04.c
++++ b/drivers/media/usb/dvb-usb-v2/lmedm04.c
+@@ -391,7 +391,7 @@ static int lme2510_int_read(struct dvb_usb_adapter *adap)
+ 	ep = usb_pipe_endpoint(d->udev, lme_int->lme_urb->pipe);
  
--	if (amdgpu_dpm_set_df_cstate(adev, DF_CSTATE_DISALLOW))
-+	if (amdgpu_dpm_set_df_cstate(adev, DF_CSTATE_ALLOW))
- 		dev_warn(adev->dev, "Failed to allow df cstate");
+ 	if (usb_endpoint_type(&ep->desc) == USB_ENDPOINT_XFER_BULK)
+-		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa),
++		lme_int->lme_urb->pipe = usb_rcvbulkpipe(d->udev, 0xa);
  
- 	return ret;
+ 	usb_submit_urb(lme_int->lme_urb, GFP_ATOMIC);
+ 	info("INT Interrupt Service Started");
 -- 
 2.27.0
 
