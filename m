@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5B7327C29
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48928327C2A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232688AbhCAKao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:30:44 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34227 "EHLO
+        id S234247AbhCAKau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:30:50 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:37089 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234251AbhCAKam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:30:42 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2EA501940D1F;
-        Mon,  1 Mar 2021 05:29:54 -0500 (EST)
+        by vger.kernel.org with ESMTP id S234251AbhCAKat (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:30:49 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 265AB1940C61;
+        Mon,  1 Mar 2021 05:30:00 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 01 Mar 2021 05:29:54 -0500
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:30:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=WCW33z
-        2YuR+qH+tegLEtzN5fyVURFzUKn2S0Y2g6LHo=; b=gDDjQ7ZOXkvRqTqPZKQOIp
-        K0go/JFROJiqEZCywbxKAgkWSqYo/WqcSoVh0eqYIyX5C1TRRD2etY9SY7m/kJhg
-        7nQiQxjhrL4s5R793vp4TmUOZn2FaXLAgZ++Lb17KQe1LUuDQ/GZtRsO9lPIlekH
-        3DbEzfVfjGZ0csT2wO1h1VJC1g2l/5T7wXfcouN1A1LPx5095pwKVDF2fb14VBB6
-        mr/KMlxvh0MbPR1c7zCjif3uoOeXnYc/8wcRcIKIAwC2BAXLROOEHqgxA5ClEHzN
-        i9BdXuYB7Hu7Vbd1xoPdRf44Wvh7hPEtS4LOJ+b6nwrYHE7yWEKAPsIpycDWtZ4w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=F7tW40
+        p05YcwXPsW9njVgg4yxZVykuw5buaG7/7VecA=; b=jF9iegn/wj0T7wz1XARv7L
+        ZHeEdcwN+xj2qTH/Q9jltQKF6RLdaCAOIPJYs7ax3pTtWD4kYNIzoBFungnKDzii
+        zw7YO1m1snzpEWaU0Ls4KMD72Kdf2ro0T8ay9XBLS4sgvrp0Gfa988i71d/QrKod
+        YLrdI8s7k/gn2UUwyCfMqZR0YUK/rV4BnHOj0ESHM02YGcaj/kHWe/XBV1aUVxmN
+        l+nBuuBTT/7UNqYnhwwStxw/KCsSttZo1qKdaLjows2gYKtAiy6z4/mxYffKQWuF
+        wWT8UG057OMzTRR8HbCuv6zz2PbzgXD6mtKMaAlEzcBAB0r6713R0EXyTzIATPtQ
         ==
-X-ME-Sender: <xms:IMI8YDHppu1ZIjQc550CGUZPS4Vb6HvpUhQW5OzvIvH8a6hMEBa4Ug>
-    <xme:IMI8YJ8CVHiB7PQjzUH1hLuMz7h8d0lVRGagOZHQniiof5JdA-igKp_wxSR3-0W2X
-    OFufzVC1LkmLw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduhecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:J8I8YAhhmqHOt9spnbgKlLZ4qXokPGneANxS6upirWDMCIce639QhQ>
+    <xme:J8I8YJCcPi2En-lKi2kTRjWCyTOjUlnb1wvx3qU5y6O1GU1Tl0qEzlxGtSDUKFTT6
+    cR5Fg1vMa3-jw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgddugecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduhecutefuodetggdote
     evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
     ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
     homh
-X-ME-Proxy: <xmx:IMI8YFLvhbTfTIKXfuPUNPAOmFb8enCnYdMjj2HO201q2drgg3ScGA>
-    <xmx:IMI8YEaaICKU9ewmlcghsskhIpRX1BZLvPCqNP6vyAGJPelzFw9DoA>
-    <xmx:IMI8YHIXz6e17EGwbPkh4z6Phi9hTa4VN2yljYxcdl5YnQQwa33CEg>
-    <xmx:IsI8YBK5hlrI_9-RSW2-iY8PVCdS82QkDkQwO-qZhzIbF-g13mvoDA>
+X-ME-Proxy: <xmx:KMI8YIFhcrCz2Uvj4jjBBtdKGUuGXrMinpgcslgAj1X8xMtJSVkD_g>
+    <xmx:KMI8YBTWHOpE7mnE3EztAPqrZvqP6JSpAa_cbglP40QIbYpi1AjfDg>
+    <xmx:KMI8YNziUIVPNw_UYidvSfdfRflJhr5LMPZVll--qR_MocFIR750GA>
+    <xmx:KMI8YLbNPyjsbAjz-JM_CuVknsEX_Gqg3A9YlI4jH0S_2niUVs-xhg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 00FAC108005C;
-        Mon,  1 Mar 2021 05:29:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] crypto: sun4i-ss - checking sg length is not sufficient" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id A577E108005C;
+        Mon,  1 Mar 2021 05:29:59 -0500 (EST)
+Subject: FAILED: patch "[PATCH] crypto: sun4i-ss - checking sg length is not sufficient" failed to apply to 4.9-stable tree
 To:     clabbe@baylibre.com, herbert@gondor.apana.org.au,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:29:49 +0100
-Message-ID: <161459458995188@kroah.com>
+Date:   Mon, 01 Mar 2021 11:29:50 +0100
+Message-ID: <16145945908433@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
