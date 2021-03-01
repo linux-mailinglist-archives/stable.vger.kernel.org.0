@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F5D3328541
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:52:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27BD432855C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbhCAQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:51:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
+        id S235993AbhCAQxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:53:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235343AbhCAQoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FD8A64F95;
-        Mon,  1 Mar 2021 16:30:16 +0000 (UTC)
+        id S235354AbhCAQoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:44:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2AB260241;
+        Mon,  1 Mar 2021 16:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616217;
-        bh=Pn/xEOSDGvfv3cEvCt0FwdYMiBKRHGTfSDwgp9tT+Jw=;
+        s=korg; t=1614616220;
+        bh=J5/Ahp1p7dAaaWXEgRpcI0xRuagIwZeR7IGpyTGFHrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6/JEepX0ZjDIO9Vvp4vQZLvZ5mmkUKUekwvaox2kGBbVTgcDuLSauyACRoJUSjXY
-         CnJ9Op2TVo9qY9ktOBuDHTiDkzz5jVWdzQedUr78jAt5ayekhiU1V09TWVhZRYNPrY
-         m/9flmy/CRKA4GZQ9TY1Ec/AmPV1qgujF+REwCPY=
+        b=g8gcFmNoVw/IqaKuWlXQM7sPQDb87Jz1sAnMUAZzw32PQg1g3NIz3E7utLPdZ+k6t
+         U8slZ1Pgss3YzKOCE4oBVBvw6PlhkNj7PEWBGKJly+gkey0DxVKDgE0rctxsyHWBdm
+         ovQYprY8zgEf7B15oWIlwVTVT3+IuszcSsxJwr7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/176] mfd: bd9571mwv: Use devm_mfd_add_devices()
-Date:   Mon,  1 Mar 2021 17:12:28 +0100
-Message-Id: <20210301161024.690373474@linuxfoundation.org>
+        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        devicetree@vger.kernel.org, KarimAllah Ahmed <karahmed@amazon.de>,
+        Quentin Perret <qperret@google.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 076/176] fdt: Properly handle "no-map" field in the memory region
+Date:   Mon,  1 Mar 2021 17:12:29 +0100
+Message-Id: <20210301161024.745081697@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -43,41 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: KarimAllah Ahmed <karahmed@amazon.de>
 
-[ Upstream commit c58ad0f2b052b5675d6394e03713ee41e721b44c ]
+[ Upstream commit 86588296acbfb1591e92ba60221e95677ecadb43 ]
 
-To remove mfd devices when unload this driver, should use
-devm_mfd_add_devices() instead.
+Mark the memory region with NOMAP flag instead of completely removing it
+from the memory blocks. That makes the FDT handling consistent with the EFI
+memory map handling.
 
-Fixes: d3ea21272094 ("mfd: Add ROHM BD9571MWV-M MFD PMIC driver")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: KarimAllah Ahmed <karahmed@amazon.de>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Link: https://lore.kernel.org/r/20210115114544.1830068-2-qperret@google.com
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/bd9571mwv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/of/fdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/bd9571mwv.c b/drivers/mfd/bd9571mwv.c
-index 98192d4863e4c..100bd25a1a995 100644
---- a/drivers/mfd/bd9571mwv.c
-+++ b/drivers/mfd/bd9571mwv.c
-@@ -183,9 +183,9 @@ static int bd9571mwv_probe(struct i2c_client *client,
- 		return ret;
- 	}
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index 6337c394bfe32..6df66fcefbb40 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1213,7 +1213,7 @@ int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
+ 					phys_addr_t size, bool nomap)
+ {
+ 	if (nomap)
+-		return memblock_remove(base, size);
++		return memblock_mark_nomap(base, size);
+ 	return memblock_reserve(base, size);
+ }
  
--	ret = mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO, bd9571mwv_cells,
--			      ARRAY_SIZE(bd9571mwv_cells), NULL, 0,
--			      regmap_irq_get_domain(bd->irq_data));
-+	ret = devm_mfd_add_devices(bd->dev, PLATFORM_DEVID_AUTO,
-+				   bd9571mwv_cells, ARRAY_SIZE(bd9571mwv_cells),
-+				   NULL, 0, regmap_irq_get_domain(bd->irq_data));
- 	if (ret) {
- 		regmap_del_irq_chip(bd->irq, bd->irq_data);
- 		return ret;
 -- 
 2.27.0
 
