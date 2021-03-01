@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F23B328D44
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85BFE328D87
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241101AbhCATIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:08:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37270 "EHLO mail.kernel.org"
+        id S241175AbhCATNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:13:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232878AbhCATES (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:04:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C93EA65184;
-        Mon,  1 Mar 2021 17:09:55 +0000 (UTC)
+        id S241122AbhCATIQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:08:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA27265194;
+        Mon,  1 Mar 2021 17:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618596;
-        bh=dUqNOjZytUkYA3sv5OGfmjwWjjwueeh/r84UL6Le+XM=;
+        s=korg; t=1614618607;
+        bh=h4ZWlSYR2+h/Jw99zRo59+VmAS7yRMLLLQSuCh7kN4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzSGypKYhJsE39FJw/QQQKUS80pKO3fd6gcFR6etIL2j6d/WLQoz2b2svR/lJvMEC
-         FGSDcpkHQSD6i1Gxa8thwXIQRwiyu6CRkOp4tI8X+W5rqu8+cXf8sfFbYFE+dcvaTy
-         y4qwM0mTLMXe+Y8YrfsFPtg+dTyuxb1I/baraQd4=
+        b=bpoD/1e26GQ9yj98F8rmxUZIbyPF3rdptCgr7XtlsCuA2KRxHQVijr+GMzQ9UiSdp
+         rUNQsCZldnGx4n910Cf8l3gvzz7bzyNg5yvVCDI7qcePwDyNyRvBehZg+3YizlHmRN
+         U48bXWoen1wFXS3/2CCfP7DuPCrljCisVLKVHKWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Michael Tretter <m.tretter@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 145/663] crypto: sun4i-ss - fix kmap usage
-Date:   Mon,  1 Mar 2021 17:06:33 +0100
-Message-Id: <20210301161148.943542630@linuxfoundation.org>
+Subject: [PATCH 5.10 148/663] media: allegro: Fix use after free on error
+Date:   Mon,  1 Mar 2021 17:06:36 +0100
+Message-Id: <20210301161149.094815852@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,251 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 9bc3dd24e7dccd50757db743a3635ad5b0497e6e ]
+[ Upstream commit ce814ad4bb52bfc7c0472e6da0aa742ab88f4361 ]
 
-With the recent kmap change, some tests which were conditional on
-CONFIG_DEBUG_HIGHMEM now are enabled by default.
-This permit to detect a problem in sun4i-ss usage of kmap.
+The "channel" is added to the "dev->channels" but then if
+v4l2_m2m_ctx_init() fails then we free "channel" but it's still on the
+list so it could lead to a use after free.  Let's not add it to the
+list until after v4l2_m2m_ctx_init() succeeds.
 
-sun4i-ss uses two kmap via sg_miter (one for input, one for output), but
-using two kmap at the same time is hard:
-"the ordering has to be correct and with sg_miter that's probably hard to get
-right." (quoting Tlgx)
-
-So the easiest solution is to never have two sg_miter/kmap open at the same time.
-After each use of sg_miter, I store the current index, for being able to
-resume sg_miter to the right place.
-
-Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: cc62c74749a3 ("media: allegro: add missed checks in allegro_open()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../allwinner/sun4i-ss/sun4i-ss-cipher.c      | 109 +++++++++++-------
- 1 file changed, 65 insertions(+), 44 deletions(-)
+ drivers/staging/media/allegro-dvt/allegro-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-index 19f1aa577ed4d..1f8a38d131928 100644
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -30,6 +30,8 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	unsigned int ileft = areq->cryptlen;
- 	unsigned int oleft = areq->cryptlen;
- 	unsigned int todo;
-+	unsigned long pi = 0, po = 0; /* progress for in and out */
-+	bool miter_err;
- 	struct sg_mapping_iter mi, mo;
- 	unsigned int oi, oo; /* offset for in and out */
- 	unsigned long flags;
-@@ -55,39 +57,51 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
- 	}
- 	writel(mode, ss->base + SS_CTL);
+diff --git a/drivers/staging/media/allegro-dvt/allegro-core.c b/drivers/staging/media/allegro-dvt/allegro-core.c
+index 9f718f43282bc..640451134072b 100644
+--- a/drivers/staging/media/allegro-dvt/allegro-core.c
++++ b/drivers/staging/media/allegro-dvt/allegro-core.c
+@@ -2483,8 +2483,6 @@ static int allegro_open(struct file *file)
+ 	INIT_LIST_HEAD(&channel->buffers_reference);
+ 	INIT_LIST_HEAD(&channel->buffers_intermediate);
  
--	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
--		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
--	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
--		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
--	sg_miter_next(&mi);
--	sg_miter_next(&mo);
--	if (!mi.addr || !mo.addr) {
--		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
--		err = -EINVAL;
--		goto release_ss;
--	}
+-	list_add(&channel->list, &dev->channels);
+-
+ 	channel->fh.m2m_ctx = v4l2_m2m_ctx_init(dev->m2m_dev, channel,
+ 						allegro_queue_init);
  
- 	ileft = areq->cryptlen / 4;
- 	oleft = areq->cryptlen / 4;
- 	oi = 0;
- 	oo = 0;
- 	do {
--		todo = min(rx_cnt, ileft);
--		todo = min_t(size_t, todo, (mi.length - oi) / 4);
--		if (todo) {
--			ileft -= todo;
--			writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
--			oi += todo * 4;
--		}
--		if (oi == mi.length) {
--			sg_miter_next(&mi);
--			oi = 0;
-+		if (ileft) {
-+			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
-+					SG_MITER_FROM_SG | SG_MITER_ATOMIC);
-+			if (pi)
-+				sg_miter_skip(&mi, pi);
-+			miter_err = sg_miter_next(&mi);
-+			if (!miter_err || !mi.addr) {
-+				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+				err = -EINVAL;
-+				goto release_ss;
-+			}
-+			todo = min(rx_cnt, ileft);
-+			todo = min_t(size_t, todo, (mi.length - oi) / 4);
-+			if (todo) {
-+				ileft -= todo;
-+				writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
-+				oi += todo * 4;
-+			}
-+			if (oi == mi.length) {
-+				pi += mi.length;
-+				oi = 0;
-+			}
-+			sg_miter_stop(&mi);
- 		}
- 
- 		spaces = readl(ss->base + SS_FCSR);
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
- 
-+		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
-+			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
-+		if (po)
-+			sg_miter_skip(&mo, po);
-+		miter_err = sg_miter_next(&mo);
-+		if (!miter_err || !mo.addr) {
-+			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+			err = -EINVAL;
-+			goto release_ss;
-+		}
- 		todo = min(tx_cnt, oleft);
- 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
- 		if (todo) {
-@@ -96,9 +110,10 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
- 			oo += todo * 4;
- 		}
- 		if (oo == mo.length) {
--			sg_miter_next(&mo);
- 			oo = 0;
-+			po += mo.length;
- 		}
-+		sg_miter_stop(&mo);
- 	} while (oleft);
- 
- 	if (areq->iv) {
-@@ -109,8 +124,6 @@ static int noinline_for_stack sun4i_ss_opti_poll(struct skcipher_request *areq)
+@@ -2493,6 +2491,7 @@ static int allegro_open(struct file *file)
+ 		goto error;
  	}
  
- release_ss:
--	sg_miter_stop(&mi);
--	sg_miter_stop(&mo);
- 	writel(0, ss->base + SS_CTL);
- 	spin_unlock_irqrestore(&ss->slock, flags);
- 	return err;
-@@ -162,6 +175,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	unsigned int oleft = areq->cryptlen;
- 	unsigned int todo;
- 	struct sg_mapping_iter mi, mo;
-+	unsigned long pi = 0, po = 0; /* progress for in and out */
-+	bool miter_err;
- 	unsigned int oi, oo;	/* offset for in and out */
- 	unsigned int ob = 0;	/* offset in buf */
- 	unsigned int obo = 0;	/* offset in bufo*/
-@@ -215,17 +230,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	}
- 	writel(mode, ss->base + SS_CTL);
- 
--	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
--		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
--	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
--		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
--	sg_miter_next(&mi);
--	sg_miter_next(&mo);
--	if (!mi.addr || !mo.addr) {
--		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
--		err = -EINVAL;
--		goto release_ss;
--	}
- 	ileft = areq->cryptlen;
- 	oleft = areq->cryptlen;
- 	oi = 0;
-@@ -233,6 +237,16 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 
- 	while (oleft) {
- 		if (ileft) {
-+			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
-+				       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
-+			if (pi)
-+				sg_miter_skip(&mi, pi);
-+			miter_err = sg_miter_next(&mi);
-+			if (!miter_err || !mi.addr) {
-+				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+				err = -EINVAL;
-+				goto release_ss;
-+			}
- 			/*
- 			 * todo is the number of consecutive 4byte word that we
- 			 * can read from current SG
-@@ -265,31 +279,38 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				}
- 			}
- 			if (oi == mi.length) {
--				sg_miter_next(&mi);
-+				pi += mi.length;
- 				oi = 0;
- 			}
-+			sg_miter_stop(&mi);
- 		}
- 
- 		spaces = readl(ss->base + SS_FCSR);
- 		rx_cnt = SS_RXFIFO_SPACES(spaces);
- 		tx_cnt = SS_TXFIFO_SPACES(spaces);
--		dev_dbg(ss->dev,
--			"%x %u/%zu %u/%u cnt=%u %u/%zu %u/%u cnt=%u %u\n",
--			mode,
--			oi, mi.length, ileft, areq->cryptlen, rx_cnt,
--			oo, mo.length, oleft, areq->cryptlen, tx_cnt, ob);
- 
- 		if (!tx_cnt)
- 			continue;
-+		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
-+			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
-+		if (po)
-+			sg_miter_skip(&mo, po);
-+		miter_err = sg_miter_next(&mo);
-+		if (!miter_err || !mo.addr) {
-+			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
-+			err = -EINVAL;
-+			goto release_ss;
-+		}
- 		/* todo in 4bytes word */
- 		todo = min(tx_cnt, oleft / 4);
- 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
-+
- 		if (todo) {
- 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
- 			oleft -= todo * 4;
- 			oo += todo * 4;
- 			if (oo == mo.length) {
--				sg_miter_next(&mo);
-+				po += mo.length;
- 				oo = 0;
- 			}
- 		} else {
-@@ -314,12 +335,14 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 				obo += todo;
- 				oo += todo;
- 				if (oo == mo.length) {
-+					po += mo.length;
- 					sg_miter_next(&mo);
- 					oo = 0;
- 				}
- 			} while (obo < obl);
- 			/* bufo must be fully used here */
- 		}
-+		sg_miter_stop(&mo);
- 	}
- 	if (areq->iv) {
- 		for (i = 0; i < 4 && i < ivsize / 4; i++) {
-@@ -329,8 +352,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
- 	}
- 
- release_ss:
--	sg_miter_stop(&mi);
--	sg_miter_stop(&mo);
- 	writel(0, ss->base + SS_CTL);
- 	spin_unlock_irqrestore(&ss->slock, flags);
++	list_add(&channel->list, &dev->channels);
+ 	file->private_data = &channel->fh;
+ 	v4l2_fh_add(&channel->fh);
  
 -- 
 2.27.0
