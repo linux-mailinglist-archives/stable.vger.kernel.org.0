@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 863C132912D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 201E4328FE3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242830AbhCAUUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:20:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42014 "EHLO mail.kernel.org"
+        id S242634AbhCAT6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:58:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242995AbhCAUNT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:13:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397D665081;
-        Mon,  1 Mar 2021 18:01:16 +0000 (UTC)
+        id S242332AbhCATs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:48:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F051E6525D;
+        Mon,  1 Mar 2021 17:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621676;
-        bh=8tTmOVdS1/PkhguOWQ0gRjVoSUMEQ+s3z+eGgd/9ks8=;
+        s=korg; t=1614619716;
+        bh=7huvN+C20SkmZILgftz3wqApWdpSaE+GDlgsLyMY1P8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5atRPyZbAqUpi3qW6tLCgauemgS90RRxGVp9+uKLpOgmbzrRroPO0JJbw81AJkLp
-         JU5Zd1SjMRl+5bfIAfB8DiubHpB4LfN4IlOJluzhFwuyNOGwaQADTfXErkyT1ls8D+
-         aoHLWp1V9TuwygEZvGP1DQkaMBSjsAfUb7ag4o7Q=
+        b=c4j37if5YfXiap1N1b8rz4GyL+CJ4SCFG7PjnuSsbtk9m8j+GE6+hSMMROPHkgo6u
+         QlaEtTO9tAnCx1pVJEFrRB35OKKReR93Y6C7dtvzYiUGOWSubTvfuGtFXDic55IGSq
+         TmY3XomQgUcpe24h18HKnMm4ogivJD/UOKqDrGeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YunQiang Su <syq@debian.org>,
-        Aurelien Jarno <aurelien@aurel32.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.11 604/775] MIPS: Support binutils configured with --enable-mips-fix-loongson3-llsc=yes
-Date:   Mon,  1 Mar 2021 17:12:52 +0100
-Message-Id: <20210301161231.259324980@linuxfoundation.org>
+        stable@vger.kernel.org, Huang Jianan <huangjianan@oppo.com>,
+        Chao Yu <yuchao0@huawei.com>, Gao Xiang <hsiangkao@redhat.com>
+Subject: [PATCH 5.10 525/663] erofs: initialized fields can only be observed after bit is set
+Date:   Mon,  1 Mar 2021 17:12:53 +0100
+Message-Id: <20210301161207.817582272@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +39,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurelien Jarno <aurelien@aurel32.net>
+From: Gao Xiang <hsiangkao@redhat.com>
 
-commit 5373ae67c3aad1ab306cc722b5a80b831eb4d4d1 upstream.
+commit ce063129181312f8781a047a50be439c5859747b upstream.
 
->From version 2.35, binutils can be configured with
---enable-mips-fix-loongson3-llsc=yes, which means it defaults to
--mfix-loongson3-llsc. This breaks labels which might then point at the
-wrong instruction.
+Currently, although set_bit() & test_bit() pairs are used as a fast-
+path for initialized configurations. However, these atomic ops are
+actually relaxed forms. Instead, load-acquire & store-release form is
+needed to make sure uninitialized fields won't be observed in advance
+here (yet no such corresponding bitops so use full barriers instead.)
 
-The workaround to explicitly pass -mno-fix-loongson3-llsc has been
-added in Linux version 5.1, but is only enabled when building a Loongson
-64 kernel. As vendors might use a common toolchain for building Loongson
-and non-Loongson kernels, just move that workaround to
-arch/mips/Makefile. At the same time update the comments to reflect the
-current status.
-
-Cc: stable@vger.kernel.org # 5.1+
-Cc: YunQiang Su <syq@debian.org>
-Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lore.kernel.org/r/20210209130618.15838-1-hsiangkao@aol.com
+Fixes: 62dc45979f3f ("staging: erofs: fix race of initializing xattrs of a inode at the same time")
+Fixes: 152a333a5895 ("staging: erofs: add compacted compression indexes support")
+Cc: <stable@vger.kernel.org> # 5.3+
+Reported-by: Huang Jianan <huangjianan@oppo.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <hsiangkao@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/Makefile            |   19 +++++++++++++++++++
- arch/mips/loongson64/Platform |   22 ----------------------
- 2 files changed, 19 insertions(+), 22 deletions(-)
+ fs/erofs/xattr.c |   10 +++++++++-
+ fs/erofs/zmap.c  |   10 +++++++++-
+ 2 files changed, 18 insertions(+), 2 deletions(-)
 
---- a/arch/mips/Makefile
-+++ b/arch/mips/Makefile
-@@ -136,6 +136,25 @@ cflags-$(CONFIG_SB1XXX_CORELIS)	+= $(cal
- #
- cflags-y += -fno-stack-check
+--- a/fs/erofs/xattr.c
++++ b/fs/erofs/xattr.c
+@@ -48,8 +48,14 @@ static int init_inode_xattrs(struct inod
+ 	int ret = 0;
  
-+# binutils from v2.35 when built with --enable-mips-fix-loongson3-llsc=yes,
-+# supports an -mfix-loongson3-llsc flag which emits a sync prior to each ll
-+# instruction to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h
-+# for a description).
-+#
-+# We disable this in order to prevent the assembler meddling with the
-+# instruction that labels refer to, ie. if we label an ll instruction:
-+#
-+# 1: ll v0, 0(a0)
-+#
-+# ...then with the assembler fix applied the label may actually point at a sync
-+# instruction inserted by the assembler, and if we were using the label in an
-+# exception table the table would no longer contain the address of the ll
-+# instruction.
-+#
-+# Avoid this by explicitly disabling that assembler behaviour.
-+#
-+cflags-y += $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
-+
- #
- # CPU-dependent compiler/assembler options for optimization.
- #
---- a/arch/mips/loongson64/Platform
-+++ b/arch/mips/loongson64/Platform
-@@ -6,28 +6,6 @@
- cflags-$(CONFIG_CPU_LOONGSON64)	+= -Wa,--trap
+ 	/* the most case is that xattrs of this inode are initialized. */
+-	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags))
++	if (test_bit(EROFS_I_EA_INITED_BIT, &vi->flags)) {
++		/*
++		 * paired with smp_mb() at the end of the function to ensure
++		 * fields will only be observed after the bit is set.
++		 */
++		smp_mb();
+ 		return 0;
++	}
  
- #
--# Some versions of binutils, not currently mainline as of 2019/02/04, support
--# an -mfix-loongson3-llsc flag which emits a sync prior to each ll instruction
--# to work around a CPU bug (see __SYNC_loongson3_war in asm/sync.h for a
--# description).
--#
--# We disable this in order to prevent the assembler meddling with the
--# instruction that labels refer to, ie. if we label an ll instruction:
--#
--# 1: ll v0, 0(a0)
--#
--# ...then with the assembler fix applied the label may actually point at a sync
--# instruction inserted by the assembler, and if we were using the label in an
--# exception table the table would no longer contain the address of the ll
--# instruction.
--#
--# Avoid this by explicitly disabling that assembler behaviour. If upstream
--# binutils does not merge support for the flag then we can revisit & remove
--# this later - for now it ensures vendor toolchains don't cause problems.
--#
--cflags-$(CONFIG_CPU_LOONGSON64)	+= $(call as-option,-Wa$(comma)-mno-fix-loongson3-llsc,)
--
--#
- # binutils from v2.25 on and gcc starting from v4.9.0 treat -march=loongson3a
- # as MIPS64 R2; older versions as just R1.  This leaves the possibility open
- # that GCC might generate R2 code for -march=loongson3a which then is rejected
+ 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_XATTR_BIT, TASK_KILLABLE))
+ 		return -ERESTARTSYS;
+@@ -137,6 +143,8 @@ static int init_inode_xattrs(struct inod
+ 	}
+ 	xattr_iter_end(&it, atomic_map);
+ 
++	/* paired with smp_mb() at the beginning of the function. */
++	smp_mb();
+ 	set_bit(EROFS_I_EA_INITED_BIT, &vi->flags);
+ 
+ out_unlock:
+--- a/fs/erofs/zmap.c
++++ b/fs/erofs/zmap.c
+@@ -36,8 +36,14 @@ static int z_erofs_fill_inode_lazy(struc
+ 	void *kaddr;
+ 	struct z_erofs_map_header *h;
+ 
+-	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags))
++	if (test_bit(EROFS_I_Z_INITED_BIT, &vi->flags)) {
++		/*
++		 * paired with smp_mb() at the end of the function to ensure
++		 * fields will only be observed after the bit is set.
++		 */
++		smp_mb();
+ 		return 0;
++	}
+ 
+ 	if (wait_on_bit_lock(&vi->flags, EROFS_I_BL_Z_BIT, TASK_KILLABLE))
+ 		return -ERESTARTSYS;
+@@ -83,6 +89,8 @@ static int z_erofs_fill_inode_lazy(struc
+ 
+ 	vi->z_physical_clusterbits[1] = vi->z_logical_clusterbits +
+ 					((h->h_clusterbits >> 5) & 7);
++	/* paired with smp_mb() at the beginning of the function */
++	smp_mb();
+ 	set_bit(EROFS_I_Z_INITED_BIT, &vi->flags);
+ unmap_done:
+ 	kunmap_atomic(kaddr);
 
 
