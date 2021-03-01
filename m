@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6708328B8C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:39:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C4E328C76
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:54:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbhCAShL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:37:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43168 "EHLO mail.kernel.org"
+        id S240617AbhCASws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:52:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233289AbhCAS3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:29:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB7AD6504B;
-        Mon,  1 Mar 2021 17:18:38 +0000 (UTC)
+        id S240194AbhCASm1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:42:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47FFC651E3;
+        Mon,  1 Mar 2021 17:18:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619119;
-        bh=JvszdDsHQo1uGsbB9x4l0ZwChrFdXWDTd/9GqBxIH84=;
+        s=korg; t=1614619127;
+        bh=Wm2GALO2Fyh0DRpskSKWE3uVZXNo8kd2apIAjpnjKU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNPzBV513IfqU2JtGxZuTQeAIaM+589JbNs0P2uRVnMBFraQlOYaJ5NpIH13+qAAu
-         HoImaNIuhCD/MgR2FVWeuOy5JGgdT5FAyXMKOlS7vgKqr8n1Ws7Xt9nmdFZ+tQf4gz
-         qE9WOUrpC642bDSHpmYBdBHh+/c74C318UQwwmK4=
+        b=YYvoyNFDd+ruSJXdj/ThHhjY6tyWdndtQGYOIav9bosHQFIsHe2PZ0mbxKhfUKq6d
+         e6q34jcMaAIgMgLyLXExwZZyOnMPpXuACdjm2JmK3R3xVpccH5IV2BQipTK8DDUdfo
+         rzGF3uRl+UuvDTOvrPZgBI6g4gdqR18jTqynDzts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 339/663] IB/mlx5: Return appropriate error code instead of ENOMEM
-Date:   Mon,  1 Mar 2021 17:09:47 +0100
-Message-Id: <20210301161158.622605122@linuxfoundation.org>
+Subject: [PATCH 5.10 342/663] rtc: zynqmp: depend on HAS_IOMEM
+Date:   Mon,  1 Mar 2021 17:09:50 +0100
+Message-Id: <20210301161158.775513532@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,37 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit d286ac1d05210695c312b9018b3aa7c2048e9aca ]
+[ Upstream commit ddd0521549a975e6148732d6ca6b89ffa862c0e5 ]
 
-When mlx5_ib_stage_init_init() fails, return the error code related to
-failure instead of -ENOMEM.
+The Xilinx zynqmp RTC driver makes use of IOMEM functions like
+devm_platform_ioremap_resource(), which are only available if
+CONFIG_HAS_IOMEM is defined.
 
-Fixes: 16c1975f1032 ("IB/mlx5: Create profile infrastructure to add and remove stages")
-Link: https://lore.kernel.org/r/20210127150010.1876121-8-leon@kernel.org
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This causes the driver not to be enable under make ARCH=um allyesconfig,
+even though it won't build.
+
+By adding a dependency on HAS_IOMEM, the driver will not be enabled on
+architectures which don't support it.
+
+Fixes: 09ef18bcd5ac ("rtc: use devm_platform_ioremap_resource() to simplify code")
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210127035146.1523286-1-davidgow@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/rtc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index f67165f80ece5..beec0d7c0d6e8 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -3989,8 +3989,7 @@ static int mlx5_ib_stage_init_init(struct mlx5_ib_dev *dev)
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index e59f78f99e8f1..33e4ecd6c6659 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -1297,7 +1297,7 @@ config RTC_DRV_OPAL
  
- err_mp:
- 	mlx5_ib_cleanup_multiport_master(dev);
--
--	return -ENOMEM;
-+	return err;
- }
- 
- static int mlx5_ib_enable_driver(struct ib_device *dev)
+ config RTC_DRV_ZYNQMP
+ 	tristate "Xilinx Zynq Ultrascale+ MPSoC RTC"
+-	depends on OF
++	depends on OF && HAS_IOMEM
+ 	help
+ 	  If you say yes here you get support for the RTC controller found on
+ 	  Xilinx Zynq Ultrascale+ MPSoC.
 -- 
 2.27.0
 
