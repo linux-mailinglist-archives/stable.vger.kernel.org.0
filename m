@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9AA33286C2
+	by mail.lfdr.de (Postfix) with ESMTP id 7842B3286C1
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237255AbhCAROP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:14:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
+        id S232388AbhCAROF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:14:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237543AbhCARIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237544AbhCARIW (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 12:08:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DBE265007;
-        Mon,  1 Mar 2021 16:41:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30BCF64F87;
+        Mon,  1 Mar 2021 16:41:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616881;
-        bh=ELqiLl21SyVp1lDZ83L8LqNKbFkARBxaJznHja8YSYw=;
+        s=korg; t=1614616883;
+        bh=ihkjfv3QUOQ+XYuaYwF02p96VkvpK5bZr/DlSJ0w4Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVpmKkyUmhs2GVXrpZvPWLhjqnRINgxpvilHk76MNVv3kknpZe41ekjm/x1exqO27
-         YmjQH41InAw/7nRwOk4M3syAX2sD4RHRZAGS4DpjPkSdnZlEod3LgmqKMmjMUgpQ6Z
-         E5CL0U/3h+CCPXNW4/tjTjjROE+aGSGj487WLHSQ=
+        b=ip+7d5SylBvQRFYoMBL/MZqa7V32mMl2xB9Luurq91ttChqVRQ3QtoKWO2l1iUwZV
+         S1WQWlGZU+xKC3+AANXoYBd5Lg+ZvEo7tKrzJ4MVCPmJC/aUsQt7nJ8uCLQMkfnMTN
+         Psan4n9ZQt+QwsYq7eQ+OX2puezrDxV5l88tCQFc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daiyue Zhang <zhangdaiyue1@huawei.com>,
-        Dehe Gu <gudehe@huawei.com>,
-        Junchao Jiang <jiangjunchao1@huawei.com>,
-        Ge Qiu <qiuge@huawei.com>, Yi Chen <chenyi77@huawei.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/247] f2fs: fix to avoid inconsistent quota data
-Date:   Mon,  1 Mar 2021 17:11:57 +0100
-Message-Id: <20210301161036.426807621@linuxfoundation.org>
+Subject: [PATCH 4.19 098/247] drm/amdgpu: Prevent shift wrapping in amdgpu_read_mask()
+Date:   Mon,  1 Mar 2021 17:11:58 +0100
+Message-Id: <20210301161036.477443445@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -43,98 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Chen <chenyi77@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 25fb04dbce6a0e165d28fd1fa8a1d7018c637fe8 ]
+[ Upstream commit c915ef890d5dc79f483e1ca3b3a5b5f1a170690c ]
 
-Occasionally, quota data may be corrupted detected by fsck:
+If the user passes a "level" value which is higher than 31 then that
+leads to shift wrapping.  The undefined behavior will lead to a
+syzkaller stack dump.
 
-Info: checkpoint state = 45 :  crc compacted_summary unmount
-[QUOTA WARNING] Usage inconsistent for ID 0:actual (1543036928, 762) != expected (1543032832, 762)
-[ASSERT] (fsck_chk_quota_files:1986)  --> Quota file is missing or invalid quota file content found.
-[QUOTA WARNING] Usage inconsistent for ID 0:actual (1352478720, 344) != expected (1352474624, 344)
-[ASSERT] (fsck_chk_quota_files:1986)  --> Quota file is missing or invalid quota file content found.
-
-[FSCK] Unreachable nat entries                        [Ok..] [0x0]
-[FSCK] SIT valid block bitmap checking                [Ok..]
-[FSCK] Hard link checking for regular file            [Ok..] [0x0]
-[FSCK] valid_block_count matching with CP             [Ok..] [0xdf299]
-[FSCK] valid_node_count matcing with CP (de lookup)   [Ok..] [0x2b01]
-[FSCK] valid_node_count matcing with CP (nat lookup)  [Ok..] [0x2b01]
-[FSCK] valid_inode_count matched with CP              [Ok..] [0x2665]
-[FSCK] free segment_count matched with CP             [Ok..] [0xcb04]
-[FSCK] next block offset is free                      [Ok..]
-[FSCK] fixing SIT types
-[FSCK] other corrupted bugs                           [Fail]
-
-The root cause is:
-If we open file w/ readonly flag, disk quota info won't be initialized
-for this file, however, following mmap() will force to convert inline
-inode via f2fs_convert_inline_inode(), which may increase block usage
-for this inode w/o updating quota data, it causes inconsistent disk quota
-info.
-
-The issue will happen in following stack:
-open(file, O_RDONLY)
-mmap(file)
-- f2fs_convert_inline_inode
- - f2fs_convert_inline_page
-  - f2fs_reserve_block
-   - f2fs_reserve_new_block
-    - f2fs_reserve_new_blocks
-     - f2fs_i_blocks_write
-      - dquot_claim_block
-inode->i_blocks increase, but the dqb_curspace keep the size for the dquots
-is NULL.
-
-To fix this issue, let's call dquot_initialize() anyway in both
-f2fs_truncate() and f2fs_convert_inline_inode() functions to avoid potential
-inconsistent quota data issue.
-
-Fixes: 0abd675e97e6 ("f2fs: support plain user/group quota")
-Signed-off-by: Daiyue Zhang <zhangdaiyue1@huawei.com>
-Signed-off-by: Dehe Gu <gudehe@huawei.com>
-Signed-off-by: Junchao Jiang <jiangjunchao1@huawei.com>
-Signed-off-by: Ge Qiu <qiuge@huawei.com>
-Signed-off-by: Yi Chen <chenyi77@huawei.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: 5632708f4452 ("drm/amd/powerplay: add dpm force multiple levels on cz/tonga/fiji/polaris (v2)")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c   | 4 ++++
- fs/f2fs/inline.c | 4 ++++
- 2 files changed, 8 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 59b5c0b032bb5..79e692a6c8b27 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -675,6 +675,10 @@ int f2fs_truncate(struct inode *inode)
- 		return -EIO;
- 	}
- 
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
-+
- 	/* we should check inline_data size */
- 	if (!f2fs_may_inline_data(inode)) {
- 		err = f2fs_convert_inline_inode(inode);
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 2fabeb0bb28fd..299f295fcb6c7 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -193,6 +193,10 @@ int f2fs_convert_inline_inode(struct inode *inode)
- 	if (!f2fs_has_inline_data(inode))
- 		return 0;
- 
-+	err = dquot_initialize(inode);
-+	if (err)
-+		return err;
-+
- 	page = f2fs_grab_cache_page(inode->i_mapping, 0, false);
- 	if (!page)
- 		return -ENOMEM;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+index e63a253eb4255..cbb969a870f6a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_pm.c
+@@ -617,7 +617,7 @@ static ssize_t amdgpu_get_pp_dpm_sclk(struct device *dev,
+ static ssize_t amdgpu_read_mask(const char *buf, size_t count, uint32_t *mask)
+ {
+ 	int ret;
+-	long level;
++	unsigned long level;
+ 	char *sub_str = NULL;
+ 	char *tmp;
+ 	char buf_cpy[AMDGPU_MASK_BUF_MAX + 1];
+@@ -633,8 +633,8 @@ static ssize_t amdgpu_read_mask(const char *buf, size_t count, uint32_t *mask)
+ 	while (tmp[0]) {
+ 		sub_str = strsep(&tmp, delimiter);
+ 		if (strlen(sub_str)) {
+-			ret = kstrtol(sub_str, 0, &level);
+-			if (ret)
++			ret = kstrtoul(sub_str, 0, &level);
++			if (ret || level > 31)
+ 				return -EINVAL;
+ 			*mask |= 1 << level;
+ 		} else
 -- 
 2.27.0
 
