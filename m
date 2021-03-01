@@ -2,41 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9909D328929
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47236328908
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238979AbhCARv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:51:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
+        id S238844AbhCARsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:48:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238133AbhCARpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:45:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E74764FD4;
-        Mon,  1 Mar 2021 16:57:55 +0000 (UTC)
+        id S238867AbhCARnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:43:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C870B64FDC;
+        Mon,  1 Mar 2021 16:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617876;
-        bh=ONlffOKxSlJZ1sgAFG6O+387ZH4l6WcT/kj4u30w/B0=;
+        s=korg; t=1614617879;
+        bh=UbYNAoMR8WZcRAe1hWpwa/TxwlSKBARtltxfnTQdrik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vqzTQr9ZWTMxSNLtdgmmZ/TLEQvj7x2FEBEdCT8zn7f+XG9sQn82TOhTakOe2ipD
-         LUOGNY5ZotOIjbf/zTebbbxcOWf2MhHA2hswBROMbFHBRdbNs+hn6/1LPA1vFWzHnL
-         c5OZffCu/OpocbIEA0kRO1BfnHQBDtaa7704nGCI=
+        b=PGvoOMffCxf8rlJZ2Hhntgshi0KdyARyV4bFmMhtArIPLk5K6tBK42Ju2OvNup55h
+         JToNf6klXkMyT155H6q1YEaiMATp/wHEK5Vhfc9S/oEmc25jacuezev6slWqfc2MHm
+         h4V8dxfiP9vnBlc42Cd6ZNkuKd4v0L5OuSMUbYq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 198/340] perf test: Fix unaligned access in sample parsing test
-Date:   Mon,  1 Mar 2021 17:12:22 +0100
-Message-Id: <20210301161058.053621490@linuxfoundation.org>
+Subject: [PATCH 5.4 199/340] Input: elo - fix an error code in elo_connect()
+Date:   Mon,  1 Mar 2021 17:12:23 +0100
+Message-Id: <20210301161058.101824323@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -48,71 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c5c97cadd7ed13381cb6b4bef5c841a66938d350 ]
+[ Upstream commit 0958351e93fa0ac142f6dd8bd844441594f30a57 ]
 
-The ubsan reported the following error.  It was because sample's raw
-data missed u32 padding at the end.  So it broke the alignment of the
-array after it.
+If elo_setup_10() fails then this should return an error code instead
+of success.
 
-The raw data contains an u32 size prefix so the data size should have
-an u32 padding after 8-byte aligned data.
-
-27: Sample parsing  :util/synthetic-events.c:1539:4:
-  runtime error: store to misaligned address 0x62100006b9bc for type
-  '__u64' (aka 'unsigned long long'), which requires 8 byte alignment
-0x62100006b9bc: note: pointer points here
-  00 00 00 00 ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff
-              ^
-    #0 0x561532a9fc96 in perf_event__synthesize_sample util/synthetic-events.c:1539:13
-    #1 0x5615327f4a4f in do_test tests/sample-parsing.c:284:8
-    #2 0x5615327f3f50 in test__sample_parsing tests/sample-parsing.c:381:9
-    #3 0x56153279d3a1 in run_test tests/builtin-test.c:424:9
-    #4 0x56153279c836 in test_and_print tests/builtin-test.c:454:9
-    #5 0x56153279b7eb in __cmd_test tests/builtin-test.c:675:4
-    #6 0x56153279abf0 in cmd_test tests/builtin-test.c:821:9
-    #7 0x56153264e796 in run_builtin perf.c:312:11
-    #8 0x56153264cf03 in handle_internal_command perf.c:364:8
-    #9 0x56153264e47d in run_argv perf.c:408:2
-    #10 0x56153264c9a9 in main perf.c:538:3
-    #11 0x7f137ab6fbbc in __libc_start_main (/lib64/libc.so.6+0x38bbc)
-    #12 0x561532596828 in _start ...
-
-SUMMARY: UndefinedBehaviorSanitizer: misaligned-pointer-use
- util/synthetic-events.c:1539:4 in
-
-Fixes: 045f8cd8542d ("perf tests: Add a sample parsing test")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: https://lore.kernel.org/r/20210214091638.519643-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: fae3006e4b42 ("Input: elo - add support for non-pressure-sensitive touchscreens")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YBKFd5CvDu+jVmfW@mwanda
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/sample-parsing.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/elo.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/tests/sample-parsing.c b/tools/perf/tests/sample-parsing.c
-index 3a02426db9a63..2f76d4a9de860 100644
---- a/tools/perf/tests/sample-parsing.c
-+++ b/tools/perf/tests/sample-parsing.c
-@@ -180,7 +180,7 @@ static int do_test(u64 sample_type, u64 sample_regs, u64 read_format)
- 		.data = {1, 211, 212, 213},
- 	};
- 	u64 regs[64];
--	const u64 raw_data[] = {0x123456780a0b0c0dULL, 0x1102030405060708ULL};
-+	const u32 raw_data[] = {0x12345678, 0x0a0b0c0d, 0x11020304, 0x05060708, 0 };
- 	const u64 data[] = {0x2211443366558877ULL, 0, 0xaabbccddeeff4321ULL};
- 	struct perf_sample sample = {
- 		.ip		= 101,
+diff --git a/drivers/input/touchscreen/elo.c b/drivers/input/touchscreen/elo.c
+index d6772a2c2d096..e396857cb4c1b 100644
+--- a/drivers/input/touchscreen/elo.c
++++ b/drivers/input/touchscreen/elo.c
+@@ -341,8 +341,10 @@ static int elo_connect(struct serio *serio, struct serio_driver *drv)
+ 	switch (elo->id) {
+ 
+ 	case 0: /* 10-byte protocol */
+-		if (elo_setup_10(elo))
++		if (elo_setup_10(elo)) {
++			err = -EIO;
+ 			goto fail3;
++		}
+ 
+ 		break;
+ 
 -- 
 2.27.0
 
