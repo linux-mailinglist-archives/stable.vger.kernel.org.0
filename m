@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81F4328853
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:39:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45CAE328835
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:38:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238801AbhCARit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:38:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54080 "EHLO mail.kernel.org"
+        id S237820AbhCARfk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:35:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238040AbhCAR3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:29:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3068B64F1B;
-        Mon,  1 Mar 2021 16:51:50 +0000 (UTC)
+        id S231921AbhCAR3K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:29:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A07A564F26;
+        Mon,  1 Mar 2021 16:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617511;
-        bh=CT1+ZZdTDKMrvwB13fXDFBIQUZEMvtdNQUU2734wyVg=;
+        s=korg; t=1614617514;
+        bh=kYtrwMyuIXEmaRw+BlL+OR8PhJw/2fbTIYcdQFjf9Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4zPzS9+H28xN7co+CQzdhfYJUMmFalyEB0+6dzRzYIDnQ2FTtnSgw8w73LIK/IKN
-         rASzTqMxq7/Pnt9L7iJHdWYbfosAIZy4u+Km9Kjtfr2W+o/B3Jzoo0fy21jAN1Dm8C
-         EuVI+/Fb9RNdgEmK/EYwQd+zRbbDZkz+pmEo9efQ=
+        b=1/Bx6el1TU9uvOijWx+/r5ELBTUh2hgDhMU/PLyKz/evOCLqJiR2N9dWsSXtnLBQG
+         +sD7Dy2pNYRkd/ViBoqfOlrsYWazNuaR2WGWozebarGPGrCAzb8M8+guvpzxEXB/Mv
+         Wv/U2VRzqx2+7vpl7NE4eGa2iNs3fLvPAwiWUqkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Randy Dunlap <rdunlap@infradead.org>,
         "David S. Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/340] net: mvneta: Remove per-cpu queue mapping for Armada 3700
-Date:   Mon,  1 Mar 2021 17:10:13 +0100
-Message-Id: <20210301161051.719195119@linuxfoundation.org>
+Subject: [PATCH 5.4 070/340] fbdev: aty: SPARC64 requires FB_ATY_CT
+Date:   Mon,  1 Mar 2021 17:10:14 +0100
+Message-Id: <20210301161051.770571449@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,53 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Chevallier <maxime.chevallier@bootlin.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit cf9bf871280d9e0a8869d98c2602d29caf69dfa3 ]
+[ Upstream commit c6c90c70db4d9a0989111d6b994d545659410f7a ]
 
-According to Errata #23 "The per-CPU GbE interrupt is limited to Core
-0", we can't use the per-cpu interrupt mechanism on the Armada 3700
-familly.
+It looks like SPARC64 requires FB_ATY_CT to build without errors,
+so have FB_ATY select FB_ATY_CT if both SPARC64 and PCI are enabled
+instead of using "default y if SPARC64 && PCI", which is not strong
+enough to prevent build errors.
 
-This is correctly checked for RSS configuration, but the initial queue
-mapping is still done by having the queues spread across all the CPUs in
-the system, both in the init path and in the cpu_hotplug path.
+As it currently is, FB_ATY_CT can be disabled, resulting in build
+errors:
 
-Fixes: 2636ac3cc2b4 ("net: mvneta: Add network support for Armada 3700 SoC")
-Signed-off-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ERROR: modpost: "aty_postdividers" [drivers/video/fbdev/aty/atyfb.ko] undefined!
+ERROR: modpost: "aty_ld_pll_ct" [drivers/video/fbdev/aty/atyfb.ko] undefined!
+
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: f7018c213502 ("video: move fbdev to drivers/video/fbdev")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: sparclinux@vger.kernel.org
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: dri-devel@lists.freedesktop.org
+Cc: linux-fbdev@vger.kernel.org
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201127031752.10371-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
-index 94e3f8b869be4..7b0543056b101 100644
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -3027,7 +3027,9 @@ static int mvneta_txq_sw_init(struct mvneta_port *pp,
- 	}
- 
- 	/* Setup XPS mapping */
--	if (txq_number > 1)
-+	if (pp->neta_armada3700)
-+		cpu = 0;
-+	else if (txq_number > 1)
- 		cpu = txq->id % num_present_cpus();
- 	else
- 		cpu = pp->rxq_def % num_present_cpus();
-@@ -3764,6 +3766,11 @@ static int mvneta_cpu_online(unsigned int cpu, struct hlist_node *node)
- 						  node_online);
- 	struct mvneta_pcpu_port *port = per_cpu_ptr(pp->ports, cpu);
- 
-+	/* Armada 3700's per-cpu interrupt for mvneta is broken, all interrupts
-+	 * are routed to CPU 0, so we don't need all the cpu-hotplug support
-+	 */
-+	if (pp->neta_armada3700)
-+		return 0;
- 
- 	spin_lock(&pp->lock);
- 	/*
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index 1e70e838530ee..a7e5f12687b70 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -1269,6 +1269,7 @@ config FB_ATY
+ 	select FB_CFB_IMAGEBLIT
+ 	select FB_BACKLIGHT if FB_ATY_BACKLIGHT
+ 	select FB_MACMODES if PPC
++	select FB_ATY_CT if SPARC64 && PCI
+ 	help
+ 	  This driver supports graphics boards with the ATI Mach64 chips.
+ 	  Say Y if you have such a graphics board.
+@@ -1279,7 +1280,6 @@ config FB_ATY
+ config FB_ATY_CT
+ 	bool "Mach64 CT/VT/GT/LT (incl. 3D RAGE) support"
+ 	depends on PCI && FB_ATY
+-	default y if SPARC64 && PCI
+ 	help
+ 	  Say Y here to support use of ATI's 64-bit Rage boards (or other
+ 	  boards based on the Mach64 CT, VT, GT, and LT chipsets) as a
 -- 
 2.27.0
 
