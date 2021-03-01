@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BDF8328911
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B08328913
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238097AbhCARtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:49:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
+        id S238989AbhCARti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:49:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238891AbhCARnt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:43:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E7AA64FD6;
-        Mon,  1 Mar 2021 16:58:01 +0000 (UTC)
+        id S238905AbhCARnv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:43:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FCD7650C8;
+        Mon,  1 Mar 2021 16:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617882;
-        bh=CnQLA/uuDD9+C2rg/YVMqN8CfScC0O+zJ/EjP8ob4HI=;
+        s=korg; t=1614617885;
+        bh=wCL9VpEWofr8LPDZntjWQClGHRlNcNjj4x289U0wR6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJAb2riigGbI4G08+9SjicBh4k8yWIvXRC1nuO1b29pGFkCHNy6cIJ6AqHFOzdpKv
-         QOk1obeqxJxag80H4USz2TrZu7EadRGIRS4tQe33lUBr+AVt0e8J/T/I4zMbGiNHqL
-         bmB0HX6fSn1NDuQw/EsSsI9XfkSY/iULTA8fMj98=
+        b=JbY1X0ObQ8eNLZCxc2F5HMP7JVSskIhxWAToZzHKUflNjT/0yBpl1YSjmr8jQlQY/
+         T2Ao0MtjPwQ2LkRsP5647wU8WwPOrnM1Gjzm99NlKp2QXcGXLJOkl8RIDZpjT7e+J9
+         53gfD0OfEGjL50l9gMKW6FnuE2kLabScZWK5MSUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        sparclinux@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/340] sparc64: only select COMPAT_BINFMT_ELF if BINFMT_ELF is set
-Date:   Mon,  1 Mar 2021 17:12:24 +0100
-Message-Id: <20210301161058.150461450@linuxfoundation.org>
+Subject: [PATCH 5.4 201/340] misc: eeprom_93xx46: Fix module alias to enable module autoprobe
+Date:   Mon,  1 Mar 2021 17:12:25 +0100
+Message-Id: <20210301161058.198510515@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,45 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 80bddf5c93a99e11fc9faf7e4b575d01cecd45d3 ]
+[ Upstream commit 13613a2246bf531f5fc04e8e62e8f21a3d39bf1c ]
 
-Currently COMPAT on SPARC64 selects COMPAT_BINFMT_ELF unconditionally,
-even when BINFMT_ELF is not enabled. This causes a kconfig warning.
+Fix module autoprobe by correcting module alias to match the string from
+/sys/class/.../spi1.0/modalias content.
 
-Instead, just select COMPAT_BINFMT_ELF if BINFMT_ELF is enabled.
-This builds cleanly with no kconfig warnings.
-
-WARNING: unmet direct dependencies detected for COMPAT_BINFMT_ELF
-  Depends on [n]: COMPAT [=y] && BINFMT_ELF [=n]
-  Selected by [y]:
-  - COMPAT [=y] && SPARC64 [=y]
-
-Fixes: 26b4c912185a ("sparc,sparc64: unify Kconfig files")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: sparclinux@vger.kernel.org
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 06b4501e88ad ("misc/eeprom: add driver for microwire 93xx46 EEPROMs")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20210107163957.28664-2-a-govindraju@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/Kconfig | 2 +-
+ drivers/misc/eeprom/eeprom_93xx46.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
-index 18e9fb6fcf1bf..349e27771ceaf 100644
---- a/arch/sparc/Kconfig
-+++ b/arch/sparc/Kconfig
-@@ -524,7 +524,7 @@ config COMPAT
- 	bool
- 	depends on SPARC64
- 	default y
--	select COMPAT_BINFMT_ELF
-+	select COMPAT_BINFMT_ELF if BINFMT_ELF
- 	select HAVE_UID16
- 	select ARCH_WANT_OLD_COMPAT_IPC
- 	select COMPAT_OLD_SIGACTION
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index 94cfb675fe4ed..6adf979299667 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -510,4 +510,4 @@ module_spi_driver(eeprom_93xx46_driver);
+ MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("Driver for 93xx46 EEPROMs");
+ MODULE_AUTHOR("Anatolij Gustschin <agust@denx.de>");
+-MODULE_ALIAS("spi:93xx46");
++MODULE_ALIAS("spi:eeprom-93xx46");
 -- 
 2.27.0
 
