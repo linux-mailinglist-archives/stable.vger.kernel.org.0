@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9972B32855D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:54:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98126328458
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:36:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235980AbhCAQxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:53:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46442 "EHLO mail.kernel.org"
+        id S233591AbhCAQdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:33:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235601AbhCAQo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:44:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD67E614A7;
-        Mon,  1 Mar 2021 16:30:28 +0000 (UTC)
+        id S234842AbhCAQ3J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:29:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C79764F4D;
+        Mon,  1 Mar 2021 16:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616229;
-        bh=ZfP3LrniHAOd0ENsx1niWljaf9BgylEEvfkT1BJMATI=;
+        s=korg; t=1614615764;
+        bh=LtArYRrVe706yt9NdNPEB9Rt4v6t+2TY865VhZcyoZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdaBNhVcca4QQTy50TlQKuT6FKTcw1kF3PIveEWfaD6BjqIRktBaKXpRHcrPoK0tH
-         IFaxCASGVLetzAROqm5KVHXt9NEzYOlESR7vJ0i7jTHYsjoQ9Fj1QYJzVDKoPSzK5M
-         hkuYh3ncCvY4GNmrBdBZyLlS2os6VZmB/wsm4bIc=
+        b=qeCHXJDbC0YDAm6HgVWLj5z2EMA7O6is3nMUR+VwqCba0M0/+dk2DLarYmQ9k6WpD
+         GIczs0yARuP9Ybj2+XY+GboWBICJoBWGuCKSacKeaNzYI6E6g97bbaGDRk5bNCNmYc
+         +7EUvtERxRPDINrlplEhyKQL/OsjISWk2WGIWayk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 079/176] rtc: s5m: select REGMAP_I2C
-Date:   Mon,  1 Mar 2021 17:12:32 +0100
-Message-Id: <20210301161024.890241529@linuxfoundation.org>
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 052/134] dmaengine: fsldma: Fix a resource leak in an error handling path of the probe function
+Date:   Mon,  1 Mar 2021 17:12:33 +0100
+Message-Id: <20210301161016.118779556@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1f0cbda3b452b520c5f3794f8f0e410e8bc7386a ]
+[ Upstream commit b202d4e82531a62a33a6b14d321dd2aad491578e ]
 
-The rtc-s5m uses the I2C regmap but doesn't select it in Kconfig so
-depending on the configuration the build may fail. Fix it.
+In case of error, the previous 'fsl_dma_chan_probe()' calls must be undone
+by some 'fsl_dma_chan_remove()', as already done in the remove function.
 
-Fixes: 959df7778bbd ("rtc: Enable compile testing for Maxim and Samsung drivers")
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210114102219.23682-2-brgl@bgdev.pl
+It was added in the remove function in commit 77cd62e8082b ("fsldma: allow
+Freescale Elo DMA driver to be compiled as a module")
+
+Fixes: d3f620b2c4fe ("fsldma: simplify IRQ probing and handling")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201212160614.92576-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/dma/fsldma.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
-index 68b76e6ddc1ee..7129442f0dfe2 100644
---- a/drivers/rtc/Kconfig
-+++ b/drivers/rtc/Kconfig
-@@ -625,6 +625,7 @@ config RTC_DRV_S5M
- 	tristate "Samsung S2M/S5M series"
- 	depends on MFD_SEC_CORE || COMPILE_TEST
- 	select REGMAP_IRQ
-+	select REGMAP_I2C
- 	help
- 	  If you say yes here you will get support for the
- 	  RTC of Samsung S2MPS14 and S5M PMIC series.
+diff --git a/drivers/dma/fsldma.c b/drivers/dma/fsldma.c
+index a5687864e8830..c9a1d59dcb490 100644
+--- a/drivers/dma/fsldma.c
++++ b/drivers/dma/fsldma.c
+@@ -1331,6 +1331,7 @@ static int fsldma_of_probe(struct platform_device *op)
+ {
+ 	struct fsldma_device *fdev;
+ 	struct device_node *child;
++	unsigned int i;
+ 	int err;
+ 
+ 	fdev = kzalloc(sizeof(*fdev), GFP_KERNEL);
+@@ -1411,6 +1412,10 @@ static int fsldma_of_probe(struct platform_device *op)
+ 	return 0;
+ 
+ out_free_fdev:
++	for (i = 0; i < FSL_DMA_MAX_CHANS_PER_DEVICE; i++) {
++		if (fdev->chan[i])
++			fsl_dma_chan_remove(fdev->chan[i]);
++	}
+ 	irq_dispose_mapping(fdev->irq);
+ 	iounmap(fdev->regs);
+ out_free:
 -- 
 2.27.0
 
