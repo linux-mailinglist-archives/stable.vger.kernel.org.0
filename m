@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 631EB328F57
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0C0328EEB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbhCATtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:49:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52976 "EHLO mail.kernel.org"
+        id S241475AbhCATkl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:40:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237892AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:38:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A9764F84;
-        Mon,  1 Mar 2021 17:08:52 +0000 (UTC)
+        id S241661AbhCATc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:32:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79B3F64FDC;
+        Mon,  1 Mar 2021 17:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618533;
-        bh=UdBrVzQ8CwwiswjPWen2fbMXWfm4QqcDF/hQgckq8+g=;
+        s=korg; t=1614620647;
+        bh=PKy+BTdVpY5bdXj1vnnfybhkRjj+pobNfcSHDw8vm/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C8O4JWzOYI2lT07UCYFBA/8aEsvbWH2bhwVLCB7Lq3+tu7nFbbevQuj5dabTFgcN7
-         86Q4uSUTZRASFOxx4OmTqjffYq+9lhMP/NMT9fsCb73FJdJMxlYXa63gRaApLIK4ED
-         T+VzSuWSsuV4QcRqMij1Fde8S6Q1zQazLQXsaqEw=
+        b=ZUgyLxJsorZcsmSpV4bxpc+GZ49EeprlbXDkwEXW7Vep7BpWoqb7XH2JycdkHgIRT
+         dzwcYxZIprV3KTEGHKsHX5oc8lu15TCSCcFZU0Sw4Pcr5A4fiFlRJAJQkHX/Ci0afT
+         p0u5pZEnTFAVaEH/28DBSc5XrH55m7rvZ14DpW90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 121/663] net: axienet: Handle deferred probe on clock properly
+Subject: [PATCH 5.11 201/775] media: em28xx: Fix use-after-free in em28xx_alloc_urbs
 Date:   Mon,  1 Mar 2021 17:06:09 +0100
-Message-Id: <20210301161147.731042238@linuxfoundation.org>
+Message-Id: <20210301161211.573274180@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 57baf8cc70ea4cf5503c9d42f31f6a86d7f5ff1a ]
+[ Upstream commit a26efd1961a18b91ae4cd2e433adbcf865b40fa3 ]
 
-This driver is set up to use a clock mapping in the device tree if it is
-present, but still work without one for backward compatibility. However,
-if getting the clock returns -EPROBE_DEFER, then we need to abort and
-return that error from our driver initialization so that the probe can
-be retried later after the clock is set up.
+When kzalloc() fails, em28xx_uninit_usb_xfer() will free
+usb_bufs->buf and set it to NULL. Thus the later access
+to usb_bufs->buf[i] will lead to null pointer dereference.
+Also the kfree(usb_bufs->buf) after that is redundant.
 
-Move clock initialization to earlier in the process so we do not waste as
-much effort if the clock is not yet available. Switch to use
-devm_clk_get_optional and abort initialization on any error reported.
-Also enable the clock regardless of whether the controller is using an MDIO
-bus, as the clock is required in any case.
-
-Fixes: 09a0354cadec267be7f ("net: axienet: Use clock framework to get device clock rate")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: d571b592c6206 ("media: em28xx: don't use coherent buffer for DMA transfers")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/xilinx/xilinx_axienet_main.c | 26 +++++++++----------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ drivers/media/usb/em28xx/em28xx-core.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 9aafd3ecdaa4d..eea0bb7c23ede 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -1805,6 +1805,18 @@ static int axienet_probe(struct platform_device *pdev)
- 	lp->options = XAE_OPTION_DEFAULTS;
- 	lp->rx_bd_num = RX_BD_NUM_DEFAULT;
- 	lp->tx_bd_num = TX_BD_NUM_DEFAULT;
-+
-+	lp->clk = devm_clk_get_optional(&pdev->dev, NULL);
-+	if (IS_ERR(lp->clk)) {
-+		ret = PTR_ERR(lp->clk);
-+		goto free_netdev;
-+	}
-+	ret = clk_prepare_enable(lp->clk);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Unable to enable clock: %d\n", ret);
-+		goto free_netdev;
-+	}
-+
- 	/* Map device registers */
- 	ethres = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	lp->regs = devm_ioremap_resource(&pdev->dev, ethres);
-@@ -1980,20 +1992,6 @@ static int axienet_probe(struct platform_device *pdev)
+diff --git a/drivers/media/usb/em28xx/em28xx-core.c b/drivers/media/usb/em28xx/em28xx-core.c
+index e6088b5d1b805..3daa64bb1e1d9 100644
+--- a/drivers/media/usb/em28xx/em28xx-core.c
++++ b/drivers/media/usb/em28xx/em28xx-core.c
+@@ -956,14 +956,10 @@ int em28xx_alloc_urbs(struct em28xx *dev, enum em28xx_mode mode, int xfer_bulk,
  
- 	lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 	if (lp->phy_node) {
--		lp->clk = devm_clk_get(&pdev->dev, NULL);
--		if (IS_ERR(lp->clk)) {
--			dev_warn(&pdev->dev, "Failed to get clock: %ld\n",
--				 PTR_ERR(lp->clk));
--			lp->clk = NULL;
--		} else {
--			ret = clk_prepare_enable(lp->clk);
--			if (ret) {
--				dev_err(&pdev->dev, "Unable to enable clock: %d\n",
--					ret);
--				goto free_netdev;
--			}
--		}
+ 		usb_bufs->buf[i] = kzalloc(sb_size, GFP_KERNEL);
+ 		if (!usb_bufs->buf[i]) {
+-			em28xx_uninit_usb_xfer(dev, mode);
 -
- 		ret = axienet_mdio_setup(lp);
- 		if (ret)
- 			dev_warn(&pdev->dev,
+ 			for (i--; i >= 0; i--)
+ 				kfree(usb_bufs->buf[i]);
+ 
+-			kfree(usb_bufs->buf);
+-			usb_bufs->buf = NULL;
+-
++			em28xx_uninit_usb_xfer(dev, mode);
+ 			return -ENOMEM;
+ 		}
+ 
 -- 
 2.27.0
 
