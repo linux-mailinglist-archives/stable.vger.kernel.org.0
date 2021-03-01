@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFFF328922
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9909D328929
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238871AbhCARvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:51:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37402 "EHLO mail.kernel.org"
+        id S238979AbhCARv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:51:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236726AbhCARoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:44:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 145D164FD1;
-        Mon,  1 Mar 2021 16:57:52 +0000 (UTC)
+        id S238133AbhCARpt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:45:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E74764FD4;
+        Mon,  1 Mar 2021 16:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617873;
-        bh=2pkBy4foSvl7IE4vsbtW4EyIWnJW/EJXx0nNyz+L1mM=;
+        s=korg; t=1614617876;
+        bh=ONlffOKxSlJZ1sgAFG6O+387ZH4l6WcT/kj4u30w/B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDzlAp3yQ9+lk75+WZMXI9X//+DCMlbRUWvMKUIS8suXWqP8w59lLxESRKwhkw9m3
-         MhHGESr1dxqlLHVTusRDJMDTpN25obzzo0a0uVRluBVuWSFt7w+uXyP/M+gqvh/nS2
-         h9H3UU0z5yTKMkQmbTP5ukoFrJtMYxO2lEfui23o=
+        b=1vqzTQr9ZWTMxSNLtdgmmZ/TLEQvj7x2FEBEdCT8zn7f+XG9sQn82TOhTakOe2ipD
+         LUOGNY5ZotOIjbf/zTebbbxcOWf2MhHA2hswBROMbFHBRdbNs+hn6/1LPA1vFWzHnL
+         c5OZffCu/OpocbIEA0kRO1BfnHQBDtaa7704nGCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 197/340] perf intel-pt: Fix premature IPC
-Date:   Mon,  1 Mar 2021 17:12:21 +0100
-Message-Id: <20210301161058.005567835@linuxfoundation.org>
+Subject: [PATCH 5.4 198/340] perf test: Fix unaligned access in sample parsing test
+Date:   Mon,  1 Mar 2021 17:12:22 +0100
+Message-Id: <20210301161058.053621490@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -41,106 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 20aa39708a5999b7921b27482a756766272286ac ]
+[ Upstream commit c5c97cadd7ed13381cb6b4bef5c841a66938d350 ]
 
-The code assumed a change in cycle count means accurate IPC. That is not
-correct, for example when sampling both branches and instructions, or at
-a FUP packet (which is not CYC-eligible) address. Fix by using an explicit
-flag to indicate when IPC can be sampled.
+The ubsan reported the following error.  It was because sample's raw
+data missed u32 padding at the end.  So it broke the alignment of the
+array after it.
 
-Fixes: 5b1dc0fd1da06 ("perf intel-pt: Add support for samples to contain IPC ratio")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Andi Kleen <ak@linux.intel.com>
+The raw data contains an u32 size prefix so the data size should have
+an u32 padding after 8-byte aligned data.
+
+27: Sample parsing  :util/synthetic-events.c:1539:4:
+  runtime error: store to misaligned address 0x62100006b9bc for type
+  '__u64' (aka 'unsigned long long'), which requires 8 byte alignment
+0x62100006b9bc: note: pointer points here
+  00 00 00 00 ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff
+              ^
+    #0 0x561532a9fc96 in perf_event__synthesize_sample util/synthetic-events.c:1539:13
+    #1 0x5615327f4a4f in do_test tests/sample-parsing.c:284:8
+    #2 0x5615327f3f50 in test__sample_parsing tests/sample-parsing.c:381:9
+    #3 0x56153279d3a1 in run_test tests/builtin-test.c:424:9
+    #4 0x56153279c836 in test_and_print tests/builtin-test.c:454:9
+    #5 0x56153279b7eb in __cmd_test tests/builtin-test.c:675:4
+    #6 0x56153279abf0 in cmd_test tests/builtin-test.c:821:9
+    #7 0x56153264e796 in run_builtin perf.c:312:11
+    #8 0x56153264cf03 in handle_internal_command perf.c:364:8
+    #9 0x56153264e47d in run_argv perf.c:408:2
+    #10 0x56153264c9a9 in main perf.c:538:3
+    #11 0x7f137ab6fbbc in __libc_start_main (/lib64/libc.so.6+0x38bbc)
+    #12 0x561532596828 in _start ...
+
+SUMMARY: UndefinedBehaviorSanitizer: misaligned-pointer-use
+ util/synthetic-events.c:1539:4 in
+
+Fixes: 045f8cd8542d ("perf tests: Add a sample parsing test")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@kernel.org>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Link: https://lore.kernel.org/r/20210205175350.23817-3-adrian.hunter@intel.com
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: https://lore.kernel.org/r/20210214091638.519643-1-namhyung@kernel.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../util/intel-pt-decoder/intel-pt-decoder.c     | 11 ++++++++++-
- .../util/intel-pt-decoder/intel-pt-decoder.h     |  1 +
- tools/perf/util/intel-pt.c                       | 16 ++++++----------
- 3 files changed, 17 insertions(+), 11 deletions(-)
+ tools/perf/tests/sample-parsing.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-index a3fdea49ad663..7f53b63088b2c 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -2637,9 +2637,18 @@ const struct intel_pt_state *intel_pt_decode(struct intel_pt_decoder *decoder)
- 		}
- 		if (intel_pt_sample_time(decoder->pkt_state)) {
- 			intel_pt_update_sample_time(decoder);
--			if (decoder->sample_cyc)
-+			if (decoder->sample_cyc) {
- 				decoder->sample_tot_cyc_cnt = decoder->tot_cyc_cnt;
-+				decoder->state.flags |= INTEL_PT_SAMPLE_IPC;
-+				decoder->sample_cyc = false;
-+			}
- 		}
-+		/*
-+		 * When using only TSC/MTC to compute cycles, IPC can be
-+		 * sampled as soon as the cycle count changes.
-+		 */
-+		if (!decoder->have_cyc)
-+			decoder->state.flags |= INTEL_PT_SAMPLE_IPC;
- 	}
- 
- 	decoder->state.timestamp = decoder->sample_timestamp;
-diff --git a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-index e289e463d635e..7396da0fa3a7c 100644
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.h
-@@ -17,6 +17,7 @@
- #define INTEL_PT_ABORT_TX	(1 << 1)
- #define INTEL_PT_ASYNC		(1 << 2)
- #define INTEL_PT_FUP_IP		(1 << 3)
-+#define INTEL_PT_SAMPLE_IPC	(1 << 4)
- 
- enum intel_pt_sample_type {
- 	INTEL_PT_BRANCH		= 1 << 0,
-diff --git a/tools/perf/util/intel-pt.c b/tools/perf/util/intel-pt.c
-index 8aeaeba48a41f..d0e0ce11faf58 100644
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -1304,7 +1304,8 @@ static int intel_pt_synth_branch_sample(struct intel_pt_queue *ptq)
- 		sample.branch_stack = (struct branch_stack *)&dummy_bs;
- 	}
- 
--	sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_br_cyc_cnt;
-+	if (ptq->state->flags & INTEL_PT_SAMPLE_IPC)
-+		sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_br_cyc_cnt;
- 	if (sample.cyc_cnt) {
- 		sample.insn_cnt = ptq->ipc_insn_cnt - ptq->last_br_insn_cnt;
- 		ptq->last_br_insn_cnt = ptq->ipc_insn_cnt;
-@@ -1366,7 +1367,8 @@ static int intel_pt_synth_instruction_sample(struct intel_pt_queue *ptq)
- 	sample.stream_id = ptq->pt->instructions_id;
- 	sample.period = ptq->state->tot_insn_cnt - ptq->last_insn_cnt;
- 
--	sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_in_cyc_cnt;
-+	if (ptq->state->flags & INTEL_PT_SAMPLE_IPC)
-+		sample.cyc_cnt = ptq->ipc_cyc_cnt - ptq->last_in_cyc_cnt;
- 	if (sample.cyc_cnt) {
- 		sample.insn_cnt = ptq->ipc_insn_cnt - ptq->last_in_insn_cnt;
- 		ptq->last_in_insn_cnt = ptq->ipc_insn_cnt;
-@@ -1901,14 +1903,8 @@ static int intel_pt_sample(struct intel_pt_queue *ptq)
- 
- 	ptq->have_sample = false;
- 
--	if (ptq->state->tot_cyc_cnt > ptq->ipc_cyc_cnt) {
--		/*
--		 * Cycle count and instruction count only go together to create
--		 * a valid IPC ratio when the cycle count changes.
--		 */
--		ptq->ipc_insn_cnt = ptq->state->tot_insn_cnt;
--		ptq->ipc_cyc_cnt = ptq->state->tot_cyc_cnt;
--	}
-+	ptq->ipc_insn_cnt = ptq->state->tot_insn_cnt;
-+	ptq->ipc_cyc_cnt = ptq->state->tot_cyc_cnt;
- 
- 	/*
- 	 * Do PEBS first to allow for the possibility that the PEBS timestamp
+diff --git a/tools/perf/tests/sample-parsing.c b/tools/perf/tests/sample-parsing.c
+index 3a02426db9a63..2f76d4a9de860 100644
+--- a/tools/perf/tests/sample-parsing.c
++++ b/tools/perf/tests/sample-parsing.c
+@@ -180,7 +180,7 @@ static int do_test(u64 sample_type, u64 sample_regs, u64 read_format)
+ 		.data = {1, 211, 212, 213},
+ 	};
+ 	u64 regs[64];
+-	const u64 raw_data[] = {0x123456780a0b0c0dULL, 0x1102030405060708ULL};
++	const u32 raw_data[] = {0x12345678, 0x0a0b0c0d, 0x11020304, 0x05060708, 0 };
+ 	const u64 data[] = {0x2211443366558877ULL, 0, 0xaabbccddeeff4321ULL};
+ 	struct perf_sample sample = {
+ 		.ip		= 101,
 -- 
 2.27.0
 
