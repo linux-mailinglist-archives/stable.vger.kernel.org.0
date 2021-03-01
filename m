@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED15328ACD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 705B4328A5C
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:17:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbhCASXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:23:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39424 "EHLO mail.kernel.org"
+        id S239558AbhCASQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:16:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239690AbhCASS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:18:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B291E6505F;
-        Mon,  1 Mar 2021 17:22:56 +0000 (UTC)
+        id S234284AbhCASJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:09:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6E065066;
+        Mon,  1 Mar 2021 17:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619377;
-        bh=ti2nkFNhuDh1GQ9wFtzWqM+BIk4OE9m+OR3PDoFkwnk=;
+        s=korg; t=1614619419;
+        bh=vGtHvO5vY1/hbyN7DteKHlZkQG5TALIND6rSi4sb7Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rg35Nm9iSP3c7Ll09KqlrGoor6lRL8pt3xFXf5XPJ76mECVXWIcMR+kf/ME1o7IHu
-         NmujPcHTN//lrBUebdAoF6UHRyhKvZdgufk3uMBgaDLReceZ9nHJOlOXaq13zzXL65
-         4rKY1rdO/+8HW52qKps6BVeF5hAJQONKLEClKAYA=
+        b=OiCN5hGu0ej6oFvqvdTmT3+Mo7mmrIgfffhmpd0LSceoLoQrWvvhsSbHCQzNim7OA
+         JBJnnA5swcd89FihOd9TnRTp+HRe+lgAgbTiZRPhByrLf/iNxSGvn4PULWiK9V8DLl
+         sIDY/LFC6VLEryIeLxJzxcWKj7dQkZKb1aRHbkos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 433/663] PCI: cadence: Fix DMA range mapping early return error
-Date:   Mon,  1 Mar 2021 17:11:21 +0100
-Message-Id: <20210301161203.314157157@linuxfoundation.org>
+Subject: [PATCH 5.10 447/663] ice: Fix state bits on LLDP mode switch
+Date:   Mon,  1 Mar 2021 17:11:35 +0100
+Message-Id: <20210301161204.017681548@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,46 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-[ Upstream commit 1002573ee33efef0988a9a546c075a9fa37d2498 ]
+[ Upstream commit 0d4907f65dc8fc5e897ad19956fca1acb3b33bc8 ]
 
-Function cdns_pcie_host_map_dma_ranges() iterates over a PCIe host bridge
-DMA ranges using the resource_list_for_each_entry() iterator, returning an
-error if cdns_pcie_host_bar_config() fails.
+DCBX_CAP bits were not being adjusted when switching
+between SW and FW controlled LLDP.
 
-49e427e6bdd1 ("Merge branch 'pci/host-probe-refactor'") botched a merge so
-it *always* returned after the first DMA range, even if no error occurred.
+Adjust bits to correctly indicate which mode the
+LLDP logic is in.
 
-Fix the error checking so we return early only when an error occurs.
-
-[bhelgaas: commit log]
-Fixes: 49e427e6bdd1 ("Merge branch 'pci/host-probe-refactor'")
-Link: https://lore.kernel.org/r/20210216205935.3112661-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Fixes: b94b013eb626 ("ice: Implement DCBNL support")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pcie-cadence-host.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h         | 2 --
+ drivers/net/ethernet/intel/ice/ice_dcb_nl.c  | 4 ++++
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 7 +++++++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-host.c b/drivers/pci/controller/cadence/pcie-cadence-host.c
-index 811c1cb2e8deb..1cb7cfc75d6e4 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-host.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-host.c
-@@ -321,9 +321,10 @@ static int cdns_pcie_host_map_dma_ranges(struct cdns_pcie_rc *rc)
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 54cf382fddaf9..5b3f2bb22eba7 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -444,9 +444,7 @@ struct ice_pf {
+ 	struct ice_hw_port_stats stats_prev;
+ 	struct ice_hw hw;
+ 	u8 stat_prev_loaded:1; /* has previous stats been loaded */
+-#ifdef CONFIG_DCB
+ 	u16 dcbx_cap;
+-#endif /* CONFIG_DCB */
+ 	u32 tx_timeout_count;
+ 	unsigned long tx_timeout_last_recovery;
+ 	u32 tx_timeout_recovery_level;
+diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
+index 842d44b63480f..8c133a8be6add 100644
+--- a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
++++ b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
+@@ -160,6 +160,10 @@ static u8 ice_dcbnl_setdcbx(struct net_device *netdev, u8 mode)
+ {
+ 	struct ice_pf *pf = ice_netdev_to_pf(netdev);
  
- 	resource_list_for_each_entry(entry, &bridge->dma_ranges) {
- 		err = cdns_pcie_host_bar_config(rc, entry);
--		if (err)
-+		if (err) {
- 			dev_err(dev, "Fail to configure IB using dma-ranges\n");
--		return err;
-+			return err;
-+		}
++	/* if FW LLDP agent is running, DCBNL not allowed to change mode */
++	if (test_bit(ICE_FLAG_FW_LLDP_AGENT, pf->flags))
++		return ICE_DCB_NO_HW_CHG;
++
+ 	/* No support for LLD_MANAGED modes or CEE+IEEE */
+ 	if ((mode & DCB_CAP_DCBX_LLD_MANAGED) ||
+ 	    ((mode & DCB_CAP_DCBX_VER_IEEE) && (mode & DCB_CAP_DCBX_VER_CEE)) ||
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index 69c113a4de7e6..d27b9cb3e8082 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -8,6 +8,7 @@
+ #include "ice_fltr.h"
+ #include "ice_lib.h"
+ #include "ice_dcb_lib.h"
++#include <net/dcbnl.h>
+ 
+ struct ice_stats {
+ 	char stat_string[ETH_GSTRING_LEN];
+@@ -1238,6 +1239,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
+ 			status = ice_init_pf_dcb(pf, true);
+ 			if (status)
+ 				dev_warn(dev, "Fail to init DCB\n");
++
++			pf->dcbx_cap &= ~DCB_CAP_DCBX_LLD_MANAGED;
++			pf->dcbx_cap |= DCB_CAP_DCBX_HOST;
+ 		} else {
+ 			enum ice_status status;
+ 			bool dcbx_agent_status;
+@@ -1280,6 +1284,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
+ 			if (status)
+ 				dev_dbg(dev, "Fail to enable MIB change events\n");
+ 
++			pf->dcbx_cap &= ~DCB_CAP_DCBX_HOST;
++			pf->dcbx_cap |= DCB_CAP_DCBX_LLD_MANAGED;
++
+ 			ice_nway_reset(netdev);
+ 		}
  	}
- 
- 	return 0;
 -- 
 2.27.0
 
