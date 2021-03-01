@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B2A328E9C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29986328F3E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242001AbhCATeW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:34:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48630 "EHLO mail.kernel.org"
+        id S242062AbhCATsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:48:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241714AbhCAT2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:28:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3496960230;
-        Mon,  1 Mar 2021 17:47:02 +0000 (UTC)
+        id S238342AbhCAThT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:37:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9CAF64EE1;
+        Mon,  1 Mar 2021 17:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620822;
-        bh=1uBovl6iDDXC7RYgWTFxw5dV4L4Y64Uw1kzEXWjIrOw=;
+        s=korg; t=1614618789;
+        bh=oH5Pp1LqGFyLTprX5Ex1z/4ukUshR6UmE3FUtvYo8p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQndu2eejZrBYpfdnvg9tEZ81589ko6rWDpHIpc5qGHh/cuh7I+36w8/2Mxf8eSY0
-         jey4b74Yb2z321cY3F0S7DSW2LW0JWHsEaA5CoHwYwsO8SRoK+RnCDf03yOS9KYbqY
-         vBAAiLoltuyAKcNPGU4vhV9D3LJmlYo42X7PQVck=
+        b=Ap48byCf0QQ7nEsIjao26PxjMyLIjzXl663utJfI8JNqoTwd6U5obWq1q1tC40iqN
+         EeuLczofb4DlQ2Xmspvgm8GcSv+ksZ0jfkJA4yd8RvbruxmukAvbMoOSO1+R+KsmUf
+         yrbbsiRTxqJM1ETcHFrXeP73dCEEQHvWa6HmSfiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        stable@vger.kernel.org, Yongqiang Niu <yongqiang.niu@mediatek.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 292/775] ima: Free IMA measurement buffer after kexec syscall
-Date:   Mon,  1 Mar 2021 17:07:40 +0100
-Message-Id: <20210301161216.047727071@linuxfoundation.org>
+Subject: [PATCH 5.10 217/663] drm/mediatek: Fix aal size config
+Date:   Mon,  1 Mar 2021 17:07:45 +0100
+Message-Id: <20210301161152.529130643@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+[ Upstream commit 71dcadba34203d8dd35152e368720f977e9cdb81 ]
 
-[ Upstream commit f31e3386a4e92ba6eda7328cb508462956c94c64 ]
+The orginal setting is not correct, fix it to follow hardware data sheet.
+If keep this error setting, mt8173/mt8183 display ok
+but mt8192 display abnormal.
 
-IMA allocates kernel virtual memory to carry forward the measurement
-list, from the current kernel to the next kernel on kexec system call,
-in ima_add_kexec_buffer() function.  This buffer is not freed before
-completing the kexec system call resulting in memory leak.
+Fixes: 0664d1392c26 ("drm/mediatek: Add AAL engine basic function")
 
-Add ima_buffer field in "struct kimage" to store the virtual address
-of the buffer allocated for the IMA measurement list.
-Free the memory allocated for the IMA measurement list in
-kimage_file_post_load_cleanup() function.
-
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Reviewed-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
-Fixes: 7b8589cc29e7 ("ima: on soft reboot, save the measurement list")
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Signed-off-by: Yongqiang Niu <yongqiang.niu@mediatek.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kexec.h              | 5 +++++
- kernel/kexec_file.c                | 5 +++++
- security/integrity/ima/ima_kexec.c | 2 ++
- 3 files changed, 12 insertions(+)
+ drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-index 9e93bef529680..5f61389f5f361 100644
---- a/include/linux/kexec.h
-+++ b/include/linux/kexec.h
-@@ -300,6 +300,11 @@ struct kimage {
- 	/* Information for loading purgatory */
- 	struct purgatory_info purgatory_info;
- #endif
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
+index 3064eac1a7507..7fcb717f256c9 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c
+@@ -180,7 +180,9 @@ static void mtk_aal_config(struct mtk_ddp_comp *comp, unsigned int w,
+ 			   unsigned int h, unsigned int vrefresh,
+ 			   unsigned int bpc, struct cmdq_pkt *cmdq_pkt)
+ {
+-	mtk_ddp_write(cmdq_pkt, h << 16 | w, comp, DISP_AAL_SIZE);
++	struct mtk_ddp_comp_dev *priv = dev_get_drvdata(comp->dev);
 +
-+#ifdef CONFIG_IMA_KEXEC
-+	/* Virtual address of IMA measurement buffer for kexec syscall */
-+	void *ima_buffer;
-+#endif
- };
- 
- /* kexec interface functions */
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index b02086d704923..5c3447cf7ad58 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -166,6 +166,11 @@ void kimage_file_post_load_cleanup(struct kimage *image)
- 	vfree(pi->sechdrs);
- 	pi->sechdrs = NULL;
- 
-+#ifdef CONFIG_IMA_KEXEC
-+	vfree(image->ima_buffer);
-+	image->ima_buffer = NULL;
-+#endif /* CONFIG_IMA_KEXEC */
-+
- 	/* See if architecture has anything to cleanup post load */
- 	arch_kimage_file_post_load_cleanup(image);
- 
-diff --git a/security/integrity/ima/ima_kexec.c b/security/integrity/ima/ima_kexec.c
-index 206ddcaa5c67a..e29bea3dd4ccd 100644
---- a/security/integrity/ima/ima_kexec.c
-+++ b/security/integrity/ima/ima_kexec.c
-@@ -129,6 +129,8 @@ void ima_add_kexec_buffer(struct kimage *image)
- 		return;
- 	}
- 
-+	image->ima_buffer = kexec_buffer;
-+
- 	pr_debug("kexec measurement buffer for the loaded kernel at 0x%lx.\n",
- 		 kbuf.mem);
++	mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
  }
+ 
+ static void mtk_aal_start(struct mtk_ddp_comp *comp)
 -- 
 2.27.0
 
