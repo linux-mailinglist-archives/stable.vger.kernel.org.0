@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CACA3291ED
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:36:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9CCB3291F5
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243494AbhCAUg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48816 "EHLO mail.kernel.org"
+        id S237043AbhCAUhO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:37:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238813AbhCAUaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:30:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A890E65289;
-        Mon,  1 Mar 2021 18:08:10 +0000 (UTC)
+        id S235231AbhCAUan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:30:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDE5765272;
+        Mon,  1 Mar 2021 18:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622091;
-        bh=Nqlo/1suRBDwroBwRBe92vMGQd1k0Eqf49rR/q8FdbI=;
+        s=korg; t=1614622096;
+        bh=dj6P4QY+zxEcvLOpWQ83MuZ32ozmug3SYsFZJN2in8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykhEG/HtGH9i2DopSprGwbrgJQolFdczhg9LnJpeuyOwDdghUxaV74lZNJ6WDeCJL
-         ZfoAhhKn5F0R0Uq5macH72EbK7vMGT9NZEAqi5VL8+8m7V32B24DgBmTIkxyu8Myje
-         zCBUM1ZTRXp4zogr8cf7H8LP1ZbEel+w02HslC+A=
+        b=jqBz5WHxU1kCr0o9hGsiszOwdp0K6vhpMRTH6JClPOATbT34XMmfrsF6Rtltwm7ww
+         P0y1n6hnm34qmpAa5AOhjTM41cL9tvk0v/MbeFgslnDe5gKhRY4TgHB/wypZ6yft7n
+         japR4LWceATKk8vEA5KsbB8EriZvgv5hKiCro+Jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 753/775] dm: fix deadlock when swapping to encrypted device
-Date:   Mon,  1 Mar 2021 17:15:21 +0100
-Message-Id: <20210301161238.530735187@linuxfoundation.org>
+Subject: [PATCH 5.11 754/775] dm table: fix iterate_devices based device capability checks
+Date:   Mon,  1 Mar 2021 17:15:22 +0100
+Message-Id: <20210301161238.584566287@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -39,201 +39,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit a666e5c05e7c4aaabb2c5d58117b0946803d03d2 upstream.
+commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
 
-The system would deadlock when swapping to a dm-crypt device. The reason
-is that for each incoming write bio, dm-crypt allocates memory that holds
-encrypted data. These excessive allocations exhaust all the memory and the
-result is either deadlock or OOM trigger.
+According to the definition of dm_iterate_devices_fn:
+ * This function must iterate through each section of device used by the
+ * target until it encounters a non-zero return code, which it then returns.
+ * Returns zero if no callout returned non-zero.
 
-This patch limits the number of in-flight swap bios, so that the memory
-consumed by dm-crypt is limited. The limit is enforced if the target set
-the "limit_swap_bios" variable and if the bio has REQ_SWAP set.
+For some target type (e.g. dm-stripe), one call of iterate_devices() may
+iterate multiple underlying devices internally, in which case a non-zero
+return code returned by iterate_devices_callout_fn will stop the iteration
+in advance. No iterate_devices_callout_fn should return non-zero unless
+device iteration should stop.
 
-Non-swap bios are not affected becuase taking the semaphore would cause
-performance degradation.
+Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
+elevate it for reuse to stop iterating (and return non-zero) on the
+first device that causes iterate_devices_callout_fn to return non-zero.
+Use dm_table_any_dev_attr() to properly iterate through devices.
 
-This is similar to request-based drivers - they will also block when the
-number of requests is over the limit.
+Rename device_is_nonrot() to device_is_rotational() and invert logic
+accordingly to fix improper disposition.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
+Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
 Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-core.h          |    4 ++
- drivers/md/dm-crypt.c         |    1 
- drivers/md/dm.c               |   60 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/device-mapper.h |    5 +++
- 4 files changed, 70 insertions(+)
+ drivers/md/dm-table.c |   97 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 51 insertions(+), 46 deletions(-)
 
---- a/drivers/md/dm-core.h
-+++ b/drivers/md/dm-core.h
-@@ -102,6 +102,10 @@ struct mapped_device {
- 	/* kobject and completion */
- 	struct dm_kobject_holder kobj_holder;
- 
-+	int swap_bios;
-+	struct semaphore swap_bios_semaphore;
-+	struct mutex swap_bios_lock;
-+
- 	struct dm_stats stats;
- 
- 	/* for blk-mq request-based DM support */
---- a/drivers/md/dm-crypt.c
-+++ b/drivers/md/dm-crypt.c
-@@ -3324,6 +3324,7 @@ static int crypt_ctr(struct dm_target *t
- 	wake_up_process(cc->write_thread);
- 
- 	ti->num_flush_bios = 1;
-+	ti->limit_swap_bios = true;
- 
- 	return 0;
- 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -148,6 +148,16 @@ EXPORT_SYMBOL_GPL(dm_bio_get_target_bio_
- #define DM_NUMA_NODE NUMA_NO_NODE
- static int dm_numa_node = DM_NUMA_NODE;
- 
-+#define DEFAULT_SWAP_BIOS	(8 * 1048576 / PAGE_SIZE)
-+static int swap_bios = DEFAULT_SWAP_BIOS;
-+static int get_swap_bios(void)
-+{
-+	int latch = READ_ONCE(swap_bios);
-+	if (unlikely(latch <= 0))
-+		latch = DEFAULT_SWAP_BIOS;
-+	return latch;
-+}
-+
- /*
-  * For mempools pre-allocation at the table loading time.
-  */
-@@ -969,6 +979,11 @@ void disable_write_zeroes(struct mapped_
- 	limits->max_write_zeroes_sectors = 0;
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1295,6 +1295,46 @@ struct dm_target *dm_table_find_target(s
+ 	return &t->targets[(KEYS_PER_NODE * n) + k];
  }
  
-+static bool swap_bios_limit(struct dm_target *ti, struct bio *bio)
++/*
++ * type->iterate_devices() should be called when the sanity check needs to
++ * iterate and check all underlying data devices. iterate_devices() will
++ * iterate all underlying data devices until it encounters a non-zero return
++ * code, returned by whether the input iterate_devices_callout_fn, or
++ * iterate_devices() itself internally.
++ *
++ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
++ * iterate multiple underlying devices internally, in which case a non-zero
++ * return code returned by iterate_devices_callout_fn will stop the iteration
++ * in advance.
++ *
++ * Cases requiring _any_ underlying device supporting some kind of attribute,
++ * should use the iteration structure like dm_table_any_dev_attr(), or call
++ * it directly. @func should handle semantics of positive examples, e.g.
++ * capable of something.
++ *
++ * Cases requiring _all_ underlying devices supporting some kind of attribute,
++ * should use the iteration structure like dm_table_supports_nowait() or
++ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
++ * uses an @anti_func that handle semantics of counter examples, e.g. not
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ */
++static bool dm_table_any_dev_attr(struct dm_table *t,
++				  iterate_devices_callout_fn func)
 +{
-+	return unlikely((bio->bi_opf & REQ_SWAP) != 0) && unlikely(ti->limit_swap_bios);
++	struct dm_target *ti;
++	unsigned int i;
++
++	for (i = 0; i < dm_table_get_num_targets(t); i++) {
++		ti = dm_table_get_target(t, i);
++
++		if (ti->type->iterate_devices &&
++		    ti->type->iterate_devices(ti, func, NULL))
++			return true;
++        }
++
++	return false;
 +}
 +
- static void clone_endio(struct bio *bio)
+ static int count_device(struct dm_target *ti, struct dm_dev *dev,
+ 			sector_t start, sector_t len, void *data)
  {
- 	blk_status_t error = bio->bi_status;
-@@ -1019,6 +1034,11 @@ static void clone_endio(struct bio *bio)
- 		}
- 	}
- 
-+	if (unlikely(swap_bios_limit(tio->ti, bio))) {
-+		struct mapped_device *md = io->md;
-+		up(&md->swap_bios_semaphore);
-+	}
-+
- 	free_tio(tio);
- 	dec_pending(io, error);
+@@ -1595,12 +1635,12 @@ static int dm_table_supports_dax_write_c
+ 	return false;
  }
-@@ -1252,6 +1272,22 @@ void dm_accept_partial_bio(struct bio *b
- }
- EXPORT_SYMBOL_GPL(dm_accept_partial_bio);
  
-+static noinline void __set_swap_bios_limit(struct mapped_device *md, int latch)
-+{
-+	mutex_lock(&md->swap_bios_lock);
-+	while (latch < md->swap_bios) {
-+		cond_resched();
-+		down(&md->swap_bios_semaphore);
-+		md->swap_bios--;
-+	}
-+	while (latch > md->swap_bios) {
-+		cond_resched();
-+		up(&md->swap_bios_semaphore);
-+		md->swap_bios++;
-+	}
-+	mutex_unlock(&md->swap_bios_lock);
-+}
-+
- static blk_qc_t __map_bio(struct dm_target_io *tio)
+-static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
+-			    sector_t start, sector_t len, void *data)
++static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
++				sector_t start, sector_t len, void *data)
  {
- 	int r;
-@@ -1271,6 +1307,14 @@ static blk_qc_t __map_bio(struct dm_targ
- 	atomic_inc(&io->io_count);
- 	sector = clone->bi_iter.bi_sector;
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
  
-+	if (unlikely(swap_bios_limit(ti, clone))) {
-+		struct mapped_device *md = io->md;
-+		int latch = get_swap_bios();
-+		if (unlikely(latch != md->swap_bios))
-+			__set_swap_bios_limit(md, latch);
-+		down(&md->swap_bios_semaphore);
-+	}
-+
- 	r = ti->type->map(ti, clone);
- 	switch (r) {
- 	case DM_MAPIO_SUBMITTED:
-@@ -1281,10 +1325,18 @@ static blk_qc_t __map_bio(struct dm_targ
- 		ret = submit_bio_noacct(clone);
- 		break;
- 	case DM_MAPIO_KILL:
-+		if (unlikely(swap_bios_limit(ti, clone))) {
-+			struct mapped_device *md = io->md;
-+			up(&md->swap_bios_semaphore);
-+		}
- 		free_tio(tio);
- 		dec_pending(io, BLK_STS_IOERR);
- 		break;
- 	case DM_MAPIO_REQUEUE:
-+		if (unlikely(swap_bios_limit(ti, clone))) {
-+			struct mapped_device *md = io->md;
-+			up(&md->swap_bios_semaphore);
-+		}
- 		free_tio(tio);
- 		dec_pending(io, BLK_STS_DM_REQUEUE);
- 		break;
-@@ -1747,6 +1799,7 @@ static void cleanup_mapped_device(struct
- 	mutex_destroy(&md->suspend_lock);
- 	mutex_destroy(&md->type_lock);
- 	mutex_destroy(&md->table_devices_lock);
-+	mutex_destroy(&md->swap_bios_lock);
- 
- 	dm_mq_cleanup_mapped_device(md);
+-	return q && blk_queue_nonrot(q);
++	return q && !blk_queue_nonrot(q);
  }
-@@ -1814,6 +1867,10 @@ static struct mapped_device *alloc_dev(i
- 	init_waitqueue_head(&md->eventq);
- 	init_completion(&md->kobj_holder.completion);
  
-+	md->swap_bios = get_swap_bios();
-+	sema_init(&md->swap_bios_semaphore, md->swap_bios);
-+	mutex_init(&md->swap_bios_lock);
-+
- 	md->disk->major = _major;
- 	md->disk->first_minor = minor;
- 	md->disk->fops = &dm_blk_dops;
-@@ -3097,6 +3154,9 @@ MODULE_PARM_DESC(reserved_bio_based_ios,
- module_param(dm_numa_node, int, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(dm_numa_node, "NUMA node for DM device memory allocations");
+ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+@@ -1611,23 +1651,6 @@ static int device_is_not_random(struct d
+ 	return q && !blk_queue_add_random(q);
+ }
  
-+module_param(swap_bios, int, S_IRUGO | S_IWUSR);
-+MODULE_PARM_DESC(swap_bios, "Maximum allowed inflight swap IOs");
-+
- MODULE_DESCRIPTION(DM_NAME " driver");
- MODULE_AUTHOR("Joe Thornber <dm-devel@redhat.com>");
- MODULE_LICENSE("GPL");
---- a/include/linux/device-mapper.h
-+++ b/include/linux/device-mapper.h
-@@ -325,6 +325,11 @@ struct dm_target {
- 	 * whether or not its underlying devices have support.
+-static bool dm_table_all_devices_attribute(struct dm_table *t,
+-					   iterate_devices_callout_fn func)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, func, NULL))
+-			return false;
+-	}
+-
+-	return true;
+-}
+-
+ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+ 					 sector_t start, sector_t len, void *data)
+ {
+@@ -1779,27 +1802,6 @@ static int device_requires_stable_pages(
+ 	return q && blk_queue_stable_writes(q);
+ }
+ 
+-/*
+- * If any underlying device requires stable pages, a table must require
+- * them as well.  Only targets that support iterate_devices are considered:
+- * don't want error, zero, etc to require stable pages.
+- */
+-static bool dm_table_requires_stable_pages(struct dm_table *t)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti, device_requires_stable_pages, NULL))
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 			       struct queue_limits *limits)
+ {
+@@ -1849,10 +1851,10 @@ void dm_table_set_restrictions(struct dm
+ 		dax_write_cache(t->md->dax_dev, true);
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_all_devices_attribute(t, device_is_nonrot))
+-		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+-	else
++	if (dm_table_any_dev_attr(t, device_is_rotational))
+ 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
++	else
++		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+ 
+ 	if (!dm_table_supports_write_same(t))
+ 		q->limits.max_write_same_sectors = 0;
+@@ -1864,8 +1866,11 @@ void dm_table_set_restrictions(struct dm
+ 	/*
+ 	 * Some devices don't use blk_integrity but still want stable pages
+ 	 * because they do their own checksumming.
++	 * If any underlying device requires stable pages, a table must require
++	 * them as well.  Only targets that support iterate_devices are considered:
++	 * don't want error, zero, etc to require stable pages.
  	 */
- 	bool discards_supported:1;
-+
-+	/*
-+	 * Set if we need to limit the number of in-flight bios when swapping.
-+	 */
-+	bool limit_swap_bios:1;
- };
+-	if (dm_table_requires_stable_pages(t))
++	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
+ 		blk_queue_flag_set(QUEUE_FLAG_STABLE_WRITES, q);
+ 	else
+ 		blk_queue_flag_clear(QUEUE_FLAG_STABLE_WRITES, q);
+@@ -1876,7 +1881,7 @@ void dm_table_set_restrictions(struct dm
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
++	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
+ 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
  
- void *dm_per_bio_data(struct bio *bio, size_t data_size);
+ 	/*
 
 
