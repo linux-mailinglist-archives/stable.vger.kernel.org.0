@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3481532920D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 615D3329210
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243613AbhCAUih (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:38:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
+        id S243623AbhCAUij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:38:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241273AbhCAUbx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242190AbhCAUbx (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:31:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 461DB64EFD;
-        Mon,  1 Mar 2021 18:08:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFFB264EFC;
+        Mon,  1 Mar 2021 18:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614622126;
-        bh=rrc5IzSMS3PkuhBOxZXgHn9g0RUZm0AlIwNm3ZP7jU4=;
+        s=korg; t=1614622129;
+        bh=XzzrrzqM/QAmJDO9/h9kFE/WyVMMOFQjF28RpQ7x6YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1xMMLQQ7U//N0B/vsE3kGUMCuRRJ9/jKH25oSjTkLUj3kn5zhwVal737t0KBPWHAy
-         tifCkGfNbguAKwrXabFDKuV2Sfh1Y9KQD2cu1aVBFYxcVk3mSxQyWyCcif6DbEszrc
-         Km80rT/0q7nc4sYZvFYtNa8gxX0HaaDAFfpqhQqI=
+        b=aqbFMUeybX/3q+ml/3u+jYDyTTdJwxwueYdu70Z30tpMiEsSUCNIImj7PdOp79Uiv
+         zTEir/xXVqOdDwMBiC7ylqX4NCeRsdwA2OaVzT+oLl7zsFkhfds4mgQP/rvYRTcJrL
+         56AXEnkV0T/Lncu9jNFbZwMgy8e/e9N/XCKud05o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Mika Kahola <mika.kahola@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.11 767/775] drm/i915: Reject 446-480MHz HDMI clock on GLK
-Date:   Mon,  1 Mar 2021 17:15:35 +0100
-Message-Id: <20210301161239.221504334@linuxfoundation.org>
+        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
+        Doug Anderson <dianders@chromium.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Jason Wessel <jason.wessel@windriver.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 768/775] kgdb: fix to kill breakpoints on initmem after boot
+Date:   Mon,  1 Mar 2021 17:15:36 +0100
+Message-Id: <20210301161239.264500655@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,43 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Sumit Garg <sumit.garg@linaro.org>
 
-commit 7a6c6243b44a439bda4bf099032be35ebcf53406 upstream.
+commit d54ce6158e354f5358a547b96299ecd7f3725393 upstream.
 
-The BXT/GLK DPLL can't generate certain frequencies. We already
-reject the 233-240MHz range on both. But on GLK the DPLL max
-frequency was bumped from 300MHz to 594MHz, so now we get to
-also worry about the 446-480MHz range (double the original
-problem range). Reject any frequency within the higher
-problematic range as well.
+Currently breakpoints in kernel .init.text section are not handled
+correctly while allowing to remove them even after corresponding pages
+have been freed.
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3000
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210203093044.30532-1-ville.syrjala@linux.intel.com
-Reviewed-by: Mika Kahola <mika.kahola@intel.com>
-(cherry picked from commit 41751b3e5c1ac656a86f8d45a8891115281b729e)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Fix it via killing .init.text section breakpoints just prior to initmem
+pages being freed.
+
+Doug: "HW breakpoints aren't handled by this patch but it's probably
+not such a big deal".
+
+Link: https://lkml.kernel.org/r/20210224081652.587785-1-sumit.garg@linaro.org
+Signed-off-by: Sumit Garg <sumit.garg@linaro.org>
+Suggested-by: Doug Anderson <dianders@chromium.org>
+Acked-by: Doug Anderson <dianders@chromium.org>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Tested-by: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_hdmi.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ include/linux/kgdb.h      |    2 ++
+ init/main.c               |    1 +
+ kernel/debug/debug_core.c |   11 +++++++++++
+ 3 files changed, 14 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_hdmi.c
-+++ b/drivers/gpu/drm/i915/display/intel_hdmi.c
-@@ -2216,7 +2216,11 @@ hdmi_port_clock_valid(struct intel_hdmi
- 					  has_hdmi_sink))
- 		return MODE_CLOCK_HIGH;
+--- a/include/linux/kgdb.h
++++ b/include/linux/kgdb.h
+@@ -360,9 +360,11 @@ extern atomic_t			kgdb_active;
+ extern bool dbg_is_early;
+ extern void __init dbg_late_init(void);
+ extern void kgdb_panic(const char *msg);
++extern void kgdb_free_init_mem(void);
+ #else /* ! CONFIG_KGDB */
+ #define in_dbg_master() (0)
+ #define dbg_late_init()
+ static inline void kgdb_panic(const char *msg) {}
++static inline void kgdb_free_init_mem(void) { }
+ #endif /* ! CONFIG_KGDB */
+ #endif /* _KGDB_H_ */
+--- a/init/main.c
++++ b/init/main.c
+@@ -1423,6 +1423,7 @@ static int __ref kernel_init(void *unuse
+ 	async_synchronize_full();
+ 	kprobe_free_init_mem();
+ 	ftrace_free_init_mem();
++	kgdb_free_init_mem();
+ 	free_initmem();
+ 	mark_readonly();
  
--	/* BXT DPLL can't generate 223-240 MHz */
-+	/* GLK DPLL can't generate 446-480 MHz */
-+	if (IS_GEMINILAKE(dev_priv) && clock > 446666 && clock < 480000)
-+		return MODE_CLOCK_RANGE;
+--- a/kernel/debug/debug_core.c
++++ b/kernel/debug/debug_core.c
+@@ -456,6 +456,17 @@ setundefined:
+ 	return 0;
+ }
+ 
++void kgdb_free_init_mem(void)
++{
++	int i;
 +
-+	/* BXT/GLK DPLL can't generate 223-240 MHz */
- 	if (IS_GEN9_LP(dev_priv) && clock > 223333 && clock < 240000)
- 		return MODE_CLOCK_RANGE;
- 
++	/* Clear init memory breakpoints. */
++	for (i = 0; i < KGDB_MAX_BREAKPOINTS; i++) {
++		if (init_section_contains((void *)kgdb_break[i].bpt_addr, 0))
++			kgdb_break[i].state = BP_UNDEFINED;
++	}
++}
++
+ #ifdef CONFIG_KGDB_KDB
+ void kdb_dump_stack_on_cpu(int cpu)
+ {
 
 
