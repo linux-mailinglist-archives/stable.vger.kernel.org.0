@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E99328D6F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C94328DBD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240913AbhCATLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:11:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
+        id S235760AbhCATQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:16:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240776AbhCATGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:06:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7506F650BF;
-        Mon,  1 Mar 2021 17:42:51 +0000 (UTC)
+        id S241125AbhCATMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:12:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 328DA650B4;
+        Mon,  1 Mar 2021 17:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620572;
-        bh=1XfFHkKc5MZ1jdYHZqmhtLbMCNrVvwi3dBdETPH5AB4=;
+        s=korg; t=1614620574;
+        bh=rNSZs4mihJpUWJ7OPGrVQqG4L1qeF4eDXCsXT4fKYAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NujBLQacpu637fKnV9Q1ksrjqi94o0t4iW9u8/LaYdTRkVpEC1PF3f0WPNraOjDj
-         KMCcLbcsFAB47bwHs5GZrf3O7hKqCZeDqT6PeSESZgSJ6K0N3cS2Su07OXExDFbIyc
-         VQn/B8gWnVjPXZge8alXMytmpcM5RPc2jugdreYU=
+        b=hT7kWCoR0o3p/jJkLEYO7eK+lHVZzWCA7mXjT4/RINwaYpqqMIGNDccO9AvHEP84V
+         g1yF3srkBn0wi1g8717T5cApt30bBRoGShFyfplm+X8V38ZmA84e+eoZXN5aQN8r3b
+         Gwdy9nJk+aZYyQNSVWyq9b97gnQw5X+aKUdvI+Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 171/775] gma500: clean up error handling in init
-Date:   Mon,  1 Mar 2021 17:05:39 +0100
-Message-Id: <20210301161210.092576965@linuxfoundation.org>
+Subject: [PATCH 5.11 172/775] drm/fb-helper: Add missed unlocks in setcmap_legacy()
+Date:   Mon,  1 Mar 2021 17:05:40 +0100
+Message-Id: <20210301161210.142834027@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,71 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chuhong Yuan <hslester96@gmail.com>
 
-[ Upstream commit 15ccc39b3aab667c6fa131206f01f31bfbccdf6a ]
+[ Upstream commit 0a260e731d6c4c17547ac275a2cde888a9eb4a3d ]
 
-The main problem with this error handling was that it didn't clean up if
-i2c_add_numbered_adapter() failed.  This code is pretty old, and doesn't
-match with today's checkpatch.pl standards so I took the opportunity to
-tidy it up a bit.  I changed the NULL comparison, and removed the
-WARNING message if kzalloc() fails and updated the label names.
+setcmap_legacy() does not call drm_modeset_unlock_all() in some exits,
+add the missed unlocks with goto to fix it.
 
-Fixes: 1b082ccf5901 ("gma500: Add Oaktrail support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/X8ikkAqZfnDO2lu6@mwanda
+Fixes: 964c60063bff ("drm/fb-helper: separate the fb_setcmap helper into atomic and legacy paths")
+Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201203144248.418281-1-hslester96@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/drm_fb_helper.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-index e281070611480..fc9a34ed58bd1 100644
---- a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-@@ -279,11 +279,8 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
- 	hdmi_dev = pci_get_drvdata(dev);
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index 4b81195106875..e82db0f4e7715 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -946,11 +946,15 @@ static int setcmap_legacy(struct fb_cmap *cmap, struct fb_info *info)
+ 	drm_modeset_lock_all(fb_helper->dev);
+ 	drm_client_for_each_modeset(modeset, &fb_helper->client) {
+ 		crtc = modeset->crtc;
+-		if (!crtc->funcs->gamma_set || !crtc->gamma_size)
+-			return -EINVAL;
++		if (!crtc->funcs->gamma_set || !crtc->gamma_size) {
++			ret = -EINVAL;
++			goto out;
++		}
  
- 	i2c_dev = kzalloc(sizeof(struct hdmi_i2c_dev), GFP_KERNEL);
--	if (i2c_dev == NULL) {
--		DRM_ERROR("Can't allocate interface\n");
--		ret = -ENOMEM;
--		goto exit;
--	}
-+	if (!i2c_dev)
-+		return -ENOMEM;
+-		if (cmap->start + cmap->len > crtc->gamma_size)
+-			return -EINVAL;
++		if (cmap->start + cmap->len > crtc->gamma_size) {
++			ret = -EINVAL;
++			goto out;
++		}
  
- 	i2c_dev->adap = &oaktrail_hdmi_i2c_adapter;
- 	i2c_dev->status = I2C_STAT_INIT;
-@@ -300,16 +297,23 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
- 			  oaktrail_hdmi_i2c_adapter.name, hdmi_dev);
- 	if (ret) {
- 		DRM_ERROR("Failed to request IRQ for I2C controller\n");
--		goto err;
-+		goto free_dev;
+ 		r = crtc->gamma_store;
+ 		g = r + crtc->gamma_size;
+@@ -963,8 +967,9 @@ static int setcmap_legacy(struct fb_cmap *cmap, struct fb_info *info)
+ 		ret = crtc->funcs->gamma_set(crtc, r, g, b,
+ 					     crtc->gamma_size, NULL);
+ 		if (ret)
+-			return ret;
++			goto out;
  	}
++out:
+ 	drm_modeset_unlock_all(fb_helper->dev);
  
- 	/* Adapter registration */
- 	ret = i2c_add_numbered_adapter(&oaktrail_hdmi_i2c_adapter);
--	return ret;
-+	if (ret) {
-+		DRM_ERROR("Failed to add I2C adapter\n");
-+		goto free_irq;
-+	}
- 
--err:
-+	return 0;
-+
-+free_irq:
-+	free_irq(dev->irq, hdmi_dev);
-+free_dev:
- 	kfree(i2c_dev);
--exit:
-+
  	return ret;
- }
- 
 -- 
 2.27.0
 
