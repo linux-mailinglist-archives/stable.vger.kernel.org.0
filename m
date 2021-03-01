@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A90328FAD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:56:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7610E328E96
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238425AbhCATzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:55:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55186 "EHLO mail.kernel.org"
+        id S241980AbhCATdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:33:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237589AbhCATob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C470651DF;
-        Mon,  1 Mar 2021 17:18:59 +0000 (UTC)
+        id S241703AbhCAT2q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:28:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 687F665054;
+        Mon,  1 Mar 2021 17:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619140;
-        bh=+ZbRol78FT9g7t81/wKTuFrObdBVUN4AlGkqVNKLG+w=;
+        s=korg; t=1614619276;
+        bh=BZ+59cz0G/FJDTov8lOoYT8F7N3HGL/cTj4rCPAqPW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLGkWQA13wTiNWKtu/FF6y1lU847WU3swm7CxBCDQD9sRwGnR4gOxDIsf2hYGea+5
-         KaBsioh9IVaF7IbahNrDEF/AMul2Or+CbTuQHUYePKknodqrvkBRDF8MeckCTUkwcX
-         p0Ld7htCoZk0ts/nt03QBndPdzP8N54/KPzSyvhc=
+        b=w6BPsS2C9NwEGiZVAhHBph2NcGFNDXziDa5wwYdUJGUPZ/4MbRKsHCPZO1x6syu27
+         vFAo5P1JnT0b8ksNCUONbsHOa7Tdfk2Y8rnuXXwch8Zps2pgNbFJAb/xKW3lZvJqtt
+         PxIGe9/j52t11oalB1FIhx+TxFDcpYhS92NjY+xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Pearson <rpearson@hpe.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 346/663] RDMA/rxe: Fix coding error in rxe_rcv_mcast_pkt
-Date:   Mon,  1 Mar 2021 17:09:54 +0100
-Message-Id: <20210301161158.967266181@linuxfoundation.org>
+Subject: [PATCH 5.10 366/663] selftests/ftrace: Update synthetic event syntax errors
+Date:   Mon,  1 Mar 2021 17:10:14 +0100
+Message-Id: <20210301161159.954985356@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,73 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Tom Zanussi <zanussi@kernel.org>
 
-[ Upstream commit 8fc1b7027fc162738d5a85c82410e501a371a404 ]
+[ Upstream commit b5734e997e1117afb479ffda500e36fa91aea3e8 ]
 
-rxe_rcv_mcast_pkt() in rxe_recv.c can leak SKBs in error path code. The
-loop over the QPs attached to a multicast group creates new cloned SKBs
-for all but the last QP in the list and passes the SKB and its clones to
-rxe_rcv_pkt() for further processing. Any QPs that do not pass some checks
-are skipped.  If the last QP in the list fails the tests the SKB is
-leaked.  This patch checks if the SKB for the last QP was used and if not
-frees it. Also removes a redundant loop invariant assignment.
+Some of the synthetic event errors and positions have changed in the
+code - update those and add several more tests.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Fixes: 71abf20b28ff ("RDMA/rxe: Handle skb_clone() failure in rxe_recv.c")
-Link: https://lore.kernel.org/r/20210128174752.16128-1-rpearson@hpe.com
-Signed-off-by: Bob Pearson <rpearson@hpe.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Also add a runtime check to ensure that the kernel supports dynamic
+strings in synthetic events, which these tests require.
+
+Link: https://lkml.kernel.org/r/51402656433455baead34f068c6e9466b64df9c0.1612208610.git.zanussi@kernel.org
+
+Fixes: 81ff92a93d95 (selftests/ftrace: Add test case for synthetic event syntax errors)
+Reported-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Tom Zanussi <zanussi@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_recv.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ .../trigger-synthetic_event_syntax_errors.tc  | 35 ++++++++++++++-----
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_recv.c b/drivers/infiniband/sw/rxe/rxe_recv.c
-index db0ee5c3962e4..cb69a125e2806 100644
---- a/drivers/infiniband/sw/rxe/rxe_recv.c
-+++ b/drivers/infiniband/sw/rxe/rxe_recv.c
-@@ -257,7 +257,6 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
+diff --git a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
+index ada594fe16cb3..955e3ceea44b5 100644
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
+@@ -1,19 +1,38 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+ # description: event trigger - test synthetic_events syntax parser errors
+-# requires: synthetic_events error_log
++# requires: synthetic_events error_log "char name[]' >> synthetic_events":README
  
- 	list_for_each_entry(mce, &mcg->qp_list, qp_list) {
- 		qp = mce->qp;
--		pkt = SKB_TO_PKT(skb);
- 
- 		/* validate qp for incoming packet */
- 		err = check_type_state(rxe, pkt, qp);
-@@ -269,12 +268,18 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
- 			continue;
- 
- 		/* for all but the last qp create a new clone of the
--		 * skb and pass to the qp.
-+		 * skb and pass to the qp. If an error occurs in the
-+		 * checks for the last qp in the list we need to
-+		 * free the skb since it hasn't been passed on to
-+		 * rxe_rcv_pkt() which would free it later.
- 		 */
--		if (mce->qp_list.next != &mcg->qp_list)
-+		if (mce->qp_list.next != &mcg->qp_list) {
- 			per_qp_skb = skb_clone(skb, GFP_ATOMIC);
--		else
-+		} else {
- 			per_qp_skb = skb;
-+			/* show we have consumed the skb */
-+			skb = NULL;
-+		}
- 
- 		if (unlikely(!per_qp_skb))
- 			continue;
-@@ -289,9 +294,8 @@ static void rxe_rcv_mcast_pkt(struct rxe_dev *rxe, struct sk_buff *skb)
- 
- 	rxe_drop_ref(mcg);	/* drop ref from rxe_pool_get_key. */
- 
--	return;
--
- err1:
-+	/* free skb if not consumed */
- 	kfree_skb(skb);
+ check_error() { # command-with-error-pos-by-^
+     ftrace_errlog_check 'synthetic_events' "$1" 'synthetic_events'
  }
  
++check_dyn_error() { # command-with-error-pos-by-^
++    ftrace_errlog_check 'synthetic_events' "$1" 'dynamic_events'
++}
++
+ check_error 'myevent ^chr arg'			# INVALID_TYPE
+-check_error 'myevent ^char str[];; int v'	# INVALID_TYPE
+-check_error 'myevent char ^str]; int v'		# INVALID_NAME
+-check_error 'myevent char ^str;[]'		# INVALID_NAME
+-check_error 'myevent ^char str[; int v'		# INVALID_TYPE
+-check_error '^mye;vent char str[]'		# BAD_NAME
+-check_error 'myevent char str[]; ^int'		# INVALID_FIELD
+-check_error '^myevent'				# INCOMPLETE_CMD
++check_error 'myevent ^unsigned arg'		# INCOMPLETE_TYPE
++
++check_error 'myevent char ^str]; int v'		# BAD_NAME
++check_error '^mye-vent char str[]'		# BAD_NAME
++check_error 'myevent char ^st-r[]'		# BAD_NAME
++
++check_error 'myevent char str;^[]'		# INVALID_FIELD
++check_error 'myevent char str; ^int'		# INVALID_FIELD
++
++check_error 'myevent char ^str[; int v'		# INVALID_ARRAY_SPEC
++check_error 'myevent char ^str[kdjdk]'		# INVALID_ARRAY_SPEC
++check_error 'myevent char ^str[257]'		# INVALID_ARRAY_SPEC
++
++check_error '^mye;vent char str[]'		# INVALID_CMD
++check_error '^myevent ; char str[]'		# INVALID_CMD
++check_error '^myevent; char str[]'		# INVALID_CMD
++check_error '^myevent ;char str[]'		# INVALID_CMD
++check_error '^; char str[]'			# INVALID_CMD
++check_error '^;myevent char str[]'		# INVALID_CMD
++check_error '^myevent'				# INVALID_CMD
++
++check_dyn_error '^s:junk/myevent char str['	# INVALID_DYN_CMD
+ 
+ exit 0
 -- 
 2.27.0
 
