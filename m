@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7788832914E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FFF329153
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243284AbhCAUXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:23:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44018 "EHLO mail.kernel.org"
+        id S243299AbhCAUXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:23:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242879AbhCAUQj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242873AbhCAUQj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:16:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14375653DB;
-        Mon,  1 Mar 2021 18:02:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDF1B653DC;
+        Mon,  1 Mar 2021 18:02:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621772;
-        bh=Vg9n63w39uAEclAW80Q6sA01/7nZW/CzH2o2G7IBQNM=;
+        s=korg; t=1614621775;
+        bh=JmoiTEQVU/ZEX5V0bW+SJYtOuhrBnnhivmF/mahBsi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5HVtbC1iXtHvUjNmE7TusVcjeqKTiaDyAXLEeXQpSlfgS1/gBGUaxqIVAdPWdOP0
-         3Mvl04e/EB13LpS9ImsP99OibI0cYQlxLDZBumRxpECFO/fU+sgwvIv8dIygCXneFZ
-         tG4RtxZS/Me3QOpTr6yh/q1dWwyBYQA9RCOeK5xM=
+        b=lmxkrNpsA1n/LCIVk0Ga05kMREVnDBntxp0jsLdUJ+Epvq+ZtrqbcELTunGJvRvxV
+         /FUGEsKjGpxslCClU6o8WUW4EeJ5QOqHP3ryfWnNK2426bX17z/FGs6J2ra9kDuztX
+         lo0T8lWEiX+UuyqkGx5bsYv+rIbyU/RpiHxNiQe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 639/775] btrfs: splice remaining dirty_bgs onto the transaction dirty bg list
-Date:   Mon,  1 Mar 2021 17:13:27 +0100
-Message-Id: <20210301161232.976167393@linuxfoundation.org>
+Subject: [PATCH 5.11 640/775] btrfs: handle space_info::total_bytes_pinned inside the delayed ref itself
+Date:   Mon,  1 Mar 2021 17:13:28 +0100
+Message-Id: <20210301161233.027530427@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -41,113 +42,487 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-commit 938fcbfb0cbcf532a1869efab58e6009446b1ced upstream.
+commit 2187374f35fe9cadbddaa9fcf0c4121365d914e8 upstream.
 
-While doing error injection testing with my relocation patches I hit the
-following assert:
+Currently we pass things around to figure out if we maybe freeing data
+based on the state of the delayed refs head.  This makes the accounting
+sort of confusing and hard to follow, as it's distinctly separate from
+the delayed ref heads stuff, but also depends on it entirely.
 
-  assertion failed: list_empty(&block_group->dirty_list), in fs/btrfs/block-group.c:3356
-  ------------[ cut here ]------------
-  kernel BUG at fs/btrfs/ctree.h:3357!
-  invalid opcode: 0000 [#1] SMP NOPTI
-  CPU: 0 PID: 24351 Comm: umount Tainted: G        W         5.10.0-rc3+ #193
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:assertfail.constprop.0+0x18/0x1a
-  RSP: 0018:ffffa09b019c7e00 EFLAGS: 00010282
-  RAX: 0000000000000056 RBX: ffff8f6492c18000 RCX: 0000000000000000
-  RDX: ffff8f64fbc27c60 RSI: ffff8f64fbc19050 RDI: ffff8f64fbc19050
-  RBP: ffff8f6483bbdc00 R08: 0000000000000000 R09: 0000000000000000
-  R10: ffffa09b019c7c38 R11: ffffffff85d70928 R12: ffff8f6492c18100
-  R13: ffff8f6492c18148 R14: ffff8f6483bbdd70 R15: dead000000000100
-  FS:  00007fbfda4cdc40(0000) GS:ffff8f64fbc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fbfda666fd0 CR3: 000000013cf66002 CR4: 0000000000370ef0
-  Call Trace:
-   btrfs_free_block_groups.cold+0x55/0x55
-   close_ctree+0x2c5/0x306
-   ? fsnotify_destroy_marks+0x14/0x100
-   generic_shutdown_super+0x6c/0x100
-   kill_anon_super+0x14/0x30
-   btrfs_kill_super+0x12/0x20
-   deactivate_locked_super+0x36/0xa0
-   cleanup_mnt+0x12d/0x190
-   task_work_run+0x5c/0xa0
-   exit_to_user_mode_prepare+0x1b1/0x1d0
-   syscall_exit_to_user_mode+0x54/0x280
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Fix this by explicitly adjusting the space_info->total_bytes_pinned in
+the delayed refs code.  We now have two places where we modify this
+counter, once where we create the delayed and destroy the delayed refs,
+and once when we pin and unpin the extents.  This means there is a
+slight overlap between delayed refs and the pin/unpin mechanisms, but
+this is simply used by the ENOSPC infrastructure to determine if we need
+to commit the transaction, so there's no adverse affect from this, we
+might simply commit thinking it will give us enough space when it might
+not.
 
-This happened because I injected an error in btrfs_cow_block() while
-running the dirty block groups.  When we run the dirty block groups, we
-splice the list onto a local list to process.  However if an error
-occurs, we only cleanup the transactions dirty block group list, not any
-pending block groups we have on our locally spliced list.
-
-In fact if we fail to allocate a path in this function we'll also fail
-to clean up the splice list.
-
-Fix this by splicing the list back onto the transaction dirty block
-group list so that the block groups are cleaned up.  Then add a 'out'
-label and have the error conditions jump to out so that the errors are
-handled properly.  This also has the side-effect of fixing a problem
-where we would clear 'ret' on error because we unconditionally ran
-btrfs_run_delayed_refs().
-
-CC: stable@vger.kernel.org # 4.4+
+CC: stable@vger.kernel.org # 5.10
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/block-group.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ fs/btrfs/block-group.c |   10 +----
+ fs/btrfs/delayed-ref.c |   51 +++++++++++++++----------
+ fs/btrfs/delayed-ref.h |   16 ++++++--
+ fs/btrfs/extent-tree.c |   97 ++++++-------------------------------------------
+ fs/btrfs/space-info.h  |   17 ++++++++
+ 5 files changed, 74 insertions(+), 117 deletions(-)
 
 --- a/fs/btrfs/block-group.c
 +++ b/fs/btrfs/block-group.c
-@@ -2564,8 +2564,10 @@ again:
+@@ -1371,9 +1371,7 @@ void btrfs_delete_unused_bgs(struct btrf
+ 		btrfs_space_info_update_bytes_pinned(fs_info, space_info,
+ 						     -block_group->pinned);
+ 		space_info->bytes_readonly += block_group->pinned;
+-		percpu_counter_add_batch(&space_info->total_bytes_pinned,
+-				   -block_group->pinned,
+-				   BTRFS_TOTAL_BYTES_PINNED_BATCH);
++		__btrfs_mod_total_bytes_pinned(space_info, -block_group->pinned);
+ 		block_group->pinned = 0;
  
- 	if (!path) {
- 		path = btrfs_alloc_path();
--		if (!path)
--			return -ENOMEM;
-+		if (!path) {
-+			ret = -ENOMEM;
-+			goto out;
-+		}
- 	}
+ 		spin_unlock(&block_group->lock);
+@@ -2901,10 +2899,8 @@ int btrfs_update_block_group(struct btrf
+ 			spin_unlock(&cache->lock);
+ 			spin_unlock(&cache->space_info->lock);
  
- 	/*
-@@ -2659,16 +2661,14 @@ again:
- 			btrfs_put_block_group(cache);
- 		if (drop_reserve)
- 			btrfs_delayed_refs_rsv_release(fs_info, 1);
--
--		if (ret)
--			break;
--
- 		/*
- 		 * Avoid blocking other tasks for too long. It might even save
- 		 * us from writing caches for block groups that are going to be
- 		 * removed.
- 		 */
- 		mutex_unlock(&trans->transaction->cache_write_mutex);
-+		if (ret)
-+			goto out;
- 		mutex_lock(&trans->transaction->cache_write_mutex);
- 	}
- 	mutex_unlock(&trans->transaction->cache_write_mutex);
-@@ -2692,7 +2692,12 @@ again:
- 			goto again;
+-			percpu_counter_add_batch(
+-					&cache->space_info->total_bytes_pinned,
+-					num_bytes,
+-					BTRFS_TOTAL_BYTES_PINNED_BATCH);
++			__btrfs_mod_total_bytes_pinned(cache->space_info,
++						       num_bytes);
+ 			set_extent_dirty(&trans->transaction->pinned_extents,
+ 					 bytenr, bytenr + num_bytes - 1,
+ 					 GFP_NOFS | __GFP_NOFAIL);
+--- a/fs/btrfs/delayed-ref.c
++++ b/fs/btrfs/delayed-ref.c
+@@ -648,12 +648,12 @@ inserted:
+  */
+ static noinline void update_existing_head_ref(struct btrfs_trans_handle *trans,
+ 			 struct btrfs_delayed_ref_head *existing,
+-			 struct btrfs_delayed_ref_head *update,
+-			 int *old_ref_mod_ret)
++			 struct btrfs_delayed_ref_head *update)
+ {
+ 	struct btrfs_delayed_ref_root *delayed_refs =
+ 		&trans->transaction->delayed_refs;
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
++	u64 flags = btrfs_ref_head_to_space_flags(existing);
+ 	int old_ref_mod;
+ 
+ 	BUG_ON(existing->is_data != update->is_data);
+@@ -701,8 +701,6 @@ static noinline void update_existing_hea
+ 	 * currently, for refs we just added we know we're a-ok.
+ 	 */
+ 	old_ref_mod = existing->total_ref_mod;
+-	if (old_ref_mod_ret)
+-		*old_ref_mod_ret = old_ref_mod;
+ 	existing->ref_mod += update->ref_mod;
+ 	existing->total_ref_mod += update->ref_mod;
+ 
+@@ -724,6 +722,22 @@ static noinline void update_existing_hea
+ 			trans->delayed_ref_updates += csum_leaves;
  		}
- 		spin_unlock(&cur_trans->dirty_bgs_lock);
--	} else if (ret < 0) {
-+	}
-+out:
-+	if (ret < 0) {
-+		spin_lock(&cur_trans->dirty_bgs_lock);
-+		list_splice_init(&dirty, &cur_trans->dirty_bgs);
-+		spin_unlock(&cur_trans->dirty_bgs_lock);
- 		btrfs_cleanup_dirty_bgs(cur_trans, fs_info);
+ 	}
++
++	/*
++	 * This handles the following conditions:
++	 *
++	 * 1. We had a ref mod of 0 or more and went negative, indicating that
++	 *    we may be freeing space, so add our space to the
++	 *    total_bytes_pinned counter.
++	 * 2. We were negative and went to 0 or positive, so no longer can say
++	 *    that the space would be pinned, decrement our counter from the
++	 *    total_bytes_pinned counter.
++	 */
++	if (existing->total_ref_mod < 0 && old_ref_mod >= 0)
++		btrfs_mod_total_bytes_pinned(fs_info, flags, existing->num_bytes);
++	else if (existing->total_ref_mod >= 0 && old_ref_mod < 0)
++		btrfs_mod_total_bytes_pinned(fs_info, flags, -existing->num_bytes);
++
+ 	spin_unlock(&existing->lock);
+ }
+ 
+@@ -798,8 +812,7 @@ static noinline struct btrfs_delayed_ref
+ add_delayed_ref_head(struct btrfs_trans_handle *trans,
+ 		     struct btrfs_delayed_ref_head *head_ref,
+ 		     struct btrfs_qgroup_extent_record *qrecord,
+-		     int action, int *qrecord_inserted_ret,
+-		     int *old_ref_mod, int *new_ref_mod)
++		     int action, int *qrecord_inserted_ret)
+ {
+ 	struct btrfs_delayed_ref_head *existing;
+ 	struct btrfs_delayed_ref_root *delayed_refs;
+@@ -821,8 +834,7 @@ add_delayed_ref_head(struct btrfs_trans_
+ 	existing = htree_insert(&delayed_refs->href_root,
+ 				&head_ref->href_node);
+ 	if (existing) {
+-		update_existing_head_ref(trans, existing, head_ref,
+-					 old_ref_mod);
++		update_existing_head_ref(trans, existing, head_ref);
+ 		/*
+ 		 * we've updated the existing ref, free the newly
+ 		 * allocated ref
+@@ -830,14 +842,17 @@ add_delayed_ref_head(struct btrfs_trans_
+ 		kmem_cache_free(btrfs_delayed_ref_head_cachep, head_ref);
+ 		head_ref = existing;
+ 	} else {
+-		if (old_ref_mod)
+-			*old_ref_mod = 0;
++		u64 flags = btrfs_ref_head_to_space_flags(head_ref);
++
+ 		if (head_ref->is_data && head_ref->ref_mod < 0) {
+ 			delayed_refs->pending_csums += head_ref->num_bytes;
+ 			trans->delayed_ref_updates +=
+ 				btrfs_csum_bytes_to_leaves(trans->fs_info,
+ 							   head_ref->num_bytes);
+ 		}
++		if (head_ref->ref_mod < 0)
++			btrfs_mod_total_bytes_pinned(trans->fs_info, flags,
++						     head_ref->num_bytes);
+ 		delayed_refs->num_heads++;
+ 		delayed_refs->num_heads_ready++;
+ 		atomic_inc(&delayed_refs->num_entries);
+@@ -845,8 +860,6 @@ add_delayed_ref_head(struct btrfs_trans_
+ 	}
+ 	if (qrecord_inserted_ret)
+ 		*qrecord_inserted_ret = qrecord_inserted;
+-	if (new_ref_mod)
+-		*new_ref_mod = head_ref->total_ref_mod;
+ 
+ 	return head_ref;
+ }
+@@ -909,8 +922,7 @@ static void init_delayed_ref_common(stru
+  */
+ int btrfs_add_delayed_tree_ref(struct btrfs_trans_handle *trans,
+ 			       struct btrfs_ref *generic_ref,
+-			       struct btrfs_delayed_extent_op *extent_op,
+-			       int *old_ref_mod, int *new_ref_mod)
++			       struct btrfs_delayed_extent_op *extent_op)
+ {
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_delayed_tree_ref *ref;
+@@ -977,8 +989,7 @@ int btrfs_add_delayed_tree_ref(struct bt
+ 	 * the spin lock
+ 	 */
+ 	head_ref = add_delayed_ref_head(trans, head_ref, record,
+-					action, &qrecord_inserted,
+-					old_ref_mod, new_ref_mod);
++					action, &qrecord_inserted);
+ 
+ 	ret = insert_delayed_ref(trans, delayed_refs, head_ref, &ref->node);
+ 	spin_unlock(&delayed_refs->lock);
+@@ -1006,8 +1017,7 @@ int btrfs_add_delayed_tree_ref(struct bt
+  */
+ int btrfs_add_delayed_data_ref(struct btrfs_trans_handle *trans,
+ 			       struct btrfs_ref *generic_ref,
+-			       u64 reserved, int *old_ref_mod,
+-			       int *new_ref_mod)
++			       u64 reserved)
+ {
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_delayed_data_ref *ref;
+@@ -1073,8 +1083,7 @@ int btrfs_add_delayed_data_ref(struct bt
+ 	 * the spin lock
+ 	 */
+ 	head_ref = add_delayed_ref_head(trans, head_ref, record,
+-					action, &qrecord_inserted,
+-					old_ref_mod, new_ref_mod);
++					action, &qrecord_inserted);
+ 
+ 	ret = insert_delayed_ref(trans, delayed_refs, head_ref, &ref->node);
+ 	spin_unlock(&delayed_refs->lock);
+@@ -1117,7 +1126,7 @@ int btrfs_add_delayed_extent_op(struct b
+ 	spin_lock(&delayed_refs->lock);
+ 
+ 	add_delayed_ref_head(trans, head_ref, NULL, BTRFS_UPDATE_DELAYED_HEAD,
+-			     NULL, NULL, NULL);
++			     NULL);
+ 
+ 	spin_unlock(&delayed_refs->lock);
+ 
+--- a/fs/btrfs/delayed-ref.h
++++ b/fs/btrfs/delayed-ref.h
+@@ -326,6 +326,16 @@ static inline void btrfs_put_delayed_ref
+ 	}
+ }
+ 
++static inline u64 btrfs_ref_head_to_space_flags(
++				struct btrfs_delayed_ref_head *head_ref)
++{
++	if (head_ref->is_data)
++		return BTRFS_BLOCK_GROUP_DATA;
++	else if (head_ref->is_system)
++		return BTRFS_BLOCK_GROUP_SYSTEM;
++	return BTRFS_BLOCK_GROUP_METADATA;
++}
++
+ static inline void btrfs_put_delayed_ref_head(struct btrfs_delayed_ref_head *head)
+ {
+ 	if (refcount_dec_and_test(&head->refs))
+@@ -334,12 +344,10 @@ static inline void btrfs_put_delayed_ref
+ 
+ int btrfs_add_delayed_tree_ref(struct btrfs_trans_handle *trans,
+ 			       struct btrfs_ref *generic_ref,
+-			       struct btrfs_delayed_extent_op *extent_op,
+-			       int *old_ref_mod, int *new_ref_mod);
++			       struct btrfs_delayed_extent_op *extent_op);
+ int btrfs_add_delayed_data_ref(struct btrfs_trans_handle *trans,
+ 			       struct btrfs_ref *generic_ref,
+-			       u64 reserved, int *old_ref_mod,
+-			       int *new_ref_mod);
++			       u64 reserved);
+ int btrfs_add_delayed_extent_op(struct btrfs_trans_handle *trans,
+ 				u64 bytenr, u64 num_bytes,
+ 				struct btrfs_delayed_extent_op *extent_op);
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -82,41 +82,6 @@ void btrfs_free_excluded_extents(struct
+ 			  EXTENT_UPTODATE);
+ }
+ 
+-static u64 generic_ref_to_space_flags(struct btrfs_ref *ref)
+-{
+-	if (ref->type == BTRFS_REF_METADATA) {
+-		if (ref->tree_ref.root == BTRFS_CHUNK_TREE_OBJECTID)
+-			return BTRFS_BLOCK_GROUP_SYSTEM;
+-		else
+-			return BTRFS_BLOCK_GROUP_METADATA;
+-	}
+-	return BTRFS_BLOCK_GROUP_DATA;
+-}
+-
+-static void add_pinned_bytes(struct btrfs_fs_info *fs_info,
+-			     struct btrfs_ref *ref)
+-{
+-	struct btrfs_space_info *space_info;
+-	u64 flags = generic_ref_to_space_flags(ref);
+-
+-	space_info = btrfs_find_space_info(fs_info, flags);
+-	ASSERT(space_info);
+-	percpu_counter_add_batch(&space_info->total_bytes_pinned, ref->len,
+-		    BTRFS_TOTAL_BYTES_PINNED_BATCH);
+-}
+-
+-static void sub_pinned_bytes(struct btrfs_fs_info *fs_info,
+-			     struct btrfs_ref *ref)
+-{
+-	struct btrfs_space_info *space_info;
+-	u64 flags = generic_ref_to_space_flags(ref);
+-
+-	space_info = btrfs_find_space_info(fs_info, flags);
+-	ASSERT(space_info);
+-	percpu_counter_add_batch(&space_info->total_bytes_pinned, -ref->len,
+-		    BTRFS_TOTAL_BYTES_PINNED_BATCH);
+-}
+-
+ /* simple helper to search for an existing data extent at a given offset */
+ int btrfs_lookup_data_extent(struct btrfs_fs_info *fs_info, u64 start, u64 len)
+ {
+@@ -1388,7 +1353,6 @@ int btrfs_inc_extent_ref(struct btrfs_tr
+ 			 struct btrfs_ref *generic_ref)
+ {
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+-	int old_ref_mod, new_ref_mod;
+ 	int ret;
+ 
+ 	ASSERT(generic_ref->type != BTRFS_REF_NOT_SET &&
+@@ -1397,17 +1361,12 @@ int btrfs_inc_extent_ref(struct btrfs_tr
+ 	       generic_ref->tree_ref.root == BTRFS_TREE_LOG_OBJECTID);
+ 
+ 	if (generic_ref->type == BTRFS_REF_METADATA)
+-		ret = btrfs_add_delayed_tree_ref(trans, generic_ref,
+-				NULL, &old_ref_mod, &new_ref_mod);
++		ret = btrfs_add_delayed_tree_ref(trans, generic_ref, NULL);
+ 	else
+-		ret = btrfs_add_delayed_data_ref(trans, generic_ref, 0,
+-						 &old_ref_mod, &new_ref_mod);
++		ret = btrfs_add_delayed_data_ref(trans, generic_ref, 0);
+ 
+ 	btrfs_ref_tree_mod(fs_info, generic_ref);
+ 
+-	if (ret == 0 && old_ref_mod < 0 && new_ref_mod >= 0)
+-		sub_pinned_bytes(fs_info, generic_ref);
+-
+ 	return ret;
+ }
+ 
+@@ -1796,20 +1755,9 @@ void btrfs_cleanup_ref_head_accounting(s
+ 	int nr_items = 1;	/* Dropping this ref head update. */
+ 
+ 	if (head->total_ref_mod < 0) {
+-		struct btrfs_space_info *space_info;
+-		u64 flags;
++		u64 flags = btrfs_ref_head_to_space_flags(head);
+ 
+-		if (head->is_data)
+-			flags = BTRFS_BLOCK_GROUP_DATA;
+-		else if (head->is_system)
+-			flags = BTRFS_BLOCK_GROUP_SYSTEM;
+-		else
+-			flags = BTRFS_BLOCK_GROUP_METADATA;
+-		space_info = btrfs_find_space_info(fs_info, flags);
+-		ASSERT(space_info);
+-		percpu_counter_add_batch(&space_info->total_bytes_pinned,
+-				   -head->num_bytes,
+-				   BTRFS_TOTAL_BYTES_PINNED_BATCH);
++		btrfs_mod_total_bytes_pinned(fs_info, flags, -head->num_bytes);
+ 
+ 		/*
+ 		 * We had csum deletions accounted for in our delayed refs rsv,
+@@ -2572,8 +2520,7 @@ static int pin_down_extent(struct btrfs_
+ 	spin_unlock(&cache->lock);
+ 	spin_unlock(&cache->space_info->lock);
+ 
+-	percpu_counter_add_batch(&cache->space_info->total_bytes_pinned,
+-		    num_bytes, BTRFS_TOTAL_BYTES_PINNED_BATCH);
++	__btrfs_mod_total_bytes_pinned(cache->space_info, num_bytes);
+ 	set_extent_dirty(&trans->transaction->pinned_extents, bytenr,
+ 			 bytenr + num_bytes - 1, GFP_NOFS | __GFP_NOFAIL);
+ 	return 0;
+@@ -2784,8 +2731,7 @@ static int unpin_extent_range(struct btr
+ 		cache->pinned -= len;
+ 		btrfs_space_info_update_bytes_pinned(fs_info, space_info, -len);
+ 		space_info->max_extent_size = 0;
+-		percpu_counter_add_batch(&space_info->total_bytes_pinned,
+-			    -len, BTRFS_TOTAL_BYTES_PINNED_BATCH);
++		__btrfs_mod_total_bytes_pinned(space_info, -len);
+ 		if (cache->ro) {
+ 			space_info->bytes_readonly += len;
+ 			readonly = true;
+@@ -3318,7 +3264,6 @@ void btrfs_free_tree_block(struct btrfs_
+ {
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct btrfs_ref generic_ref = { 0 };
+-	int pin = 1;
+ 	int ret;
+ 
+ 	btrfs_init_generic_ref(&generic_ref, BTRFS_DROP_DELAYED_REF,
+@@ -3327,13 +3272,9 @@ void btrfs_free_tree_block(struct btrfs_
+ 			    root->root_key.objectid);
+ 
+ 	if (root->root_key.objectid != BTRFS_TREE_LOG_OBJECTID) {
+-		int old_ref_mod, new_ref_mod;
+-
+ 		btrfs_ref_tree_mod(fs_info, &generic_ref);
+-		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref, NULL,
+-						 &old_ref_mod, &new_ref_mod);
++		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref, NULL);
+ 		BUG_ON(ret); /* -ENOMEM */
+-		pin = old_ref_mod >= 0 && new_ref_mod < 0;
  	}
  
+ 	if (last_ref && btrfs_header_generation(buf) == trans->transid) {
+@@ -3345,7 +3286,6 @@ void btrfs_free_tree_block(struct btrfs_
+ 				goto out;
+ 		}
+ 
+-		pin = 0;
+ 		cache = btrfs_lookup_block_group(fs_info, buf->start);
+ 
+ 		if (btrfs_header_flag(buf, BTRFS_HEADER_FLAG_WRITTEN)) {
+@@ -3362,9 +3302,6 @@ void btrfs_free_tree_block(struct btrfs_
+ 		trace_btrfs_reserved_extent_free(fs_info, buf->start, buf->len);
+ 	}
+ out:
+-	if (pin)
+-		add_pinned_bytes(fs_info, &generic_ref);
+-
+ 	if (last_ref) {
+ 		/*
+ 		 * Deleting the buffer, clear the corrupt flag since it doesn't
+@@ -3378,7 +3315,6 @@ out:
+ int btrfs_free_extent(struct btrfs_trans_handle *trans, struct btrfs_ref *ref)
+ {
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+-	int old_ref_mod, new_ref_mod;
+ 	int ret;
+ 
+ 	if (btrfs_is_testing(fs_info))
+@@ -3394,14 +3330,11 @@ int btrfs_free_extent(struct btrfs_trans
+ 	     ref->data_ref.ref_root == BTRFS_TREE_LOG_OBJECTID)) {
+ 		/* unlocks the pinned mutex */
+ 		btrfs_pin_extent(trans, ref->bytenr, ref->len, 1);
+-		old_ref_mod = new_ref_mod = 0;
+ 		ret = 0;
+ 	} else if (ref->type == BTRFS_REF_METADATA) {
+-		ret = btrfs_add_delayed_tree_ref(trans, ref, NULL,
+-						 &old_ref_mod, &new_ref_mod);
++		ret = btrfs_add_delayed_tree_ref(trans, ref, NULL);
+ 	} else {
+-		ret = btrfs_add_delayed_data_ref(trans, ref, 0,
+-						 &old_ref_mod, &new_ref_mod);
++		ret = btrfs_add_delayed_data_ref(trans, ref, 0);
+ 	}
+ 
+ 	if (!((ref->type == BTRFS_REF_METADATA &&
+@@ -3410,9 +3343,6 @@ int btrfs_free_extent(struct btrfs_trans
+ 	       ref->data_ref.ref_root == BTRFS_TREE_LOG_OBJECTID)))
+ 		btrfs_ref_tree_mod(fs_info, ref);
+ 
+-	if (ret == 0 && old_ref_mod >= 0 && new_ref_mod < 0)
+-		add_pinned_bytes(fs_info, ref);
+-
+ 	return ret;
+ }
+ 
+@@ -4528,7 +4458,6 @@ int btrfs_alloc_reserved_file_extent(str
+ 				     struct btrfs_key *ins)
+ {
+ 	struct btrfs_ref generic_ref = { 0 };
+-	int ret;
+ 
+ 	BUG_ON(root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID);
+ 
+@@ -4536,9 +4465,8 @@ int btrfs_alloc_reserved_file_extent(str
+ 			       ins->objectid, ins->offset, 0);
+ 	btrfs_init_data_ref(&generic_ref, root->root_key.objectid, owner, offset);
+ 	btrfs_ref_tree_mod(root->fs_info, &generic_ref);
+-	ret = btrfs_add_delayed_data_ref(trans, &generic_ref,
+-					 ram_bytes, NULL, NULL);
+-	return ret;
++
++	return btrfs_add_delayed_data_ref(trans, &generic_ref, ram_bytes);
+ }
+ 
+ /*
+@@ -4730,8 +4658,7 @@ struct extent_buffer *btrfs_alloc_tree_b
+ 		generic_ref.real_root = root->root_key.objectid;
+ 		btrfs_init_tree_ref(&generic_ref, level, root_objectid);
+ 		btrfs_ref_tree_mod(fs_info, &generic_ref);
+-		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref,
+-						 extent_op, NULL, NULL);
++		ret = btrfs_add_delayed_tree_ref(trans, &generic_ref, extent_op);
+ 		if (ret)
+ 			goto out_free_delayed;
+ 	}
+--- a/fs/btrfs/space-info.h
++++ b/fs/btrfs/space-info.h
+@@ -152,4 +152,21 @@ static inline void btrfs_space_info_free
+ int btrfs_reserve_data_bytes(struct btrfs_fs_info *fs_info, u64 bytes,
+ 			     enum btrfs_reserve_flush_enum flush);
+ 
++static inline void __btrfs_mod_total_bytes_pinned(
++					struct btrfs_space_info *space_info,
++					s64 mod)
++{
++	percpu_counter_add_batch(&space_info->total_bytes_pinned, mod,
++				 BTRFS_TOTAL_BYTES_PINNED_BATCH);
++}
++
++static inline void btrfs_mod_total_bytes_pinned(struct btrfs_fs_info *fs_info,
++						u64 flags, s64 mod)
++{
++	struct btrfs_space_info *space_info = btrfs_find_space_info(fs_info, flags);
++
++	ASSERT(space_info);
++	__btrfs_mod_total_bytes_pinned(space_info, mod);
++}
++
+ #endif /* BTRFS_SPACE_INFO_H */
 
 
