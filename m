@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496193286B2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 075E63286C0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237785AbhCARNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:13:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37782 "EHLO mail.kernel.org"
+        id S231549AbhCARN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:13:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237451AbhCARIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:08:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE01365004;
-        Mon,  1 Mar 2021 16:41:08 +0000 (UTC)
+        id S237512AbhCARIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:08:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD2CC64F86;
+        Mon,  1 Mar 2021 16:41:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616869;
-        bh=jeUrk9gjVEh4n9UIfhVmFY7lBp21UQP1CYYiD4cJp44=;
+        s=korg; t=1614616872;
+        bh=Uddgtl8x7+3nKSqAHufwvjSoGX0FLguNWqtf3aCL8qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sr5PmH/iddPFX2AdytbRTUOxLykUnxIHEkYsZY024pspKoBW4aLoX7ShRdhawB5XS
-         0gxYNlOHnKXgK/yoz6hd1Rh0nRInFUUdGtaXaEeGc5sv6Z7lpzLKfBUrmfFmc3sAsE
-         fqkjYUhE3pFIC9D/nx+nm3FDZQ9MqyogCelp5Ioc=
+        b=TQIlrpkPB/5AJelXjHVE9h7xsxuKrdBS/YCIdijutRHpHNHJySQpXtkea8C4aoVnL
+         2HgZT0qWjG8J0rgXcy0h6OP7R6sMgtlHE+I+tkpbO06008eEJT5NTfW0tQk6DzSvb0
+         at1D9JdinNPf/FK0eKTD1tnnUOIqV3YCT1rtqm50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Till=20D=C3=B6rges?= <doerges@pre-sense.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/247] media: uvcvideo: Accept invalid bFormatIndex and bFrameIndex values
-Date:   Mon,  1 Mar 2021 17:11:53 +0100
-Message-Id: <20210301161036.225712172@linuxfoundation.org>
+Subject: [PATCH 4.19 094/247] crypto: talitos - Work around SEC6 ERRATA (AES-CTR mode data size error)
+Date:   Mon,  1 Mar 2021 17:11:54 +0100
+Message-Id: <20210301161036.276142439@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -42,77 +41,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit dc9455ffae02d7b7fb51ba1e007fffcb9dc5d890 ]
+[ Upstream commit 416b846757bcea20006a9197e67ba3a8b5b2a680 ]
 
-The Renkforce RF AC4K 300 Action Cam 4K reports invalid bFormatIndex and
-bFrameIndex values when negotiating the video probe and commit controls.
-The UVC descriptors report a single supported format and frame size,
-with bFormatIndex and bFrameIndex both equal to 2, but the video probe
-and commit controls report bFormatIndex and bFrameIndex set to 1.
+Talitos Security Engine AESU considers any input
+data size that is not a multiple of 16 bytes to be an error.
+This is not a problem in general, except for Counter mode
+that is a stream cipher and can have an input of any size.
 
-The device otherwise operates correctly, but the driver rejects the
-values and fails the format try operation. Fix it by ignoring the
-invalid indices, and assuming that the format and frame requested by the
-driver are accepted by the device.
+Test Manager for ctr(aes) fails on 4th test vector which has
+a length of 499 while all previous vectors which have a 16 bytes
+multiple length succeed.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=210767
+As suggested by Freescale, round up the input data length to the
+nearest 16 bytes.
 
-Fixes: 8a652a17e3c0 ("media: uvcvideo: Ensure all probed info is returned to v4l2")
-Reported-by: Till Dörges <doerges@pre-sense.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 5e75ae1b3cef ("crypto: talitos - add new crypto modes")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_v4l2.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/crypto/talitos.c | 28 ++++++++++++++++------------
+ drivers/crypto/talitos.h |  1 +
+ 2 files changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 0921c95a1dca5..06167c51af128 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -253,7 +253,9 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		goto done;
+diff --git a/drivers/crypto/talitos.c b/drivers/crypto/talitos.c
+index c70a7c4f5b739..7a55baa861e58 100644
+--- a/drivers/crypto/talitos.c
++++ b/drivers/crypto/talitos.c
+@@ -1066,11 +1066,12 @@ static void ipsec_esp_decrypt_hwauth_done(struct device *dev,
+  */
+ static int sg_to_link_tbl_offset(struct scatterlist *sg, int sg_count,
+ 				 unsigned int offset, int datalen, int elen,
+-				 struct talitos_ptr *link_tbl_ptr)
++				 struct talitos_ptr *link_tbl_ptr, int align)
+ {
+ 	int n_sg = elen ? sg_count + 1 : sg_count;
+ 	int count = 0;
+ 	int cryptlen = datalen + elen;
++	int padding = ALIGN(cryptlen, align) - cryptlen;
  
- 	/* After the probe, update fmt with the values returned from
--	 * negotiation with the device.
-+	 * negotiation with the device. Some devices return invalid bFormatIndex
-+	 * and bFrameIndex values, in which case we can only assume they have
-+	 * accepted the requested format as-is.
+ 	while (cryptlen && sg && n_sg--) {
+ 		unsigned int len = sg_dma_len(sg);
+@@ -1094,7 +1095,7 @@ static int sg_to_link_tbl_offset(struct scatterlist *sg, int sg_count,
+ 			offset += datalen;
+ 		}
+ 		to_talitos_ptr(link_tbl_ptr + count,
+-			       sg_dma_address(sg) + offset, len, 0);
++			       sg_dma_address(sg) + offset, sg_next(sg) ? len : len + padding, 0);
+ 		to_talitos_ptr_ext_set(link_tbl_ptr + count, 0, 0);
+ 		count++;
+ 		cryptlen -= len;
+@@ -1117,10 +1118,11 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
+ 			      unsigned int len, struct talitos_edesc *edesc,
+ 			      struct talitos_ptr *ptr, int sg_count,
+ 			      unsigned int offset, int tbl_off, int elen,
+-			      bool force)
++			      bool force, int align)
+ {
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	bool is_sec1 = has_ftr_sec1(priv);
++	int aligned_len = ALIGN(len, align);
+ 
+ 	if (!src) {
+ 		to_talitos_ptr(ptr, 0, 0, is_sec1);
+@@ -1128,22 +1130,22 @@ static int talitos_sg_map_ext(struct device *dev, struct scatterlist *src,
+ 	}
+ 	to_talitos_ptr_ext_set(ptr, elen, is_sec1);
+ 	if (sg_count == 1 && !force) {
+-		to_talitos_ptr(ptr, sg_dma_address(src) + offset, len, is_sec1);
++		to_talitos_ptr(ptr, sg_dma_address(src) + offset, aligned_len, is_sec1);
+ 		return sg_count;
+ 	}
+ 	if (is_sec1) {
+-		to_talitos_ptr(ptr, edesc->dma_link_tbl + offset, len, is_sec1);
++		to_talitos_ptr(ptr, edesc->dma_link_tbl + offset, aligned_len, is_sec1);
+ 		return sg_count;
+ 	}
+ 	sg_count = sg_to_link_tbl_offset(src, sg_count, offset, len, elen,
+-					 &edesc->link_tbl[tbl_off]);
++					 &edesc->link_tbl[tbl_off], align);
+ 	if (sg_count == 1 && !force) {
+ 		/* Only one segment now, so no link tbl needed*/
+ 		copy_talitos_ptr(ptr, &edesc->link_tbl[tbl_off], is_sec1);
+ 		return sg_count;
+ 	}
+ 	to_talitos_ptr(ptr, edesc->dma_link_tbl +
+-			    tbl_off * sizeof(struct talitos_ptr), len, is_sec1);
++			    tbl_off * sizeof(struct talitos_ptr), aligned_len, is_sec1);
+ 	to_talitos_ptr_ext_or(ptr, DESC_PTR_LNKTBL_JUMP, is_sec1);
+ 
+ 	return sg_count;
+@@ -1155,7 +1157,7 @@ static int talitos_sg_map(struct device *dev, struct scatterlist *src,
+ 			  unsigned int offset, int tbl_off)
+ {
+ 	return talitos_sg_map_ext(dev, src, len, edesc, ptr, sg_count, offset,
+-				  tbl_off, 0, false);
++				  tbl_off, 0, false, 1);
+ }
+ 
+ /*
+@@ -1224,7 +1226,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
+ 
+ 	ret = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[4],
+ 				 sg_count, areq->assoclen, tbl_off, elen,
+-				 false);
++				 false, 1);
+ 
+ 	if (ret > 1) {
+ 		tbl_off += ret;
+@@ -1244,7 +1246,7 @@ static int ipsec_esp(struct talitos_edesc *edesc, struct aead_request *areq,
+ 		elen = 0;
+ 	ret = talitos_sg_map_ext(dev, areq->dst, cryptlen, edesc, &desc->ptr[5],
+ 				 sg_count, areq->assoclen, tbl_off, elen,
+-				 is_ipsec_esp && !encrypt);
++				 is_ipsec_esp && !encrypt, 1);
+ 	tbl_off += ret;
+ 
+ 	/* ICV data */
+@@ -1554,6 +1556,8 @@ static int common_nonsnoop(struct talitos_edesc *edesc,
+ 	bool sync_needed = false;
+ 	struct talitos_private *priv = dev_get_drvdata(dev);
+ 	bool is_sec1 = has_ftr_sec1(priv);
++	bool is_ctr = (desc->hdr & DESC_HDR_SEL0_MASK) == DESC_HDR_SEL0_AESU &&
++		      (desc->hdr & DESC_HDR_MODE0_AESU_MASK) == DESC_HDR_MODE0_AESU_CTR;
+ 
+ 	/* first DWORD empty */
+ 
+@@ -1574,8 +1578,8 @@ static int common_nonsnoop(struct talitos_edesc *edesc,
+ 	/*
+ 	 * cipher in
  	 */
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (probe->bFormatIndex == stream->format[i].index) {
-@@ -262,11 +264,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
- 	}
+-	sg_count = talitos_sg_map(dev, areq->src, cryptlen, edesc,
+-				  &desc->ptr[3], sg_count, 0, 0);
++	sg_count = talitos_sg_map_ext(dev, areq->src, cryptlen, edesc, &desc->ptr[3],
++				      sg_count, 0, 0, 0, false, is_ctr ? 16 : 1);
+ 	if (sg_count > 1)
+ 		sync_needed = true;
  
--	if (i == stream->nformats) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFormatIndex %u\n",
-+	if (i == stream->nformats)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFormatIndex %u, using default\n",
- 			  probe->bFormatIndex);
--		return -EINVAL;
--	}
+diff --git a/drivers/crypto/talitos.h b/drivers/crypto/talitos.h
+index cb0137e131cc8..16f96c57de341 100644
+--- a/drivers/crypto/talitos.h
++++ b/drivers/crypto/talitos.h
+@@ -377,6 +377,7 @@ static inline bool has_ftr_sec1(struct talitos_private *priv)
  
- 	for (i = 0; i < format->nframes; ++i) {
- 		if (probe->bFrameIndex == format->frame[i].bFrameIndex) {
-@@ -275,11 +276,10 @@ static int uvc_v4l2_try_format(struct uvc_streaming *stream,
- 		}
- 	}
- 
--	if (i == format->nframes) {
--		uvc_trace(UVC_TRACE_FORMAT, "Unknown bFrameIndex %u\n",
-+	if (i == format->nframes)
-+		uvc_trace(UVC_TRACE_FORMAT,
-+			  "Unknown bFrameIndex %u, using default\n",
- 			  probe->bFrameIndex);
--		return -EINVAL;
--	}
- 
- 	fmt->fmt.pix.width = frame->wWidth;
- 	fmt->fmt.pix.height = frame->wHeight;
+ /* primary execution unit mode (MODE0) and derivatives */
+ #define	DESC_HDR_MODE0_ENCRYPT		cpu_to_be32(0x00100000)
++#define	DESC_HDR_MODE0_AESU_MASK	cpu_to_be32(0x00600000)
+ #define	DESC_HDR_MODE0_AESU_CBC		cpu_to_be32(0x00200000)
+ #define	DESC_HDR_MODE0_AESU_CTR		cpu_to_be32(0x00600000)
+ #define	DESC_HDR_MODE0_DEU_CBC		cpu_to_be32(0x00400000)
 -- 
 2.27.0
 
