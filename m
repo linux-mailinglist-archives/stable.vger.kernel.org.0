@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFE5A328EED
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81864328F73
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238772AbhCATkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49914 "EHLO mail.kernel.org"
+        id S238437AbhCATvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:51:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241561AbhCATcx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:32:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0751A65190;
-        Mon,  1 Mar 2021 17:11:14 +0000 (UTC)
+        id S241624AbhCATlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:41:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D78E765025;
+        Mon,  1 Mar 2021 17:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618675;
-        bh=aCzIOW8nxMmO1Kpwz8TKbV75oBREFmR3a8tv0qBT4qQ=;
+        s=korg; t=1614620727;
+        bh=QpwIX1xUMmr1FvwGcPv2R43gieZWOzz1I6JKxSdpku4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SobEYYuZz1UnNjxy6+6nJgKc35dyq5k0buFpqoeDuAlPoPM8C5OLLp0OSVJ6bJH4z
-         qXMlIxehWdVByLz00fec6TyheXFMb3zqNNtuXNTCchKvh5HvHBLGQrbetx3LNNmGEu
-         r2aZ0aRls0tZqbRfIGY+acyzgMRHpyfHvSjG/QN4=
+        b=RMpV2d/OsoPhQ6O4oStBoZpE6YRpdnLTkNlWtKUXj6ATpG1a6uyAlTocTxMHazPZ9
+         u/0LMi70w421P1NjWMeTZoybBTpCGccIUO5iWVNP7lM/Tf72kTUxvcE/6S1ru4eiFG
+         NiICtvC9kYIDS9VPt+yz7s6Nb4LSdbMQEnrHOMt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Brijesh Singh <brijesh.singh@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 176/663] media: imx7: csi: Fix regression for parallel cameras on i.MX6UL
-Date:   Mon,  1 Mar 2021 17:07:04 +0100
-Message-Id: <20210301161150.495935813@linuxfoundation.org>
+Subject: [PATCH 5.11 257/775] KVM: nSVM: Dont strip hosts C-bit from guests CR3 when reading PDPTRs
+Date:   Mon,  1 Mar 2021 17:07:05 +0100
+Message-Id: <20210301161214.336930337@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 9bac67214fbf4b5f23463f7742ccf69bfe684cbd ]
+[ Upstream commit 2732be90235347a3be4babdc9f88a1ea93970b0b ]
 
-Commit 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as
-a CSI mux") made an incorrect assumption that for imx7-media-csi,
-the bound subdev must always be a CSI mux. On i.MX6UL/i.MX6ULL there
-is no CSI mux at all, so do not return an error when the entity is not a
-video mux and assign the IMX_MEDIA_GRP_ID_CSI_MUX group id only when
-appropriate.
+Don't clear the SME C-bit when reading a guest PDPTR, as the GPA (CR3) is
+in the guest domain.
 
-This is the same approach as done in imx-media-csi.c and it fixes the
-csi probe regression on i.MX6UL.
+Barring a bizarre paravirtual use case, this is likely a benign bug.  SME
+is not emulated by KVM, loading SEV guest PDPTRs is doomed as KVM can't
+use the correct key to read guest memory, and setting guest MAXPHYADDR
+higher than the host, i.e. overlapping the C-bit, would cause faults in
+the guest.
 
-Tested on a imx6ull-evk board.
+Note, for SEV guests, stripping the C-bit is technically aligned with CPU
+behavior, but for KVM it's the greater of two evils.  Because KVM doesn't
+have access to the guest's encryption key, ignoring the C-bit would at
+best result in KVM reading garbage.  By keeping the C-bit, KVM will
+fail its read (unless userspace creates a memslot with the C-bit set).
+The guest will still undoubtedly die, as KVM will use '0' for the PDPTR
+value, but that's preferable to interpreting encrypted data as a PDPTR.
 
-Fixes: 86e02d07871c ("media: imx5/6/7: csi: Mark a bound video mux as a CSI mux")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: d0ec49d4de90 ("kvm/x86/svm: Support Secure Memory Encryption within KVM")
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210204000117.3303214-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-media-csi.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm/nested.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index a3f3df9017046..31e36168f9d0f 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -1164,12 +1164,12 @@ static int imx7_csi_notify_bound(struct v4l2_async_notifier *notifier,
- 	struct imx7_csi *csi = imx7_csi_notifier_to_dev(notifier);
- 	struct media_pad *sink = &csi->sd.entity.pads[IMX7_CSI_PAD_SINK];
+diff --git a/arch/x86/kvm/svm/nested.c b/arch/x86/kvm/svm/nested.c
+index db30670dd8c4a..8ded795a18151 100644
+--- a/arch/x86/kvm/svm/nested.c
++++ b/arch/x86/kvm/svm/nested.c
+@@ -58,7 +58,7 @@ static u64 nested_svm_get_tdp_pdptr(struct kvm_vcpu *vcpu, int index)
+ 	u64 pdpte;
+ 	int ret;
  
--	/* The bound subdev must always be the CSI mux */
--	if (WARN_ON(sd->entity.function != MEDIA_ENT_F_VID_MUX))
--		return -ENXIO;
--
--	/* Mark it as such via its group id */
--	sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
-+	/*
-+	 * If the subdev is a video mux, it must be one of the CSI
-+	 * muxes. Mark it as such via its group id.
-+	 */
-+	if (sd->entity.function == MEDIA_ENT_F_VID_MUX)
-+		sd->grp_id = IMX_MEDIA_GRP_ID_CSI_MUX;
- 
- 	return v4l2_create_fwnode_links_to_pad(sd, sink);
- }
+-	ret = kvm_vcpu_read_guest_page(vcpu, gpa_to_gfn(__sme_clr(cr3)), &pdpte,
++	ret = kvm_vcpu_read_guest_page(vcpu, gpa_to_gfn(cr3), &pdpte,
+ 				       offset_in_page(cr3) + index * 8, 8);
+ 	if (ret)
+ 		return 0;
 -- 
 2.27.0
 
