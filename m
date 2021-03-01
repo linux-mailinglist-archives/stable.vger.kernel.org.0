@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D36328BB7
+	by mail.lfdr.de (Postfix) with ESMTP id DBE39328BB8
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240311AbhCASik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240314AbhCASik (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Mar 2021 13:38:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240070AbhCASdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:33:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9496E65236;
-        Mon,  1 Mar 2021 17:26:07 +0000 (UTC)
+        id S240139AbhCASdx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:33:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC5C665233;
+        Mon,  1 Mar 2021 17:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619568;
-        bh=1ncF2bo2J3lCbgnmqbH1Ngp51rq2b8KUERwAmNQp5qs=;
+        s=korg; t=1614619576;
+        bh=0z3WB6fxxIRpXJVqt7kYMNPzomhDGaiSxTU+Sip1pak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DA/ahhduz2xJIw2OBI4ld2gsEYFdERoMnPkU+FNO2t/6Vdga8bqxcIdl04xiUswsQ
-         s4bZ+bv75tX1WgeusaEWcgOo77uQuf4atGmROxyaNR23fVBF68oLJ58G52xLvBgvsl
-         fgYe197TvkjXts6gNIbzvpp3PE1h2IQ0+ZEqb11A=
+        b=uA3zDX2lcotTL0/cPp2QQ42b2Ha2L57Xmw/odlg1ITM+xEEbqQnnf7UqvkyTLQIg2
+         aMB6F20bUPuQpR8y7IhFYK9ZAiRGQm+xNn+6d6IufYil/sr8gRC838uwYrOzGwaT+H
+         R+DuxbfN3sb7WCBaw8fGMwOu3Mv9wtpqdi8IHiCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 502/663] ALSA: hda/hdmi: Drop bogus check at closing a stream
-Date:   Mon,  1 Mar 2021 17:12:30 +0100
-Message-Id: <20210301161206.680783595@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 505/663] MIPS: Ingenic: Disable HPTLB for D0 XBurst CPUs too
+Date:   Mon,  1 Mar 2021 17:12:33 +0100
+Message-Id: <20210301161206.828394015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -40,42 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 056a3da5d07fc5d3ceacfa2cdf013c9d8df630bd upstream.
+commit a5360958a3cd1d876aae1f504ae014658513e1af upstream.
 
-Some users reported the kernel WARNING with stack traces from
-hdmi_pcm_close(), and it's the line checking the per_cvt->assigned
-flag.  This used to be a valid check in the past because the flag was
-turned on/off only at opening and closing a PCM stream.  Meanwhile,
-since the introduction of the silent-stream mode, this flag may be
-turned on/off at the monitor connection/disconnection time, which
-isn't always associated with the PCM open/close.  Hence this may lead
-to the inconsistent per_cvt->assigned flag at closing.
+The JZ4760 has the HPTLB as well, but has a XBurst CPU with a D0 CPUID.
 
-As the check itself became almost useless and confuses users as if it
-were a serious problem, just drop the check.
+Disable the HPTLB for all XBurst CPUs with a D0 CPUID. In the case where
+there is no HPTLB (e.g. for older SoCs), this won't have any side
+effect.
 
-Fixes: b1a5039759cb ("ALSA: hda/hdmi: fix silent stream for first playback to DP")
-Cc: <stable@vger.kernel.org>
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=210987
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210211083139.29531-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: b02efeb05699 ("MIPS: Ingenic: Disable abandoned HPTLB function.")
+Cc: <stable@vger.kernel.org> # 5.4
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/kernel/cpu-probe.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2133,7 +2133,6 @@ static int hdmi_pcm_close(struct hda_pcm
- 			goto unlock;
- 		}
- 		per_cvt = get_cvt(spec, cvt_idx);
--		snd_BUG_ON(!per_cvt->assigned);
- 		per_cvt->assigned = 0;
- 		hinfo->nid = 0;
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1830,16 +1830,17 @@ static inline void cpu_probe_ingenic(str
+ 		 */
+ 		case PRID_COMP_INGENIC_D0:
+ 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
+-			break;
++			fallthrough;
  
+ 		/*
+ 		 * The config0 register in the XBurst CPUs with a processor ID of
+-		 * PRID_COMP_INGENIC_D1 has an abandoned huge page tlb mode, this
+-		 * mode is not compatible with the MIPS standard, it will cause
+-		 * tlbmiss and into an infinite loop (line 21 in the tlb-funcs.S)
+-		 * when starting the init process. After chip reset, the default
+-		 * is HPTLB mode, Write 0xa9000000 to cp0 register 5 sel 4 to
+-		 * switch back to VTLB mode to prevent getting stuck.
++		 * PRID_COMP_INGENIC_D0 or PRID_COMP_INGENIC_D1 has an abandoned
++		 * huge page tlb mode, this mode is not compatible with the MIPS
++		 * standard, it will cause tlbmiss and into an infinite loop
++		 * (line 21 in the tlb-funcs.S) when starting the init process.
++		 * After chip reset, the default is HPTLB mode, Write 0xa9000000
++		 * to cp0 register 5 sel 4 to switch back to VTLB mode to prevent
++		 * getting stuck.
+ 		 */
+ 		case PRID_COMP_INGENIC_D1:
+ 			write_c0_page_ctrl(XBURST_PAGECTRL_HPTLB_DIS);
 
 
