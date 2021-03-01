@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2068328521
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4A9328427
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235755AbhCAQta (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:49:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45654 "EHLO mail.kernel.org"
+        id S231624AbhCAQ3q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:29:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234740AbhCAQmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:42:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C65EC64EE9;
-        Mon,  1 Mar 2021 16:29:23 +0000 (UTC)
+        id S234192AbhCAQ0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:26:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98CEA64ED0;
+        Mon,  1 Mar 2021 16:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616164;
-        bh=YWDS2KWFnwak+5TNRU0rdnSUjl8eATSGdQzhydjAzME=;
+        s=korg; t=1614615699;
+        bh=I+/Qt8wNvswLieb34kwTLegTpmM9jm2d6FVTDqfsMpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jVVx+1MHpNwVhCiqoR3ofRAIeOTjWbOx51Zk6olzVq1NtCaS1B3KCBjfR+kxyauJ0
-         UZ47EGv1e0HHXlws/KE1r2e5ipT7jCKP91fW8pxYmIm0XCqKyuNpmw/VouluPhWiny
-         cCPuTJoB+VsUTxGVL2jGjRvDYXqT/JOMuemfrsAM=
+        b=B2nQJ6X2Lfph3iJQTpJGgbnq5jGQnVeYRLRyY4Wwb9+eBWwGQGXdVx+iL33+Kb29O
+         1+7gkn+4owfvQA6UBf+iWrjTTJI+HdqPkvERdTsO8ZUPFgj+4xQlenyHX+OKgqsJDw
+         epFmNIUIVW7nfwSUKxE+rED7LfttjpCepT6HRnj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/176] media: pxa_camera: declare variable when DEBUG is defined
+Subject: [PATCH 4.9 028/134] b43: N-PHY: Fix the update of coef for the PHY revision >= 3case
 Date:   Mon,  1 Mar 2021 17:12:09 +0100
-Message-Id: <20210301161023.727184510@linuxfoundation.org>
+Message-Id: <20210301161014.962966372@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 031b9212eeee365443aaef013360ea6cded7b2c4 ]
+[ Upstream commit 4773acf3d4b50768bf08e9e97a204819e9ea0895 ]
 
-When DEBUG is defined this error occurs
+The documentation for the PHY update [1] states:
 
-drivers/media/platform/pxa_camera.c:1410:7: error:
-  ‘i’ undeclared (first use in this function)
-  for (i = 0; i < vb->num_planes; i++)
-       ^
-The variable 'i' is missing, so declare it.
+Loop 4 times with index i
 
-Fixes: 6f28435d1c15 ("[media] media: platform: pxa_camera: trivial move of functions")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+    If PHY Revision >= 3
+        Copy table[i] to coef[i]
+    Otherwise
+        Set coef[i] to 0
+
+the copy of the table to coef is currently implemented the wrong way
+around, table is being updated from uninitialized values in coeff.
+Fix this by swapping the assignment around.
+
+[1] https://bcm-v4.sipsolutions.net/802.11/PHY/N/RestoreCal/
+
+Fixes: 2f258b74d13c ("b43: N-PHY: implement restoring general configuration")
+Addresses-Coverity: ("Uninitialized scalar variable")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/pxa_camera.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/broadcom/b43/phy_n.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
-index d270a23299cc7..18dce48a6828d 100644
---- a/drivers/media/platform/pxa_camera.c
-+++ b/drivers/media/platform/pxa_camera.c
-@@ -1450,6 +1450,9 @@ static int pxac_vb2_prepare(struct vb2_buffer *vb)
- 	struct pxa_camera_dev *pcdev = vb2_get_drv_priv(vb->vb2_queue);
- 	struct pxa_buffer *buf = vb2_to_pxa_buffer(vb);
- 	int ret = 0;
-+#ifdef DEBUG
-+	int i;
-+#endif
+diff --git a/drivers/net/wireless/broadcom/b43/phy_n.c b/drivers/net/wireless/broadcom/b43/phy_n.c
+index a5557d70689f4..d1afa74aa144b 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_n.c
++++ b/drivers/net/wireless/broadcom/b43/phy_n.c
+@@ -5320,7 +5320,7 @@ static void b43_nphy_restore_cal(struct b43_wldev *dev)
  
- 	switch (pcdev->channels) {
- 	case 1:
+ 	for (i = 0; i < 4; i++) {
+ 		if (dev->phy.rev >= 3)
+-			table[i] = coef[i];
++			coef[i] = table[i];
+ 		else
+ 			coef[i] = 0;
+ 	}
 -- 
 2.27.0
 
