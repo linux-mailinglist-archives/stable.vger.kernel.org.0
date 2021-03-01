@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB71328A16
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:12:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 480213289AE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239399AbhCASMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:12:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
+        id S239145AbhCASDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:03:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238839AbhCASF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:05:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E93B6506D;
-        Mon,  1 Mar 2021 17:24:35 +0000 (UTC)
+        id S237824AbhCAR4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:56:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2566665074;
+        Mon,  1 Mar 2021 17:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619476;
-        bh=tSuVcG+VWR+AgQDcsiM1UL1MY3qe/NX/+mR9jH9sh2E=;
+        s=korg; t=1614619497;
+        bh=i8GrjKi5S2CmDKUeGWQRsVZoGcpllGlvwHk/OpVVssM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2TYf3VmdzW6TBb4U7qoMJ4jVwvg4GULmJ96V9QAt04dpkwihc9LZVw9QkKqSsi41
-         tmbn6rmrUIiXCDYsUiM7L8ZbnWwNFYBtHGjc9AFzRZjCkANsXkDOpor/5lModV8Z3U
-         UuxEMJj+p3xnvCrIcK1/EtGAZRDFuM4H7jzOPKaE=
+        b=lxLiucbfGfIt41nCXhnIOZxRmXBeaQx8lMBTf11Q2+Kdeo1D6rh5u0TYJWPGNzK11
+         Q8zrVbhWT2QSQlDc+lRJ/ix5SmrU/WMhnk7o1gMrThvB/WIts/npt96IYo+m5YB0Do
+         Yi7rID/k24xQnDec1s4w0VNDhwvg0UZtDJ9i7XPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?M=C3=A5rten=20Lindahl?= <martenli@axis.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 468/663] i2c: exynos5: Preserve high speed master code
-Date:   Mon,  1 Mar 2021 17:11:56 +0100
-Message-Id: <20210301161205.015367163@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 475/663] scsi: sd: sd_zbc: Dont pass GFP_NOIO to kvcalloc
+Date:   Mon,  1 Mar 2021 17:12:03 +0100
+Message-Id: <20210301161205.360740951@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,53 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mårten Lindahl <martenli@axis.com>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-[ Upstream commit f4ff0104d4c807a7f96aa3358c03d694895ee8ea ]
+[ Upstream commit 9acced3f58ad24407c1f9ebf53a8892c1e24cdb5 ]
 
-When the driver starts to send a message with the MASTER_ID field
-set (high speed), the whole I2C_ADDR register is overwritten including
-MASTER_ID as the SLV_ADDR_MAS field is set.
+Dan reported we're passing in GFP_NOIO to kvmalloc() which will then
+fallback to doing kmalloc() instead of an optional vmalloc() if the size
+exceeds kmalloc()s limits. This will break with drives that have zone
+numbers exceeding PAGE_SIZE/sizeof(u32).
 
-This patch preserves already written fields in I2C_ADDR when writing
-SLV_ADDR_MAS.
+Instead of passing in GFP_NOIO, enter an implicit GFP_NOIO allocation
+scope.
 
-Fixes: 8a73cd4cfa15 ("i2c: exynos5: add High Speed I2C controller driver")
-Signed-off-by: Mårten Lindahl <martenli@axis.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Tested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/r/YCuvSfKw4qEQBr/t@mwanda
+Link: https://lore.kernel.org/r/5a6345e2989fd06c049ac4e4627f6acb492c15b8.1613569821.git.johannes.thumshirn@wdc.com
+Fixes: 5795eb443060: ("scsi: sd_zbc: emulate ZONE_APPEND commands")
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-exynos5.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/sd_zbc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index 6ce3ec03b5952..b6f2c63776140 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -606,6 +606,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 	u32 i2c_ctl;
- 	u32 int_en = 0;
- 	u32 i2c_auto_conf = 0;
-+	u32 i2c_addr = 0;
- 	u32 fifo_ctl;
- 	unsigned long flags;
- 	unsigned short trig_lvl;
-@@ -640,7 +641,12 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 		int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
+diff --git a/drivers/scsi/sd_zbc.c b/drivers/scsi/sd_zbc.c
+index cf07b7f935790..87a7274e4632b 100644
+--- a/drivers/scsi/sd_zbc.c
++++ b/drivers/scsi/sd_zbc.c
+@@ -688,6 +688,7 @@ int sd_zbc_revalidate_zones(struct scsi_disk *sdkp)
+ 	unsigned int nr_zones = sdkp->rev_nr_zones;
+ 	u32 max_append;
+ 	int ret = 0;
++	unsigned int flags;
+ 
+ 	/*
+ 	 * For all zoned disks, initialize zone append emulation data if not
+@@ -720,16 +721,19 @@ int sd_zbc_revalidate_zones(struct scsi_disk *sdkp)
+ 	    disk->queue->nr_zones == nr_zones)
+ 		goto unlock;
+ 
++	flags = memalloc_noio_save();
+ 	sdkp->zone_blocks = zone_blocks;
+ 	sdkp->nr_zones = nr_zones;
+-	sdkp->rev_wp_offset = kvcalloc(nr_zones, sizeof(u32), GFP_NOIO);
++	sdkp->rev_wp_offset = kvcalloc(nr_zones, sizeof(u32), GFP_KERNEL);
+ 	if (!sdkp->rev_wp_offset) {
+ 		ret = -ENOMEM;
++		memalloc_noio_restore(flags);
+ 		goto unlock;
  	}
  
--	writel(HSI2C_SLV_ADDR_MAS(i2c->msg->addr), i2c->regs + HSI2C_ADDR);
-+	i2c_addr = HSI2C_SLV_ADDR_MAS(i2c->msg->addr);
-+
-+	if (i2c->op_clock >= I2C_MAX_FAST_MODE_PLUS_FREQ)
-+		i2c_addr |= HSI2C_MASTER_ID(MASTER_ID(i2c->adap.nr));
-+
-+	writel(i2c_addr, i2c->regs + HSI2C_ADDR);
+ 	ret = blk_revalidate_disk_zones(disk, sd_zbc_revalidate_zones_cb);
  
- 	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
- 	writel(i2c_ctl, i2c->regs + HSI2C_CTL);
++	memalloc_noio_restore(flags);
+ 	kvfree(sdkp->rev_wp_offset);
+ 	sdkp->rev_wp_offset = NULL;
+ 
 -- 
 2.27.0
 
