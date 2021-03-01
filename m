@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A7B3283D0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1633283D6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:27:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbhCAQZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:25:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56662 "EHLO mail.kernel.org"
+        id S233525AbhCAQZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:25:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237517AbhCAQWR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237547AbhCAQWR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:22:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EDEF64E56;
-        Mon,  1 Mar 2021 16:19:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E55DC64E54;
+        Mon,  1 Mar 2021 16:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615543;
-        bh=ut975fHUjAck+3/CY27BEZDe/J62sZzzr2haTtNJ1JE=;
+        s=korg; t=1614615546;
+        bh=TIVf+bdRNeMns8jTMs8oviPZgoUkFCq1wTUke59njuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ex460FlKz6WxShlC86Xj1KgS4k3LwDPq1rCUXld2ln3tYR1jOGvJlK+YHQ/yIW4LQ
-         ycW2GIRLb4m0Dstq3AnTBqtOMkplaDgiHIh9Cl9W9fFCb9OLfetf2cyuqVIIKkOiTi
-         RFT2C1lHH1iwTPp1vo9Dl2pu4TU/2w/RvsOuJ07Y=
+        b=PHWZWJGFSf/RNRwDIoaWs4lM03YOrvQBgNwilsRXON84xVjWwcX60fy/3J9hIfBx/
+         R6acfRpnYYGj9udfW0ms4z6onGBkV9G7eYdpP5nI20VQPkpdvu5wujnBt8ElfVAT58
+         RanySKl+CSh6PVsgJuVSRjs+DDVWaz1Z5Y9QJodQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 68/93] USB: serial: mos7840: fix error code in mos7840_write()
-Date:   Mon,  1 Mar 2021 17:13:20 +0100
-Message-Id: <20210301161010.226722735@linuxfoundation.org>
+Subject: [PATCH 4.4 69/93] USB: serial: mos7720: fix error code in mos7720_write()
+Date:   Mon,  1 Mar 2021 17:13:21 +0100
+Message-Id: <20210301161010.276809394@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -41,22 +41,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a70aa7dc60099bbdcbd6faca42a915d80f31161e upstream.
+commit fea7372cbc40869876df0f045e367f6f97a1666c upstream.
 
-This should return -ENOMEM instead of 0 if the kmalloc() fails.
+This code should return -ENOMEM if the kmalloc() fails but instead
+it returns success.
 
-Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7840.c |    4 +++-
+ drivers/usb/serial/mos7720.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -1362,8 +1362,10 @@ static int mos7840_write(struct tty_stru
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -1239,8 +1239,10 @@ static int mos7720_write(struct tty_stru
  	if (urb->transfer_buffer == NULL) {
  		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
  					       GFP_ATOMIC);
