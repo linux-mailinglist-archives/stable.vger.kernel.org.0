@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADAC328B05
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165D83289D8
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239705AbhCAS1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:27:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40748 "EHLO mail.kernel.org"
+        id S236555AbhCASGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:06:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239726AbhCASUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:20:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BDA464F31;
-        Mon,  1 Mar 2021 17:39:57 +0000 (UTC)
+        id S239235AbhCAR7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:59:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDF33652D4;
+        Mon,  1 Mar 2021 17:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620398;
-        bh=jDaYfxJXqUarLEOWHPucA2FtOxFv6RBPytXGRBjyKvU=;
+        s=korg; t=1614620320;
+        bh=8w1TZUV8hSH9PhnDkiPf0xwdfKjVcyUm54xyB2G8qoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmSMDVowe8RBjRUzyBDZalrPOgvzNckSZktSIoFiMUaXwbBoY+Z7CIXnWxxsmoc9h
-         y7KAWeqi15d0isb5uPoFc1TY+HgMf0jU39qMtia8tAH0ojkUNJKQ7O2tQBnIgByoqd
-         sWIuRXMkhiEYYv4imvMlgSpi4bmP2tITaEezxIug=
+        b=XgPgqSWw5LlShG/qMK4O0ERUj4lTgYPoYFp6b/01k0BnJWbmv72a9ELCeA+3wBSBo
+         shIqc0EWjM0j7AC/f9w/hlF9n+Ybqkxw4UCPUytWq3GRdt59E9uWVkKH5Sqrrd8Jj0
+         c+atEPVxRp815EFhfmPsIc0e04hweYFyfYMxBs7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Moshe Shemesh <moshe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 108/775] net/mlx5: Fix health error state handling
-Date:   Mon,  1 Mar 2021 17:04:36 +0100
-Message-Id: <20210301161207.002779590@linuxfoundation.org>
+Subject: [PATCH 5.11 111/775] net/mlx5: Disable devlink reload for multi port slave device
+Date:   Mon,  1 Mar 2021 17:04:39 +0100
+Message-Id: <20210301161207.154146883@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -43,82 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 51d138c2610a236c1ed0059d034ee4c74f452b86 ]
+[ Upstream commit d89ddaae1766f8fe571ea6eb63ec098ff556f1dd ]
 
-Currently, when we discover a fatal error, we are queueing a work that
-will wait for a lock in order to enter the device to error state.
-Meanwhile, FW commands are still being processed, and gets timeouts.
-This can block the driver for few minutes before the work will manage
-to get the lock and enter to error state.
+Devlink reload can't be allowed on a multi port slave device, because
+reload of slave device doesn't take effect.
 
-Setting the device to error state before queueing health work, in order
-to avoid FW commands being processed while the work is waiting for the
-lock.
+The right flow is to disable devlink reload for multi port slave
+device. Hence, disabling it in mlx5_core probing.
 
-Fixes: c1d4d2e92ad6 ("net/mlx5: Avoid calling sleeping function by the health poll thread")
+Fixes: 4383cfcc65e7 ("net/mlx5: Add devlink reload")
 Signed-off-by: Shay Drory <shayd@nvidia.com>
 Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/health.c  | 22 ++++++++++++-------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/health.c b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-index 54523bed16cd3..0c32c485eb588 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/health.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/health.c
-@@ -190,6 +190,16 @@ static bool reset_fw_if_needed(struct mlx5_core_dev *dev)
- 	return true;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index ca6f2fc39ea0a..ba1a4ae28097d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1396,7 +1396,8 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		dev_err(&pdev->dev, "mlx5_crdump_enable failed with error code %d\n", err);
  
-+static void enter_error_state(struct mlx5_core_dev *dev, bool force)
-+{
-+	if (mlx5_health_check_fatal_sensors(dev) || force) { /* protected state setting */
-+		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
-+		mlx5_cmd_flush(dev);
-+	}
-+
-+	mlx5_notifier_call_chain(dev->priv.events, MLX5_DEV_EVENT_SYS_ERROR, (void *)1);
-+}
-+
- void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
- {
- 	bool err_detected = false;
-@@ -208,12 +218,7 @@ void mlx5_enter_error_state(struct mlx5_core_dev *dev, bool force)
- 		goto unlock;
- 	}
+ 	pci_save_state(pdev);
+-	devlink_reload_enable(devlink);
++	if (!mlx5_core_is_mp_slave(dev))
++		devlink_reload_enable(devlink);
+ 	return 0;
  
--	if (mlx5_health_check_fatal_sensors(dev) || force) { /* protected state setting */
--		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
--		mlx5_cmd_flush(dev);
--	}
--
--	mlx5_notifier_call_chain(dev->priv.events, MLX5_DEV_EVENT_SYS_ERROR, (void *)1);
-+	enter_error_state(dev, force);
- unlock:
- 	mutex_unlock(&dev->intf_state_mutex);
- }
-@@ -613,7 +618,7 @@ static void mlx5_fw_fatal_reporter_err_work(struct work_struct *work)
- 	priv = container_of(health, struct mlx5_priv, health);
- 	dev = container_of(priv, struct mlx5_core_dev, priv);
- 
--	mlx5_enter_error_state(dev, false);
-+	enter_error_state(dev, false);
- 	if (IS_ERR_OR_NULL(health->fw_fatal_reporter)) {
- 		if (mlx5_health_try_recover(dev))
- 			mlx5_core_err(dev, "health recovery failed\n");
-@@ -707,8 +712,9 @@ static void poll_health(struct timer_list *t)
- 		mlx5_core_err(dev, "Fatal error %u detected\n", fatal_error);
- 		dev->priv.health.fatal_error = fatal_error;
- 		print_health_info(dev);
-+		dev->state = MLX5_DEVICE_STATE_INTERNAL_ERROR;
- 		mlx5_trigger_health_work(dev);
--		goto out;
-+		return;
- 	}
- 
- 	count = ioread32be(health->health_counter);
+ err_load_one:
 -- 
 2.27.0
 
