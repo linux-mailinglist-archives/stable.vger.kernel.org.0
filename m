@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88EED328AAE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:23:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A9C328B19
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:30:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239459AbhCASVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:21:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34036 "EHLO mail.kernel.org"
+        id S239959AbhCAS2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:28:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239489AbhCASQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:16:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E11765254;
-        Mon,  1 Mar 2021 17:28:08 +0000 (UTC)
+        id S239768AbhCASWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:22:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3173465277;
+        Mon,  1 Mar 2021 17:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619689;
-        bh=Xaen+2tNomgp1Bj/b+Bfg7QrMKTzi8/UYwNT7bTctGU=;
+        s=korg; t=1614619822;
+        bh=r2VPzvxFEFbMQ68XySd8NpVTfVBPBlK55qBkXmb97wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTYhCwgCH+wWb68wjgdDqbA7Nf1KUT6tLTsPueoAsYwkxvCudEazNjpFTWVoZq+cP
-         QMV3aqhg2n6C32n5ZskMbvYNzRxASugG8HrOGU8qfp7HLZhHhGngOAnmBIUENWnr/H
-         BrP24Z5zk+lRc/YRJO9pZAmCqf3LmayYLb7I7hDM=
+        b=FFfHQyhtQJPd7tkWcF8wvs3htf49ZqKdQovt84YYGjQ5IZRHeHkGg+TrRoilLSB7y
+         MO1VZIRvJB5ujvRIaxHxfJTD2YdHeOOPpv5upmLA5TY0zW5Acenfc4ijOnG5RlsR9R
+         5Jy4x6bo5MJluo74YXoe9BnwMyEmEmVNREQIrlrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.10 545/663] crypto: sun4i-ss - checking sg length is not sufficient
-Date:   Mon,  1 Mar 2021 17:13:13 +0100
-Message-Id: <20210301161208.836694175@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Subject: [PATCH 5.10 554/663] drivers/misc/vmw_vmci: restrict too big queue size in qp_host_alloc_queue
+Date:   Mon,  1 Mar 2021 17:13:22 +0100
+Message-Id: <20210301161209.283264316@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -39,40 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-commit 7bdcd851fa7eb66e8922aa7f6cba9e2f2427a7cf upstream.
+commit 2fd10bcf0310b9525b2af9e1f7aa9ddd87c3772e upstream.
 
-The optimized cipher function need length multiple of 4 bytes.
-But it get sometimes odd length.
-This is due to SG data could be stored with an offset.
+syzbot found WARNING in qp_broker_alloc[1] in qp_host_alloc_queue()
+when num_pages is 0x100001, giving queue_size + queue_page_size
+bigger than KMALLOC_MAX_SIZE for kzalloc(), resulting order >= MAX_ORDER
+condition.
 
-So the fix is to check also if the offset is aligned with 4 bytes.
-Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+queue_size + queue_page_size=0x8000d8, where KMALLOC_MAX_SIZE=0x400000.
+
+[1]
+Call Trace:
+ alloc_pages include/linux/gfp.h:547 [inline]
+ kmalloc_order+0x40/0x130 mm/slab_common.c:837
+ kmalloc_order_trace+0x15/0x70 mm/slab_common.c:853
+ kmalloc_large include/linux/slab.h:481 [inline]
+ __kmalloc+0x257/0x330 mm/slub.c:3959
+ kmalloc include/linux/slab.h:557 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ qp_host_alloc_queue drivers/misc/vmw_vmci/vmci_queue_pair.c:540 [inline]
+ qp_broker_create drivers/misc/vmw_vmci/vmci_queue_pair.c:1351 [inline]
+ qp_broker_alloc+0x936/0x2740 drivers/misc/vmw_vmci/vmci_queue_pair.c:1739
+
+Reported-by: syzbot+15ec7391f3d6a1a7cc7d@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Link: https://lore.kernel.org/r/20210209102612.2112247-1-snovitoll@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/vmw_vmci/vmci_queue_pair.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-+++ b/drivers/crypto/allwinner/sun4i-ss/sun4i-ss-cipher.c
-@@ -201,12 +201,12 @@ static int sun4i_ss_cipher_poll(struct s
- 	 * we can use the SS optimized function
- 	 */
- 	while (in_sg && no_chunk == 1) {
--		if (in_sg->length % 4)
-+		if ((in_sg->length | in_sg->offset) & 3u)
- 			no_chunk = 0;
- 		in_sg = sg_next(in_sg);
- 	}
- 	while (out_sg && no_chunk == 1) {
--		if (out_sg->length % 4)
-+		if ((out_sg->length | out_sg->offset) & 3u)
- 			no_chunk = 0;
- 		out_sg = sg_next(out_sg);
- 	}
+--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
++++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+@@ -537,6 +537,9 @@ static struct vmci_queue *qp_host_alloc_
+ 
+ 	queue_page_size = num_pages * sizeof(*queue->kernel_if->u.h.page);
+ 
++	if (queue_size + queue_page_size > KMALLOC_MAX_SIZE)
++		return NULL;
++
+ 	queue = kzalloc(queue_size + queue_page_size, GFP_KERNEL);
+ 	if (queue) {
+ 		queue->q_header = NULL;
 
 
