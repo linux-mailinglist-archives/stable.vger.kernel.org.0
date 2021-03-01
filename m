@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CADAA328EAC
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:37:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 475C4328F4A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242072AbhCATfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:35:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
+        id S242331AbhCATs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:48:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241866AbhCAT3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:29:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEA1964FAF;
-        Mon,  1 Mar 2021 17:36:44 +0000 (UTC)
+        id S241729AbhCATix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:38:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BA5764F2D;
+        Mon,  1 Mar 2021 17:36:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620205;
-        bh=tCDPmrqyz8Ic824+AQZDAj529bEcuGdPZbFdlTfHn/I=;
+        s=korg; t=1614620208;
+        bh=BRSrORX3B255pBExqd20wvacI4pVR1x9yirxtiNZmNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOcqkEnQwubVhblQ43ghMdUf/kb0HdxRFB9ovNNvDPxAqO1aQL/xH49Yrxlq2DHIX
-         1OyifQY/p17q1Y5w2ekJOCCSgtKFpb1jhGD1A2uv2DAfdD1KV1quwM/byXls/B/8Wb
-         Zw5/n0E4R1+tRgy0D32XAqDRxD4lRR/jxtSrQaDI=
+        b=vLY9zY+Oy67zUS46hXtfAfzazCWoOh884e3tRIEj0jdafIUvOFi2z3CMFJknwYyDE
+         B5N9+Jje2Sn0DMZ8JCDXrgrki2+ZEv3hMhmpLtcrbq4qWqiMmyBop4pUucvaDlPKID
+         CveySwIXgyAS9eauAzdu4FvSd4mGQtRuAqe2uVdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Phil Elwell <phil@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 038/775] Bluetooth: hci_qca: Fix memleak in qca_controller_memdump
-Date:   Mon,  1 Mar 2021 17:03:26 +0100
-Message-Id: <20210301161203.599738195@linuxfoundation.org>
+Subject: [PATCH 5.11 039/775] staging: vchiq: Fix bulk userdata handling
+Date:   Mon,  1 Mar 2021 17:03:27 +0100
+Message-Id: <20210301161203.651513220@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,35 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit 71f8e707557b9bc25dc90a59a752528d4e7c1cbf ]
+[ Upstream commit 96ae327678eceabf455b11a88ba14ad540d4b046 ]
 
-When __le32_to_cpu() fails, qca_memdump should be freed
-just like when vmalloc() fails.
+The addition of the local 'userdata' pointer to
+vchiq_irq_queue_bulk_tx_rx omitted the case where neither BLOCKING nor
+WAITING modes are used, in which case the value provided by the
+caller is not returned to them as expected, but instead it is replaced
+with a NULL. This lack of a suitable context may cause the application
+to crash or otherwise malfunction.
 
-Fixes: d841502c79e3f ("Bluetooth: hci_qca: Collect controller memory dump during SSR")
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 4184da4f316a ("staging: vchiq: fix __user annotations")
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20210105162030.1415213-2-phil@raspberrypi.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 4a963682c7021..5dbcb7c42b805 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1024,7 +1024,9 @@ static void qca_controller_memdump(struct work_struct *work)
- 			dump_size = __le32_to_cpu(dump->dump_size);
- 			if (!(dump_size)) {
- 				bt_dev_err(hu->hdev, "Rx invalid memdump size");
-+				kfree(qca_memdump);
- 				kfree_skb(skb);
-+				qca->qca_memdump = NULL;
- 				mutex_unlock(&qca->hci_memdump_lock);
- 				return;
- 			}
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+index f500a70438056..2a8883673ba11 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c
+@@ -958,7 +958,7 @@ static int vchiq_irq_queue_bulk_tx_rx(struct vchiq_instance *instance,
+ 	struct vchiq_service *service;
+ 	struct bulk_waiter_node *waiter = NULL;
+ 	bool found = false;
+-	void *userdata = NULL;
++	void *userdata;
+ 	int status = 0;
+ 	int ret;
+ 
+@@ -997,6 +997,8 @@ static int vchiq_irq_queue_bulk_tx_rx(struct vchiq_instance *instance,
+ 			"found bulk_waiter %pK for pid %d", waiter,
+ 			current->pid);
+ 		userdata = &waiter->bulk_waiter;
++	} else {
++		userdata = args->userdata;
+ 	}
+ 
+ 	/*
 -- 
 2.27.0
 
