@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6672328CA6
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF87328BF3
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:45:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235340AbhCAS4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:56:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55412 "EHLO mail.kernel.org"
+        id S240526AbhCASnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:43:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238059AbhCASt5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:49:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B4B9651B3;
-        Mon,  1 Mar 2021 17:21:24 +0000 (UTC)
+        id S240294AbhCASic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:38:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAE1B65215;
+        Mon,  1 Mar 2021 17:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619285;
-        bh=4vUU0G44Su8J2vInzkX8zYCbfBVdGw8ZlkiSPVKNbHw=;
+        s=korg; t=1614619347;
+        bh=HJhdCytrX5gp8j5V7AoZ59/hPH5zV/DAbys+BT/9kvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ms+16Lf/cRXBY7U7Ao6JSiWRKQqxFXeZZdm91FRFgHK6zResStccdsRFgpWh+rhbb
-         8nkAulAzvcoZRDNFQBqJOihuIedYKiUwE1ST9MhEpxRi5lLcnle4ewEawtBwd4P23p
-         EkUTsKdIfC1tOelOOIS8aKhnkZN6uafkFRSuxHwk=
+        b=gEywQUQjOyAL2gWL+74D09IZ7PfOjClS0Qh2Z4fuXxLJtHncg3ph7NF7MhBYHw73M
+         ZTHmX7hXbVc91HxnC3nPNG1uOEQ0zYAUWaepfu4JvvXmbX+FKalTYER561A4OAStdS
+         82Nr/IU2JEShcwE1aoyUc6vlDgEvEflJaRkzj9Q8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 400/663] soundwire: cadence: fix ACK/NAK handling
-Date:   Mon,  1 Mar 2021 17:10:48 +0100
-Message-Id: <20210301161201.660456312@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 420/663] nvmem: core: Fix a resource leak on error in nvmem_add_cells_from_of()
+Date:   Mon,  1 Mar 2021 17:11:08 +0100
+Message-Id: <20210301161202.655738236@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,52 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit db9d9f944f95e7f3aa60ac00cbd502415152c421 ]
+[ Upstream commit 72e008ce307fa2f35f6783997378b32e83122839 ]
 
-The existing code reports a NAK only when ACK=0
-This is not aligned with the SoundWire 1.x specifications.
+This doesn't call of_node_put() on the error path so it leads to a
+memory leak.
 
-Table 32 in the SoundWire 1.2 specification shows that a Device shall
-not set NAK=1 if ACK=1. But Table 33 shows the Combined Response
-may very well be NAK=1/ACK=1, e.g. if another Device than the one
-addressed reports a parity error.
-
-NAK=1 signals a 'Command_Aborted', regardless of the ACK bit value.
-
-Move the tests for NAK so that the NAK=1/ACK=1 combination is properly
-detected according to the specification.
-
-Fixes: 956baa1992f9a ('soundwire: cdns: Add sdw_master_ops and IO transfer support')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210115053738.22630-5-yung-chuan.liao@linux.intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 0749aa25af82 ("nvmem: core: fix regression in of_nvmem_cell_get()")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210129171430.11328-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvmem/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 9fa55164354a2..580660599f461 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -484,10 +484,10 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 		if (!(cdns->response_buf[i] & CDNS_MCP_RESP_ACK)) {
- 			no_ack = 1;
- 			dev_dbg_ratelimited(cdns->dev, "Msg Ack not received\n");
--			if (cdns->response_buf[i] & CDNS_MCP_RESP_NACK) {
--				nack = 1;
--				dev_err_ratelimited(cdns->dev, "Msg NACK received\n");
--			}
-+		}
-+		if (cdns->response_buf[i] & CDNS_MCP_RESP_NACK) {
-+			nack = 1;
-+			dev_err_ratelimited(cdns->dev, "Msg NACK received\n");
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index a09ff8409f600..1a3460a8e73ab 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -576,6 +576,7 @@ static int nvmem_add_cells_from_of(struct nvmem_device *nvmem)
+ 				cell->name, nvmem->stride);
+ 			/* Cells already added will be freed later. */
+ 			kfree_const(cell->name);
++			of_node_put(cell->np);
+ 			kfree(cell);
+ 			return -EINVAL;
  		}
- 	}
- 
 -- 
 2.27.0
 
