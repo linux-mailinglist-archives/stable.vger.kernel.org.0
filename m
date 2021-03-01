@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A44328A61
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1644328A86
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234830AbhCASQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:16:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
+        id S239659AbhCASSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:18:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235908AbhCASJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:09:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A79276503A;
-        Mon,  1 Mar 2021 17:16:07 +0000 (UTC)
+        id S239396AbhCASMD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:12:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E3D64FD7;
+        Mon,  1 Mar 2021 17:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618968;
-        bh=U2+6gTmH/NBd3LfZo/E+AVn8ZOP80TPgObgc60h1xEw=;
+        s=korg; t=1614621039;
+        bh=lSdULm81FyBmnlMVHd6n13mpjxnyYNdySW6NJ6C8cpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQrecGswXx9s3E9Tfv6txvgD9ehNF78PPnzXkmaITpH9rdIAtNHzWH7p7Q7SZ0z9H
-         AgR1BKay/ASHBsoHTnnMkKYJpJY+4HAbf6crg6YRGorTgCKqHFNajzGYsGJFr8nlmH
-         VQLywxb3L9gziRom4W/1TvRBgb3FQ0tb/x3maJWQ=
+        b=QBydaRA3mrGLe3Y1PdG+7+RGb7H5B3eZGuz5r7i/4SX5Moyurrml+HT/Q07BC1hvp
+         Pge+NYm/ANFcOkUkHO1EhUEYBWdcmdBmpsLeaAlJwK0l7EHJjz5IWtlhZKhO83Ybjn
+         KPZCqILxQEym+bgFRJsP/zzzDvACrfydyqAl2T7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 283/663] power: supply: cpcap-charger: Fix power_supply_put on null battery pointer
-Date:   Mon,  1 Mar 2021 17:08:51 +0100
-Message-Id: <20210301161155.823518269@linuxfoundation.org>
+Subject: [PATCH 5.11 364/775] regulator: s5m8767: Fix reference count leak
+Date:   Mon,  1 Mar 2021 17:08:52 +0100
+Message-Id: <20210301161219.605493649@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 39196cfe10dd2b46ee28b44abbc0db4f4cb7822f ]
+[ Upstream commit dea6dd2ba63f8c8532addb8f32daf7b89a368a42 ]
 
-Currently if the pointer battery is null there is a null pointer
-dereference on the call to power_supply_put.  Fix this by only
-performing the put if battery is not null.
+Call of_node_put() to drop references of regulators_np and reg_np before
+returning error code.
 
-Addresses-Coverity: ("Dereference after null check")
-Fixes: 4bff91bb3231 ("power: supply: cpcap-charger: Fix missing power_supply_put()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 9ae5cc75ceaa ("regulator: s5m8767: Pass descriptor instead of GPIO number")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20210121032756.49501-1-bianpan2016@163.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/cpcap-charger.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/s5m8767.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/cpcap-charger.c b/drivers/power/supply/cpcap-charger.c
-index 2c5f2246c6eaa..22fff01425d63 100644
---- a/drivers/power/supply/cpcap-charger.c
-+++ b/drivers/power/supply/cpcap-charger.c
-@@ -301,8 +301,9 @@ cpcap_charger_get_bat_const_charge_voltage(struct cpcap_charger_ddata *ddata)
- 				&prop);
- 		if (!error)
- 			voltage = prop.intval;
-+
-+		power_supply_put(battery);
- 	}
--	power_supply_put(battery);
+diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
+index 3fa472127e9a1..48dd95b3ff45a 100644
+--- a/drivers/regulator/s5m8767.c
++++ b/drivers/regulator/s5m8767.c
+@@ -573,10 +573,13 @@ static int s5m8767_pmic_dt_parse_pdata(struct platform_device *pdev,
+ 			"s5m8767,pmic-ext-control",
+ 			GPIOD_OUT_HIGH | GPIOD_FLAGS_BIT_NONEXCLUSIVE,
+ 			"s5m8767");
+-		if (PTR_ERR(rdata->ext_control_gpiod) == -ENOENT)
++		if (PTR_ERR(rdata->ext_control_gpiod) == -ENOENT) {
+ 			rdata->ext_control_gpiod = NULL;
+-		else if (IS_ERR(rdata->ext_control_gpiod))
++		} else if (IS_ERR(rdata->ext_control_gpiod)) {
++			of_node_put(reg_np);
++			of_node_put(regulators_np);
+ 			return PTR_ERR(rdata->ext_control_gpiod);
++		}
  
- 	return voltage;
- }
+ 		rdata->id = i;
+ 		rdata->initdata = of_get_regulator_init_data(
 -- 
 2.27.0
 
