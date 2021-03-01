@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 738B6328FC2
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 413A0329083
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242410AbhCAT55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:57:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
+        id S242966AbhCAUJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:09:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235958AbhCATot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:44:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A55264DB2;
-        Mon,  1 Mar 2021 17:20:31 +0000 (UTC)
+        id S237435AbhCAUAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:00:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AE9C64E84;
+        Mon,  1 Mar 2021 17:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619232;
-        bh=UALB3w1oSuiNJGgacHTkGxqPRuvUvwPNkbgoQVgz/pk=;
+        s=korg; t=1614621395;
+        bh=bOlvRHQUyI3JQuAzOiNWQGtGXACfMc7JLoR1duU6b8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJYMFVKbmZ5qbxrvPhcq6ymE5Gd3Pz6um1ZpKZ3rZpc8tEkpg0pslsWG3wWU3wTEf
-         mMuPwfJ6mGLsLwoJOGXIN2tLQEplLUMHg1vQvRIqRaUaxeV+mhFWxXscZGZf5aN+0e
-         j66rkEh0MRtEB8PZjdC6E4Wt7yf14ipnFNE+17ok=
+        b=Rs2ev5e9NQDwucTGiufdXF9smeJZISeU2O9elaARcYZ33VBmam/pfibTWMRp0P+/L
+         GaUwZWl2KCd7wBiLgeufhaoOKRav8UOlcEHnZxGFyct1RmlMvhk6iGnvv/Zp+FUCVh
+         rjQdVWcN8GAqDsTS/+1tr8J9+iJt7OAkPef/y23M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jack Wang <jinpu.wang@cloud.ionos.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 380/663] RDMA/rtrs-srv: fix memory leak by missing kobject free
-Date:   Mon,  1 Mar 2021 17:10:28 +0100
-Message-Id: <20210301161200.656980802@linuxfoundation.org>
+Subject: [PATCH 5.11 461/775] RDMA/rtrs-srv: fix memory leak by missing kobject free
+Date:   Mon,  1 Mar 2021 17:10:29 +0100
+Message-Id: <20210301161224.335550061@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,10 +88,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-index 6a320b9b480dd..1c5f97102103f 100644
+index 0a3886629cae8..94e3f3290500a 100644
 --- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
 +++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-@@ -308,7 +308,7 @@ void rtrs_srv_destroy_sess_files(struct rtrs_srv_sess *sess)
+@@ -305,7 +305,7 @@ void rtrs_srv_destroy_sess_files(struct rtrs_srv_sess *sess)
  	if (sess->kobj.state_in_sysfs) {
  		kobject_del(&sess->stats->kobj_stats);
  		kobject_put(&sess->stats->kobj_stats);
@@ -101,10 +101,10 @@ index 6a320b9b480dd..1c5f97102103f 100644
  
  		rtrs_srv_destroy_once_sysfs_root_folders(sess);
 diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-index 332418245dce3..717304c49d0c3 100644
+index b6cb09972de55..77ec87f1a660b 100644
 --- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
 +++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -1492,10 +1492,12 @@ static bool __is_path_w_addr_exists(struct rtrs_srv *srv,
+@@ -1476,10 +1476,12 @@ static bool __is_path_w_addr_exists(struct rtrs_srv *srv,
  
  static void free_sess(struct rtrs_srv_sess *sess)
  {
