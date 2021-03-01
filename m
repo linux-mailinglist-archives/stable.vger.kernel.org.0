@@ -2,119 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB262328D4C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:11:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C588328EDC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241128AbhCATIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:08:18 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:55125 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241028AbhCATEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 14:04:30 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 412BCC4E;
-        Mon,  1 Mar 2021 14:03:36 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 01 Mar 2021 14:03:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4QTYUo
-        o3/6eKaOo47+IasKWrPuBlv78M6kSn9J/xWpA=; b=gdu6eNkKojAKuIkjg+7R8J
-        BVcx7CRDbfTezL/CpyvwWVPWv/a4HWXw/cxdC0whvQGpZ1a1tlD2REAEoxc9mp4G
-        +Ym4P03wWZ0nEN2HPJVpX2t6hAXiPQbcdUuaG36L1m31qXCGfYrmVkLMzlI6hBoD
-        /M8SWQY1kbdbWbxplvpqVa1+0O7GL7LqVNZlTNtknBa0mc2gI2q4EwA2w7rhYVjo
-        zLjkGCNhewq0krWPrCMBIbZ0xTByRQkti8NqgOnG2eJ1TUl6TUgDskGFPXFgsb2o
-        azYQKbAmmvxoZQCg/Ou69NyCUy2Br5Dm3lwdywUuxpOA5sjXzbH7ginQDKp5PlOw
-        ==
-X-ME-Sender: <xms:hzo9YM4KCkunZ_Q-zincCkWZ9F9jgMSZ8rZieEDdfGALuoDQVgahxA>
-    <xme:hzo9YN0uWftq8uMCgvbFKD41CnpJ9hvpFtpyOqZ4iYdNSvC-bbNaVQTr9rY9Z_ry7
-    jjxe1rEM_IFeQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduudelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:hzo9YIV39J9n-I8kmK4tfp4yGH1vYcXI4w33iuUQPq45HygQk-b1QA>
-    <xmx:hzo9YI5OvwTSHjPjLOT3FFm_a2Mw2N3gNLzb3eH5_KlDdBHBQOdfjA>
-    <xmx:hzo9YPIP74Oz5lKdA3iLGnqltXaFu8stWM3p7PhoV-jmRGfadcCzvA>
-    <xmx:hzo9YDFWL3bsMLmIMebov1FC_RtEPNesFDEQMwSEmzBf6cVP46XeNPTow18>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E4F68108005F;
-        Mon,  1 Mar 2021 14:03:34 -0500 (EST)
-Subject: FAILED: patch "[PATCH] powerpc/sstep: Fix incorrect return from analyze_instr()" failed to apply to 5.4-stable tree
-To:     ananth@linux.ibm.com, mpe@ellerman.id.au,
-        naveen.n.rao@linux.vnet.ibm.com, sandipan@linux.ibm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 20:03:25 +0100
-Message-ID: <1614625405130109@kroah.com>
+        id S241762AbhCATjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:39:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48630 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241951AbhCATaA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:30:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF85964EBB;
+        Mon,  1 Mar 2021 17:35:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614620120;
+        bh=26OWrAVrGMCTmUYU1gbnan0rK1oLBHFFIq1nAT5BP+o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=z6VRbKkimvahMZSswHgcMNcqQqIkf0g0CUX2TpIwXlTg3yX8DlyNbNqy6vjdl/UDj
+         x+6qUxsgvbBpaLNMJYIB4UKqSEJPSae4zdzU02C4VT5X+WsPwURlPfp2LxOmlWOedq
+         wtYIAlw7CiwKV5ttjkjms1llwF3UCnn7eiVsHQYc=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Quinn Tran <qutran@marvell.com>,
+        Nilesh Javali <njavali@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.11 007/775] scsi: qla2xxx: Fix mailbox Ch erroneous error
+Date:   Mon,  1 Mar 2021 17:02:55 +0100
+Message-Id: <20210301161202.066931075@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Quinn Tran <qutran@marvell.com>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+commit 044c218b04503858ca4e17f61899c8baa0ae9ba1 upstream.
 
-thanks,
+Mailbox Ch/dump ram extend expects mb register 10 to be set. If not
+set/clear, firmware can pick up garbage from previous invocation of this
+mailbox. Example: mctp dump can set mb10.  On subsequent flash read which
+use mailbox cmd Ch, mb10 can retain previous value.
 
-greg k-h
+Link: https://lore.kernel.org/r/20210111093134.1206-6-njavali@marvell.com
+Cc: stable@vger.kernel.org
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Quinn Tran <qutran@marvell.com>
+Signed-off-by: Nilesh Javali <njavali@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/scsi/qla2xxx/qla_dbg.c |    1 +
+ drivers/scsi/qla2xxx/qla_mbx.c |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
------------------- original commit in Linus's tree ------------------
-
-From 718aae916fa6619c57c348beaedd675835cf1aa1 Mon Sep 17 00:00:00 2001
-From: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Date: Mon, 25 Jan 2021 18:36:43 +0530
-Subject: [PATCH] powerpc/sstep: Fix incorrect return from analyze_instr()
-
-We currently just percolate the return value from analyze_instr()
-to the caller of emulate_step(), especially if it is a -1.
-
-For one particular case (opcode = 4) for instructions that aren't
-currently emulated, we are returning 'should not be single-stepped'
-while we should have returned 0 which says 'did not emulate, may
-have to single-step'.
-
-Fixes: 930d6288a26787 ("powerpc: sstep: Add support for maddhd, maddhdu, maddld instructions")
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Reviewed-by: Sandipan Das <sandipan@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/161157999039.64773.14950289716779364766.stgit@thinktux.local
-
-diff --git a/arch/powerpc/lib/sstep.c b/arch/powerpc/lib/sstep.c
-index f859cbbb6375..e96cff845ef7 100644
---- a/arch/powerpc/lib/sstep.c
-+++ b/arch/powerpc/lib/sstep.c
-@@ -1445,6 +1445,11 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
+--- a/drivers/scsi/qla2xxx/qla_dbg.c
++++ b/drivers/scsi/qla2xxx/qla_dbg.c
+@@ -202,6 +202,7 @@ qla24xx_dump_ram(struct qla_hw_data *ha,
+ 		wrt_reg_word(&reg->mailbox0, MBC_DUMP_RISC_RAM_EXTENDED);
+ 		wrt_reg_word(&reg->mailbox1, LSW(addr));
+ 		wrt_reg_word(&reg->mailbox8, MSW(addr));
++		wrt_reg_word(&reg->mailbox10, 0);
  
- #ifdef __powerpc64__
- 	case 4:
-+		/*
-+		 * There are very many instructions with this primary opcode
-+		 * introduced in the ISA as early as v2.03. However, the ones
-+		 * we currently emulate were all introduced with ISA 3.0
-+		 */
- 		if (!cpu_has_feature(CPU_FTR_ARCH_300))
- 			goto unknown_opcode;
- 
-@@ -1472,7 +1477,7 @@ int analyse_instr(struct instruction_op *op, const struct pt_regs *regs,
- 		 * There are other instructions from ISA 3.0 with the same
- 		 * primary opcode which do not have emulation support yet.
- 		 */
--		return -1;
-+		goto unknown_opcode;
- #endif
- 
- 	case 7:		/* mulli */
+ 		wrt_reg_word(&reg->mailbox2, MSW(LSD(dump_dma)));
+ 		wrt_reg_word(&reg->mailbox3, LSW(LSD(dump_dma)));
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -4276,7 +4276,8 @@ qla2x00_dump_ram(scsi_qla_host_t *vha, d
+ 	if (MSW(addr) || IS_FWI2_CAPABLE(vha->hw)) {
+ 		mcp->mb[0] = MBC_DUMP_RISC_RAM_EXTENDED;
+ 		mcp->mb[8] = MSW(addr);
+-		mcp->out_mb = MBX_8|MBX_0;
++		mcp->mb[10] = 0;
++		mcp->out_mb = MBX_10|MBX_8|MBX_0;
+ 	} else {
+ 		mcp->mb[0] = MBC_DUMP_RISC_RAM;
+ 		mcp->out_mb = MBX_0;
+
 
