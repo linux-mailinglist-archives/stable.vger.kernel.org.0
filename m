@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12E3E3288C9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99497328914
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229978AbhCARoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:44:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
+        id S238994AbhCARtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:49:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236998AbhCARki (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:40:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ABB5650B9;
-        Mon,  1 Mar 2021 16:56:18 +0000 (UTC)
+        id S238914AbhCARnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:43:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D68DD64FDD;
+        Mon,  1 Mar 2021 16:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617779;
-        bh=HOFOUVMN9S0WAOKUV4Cx+4bYLi8mRPsnnY6TOfm5BcQ=;
+        s=korg; t=1614617890;
+        bh=9rj+LRcxD1850915KJhU5ryX+AAJC5m4+jNdVpJTFlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1qC3LJlscuaS1FEhPrbsm4wPAVhBj7XmzOwRyPZLHbM75adxHVkXGm5XDq4v3rEX
-         2wTI3MguOpPhDxaQSRCa+NoVP5SDz1cgj+gkuBYLjafaJiaxbdM047hdXGV9NqAS9/
-         NuGzHGHaGNYOmi7o3zKknRL0K+PBEtXbMTtjovzE=
+        b=frwSGSU2xL8Q6EOy0gKd4dNaKLmh6QtF+nYP/UES0mC5MSSVwTB/vQioAkcIIPh7F
+         TcLewa1wSZOtVbnwYw5oVC8i7sEvIJaiunFh7LjThSahic/9MFefzpCzsunpDoSPbi
+         q9hOdfV9xJf1o00zW14QgN/K6dRmmii9pI5Mu6i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ryan Chen <ryan_chen@aspeedtech.com>,
-        Joel Stanley <joel@jms.id.au>, Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Zhi Li <yieli@redhat.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 192/340] clk: aspeed: Fix APLL calculate formula from ast2600-A2
-Date:   Mon,  1 Mar 2021 17:12:16 +0100
-Message-Id: <20210301161057.761637549@linuxfoundation.org>
+Subject: [PATCH 5.4 193/340] nfsd: register pernet ops last, unregister first
+Date:   Mon,  1 Mar 2021 17:12:17 +0100
+Message-Id: <20210301161057.806637162@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -40,81 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Chen <ryan_chen@aspeedtech.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 6286ce1e3ece54799f12775f8ce2a1cba9cbcfc5 ]
+[ Upstream commit bd5ae9288d6451bd346a1b4a59d4fe7e62ba29b7 ]
 
-Starting from A2, the A-PLL calculation has changed. Use the
-existing formula for A0/A1 and the new formula for A2 onwards.
+These pernet operations may depend on stuff set up or torn down in the
+module init/exit functions.  And they may be called at any time in
+between.  So it makes more sense for them to be the last to be
+registered in the init function, and the first to be unregistered in the
+exit function.
 
-Fixes: d3d04f6c330a ("clk: Add support for AST2600 SoC")
-Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-Link: https://lore.kernel.org/r/20210119061715.6043-1-ryan_chen@aspeedtech.com
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+In particular, without this, the drc slab is being destroyed before all
+the per-net drcs are shut down, resulting in an "Objects remaining in
+nfsd_drc on __kmem_cache_shutdown()" warning in exit_nfsd.
+
+Reported-by: Zhi Li <yieli@redhat.com>
+Fixes: 3ba75830ce17 "nfsd4: drc containerization"
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-ast2600.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ fs/nfsd/nfsctl.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/clk/clk-ast2600.c b/drivers/clk/clk-ast2600.c
-index 7015974f24b43..84ca38450d021 100644
---- a/drivers/clk/clk-ast2600.c
-+++ b/drivers/clk/clk-ast2600.c
-@@ -17,7 +17,8 @@
+diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
+index be418fccc9d86..7f39d6091dfa0 100644
+--- a/fs/nfsd/nfsctl.c
++++ b/fs/nfsd/nfsctl.c
+@@ -1523,12 +1523,9 @@ static int __init init_nfsd(void)
+ 	int retval;
+ 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
  
- #define ASPEED_G6_NUM_CLKS		67
+-	retval = register_pernet_subsys(&nfsd_net_ops);
+-	if (retval < 0)
+-		return retval;
+ 	retval = register_cld_notifier();
+ 	if (retval)
+-		goto out_unregister_pernet;
++		return retval;
+ 	retval = nfsd4_init_slabs();
+ 	if (retval)
+ 		goto out_unregister_notifier;
+@@ -1546,9 +1543,14 @@ static int __init init_nfsd(void)
+ 		goto out_free_lockd;
+ 	retval = register_filesystem(&nfsd_fs_type);
+ 	if (retval)
++		goto out_free_exports;
++	retval = register_pernet_subsys(&nfsd_net_ops);
++	if (retval < 0)
+ 		goto out_free_all;
+ 	return 0;
+ out_free_all:
++	unregister_pernet_subsys(&nfsd_net_ops);
++out_free_exports:
+ 	remove_proc_entry("fs/nfs/exports", NULL);
+ 	remove_proc_entry("fs/nfs", NULL);
+ out_free_lockd:
+@@ -1562,13 +1564,12 @@ out_free_slabs:
+ 	nfsd4_free_slabs();
+ out_unregister_notifier:
+ 	unregister_cld_notifier();
+-out_unregister_pernet:
+-	unregister_pernet_subsys(&nfsd_net_ops);
+ 	return retval;
+ }
  
--#define ASPEED_G6_SILICON_REV		0x004
-+#define ASPEED_G6_SILICON_REV		0x014
-+#define CHIP_REVISION_ID			GENMASK(23, 16)
- 
- #define ASPEED_G6_RESET_CTRL		0x040
- #define ASPEED_G6_RESET_CTRL2		0x050
-@@ -189,18 +190,34 @@ static struct clk_hw *ast2600_calc_pll(const char *name, u32 val)
- static struct clk_hw *ast2600_calc_apll(const char *name, u32 val)
+ static void __exit exit_nfsd(void)
  {
- 	unsigned int mult, div;
-+	u32 chip_id = readl(scu_g6_base + ASPEED_G6_SILICON_REV);
++	unregister_pernet_subsys(&nfsd_net_ops);
+ 	nfsd_drc_slab_free();
+ 	remove_proc_entry("fs/nfs/exports", NULL);
+ 	remove_proc_entry("fs/nfs", NULL);
+@@ -1579,7 +1580,6 @@ static void __exit exit_nfsd(void)
+ 	nfsd_fault_inject_cleanup();
+ 	unregister_filesystem(&nfsd_fs_type);
+ 	unregister_cld_notifier();
+-	unregister_pernet_subsys(&nfsd_net_ops);
+ }
  
--	if (val & BIT(20)) {
--		/* Pass through mode */
--		mult = div = 1;
-+	if (((chip_id & CHIP_REVISION_ID) >> 16) >= 2) {
-+		if (val & BIT(24)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * [(m + 1) / (n + 1)] / (p + 1) */
-+			u32 m = val & 0x1fff;
-+			u32 n = (val >> 13) & 0x3f;
-+			u32 p = (val >> 19) & 0xf;
-+
-+			mult = (m + 1);
-+			div = (n + 1) * (p + 1);
-+		}
- 	} else {
--		/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
--		u32 m = (val >> 5) & 0x3f;
--		u32 od = (val >> 4) & 0x1;
--		u32 n = val & 0xf;
-+		if (val & BIT(20)) {
-+			/* Pass through mode */
-+			mult = div = 1;
-+		} else {
-+			/* F = 25Mhz * (2-od) * [(m + 2) / (n + 1)] */
-+			u32 m = (val >> 5) & 0x3f;
-+			u32 od = (val >> 4) & 0x1;
-+			u32 n = val & 0xf;
- 
--		mult = (2 - od) * (m + 2);
--		div = n + 1;
-+			mult = (2 - od) * (m + 2);
-+			div = n + 1;
-+		}
- 	}
- 	return clk_hw_register_fixed_factor(NULL, name, "clkin", 0,
- 			mult, div);
+ MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
 -- 
 2.27.0
 
