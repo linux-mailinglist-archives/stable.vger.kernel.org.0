@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FAF32850E
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71340328513
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:50:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235403AbhCAQsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:48:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46584 "EHLO mail.kernel.org"
+        id S235596AbhCAQsW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:48:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234829AbhCAQlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:41:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59CA064E12;
-        Mon,  1 Mar 2021 16:28:43 +0000 (UTC)
+        id S232759AbhCAQlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:41:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24FB864ED5;
+        Mon,  1 Mar 2021 16:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616123;
-        bh=1XfFHkKc5MZ1jdYHZqmhtLbMCNrVvwi3dBdETPH5AB4=;
+        s=korg; t=1614616126;
+        bh=fmbSu24eqr+lHWwTXRM8r1N6uGDrLtYgM8NhiwJxrnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gzp04zoU0KM4fhv/G3xxBuJlxluii18K4VLuHMEnjHwKpRSpw9i+hRQLbw0WKZPdL
-         lg6e/PVJnYTtP4WddIsQBq/Pni7f2A2I/0YZFvfWL1rrg5g06ozxqdot8x0Iyp6oQd
-         qdLXNWs8z1yg9dqzIBu9/OUKyY9FdnGdG/7Vo08U=
+        b=i3wsEgBknSxh19NYcX54AdeaOUtRyjruovntJmjdJqhpLFm1MMDkVQRujkwOSNKYU
+         eIiehHuPGUcLl0VEvTstwQxkk09h+lweUfsPtyGx3LPl0wvGIWE46H43chi42m/1WZ
+         bj+TFo8bV8NVpbhlsfRAoAw0k/Jjl9a3se1ow6FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/176] gma500: clean up error handling in init
-Date:   Mon,  1 Mar 2021 17:11:56 +0100
-Message-Id: <20210301161023.115061672@linuxfoundation.org>
+Subject: [PATCH 4.14 044/176] crypto: sun4i-ss - fix kmap usage
+Date:   Mon,  1 Mar 2021 17:11:57 +0100
+Message-Id: <20210301161023.160738049@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
 References: <20210301161020.931630716@linuxfoundation.org>
@@ -40,70 +40,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 15ccc39b3aab667c6fa131206f01f31bfbccdf6a ]
+[ Upstream commit 9bc3dd24e7dccd50757db743a3635ad5b0497e6e ]
 
-The main problem with this error handling was that it didn't clean up if
-i2c_add_numbered_adapter() failed.  This code is pretty old, and doesn't
-match with today's checkpatch.pl standards so I took the opportunity to
-tidy it up a bit.  I changed the NULL comparison, and removed the
-WARNING message if kzalloc() fails and updated the label names.
+With the recent kmap change, some tests which were conditional on
+CONFIG_DEBUG_HIGHMEM now are enabled by default.
+This permit to detect a problem in sun4i-ss usage of kmap.
 
-Fixes: 1b082ccf5901 ("gma500: Add Oaktrail support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/X8ikkAqZfnDO2lu6@mwanda
+sun4i-ss uses two kmap via sg_miter (one for input, one for output), but
+using two kmap at the same time is hard:
+"the ordering has to be correct and with sg_miter that's probably hard to get
+right." (quoting Tlgx)
+
+So the easiest solution is to never have two sg_miter/kmap open at the same time.
+After each use of sg_miter, I store the current index, for being able to
+resume sg_miter to the right place.
+
+Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/crypto/sunxi-ss/sun4i-ss-cipher.c | 109 +++++++++++++---------
+ 1 file changed, 65 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-index e281070611480..fc9a34ed58bd1 100644
---- a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-+++ b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
-@@ -279,11 +279,8 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
- 	hdmi_dev = pci_get_drvdata(dev);
+diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
+index 22e4918579254..178096e4e77da 100644
+--- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
++++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
+@@ -34,6 +34,8 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
+ 	unsigned int ileft = areq->cryptlen;
+ 	unsigned int oleft = areq->cryptlen;
+ 	unsigned int todo;
++	unsigned long pi = 0, po = 0; /* progress for in and out */
++	bool miter_err;
+ 	struct sg_mapping_iter mi, mo;
+ 	unsigned int oi, oo; /* offset for in and out */
+ 	unsigned long flags;
+@@ -64,39 +66,51 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
+ 	}
+ 	writel(mode, ss->base + SS_CTL);
  
- 	i2c_dev = kzalloc(sizeof(struct hdmi_i2c_dev), GFP_KERNEL);
--	if (i2c_dev == NULL) {
--		DRM_ERROR("Can't allocate interface\n");
--		ret = -ENOMEM;
--		goto exit;
+-	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
+-		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
+-	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
+-		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
+-	sg_miter_next(&mi);
+-	sg_miter_next(&mo);
+-	if (!mi.addr || !mo.addr) {
+-		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
+-		err = -EINVAL;
+-		goto release_ss;
 -	}
-+	if (!i2c_dev)
-+		return -ENOMEM;
  
- 	i2c_dev->adap = &oaktrail_hdmi_i2c_adapter;
- 	i2c_dev->status = I2C_STAT_INIT;
-@@ -300,16 +297,23 @@ int oaktrail_hdmi_i2c_init(struct pci_dev *dev)
- 			  oaktrail_hdmi_i2c_adapter.name, hdmi_dev);
- 	if (ret) {
- 		DRM_ERROR("Failed to request IRQ for I2C controller\n");
--		goto err;
-+		goto free_dev;
+ 	ileft = areq->cryptlen / 4;
+ 	oleft = areq->cryptlen / 4;
+ 	oi = 0;
+ 	oo = 0;
+ 	do {
+-		todo = min(rx_cnt, ileft);
+-		todo = min_t(size_t, todo, (mi.length - oi) / 4);
+-		if (todo) {
+-			ileft -= todo;
+-			writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
+-			oi += todo * 4;
+-		}
+-		if (oi == mi.length) {
+-			sg_miter_next(&mi);
+-			oi = 0;
++		if (ileft) {
++			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
++					SG_MITER_FROM_SG | SG_MITER_ATOMIC);
++			if (pi)
++				sg_miter_skip(&mi, pi);
++			miter_err = sg_miter_next(&mi);
++			if (!miter_err || !mi.addr) {
++				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
++				err = -EINVAL;
++				goto release_ss;
++			}
++			todo = min(rx_cnt, ileft);
++			todo = min_t(size_t, todo, (mi.length - oi) / 4);
++			if (todo) {
++				ileft -= todo;
++				writesl(ss->base + SS_RXFIFO, mi.addr + oi, todo);
++				oi += todo * 4;
++			}
++			if (oi == mi.length) {
++				pi += mi.length;
++				oi = 0;
++			}
++			sg_miter_stop(&mi);
+ 		}
+ 
+ 		spaces = readl(ss->base + SS_FCSR);
+ 		rx_cnt = SS_RXFIFO_SPACES(spaces);
+ 		tx_cnt = SS_TXFIFO_SPACES(spaces);
+ 
++		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
++			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
++		if (po)
++			sg_miter_skip(&mo, po);
++		miter_err = sg_miter_next(&mo);
++		if (!miter_err || !mo.addr) {
++			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
++			err = -EINVAL;
++			goto release_ss;
++		}
+ 		todo = min(tx_cnt, oleft);
+ 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
+ 		if (todo) {
+@@ -105,9 +119,10 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
+ 			oo += todo * 4;
+ 		}
+ 		if (oo == mo.length) {
+-			sg_miter_next(&mo);
+ 			oo = 0;
++			po += mo.length;
+ 		}
++		sg_miter_stop(&mo);
+ 	} while (oleft);
+ 
+ 	if (areq->iv) {
+@@ -118,8 +133,6 @@ static int sun4i_ss_opti_poll(struct skcipher_request *areq)
  	}
  
- 	/* Adapter registration */
- 	ret = i2c_add_numbered_adapter(&oaktrail_hdmi_i2c_adapter);
--	return ret;
-+	if (ret) {
-+		DRM_ERROR("Failed to add I2C adapter\n");
-+		goto free_irq;
-+	}
+ release_ss:
+-	sg_miter_stop(&mi);
+-	sg_miter_stop(&mo);
+ 	writel(0, ss->base + SS_CTL);
+ 	spin_unlock_irqrestore(&ss->slock, flags);
+ 	return err;
+@@ -148,6 +161,8 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 	unsigned int oleft = areq->cryptlen;
+ 	unsigned int todo;
+ 	struct sg_mapping_iter mi, mo;
++	unsigned long pi = 0, po = 0; /* progress for in and out */
++	bool miter_err;
+ 	unsigned int oi, oo;	/* offset for in and out */
+ 	char buf[4 * SS_RX_MAX];/* buffer for linearize SG src */
+ 	char bufo[4 * SS_TX_MAX]; /* buffer for linearize SG dst */
+@@ -200,17 +215,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 	}
+ 	writel(mode, ss->base + SS_CTL);
  
--err:
-+	return 0;
+-	sg_miter_start(&mi, areq->src, sg_nents(areq->src),
+-		       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
+-	sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
+-		       SG_MITER_TO_SG | SG_MITER_ATOMIC);
+-	sg_miter_next(&mi);
+-	sg_miter_next(&mo);
+-	if (!mi.addr || !mo.addr) {
+-		dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
+-		err = -EINVAL;
+-		goto release_ss;
+-	}
+ 	ileft = areq->cryptlen;
+ 	oleft = areq->cryptlen;
+ 	oi = 0;
+@@ -218,6 +222,16 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 
+ 	while (oleft) {
+ 		if (ileft) {
++			sg_miter_start(&mi, areq->src, sg_nents(areq->src),
++				       SG_MITER_FROM_SG | SG_MITER_ATOMIC);
++			if (pi)
++				sg_miter_skip(&mi, pi);
++			miter_err = sg_miter_next(&mi);
++			if (!miter_err || !mi.addr) {
++				dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
++				err = -EINVAL;
++				goto release_ss;
++			}
+ 			/*
+ 			 * todo is the number of consecutive 4byte word that we
+ 			 * can read from current SG
+@@ -250,31 +264,38 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 				}
+ 			}
+ 			if (oi == mi.length) {
+-				sg_miter_next(&mi);
++				pi += mi.length;
+ 				oi = 0;
+ 			}
++			sg_miter_stop(&mi);
+ 		}
+ 
+ 		spaces = readl(ss->base + SS_FCSR);
+ 		rx_cnt = SS_RXFIFO_SPACES(spaces);
+ 		tx_cnt = SS_TXFIFO_SPACES(spaces);
+-		dev_dbg(ss->dev,
+-			"%x %u/%zu %u/%u cnt=%u %u/%zu %u/%u cnt=%u %u\n",
+-			mode,
+-			oi, mi.length, ileft, areq->cryptlen, rx_cnt,
+-			oo, mo.length, oleft, areq->cryptlen, tx_cnt, ob);
+ 
+ 		if (!tx_cnt)
+ 			continue;
++		sg_miter_start(&mo, areq->dst, sg_nents(areq->dst),
++			       SG_MITER_TO_SG | SG_MITER_ATOMIC);
++		if (po)
++			sg_miter_skip(&mo, po);
++		miter_err = sg_miter_next(&mo);
++		if (!miter_err || !mo.addr) {
++			dev_err_ratelimited(ss->dev, "ERROR: sg_miter return null\n");
++			err = -EINVAL;
++			goto release_ss;
++		}
+ 		/* todo in 4bytes word */
+ 		todo = min(tx_cnt, oleft / 4);
+ 		todo = min_t(size_t, todo, (mo.length - oo) / 4);
 +
-+free_irq:
-+	free_irq(dev->irq, hdmi_dev);
-+free_dev:
- 	kfree(i2c_dev);
--exit:
-+
- 	return ret;
- }
+ 		if (todo) {
+ 			readsl(ss->base + SS_TXFIFO, mo.addr + oo, todo);
+ 			oleft -= todo * 4;
+ 			oo += todo * 4;
+ 			if (oo == mo.length) {
+-				sg_miter_next(&mo);
++				po += mo.length;
+ 				oo = 0;
+ 			}
+ 		} else {
+@@ -299,12 +320,14 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 				obo += todo;
+ 				oo += todo;
+ 				if (oo == mo.length) {
++					po += mo.length;
+ 					sg_miter_next(&mo);
+ 					oo = 0;
+ 				}
+ 			} while (obo < obl);
+ 			/* bufo must be fully used here */
+ 		}
++		sg_miter_stop(&mo);
+ 	}
+ 	if (areq->iv) {
+ 		for (i = 0; i < 4 && i < ivsize / 4; i++) {
+@@ -314,8 +337,6 @@ static int sun4i_ss_cipher_poll(struct skcipher_request *areq)
+ 	}
+ 
+ release_ss:
+-	sg_miter_stop(&mi);
+-	sg_miter_stop(&mo);
+ 	writel(0, ss->base + SS_CTL);
+ 	spin_unlock_irqrestore(&ss->slock, flags);
  
 -- 
 2.27.0
