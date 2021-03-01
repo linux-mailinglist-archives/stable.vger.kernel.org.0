@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6663284B9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3213284B7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232874AbhCAQmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:42:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41574 "EHLO mail.kernel.org"
+        id S234751AbhCAQmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234298AbhCAQej (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234291AbhCAQej (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 11:34:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 756E064E5C;
-        Mon,  1 Mar 2021 16:25:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 459F864F56;
+        Mon,  1 Mar 2021 16:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615924;
-        bh=PL6RSaoPHOuZo46oVlz9RB7IohHUTP5ViUrqOxBSSuU=;
+        s=korg; t=1614615926;
+        bh=9thJI5jQxGH0XMfux6rVk4BkKhKI7Gk5rIlHLA/4uXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d4uFyIVnqm3bXLPMMRVh0LeqW1pnWQ6ZfVqhzbwVQpPnlgw2faiD5xWaSL1xbtyVl
-         TEq5ZRqWwcu7fNpXAzfSpDZ2SQRtIFoqfj66NFjPe/UAMCeiveaUH2tYWYMzkwXhFe
-         1iTRF5OQOrM5NqxUypYbvn6TOi0r9O+Lufloj5dM=
+        b=aZRJ+LLEXsDS8F4Co34FvuypSC++lH25kwxuNB8KRSjZ3JMbLBacwBpj0vOvNrkGf
+         GSh+Vg3yu5LmQ21kEnyBoY/ygbWNQOSR9I3gZ1DsuyGX5v4rszhkfRMN1Y2FqWe3Sx
+         J+LD1uL2joleJd+YNs4QF9fRIP2SrXYrVhacPOQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wim Osterholt <wim@djo.tudelft.nl>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Denis Efremov <efremov@linux.com>,
-        Kurt Garloff <kurt@garloff.de>
-Subject: [PATCH 4.9 109/134] floppy: reintroduce O_NDELAY fix
-Date:   Mon,  1 Mar 2021 17:13:30 +0100
-Message-Id: <20210301161018.937734728@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>
+Subject: [PATCH 4.9 110/134] mtd: spi-nor: hisi-sfc: Put child node np on error path
+Date:   Mon,  1 Mar 2021 17:13:31 +0100
+Message-Id: <20210301161018.988190756@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -41,81 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Pan Bian <bianpan2016@163.com>
 
-commit 8a0c014cd20516ade9654fc13b51345ec58e7be8 upstream.
+commit fe6653460ee7a7dbe0cd5fd322992af862ce5ab0 upstream.
 
-This issue was originally fixed in 09954bad4 ("floppy: refactor open()
-flags handling").
+Put the child node np when it fails to get or register device.
 
-The fix as a side-effect, however, introduce issue for open(O_ACCMODE)
-that is being used for ioctl-only open. I wrote a fix for that, but
-instead of it being merged, full revert of 09954bad4 was performed,
-re-introducing the O_NDELAY / O_NONBLOCK issue, and it strikes again.
-
-This is a forward-port of the original fix to current codebase; the
-original submission had the changelog below:
-
-====
-Commit 09954bad4 ("floppy: refactor open() flags handling"), as a
-side-effect, causes open(/dev/fdX, O_ACCMODE) to fail. It turns out that
-this is being used setfdprm userspace for ioctl-only open().
-
-Reintroduce back the original behavior wrt !(FMODE_READ|FMODE_WRITE)
-modes, while still keeping the original O_NDELAY bug fixed.
-
-Link: https://lore.kernel.org/r/nycvar.YFH.7.76.2101221209060.5622@cbobk.fhfr.pm
+Fixes: e523f11141bd ("mtd: spi-nor: add hisilicon spi-nor flash controller driver")
 Cc: stable@vger.kernel.org
-Reported-by: Wim Osterholt <wim@djo.tudelft.nl>
-Tested-by: Wim Osterholt <wim@djo.tudelft.nl>
-Reported-and-tested-by: Kurt Garloff <kurt@garloff.de>
-Fixes: 09954bad4 ("floppy: refactor open() flags handling")
-Fixes: f2791e7ead ("Revert "floppy: refactor open() flags handling"")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+[ta: Add Fixes tag and Cc stable]
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20210121091847.85362-1-bianpan2016@163.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/floppy.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/mtd/spi-nor/hisi-sfc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4067,21 +4067,22 @@ static int floppy_open(struct block_devi
- 	if (UFDCS->rawcmd == 1)
- 		UFDCS->rawcmd = 2;
+--- a/drivers/mtd/spi-nor/hisi-sfc.c
++++ b/drivers/mtd/spi-nor/hisi-sfc.c
+@@ -393,8 +393,10 @@ static int hisi_spi_nor_register_all(str
  
--	if (!(mode & FMODE_NDELAY)) {
--		if (mode & (FMODE_READ|FMODE_WRITE)) {
--			UDRS->last_checked = 0;
--			clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
--			check_disk_change(bdev);
--			if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
--				goto out;
--			if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
--				goto out;
--		}
--		res = -EROFS;
--		if ((mode & FMODE_WRITE) &&
--		    !test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+	if (mode & (FMODE_READ|FMODE_WRITE)) {
-+		UDRS->last_checked = 0;
-+		clear_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags);
-+		check_disk_change(bdev);
-+		if (test_bit(FD_DISK_CHANGED_BIT, &UDRS->flags))
-+			goto out;
-+		if (test_bit(FD_OPEN_SHOULD_FAIL_BIT, &UDRS->flags))
- 			goto out;
- 	}
-+
-+	res = -EROFS;
-+
-+	if ((mode & FMODE_WRITE) &&
-+			!test_bit(FD_DISK_WRITABLE_BIT, &UDRS->flags))
-+		goto out;
-+
- 	mutex_unlock(&open_lock);
- 	mutex_unlock(&floppy_mutex);
- 	return 0;
+ 	for_each_available_child_of_node(dev->of_node, np) {
+ 		ret = hisi_spi_nor_register(np, host);
+-		if (ret)
++		if (ret) {
++			of_node_put(np);
+ 			goto fail;
++		}
+ 
+ 		if (host->num_chip == HIFMC_MAX_CHIP_NUM) {
+ 			dev_warn(dev, "Flash device number exceeds the maximum chipselect number\n");
 
 
