@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF823288AC
+	by mail.lfdr.de (Postfix) with ESMTP id 7AE103288AB
 	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:46:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238712AbhCARnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:43:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        id S238699AbhCARna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:43:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238444AbhCARh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:37:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8779F60249;
-        Mon,  1 Mar 2021 16:55:22 +0000 (UTC)
+        id S237721AbhCARhy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:37:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21C1B64F2F;
+        Mon,  1 Mar 2021 16:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617723;
-        bh=tRf8rd0jJQioNGjnOjliJ447BBeyD/6UInO+WCVOjEE=;
+        s=korg; t=1614617725;
+        bh=klEnYTE6L0pZ9hKG00Tuo5yn/d0VUb9khIyE65X8FfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0RW42/WoQN4rOd5H5bB/pKHRkCWtxIhjLTpBlL3FAeMMTdy9qbtirh3/ilfrqk1Ju
-         UCi5lNfXA1KmwD48imSokxBOGWRjt0a7ijy55gPWbFzSyBWByc7IpqC93iuu3xCNDa
-         nVY6KK0Q3J5LiFkSNBXN5Ed8jFf31kRX41JJq7Lg=
+        b=H4/t8sW7OWJYqQftcS/ciS0tmzDKf5sIRQTun9JoKySQs51Wgfxvwrs1IcbffjOEp
+         H+zEQgym7Mg9K7UEFC1F/7qqK4cZQjVds5suLzHStbRQfw9EUbZ82eX9DLMc2I/tkE
+         virHu9ImeAgLHhF0r+I63Yjkw1+tMR/tVqgP1nT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
+        Parav Pandit <parav@nvidia.com>,
         Leon Romanovsky <leonro@nvidia.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 174/340] IB/mlx5: Return appropriate error code instead of ENOMEM
-Date:   Mon,  1 Mar 2021 17:11:58 +0100
-Message-Id: <20210301161056.868268320@linuxfoundation.org>
+Subject: [PATCH 5.4 175/340] IB/cm: Avoid a loop when device has 255 ports
+Date:   Mon,  1 Mar 2021 17:11:59 +0100
+Message-Id: <20210301161056.918006309@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -43,35 +44,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit d286ac1d05210695c312b9018b3aa7c2048e9aca ]
+[ Upstream commit 131be26750379592f0dd6244b2a90bbb504a10bb ]
 
-When mlx5_ib_stage_init_init() fails, return the error code related to
-failure instead of -ENOMEM.
+When RDMA device has 255 ports, loop iterator i overflows.  Due to which
+cm_add_one() port iterator loops infinitely.  Use core provided port
+iterator to avoid the infinite loop.
 
-Fixes: 16c1975f1032 ("IB/mlx5: Create profile infrastructure to add and remove stages")
-Link: https://lore.kernel.org/r/20210127150010.1876121-8-leon@kernel.org
+Fixes: a977049dacde ("[PATCH] IB: Add the kernel CM implementation")
+Link: https://lore.kernel.org/r/20210127150010.1876121-9-leon@kernel.org
+Signed-off-by: Mark Bloch <mbloch@nvidia.com>
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/infiniband/core/cm.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index c9e583c05ef27..e2656b68ec222 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -6213,8 +6213,7 @@ static int mlx5_ib_stage_init_init(struct mlx5_ib_dev *dev)
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index fd7c84721b0de..c933c1c7ddd8e 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -4336,7 +4336,7 @@ static void cm_add_one(struct ib_device *ib_device)
+ 	unsigned long flags;
+ 	int ret;
+ 	int count = 0;
+-	u8 i;
++	unsigned int i;
  
- err_mp:
- 	mlx5_ib_cleanup_multiport_master(dev);
--
--	return -ENOMEM;
-+	return err;
- }
+ 	cm_dev = kzalloc(struct_size(cm_dev, port, ib_device->phys_port_cnt),
+ 			 GFP_KERNEL);
+@@ -4348,7 +4348,7 @@ static void cm_add_one(struct ib_device *ib_device)
+ 	cm_dev->going_down = 0;
  
- static int mlx5_ib_stage_flow_db_init(struct mlx5_ib_dev *dev)
+ 	set_bit(IB_MGMT_METHOD_SEND, reg_req.method_mask);
+-	for (i = 1; i <= ib_device->phys_port_cnt; i++) {
++	rdma_for_each_port (ib_device, i) {
+ 		if (!rdma_cap_ib_cm(ib_device, i))
+ 			continue;
+ 
+@@ -4427,7 +4427,7 @@ static void cm_remove_one(struct ib_device *ib_device, void *client_data)
+ 		.clr_port_cap_mask = IB_PORT_CM_SUP
+ 	};
+ 	unsigned long flags;
+-	int i;
++	unsigned int i;
+ 
+ 	if (!cm_dev)
+ 		return;
+@@ -4440,7 +4440,7 @@ static void cm_remove_one(struct ib_device *ib_device, void *client_data)
+ 	cm_dev->going_down = 1;
+ 	spin_unlock_irq(&cm.lock);
+ 
+-	for (i = 1; i <= ib_device->phys_port_cnt; i++) {
++	rdma_for_each_port (ib_device, i) {
+ 		if (!rdma_cap_ib_cm(ib_device, i))
+ 			continue;
+ 
 -- 
 2.27.0
 
