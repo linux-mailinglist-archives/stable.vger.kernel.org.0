@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E6C832893F
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78D2B32894E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:56:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239050AbhCARw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:52:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37380 "EHLO mail.kernel.org"
+        id S234105AbhCARyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:54:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238598AbhCARq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:46:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 902CA64F6C;
-        Mon,  1 Mar 2021 16:59:18 +0000 (UTC)
+        id S238842AbhCARsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:48:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5F5D650E1;
+        Mon,  1 Mar 2021 16:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617959;
-        bh=bREYY0GGRxcR24f1JI9hbmVSU9b3Dzoc3vZedscCxG8=;
+        s=korg; t=1614617981;
+        bh=aWvWdT9l/CXOTj9yo+Pc+Kk9RVrTJ9DYCPBnwXd21as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vnIswY6Gl25kxZDQJlPTRZmv7dhKz6mUouxQSaRZ6Xvg3PBQZvd9YEhnC9HiXzNxa
-         t1hEHlgCll13aNZOtK/9i4A+0kFd7N4ZChNHLOu8/Y32mokJOAMIbsfqdxHTRGlkA4
-         XUQOQLThblw9tIQYSGPf4MEDsDx55Xap/NM9m1lA=
+        b=JiCGUVHpinGq7IYTxY8tWjU5Yys7ugoCFAjGZm91DVdGT595LxdlnE1PXH3cECSc3
+         SyTzez7tFl1JFnODtgOivl7sZhwp1tdaEfp+7MEdrqOxHeSJGCABHEE8sLMoUFBOVy
+         LS1JDGgT2IS9J11W3swdk6wKzozELqNaKMIYcNk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Kai Krakow <kai@kaishome.de>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 256/340] bcache: Move journal work to new flush wq
-Date:   Mon,  1 Mar 2021 17:13:20 +0100
-Message-Id: <20210301161100.898143779@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 258/340] drm/amdgpu: Set reference clock to 100Mhz on Renoir (v2)
+Date:   Mon,  1 Mar 2021 17:13:22 +0100
+Message-Id: <20210301161100.996888699@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
 References: <20210301161048.294656001@linuxfoundation.org>
@@ -39,98 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai Krakow <kai@kaishome.de>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit afe78ab46f638ecdf80a35b122ffc92c20d9ae5d upstream.
+commit 6e80fb8ab04f6c4f377e2fd422bdd1855beb7371 upstream.
 
-This is potentially long running and not latency sensitive, let's get
-it out of the way of other latency sensitive events.
+Fixes the rlc reference clock used for GPU timestamps.
+Value is 100Mhz.  Confirmed with hardware team.
 
-As observed in the previous commit, the `system_wq` comes easily
-congested by bcache, and this fixes a few more stalls I was observing
-every once in a while.
+v2: reword commit message.
 
-Let's not make this `WQ_MEM_RECLAIM` as it showed to reduce performance
-of boot and file system operations in my tests. Also, without
-`WQ_MEM_RECLAIM`, I no longer see desktop stalls. This matches the
-previous behavior as `system_wq` also does no memory reclaim:
-
-> // workqueue.c:
-> system_wq = alloc_workqueue("events", 0, 0);
-
-Cc: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org # 5.4+
-Signed-off-by: Kai Krakow <kai@kaishome.de>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1480
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/bcache/bcache.h  |    1 +
- drivers/md/bcache/journal.c |    4 ++--
- drivers/md/bcache/super.c   |   16 ++++++++++++++++
- 3 files changed, 19 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/soc15.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/bcache/bcache.h
-+++ b/drivers/md/bcache/bcache.h
-@@ -986,6 +986,7 @@ void bch_write_bdev_super(struct cached_
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -276,6 +276,8 @@ static u32 soc15_get_xclk(struct amdgpu_
+ {
+ 	u32 reference_clock = adev->clock.spll.reference_freq;
  
- extern struct workqueue_struct *bcache_wq;
- extern struct workqueue_struct *bch_journal_wq;
-+extern struct workqueue_struct *bch_flush_wq;
- extern struct mutex bch_register_lock;
- extern struct list_head bch_cache_sets;
++	if (adev->asic_type == CHIP_RENOIR)
++		return 10000;
+ 	if (adev->asic_type == CHIP_RAVEN)
+ 		return reference_clock / 4;
  
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -958,8 +958,8 @@ atomic_t *bch_journal(struct cache_set *
- 		journal_try_write(c);
- 	} else if (!w->dirty) {
- 		w->dirty = true;
--		schedule_delayed_work(&c->journal.work,
--				      msecs_to_jiffies(c->journal_delay_ms));
-+		queue_delayed_work(bch_flush_wq, &c->journal.work,
-+				   msecs_to_jiffies(c->journal_delay_ms));
- 		spin_unlock(&c->journal.lock);
- 	} else {
- 		spin_unlock(&c->journal.lock);
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -48,6 +48,7 @@ static int bcache_major;
- static DEFINE_IDA(bcache_device_idx);
- static wait_queue_head_t unregister_wait;
- struct workqueue_struct *bcache_wq;
-+struct workqueue_struct *bch_flush_wq;
- struct workqueue_struct *bch_journal_wq;
- 
- 
-@@ -2652,6 +2653,8 @@ static void bcache_exit(void)
- 		destroy_workqueue(bcache_wq);
- 	if (bch_journal_wq)
- 		destroy_workqueue(bch_journal_wq);
-+	if (bch_flush_wq)
-+		destroy_workqueue(bch_flush_wq);
- 	bch_btree_exit();
- 
- 	if (bcache_major)
-@@ -2715,6 +2718,19 @@ static int __init bcache_init(void)
- 	if (!bcache_wq)
- 		goto err;
- 
-+	/*
-+	 * Let's not make this `WQ_MEM_RECLAIM` for the following reasons:
-+	 *
-+	 * 1. It used `system_wq` before which also does no memory reclaim.
-+	 * 2. With `WQ_MEM_RECLAIM` desktop stalls, increased boot times, and
-+	 *    reduced throughput can be observed.
-+	 *
-+	 * We still want to user our own queue to not congest the `system_wq`.
-+	 */
-+	bch_flush_wq = alloc_workqueue("bch_flush", 0, 0);
-+	if (!bch_flush_wq)
-+		goto err;
-+
- 	bch_journal_wq = alloc_workqueue("bch_journal", WQ_MEM_RECLAIM, 0);
- 	if (!bch_journal_wq)
- 		goto err;
 
 
