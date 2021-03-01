@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72F7328D19
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0350D328D7A
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240864AbhCATFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:05:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34116 "EHLO mail.kernel.org"
+        id S238219AbhCATMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 14:12:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235300AbhCAS66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:58:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D11460234;
-        Mon,  1 Mar 2021 17:48:13 +0000 (UTC)
+        id S240870AbhCATGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 14:06:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68E5264E51;
+        Mon,  1 Mar 2021 17:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620894;
-        bh=Z0u2ZE80aTAxZJFJUHS/kTl5bAwFKVZycqe2LEnItuo=;
+        s=korg; t=1614620899;
+        bh=mh/PkrWc3G3eb91YTKXcYaPCzUpGXX+T7sOAjuonuog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMjeAk8HUad6DTyceFpb2b1JtfLZfTcBszNvQl+SHKeIN/diSN+qeW8QK2JgRzRcS
-         G/UWg71HgP2IpUyw4HqPYQ78svB+5R1jWODjYWSLgnpbwZCI8PVvemUjqtmczjezmw
-         DBoXrW+Agh9VOY1Gw3rw7g0a2Hsx6KjkNuQRB/qo=
+        b=EiY8ZeRWk1lfPQVY2Wm8ME2NFCrFSxdr9De1lvb7fp8iBSyzwFAFrz44mLin+W8Y6
+         vtac0FCyZd4zd8pLhquBGLIIu8IN0WacyL+u79I8v4t38VGhEkIBvLIYAHYfhiIO+Z
+         SK0qR58erM8eor+NhEFnYkt/mGBUNNUA/x8XiA6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pratyush Yadav <p.yadav@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 318/775] spi: cadence-quadspi: Abort read if dummy cycles required are too many
-Date:   Mon,  1 Mar 2021 17:08:06 +0100
-Message-Id: <20210301161217.331971769@linuxfoundation.org>
+Subject: [PATCH 5.11 320/775] clk: renesas: r8a779a0: Remove non-existent S2 clock
+Date:   Mon,  1 Mar 2021 17:08:08 +0100
+Message-Id: <20210301161217.428538668@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,38 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratyush Yadav <p.yadav@ti.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ceeda328edeeeeac7579e9dbf0610785a3b83d39 ]
+[ Upstream commit 5b30be15ca262d9cb2c36b173bb488e8d1952ea0 ]
 
-The controller can only support up to 31 dummy cycles. If the command
-requires more it falls back to using 31. This command is likely to fail
-because the correct number of cycles are not waited upon. Rather than
-silently issuing an incorrect command, fail loudly so the caller can get
-a chance to find out the command can't be supported by the controller.
+The S2 internal core clock does not exist on R-Car V3U. Remove it.
 
-Fixes: 140623410536 ("mtd: spi-nor: Add driver for Cadence Quad SPI Flash Controller")
-Signed-off-by: Pratyush Yadav <p.yadav@ti.com>
-Link: https://lore.kernel.org/r/20201222184425.7028-3-p.yadav@ti.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 17bcc8035d2d19fc ("clk: renesas: cpg-mssr: Add support for R-Car V3U")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Link: https://lore.kernel.org/r/20201019120614.22149-2-geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-cadence-quadspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/renesas/r8a779a0-cpg-mssr.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/spi/spi-cadence-quadspi.c b/drivers/spi/spi-cadence-quadspi.c
-index ba7d40c2922f7..826b01f346246 100644
---- a/drivers/spi/spi-cadence-quadspi.c
-+++ b/drivers/spi/spi-cadence-quadspi.c
-@@ -461,7 +461,7 @@ static int cqspi_read_setup(struct cqspi_flash_pdata *f_pdata,
- 	/* Setup dummy clock cycles */
- 	dummy_clk = op->dummy.nbytes * 8;
- 	if (dummy_clk > CQSPI_DUMMY_CLKS_MAX)
--		dummy_clk = CQSPI_DUMMY_CLKS_MAX;
-+		return -EOPNOTSUPP;
- 
- 	if (dummy_clk)
- 		reg |= (dummy_clk & CQSPI_REG_RD_INSTR_DUMMY_MASK)
+diff --git a/drivers/clk/renesas/r8a779a0-cpg-mssr.c b/drivers/clk/renesas/r8a779a0-cpg-mssr.c
+index aa5389b04d742..9ccefc36b7ca8 100644
+--- a/drivers/clk/renesas/r8a779a0-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a779a0-cpg-mssr.c
+@@ -69,7 +69,6 @@ enum clk_ids {
+ 	CLK_PLL5_DIV2,
+ 	CLK_PLL5_DIV4,
+ 	CLK_S1,
+-	CLK_S2,
+ 	CLK_S3,
+ 	CLK_SDSRC,
+ 	CLK_RPCSRC,
 -- 
 2.27.0
 
