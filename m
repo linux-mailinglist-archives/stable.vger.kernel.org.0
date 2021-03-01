@@ -2,128 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D583327576
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 01:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E11AF327583
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 01:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbhCAAG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 28 Feb 2021 19:06:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231321AbhCAAG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 19:06:58 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927AAC06174A
-        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 16:06:18 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id b21so10397397pgk.7
-        for <stable@vger.kernel.org>; Sun, 28 Feb 2021 16:06:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=gIsKUUDWtLSvqFhfLbKY9HZ1KyRGaQkmVNlaJMvJ8bU=;
-        b=T6fdjYixM8Dl64DEUnBvcmSgXeQh4XYxWyL8BONlN8nb+mSwdQdMw0wTLn9Nh5gfaS
-         yTB4M3dP3YeFsGa7eW/TZdnD56mCSvVoogtVCh7PT7fpyQo75am55EynsqxMboETKDeC
-         AAl19nflOIcadEstpD5EzCEaaWTStg7fbSptX99rypDWVmYokHBWM0MUh3W8g5ozKacG
-         1vNiUNjbw5i3hssSId03DKihbo37d0c4+NbBmjqVKN0i0sOEG404BAbfm+qz5rlnxPC6
-         ZRPq08iOlaDMicRbqjgH/SKQ9bTyA2zCzkTCYGTPDbW264FGVEB5JwvUR+bJ+z+JmRA6
-         IqJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=gIsKUUDWtLSvqFhfLbKY9HZ1KyRGaQkmVNlaJMvJ8bU=;
-        b=IY7A/GRBNDHbipyN/y+N+cHyP+NRcDybef5IovpBVYWC09fuLv7etoHtiv7prSdB1U
-         hzWlPk08MTokJZtPI8UbuMuBELvMsvFbI07a+kqOMWhrRUznYZokbsAhxNo4tfpvDx/7
-         GoKjdc+jUwk2EqCHBM7usUzjCL0k1HXfgu2ifSC+K/Fom0cPusY5PgNsUQi2DqSK+/9Q
-         fE51stDpkhVdwq+tsNKhsfXN5lOLupdu21RZL1Ma2IfgSiP6HrWTVZPC6lQq1tDqQn/r
-         fW6OtAcgtDuBdolbzR00j/ay+VjrGaLhc8HG6o1h+OCn04CPxQQ2pY6dMJvFdDkCh9Yo
-         O5KA==
-X-Gm-Message-State: AOAM5322jLIa5x84xW2XsSdDFfoqRbu2pqCvKa6eU2JHlNyE+Y9BcomO
-        aJb0+Cct6/LsNnQOdi8T5ivkpII+hpHLYQ==
-X-Google-Smtp-Source: ABdhPJwXpF2yoDe3M/4oYxRZYU/4Ted51DH48x4AaDUwlvd2QgvE8qgBiRpkcWAhq3ROFi2cS1Kcww==
-X-Received: by 2002:a65:50c8:: with SMTP id s8mr11534748pgp.68.1614557178001;
-        Sun, 28 Feb 2021 16:06:18 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x23sm10701753pfq.167.2021.02.28.16.06.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Feb 2021 16:06:17 -0800 (PST)
-Message-ID: <603c2ff9.1c69fb81.98635.9814@mx.google.com>
-Date:   Sun, 28 Feb 2021 16:06:17 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S231176AbhCAAN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 28 Feb 2021 19:13:58 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:58158 "EHLO
+        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230167AbhCAAN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 28 Feb 2021 19:13:57 -0500
+Received: from [2a02:1811:d34:3700:3b8d:b310:d327:e418] (helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1lGWBW-0007iO-Rr; Mon, 01 Mar 2021 01:13:14 +0100
+Received: from ben by deadeye with local (Exim 4.94)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1lGWBV-004W9a-BQ; Mon, 01 Mar 2021 01:13:13 +0100
+Message-ID: <66826ac72356b00814f51487dd1008298e52ed9b.camel@decadent.org.uk>
+Subject: futex breakage in 4.9 stable branch
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org,
+        Lee Jones <lee.jones@linaro.org>,
+        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>
+Cc:     lwn@lwn.net, jslaby@suse.cz
+Date:   Mon, 01 Mar 2021 01:13:08 +0100
+In-Reply-To: <161408880177110@kroah.com>
+References: <161408880177110@kroah.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-YUn168QV9efsPaMvpgQb"
+User-Agent: Evolution 3.38.2-1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.258-13-ga67538ea49977
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 46 runs,
- 1 regressions (v4.9.258-13-ga67538ea49977)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-SA-Exim-Connect-IP: 2a02:1811:d34:3700:3b8d:b310:d327:e418
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 46 runs, 1 regressions (v4.9.258-13-ga67538=
-ea49977)
 
-Regressions Summary
--------------------
+--=-YUn168QV9efsPaMvpgQb
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-platform           | arch  | lab          | compiler | defconfig | regressi=
-ons
--------------------+-------+--------------+----------+-----------+---------=
----
-r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
-   =
+On Tue, 2021-02-23 at 15:00 +0100, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 4.9.258 kernel.
+>=20
+> All users of the 4.9 kernel series must upgrade.
+>=20
+> The updated 4.9.y git tree can be found at:
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0git://git.kernel.org/pub/=
+scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+> and can be browsed at the normal kernel.org git web browser:
+> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
 
+The backported futex fixes are still incomplete/broken in this version.
+If I enable lockdep and run the futex self-tests (from 5.10):
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.258-13-ga67538ea49977/plan/baseline/
+- on 4.9.246, they pass with no lockdep output
+- on 4.9.257 and 4.9.258, they pass but futex_requeue_pi trigers a
+  lockdep splat
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.258-13-ga67538ea49977
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a67538ea49977fb4499d59178b42243a53a6d1e2 =
+I have a local branch that essentially updates futex and rtmutex in
+4.9-stable to match 4.14-stable.  With this, the tests pass and lockdep
+is happy.
 
+Unfortunately, that branch has about another 60 commits.  Further, the
+more we change futex in 4.9, the more difficult it is going to be to
+update the 4.9-rt branch.  But I don't see any better option available
+at the moment.
 
+Thoughts?
 
-Test Regressions
----------------- =
+Ben.
 
+--=20
+Ben Hutchings
+I'm always amazed by the number of people who take up solipsism because
+they heard someone else explain it. - E*Borg on alt.fan.pratchett
 
+--=-YUn168QV9efsPaMvpgQb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
-platform           | arch  | lab          | compiler | defconfig | regressi=
-ons
--------------------+-------+--------------+----------+-----------+---------=
----
-r8a7795-salvator-x | arm64 | lab-baylibre | gcc-8    | defconfig | 1       =
-   =
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmA8MZQACgkQ57/I7JWG
+EQnKVg/9FdQqGBfLCDP5gL+FeOrGcHw1ICY9UR9yQLjWY7mDlTxMmEXUABQOjpS3
+G7QX7Vf1zQwfWGqogEQopgIsa/FRYGt9dOs/689DnI2Qt9evo+zhvfVvEvyrVsBl
+eH6V5CG0mgJxtYcgQcKuUWS/vn0nzaVApWsbLsZeVDpc2U0TVJeIrN6vYlRcsCkP
+8NSsYPb9NiQZOUu35HD3Bx6JWZLm2CBRJVG5iE4ErTR2rVgrnIHSSfIxRLjnGo/8
+KgNAgYJUnayQlOU4MHs2QlPC0xOjfEUDttGpFVOIu4AmhvDr6N+3EPETU4m8U0tU
+x8Hxyg+8njW22Zrh8pcxgKoqb20z7o6tLsg2Xzp3UFkbhFtPQlVXwmEFYzpL7Huy
+l7sC5kQzcGExoS2noWW//1+Y3WGnwZJJT4VGlTOAqHqNSTLAsLNVCnQI3LQ1Oaf3
++VOUA8vuL+nIsHRzFloSSKPbTmQMe/AqnBL8kh2cwCMD0eKMr936L43cGBQ3jZF9
+IpVYqOLrzk8mA3DBm8VEie+R/uslmodxfJqY20V+DmOMW+kNelBDmvl1gfkN3Vxn
+vIxBw3OBfgwWJAnwgMLbnqaKGmpTEHsiJmt8nxW3wM5X90PrVfCY1Vd+pFCA6w2q
+DbRJTEWcVHYmZ1mG/Z5sqGIYrbzDl6SFNSz5Zbi6LdvfnCLHiH8=
+=d0ry
+-----END PGP SIGNATURE-----
 
-  Details:     https://kernelci.org/test/plan/id/603bf55b7bc07c8d1caddcbe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.258=
--13-ga67538ea49977/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salv=
-ator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.258=
--13-ga67538ea49977/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a7795-salv=
-ator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603bf55b7bc07c8d1cadd=
-cbf
-        failing since 102 days (last pass: v4.9.243-17-g9c24315b745a0, firs=
-t fail: v4.9.243-79-gd3e70b39d31a) =
-
- =20
+--=-YUn168QV9efsPaMvpgQb--
