@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DE33291A3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 013D532918E
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236833AbhCAU3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 15:29:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45786 "EHLO mail.kernel.org"
+        id S243313AbhCAU1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 15:27:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243260AbhCAUXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 15:23:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E0D65407;
-        Mon,  1 Mar 2021 18:05:37 +0000 (UTC)
+        id S242958AbhCAUVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 15:21:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F438653F6;
+        Mon,  1 Mar 2021 18:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621938;
-        bh=s7yDtmqYHkEXvFf3ADK97RDJ3bk723d4c8aAgU9r0DE=;
+        s=korg; t=1614621879;
+        bh=IYvwauLhh6MJU5Pj26oRPbgJM2dGDpsGWnlPDeTXntU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k45m1cK7sV56kPimU1IGjZZxzRBQvUjUakIAD5LBW5zF4IPf5LPYoLPydcfVEeKWE
-         HzJA1PtBYTMcvGR4s0Xi4WnxyndQVFCvLliCWqo9zndDgtWj0dezlF1amJcWYZXwLe
-         e0vTAL9IS3Um3mojInc/UUhk7kouVQEs+FucRetc=
+        b=mMfpDTxVXAIsQWDXNPtwX7FQrAg5j3UgZ50AGo0UxvZ4VspQoRJ/qFaSR9OFriPez
+         3WrdEDunBU/OqYg2wN4O1/8N15RPV9pAha1rJ6s5Rise+M3bPshhJ46EDx5Gs7WhfA
+         63K9l+1/PjFkVlmPSTcT6j9g4Gv3QmxWGOG7SNzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Bohac <jbohac@suse.cz>,
-        Matteo Croce <mcroce@microsoft.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.11 658/775] pstore: Fix typo in compression option name
-Date:   Mon,  1 Mar 2021 17:13:46 +0100
-Message-Id: <20210301161233.897975699@linuxfoundation.org>
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>
+Subject: [PATCH 5.11 660/775] arm64: dts: agilex: fix phy interface bit shift for gmac1 and gmac2
+Date:   Mon,  1 Mar 2021 17:13:48 +0100
+Message-Id: <20210301161233.996424922@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,47 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Bohac <jbohac@suse.cz>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit 19d8e9149c27b689c6224f5c84b96a159342195a upstream.
+commit b7ff3a447d100c999d9848353ef8a4046831d893 upstream.
 
-Both pstore_compress() and decompress_record() use a mistyped config
-option name ("PSTORE_COMPRESSION" instead of "PSTORE_COMPRESS"). As
-a result compression and decompression of pstore records was always
-disabled.
+The shift for the phy_intf_sel bit in the system manager for gmac1 and
+gmac2 should be 0.
 
-Use the correct config option name.
-
-Signed-off-by: Jiri Bohac <jbohac@suse.cz>
-Fixes: fd49e03280e5 ("pstore: Fix linking when crypto API disabled")
-Acked-by: Matteo Croce <mcroce@microsoft.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 2f804ba7aa9ee ("arm64: dts: agilex: Add SysMgr to Ethernet nodes")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210218111547.johvp5klpv3xrpnn@dwarf.suse.cz
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/pstore/platform.c |    4 ++--
+ arch/arm64/boot/dts/intel/socfpga_agilex.dtsi |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -269,7 +269,7 @@ static int pstore_compress(const void *i
- {
- 	int ret;
- 
--	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION))
-+	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS))
- 		return -EINVAL;
- 
- 	ret = crypto_comp_compress(tfm, in, inlen, out, &outlen);
-@@ -671,7 +671,7 @@ static void decompress_record(struct pst
- 	int unzipped_len;
- 	char *unzipped, *workspace;
- 
--	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESSION) || !record->compressed)
-+	if (!IS_ENABLED(CONFIG_PSTORE_COMPRESS) || !record->compressed)
- 		return;
- 
- 	/* Only PSTORE_TYPE_DMESG support compression. */
+--- a/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
++++ b/arch/arm64/boot/dts/intel/socfpga_agilex.dtsi
+@@ -166,7 +166,7 @@
+ 			rx-fifo-depth = <16384>;
+ 			snps,multicast-filter-bins = <256>;
+ 			iommus = <&smmu 2>;
+-			altr,sysmgr-syscon = <&sysmgr 0x48 8>;
++			altr,sysmgr-syscon = <&sysmgr 0x48 0>;
+ 			clocks = <&clkmgr AGILEX_EMAC1_CLK>, <&clkmgr AGILEX_EMAC_PTP_CLK>;
+ 			clock-names = "stmmaceth", "ptp_ref";
+ 			status = "disabled";
+@@ -184,7 +184,7 @@
+ 			rx-fifo-depth = <16384>;
+ 			snps,multicast-filter-bins = <256>;
+ 			iommus = <&smmu 3>;
+-			altr,sysmgr-syscon = <&sysmgr 0x4c 16>;
++			altr,sysmgr-syscon = <&sysmgr 0x4c 0>;
+ 			clocks = <&clkmgr AGILEX_EMAC2_CLK>, <&clkmgr AGILEX_EMAC_PTP_CLK>;
+ 			clock-names = "stmmaceth", "ptp_ref";
+ 			status = "disabled";
 
 
