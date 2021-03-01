@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B70328AD3
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87337328AB4
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239571AbhCASXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:23:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39440 "EHLO mail.kernel.org"
+        id S239649AbhCASVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:21:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239701AbhCASS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:18:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC54465165;
-        Mon,  1 Mar 2021 17:06:53 +0000 (UTC)
+        id S239503AbhCASRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:17:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E48D652F6;
+        Mon,  1 Mar 2021 17:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618414;
-        bh=/7pT0kEh99FHUtwTb6He+rcjg5tNt++0dodBOJTVDCk=;
+        s=korg; t=1614620458;
+        bh=mZcnrgi8B582SnCq4bcrTHUNa4DYBXcoGAQB5miVU3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ren5QXXSnqZkBk5elCGueaXTuTO5tiODzZ90JXcBjuokVGeQN9xXEwaNKaNEarYXF
-         nk5kCattC2CF7gwsgEeZ/LP1PeAxa6yiS0UvZyINN81hrBC1T8B2pcJIHUZk3FS5Uo
-         r9CCV+2+jxKEwbunF3nNgA1PglIqTYJY7gsQGKsw=
+        b=Gomx/cbvIGky1xL7wOm+TSSRJOZ6xAA0mhZi0rwcJ8dMZv4T0BmBmfdFlo7ICSdhM
+         WaauYnsjbGu/tpz8c+1wvIs9PYqt0xQiLj0CBi73Gc6uviqbvpli1NNgpNNwgHEv6k
+         b231BXBXNkVlkzaD97A1OMHke9K0RPoYa98JRKTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 079/663] ARM: s3c: fix fiq for clang IAS
-Date:   Mon,  1 Mar 2021 17:05:27 +0100
-Message-Id: <20210301161145.641805807@linuxfoundation.org>
+Subject: [PATCH 5.11 160/775] soc: aspeed: socinfo: Add new systems
+Date:   Mon,  1 Mar 2021 17:05:28 +0100
+Message-Id: <20210301161209.549142793@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,91 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 7f9942c61fa60eda7cc8e42f04bd25b7d175876e ]
+[ Upstream commit d0e72be77e7995923fac73f27cf7a75d3d1a4dec ]
 
-Building with the clang integrated assembler produces a couple of
-errors for the s3c24xx fiq support:
+Aspeed's u-boot sdk has been updated with the SoC IDs for the AST2605
+variant, as well as A2 and A3 variants of the 2600 family.
 
-  arch/arm/mach-s3c/irq-s3c24xx-fiq.S:52:2: error: instruction 'subne' can not set flags, but 's' suffix specified
-    subnes pc, lr, #4 @@ return, still have work to do
+>From u-boot's arch/arm/mach-aspeed/ast2600/scu_info.c:
 
-  arch/arm/mach-s3c/irq-s3c24xx-fiq.S:64:1: error: invalid symbol redefinition
-    s3c24xx_spi_fiq_txrx:
+    SOC_ID("AST2600-A0", 0x0500030305000303),
+    SOC_ID("AST2600-A1", 0x0501030305010303),
+    SOC_ID("AST2620-A1", 0x0501020305010203),
+    SOC_ID("AST2600-A2", 0x0502030305010303),
+    SOC_ID("AST2620-A2", 0x0502020305010203),
+    SOC_ID("AST2605-A2", 0x0502010305010103),
+    SOC_ID("AST2600-A3", 0x0503030305030303),
+    SOC_ID("AST2620-A3", 0x0503020305030203),
+    SOC_ID("AST2605-A3", 0x0503010305030103),
 
-There are apparently two problems: one with extraneous or duplicate
-labels, and one with old-style opcode mnemonics. Stefan Agner has
-previously fixed other problems like this, but missed this particular
-file.
-
-Fixes: bec0806cfec6 ("spi_s3c24xx: add FIQ pseudo-DMA support")
-Cc: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20210204162416.3030114-1-arnd@kernel.org
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: e0218dca5787 ("soc: aspeed: Add soc info driver")
+Link: https://lore.kernel.org/r/20210210114651.334324-1-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-s3c/irq-s3c24xx-fiq.S | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/soc/aspeed/aspeed-socinfo.c | 33 ++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/mach-s3c/irq-s3c24xx-fiq.S b/arch/arm/mach-s3c/irq-s3c24xx-fiq.S
-index b54cbd0122413..5d238d9a798e1 100644
---- a/arch/arm/mach-s3c/irq-s3c24xx-fiq.S
-+++ b/arch/arm/mach-s3c/irq-s3c24xx-fiq.S
-@@ -35,7 +35,6 @@
- 	@ and an offset to the irq acknowledgment word
+diff --git a/drivers/soc/aspeed/aspeed-socinfo.c b/drivers/soc/aspeed/aspeed-socinfo.c
+index 773930e0cb100..e3215f826d17a 100644
+--- a/drivers/soc/aspeed/aspeed-socinfo.c
++++ b/drivers/soc/aspeed/aspeed-socinfo.c
+@@ -25,6 +25,7 @@ static struct {
+ 	/* AST2600 */
+ 	{ "AST2600", 0x05000303 },
+ 	{ "AST2620", 0x05010203 },
++	{ "AST2605", 0x05030103 },
+ };
  
- ENTRY(s3c24xx_spi_fiq_rx)
--s3c24xx_spi_fix_rx:
- 	.word	fiq_rx_end - fiq_rx_start
- 	.word	fiq_rx_irq_ack - fiq_rx_start
- fiq_rx_start:
-@@ -49,7 +48,7 @@ fiq_rx_start:
- 	strb	fiq_rtmp, [ fiq_rspi, # S3C2410_SPTDAT ]
+ static const char *siliconid_to_name(u32 siliconid)
+@@ -43,14 +44,30 @@ static const char *siliconid_to_name(u32 siliconid)
+ static const char *siliconid_to_rev(u32 siliconid)
+ {
+ 	unsigned int rev = (siliconid >> 16) & 0xff;
+-
+-	switch (rev) {
+-	case 0:
+-		return "A0";
+-	case 1:
+-		return "A1";
+-	case 3:
+-		return "A2";
++	unsigned int gen = (siliconid >> 24) & 0xff;
++
++	if (gen < 0x5) {
++		/* AST2500 and below */
++		switch (rev) {
++		case 0:
++			return "A0";
++		case 1:
++			return "A1";
++		case 3:
++			return "A2";
++		}
++	} else {
++		/* AST2600 */
++		switch (rev) {
++		case 0:
++			return "A0";
++		case 1:
++			return "A1";
++		case 2:
++			return "A2";
++		case 3:
++			return "A3";
++		}
+ 	}
  
- 	subs	fiq_rcount, fiq_rcount, #1
--	subnes	pc, lr, #4		@@ return, still have work to do
-+	subsne	pc, lr, #4		@@ return, still have work to do
- 
- 	@@ set IRQ controller so that next op will trigger IRQ
- 	mov	fiq_rtmp, #0
-@@ -61,7 +60,6 @@ fiq_rx_irq_ack:
- fiq_rx_end:
- 
- ENTRY(s3c24xx_spi_fiq_txrx)
--s3c24xx_spi_fiq_txrx:
- 	.word	fiq_txrx_end - fiq_txrx_start
- 	.word	fiq_txrx_irq_ack - fiq_txrx_start
- fiq_txrx_start:
-@@ -76,7 +74,7 @@ fiq_txrx_start:
- 	strb	fiq_rtmp, [ fiq_rspi, # S3C2410_SPTDAT ]
- 
- 	subs	fiq_rcount, fiq_rcount, #1
--	subnes	pc, lr, #4		@@ return, still have work to do
-+	subsne	pc, lr, #4		@@ return, still have work to do
- 
- 	mov	fiq_rtmp, #0
- 	str	fiq_rtmp, [ fiq_rirq, # S3C2410_INTMOD  - S3C24XX_VA_IRQ ]
-@@ -88,7 +86,6 @@ fiq_txrx_irq_ack:
- fiq_txrx_end:
- 
- ENTRY(s3c24xx_spi_fiq_tx)
--s3c24xx_spi_fix_tx:
- 	.word	fiq_tx_end - fiq_tx_start
- 	.word	fiq_tx_irq_ack - fiq_tx_start
- fiq_tx_start:
-@@ -101,7 +98,7 @@ fiq_tx_start:
- 	strb	fiq_rtmp, [ fiq_rspi, # S3C2410_SPTDAT ]
- 
- 	subs	fiq_rcount, fiq_rcount, #1
--	subnes	pc, lr, #4		@@ return, still have work to do
-+	subsne	pc, lr, #4		@@ return, still have work to do
- 
- 	mov	fiq_rtmp, #0
- 	str	fiq_rtmp, [ fiq_rirq, # S3C2410_INTMOD  - S3C24XX_VA_IRQ ]
+ 	return "??";
 -- 
 2.27.0
 
