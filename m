@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14E113285D0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7293284C6
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235713AbhCAQ7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
+        id S235040AbhCAQnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:43:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236214AbhCAQxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:53:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A7164F35;
-        Mon,  1 Mar 2021 16:34:20 +0000 (UTC)
+        id S232795AbhCAQgk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:36:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BDCA64F3E;
+        Mon,  1 Mar 2021 16:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614616461;
-        bh=m9glRlN3ChgusD9VdkEfwQUATmp5H2BhI2WFeclwOSs=;
+        s=korg; t=1614615993;
+        bh=aLfuj5mD2oLztqKRN4jDi62Ax883JhvEoi73e4m+yp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEo3cq0YwhCjeK5PWtyiVTXRgBDx9wBFWNhQruuWFHfSXhZ9BLDXpniaf07M8xLEM
-         6xyJevlLkjpWCrPhhxjLQAMfady/8yP+CSzW+m6iNuFOupo2Hrz8CUu5H/Be9rozXR
-         lOlCm56qFCXvb29rmJUnVJrtR1H7uz0y88dME71c=
+        b=x2JCXM2BsvbHiaOoZ0H+ACBBm/mGiaBM/cnpNg6+uQbiF9F1FltBX8G+odyxyVIfF
+         gqsRVDWvg+BqGc6M9Yp5ZybKr5QWZN7YisD1KrAmXnwWpeA8R6YL2xMtdpVmF3YIra
+         HHihSEJGETJCiV4LMnxAwg61fMMsboSAgjHf1tfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Lech Perczak <lech.perczak@gmail.com>
-Subject: [PATCH 4.14 129/176] USB: serial: option: update interface mapping for ZTE P685M
-Date:   Mon,  1 Mar 2021 17:13:22 +0100
-Message-Id: <20210301161027.401721031@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 102/134] btrfs: abort the transaction if we fail to inc ref in btrfs_copy_root
+Date:   Mon,  1 Mar 2021 17:13:23 +0100
+Message-Id: <20210301161018.585297020@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
-References: <20210301161020.931630716@linuxfoundation.org>
+In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
+References: <20210301161013.585393984@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lech Perczak <lech.perczak@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
+commit 867ed321f90d06aaba84e2c91de51cd3038825ef upstream.
 
-This patch prepares for qmi_wwan driver support for the device.
-Previously "option" driver mapped itself to interfaces 0 and 3 (matching
-ff/ff/ff), while interface 3 is in fact a QMI port.
-Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
-and weren't supported previously at all.
-Without this patch, a possible conflict would exist if device ID was
-added to qmi_wwan driver for interface 3.
+While testing my error handling patches, I added a error injection site
+at btrfs_inc_extent_ref, to validate the error handling I added was
+doing the correct thing.  However I hit a pretty ugly corruption while
+doing this check, with the following error injection stack trace:
 
-Update and simplify device ID to match interfaces 0-2 directly,
-to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
-with QMI (3), and ADB (4).
+btrfs_inc_extent_ref
+  btrfs_copy_root
+    create_reloc_root
+      btrfs_init_reloc_root
+	btrfs_record_root_in_trans
+	  btrfs_start_transaction
+	    btrfs_update_inode
+	      btrfs_update_time
+		touch_atime
+		  file_accessed
+		    btrfs_file_mmap
 
-The modem is used inside ZTE MF283+ router and carriers identify it as
-such.
-Interface mapping is:
-0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
+This is because we do not catch the error from btrfs_inc_extent_ref,
+which in practice would be ENOMEM, which means we lose the extent
+references for a root that has already been allocated and inserted,
+which is the problem.  Fix this by aborting the transaction if we fail
+to do the reference modification.
 
-T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1275 Rev=f0.00
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
-Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/btrfs/ctree.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1572,7 +1572,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
--	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
-+	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
-+	  .driver_info = RSVD(3) | RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -279,9 +279,10 @@ int btrfs_copy_root(struct btrfs_trans_h
+ 		ret = btrfs_inc_ref(trans, root, cow, 1);
+ 	else
+ 		ret = btrfs_inc_ref(trans, root, cow, 0);
+-
+-	if (ret)
++	if (ret) {
++		btrfs_abort_transaction(trans, ret);
+ 		return ret;
++	}
+ 
+ 	btrfs_mark_buffer_dirty(cow);
+ 	*cow_ret = cow;
 
 
