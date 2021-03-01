@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1116328A62
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:19:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373CE328ADD
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233931AbhCASRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:17:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
+        id S239692AbhCASYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:24:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235774AbhCASJC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:09:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6FD650F8;
-        Mon,  1 Mar 2021 17:02:10 +0000 (UTC)
+        id S232842AbhCASSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:18:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2B176528B;
+        Mon,  1 Mar 2021 17:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618131;
-        bh=LUt5P+JBIjCzJO7ku5Pah5arrFAox8QUWMS/SnKQ4m4=;
+        s=korg; t=1614619880;
+        bh=o/iPQqXgPIe4EaS1C+2WRJdewcdD+J5paiBynHGnFV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhDMZrcJRX3gM86ugnIKbuxVnkj/kNQ9cVBY0sNtArPJa6J/MZhi7vQt1j+zyT6ZT
-         ByHXdXwPbJsESVUWkEsB/iKly1O1xv2mri/7BAFU7qukBbThytKBBuRO9kwtlTjD/3
-         Pxf3u0kJqbw65b0ZTIZ8qt5Rd6pcJeLejbTF5Idw=
+        b=TzVfVV5IRnsBxM23BZCbaMyHHCokHoZUkMDw8Je9eH1R0pQS2VdNIqTzDwU/RyjlH
+         E36uKCo+yqbU7ZDTE6mtzZDDWxj4jv+PWGo9O7ZzvcnA3F+j/sXQl4XGxoiUBE8Y8Y
+         KuKxpCNka/dCDwic4am9Otvvs6AagOXUMIN8aiVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 317/340] f2fs: fix out-of-repair __setattr_copy()
-Date:   Mon,  1 Mar 2021 17:14:21 +0100
-Message-Id: <20210301161103.893066616@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.10 614/663] mei: me: add adler lake point LP DID
+Date:   Mon,  1 Mar 2021 17:14:22 +0100
+Message-Id: <20210301161212.225117197@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
-References: <20210301161048.294656001@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 2562515f0ad7342bde6456602c491b64c63fe950 upstream.
+commit 930c922a987a02936000f15ea62988b7a39c27f5 upstream.
 
-__setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
-two missing patches doesn't cover this inner function, fix it.
+Add Adler Lake LP device id.
 
-Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
-Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
-
-Fixes: fbfa2cc58d53 ("f2fs: add file operations")
-Cc: stable@vger.kernel.org
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20210129120752.850325-7-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/file.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/mei/hw-me-regs.h |    1 +
+ drivers/misc/mei/pci-me.c     |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -765,7 +765,8 @@ static void __setattr_copy(struct inode
- 	if (ia_valid & ATTR_MODE) {
- 		umode_t mode = attr->ia_mode;
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -104,6 +104,7 @@
+ #define MEI_DEV_ID_EBG        0x1BE0  /* Emmitsburg WS */
  
--		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
-+		if (!in_group_p(inode->i_gid) &&
-+			!capable_wrt_inode_uidgid(inode, CAP_FSETID))
- 			mode &= ~S_ISGID;
- 		set_acl_inode(inode, mode);
- 	}
+ #define MEI_DEV_ID_ADP_S      0x7AE8  /* Alder Lake Point S */
++#define MEI_DEV_ID_ADP_LP     0x7A60  /* Alder Lake Point LP */
+ 
+ /*
+  * MEI HW Section
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -110,6 +110,7 @@ static const struct pci_device_id mei_me
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_EBG, MEI_ME_PCH15_SPS_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_S, MEI_ME_PCH15_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_ADP_LP, MEI_ME_PCH15_CFG)},
+ 
+ 	/* required last entry */
+ 	{0, }
 
 
