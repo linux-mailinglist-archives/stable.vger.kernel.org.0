@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44B373283FE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A56873283FB
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:29:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232661AbhCAQ2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:28:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59970 "EHLO mail.kernel.org"
+        id S232408AbhCAQ2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:28:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232326AbhCAQXm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:23:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B2EE64F27;
-        Mon,  1 Mar 2021 16:19:44 +0000 (UTC)
+        id S232330AbhCAQXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:23:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0428664F17;
+        Mon,  1 Mar 2021 16:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615585;
-        bh=8uAE7Kjr3jKjAAotgeKAhm59IaP0pK281vQmxuvNvXM=;
+        s=korg; t=1614615588;
+        bh=eEcvTb0J0tyc8S1Nqg27E3rxdlhcDvGgyA/JUf5qAn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1cyuPeNkSc23MikAaDJ6os1R4XqOSaOTdepeD2tnofWZL5wYBNMtKYKX/HGdrZTKC
-         NDFev3U4tPnB1uIinkjkJq3KzobIIumOnIDm+x0j1BSQUHBdE38y2gnZ1sqIvRYQFU
-         LWyEm8J+b8vduhDC2wBMsab7kSzQ7wPU1ONk5/xE=
+        b=RIEFBLdyLh5Uo89Pz8UV6PNDornAU0r14drDRBzOye8PeVwccZUkUJZ6xw68vQr4Z
+         T9FoYYebOErZuQRsiSY0P2GQ0qhW6oerlc5JA3NlpROsLjB+kR0HOGe94CX58fNUPv
+         M7H+SMZSBA00TD86NjOFZ/eZYCwo7WCbLt6YPEpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Kiselev <bigunclemax@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 4.4 82/93] gpio: pcf857x: Fix missing first interrupt
-Date:   Mon,  1 Mar 2021 17:13:34 +0100
-Message-Id: <20210301161010.908180451@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 4.4 83/93] f2fs: fix out-of-repair __setattr_copy()
+Date:   Mon,  1 Mar 2021 17:13:35 +0100
+Message-Id: <20210301161010.958598896@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161006.881950696@linuxfoundation.org>
 References: <20210301161006.881950696@linuxfoundation.org>
@@ -39,45 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Kiselev <bigunclemax@gmail.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit a8002a35935aaefcd6a42ad3289f62bab947f2ca upstream.
+commit 2562515f0ad7342bde6456602c491b64c63fe950 upstream.
 
-If no n_latch value will be provided at driver probe then all pins will
-be used as an input:
+__setattr_copy() was copied from setattr_copy() in fs/attr.c, there is
+two missing patches doesn't cover this inner function, fix it.
 
-    gpio->out = ~n_latch;
+Commit 7fa294c8991c ("userns: Allow chown and setgid preservation")
+Commit 23adbe12ef7d ("fs,userns: Change inode_capable to capable_wrt_inode_uidgid")
 
-In that case initial state for all pins is "one":
-
-    gpio->status = gpio->out;
-
-So if pcf857x IRQ happens with change pin value from "zero" to "one"
-then we miss it, because of "one" from IRQ and "one" from initial state
-leaves corresponding pin unchanged:
-change = (gpio->status ^ status) & gpio->irq_enabled;
-
-The right solution will be to read actual state at driver probe.
-
+Fixes: fbfa2cc58d53 ("f2fs: add file operations")
 Cc: stable@vger.kernel.org
-Fixes: 6e20a0a429bd ("gpio: pcf857x: enable gpio_to_irq() support")
-Signed-off-by: Maxim Kiselev <bigunclemax@gmail.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-pcf857x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/file.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpio/gpio-pcf857x.c
-+++ b/drivers/gpio/gpio-pcf857x.c
-@@ -370,7 +370,7 @@ static int pcf857x_probe(struct i2c_clie
- 	 * reset state.  Otherwise it flags pins to be driven low.
- 	 */
- 	gpio->out = ~n_latch;
--	gpio->status = gpio->out;
-+	gpio->status = gpio->read(gpio->client);
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -666,7 +666,8 @@ static void __setattr_copy(struct inode
+ 	if (ia_valid & ATTR_MODE) {
+ 		umode_t mode = attr->ia_mode;
  
- 	status = gpiochip_add(&gpio->chip);
- 	if (status < 0)
+-		if (!in_group_p(inode->i_gid) && !capable(CAP_FSETID))
++		if (!in_group_p(inode->i_gid) &&
++			!capable_wrt_inode_uidgid(inode, CAP_FSETID))
+ 			mode &= ~S_ISGID;
+ 		set_acl_inode(fi, mode);
+ 	}
 
 
