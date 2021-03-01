@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE2E328CB4
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D36328BB7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240350AbhCAS5a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:57:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S240311AbhCASik (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:38:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240519AbhCASv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:51:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A241A64F9E;
-        Mon,  1 Mar 2021 17:26:23 +0000 (UTC)
+        id S240070AbhCASdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:33:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9496E65236;
+        Mon,  1 Mar 2021 17:26:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619584;
-        bh=GlxxVNP9rhEar+fi8jeExJM4gGoPJ386ybd4Nou0H4k=;
+        s=korg; t=1614619568;
+        bh=1ncF2bo2J3lCbgnmqbH1Ngp51rq2b8KUERwAmNQp5qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiG2DNco4ncYJp4vWEnaCALxnjpZBDTGTDWq4pzxyb2L1do3fREIUzdABNhrp+iRt
-         HAmKwwop+9c/dA4tKTuCHbKcNRRUarD4Aii94C6dO3D7WcZzpWtXDhTcGcrMd306rq
-         nuLpN9l07h3IWg3Tz5Cyud2KYnj/0Axoe0rn2KOA=
+        b=DA/ahhduz2xJIw2OBI4ld2gsEYFdERoMnPkU+FNO2t/6Vdga8bqxcIdl04xiUswsQ
+         s4bZ+bv75tX1WgeusaEWcgOo77uQuf4atGmROxyaNR23fVBF68oLJ58G52xLvBgvsl
+         fgYe197TvkjXts6gNIbzvpp3PE1h2IQ0+ZEqb11A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com,
-        James Reynolds <jr@memlen.com>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 490/663] media: mceusb: Fix potential out-of-bounds shift
-Date:   Mon,  1 Mar 2021 17:12:18 +0100
-Message-Id: <20210301161206.091782438@linuxfoundation.org>
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 502/663] ALSA: hda/hdmi: Drop bogus check at closing a stream
+Date:   Mon,  1 Mar 2021 17:12:30 +0100
+Message-Id: <20210301161206.680783595@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,36 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Reynolds <jr@memlen.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1b43bad31fb0e00f45baf5b05bd21eb8d8ce7f58 upstream.
+commit 056a3da5d07fc5d3ceacfa2cdf013c9d8df630bd upstream.
 
-When processing a MCE_RSP_GETPORTSTATUS command, the bit index to set in
-ir->txports_cabled comes from response data, and isn't validated.
+Some users reported the kernel WARNING with stack traces from
+hdmi_pcm_close(), and it's the line checking the per_cvt->assigned
+flag.  This used to be a valid check in the past because the flag was
+turned on/off only at opening and closing a PCM stream.  Meanwhile,
+since the introduction of the silent-stream mode, this flag may be
+turned on/off at the monitor connection/disconnection time, which
+isn't always associated with the PCM open/close.  Hence this may lead
+to the inconsistent per_cvt->assigned flag at closing.
 
-As ir->txports_cabled is a u8, nothing should be done if the bit index
-is greater than 7.
+As the check itself became almost useless and confuses users as if it
+were a serious problem, just drop the check.
 
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+ec3b3128c576e109171d@syzkaller.appspotmail.com
-Signed-off-by: James Reynolds <jr@memlen.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: b1a5039759cb ("ALSA: hda/hdmi: fix silent stream for first playback to DP")
+Cc: <stable@vger.kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=210987
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20210211083139.29531-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_hdmi.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1169,7 +1169,7 @@ static void mceusb_handle_command(struct
- 		switch (subcmd) {
- 		/* the one and only 5-byte return value command */
- 		case MCE_RSP_GETPORTSTATUS:
--			if (buf_in[5] == 0)
-+			if (buf_in[5] == 0 && *hi < 8)
- 				ir->txports_cabled |= 1 << *hi;
- 			break;
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2133,7 +2133,6 @@ static int hdmi_pcm_close(struct hda_pcm
+ 			goto unlock;
+ 		}
+ 		per_cvt = get_cvt(spec, cvt_idx);
+-		snd_BUG_ON(!per_cvt->assigned);
+ 		per_cvt->assigned = 0;
+ 		hinfo->nid = 0;
  
 
 
