@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A34563284A9
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE363285BE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234320AbhCAQkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:40:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36930 "EHLO mail.kernel.org"
+        id S236555AbhCAQ6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:58:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234133AbhCAQeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF8B064F5E;
-        Mon,  1 Mar 2021 16:25:37 +0000 (UTC)
+        id S235773AbhCAQwR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:52:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1E3464FB8;
+        Mon,  1 Mar 2021 16:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615938;
-        bh=YbI1ViEzxpxW6LwectWkcf7gbWNKbrKpIok8ELwq/10=;
+        s=korg; t=1614616408;
+        bh=gc9ncjPHJsdcGRuKmWxQxwuCfGUSBofBeY/kfl3dsZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gmc5M8OkEPPWOhNeYNI7Cx+2WKPBN0P9vOMUDza8odbL9/B6dUjy9DwBm0BR/LIsy
-         N3cXqvdxn9uwAhWZdpGcrLt5fUFZtyDAOAIp+s6ZyFXKZtbtrbHBDgjoDW2xD4XXNh
-         Sqok7wfpENHRMcPAX8tJhq/08T8gSJ9ynCUdqpds=
+        b=Qih9M1aCJyIi66A4K1aX6oS2oW/8zxvoFUWRWP5TyqMtcKCrSh0fJ42+OLWRgEFF2
+         rhAyr0NGdobsStCIaccxAUpxgjxBB5xzUh/GVXutfnZJzu41Y0dBxBLJBz1BKvC3eo
+         Mx1PkL9jZEH5OFXhMPB1JvG6cGjKoSp2BYiQqjME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Fangrui Song <maskray@google.com>, Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.9 114/134] module: Ignore _GLOBAL_OFFSET_TABLE_ when warning for undefined symbols
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.14 142/176] crypto: sun4i-ss - IV register does not work on A10 and A13
 Date:   Mon,  1 Mar 2021 17:13:35 +0100
-Message-Id: <20210301161019.194999449@linuxfoundation.org>
+Message-Id: <20210301161028.064006013@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +39,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-commit ebfac7b778fac8b0e8e92ec91d0b055f046b4604 upstream.
+commit b756f1c8fc9d84e3f546d7ffe056c5352f4aab05 upstream.
 
-clang-12 -fno-pic (since
-https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6)
-can emit `call __stack_chk_fail@PLT` instead of `call __stack_chk_fail`
-on x86.  The two forms should have identical behaviors on x86-64 but the
-former causes GNU as<2.37 to produce an unreferenced undefined symbol
-_GLOBAL_OFFSET_TABLE_.
+Allwinner A10 and A13 SoC have a version of the SS which produce
+invalid IV in IVx register.
 
-(On x86-32, there is an R_386_PC32 vs R_386_PLT32 difference but the
-linker behavior is identical as far as Linux kernel is concerned.)
-
-Simply ignore _GLOBAL_OFFSET_TABLE_ for now, like what
-scripts/mod/modpost.c:ignore_undef_symbol does. This also fixes the
-problem for gcc/clang -fpie and -fpic, which may emit `call foo@PLT` for
-external function calls on x86.
-
-Note: ld -z defs and dynamic loaders do not error for unreferenced
-undefined symbols so the module loader is reading too much.  If we ever
-need to ignore more symbols, the code should be refactored to ignore
-unreferenced symbols.
-
+Instead of adding a variant for those, let's convert SS to produce IV
+directly from data.
+Fixes: 6298e948215f2 ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
 Cc: <stable@vger.kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1250
-Link: https://sourceware.org/bugzilla/show_bug.cgi?id=27178
-Reported-by: Marco Elver <elver@google.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Marco Elver <elver@google.com>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/module.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/crypto/sunxi-ss/sun4i-ss-cipher.c |   34 ++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -2209,6 +2209,21 @@ static int verify_export_symbols(struct
- 	return 0;
- }
+--- a/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
++++ b/drivers/crypto/sunxi-ss/sun4i-ss-cipher.c
+@@ -24,6 +24,7 @@ static int sun4i_ss_opti_poll(struct skc
+ 	unsigned int ivsize = crypto_skcipher_ivsize(tfm);
+ 	struct sun4i_cipher_req_ctx *ctx = skcipher_request_ctx(areq);
+ 	u32 mode = ctx->mode;
++	void *backup_iv = NULL;
+ 	/* when activating SS, the default FIFO space is SS_RX_DEFAULT(32) */
+ 	u32 rx_cnt = SS_RX_DEFAULT;
+ 	u32 tx_cnt = 0;
+@@ -53,6 +54,13 @@ static int sun4i_ss_opti_poll(struct skc
+ 		return -EINVAL;
+ 	}
  
-+static bool ignore_undef_symbol(Elf_Half emachine, const char *name)
-+{
-+	/*
-+	 * On x86, PIC code and Clang non-PIC code may have call foo@PLT. GNU as
-+	 * before 2.37 produces an unreferenced _GLOBAL_OFFSET_TABLE_ on x86-64.
-+	 * i386 has a similar problem but may not deserve a fix.
-+	 *
-+	 * If we ever have to ignore many symbols, consider refactoring the code to
-+	 * only warn if referenced by a relocation.
-+	 */
-+	if (emachine == EM_386 || emachine == EM_X86_64)
-+		return !strcmp(name, "_GLOBAL_OFFSET_TABLE_");
-+	return false;
-+}
++	if (areq->iv && ivsize > 0 && mode & SS_DECRYPTION) {
++		backup_iv = kzalloc(ivsize, GFP_KERNEL);
++		if (!backup_iv)
++			return -ENOMEM;
++		scatterwalk_map_and_copy(backup_iv, areq->src, areq->cryptlen - ivsize, ivsize, 0);
++	}
 +
- /* Change all symbols so that st_value encodes the pointer directly. */
- static int simplify_symbols(struct module *mod, const struct load_info *info)
- {
-@@ -2254,8 +2269,10 @@ static int simplify_symbols(struct modul
- 				break;
- 			}
+ 	spin_lock_irqsave(&ss->slock, flags);
  
--			/* Ok if weak.  */
--			if (!ksym && ELF_ST_BIND(sym[i].st_info) == STB_WEAK)
-+			/* Ok if weak or ignored.  */
-+			if (!ksym &&
-+			    (ELF_ST_BIND(sym[i].st_info) == STB_WEAK ||
-+			     ignore_undef_symbol(info->hdr->e_machine, name)))
- 				break;
+ 	for (i = 0; i < op->keylen; i += 4)
+@@ -126,9 +134,12 @@ static int sun4i_ss_opti_poll(struct skc
+ 	} while (oleft);
  
- 			pr_warn("%s: Unknown symbol %s (err %li)\n",
+ 	if (areq->iv) {
+-		for (i = 0; i < 4 && i < ivsize / 4; i++) {
+-			v = readl(ss->base + SS_IV0 + i * 4);
+-			*(u32 *)(areq->iv + i * 4) = v;
++		if (mode & SS_DECRYPTION) {
++			memcpy(areq->iv, backup_iv, ivsize);
++			kfree_sensitive(backup_iv);
++		} else {
++			scatterwalk_map_and_copy(areq->iv, areq->dst, areq->cryptlen - ivsize,
++						 ivsize, 0);
+ 		}
+ 	}
+ 
+@@ -160,6 +171,7 @@ static int sun4i_ss_cipher_poll(struct s
+ 	unsigned int ileft = areq->cryptlen;
+ 	unsigned int oleft = areq->cryptlen;
+ 	unsigned int todo;
++	void *backup_iv = NULL;
+ 	struct sg_mapping_iter mi, mo;
+ 	unsigned long pi = 0, po = 0; /* progress for in and out */
+ 	bool miter_err;
+@@ -202,6 +214,13 @@ static int sun4i_ss_cipher_poll(struct s
+ 	if (no_chunk == 1)
+ 		return sun4i_ss_opti_poll(areq);
+ 
++	if (areq->iv && ivsize > 0 && mode & SS_DECRYPTION) {
++		backup_iv = kzalloc(ivsize, GFP_KERNEL);
++		if (!backup_iv)
++			return -ENOMEM;
++		scatterwalk_map_and_copy(backup_iv, areq->src, areq->cryptlen - ivsize, ivsize, 0);
++	}
++
+ 	spin_lock_irqsave(&ss->slock, flags);
+ 
+ 	for (i = 0; i < op->keylen; i += 4)
+@@ -330,9 +349,12 @@ static int sun4i_ss_cipher_poll(struct s
+ 		sg_miter_stop(&mo);
+ 	}
+ 	if (areq->iv) {
+-		for (i = 0; i < 4 && i < ivsize / 4; i++) {
+-			v = readl(ss->base + SS_IV0 + i * 4);
+-			*(u32 *)(areq->iv + i * 4) = v;
++		if (mode & SS_DECRYPTION) {
++			memcpy(areq->iv, backup_iv, ivsize);
++			kfree_sensitive(backup_iv);
++		} else {
++			scatterwalk_map_and_copy(areq->iv, areq->dst, areq->cryptlen - ivsize,
++						 ivsize, 0);
+ 		}
+ 	}
+ 
 
 
