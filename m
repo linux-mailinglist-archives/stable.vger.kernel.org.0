@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83526328CF0
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:05:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB2A328CCC
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235601AbhCATCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:02:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57720 "EHLO mail.kernel.org"
+        id S234206AbhCAS6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:58:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240650AbhCASzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:55:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 137F0650BC;
-        Mon,  1 Mar 2021 17:40:27 +0000 (UTC)
+        id S240759AbhCASxf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:53:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A59C465179;
+        Mon,  1 Mar 2021 17:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620428;
-        bh=vGT1dut4182hzwAmDAdxHyyVSh1AEaQMcfPe0AEkcX0=;
+        s=korg; t=1614618479;
+        bh=iv8yLT1Z00N+3VSYE+sUzAzPZdo19N917EfyGV+SsBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1Hhd9XaWI6zK9NhnMrNQHZFg7/JXtxpj/5ayP36EfPeiT/C+cMZVFzORujbuHDbV
-         z/acs9iCfqrWXTwPZExB6SjoT/MC8kopq5qKGNQbFo9ccjoXQquSKnMaYyk9Fs2tS8
-         UgOkecHSUcxRwnPm9NR6lfeB8T45t2hwYnDQxbok=
+        b=JMen1ebNFl+V5DMA0O/+AV+bSysAVEHNQSdRIHZRoCE+p+lmUGHO2ftZARLLu3tgc
+         hl+xj58HoLVDvJGE9VU5jj0v7/fUSLXOZnLVXkeZledb/nQsxpfRTgbly1ysW2UD65
+         sSrQcvGybFo4B0rgBEoZtvUmDGBllBMRu/ZJOK+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Darren Kenny <darren.kenny@oracle.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 150/775] x86/sgx: Fix the return type of sgx_init()
-Date:   Mon,  1 Mar 2021 17:05:18 +0100
-Message-Id: <20210301161209.062411528@linuxfoundation.org>
+Subject: [PATCH 5.10 071/663] ARM: dts: armada388-helios4: assign pinctrl to each fan
+Date:   Mon,  1 Mar 2021 17:05:19 +0100
+Message-Id: <20210301161145.245278230@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
-References: <20210301161201.679371205@linuxfoundation.org>
+In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
+References: <20210301161141.760350206@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sami Tolvanen <samitolvanen@google.com>
+From: Rosen Penev <rosenp@gmail.com>
 
-[ Upstream commit 31bf92881714fe9962d43d097b5114a9b4ad0a12 ]
+[ Upstream commit 46ecdfc1830eaa40a11d7f832089c82b0e67ea96 ]
 
-device_initcall() expects a function of type initcall_t, which returns
-an integer. Change the signature of sgx_init() to match.
+Split up the pins for each fan. This is needed in order to control them
 
-Fixes: e7e0545299d8c ("x86/sgx: Initialize metadata for Enclave Page Cache (EPC) sections")
-Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Darren Kenny <darren.kenny@oracle.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Link: https://lkml.kernel.org/r/20210113232311.277302-1-samitolvanen@google.com
+Fixes: ced8025b569e ("ARM: dts: armada388-helios4")
+
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/sgx/main.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/armada-388-helios4.dts | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index c519fc5f69480..8df81a3ed9457 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -700,25 +700,27 @@ static bool __init sgx_page_cache_init(void)
- 	return true;
- }
+diff --git a/arch/arm/boot/dts/armada-388-helios4.dts b/arch/arm/boot/dts/armada-388-helios4.dts
+index e4c274ca26501..a7ff774d797c8 100644
+--- a/arch/arm/boot/dts/armada-388-helios4.dts
++++ b/arch/arm/boot/dts/armada-388-helios4.dts
+@@ -127,11 +127,15 @@
+ 	fan1: j10-pwm {
+ 		compatible = "pwm-fan";
+ 		pwms = <&gpio1 9 40000>;	/* Target freq:25 kHz */
++		pinctrl-names = "default";
++		pinctrl-0 = <&helios_fan1_pins>;
+ 	};
  
--static void __init sgx_init(void)
-+static int __init sgx_init(void)
- {
- 	int ret;
- 	int i;
+ 	fan2: j17-pwm {
+ 		compatible = "pwm-fan";
+ 		pwms = <&gpio1 23 40000>;	/* Target freq:25 kHz */
++		pinctrl-names = "default";
++		pinctrl-0 = <&helios_fan2_pins>;
+ 	};
  
- 	if (!cpu_feature_enabled(X86_FEATURE_SGX))
--		return;
-+		return -ENODEV;
- 
- 	if (!sgx_page_cache_init())
--		return;
-+		return -ENOMEM;
- 
--	if (!sgx_page_reclaimer_init())
-+	if (!sgx_page_reclaimer_init()) {
-+		ret = -ENOMEM;
- 		goto err_page_cache;
-+	}
- 
- 	ret = sgx_drv_init();
- 	if (ret)
- 		goto err_kthread;
- 
--	return;
-+	return 0;
- 
- err_kthread:
- 	kthread_stop(ksgxd_tsk);
-@@ -728,6 +730,8 @@ err_page_cache:
- 		vfree(sgx_epc_sections[i].pages);
- 		memunmap(sgx_epc_sections[i].virt_addr);
- 	}
-+
-+	return ret;
- }
- 
- device_initcall(sgx_init);
+ 	usb2_phy: usb2-phy {
+@@ -302,9 +306,12 @@
+ 						       "mpp54";
+ 					marvell,function = "gpio";
+ 				};
+-				helios_fan_pins: helios-fan-pins {
+-					marvell,pins = "mpp41", "mpp43",
+-						       "mpp48", "mpp55";
++				helios_fan1_pins: helios_fan1_pins {
++					marvell,pins = "mpp41", "mpp43";
++					marvell,function = "gpio";
++				};
++				helios_fan2_pins: helios_fan2_pins {
++					marvell,pins = "mpp48", "mpp55";
+ 					marvell,function = "gpio";
+ 				};
+ 				microsom_spi1_cs_pins: spi1-cs-pins {
 -- 
 2.27.0
 
