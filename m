@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2597B328CBE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:00:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EF3328B60
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:35:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240800AbhCAS55 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:57:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55414 "EHLO mail.kernel.org"
+        id S240126AbhCASdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:33:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240532AbhCASwS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:52:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2B62652B7;
-        Mon,  1 Mar 2021 17:36:11 +0000 (UTC)
+        id S239871AbhCAS0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:26:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08271652BA;
+        Mon,  1 Mar 2021 17:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614620172;
-        bh=f9pXglcwnjOnwPKby6RWGzMmgytNP6MOjK/rl95E5J4=;
+        s=korg; t=1614620183;
+        bh=vbuVeIEFL7Jimxs3iKdmSS2pCjQ/tt0oQ2cjTvP/l/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jhssAXBeh+qjNUl6aZYL2JCwiZ5r2bwx0phA4ZWK7lBKMxPoWqQGx4m9hSVtoYRKW
-         aonx8BRY7Crbwbej47LpyGAngy3a6nO4nj73NVeJ4YFYKgPZMFPeMKfK5mtH/QSf3v
-         9nQHDRH9cUnwhcK28vnMWUn8qg0T3VjECfaNi5kI=
+        b=ZuhsxSQpZz5c8WM7qYAGcI7F6UdqAnOfYXzXqKZndid4UyBbKHZyHuuHVSeXZ+Hzx
+         3ZCgu7jKVYE6WdUl0cPCwNjsvP+2g3rVb9qXv58pPaBXlBFEKILiRQihpqQCTPbwMP
+         s5SsDkftwhjmlgkGazWsmGXjv3Hbcnc015Ho/mMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Jack Pham <jackp@codeaurora.org>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, Ferry Toth <fntoth@gmail.com>,
-        Peter Chen <peter.chen@nxp.com>
-Subject: [PATCH 5.11 056/775] usb: gadget: u_audio: Free requests only after callback
-Date:   Mon,  1 Mar 2021 17:03:44 +0100
-Message-Id: <20210301161204.472801972@linuxfoundation.org>
+        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 060/775] staging: media: atomisp: Fix size_t format specifier in hmm_alloc() debug statemenet
+Date:   Mon,  1 Mar 2021 17:03:48 +0100
+Message-Id: <20210301161204.655110263@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -42,70 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 7de8681be2cde9f6953d3be1fa6ce05f9fe6e637 ]
+[ Upstream commit bfe21ef195a9f2785747e698dfd19f75554e2d91 ]
 
-As per the kernel doc for usb_ep_dequeue(), it states that "this
-routine is asynchronous, that is, it may return before the completion
-routine runs". And indeed since v5.0 the dwc3 gadget driver updated
-its behavior to place dequeued requests on to a cancelled list to be
-given back later after the endpoint is stopped.
+Fix this build warning on 32-bit:
 
-The free_ep() was incorrectly assuming that a request was ready to
-be freed after calling dequeue which results in a use-after-free
-in dwc3 when it traverses its cancelled list. Fix this by moving
-the usb_ep_free_request() call to the callback itself in case the
-ep is disabled.
+  drivers/staging/media/atomisp/pci/hmm/hmm.c: In function ‘hmm_alloc’:
+  drivers/staging/media/atomisp/pci/hmm/hmm.c:272:3: warning: format ‘%ld’ \
+     expects argument of type ‘long int’, but argument 6 has type ‘size_t {aka unsigned int}’ [-Wformat=]
+     "%s: pages: 0x%08x (%ld bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
+     ^
 
-Fixes: eb9fecb9e69b0 ("usb: gadget: f_uac2: split out audio core")
-Reported-and-tested-by: Ferry Toth <fntoth@gmail.com>
-Reviewed-and-tested-by: Peter Chen <peter.chen@nxp.com>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20210118084642.322510-2-jbrunet@baylibre.com
+Fixes: 03884c93560c ("media: atomisp: add debug for hmm alloc")
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20201126181150.10576-1-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_audio.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/staging/media/atomisp/pci/hmm/hmm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
-index e6d32c5367812..908e49dafd620 100644
---- a/drivers/usb/gadget/function/u_audio.c
-+++ b/drivers/usb/gadget/function/u_audio.c
-@@ -89,7 +89,12 @@ static void u_audio_iso_complete(struct usb_ep *ep, struct usb_request *req)
- 	struct snd_uac_chip *uac = prm->uac;
+diff --git a/drivers/staging/media/atomisp/pci/hmm/hmm.c b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+index e0eaff0f8a228..6a5ee46070898 100644
+--- a/drivers/staging/media/atomisp/pci/hmm/hmm.c
++++ b/drivers/staging/media/atomisp/pci/hmm/hmm.c
+@@ -269,7 +269,7 @@ ia_css_ptr hmm_alloc(size_t bytes, enum hmm_bo_type type,
+ 		hmm_set(bo->start, 0, bytes);
  
- 	/* i/f shutting down */
--	if (!prm->ep_enabled || req->status == -ESHUTDOWN)
-+	if (!prm->ep_enabled) {
-+		usb_ep_free_request(ep, req);
-+		return;
-+	}
-+
-+	if (req->status == -ESHUTDOWN)
- 		return;
+ 	dev_dbg(atomisp_dev,
+-		"%s: pages: 0x%08x (%ld bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
++		"%s: pages: 0x%08x (%zu bytes), type: %d from highmem %d, user ptr %p, cached %d\n",
+ 		__func__, bo->start, bytes, type, from_highmem, userptr, cached);
  
- 	/*
-@@ -336,8 +341,14 @@ static inline void free_ep(struct uac_rtd_params *prm, struct usb_ep *ep)
- 
- 	for (i = 0; i < params->req_number; i++) {
- 		if (prm->ureq[i].req) {
--			usb_ep_dequeue(ep, prm->ureq[i].req);
--			usb_ep_free_request(ep, prm->ureq[i].req);
-+			if (usb_ep_dequeue(ep, prm->ureq[i].req))
-+				usb_ep_free_request(ep, prm->ureq[i].req);
-+			/*
-+			 * If usb_ep_dequeue() cannot successfully dequeue the
-+			 * request, the request will be freed by the completion
-+			 * callback.
-+			 */
-+
- 			prm->ureq[i].req = NULL;
- 		}
- 	}
+ 	return bo->start;
 -- 
 2.27.0
 
