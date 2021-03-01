@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD28C328721
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:21:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECBC73285EE
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:02:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237529AbhCARUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:20:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48350 "EHLO mail.kernel.org"
+        id S236708AbhCARB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:01:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237816AbhCARNZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:13:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1A1564F44;
-        Mon,  1 Mar 2021 16:44:16 +0000 (UTC)
+        id S236374AbhCAQyB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:54:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ECA364F34;
+        Mon,  1 Mar 2021 16:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617057;
-        bh=vA3gJPn7S6dmA2TAtjIIkC3rHBGWeEv8HoqfLQelgR4=;
+        s=korg; t=1614616473;
+        bh=SX3EOBCeJevdCtPePCQk5W4ZEfX4kYlYbSOA1dk95e4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAGnBJuGSbDa9Ms32xW59ExdvUN8GMn6/J2/5l/Ly10cyrL1QlXRduBEdIoDQ4BRS
-         y10pdMpsXoFhszI2uEI24Azsvph55c0ssM34PHaHjR6XIWWbSiyN4R7ueqDq6WhOU/
-         uQLx/jdVyeEAhceGPXxi94V9pQFJAIQVIRad5hMg=
+        b=vUsz9ajd1gKX7rUdLB6nzAzXkIP98ir10LDXAWh/FHfw9SrCbpZJHFj/3v+nprYp5
+         7FQN6zkW/vZfmgX0P9bCjZhKpdmbDaHGrdleBGc4fahH71Am7YXxiHPkSl4oFBxl3y
+         ojTWIk+un/V5ykWn4VXWFz7sCwNiaPnM45wnaYyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Lech Perczak <lech.perczak@gmail.com>
-Subject: [PATCH 4.19 186/247] USB: serial: option: update interface mapping for ZTE P685M
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 4.14 133/176] usb: dwc3: gadget: Fix setting of DEPCFG.bInterval_m1
 Date:   Mon,  1 Mar 2021 17:13:26 +0100
-Message-Id: <20210301161040.757730597@linuxfoundation.org>
+Message-Id: <20210301161027.597048345@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
-References: <20210301161031.684018251@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +38,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lech Perczak <lech.perczak@gmail.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
+commit a1679af85b2ae35a2b78ad04c18bb069c37330cc upstream.
 
-This patch prepares for qmi_wwan driver support for the device.
-Previously "option" driver mapped itself to interfaces 0 and 3 (matching
-ff/ff/ff), while interface 3 is in fact a QMI port.
-Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
-and weren't supported previously at all.
-Without this patch, a possible conflict would exist if device ID was
-added to qmi_wwan driver for interface 3.
+Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it must be set
+to 0 when the controller operates in full-speed. See the programming
+guide for DEPCFG command section 3.2.2.1 (v3.30a).
 
-Update and simplify device ID to match interfaces 0-2 directly,
-to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
-with QMI (3), and ADB (4).
-
-The modem is used inside ZTE MF283+ router and carriers identify it as
-such.
-Interface mapping is:
-0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
-
-T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1275 Rev=f0.00
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Cc: Johan Hovold <johan@kernel.org>
-Cc: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
-Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 72246da40f37 ("usb: Introduce DesignWare USB3 DRD Driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/3f57026f993c0ce71498dbb06e49b3a47c4d0265.1612820995.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1569,7 +1569,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
--	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
-+	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
-+	  .driver_info = RSVD(3) | RSVD(4) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -606,7 +606,17 @@ static int dwc3_gadget_set_ep_config(str
+ 		params.param0 |= DWC3_DEPCFG_FIFO_NUMBER(dep->number >> 1);
+ 
+ 	if (desc->bInterval) {
+-		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(desc->bInterval - 1);
++		u8 bInterval_m1;
++
++		/*
++		 * Valid range for DEPCFG.bInterval_m1 is from 0 to 13, and it
++		 * must be set to 0 when the controller operates in full-speed.
++		 */
++		bInterval_m1 = min_t(u8, desc->bInterval - 1, 13);
++		if (dwc->gadget.speed == USB_SPEED_FULL)
++			bInterval_m1 = 0;
++
++		params.param1 |= DWC3_DEPCFG_BINTERVAL_M1(bInterval_m1);
+ 		dep->interval = 1 << (desc->bInterval - 1);
+ 	}
+ 
 
 
