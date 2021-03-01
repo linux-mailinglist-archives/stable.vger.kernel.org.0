@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94778327BAB
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3209E327BB7
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 11:16:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231545AbhCAKOU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 05:14:20 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:52951 "EHLO
+        id S232524AbhCAKQE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 05:16:04 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:37453 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231326AbhCAKOT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:14:19 -0500
-Received: from compute7.internal (compute7.nyi.internal [10.202.2.47])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BEF4C1940B06;
-        Mon,  1 Mar 2021 05:13:32 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute7.internal (MEProxy); Mon, 01 Mar 2021 05:13:32 -0500
+        by vger.kernel.org with ESMTP id S232216AbhCAKPv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 05:15:51 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2F87519407CC;
+        Mon,  1 Mar 2021 05:14:42 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 01 Mar 2021 05:14:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/yi3fl
-        Aqxo4dCbN3FanncED/KsBh9VOU77ptgXuZ1/w=; b=HHFtPvck93ZZqSZdhbIyBx
-        /WC7VgfGJdUARdtOZvz+iepxox+oArv7v/BJBLV8AeNlgqh2LwNoSf+VVBG58E8I
-        G3mKgYhcfbD0D5NTnoP6XNJerA3YUSyLhwwIaR7RrenIsGFBPoxNfLMhDvSgVAPf
-        qGT8Li3Fu4BlAbez8ToT7SqvoJhJEhsfKjqJls3Co+A1uUGyhNKPJ44nbqJcyz/U
-        xrKgJhEGBZtRPUMh+YsqQ+HOIYW7NVox5iiGQdls74iKhbtyk2++SketwNAFx++Z
-        9uksTjRL+n41kz+BFfHWVd/2GPfAJQBLjBpcBs2ahdxmlvWRPHuVtUIISG/MjSGw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=dD3sc0
+        7nNpOH3hxxJVYDN1evljiwzMgdKDJc19PtHZs=; b=Q0c3dPbxmJuJX+4Zvew+4O
+        1qpHSdTm6+7Q0JaEzVcS2SzYObGZNdC6aDFkD1MGzz8FeDrmxNxvF3L96+1bZrNG
+        xYVknXx0J5cyWHuyD01B/BaqvuH2TdsLCUqf5Simu+x21JKzhtSEPgAoYsmiWFS2
+        bzvGoY5vpPBS97+hMhnXF+vbLo0MXEXrvfknbcyO6XPAJl6seBhdLyqK2ecEnCTU
+        OBPSCQw7027OlPAGmYQBAVjdhk5zUYvlLnG2vHBVEhlo09I3P/Giz+ZpZVT3bEaJ
+        fI3Z1/y6VDW1Xb9JDeBbtF+txKauuvjMQQNpOwZXo98Ze+1C9ZTb/WJUB0/LMczw
         ==
-X-ME-Sender: <xms:TL48YBLh_cPrCsfYnxms0fkjnebPmKXcU3saU9LE8LtX2mmfEVGE4w>
-    <xme:TL48YEB8SA5ve2aVuKLlBPLjxaSIHpl6Gl6EB4olev9GYWAAcx4nWZJic6SA6czNR
-    pujfM0MAVHDiA>
+X-ME-Sender: <xms:kb48YPN1L97PHOiB2eAJzIRM3A5nhygZrmDlg_R1NXykSqZaJwnOYA>
+    <xme:kb48YJ-mJ_xygfv2e1xLGPLer0WtLpRuiau7uLf_iGLdPNpFdb-obEpnnx_07FgZ3
+    jq3rtmLQEKesg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrleekgdduudcutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttd
     flnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhg
-    qeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduudekge
-    efleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:TL48YGroD0qp4DCICa8iQvrYL96E5iyjRjFtOntatOVCNR-kDqW7Xw>
-    <xmx:TL48YPg6IG_8WVVCNcoOhAXsABn39b-yAm2LNkBTZLD49syqKu0K5Q>
-    <xmx:TL48YDCsghWQCz92KqjVkH5Gy5zrdTxAwgO2V7Eagwgwm4QuqG_1vQ>
-    <xmx:TL48YJDor5R0WSW-zhls3LIrxSQc3PLAxkp3JEgWdnoKUuUK5EVGFA>
+    qeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjedute
+    evueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:kb48YOQjiXDN9ESiXSajWGb2dXEgQHBPTU6YktzPsRI_ej4e67zrMQ>
+    <xmx:kb48YDuMtjM01jtmBbvsi5tYCrbm4c3MhJUKeAANjNnsBAfu42fXOQ>
+    <xmx:kb48YHd7XrNG8AHPybZ9IOicy4zcXkto4_KlQgJUU7gLHQaiD4scpw>
+    <xmx:kr48YPHDfhCcMo7LphZjduEO1rjXotGcBCFjud5j7ewH0345aiSK5w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 2C0AA240057;
-        Mon,  1 Mar 2021 05:13:32 -0500 (EST)
-Subject: FAILED: patch "[PATCH] iwlwifi: add new cards for So and Qu family" failed to apply to 5.11-stable tree
-To:     ihab.zhaika@intel.com, luciano.coelho@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 91FF51080057;
+        Mon,  1 Mar 2021 05:14:41 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: do not cleanup upper nodes in" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 01 Mar 2021 11:13:29 +0100
-Message-ID: <16145936091141@kroah.com>
+Date:   Mon, 01 Mar 2021 11:14:40 +0100
+Message-ID: <161459368014668@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.11-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,102 +70,122 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 410f758529bc227b186ba0846bcc75ac0700ffb2 Mon Sep 17 00:00:00 2001
-From: Ihab Zhaika <ihab.zhaika@intel.com>
-Date: Sat, 6 Feb 2021 13:01:10 +0200
-Subject: [PATCH] iwlwifi: add new cards for So and Qu family
+From 7e2a870a599d4699a626ec26430c7a1ab14a2a49 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Wed, 16 Dec 2020 11:22:16 -0500
+Subject: [PATCH] btrfs: do not cleanup upper nodes in
+ btrfs_backref_cleanup_node
 
-add few PCI ID'S for So with Hr and Qu with Hr in AX family.
+Zygo reported the following panic when testing my error handling patches
+for relocation:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ihab Zhaika <ihab.zhaika@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210206130110.6f0c1849f7dc.I647b4d22f9468c2f34b777a4bfa445912c6f04f0@changeid
+  kernel BUG at fs/btrfs/backref.c:2545!
+  invalid opcode: 0000 [#1] SMP KASAN PTI CPU: 3 PID: 8472 Comm: btrfs Tainted: G        W 14
+  Hardware name: QEMU Standard PC (i440FX + PIIX,
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-index e0c7410a01f6..d1e9fcba9645 100644
---- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-+++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
-@@ -682,6 +682,24 @@ const struct iwl_cfg iwl_cfg_snj_a0_mr_a0 = {
- 	.num_rbds = IWL_NUM_RBDS_AX210_HE,
- };
+  Call Trace:
+   btrfs_backref_error_cleanup+0x4df/0x530
+   build_backref_tree+0x1a5/0x700
+   ? _raw_spin_unlock+0x22/0x30
+   ? release_extent_buffer+0x225/0x280
+   ? free_extent_buffer.part.52+0xd7/0x140
+   relocate_tree_blocks+0x2a6/0xb60
+   ? kasan_unpoison_shadow+0x35/0x50
+   ? do_relocation+0xc10/0xc10
+   ? kasan_kmalloc+0x9/0x10
+   ? kmem_cache_alloc_trace+0x6a3/0xcb0
+   ? free_extent_buffer.part.52+0xd7/0x140
+   ? rb_insert_color+0x342/0x360
+   ? add_tree_block.isra.36+0x236/0x2b0
+   relocate_block_group+0x2eb/0x780
+   ? merge_reloc_roots+0x470/0x470
+   btrfs_relocate_block_group+0x26e/0x4c0
+   btrfs_relocate_chunk+0x52/0x120
+   btrfs_balance+0xe2e/0x18f0
+   ? pvclock_clocksource_read+0xeb/0x190
+   ? btrfs_relocate_chunk+0x120/0x120
+   ? lock_contended+0x620/0x6e0
+   ? do_raw_spin_lock+0x1e0/0x1e0
+   ? do_raw_spin_unlock+0xa8/0x140
+   btrfs_ioctl_balance+0x1f9/0x460
+   btrfs_ioctl+0x24c8/0x4380
+   ? __kasan_check_read+0x11/0x20
+   ? check_chain_key+0x1f4/0x2f0
+   ? __asan_loadN+0xf/0x20
+   ? btrfs_ioctl_get_supported_features+0x30/0x30
+   ? kvm_sched_clock_read+0x18/0x30
+   ? check_chain_key+0x1f4/0x2f0
+   ? lock_downgrade+0x3f0/0x3f0
+   ? handle_mm_fault+0xad6/0x2150
+   ? do_vfs_ioctl+0xfc/0x9d0
+   ? ioctl_file_clone+0xe0/0xe0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags.part.50+0x6c/0x1e0
+   ? check_flags+0x26/0x30
+   ? lock_is_held_type+0xc3/0xf0
+   ? syscall_enter_from_user_mode+0x1b/0x60
+   ? do_syscall_64+0x13/0x80
+   ? rcu_read_lock_sched_held+0xa1/0xd0
+   ? __kasan_check_read+0x11/0x20
+   ? __fget_light+0xae/0x110
+   __x64_sys_ioctl+0xc3/0x100
+   do_syscall_64+0x37/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This occurs because of this check
+
+  if (RB_EMPTY_NODE(&upper->rb_node))
+	  BUG_ON(!list_empty(&node->upper));
+
+As we are dropping the backref node, if we discover that our upper node
+in the edge we just cleaned up isn't linked into the cache that we are
+now done with this node, thus the BUG_ON().
+
+However this is an erroneous assumption, as we will look up all the
+references for a node first, and then process the pending edges.  All of
+the 'upper' nodes in our pending edges won't be in the cache's rb_tree
+yet, because they haven't been processed.  We could very well have many
+edges still left to cleanup on this node.
+
+The fact is we simply do not need this check, we can just process all of
+the edges only for this node, because below this check we do the
+following
+
+  if (list_empty(&upper->lower)) {
+	  list_add_tail(&upper->lower, &cache->leaves);
+	  upper->lowest = 1;
+  }
+
+If the upper node truly isn't used yet, then we add it to the
+cache->leaves list to be cleaned up later.  If it is still used then the
+last child node that has it linked into its node will add it to the
+leaves list and then it will be cleaned up.
+
+Fix this problem by dropping this logic altogether.  With this fix I no
+longer see the panic when testing with error injection in the backref
+code.
+
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 9cadacf3ec27..ef71aba5bc15 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -2541,13 +2541,6 @@ void btrfs_backref_cleanup_node(struct btrfs_backref_cache *cache,
+ 		list_del(&edge->list[UPPER]);
+ 		btrfs_backref_free_edge(cache, edge);
  
-+const struct iwl_cfg iwl_cfg_so_a0_hr_a0 = {
-+	.fw_name_pre = IWL_SO_A_HR_B_FW_PRE,
-+	IWL_DEVICE_AX210,
-+	.num_rbds = IWL_NUM_RBDS_AX210_HE,
-+};
-+
-+const struct iwl_cfg iwl_cfg_quz_a0_hr_b0 = {
-+	.fw_name_pre = IWL_QUZ_A_HR_B_FW_PRE,
-+	IWL_DEVICE_22500,
-+	/*
-+	 * This device doesn't support receiving BlockAck with a large bitmap
-+	 * so we need to restrict the size of transmitted aggregation to the
-+	 * HT size; mac80211 would otherwise pick the HE max (256) by default.
-+	 */
-+	.max_tx_agg_size = IEEE80211_MAX_AMPDU_BUF_HT,
-+	.num_rbds = IWL_NUM_RBDS_22000_HE,
-+};
-+
- MODULE_FIRMWARE(IWL_QU_B_HR_B_MODULE_FIRMWARE(IWL_22000_UCODE_API_MAX));
- MODULE_FIRMWARE(IWL_QNJ_B_HR_B_MODULE_FIRMWARE(IWL_22000_UCODE_API_MAX));
- MODULE_FIRMWARE(IWL_QU_C_HR_B_MODULE_FIRMWARE(IWL_22000_UCODE_API_MAX));
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-config.h b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-index 41d74a8c314d..b72142a247d0 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-config.h
-@@ -609,6 +609,8 @@ extern const struct iwl_cfg iwl_cfg_snj_a0_jf_b0;
- extern const struct iwl_cfg iwl_cfg_ma_a0_gf_a0;
- extern const struct iwl_cfg iwl_cfg_ma_a0_mr_a0;
- extern const struct iwl_cfg iwl_cfg_snj_a0_mr_a0;
-+extern const struct iwl_cfg iwl_cfg_so_a0_hr_a0;
-+extern const struct iwl_cfg iwl_cfg_quz_a0_hr_b0;
- #endif /* CONFIG_IWLMVM */
- 
- #endif /* __IWL_CONFIG_H__ */
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index c45542fa8b7f..c17234c0c945 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -926,6 +926,11 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
- 		      IWL_CFG_RF_TYPE_HR1, IWL_CFG_ANY,
- 		      IWL_CFG_ANY, IWL_CFG_ANY,
- 		      iwl_quz_a0_hr1_b0, iwl_ax101_name),
-+	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-+		      IWL_CFG_MAC_TYPE_QUZ, SILICON_B_STEP,
-+		      IWL_CFG_RF_TYPE_HR2, IWL_CFG_ANY,
-+		      IWL_CFG_NO_160, IWL_CFG_ANY,
-+		      iwl_cfg_quz_a0_hr_b0, iwl_ax203_name),
- 
- /* QnJ with Hr */
- 	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-@@ -997,6 +1002,27 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
- 		      IWL_CFG_ANY, IWL_CFG_ANY,
- 		      iwl_cfg_snj_a0_mr_a0, iwl_ma_name),
- 
-+/* So with Hr */
-+	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-+		      IWL_CFG_MAC_TYPE_SO, IWL_CFG_ANY,
-+		      IWL_CFG_RF_TYPE_HR2, IWL_CFG_ANY,
-+		      IWL_CFG_NO_160, IWL_CFG_ANY,
-+		      iwl_cfg_so_a0_hr_a0, iwl_ax203_name),
-+	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-+		      IWL_CFG_MAC_TYPE_SO, IWL_CFG_ANY,
-+		      IWL_CFG_RF_TYPE_HR2, IWL_CFG_ANY,
-+		      IWL_CFG_NO_160, IWL_CFG_ANY,
-+		      iwl_cfg_so_a0_hr_a0, iwl_ax203_name),
-+	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-+		      IWL_CFG_MAC_TYPE_SO, IWL_CFG_ANY,
-+		      IWL_CFG_RF_TYPE_HR1, IWL_CFG_ANY,
-+		      IWL_CFG_160, IWL_CFG_ANY,
-+		      iwl_cfg_so_a0_hr_a0, iwl_ax101_name),
-+	_IWL_DEV_INFO(IWL_CFG_ANY, IWL_CFG_ANY,
-+		      IWL_CFG_MAC_TYPE_SO, IWL_CFG_ANY,
-+		      IWL_CFG_RF_TYPE_HR2, IWL_CFG_ANY,
-+		      IWL_CFG_160, IWL_CFG_ANY,
-+		      iwl_cfg_so_a0_hr_a0, iwl_ax201_name)
- 
- #endif /* CONFIG_IWLMVM */
- };
+-		if (RB_EMPTY_NODE(&upper->rb_node)) {
+-			BUG_ON(!list_empty(&node->upper));
+-			btrfs_backref_drop_node(cache, node);
+-			node = upper;
+-			node->lowest = 1;
+-			continue;
+-		}
+ 		/*
+ 		 * Add the node to leaf node list if no other child block
+ 		 * cached.
 
