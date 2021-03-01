@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1390B328E4D
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC42328CD1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 20:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241600AbhCAT1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 14:27:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46228 "EHLO mail.kernel.org"
+        id S240200AbhCAS73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:59:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241564AbhCATYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 14:24:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CF7865140;
-        Mon,  1 Mar 2021 17:04:22 +0000 (UTC)
+        id S240784AbhCASxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:53:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A2F652EB;
+        Mon,  1 Mar 2021 17:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614618263;
-        bh=LhAKqvRNZIEa6tvIdsO+Nze2lhA7qS1Si39VQfZn+rk=;
+        s=korg; t=1614620374;
+        bh=fBlJ90zDYN9Pdef0+/b3tPkRYdzHIGpOS/Nmebu3xgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IK/4mZIa2KAd81NxEDAuB4/RtAcEki3p+3VmxhBdtuzakbhnwcgNmtSmygcCAypS
-         80BPCdXunBYCQsKX95U3xdZa3/dG7RyzxYq00aYPWliAyW56dc1b/CYvuM5h7krZv+
-         qMscltuQiTVASVDEmNWg07NEfcz/XmfEWJytAwZU=
+        b=OgWgh8dRyqrPfDVlZdr3QeFp7jPoS+G4P3RD70cJh0Ss3KWApZQVyRYSyi72LW4oO
+         T0p6I/DgvFsRFnzg19aYEz15FfyAb7CFl3ParCvDWwdY9ro8vtR49KXA3kTYyP3vFw
+         Xo/3EqHhmVTOJiB7p36v9IgXpJBWESwZEbzW+pOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/663] Bluetooth: hci_uart: Fix a race for write_work scheduling
+Subject: [PATCH 5.11 103/775] dpaa2-eth: fix memory leak in XDP_REDIRECT
 Date:   Mon,  1 Mar 2021 17:04:31 +0100
-Message-Id: <20210301161142.940546452@linuxfoundation.org>
+Message-Id: <20210301161206.748611921@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
-References: <20210301161141.760350206@linuxfoundation.org>
+In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
+References: <20210301161201.679371205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claire Chang <tientzu@chromium.org>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit afe0b1c86458f121b085271e4f3034017a90d4a3 ]
+[ Upstream commit e12be9139cca26d689fe1a9257054b76752f725b ]
 
-In hci_uart_write_work, there is a loop/goto checking the value of
-HCI_UART_TX_WAKEUP. If HCI_UART_TX_WAKEUP is set again, it keeps trying
-hci_uart_dequeue; otherwise, it clears HCI_UART_SENDING and returns.
+If xdp_do_redirect() fails, the calling driver should handle recycling
+or freeing of the page associated with the frame. The dpaa2-eth driver
+didn't do either of them and just incremented a counter.
+Fix this by trying to DMA map back the page and recycle it or, if the
+mapping fails, just free it.
 
-In hci_uart_tx_wakeup, if HCI_UART_SENDING is already set, it sets
-HCI_UART_TX_WAKEUP, skips schedule_work and assumes the running/pending
-hci_uart_write_work worker will do hci_uart_dequeue properly.
-
-However, if the HCI_UART_SENDING check in hci_uart_tx_wakeup is done after
-the loop breaks, but before HCI_UART_SENDING is cleared in
-hci_uart_write_work, the schedule_work is skipped incorrectly.
-
-Fix this race by changing the order of HCI_UART_SENDING and
-HCI_UART_TX_WAKEUP modification.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: 82f5169bf3d3 ("Bluetooth: hci_uart: add serdev driver support library")
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: d678be1dc1ec ("dpaa2-eth: add XDP_REDIRECT support")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_ldisc.c  | 7 +++----
- drivers/bluetooth/hci_serdev.c | 4 ++--
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_ldisc.c b/drivers/bluetooth/hci_ldisc.c
-index f83d67eafc9f0..8be4d807d1370 100644
---- a/drivers/bluetooth/hci_ldisc.c
-+++ b/drivers/bluetooth/hci_ldisc.c
-@@ -127,10 +127,9 @@ int hci_uart_tx_wakeup(struct hci_uart *hu)
- 	if (!test_bit(HCI_UART_PROTO_READY, &hu->flags))
- 		goto no_schedule;
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+index fb0bcd18ec0c1..f1c2b3c7f7e99 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -399,10 +399,20 @@ static u32 dpaa2_eth_run_xdp(struct dpaa2_eth_priv *priv,
+ 		xdp.frame_sz = DPAA2_ETH_RX_BUF_RAW_SIZE;
  
--	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state)) {
--		set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
-+	set_bit(HCI_UART_TX_WAKEUP, &hu->tx_state);
-+	if (test_and_set_bit(HCI_UART_SENDING, &hu->tx_state))
- 		goto no_schedule;
--	}
- 
- 	BT_DBG("");
- 
-@@ -174,10 +173,10 @@ restart:
- 		kfree_skb(skb);
+ 		err = xdp_do_redirect(priv->net_dev, &xdp, xdp_prog);
+-		if (unlikely(err))
++		if (unlikely(err)) {
++			addr = dma_map_page(priv->net_dev->dev.parent,
++					    virt_to_page(vaddr), 0,
++					    priv->rx_buf_size, DMA_BIDIRECTIONAL);
++			if (unlikely(dma_mapping_error(priv->net_dev->dev.parent, addr))) {
++				free_pages((unsigned long)vaddr, 0);
++			} else {
++				ch->buf_count++;
++				dpaa2_eth_xdp_release_buf(priv, ch, addr);
++			}
+ 			ch->stats.xdp_drop++;
+-		else
++		} else {
+ 			ch->stats.xdp_redirect++;
++		}
+ 		break;
  	}
  
-+	clear_bit(HCI_UART_SENDING, &hu->tx_state);
- 	if (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state))
- 		goto restart;
- 
--	clear_bit(HCI_UART_SENDING, &hu->tx_state);
- 	wake_up_bit(&hu->tx_state, HCI_UART_SENDING);
- }
- 
-diff --git a/drivers/bluetooth/hci_serdev.c b/drivers/bluetooth/hci_serdev.c
-index ef96ad06fa54e..9e03402ef1b37 100644
---- a/drivers/bluetooth/hci_serdev.c
-+++ b/drivers/bluetooth/hci_serdev.c
-@@ -83,9 +83,9 @@ static void hci_uart_write_work(struct work_struct *work)
- 			hci_uart_tx_complete(hu, hci_skb_pkt_type(skb));
- 			kfree_skb(skb);
- 		}
--	} while (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state));
- 
--	clear_bit(HCI_UART_SENDING, &hu->tx_state);
-+		clear_bit(HCI_UART_SENDING, &hu->tx_state);
-+	} while (test_bit(HCI_UART_TX_WAKEUP, &hu->tx_state));
- }
- 
- /* ------- Interface to HCI layer ------ */
 -- 
 2.27.0
 
