@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EADAA328771
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62B7A328768
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 18:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238223AbhCARX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 12:23:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48192 "EHLO mail.kernel.org"
+        id S238197AbhCARXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 12:23:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235189AbhCARPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 12:15:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E88565046;
-        Mon,  1 Mar 2021 16:45:53 +0000 (UTC)
+        id S236529AbhCARQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 12:16:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76B2B65032;
+        Mon,  1 Mar 2021 16:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614617154;
-        bh=go1GM1pPpZzr2Kd+fcqKFPh+0T0oost0FczjEyytlx8=;
+        s=korg; t=1614617157;
+        bh=jxdL+NXLqAGrcWPfzTx4Ka+fkw2lSjx8W/G5Jhpuyac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F8tsGr58auJqG8Vq9ck4VyyB91youRk1UAHzosaIystAAFTvW7paTYtx4tcP5GEUy
-         brTgE5PFXL32VqcylQ+eD+EBpBLuKjr4OZQNqzBGB+cBtACilYc3kgKoVaxqrVbIzs
-         0Ppg4rqY26zcM/4dj06bQ1RaLErplpNmsdpDykXU=
+        b=SluCUSIeZrPd62iGjdn46eTfiv+PNs/Qyj3EAfEBR2pxcX20UPTITZF24SG5RQwT4
+         cxqb2gKmQa72tQ3j+VVQJq1rpCRmqF0PfZkZ7GjEcS5c+pt0kBcEdCF5UyN52Zg3o8
+         n+KplMyJujwdV706g+Wt/YJdytpmlthtUf4BWzTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 191/247] USB: serial: mos7840: fix error code in mos7840_write()
-Date:   Mon,  1 Mar 2021 17:13:31 +0100
-Message-Id: <20210301161041.006321049@linuxfoundation.org>
+Subject: [PATCH 4.19 192/247] USB: serial: mos7720: fix error code in mos7720_write()
+Date:   Mon,  1 Mar 2021 17:13:32 +0100
+Message-Id: <20210301161041.056678560@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
 References: <20210301161031.684018251@linuxfoundation.org>
@@ -41,22 +41,23 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a70aa7dc60099bbdcbd6faca42a915d80f31161e upstream.
+commit fea7372cbc40869876df0f045e367f6f97a1666c upstream.
 
-This should return -ENOMEM instead of 0 if the kmalloc() fails.
+This code should return -ENOMEM if the kmalloc() fails but instead
+it returns success.
 
-Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 0f64478cbc7a ("USB: add USB serial mos7720 driver")
 Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/mos7840.c |    4 +++-
+ drivers/usb/serial/mos7720.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -1340,8 +1340,10 @@ static int mos7840_write(struct tty_stru
+--- a/drivers/usb/serial/mos7720.c
++++ b/drivers/usb/serial/mos7720.c
+@@ -1250,8 +1250,10 @@ static int mos7720_write(struct tty_stru
  	if (urb->transfer_buffer == NULL) {
  		urb->transfer_buffer = kmalloc(URB_TRANSFER_BUFFER_SIZE,
  					       GFP_ATOMIC);
