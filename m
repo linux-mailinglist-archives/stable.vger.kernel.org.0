@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02C23284AE
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:42:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5383284C1
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234718AbhCAQkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36922 "EHLO mail.kernel.org"
+        id S235007AbhCAQmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:42:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234154AbhCAQeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:34:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B19FA64F67;
-        Mon,  1 Mar 2021 16:25:52 +0000 (UTC)
+        id S234308AbhCAQeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:34:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8298164F69;
+        Mon,  1 Mar 2021 16:25:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615953;
-        bh=EEtcAYwvb9LkuXHyi5xkuGTBDwf7vRwBViNKGC3OFdQ=;
+        s=korg; t=1614615956;
+        bh=xOWbgxp3vEq+RDS7HFsY+tPWOzL+E97JnpPwj0+LSvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wz3/Dcpwlg4l0f9kvRc7i5fBbHtLBmcHthNufzvkCh3RaBeyL0qgmHhtFz5ENtZMw
-         UwGciscRgBkkh0G1525hGybG5wQBNR6DSoGAB0UAlXfOR8w03WllHLk7oyT4AfOx/W
-         MqHZt1OgN7nQ5ZKBHG1H7itw/f5gB+gBPqFIrJkI=
+        b=A5DNvfkAQ7bby+Yf65VixS0SPUsokit69jYtDJTNiIqdprupx4w3QIhTSA4Ee57VF
+         v3hgMQL5B+gRdABygKSwZpByzI907KVSFehQs5cHWeP0D6DH0V29Y9Dku14qltmH8R
+         cSP+aNAettnpPXizYqX2iAhWHBjyBhQWDLSpRpSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 118/134] sparc32: fix a user-triggerable oops in clear_user()
-Date:   Mon,  1 Mar 2021 17:13:39 +0100
-Message-Id: <20210301161019.399341232@linuxfoundation.org>
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>
+Subject: [PATCH 4.9 119/134] gfs2: Dont skip dlm unlock if glock has an lvb
+Date:   Mon,  1 Mar 2021 17:13:40 +0100
+Message-Id: <20210301161019.441625803@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
 References: <20210301161013.585393984@linuxfoundation.org>
@@ -40,50 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Bob Peterson <rpeterso@redhat.com>
 
-commit 7780918b36489f0b2f9a3749d7be00c2ceaec513 upstream.
+commit 78178ca844f0eb88f21f31c7fde969384be4c901 upstream.
 
-Back in 2.1.29 the clear_user() guts (__bzero()) had been merged
-with memset().  Unfortunately, while all exception handlers had been
-copied, one of the exception table entries got lost.  As the result,
-clear_user() starting at 128*n bytes before the end of page and
-spanning between 8 and 127 bytes into the next page would oops when
-the second page is unmapped.  It's trivial to reproduce - all
-it takes is
+Patch fb6791d100d1 was designed to allow gfs2 to unmount quicker by
+skipping the step where it tells dlm to unlock glocks in EX with lvbs.
+This was done because when gfs2 unmounts a file system, it destroys the
+dlm lockspace shortly after it destroys the glocks so it doesn't need to
+unlock them all: the unlock is implied when the lockspace is destroyed
+by dlm.
 
-main()
-{
-	int fd = open("/dev/zero", O_RDONLY);
-	char *p = mmap(NULL, 16384, PROT_READ|PROT_WRITE,
-			MAP_PRIVATE|MAP_ANON, -1, 0);
-	munmap(p + 8192, 8192);
-	read(fd, p + 8192 - 128, 192);
-}
+However, that patch introduced a use-after-free in dlm: as part of its
+normal dlm_recoverd process, it can call ls_recovery to recover dead
+locks. In so doing, it can call recover_rsbs which calls recover_lvb for
+any mastered rsbs. Func recover_lvb runs through the list of lkbs queued
+to the given rsb (if the glock is cached but unlocked, it will still be
+queued to the lkb, but in NL--Unlocked--mode) and if it has an lvb,
+copies it to the rsb, thus trying to preserve the lkb. However, when
+gfs2 skips the dlm unlock step, it frees the glock and its lvb, which
+means dlm's function recover_lvb references the now freed lvb pointer,
+copying the freed lvb memory to the rsb.
 
-which had been oopsing since March 1997.  Says something about
-the quality of test coverage... ;-/  And while today sparc32 port
-is nearly dead, back in '97 it had been very much alive; in fact,
-sparc64 had only been in mainline for 3 months by that point...
+This patch changes the check in gdlm_put_lock so that it calls
+dlm_unlock for all glocks that contain an lvb pointer.
 
-Cc: stable@kernel.org
-Fixes: v2.1.29
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: fb6791d100d1 ("GFS2: skip dlm_unlock calls in unmount")
+Cc: stable@vger.kernel.org # v3.8+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/lib/memset.S |    1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/lock_dlm.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/arch/sparc/lib/memset.S
-+++ b/arch/sparc/lib/memset.S
-@@ -140,6 +140,7 @@ __bzero:
- 	ZERO_LAST_BLOCKS(%o0, 0x48, %g2)
- 	ZERO_LAST_BLOCKS(%o0, 0x08, %g2)
- 13:
-+	EXT(12b, 13b, 21f)
- 	be	8f
- 	 andcc	%o1, 4, %g0
+--- a/fs/gfs2/lock_dlm.c
++++ b/fs/gfs2/lock_dlm.c
+@@ -284,7 +284,6 @@ static void gdlm_put_lock(struct gfs2_gl
+ {
+ 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
+ 	struct lm_lockstruct *ls = &sdp->sd_lockstruct;
+-	int lvb_needs_unlock = 0;
+ 	int error;
  
+ 	if (gl->gl_lksb.sb_lkid == 0) {
+@@ -297,13 +296,10 @@ static void gdlm_put_lock(struct gfs2_gl
+ 	gfs2_sbstats_inc(gl, GFS2_LKS_DCOUNT);
+ 	gfs2_update_request_times(gl);
+ 
+-	/* don't want to skip dlm_unlock writing the lvb when lock is ex */
+-
+-	if (gl->gl_lksb.sb_lvbptr && (gl->gl_state == LM_ST_EXCLUSIVE))
+-		lvb_needs_unlock = 1;
++	/* don't want to skip dlm_unlock writing the lvb when lock has one */
+ 
+ 	if (test_bit(SDF_SKIP_DLM_UNLOCK, &sdp->sd_flags) &&
+-	    !lvb_needs_unlock) {
++	    !gl->gl_lksb.sb_lvbptr) {
+ 		gfs2_glock_free(gl);
+ 		return;
+ 	}
 
 
