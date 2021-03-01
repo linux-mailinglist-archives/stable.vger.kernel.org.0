@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B1B3284CD
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E113285D0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 17:59:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235184AbhCAQnO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 11:43:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43350 "EHLO mail.kernel.org"
+        id S235713AbhCAQ7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 11:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232800AbhCAQgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 11:36:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20D2C64E6B;
-        Mon,  1 Mar 2021 16:26:20 +0000 (UTC)
+        id S236214AbhCAQxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 11:53:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A7164F35;
+        Mon,  1 Mar 2021 16:34:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614615981;
-        bh=tJHUttpc1OBNchC98vG0su6aGYE8cWN7gyrCOJ6d7cw=;
+        s=korg; t=1614616461;
+        bh=m9glRlN3ChgusD9VdkEfwQUATmp5H2BhI2WFeclwOSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gA4kB9ruFB/otQbx/lpgIyhYAHmTvGhQfY9B6O3cc+JBclQSXlWs/VsZVpSzBdhLb
-         cZNV86rAR+t7rtMTuqJpEJxCHlMqULrhaG5CoE6POFb3xi7e82yoanfegt4w3nYhQI
-         m605AX0YN8GVxjSsTRGNyOTBv+vpfwK9S0TSuTvQ=
+        b=JEo3cq0YwhCjeK5PWtyiVTXRgBDx9wBFWNhQruuWFHfSXhZ9BLDXpniaf07M8xLEM
+         6xyJevlLkjpWCrPhhxjLQAMfady/8yP+CSzW+m6iNuFOupo2Hrz8CUu5H/Be9rozXR
+         lOlCm56qFCXvb29rmJUnVJrtR1H7uz0y88dME71c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 4.9 101/134] KEYS: trusted: Fix migratable=1 failing
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>
+Subject: [PATCH 4.14 129/176] USB: serial: option: update interface mapping for ZTE P685M
 Date:   Mon,  1 Mar 2021 17:13:22 +0100
-Message-Id: <20210301161018.534372689@linuxfoundation.org>
+Message-Id: <20210301161027.401721031@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210301161013.585393984@linuxfoundation.org>
-References: <20210301161013.585393984@linuxfoundation.org>
+In-Reply-To: <20210301161020.931630716@linuxfoundation.org>
+References: <20210301161020.931630716@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-commit 8da7520c80468c48f981f0b81fc1be6599e3b0ad upstream.
+commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
 
-Consider the following transcript:
+This patch prepares for qmi_wwan driver support for the device.
+Previously "option" driver mapped itself to interfaces 0 and 3 (matching
+ff/ff/ff), while interface 3 is in fact a QMI port.
+Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
+and weren't supported previously at all.
+Without this patch, a possible conflict would exist if device ID was
+added to qmi_wwan driver for interface 3.
 
-$ keyctl add trusted kmk "new 32 blobauth=helloworld keyhandle=80000000 migratable=1" @u
-add_key: Invalid argument
+Update and simplify device ID to match interfaces 0-2 directly,
+to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
+with QMI (3), and ADB (4).
 
-The documentation has the following description:
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
 
-  migratable=   0|1 indicating permission to reseal to new PCR values,
-                default 1 (resealing allowed)
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-The consequence is that "migratable=1" should succeed. Fix this by
-allowing this condition to pass instead of return -EINVAL.
-
-[*] Documentation/security/keys/trusted-encrypted.rst
-
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
 Cc: stable@vger.kernel.org
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>
-Cc: Mimi Zohar <zohar@linux.ibm.com>
-Cc: David Howells <dhowells@redhat.com>
-Fixes: d00a1c72f7f4 ("keys: add new trusted key-type")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/keys/trusted.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/security/keys/trusted.c
-+++ b/security/keys/trusted.c
-@@ -797,7 +797,7 @@ static int getoptions(char *c, struct tr
- 		case Opt_migratable:
- 			if (*args[0].from == '0')
- 				pay->migratable = 0;
--			else
-+			else if (*args[0].from != '1')
- 				return -EINVAL;
- 			break;
- 		case Opt_pcrlock:
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1572,7 +1572,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
+-	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
++	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
++	  .driver_info = RSVD(3) | RSVD(4) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
 
 
