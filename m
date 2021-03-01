@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 705B4328A5C
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:17:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D76D6328AF0
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239558AbhCASQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:16:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58158 "EHLO mail.kernel.org"
+        id S239834AbhCASZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234284AbhCASJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:09:00 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6E065066;
-        Mon,  1 Mar 2021 17:23:38 +0000 (UTC)
+        id S232800AbhCASSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:18:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD1F06506C;
+        Mon,  1 Mar 2021 17:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619419;
-        bh=vGtHvO5vY1/hbyN7DteKHlZkQG5TALIND6rSi4sb7Pk=;
+        s=korg; t=1614619430;
+        bh=jf4Ra3bK+Jrx7VR5X/cspBEB9XBNdMpA9TNa5h8NlsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OiCN5hGu0ej6oFvqvdTmT3+Mo7mmrIgfffhmpd0LSceoLoQrWvvhsSbHCQzNim7OA
-         JBJnnA5swcd89FihOd9TnRTp+HRe+lgAgbTiZRPhByrLf/iNxSGvn4PULWiK9V8DLl
-         sIDY/LFC6VLEryIeLxJzxcWKj7dQkZKb1aRHbkos=
+        b=0kTU0XTpHe+Kc1x3dlO1MtqsKm2cJhGVzk5Z3Ps/ZvwbCXMCEPeQMDfDXJGnYM341
+         FrF14vu/YngGAhhWFGTPD76p42zp5FGoCJoMEOa9vI/xoDBpoB/E1ddHvWmmahDJIS
+         FtuQENdUVOsGh+CXtpUwma1pgypIwluJCOHiCZvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 447/663] ice: Fix state bits on LLDP mode switch
-Date:   Mon,  1 Mar 2021 17:11:35 +0100
-Message-Id: <20210301161204.017681548@linuxfoundation.org>
+Subject: [PATCH 5.10 451/663] PCI: rockchip: Make ep-gpios DT property optional
+Date:   Mon,  1 Mar 2021 17:11:39 +0100
+Message-Id: <20210301161204.203592734@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,88 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Ertman <david.m.ertman@intel.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 0d4907f65dc8fc5e897ad19956fca1acb3b33bc8 ]
+[ Upstream commit 58adbfb3ebec460e8b58875c682bafd866808e80 ]
 
-DCBX_CAP bits were not being adjusted when switching
-between SW and FW controlled LLDP.
+The Rockchip PCIe controller DT binding clearly states that 'ep-gpios' is
+an optional property. And indeed there are boards that don't require it.
 
-Adjust bits to correctly indicate which mode the
-LLDP logic is in.
+Make the driver follow the binding by using devm_gpiod_get_optional()
+instead of devm_gpiod_get().
 
-Fixes: b94b013eb626 ("ice: Implement DCBNL support")
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+[bhelgaas: tidy whitespace]
+Link: https://lore.kernel.org/r/20210121162321.4538-2-wens@kernel.org
+Fixes: e77f847df54c ("PCI: rockchip: Add Rockchip PCIe controller support")
+Fixes: 956cd99b35a8 ("PCI: rockchip: Separate common code from RC driver")
+Fixes: 964bac9455be ("PCI: rockchip: Split out rockchip_pcie_parse_dt() to parse DT")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h         | 2 --
- drivers/net/ethernet/intel/ice/ice_dcb_nl.c  | 4 ++++
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 7 +++++++
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pcie-rockchip.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index 54cf382fddaf9..5b3f2bb22eba7 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -444,9 +444,7 @@ struct ice_pf {
- 	struct ice_hw_port_stats stats_prev;
- 	struct ice_hw hw;
- 	u8 stat_prev_loaded:1; /* has previous stats been loaded */
--#ifdef CONFIG_DCB
- 	u16 dcbx_cap;
--#endif /* CONFIG_DCB */
- 	u32 tx_timeout_count;
- 	unsigned long tx_timeout_last_recovery;
- 	u32 tx_timeout_recovery_level;
-diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-index 842d44b63480f..8c133a8be6add 100644
---- a/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-+++ b/drivers/net/ethernet/intel/ice/ice_dcb_nl.c
-@@ -160,6 +160,10 @@ static u8 ice_dcbnl_setdcbx(struct net_device *netdev, u8 mode)
- {
- 	struct ice_pf *pf = ice_netdev_to_pf(netdev);
- 
-+	/* if FW LLDP agent is running, DCBNL not allowed to change mode */
-+	if (test_bit(ICE_FLAG_FW_LLDP_AGENT, pf->flags))
-+		return ICE_DCB_NO_HW_CHG;
-+
- 	/* No support for LLD_MANAGED modes or CEE+IEEE */
- 	if ((mode & DCB_CAP_DCBX_LLD_MANAGED) ||
- 	    ((mode & DCB_CAP_DCBX_VER_IEEE) && (mode & DCB_CAP_DCBX_VER_CEE)) ||
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index 69c113a4de7e6..d27b9cb3e8082 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -8,6 +8,7 @@
- #include "ice_fltr.h"
- #include "ice_lib.h"
- #include "ice_dcb_lib.h"
-+#include <net/dcbnl.h>
- 
- struct ice_stats {
- 	char stat_string[ETH_GSTRING_LEN];
-@@ -1238,6 +1239,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
- 			status = ice_init_pf_dcb(pf, true);
- 			if (status)
- 				dev_warn(dev, "Fail to init DCB\n");
-+
-+			pf->dcbx_cap &= ~DCB_CAP_DCBX_LLD_MANAGED;
-+			pf->dcbx_cap |= DCB_CAP_DCBX_HOST;
- 		} else {
- 			enum ice_status status;
- 			bool dcbx_agent_status;
-@@ -1280,6 +1284,9 @@ static int ice_set_priv_flags(struct net_device *netdev, u32 flags)
- 			if (status)
- 				dev_dbg(dev, "Fail to enable MIB change events\n");
- 
-+			pf->dcbx_cap &= ~DCB_CAP_DCBX_HOST;
-+			pf->dcbx_cap |= DCB_CAP_DCBX_LLD_MANAGED;
-+
- 			ice_nway_reset(netdev);
- 		}
+diff --git a/drivers/pci/controller/pcie-rockchip.c b/drivers/pci/controller/pcie-rockchip.c
+index 904dec0d3a88f..990a00e08bc5b 100644
+--- a/drivers/pci/controller/pcie-rockchip.c
++++ b/drivers/pci/controller/pcie-rockchip.c
+@@ -82,7 +82,7 @@ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
  	}
+ 
+ 	rockchip->mgmt_sticky_rst = devm_reset_control_get_exclusive(dev,
+-								     "mgmt-sticky");
++								"mgmt-sticky");
+ 	if (IS_ERR(rockchip->mgmt_sticky_rst)) {
+ 		if (PTR_ERR(rockchip->mgmt_sticky_rst) != -EPROBE_DEFER)
+ 			dev_err(dev, "missing mgmt-sticky reset property in node\n");
+@@ -118,11 +118,11 @@ int rockchip_pcie_parse_dt(struct rockchip_pcie *rockchip)
+ 	}
+ 
+ 	if (rockchip->is_rc) {
+-		rockchip->ep_gpio = devm_gpiod_get(dev, "ep", GPIOD_OUT_HIGH);
+-		if (IS_ERR(rockchip->ep_gpio)) {
+-			dev_err(dev, "missing ep-gpios property in node\n");
+-			return PTR_ERR(rockchip->ep_gpio);
+-		}
++		rockchip->ep_gpio = devm_gpiod_get_optional(dev, "ep",
++							    GPIOD_OUT_HIGH);
++		if (IS_ERR(rockchip->ep_gpio))
++			return dev_err_probe(dev, PTR_ERR(rockchip->ep_gpio),
++					     "failed to get ep GPIO\n");
+ 	}
+ 
+ 	rockchip->aclk_pcie = devm_clk_get(dev, "aclk");
 -- 
 2.27.0
 
