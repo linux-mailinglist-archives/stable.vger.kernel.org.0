@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E21C328CA1
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:57:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 853BB328B89
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 19:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240063AbhCASzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 13:55:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
+        id S233148AbhCASgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 1 Mar 2021 13:36:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237575AbhCAStl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 13:49:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 382F4651F8;
-        Mon,  1 Mar 2021 17:20:09 +0000 (UTC)
+        id S240121AbhCAS2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 1 Mar 2021 13:28:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9242B651FA;
+        Mon,  1 Mar 2021 17:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614619210;
-        bh=SVvwAv75TrcbfHIFGGl1zVyBbXg6J0DTdJJ2z64Ys8o=;
+        s=korg; t=1614619216;
+        bh=iujoRJMg7WqCX5LMPn89HXegUXUu0a01+lL15SPLMRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSnLJaxHnG8TfRNkDHypfxTNV8zxlHEcqNtvbgVCyKXBTbukqWcR5R+Wh9IMXT/+z
-         FVGoRVVukL7a6valdUw67e06a0Ww3qt1z0f+KHuVzZMlH1lGai9H5GK1fzveXw0D7D
-         RHLr/NKJtxbIiemLVzN+hdyTDUxm3is/F/pBooqQ=
+        b=GKxG7yLJBk0YuyQOcUYpmUN1NreV3sT2e4vNUEG3QWG502zcOCeKJe2+gssp0qIFP
+         Obiq5UU+xzmAoG7MOu4EzUIsW+JX0f+FtlguZjBCKAX8uh7GMDXQiGE3rKJu/1lpCN
+         bCaKdq6FhVK/Bt2x7zCxhCFXYmfmGqLPaE0uDmUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhi Li <yieli@redhat.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 373/663] nfsd: register pernet ops last, unregister first
-Date:   Mon,  1 Mar 2021 17:10:21 +0100
-Message-Id: <20210301161200.307560829@linuxfoundation.org>
+Subject: [PATCH 5.10 375/663] ceph: fix flush_snap logic after putting caps
+Date:   Mon,  1 Mar 2021 17:10:23 +0100
+Message-Id: <20210301161200.407130471@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161141.760350206@linuxfoundation.org>
 References: <20210301161141.760350206@linuxfoundation.org>
@@ -41,85 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit bd5ae9288d6451bd346a1b4a59d4fe7e62ba29b7 ]
+[ Upstream commit 64f36da5625f7f9853b86750eaa89d499d16a2e9 ]
 
-These pernet operations may depend on stuff set up or torn down in the
-module init/exit functions.  And they may be called at any time in
-between.  So it makes more sense for them to be the last to be
-registered in the init function, and the first to be unregistered in the
-exit function.
+A primary reason for skipping ceph_check_caps after putting the
+references was to avoid the locking in ceph_check_caps during a
+reconnect. __ceph_put_cap_refs can still call ceph_flush_snaps in that
+case though, and that takes many of the same inconvenient locks.
 
-In particular, without this, the drc slab is being destroyed before all
-the per-net drcs are shut down, resulting in an "Objects remaining in
-nfsd_drc on __kmem_cache_shutdown()" warning in exit_nfsd.
+Fix the logic in __ceph_put_cap_refs to skip flushing snaps when the
+skip_checking_caps flag is set.
 
-Reported-by: Zhi Li <yieli@redhat.com>
-Fixes: 3ba75830ce17 "nfsd4: drc containerization"
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: e64f44a88465 ("ceph: skip checking caps when session reconnecting and releasing reqs")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Ilya Dryomov <idryomov@gmail.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfsctl.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/ceph/caps.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index f6d5d783f4a45..0759e589ab52b 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1522,12 +1522,9 @@ static int __init init_nfsd(void)
- 	int retval;
- 	printk(KERN_INFO "Installing knfsd (copyright (C) 1996 okir@monad.swb.de).\n");
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 2b200b5a44c3a..576d01275bbd7 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -3092,10 +3092,12 @@ static void __ceph_put_cap_refs(struct ceph_inode_info *ci, int had,
+ 	dout("put_cap_refs %p had %s%s%s\n", inode, ceph_cap_string(had),
+ 	     last ? " last" : "", put ? " put" : "");
  
--	retval = register_pernet_subsys(&nfsd_net_ops);
--	if (retval < 0)
--		return retval;
- 	retval = register_cld_notifier();
- 	if (retval)
--		goto out_unregister_pernet;
-+		return retval;
- 	retval = nfsd4_init_slabs();
- 	if (retval)
- 		goto out_unregister_notifier;
-@@ -1544,9 +1541,14 @@ static int __init init_nfsd(void)
- 		goto out_free_lockd;
- 	retval = register_filesystem(&nfsd_fs_type);
- 	if (retval)
-+		goto out_free_exports;
-+	retval = register_pernet_subsys(&nfsd_net_ops);
-+	if (retval < 0)
- 		goto out_free_all;
- 	return 0;
- out_free_all:
-+	unregister_pernet_subsys(&nfsd_net_ops);
-+out_free_exports:
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
- out_free_lockd:
-@@ -1559,13 +1561,12 @@ out_free_slabs:
- 	nfsd4_free_slabs();
- out_unregister_notifier:
- 	unregister_cld_notifier();
--out_unregister_pernet:
--	unregister_pernet_subsys(&nfsd_net_ops);
- 	return retval;
- }
- 
- static void __exit exit_nfsd(void)
- {
-+	unregister_pernet_subsys(&nfsd_net_ops);
- 	nfsd_drc_slab_free();
- 	remove_proc_entry("fs/nfs/exports", NULL);
- 	remove_proc_entry("fs/nfs", NULL);
-@@ -1575,7 +1576,6 @@ static void __exit exit_nfsd(void)
- 	nfsd4_exit_pnfs();
- 	unregister_filesystem(&nfsd_fs_type);
- 	unregister_cld_notifier();
--	unregister_pernet_subsys(&nfsd_net_ops);
- }
- 
- MODULE_AUTHOR("Olaf Kirch <okir@monad.swb.de>");
+-	if (last && !skip_checking_caps)
+-		ceph_check_caps(ci, 0, NULL);
+-	else if (flushsnaps)
+-		ceph_flush_snaps(ci, NULL);
++	if (!skip_checking_caps) {
++		if (last)
++			ceph_check_caps(ci, 0, NULL);
++		else if (flushsnaps)
++			ceph_flush_snaps(ci, NULL);
++	}
+ 	if (wake)
+ 		wake_up_all(&ci->i_cap_wq);
+ 	while (put-- > 0)
 -- 
 2.27.0
 
