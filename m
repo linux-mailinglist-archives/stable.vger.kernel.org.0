@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A63A9329196
-	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2394F329197
+	for <lists+stable@lfdr.de>; Mon,  1 Mar 2021 21:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243357AbhCAU2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S243360AbhCAU2K (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 1 Mar 2021 15:28:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47596 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243254AbhCAUX2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243250AbhCAUX2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 1 Mar 2021 15:23:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B16A6653FC;
-        Mon,  1 Mar 2021 18:05:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71E19653FD;
+        Mon,  1 Mar 2021 18:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614621915;
-        bh=mzZYf+yCeXFGZoOkq+fMZDwJmXoGWHFQOdM63Hokw8c=;
+        s=korg; t=1614621918;
+        bh=NDRW62qnRvyWrPNdc9LmBSFs6kuxQsxGHc7S/pWcmUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fiSlTCpYB7apCJWy2rfRyFLnav5or3ftEzIRCYYt727F4SesFpFk4adZahokq9lDa
-         gKy4imi2WlBlS6aNxKx2BdCy7tWBbDzS9WR3pe7sxzRj3Vp905oAEF1UzqaKWSf12P
-         DBkqnqmQ03mf07bsUrbqqdb/G19yXPkSMOd62++4=
+        b=b/EjGPfffezdRscPMfepTeqNH3Spw4OHiBIb/2Z5uoBleprS5SVn9YvG1o2P5KcvI
+         NDwpYwt9fe3eYuA92vsAmFwh3Q31p7u6c7NBMNnW+ZUG6MROOza3rrQwe7+M5NL/1E
+         0NW3lzkS5dc8+xWld1PzAH6H9I3eEc6QpcGFvZm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.11 689/775] riscv: Disable KSAN_SANITIZE for vDSO
-Date:   Mon,  1 Mar 2021 17:14:17 +0100
-Message-Id: <20210301161235.435239001@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>
+Subject: [PATCH 5.11 690/775] watchdog: qcom: Remove incorrect usage of QCOM_WDT_ENABLE_IRQ
+Date:   Mon,  1 Mar 2021 17:14:18 +0100
+Message-Id: <20210301161235.485067760@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210301161201.679371205@linuxfoundation.org>
 References: <20210301161201.679371205@linuxfoundation.org>
@@ -40,43 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Klauser <tklauser@distanz.ch>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-commit f3d60f2a25e4417e1676161fe42115de3e3f98a2 upstream.
+commit a4f3407c41605d14f09e490045d0609990cd5d94 upstream.
 
-We use the generic C VDSO implementations of a handful of clock-related
-functions.  When kasan is enabled this results in asan stub calls that
-are unlikely to be resolved by userspace, this just disables KASAN
-when building the VDSO.
+As per register documentation, QCOM_WDT_ENABLE_IRQ which is BIT(1)
+of watchdog control register is wakeup interrupt enable bit and
+not related to bark interrupt at all, BIT(0) is used for that.
+So remove incorrect usage of this bit when supporting bark irq for
+pre-timeout notification. Currently with this bit set and bark
+interrupt specified, pre-timeout notification and/or watchdog
+reset/bite does not occur.
 
-Verified the fix on a kernel with KASAN enabled using vDSO selftests.
-
-Link: https://lore.kernel.org/lkml/CACT4Y+ZNJBnkKHXUf=tm_yuowvZvHwN=0rmJ=7J+xFd+9r_6pQ@mail.gmail.com/
-Tested-by: Tobias Klauser <tklauser@distanz.ch>
-Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
-Tested-by: Dmitry Vyukov <dvyukov@google.com>
-[Palmer: commit text]
-Fixes: ad5d1122b82f ("riscv: use vDSO common flow to reduce the latency of the time-related functions")
+Fixes: 36375491a439 ("watchdog: qcom: support pre-timeout when the bark irq is available")
 Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210126150241.10009-1-saiprakash.ranjan@codeaurora.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/vdso/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/qcom-wdt.c |   13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
 
---- a/arch/riscv/kernel/vdso/Makefile
-+++ b/arch/riscv/kernel/vdso/Makefile
-@@ -32,9 +32,10 @@ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
- # Disable -pg to prevent insert call site
- CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os
+--- a/drivers/watchdog/qcom-wdt.c
++++ b/drivers/watchdog/qcom-wdt.c
+@@ -22,7 +22,6 @@ enum wdt_reg {
+ };
  
--# Disable gcov profiling for VDSO code
-+# Disable profiling and instrumentation for VDSO code
- GCOV_PROFILE := n
- KCOV_INSTRUMENT := n
-+KASAN_SANITIZE := n
+ #define QCOM_WDT_ENABLE		BIT(0)
+-#define QCOM_WDT_ENABLE_IRQ	BIT(1)
  
- # Force dependency
- $(obj)/vdso.o: $(obj)/vdso.so
+ static const u32 reg_offset_data_apcs_tmr[] = {
+ 	[WDT_RST] = 0x38,
+@@ -63,16 +62,6 @@ struct qcom_wdt *to_qcom_wdt(struct watc
+ 	return container_of(wdd, struct qcom_wdt, wdd);
+ }
+ 
+-static inline int qcom_get_enable(struct watchdog_device *wdd)
+-{
+-	int enable = QCOM_WDT_ENABLE;
+-
+-	if (wdd->pretimeout)
+-		enable |= QCOM_WDT_ENABLE_IRQ;
+-
+-	return enable;
+-}
+-
+ static irqreturn_t qcom_wdt_isr(int irq, void *arg)
+ {
+ 	struct watchdog_device *wdd = arg;
+@@ -91,7 +80,7 @@ static int qcom_wdt_start(struct watchdo
+ 	writel(1, wdt_addr(wdt, WDT_RST));
+ 	writel(bark * wdt->rate, wdt_addr(wdt, WDT_BARK_TIME));
+ 	writel(wdd->timeout * wdt->rate, wdt_addr(wdt, WDT_BITE_TIME));
+-	writel(qcom_get_enable(wdd), wdt_addr(wdt, WDT_EN));
++	writel(QCOM_WDT_ENABLE, wdt_addr(wdt, WDT_EN));
+ 	return 0;
+ }
+ 
 
 
