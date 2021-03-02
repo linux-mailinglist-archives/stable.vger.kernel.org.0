@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89C2F32AF24
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C465B32AFD4
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233407AbhCCAPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41060 "EHLO mail.kernel.org"
+        id S239218AbhCCA3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383761AbhCBME1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:04:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 813D764F3C;
-        Tue,  2 Mar 2021 11:56:23 +0000 (UTC)
+        id S1444797AbhCBMeA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:34:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E111364F33;
+        Tue,  2 Mar 2021 11:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686184;
-        bh=QX92ayI+w7Oykb+H1OW64lrgEm8oAdPLoxkZQitIYGc=;
+        s=k20201202; t=1614686185;
+        bh=WivTFf5RrxXAlXBoHdcFGsnevMFtmQzD3w53KWzBk3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsmLGkTWvIjPHv6C2YThl18Ge2q/+QxbylOx5mXlTDiYNqOGE6pdPr+vfvQ89Cnai
-         MFs+wdEVlU1FaaJD1ct3YQbRvrwqKcrfArVFMGQxGCo23eulIESzNeMunODDHgzDvg
-         8tTZz9JQTBUOfwRsHNc0wEIQAwLAC03sP7RebbpDV29haJr/rMQPPJ9zQJSpvMEIa4
-         skZM/hETElfBK3bEqdPttZLMQdI2GgIUT9HM7DpAyOYTnxgF8t4fsWd8/gaLwQi8qM
-         +xjSixgxp+SuiI3aJ45aT0FMgrvSClx7eDrpVY1/yB6nDDlvs5Kf2qVwSxaBGPEOvt
-         c884kiFgLvVHA==
+        b=Utmbz9FebLVthGV0InP3Kt5lLGauvGR7ylEOuAO9qxvVYnE70Ycf/vI98Pw/4k2/Z
+         0B0PPt1FIq5AQ1E1CUU2jl1LWkxvciCauQM3Kiu+QaUFGc9GHcVfxhEE1qIMHbLc4t
+         eqycVFt98G9R32rgkwwTU7jeJvMQxYvWYKIC4r2CoaHHhgv7OXC3reb7hxp1ZUSbdO
+         ikFgEaDHYbhH00pVthISrJzEFUTkXyz2iMP2ggRIuOck9TbuMcbJ/lBonIk3JSqR1d
+         7QfbF/atMcUWNxFLfOmh6Q/mR27iiKzfyrB5J/23KhqjOWUgesds9SxCHPEJ27lMjJ
+         nUFSfx7vsf0zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Theodore Ts'o <tytso@mit.edu>,
-        Murphy Zhou <jencce.kernel@gmail.com>, Jan Kara <jack@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 38/52] ext4: don't try to processed freed blocks until mballoc is initialized
-Date:   Tue,  2 Mar 2021 06:55:19 -0500
-Message-Id: <20210302115534.61800-38-sashal@kernel.org>
+Cc:     Nadeem Athani <nadeem@cadence.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 39/52] PCI: cadence: Retrain Link to work around Gen2 training defect
+Date:   Tue,  2 Mar 2021 06:55:20 -0500
+Message-Id: <20210302115534.61800-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -42,57 +42,200 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Nadeem Athani <nadeem@cadence.com>
 
-[ Upstream commit 027f14f5357279655c3ebc6d14daff8368d4f53f ]
+[ Upstream commit 4740b969aaf58adeca6829947a3ad8da423976cf ]
 
-If we try to make any changes via the journal between when the journal
-is initialized, but before the multi-block allocated is initialized,
-we will end up deferencing a NULL pointer when the journal commit
-callback function calls ext4_process_freed_data().
+Cadence controller will not initiate autonomous speed change if strapped
+as Gen2. The Retrain Link bit is set as quirk to enable this speed change.
 
-The proximate cause of this failure was commit 2d01ddc86606 ("ext4:
-save error info to sb through journal if available") since file system
-corruption problems detected before the call to ext4_mb_init() would
-result in a journal commit before we aborted the mount of the file
-system.... and we would then trigger the NULL pointer deref.
-
-Link: https://lore.kernel.org/r/YAm8qH/0oo2ofSMR@mit.edu
-Reported-by: Murphy Zhou <jencce.kernel@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Link: https://lore.kernel.org/r/20210209144622.26683-3-nadeem@cadence.com
+Signed-off-by: Nadeem Athani <nadeem@cadence.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/pci/controller/cadence/pci-j721e.c    |  3 +
+ .../controller/cadence/pcie-cadence-host.c    | 81 ++++++++++++++-----
+ drivers/pci/controller/cadence/pcie-cadence.h | 11 ++-
+ 3 files changed, 76 insertions(+), 19 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 9a6f9875aa34..2ae0af1c88c7 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4875,7 +4875,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
+index dac1ac8a7615..849f1e416ea5 100644
+--- a/drivers/pci/controller/cadence/pci-j721e.c
++++ b/drivers/pci/controller/cadence/pci-j721e.c
+@@ -64,6 +64,7 @@ enum j721e_pcie_mode {
  
- 	set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
+ struct j721e_pcie_data {
+ 	enum j721e_pcie_mode	mode;
++	bool quirk_retrain_flag;
+ };
  
--	sbi->s_journal->j_commit_callback = ext4_journal_commit_callback;
- 	sbi->s_journal->j_submit_inode_data_buffers =
- 		ext4_journal_submit_inode_data_buffers;
- 	sbi->s_journal->j_finish_inode_data_buffers =
-@@ -4987,6 +4986,14 @@ no_journal:
- 		goto failed_mount5;
+ static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
+@@ -280,6 +281,7 @@ static struct pci_ops cdns_ti_pcie_host_ops = {
+ 
+ static const struct j721e_pcie_data j721e_pcie_rc_data = {
+ 	.mode = PCI_MODE_RC,
++	.quirk_retrain_flag = true,
+ };
+ 
+ static const struct j721e_pcie_data j721e_pcie_ep_data = {
+@@ -388,6 +390,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
+ 
+ 		bridge->ops = &cdns_ti_pcie_host_ops;
+ 		rc = pci_host_bridge_priv(bridge);
++		rc->quirk_retrain_flag = data->quirk_retrain_flag;
+ 
+ 		cdns_pcie = &rc->pcie;
+ 		cdns_pcie->dev = dev;
+diff --git a/drivers/pci/controller/cadence/pcie-cadence-host.c b/drivers/pci/controller/cadence/pcie-cadence-host.c
+index 811c1cb2e8de..6f591d382578 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence-host.c
++++ b/drivers/pci/controller/cadence/pcie-cadence-host.c
+@@ -77,6 +77,68 @@ static struct pci_ops cdns_pcie_host_ops = {
+ 	.write		= pci_generic_config_write,
+ };
+ 
++static int cdns_pcie_host_wait_for_link(struct cdns_pcie *pcie)
++{
++	struct device *dev = pcie->dev;
++	int retries;
++
++	/* Check if the link is up or not */
++	for (retries = 0; retries < LINK_WAIT_MAX_RETRIES; retries++) {
++		if (cdns_pcie_link_up(pcie)) {
++			dev_info(dev, "Link up\n");
++			return 0;
++		}
++		usleep_range(LINK_WAIT_USLEEP_MIN, LINK_WAIT_USLEEP_MAX);
++	}
++
++	return -ETIMEDOUT;
++}
++
++static int cdns_pcie_retrain(struct cdns_pcie *pcie)
++{
++	u32 lnk_cap_sls, pcie_cap_off = CDNS_PCIE_RP_CAP_OFFSET;
++	u16 lnk_stat, lnk_ctl;
++	int ret = 0;
++
++	/*
++	 * Set retrain bit if current speed is 2.5 GB/s,
++	 * but the PCIe root port support is > 2.5 GB/s.
++	 */
++
++	lnk_cap_sls = cdns_pcie_readl(pcie, (CDNS_PCIE_RP_BASE + pcie_cap_off +
++					     PCI_EXP_LNKCAP));
++	if ((lnk_cap_sls & PCI_EXP_LNKCAP_SLS) <= PCI_EXP_LNKCAP_SLS_2_5GB)
++		return ret;
++
++	lnk_stat = cdns_pcie_rp_readw(pcie, pcie_cap_off + PCI_EXP_LNKSTA);
++	if ((lnk_stat & PCI_EXP_LNKSTA_CLS) == PCI_EXP_LNKSTA_CLS_2_5GB) {
++		lnk_ctl = cdns_pcie_rp_readw(pcie,
++					     pcie_cap_off + PCI_EXP_LNKCTL);
++		lnk_ctl |= PCI_EXP_LNKCTL_RL;
++		cdns_pcie_rp_writew(pcie, pcie_cap_off + PCI_EXP_LNKCTL,
++				    lnk_ctl);
++
++		ret = cdns_pcie_host_wait_for_link(pcie);
++	}
++	return ret;
++}
++
++static int cdns_pcie_host_start_link(struct cdns_pcie_rc *rc)
++{
++	struct cdns_pcie *pcie = &rc->pcie;
++	int ret;
++
++	ret = cdns_pcie_host_wait_for_link(pcie);
++
++	/*
++	 * Retrain link for Gen2 training defect
++	 * if quirk flag is set.
++	 */
++	if (!ret && rc->quirk_retrain_flag)
++		ret = cdns_pcie_retrain(pcie);
++
++	return ret;
++}
+ 
+ static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
+ {
+@@ -398,23 +460,6 @@ static int cdns_pcie_host_init(struct device *dev,
+ 	return cdns_pcie_host_init_address_translation(rc);
+ }
+ 
+-static int cdns_pcie_host_wait_for_link(struct cdns_pcie *pcie)
+-{
+-	struct device *dev = pcie->dev;
+-	int retries;
+-
+-	/* Check if the link is up or not */
+-	for (retries = 0; retries < LINK_WAIT_MAX_RETRIES; retries++) {
+-		if (cdns_pcie_link_up(pcie)) {
+-			dev_info(dev, "Link up\n");
+-			return 0;
+-		}
+-		usleep_range(LINK_WAIT_USLEEP_MIN, LINK_WAIT_USLEEP_MAX);
+-	}
+-
+-	return -ETIMEDOUT;
+-}
+-
+ int cdns_pcie_host_setup(struct cdns_pcie_rc *rc)
+ {
+ 	struct device *dev = rc->pcie.dev;
+@@ -457,7 +502,7 @@ int cdns_pcie_host_setup(struct cdns_pcie_rc *rc)
+ 		return ret;
  	}
  
-+	/*
-+	 * We can only set up the journal commit callback once
-+	 * mballoc is initialized
-+	 */
-+	if (sbi->s_journal)
-+		sbi->s_journal->j_commit_callback =
-+			ext4_journal_commit_callback;
+-	ret = cdns_pcie_host_wait_for_link(pcie);
++	ret = cdns_pcie_host_start_link(rc);
+ 	if (ret)
+ 		dev_dbg(dev, "PCIe link never came up\n");
+ 
+diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
+index 30eba6cafe2c..254d2570f8c9 100644
+--- a/drivers/pci/controller/cadence/pcie-cadence.h
++++ b/drivers/pci/controller/cadence/pcie-cadence.h
+@@ -119,7 +119,7 @@
+  * Root Port Registers (PCI configuration space for the root port function)
+  */
+ #define CDNS_PCIE_RP_BASE	0x00200000
+-
++#define CDNS_PCIE_RP_CAP_OFFSET 0xc0
+ 
+ /*
+  * Address Translation Registers
+@@ -291,6 +291,7 @@ struct cdns_pcie {
+  * @device_id: PCI device ID
+  * @avail_ib_bar: Satus of RP_BAR0, RP_BAR1 and	RP_NO_BAR if it's free or
+  *                available
++ * @quirk_retrain_flag: Retrain link as quirk for PCIe Gen2
+  */
+ struct cdns_pcie_rc {
+ 	struct cdns_pcie	pcie;
+@@ -299,6 +300,7 @@ struct cdns_pcie_rc {
+ 	u32			vendor_id;
+ 	u32			device_id;
+ 	bool			avail_ib_bar[CDNS_PCIE_RP_MAX_IB];
++	bool                    quirk_retrain_flag;
+ };
+ 
+ /**
+@@ -414,6 +416,13 @@ static inline void cdns_pcie_rp_writew(struct cdns_pcie *pcie,
+ 	cdns_pcie_write_sz(addr, 0x2, value);
+ }
+ 
++static inline u16 cdns_pcie_rp_readw(struct cdns_pcie *pcie, u32 reg)
++{
++	void __iomem *addr = pcie->reg_base + CDNS_PCIE_RP_BASE + reg;
 +
- 	block = ext4_count_free_clusters(sb);
- 	ext4_free_blocks_count_set(sbi->s_es, 
- 				   EXT4_C2B(sbi, block));
++	return cdns_pcie_read_sz(addr, 0x2);
++}
++
+ /* Endpoint Function register access */
+ static inline void cdns_pcie_ep_fn_writeb(struct cdns_pcie *pcie, u8 fn,
+ 					  u32 reg, u8 value)
 -- 
 2.30.1
 
