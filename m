@@ -2,154 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2077432B27B
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A6E432B007
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343859AbhCCAx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:53:29 -0500
-Received: from foss.arm.com ([217.140.110.172]:58698 "EHLO foss.arm.com"
+        id S236260AbhCCAai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:30:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1835457AbhCBTIz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 14:08:55 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9BA7911D4;
-        Tue,  2 Mar 2021 04:04:03 -0800 (PST)
-Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 12A663F766;
-        Tue,  2 Mar 2021 04:04:01 -0800 (PST)
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     maz@kernel.org
-Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        kvm@vger.kernel.org, anshuman.khandual@arm.com,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        stable@vger.kernel.org,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>
-Subject: [PATCH] kvm: arm64: nvhe: Save the SPE context early
-Date:   Tue,  2 Mar 2021 12:03:45 +0000
-Message-Id: <20210302120345.3102874-1-suzuki.poulose@arm.com>
-X-Mailer: git-send-email 2.24.1
+        id S1447309AbhCBMwF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:52:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70AF064EE8;
+        Tue,  2 Mar 2021 12:17:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614687424;
+        bh=j+EW1OpeEGqnjxAWRy/nEAc13Opcu64hp99OwkFNGeY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nUJawHx7j2x5RwlZCd44KkjByldc+6v5K2G+GMcKx/6FwRi6lRB3nmVZww1aNqeoc
+         jVk1NxQubw8bg2CRtwMsCpxVMcmvLc9K24PzvugAJ0P84KAwNlC5rDAVM9lwc/wr8T
+         +odC8ZSNf5rwUnGLTHhRDbI6FMu20p+EiSvjHmJq24QcL/k1wcJHmEwcZHu99Hr6LP
+         4/r++QdesS0ZNSeviK5g6eANZhL26CV4RY+FGyV4XtX2TUsfvMK/xs0pRRsUbIkqRp
+         Q8gCROAA+PlGz6GL9HfI9Vo2jLZU1cKBMaulpgvgQtV4LdhQyF0btQuXhk6moK7yd2
+         HFJ5EVOTMS3+Q==
+Date:   Tue, 2 Mar 2021 17:46:59 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Linux Phy <linux-phy@lists.infradead.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: Re: Commits for 5.11 stable
+Message-ID: <YD4su5gWILbbrd0z@vkoul-mobl>
+References: <YD4LfQEXWawk2b4C@vkoul-mobl>
+ <YD4NINW6u28SxedJ@kroah.com>
+ <YD4SlyXIVFZQYip5@vkoul-mobl>
+ <YD4WTn1mdE+RBoR1@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YD4WTn1mdE+RBoR1@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The nVHE KVM hyp drains and disables the SPE buffer, before
-entering the guest, as the EL1&0 translation regime
-is going to be loaded with that of the guest.
+On 02-03-21, 11:41, Greg KH wrote:
+> On Tue, Mar 02, 2021 at 03:55:27PM +0530, Vinod Koul wrote:
+> > 
+> > HI Greg,
+> > 
+> > On 02-03-21, 11:02, Greg KH wrote:
+> > > On Tue, Mar 02, 2021 at 03:25:09PM +0530, Vinod Koul wrote:
+> > > > Hi Greg,
+> > > > 
+> > > > Please include these commits for 5.11 stable series
+> > > > 
+> > > > 9a8b9434c60f phy: mediatek: Add missing MODULE_DEVICE_TABLE()
+> > > > 25e3ee590f62 phy: phy-brcm-sata: remove unneeded semicolon
+> > > > 6b46e60a6943 phy: USB_LGM_PHY should depend on X86
+> > > > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
+> > > > c188365402f6 phy: rockchip: emmc, add vendor prefix to dts properties
+> > > > 88d9f40c4b71 devicetree: phy: rockchip-emmc optional add vendor prefix
+> > > > aaf316de3bba phy: cpcap-usb: remove unneeded conversion to bool
+> > > > 39961bd6b70e phy: rockchip-emmc: emmc_phy_init() always return 0
+> > > 
+> > > Why take these?
+> > > 
+> > > What problems do they solve?
+> > 
+> > Sorry I should have provided the context. I had sent these as fixes for
+> > 5.11 but that was bit late so we merged it for 5.12 [1]
+> 
+> I still do not have any context :(
 
-But this operation is performed way too late, because :
-  - The owning translation regime of the SPE buffer
-    is transferred to EL2. (MDCR_EL2_E2PB == 0)
-  - The guest Stage1 is loaded.
+Please see the discussion we had in https://lore.kernel.org/lkml/20210210091249.GC2774@vkoul-mobl.Dlink/
 
-Thus the flush could use the host EL1 virtual address,
-but use the EL2 translations instead of host EL1, for writing
-out any cached data.
+> > > How does 25e3ee590f62 meet the stable tree rules?
 
-Fix this by moving the SPE buffer handling early enough.
-The restore path is doing the right thing.
+Sorry it doesn't. My mistake on picking this for fixes. Lets drop this
+one
 
-Fixes: 014c4c77aad7 ("KVM: arm64: Improve debug register save/restore flow")
-Cc: stable@vger.kernel.org
-Cc: Christoffer Dall <christoffer.dall@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
----
- arch/arm64/include/asm/kvm_hyp.h   |  5 +++++
- arch/arm64/kvm/hyp/nvhe/debug-sr.c | 12 ++++++++++--
- arch/arm64/kvm/hyp/nvhe/switch.c   | 11 ++++++++++-
- 3 files changed, 25 insertions(+), 3 deletions(-)
+> And all of these really are needed for stable?  Again, how does this
+> above commit qualify?
 
-diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
-index c0450828378b..385bd7dd3d39 100644
---- a/arch/arm64/include/asm/kvm_hyp.h
-+++ b/arch/arm64/include/asm/kvm_hyp.h
-@@ -83,6 +83,11 @@ void sysreg_restore_guest_state_vhe(struct kvm_cpu_context *ctxt);
- void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
- void __debug_switch_to_host(struct kvm_vcpu *vcpu);
- 
-+#ifdef __KVM_NVHE_HYPERVISOR__
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+#endif
-+
- void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
- void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/debug-sr.c b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-index 91a711aa8382..f401724f12ef 100644
---- a/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-+++ b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-@@ -58,16 +58,24 @@ static void __debug_restore_spe(u64 pmscr_el1)
- 	write_sysreg_s(pmscr_el1, SYS_PMSCR_EL1);
- }
- 
--void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	/* Disable and flush SPE data generation */
- 	__debug_save_spe(&vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_guest_common(vcpu);
- }
- 
--void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	__debug_restore_spe(vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_host_common(vcpu);
- }
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-index f3d0e9eca56c..59aa1045fdaf 100644
---- a/arch/arm64/kvm/hyp/nvhe/switch.c
-+++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-@@ -192,6 +192,14 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	pmu_switch_needed = __pmu_switch_to_guest(host_ctxt);
- 
- 	__sysreg_save_state_nvhe(host_ctxt);
-+	/*
-+	 * We must flush and disable the SPE buffer for nVHE, as
-+	 * the translation regime(EL1&0) is going to be loaded with
-+	 * that of the guest. And we must do this before we change the
-+	 * translation regime to EL2 (via MDCR_EL2_E2PB == 0) and
-+	 * before we load guest Stage1.
-+	 */
-+	__debug_save_host_buffers_nvhe(vcpu);
- 
- 	__adjust_pc(vcpu);
- 
-@@ -234,11 +242,12 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
- 		__fpsimd_save_fpexc32(vcpu);
- 
-+	__debug_switch_to_host(vcpu);
- 	/*
- 	 * This must come after restoring the host sysregs, since a non-VHE
- 	 * system may enable SPE here and make use of the TTBRs.
- 	 */
--	__debug_switch_to_host(vcpu);
-+	__debug_restore_host_buffers_nvhe(vcpu);
- 
- 	if (pmu_switch_needed)
- 		__pmu_switch_to_host(host_ctxt);
+I relooked, expect this one, rest should be added for 5.11 stable.
+
+Thanks
 -- 
-2.24.1
-
+~Vinod
