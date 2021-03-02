@@ -2,97 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 076BA32B223
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8207832B21E
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241297AbhCCAw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:52:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50930 "EHLO
+        id S241191AbhCCAwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:52:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244061AbhCBRkL (ORCPT
+        with ESMTP id S1343978AbhCBRkL (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 12:40:11 -0500
-Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77813C06178A
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 09:39:10 -0800 (PST)
-Received: by mail-io1-xd2f.google.com with SMTP id f20so22610313ioo.10
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 09:39:10 -0800 (PST)
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5953AC06121D
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 09:39:30 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id q77so23415111ybq.0
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 09:39:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=f1fS5NpFbu6beXKjjCtL5o94IGkB8gbIgEDDeVSe160=;
-        b=jKSeCamb1tJMFb0v1+PCv4F4YShNUZG9qJIWxNEnlJkUpgAtZyugNZqvNVGa1nmr9X
-         B7pPwjROdcsb8k3Ie8e7fmAiFLko64dBr6k2et3Zcq6TU0KzYFMkHxfhAkCW7J7Kjtux
-         I1ourN6WVpzqF+OaduKSxTCqkrE0JccUZTaPs8v7AJLp1+mVwW6jamTFdH9FD/dgHWBv
-         4ROKt0FlgVx9cro++Zpmcmi5FZBFc4ucK0jPKpPj5BsIVSFwtgmAoSuIdKI3OEKI4C03
-         Nttmn7QJE07PhfXtlP3qbOlqr0ZbLT44FkmynwtRFILLyj7v3HRl+XbLk0aj33cVDgDX
-         SUlQ==
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=2kGfAvKyVkw+dh3SbBOor4fSKz60nTkeOupR2omHaQY=;
+        b=H/pVjHNX6DHeY2l7ihNS7/gAAV93fdgM9k+ezvRFKDASCvfKexsfMS5E0FRRWp8Lvc
+         Bv2udFF3eMCd3O0VrTVmO4qh3mkjqIdZJ+vRj3rmpL/R5D7IWUOYTldxjnyPbTQaNgQH
+         ZWsdZm5cMS6EtBMwQMAOt8FrOzYOhiMOnxanXDlfh5X1br45KDUOYyyZyX84IQkn2zxW
+         iLJSBYktAWcbPYJFNN6Eu8OnDLts+sOb8YCXJK6c/tE30v4SE14korlXFd2zdv4e1Frb
+         o03GxlVD0MiVImdnIp7FXn+Tv27/YnyesZqfo3X1WT7mxLmKAa9MmdJz/WPWVWrLRyss
+         HAdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=f1fS5NpFbu6beXKjjCtL5o94IGkB8gbIgEDDeVSe160=;
-        b=CldFE900Bbnio7klGk4zavQ/Clv/pcZeP57YwrSLAOQpKgM49/WblUpNWS06muHmHa
-         fOg+7pQ7MS1DJE7G2bWOMFfgYnwH3ITxuyoC6wIn3GqKMiS9ztXeIa75eCzWrQe45tYu
-         8n5VI9eggo7BKmppSmqH1I3HJZ9oWAoCmDFW1apjAwWn6ZwtqNMqRQDybXHJniw7VDlP
-         zaxJAUb62RuwRZivuNdl9FI618eUZ1id2WhGqrW4trezxqbiZtFT/Hmb3joOjcfBtOAA
-         TnsrF5y7rULzs60fydmDX1KpWOHE30FtGm+NMmATOPAEZltmsVh4d6H7YIROYR3zbM9N
-         yffA==
-X-Gm-Message-State: AOAM531iSOMvoT3Wbo3lRZjxU9y9gG+ybMbCO4NmnEXTdwiX4EGOCQJ/
-        lI9DD1D4i06fgeMwkDkEKHA+eCSd2dIsfw==
-X-Google-Smtp-Source: ABdhPJwYx646uI12383G6cXSip/WSHz1MeSEL1EHGinB9nkBLqNAFX2x4OtiP3kVoYD4w8LG46nOSQ==
-X-Received: by 2002:a05:6638:3809:: with SMTP id i9mr1973536jav.24.1614706749753;
-        Tue, 02 Mar 2021 09:39:09 -0800 (PST)
-Received: from [192.168.1.30] ([65.144.74.34])
-        by smtp.gmail.com with ESMTPSA id w6sm10882380ilm.38.2021.03.02.09.39.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Mar 2021 09:39:09 -0800 (PST)
-Subject: Re: [PATCH 4.19 21/57] proc: dont allow async path resolution of
- /proc/self components
-To:     Yang Yingliang <yangyingliang@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        yangerkun <yangerkun@huawei.com>,
-        Cheng Jian <cj.chengjian@huawei.com>
-References: <20201201084647.751612010@linuxfoundation.org>
- <20201201084650.205087954@linuxfoundation.org>
- <cced67ae-ceca-3812-121c-70e0ed104f49@huawei.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <395dd137-70d5-e915-92b5-b2a18f44badc@kernel.dk>
-Date:   Tue, 2 Mar 2021 10:39:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <cced67ae-ceca-3812-121c-70e0ed104f49@huawei.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=2kGfAvKyVkw+dh3SbBOor4fSKz60nTkeOupR2omHaQY=;
+        b=VVCWMJrGuHlrxe5FGktvifpHnGOedFPnAfyO2fcVty10cTVnCOP0lftQD9T3AvABm8
+         sUKFx0APJG4Cd6z+SYkkR3BuG3wn1ihPPeJqR0WeurngUDnXkfW9rG+u6uS1Ef/AeXLl
+         0VFZZKeD+Pu1QpeooSKNG9RVdWnwgawHk/2ZC0JhrpEC8tNyZdsnlHhzGMOWJV5OHU9H
+         bevsw/OKjUGwCpUPLJX+OCk4QG0TFBNphYEmx8VYqEq4hG3lgqO+e/+SC6C0oJUcR/N4
+         C1nqxlJ+V416ymy0SXZ1Cg2G18G720EWcrs4nyNN+i6mdIh7SihpJQ+6pHoetz99DtvH
+         Oxkw==
+X-Gm-Message-State: AOAM532gTFlsXcUeegOJpz2gm1oTYnbPlvvdGgzhquslHVIYyudk3uzv
+        eD27mjrhxF5OweW9S25ntvKmLT/4P6fUmVcjGzrUFBJRfKPtt7vm5pQ8+LxHVhgrgv4nGfa1J7V
+        ta+m9vPKaPrkZQZXBLefaaYJFfylXkCIBhuFZ9KyYkJah4wvkns71YybKQFOjY57u
+X-Google-Smtp-Source: ABdhPJw09GA87fJB5L1me8I8jtPf4Zdlt3PDHmKOl3t3WpzqxEnow1ol/HmWDOBEcsrRpTnWB1alziK3CzOi
+Sender: "marcorr via sendgmr" <marcorr@marcorr-sp.c.googlers.com>
+X-Received: from marcorr-sp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:e50])
+ (user=marcorr job=sendgmr) by 2002:a25:34d2:: with SMTP id
+ b201mr34717490yba.149.1614706769546; Tue, 02 Mar 2021 09:39:29 -0800 (PST)
+Date:   Tue,  2 Mar 2021 17:39:10 +0000
+Message-Id: <20210302173911.12044-1-marcorr@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
+Subject: [PATCH 5.4 1/2] nvme-pci: refactor nvme_unmap_data
+From:   Marc Orr <marcorr@google.com>
+To:     stable@vger.kernel.org
+Cc:     Christoph Hellwig <hch@lst.de>, Keith Busch <kbusch@kernel.org>,
+        Marc Orr <marcorr@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/2/21 1:40 AM, Yang Yingliang wrote:
-> Hi,
-> 
-> On 2020/12/1 16:53, Greg Kroah-Hartman wrote:
->> From: Jens Axboe <axboe@kernel.dk>
->>
->> [ Upstream commit 8d4c3e76e3be11a64df95ddee52e99092d42fc19 ]
->>
->> If this is attempted by a kthread, then return -EOPNOTSUPP as we don't
->> currently support that. Once we can get task_pid_ptr() doing the right
->> thing, then this can go away again.
-> 
-> https://www.spinics.net/lists/io-uring/msg05297.html
-> 
-> This patch seems used for io-wq worker which is merged in
-> 
-> v5.5-rc1, why we need this in linux-4.19.y ?
+From: Christoph Hellwig <hch@lst.de>
 
-While that's true, it's also a sane safeguard in general.
+commit 9275c206f88e5c49cb3e71932c81c8561083db9e upstream.
 
+Split out three helpers from nvme_unmap_data that will allow finer grained
+unwinding from nvme_map_data.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Marc Orr <marcorr@google.com>
+---
+ drivers/nvme/host/pci.c | 77 ++++++++++++++++++++++++++---------------
+ 1 file changed, 49 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 19e375b59f40..90dc86132007 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -528,50 +528,71 @@ static inline bool nvme_pci_use_sgls(struct nvme_dev *dev, struct request *req)
+ 	return true;
+ }
+ 
+-static void nvme_unmap_data(struct nvme_dev *dev, struct request *req)
++static void nvme_free_prps(struct nvme_dev *dev, struct request *req)
+ {
+-	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 	const int last_prp = dev->ctrl.page_size / sizeof(__le64) - 1;
+-	dma_addr_t dma_addr = iod->first_dma, next_dma_addr;
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
++	dma_addr_t dma_addr = iod->first_dma;
+ 	int i;
+ 
+-	if (iod->dma_len) {
+-		dma_unmap_page(dev->dev, dma_addr, iod->dma_len,
+-			       rq_dma_dir(req));
+-		return;
++	for (i = 0; i < iod->npages; i++) {
++		__le64 *prp_list = nvme_pci_iod_list(req)[i];
++		dma_addr_t next_dma_addr = le64_to_cpu(prp_list[last_prp]);
++
++		dma_pool_free(dev->prp_page_pool, prp_list, dma_addr);
++		dma_addr = next_dma_addr;
+ 	}
+ 
+-	WARN_ON_ONCE(!iod->nents);
++}
+ 
+-	if (is_pci_p2pdma_page(sg_page(iod->sg)))
+-		pci_p2pdma_unmap_sg(dev->dev, iod->sg, iod->nents,
+-				    rq_dma_dir(req));
+-	else
+-		dma_unmap_sg(dev->dev, iod->sg, iod->nents, rq_dma_dir(req));
++static void nvme_free_sgls(struct nvme_dev *dev, struct request *req)
++{
++	const int last_sg = SGES_PER_PAGE - 1;
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
++	dma_addr_t dma_addr = iod->first_dma;
++	int i;
+ 
++	for (i = 0; i < iod->npages; i++) {
++		struct nvme_sgl_desc *sg_list = nvme_pci_iod_list(req)[i];
++		dma_addr_t next_dma_addr = le64_to_cpu((sg_list[last_sg]).addr);
+ 
+-	if (iod->npages == 0)
+-		dma_pool_free(dev->prp_small_pool, nvme_pci_iod_list(req)[0],
+-			dma_addr);
++		dma_pool_free(dev->prp_page_pool, sg_list, dma_addr);
++		dma_addr = next_dma_addr;
++	}
+ 
+-	for (i = 0; i < iod->npages; i++) {
+-		void *addr = nvme_pci_iod_list(req)[i];
++}
+ 
+-		if (iod->use_sgl) {
+-			struct nvme_sgl_desc *sg_list = addr;
++static void nvme_unmap_sg(struct nvme_dev *dev, struct request *req)
++{
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 
+-			next_dma_addr =
+-			    le64_to_cpu((sg_list[SGES_PER_PAGE - 1]).addr);
+-		} else {
+-			__le64 *prp_list = addr;
++	if (is_pci_p2pdma_page(sg_page(iod->sg)))
++		pci_p2pdma_unmap_sg(dev->dev, iod->sg, iod->nents,
++				    rq_dma_dir(req));
++	else
++		dma_unmap_sg(dev->dev, iod->sg, iod->nents, rq_dma_dir(req));
++}
+ 
+-			next_dma_addr = le64_to_cpu(prp_list[last_prp]);
+-		}
++static void nvme_unmap_data(struct nvme_dev *dev, struct request *req)
++{
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 
+-		dma_pool_free(dev->prp_page_pool, addr, dma_addr);
+-		dma_addr = next_dma_addr;
++	if (iod->dma_len) {
++		dma_unmap_page(dev->dev, iod->first_dma, iod->dma_len,
++			       rq_dma_dir(req));
++		return;
+ 	}
+ 
++	WARN_ON_ONCE(!iod->nents);
++
++	nvme_unmap_sg(dev, req);
++	if (iod->npages == 0)
++		dma_pool_free(dev->prp_small_pool, nvme_pci_iod_list(req)[0],
++			      iod->first_dma);
++	else if (iod->use_sgl)
++		nvme_free_sgls(dev, req);
++	else
++		nvme_free_prps(dev, req);
+ 	mempool_free(iod->sg, dev->iod_mempool);
+ }
+ 
 -- 
-Jens Axboe
+2.30.1.766.gb4fecdf3b7-goog
 
