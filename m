@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0FA32B03C
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:43:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C34C532B001
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239066AbhCCAd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:33:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35852 "EHLO mail.kernel.org"
+        id S234427AbhCCA3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351122AbhCBNbd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 08:31:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C1E64F50;
-        Tue,  2 Mar 2021 11:56:53 +0000 (UTC)
+        id S1350763AbhCBMub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:50:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E33964F72;
+        Tue,  2 Mar 2021 11:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686214;
-        bh=FsbxVUZQEbNKwnaiELpYl6GatbDluX+gvj5fOZZgdW4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mz/meOVX100FpGRuuUKI/CcXhoschJyF+NCb2WvPzq8OGBaOZu3k9VEuaUwvrG9Mj
-         rILQhQBdXi4lbWvML/r7gOGJKiF1QO5Hcr0hHBUKi2M6DTcl0jb6tO9J+49LK1yu7z
-         6SXObf9F8pirtT6rCc8OTrN7IUl/Wu+mvGIdE/iEHSwouWAaKlRnjXEPSeLiRx6gOL
-         CjuNQmQWfh/1QXftxSdEJQGD8IO06DxoIUCeoeMmeyGPDItPgJKFUnzMgEmSF7VANd
-         UGDnfqEp0tE+019WR+LrsCroJdr2CmFP6sbeyJaPQLzof+cEKzTHSj2Q9eq6wH3spr
-         ymupVX852YkKg==
+        s=k20201202; t=1614686272;
+        bh=WBPXsz4WZudRCvS5C99vhxKE7pTuA0i3oabXbJnn+NQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ygm3W3TmB0qOI9ANIb0jofssna/80MdNxrXnLQqXKPEeHiERaamSGLHHxcAEF4ZUF
+         STGasbjPf40zXRTdvSDFxq8x5jNGdr23RSQ+28sdkKRqaO/L9VXWTUkp4EZn3M3IE2
+         E+S3OkT7CPqHAZOiWVSq1s6jdMeNyk0sJNqkCm6KF4Yqwv5lBig6Atj6YGqOt8xtW4
+         pHW/D8IUgrnalvhNti+jm7nt1dgUU4odgjKvsZsAxahAjytEQ00vthYFuIFl6Ik0OR
+         neFxgUvhqCPl2CgpnjoAUwZGtrnSDTlmLCs0k4Ed+/rUN6sYC7y85rRKD3oklIE/Cr
+         xUignxAcCgHmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/47] scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
-Date:   Tue,  2 Mar 2021 06:56:04 -0500
-Message-Id: <20210302115646.62291-5-sashal@kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/33] i2c: rcar: faster irq code to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:57:17 -0500
+Message-Id: <20210302115749.62653-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
-References: <20210302115646.62291-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,65 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 2b2bfc8aa519f696087475ed8e8c61850c673272 ]
+[ Upstream commit c7b514ec979e23a08c411f3d8ed39c7922751422 ]
 
-Some SoCs require a single scatterlist entry for smaller than page size,
-i.e. 4KB. When dispatching commands with more than one scatterlist entry
-under 4KB in size the following behavior is observed:
+To avoid the HW race condition on R-Car Gen2 and earlier, we need to
+write to ICMCR as soon as possible in the interrupt handler. We can
+improve this by writing a static value instead of masking out bits.
 
-A command to read a block range is dispatched with two scatterlist entries
-that are named AAA and BBB. After dispatching, the host builds two PRDT
-entries and during transmission, device sends just one DATA IN because
-device doesn't care about host DMA. The host then transfers the combined
-amount of data from start address of the area named AAA. As a consequence,
-the area that follows AAA in memory would be corrupted.
-
-    |<------------->|
-    +-------+------------         +-------+
-    +  AAA  + (corrupted)   ...   +  BBB  +
-    +-------+------------         +-------+
-
-To avoid this we need to enforce page size alignment for sg entries.
-
-Link: https://lore.kernel.org/r/56dddef94f60bd9466fd77e69f64bbbd657ed2a1.1611026909.git.kwmad.kim@samsung.com
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 ++
- drivers/scsi/ufs/ufshcd.h | 4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/i2c/busses/i2c-rcar.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index e602c08d740b..97d9d5d99adc 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4748,6 +4748,8 @@ static int ufshcd_slave_configure(struct scsi_device *sdev)
- 	struct request_queue *q = sdev->request_queue;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 9c162a01a584..9d54ae935524 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -89,7 +89,6 @@
  
- 	blk_queue_update_dma_pad(q, PRDT_DATA_BYTE_COUNT_PAD - 1);
-+	if (hba->quirks & UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE)
-+		blk_queue_update_dma_alignment(q, PAGE_SIZE - 1);
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
+-#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
  
- 	if (ufshcd_is_rpm_autosuspend_allowed(hba))
- 		sdev->rpm_autosuspend = 1;
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index fcca4e15c8cd..a0bc118f9188 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -550,6 +550,10 @@ enum ufshcd_quirks {
- 	 */
- 	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -616,7 +615,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ /*
+  * This driver has a lock-free design because there are IP cores (at least
+  * R-Car Gen2) which have an inherent race condition in their hardware design.
+- * There, we need to clear RCAR_BUS_MASK_DATA bits as soon as possible after
++ * There, we need to switch to RCAR_BUS_PHASE_DATA as soon as possible after
+  * the interrupt was generated, otherwise an unwanted repeated message gets
+  * generated. It turned out that taking a spinlock at the beginning of the ISR
+  * was already causing repeated messages. Thus, this driver was converted to
+@@ -625,13 +624,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	u32 msr, val;
++	u32 msr;
  
-+	/*
-+	 * This quirk allows only sg entries aligned with page size.
-+	 */
-+	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 13,
- };
+ 	/* Clear START or STOP immediately, except for REPSTART after read */
+-	if (likely(!(priv->flags & ID_P_REP_AFTER_RD))) {
+-		val = rcar_i2c_read(priv, ICMCR);
+-		rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+-	}
++	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
  
- enum ufshcd_caps {
+ 	msr = rcar_i2c_read(priv, ICMSR);
+ 
 -- 
 2.30.1
 
