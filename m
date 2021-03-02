@@ -2,162 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD19032AEEF
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BDBD32AEF2
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234682AbhCCAJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:09:39 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56646 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240483AbhCBKDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 05:03:52 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1614679359; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OSC0RMb4jQ8vLtAy/2lrY+WzohUmliZWQjgjoo9BBmk=;
-        b=uB2FnJ8mEyD7HKxvihmKbQodVAWJkZJFF2EaBg++M9iORUmfZrdofkznU5gEHi+NAHq/sd
-        iWMMAMVvA/OvAa2jLsk3aLN18x9XtJuVnl3s3ZAN6ecZE2ZXQ9tuB3RYfi3fEubIAHtRBz
-        JKcpzIIXogKu7NMCbwrh6PvpY4bHpoQ=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 83B29ABF4;
-        Tue,  2 Mar 2021 10:02:39 +0000 (UTC)
-Date:   Tue, 2 Mar 2021 11:02:39 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     gregkh@linuxfoundation.org
-Cc:     songmuchun@bytedance.com, sergey.senozhatsky@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] printk: fix deadlock when kernel panic"
- failed to apply to 4.9-stable tree
-Message-ID: <YD4NP2ffit64F/kB@alley>
-References: <1614604832185174@kroah.com>
+        id S236510AbhCCAKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:10:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39098 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1382758AbhCBKN2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 05:13:28 -0500
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D91C06178B
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 02:12:37 -0800 (PST)
+Received: by mail-ej1-x62c.google.com with SMTP id dx17so6586010ejb.2
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 02:12:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=9emZJGXSfS3CBcoV3moek0dr0o68xi0UvE5qBXpPUXA=;
+        b=fr17Px/Z62oKFGYJ/W88x9bOoKKpT/UW7LHPP7GzTTUryspn3cBwYenB6BbxirCW3r
+         XOCtCtIgvkezeRYYTG0m9S7vRfZb0U+NKoF9KTGtjklJjsgD06NXphU1asP1hXb6Kp+D
+         ekVH4pz2whvgusZscWvubpgcqi5Qw0KtAuMgKCmoDoLitRb/PNvLqpI6ca+hE3rr6HUS
+         fJRzAqiD31DYBZ4MSH19AliggrS3qJgAn/NMD4/rAXQksEax49z1TQWGk/SiZQhuNuVN
+         gXXJ97iZwOrOaD1D6BLA1BXmzAR2zDnTP3W9yBOerDdyJC9OI3l6n29fxZo0vOU6UXKA
+         KiFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=9emZJGXSfS3CBcoV3moek0dr0o68xi0UvE5qBXpPUXA=;
+        b=McsBBVn75htHLdLdJ2h0bAiSOly5ZCsJ4gHfyW5b/DkYomU7Rg4jSHE8hG5Av0ZAWQ
+         g0KblsG05kTtFtPF5qZ6KAmgwsZd5yD3ej8Hph+2538ThiBWaKvm5T7dW0Gun9A2aLtE
+         QsXzaCzK26XiK8fIRlINu5zjgdim+MYhDTzRa110CxByqGMAv5Qk5m8Pq3Wc6bV9lRaC
+         GqWUk5iqKaOY1z080dSivOhkJ+AXYA/WRvRNuM8j7S+j+oet4GFgMFPvdpTulbhd20Qw
+         9WDHFs8yg8mWBKuEW1E8uqDcGetfStqxAI8ncXD3b51MvrgCxLPQWCKUwTm64fWz6MWv
+         231w==
+X-Gm-Message-State: AOAM532Pg+NBtaxB9Uk+y5AbHded1LyGNRGqOEd9yd4ToIKghLqPJPS+
+        mJDX9uZfCJoSsHX+8zGQlCT/lGz+TObnGOXLJPZ80A==
+X-Google-Smtp-Source: ABdhPJygHRWR6muKo1EKip/CdEc4MkfpNRQJIYTz00eMsp1q2b55BBcAgn3jRL2LvNtMSRKUwCewGi/MkwTQZskjB/0=
+X-Received: by 2002:a17:906:7b8d:: with SMTP id s13mr20268094ejo.247.1614679956551;
+ Tue, 02 Mar 2021 02:12:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1614604832185174@kroah.com>
+References: <20210301193642.707301430@linuxfoundation.org> <CA+G9fYuK0k0FsnSk4egKOO=B0pV80bjp+f5E-0xPOfbPugQPxg@mail.gmail.com>
+ <CA+G9fYsivUPRRQgMXpnA_XdXH8i2wx_DPH70t+6OzHkjOaswrg@mail.gmail.com> <YD4L57LQb8Nh/A85@kroah.com>
+In-Reply-To: <YD4L57LQb8Nh/A85@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 2 Mar 2021 15:42:25 +0530
+Message-ID: <CA+G9fYtbYENvUk8z78k3OHj5cULbd5Tc3Dfew0EE6sKfndOJxA@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/661] 5.10.20-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        LTP List <ltp@lists.linux.it>, Arnd Bergmann <arnd@arndb.de>,
+        Jiri Slaby <jirislaby@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 2021-03-01 14:20:32, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+On Tue, 2 Mar 2021 at 15:26, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Tue, Mar 02, 2021 at 03:20:32PM +0530, Naresh Kamboju wrote:
+> > Hi Greg and Linus,
+> >
+> > On Tue, 2 Mar 2021 at 12:45, Naresh Kamboju <naresh.kamboju@linaro.org>=
+ wrote:
+> > >
+> > > On Tue, 2 Mar 2021 at 01:21, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > This is the start of the stable review cycle for the 5.10.20 releas=
+e.
+> > > > There are 661 patches in this series, all will be posted as a respo=
+nse
+> > > > to this one.  If anyone has any issues with these being applied, pl=
+ease
+> > > > let me know.
+> > > >
+> > > > Responses should be made by Wed, 03 Mar 2021 19:34:53 +0000.
+> > > > Anything received after that time might be too late.
+> > > >
+> > > > The whole patch series can be found in one patch at:
+> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/=
+patch-5.10.20-rc2.gz
+> > > > or in the git tree and branch at:
+> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-=
+stable-rc.git linux-5.10.y
+> > > > and the diffstat can be found below.
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > >
+> > >
+> > > Results from Linaro=E2=80=99s test farm.
+> > > Regressions detected on all devices (arm64, arm, x86_64 and i386).
+> > >
+> > > hangup01    1  TFAIL  :  hangup01.c:133: unexpected message 3
+> > >
+> > > This failure is specific to stable-rc 5.10 and 5.11.
+> > > Test PASS on mainline and Linux next kernel.
+> > >
+> >
+> > I have reverted these two patches and the test case got PASS
+> > on Linux version 5.10.20-rc2.
+> >
+> > hangup01 1 TPASS : child process exited with status 0
+> >
+> >    Linus Torvalds <torvalds@linux-foundation.org>
+> >        tty: implement read_iter
+> >
+> >    Linus Torvalds <torvalds@linux-foundation.org>
+> >        tty: convert tty_ldisc_ops 'read()' function to take a kernel po=
+inter
+>
+> Odd.
+>
+> Is 5.12-rc1 also failing with this test as well?
 
-Please, find below the backport for stable-4.9:
+5.10 Failed
+5.11 Failed
+5.12 PASS
 
-From bfc246e5ed94300431bc8d74b67c74b6f66e75ff Mon Sep 17 00:00:00 2001
-From: Muchun Song <songmuchun@bytedance.com>
-Date: Wed, 10 Feb 2021 11:48:23 +0800
-Subject: [PATCH] printk: fix deadlock when kernel panic
+This LTP pty hangup01 PASS Linux mainline and linux next.
 
-printk_nmi_flush_on_panic() caused the following deadlock on our
-server:
-
-CPU0:                                         CPU1:
-panic                                         rcu_dump_cpu_stacks
-  kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
-    register_nmi_handler(crash_nmi_callback)      printk_nmi_flush
-                                                    __printk_nmi_flush
-                                                      raw_spin_lock_irqsave(&read_lock)
-    // send NMI to other processors
-    apic_send_IPI_allbutself(NMI_VECTOR)
-                                                        // NMI interrupt, dead loop
-                                                        crash_nmi_callback
-  printk_nmi_flush_on_panic
-    printk_nmi_flush
-      __printk_nmi_flush
-        // deadlock
-        raw_spin_lock_irqsave(&read_lock)
-
-DEADLOCK: read_lock is taken on CPU1 and will never get released.
-
-It happens when panic() stops a CPU by NMI while it has been in
-the middle of printk_nmi_flush().
-
-Handle the lock the same way as logbuf_lock. The printk_nmi buffers
-are flushed only when both locks can be safely taken. It can avoid
-the deadlock _in this particular case_ at expense of losing contents
-of printk_nmi buffers.
-
-Note: It would actually be safe to re-init the locks when all CPUs were
-      stopped by NMI. But it would require passing this information
-      from arch-specific code. It is not worth the complexity.
-      Especially because logbuf_lock and printk_nmi buffers have been
-      obsoleted by the lockless ring buffer.
-
-This is a backport of the commit 8a8109f303e25a27f92c ("printk: fix
-deadlock when kernel panic") for the stable 4.9 kernel.
-
-Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Cc: <stable@vger.kernel.org>
-Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20210210034823.64867-1-songmuchun@bytedance.com
----
- kernel/printk/nmi.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/printk/nmi.c b/kernel/printk/nmi.c
-index 2c3e7f024c15..7a50b405ad28 100644
---- a/kernel/printk/nmi.c
-+++ b/kernel/printk/nmi.c
-@@ -52,6 +52,8 @@ struct nmi_seq_buf {
- };
- static DEFINE_PER_CPU(struct nmi_seq_buf, nmi_print_seq);
- 
-+static DEFINE_RAW_SPINLOCK(nmi_read_lock);
-+
- /*
-  * Safe printk() for NMI context. It uses a per-CPU buffer to
-  * store the message. NMIs are not nested, so there is always only
-@@ -134,8 +136,6 @@ static void printk_nmi_flush_seq_line(struct nmi_seq_buf *s,
-  */
- static void __printk_nmi_flush(struct irq_work *work)
- {
--	static raw_spinlock_t read_lock =
--		__RAW_SPIN_LOCK_INITIALIZER(read_lock);
- 	struct nmi_seq_buf *s = container_of(work, struct nmi_seq_buf, work);
- 	unsigned long flags;
- 	size_t len, size;
-@@ -148,7 +148,7 @@ static void __printk_nmi_flush(struct irq_work *work)
- 	 * different CPUs. This is especially important when printing
- 	 * a backtrace.
- 	 */
--	raw_spin_lock_irqsave(&read_lock, flags);
-+	raw_spin_lock_irqsave(&nmi_read_lock, flags);
- 
- 	i = 0;
- more:
-@@ -197,7 +197,7 @@ static void __printk_nmi_flush(struct irq_work *work)
- 		goto more;
- 
- out:
--	raw_spin_unlock_irqrestore(&read_lock, flags);
-+	raw_spin_unlock_irqrestore(&nmi_read_lock, flags);
- }
- 
- /**
-@@ -239,6 +239,14 @@ void printk_nmi_flush_on_panic(void)
- 		raw_spin_lock_init(&logbuf_lock);
- 	}
- 
-+	if (in_nmi() && raw_spin_is_locked(&nmi_read_lock)) {
-+		if (num_online_cpus() > 1)
-+			return;
-+
-+		debug_locks_off();
-+		raw_spin_lock_init(&nmi_read_lock);
-+	}
-+
- 	printk_nmi_flush();
- }
- 
--- 
-2.16.4
-
+- Naresh
