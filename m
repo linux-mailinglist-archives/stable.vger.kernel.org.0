@@ -2,88 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E9B32B14B
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:46:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDC0932B162
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:46:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231896AbhCCApL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:45:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446811AbhCBQPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 11:15:49 -0500
-Received: from angie.orcam.me.uk (angie.orcam.me.uk [IPv6:2001:4190:8020::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 057FEC06178A;
-        Tue,  2 Mar 2021 08:14:02 -0800 (PST)
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 13B8A92009C; Tue,  2 Mar 2021 17:14:01 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 05E9692009B;
-        Tue,  2 Mar 2021 17:14:00 +0100 (CET)
-Date:   Tue, 2 Mar 2021 17:14:00 +0100 (CET)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     YunQiang Su <yunqiang.su@cipunited.com>
-cc:     tsbogend@alpha.franken.de, jiaxun.yang@flygoat.com,
-        linux-mips@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v6] MIPS: force use FR=0 for FPXX binary
-In-Reply-To: <20210302022907.1835-1-yunqiang.su@cipunited.com>
-Message-ID: <alpine.DEB.2.21.2103021645120.19637@angie.orcam.me.uk>
-References: <20210302022907.1835-1-yunqiang.su@cipunited.com>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S232385AbhCCApk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:45:40 -0500
+Received: from foss.arm.com ([217.140.110.172]:53692 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1839414AbhCBQRv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 11:17:51 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 3525E12FC;
+        Tue,  2 Mar 2021 08:17:01 -0800 (PST)
+Received: from [192.168.122.166] (unknown [10.119.48.4])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 14B223F7D7;
+        Tue,  2 Mar 2021 08:17:00 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 5.10 11/47] mmc: sdhci-iproc: Add ACPI bindings
+ for the RPi
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        linux-mmc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        bcm-kernel-feedback-list@broadcom.com
+References: <20210302115646.62291-1-sashal@kernel.org>
+ <20210302115646.62291-11-sashal@kernel.org>
+From:   Jeremy Linton <jeremy.linton@arm.com>
+Message-ID: <445ed4c0-3b2c-1371-931d-b0de7bdb497a@arm.com>
+Date:   Tue, 2 Mar 2021 10:16:59 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20210302115646.62291-11-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2 Mar 2021, YunQiang Su wrote:
+Hi,
 
-> The MIPS FPU may have 2 mode:
->   FR=0: MIPS I style, odd-FPR can only be single,
->         and even-FPR can be double.
 
- Depending on the ISA level FR=0 may or may not allow single arithmetic 
-with odd-numbered FPRs.  Compare the FP64A ABI.
-
->   FR=1: all 32 FPR can be double.
-
- I think it's best to describe the FR=0 mode as one where the FP registers 
-are 32-bit and the FR=1 mode as one where the FP registers are 64-bit 
-(this mode is also needed for the paired-single format).  See:
-
-<https://dmz-portal.mips.com/wiki/MIPS_O32_ABI_-_FR0_and_FR1_Interlinking#1._Introduction>
-
-> The binary may have 3 mode:
->   FP32: can only work with FR=0 mode
->   FPXX: can work with both FR=0 and FR=1 mode.
->   FP64: can only work with FR=1 mode
+On 3/2/21 5:56 AM, Sasha Levin wrote:
+> From: Jeremy Linton <jeremy.linton@arm.com>
 > 
-> Some binary, for example the output of golang, may be mark as FPXX,
-> while in fact they are FP32.
+> [ Upstream commit 4f9833d3ec8da34861cd0680b00c73e653877eb9 ]
 > 
-> Currently, FR=1 mode is used for all FPXX binary, it makes some wrong
-> behivour of the binaries. Since FPXX binary can work with both FR=1 and FR=0,
-> we force it to use FR=0.
+> The RPi4 has an Arasan controller it carries over from the RPi3 and a newer
+> eMMC2 controller.  Because of a couple of quirks, it seems wiser to bind
+> these controllers to the same driver that DT is using on this platform
+> rather than the generic sdhci_acpi driver with PNP0D40.
+> 
+> So, BCM2847 describes the older Arasan and BRCME88C describes the newer
+> eMMC2. The older Arasan is reusing an existing ACPI _HID used by other OSes
+> booting these tables on the RPi.
+> 
+> With this change, Linux is capable of utilizing the SD card slot, and the
+> Wi-Fi when booted with UEFI+ACPI on the RPi4.
 
- I think you need to document here what we discussed, that is the linker 
-bug exposed in the context of FPXX annotation by legacy modules that lack 
-FP mode annotation, which is the underlying problem.
+For this to actually work on kernels < 5.11 you also need:
 
-> v5->v6:
-> 	Rollback to V3, aka remove config option.
+c5b1c6dc13da mmc: sdhci: Update firmware interface API
 
- You can't reuse v3 as it stands because it breaks R6 as we previously 
-discussed.  You need to tell R6 and earlier ISAs apart and set the FR bit 
-accordingly.
+Which I don't see in 5.10 yet.
 
- It would be more proper I suppose if we actually checked at the boot time 
-whether the bit is writable, just like we handle NAN2008, but I don't see 
-it as a prerequisite for this workaround since we currently don't do this 
-either (it would also be good to check if the FP emulation code gets the 
-read-only FR bit right for R6 for FPU-less operation).
+Thanks,
 
- Also you need to put the history in the comment section and not the 
-commit description, so that the change can be directly applied and does 
-not have to be hand-edited by the maintainer.  You don't want to overload 
-him with mechanical work.
+> 
+> Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+> Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+> Link: https://lore.kernel.org/r/20210120000406.1843400-2-jeremy.linton@arm.com
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   drivers/mmc/host/sdhci-iproc.c | 18 ++++++++++++++++++
+>   1 file changed, 18 insertions(+)
+> 
+> diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
+> index c9434b461aab..ddeaf8e1f72f 100644
+> --- a/drivers/mmc/host/sdhci-iproc.c
+> +++ b/drivers/mmc/host/sdhci-iproc.c
+> @@ -296,9 +296,27 @@ static const struct of_device_id sdhci_iproc_of_match[] = {
+>   MODULE_DEVICE_TABLE(of, sdhci_iproc_of_match);
+>   
+>   #ifdef CONFIG_ACPI
+> +/*
+> + * This is a duplicate of bcm2835_(pltfrm_)data without caps quirks
+> + * which are provided by the ACPI table.
+> + */
+> +static const struct sdhci_pltfm_data sdhci_bcm_arasan_data = {
+> +	.quirks = SDHCI_QUIRK_BROKEN_CARD_DETECTION |
+> +		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
+> +		  SDHCI_QUIRK_NO_HISPD_BIT,
+> +	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+> +	.ops = &sdhci_iproc_32only_ops,
+> +};
+> +
+> +static const struct sdhci_iproc_data bcm_arasan_data = {
+> +	.pdata = &sdhci_bcm_arasan_data,
+> +};
+> +
+>   static const struct acpi_device_id sdhci_iproc_acpi_ids[] = {
+>   	{ .id = "BRCM5871", .driver_data = (kernel_ulong_t)&iproc_cygnus_data },
+>   	{ .id = "BRCM5872", .driver_data = (kernel_ulong_t)&iproc_data },
+> +	{ .id = "BCM2847",  .driver_data = (kernel_ulong_t)&bcm_arasan_data },
+> +	{ .id = "BRCME88C", .driver_data = (kernel_ulong_t)&bcm2711_data },
+>   	{ /* sentinel */ }
+>   };
+>   MODULE_DEVICE_TABLE(acpi, sdhci_iproc_acpi_ids);
+> 
 
-  Maciej
