@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7195332AFC9
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2416B32AFCD
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239063AbhCCA2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50760 "EHLO mail.kernel.org"
+        id S239138AbhCCA2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:28:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383917AbhCBMcs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:32:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC24F64F48;
-        Tue,  2 Mar 2021 11:56:38 +0000 (UTC)
+        id S1383909AbhCBMct (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:32:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A486F64F49;
+        Tue,  2 Mar 2021 11:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686199;
-        bh=Ro1bwW+9C73MscFvaHBeTX5xRYiajACd+SxBlI51AL4=;
+        s=k20201202; t=1614686202;
+        bh=ui3wWrXzBVem5fQNAHFR8hDw20MUSX9f+ZJgjufumFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G27MTIQqbjLieKajVXHLe4u6lK32HPEwf0a6isqnhPlp0P7dJQxC7jsjcMvW6fm5X
-         Dh3kM1cuYHO8X+fuzatY9i7urabHYvuh/qNU72W8LBvWyFHzZ6ISaciAXbT13dANvt
-         te0pRG+YiDigIgPZQiz8sT1hfTYTZdESEQrSYHfpCRuSAtPo5Q/4DsPxS/0e7AvV6U
-         YqK1T5v/U0uYGHQd1LK1Ds8gJgPpIYzQWMxhGuxOKYd5+JNsgQnhQhcPxZBxYhsDGa
-         i8Kr/AeK2cOPz08r1UtlK9Blu1rPUxGYJUaADpGjRLvSrA2upD/z14Lg1JySGz0vGc
-         k7al1bOBtqmuA==
+        b=q59ybOtpErluEryJ2NdGb52BRh1Gn9UdY0ETqDV23VDKLbhfJ1UIFtu5+BEAznmry
+         rhuQjwhW5vQgvuSQKDA4TlktKC+CcuWj2uwdaXjktRp+Hitj6YNIXfiQZMCr1j6tT+
+         cabOJhk7+V/5gpq+gQyx9oHrn8EHKdoTjdarSPv/ALz+BjKhgVkXGeGQ3lGgV2Oo16
+         qlCqS0BA/05G1x3gsFVNgxvmZqNZD+A0jplyApWofzr6PGO7IAZ74VqyT6J/9CJTlt
+         JvzmuVqWjHNnKNj6wHbmE0ku+OcZUMVk7KB51EaOP7Uz7hZpPscMK3W0VL/Emrwmhp
+         b0dpVBywI0dsA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Feng <linf@wangsu.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.11 48/52] sysctl.c: fix underflow value setting risk in vm_table
-Date:   Tue,  2 Mar 2021 06:55:29 -0500
-Message-Id: <20210302115534.61800-48-sashal@kernel.org>
+Cc:     Josef Bacik <josef@toxicpanda.com>,
+        syzbot+429d3f82d757c211bff3@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        nbd-general@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 5.11 50/52] nbd: handle device refs for DESTROY_ON_DISCONNECT properly
+Date:   Tue,  2 Mar 2021 06:55:31 -0500
+Message-Id: <20210302115534.61800-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -44,71 +43,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Feng <linf@wangsu.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 3b3376f222e3ab58367d9dd405cafd09d5e37b7c ]
+[ Upstream commit c9a2f90f4d6b9d42b9912f7aaf68e8d748acfffd ]
 
-Apart from subsystem specific .proc_handler handler, all ctl_tables with
-extra1 and extra2 members set should use proc_dointvec_minmax instead of
-proc_dointvec, or the limit set in extra* never work and potentially echo
-underflow values(negative numbers) is likely make system unstable.
+There exists a race where we can be attempting to create a new nbd
+configuration while a previous configuration is going down, both
+configured with DESTROY_ON_DISCONNECT.  Normally devices all have a
+reference of 1, as they won't be cleaned up until the module is torn
+down.  However with DESTROY_ON_DISCONNECT we'll make sure that there is
+only 1 reference (generally) on the device for the config itself, and
+then once the config is dropped, the device is torn down.
 
-Especially vfs_cache_pressure and zone_reclaim_mode, -1 is apparently not
-a valid value, but we can set to them.  And then kernel may crash.
+The race that exists looks like this
 
-# echo -1 > /proc/sys/vm/vfs_cache_pressure
+TASK1					TASK2
+nbd_genl_connect()
+  idr_find()
+    refcount_inc_not_zero(nbd)
+      * count is 2 here ^^
+					nbd_config_put()
+					  nbd_put(nbd) (count is 1)
+    setup new config
+      check DESTROY_ON_DISCONNECT
+	put_dev = true
+    if (put_dev) nbd_put(nbd)
+	* free'd here ^^
 
-Link: https://lkml.kernel.org/r/20201223105535.2875-1-linf@wangsu.com
-Signed-off-by: Lin Feng <linf@wangsu.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+In nbd_genl_connect() we assume that the nbd ref count will be 2,
+however clearly that won't be true if the nbd device had been setup as
+DESTROY_ON_DISCONNECT with its prior configuration.  Fix this by getting
+rid of the runtime flag to check if we need to mess with the nbd device
+refcount, and use the device NBD_DESTROY_ON_DISCONNECT flag to check if
+we need to adjust the ref counts.  This was reported by syzkaller with
+the following kasan dump
+
+BUG: KASAN: use-after-free in instrument_atomic_read include/linux/instrumented.h:71 [inline]
+BUG: KASAN: use-after-free in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+BUG: KASAN: use-after-free in refcount_dec_not_one+0x71/0x1e0 lib/refcount.c:76
+Read of size 4 at addr ffff888143bf71a0 by task systemd-udevd/8451
+
+CPU: 0 PID: 8451 Comm: systemd-udevd Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:230
+ __kasan_report mm/kasan/report.c:396 [inline]
+ kasan_report.cold+0x79/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ refcount_dec_not_one+0x71/0x1e0 lib/refcount.c:76
+ refcount_dec_and_mutex_lock+0x19/0x140 lib/refcount.c:115
+ nbd_put drivers/block/nbd.c:248 [inline]
+ nbd_release+0x116/0x190 drivers/block/nbd.c:1508
+ __blkdev_put+0x548/0x800 fs/block_dev.c:1579
+ blkdev_put+0x92/0x570 fs/block_dev.c:1632
+ blkdev_close+0x8c/0xb0 fs/block_dev.c:1640
+ __fput+0x283/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x190 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:174 [inline]
+ exit_to_user_mode_prepare+0x249/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fc1e92b5270
+Code: 73 01 c3 48 8b 0d 38 7d 20 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 59 c1 20 00 00 75 10 b8 03 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ee fb ff ff 48 89 04 24
+RSP: 002b:00007ffe8beb2d18 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000007 RCX: 00007fc1e92b5270
+RDX: 000000000aba9500 RSI: 0000000000000000 RDI: 0000000000000007
+RBP: 00007fc1ea16f710 R08: 000000000000004a R09: 0000000000000008
+R10: 0000562f8cb0b2a8 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000562f8cb0afd0 R14: 0000000000000003 R15: 000000000000000e
+
+Allocated by task 1:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:46 [inline]
+ set_alloc_info mm/kasan/common.c:401 [inline]
+ ____kasan_kmalloc.constprop.0+0x82/0xa0 mm/kasan/common.c:429
+ kmalloc include/linux/slab.h:552 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ nbd_dev_add+0x44/0x8e0 drivers/block/nbd.c:1673
+ nbd_init+0x250/0x271 drivers/block/nbd.c:2394
+ do_one_initcall+0x103/0x650 init/main.c:1223
+ do_initcall_level init/main.c:1296 [inline]
+ do_initcalls init/main.c:1312 [inline]
+ do_basic_setup init/main.c:1332 [inline]
+ kernel_init_freeable+0x605/0x689 init/main.c:1533
+ kernel_init+0xd/0x1b8 init/main.c:1421
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+
+Freed by task 8451:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x1c/0x30 mm/kasan/common.c:46
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:356
+ ____kasan_slab_free+0xe1/0x110 mm/kasan/common.c:362
+ kasan_slab_free include/linux/kasan.h:192 [inline]
+ slab_free_hook mm/slub.c:1547 [inline]
+ slab_free_freelist_hook+0x5d/0x150 mm/slub.c:1580
+ slab_free mm/slub.c:3143 [inline]
+ kfree+0xdb/0x3b0 mm/slub.c:4139
+ nbd_dev_remove drivers/block/nbd.c:243 [inline]
+ nbd_put.part.0+0x180/0x1d0 drivers/block/nbd.c:251
+ nbd_put drivers/block/nbd.c:295 [inline]
+ nbd_config_put+0x6dd/0x8c0 drivers/block/nbd.c:1242
+ nbd_release+0x103/0x190 drivers/block/nbd.c:1507
+ __blkdev_put+0x548/0x800 fs/block_dev.c:1579
+ blkdev_put+0x92/0x570 fs/block_dev.c:1632
+ blkdev_close+0x8c/0xb0 fs/block_dev.c:1640
+ __fput+0x283/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x190 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:174 [inline]
+ exit_to_user_mode_prepare+0x249/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The buggy address belongs to the object at ffff888143bf7000
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 416 bytes inside of
+ 1024-byte region [ffff888143bf7000, ffff888143bf7400)
+The buggy address belongs to the page:
+page:000000005238f4ce refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x143bf0
+head:000000005238f4ce order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x57ff00000010200(slab|head)
+raw: 057ff00000010200 ffffea00004b1400 0000000300000003 ffff888010c41140
+raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff888143bf7080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888143bf7100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>ffff888143bf7180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                               ^
+ ffff888143bf7200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Reported-and-tested-by: syzbot+429d3f82d757c211bff3@syzkaller.appspotmail.com
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/block/nbd.c | 32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index c9fbdd848138..62fbd09b5dc1 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -2962,7 +2962,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &block_dump,
- 		.maxlen		= sizeof(block_dump),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- 	{
-@@ -2970,7 +2970,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &sysctl_vfs_cache_pressure,
- 		.maxlen		= sizeof(sysctl_vfs_cache_pressure),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- #if defined(HAVE_ARCH_PICK_MMAP_LAYOUT) || \
-@@ -2980,7 +2980,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &sysctl_legacy_va_layout,
- 		.maxlen		= sizeof(sysctl_legacy_va_layout),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- #endif
-@@ -2990,7 +2990,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &node_reclaim_mode,
- 		.maxlen		= sizeof(node_reclaim_mode),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- 	{
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index e6ea5d344f87..0f3bab47c0d6 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -78,8 +78,7 @@ struct link_dead_args {
+ #define NBD_RT_HAS_PID_FILE		3
+ #define NBD_RT_HAS_CONFIG_REF		4
+ #define NBD_RT_BOUND			5
+-#define NBD_RT_DESTROY_ON_DISCONNECT	6
+-#define NBD_RT_DISCONNECT_ON_CLOSE	7
++#define NBD_RT_DISCONNECT_ON_CLOSE	6
+ 
+ #define NBD_DESTROY_ON_DISCONNECT	0
+ #define NBD_DISCONNECT_REQUESTED	1
+@@ -1924,12 +1923,21 @@ again:
+ 	if (info->attrs[NBD_ATTR_CLIENT_FLAGS]) {
+ 		u64 flags = nla_get_u64(info->attrs[NBD_ATTR_CLIENT_FLAGS]);
+ 		if (flags & NBD_CFLAG_DESTROY_ON_DISCONNECT) {
+-			set_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-				&config->runtime_flags);
+-			set_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+-			put_dev = true;
++			/*
++			 * We have 1 ref to keep the device around, and then 1
++			 * ref for our current operation here, which will be
++			 * inherited by the config.  If we already have
++			 * DESTROY_ON_DISCONNECT set then we know we don't have
++			 * that extra ref already held so we don't need the
++			 * put_dev.
++			 */
++			if (!test_and_set_bit(NBD_DESTROY_ON_DISCONNECT,
++					      &nbd->flags))
++				put_dev = true;
+ 		} else {
+-			clear_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
++			if (test_and_clear_bit(NBD_DESTROY_ON_DISCONNECT,
++					       &nbd->flags))
++				refcount_inc(&nbd->refs);
+ 		}
+ 		if (flags & NBD_CFLAG_DISCONNECT_ON_CLOSE) {
+ 			set_bit(NBD_RT_DISCONNECT_ON_CLOSE,
+@@ -2100,15 +2108,13 @@ static int nbd_genl_reconfigure(struct sk_buff *skb, struct genl_info *info)
+ 	if (info->attrs[NBD_ATTR_CLIENT_FLAGS]) {
+ 		u64 flags = nla_get_u64(info->attrs[NBD_ATTR_CLIENT_FLAGS]);
+ 		if (flags & NBD_CFLAG_DESTROY_ON_DISCONNECT) {
+-			if (!test_and_set_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-					      &config->runtime_flags))
++			if (!test_and_set_bit(NBD_DESTROY_ON_DISCONNECT,
++					      &nbd->flags))
+ 				put_dev = true;
+-			set_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+ 		} else {
+-			if (test_and_clear_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-					       &config->runtime_flags))
++			if (test_and_clear_bit(NBD_DESTROY_ON_DISCONNECT,
++					       &nbd->flags))
+ 				refcount_inc(&nbd->refs);
+-			clear_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+ 		}
+ 
+ 		if (flags & NBD_CFLAG_DISCONNECT_ON_CLOSE) {
 -- 
 2.30.1
 
