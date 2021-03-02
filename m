@@ -2,122 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4DBD32B26E
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF8A32B266
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343810AbhCCAx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:53:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40336 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1581638AbhCBTBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 14:01:21 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44D8AC061A32
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 10:46:19 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id c19so2519706pjq.3
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 10:46:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=tVs8cZIDGuERh23FwSwcwh2jaS9MWTMEAi5DihijJDo=;
-        b=wAc7/aIrdEzKS+A9d9WSQasbKlH/lwD8rvJW7waAAnbN5iNIRyuc5akNwEBAMPWEOH
-         QRO/U1328WFd12QOHNHTXZKurNy+JiHiQPzAn4Ip72pP+M+xpDwR/gLMKolfwpT7UQ/g
-         CmEeU2khVlmshIz51MmtDdprS+yA/MzBZRGOGyvSDaixrKDdE297+soH+sjGaxuc2iPQ
-         rbVXgdqdQNMP33NCbL7ZgPbIRRjdnHJ/d6byoxIvnP1I/xqarpOD2YwaOVTUWNMIYsK7
-         TMX7iEQ9nAFAOF55I65EqVuhjHxwagnA2NpmRN1/BT0uclcWvmCOfjy3iVLF8fZLKFyB
-         lGew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=tVs8cZIDGuERh23FwSwcwh2jaS9MWTMEAi5DihijJDo=;
-        b=TiQlSH9Kjs4djYtN4wXUmntuvGexvrmFlaDcFfv/awgcA9FbeTrWXEiDuXc3hRUii2
-         TwCffAZ9NOcQri8hjO8UXCeFx1YHsPT2l0A0KRU7bnNf9DeOZHHdZm3+cdQRLrNCkhJX
-         N0gI9HK4EW22E9sq0OpLpuPBhMGMuyxNJi9WbZ+axplCdjA8fj3o4+sEV0zrnWTuLN5I
-         bHIZsYRsGSrLVh+ipyHQ71U9yGtNsAjoB8L/LVyEZgqQwD0TnbtRQVvZ7jvKY6RyyPX+
-         PlVA7E75Gdv1aLk0knK9WMx2HI+mkVDDADjaEo2tJzG58iOtgTIINz5+/0ENEyL9hJBf
-         eyzw==
-X-Gm-Message-State: AOAM533aFj6TfRfQ81D5EnHmhy5OQeJyrIDomP7Atq8iPSBhEtIk3K4O
-        KCqEGqOG+WNZr2IPZBt1BWmgYFzw8w6fYQ==
-X-Google-Smtp-Source: ABdhPJxhjnmFd8cn6hGCKH5Djd74D1brC8+Du93naq3Fpm4WwrWRenoNVNoCJcOXHyM0SF6V4OnmuQ==
-X-Received: by 2002:a17:902:aa0a:b029:e4:c090:ad76 with SMTP id be10-20020a170902aa0ab02900e4c090ad76mr7434328plb.2.1614710778583;
-        Tue, 02 Mar 2021 10:46:18 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v126sm20606713pfv.163.2021.03.02.10.46.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 10:46:18 -0800 (PST)
-Message-ID: <603e87fa.1c69fb81.c2b5c.fae2@mx.google.com>
-Date:   Tue, 02 Mar 2021 10:46:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1343745AbhCCAxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:53:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45722 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1581539AbhCBS6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 13:58:06 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D528B64F2F;
+        Tue,  2 Mar 2021 18:57:25 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=hot-poop.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1lHACy-00GmGh-4N; Tue, 02 Mar 2021 18:57:24 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     Suzuki K Poulose <suzuki.poulose@arm.com>
+Cc:     anshuman.khandual@arm.com, linux-arm-kernel@lists.infradead.org,
+        Christoffer Dall <christoffer.dall@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>, kvm@vger.kernel.org,
+        kvmarm@lists.cs.columbia.edu,
+        Alexandru Elisei <alexandru.elisei@arm.com>
+Subject: Re: [PATCH] kvm: arm64: nvhe: Save the SPE context early
+Date:   Tue,  2 Mar 2021 18:57:11 +0000
+Message-Id: <161471117620.3770794.12358302238773672698.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.30.0
+In-Reply-To: <20210302120345.3102874-1-suzuki.poulose@arm.com>
+References: <20210302120345.3102874-1-suzuki.poulose@arm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.19-658-g156997432be5
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 156 runs,
- 1 regressions (v5.10.19-658-g156997432be5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: suzuki.poulose@arm.com, anshuman.khandual@arm.com, linux-arm-kernel@lists.infradead.org, christoffer.dall@arm.com, mark.rutland@arm.com, stable@vger.kernel.org, will@kernel.org, catalin.marinas@arm.com, kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu, alexandru.elisei@arm.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 156 runs, 1 regressions (v5.10.19-658-g15699=
-7432be5)
+On Tue, 2 Mar 2021 12:03:45 +0000, Suzuki K Poulose wrote:
+> The nVHE KVM hyp drains and disables the SPE buffer, before
+> entering the guest, as the EL1&0 translation regime
+> is going to be loaded with that of the guest.
+> 
+> But this operation is performed way too late, because :
+>   - The owning translation regime of the SPE buffer
+>     is transferred to EL2. (MDCR_EL2_E2PB == 0)
+>   - The guest Stage1 is loaded.
+> 
+> [...]
 
-Regressions Summary
--------------------
+Applied to kvmarm-master/fixes, thanks!
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+[1/1] kvm: arm64: nvhe: Save the SPE context early
+      commit: cfe1e2b6949785e90e84918295f2be1b6fd152b6
 
+Cheers,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.19-658-g156997432be5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.19-658-g156997432be5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      156997432be50f8d278763c8454b1beb4cff8515 =
-
-
-
-Test Regressions
----------------- =
+	M.
+-- 
+Without deviation from the norm, progress is not possible.
 
 
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603e570e5a9f42995daddcbc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-658-g156997432be5/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-658-g156997432be5/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603e570e5a9f42995dadd=
-cbd
-        failing since 0 day (last pass: v5.10.19-20-g26d442e567cc2, first f=
-ail: v5.10.19-661-g7350d511d78a8) =
-
- =20
