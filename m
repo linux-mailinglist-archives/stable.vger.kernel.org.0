@@ -2,100 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA1232B054
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:43:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F0032B06E
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:43:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344712AbhCCAyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:54:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59634 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382738AbhCBWmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 17:42:52 -0500
-Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98789C061756
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 14:42:12 -0800 (PST)
-Received: by mail-qk1-x749.google.com with SMTP id m68so3037679qkd.5
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 14:42:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:message-id:mime-version:subject:from:cc;
-        bh=EmjSCJIQzKowmfybzIw2xmzY3e2wBh/G2X7ry+IVaXI=;
-        b=r2pJDEQpZQN2M2XFfyq4lyKISs91wGkp8qhUu8egG+S27U4ibzAzuwWVqMo7HA/YqP
-         bDqe5aSTBy0vn4wf3crfsBX01roWCp3SiU1UsXtY5hINWQ1nuIzDhv9UKcOiK0/LhRM4
-         z/f1mt0q6noHjz+UfAHeVl8OOBfdqc5t6aarm7wU8i5KkqK98cP+Pax9tA/6S7/hHltg
-         /bjNO6rcYg/vBvuZ6CA9Ihscp1ioavmiGTV8Kkp6+8CYK3V3C6i4BMoPaxSIwYNKQbR6
-         kyzIUG72xmQru8Vgi3DjBsbPy5jWvlHbxicv8fdUN2kW8fJviDM38k+xe8iHTkdbAGH3
-         XfBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
-         :cc;
-        bh=EmjSCJIQzKowmfybzIw2xmzY3e2wBh/G2X7ry+IVaXI=;
-        b=p7l8rzFX/jmgGCAoTLTHTRv+dZ8alJPkRXaMm6omLB2Z0fGpW1HdiTA7TYOdT7VHbS
-         5VDxELy0AguVdePyEcKpaJolX5Zp8FaZR+FsPin3k/pXX4FOWFFd6cpy3+PPHFVOv3dx
-         FsjX2bHo/SQdj19oC/9/zpizNDQQ3qvvE6UEX1pM3R/U4uggam7Hsqg29+LOXqSIVk37
-         UFWRRUhFgXqHcEs7Ta5Ks+5eFGU24dxULK44XHHL7QJ6FeJQd5m5W1ZjpQvK5WDBJR6T
-         8l6gqrV6ooXsd0csujoaTLAEu/2qdHTvkOSeLhuuk3bunX4a0WWcwBPLam215lhBUTFD
-         gkrA==
-X-Gm-Message-State: AOAM531Vtp+6+vqJ0Rl8eV9yM3FVmfoamv6q7WosbBSqn37TW/Bsuvi0
-        xF1PQlRydc9xNjCNOH/rGA6/Q5CRD6AtuiRwnquN8n5ACNrZE3dG1wg+KAaQ4zQgzYSROGP25kW
-        PvtLHPzBn62fNhrA002DCFsq7btQp1tEIX57cL9erA89CFj0+Vu7LTiQdK5s5N9iMa2c=
-X-Google-Smtp-Source: ABdhPJxNzAwlIyzHHtZl9Hf52+aPkQ2r+PvbSpxgEWdIFifml41/cnnT27Mx6AGp03mKhq17KCndwZ2Y69DLhQ==
-Sender: "doughorn via sendgmr" <doughorn@doughorn0.sfo.corp.google.com>
-X-Received: from doughorn0.sfo.corp.google.com ([2620:15c:8:15:e402:c6e4:56a:6a78])
- (user=doughorn job=sendgmr) by 2002:a0c:f9cc:: with SMTP id
- j12mr5831100qvo.15.1614724931678; Tue, 02 Mar 2021 14:42:11 -0800 (PST)
-Date:   Tue,  2 Mar 2021 14:42:04 -0800
-Message-Id: <20210302224204.1705144-1-doughorn@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
-Subject: [PATCH 1/1] drm/virtio: use kvmalloc for large allocations
-From:   Doug Horn <doughorn@google.com>
-Cc:     stable@vger.kernel.org, senozhatsky@chromium.org,
-        adelva@google.com, tomcherry@google.com,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Doug Horn <doughorn@google.com>
-Content-Type: text/plain; charset="UTF-8"
-To:     unlisted-recipients:; (no To-header on input)
+        id S1344744AbhCCAyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:54:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55690 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1838058AbhCBXDI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 18:03:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0962364F2D;
+        Tue,  2 Mar 2021 23:02:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614726147;
+        bh=3mv6VTSmxedBhh9PLb6MMIIstsYZHBYSjKn/BzIGaxE=;
+        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
+        b=Dj7h6kaHHQdtZeSLNFnllQSbIBzkQKfKXeoAvOOpEfap8nkgi1hFPmJQh5MjIzWa5
+         pbdgGH38cQf1XRuQnJ2RME36eSKrbRtPZLoNcdKvPSfgFu89/3YW4nN8kg2JdTiWDR
+         BI2pBA0BG2VapvQgdvJpBYMVSp7MzMZShfkvbH7w+LyvhuF+otLvwEP+xaUEE5Dp7z
+         ZGVAGgPYxDW8HVyhu42H4+6I53nAqB8HFK+goSCt/UuQucsB11piGVfMgUGnPRb9/r
+         JFTFrpdoLfDQiy/TTi5TjgKkcSelgO+Fdehw8lS1CBa9mYAHk6kggJQOInuEgLPWUO
+         KszDRSyYxmG/A==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210302115534.61800-26-sashal@kernel.org>
+References: <20210302115534.61800-1-sashal@kernel.org> <20210302115534.61800-26-sashal@kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.11 26/52] clk: qcom: gdsc: Implement NO_RET_PERIPH flag
+From:   Stephen Boyd <sboyd@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Date:   Tue, 02 Mar 2021 15:02:25 -0800
+Message-ID: <161472614572.1254594.7093847798808554286@swboyd.mtv.corp.google.com>
+User-Agent: alot/0.9.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+Quoting Sasha Levin (2021-03-02 03:55:07)
+> From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.or=
+g>
+>=20
+> [ Upstream commit 785c02eb35009a4be6dbc68f4f7d916e90b7177d ]
+>=20
+> In some rare occasions, we want to only set the RETAIN_MEM bit, but
+> not the RETAIN_PERIPH one: this is seen on at least SDM630/636/660's
+> GPU-GX GDSC, where unsetting and setting back the RETAIN_PERIPH bit
+> will generate chaos and panics during GPU suspend time (mainly, the
+> chaos is unaligned access).
+>=20
+> For this reason, introduce a new NO_RET_PERIPH flag to the GDSC
+> driver to address this corner case.
 
-commit ea86f3defd55f141a44146e66cbf8ffb683d60da upstream.
+Is there a patch that's going to use this in stable trees? On its own
+this patch doesn't make sense to backport.
 
-We observed that some of virtio_gpu_object_shmem_init() allocations
-can be rather costly - order 6 - which can be difficult to fulfill
-under memory pressure conditions. Switch to kvmalloc_array() in
-virtio_gpu_object_shmem_init() and let the kernel vmalloc the entries
-array.
-
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Link: http://patchwork.freedesktop.org/patch/msgid/20201105014744.1662226-1-senozhatsky@chromium.org
-Cc: stable@vger.kernel.org [5.10+]
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Doug Horn <doughorn@google.com>
----
- drivers/gpu/drm/virtio/virtgpu_object.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 00d6b95e259d..0c98978e2e55 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -172,8 +172,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 		*nents = shmem->pages->orig_nents;
- 	}
- 
--	*ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
--			      GFP_KERNEL);
-+	*ents = kvmalloc_array(*nents,
-+			       sizeof(struct virtio_gpu_mem_entry),
-+			       GFP_KERNEL);
- 	if (!(*ents)) {
- 		DRM_ERROR("failed to allocate ent list\n");
- 		return -ENOMEM;
--- 
-2.30.1.766.gb4fecdf3b7-goog
-
+>=20
+> Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@soma=
+inline.org>
+> Link: https://lore.kernel.org/r/20210113183817.447866-8-angelogioacchino.=
+delregno@somainline.org
+> Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  drivers/clk/qcom/gdsc.c | 10 ++++++++--
+>  drivers/clk/qcom/gdsc.h |  3 ++-
+>  2 files changed, 10 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/clk/qcom/gdsc.c b/drivers/clk/qcom/gdsc.c
+> index af26e0695b86..51ed640e527b 100644
+> --- a/drivers/clk/qcom/gdsc.c
+> +++ b/drivers/clk/qcom/gdsc.c
+> @@ -183,7 +183,10 @@ static inline int gdsc_assert_reset(struct gdsc *sc)
+>  static inline void gdsc_force_mem_on(struct gdsc *sc)
+>  {
+>         int i;
+> -       u32 mask =3D RETAIN_MEM | RETAIN_PERIPH;
+> +       u32 mask =3D RETAIN_MEM;
+> +
+> +       if (!(sc->flags & NO_RET_PERIPH))
+> +               mask |=3D RETAIN_PERIPH;
+> =20
+>         for (i =3D 0; i < sc->cxc_count; i++)
+>                 regmap_update_bits(sc->regmap, sc->cxcs[i], mask, mask);
+> @@ -192,7 +195,10 @@ static inline void gdsc_force_mem_on(struct gdsc *sc)
+>  static inline void gdsc_clear_mem_on(struct gdsc *sc)
+>  {
+>         int i;
+> -       u32 mask =3D RETAIN_MEM | RETAIN_PERIPH;
+> +       u32 mask =3D RETAIN_MEM;
+> +
+> +       if (!(sc->flags & NO_RET_PERIPH))
+> +               mask |=3D RETAIN_PERIPH;
+> =20
+>         for (i =3D 0; i < sc->cxc_count; i++)
+>                 regmap_update_bits(sc->regmap, sc->cxcs[i], mask, 0);
+> diff --git a/drivers/clk/qcom/gdsc.h b/drivers/clk/qcom/gdsc.h
+> index bd537438c793..5bb396b344d1 100644
+> --- a/drivers/clk/qcom/gdsc.h
+> +++ b/drivers/clk/qcom/gdsc.h
+> @@ -42,7 +42,7 @@ struct gdsc {
+>  #define PWRSTS_ON              BIT(2)
+>  #define PWRSTS_OFF_ON          (PWRSTS_OFF | PWRSTS_ON)
+>  #define PWRSTS_RET_ON          (PWRSTS_RET | PWRSTS_ON)
+> -       const u8                        flags;
+> +       const u16                       flags;
+>  #define VOTABLE                BIT(0)
+>  #define CLAMP_IO       BIT(1)
+>  #define HW_CTRL                BIT(2)
+> @@ -51,6 +51,7 @@ struct gdsc {
+>  #define POLL_CFG_GDSCR BIT(5)
+>  #define ALWAYS_ON      BIT(6)
+>  #define RETAIN_FF_ENABLE       BIT(7)
+> +#define NO_RET_PERIPH  BIT(8)
+>         struct reset_controller_dev     *rcdev;
+>         unsigned int                    *resets;
+>         unsigned int                    reset_count;
