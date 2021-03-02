@@ -2,151 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D65EE32AED1
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF64B32AECD
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235909AbhCCAGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:06:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344971AbhCBGvJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 01:51:09 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3207C061788
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 22:40:37 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id e9so1271542pjs.2
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 22:40:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=bmezMI3OzdtTj+dJDPBIAJAha3+kczEm2iCciFAQxPY=;
-        b=ybG+UNOWb4QVKM3W6bj63DAh83II0Kwcft8xJ+kOW+wTIoiOQ83pmxqQ8mcEN5QAw3
-         Ofly10hfxF8GHT04aCYYcs80csZIEjL7/TKqKbLVZzPds5h7bbCVynQbryWBEJakgWnR
-         P90lD62NkA7BQsNrDL8jEou4GBLPOuSHet8PTdYf7ZEMFpeeGnANlgB8Yc1kkF01sXH1
-         0qzKzsiPuCFwgZK8ga9HO/1TM+ZtIUjweQGxN3RGuYxpzPZf0kjfaqx2w3bqGt+qJSQr
-         sUE5cwd5ZqW1mhiS/kOfOut/gHVkjTJVm67adWbJihEHW12y1uxZMRKGUC3brPp03UiI
-         kOTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=bmezMI3OzdtTj+dJDPBIAJAha3+kczEm2iCciFAQxPY=;
-        b=VVe/QgllCJOkS53dkkFP6TLZOHFehhdfuz1MKEMg0I3HZ7xuaqwtGlpDDyN7o0S6/P
-         zvisECpp9XIfqKfHJKpPCt5AM9MAolPxCznsMQzWTZAF9L7oheqK+Cx8l2fe5WHhbSIB
-         95yjrcF10w7XslCOIcHkMx85CwE5ZjxE4iggZmNqtILJ0hBHUBm5LUEDxBO6egWgnSlG
-         kvyCZR/yl9acemJ1Edgzwefq08EA9dw4gDKmnY2TQn/JoDletm2tJYiwITlqO+NTa9hj
-         LufpXiLAo1PvGCJ3PVmnwo9kEFavCpsmdPgTBtOWGRFIDs+OpjFhMvRMzfmsjdtpY9Po
-         IQiA==
-X-Gm-Message-State: AOAM531CXtcfhZpMwNVoG2DTfWSZDZk0YvgMKsD8ImAVaY2rEeXDShi5
-        50riFSzkn+YkOHLDvND6vdt5tZ/6yTHR+g==
-X-Google-Smtp-Source: ABdhPJzqX7TleT/15baaAcZ6Q5obapZMktLSytUUz5Jl9n4XG9e1yV4cjKla1awPdtHTgDtHeO+Psg==
-X-Received: by 2002:a17:902:9304:b029:e4:12f4:bdb0 with SMTP id bc4-20020a1709029304b02900e412f4bdb0mr2147911plb.55.1614667236994;
-        Mon, 01 Mar 2021 22:40:36 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y72sm19988246pfg.126.2021.03.01.22.40.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 22:40:36 -0800 (PST)
-Message-ID: <603ddde4.1c69fb81.4f007.f11e@mx.google.com>
-Date:   Mon, 01 Mar 2021 22:40:36 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S235873AbhCCAGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:06:08 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:13019 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344734AbhCBGnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 01:43:05 -0500
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DqSF70SP0zjVNX;
+        Tue,  2 Mar 2021 14:40:43 +0800 (CST)
+Received: from [10.174.178.147] (10.174.178.147) by
+ DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 2 Mar 2021 14:42:15 +0800
+Subject: Re: [PATCH 5.4 000/340] 5.4.102-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <zou_wei@huawei.com>,
+        Yanjin <yanjin.yan@huawei.com>
+References: <20210301161048.294656001@linuxfoundation.org>
+From:   Hanjun Guo <guohanjun@huawei.com>
+Message-ID: <8271eb39-c44d-37ed-7501-e9d05d7fee17@huawei.com>
+Date:   Tue, 2 Mar 2021 14:42:15 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.19-661-g7350d511d78a8
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 189 runs,
- 2 regressions (v5.10.19-661-g7350d511d78a8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210301161048.294656001@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.178.147]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 189 runs, 2 regressions (v5.10.19-661-g7350d=
-511d78a8)
+Hi Greg,
 
-Regressions Summary
--------------------
+On 2021/3/2 0:09, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.102 release.
+> There are 340 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 03 Mar 2021 16:09:49 +0000.
+> Anything received after that time might be too late.
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-imx8mp-evk     | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
+Our test CI monitored the 5.4.102-rc2, and compile failure:
 
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+kernel/rcu/tree.c:617:2: error: implicit declaration of function 
+‘IRQ_WORK_INIT’; did you mean ‘IRQ_WORK_BUSY’? 
+[-Werror=implicit-function-declaration]
+   IRQ_WORK_INIT(late_wakeup_func);
+   ^~~~~~~~~~~~~
+   IRQ_WORK_BUSY
+kernel/rcu/tree.c:617:2: error: invalid initializer
 
+Should be commit e1e41aa31ed1 (rcu/nocb: Trigger self-IPI on late
+deferred wake up before user resume) fails the build.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.19-661-g7350d511d78a8/plan/baseline/
+By the way, do you expect us test the 5.4.102-rc1 or the
+5.4.102-rc2 in your tree?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.19-661-g7350d511d78a8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7350d511d78a8c41a633f5b5017e9b2203addbef =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-imx8mp-evk     | arm64 | lab-nxp      | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603dae45d707a9a70faddcc7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-661-g7350d511d78a8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-661-g7350d511d78a8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603dae45d707a9a70fadd=
-cc8
-        failing since 1 day (last pass: v5.10.19-1-gd1c42444d513, first fai=
-l: v5.10.19-19-ged89ece04062) =
-
- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603dad45529f300658addcd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-661-g7350d511d78a8/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-661-g7350d511d78a8/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603dad45529f300658add=
-cd1
-        new failure (last pass: v5.10.19-20-g26d442e567cc2) =
-
- =20
+Thanks
+Hanjun
