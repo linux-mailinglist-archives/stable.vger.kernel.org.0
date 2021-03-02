@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A05C232AFFF
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E79D332AFEF
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:34:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbhCCAaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:30:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55104 "EHLO mail.kernel.org"
+        id S239859AbhCCA3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350766AbhCBMub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:50:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E9C164F86;
-        Tue,  2 Mar 2021 11:58:02 +0000 (UTC)
+        id S1447024AbhCBMmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:42:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB31E64F8A;
+        Tue,  2 Mar 2021 11:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686283;
-        bh=JxBOvQlb1mV3WHzKwhlOFEdlY0k8MJZTgRuw+0Gkp5U=;
+        s=k20201202; t=1614686284;
+        bh=VBGEUfM8R1ukHmofVbcqaMFo2bRjl8dukiEr2Udl+Ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqf370pCtxv/9RNoR5hlUuVNvQ5FKwfEZ6AO/RAnkKgilZ2CTtaf6ijKp7EadryFI
-         RIQIJTWovgBxYfWDITQu3wC0t5+DisXN35n1duOuXERvJrMfkaz7PyLf2R6ZT1zjB1
-         Ya2nj+eQzryYbsHFby8K3hPnchkaq57jeOzk7o7iNCDFc8aXMwibYVtwM92W6us3nO
-         BE62qlUPu2l0j9pX/QwvZxcWM9jslWe0XXbc3WJcw6k8gzbGX65/oRmTAVKJ42LMdk
-         wynrv6UWU7vqvdgMaIXTJlze0V+Q8/lT9bFLstmIDgeuf++XSiZ8DzndeEzUg3swSt
-         lVoHc36bDoQHA==
+        b=MD39hstWPP/Pc6bKJDe4pHtNAT5OjYRLelrORNcwIOCGOhJ6SN1q9mor1qCfjmXPz
+         6dQOE38IR5Qh2qmloHiqoteja0rzS3JCbeHoJIJ20OOvfm8ltUePgLVkO5tnuqBQUE
+         UzrslcITzfaU9XvZGIVdYYl3NniW1gh72g8OAQUOTMCQKi1b6pnvl183y538ANzXgz
+         99i75KMMMdo9dHLImCKQjAgASInAdRAc9cdYd3qg97DGsc/2LoYfFkK432D5Jm2Cqk
+         lX5bXtFPZ5TFJSwBITceokvgnl3z3H0o/LO16xEMB7Rm2J+PbrxoIpSTF1v4VxXvT9
+         RvhqJPoW/toJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 10/33] spi: stm32: make spurious and overrun interrupts visible
-Date:   Tue,  2 Mar 2021 06:57:26 -0500
-Message-Id: <20210302115749.62653-10-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.4 11/33] powerpc: improve handling of unrecoverable system reset
+Date:   Tue,  2 Mar 2021 06:57:27 -0500
+Message-Id: <20210302115749.62653-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115749.62653-1-sashal@kernel.org>
 References: <20210302115749.62653-1-sashal@kernel.org>
@@ -43,58 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit c64e7efe46b7de21937ef4b3594d9b1fc74f07df ]
+[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
 
-We do not expect to receive spurious interrupts so rise a warning
-if it happens.
+If an unrecoverable system reset hits in process context, the system
+does not have to panic. Similar to machine check, call nmi_exit()
+before die().
 
-RX overrun is an error condition that signals a corrupted RX
-stream both in dma and in irq modes. Report the error and
-abort the transfer in either cases.
-
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1612551572-495-9-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-stm32.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ arch/powerpc/kernel/traps.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 77ddf23b65d6..c7546683fc80 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -924,8 +924,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 		mask |= STM32H7_SPI_SR_RXP;
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 206032c9b545..ecfa460f66d1 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -513,8 +513,11 @@ out:
+ 		die("Unrecoverable nested System Reset", regs, SIGABRT);
+ #endif
+ 	/* Must die if the interrupt is not recoverable */
+-	if (!(regs->msr & MSR_RI))
++	if (!(regs->msr & MSR_RI)) {
++		/* For the reason explained in die_mce, nmi_exit before die */
++		nmi_exit();
+ 		die("Unrecoverable System Reset", regs, SIGABRT);
++	}
  
- 	if (!(sr & mask)) {
--		dev_dbg(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
--			sr, ier);
-+		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
-+			 sr, ier);
- 		spin_unlock_irqrestore(&spi->lock, flags);
- 		return IRQ_NONE;
- 	}
-@@ -952,15 +952,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 	}
- 
- 	if (sr & STM32H7_SPI_SR_OVR) {
--		dev_warn(spi->dev, "Overrun: received value discarded\n");
--		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
--			stm32h7_spi_read_rxfifo(spi, false);
--		/*
--		 * If overrun is detected while using DMA, it means that
--		 * something went wrong, so stop the current transfer
--		 */
--		if (spi->cur_usedma)
--			end = true;
-+		dev_err(spi->dev, "Overrun: RX data lost\n");
-+		end = true;
- 	}
- 
- 	if (sr & STM32H7_SPI_SR_EOT) {
+ 	if (saved_hsrrs) {
+ 		mtspr(SPRN_HSRR0, hsrr0);
 -- 
 2.30.1
 
