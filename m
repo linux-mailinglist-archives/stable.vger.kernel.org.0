@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3588C32AFE5
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:33:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3B1532AFE3
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239608AbhCCA3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:29:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51324 "EHLO mail.kernel.org"
+        id S239560AbhCCA3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344120AbhCBMiT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:38:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E6F064F0B;
-        Tue,  2 Mar 2021 11:56:27 +0000 (UTC)
+        id S245751AbhCBMiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:38:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC66A64F3A;
+        Tue,  2 Mar 2021 11:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686188;
-        bh=u2P5i4xmHCSSHOMVfd8dvwLyx+VXBqLuGZ/cmQoff18=;
+        s=k20201202; t=1614686195;
+        bh=ZBjTCQZngZWXOGpIJqWDdpln4/kqr+sxTTFX4V+7n58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7WJ2feZixRyl5TiAN5qxOKOB/3l7QHfQXb9iDGYsE+xKVNT3Bi/AVfiRb6jiJlSf
-         E3tJXs+BqPgS64e+zCoyLhM1KKpYkmLQlMKyi6KbEv5UzAyr0ROPdFSq87+8IlFk+b
-         KouXBxcxO3kefLzmw6GB7un3Fsy3hen7oihh7dIifcW4V1CB0VnbojDm+hceiWMbtJ
-         uT+aQohNWQkzq+RU0DYdauT6WAWWS37JuGpqUZg/Jocb8BmdP6Or1vywqE7mYiMXkp
-         VZEFF/zKN41fZ294gnZDNnMnzsfGHWUMsXK8xtGpCY/SnlJhgs7/FHJxLYFP9bdaU5
-         xxF9905tMKReQ==
+        b=oIH0T9jjG95zwjtFOzqn+326oFXMZ8ayOe635snNLd73s77uAJMXkZWcrSX3Nv1BL
+         MVj7IltzXml7nZSSkJ4AF3fk0MJ5sTFkOJpdQT6Lgon5I4Wqdseh8RfwW8v2levh4p
+         ZAF6FAxFulDvyYEZGIMnIfqiXKcqCsedbMDwo1ZAX84uKkebIK/4QdmKO0hY+QWQT+
+         Ul1j//lHGTkcNRjnw6fXrFEcaFZkvcxZwvrNDd8cQdxZy8HHzxbJ7iWVy58TZPd27t
+         WJPHXZL048KneM/m5oiEx7+qImvURTw7RvEUCWTh3hHCHvXnTVEOxwxXVOMDLKgs0V
+         WUPA11ugyIdlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 41/52] PCI: Fix pci_register_io_range() memory leak
-Date:   Tue,  2 Mar 2021 06:55:22 -0500
-Message-Id: <20210302115534.61800-41-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 46/52] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
+Date:   Tue,  2 Mar 2021 06:55:27 -0500
+Message-Id: <20210302115534.61800-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -42,79 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit f6bda644fa3a7070621c3bf12cd657f69a42f170 ]
+[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
 
-Kmemleak reports:
+Avoid a potentially large stack frame and overflow by making
+"cpumask_t avail" a static variable. There is no concurrent
+access due to the existing locking.
 
-  unreferenced object 0xc328de40 (size 64):
-    comm "kworker/1:1", pid 21, jiffies 4294938212 (age 1484.670s)
-    hex dump (first 32 bytes):
-      00 00 00 00 00 00 00 00 e0 d8 fc eb 00 00 00 00  ................
-      00 00 10 fe 00 00 00 00 00 00 00 00 00 00 00 00  ................
-
-  backtrace:
-    [<ad758d10>] pci_register_io_range+0x3c/0x80
-    [<2c7f139e>] of_pci_range_to_resource+0x48/0xc0
-    [<f079ecc8>] devm_of_pci_get_host_bridge_resources.constprop.0+0x2ac/0x3ac
-    [<e999753b>] devm_of_pci_bridge_init+0x60/0x1b8
-    [<a895b229>] devm_pci_alloc_host_bridge+0x54/0x64
-    [<e451ddb0>] rcar_pcie_probe+0x2c/0x644
-
-In case a PCI host driver's probe is deferred, the same I/O range may be
-allocated again, and be ignored, causing a memory leak.
-
-Fix this by (a) letting logic_pio_register_range() return -EEXIST if the
-passed range already exists, so pci_register_io_range() will free it, and
-by (b) making pci_register_io_range() not consider -EEXIST an error
-condition.
-
-Link: https://lore.kernel.org/r/20210202100332.829047-1-geert+renesas@glider.be
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 4 ++++
- lib/logic_pio.c   | 3 +++
- 2 files changed, 7 insertions(+)
+ arch/s390/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 790393d1e318..a53e25d75d04 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -4022,6 +4022,10 @@ int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
- 	ret = logic_pio_register_range(range);
- 	if (ret)
- 		kfree(range);
-+
-+	/* Ignore duplicates due to deferred probing */
-+	if (ret == -EEXIST)
-+		ret = 0;
- #endif
- 
- 	return ret;
-diff --git a/lib/logic_pio.c b/lib/logic_pio.c
-index f32fe481b492..07b4b9a1f54b 100644
---- a/lib/logic_pio.c
-+++ b/lib/logic_pio.c
-@@ -28,6 +28,8 @@ static DEFINE_MUTEX(io_range_mutex);
-  * @new_range: pointer to the IO range to be registered.
-  *
-  * Returns 0 on success, the error code in case of failure.
-+ * If the range already exists, -EEXIST will be returned, which should be
-+ * considered a success.
-  *
-  * Register a new IO range node in the IO range list.
-  */
-@@ -51,6 +53,7 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
- 	list_for_each_entry(range, &io_range_list, list) {
- 		if (range->fwnode == new_range->fwnode) {
- 			/* range already there */
-+			ret = -EEXIST;
- 			goto end_register;
- 		}
- 		if (range->flags == LOGIC_PIO_CPU_MMIO &&
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 27c763014114..1bae4a65416b 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -770,7 +770,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
+ static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
+ {
+ 	struct sclp_core_entry *core;
+-	cpumask_t avail;
++	static cpumask_t avail;
+ 	bool configured;
+ 	u16 core_id;
+ 	int nr, i;
 -- 
 2.30.1
 
