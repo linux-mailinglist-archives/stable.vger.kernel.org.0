@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FD8832AF1E
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE65432AF21
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233035AbhCCAPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41408 "EHLO mail.kernel.org"
+        id S233322AbhCCAPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:15:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350198AbhCBMC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:02:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F26F64F29;
-        Tue,  2 Mar 2021 11:56:03 +0000 (UTC)
+        id S244692AbhCBMDm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:03:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE17F64F26;
+        Tue,  2 Mar 2021 11:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686164;
-        bh=JD8u1dCeXN896PWvhN7ssVxUY58m2NaSaqVJ8fjFQYs=;
+        s=k20201202; t=1614686165;
+        bh=9yFRSrn0ZtCh8KKSuDANwymqtWmlkM7Vgl4mWGkhQb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nA6ySQyXzCyoLywuicRUsGVtsIlk/kEqU9YEp0121/iaGWMjWkYqgYqw5YcfWjLRA
-         yVSQIuwkenOxX0Hj7pOCKp1LXbYAuttqozO2Qh4vuQufP3DKI0r86QVJdJBfKRXT8X
-         rLlJslePs+CQrTABgMEI2Fj7DbNdMyQHNpIGKI/SiN9/v9lp/oTBhiaqZJ7akho8nm
-         7TpiYQJGhiYy5s9X//p1wxRHlJlUXHB6X7flADFNqwBc6kPli5BxjxjmvO6+zR6PhA
-         KkVGPSqB2A9E7WuCifZoYn+s8U2aiUCIrn+vywNW8/AXFz9V1xx7iZUSoHC6g+2PWz
-         42GCbXMT+gEmw==
+        b=eMJrfAjZWEex/fo6zqREMwPhy96pbvM9l0eIdBIfZyA3iS6B0YlImf3uP0JhK6SrL
+         Ru+083ZtGFQ5IKGpl9+KYs2+jrFyiyA7sy3Y8OBHKhzyeuoIVISDef3TvffghFk4Ys
+         KQJHb3/Vau7Oj/LejlaOUz7bzFHbjYo77bsQibHtfK1/9uFFJvfuD5VtRb/5+F3VaI
+         tnIW3SAbUFC77BDY3WKjBzmmy+GWogESGdHwF+5ZT2wVbfQnzCT1jABVoE0pidoOg2
+         zYfbFR48WQnjCiIe4UYNa0PdoBlXrkvrZzaGkXTaidrDCL9FplfE6vQIwPfg45zmEv
+         GybYZ0hkyIOww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 22/52] HID: logitech-dj: add support for the new lightspeed connection iteration
-Date:   Tue,  2 Mar 2021 06:55:03 -0500
-Message-Id: <20210302115534.61800-22-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 23/52] HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
+Date:   Tue,  2 Mar 2021 06:55:04 -0500
+Message-Id: <20210302115534.61800-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,55 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Laíns <lains@riseup.net>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit fab3a95654eea01d6b0204995be8b7492a00d001 ]
+[ Upstream commit b7c20f3815985570ac71c39b1a3e68c201109578 ]
 
-This new connection type is the new iteration of the Lightspeed
-connection and will probably be used in some of the newer gaming
-devices. It is currently use in the G Pro X Superlight.
+The Acer Aspire Switch 10E (SW3-016)'s keyboard-dock uses the same USB-ids
+as the Acer One S1003 keyboard-dock. Yet they are not entirely the same:
 
-This patch should be backported to older versions, as currently the
-driver will panic when seing the unsupported connection. This isn't
-an issue when using the receiver that came with the device, as Logitech
-has been using different PIDs when they change the connection type, but
-is an issue when using a generic receiver (well, generic Lightspeed
-receiver), which is the case of the one in the Powerplay mat. Currently,
-the only generic Ligthspeed receiver we support, and the only one that
-exists AFAIK, is ther Powerplay.
+1. The S1003 keyboard-dock has the same report descriptors as the
+S1002 keyboard-dock (which has different USB-ids)
 
-As it stands, the driver will panic when seeing a G Pro X Superlight
-connected to the Powerplay receiver and won't send any input events to
-userspace! The kernel will warn about this so the issue should be easy
-to identify, but it is still very worrying how hard it will fail :(
+2. The Acer Aspire Switch 10E's keyboard-dock has different
+report descriptors from the S1002/S1003 keyboard docks and it
+sends 0x00880078 / 0x00880079 usage events when the touchpad is
+toggled on/off (which is handled internally).
 
-[915977.398471] logitech-djreceiver 0003:046D:C53A.0107: unusable device of type UNKNOWN (0x0f) connected on slot 1
+This means that all Acer kbd-docks handled by the hid-ite.c drivers
+report their touchpad being toggled on/off through these custom
+usage-codes with the exception of the S1003 dock, which likely is
+a bug of that dock.
 
-Signed-off-by: Filipe Laíns <lains@riseup.net>
+Add a QUIRK_TOUCHPAD_ON_OFF_REPORT quirk for the Aspire Switch 10E / S1003
+usb-id so that the touchpad toggling will get reported to userspace on
+the Aspire Switch 10E.
+
+Since the Aspire Switch 10E's kbd-dock has different report-descriptors,
+this also requires adding support for fixing those to ite_report_fixup().
+
+Setting the quirk will also cause ite_report_fixup() to hit the
+S1002/S1003 descriptors path on the S1003. Since the S1003 kbd-dock
+never generates any input-reports for the fixed up part of the
+descriptors this does not matter; and if there are versions out there
+which do actually send input-reports for the touchpad-toggle then the
+fixup should actually help to make things work.
+
+This was tested on both an Acer Aspire Switch 10E and on an Acer One S1003.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-dj.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ite.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 45e7e0bdd382..1401ee2067ca 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -994,7 +994,12 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
- 	case 0x0d:
--		device_type = "eQUAD Lightspeed 1_1";
-+		device_type = "eQUAD Lightspeed 1.1";
-+		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
-+		workitem.reports_supported |= STD_KEYBOARD;
-+		break;
-+	case 0x0f:
-+		device_type = "eQUAD Lightspeed 1.2";
- 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
+diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
+index 22bfbebceaf4..14fc068affad 100644
+--- a/drivers/hid/hid-ite.c
++++ b/drivers/hid/hid-ite.c
+@@ -23,11 +23,16 @@ static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int
+ 			hid_info(hdev, "Fixing up Acer Sw5-012 ITE keyboard report descriptor\n");
+ 			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
+ 		}
+-		/* For Acer One S1002 keyboard-dock */
++		/* For Acer One S1002/S1003 keyboard-dock */
+ 		if (*rsize == 188 && rdesc[185] == 0x81 && rdesc[186] == 0x02) {
+-			hid_info(hdev, "Fixing up Acer S1002 ITE keyboard report descriptor\n");
++			hid_info(hdev, "Fixing up Acer S1002/S1003 ITE keyboard report descriptor\n");
+ 			rdesc[186] = HID_MAIN_ITEM_RELATIVE;
+ 		}
++		/* For Acer Aspire Switch 10E (SW3-016) keyboard-dock */
++		if (*rsize == 210 && rdesc[184] == 0x81 && rdesc[185] == 0x02) {
++			hid_info(hdev, "Fixing up Acer Aspire Switch 10E (SW3-016) ITE keyboard report descriptor\n");
++			rdesc[185] = HID_MAIN_ITEM_RELATIVE;
++		}
+ 	}
+ 
+ 	return rdesc;
+@@ -114,7 +119,8 @@ static const struct hid_device_id ite_devices[] = {
+ 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_SYNAPTICS,
+-		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003) },
++		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003),
++	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ite_devices);
 -- 
 2.30.1
 
