@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A156F32AFB6
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:29:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B8F32AFB3
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:29:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238698AbhCCA2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49020 "EHLO mail.kernel.org"
+        id S238626AbhCCA2J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:28:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349110AbhCBM2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:28:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2269C64FB7;
-        Tue,  2 Mar 2021 11:59:15 +0000 (UTC)
+        id S1349164AbhCBM2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:28:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CD8364FBF;
+        Tue,  2 Mar 2021 11:59:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686355;
-        bh=Z9kBah8MI5Mx+Hiq+9csFyDvsgpcS8YcRzKuTgTBzc4=;
+        s=k20201202; t=1614686358;
+        bh=G9oStJ1tSPVN9jRxpMvgqQvqcyxNpJXijtvlJbQxO2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JktUIdjMo8cv/u7d7y55okYQn6eERnokpW/FG5pPKO4Lj3i5PjoQYMIC29Eijf+NT
-         +BuJewCtO2otxyo5qOvVtl2RzDa70DFGiEsZZEEbEMDG/FgphNW9hverPd92Zc8AiY
-         QNpWo2yJ0cUayFROjuNIo/adp7Zl8L/raJg8e+mg2GwJyDdud/YUShyu0kuloYa+Ny
-         jQkDSTE0QTIysKbT7qgo+2uzAWxlzyK32bdAqsNU7lzg0IuhoDs2RbSIUe92aLz2ai
-         trQTekxofj7OEdjeulzS1Kor7jPSuhCyh+0vidRAD4egCQZRYj8QZytwo6gpuRXqH6
-         RTQpitBYiMhIg==
+        b=OIlUPJd/9hoET8JWIWrWa0em4HufXyMBDoBHsfEOuZYpd8OR58wnhMJMRPHvzp5Fa
+         M7bF04kKyNlxop5E0bKcEiRuEMayfMGHSecH/aS5XZagcnjOdz1PZcHQSNPMF/VW93
+         /QylHM53Hkor/O1dYe2Lh5hzh756h6uVAX0R7fwbHa/H6gO2kFGETfwiapwS5vay7q
+         s1Wh+XFY+18DJ/r28ALJ3uiSy8MdUd1HeF6uUfquKoUXVQdOhUQ6KWBgeMopM0SPRc
+         iBGUm3+kj2H7yMJO2Ee/lskMC5w1b1MW7zz35x3+pU2urDXw29nAZwOnTQdm9oubOl
+         JwBIKQtU08pfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aswath Govindraju <a-govindraju@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 09/13] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
-Date:   Tue,  2 Mar 2021 06:58:59 -0500
-Message-Id: <20210302115903.63458-9-sashal@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 11/13] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+Date:   Tue,  2 Mar 2021 06:59:01 -0500
+Message-Id: <20210302115903.63458-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115903.63458-1-sashal@kernel.org>
 References: <20210302115903.63458-1-sashal@kernel.org>
@@ -42,89 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
+[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
 
-A dummy zero bit is sent preceding the data during a read transfer by the
-Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
-of data during a read. In order to ignore this bit a quirk can be added to
-send an extra zero bit after the read address.
+The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
+programmed to some different values on a per-model basis.
+At least, this is what we intend to do here;
 
-Add a quirk to ignore the zero bit sent before data by adding a zero bit
-after the read address.
+Unfortunately, though, this register is being overwritten with a
+static magic number, right after applying the GPU-specific
+configuration (including the GPU-specific quirks) and that is
+effectively nullifying the efforts.
 
-[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
+Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
+register in order to retain the wanted configuration for the
+target GPU.
 
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
- include/linux/eeprom_93xx46.h       |  2 ++
- 2 files changed, 17 insertions(+)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
-index 38766968bfa2..0bcb1864eb5d 100644
---- a/drivers/misc/eeprom/eeprom_93xx46.c
-+++ b/drivers/misc/eeprom/eeprom_93xx46.c
-@@ -38,6 +38,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
- 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
- };
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index f1aaa76cc2e4..92e767f3cc16 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -472,8 +472,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
+ 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
+ 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
  
-+static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
-+	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
-+};
-+
- struct eeprom_93xx46_dev {
- 	struct spi_device *spi;
- 	struct eeprom_93xx46_platform_data *pdata;
-@@ -58,6 +62,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
- 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
- }
+-	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
+-
+ 	/* Enable USE_RETENTION_FLOPS */
+ 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
  
-+static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
-+{
-+	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
-+}
-+
- static int eeprom_93xx46_read(void *priv, unsigned int off,
- 			      void *val, size_t count)
- {
-@@ -99,6 +108,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
- 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
- 			cmd_addr, edev->spi->max_speed_hz);
- 
-+		if (has_quirk_extra_read_cycle(edev)) {
-+			cmd_addr <<= 1;
-+			bits += 1;
-+		}
-+
- 		spi_message_init(&m);
- 
- 		t[0].tx_buf = (char *)&cmd_addr;
-@@ -366,6 +380,7 @@ static void select_deassert(void *context)
- static const struct of_device_id eeprom_93xx46_of_table[] = {
- 	{ .compatible = "eeprom-93xx46", },
- 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
-+	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
-diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
-index eec7928ff8fe..99580c22f91a 100644
---- a/include/linux/eeprom_93xx46.h
-+++ b/include/linux/eeprom_93xx46.h
-@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
- #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
- /* Instructions such as EWEN are (addrlen + 2) in length. */
- #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
-+/* Add extra cycle after address during a read */
-+#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
- 
- 	/*
- 	 * optional hooks to control additional logic
 -- 
 2.30.1
 
