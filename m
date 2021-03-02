@@ -2,101 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3146432B00F
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD36632B00D
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236279AbhCCAa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:30:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350907AbhCBM7K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:59:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 252BE64EDC;
-        Tue,  2 Mar 2021 12:57:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614689830;
-        bh=chU/pFshGfuplktWhF67GgUPM3U1LH6JdnwCilJwrbE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eH15Q4MRsXLeAbnJlno7lMhp9W77h+JGBhyHx3LTcbE+9W55hXWVhOHdsj+44nWFP
-         Tn4oX7sl/7I66EleNj2+RuRAiiNsZ7AOvkP9npc28QNn2qv/ahe/Mh/wtxrFO2ruu0
-         8ODihLBKqq0DKzbTMTq9BXnNjVXlfobxyyV5eq71FKuPetJTbiL77oeZXVpcMb5a7s
-         FAup3Sgkitz6ULM9zsY2OByXJOO97jXpNETRX995eo5wl+TT25qL762f06FEzyKu6A
-         SpbK5XDTpa8KjywUPzJtwcRNnDkVT5i4FmU2YTG1o9//7E8evc6KylEyiYb9/z3Baq
-         PRxDVU+iEhFqg==
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id C67C040CD9; Tue,  2 Mar 2021 09:57:06 -0300 (-03)
-Date:   Tue, 2 Mar 2021 09:57:06 -0300
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Antonio Terceiro <antonio.terceiro@linaro.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        He Zhe <zhe.he@windriver.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] perf: fix ccache usage in $(CC) when generating arch
- errno table
-Message-ID: <YD42IobxI3rym7N0@kernel.org>
-References: <20210224130046.346977-1-antonio.terceiro@linaro.org>
+        id S236271AbhCCAa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:30:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349163AbhCBM7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 07:59:05 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5930CC061756
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 04:57:50 -0800 (PST)
+Received: by mail-wr1-x42b.google.com with SMTP id u16so1762757wrt.1
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 04:57:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=Znmqo7L1fy9MGUvv2+ShAXu0D1vZCP0BjrZZR0D0cAc=;
+        b=TZu5GJhMJzJrGkUsWBVKLdB5Gifq4vEaUuGYgDJClwvtDuqxwcSj8ugEHxNhIQ15Yp
+         fClbzwVG091+nuFV4pHqv8s/QXfR1mIASVNDrV3fKda7CWO6SQ1baSCvL2G1vMF/e6jH
+         tf1caNTUYMgmzMHYaIropFq7E/t5UTJDLV5/V1+Re2UnkUS2Dp2HtgHEY7w1yNfgYEo+
+         0KZtvivuUrBnkiXm6N9QSd9YHiYBAo7CeKQncE55IZee5M9/7n/OAqbPbmLH0AsPJqlj
+         H7V5KYGQP1sQjGDdhizWF9DyJprhNvvRsNC2Py0WcQoDX3GU+JQR4NU0sYmDPyS2Cx3w
+         qO0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition;
+        bh=Znmqo7L1fy9MGUvv2+ShAXu0D1vZCP0BjrZZR0D0cAc=;
+        b=lBMx3SkHIaXucTRoQoiZ7lvXB4LBVA5R41I23bWbPVkJ+eTHWtGe6VjYGg3a69sdDj
+         UAbl7CjOuJ9+u6T14PI1Qo4b4/eDXcURczTecdIXVS96L4A9JHlmkq6YSaCziDV1LkhY
+         ypiKhBtBVif038E4M95xK+bu9iNJITiUUEd08PKDWHkPk/vWGx5A7ArwKesVdXTXs/Xc
+         XdF+6Yn3d7pX8AXQzs3Q9XsMoeYnUT7/84Fo+7CjSQ+s3DTjVOEcssVCJSxWzZREaoG9
+         51BaIX34p6JrA2gL9nilZSDBkKyqwFChWCvT3RQdruRBWQGJGmkiRmImjuihLEneeoip
+         2csg==
+X-Gm-Message-State: AOAM533Rq8HcXWwHmE1TINPYC/DslUOXslOnExeeNa4v/B4R4k/f12xi
+        kl3OlBKw5il5eAjzKLWDSCQ=
+X-Google-Smtp-Source: ABdhPJyq6URdYOlq9vLNvFlihBhhcqcw+e7Sm0JV8Em8SJ+zgWX9lLzR1b9MA5fS2nvXDOI4SBPAKg==
+X-Received: by 2002:adf:d217:: with SMTP id j23mr8194617wrh.113.1614689869056;
+        Tue, 02 Mar 2021 04:57:49 -0800 (PST)
+Received: from eldamar ([213.55.225.172])
+        by smtp.gmail.com with ESMTPSA id p190sm2621704wmp.4.2021.03.02.04.57.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Mar 2021 04:57:48 -0800 (PST)
+Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
+Date:   Tue, 2 Mar 2021 13:57:46 +0100
+From:   Salvatore Bonaccorso <carnil@debian.org>
+To:     stable <stable@vger.kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Laurent Vivier <laurent@vivier.eu>,
+        YunQiang Su <ysu@wavecomp.com>, Helge Deller <deller@gmx.de>
+Subject: Please apply commit 2347961b11d4 ("binfmt_misc: pass binfmt_misc
+ flags to the interpreter") to 5.10.y and later
+Message-ID: <YD42Sh5n2sjF9tNj@eldamar.lan>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210224130046.346977-1-antonio.terceiro@linaro.org>
-X-Url:  http://acmel.wordpress.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Em Wed, Feb 24, 2021 at 10:00:46AM -0300, Antonio Terceiro escreveu:
-> This was introduced by commit e4ffd066ff440a57097e9140fa9e16ceef905de8.
-> 
-> Assuming the first word of $(CC) is the actual compiler breaks usage
-> like CC="ccache gcc": the script ends up calling ccache directly with
-> gcc arguments, what fails. Instead of getting the first word, just
-> remove from $(CC) any word that starts with a "-". This maintains the
-> spirit of the original patch, while not breaking ccache users.
+Hi
 
-Thanks, tested, added:
+2347961b11d4 ("binfmt_misc: pass binfmt_misc flags to the
+interpreter") was applied in mainline and included in 5.12-rc1.
 
-Fixes: e4ffd066ff440a57 ("perf: Normalize gcc parameter when generating arch errno table")
+Probably you could argue here on both a bugfix or feature addition.
 
-And applied to perf/urgent.
+My intention is the following: In the Debian bugreport
+https://bugs.debian.org/970460 an issue was raised with qemu-user
+which needs to know if it has to preserve the argv[0]. As shown there
+it is an issue with multi-call binaries.
 
-- Arnaldo
- 
-> Signed-off-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Cc: Jiri Olsa <jolsa@redhat.com>
-> Cc: Namhyung Kim <namhyung@kernel.org>
-> Cc: He Zhe <zhe.he@windriver.com>
-> CC: stable@vger.kernel.org
-> ---
->  tools/perf/Makefile.perf | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-> index 5345ac70cd83..9bfc725db608 100644
-> --- a/tools/perf/Makefile.perf
-> +++ b/tools/perf/Makefile.perf
-> @@ -607,7 +607,7 @@ arch_errno_hdr_dir := $(srctree)/tools
->  arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
->  
->  $(arch_errno_name_array): $(arch_errno_tbl)
-> -	$(Q)$(SHELL) '$(arch_errno_tbl)' $(firstword $(CC)) $(arch_errno_hdr_dir) > $@
-> +	$(Q)$(SHELL) '$(arch_errno_tbl)' '$(patsubst -%,,$(CC))' $(arch_errno_hdr_dir) > $@
->  
->  sync_file_range_arrays := $(beauty_outdir)/sync_file_range_arrays.c
->  sync_file_range_tbls := $(srctree)/tools/perf/trace/beauty/sync_file_range.sh
-> -- 
-> 2.30.1
-> 
+So again, not sure if you want to consider it, but defintively
+Yunqiang Su and others would appreicate. If it gets backported we will
+pick it up automatically.
 
--- 
-
-- Arnaldo
+Regards,
+Salvatore
