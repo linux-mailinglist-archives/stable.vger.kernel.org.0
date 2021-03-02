@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021D832AFF3
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:34:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E3032AFF2
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:34:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbhCCA3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:29:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52780 "EHLO mail.kernel.org"
+        id S239908AbhCCA3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237788AbhCBMnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:43:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D68DE64F7E;
-        Tue,  2 Mar 2021 11:57:52 +0000 (UTC)
+        id S1447101AbhCBMmZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:42:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DB9C64F81;
+        Tue,  2 Mar 2021 11:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686274;
-        bh=usTZBEyYoeHw+d0qswx2qWUgUYZxRBkXSl4lWppua3E=;
+        s=k20201202; t=1614686275;
+        bh=W37Gyp3g8smGOxEQWlmsBfoNwDFpQ2O/lIDtM+zaLTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMWuaPpADRSIWFtJ8waDecrTR23oGYQVxpzB1AFbJUNjNuDiiBa4jSCTVyD1AnO9p
-         o2u2NhsBp1HzKP1LYohxXb9gUFLQC1klKOVIZCV5RRCKNQEb63xGQrWG/WPMQFWCHx
-         YIrMXGI/3hFqSPrlPpTSHmtyUCenqeuirhVvMoMOXVr0cvjFSH53syy2FrdK0oY0gt
-         rI+PEigDAFKJ1ssFjPYKlqFbHi1f31gZ4geYl5TQqYFkRKSm47ucqB+Z7t5JCyyUMq
-         VoPWzDPfYek2yeRQpyrSr3SYATEkKIl7qlMlX0q97Cfed8wYkPikES3zl1psMnzeQ3
-         3we2ozjsZQzxQ==
+        b=Bv4C7ykcglRqF/bFqOrdPCljm5kah8xETP5pTbbT+IlKKgr7LLEBq2DEgEvpj2KWb
+         lCayofVVZXlrT4T7I/FiuV2HR6hWs5uhVaxCydWt5Qc9t/G/Dh+xSTUsoZkh9HzZE0
+         0UKRFngjTRSnkulXOXfaLMcnyegwxSY5m0r86YIkN9pq4RQbp8JG+snewXxbXyxBeD
+         /59rmXXtwCGp9FLFOL452fa8dgw56GKmeF0+wf/hXts3swRH8ofVI73NGcurUhd51x
+         mIU1ghUBn+FB5//NeVBkw1y1XqdyU4mKUwCSkyhI/Z//2XleFqRc+5xPZBGxHNdczy
+         wCD3cait60QpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/33] i2c: rcar: optimize cacheline to minimize HW race condition
-Date:   Tue,  2 Mar 2021 06:57:18 -0500
-Message-Id: <20210302115749.62653-2-sashal@kernel.org>
+Cc:     "Steven J. Magnani" <magnani@ieee.org>, Jan Kara <jack@suse.cz>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 03/33] udf: fix silent AED tagLocation corruption
+Date:   Tue,  2 Mar 2021 06:57:19 -0500
+Message-Id: <20210302115749.62653-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115749.62653-1-sashal@kernel.org>
 References: <20210302115749.62653-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,41 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: "Steven J. Magnani" <magnani@ieee.org>
 
-[ Upstream commit 25c2e0fb5fefb8d7847214cf114d94c7aad8e9ce ]
+[ Upstream commit 63c9e47a1642fc817654a1bc18a6ec4bbcc0f056 ]
 
-'flags' and 'io' are needed first, so they should be at the beginning of
-the private struct.
+When extending a file, udf_do_extend_file() may enter following empty
+indirect extent. At the end of udf_do_extend_file() we revert prev_epos
+to point to the last written extent. However if we end up not adding any
+further extent in udf_do_extend_file(), the reverting points prev_epos
+into the header area of the AED and following updates of the extents
+(in udf_update_extents()) will corrupt the header.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Make sure that we do not follow indirect extent if we are not going to
+add any more extents so that returning back to the last written extent
+works correctly.
+
+Link: https://lore.kernel.org/r/20210107234116.6190-2-magnani@ieee.org
+Signed-off-by: Steven J. Magnani <magnani@ieee.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/udf/inode.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 9d54ae935524..d0c4b3019e41 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -116,6 +116,7 @@ enum rcar_i2c_type {
- };
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 97a192eb9949..507f8f910327 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -547,11 +547,14 @@ static int udf_do_extend_file(struct inode *inode,
  
- struct rcar_i2c_priv {
-+	u32 flags;
- 	void __iomem *io;
- 	struct i2c_adapter adap;
- 	struct i2c_msg *msg;
-@@ -126,7 +127,6 @@ struct rcar_i2c_priv {
+ 		udf_write_aext(inode, last_pos, &last_ext->extLocation,
+ 				last_ext->extLength, 1);
++
+ 		/*
+-		 * We've rewritten the last extent but there may be empty
+-		 * indirect extent after it - enter it.
++		 * We've rewritten the last extent. If we are going to add
++		 * more extents, we may need to enter possible following
++		 * empty indirect extent.
+ 		 */
+-		udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
++		if (new_block_bytes || prealloc_len)
++			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
+ 	}
  
- 	int pos;
- 	u32 icccr;
--	u32 flags;
- 	u8 recovery_icmcr;	/* protected by adapter lock */
- 	enum rcar_i2c_type devtype;
- 	struct i2c_client *slave;
+ 	/* Managed to do everything necessary? */
 -- 
 2.30.1
 
