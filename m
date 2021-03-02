@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DFF32AF15
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0D932AF1B
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbhCCAPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40278 "EHLO mail.kernel.org"
+        id S232708AbhCCAPM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:15:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350057AbhCBMCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:02:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D03A664F2B;
-        Tue,  2 Mar 2021 11:56:09 +0000 (UTC)
+        id S1350228AbhCBMC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:02:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AC8564F2F;
+        Tue,  2 Mar 2021 11:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686170;
-        bh=MMMI+OuLDA3u1PKEN0sdy1klVPC1+9eo7l7J3WcUstE=;
+        s=k20201202; t=1614686172;
+        bh=Da2w0Gzz+DvdIC28O5XHDcst4j8QW91mF7nrsHEWCi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRBRthq/Qmg9mpeizqFfuueVIQqpyVP6fkyzbyShgo2gw6hgfVebeVrl9RCSgioqa
-         mOTMajgM5njJtR/RgHuiKVIlvuMu9VdIAnFZ8NYFebEn9++H7UMduGXj4gxfbjZp2K
-         Wxq95cBVrOJUOYOtfObUqSA2tfuLkpu9GrE/fVuqWW4l0GzJIqmds1d1R11HrJ52X/
-         HwVq65b8obMHaYp7hj/Z9wQdqZDUis7Oc2w4/0TBB4C5gQBMD8/VMIuusYnO/JRdCe
-         tO1yI6lLxOp9FfxafmMHb883OfHnZg+tdK4siNb4PkT9kSiA8V1dpcXUZLKvWMzFW2
-         9ETB1lJoxeXfQ==
+        b=s7iIl7zjM1laGHHiX7zjteqEmJMLiAi6xUZuFLTDrdZ9joqxIlQk/H73xc1D2UCxl
+         YUaU8J3QBmcXuYiTb/v9rVnnwEMnnE6pJBefHhG93i6c/IXvFdP1ltfNzeDiqgMiL2
+         7x5Yg8FkHlvKaBLLEw3ZLV62UKxsAGiE5lPLaxHXJp7uoJnKCNpmlxuYRhSvLAlrgy
+         rb5XbJDN80VrocmErOd/4qJLR+6c8EquIebokuFe8gbBqgJTe5nWPaYETeKloHdQ0K
+         Zx9LxdXAP3Km5bQUv7Ki5JEc8RD0TribLWeBUWM0UKlppdd2yir6smYHcp0WHMx5g1
+         4ioCnOvSgeRjw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Larsson <andreas@gaisler.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
+Cc:     Khalid Aziz <khalid.aziz@oracle.com>, Jann Horn <jannh@google.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 27/52] sparc32: Limit memblock allocation to low memory
-Date:   Tue,  2 Mar 2021 06:55:08 -0500
-Message-Id: <20210302115534.61800-27-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 28/52] sparc64: Use arch_validate_flags() to validate ADI flag
+Date:   Tue,  2 Mar 2021 06:55:09 -0500
+Message-Id: <20210302115534.61800-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -43,39 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Khalid Aziz <khalid.aziz@oracle.com>
 
-[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
+[ Upstream commit 147d8622f2a26ef34beacc60e1ed8b66c2fa457f ]
 
-Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
-memblocks instead of bootmem, but also made high memory available via
-memblock allocation which does not work together with e.g. phys_to_virt
-and can lead to kernel panic.
+When userspace calls mprotect() to enable ADI on an address range,
+do_mprotect_pkey() calls arch_validate_prot() to validate new
+protection flags. arch_validate_prot() for sparc looks at the first
+VMA associated with address range to verify if ADI can indeed be
+enabled on this address range. This has two issues - (1) Address
+range might cover multiple VMAs while arch_validate_prot() looks at
+only the first VMA, (2) arch_validate_prot() peeks at VMA without
+holding mmap lock which can result in race condition.
 
-This changes back to only low memory being allocatable in the early
-stages, now using memblock allocation.
+arch_validate_flags() from commit c462ac288f2c ("mm: Introduce
+arch_validate_flags()") allows for VMA flags to be validated for all
+VMAs that cover the address range given by user while holding mmap
+lock. This patch updates sparc code to move the VMA check from
+arch_validate_prot() to arch_validate_flags() to fix above two
+issues.
 
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Khalid Aziz <khalid.aziz@oracle.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/mm/init_32.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/sparc/include/asm/mman.h | 54 +++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
 
-diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-index eb2946b1df8a..6139c5700ccc 100644
---- a/arch/sparc/mm/init_32.c
-+++ b/arch/sparc/mm/init_32.c
-@@ -197,6 +197,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
- 	size = memblock_phys_mem_size() - memblock_reserved_size();
- 	*pages_avail = (size >> PAGE_SHIFT) - high_pages;
+diff --git a/arch/sparc/include/asm/mman.h b/arch/sparc/include/asm/mman.h
+index f94532f25db1..274217e7ed70 100644
+--- a/arch/sparc/include/asm/mman.h
++++ b/arch/sparc/include/asm/mman.h
+@@ -57,35 +57,39 @@ static inline int sparc_validate_prot(unsigned long prot, unsigned long addr)
+ {
+ 	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM | PROT_ADI))
+ 		return 0;
+-	if (prot & PROT_ADI) {
+-		if (!adi_capable())
+-			return 0;
++	return 1;
++}
  
-+	/* Only allow low memory to be allocated via memblock allocation */
-+	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
-+
- 	return max_pfn;
+-		if (addr) {
+-			struct vm_area_struct *vma;
++#define arch_validate_flags(vm_flags) arch_validate_flags(vm_flags)
++/* arch_validate_flags() - Ensure combination of flags is valid for a
++ *	VMA.
++ */
++static inline bool arch_validate_flags(unsigned long vm_flags)
++{
++	/* If ADI is being enabled on this VMA, check for ADI
++	 * capability on the platform and ensure VMA is suitable
++	 * for ADI
++	 */
++	if (vm_flags & VM_SPARC_ADI) {
++		if (!adi_capable())
++			return false;
+ 
+-			vma = find_vma(current->mm, addr);
+-			if (vma) {
+-				/* ADI can not be enabled on PFN
+-				 * mapped pages
+-				 */
+-				if (vma->vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
+-					return 0;
++		/* ADI can not be enabled on PFN mapped pages */
++		if (vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
++			return false;
+ 
+-				/* Mergeable pages can become unmergeable
+-				 * if ADI is enabled on them even if they
+-				 * have identical data on them. This can be
+-				 * because ADI enabled pages with identical
+-				 * data may still not have identical ADI
+-				 * tags on them. Disallow ADI on mergeable
+-				 * pages.
+-				 */
+-				if (vma->vm_flags & VM_MERGEABLE)
+-					return 0;
+-			}
+-		}
++		/* Mergeable pages can become unmergeable
++		 * if ADI is enabled on them even if they
++		 * have identical data on them. This can be
++		 * because ADI enabled pages with identical
++		 * data may still not have identical ADI
++		 * tags on them. Disallow ADI on mergeable
++		 * pages.
++		 */
++		if (vm_flags & VM_MERGEABLE)
++			return false;
+ 	}
+-	return 1;
++	return true;
  }
+ #endif /* CONFIG_SPARC64 */
  
 -- 
 2.30.1
