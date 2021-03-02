@@ -2,217 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE5332AFD2
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3588C32AFE5
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239184AbhCCA25 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:57 -0500
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:54189 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1443662AbhCBMdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 07:33:13 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 2D13619407C5;
-        Tue,  2 Mar 2021 07:32:26 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Tue, 02 Mar 2021 07:32:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RWcXLB
-        wGqi7v5MImDXRa8WB6Df1pN69F/PTJ8TK6rAA=; b=T7r2IHHkSPEy9gq2Zjll0+
-        BxIdku1ndyHYGVju1ezw4aNF6drY3GDEDLRBxpSvb0+zz3EhcHPnfWLHzTYFhPqA
-        XXGU5u9PCa9L9rw6xzH0G6O0Ii+nnb7lJ4hvFKSpnXeOExClN7E2CX5OsaBf+YmA
-        MW2hlp2YLgz72wjc4O/R/1MYTlfvow+d6oymmt0373LjDEihx+zD8MgeJpdm3FRF
-        i0IRaY2c5/H3eX/XPwOAxl5IGRBfG+xEIdlZDTk8eY3p03uGAAy+IIDWgKgeJYca
-        qTzsV7l+xC/zKd1V1tmGCqWBCNWWYeA3pkfOJwKRDYsvGI5GKmokGvTZjbraAmNQ
-        ==
-X-ME-Sender: <xms:WDA-YPm9xDNtVPLZ9VXNHmqgRHr-i4S_Izi4Tpk8ZfQ856UjXOlRoA>
-    <xme:WDA-YCwadEVcyhvJ_dR7xKjmGAKqB8drlj-5jWr6MHgDD4D0TqT87XqMGvQ2qKqa6
-    ierCneJepWx5w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddttddggeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:WDA-YCiip8tno-PGokvEePpOOS2kOHB5YNAzG5pnjdYDqlTa_XHvRw>
-    <xmx:WDA-YPXnmkAYSKd6lMqk5ceUObwwlt1W7NOuaccK0d-uXoH6ruJWBA>
-    <xmx:WDA-YM3qNQntRnyQe2x1dF40hPxoZ5ciDPn-3LHU7OEiDlwBtYbz4g>
-    <xmx:WjA-YFBDGsN-VcDdWt8kHcMEJ6xlp3v-ofvzAJDaq1XGTpgiWLpLGw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 399B424005C;
-        Tue,  2 Mar 2021 07:32:24 -0500 (EST)
-Subject: FAILED: patch "[PATCH] entry/kvm: Explicitly flush pending rcuog wakeup before last" failed to apply to 5.10-stable tree
-To:     frederic@kernel.org, mingo@kernel.org, peterz@infradead.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Mar 2021 13:32:21 +0100
-Message-ID: <1614688341211192@kroah.com>
+        id S239608AbhCCA3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51324 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1344120AbhCBMiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:38:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E6F064F0B;
+        Tue,  2 Mar 2021 11:56:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686188;
+        bh=u2P5i4xmHCSSHOMVfd8dvwLyx+VXBqLuGZ/cmQoff18=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=M7WJ2feZixRyl5TiAN5qxOKOB/3l7QHfQXb9iDGYsE+xKVNT3Bi/AVfiRb6jiJlSf
+         E3tJXs+BqPgS64e+zCoyLhM1KKpYkmLQlMKyi6KbEv5UzAyr0ROPdFSq87+8IlFk+b
+         KouXBxcxO3kefLzmw6GB7un3Fsy3hen7oihh7dIifcW4V1CB0VnbojDm+hceiWMbtJ
+         uT+aQohNWQkzq+RU0DYdauT6WAWWS37JuGpqUZg/Jocb8BmdP6Or1vywqE7mYiMXkp
+         VZEFF/zKN41fZ294gnZDNnMnzsfGHWUMsXK8xtGpCY/SnlJhgs7/FHJxLYFP9bdaU5
+         xxF9905tMKReQ==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 41/52] PCI: Fix pci_register_io_range() memory leak
+Date:   Tue,  2 Mar 2021 06:55:22 -0500
+Message-Id: <20210302115534.61800-41-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
+References: <20210302115534.61800-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit f6bda644fa3a7070621c3bf12cd657f69a42f170 ]
 
-thanks,
+Kmemleak reports:
 
-greg k-h
+  unreferenced object 0xc328de40 (size 64):
+    comm "kworker/1:1", pid 21, jiffies 4294938212 (age 1484.670s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 e0 d8 fc eb 00 00 00 00  ................
+      00 00 10 fe 00 00 00 00 00 00 00 00 00 00 00 00  ................
 
------------------- original commit in Linus's tree ------------------
+  backtrace:
+    [<ad758d10>] pci_register_io_range+0x3c/0x80
+    [<2c7f139e>] of_pci_range_to_resource+0x48/0xc0
+    [<f079ecc8>] devm_of_pci_get_host_bridge_resources.constprop.0+0x2ac/0x3ac
+    [<e999753b>] devm_of_pci_bridge_init+0x60/0x1b8
+    [<a895b229>] devm_pci_alloc_host_bridge+0x54/0x64
+    [<e451ddb0>] rcar_pcie_probe+0x2c/0x644
 
-From 4ae7dc97f726ea95c58ac58af71cc034ad22d7de Mon Sep 17 00:00:00 2001
-From: Frederic Weisbecker <frederic@kernel.org>
-Date: Mon, 1 Feb 2021 00:05:48 +0100
-Subject: [PATCH] entry/kvm: Explicitly flush pending rcuog wakeup before last
- rescheduling point
+In case a PCI host driver's probe is deferred, the same I/O range may be
+allocated again, and be ignored, causing a memory leak.
 
-Following the idle loop model, cleanly check for pending rcuog wakeup
-before the last rescheduling point upon resuming to guest mode. This
-way we can avoid to do it from rcu_user_enter() with the last resort
-self-IPI hack that enforces rescheduling.
+Fix this by (a) letting logic_pio_register_range() return -EEXIST if the
+passed range already exists, so pci_register_io_range() will free it, and
+by (b) making pci_register_io_range() not consider -EEXIST an error
+condition.
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-6-frederic@kernel.org
+Link: https://lore.kernel.org/r/20210202100332.829047-1-geert+renesas@glider.be
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/pci/pci.c | 4 ++++
+ lib/logic_pio.c   | 3 +++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1b404e4d7dd8..b967c1c774a1 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1782,6 +1782,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_wrmsr);
- 
- bool kvm_vcpu_exit_request(struct kvm_vcpu *vcpu)
- {
-+	xfer_to_guest_mode_prepare();
- 	return vcpu->mode == EXITING_GUEST_MODE || kvm_request_pending(vcpu) ||
- 		xfer_to_guest_mode_work_pending();
- }
-diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
-index 9b93f8584ff7..8b2b1d68b954 100644
---- a/include/linux/entry-kvm.h
-+++ b/include/linux/entry-kvm.h
-@@ -46,6 +46,20 @@ static inline int arch_xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu,
-  */
- int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
- 
-+/**
-+ * xfer_to_guest_mode_prepare - Perform last minute preparation work that
-+ *				need to be handled while IRQs are disabled
-+ *				upon entering to guest.
-+ *
-+ * Has to be invoked with interrupts disabled before the last call
-+ * to xfer_to_guest_mode_work_pending().
-+ */
-+static inline void xfer_to_guest_mode_prepare(void)
-+{
-+	lockdep_assert_irqs_disabled();
-+	rcu_nocb_flush_deferred_wakeup();
-+}
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 790393d1e318..a53e25d75d04 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -4022,6 +4022,10 @@ int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
+ 	ret = logic_pio_register_range(range);
+ 	if (ret)
+ 		kfree(range);
 +
- /**
-  * __xfer_to_guest_mode_work_pending - Check if work is pending
++	/* Ignore duplicates due to deferred probing */
++	if (ret == -EEXIST)
++		ret = 0;
+ #endif
+ 
+ 	return ret;
+diff --git a/lib/logic_pio.c b/lib/logic_pio.c
+index f32fe481b492..07b4b9a1f54b 100644
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -28,6 +28,8 @@ static DEFINE_MUTEX(io_range_mutex);
+  * @new_range: pointer to the IO range to be registered.
   *
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 2ebc211fffcb..ce17b8477442 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -678,9 +678,10 @@ EXPORT_SYMBOL_GPL(rcu_idle_enter);
- 
- #ifdef CONFIG_NO_HZ_FULL
- 
-+#if !defined(CONFIG_GENERIC_ENTRY) || !defined(CONFIG_KVM_XFER_TO_GUEST_WORK)
- /*
-  * An empty function that will trigger a reschedule on
-- * IRQ tail once IRQs get re-enabled on userspace resume.
-+ * IRQ tail once IRQs get re-enabled on userspace/guest resume.
-  */
- static void late_wakeup_func(struct irq_work *work)
- {
-@@ -689,6 +690,37 @@ static void late_wakeup_func(struct irq_work *work)
- static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
- 	IRQ_WORK_INIT(late_wakeup_func);
- 
-+/*
-+ * If either:
-+ *
-+ * 1) the task is about to enter in guest mode and $ARCH doesn't support KVM generic work
-+ * 2) the task is about to enter in user mode and $ARCH doesn't support generic entry.
-+ *
-+ * In these cases the late RCU wake ups aren't supported in the resched loops and our
-+ * last resort is to fire a local irq_work that will trigger a reschedule once IRQs
-+ * get re-enabled again.
-+ */
-+noinstr static void rcu_irq_work_resched(void)
-+{
-+	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
-+
-+	if (IS_ENABLED(CONFIG_GENERIC_ENTRY) && !(current->flags & PF_VCPU))
-+		return;
-+
-+	if (IS_ENABLED(CONFIG_KVM_XFER_TO_GUEST_WORK) && (current->flags & PF_VCPU))
-+		return;
-+
-+	instrumentation_begin();
-+	if (do_nocb_deferred_wakeup(rdp) && need_resched()) {
-+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
-+	}
-+	instrumentation_end();
-+}
-+
-+#else
-+static inline void rcu_irq_work_resched(void) { }
-+#endif
-+
- /**
-  * rcu_user_enter - inform RCU that we are resuming userspace.
+  * Returns 0 on success, the error code in case of failure.
++ * If the range already exists, -EEXIST will be returned, which should be
++ * considered a success.
   *
-@@ -702,8 +734,6 @@ static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
+  * Register a new IO range node in the IO range list.
   */
- noinstr void rcu_user_enter(void)
- {
--	struct rcu_data *rdp = this_cpu_ptr(&rcu_data);
--
- 	lockdep_assert_irqs_disabled();
- 
- 	/*
-@@ -711,13 +741,7 @@ noinstr void rcu_user_enter(void)
- 	 * rescheduling opportunity in the entry code. Trigger a self IPI
- 	 * that will fire and reschedule once we resume in user/guest mode.
- 	 */
--	instrumentation_begin();
--	if (!IS_ENABLED(CONFIG_GENERIC_ENTRY) || (current->flags & PF_VCPU)) {
--		if (do_nocb_deferred_wakeup(rdp) && need_resched())
--			irq_work_queue(this_cpu_ptr(&late_wakeup_work));
--	}
--	instrumentation_end();
--
-+	rcu_irq_work_resched();
- 	rcu_eqs_enter(true);
- }
- 
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 384856e4d13e..cdc1b7651c03 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -2197,6 +2197,7 @@ void rcu_nocb_flush_deferred_wakeup(void)
- {
- 	do_nocb_deferred_wakeup(this_cpu_ptr(&rcu_data));
- }
-+EXPORT_SYMBOL_GPL(rcu_nocb_flush_deferred_wakeup);
- 
- void __init rcu_init_nohz(void)
- {
+@@ -51,6 +53,7 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
+ 	list_for_each_entry(range, &io_range_list, list) {
+ 		if (range->fwnode == new_range->fwnode) {
+ 			/* range already there */
++			ret = -EEXIST;
+ 			goto end_register;
+ 		}
+ 		if (range->flags == LOGIC_PIO_CPU_MMIO &&
+-- 
+2.30.1
 
