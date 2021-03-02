@@ -2,135 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B3932AFEB
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 908A232B00A
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239751AbhCCA32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:29:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52334 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1446944AbhCBMlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:41:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 282B164F9D;
-        Tue,  2 Mar 2021 12:40:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614688853;
-        bh=647dv2UeIa7oWx+aGOeqCDewAnbXSZ+/CeLZ4dTw4AM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MKp/G6ETbkEXnKIUh9YB765b4xhF0OdHeM/2mpotxLRVp0uQ1eSnOUoyvqDNqgzCc
-         ZJDLqsOmHXesvx0YDS3atqrXFTlFQ7v4KKkmjS2WZDrNrTLrFgnYX+gqboJsOdgKrg
-         1cGK3QOaU/1WzgNuuW4G7Fo5YRLRrEXndr9cd8H8=
-Date:   Tue, 2 Mar 2021 13:40:50 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guillaume Tucker <guillaume.tucker@collabora.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
-        Suram Suram <suram@nxp.com>
-Subject: Re: [PATCH 5.10 000/661] 5.10.20-rc2 review
-Message-ID: <YD4yUu6YH3wNQbwa@kroah.com>
-References: <20210301193642.707301430@linuxfoundation.org>
- <32a6c609-642c-71cf-0a84-d5e8ccd104b1@collabora.com>
+        id S235831AbhCCAav (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:30:51 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:13108 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350866AbhCBM7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 07:59:02 -0500
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DqcXT29wSz16FHX;
+        Tue,  2 Mar 2021 20:54:33 +0800 (CST)
+Received: from [10.174.178.147] (10.174.178.147) by
+ DGGEMS406-HUB.china.huawei.com (10.3.19.206) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 2 Mar 2021 20:56:04 +0800
+Subject: Re: [PATCH 5.4 000/340] 5.4.102-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>, <torvalds@linux-foundation.org>,
+        <akpm@linux-foundation.org>, <linux@roeck-us.net>,
+        <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <zou_wei@huawei.com>,
+        Yanjin <yanjin.yan@huawei.com>
+References: <20210301161048.294656001@linuxfoundation.org>
+ <8271eb39-c44d-37ed-7501-e9d05d7fee17@huawei.com>
+ <YD4wBtYjl8N0MaXR@kroah.com>
+From:   Hanjun Guo <guohanjun@huawei.com>
+Message-ID: <c7353c6f-c7d2-efa7-cb52-757325ec927f@huawei.com>
+Date:   Tue, 2 Mar 2021 20:56:04 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+In-Reply-To: <YD4wBtYjl8N0MaXR@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-GB
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <32a6c609-642c-71cf-0a84-d5e8ccd104b1@collabora.com>
+X-Originating-IP: [10.174.178.147]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 11:38:36AM +0000, Guillaume Tucker wrote:
-> On 01/03/2021 19:37, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.10.20 release.
-> > There are 661 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 03 Mar 2021 19:34:53 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.20-rc2.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> 
-> I've been through the KernelCI results for v5.10.20-rc2 and made
-> this manual reply, hoping to eventually get it all automated.
-> 
-> 
-> 
-> First there was one build regression with the arm
-> realview_defconfig:
-> 
-> kernel/rcu/tree.c:683:2: error: implicit declaration of function ‘IRQ_WORK_INIT’; did you mean ‘IRQMASK_I_BIT’? [-Werror=implicit-function-declaration]
->   IRQ_WORK_INIT(late_wakeup_func);
->   ^~~~~~~~~~~~~
->   IRQMASK_I_BIT
-> kernel/rcu/tree.c:683:2: error: invalid initializer
-> 
-> 
-> Full log:
-> 
->   https://storage.kernelci.org/stable-rc/linux-5.10.y/v5.10.19-662-g92929e15cdc0/arm/realview_defconfig/gcc-8/build.log
+On 2021/3/2 20:31, Greg Kroah-Hartman wrote:
+> On Tue, Mar 02, 2021 at 02:42:15PM +0800, Hanjun Guo wrote:
+>> Hi Greg,
+>>
+>> On 2021/3/2 0:09, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.4.102 release.
+>>> There are 340 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Wed, 03 Mar 2021 16:09:49 +0000.
+>>> Anything received after that time might be too late.
+>> Our test CI monitored the 5.4.102-rc2, and compile failure:
+>>
+>> kernel/rcu/tree.c:617:2: error: implicit declaration of function
+>> ‘IRQ_WORK_INIT’; did you mean ‘IRQ_WORK_BUSY’?
+>> [-Werror=implicit-function-declaration]
+>>    IRQ_WORK_INIT(late_wakeup_func);
+>>    ^~~~~~~~~~~~~
+>>    IRQ_WORK_BUSY
+>> kernel/rcu/tree.c:617:2: error: invalid initializer
+>>
+>> Should be commit e1e41aa31ed1 (rcu/nocb: Trigger self-IPI on late
+>> deferred wake up before user resume) fails the build.
+> Ah, thank you, I'll go fix that up.  Looks like 5.10.y also fails with
+> that issue...
 
-That should now be resolved with a new -rc release for 5.4.y and 5.10.y.
+It is, same compile error for 5.10. I just confirmed both arm64 and
+x86 have the same compile error.
 
-> There were also a few new build warnings.  Here's a comparison of
-> the number of builds that completed with no warnings, with at
-> least one warning, and with an error between current stable and
-> stable-rc:
-> 
->               pass  warn  error
-> v5.10.19      188      6      0  
-> v5.10.20-rc2  180     15      1
-> 
-> Full details for these 2 revisions respectively:
-> 
->   https://kernelci.org/build/stable/branch/linux-5.10.y/kernel/v5.10.19/
->   https://kernelci.org/build/stable-rc/branch/linux-5.10.y/kernel/v5.10.19-662-g92929e15cdc0/
-
-That error should be resolved.
-
-Warnings for non-x86 arches I have not been tracking to try to get down
-to 0.  That would be a good project for someone to work on...
-
-> Then on the runtime testing side, there was one boot regression
-> detected on imx8mp-evk as detailed here:
-> 
->   https://kernelci.org/test/case/id/603d69ec2924db6b9baddcb2/
-> 
-> I've re-run a couple of tests with both v5.10.19 and v5.10.20-rc2
-> and also got a failure with v5.10.19, so it looks like it's not
-> really a new regression but more of an intermittent problem.
-> Bisections are not enabled in NXP's lab so we don't have results
-> about which commit caused it.  We should chase this up, I've
-> already asked if they're OK to enable bisection.  Then we may
-> bisect with an older revision that is really booting to find the
-> root cause...
-
-Finding that root cause would be good, but doesn't really sound like a
-regression yet :)
-
-> Presumably it's not OK to have this build error in the v5.10.20
-> release, assuming the boot regression is not new and can be
-> ignored, but that's your call.  So it seems a bit early for
-> KernelCI to stamp it with Tested-by, even though it was tested
-> but it's more a matter of clarifying the semantics and whether
-> Tested-by implicitly means "works for me".  What do you think?
-
-Try the new release to see if that fixes the build errors for you.
-
-And thanks for doing all of the testing here, this round was a rough one
-for a variety of different reasons...
-
-thanks,
-
-greg k-h
+Thanks
+Hanjun
