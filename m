@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B3E32B002
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A05C232AFFF
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:40:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234008AbhCCA3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:29:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55088 "EHLO mail.kernel.org"
+        id S233589AbhCCAaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:30:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350760AbhCBMub (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350766AbhCBMub (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Mar 2021 07:50:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C99E64F87;
-        Tue,  2 Mar 2021 11:58:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E9C164F86;
+        Tue,  2 Mar 2021 11:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686282;
-        bh=siNkLWa5ElwCTL24t7WWSLE1GfD2CCnY0dEwiR0IgDc=;
+        s=k20201202; t=1614686283;
+        bh=JxBOvQlb1mV3WHzKwhlOFEdlY0k8MJZTgRuw+0Gkp5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gpzRwNnBZ6v+dabIm66QftnCoo/WZ745KJkSUAQ3exWHO2W+D/veGS1xHTLKFd+p6
-         jpuKhKv6RADmK16nn//EGRUYHNImt85mY+9YdNWVf/030GXxYOmesjEMteQj0xA/wS
-         oyEedbZZLskqXPF5F9VUhOpdEQuYtmtUOXU2APJBx1YD7baLXyWVOkqa+cF3ci2y8+
-         fun7PEkOQkQt79hjZsSVVnjsC/Sjn5TWDLkfW+46Q73rxZjny2wASqgsd4p0zbCfwP
-         OZqFuUfIeINAHLVUQTqGU8XiIEnay7eravfM9aFs8msu1z1dpdTohqsE9ca3hlIEXg
-         mSinz7ruMpxpQ==
+        b=eqf370pCtxv/9RNoR5hlUuVNvQ5FKwfEZ6AO/RAnkKgilZ2CTtaf6ijKp7EadryFI
+         RIQIJTWovgBxYfWDITQu3wC0t5+DisXN35n1duOuXERvJrMfkaz7PyLf2R6ZT1zjB1
+         Ya2nj+eQzryYbsHFby8K3hPnchkaq57jeOzk7o7iNCDFc8aXMwibYVtwM92W6us3nO
+         BE62qlUPu2l0j9pX/QwvZxcWM9jslWe0XXbc3WJcw6k8gzbGX65/oRmTAVKJ42LMdk
+         wynrv6UWU7vqvdgMaIXTJlze0V+Q8/lT9bFLstmIDgeuf++XSiZ8DzndeEzUg3swSt
+         lVoHc36bDoQHA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 09/33] HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo Winpad A15
-Date:   Tue,  2 Mar 2021 06:57:25 -0500
-Message-Id: <20210302115749.62653-9-sashal@kernel.org>
+Cc:     Alain Volmat <alain.volmat@foss.st.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.4 10/33] spi: stm32: make spurious and overrun interrupts visible
+Date:   Tue,  2 Mar 2021 06:57:26 -0500
+Message-Id: <20210302115749.62653-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115749.62653-1-sashal@kernel.org>
 References: <20210302115749.62653-1-sashal@kernel.org>
@@ -41,59 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Alain Volmat <alain.volmat@foss.st.com>
 
-[ Upstream commit fc6a31b00739356809dd566e16f2c4325a63285d ]
+[ Upstream commit c64e7efe46b7de21937ef4b3594d9b1fc74f07df ]
 
-The ITE8568 EC on the Voyo Winpad A15 presents itself as an I2C-HID
-attached keyboard and mouse (which seems to never send any events).
+We do not expect to receive spurious interrupts so rise a warning
+if it happens.
 
-This needs the I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirk, otherwise we get
-the following errors:
+RX overrun is an error condition that signals a corrupted RX
+stream both in dma and in irq modes. Report the error and
+abort the transfer in either cases.
 
-[ 3688.770850] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3694.915865] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3701.059717] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3707.205944] i2c_hid i2c-ITE8568:00: failed to reset device.
-[ 3708.227940] i2c_hid i2c-ITE8568:00: can't add hid device: -61
-[ 3708.236518] i2c_hid: probe of i2c-ITE8568:00 failed with error -61
-
-Which leads to a significant boot delay.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
+Link: https://lore.kernel.org/r/1612551572-495-9-git-send-email-alain.volmat@foss.st.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h              | 2 ++
- drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/spi/spi-stm32.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 33183933337a..a65e9d5a9f1f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -640,6 +640,8 @@
- #define USB_DEVICE_ID_INNEX_GENESIS_ATARI	0x4745
+diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
+index 77ddf23b65d6..c7546683fc80 100644
+--- a/drivers/spi/spi-stm32.c
++++ b/drivers/spi/spi-stm32.c
+@@ -924,8 +924,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+ 		mask |= STM32H7_SPI_SR_RXP;
  
- #define USB_VENDOR_ID_ITE               0x048d
-+#define I2C_VENDOR_ID_ITE		0x103c
-+#define I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15	0x184f
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
- #define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 592176aff027..96898983db99 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -173,6 +173,8 @@ static const struct i2c_hid_quirks {
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
-+	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
-+		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
- 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
+ 	if (!(sr & mask)) {
+-		dev_dbg(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
+-			sr, ier);
++		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
++			 sr, ier);
+ 		spin_unlock_irqrestore(&spi->lock, flags);
+ 		return IRQ_NONE;
+ 	}
+@@ -952,15 +952,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+ 	}
+ 
+ 	if (sr & STM32H7_SPI_SR_OVR) {
+-		dev_warn(spi->dev, "Overrun: received value discarded\n");
+-		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
+-			stm32h7_spi_read_rxfifo(spi, false);
+-		/*
+-		 * If overrun is detected while using DMA, it means that
+-		 * something went wrong, so stop the current transfer
+-		 */
+-		if (spi->cur_usedma)
+-			end = true;
++		dev_err(spi->dev, "Overrun: RX data lost\n");
++		end = true;
+ 	}
+ 
+ 	if (sr & STM32H7_SPI_SR_EOT) {
 -- 
 2.30.1
 
