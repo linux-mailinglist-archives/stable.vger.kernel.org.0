@@ -2,106 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3A9432B280
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2020332B285
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343865AbhCCAx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:53:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60666 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344907AbhCBTWl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 14:22:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DEFF64F11;
-        Tue,  2 Mar 2021 19:21:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614712871;
-        bh=8WEFZSWnJIsqpo9iq3vWGFrllqblNgH4s/OCeK1l0iI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=T1pXLsYthibit7Vh1FoISRFZiE+LgcR2WP3WdYD6geUqpS/FyMtw6Wc60BXTHbyjG
-         fj5tWoHJ4i2tB1eI+6s680eeO7L3QGtJDYwrj5y0f+rfQgJqaCAknFh4rbeqthxbMP
-         UZq6mCmn47LTK1lsjEUjpxYlOAYZ6HjRDhm30jSU=
-Date:   Tue, 2 Mar 2021 20:21:08 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/658] 5.10.20-rc3 review
-Message-ID: <YD6QJHivWcEDdXxx@kroah.com>
-References: <20210302123520.857524345@linuxfoundation.org>
- <b0456766-0744-2086-a9ba-daa6aba5e896@roeck-us.net>
- <YD6L8/4q6Y9jA3VL@kroah.com>
+        id S1343875AbhCCAxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:53:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1576692AbhCBTZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 14:25:40 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89E2C061788
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 11:23:55 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id t26so14554399pgv.3
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 11:23:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EqjWflW05TxpoJnDHwdjGgNxG2WtxyP6plD91dKtdl0=;
+        b=Q3QSdrEPKPAsIi3pONQoGEC8BST7/H5jiARk0O8JgPmPtRU9SE6HadGyIhHkh89VI+
+         SxLHos6BlwliOccU6GWDobZcQhiHZGGdMGi82dZ668AB58uRZtaeJchy+RvEIn+S2UjZ
+         KhojhDvZEURZhk513RBbxIwfYik8zQozmwg+I9KEKkGKaGc8XASeo6mtvX6k2Hv4JgkF
+         oG/xd0XKmmT63W2w7uTrZjksTnt4zUFWKmseXpVjiFXYGfCgp08xpHLA+cE2Al+G4lDD
+         99Hpw1lzsXw0yemSOZ7mU7eEk8J4sEehX8pr1otl8Qp4sWw0mp2J+hvz6kyLKgE+s33Z
+         seDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EqjWflW05TxpoJnDHwdjGgNxG2WtxyP6plD91dKtdl0=;
+        b=Gqc4jQHtcXh6kIZ0QT868TCmXf+bENCEPM1JGRY7WmohEXlAmPnASq+h9oGNy1VPrx
+         GgEEpq0VNPS/lyx5Xr4LoYiO06YbKr5NPIV5u5b065P/ehjvBH9305r+a6QpnmbfzPiz
+         1G87Z7iXiBXloHyIVniH7kTm+4pGUrloNu/5Shhh0AGkBCJdTwSYO4ve0rJdNCydkKlz
+         TFw2R4IDgdTV8h8mh6xVEh+Df2h4D7x6HwHzN7t8GOwQS/p6g90TqAkUc5cyrR7gF+gd
+         St0cSA2Np4ZEbVdMKYy1Vst2iVscuxmOKlIQMOjA2gb50IF1/YyhgMfTKudWTweGVeua
+         f2MA==
+X-Gm-Message-State: AOAM530M9kmg/YgoV8f4skRVDlWOaYxGZqeApBpG5vXyhFcZHqDsIGta
+        bQ/sQvdjYp46Eo8OEJSvJi1UhttL35+/2A==
+X-Google-Smtp-Source: ABdhPJwqjTMaNYSPZaODTOmfsvA1EuTfVJD8e3m0H/oSj8+C4HwnFHL9IogfgIPpQlWMNgeKWWdeXg==
+X-Received: by 2002:a05:6a00:14c7:b029:1ee:481d:47f5 with SMTP id w7-20020a056a0014c7b02901ee481d47f5mr4670090pfu.80.1614713035175;
+        Tue, 02 Mar 2021 11:23:55 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z12sm4313951pjz.16.2021.03.02.11.23.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Mar 2021 11:23:54 -0800 (PST)
+Message-ID: <603e90ca.1c69fb81.aa8ec.95c7@mx.google.com>
+Date:   Tue, 02 Mar 2021 11:23:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YD6L8/4q6Y9jA3VL@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.19-659-gf16bfb3dbcd52
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 30 runs,
+ 1 regressions (v5.10.19-659-gf16bfb3dbcd52)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 08:03:15PM +0100, Greg Kroah-Hartman wrote:
-> On Tue, Mar 02, 2021 at 10:44:15AM -0800, Guenter Roeck wrote:
-> > On 3/2/21 4:38 AM, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.10.20 release.
-> > > There are 658 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Thu, 04 Mar 2021 12:32:41 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > 
-> > Building arm:allmodconfig ... failed
-> > --------------
-> > Error log:
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c: In function 'mtk_aal_config':
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:183:54: error: 'struct mtk_ddp_comp' has no member named 'dev'
-> >   183 |  struct mtk_ddp_comp_dev *priv = dev_get_drvdata(comp->dev);
-> >       |                                                      ^~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:185:44: error: dereferencing pointer to incomplete type 'struct mtk_ddp_comp_dev'
-> >   185 |  mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
-> >       |                                            ^~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:185:2: error: too many arguments to function 'mtk_ddp_write'
-> >   185 |  mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
-> >       |  ^~~~~~~~~~~~~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:89:6: note: declared here
-> >    89 | void mtk_ddp_write(struct cmdq_pkt *cmdq_pkt, unsigned int value,
-> >       |      ^~~~~~~~~~~~~
-> > make[5]: *** [drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.o] Error 1
-> > make[4]: *** [drivers/gpu/drm/mediatek] Error 2
-> > 
-> > ---
-> > Building arm64:allmodconfig ... failed
-> > --------------
-> > Error log:
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c: In function 'mtk_aal_config':
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:183:54: error: 'struct mtk_ddp_comp' has no member named 'dev'
-> >   183 |  struct mtk_ddp_comp_dev *priv = dev_get_drvdata(comp->dev);
-> >       |                                                      ^~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:185:44: error: dereferencing pointer to incomplete type 'struct mtk_ddp_comp_dev'
-> >   185 |  mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
-> >       |                                            ^~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:185:2: error: too many arguments to function 'mtk_ddp_write'
-> >   185 |  mtk_ddp_write(cmdq_pkt, w << 16 | h, &priv->cmdq_reg, priv->regs, DISP_AAL_SIZE);
-> >       |  ^~~~~~~~~~~~~
-> > drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.c:89:6: note: declared here
-> >    89 | void mtk_ddp_write(struct cmdq_pkt *cmdq_pkt, unsigned int value,
-> >       |      ^~~~~~~~~~~~~
-> > make[5]: *** [drivers/gpu/drm/mediatek/mtk_drm_ddp_comp.o] Error 1
-> > 
-> > 
-> > The same problem also affects v5.11.y.
-> > 
-> > Am I missing something here ? Why do I see that problem ? It seems to be very basic.
-> 
-> You aren't the only one, I got an off-list response that this was seen
-> as well.  Let me dig into it...
+stable-rc/linux-5.10.y baseline: 30 runs, 1 regressions (v5.10.19-659-gf16b=
+fb3dbcd52)
 
-Found it, am dropping the offending patch now.  Should also affect
-5.11.y too.
+Regressions Summary
+-------------------
 
-Looks like I'll do a whole new round of -rcs for all queues now, this
-has been a rough cycle...
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-greg k-h
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.19-659-gf16bfb3dbcd52/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.19-659-gf16bfb3dbcd52
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f16bfb3dbcd52de1d1ba07334aa32710e3d88891 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603e613d6bb3492cc6addcb6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+9-659-gf16bfb3dbcd52/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+9-659-gf16bfb3dbcd52/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603e613d6bb3492cc6add=
+cb7
+        failing since 0 day (last pass: v5.10.19-21-g9b79602baf17, first fa=
+il: v5.10.19-662-g92929e15cdc0) =
+
+ =20
