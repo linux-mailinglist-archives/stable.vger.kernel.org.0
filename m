@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8987932B0D7
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:45:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CACE232B0DE
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:45:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236192AbhCCAjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:39:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S237199AbhCCAkB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:40:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1376906AbhCBOYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 09:24:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20BCE64F11;
-        Tue,  2 Mar 2021 14:22:55 +0000 (UTC)
+        id S1448847AbhCBPnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 10:43:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85AEC60232;
+        Tue,  2 Mar 2021 14:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614694976;
-        bh=zvGcXbUDRp2bL8M1+C8xkwHGzC3raelpLHtLlgksUiM=;
+        s=korg; t=1614695356;
+        bh=3ClLCmgZvhbX3YMWaAtcF/fnY/98lVJpWXVdRofhRTQ=;
         h=Subject:To:From:Date:From;
-        b=1qhDnBY+rLZrGGiGHVkssgNea51GzX6RPzXFWbaxZKgnnZZZ1kGuDH2AsNyESmL7a
-         w+HI7Ah+ho5Mmmzm0SIEzxtdlrd7F20F6PbFuZ9sR1sd0RZSrHCF9Vo++YKj7ttXca
-         qUhX8g2jybgR1rV3o7S2sjCeCoRus/Vc+EckE5IQ=
-Subject: patch "staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()" added to staging-linus
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        b=Um6jp4iJ8PT63IHbGf5a5UsRszDDHmVtgvQPoNecJcoCD2Lu2cXXHzeiAc+pOq8cX
+         S3ZFX2k0ckhHiGUnuR1pM4h7fa9FOwksx1MDrdptOgNZTkQJILoW7toPYWgyBmYj9M
+         rK5v7DI5UB8CG/JzKiscQmTuslSHscJX9aROKzgY=
+Subject: patch "staging: comedi: addi_apci_1032: Fix endian problem for COS sample" added to staging-linus
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Mar 2021 15:22:44 +0100
-Message-ID: <16146949642227@kroah.com>
+Date:   Tue, 02 Mar 2021 15:29:13 +0100
+Message-ID: <1614695353232205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
+    staging: comedi: addi_apci_1032: Fix endian problem for COS sample
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,47 +51,49 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 651652def082ef79ea85ad2ca4f19167d927e330 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Tue, 2 Mar 2021 14:19:39 +0300
-Subject: staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
+From 8920b116495ab641a0e0350817157defa0d1ee53 Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Tue, 23 Feb 2021 14:30:42 +0000
+Subject: staging: comedi: addi_apci_1032: Fix endian problem for COS sample
 
-The user can specify a "req->essid_len" of up to 255 but if it's
-over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
+The Change-Of-State (COS) subdevice supports Comedi asynchronous
+commands to read 16-bit change-of-state values.  However, the interrupt
+handler is calling `comedi_buf_write_samples()` with the address of a
+32-bit integer `&s->state`.  On bigendian architectures, it will copy 2
+bytes from the wrong end of the 32-bit integer.  Fix it by transferring
+the value via a 16-bit integer.
 
-Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
+Fixes: 6bb45f2b0c86 ("staging: comedi: addi_apci_1032: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-2-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/ks7010/ks_wlan_net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1032.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/ks7010/ks_wlan_net.c b/drivers/staging/ks7010/ks_wlan_net.c
-index dc09cc6e1c47..09e7b4cd0138 100644
---- a/drivers/staging/ks7010/ks_wlan_net.c
-+++ b/drivers/staging/ks7010/ks_wlan_net.c
-@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_device *dev,
- {
- 	struct ks_wlan_private *priv = netdev_priv(dev);
- 	struct iw_scan_req *req = NULL;
-+	int len;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1032.c b/drivers/staging/comedi/drivers/addi_apci_1032.c
+index 35b75f0c9200..81a246fbcc01 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1032.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
+@@ -260,6 +260,7 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
+ 	struct apci1032_private *devpriv = dev->private;
+ 	struct comedi_subdevice *s = dev->read_subdev;
+ 	unsigned int ctrl;
++	unsigned short val;
  
- 	if (priv->sleep_mode == SLP_SLEEP)
- 		return -EPERM;
-@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_device *dev,
- 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
- 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
- 		req = (struct iw_scan_req *)extra;
--		priv->scan_ssid_len = req->essid_len;
--		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
-+		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+		priv->scan_ssid_len = len;
-+		memcpy(priv->scan_ssid, req->essid, len);
- 	} else {
- 		priv->scan_ssid_len = 0;
- 	}
+ 	/* check interrupt is from this device */
+ 	if ((inl(devpriv->amcc_iobase + AMCC_OP_REG_INTCSR) &
+@@ -275,7 +276,8 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
+ 	outl(ctrl & ~APCI1032_CTRL_INT_ENA, dev->iobase + APCI1032_CTRL_REG);
+ 
+ 	s->state = inl(dev->iobase + APCI1032_STATUS_REG) & 0xffff;
+-	comedi_buf_write_samples(s, &s->state, 1);
++	val = s->state;
++	comedi_buf_write_samples(s, &val, 1);
+ 	comedi_handle_events(dev, s);
+ 
+ 	/* enable the interrupt */
 -- 
 2.30.1
 
