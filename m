@@ -2,77 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF5932AEA9
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 03:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDC932AEAD
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232016AbhCCAAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:00:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54116 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241819AbhCBCdt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 21:33:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3D9B64D9C;
-        Tue,  2 Mar 2021 02:33:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614652389;
-        bh=2/sTuEpFwd93bBqjR0EAjn1gZBYjn5jEVQYV6u7dFpA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=rD1yibcbaSMszD1yM2dmQRNfJ4p5XqppStQyE7CxzroWtmN8S85IOT+fP6srcl+6x
-         dWos1wnPmF9m0OF6eKaZiPV6sY8Q7vjSql7tNzhn5XF90+9oYQ3QahBnW4pEvY31Yi
-         xlGsntppQDTmgfBXoa8Xr65I6PFwUq7TAdi61ST+7IzT5VxJT0aYA3I7JciaG3/2Ek
-         7zyUyQWeexcpo6QP64YJJ4rvEPMKlWHJ2AL8drC2tEMyygMwr/JcW7bFuuLuiO8NwW
-         BZpSSa6SHj2KAUv6EmyyPGRVlzvAVhICezyuQ/pVbzeFjgu8kcTk6PGuecugbutSj8
-         +ZYNikt0cSZfQ==
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     linux-sgx@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Serge Ayoun <serge.ayoun@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] x86/sgx: Fix a resource leak in sgx_init()
-Date:   Tue,  2 Mar 2021 04:32:42 +0200
-Message-Id: <20210302023242.112285-1-jarkko@kernel.org>
-X-Mailer: git-send-email 2.30.1
+        id S232513AbhCCAA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:00:29 -0500
+Received: from szxga04-in.huawei.com ([45.249.212.190]:12659 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1443725AbhCBCgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 21:36:07 -0500
+Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DqLld4MLNzlRSW;
+        Tue,  2 Mar 2021 10:33:17 +0800 (CST)
+Received: from [10.174.178.147] (10.174.178.147) by
+ DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 2 Mar 2021 10:35:18 +0800
+Subject: Re: [PATCH 4.19 000/247] 4.19.178-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <zou_wei@huawei.com>
+References: <20210301161031.684018251@linuxfoundation.org>
+From:   Hanjun Guo <guohanjun@huawei.com>
+Message-ID: <ecde6fc0-915f-3831-ba0c-b1455de56227@huawei.com>
+Date:   Tue, 2 Mar 2021 10:35:18 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210301161031.684018251@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.147]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If sgx_page_cache_init() fails in the middle, a trivial return statement
-causes unused memory and virtual address space reserved for the EPC
-section, not freed. Fix this by using the same rollback, as when
-sgx_page_reclaimer_init() fails.
+On 2021/3/2 0:10, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.178 release.
+> There are 247 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 03 Mar 2021 16:09:49 +0000.
+> Anything received after that time might be too late.
 
-Cc: stable@vger.kernel.org # 5.11
-Fixes: e7e0545299d8 ("x86/sgx: Initialize metadata for Enclave Page Cache (EPC) sections")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
- arch/x86/kernel/cpu/sgx/main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Tested both on x86 [1] and ARM64 [2] server,
 
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 8df81a3ed945..52d070fb4c9a 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -708,8 +708,10 @@ static int __init sgx_init(void)
- 	if (!cpu_feature_enabled(X86_FEATURE_SGX))
- 		return -ENODEV;
- 
--	if (!sgx_page_cache_init())
--		return -ENOMEM;
-+	if (!sgx_page_cache_init()) {
-+		ret = -ENOMEM;
-+		goto err_page_cache;
-+	}
- 
- 	if (!sgx_page_reclaimer_init()) {
- 		ret = -ENOMEM;
--- 
-2.30.1
+Tested-by: Hulk Robot <hulkci@huawei.com>
+
+Thanks
+Hanjun
+
+[1]:
+Arch: x86 (confirmed that no kernel failures)
+--------------------------------------------------------------------
+Testcase Result Summary:
+total_num: 4681
+succeed_num: 4677
+failed_num: 4
+timeout_num: 1
+
+
+[2]:
+Arch: arm64
+--------------------------------------------------------------------
+Testcase Result Summary:
+total_num: 4675
+succeed_num: 4675
+failed_num: 0
+timeout_num: 0
+
+
 
