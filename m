@@ -2,110 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FCF32AEF6
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862B032AEF7
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236663AbhCCALX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:11:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380020AbhCBK0M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 05:26:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A196146D;
-        Tue,  2 Mar 2021 10:25:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614680731;
-        bh=cR6X9Cd0vMnwZ4g6Jmo3xLT7af9FGbl6INHhlNwt6dk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XkvLV407+ViojfzJLEntMc9A3UZEEcPyH4RqWluwsWYBas28hmSrMPWa8k4wvCY5u
-         iTQTR/f4BaxrK7kKQ47G49zw2a0kOWuAuPcUXnyA/NvOYrvnc/nfFRoczza4jJLxDD
-         fR6Ta5NthN9hqgLD4/5d5ou6SZzjPgE3GYdgc7KsiIMKpmlVRz2rf0o0XMNOD/+o5n
-         XdGs+ZQrT8CwYX8lsDyXGjlkfMDgCwcGRkW1z2hlt19mBo5BrM2vP5JurM4AJhcITB
-         i6iXisiqXb/rstGrTG1acf1Kz30pZsBexLiPBJ9ZpH5KDaHppYG62UHRTrXcl35Xk4
-         I8JbFHQd/jcCQ==
-Date:   Tue, 2 Mar 2021 15:55:27 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Linux Phy <linux-phy@lists.infradead.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: Re: Commits for 5.11 stable
-Message-ID: <YD4SlyXIVFZQYip5@vkoul-mobl>
-References: <YD4LfQEXWawk2b4C@vkoul-mobl>
- <YD4NINW6u28SxedJ@kroah.com>
+        id S233302AbhCCALu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:11:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45016 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349586AbhCBKke (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 05:40:34 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C2F3C061226
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 02:39:42 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id l12so24524772edt.3
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 02:39:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=1ICLiqXq+tV4cupqdEJe1awTHsiicMzPeqP1HbdaGGE=;
+        b=ZiaiNjSdUKa+PpaODsNvhg0V14fn7QkfVat6rGMzPoG4p4a8OglAyHcVCa8lQ4GR8A
+         NpXEMjXcOmO0cUhsYkJkBSj+CzpUmjj7TnZFdertYVEhl4e3d7wMnIHx60va8T77caVV
+         8r3WpXxHJ3jiA5h6WvcoG/fMVRxLwFD3LGxEw3fcOq9/i5d1CJ22N0ZgzViWq8FW39o4
+         0yhB2wDdkJ75JTEq6iJykAMAbKYAi/Z/sgDCJzD6K2JoJldIrF+es9lM9HVBE9diutxr
+         mp5uSh3kHjJGAorSVbBOsGOTUJQxckB9jsiK9WlXThQiaBGFiG/GGBDuecMFwNZ1yebc
+         zWiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1ICLiqXq+tV4cupqdEJe1awTHsiicMzPeqP1HbdaGGE=;
+        b=PFyXVSGwPrdjUf39rjtiUuR07CLC781cMU6rT2Xofy3XioMww4yql7qav4F/Omd14d
+         j6SA6gbekul3ZbWoYMXOwWp/3890Ez7ABtSccuJqSo2EgMyl3ukYuD4cYtg5Kk2lGChp
+         RVcfmRuxV4pPNan7wsi6lSDQ7AO4fy9z174GNlFIImYxoMHwwqdclTzJLpHrEV4ehWwp
+         xXxfVIMeG16aCojCQrC5a/Ii6bDqDuRfokswTSfYE99fYrS/9/yc8ix/PGxtmEXHML8M
+         6rxwZ93P5iNwqMWWfhC2k9FWBZoOYr/Uf5lrD7pdG/Ado8FFscZ98gP62iYcdUn+/nLR
+         mqqw==
+X-Gm-Message-State: AOAM5322YERg2AG9zWg1qTKYGS8UVL9uNCr1dUSc+LHnkjelC4ZFbrDw
+        gdFGkVpVfMSYqfdkStAHMl8Un86hQLidalvuZy0ilw==
+X-Google-Smtp-Source: ABdhPJw2tEHtmKZfTJR+DrfbJOE+591gfRtPzaAoB6PSf5+8p/AfbZK6iH94T356k6WZqdKXdChYTmXySntr6PGomPM=
+X-Received: by 2002:a05:6402:510f:: with SMTP id m15mr20362354edd.78.1614681580716;
+ Tue, 02 Mar 2021 02:39:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="k4PKXNVeIlpj/zIy"
-Content-Disposition: inline
-In-Reply-To: <YD4NINW6u28SxedJ@kroah.com>
+References: <20210301193544.489324430@linuxfoundation.org>
+In-Reply-To: <20210301193544.489324430@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 2 Mar 2021 16:09:29 +0530
+Message-ID: <CA+G9fYs+tDGcOA8xJrkgOAdENg+tDSWeK1J9UvbR9fzo3bV6CQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/246] 4.19.178-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 2 Mar 2021 at 01:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.178 release.
+> There are 246 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 03 Mar 2021 19:35:01 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.178-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---k4PKXNVeIlpj/zIy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+
+[For the record]
+
+Results from Linaro=E2=80=99s test farm.
+Regressions detected on 4.19.178-rc2 for below listed devices and configs.
 
 
-HI Greg,
+Build error:
+---------------
+include/linux/icmpv6.h: In function 'icmpv6_ndo_send':
+include/linux/icmpv6.h:70:2: error: implicit declaration of function
+'__icmpv6_send'; did you mean 'icmpv6_send'?
+[-Werror=3Dimplicit-function-declaration]
+   70 |  __icmpv6_send(skb_in, type, code, info, &parm);
+      |  ^~~~~~~~~~~~~
+      |  icmpv6_send
+cc1: some warnings being treated as errors
 
-On 02-03-21, 11:02, Greg KH wrote:
-> On Tue, Mar 02, 2021 at 03:25:09PM +0530, Vinod Koul wrote:
-> > Hi Greg,
-> >=20
-> > Please include these commits for 5.11 stable series
-> >=20
-> > 9a8b9434c60f phy: mediatek: Add missing MODULE_DEVICE_TABLE()
-> > 25e3ee590f62 phy: phy-brcm-sata: remove unneeded semicolon
-> > 6b46e60a6943 phy: USB_LGM_PHY should depend on X86
-> > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
-> > c188365402f6 phy: rockchip: emmc, add vendor prefix to dts properties
-> > 88d9f40c4b71 devicetree: phy: rockchip-emmc optional add vendor prefix
-> > aaf316de3bba phy: cpcap-usb: remove unneeded conversion to bool
-> > 39961bd6b70e phy: rockchip-emmc: emmc_phy_init() always return 0
->=20
-> Why take these?
->=20
-> What problems do they solve?
+Summary
+------------------------------------------------------------------------
 
-Sorry I should have provided the context. I had sent these as fixes for
-5.11 but that was bit late so we merged it for 5.12 [1]
+kernel: 4.19.178-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 0e2d946bd3c89bee5a98375b218dcf9c2d3d5f50
+git describe: v4.19.177-247-g0e2d946bd3c8
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.177-247-g0e2d946bd3c8
 
-> How does 25e3ee590f62 meet the stable tree rules?
->=20
-> > Please note that below commit is applicable for 5.7+
-> > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
->=20
-> So for 5.10 also?
+Regressions (compared to build v4.19.177)
+------------------------------------------------------------------------
 
-yes, the patch has been tagged stable 5.7+
+arm:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-axm55xx_defconfig
+    * gcc-10-clps711x_defconfig
+    * gcc-10-footbridge_defconfig
+    * gcc-10-imx_v4_v5_defconfig
+    * gcc-10-integrator_defconfig
+    * gcc-10-ixp4xx_defconfig
+    * gcc-10-mini2440_defconfig
+    * gcc-10-mxs_defconfig
+    * gcc-10-nhk8815_defconfig
+    * gcc-10-orion5x_defconfig
+    * gcc-10-pxa910_defconfig
+    * gcc-10-s3c6400_defconfig
+    * gcc-10-tinyconfig
+    * gcc-10-vexpress_defconfig
+    * gcc-8-allnoconfig
+    * gcc-8-axm55xx_defconfig
+    * gcc-8-clps711x_defconfig
+    * gcc-8-footbridge_defconfig
+    * gcc-8-imx_v4_v5_defconfig
+    * gcc-8-integrator_defconfig
+    * gcc-8-ixp4xx_defconfig
+    * gcc-8-mini2440_defconfig
+    * gcc-8-mxs_defconfig
+    * gcc-8-nhk8815_defconfig
+    * gcc-8-orion5x_defconfig
+    * gcc-8-pxa910_defconfig
+    * gcc-8-s3c6400_defconfig
+    * gcc-8-tinyconfig
+    * gcc-8-vexpress_defconfig
+    * gcc-9-allnoconfig
+    * gcc-9-axm55xx_defconfig
+    * gcc-9-clps711x_defconfig
+    * gcc-9-footbridge_defconfig
+    * gcc-9-imx_v4_v5_defconfig
+    * gcc-9-integrator_defconfig
+    * gcc-9-ixp4xx_defconfig
+    * gcc-9-mini2440_defconfig
+    * gcc-9-mxs_defconfig
+    * gcc-9-nhk8815_defconfig
+    * gcc-9-orion5x_defconfig
+    * gcc-9-pxa910_defconfig
+    * gcc-9-s3c6400_defconfig
+    * gcc-9-tinyconfig
+    * gcc-9-vexpress_defconfig
 
-Thanks
+mips:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-ar7_defconfig
+    * gcc-10-ath79_defconfig
+    * gcc-10-bcm63xx_defconfig
+    * gcc-10-e55_defconfig
+    * gcc-10-rt305x_defconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-ar7_defconfig
+    * gcc-8-ath79_defconfig
+    * gcc-8-bcm63xx_defconfig
+    * gcc-8-e55_defconfig
+    * gcc-8-rt305x_defconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-ar7_defconfig
+    * gcc-9-ath79_defconfig
+    * gcc-9-bcm63xx_defconfig
+    * gcc-9-e55_defconfig
+    * gcc-9-rt305x_defconfig
+    * gcc-9-tinyconfig
 
-[1]: https://lore.kernel.org/lkml/20210210091249.GC2774@vkoul-mobl.Dlink/
+qemu-arm64-kasan:
+  ltp-cve-tests:
+    * cve-2019-8912
+
+sparc:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-tinyconfig
+
+x86:
+  build:
+    * build_process
+
+s390:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-tinyconfig
+
+arm64:
+  build:
+    * clang-10-allnoconfig
+    * clang-10-tinyconfig
+    * clang-11-allnoconfig
+    * clang-11-tinyconfig
+    * clang-12-allnoconfig
+    * clang-12-tinyconfig
+    * gcc-10-allnoconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-tinyconfig
+
+x86_64:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-tinyconfig
+
+i386:
+  build:
+    * gcc-10-allnoconfig
+    * gcc-10-tinyconfig
+    * gcc-8-allnoconfig
+    * gcc-8-tinyconfig
+    * gcc-9-allnoconfig
+    * gcc-9-tinyconfig
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
 
 --=20
-~Vinod
-
---k4PKXNVeIlpj/zIy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE+vs47OPLdNbVcHzyfBQHDyUjg0cFAmA+EpcACgkQfBQHDyUj
-g0ciPA/9GpPqLhQY/ogvYp+A9aDSLvc5NwLvbHsx8+y8Hv4OHjbdB0TRLQVeusuN
-N+nr0qxQyl4eEFR9mlUW5MAvF4yMA7Y8dBR4e/b1728BPzaCWP93myye9EJBOg5f
-U3B9K+ifp3ZO1yrz9CXAX/Tl7ML7a0xzVq1nyfN5EV9DO7b0znwJr13G4rK60G5P
-OLJfxvU6xys0PBSNaVTr9lSrAcQ52nIzYmq2rswEgvQtL9MrqQ4ixDzYp7N9UFTp
-/UgpPZh5o9LJBeJCeFCjkZaPhwJHsTfmjGsKu1BAhn8Vpel4ELD6UD5F7UJe2Hfb
-wp9g8u4V+jyNRfttqk0zS7kcv2Kk6hCHBPcYUhCRAvpKNdi8glpLPGwFAdPUx/BI
-v9pBdxiVE4hPO02dvROUqWhuLYrDG7/SGpP0aoJ18X68wO+jfM1I0kyzz21qVIkY
-4aAgicoF7fDLas0wJFPRPOW59CHFljj9UWhFNK4n87A8iddVs73nhHkoq5zF5lyp
-XgDLaESpRJ5fU1s8wixVov1Id8dtFAFiYXbDFKf8wfDktwOk9ndvWzUTPkDNnYq5
-MDvLNhEQTSXvYQT3CR6iiL71NKUgcnEEbkYb/U42QW5DvTbS+0ZiiOjvBT5s205t
-BUxSMK0vNb213AZg5kQJ37dpJBcDQWImJlJywuP2Kv7+JF1t4jE=
-=e4B/
------END PGP SIGNATURE-----
-
---k4PKXNVeIlpj/zIy--
+Linaro LKFT
+https://lkft.linaro.org
