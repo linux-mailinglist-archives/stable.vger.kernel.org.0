@@ -2,236 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FBA32B22D
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5634632B23B
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241345AbhCCAwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:52:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53014 "EHLO
+        id S1343507AbhCCAxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:53:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351759AbhCBRt1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 12:49:27 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE9DC061A2D
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 09:48:34 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id u18so6265119plc.12
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 09:48:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=grzGJb4yJqAYhHaW3waovLEoXOTRMnm0oeXY1l63NxE=;
-        b=I14yfEJ5LqBHCsUmlD57vTdZhZFy5Ia/O5TG+xXEAfjA3rWGC11B/JMODhhB1bT/zo
-         qx7ux6WTYeJlfvHPlemNMxMwHUSg7K7BylGjX3FbId+AE7Aebl21aQpN8XEZfmrmLWSK
-         aTf10uM1tAtUvZM1DWqe6sJPdWLiEBxwQLeiukAcelSgD+DGyLV6+m1MiB/De2FIit/H
-         T+fwIIkGjZcM419p7G73bLSEk8PXw5dR2prLqiKLrYP4bvw+QUu8J2CSAiMG0jV8duLO
-         1j8Z0mzkpjVZtFP8slUDMFaJRiCGn9FRoySN4HDFvPKChCJgZa5SujgQ7flNZTTIE3Au
-         vz0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=grzGJb4yJqAYhHaW3waovLEoXOTRMnm0oeXY1l63NxE=;
-        b=BlWhKhLj7+ribSL6QXlffxqncpEf9g9zUQluBhpM1En/RR4lq3G7Ra3xDSPx2RLHsV
-         IVprVDiaNnUskI5/dye8djSRytpWQ/t1LNpHFbCPke3hWmm0HS6ApTgtUqwGgFI9vYFm
-         Hqjsri/uTimy1It5TiDZ5n7MSuqn0BCk5zj8n8djGKx+RrDJAoKIgQPMSV/1z1bXcRyg
-         DU84CKge5hRQjhN+b+x9xWHk7WLojg/BaohqSWsM6j2Ij4KD9fxmnVWiZZwbq59y5ewT
-         e3UuLILIOZ3TLiCYLuM7Iib2CdgeCckxRBUAqZk27/oVP8lquXiASVKDRoDPYZMOSBUZ
-         MK2A==
-X-Gm-Message-State: AOAM533U/sU4XgJKtNVtmw3jOKD9Om6RbeUqxPHW8AwLOCIerSGgitsb
-        Z+1AYGZ5nQjNy/MO4aTo28zyUwDtsG2Rsw==
-X-Google-Smtp-Source: ABdhPJxpgAZYWBwTgwmpyrHUFqrEJhB5FDht1MXZTTjpym2jcF41nU+4nzti/XsHQkgbpc/gefdSdA==
-X-Received: by 2002:a17:902:ba91:b029:e3:fe6d:505c with SMTP id k17-20020a170902ba91b02900e3fe6d505cmr4611429pls.7.1614707313957;
-        Tue, 02 Mar 2021 09:48:33 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q4sm21749467pfq.103.2021.03.02.09.48.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 09:48:33 -0800 (PST)
-Message-ID: <603e7a71.1c69fb81.7fb8b.1d50@mx.google.com>
-Date:   Tue, 02 Mar 2021 09:48:33 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1352135AbhCBSL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 13:11:28 -0500
+X-Greylist: delayed 350 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 02 Mar 2021 10:10:17 PST
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA652C06178B
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 10:10:17 -0800 (PST)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id 5CD15C800CF;
+        Tue,  2 Mar 2021 19:00:50 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id m2s5eHXleoix; Tue,  2 Mar 2021 19:00:50 +0100 (CET)
+Received: from wsembach-tuxedo.fritz.box (p200300E37f234700CC4188A7f2f8d6b8.dip0.t-ipconnect.de [IPv6:2003:e3:7f23:4700:cc41:88a7:f2f8:d6b8])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id 0E306C800CE;
+        Tue,  2 Mar 2021 19:00:50 +0100 (CET)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     wse@tuxedocomputers.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+        alsa-devel@vger.kernel.org
+Cc:     Eckhart Mohr <e.mohr@tuxedocomputers.com>, stable@vger.kernel.org
+Subject: [PATCH] ALSA: hda/realtek: Add quirk for Clevo NH55RZQ
+Date:   Tue,  2 Mar 2021 19:00:43 +0100
+Message-Id: <20210302180043.23021-1-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.222-176-g6f669f69c8c8
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 101 runs,
- 4 regressions (v4.14.222-176-g6f669f69c8c8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 101 runs, 4 regressions (v4.14.222-176-g6f66=
-9f69c8c8)
+From: Eckhart Mohr <e.mohr@tuxedocomputers.com>
 
-Regressions Summary
--------------------
+ALSA: hda/realtek: Add quirk for Clevo NH55RZQ
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+This applies a SND_PCI_QUIRK(...) to the Clevo NH55RZQ barebone. This
+fixes the issue of the device not recognizing a pluged in microphone.
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+The device has both, a microphone only jack, and a speaker + microphone
+combo jack. The combo jack already works. The microphone-only jack does
+not recognize when a device is pluged in without this patch.
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
+---
+Third time's the charm, now using git send-email, I'm really sorry for the spam.
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+From 2835edd753fd19c72a644dccb7e941cfc0ecdf8e Mon Sep 17 00:00:00 2001
+From: Werner Sembach <wse@tuxedocomputers.com>
+Date: Fri, 26 Feb 2021 13:50:15 +0100
+Subject: [PATCH] Fix device detection on microphone jack of Clevo NH55RZQ
 
+---
+ sound/pci/hda/patch_realtek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.222-176-g6f669f69c8c8/plan/baseline/
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 290645516313..8014e80d72c3 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8089,6 +8089,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1558, 0x8551, "System76 Gazelle (gaze14)", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8560, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8561, "System76 Gazelle (gaze14)", ALC269_FIXUP_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1558, 0x8562, "Clevo NH[5|7][0-9]RZ[Q]", ALC269_FIXUP_DMIC),
+ 	SND_PCI_QUIRK(0x1558, 0x8668, "Clevo NP50B[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8680, "Clevo NJ50LU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1558, 0x8686, "Clevo NH50[CZ]U", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
+-- 
+2.25.1
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.222-176-g6f669f69c8c8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6f669f69c8c8140f24110d1d53bee825e60922fc =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603e45a97e06e35b12addcc7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603e45a97e06e35b12add=
-cc8
-        failing since 108 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603e45c13691044057addd1a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603e45c13691044057add=
-d1b
-        failing since 108 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603e45585c00938c21addcbb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603e45585c00938c21add=
-cbc
-        failing since 108 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603e7523a7bdc6e2baaddcd0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.222=
--176-g6f669f69c8c8/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603e7523a7bdc6e2baadd=
-cd1
-        failing since 108 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
