@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B88432AF28
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0117A32AF29
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233476AbhCCAPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43562 "EHLO mail.kernel.org"
+        id S233513AbhCCAPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:15:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383854AbhCBMLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1383856AbhCBMLa (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Mar 2021 07:11:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD88464F43;
-        Tue,  2 Mar 2021 11:56:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E973A64F52;
+        Tue,  2 Mar 2021 11:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686217;
-        bh=2830jk0Yx1O8DCWoLForj/JZjaz5APv9kJxORQ/tqTM=;
+        s=k20201202; t=1614686218;
+        bh=7zx+vzbfje1Qh+19C+tUQH2oflZyQWKdmL2xzZgLihU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rw5nnSsuMhWSuNPvC0uvlUGUMwnpqjNtinxaApNaSDaRH8o3tgWxkkFNlqipdZLa1
-         mizAr9akMYco/tDsY9icamxz/iuDrjWewnAtoYFJfOo3sOutRTjCaRxgwEAgwxBN9a
-         9kD8X6D3eoXTkaIplQPbQmJEdJZ27cabRA03139bWMNF8Zah4eew7AEdu1ZzgW/5gT
-         9KCzHLV4kW/O8EC2CzEcZy54vE9ABlDBfkcNy+AHCJsLfj1mneGDq+me3c6qjeSVc/
-         YxQVW1UmRAqemr5muCMSIJKBQl8HNGhD2XCVES9yH15jxYmofR7Vqd91YmdzrxXF/L
-         Pgqj9xEvw6PAQ==
+        b=sytq4kZm4Ys4cDfx4PUFM2lmHqig2nhIQx+5kWcZwkRa/uxcIaOYpicKYgod7yvEb
+         TcHLbZHoA3zpLIn2d0xX6Yn0wiCQHaVpzcVGXUQNjld8Vzw6IAOHPZFm6Fzy77URJ7
+         Kv8xoG58FC0h0HR6HJvsEXvSCSs2kAa15xzk8rcFOqjgHj17UItspqGY9VlOEnohmF
+         QkdWSF//bQUmcwxjBYMLSA8q/5fozplie1lruGzOgwj8K02FS+Eyf21ghD7H+quCcK
+         hWsUEy0PBo9+klOw29Bt26IXuEFOtdbY1UNfioT9XBvGnfPhu23V1eEN1i8mrz33Ic
+         aLn6ZzIp6x/rQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 08/47] mmc: mxs-mmc: Fix a resource leak in an error handling path in 'mxs_mmc_probe()'
-Date:   Tue,  2 Mar 2021 06:56:07 -0500
-Message-Id: <20210302115646.62291-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 09/47] mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+Date:   Tue,  2 Mar 2021 06:56:08 -0500
+Message-Id: <20210302115646.62291-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
 References: <20210302115646.62291-1-sashal@kernel.org>
@@ -42,34 +42,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 0bb7e560f821c7770973a94e346654c4bdccd42c ]
+[ Upstream commit 5f7dfda4f2cec580c135fd81d96a05006651c128 ]
 
-If 'mmc_of_parse()' fails, we must undo the previous 'dma_request_chan()'
-call.
+The SDHCI_PRESET_FOR_* registers are not set(all read as zeros), so
+set the quirk.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201208203527.49262-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Link: https://lore.kernel.org/r/20201210165510.76b917e5@xhacker.debian
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mxs-mmc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-dwcmshc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
-index 75007f61df97..4fbbff03137c 100644
---- a/drivers/mmc/host/mxs-mmc.c
-+++ b/drivers/mmc/host/mxs-mmc.c
-@@ -643,7 +643,7 @@ static int mxs_mmc_probe(struct platform_device *pdev)
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index d90020ed3622..59d8d96ce206 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -112,6 +112,7 @@ static const struct sdhci_ops sdhci_dwcmshc_ops = {
+ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
+ 	.ops = &sdhci_dwcmshc_ops,
+ 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
  
- 	ret = mmc_of_parse(mmc);
- 	if (ret)
--		goto out_clk_disable;
-+		goto out_free_dma;
- 
- 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
- 
+ static int dwcmshc_probe(struct platform_device *pdev)
 -- 
 2.30.1
 
