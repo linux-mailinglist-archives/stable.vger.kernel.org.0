@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A96C32AF0C
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E4B732AF0B
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231419AbhCCAOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:14:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40280 "EHLO mail.kernel.org"
+        id S231410AbhCCAOn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:14:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239897AbhCBL7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240163AbhCBL7i (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Mar 2021 06:59:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 358A364F1E;
-        Tue,  2 Mar 2021 11:55:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFF4D64F1F;
+        Tue,  2 Mar 2021 11:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686152;
-        bh=ErfQwjmd8r4+acZhXc+ggYrttmA12hddJQe7yT8J+dY=;
+        s=k20201202; t=1614686153;
+        bh=bTF6eS8rQHKgs/nfkztSQV06/8ZuGnFy2R703xIO9VE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XP6P24H240Tye0ruZC9Qwek9earLpWIqr5sehOHc0paKBIhECq7rfcag9vufnksRt
-         4aZlx/KJ+f3jrQZTAth84KYAVPUicU1Vvzeke3WjphK48yMgE3+LVua4xoCbokoDqm
-         3BAWSIQd0KTI4/MoOiBE3UIyl0t1GBPzQzngP9py5wxz6nv57tzyfQI9otlFc4bRRp
-         1BezxcIZY2p3A1QxPi5gejUghT0qrCIgTvNDfcZLVu9AFHvKeMUKO21b6ri/xE5DVb
-         VJTaFfdsx1FSHw0uV5c13JSu6dCkIE2xXHETwMqYEMDW364GMCw71ctJT0otl18gVv
-         ICHPdgF1+9u7A==
+        b=j7pss65dsrCaJQwUq1RV8ZFd+SkPdm9d0HaSvziIchicV1cl11Ok3Iw4pc4lrYZiG
+         QPJ7UOOj99u66N1Nl/I5n1psjHqqjKdjzOW4kEP+b+817rjP9hQNJhVskzR7PBt+GC
+         Av6LjvtObpT59R94P70SlCkklIBliOT3d9fF+ZCG9vVxuNiGiKisZXREMebCLFfdA3
+         nv3AYNR6ai5hhPAoifeUyEEOA3ZW+Mj+6OKocx5qq0Qzm3ovRyYHRA+E/h5+e0GfI5
+         UzJRYYEH+MhFlUsYTNe/iGCOTVizEOgyY8yhiA2mrb3JgWVdY5gotGAWrZTCv4555E
+         TSdC/dnbuonKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeremy Linton <jeremy.linton@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        bcm-kernel-feedback-list@broadcom.com
-Subject: [PATCH AUTOSEL 5.11 13/52] mmc: sdhci-iproc: Add ACPI bindings for the RPi
-Date:   Tue,  2 Mar 2021 06:54:54 -0500
-Message-Id: <20210302115534.61800-13-sashal@kernel.org>
+Cc:     Pan Bian <bianpan2016@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 14/52] platform/x86: amd-pmc: put device on error paths
+Date:   Tue,  2 Mar 2021 06:54:55 -0500
+Message-Id: <20210302115534.61800-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -45,63 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 4f9833d3ec8da34861cd0680b00c73e653877eb9 ]
+[ Upstream commit 745ed17a04f966406c8c27c8f992544336c06013 ]
 
-The RPi4 has an Arasan controller it carries over from the RPi3 and a newer
-eMMC2 controller.  Because of a couple of quirks, it seems wiser to bind
-these controllers to the same driver that DT is using on this platform
-rather than the generic sdhci_acpi driver with PNP0D40.
+Put the PCI device rdev on error paths to fix potential reference count
+leaks.
 
-So, BCM2847 describes the older Arasan and BRCME88C describes the newer
-eMMC2. The older Arasan is reusing an existing ACPI _HID used by other OSes
-booting these tables on the RPi.
-
-With this change, Linux is capable of utilizing the SD card slot, and the
-Wi-Fi when booted with UEFI+ACPI on the RPi4.
-
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210120000406.1843400-2-jeremy.linton@arm.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121045005.73342-1-bianpan2016@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-iproc.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/platform/x86/amd-pmc.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
-index c9434b461aab..ddeaf8e1f72f 100644
---- a/drivers/mmc/host/sdhci-iproc.c
-+++ b/drivers/mmc/host/sdhci-iproc.c
-@@ -296,9 +296,27 @@ static const struct of_device_id sdhci_iproc_of_match[] = {
- MODULE_DEVICE_TABLE(of, sdhci_iproc_of_match);
+diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
+index ef8342572463..b9da58ee9b1e 100644
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -210,31 +210,39 @@ static int amd_pmc_probe(struct platform_device *pdev)
+ 	dev->dev = &pdev->dev;
  
- #ifdef CONFIG_ACPI
-+/*
-+ * This is a duplicate of bcm2835_(pltfrm_)data without caps quirks
-+ * which are provided by the ACPI table.
-+ */
-+static const struct sdhci_pltfm_data sdhci_bcm_arasan_data = {
-+	.quirks = SDHCI_QUIRK_BROKEN_CARD_DETECTION |
-+		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
-+		  SDHCI_QUIRK_NO_HISPD_BIT,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
-+	.ops = &sdhci_iproc_32only_ops,
-+};
-+
-+static const struct sdhci_iproc_data bcm_arasan_data = {
-+	.pdata = &sdhci_bcm_arasan_data,
-+};
-+
- static const struct acpi_device_id sdhci_iproc_acpi_ids[] = {
- 	{ .id = "BRCM5871", .driver_data = (kernel_ulong_t)&iproc_cygnus_data },
- 	{ .id = "BRCM5872", .driver_data = (kernel_ulong_t)&iproc_data },
-+	{ .id = "BCM2847",  .driver_data = (kernel_ulong_t)&bcm_arasan_data },
-+	{ .id = "BRCME88C", .driver_data = (kernel_ulong_t)&bcm2711_data },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(acpi, sdhci_iproc_acpi_ids);
+ 	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+-	if (!rdev || !pci_match_id(pmc_pci_ids, rdev))
++	if (!rdev || !pci_match_id(pmc_pci_ids, rdev)) {
++		pci_dev_put(rdev);
+ 		return -ENODEV;
++	}
+ 
+ 	dev->cpu_id = rdev->device;
+ 	err = pci_write_config_dword(rdev, AMD_PMC_SMU_INDEX_ADDRESS, AMD_PMC_BASE_ADDR_LO);
+ 	if (err) {
+ 		dev_err(dev->dev, "error writing to 0x%x\n", AMD_PMC_SMU_INDEX_ADDRESS);
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
+ 	}
+ 
+ 	err = pci_read_config_dword(rdev, AMD_PMC_SMU_INDEX_DATA, &val);
+-	if (err)
++	if (err) {
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
++	}
+ 
+ 	base_addr_lo = val & AMD_PMC_BASE_ADDR_HI_MASK;
+ 
+ 	err = pci_write_config_dword(rdev, AMD_PMC_SMU_INDEX_ADDRESS, AMD_PMC_BASE_ADDR_HI);
+ 	if (err) {
+ 		dev_err(dev->dev, "error writing to 0x%x\n", AMD_PMC_SMU_INDEX_ADDRESS);
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
+ 	}
+ 
+ 	err = pci_read_config_dword(rdev, AMD_PMC_SMU_INDEX_DATA, &val);
+-	if (err)
++	if (err) {
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
++	}
+ 
+ 	base_addr_hi = val & AMD_PMC_BASE_ADDR_LO_MASK;
+ 	pci_dev_put(rdev);
 -- 
 2.30.1
 
