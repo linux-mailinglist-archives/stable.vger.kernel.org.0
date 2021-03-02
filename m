@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CACE232B0DE
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:45:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9372932B216
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237199AbhCCAkB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:40:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
+        id S241159AbhCCAwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:52:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1448847AbhCBPnB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 10:43:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85AEC60232;
-        Tue,  2 Mar 2021 14:29:15 +0000 (UTC)
+        id S1347018AbhCBRgM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 12:36:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D65C064F04;
+        Tue,  2 Mar 2021 14:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614695356;
-        bh=3ClLCmgZvhbX3YMWaAtcF/fnY/98lVJpWXVdRofhRTQ=;
+        s=korg; t=1614695362;
+        bh=+iAu1ljZmM4lUgItwaxYoxwRt7Fh7rTfDpv0wZgbFh8=;
         h=Subject:To:From:Date:From;
-        b=Um6jp4iJ8PT63IHbGf5a5UsRszDDHmVtgvQPoNecJcoCD2Lu2cXXHzeiAc+pOq8cX
-         S3ZFX2k0ckhHiGUnuR1pM4h7fa9FOwksx1MDrdptOgNZTkQJILoW7toPYWgyBmYj9M
-         rK5v7DI5UB8CG/JzKiscQmTuslSHscJX9aROKzgY=
-Subject: patch "staging: comedi: addi_apci_1032: Fix endian problem for COS sample" added to staging-linus
+        b=xd5BsZidK2zgZbkk3rAQ61NDqrQPO2kBRfwEI27lzVCuzaKMa8JJZ/SXkIPdQ54/v
+         1jVrGveZF/4SORwN321nNHRsccRDpg5PunAZAuU08rgNPPi6qhGGIMqRbL1D8A90Qh
+         pSVxDiUNlKYj6e2mnMje/jB9jm3Oy2wdRkuPWt04=
+Subject: patch "staging: comedi: addi_apci_1500: Fix endian problem for command" added to staging-linus
 To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Mar 2021 15:29:13 +0100
-Message-ID: <1614695353232205@kroah.com>
+Date:   Tue, 02 Mar 2021 15:29:14 +0100
+Message-ID: <1614695354226204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: comedi: addi_apci_1032: Fix endian problem for COS sample
+    staging: comedi: addi_apci_1500: Fix endian problem for command
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,49 +51,65 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 8920b116495ab641a0e0350817157defa0d1ee53 Mon Sep 17 00:00:00 2001
+From a7638de0988fc5025c6738f5d45180c393d21e33 Mon Sep 17 00:00:00 2001
 From: Ian Abbott <abbotti@mev.co.uk>
-Date: Tue, 23 Feb 2021 14:30:42 +0000
-Subject: staging: comedi: addi_apci_1032: Fix endian problem for COS sample
+Date: Tue, 23 Feb 2021 14:30:43 +0000
+Subject: staging: comedi: addi_apci_1500: Fix endian problem for command
+ sample
 
-The Change-Of-State (COS) subdevice supports Comedi asynchronous
-commands to read 16-bit change-of-state values.  However, the interrupt
-handler is calling `comedi_buf_write_samples()` with the address of a
-32-bit integer `&s->state`.  On bigendian architectures, it will copy 2
-bytes from the wrong end of the 32-bit integer.  Fix it by transferring
-the value via a 16-bit integer.
+The digital input subdevice supports Comedi asynchronous commands that
+read interrupt status information.  This uses 16-bit Comedi samples (of
+which only the bottom 8 bits contain status information).  However, the
+interrupt handler is calling `comedi_buf_write_samples()` with the
+address of a 32-bit variable `unsigned int status`.  On a bigendian
+machine, this will copy 2 bytes from the wrong end of the variable.  Fix
+it by changing the type of the variable to `unsigned short`.
 
-Fixes: 6bb45f2b0c86 ("staging: comedi: addi_apci_1032: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 3.19+
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-2-abbotti@mev.co.uk
+Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../staging/comedi/drivers/addi_apci_1500.c    | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/comedi/drivers/addi_apci_1032.c b/drivers/staging/comedi/drivers/addi_apci_1032.c
-index 35b75f0c9200..81a246fbcc01 100644
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -260,6 +260,7 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
- 	struct apci1032_private *devpriv = dev->private;
+diff --git a/drivers/staging/comedi/drivers/addi_apci_1500.c b/drivers/staging/comedi/drivers/addi_apci_1500.c
+index 11efb21555e3..b04c15dcfb57 100644
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -208,7 +208,7 @@ static irqreturn_t apci1500_interrupt(int irq, void *d)
+ 	struct comedi_device *dev = d;
+ 	struct apci1500_private *devpriv = dev->private;
  	struct comedi_subdevice *s = dev->read_subdev;
- 	unsigned int ctrl;
-+	unsigned short val;
+-	unsigned int status = 0;
++	unsigned short status = 0;
+ 	unsigned int val;
  
- 	/* check interrupt is from this device */
- 	if ((inl(devpriv->amcc_iobase + AMCC_OP_REG_INTCSR) &
-@@ -275,7 +276,8 @@ static irqreturn_t apci1032_interrupt(int irq, void *d)
- 	outl(ctrl & ~APCI1032_CTRL_INT_ENA, dev->iobase + APCI1032_CTRL_REG);
- 
- 	s->state = inl(dev->iobase + APCI1032_STATUS_REG) & 0xffff;
--	comedi_buf_write_samples(s, &s->state, 1);
-+	val = s->state;
-+	comedi_buf_write_samples(s, &val, 1);
+ 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
+@@ -238,14 +238,14 @@ static irqreturn_t apci1500_interrupt(int irq, void *d)
+ 	 *
+ 	 *    Mask     Meaning
+ 	 * ----------  ------------------------------------------
+-	 * 0x00000001  Event 1 has occurred
+-	 * 0x00000010  Event 2 has occurred
+-	 * 0x00000100  Counter/timer 1 has run down (not implemented)
+-	 * 0x00001000  Counter/timer 2 has run down (not implemented)
+-	 * 0x00010000  Counter 3 has run down (not implemented)
+-	 * 0x00100000  Watchdog has run down (not implemented)
+-	 * 0x01000000  Voltage error
+-	 * 0x10000000  Short-circuit error
++	 * 0b00000001  Event 1 has occurred
++	 * 0b00000010  Event 2 has occurred
++	 * 0b00000100  Counter/timer 1 has run down (not implemented)
++	 * 0b00001000  Counter/timer 2 has run down (not implemented)
++	 * 0b00010000  Counter 3 has run down (not implemented)
++	 * 0b00100000  Watchdog has run down (not implemented)
++	 * 0b01000000  Voltage error
++	 * 0b10000000  Short-circuit error
+ 	 */
+ 	comedi_buf_write_samples(s, &status, 1);
  	comedi_handle_events(dev, s);
- 
- 	/* enable the interrupt */
 -- 
 2.30.1
 
