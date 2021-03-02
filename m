@@ -2,129 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D5232B247
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D13C132B251
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343555AbhCCAxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:53:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1580921AbhCBSW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 13:22:26 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CE8560295;
-        Tue,  2 Mar 2021 18:21:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614709304;
-        bh=ISDrXxWHSH+zFovoD5AGTuD09XaOpEusjNmd/Hylyis=;
-        h=Subject:To:From:Date:From;
-        b=sPvRACaVTTwR0D6ZIs/ao45KxTG+TvCsWnptHMFf8nhZXsr6g8P7k98MguFy/EUrp
-         /pmuVhcLpQYYJ8rfO6JE056M6nY/RqgREn1Ypm0lvZiAe78+JG0OgRyWIdpIDf1ydZ
-         dpmZCNXPTx64jJJtVwcLU1TU4xhLdjNXozeBoaqY=
-Subject: patch "Revert "serial: max310x: rework RX interrupt handling"" added to tty-linus
-To:     shc_work@mail.ru, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, thomas.petazzoni@bootlin.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Mar 2021 19:21:42 +0100
-Message-ID: <1614709302126254@kroah.com>
+        id S1343569AbhCCAxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60914 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346518AbhCBS2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 13:28:49 -0500
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A11CC0617AA;
+        Tue,  2 Mar 2021 10:25:12 -0800 (PST)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id E9D8DC800CF;
+        Tue,  2 Mar 2021 19:25:10 +0100 (CET)
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id 7N4Koj22s0Eg; Tue,  2 Mar 2021 19:25:10 +0100 (CET)
+Received: from wsembach-tuxedo.fritz.box (p200300E37f234700Cc4188a7f2F8D6B8.dip0.t-ipconnect.de [IPv6:2003:e3:7f23:4700:cc41:88a7:f2f8:d6b8])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id 8974CC800CE;
+        Tue,  2 Mar 2021 19:25:10 +0100 (CET)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     wse@tuxedocomputers.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+        alsa-devel@vger.kernel.org
+Cc:     Eckhart Mohr <e.mohr@tuxedocomputers.com>, stable@vger.kernel.org
+Subject: [PATCH] ALSA: hda/realtek: Add quirk for Intel NUC 10
+Date:   Tue,  2 Mar 2021 19:25:05 +0100
+Message-Id: <20210302182505.24366-1-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+ALSA: hda/realtek: Add quirk for Intel NUC 10
 
-This is a note to let you know that I've just added the patch titled
+This adds a new SND_PCI_QUIRK(...) and applies it to the Intel NUC 10
+devices. This fixes the issue of the devices not having audio input and
+output on the headset jack because the kernel does not recognize when
+something is plugged in.
 
-    Revert "serial: max310x: rework RX interrupt handling"
+The new quirk was inspired by the quirk for the Intel NUC 8 devices, but
+it turned out that the NUC 10 uses another pin. This information was
+acquired by black box testing likely pins.
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 511a9d5dc2d4d541704d25faf7f6fc2a71a2fd9d Mon Sep 17 00:00:00 2001
-From: Alexander Shiyan <shc_work@mail.ru>
-Date: Wed, 17 Feb 2021 11:06:08 +0300
-Subject: Revert "serial: max310x: rework RX interrupt handling"
-
-This reverts commit fce3c5c1a2d9cd888f2987662ce17c0c651916b2.
-
-FIFO is triggered 4 intervals after receiving a byte, it's good
-when we don't care about the time of reception, but are only
-interested in the presence of any activity on the line.
-Unfortunately, this method is not suitable for all tasks,
-for example, the RS-485 protocol will not work properly,
-since the state machine must track the request-response time
-and after the timeout expires, a decision is made that the device
-on the line is not responding.
-
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Link: https://lore.kernel.org/r/20210217080608.31192-1-shc_work@mail.ru
-Fixes: fce3c5c1a2d9 ("serial: max310x: rework RX interrupt handling")
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+Signed-off-by: Eckhart Mohr <e.mohr@tuxedocomputers.com>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: <stable@vger.kernel.org>
 ---
- drivers/tty/serial/max310x.c | 29 +++++------------------------
- 1 file changed, 5 insertions(+), 24 deletions(-)
+Forgot to add the "From"-line
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 9795b2e8b0b2..1b61d26bb7af 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1056,9 +1056,9 @@ static int max310x_startup(struct uart_port *port)
- 	max310x_port_update(port, MAX310X_MODE1_REG,
- 			    MAX310X_MODE1_TRNSCVCTRL_BIT, 0);
+From d281364b8ca6c054a0e5ce20caa599bf7d08160d Mon Sep 17 00:00:00 2001
+From: Werner Sembach <wse@tuxedocomputers.com>
+Date: Fri, 26 Feb 2021 13:54:30 +0100
+Subject: [PATCH] Fix Intel NUC10 no output and input on headset jack
+
+---
+ sound/pci/hda/patch_realtek.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 290645516313..c14d624dbaf1 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6362,6 +6362,7 @@ enum {
+ 	ALC269_FIXUP_LEMOTE_A1802,
+ 	ALC269_FIXUP_LEMOTE_A190X,
+ 	ALC256_FIXUP_INTEL_NUC8_RUGGED,
++	ALC256_FIXUP_INTEL_NUC10,
+ 	ALC255_FIXUP_XIAOMI_HEADSET_MIC,
+ 	ALC274_FIXUP_HP_MIC,
+ 	ALC274_FIXUP_HP_HEADSET_MIC,
+@@ -7744,6 +7745,15 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_HEADSET_MODE
+ 	},
++	[ALC256_FIXUP_INTEL_NUC10] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HEADSET_MODE
++	},
+ 	[ALC255_FIXUP_XIAOMI_HEADSET_MIC] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -8183,6 +8193,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+ 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
+ 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
++	SND_PCI_QUIRK(0x8086, 0x2081, "Intel NUC 10", ALC256_FIXUP_INTEL_NUC10),
  
--	/* Reset FIFOs */
--	max310x_port_write(port, MAX310X_MODE2_REG,
--			   MAX310X_MODE2_FIFORST_BIT);
-+	/* Configure MODE2 register & Reset FIFOs*/
-+	val = MAX310X_MODE2_RXEMPTINV_BIT | MAX310X_MODE2_FIFORST_BIT;
-+	max310x_port_write(port, MAX310X_MODE2_REG, val);
- 	max310x_port_update(port, MAX310X_MODE2_REG,
- 			    MAX310X_MODE2_FIFORST_BIT, 0);
- 
-@@ -1086,27 +1086,8 @@ static int max310x_startup(struct uart_port *port)
- 	/* Clear IRQ status register */
- 	max310x_port_read(port, MAX310X_IRQSTS_REG);
- 
--	/*
--	 * Let's ask for an interrupt after a timeout equivalent to
--	 * the receiving time of 4 characters after the last character
--	 * has been received.
--	 */
--	max310x_port_write(port, MAX310X_RXTO_REG, 4);
--
--	/*
--	 * Make sure we also get RX interrupts when the RX FIFO is
--	 * filling up quickly, so get an interrupt when half of the RX
--	 * FIFO has been filled in.
--	 */
--	max310x_port_write(port, MAX310X_FIFOTRIGLVL_REG,
--			   MAX310X_FIFOTRIGLVL_RX(MAX310X_FIFO_SIZE / 2));
--
--	/* Enable RX timeout interrupt in LSR */
--	max310x_port_write(port, MAX310X_LSR_IRQEN_REG,
--			   MAX310X_LSR_RXTO_BIT);
--
--	/* Enable LSR, RX FIFO trigger, CTS change interrupts */
--	val = MAX310X_IRQ_LSR_BIT  | MAX310X_IRQ_RXFIFO_BIT | MAX310X_IRQ_TXEMPTY_BIT;
-+	/* Enable RX, TX, CTS change interrupts */
-+	val = MAX310X_IRQ_RXEMPTY_BIT | MAX310X_IRQ_TXEMPTY_BIT;
- 	max310x_port_write(port, MAX310X_IRQEN_REG, val | MAX310X_IRQ_CTS_BIT);
- 
- 	return 0;
+ #if 0
+ 	/* Below is a quirk table taken from the old code.
 -- 
-2.30.1
-
+2.25.1
 
