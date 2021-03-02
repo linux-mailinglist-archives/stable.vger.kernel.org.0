@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 685C632AF45
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27D4832AF46
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236956AbhCCAQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:16:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
+        id S236978AbhCCAQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:16:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1446887AbhCBMN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:13:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76F9864F68;
-        Tue,  2 Mar 2021 11:57:21 +0000 (UTC)
+        id S1446890AbhCBMN5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:13:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9897E64F6A;
+        Tue,  2 Mar 2021 11:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686242;
-        bh=SYtnFExsYwZEI5O1S2aFKD5Uu6aJETmBOiCrDaoDXrU=;
+        s=k20201202; t=1614686243;
+        bh=gg7NuUbTf6Q4URsBgOk72aiVUnRXacjBYvM4aotygak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f72jznriVSKZPoWy7SFzJ8t6+nB30YbBMs0bUixuKot2DpqkGKGOLRE1SrPizoUpm
-         KRm1AC5BZdCR4enrWeYArYLeqVuqiZeMJRIiML68jr+oWGMdKtI+Qhd0Foq2KJBwVz
-         y8Y839kFbBQoZ4qYYd/pu14tWauset6opYc7oohdf7Ds0InCTYjLyZNPsiajNFd1Ja
-         OSWm4GIJnbSAD8agofvcz1H/FXjYjq2kiGxlCfibSSBo3ATj7K94Gr75p4pLB+0BLp
-         FkXWh/qj2LW5KqPrskeKsisA8cmVHkHi6hhqwaXWFdzKwCvKOVqkfdiHt79Ow2s8Ql
-         aeXlJLzwcundw==
+        b=TjCkGdJOyTMBqi13fvW36JtlubLgrbOo+jN87E9AYqOMxIe1porpk1ALjjAQpwS7q
+         Hbjl7BC81F6KYgEpJxBmCDe6Pp4I07xqkh9/pnPLfDpZkQb2ChXEYMeizd3KQ6CSU6
+         TI7IFdmyexlKCoVj8lDh0Pmn2t/EL5BWMIVjYZR72xEGjKSGh6ECiFKwGL9XSYXF6U
+         pnOfwNYIBemm25HSg99SIZP2pphfT7McyxdDqntk2gqUFl+2dLN7XGFdu2NRzPyMAk
+         oPGfTgkpWMiDMT790ex2thjg8wlLnlB16xYu+dUWFgvFWABdYSQ8l+TIuMG+l449ut
+         PRpi1rmH1zbvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Martin Kaiser <martin@kaiser.cx>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 28/47] PCI: xgene-msi: Fix race in installing chained irq handler
-Date:   Tue,  2 Mar 2021 06:56:27 -0500
-Message-Id: <20210302115646.62291-28-sashal@kernel.org>
+Cc:     Aswath Govindraju <a-govindraju@ti.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 29/47] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
+Date:   Tue,  2 Mar 2021 06:56:28 -0500
+Message-Id: <20210302115646.62291-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
 References: <20210302115646.62291-1-sashal@kernel.org>
@@ -42,48 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kaiser <martin@kaiser.cx>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit a93c00e5f975f23592895b7e83f35de2d36b7633 ]
+[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
 
-Fix a race where a pending interrupt could be received and the handler
-called before the handler's data has been setup, by converting to
-irq_set_chained_handler_and_data().
+A dummy zero bit is sent preceding the data during a read transfer by the
+Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
+of data during a read. In order to ignore this bit a quirk can be added to
+send an extra zero bit after the read address.
 
-See also 2cf5a03cb29d ("PCI/keystone: Fix race in installing chained IRQ
-handler").
+Add a quirk to ignore the zero bit sent before data by adding a zero bit
+after the read address.
 
-Based on the mail discussion, it seems ok to drop the error handling.
+[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
 
-Link: https://lore.kernel.org/r/20210115212435.19940-3-martin@kaiser.cx
-Signed-off-by: Martin Kaiser <martin@kaiser.cx>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-xgene-msi.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
+ include/linux/eeprom_93xx46.h       |  2 ++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/drivers/pci/controller/pci-xgene-msi.c b/drivers/pci/controller/pci-xgene-msi.c
-index 2470782cb01a..1c34c897a7e2 100644
---- a/drivers/pci/controller/pci-xgene-msi.c
-+++ b/drivers/pci/controller/pci-xgene-msi.c
-@@ -384,13 +384,9 @@ static int xgene_msi_hwirq_alloc(unsigned int cpu)
- 		if (!msi_group->gic_irq)
- 			continue;
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index 7c45f82b4302..a18247696ce7 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -35,6 +35,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
+ 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
+ };
  
--		irq_set_chained_handler(msi_group->gic_irq,
--					xgene_msi_isr);
--		err = irq_set_handler_data(msi_group->gic_irq, msi_group);
--		if (err) {
--			pr_err("failed to register GIC IRQ handler\n");
--			return -EINVAL;
--		}
-+		irq_set_chained_handler_and_data(msi_group->gic_irq,
-+			xgene_msi_isr, msi_group);
++static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
++	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
++};
 +
- 		/*
- 		 * Statically allocate MSI GIC IRQs to each CPU core.
- 		 * With 8-core X-Gene v1, 2 MSI GIC IRQs are allocated
+ struct eeprom_93xx46_dev {
+ 	struct spi_device *spi;
+ 	struct eeprom_93xx46_platform_data *pdata;
+@@ -55,6 +59,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
+ 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
+ }
+ 
++static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
++{
++	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
++}
++
+ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 			      void *val, size_t count)
+ {
+@@ -96,6 +105,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
+ 			cmd_addr, edev->spi->max_speed_hz);
+ 
++		if (has_quirk_extra_read_cycle(edev)) {
++			cmd_addr <<= 1;
++			bits += 1;
++		}
++
+ 		spi_message_init(&m);
+ 
+ 		t[0].tx_buf = (char *)&cmd_addr;
+@@ -363,6 +377,7 @@ static void select_deassert(void *context)
+ static const struct of_device_id eeprom_93xx46_of_table[] = {
+ 	{ .compatible = "eeprom-93xx46", },
+ 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
++	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
+diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
+index eec7928ff8fe..99580c22f91a 100644
+--- a/include/linux/eeprom_93xx46.h
++++ b/include/linux/eeprom_93xx46.h
+@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
+ #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
+ /* Instructions such as EWEN are (addrlen + 2) in length. */
+ #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
++/* Add extra cycle after address during a read */
++#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
+ 
+ 	/*
+ 	 * optional hooks to control additional logic
 -- 
 2.30.1
 
