@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC0232AFBA
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB9732AFBE
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238717AbhCCA2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50438 "EHLO mail.kernel.org"
+        id S238797AbhCCA2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383881AbhCBMcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:32:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2890C64FCF;
-        Tue,  2 Mar 2021 11:59:40 +0000 (UTC)
+        id S1383839AbhCBMck (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:32:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 505A264FC9;
+        Tue,  2 Mar 2021 11:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686380;
-        bh=glpC+gZtIoGE6mio5K8dAKMeg1fOZFQX0piH/UGVogQ=;
+        s=k20201202; t=1614686382;
+        bh=EN+8mv8T3yg6CH9bMuNhDmN22IweqqPq3XDER+/w9Ds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f4xsXUxr7khE8NYgN05N2QjwgZSdUOs7nVj+OLp4B0v78wSt4yHyldv48YiB9H0Te
-         qm/Ly+jiJyLWKrxm11U8S9SzXH8tI1tnNZiRr/PCAytSf+Ck5v6yEvQr+66ZyLuo9U
-         /GLpfLXCRw0ocbNYmQ9RrDlu/dOv4fJmnDeoOFMHAUgY3C1mLBCeB18AfW4Dly1Dck
-         5MdZpp+Kvy1cUSapMxiGidiiOi70sBU+oJ6NhoCuYIQfyN07ezGbOPzyy9iGTSnLG2
-         rgEdlEy2+/yyucjhcnV4uPSMRX/758mDruM0SHDL55MKiAKpE8fac2FrRcX4xgmWPU
-         pzlUxBvslHigA==
+        b=kIWdcC5rj5XUrh6pNlf2YIxwmvfgGkFX7q8t+Rm41+o3H5PnuykW/22oZNlgSR0z6
+         YpQCDk7bQi2cKikeD9V+gMcBkREcqMxfluJrQ44BwTc6p7/7Z7dW3+iKlTWxfcmrJb
+         ZJGv+pcX1xUR84OrxHSPfvvzn+a6zjRQrgSk5HKuUpeA2nX/lcE2xXhLkJWcfIF7Ug
+         98prNrkIToNdAjGGEOaqfDkHptnSVz5n6mzFCVmabr3Z01ecHQZZOUwgyb7pt+t8n5
+         WxIaz5m9h4muvlwrstambC0z8b9yavPgtFOl+0JfGFGRy7rqZbYi9t/Dl797JuQOSA
+         Hex65Ki+X8Ydw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 3/8] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
-Date:   Tue,  2 Mar 2021 06:59:30 -0500
-Message-Id: <20210302115935.63777-3-sashal@kernel.org>
+Cc:     Andreas Larsson <andreas@gaisler.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 4/8] sparc32: Limit memblock allocation to low memory
+Date:   Tue,  2 Mar 2021 06:59:31 -0500
+Message-Id: <20210302115935.63777-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115935.63777-1-sashal@kernel.org>
 References: <20210302115935.63777-1-sashal@kernel.org>
@@ -42,78 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Andreas Larsson <andreas@gaisler.com>
 
-[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
+[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
 
-While sampling for marked events, currently we record the sample only
-if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
-set. SIAR_VALID bit is used for fetching the instruction address from
-Sampled Instruction Address Register(SIAR). But there are some
-usecases, where the user is interested only in the PMU stats at each
-counter overflow and the exact IP of the overflow event is not
-required. Dropping SIAR invalid samples will fail to record some of
-the counter overflows in such cases.
+Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
+memblocks instead of bootmem, but also made high memory available via
+memblock allocation which does not work together with e.g. phys_to_virt
+and can lead to kernel panic.
 
-Example of such usecase is dumping the PMU stats (event counts) after
-some regular amount of instructions/events from the userspace (ex: via
-ptrace). Here counter overflow is indicated to userspace via signal
-handler, and captured by monitoring and enabling I/O signaling on the
-event file descriptor. In these cases, we expect to get
-sample/overflow indication after each specified sample_period.
+This changes back to only low memory being allocatable in the early
+stages, now using memblock allocation.
 
-Perf event attribute will not have PERF_SAMPLE_IP set in the
-sample_type if exact IP of the overflow event is not requested. So
-while profiling if SAMPLE_IP is not set, just record the counter
-overflow irrespective of SIAR_VALID check.
-
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Reflow comment and if formatting]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ arch/sparc/mm/init_32.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index e593e7f856ed..7a80e1cff6e2 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2008,7 +2008,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 			left += period;
- 			if (left <= 0)
- 				left = period;
--			record = siar_valid(regs);
-+
-+			/*
-+			 * If address is not requested in the sample via
-+			 * PERF_SAMPLE_IP, just record that sample irrespective
-+			 * of SIAR valid check.
-+			 */
-+			if (event->attr.sample_type & PERF_SAMPLE_IP)
-+				record = siar_valid(regs);
-+			else
-+				record = 1;
-+
- 			event->hw.last_period = event->hw.sample_period;
- 		}
- 		if (left < 0x80000000LL)
-@@ -2026,9 +2036,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
- 	 * these cases.
- 	 */
--	if (event->attr.exclude_kernel && record)
--		if (is_kernel_addr(mfspr(SPRN_SIAR)))
--			record = 0;
-+	if (event->attr.exclude_kernel &&
-+	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
-+	    is_kernel_addr(mfspr(SPRN_SIAR)))
-+		record = 0;
+diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+index 3b7092d9ea8f..4abe4bf08377 100644
+--- a/arch/sparc/mm/init_32.c
++++ b/arch/sparc/mm/init_32.c
+@@ -240,6 +240,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
+ 	reserve_bootmem((bootmap_pfn << PAGE_SHIFT), size, BOOTMEM_DEFAULT);
+ 	*pages_avail -= PAGE_ALIGN(size) >> PAGE_SHIFT;
  
- 	/*
- 	 * Finally record data if requested.
++	/* Only allow low memory to be allocated via memblock allocation */
++	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
++
+ 	return max_pfn;
+ }
+ 
 -- 
 2.30.1
 
