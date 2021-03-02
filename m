@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7465132AFAD
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:29:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E8B032AF99
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:29:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238561AbhCCA2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49004 "EHLO mail.kernel.org"
+        id S238284AbhCCA1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:27:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350705AbhCBMX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:23:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D7B164F9A;
-        Tue,  2 Mar 2021 11:58:52 +0000 (UTC)
+        id S1350688AbhCBMX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:23:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1D6864FAA;
+        Tue,  2 Mar 2021 11:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686333;
-        bh=XHy79ktjp/3DMbsxJZ/NZDO9d10iNG59rH3kQZOJUbA=;
+        s=k20201202; t=1614686334;
+        bh=+U3Zim65fOcMU3OVVUakiIMGS5oAYNl6TOG6V4kguTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m5V5kfnHz8NS+IJckBZktoH+p5oCpBM4/LjzztZM9bk8l2kItR6glRb7b0/W2B6l5
-         MIpwbLMR3Zy90T+lu4KigAjHUiUDeAR9XENM53YHxRmvlqVmpqSBpqZvxq9fy8oiyu
-         pQNACquEtzW6TDm7lh6hhPqQioL8udsCi6enJYqWusfmnXzxuRrJn6aNyhq2/WfYD1
-         N4JnwLsee8fUPAtkhZoqO6IkWYAldBUe4dazCkelUJDrRk25PlQcDVubhEWD9TGGTi
-         BP2QwVqSbpaDihcDOJW3k5lwLaw84MtIpdgCwND7qhl8zleqY+NbYEp7wUkQN6QZaH
-         B69dmOgS+hZZA==
+        b=BDr8hyTlOPp7wgW7PRQ+YP/yXbFPdThmjCXs29MQLXYPUr2/7EL4W/3EWkfDsZ7Hs
+         NTYTRCqfO7ocPzBzvKdJWP53xFKnCnKDC3OxCFcBGeObU9kM3hZPYkyy/L3/J45cye
+         BZf/A37xTqPUmz5pe3DK7qzykkacHI98AJbgEgcVAd04SrkdaIpS5lQdeYnuo5Xwpj
+         A5Byi48Xh0LsGb/yqIjqKQFAha1s/Gb9u02TPaCHgLXs/OWrZH2AfFZ2I0FCnfXxck
+         HBIm6HdBWzhbe8SOAE6umWs55/5zO+qoi1aWRTBmoS6arZl5PehdH292NXTue6IoF1
+         QXuqWbYco8tsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 14/21] PCI: mediatek: Add missing of_node_put() to fix reference leak
-Date:   Tue,  2 Mar 2021 06:58:28 -0500
-Message-Id: <20210302115835.63269-14-sashal@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 15/21] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+Date:   Tue,  2 Mar 2021 06:58:29 -0500
+Message-Id: <20210302115835.63269-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115835.63269-1-sashal@kernel.org>
 References: <20210302115835.63269-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,61 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit 42814c438aac79746d310f413a27d5b0b959c5de ]
+[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
 
-The for_each_available_child_of_node helper internally makes use of the
-of_get_next_available_child() which performs an of_node_get() on each
-iteration when searching for next available child node.
+The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
+programmed to some different values on a per-model basis.
+At least, this is what we intend to do here;
 
-Should an available child node be found, then it would return a device
-node pointer with reference count incremented, thus early return from
-the middle of the loop requires an explicit of_node_put() to prevent
-reference count leak.
+Unfortunately, though, this register is being overwritten with a
+static magic number, right after applying the GPU-specific
+configuration (including the GPU-specific quirks) and that is
+effectively nullifying the efforts.
 
-To stop the reference leak, explicitly call of_node_put() before
-returning after an error occurred.
+Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
+register in order to retain the wanted configuration for the
+target GPU.
 
-Link: https://lore.kernel.org/r/20210120184810.3068794-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index ca06d8bc01e7..066e9e00de11 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -1089,14 +1089,14 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		err = of_pci_get_devfn(child);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse devfn: %d\n", err);
--			return err;
-+			goto error_put_node;
- 		}
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index d29a58bd2f7a..776bbe9775e9 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -681,8 +681,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
+ 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
+ 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
  
- 		slot = PCI_SLOT(err);
+-	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
+-
+ 	/* Enable USE_RETENTION_FLOPS */
+ 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
  
- 		err = mtk_pcie_parse_port(pcie, child, slot);
- 		if (err)
--			return err;
-+			goto error_put_node;
- 	}
- 
- 	err = mtk_pcie_subsys_powerup(pcie);
-@@ -1112,6 +1112,9 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		mtk_pcie_subsys_powerdown(pcie);
- 
- 	return 0;
-+error_put_node:
-+	of_node_put(child);
-+	return err;
- }
- 
- static int mtk_pcie_request_resources(struct mtk_pcie *pcie)
 -- 
 2.30.1
 
