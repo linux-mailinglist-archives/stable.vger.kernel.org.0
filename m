@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE65432AF21
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67CAF32AF1C
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbhCCAPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40282 "EHLO mail.kernel.org"
+        id S232925AbhCCAPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:15:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244692AbhCBMDm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:03:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE17F64F26;
-        Tue,  2 Mar 2021 11:56:04 +0000 (UTC)
+        id S1343734AbhCBMC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:02:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ADDA64F27;
+        Tue,  2 Mar 2021 11:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686165;
-        bh=9yFRSrn0ZtCh8KKSuDANwymqtWmlkM7Vgl4mWGkhQb8=;
+        s=k20201202; t=1614686166;
+        bh=gJfELmqvWVs1hUT+FMssjHU8ltU0BGH5VFallq3Fy5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMJrfAjZWEex/fo6zqREMwPhy96pbvM9l0eIdBIfZyA3iS6B0YlImf3uP0JhK6SrL
-         Ru+083ZtGFQ5IKGpl9+KYs2+jrFyiyA7sy3Y8OBHKhzyeuoIVISDef3TvffghFk4Ys
-         KQJHb3/Vau7Oj/LejlaOUz7bzFHbjYo77bsQibHtfK1/9uFFJvfuD5VtRb/5+F3VaI
-         tnIW3SAbUFC77BDY3WKjBzmmy+GWogESGdHwF+5ZT2wVbfQnzCT1jABVoE0pidoOg2
-         zYfbFR48WQnjCiIe4UYNa0PdoBlXrkvrZzaGkXTaidrDCL9FplfE6vQIwPfg45zmEv
-         GybYZ0hkyIOww==
+        b=QMFDe8K/uSM5bdzgaUuxLzWeejjpgXoKqtKgUyMOep97P4Z+lKlb/pEtfG5A4FL4Y
+         qExibxrQMhpdKjufMJyYc3cRp9GjpUqDfIFLt7xp2tzpJBl+9U9/9eWkMKTBs5dkV6
+         iTGIhM4GBl5VuprPQTTvWjQjqRAz692c3QWAUk5OLo1KUYyyep2QNtE6xc0wJvLv7e
+         eZby6hGHKGMRtkWkN2MxtZJHX7AB4c9h4eKqlX1GRrw8CHbRvDFgfpmHhCElVppJQ6
+         wYafdS5Pu6GwQUbSMdfaKDKiDaJjcPRp27IGROvT+hXywYEhgHVrX6KIwf+CI9JnT9
+         75wxK5fXQkZAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 23/52] HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
-Date:   Tue,  2 Mar 2021 06:55:04 -0500
-Message-Id: <20210302115534.61800-23-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.11 24/52] powerpc/64: Fix stack trace not displaying final frame
+Date:   Tue,  2 Mar 2021 06:55:05 -0500
+Message-Id: <20210302115534.61800-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -41,82 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit b7c20f3815985570ac71c39b1a3e68c201109578 ]
+[ Upstream commit e3de1e291fa58a1ab0f471a4b458eff2514e4b5f ]
 
-The Acer Aspire Switch 10E (SW3-016)'s keyboard-dock uses the same USB-ids
-as the Acer One S1003 keyboard-dock. Yet they are not entirely the same:
+In commit bf13718bc57a ("powerpc: show registers when unwinding
+interrupt frames") we changed our stack dumping logic to show the full
+registers whenever we find an interrupt frame on the stack.
 
-1. The S1003 keyboard-dock has the same report descriptors as the
-S1002 keyboard-dock (which has different USB-ids)
+However we didn't notice that on 64-bit this doesn't show the final
+frame, ie. the interrupt that brought us in from userspace, whereas on
+32-bit it does.
 
-2. The Acer Aspire Switch 10E's keyboard-dock has different
-report descriptors from the S1002/S1003 keyboard docks and it
-sends 0x00880078 / 0x00880079 usage events when the touchpad is
-toggled on/off (which is handled internally).
+That is due to confusion about the size of that last frame. The code
+in show_stack() calls validate_sp(), passing it STACK_INT_FRAME_SIZE
+to check the sp is at least that far below the top of the stack.
 
-This means that all Acer kbd-docks handled by the hid-ite.c drivers
-report their touchpad being toggled on/off through these custom
-usage-codes with the exception of the S1003 dock, which likely is
-a bug of that dock.
+However on 64-bit that size is too large for the final frame, because
+it includes the red zone, but we don't allocate a red zone for the
+first frame.
 
-Add a QUIRK_TOUCHPAD_ON_OFF_REPORT quirk for the Aspire Switch 10E / S1003
-usb-id so that the touchpad toggling will get reported to userspace on
-the Aspire Switch 10E.
+So add a new define that encodes the correct size for 32-bit and
+64-bit, and use it in show_stack().
 
-Since the Aspire Switch 10E's kbd-dock has different report-descriptors,
-this also requires adding support for fixing those to ite_report_fixup().
+This results in the full trace being shown on 64-bit, eg:
 
-Setting the quirk will also cause ite_report_fixup() to hit the
-S1002/S1003 descriptors path on the S1003. Since the S1003 kbd-dock
-never generates any input-reports for the fixed up part of the
-descriptors this does not matter; and if there are versions out there
-which do actually send input-reports for the touchpad-toggle then the
-fixup should actually help to make things work.
+  sysrq: Trigger a crash
+  Kernel panic - not syncing: sysrq triggered crash
+  CPU: 0 PID: 83 Comm: sh Not tainted 5.11.0-rc2-gcc-8.2.0-00188-g571abcb96b10-dirty #649
+  Call Trace:
+  [c00000000a1c3ac0] [c000000000897b70] dump_stack+0xc4/0x114 (unreliable)
+  [c00000000a1c3b00] [c00000000014334c] panic+0x178/0x41c
+  [c00000000a1c3ba0] [c00000000094e600] sysrq_handle_crash+0x40/0x50
+  [c00000000a1c3c00] [c00000000094ef98] __handle_sysrq+0xd8/0x210
+  [c00000000a1c3ca0] [c00000000094f820] write_sysrq_trigger+0x100/0x188
+  [c00000000a1c3ce0] [c0000000005559dc] proc_reg_write+0x10c/0x1b0
+  [c00000000a1c3d10] [c000000000479950] vfs_write+0xf0/0x360
+  [c00000000a1c3d60] [c000000000479d9c] ksys_write+0x7c/0x140
+  [c00000000a1c3db0] [c00000000002bf5c] system_call_exception+0x19c/0x2c0
+  [c00000000a1c3e10] [c00000000000d35c] system_call_common+0xec/0x278
+  --- interrupt: c00 at 0x7fff9fbab428
+  NIP:  00007fff9fbab428 LR: 000000001000b724 CTR: 0000000000000000
+  REGS: c00000000a1c3e80 TRAP: 0c00   Not tainted  (5.11.0-rc2-gcc-8.2.0-00188-g571abcb96b10-dirty)
+  MSR:  900000000280f033 <SF,HV,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 22002884  XER: 00000000
+  IRQMASK: 0
+  GPR00: 0000000000000004 00007fffc3cb8960 00007fff9fc59900 0000000000000001
+  GPR04: 000000002a4b32d0 0000000000000002 0000000000000063 0000000000000063
+  GPR08: 000000002a4b32d0 0000000000000000 0000000000000000 0000000000000000
+  GPR12: 0000000000000000 00007fff9fcca9a0 0000000000000000 0000000000000000
+  GPR16: 0000000000000000 0000000000000000 0000000000000000 00000000100b8fd0
+  GPR20: 000000002a4b3485 00000000100b8f90 0000000000000000 0000000000000000
+  GPR24: 000000002a4b0440 00000000100e77b8 0000000000000020 000000002a4b32d0
+  GPR28: 0000000000000001 0000000000000002 000000002a4b32d0 0000000000000001
+  NIP [00007fff9fbab428] 0x7fff9fbab428
+  LR [000000001000b724] 0x1000b724
+  --- interrupt: c00
 
-This was tested on both an Acer Aspire Switch 10E and on an Acer One S1003.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210209141627.2898485-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ite.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/ptrace.h | 3 +++
+ arch/powerpc/kernel/asm-offsets.c | 2 +-
+ arch/powerpc/kernel/process.c     | 2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 22bfbebceaf4..14fc068affad 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -23,11 +23,16 @@ static __u8 *ite_report_fixup(struct hid_device *hdev, __u8 *rdesc, unsigned int
- 			hid_info(hdev, "Fixing up Acer Sw5-012 ITE keyboard report descriptor\n");
- 			rdesc[163] = HID_MAIN_ITEM_RELATIVE;
- 		}
--		/* For Acer One S1002 keyboard-dock */
-+		/* For Acer One S1002/S1003 keyboard-dock */
- 		if (*rsize == 188 && rdesc[185] == 0x81 && rdesc[186] == 0x02) {
--			hid_info(hdev, "Fixing up Acer S1002 ITE keyboard report descriptor\n");
-+			hid_info(hdev, "Fixing up Acer S1002/S1003 ITE keyboard report descriptor\n");
- 			rdesc[186] = HID_MAIN_ITEM_RELATIVE;
- 		}
-+		/* For Acer Aspire Switch 10E (SW3-016) keyboard-dock */
-+		if (*rsize == 210 && rdesc[184] == 0x81 && rdesc[185] == 0x02) {
-+			hid_info(hdev, "Fixing up Acer Aspire Switch 10E (SW3-016) ITE keyboard report descriptor\n");
-+			rdesc[185] = HID_MAIN_ITEM_RELATIVE;
-+		}
- 	}
- 
- 	return rdesc;
-@@ -114,7 +119,8 @@ static const struct hid_device_id ite_devices[] = {
- 	/* ITE8910 USB kbd ctlr, with Synaptics touchpad connected to it. */
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_SYNAPTICS,
--		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003) },
-+		     USB_DEVICE_ID_SYNAPTICS_ACER_ONE_S1003),
-+	  .driver_data = QUIRK_TOUCHPAD_ON_OFF_REPORT },
- 	{ }
+diff --git a/arch/powerpc/include/asm/ptrace.h b/arch/powerpc/include/asm/ptrace.h
+index 58f9dc060a7b..8236c5e749e4 100644
+--- a/arch/powerpc/include/asm/ptrace.h
++++ b/arch/powerpc/include/asm/ptrace.h
+@@ -70,6 +70,9 @@ struct pt_regs
  };
- MODULE_DEVICE_TABLE(hid, ite_devices);
+ #endif
+ 
++
++#define STACK_FRAME_WITH_PT_REGS (STACK_FRAME_OVERHEAD + sizeof(struct pt_regs))
++
+ #ifdef __powerpc64__
+ 
+ /*
+diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
+index b12d7c049bfe..989006b5ad0f 100644
+--- a/arch/powerpc/kernel/asm-offsets.c
++++ b/arch/powerpc/kernel/asm-offsets.c
+@@ -309,7 +309,7 @@ int main(void)
+ 
+ 	/* Interrupt register frame */
+ 	DEFINE(INT_FRAME_SIZE, STACK_INT_FRAME_SIZE);
+-	DEFINE(SWITCH_FRAME_SIZE, STACK_FRAME_OVERHEAD + sizeof(struct pt_regs));
++	DEFINE(SWITCH_FRAME_SIZE, STACK_FRAME_WITH_PT_REGS);
+ 	STACK_PT_REGS_OFFSET(GPR0, gpr[0]);
+ 	STACK_PT_REGS_OFFSET(GPR1, gpr[1]);
+ 	STACK_PT_REGS_OFFSET(GPR2, gpr[2]);
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index a66f435dabbf..b65a73e4d642 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -2176,7 +2176,7 @@ void show_stack(struct task_struct *tsk, unsigned long *stack,
+ 		 * See if this is an exception frame.
+ 		 * We look for the "regshere" marker in the current frame.
+ 		 */
+-		if (validate_sp(sp, tsk, STACK_INT_FRAME_SIZE)
++		if (validate_sp(sp, tsk, STACK_FRAME_WITH_PT_REGS)
+ 		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
+ 			struct pt_regs *regs = (struct pt_regs *)
+ 				(sp + STACK_FRAME_OVERHEAD);
 -- 
 2.30.1
 
