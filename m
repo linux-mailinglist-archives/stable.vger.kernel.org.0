@@ -2,97 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2181C329B47
-	for <lists+stable@lfdr.de>; Tue,  2 Mar 2021 12:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4202E32AE9F
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 03:58:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234507AbhCBBTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 1 Mar 2021 20:19:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53442 "EHLO
+        id S234067AbhCBX5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 18:57:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344521AbhCBAUY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 19:20:24 -0500
-Received: from merlin.infradead.org (merlin.infradead.org [IPv6:2001:8b0:10b:1231::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1F4C061788;
-        Mon,  1 Mar 2021 16:19:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=T+DlXRF5bBzpgRo6D9piJcBL+4Ne8yKqxm/gj/HQjiY=; b=cQYeaPzjgUUqWKvk+1OtVg8BC2
-        Mv9wiJp0xIGGvGbpLqn4rlobqTpN32KFrM3nG7cgw9gPwwhF+CzAGiUdzhItBf3Bxtw8BOlPPUlzg
-        tBEyfeQId+Nmgb5D5V+Ml4x/TA1yO80Nfewaa0MVzHQhBSbj6vNx7w4dB7EDaNdAqh3viGttaBD9N
-        OVVvbFuc/rCGUwjy6KjoafF8Jv8bSM7s06d7WIuVMyPj9ULLmDlc66vW/8DV+Zd+xrKDHsBm25c7K
-        u8fXUyPBo4TgCf4BvOnZcNGW1r8r63/812Hj43/v+KoGFv3aeKUXbJk8yUZheQ91jyYbjRYqU9jIs
-        5llSPHdA==;
-Received: from [2601:1c0:6280:3f0::3ba4] (helo=merlin.infradead.org)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1lGslF-0007vO-Q6; Tue, 02 Mar 2021 00:19:38 +0000
-From:   Randy Dunlap <rdunlap@infradead.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com,
-        syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        linux-nfs@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>, stable@vger.kernel.org
-Subject: [PATCH] NFS: fs_context: validate UDP retrans to prevent shift out-of-bounds
-Date:   Mon,  1 Mar 2021 16:19:30 -0800
-Message-Id: <20210302001930.2253-1-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.26.2
+        with ESMTP id S1380153AbhCBBsp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 20:48:45 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3021AC061788
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 17:48:04 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id t9so823822pjl.5
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 17:48:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MNwwmXwuo2i9mrJl7OwDtRCQ+KLQT20Yj9SR4blJEl8=;
+        b=ac1MeXRvboo9/hYuY9/jJpjCyK0VZC/RmXbP6s7Z6k6czcEvJKVmL7V7wIkwsxi0xW
+         dQvpnBBvtOMQeR1aaQZgc/4v7ONLvZRdEvKQtVhcTerr4CyoBfxQWnNBGEdCvdLPCZMH
+         106j5vnhNbvxcFGQtFvKHQtxpRNc043Q4qiQoeUAKYOeef0d0PEYNQWOp//9A8+AuHIe
+         7VVtwS16lT7xjE5RzxRi/oyJMYSG6/pwCk0NBo8jz4hM0GUo1VErd+fCnG0+bGpMLRuq
+         VmHjXxD8eSqMNBE6MJ/QIqyY/odVxN77k5zlVowG2Nhdn5M+5EAFsQnGPvdmXZAl/y2o
+         Q0zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MNwwmXwuo2i9mrJl7OwDtRCQ+KLQT20Yj9SR4blJEl8=;
+        b=kSOKf2t1CRbQzurFMmxunrApnH+lq4DsxUyoGyf+k70eJYk7/mwqt4NAtvlZgOf681
+         KOzgO2pTsvNASHXyjCXrF/TsdRriDkkdfXlwBwkmDQeQTrGWSUB/CT348P+DcgVeVqwu
+         WvNyyFgsc5t7PHVElsHxkMwU5c6y7aKUy1f8gv+Qf7EXjJ+XjDHk07S8icWE493BZFAE
+         Xogp7PdaxXAJO6xJKgs45aKjgJYcFerdH9qKjNK7/w9iql4cAgPCa0YfzRIZJAr9YL1m
+         JBNNZnTqsVIltl0WGEvD/NPro5qe4McWqRbAyyYci5D4RCNBaaN0+hMyrRsGFGK0/T3Y
+         VbFw==
+X-Gm-Message-State: AOAM530c22H6o6gx7xLQw/qegM+UjFHgHlIiV88O2YVlaxKzbUBFgnlY
+        J33p47swodg6hg0ErAmHNSHvTAanb4kgmg==
+X-Google-Smtp-Source: ABdhPJzRPC0ugKaerf0J03aHFdFIYmqmyjQOrIqG43J/nBVOtk9hCj0tG+RrFGlte4n8AmLcv/m2XQ==
+X-Received: by 2002:a17:90a:6c22:: with SMTP id x31mr1807466pjj.213.1614649683606;
+        Mon, 01 Mar 2021 17:48:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p8sm18384606pff.79.2021.03.01.17.48.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Mar 2021 17:48:03 -0800 (PST)
+Message-ID: <603d9953.1c69fb81.4541e.bf46@mx.google.com>
+Date:   Mon, 01 Mar 2021 17:48:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.19-662-g92929e15cdc0
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 171 runs,
+ 1 regressions (v5.10.19-662-g92929e15cdc0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix shift out-of-bounds in xprt_calc_majortimeo(). This is caused
-by a garbage timeout (retrans) mount option being passed to nfs mount,
-in this case from syzkaller.
+stable-rc/linux-5.10.y baseline: 171 runs, 1 regressions (v5.10.19-662-g929=
+29e15cdc0)
 
-If the protocol is XPRT_TRANSPORT_UDP, then 'retrans' is a shift
-value for a 64-bit long integer, so 'retrans' cannot be >= 64.
-If it is >= 64, fail the mount and return an error.
+Regressions Summary
+-------------------
 
-Fixes: 9954bf92c0cd ("NFS: Move mount parameterisation bits into their own file")
-Reported-by: syzbot+ba2e91df8f74809417fa@syzkaller.appspotmail.com
-Reported-by: syzbot+f3a0fa110fd630ab56c8@syzkaller.appspotmail.com
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Anna Schumaker <anna.schumaker@netapp.com>
-Cc: linux-nfs@vger.kernel.org
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: stable@vger.kernel.org
----
- fs/nfs/fs_context.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
---- lnx-512-rc1.orig/fs/nfs/fs_context.c
-+++ lnx-512-rc1/fs/nfs/fs_context.c
-@@ -974,6 +974,15 @@ static int nfs23_parse_monolithic(struct
- 			       sizeof(mntfh->data) - mntfh->size);
- 
- 		/*
-+		 * for proto == XPRT_TRANSPORT_UDP, which is what uses
-+		 * to_exponential, implying shift: limit the shift value
-+		 * to BITS_PER_LONG (majortimeo is unsigned long)
-+		 */
-+		if (!(data->flags & NFS_MOUNT_TCP)) /* this will be UDP */
-+			if (data->retrans >= 64) /* shift value is too large */
-+				goto out_invalid_data;
-+
-+		/*
- 		 * Translate to nfs_fs_context, which nfs_fill_super
- 		 * can deal with.
- 		 */
-@@ -1073,6 +1082,9 @@ out_no_address:
- 
- out_invalid_fh:
- 	return nfs_invalf(fc, "NFS: invalid root filehandle");
-+
-+out_invalid_data:
-+	return nfs_invalf(fc, "NFS: invalid binary mount data");
- }
- 
- #if IS_ENABLED(CONFIG_NFS_V4)
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.19-662-g92929e15cdc0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.19-662-g92929e15cdc0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      92929e15cdc088938051b73538d9d4d60844f9d4 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603d69ec2924db6b9baddcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+9-662-g92929e15cdc0/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+9-662-g92929e15cdc0/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603d69ec2924db6b9badd=
+cb2
+        new failure (last pass: v5.10.19-21-g9b79602baf17) =
+
+ =20
