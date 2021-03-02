@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC8132AF3E
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 753B832AF3F
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:17:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236843AbhCCAQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:16:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44182 "EHLO mail.kernel.org"
+        id S236874AbhCCAQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:16:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1446830AbhCBMNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:13:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0EFB64F65;
-        Tue,  2 Mar 2021 11:57:24 +0000 (UTC)
+        id S1446836AbhCBMNj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:13:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D066064F6D;
+        Tue,  2 Mar 2021 11:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686245;
-        bh=A+8lIU4f24cYQr8XfQ3XIwVOtmvhmbXPcCuLDpUJtZk=;
+        s=k20201202; t=1614686246;
+        bh=DAHWNOz5vE2QWZnkWineTNEuvZE7o7JmBE4M3QOYJyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FDGOAitNj19EmvTJD1MPFu016yeMplboo13yEN3s39OcYYmT91CtTHEy6koofFmP6
-         aLqjLn8ZYJTVGzEv0P4JN6LoqJc562C9zGJizwBfMl+UvFme+k0pVATJOHaj0wV8tH
-         joe7SCKotCOVlc5dXnR31LPBkLQLsbhBqakHgeXHqLXeHj//CJSPJVul/qSktz2C5n
-         GQfwIE0hVqr91NanciuTQJXitKe36g55Axxv1UJaVkjN+lYC5xgHbTOSUgo+c0C28x
-         T27Z5bLUZkOcQV7w46SrjQ1cCcOpevEC42QSSqRSB7JyFRf+Kse0/DHjbpXf8ZcdDA
-         THOj0Sl67zuyA==
+        b=UpH4U8J3CCDPzUbOwFkWryRTtV3EGcaqW69E04978GSqf1LUGP5ESvvAe/WPUudGE
+         +ud4/J2gUhfp9dxdigWUMtbS8EfWBM0o3/Y5SdDWS1Aj5nlPKkzigFdQ3nAAV2DpsU
+         TAcEDdbr9hh2dxTJFAeBY/PUokVJ5iU23k5JcSp6CKTyBNd5KWzMlCZ+mQDNG7VCsB
+         l7hF9tOSi+iOJ6GeJtB4BXlodcxcF/WSBtjz3sjyJdEe7Tjsaf5GYiDMxpapX4Nkg+
+         fv2GkvALiyKwdMxMqpvsDC5kYaNl+CpEqSKQZW1dJV/FhGw7WWLt97stcGJ8cQoVEr
+         liMZAX4iTGvaQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 31/47] drivers/base: build kunit tests without structleak plugin
-Date:   Tue,  2 Mar 2021 06:56:30 -0500
-Message-Id: <20210302115646.62291-31-sashal@kernel.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 32/47] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+Date:   Tue,  2 Mar 2021 06:56:31 -0500
+Message-Id: <20210302115646.62291-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115646.62291-1-sashal@kernel.org>
 References: <20210302115646.62291-1-sashal@kernel.org>
@@ -42,38 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit 38009c766725a9877ea8866fc813a5460011817f ]
+[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
 
-The structleak plugin causes the stack frame size to grow immensely:
+The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
+programmed to some different values on a per-model basis.
+At least, this is what we intend to do here;
 
-drivers/base/test/property-entry-test.c: In function 'pe_test_reference':
-drivers/base/test/property-entry-test.c:481:1: error: the frame size of 2640 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
-  481 | }
-      | ^
-drivers/base/test/property-entry-test.c: In function 'pe_test_uints':
-drivers/base/test/property-entry-test.c:99:1: error: the frame size of 2592 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+Unfortunately, though, this register is being overwritten with a
+static magic number, right after applying the GPU-specific
+configuration (including the GPU-specific quirks) and that is
+effectively nullifying the efforts.
 
-Turn it off in this file.
+Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
+register in order to retain the wanted configuration for the
+target GPU.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210125124533.101339-3-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/test/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/base/test/Makefile b/drivers/base/test/Makefile
-index 3ca56367c84b..2f15fae8625f 100644
---- a/drivers/base/test/Makefile
-+++ b/drivers/base/test/Makefile
-@@ -2,3 +2,4 @@
- obj-$(CONFIG_TEST_ASYNC_DRIVER_PROBE)	+= test_async_driver_probe.o
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index 69ed2c609466..5e11cdb207d8 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -626,8 +626,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
+ 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
+ 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
  
- obj-$(CONFIG_KUNIT_DRIVER_PE_TEST) += property-entry-test.o
-+CFLAGS_REMOVE_property-entry-test.o += -fplugin-arg-structleak_plugin-byref -fplugin-arg-structleak_plugin-byref-all
+-	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
+-
+ 	/* Enable USE_RETENTION_FLOPS */
+ 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
+ 
 -- 
 2.30.1
 
