@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D3432B0C3
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1901A32B0D6
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232415AbhCCAix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:38:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45812 "EHLO mail.kernel.org"
+        id S236126AbhCCAjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:39:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351408AbhCBOW4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 09:22:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D42C960C3E;
-        Tue,  2 Mar 2021 14:21:27 +0000 (UTC)
+        id S1376862AbhCBOYv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 09:24:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D45864F0B;
+        Tue,  2 Mar 2021 14:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614694888;
-        bh=aIqXZU8EypFhmh5z75R1G/JGNbo/WPBSLoiu330Mo/E=;
+        s=korg; t=1614694973;
+        bh=X8jFVF0hzRMcoDP2QWFN5mkLLPVu/gm451lrK0nTThk=;
         h=Subject:To:From:Date:From;
-        b=pmpn8zg79riFBYL0vpPWdExlxiHZDoYhLSmYlCMRdO2zYkuD560+cAL4OcSMyWc0H
-         jUPYVm/Duu6IfjyTcG3EgPQ2MFeO9SSkyFXZ19EpUK7Nge8xdnoeGV9zaZZ8fAI4aL
-         om37jD2lbJFCY+S6mwi5MDVwtrSFKPslOofuwDrs=
-Subject: patch "staging: rtl8712: unterminated string leads to read overflow" added to staging-linus
-To:     dan.carpenter@oracle.com, gregkh@linuxfoundation.org,
+        b=nNAY9FvcZDjqqePTZJUPoPiVEV2dA6aF6g3OF3Z2OfNyc//IRJm/953/FedykToer
+         5gWKuk+Ni/GVWr0G7QrLpqY0V4YinZ3WPo6rAwips8bbdul/gEQACkNLj809186DOo
+         HjfZd49GKM6eWvPi+albgUeFEZ0v3eqiwiEsp2NI=
+Subject: patch "staging: rtl8712: Fix possible buffer overflow in" added to staging-linus
+To:     leegib@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 02 Mar 2021 15:21:17 +0100
-Message-ID: <1614694877217129@kroah.com>
+Date:   Tue, 02 Mar 2021 15:22:43 +0100
+Message-ID: <1614694963231197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: rtl8712: unterminated string leads to read overflow
+    staging: rtl8712: Fix possible buffer overflow in
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,37 +51,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 3c0992038070465b5362fd401e41d3f85a2512a2 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Wed, 24 Feb 2021 11:45:59 +0300
-Subject: staging: rtl8712: unterminated string leads to read overflow
+From def9c897e73e89780c7f13a81aef60db2bdeaddc Mon Sep 17 00:00:00 2001
+From: Lee Gibson <leegib@gmail.com>
+Date: Mon, 1 Mar 2021 13:26:48 +0000
+Subject: staging: rtl8712: Fix possible buffer overflow in
+ r8712_sitesurvey_cmd
 
-The memdup_user() function does not necessarily return a NUL terminated
-string so this can lead to a read overflow.  Switch from memdup_user()
-to strndup_user() to fix this bug.
+Function r8712_sitesurvey_cmd calls memcpy without checking the length.
+A user could control that length and trigger a buffer overflow.
+Fix by checking the length is within the maximum allowed size.
 
-Fixes: c6dc001f2add ("staging: r8712u: Merging Realtek's latest (v2.6.6). Various fixes.")
+Signed-off-by: Lee Gibson <leegib@gmail.com>
+Link: https://lore.kernel.org/r/20210301132648.420296-1-leegib@gmail.com
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YDYSR+1rj26NRhvb@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl871x_ioctl_linux.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/rtl8712/rtl871x_cmd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-index 81de5a9e6b67..60dd798a6e51 100644
---- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-+++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-@@ -924,7 +924,7 @@ static int r871x_wx_set_priv(struct net_device *dev,
- 	struct iw_point *dwrq = (struct iw_point *)awrq;
- 
- 	len = dwrq->length;
--	ext = memdup_user(dwrq->pointer, len);
-+	ext = strndup_user(dwrq->pointer, len);
- 	if (IS_ERR(ext))
- 		return PTR_ERR(ext);
- 
+diff --git a/drivers/staging/rtl8712/rtl871x_cmd.c b/drivers/staging/rtl8712/rtl871x_cmd.c
+index 18116469bd31..75716f59044d 100644
+--- a/drivers/staging/rtl8712/rtl871x_cmd.c
++++ b/drivers/staging/rtl8712/rtl871x_cmd.c
+@@ -192,8 +192,10 @@ u8 r8712_sitesurvey_cmd(struct _adapter *padapter,
+ 	psurveyPara->ss_ssidlen = 0;
+ 	memset(psurveyPara->ss_ssid, 0, IW_ESSID_MAX_SIZE + 1);
+ 	if (pssid && pssid->SsidLength) {
+-		memcpy(psurveyPara->ss_ssid, pssid->Ssid, pssid->SsidLength);
+-		psurveyPara->ss_ssidlen = cpu_to_le32(pssid->SsidLength);
++		int len = min_t(int, pssid->SsidLength, IW_ESSID_MAX_SIZE);
++
++		memcpy(psurveyPara->ss_ssid, pssid->Ssid, len);
++		psurveyPara->ss_ssidlen = cpu_to_le32(len);
+ 	}
+ 	set_fwstate(pmlmepriv, _FW_UNDER_SURVEY);
+ 	r8712_enqueue_cmd(pcmdpriv, ph2c);
 -- 
 2.30.1
 
