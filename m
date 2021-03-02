@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A335832AFCC
+	by mail.lfdr.de (Postfix) with ESMTP id 3249232AFCB
 	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239109AbhCCA2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:28:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50734 "EHLO mail.kernel.org"
+        id S239084AbhCCA2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:28:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383880AbhCBMcs (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1383907AbhCBMcs (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Mar 2021 07:32:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8027764F25;
-        Tue,  2 Mar 2021 11:56:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A7F64F41;
+        Tue,  2 Mar 2021 11:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686189;
-        bh=Lf4E2EbPxFAb0cIRYV4xQxcbHaujRyn/8kT+zabVpNo=;
+        s=k20201202; t=1614686190;
+        bh=38D3J8FLIRGFAsRoxpxp1VThzkM0HObSRrfrFVgjVag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jydTaEaIb9fF3TqAXdCcOI5Qongd3Ine8UzF2aQxKuLD3poJtxukZCDKPVvIv8Dyv
-         1tl+QoMSP1H0vTGm9AZV9GIC3JOMEoQXC3jLqofPH4Pvx+wg9PyGYZ+t4evVRhTdka
-         nawsMRPpFUXB5LKWlt8P9vtzlpU3Ob2mRR4OHtPir86vUIqzlFpW7zi5AgRADKbIVq
-         s2qb/Nc2B7IpXtcbPcCMicAJWt+apRoN/boYqNRU4etY5uXgDHhmXuyDicno9I1ozQ
-         IFwU81dYj1zYRbYQHv2ImtUjMDnIPcP107KUi0mdQD8wKMlW7DbmQrxqsq/yFrTxQW
-         FFZTWd8NWS1ow==
+        b=PKkjZNdHJoCBVqosdov+8udFpKV3tBd4gaxSu+FsGNepOlk5DvGIOO4RNey3m8n1p
+         o2dP+yUjpeEIMrTDsCBfJpSK+hC2ylacA1xg6pTqp63xEZKSm4k8km9p0+yqT0mwtK
+         y5IHWLmUdIajGpHkQNfbgmakn+EQcG4FuMb/I2IYcAhB0/ZMVo45WOc8NeiG+F9uDE
+         ZHy29EX3hpNTDxCEcVj6mMkApqRTafNkowI926Rzn379ET2ZS6zpzUV2oTvPk7wPD2
+         EtYWh4vU4uSGvkMcDDtxf6qp60pbgXAiQRrI1NiVXfT6bkL24MA71k3n9cB8hDJzOG
+         1p+oxr510niUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 42/52] i40e: Fix memory leak in i40e_probe
-Date:   Tue,  2 Mar 2021 06:55:23 -0500
-Message-Id: <20210302115534.61800-42-sashal@kernel.org>
+Cc:     Keith Busch <kbusch@kernel.org>,
+        Hinko Kocevar <hinko.kocevar@ess.eu>,
+        Hedi Berriche <hedi.berriche@hpe.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sean V Kelley <sean.v.kelley@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 43/52] PCI/ERR: Retain status from error notification
+Date:   Tue,  2 Mar 2021 06:55:24 -0500
+Message-Id: <20210302115534.61800-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -44,37 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 58cab46c622d6324e47bd1c533693c94498e4172 ]
+[ Upstream commit 387c72cdd7fb6bef650fb078d0f6ae9682abf631 ]
 
-Struct i40e_veb is allocated in function i40e_setup_pf_switch, and
-stored to an array field veb inside struct i40e_pf. However when
-i40e_setup_misc_vector fails, this memory leaks.
+Overwriting the frozen detected status with the result of the link reset
+loses the NEED_RESET result that drivers are depending on for error
+handling to report the .slot_reset() callback. Retain this status so
+that subsequent error handling has the correct flow.
 
-Fix this by calling exit and teardown functions.
-
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20210104230300.1277180-4-kbusch@kernel.org
+Reported-by: Hinko Kocevar <hinko.kocevar@ess.eu>
+Tested-by: Hedi Berriche <hedi.berriche@hpe.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Sean V Kelley <sean.v.kelley@intel.com>
+Acked-by: Hedi Berriche <hedi.berriche@hpe.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pcie/err.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 1db482d310c2..84916261f5df 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -15122,6 +15122,8 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		if (err) {
- 			dev_info(&pdev->dev,
- 				 "setup of misc vector failed: %d\n", err);
-+			i40e_cloud_filter_exit(pf);
-+			i40e_fdir_teardown(pf);
- 			goto err_vsis;
+diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
+index 510f31f0ef6d..4798bd6de97d 100644
+--- a/drivers/pci/pcie/err.c
++++ b/drivers/pci/pcie/err.c
+@@ -198,8 +198,7 @@ pci_ers_result_t pcie_do_recovery(struct pci_dev *dev,
+ 	pci_dbg(bridge, "broadcast error_detected message\n");
+ 	if (state == pci_channel_io_frozen) {
+ 		pci_walk_bridge(bridge, report_frozen_detected, &status);
+-		status = reset_subordinates(bridge);
+-		if (status != PCI_ERS_RESULT_RECOVERED) {
++		if (reset_subordinates(bridge) != PCI_ERS_RESULT_RECOVERED) {
+ 			pci_warn(bridge, "subordinate device reset failed\n");
+ 			goto failed;
  		}
- 	}
 -- 
 2.30.1
 
