@@ -2,134 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BD732AEF4
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FCF32AEF6
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236531AbhCCALB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382782AbhCBKQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 05:16:06 -0500
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF0A9C06178A
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 02:15:25 -0800 (PST)
-Received: by mail-ej1-x629.google.com with SMTP id jt13so34218255ejb.0
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 02:15:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=MpgdEY+xkJdsoRX59VzkePVcPoFPaD3OZG7TYDRW4KU=;
-        b=q66k2buIJldsnHIt6TmO9TJrxPJTcGOMHfKWA3WCAouMGR3WMo6B1zOIXj+5dyCPgU
-         Erzg6/W683GesDNNNQmv7RT/bTEnndnfV8LQi4GA/MZgq2wyq83WLjGgoabkHXJLTd0+
-         nSefuvXOD4AXnHIBm25McxuQeA8JTVFa1Nv5WVaSL8umn9cPbmNzfnYe7hXSXvONWO5B
-         fLsmN9hJPAELZB0gTNNnkJK+J4w4Abt3pWXQ7L0IKyc20evQzDQuByWKmTvH3AKR2b6P
-         YYrLStCfOny5+3bbHRw31rZ5iFf+KdrgiivY1heV973Eu1a/02hD1p0egRG8snj6X8Bk
-         fidA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MpgdEY+xkJdsoRX59VzkePVcPoFPaD3OZG7TYDRW4KU=;
-        b=tVAZUfUDwYuc8zI+cBXymOMZjpnGoniEKuCrwyXoIYqFHUi45FMdw6DDzeVky3sqEo
-         BXFwatxeV/rdjD8KuTikMW/YVmGwB1gZhCKrECxvKQVTQs7wtYwbP3Ei4V5zFNymi4Ws
-         q7VlZ4mE6n8MNhFA719881fUTpRmC2abqigZGeZBkayx29P7rySVL/laE5bWC6AWB9iS
-         n5BGmLPe5eOL9iWYD1nB3q8Qa80sYOKTfbcm0tgrbpaexFu/g2QMePiJKSFu5bvrsFkQ
-         7stzBf1Rf46u4c2ta/UFOkEaSTUaGdj2P9SibJlTbTl6e2wFcs7hdxyfIp83GRh27e+T
-         N0FA==
-X-Gm-Message-State: AOAM530ImUdOSx3ndk8c8LgS9JJ29Saj63vEwYZ81P4hsNIAEaiKKGeJ
-        79VbcHA4DJ8hn1Mru0ivlO8MN4kmhojLvTkMvxr13w==
-X-Google-Smtp-Source: ABdhPJwlLd0mNZbGEtX9E/pIytMCFYrh0qNifxpn5diBNusJ17Ap1GHoboVpaKamYOneEv6/1WANMx+miaF3e88roFk=
-X-Received: by 2002:a17:906:a896:: with SMTP id ha22mr20045311ejb.503.1614680124240;
- Tue, 02 Mar 2021 02:15:24 -0800 (PST)
+        id S236663AbhCCALX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:11:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35160 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1380020AbhCBK0M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 05:26:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A196146D;
+        Tue,  2 Mar 2021 10:25:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614680731;
+        bh=cR6X9Cd0vMnwZ4g6Jmo3xLT7af9FGbl6INHhlNwt6dk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XkvLV407+ViojfzJLEntMc9A3UZEEcPyH4RqWluwsWYBas28hmSrMPWa8k4wvCY5u
+         iTQTR/f4BaxrK7kKQ47G49zw2a0kOWuAuPcUXnyA/NvOYrvnc/nfFRoczza4jJLxDD
+         fR6Ta5NthN9hqgLD4/5d5ou6SZzjPgE3GYdgc7KsiIMKpmlVRz2rf0o0XMNOD/+o5n
+         XdGs+ZQrT8CwYX8lsDyXGjlkfMDgCwcGRkW1z2hlt19mBo5BrM2vP5JurM4AJhcITB
+         i6iXisiqXb/rstGrTG1acf1Kz30pZsBexLiPBJ9ZpH5KDaHppYG62UHRTrXcl35Xk4
+         I8JbFHQd/jcCQ==
+Date:   Tue, 2 Mar 2021 15:55:27 +0530
+From:   Vinod Koul <vkoul@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, Linux Phy <linux-phy@lists.infradead.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>
+Subject: Re: Commits for 5.11 stable
+Message-ID: <YD4SlyXIVFZQYip5@vkoul-mobl>
+References: <YD4LfQEXWawk2b4C@vkoul-mobl>
+ <YD4NINW6u28SxedJ@kroah.com>
 MIME-Version: 1.0
-References: <20210301193642.707301430@linuxfoundation.org> <CA+G9fYuK0k0FsnSk4egKOO=B0pV80bjp+f5E-0xPOfbPugQPxg@mail.gmail.com>
- <CA+G9fYsivUPRRQgMXpnA_XdXH8i2wx_DPH70t+6OzHkjOaswrg@mail.gmail.com> <YD4L57LQb8Nh/A85@kroah.com>
-In-Reply-To: <YD4L57LQb8Nh/A85@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 2 Mar 2021 15:45:13 +0530
-Message-ID: <CA+G9fYsuLBo86PVUGVx=w6w8t9UCmNw+Co53_g_suE_my9Mmug@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/661] 5.10.20-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LTP List <ltp@lists.linux.it>, Arnd Bergmann <arnd@arndb.de>,
-        Jiri Slaby <jirislaby@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="k4PKXNVeIlpj/zIy"
+Content-Disposition: inline
+In-Reply-To: <YD4NINW6u28SxedJ@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2 Mar 2021 at 15:26, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Mar 02, 2021 at 03:20:32PM +0530, Naresh Kamboju wrote:
-> > Hi Greg and Linus,
-> >
-> > On Tue, 2 Mar 2021 at 12:45, Naresh Kamboju <naresh.kamboju@linaro.org>=
- wrote:
-> > >
-> > > On Tue, 2 Mar 2021 at 01:21, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.10.20 releas=
-e.
-> > > > There are 661 patches in this series, all will be posted as a respo=
-nse
-> > > > to this one.  If anyone has any issues with these being applied, pl=
-ease
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Wed, 03 Mar 2021 19:34:53 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/=
-patch-5.10.20-rc2.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-=
-stable-rc.git linux-5.10.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > >
-> > > Results from Linaro=E2=80=99s test farm.
-> > > Regressions detected on all devices (arm64, arm, x86_64 and i386).
-> > >
-> > > hangup01    1  TFAIL  :  hangup01.c:133: unexpected message 3
-> > >
-> > > This failure is specific to stable-rc 5.10 and 5.11.
-> > > Test PASS on mainline and Linux next kernel.
-> > >
-> >
-> > I have reverted these two patches and the test case got PASS
-> > on Linux version 5.10.20-rc2.
-> >
-> > hangup01 1 TPASS : child process exited with status 0
-> >
-> >    Linus Torvalds <torvalds@linux-foundation.org>
-> >        tty: implement read_iter
-> >
-> >    Linus Torvalds <torvalds@linux-foundation.org>
-> >        tty: convert tty_ldisc_ops 'read()' function to take a kernel po=
-inter
->
-> Odd.
->
-> Is 5.12-rc1 also failing with this test as well?
 
-No.
-Test PASS on v5.12-rc1.
+--k4PKXNVeIlpj/zIy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- Naresh
+
+HI Greg,
+
+On 02-03-21, 11:02, Greg KH wrote:
+> On Tue, Mar 02, 2021 at 03:25:09PM +0530, Vinod Koul wrote:
+> > Hi Greg,
+> >=20
+> > Please include these commits for 5.11 stable series
+> >=20
+> > 9a8b9434c60f phy: mediatek: Add missing MODULE_DEVICE_TABLE()
+> > 25e3ee590f62 phy: phy-brcm-sata: remove unneeded semicolon
+> > 6b46e60a6943 phy: USB_LGM_PHY should depend on X86
+> > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
+> > c188365402f6 phy: rockchip: emmc, add vendor prefix to dts properties
+> > 88d9f40c4b71 devicetree: phy: rockchip-emmc optional add vendor prefix
+> > aaf316de3bba phy: cpcap-usb: remove unneeded conversion to bool
+> > 39961bd6b70e phy: rockchip-emmc: emmc_phy_init() always return 0
+>=20
+> Why take these?
+>=20
+> What problems do they solve?
+
+Sorry I should have provided the context. I had sent these as fixes for
+5.11 but that was bit late so we merged it for 5.12 [1]
+
+> How does 25e3ee590f62 meet the stable tree rules?
+>=20
+> > Please note that below commit is applicable for 5.7+
+> > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
+>=20
+> So for 5.10 also?
+
+yes, the patch has been tagged stable 5.7+
+
+Thanks
+
+[1]: https://lore.kernel.org/lkml/20210210091249.GC2774@vkoul-mobl.Dlink/
+
+--=20
+~Vinod
+
+--k4PKXNVeIlpj/zIy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE+vs47OPLdNbVcHzyfBQHDyUjg0cFAmA+EpcACgkQfBQHDyUj
+g0ciPA/9GpPqLhQY/ogvYp+A9aDSLvc5NwLvbHsx8+y8Hv4OHjbdB0TRLQVeusuN
+N+nr0qxQyl4eEFR9mlUW5MAvF4yMA7Y8dBR4e/b1728BPzaCWP93myye9EJBOg5f
+U3B9K+ifp3ZO1yrz9CXAX/Tl7ML7a0xzVq1nyfN5EV9DO7b0znwJr13G4rK60G5P
+OLJfxvU6xys0PBSNaVTr9lSrAcQ52nIzYmq2rswEgvQtL9MrqQ4ixDzYp7N9UFTp
+/UgpPZh5o9LJBeJCeFCjkZaPhwJHsTfmjGsKu1BAhn8Vpel4ELD6UD5F7UJe2Hfb
+wp9g8u4V+jyNRfttqk0zS7kcv2Kk6hCHBPcYUhCRAvpKNdi8glpLPGwFAdPUx/BI
+v9pBdxiVE4hPO02dvROUqWhuLYrDG7/SGpP0aoJ18X68wO+jfM1I0kyzz21qVIkY
+4aAgicoF7fDLas0wJFPRPOW59CHFljj9UWhFNK4n87A8iddVs73nhHkoq5zF5lyp
+XgDLaESpRJ5fU1s8wixVov1Id8dtFAFiYXbDFKf8wfDktwOk9ndvWzUTPkDNnYq5
+MDvLNhEQTSXvYQT3CR6iiL71NKUgcnEEbkYb/U42QW5DvTbS+0ZiiOjvBT5s205t
+BUxSMK0vNb213AZg5kQJ37dpJBcDQWImJlJywuP2Kv7+JF1t4jE=
+=e4B/
+-----END PGP SIGNATURE-----
+
+--k4PKXNVeIlpj/zIy--
