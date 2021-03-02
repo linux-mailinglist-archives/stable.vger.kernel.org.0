@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED49332AFD8
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A335832AFCC
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:30:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239256AbhCCA3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:29:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50610 "EHLO mail.kernel.org"
+        id S239109AbhCCA2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:28:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1444802AbhCBMgZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:36:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07FD764F3E;
-        Tue,  2 Mar 2021 11:56:25 +0000 (UTC)
+        id S1383880AbhCBMcs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:32:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8027764F25;
+        Tue,  2 Mar 2021 11:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686186;
-        bh=ab5hniXl98VxlN0bmfQq67BF1biy4T23u0IOq90Wync=;
+        s=k20201202; t=1614686189;
+        bh=Lf4E2EbPxFAb0cIRYV4xQxcbHaujRyn/8kT+zabVpNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arUhwyV+0TP+8O9VzQNPkHnzq9cpRy1KLhXbs54gCctgkx6mLhADmT0ZOYL3qVdcn
-         c4cxFhc543j5SikmydAVJi24LysOFA2IaHgRzNNqrQjk0VsXpwPJsHLb0eR83iNMa3
-         ng2h0ViLjmdZO9GbeQPQ7art/6uoZlyMl6nzn6EsLEB01hNM2VrkxM1G6xLuv4Ztcq
-         Gz6DcCvsAVyc8hCylaKWoiHgxn3UVJWuIC6gU2EqzKduAvS5AyT6JC4Hgw0y0Nw/It
-         qi8mUDwknWXSqXxtGwsaUfVSNxysUO1dQinwQG7TvzHzGmpPqH6idUjwsmMrNS4dYG
-         o9+yaFAF1A0ng==
+        b=jydTaEaIb9fF3TqAXdCcOI5Qongd3Ine8UzF2aQxKuLD3poJtxukZCDKPVvIv8Dyv
+         1tl+QoMSP1H0vTGm9AZV9GIC3JOMEoQXC3jLqofPH4Pvx+wg9PyGYZ+t4evVRhTdka
+         nawsMRPpFUXB5LKWlt8P9vtzlpU3Ob2mRR4OHtPir86vUIqzlFpW7zi5AgRADKbIVq
+         s2qb/Nc2B7IpXtcbPcCMicAJWt+apRoN/boYqNRU4etY5uXgDHhmXuyDicno9I1ozQ
+         IFwU81dYj1zYRbYQHv2ImtUjMDnIPcP107KUi0mdQD8wKMlW7DbmQrxqsq/yFrTxQW
+         FFZTWd8NWS1ow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 40/52] kbuild: clamp SUBLEVEL to 255
-Date:   Tue,  2 Mar 2021 06:55:21 -0500
-Message-Id: <20210302115534.61800-40-sashal@kernel.org>
+Cc:     Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 42/52] i40e: Fix memory leak in i40e_probe
+Date:   Tue,  2 Mar 2021 06:55:23 -0500
+Message-Id: <20210302115534.61800-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -42,50 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9b82f13e7ef316cdc0a8858f1349f4defce3f9e0 ]
+From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
 
-Right now if SUBLEVEL becomes larger than 255 it will overflow into the
-territory of PATCHLEVEL, causing havoc in userspace that tests for
-specific kernel version.
+[ Upstream commit 58cab46c622d6324e47bd1c533693c94498e4172 ]
 
-While userspace code tests for MAJOR and PATCHLEVEL, it doesn't test
-SUBLEVEL at any point as ABI changes don't happen in the context of
-stable tree.
+Struct i40e_veb is allocated in function i40e_setup_pf_switch, and
+stored to an array field veb inside struct i40e_pf. However when
+i40e_setup_misc_vector fails, this memory leaks.
 
-Thus, to avoid overflows, simply clamp SUBLEVEL to it's maximum value in
-the context of LINUX_VERSION_CODE. This does not affect "make
-kernelversion" and such.
+Fix this by calling exit and teardown functions.
 
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 0b9ae470a714..bcd11b3d4ced 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1246,9 +1246,15 @@ define filechk_utsrelease.h
- endef
- 
- define filechk_version.h
--	echo \#define LINUX_VERSION_CODE $(shell                         \
--	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
--	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'
-+	if [ $(SUBLEVEL) -gt 255 ]; then                                 \
-+		echo \#define LINUX_VERSION_CODE $(shell                 \
-+		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
-+	else                                                             \
-+		echo \#define LINUX_VERSION_CODE $(shell                 \
-+		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
-+	fi;                                                              \
-+	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) +  \
-+	((c) > 255 ? 255 : (c)))'
- endef
- 
- $(version_h): FORCE
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 1db482d310c2..84916261f5df 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -15122,6 +15122,8 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		if (err) {
+ 			dev_info(&pdev->dev,
+ 				 "setup of misc vector failed: %d\n", err);
++			i40e_cloud_filter_exit(pf);
++			i40e_fdir_teardown(pf);
+ 			goto err_vsis;
+ 		}
+ 	}
 -- 
 2.30.1
 
