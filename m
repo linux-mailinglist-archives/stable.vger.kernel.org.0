@@ -2,73 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC7332B009
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:41:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8413D32AFE8
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:33:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbhCCAak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:30:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57134 "EHLO mail.kernel.org"
+        id S239665AbhCCA3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:29:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1447305AbhCBMwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:52:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B438364F4A;
-        Tue,  2 Mar 2021 12:31:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614688270;
-        bh=rb3v2nMgGs2xPplr07HjdRy6BIIszuVVm4wukty3EX8=;
+        id S1444876AbhCBMle (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:41:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D5C964F3C;
+        Tue,  2 Mar 2021 12:34:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614688487;
+        bh=vlKIJY5iGYuDx0D/+TOPIhzkP8FYk7iynomdRFUC8Gw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g7QXbj6ZH9QNLxYsILb9CCKr9KJ3u9Ibfukv9MKXyzTRrksjdvXGUuU3unhannu1y
-         yhePP2kdcxEH0jbjv6ngLwMIYG8kgjVIvZCSy3tdOJF4u+1DBHzWeHuYdVaJTys0FE
-         7LTfFh4wXsERWnnVDQ/4X6dARxBpQNuVFSmp/STI=
-Date:   Tue, 2 Mar 2021 13:31:02 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hanjun Guo <guohanjun@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
-        zou_wei@huawei.com, Yanjin <yanjin.yan@huawei.com>
-Subject: Re: [PATCH 5.4 000/340] 5.4.102-rc1 review
-Message-ID: <YD4wBtYjl8N0MaXR@kroah.com>
-References: <20210301161048.294656001@linuxfoundation.org>
- <8271eb39-c44d-37ed-7501-e9d05d7fee17@huawei.com>
+        b=gFpUN6D0ZqW7VHJRs0LylNTpImF5qCmAe0mJhKf8o4jyJFh/9QMzIzZktD8WQNyrh
+         ZJvwvGvh7lR5SPSo4GMqyRp4igI3xjqBClNSkPDVtJwAdB/PkQGJylwfxvffB+xiom
+         e3W/TvjEivIKL+ZNCMh5EjnLduBKPbEY0cPLDDLyGQrXBFWq4hoO7zMSxGkguBpmUh
+         vpEl7WXTjgJ953inRyenEyfdZXQSMkIExxNMaak9OMZWlBpusZKI9Sn2ETD8V9icuh
+         8lYcfDz5zJRfGc/P3/lBW5bLFog54gLVVqAZfbwyW4KwhQCDMEzdUzTUgwI35cLTRL
+         UfZXACjyQ5Ylg==
+Date:   Tue, 2 Mar 2021 13:34:44 +0100
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Stable <stable@vger.kernel.org>,
+        Joel Fernandes <joel@joelfernandes.org>
+Subject: Re: [PATCH 01/13] rcu/nocb: Fix potential missed nocb_timer rearm
+Message-ID: <20210302123444.GA97498@lothringen>
+References: <20210223001011.127063-1-frederic@kernel.org>
+ <20210223001011.127063-2-frederic@kernel.org>
+ <20210224183709.GI2743@paulmck-ThinkPad-P72>
+ <20210224220606.GA3179@lothringen>
+ <20210302014829.GK2696@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8271eb39-c44d-37ed-7501-e9d05d7fee17@huawei.com>
+In-Reply-To: <20210302014829.GK2696@paulmck-ThinkPad-P72>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 02:42:15PM +0800, Hanjun Guo wrote:
-> Hi Greg,
+On Mon, Mar 01, 2021 at 05:48:29PM -0800, Paul E. McKenney wrote:
+> On Wed, Feb 24, 2021 at 11:06:06PM +0100, Frederic Weisbecker wrote:
+> > On Wed, Feb 24, 2021 at 10:37:09AM -0800, Paul E. McKenney wrote:
+> > > On Tue, Feb 23, 2021 at 01:09:59AM +0100, Frederic Weisbecker wrote:
+> > > > Two situations can cause a missed nocb timer rearm:
+> > > > 
+> > > > 1) rdp(CPU A) queues its nocb timer. The grace period elapses before
+> > > >    the timer get a chance to fire. The nocb_gp kthread is awaken by
+> > > >    rdp(CPU B). The nocb_cb kthread for rdp(CPU A) is awaken and
+> > > >    process the callbacks, again before the nocb_timer for CPU A get a
+> > > >    chance to fire. rdp(CPU A) queues a callback and wakes up nocb_gp
+> > > >    kthread, cancelling the pending nocb_timer without resetting the
+> > > >    corresponding nocb_defer_wakeup.
+> > > 
+> > > As discussed offlist, expanding the above scenario results in this
+> > > sequence of steps:
 > 
-> On 2021/3/2 0:09, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.4.102 release.
-> > There are 340 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+> I renumbered the CPUs, since the ->nocb_gp_kthread would normally be
+> associated with CPU 0.  If the first CPU to enqueue a callback was also
+> CPU 0, nocb_gp_wait() might clear that CPU's ->nocb_defer_wakeup, which
+> would prevent this scenario from playing out.  (But admittedly only if
+> some other CPU handled by this same ->nocb_gp_kthread used its bypass.)
+
+Ok good point.
+
+> 
+> > > 1.	There are no callbacks queued for any CPU covered by CPU 0-2's
+> > > 	->nocb_gp_kthread.
+> 
+> And ->nocb_gp_kthread is associated with CPU 0.
+> 
+> > > 2.	CPU 1 enqueues its first callback with interrupts disabled, and
+> > > 	thus must defer awakening its ->nocb_gp_kthread.  It therefore
+> > > 	queues its rcu_data structure's ->nocb_timer.
+> 
+> At this point, CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
+
+Right.
+
+> > > 7.	The grace period ends, so rcu_gp_kthread awakens the
+> > > 	->nocb_gp_kthread, which in turn awakens both CPU 1's and
+> > > 	CPU 2's ->nocb_cb_kthread.
+> 
+> And then ->nocb_cb_kthread sleeps waiting for more callbacks.
+
+Yep
+
+> > I managed to recollect some pieces of my brain. So keep the above but
+> > let's change the point 10:
 > > 
-> > Responses should be made by Wed, 03 Mar 2021 16:09:49 +0000.
-> > Anything received after that time might be too late.
+> > 10.	CPU 1 enqueues its second callback, this time with interrupts
+> >  	enabled so it can wake directly	->nocb_gp_kthread.
+> > 	It does so with calling __wake_nocb_gp() which also cancels the
 > 
-> Our test CI monitored the 5.4.102-rc2, and compile failure:
+> wake_nocb_gp() in current -rcu, correct?
+
+Heh, right.
+
+> > > So far so good, but why isn't the timer still queued from back in step 2?
+> > > What am I missing here?  Either way, could you please update the commit
+> > > logs to tell the full story?  At some later time, you might be very
+> > > happy that you did.  ;-)
+> > > 
+> > > > 2) The "nocb_bypass_timer" ends up calling wake_nocb_gp() which deletes
+> > > >    the pending "nocb_timer" (note they are not the same timers) for the
+> > > >    given rdp without resetting the matching state stored in nocb_defer
+> > > >    wakeup.
 > 
-> kernel/rcu/tree.c:617:2: error: implicit declaration of function
-> ‘IRQ_WORK_INIT’; did you mean ‘IRQ_WORK_BUSY’?
-> [-Werror=implicit-function-declaration]
->   IRQ_WORK_INIT(late_wakeup_func);
->   ^~~~~~~~~~~~~
->   IRQ_WORK_BUSY
-> kernel/rcu/tree.c:617:2: error: invalid initializer
-> 
-> Should be commit e1e41aa31ed1 (rcu/nocb: Trigger self-IPI on late
-> deferred wake up before user resume) fails the build.
+> Would like to similarly expand this one, or would you prefer to rest your
+> case on Case 1) above?
 
-Ah, thank you, I'll go fix that up.  Looks like 5.10.y also fails with
-that issue...
+I was about to say that we can skip that one, the changelog will already be
+big enough but the "Fixes:" tag refers to the second scenario, since it's the
+oldest vulnerable commit AFAICS.
 
-thanks,
+> > > > Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
 
-greg k-h
+Thanks.
