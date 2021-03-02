@@ -2,75 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C68E32AEDB
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:11:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 569E932AEDD
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236093AbhCCAGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:06:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38180 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1381518AbhCBIBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 03:01:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80E4361477;
-        Tue,  2 Mar 2021 08:00:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614672038;
-        bh=2MKbjDbFlD8ZDCokwNa6L9NbWF3Mgk7IBiot+AdPD5Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OUwPtiSpX6oOcWj9FvrlQ4Wb5XfpmjSU0/WHf2kGWmB/eYiuU+ltGLWGMfTdssO6w
-         GdlPrr9bLHpRIq/g7G2ixcTuBOBWdVYSgs7fxw9n0k+Al5RnVVmodUNa+DriBktHcP
-         ENh1Y7AP4GTXt+uX9M4hZ2T3hRyf8pfwKPFm9Mlc=
-Date:   Tue, 2 Mar 2021 09:00:35 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sahaj Sarup <sahaj.sarup@linaro.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Subject: Re: sparc: icmpv6.h:70:2: error: implicit declaration of function
- '__icmpv6_send'; did you mean 'icmpv6_send'?
- [-Werror=implicit-function-declaration]
-Message-ID: <YD3wo+etw0HQaAK2@kroah.com>
-References: <CA+G9fYvxM8ECmog5rGSesSUmw3NsmXYZfdg957-37B_BDm=R9Q@mail.gmail.com>
+        id S236119AbhCCAGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:06:50 -0500
+Received: from mail-qk1-f177.google.com ([209.85.222.177]:33136 "EHLO
+        mail-qk1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376833AbhCBINV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 03:13:21 -0500
+Received: by mail-qk1-f177.google.com with SMTP id l4so4621477qkl.0
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 00:12:29 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=9+p2yapZHjTorbNIBdyIx0x6qypDFshQK6cKT6IUEH4=;
+        b=DoCTiUYPJ9zS67/Uf+VgWYXYpubUpa5q+k9n7QNTRG83DNxvCldpYVJadauA1oOqiA
+         4qdDBF7o5c8L7JsIpU3ekyLveCBvC9Ohf8Fn8RZmJrXB6KF8eA5KTKFOfccxwaz+oaZe
+         wCv5AnychuRw0o0WIbqH4chq1LP/1PcRpr+5soOEN8pHmJX4JXPHih8fsic9fXyW62Ww
+         ELtuauAWrMklWQBBY4yxkEDRKCm+SYxLbF8aoqZJLPqSV9MBQ0MvHOCDPV4yWh3gc9Sg
+         URFmdfuS1EEk3RDevFF3w3Qp+Xr50yD2rCfRADWdMgSro1CpmMHK+gUEH2+qUWicA3cg
+         x1YA==
+X-Gm-Message-State: AOAM531F3PTIqnFD/oEzYpSdG5onswiUA3IjlJbePzGNXbbRc610lhj1
+        4et+SxJQn0im00M88kKaAKomVDQX/g1wlw9QLT4JY5zG
+X-Google-Smtp-Source: ABdhPJyBMkXKBu0FD9QQmvAKs5oZ/jaOhzdrQ5lK9az/DxBEyj3WcLBJX8jLp8EMQ/NUKhCdPbZ+oUEFPCm/84BRDpw=
+X-Received: by 2002:a37:8506:: with SMTP id h6mr18325058qkd.134.1614672154125;
+ Tue, 02 Mar 2021 00:02:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYvxM8ECmog5rGSesSUmw3NsmXYZfdg957-37B_BDm=R9Q@mail.gmail.com>
+From:   YunQiang Su <syq@debian.org>
+Date:   Tue, 2 Mar 2021 16:02:22 +0800
+Message-ID: <CAKcpw6Xo9ZsDFP40PH1h9zETwD8MFY=aZ7gDCqV4s4Ld9UVViw@mail.gmail.com>
+Subject: backport binfmt_misc: pass binfmt_misc flags to the interpreter
+To:     stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 01, 2021 at 10:42:34PM +0530, Naresh Kamboju wrote:
-> On stable rc 5.11 sparc allnoconfig and tinyconfig failed with gcc-8,
-> gcc-9 and gcc-10.
-> 
-> make --silent --keep-going --jobs=8
-> O=/home/tuxbuild/.cache/tuxmake/builds/1/tmp ARCH=sparc
-> CROSS_COMPILE=sparc64-linux-gnu- 'CC=sccache sparc64-linux-gnu-gcc'
-> 'HOSTCC=sccache gcc'
-> <stdin>:1335:2: warning: #warning syscall rseq not implemented [-Wcpp]
-> In file included from include/net/ndisc.h:50,
->                  from include/net/ipv6.h:21,
->                  from include/linux/sunrpc/clnt.h:28,
->                  from include/linux/nfs_fs.h:32,
->                  from init/do_mounts.c:22:
-> include/linux/icmpv6.h: In function 'icmpv6_ndo_send':
-> include/linux/icmpv6.h:70:2: error: implicit declaration of function
-> '__icmpv6_send'; did you mean 'icmpv6_send'?
-> [-Werror=implicit-function-declaration]
->    70 |  __icmpv6_send(skb_in, type, code, info, &parm);
->       |  ^~~~~~~~~~~~~
->       |  icmpv6_send
-> cc1: some warnings being treated as errors
-> make[2]: *** [scripts/Makefile.build:304: init/do_mounts.o] Error 1
-> 
-> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-> 
-> Ref:
-> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1064179275#L62
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.12-rc1&id=2347961b11d4079deace3c81dceed460c08a8fc1
+This patch can be apply to 5.10 and 5.11 directly.
 
-Ok, I can duplicate this on 4.19.y, but not 5.11.y, let me see how to
-resolve it...
+binfmt_misc: pass binfmt_misc flags to the interpreter
 
-thanks,
+It can be useful to the interpreter to know which flags are in use.
 
-greg k-h
+For instance, knowing if the preserve-argv[0] is in use would allow to
+skip the pathname argument.
+
+This patch uses an unused auxiliary vector, AT_FLAGS, to add a flag to
+inform interpreter if the preserve-argv[0] is enabled.
+
+Note by Helge Deller:
+The real-world user of this patch is qemu-user, which needs to know if
+it has to preserve the argv[0]. See Debian bug #970460.
+
+Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+Reviewed-by: YunQiang Su <ysu@wavecomp.com>
+URL: http://bugs.debian.org/970460
+Signed-off-by: Helge Deller <deller@gmx.de>
