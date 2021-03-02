@@ -2,168 +2,244 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7998C32B228
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6986432B231
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241306AbhCCAwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:52:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51018 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344052AbhCBRkx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 12:40:53 -0500
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4AB7C06121E
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 09:39:33 -0800 (PST)
-Received: by mail-yb1-xb4a.google.com with SMTP id 6so23403336ybq.7
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 09:39:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=sender:date:in-reply-to:message-id:mime-version:references:subject
-         :from:to:cc;
-        bh=IvcU72kyzl+dTsNEe1dtDRtwfa+sANJ7uN/5rgWi+VE=;
-        b=tanWmZ0daUkhnlFd1Wz2mvpSifJBQ77dqOX267qv7NxfpALcFmrdmSeVXidrLCJcIk
-         vLxIIOagBZoCOlbyGDAoD+dwDiB8SOhHjh7qhQkvpTQZ657I8EbmgKQP7aqPQdsy46YQ
-         1AJprK1Nr51MMBdgHTTtThlte/1gHHwV+sz4zTEsj8b8petSG/gF7RE6q3OqsMu+lAwo
-         KMQ2abixt7x8DN6JLiW6HCYXkATqcekTL8sOfX14UGOsou08l/x8l7cFn+pQBFISCKFW
-         XPd+ojktOuW8polM4u8Crnq+KwEyjsgyYANao8G9lkvOzolQjLoIR1AZjLLc7t3EqOzl
-         8KLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=IvcU72kyzl+dTsNEe1dtDRtwfa+sANJ7uN/5rgWi+VE=;
-        b=hiIoCBhaXLal5Ru8gVq1L4+Rw/yMmjZ1P5mc3Y3tbz3MTPd4YhUPbOSol/fi2Ctn6E
-         F5U19dfNxgE5ctCyzhrcnVMCZXLV8UIrizx4Lsvj0p5oI3V5SWZtwecXi+NZoVveHEgf
-         avzuaSZJxil1LbNHftsictf/lvZGDoV8gX62rRItg8/D2dUAe30IZcWBtVeNIn4IMXcK
-         HxrPaL08uRoCnuXj6QG5zcp5+Ib6WBrYk660m7VQDM0fYPKoN7mGcePsryBcmN3YlKoD
-         4mhYZWRla1cnqqDYeJQ2Y0/GmYkzkPNA3xp1MZR/5j1t9iwShQ+o01hdmiVVnRF7EAiu
-         FHqw==
-X-Gm-Message-State: AOAM533I+aUI9+BD2QMOr72s4TUWkROa5R5sDPbCWknZeUJlG4C3RJS0
-        CEJg5RJBc2exMoENDm8M7dpic+fGBF+mJujAIm4JUf0c85vaWGcPqX+yETmdbRXoZQdQbHZd2og
-        HKQZLKXPq2Dx6Xnl9OCJeD4GlabocXENZmhIgeWts350xaHDVSHNsy540cAHCujkg
-X-Google-Smtp-Source: ABdhPJzwr2ny8gEk95WMzLEYwQflj/RX4f9B06UXOqJ/UGy0UpLBMfD+8vwi6SEhfBWbS6lTCk1pJqdbKMc0
-Sender: "marcorr via sendgmr" <marcorr@marcorr-sp.c.googlers.com>
-X-Received: from marcorr-sp.c.googlers.com ([fda3:e722:ac3:10:7f:e700:c0a8:e50])
- (user=marcorr job=sendgmr) by 2002:a25:2389:: with SMTP id
- j131mr33642338ybj.67.1614706773044; Tue, 02 Mar 2021 09:39:33 -0800 (PST)
-Date:   Tue,  2 Mar 2021 17:39:11 +0000
-In-Reply-To: <20210302173911.12044-1-marcorr@google.com>
-Message-Id: <20210302173911.12044-2-marcorr@google.com>
-Mime-Version: 1.0
-References: <20210302173911.12044-1-marcorr@google.com>
-X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
-Subject: [PATCH 5.4 2/2] nvme-pci: fix error unwind in nvme_map_data
-From:   Marc Orr <marcorr@google.com>
-To:     stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Marc Orr <marcorr@google.com>,
-        Keith Busch <kbusch@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S241352AbhCCAww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:52:52 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45616 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1347523AbhCBRt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 12:49:28 -0500
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 122HZ5wD045499;
+        Tue, 2 Mar 2021 12:44:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=51f9USJRNe5/Dw4IR9bEzcSsqDV7pi67ofwYMedkrQ8=;
+ b=XTGIczHjPvjy/RijlW2Evd1tftNxRp/MX9ZnnSC+SAitktZ1ItOeBTvV9ZPeJEPDhPDc
+ iI6rvl/OBmFaNDYUDncdZhwjGnFIr/MqU2G8MqwF+dU1B8kmVv3UokkRhcaYay707AeH
+ RvcmkdtbnoODTFaXN8kR/CkNBliNJTQGGvcgUendV0GnT3JTWJ10rKKq++z4abv+ZoQE
+ wAizZ21fyOoTXBCkKXxBqiGiUdlEaxiS+xNgJeI81mO+5t4wrYgqeDSApoXjzx5LZTgG
+ VAVdS4jCq00Y//X5A2ieKC9KXsW3q0bpSbTxxyu1s87kELjW6xOsAoYkwKunrRm3ICWa HA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 371qdk6273-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Mar 2021 12:44:51 -0500
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 122HbMjU057353;
+        Tue, 2 Mar 2021 12:44:50 -0500
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 371qdk626g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Mar 2021 12:44:50 -0500
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 122HfSs8005399;
+        Tue, 2 Mar 2021 17:44:48 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06fra.de.ibm.com with ESMTP id 3713s9rhfd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 02 Mar 2021 17:44:47 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 122HiiWr21627388
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 2 Mar 2021 17:44:44 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8296052050;
+        Tue,  2 Mar 2021 17:44:44 +0000 (GMT)
+Received: from ibm-vm.ibmuc.com (unknown [9.145.10.194])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 1BAB952057;
+        Tue,  2 Mar 2021 17:44:44 +0000 (GMT)
+From:   Claudio Imbrenda <imbrenda@linux.ibm.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com,
+        cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org,
+        stable@vger.kernel.org, Janosch Frank <frankja@de.ibm.com>
+Subject: [PATCH v5 2/3] s390/kvm: extend kvm_s390_shadow_fault to return entry pointer
+Date:   Tue,  2 Mar 2021 18:44:42 +0100
+Message-Id: <20210302174443.514363-3-imbrenda@linux.ibm.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210302174443.514363-1-imbrenda@linux.ibm.com>
+References: <20210302174443.514363-1-imbrenda@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-02_08:2021-03-01,2021-03-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ lowpriorityscore=0 malwarescore=0 bulkscore=0 adultscore=0 mlxlogscore=999
+ impostorscore=0 priorityscore=1501 mlxscore=0 phishscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2103020136
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+Extend kvm_s390_shadow_fault to return the pointer to the valid leaf
+DAT table entry, or to the invalid entry.
 
-commit fa0732168fa1369dd089e5b06d6158a68229f7b7 upstream.
+Also return some flags in the lower bits of the address:
+PEI_DAT_PROT: indicates that DAT protection applies because of the
+              protection bit in the segment (or, if EDAT, region) tables.
+PEI_NOT_PTE: indicates that the address of the DAT table entry returned
+             does not refer to a PTE, but to a segment or region table.
 
-Properly unwind step by step using refactored helpers from nvme_unmap_data
-to avoid a potential double dma_unmap on a mapping failure.
-
-Fixes: 7fe07d14f71f ("nvme-pci: merge nvme_free_iod into nvme_unmap_data")
-Reported-by: Marc Orr <marcorr@google.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Signed-off-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Janosch Frank <frankja@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/nvme/host/pci.c | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ arch/s390/kvm/gaccess.c | 30 +++++++++++++++++++++++++-----
+ arch/s390/kvm/gaccess.h |  6 +++++-
+ arch/s390/kvm/vsie.c    |  8 ++++----
+ 3 files changed, 34 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 90dc86132007..abc342db3b33 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -669,7 +669,7 @@ static blk_status_t nvme_pci_setup_prps(struct nvme_dev *dev,
- 			__le64 *old_prp_list = prp_list;
- 			prp_list = dma_pool_alloc(pool, GFP_ATOMIC, &prp_dma);
- 			if (!prp_list)
--				return BLK_STS_RESOURCE;
-+				goto free_prps;
- 			list[iod->npages++] = prp_list;
- 			prp_list[0] = old_prp_list[i - 1];
- 			old_prp_list[i - 1] = cpu_to_le64(prp_dma);
-@@ -689,14 +689,14 @@ static blk_status_t nvme_pci_setup_prps(struct nvme_dev *dev,
- 		dma_addr = sg_dma_address(sg);
- 		dma_len = sg_dma_len(sg);
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 6d6b57059493..33a03e518640 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -976,7 +976,9 @@ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra)
+  * kvm_s390_shadow_tables - walk the guest page table and create shadow tables
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
+- * @pgt: pointer to the page table address result
++ * @pgt: pointer to the beginning of the page table for the given address if
++ *       successful (return value 0), or to the first invalid DAT entry in
++ *       case of exceptions (return value > 0)
+  * @fake: pgt references contiguous guest memory block, not a pgtable
+  */
+ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+@@ -1034,6 +1036,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rfte.val = ptr;
+ 			goto shadow_r2t;
+ 		}
++		*pgt = ptr + vaddr.rfx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rfx * 8, &rfte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1060,6 +1063,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rste.val = ptr;
+ 			goto shadow_r3t;
+ 		}
++		*pgt = ptr + vaddr.rsx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rsx * 8, &rste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1087,6 +1091,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			rtte.val = ptr;
+ 			goto shadow_sgt;
+ 		}
++		*pgt = ptr + vaddr.rtx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.rtx * 8, &rtte.val);
+ 		if (rc)
+ 			return rc;
+@@ -1123,6 +1128,7 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 			ste.val = ptr;
+ 			goto shadow_pgt;
+ 		}
++		*pgt = ptr + vaddr.sx * 8;
+ 		rc = gmap_read_table(parent, ptr + vaddr.sx * 8, &ste.val);
+ 		if (rc)
+ 			return rc;
+@@ -1157,6 +1163,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  * @vcpu: virtual cpu
+  * @sg: pointer to the shadow guest address space structure
+  * @saddr: faulting address in the shadow gmap
++ * @datptr: will contain the address of the faulting DAT table entry, or of
++ *          the valid leaf, plus some flags
+  *
+  * Returns: - 0 if the shadow fault was successfully resolved
+  *	    - > 0 (pgm exception code) on exceptions while faulting
+@@ -1165,11 +1173,11 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+  *	    - -ENOMEM if out of memory
+  */
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+-			  unsigned long saddr)
++			  unsigned long saddr, unsigned long *datptr)
+ {
+ 	union vaddress vaddr;
+ 	union page_table_entry pte;
+-	unsigned long pgt;
++	unsigned long pgt = 0;
+ 	int dat_protection, fake;
+ 	int rc;
+ 
+@@ -1191,8 +1199,20 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
+ 		pte.val = pgt + vaddr.px * PAGE_SIZE;
+ 		goto shadow_page;
  	}
--
- done:
- 	cmnd->dptr.prp1 = cpu_to_le64(sg_dma_address(iod->sg));
- 	cmnd->dptr.prp2 = cpu_to_le64(iod->first_dma);
--
- 	return BLK_STS_OK;
--
-- bad_sgl:
-+free_prps:
-+	nvme_free_prps(dev, req);
-+	return BLK_STS_RESOURCE;
-+bad_sgl:
- 	WARN(DO_ONCE(nvme_print_sgl, iod->sg, iod->nents),
- 			"Invalid SGL for payload:%d nents:%d\n",
- 			blk_rq_payload_bytes(req), iod->nents);
-@@ -768,7 +768,7 @@ static blk_status_t nvme_pci_setup_sgls(struct nvme_dev *dev,
- 
- 			sg_list = dma_pool_alloc(pool, GFP_ATOMIC, &sgl_dma);
- 			if (!sg_list)
--				return BLK_STS_RESOURCE;
-+				goto free_sgls;
- 
- 			i = 0;
- 			nvme_pci_iod_list(req)[iod->npages++] = sg_list;
-@@ -781,6 +781,9 @@ static blk_status_t nvme_pci_setup_sgls(struct nvme_dev *dev,
- 	} while (--entries > 0);
- 
- 	return BLK_STS_OK;
-+free_sgls:
-+	nvme_free_sgls(dev, req);
-+	return BLK_STS_RESOURCE;
- }
- 
- static blk_status_t nvme_setup_prp_simple(struct nvme_dev *dev,
-@@ -849,7 +852,7 @@ static blk_status_t nvme_map_data(struct nvme_dev *dev, struct request *req,
- 	sg_init_table(iod->sg, blk_rq_nr_phys_segments(req));
- 	iod->nents = blk_rq_map_sg(req->q, req, iod->sg);
- 	if (!iod->nents)
--		goto out;
-+		goto out_free_sg;
- 
- 	if (is_pci_p2pdma_page(sg_page(iod->sg)))
- 		nr_mapped = pci_p2pdma_map_sg_attrs(dev->dev, iod->sg,
-@@ -858,16 +861,21 @@ static blk_status_t nvme_map_data(struct nvme_dev *dev, struct request *req,
- 		nr_mapped = dma_map_sg_attrs(dev->dev, iod->sg, iod->nents,
- 					     rq_dma_dir(req), DMA_ATTR_NO_WARN);
- 	if (!nr_mapped)
--		goto out;
-+		goto out_free_sg;
- 
- 	iod->use_sgl = nvme_pci_use_sgls(dev, req);
- 	if (iod->use_sgl)
- 		ret = nvme_pci_setup_sgls(dev, req, &cmnd->rw, nr_mapped);
- 	else
- 		ret = nvme_pci_setup_prps(dev, req, &cmnd->rw);
--out:
- 	if (ret != BLK_STS_OK)
--		nvme_unmap_data(dev, req);
-+		goto out_unmap_sg;
-+	return BLK_STS_OK;
+-	if (!rc)
+-		rc = gmap_read_table(sg->parent, pgt + vaddr.px * 8, &pte.val);
 +
-+out_unmap_sg:
-+	nvme_unmap_sg(dev, req);
-+out_free_sg:
-+	mempool_free(iod->sg, dev->iod_mempool);
- 	return ret;
++	switch (rc) {
++	case PGM_SEGMENT_TRANSLATION:
++	case PGM_REGION_THIRD_TRANS:
++	case PGM_REGION_SECOND_TRANS:
++	case PGM_REGION_FIRST_TRANS:
++		pgt |= PEI_NOT_PTE;
++		break;
++	case 0:
++		pgt += vaddr.px * 8;
++		rc = gmap_read_table(sg->parent, pgt, &pte.val);
++	}
++	if (*datptr)
++		*datptr = pgt | dat_protection * PEI_DAT_PROT;
+ 	if (!rc && pte.i)
+ 		rc = PGM_PAGE_TRANSLATION;
+ 	if (!rc && pte.z)
+diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
+index 107fdfd2eadd..df4014f09e26 100644
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -378,7 +378,11 @@ void ipte_unlock(struct kvm_vcpu *vcpu);
+ int ipte_lock_held(struct kvm_vcpu *vcpu);
+ int kvm_s390_check_low_addr_prot_real(struct kvm_vcpu *vcpu, unsigned long gra);
+ 
++/* MVPG PEI indication bits */
++#define PEI_DAT_PROT 2
++#define PEI_NOT_PTE 4
++
+ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *shadow,
+-			  unsigned long saddr);
++			  unsigned long saddr, unsigned long *datptr);
+ 
+ #endif /* __KVM_S390_GACCESS_H */
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index bd803e091918..78b604326016 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -620,10 +620,10 @@ static int map_prefix(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 	/* with mso/msl, the prefix lies at offset *mso* */
+ 	prefix += scb_s->mso;
+ 
+-	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix);
++	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap, prefix, NULL);
+ 	if (!rc && (scb_s->ecb & ECB_TE))
+ 		rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-					   prefix + PAGE_SIZE);
++					   prefix + PAGE_SIZE, NULL);
+ 	/*
+ 	 * We don't have to mprotect, we will be called for all unshadows.
+ 	 * SIE will detect if protection applies and trigger a validity.
+@@ -914,7 +914,7 @@ static int handle_fault(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 				    current->thread.gmap_addr, 1);
+ 
+ 	rc = kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				   current->thread.gmap_addr);
++				   current->thread.gmap_addr, NULL);
+ 	if (rc > 0) {
+ 		rc = inject_fault(vcpu, rc,
+ 				  current->thread.gmap_addr,
+@@ -936,7 +936,7 @@ static void handle_last_fault(struct kvm_vcpu *vcpu,
+ {
+ 	if (vsie_page->fault_addr)
+ 		kvm_s390_shadow_fault(vcpu, vsie_page->gmap,
+-				      vsie_page->fault_addr);
++				      vsie_page->fault_addr, NULL);
+ 	vsie_page->fault_addr = 0;
  }
  
 -- 
-2.30.1.766.gb4fecdf3b7-goog
+2.26.2
 
