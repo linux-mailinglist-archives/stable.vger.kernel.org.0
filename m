@@ -2,222 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9199B32AEA2
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 03:58:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D2D32AEA4
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 03:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234643AbhCBX6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 18:58:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44478 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1380206AbhCBBtM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 1 Mar 2021 20:49:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39A29601FF;
-        Tue,  2 Mar 2021 01:48:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614649710;
-        bh=/XPX7Hhm7eIzJqYzIL1g1QrveY2QUuhKuNxsPI+M/Lg=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=OQtTyVEWhhueoTJWWJukOuLIJ4cilMcNr1Ff6AC3e8s04qSfsyeIkNpvwlnTMUAAR
-         D4M0u8C+yhV8cib+TLADxRy05Rn3AI30xgBYueNMjOOxvyZC9NfDYHJ0x3RSMWcO/g
-         8cJrLvytDdaaNcmXb70lIp1EjHY5CisRcgu74YpUqyc0vZi5+0CgVkKnApM5+8QWpw
-         K5ox6VN0II+nopJ1wTRjcMtWPcbj0Ajd+MBV0YhWmk2HkWzP9ncjdT/Hv7yHi/BtHK
-         ujqPfXzKa24JZB/HJVbjw47DKW5giqUg9WCwKLKP9bV1GTsPqnawUM6E44byDPOq8V
-         kxvyCP7lxK0Dw==
-Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
-        id CE7DD35239CA; Mon,  1 Mar 2021 17:48:29 -0800 (PST)
-Date:   Mon, 1 Mar 2021 17:48:29 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Frederic Weisbecker <frederic@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Stable <stable@vger.kernel.org>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 01/13] rcu/nocb: Fix potential missed nocb_timer rearm
-Message-ID: <20210302014829.GK2696@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20210223001011.127063-1-frederic@kernel.org>
- <20210223001011.127063-2-frederic@kernel.org>
- <20210224183709.GI2743@paulmck-ThinkPad-P72>
- <20210224220606.GA3179@lothringen>
+        id S231301AbhCBX6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 18:58:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47674 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241058AbhCBCFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 21:05:47 -0500
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F7CC061788;
+        Mon,  1 Mar 2021 18:04:50 -0800 (PST)
+Received: by mail-qv1-xf2d.google.com with SMTP id d9so2959847qvo.3;
+        Mon, 01 Mar 2021 18:04:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=bD3uuoTgMfMoLwFrqSoqyX1P/FmDSNKRPvIeTsj/tgc=;
+        b=bvTUu89Qd5+bPUeuND1meoG3DQq0dfCRAg9+tj8/egxx7jHxnAc6Dr9dczUoR8xsS6
+         QpcQPnJzuYuMis+w/jsLfOzZ3ipW1zlsfho4tTFnlPLhNkGST+6H0TQ9upLn3ANB7hLz
+         74SQVUmfcimCG2BUipO2bfI80M/oPBQRdbyZ3uKDTkqqGGO5zvKVc257ldQ3HQmAFcgG
+         keFuQsJZy/JpAmhyWlRBig5XrEZ8wCbPDZ6fIgHQYXTM9sKE4RLm7nDyaGUEeu3ReUwF
+         uxpPS2zv54ddLn3YJ8vFV7faEJznmCs+fjQKhNKeBqBulgdAi+7JaBFHkc3GHJSNbSvc
+         IE3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=bD3uuoTgMfMoLwFrqSoqyX1P/FmDSNKRPvIeTsj/tgc=;
+        b=LpeKPk/XeLvfGWKZ9T/mvzMmq2jo/B18L/GwDRZecqV++SGNoTmAFCdWLYxRId1dK9
+         9fEHi+6ERbao4FsJIo4QcTGVdj2c4egDQzFwssZiyw4q/5/IvvGZsmOPZualidUjGqAq
+         Jx+Ed3ooSxBdWI92kIS7d67R0+2zBFsfsFehxFp7On8xyuLkB6lAujtTtwi8/egVqSse
+         dC5URAjxTxZO5Pxk8UP/BYLy4byD9GOgjWTfi7BC6aIJGfoK+tKESNbM7iw2jmhdE/XG
+         7BMiSjVCY7LKX2gnCk0U3e+L9WSgxN86xZihtnc5aQg/QfJ/5R7Im8m+aDX4Dv+5WNyu
+         igFw==
+X-Gm-Message-State: AOAM531gA9gLzJQZNV2c4XNBXZwfiLLKoThMZ6DIfWmKilS4K0SNHz7E
+        tmkYm440+5k59WASelFL5eLesWJuJCUDxwBte14+pwtSmLc=
+X-Google-Smtp-Source: ABdhPJzwyNfeP7JHoWu4pP7lZM69M9InzadAzcGn67y8vebjJmJjvmPYlRjv5KeRRbjKRP/pKzyildV8m4fGjvgz8Ug=
+X-Received: by 2002:a0c:e2cd:: with SMTP id t13mr1582582qvl.44.1614650689307;
+ Mon, 01 Mar 2021 18:04:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210224220606.GA3179@lothringen>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+References: <20210222034342.13136-1-yunqiang.su@cipunited.com>
+ <CAKcpw6UgEUUCG2=9E9KFpTYF23fWshdcFtmB_O+YT0xEoS3swA@mail.gmail.com>
+ <alpine.DEB.2.21.2102280217220.44210@angie.orcam.me.uk> <000501d70da5$0ffd6a70$2ff83f50$@cipunited.com>
+ <alpine.DEB.2.21.2102281407590.44210@angie.orcam.me.uk>
+In-Reply-To: <alpine.DEB.2.21.2102281407590.44210@angie.orcam.me.uk>
+From:   YunQiang Su <wzssyqa@gmail.com>
+Date:   Tue, 2 Mar 2021 10:04:37 +0800
+Message-ID: <CAKcpw6W30Bxo_rArG1p8O7H+d=vXw=AebQgZa-gpTNQLWT2ZiQ@mail.gmail.com>
+Subject: =?UTF-8?Q?Re=3A_=E5=9B=9E=E5=A4=8D=3A_=5BPATCH_v4=5D_MIPS=3A_introduce_config_option?=
+        =?UTF-8?Q?_to_force_use_FR=3D0_for_FPXX_binary?=
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     YunQiang Su <yunqiang.su@cipunited.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        linux-mips <linux-mips@vger.kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 24, 2021 at 11:06:06PM +0100, Frederic Weisbecker wrote:
-> On Wed, Feb 24, 2021 at 10:37:09AM -0800, Paul E. McKenney wrote:
-> > On Tue, Feb 23, 2021 at 01:09:59AM +0100, Frederic Weisbecker wrote:
-> > > Two situations can cause a missed nocb timer rearm:
-> > > 
-> > > 1) rdp(CPU A) queues its nocb timer. The grace period elapses before
-> > >    the timer get a chance to fire. The nocb_gp kthread is awaken by
-> > >    rdp(CPU B). The nocb_cb kthread for rdp(CPU A) is awaken and
-> > >    process the callbacks, again before the nocb_timer for CPU A get a
-> > >    chance to fire. rdp(CPU A) queues a callback and wakes up nocb_gp
-> > >    kthread, cancelling the pending nocb_timer without resetting the
-> > >    corresponding nocb_defer_wakeup.
-> > 
-> > As discussed offlist, expanding the above scenario results in this
-> > sequence of steps:
+Maciej W. Rozycki <macro@orcam.me.uk> =E4=BA=8E2021=E5=B9=B42=E6=9C=8828=E6=
+=97=A5=E5=91=A8=E6=97=A5 =E4=B8=8B=E5=8D=889:39=E5=86=99=E9=81=93=EF=BC=9A
+>
+> On Sun, 28 Feb 2021, yunqiang.su@cipunited.com wrote:
+>
+> > >  This is also the correct interpretation for objects produced by Gola=
+ng, which I
+> > > have concluded are actually just fine according to the traditional ps=
+ABI
+> > > definition.  It looks to me like the bug is solely in the linker, due=
+ to this weird
+> > > interpretation quoted above and unforeseen consequences for FPXX link=
+s
+> > > invented much later.
+> > >
+> >
+> > Yes. This a bug of linker, and we should fix it.
+> > While for pre-existing binaries, we need a solution to make it workable=
+, especially for the
+> > generic Linux distributions, just like Debian.
+> >
+> > https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D962485
+>
+>  Thanks for the pointer.
+>
+>  After a bit of thinking and having fully understood what the issue
+> actually is I conclude a change like your original one (with no
+> configuration option; we've got too many of them already) will be OK so
+> long as it keeps the current arrangement for R6, which has the FR mode
+> hardwired, because, as you say, for genuine FPXX binaries the actual FR
+> setting does not matter, so the change in the fixed form won't break what
+> hasn't been broken already.
+>
+>  Please keep the history of changes in the comment section rather that th=
+e
+> change description though.  Also I think the change description needs to
+> be more elaborate on the motivation, so that someone who looks at it say
+> 10 years from now can figure out what is going on here.  You can reuse
+> bits of our discussion for that purpose.
+>
+>  Sadly I can see many changes going in where the description hardly says
+> anything, and while the matter may seem obvious right now, it surely won'=
+t
+> be for someone trying to unbreak things years from now while keeping the
+> intent of the original change where it did the right thing.  Especially a=
+s
+> secondary sources of information may not be easily available (anymore) an=
+d
+> the test environment may not be easily reproducible.  Notice how often I
+> need to refer to changes that were made many years ago and were not alway=
+s
+> correct.
+>
+>  NB the real problem are not programs included with the distribution
+> (which as I say can and ought to be fixed up with a script automatically;
+> a distribution needs to have provisions for such workarounds as problems
+> with the toolchain inevitably do happen from time to time), but programs
+> built by users of the distribution who we cannot reasonably expect to be
+> aware of every single quirk out there.
+>
 
-I renumbered the CPUs, since the ->nocb_gp_kthread would normally be
-associated with CPU 0.  If the first CPU to enqueue a callback was also
-CPU 0, nocb_gp_wait() might clear that CPU's ->nocb_defer_wakeup, which
-would prevent this scenario from playing out.  (But admittedly only if
-some other CPU handled by this same ->nocb_gp_kthread used its bypass.)
+The "stable" branch of distribution is in the same situation as the user.
+Normally, we cannot modify the binary in the "stable" branch.
 
-> > 1.	There are no callbacks queued for any CPU covered by CPU 0-2's
-> > 	->nocb_gp_kthread.
+>  Observe however that this does not solve the issue of a link-time or
+> load-time incompatibility between FP32 modules incorrectly marked FPXX an=
+d
+> FP64 or FP64A modules.  These will be let through and depending on usage
+> likely eventually fail.
+>
 
-And ->nocb_gp_kthread is associated with CPU 0.
+Yes, that's a problem. the patch of golang has been merged now.
+https://go-review.googlesource.com/c/go/+/239217
+https://go-review.googlesource.com/c/go/+/237058
+And we will continue to try to fix binutils/llvm etc.
 
-> > 2.	CPU 1 enqueues its first callback with interrupts disabled, and
-> > 	thus must defer awakening its ->nocb_gp_kthread.  It therefore
-> > 	queues its rcu_data structure's ->nocb_timer.
+>  You might be able to come up with a wrapper script in place of whatever
+> the Golang invocation command is to postprocess modules produced in user
+> compilations as well, and have it distributed until the linker issue has
+> been fixed upstream and the changes propagated back to the distribution.
+>
 
-At this point, CPU 1's rdp->nocb_defer_wakeup is RCU_NOCB_WAKE.
+We fixed the golang itself, and the packages has been in Debian bullseye no=
+w.
 
-> > 3.	CPU 2, which shares the same ->nocb_gp_kthread, also enqueues a
-> > 	callback, but with interrupts enabled, allowing it to directly
-> > 	awaken the ->nocb_gp_kthread.
-> > 
-> > 4.	The newly awakened ->nocb_gp_kthread associates both CPU 1's
-> > 	and CPU 2's callbacks with a future grace period and arranges
-> > 	for that grace period to be started.
-> > 
-> > 5.	This ->nocb_gp_kthread goes to sleep waiting for the end of this
-> > 	future grace period.
-> > 
-> > 6.	This grace period elapses before the CPU 1's timer fires.
-> > 	This is normally improbably given that the timer is set for only
-> > 	one jiffy, but timers can be delayed.  Besides, it is possible
-> > 	that kernel was built with CONFIG_RCU_STRICT_GRACE_PERIOD=y.
-> > 
-> > 7.	The grace period ends, so rcu_gp_kthread awakens the
-> > 	->nocb_gp_kthread, which in turn awakens both CPU 1's and
-> > 	CPU 2's ->nocb_cb_kthread.
+>   Maciej
 
-And then ->nocb_cb_kthread sleeps waiting for more callbacks.
 
-> > 8.	CPU 1's ->nocb_cb_kthread invokes its callback.
-> > 
-> > 9.	Note that neither kthread updated any ->nocb_timer state,
-> > 	so CPU 1's ->nocb_defer_wakeup is still set to RCU_NOCB_WAKE.
-> > 
-> > 10.	CPU 1 enqueues its second callback, again with interrupts
-> > 	disabled, and thus must again defer awakening its
-> > 	->nocb_gp_kthread.  However, ->nocb_defer_wakeup prevents
-> > 	CPU 1 from queueing the timer.
-> 
-> I managed to recollect some pieces of my brain. So keep the above but
-> let's change the point 10:
-> 
-> 10.	CPU 1 enqueues its second callback, this time with interrupts
->  	enabled so it can wake directly	->nocb_gp_kthread.
-> 	It does so with calling __wake_nocb_gp() which also cancels the
 
-wake_nocb_gp() in current -rcu, correct?
-
-> 	pending timer that got queued in step 2. But that doesn't reset
-> 	CPU 1's ->nocb_defer_wakeup which is still set to RCU_NOCB_WAKE.
-> 	So CPU 1's ->nocb_defer_wakeup and CPU 1's ->nocb_timer are now
-> 	desynchronized.
-
-Agreed, and agreed that this is a bug.  Thank you for persisting on
-this one!
-
-> 11.	->nocb_gp_kthread associates the callback queued in 10 with a new
-> 	grace period, arrange for it to start and sleeps on it.
-> 
-> 12.	The grace period ends, ->nocb_gp_kthread awakens and wakes up
-> 	CPU 1's ->nocb_cb_kthread which invokes the callback queued in 10.
-> 
-> 13.	CPU 1 enqueues its third callback, this time with interrupts
-> 	disabled so it tries to queue a deferred wakeup. However
-> 	->nocb_defer_wakeup has a stalled RCU_NOCB_WAKE value which prevents
-> 	the CPU 1's ->nocb_timer, that got cancelled in 10, from being armed.
-> 
-> 14.	CPU 1 has its pending callback and it may go unnoticed until
-> 	some other CPU ever wakes up ->nocb_gp_kthread or CPU 1 ever calls
-> 	an explicit deferred wake up caller like idle entry.
-> 
-> I hope I'm not missing something this time...
-
-If you are missing something, then so am I!  ;-)
-
-> > So far so good, but why isn't the timer still queued from back in step 2?
-> > What am I missing here?  Either way, could you please update the commit
-> > logs to tell the full story?  At some later time, you might be very
-> > happy that you did.  ;-)
-> > 
-> > > 2) The "nocb_bypass_timer" ends up calling wake_nocb_gp() which deletes
-> > >    the pending "nocb_timer" (note they are not the same timers) for the
-> > >    given rdp without resetting the matching state stored in nocb_defer
-> > >    wakeup.
-
-Would like to similarly expand this one, or would you prefer to rest your
-case on Case 1) above?
-
-							Thanx, Paul
-
-> > > On both situations, a future call_rcu() on that rdp may be fooled and
-> > > think the timer is armed when it's not, missing a deferred nocb_gp
-> > > wakeup.
-> > > 
-> > > Case 1) is very unlikely due to timing constraint (the timer fires after
-> > > 1 jiffy) but still possible in theory. Case 2) is more likely to happen.
-> > > But in any case such scenario require the CPU to spend a long time
-> > > within a kernel thread without exiting to idle or user space, which is
-> > > a pretty exotic behaviour.
-> > > 
-> > > Fix this with resetting rdp->nocb_defer_wakeup everytime we disarm the
-> > > timer.
-> > > 
-> > > Fixes: d1b222c6be1f (rcu/nocb: Add bypass callback queueing)
-> > > Cc: Stable <stable@vger.kernel.org>
-> > > Cc: Josh Triplett <josh@joshtriplett.org>
-> > > Cc: Lai Jiangshan <jiangshanlai@gmail.com>
-> > > Cc: Joel Fernandes <joel@joelfernandes.org>
-> > > Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-> > > Cc: Boqun Feng <boqun.feng@gmail.com>
-> > > Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-> > > ---
-> > >  kernel/rcu/tree_plugin.h | 7 +++++--
-> > >  1 file changed, 5 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-> > > index 2ec9d7f55f99..dd0dc66c282d 100644
-> > > --- a/kernel/rcu/tree_plugin.h
-> > > +++ b/kernel/rcu/tree_plugin.h
-> > > @@ -1720,7 +1720,11 @@ static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
-> > >  		rcu_nocb_unlock_irqrestore(rdp, flags);
-> > >  		return false;
-> > >  	}
-> > > -	del_timer(&rdp->nocb_timer);
-> > > +
-> > > +	if (READ_ONCE(rdp->nocb_defer_wakeup) > RCU_NOCB_WAKE_NOT) {
-> > > +		WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
-> > > +		del_timer(&rdp->nocb_timer);
-> > > +	}
-> > >  	rcu_nocb_unlock_irqrestore(rdp, flags);
-> > >  	raw_spin_lock_irqsave(&rdp_gp->nocb_gp_lock, flags);
-> > >  	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
-> > > @@ -2349,7 +2353,6 @@ static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
-> > >  		return false;
-> > >  	}
-> > >  	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
-> > > -	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
-> > >  	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
-> > >  	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
-> > >  
-> > > -- 
-> > > 2.25.1
-> > > 
+--=20
+YunQiang Su
