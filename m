@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A55032AF75
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C4A632AF95
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:29:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237366AbhCCAW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:22:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48512 "EHLO mail.kernel.org"
+        id S238225AbhCCA1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:27:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244439AbhCBMVD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 2 Mar 2021 07:21:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 664EF64F97;
-        Tue,  2 Mar 2021 11:58:27 +0000 (UTC)
+        id S1350405AbhCBMVN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 07:21:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B318B64F9D;
+        Tue,  2 Mar 2021 11:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686308;
-        bh=KOOSiL8u9hwyIFP3sn4UzV1lzfYZw2vsVtIAeMZSaNY=;
+        s=k20201202; t=1614686310;
+        bh=qboEmKhWfnNJk9fI2ExYxkQRvqpx5+d8UdHhmH29LO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MWSFv4yFQFY74Bp/5MKDo5QeaRG9Qt9ZtVMWJXGzBS501Q3mx80KGEgmh3HtoYPvl
-         UbduIZJrIRW6XZqgN7awY8y5G1qHwgIDxBWqzLKzFTMPeEI/pT5LJVcYMinCc19cSK
-         aKeOZvM+je7N52almOD5BgpAHwgK9sUMo8zS5vt1DFP5BcO2uJ4fyop7VHZ5ez1ZHF
-         C3GKZHQxno22YZEXlb34rlzEDg/9UGTPIM7/H0d7QUmYEVkE5r15mOggUNf7MJf01F
-         sFFNSQaTDPPIHnfEdw23ayM+x8yC2mo3oCM0tRH9UrDZpSu6zn8HE3ClKbYw9vIbHy
-         o5W5ernqb+mUw==
+        b=l223sHXE2C4QR5ts4vF5GXFzR2u0GhLWJc7kQWn9Y7j8/CQ0kT08so6/MUFiCdHzX
+         11KIyPhZPdCoCURyBuCci8WDmmFTMg+kNM4Paq11mXQ5vvYvaH/nqmhHTHKLwCnf0H
+         4X7uo3D/2hOlxcBNfr4f+5eMbklJZm3vBjVaphgnqNsRRFUnPc6p6CsDuun3SxCD4U
+         d1Ah7vRehv72lU2+4wTc+OqoEVQSNNQgsdiIBi6+WNLB+R/Fh3f3zaT3ESuqV4gT6E
+         9FNZ5AUJuxEYgXQ8d9qlr9JT9DSGmb7ca2sllg7iUYi7NILD1o1bDOmKh0Z8JAs6N6
+         v9748zI5yZHtw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Feng <linf@wangsu.com>, Alexey Dobriyan <adobriyan@gmail.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 29/33] sysctl.c: fix underflow value setting risk in vm_table
-Date:   Tue,  2 Mar 2021 06:57:45 -0500
-Message-Id: <20210302115749.62653-29-sashal@kernel.org>
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 30/33] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
+Date:   Tue,  2 Mar 2021 06:57:46 -0500
+Message-Id: <20210302115749.62653-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115749.62653-1-sashal@kernel.org>
 References: <20210302115749.62653-1-sashal@kernel.org>
@@ -44,71 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Feng <linf@wangsu.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 3b3376f222e3ab58367d9dd405cafd09d5e37b7c ]
+[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
 
-Apart from subsystem specific .proc_handler handler, all ctl_tables with
-extra1 and extra2 members set should use proc_dointvec_minmax instead of
-proc_dointvec, or the limit set in extra* never work and potentially echo
-underflow values(negative numbers) is likely make system unstable.
+If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
+but we leave it partially setup. We don't have functions that can undo the
+pdu and init task setup. We only have cleanup_task which can clean up both
+parts. So this has us just fail the cmd and go through the standard cleanup
+routine and then have the SCSI midlayer retry it like is done when it fails
+in the queuecommand path.
 
-Especially vfs_cache_pressure and zone_reclaim_mode, -1 is apparently not
-a valid value, but we can set to them.  And then kernel may crash.
-
-# echo -1 > /proc/sys/vm/vfs_cache_pressure
-
-Link: https://lkml.kernel.org/r/20201223105535.2875-1-linf@wangsu.com
-Signed-off-by: Lin Feng <linf@wangsu.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/libiscsi.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 70665934d53e..eae6a078619f 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -1563,7 +1563,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &block_dump,
- 		.maxlen		= sizeof(block_dump),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- 	{
-@@ -1571,7 +1571,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &sysctl_vfs_cache_pressure,
- 		.maxlen		= sizeof(sysctl_vfs_cache_pressure),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- #if defined(HAVE_ARCH_PICK_MMAP_LAYOUT) || \
-@@ -1581,7 +1581,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &sysctl_legacy_va_layout,
- 		.maxlen		= sizeof(sysctl_legacy_va_layout),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- #endif
-@@ -1591,7 +1591,7 @@ static struct ctl_table vm_table[] = {
- 		.data		= &node_reclaim_mode,
- 		.maxlen		= sizeof(node_reclaim_mode),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_dointvec_minmax,
- 		.extra1		= SYSCTL_ZERO,
- 	},
- 	{
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index f954be3d5ee2..0b7449de1b53 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1532,14 +1532,9 @@ check_mgmt:
+ 		}
+ 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
+ 		if (rc) {
+-			if (rc == -ENOMEM || rc == -EACCES) {
+-				spin_lock_bh(&conn->taskqueuelock);
+-				list_add_tail(&conn->task->running,
+-					      &conn->cmdqueue);
+-				conn->task = NULL;
+-				spin_unlock_bh(&conn->taskqueuelock);
+-				goto done;
+-			} else
++			if (rc == -ENOMEM || rc == -EACCES)
++				fail_scsi_task(conn->task, DID_IMM_RETRY);
++			else
+ 				fail_scsi_task(conn->task, DID_ABORT);
+ 			spin_lock_bh(&conn->taskqueuelock);
+ 			continue;
 -- 
 2.30.1
 
