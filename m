@@ -2,127 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D52F132B099
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 313EA32B08C
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:43:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344941AbhCCAy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344959AbhCCAy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 2 Mar 2021 19:54:26 -0500
-Received: from mo-csw1515.securemx.jp ([210.130.202.154]:51836 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2361117AbhCBXZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 18:25:43 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1515) id 122NNam5022579; Wed, 3 Mar 2021 08:23:36 +0900
-X-Iguazu-Qid: 34tKUV8MjDkHI6kFWM
-X-Iguazu-QSIG: v=2; s=0; t=1614727416; q=34tKUV8MjDkHI6kFWM; m=q3wjuYAuFpHwxyfcvClT74k26hY+7LW+AghKYqBB5tg=
-Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
-        by relay.securemx.jp (mx-mr1513) id 122NNZnA030250
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Wed, 3 Mar 2021 08:23:35 +0900
-Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id BD78E1000EF;
-        Wed,  3 Mar 2021 08:23:35 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.toshiba.co.jp  with ESMTP id 122NNZhZ013528;
-        Wed, 3 Mar 2021 08:23:35 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        Frank Li <Frank.Li@nxp.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4] mmc: sdhci-esdhc-imx: fix kernel panic when remove module
-Date:   Wed,  3 Mar 2021 08:23:21 +0900
-X-TSB-HOP: ON
-Message-Id: <20210302232321.854084-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.30.0
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41650 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2361126AbhCBXao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 18:30:44 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3F19C061756
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 15:30:04 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id s7so5764107plg.5
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 15:30:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=C9ryLSjfoH1vNvyjTsF56iF4+jfQ3l16jzLvg3sxEl8=;
+        b=hE4r+YLKVR3Jy07+TYQ7RQBUtAS0qnER8G1N728bSIIGpUl1JNmNTCZUXTXyQwzSj5
+         qbc8F/vkKd3at5evTf17NGzHJhC4M7jFJe1RgY/dkGshrKv3vAARYbSZkqxDoQ7NRGzS
+         Hrln1wpy5c5KpReczE1Qup2b+eQM9yZjg6CoBepAbboa7Q7EiNKOGglB/Vv9M3LlyceB
+         mDBquhTPY4TcNv4oVMgss/88YS6VfuZSw9wbeb2AXyqZQGt6JYbdWw4KlBtjjsfy1yWV
+         EhV4HyA33EYIetiBSPzCBeRIJMeTv89Dh7idZW1wWfIs8qXBSLirx0hLRvpd3u4Tg3RN
+         GtLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=C9ryLSjfoH1vNvyjTsF56iF4+jfQ3l16jzLvg3sxEl8=;
+        b=nhAHliT0VfbCp9nuQpU5p+sYsJb5TcXZSp4IsbfC8Ox0peo8YQjgdWfyEvV3pbF3QB
+         se4CLSOQkKjSRP/cf5szLMKlvC/fBOnhCYABE8+61rFn6I2p0C+QMB/vXBImHHlqVsM2
+         oE2M964YxM3Gbmc9SdkrJK/WowllYlwKN7RRI/hmkcLQalEpm2sgEQWMa1pk7M7BG1MV
+         6JE4Dws8Z5h/BT4iWa98Hr5cntWbRa3wYKmu7unS+7YJjeAufdM0fsREpKgraJwhtj0Y
+         m8kR/rBn8BjotMSjjeiHYBhrI6SP3msRK/xglgdUMm5NvjAqgQ/FQLLuKbK7ru8Rw3P0
+         6i0g==
+X-Gm-Message-State: AOAM531TPbNd6nLGBZ4kjta2l3hjUdVbgr2cOeR697BMwHmmlu9sSi7O
+        cLOjAyFn6mMlZDz2I4Mrp7zFEXvf/9rGTw==
+X-Google-Smtp-Source: ABdhPJz9dvw2CD451W+AotlOBvv+JXiFMnYJBS0TXSlBGLvGez4CugnGIQgzlPdfGk8ecm2E5eVtgw==
+X-Received: by 2002:a17:902:bd44:b029:de:74ae:771e with SMTP id b4-20020a170902bd44b02900de74ae771emr291641plx.73.1614727804182;
+        Tue, 02 Mar 2021 15:30:04 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q66sm3554243pja.27.2021.03.02.15.30.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Mar 2021 15:30:03 -0800 (PST)
+Message-ID: <603eca7b.1c69fb81.e9149.6c88@mx.google.com>
+Date:   Tue, 02 Mar 2021 15:30:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.101-337-g2d0a98c0d46c9
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 96 runs,
+ 3 regressions (v5.4.101-337-g2d0a98c0d46c9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+stable-rc/queue/5.4 baseline: 96 runs, 3 regressions (v5.4.101-337-g2d0a98c=
+0d46c9)
 
-commit a56f44138a2c57047f1ea94ea121af31c595132b upstream.
+Regressions Summary
+-------------------
 
-In sdhci_esdhc_imx_remove() the SDHCI_INT_STATUS in read. Under some
-circumstances, this may be done while the device is runtime suspended,
-triggering the below splat.
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Fix the problem by adding a pm_runtime_get_sync(), before reading the
-register, which will turn on clocks etc making the device accessible again.
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-[ 1811.323148] mmc1: card aaaa removed
-[ 1811.347483] Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-[ 1811.354988] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core [last unloaded: mmc_core]
-[ 1811.365726] CPU: 0 PID: 3464 Comm: rmmod Not tainted 5.10.1-sd-99871-g53835a2e8186 #5
-[ 1811.373559] Hardware name: Freescale i.MX8DXL EVK (DT)
-[ 1811.378705] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-[ 1811.384723] pc : sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
-[ 1811.391090] lr : platform_drv_remove+0x2c/0x50
-[ 1811.395536] sp : ffff800012c7bcb0
-[ 1811.398855] x29: ffff800012c7bcb0 x28: ffff00002c72b900
-[ 1811.404181] x27: 0000000000000000 x26: 0000000000000000
-[ 1811.409497] x25: 0000000000000000 x24: 0000000000000000
-[ 1811.414814] x23: ffff0000042b3890 x22: ffff800009127120
-[ 1811.420131] x21: ffff00002c4c9580 x20: ffff0000042d0810
-[ 1811.425456] x19: ffff0000042d0800 x18: 0000000000000020
-[ 1811.430773] x17: 0000000000000000 x16: 0000000000000000
-[ 1811.436089] x15: 0000000000000004 x14: ffff000004019c10
-[ 1811.441406] x13: 0000000000000000 x12: 0000000000000020
-[ 1811.446723] x11: 0101010101010101 x10: 7f7f7f7f7f7f7f7f
-[ 1811.452040] x9 : fefefeff6364626d x8 : 7f7f7f7f7f7f7f7f
-[ 1811.457356] x7 : 78725e6473607372 x6 : 0000000080808080
-[ 1811.462673] x5 : 0000000000000000 x4 : 0000000000000000
-[ 1811.467990] x3 : ffff800011ac1cb0 x2 : 0000000000000000
-[ 1811.473307] x1 : ffff8000091214d4 x0 : ffff8000133a0030
-[ 1811.478624] Call trace:
-[ 1811.481081]  sdhci_esdhc_imx_remove+0x28/0x15c [sdhci_esdhc_imx]
-[ 1811.487098]  platform_drv_remove+0x2c/0x50
-[ 1811.491198]  __device_release_driver+0x188/0x230
-[ 1811.495818]  driver_detach+0xc0/0x14c
-[ 1811.499487]  bus_remove_driver+0x5c/0xb0
-[ 1811.503413]  driver_unregister+0x30/0x60
-[ 1811.507341]  platform_driver_unregister+0x14/0x20
-[ 1811.512048]  sdhci_esdhc_imx_driver_exit+0x1c/0x3a8 [sdhci_esdhc_imx]
-[ 1811.518495]  __arm64_sys_delete_module+0x19c/0x230
-[ 1811.523291]  el0_svc_common.constprop.0+0x78/0x1a0
-[ 1811.528086]  do_el0_svc+0x24/0x90
-[ 1811.531405]  el0_svc+0x14/0x20
-[ 1811.534461]  el0_sync_handler+0x1a4/0x1b0
-[ 1811.538474]  el0_sync+0x174/0x180
-[ 1811.541801] Code: a9025bf5 f9403e95 f9400ea0 9100c000 (b9400000)
-[ 1811.547902] ---[ end trace 3fb1a3bd48ff7be5 ]---
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Cc: stable@vger.kernel.org # v4.0+
-Link: https://lore.kernel.org/r/20210210181933.29263-1-Frank.Li@nxp.com
-[Ulf: Clarified the commit message a bit]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-[iwamatsu: adjust context]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
----
- drivers/mmc/host/sdhci-esdhc-imx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 8d838779fd1bcd..b95d911ef497b4 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1240,9 +1240,10 @@ static int sdhci_esdhc_imx_remove(struct platform_device *pdev)
- 	struct sdhci_host *host = platform_get_drvdata(pdev);
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = pltfm_host->priv;
--	int dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
-+	int dead;
- 
- 	pm_runtime_get_sync(&pdev->dev);
-+	dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_put_noidle(&pdev->dev);
- 
--- 
-2.30.0
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.101-337-g2d0a98c0d46c9/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.101-337-g2d0a98c0d46c9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2d0a98c0d46c9e671512be774fa4babeab4ed09f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603e98368d8439aeedaddcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603e98368d8439aeedadd=
+cb2
+        failing since 109 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603e983c034917fe8daddcdb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603e983c034917fe8dadd=
+cdc
+        failing since 109 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/603e97dc6b231907f3addcd3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.101-3=
+37-g2d0a98c0d46c9/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/603e97dc6b231907f3add=
+cd4
+        failing since 109 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =20
