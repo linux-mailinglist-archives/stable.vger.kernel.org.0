@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA7A32AF04
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74FFA32AF02
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbhCCAOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:14:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38730 "EHLO mail.kernel.org"
+        id S231205AbhCCAON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:14:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1383603AbhCBL4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1383604AbhCBL4d (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 2 Mar 2021 06:56:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27F5564F14;
-        Tue,  2 Mar 2021 11:55:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81C3A64F0D;
+        Tue,  2 Mar 2021 11:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614686139;
-        bh=Cd0eVel9AGZGGertR3fyXI4RXhCQuYVAsF2IOVW2H00=;
+        s=k20201202; t=1614686141;
+        bh=Z44VBan+ciMPBEAO8gcJLdPEjd8Og8yZJ1Bf26BE4Ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2B3gwYdOng46a8niq2RGSfuewLWcC6FPhTbMbh5xtnRBr5mBt+hljwYqnmHqeVOB
-         MHS6fRTZAunSwArc6P3uJL6KxCts3jBsHs490C8N82rhXAwmLUhv06mEYr/+nXsbSb
-         1idd6li1X33QbSq3/CgSg/JMTQsDrAW0rVa5AgnecszTEJPrRGe+vunn4pVa2rWUtw
-         ql2iNfy5HCM0q9vBK72/BhvcfRpRpTRxghe1yoa4+3SeqqrNqFN1qaoDI49ccrk2uq
-         COLrxheVEheRsM84xJyhujvMHMEsAsp+UpIayVi+NNxxMtfiluSK+AOrM7zmhFlqUF
-         Qy5+IQd0ZWlgQ==
+        b=bMXAIALzbzyRHqiPwBMNodjscDpCa+hFwyoYmQSlicc72KeW5TEwuk+4IdrjKHWnB
+         6GpFxh1YDcmDHhDzn9xj5FYptS1njRBwL71C4CtwTFVt2YGC0BlU8PCRxIcnr0tguX
+         rpvNtEd5RZobfnJ0v+SNBZkWy6dEM7XpwEtpwhyGVH2Hh5FSyj4hQAYq6tp864FYSw
+         MHOgwM+IDwhqr0j1wpfF+AKzRBa1Ofy9mXRsV1vQQGqOllK8iHKUZs7ESp/0DjB+nZ
+         9MsDffVz6kSYexdmvNgPN8Hz96A4lyyXJkzLHAVmg9Zt0cnrnTkAb6KQUIn4dukfen
+         Eu+lUE56zNYxg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kiwoong Kim <kwmad.kim@samsung.com>,
-        Avri Altman <Avri.Altman@wdc.com>,
+Cc:     akshatzen <akshatzen@google.com>,
+        Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        Ruksar Devadi <Ruksar.devadi@microchip.com>,
+        Radha Ramachandran <radha@google.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 03/52] scsi: ufs: Add a quirk to permit overriding UniPro defaults
-Date:   Tue,  2 Mar 2021 06:54:44 -0500
-Message-Id: <20210302115534.61800-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, pmchba@pmcs.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 04/52] scsi: pm80xx: Fix missing tag_free in NVMD DATA req
+Date:   Tue,  2 Mar 2021 06:54:45 -0500
+Message-Id: <20210302115534.61800-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210302115534.61800-1-sashal@kernel.org>
 References: <20210302115534.61800-1-sashal@kernel.org>
@@ -43,108 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: akshatzen <akshatzen@google.com>
 
-[ Upstream commit b1d0d2eb89d4e3a25b212a9d836587503537067e ]
+[ Upstream commit 5d28026891c7041deec08cc5ddd8f3abd90195e1 ]
 
-The UniPro specification states that attribute IDs of the following
-parameters are vendor-specific so some SoCs could have no regions at the
-defined addresses:
+Tag was not freed in NVMD get/set data request failure scenario. This
+caused a tag leak each time a request failed.
 
- - DME_LocalFC0ProtectionTimeOutVal
- - DME_LocalTC0ReplayTimeOutVal
- - DME_LocalAFC0ReqTimeOutVal
-
-In addition, the following parameters should be set considering the
-compatibility between host and device.
-
- - PA_PWRMODEUSERDATA0
- - PA_PWRMODEUSERDATA1
- - PA_PWRMODEUSERDATA2
- - PA_PWRMODEUSERDATA3
- - PA_PWRMODEUSERDATA4
- - PA_PWRMODEUSERDATA5
-
-Introduce a quirk to allow vendor drivers to override the UniPro defaults.
-
-Link: https://lore.kernel.org/r/1fedd3dea0ccc980913a5995a10510d86a5b01b9.1608513782.git.kwmad.kim@samsung.com
-Acked-by: Avri Altman <Avri.Altman@wdc.com>
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Link: https://lore.kernel.org/r/20210109123849.17098-5-Viswas.G@microchip.com
+Acked-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: akshatzen <akshatzen@google.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Signed-off-by: Ruksar Devadi <Ruksar.devadi@microchip.com>
+Signed-off-by: Radha Ramachandran <radha@google.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 40 ++++++++++++++++++++-------------------
- drivers/scsi/ufs/ufshcd.h |  6 ++++++
- 2 files changed, 27 insertions(+), 19 deletions(-)
+ drivers/scsi/pm8001/pm8001_hwi.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index fb32d122f2e3..2a715f13fe1d 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4218,25 +4218,27 @@ static int ufshcd_change_power_mode(struct ufs_hba *hba,
- 		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_HSSERIES),
- 						pwr_mode->hs_rate);
+diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
+index c8d4d87c5473..fc721d616f43 100644
+--- a/drivers/scsi/pm8001/pm8001_hwi.c
++++ b/drivers/scsi/pm8001/pm8001_hwi.c
+@@ -3038,8 +3038,8 @@ void pm8001_mpi_set_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
+ 	complete(pm8001_ha->nvmd_completion);
+ 	pm8001_dbg(pm8001_ha, MSG, "Set nvm data complete!\n");
+ 	if ((dlen_status & NVMD_STAT) != 0) {
+-		pm8001_dbg(pm8001_ha, FAIL, "Set nvm data error!\n");
+-		return;
++		pm8001_dbg(pm8001_ha, FAIL, "Set nvm data error %x\n",
++				dlen_status);
+ 	}
+ 	ccb->task = NULL;
+ 	ccb->ccb_tag = 0xFFFFFFFF;
+@@ -3062,11 +3062,17 @@ pm8001_mpi_get_nvmd_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
  
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA0),
--			DL_FC0ProtectionTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA1),
--			DL_TC0ReplayTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA2),
--			DL_AFC0ReqTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA3),
--			DL_FC1ProtectionTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA4),
--			DL_TC1ReplayTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA5),
--			DL_AFC1ReqTimeOutVal_Default);
+ 	pm8001_dbg(pm8001_ha, MSG, "Get nvm data complete!\n");
+ 	if ((dlen_status & NVMD_STAT) != 0) {
+-		pm8001_dbg(pm8001_ha, FAIL, "Get nvm data error!\n");
++		pm8001_dbg(pm8001_ha, FAIL, "Get nvm data error %x\n",
++				dlen_status);
+ 		complete(pm8001_ha->nvmd_completion);
++		/* We should free tag during failure also, the tag is not being
++		 * freed by requesting path anywhere.
++		 */
++		ccb->task = NULL;
++		ccb->ccb_tag = 0xFFFFFFFF;
++		pm8001_tag_free(pm8001_ha, tag);
+ 		return;
+ 	}
 -
--	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalFC0ProtectionTimeOutVal),
--			DL_FC0ProtectionTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalTC0ReplayTimeOutVal),
--			DL_TC0ReplayTimeOutVal_Default);
--	ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalAFC0ReqTimeOutVal),
--			DL_AFC0ReqTimeOutVal_Default);
-+	if (!(hba->quirks & UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING)) {
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA0),
-+				DL_FC0ProtectionTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA1),
-+				DL_TC0ReplayTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA2),
-+				DL_AFC0ReqTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA3),
-+				DL_FC1ProtectionTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA4),
-+				DL_TC1ReplayTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA5),
-+				DL_AFC1ReqTimeOutVal_Default);
-+
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalFC0ProtectionTimeOutVal),
-+				DL_FC0ProtectionTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalTC0ReplayTimeOutVal),
-+				DL_TC0ReplayTimeOutVal_Default);
-+		ufshcd_dme_set(hba, UIC_ARG_MIB(DME_LocalAFC0ReqTimeOutVal),
-+				DL_AFC0ReqTimeOutVal_Default);
-+	}
- 
- 	ret = ufshcd_uic_change_pwr_mode(hba, pwr_mode->pwr_rx << 4
- 			| pwr_mode->pwr_tx);
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index aa9ea3552323..85f9d0fbfbd9 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -551,6 +551,12 @@ enum ufshcd_quirks {
- 	 */
- 	UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL		= 1 << 12,
- 
-+	/*
-+	 * This quirk needs to disable unipro timeout values
-+	 * before power mode change
-+	 */
-+	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
-+
- };
- 
- enum ufshcd_caps {
+ 	if (ir_tds_bn_dps_das_nvm & IPMode) {
+ 		/* indirect mode - IR bit set */
+ 		pm8001_dbg(pm8001_ha, MSG, "Get NVMD success, IR=1\n");
 -- 
 2.30.1
 
