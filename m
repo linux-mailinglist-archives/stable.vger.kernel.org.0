@@ -2,89 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77D0732AF27
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D677132AF00
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233456AbhCCAPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:15:45 -0500
-Received: from zg8tmja2lje4os4yms4ymjma.icoremail.net ([206.189.21.223]:52035
-        "HELO zg8tmja2lje4os4yms4ymjma.icoremail.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with SMTP id S1383767AbhCBMF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 07:05:58 -0500
-Received: from pekshcsitd06010.hihonor.com (unknown [198.19.131.39])
-        by front-1 (Coremail) with SMTP id CwGowAAXf07LIz5gcsNOAA--.1848S2;
-        Tue, 02 Mar 2021 19:38:52 +0800 (CST)
-From:   Yunlei He <heyunlei@hihonor.com>
-To:     chao@kernel.org, jaegeuk@kernel.org, ebiggers@kernel.org
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-fscrypt@vger.kernel.org, bintian.wang@hihonor.com,
-        Yunlei He <heyunlei@hihonor.com>, stable@vger.kernel.org
-Subject: [f2fs-dev][PATCH] f2fs: fsverity: modify truncation for verity enable failed
-Date:   Tue,  2 Mar 2021 19:38:50 +0800
-Message-Id: <20210302113850.17011-1-heyunlei@hihonor.com>
-X-Mailer: git-send-email 2.17.1
-X-CM-TRANSID: CwGowAAXf07LIz5gcsNOAA--.1848S2
-X-Coremail-Antispam: 1UD129KBjvJXoWrtw47Xr1UCrW5ur4kGF45ZFb_yoW8JF17pF
-        yDGFyUWw1rG3y7Wr1vvF1Uuw1rKFy7KrW2vFyDuw1kW3WkXwnYvayvyFW09a1aqr97Jw40
-        qr4UCa9rCr17Ar7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUkE1xkIjI8I6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AE
-        w4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2
-        IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW0oVCq3wA2z4x0Y4vEx4A2
-        jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52
-        x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUtVWr
-        XwAv7VC2z280aVAFwI0_Cr1j6rxdMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwI
-        xGrwACjI8F5VA0II8E6IAqYI8I648v4I1lc2xSY4AK6svPMxAIw28IcxkI7VAKI48JMxAI
-        w28IcVCjz48v1sIEY20_XFWUJr1UMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrV
-        AFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCI
-        c40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267
-        AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWU
-        JVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x0JUA8n
-        5UUUUU=
-X-CM-SenderInfo: pkh130hohlqxxlkr003uof0z/1tbiAQIKEV3ki2sD+gABs5
+        id S231200AbhCCAOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38706 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1383596AbhCBL4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 06:56:17 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C703661477;
+        Tue,  2 Mar 2021 11:55:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1614686136;
+        bh=+7LclTKHzIOR90r+KzUvTzXCGvGArJVXRmP2usOJ2Ok=;
+        h=From:To:Cc:Subject:Date:From;
+        b=iUb5IrY/SkX6o8A+LOAE/pGNluVtKakeZYd/P1XmBO4UEPbaWVTHzz+F8eaH1qhUQ
+         Mi0rMV5xY19yzb/Mtqi4nXstBcPDl9i9izuG2p44fZ/e5LsN/Kpvv6MSrCXBtc2D7t
+         UZLMcHxHl3Rg/ahE8xHa0YO3ARs2oBi1AJCbIk5nxYOcCAAkw6CplIj05GfrmowCYm
+         ICC2oNCpz7a2ROr1junRFu52ZofaGgs0TOwkeKQrsaEVF0NgJtL/1Rwogc1nbHU2jS
+         yFDYoUY3ms59B9k8x9NoM57KwsT/J/7fcBEONKOMcjg9sXB1gThWnIxFVlFCIPwjN9
+         8Fv6xgmHdhf3Q==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 01/52] i2c: rcar: faster irq code to minimize HW race condition
+Date:   Tue,  2 Mar 2021 06:54:42 -0500
+Message-Id: <20210302115534.61800-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If file enable verity failed, should truncate anything wrote
-past i_size, including cache pages. Move the truncation to
-the end of function, in case of f2fs set xattr failed.
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Yunlei He <heyunlei@hihonor.com>
+[ Upstream commit c7b514ec979e23a08c411f3d8ed39c7922751422 ]
+
+To avoid the HW race condition on R-Car Gen2 and earlier, we need to
+write to ICMCR as soon as possible in the interrupt handler. We can
+improve this by writing a static value instead of masking out bits.
+
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/verity.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-rcar.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-index 054ec852b5ea..610f2a9b4928 100644
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -169,10 +169,6 @@ static int f2fs_end_enable_verity(struct file *filp, const void *desc,
- 			err = filemap_write_and_wait(inode->i_mapping);
- 	}
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 217def2d7cb4..824586d7ee56 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -91,7 +91,6 @@
  
--	/* If we failed, truncate anything we wrote past i_size. */
--	if (desc == NULL || err)
--		f2fs_truncate(inode);
--
- 	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
+ #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
+ #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
+-#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
+ #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
  
- 	if (desc != NULL && !err) {
-@@ -185,6 +181,13 @@ static int f2fs_end_enable_verity(struct file *filp, const void *desc,
- 			f2fs_mark_inode_dirty_sync(inode, true);
- 		}
- 	}
-+
-+	/* If we failed, truncate anything we wrote past i_size. */
-+	if (desc == NULL || err) {
-+		truncate_inode_pages(inode->i_mapping, inode->i_size);
-+		f2fs_truncate(inode);
-+	}
-+
- 	return err;
- }
+ #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
+@@ -621,7 +620,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ /*
+  * This driver has a lock-free design because there are IP cores (at least
+  * R-Car Gen2) which have an inherent race condition in their hardware design.
+- * There, we need to clear RCAR_BUS_MASK_DATA bits as soon as possible after
++ * There, we need to switch to RCAR_BUS_PHASE_DATA as soon as possible after
+  * the interrupt was generated, otherwise an unwanted repeated message gets
+  * generated. It turned out that taking a spinlock at the beginning of the ISR
+  * was already causing repeated messages. Thus, this driver was converted to
+@@ -630,13 +629,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
+ static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
+ {
+ 	struct rcar_i2c_priv *priv = ptr;
+-	u32 msr, val;
++	u32 msr;
+ 
+ 	/* Clear START or STOP immediately, except for REPSTART after read */
+-	if (likely(!(priv->flags & ID_P_REP_AFTER_RD))) {
+-		val = rcar_i2c_read(priv, ICMCR);
+-		rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
+-	}
++	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
++		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
+ 
+ 	msr = rcar_i2c_read(priv, ICMSR);
  
 -- 
-2.17.1
+2.30.1
 
