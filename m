@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E71732AEB7
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DF5332AEBA
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:08:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235265AbhCCADE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:03:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34800 "EHLO
+        id S235319AbhCCADo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:03:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242887AbhCBDRP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 22:17:15 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87230C06178A
-        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 19:16:34 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id h4so12903250pgf.13
-        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 19:16:34 -0800 (PST)
+        with ESMTP id S1573447AbhCBDWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 1 Mar 2021 22:22:38 -0500
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45ADCC061756
+        for <stable@vger.kernel.org>; Mon,  1 Mar 2021 19:21:58 -0800 (PST)
+Received: by mail-pf1-x42d.google.com with SMTP id q20so12913032pfu.8
+        for <stable@vger.kernel.org>; Mon, 01 Mar 2021 19:21:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=GYPQhCTGZOMveNcPYuS13n+jdKN1b73hcDYl11S5k48=;
-        b=jmfEF9JRmeAWwlwYLXMhFpSmIPhUDRTNAPMkQDp6AyWSeOU3sj6VD51Xwk2NeSZhMa
-         P1zqCyCNb1qjFq9+t2JJJBmLZr2PLYjaSbWaaGuogyuuS2ORnL2DOk+P2UqEgDStQaMT
-         mwvLbvaQYficIu0NCG+9JHWgF47dmUW2CQrX+HqcQOZ7fMXd07/bAJgynf12/H61jY0O
-         VPS3wlNoFYkYI7QwfSIKTR5UmqXf1bfjoQM2UcTX5ERL0Uigm7hO24LPFATw1ADaQ+XU
-         xM4t+dTj1v5OAR6budhVS1VwBszFd8IyIDnIDfIMyTSUAjTAIfYh2AU1GGqeGcCfBT19
-         sOOQ==
+        bh=r9gW7vTl4Q3G97jz3vz/LBzvVD3LBDMZ5vAlKoaGJYQ=;
+        b=v3DeYfze9KnR8mlXGvL6Wg5xNAQP9Is8Mf3BHXDLbbOu5q6eob5JdMIDHSoFarHjEg
+         Jj5ZKOjfL0t+ujtqJgkxe1zMHgupY9DCMhf27PXSm/1MUAdZJRaJ6PO29skThDFQwnFU
+         H2EzajgcrHQLdDIWMEtRbBqre+8mL1fthNSDUs/l7HvkiNCYJgvpJrPZtiJzERkEMSYQ
+         bUlzTdmgq4uYqzoREJXf85kA4fEb/0o0PjokpxVh/gTF5avpCp4xvlakRl3pwDFqK+8+
+         FTyV7fZAuRymUiYueO0rehk146I5GMvvVn2vgGHx3QeY7C7+f5YpUyC09AzfKIZnscOw
+         ZG3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=GYPQhCTGZOMveNcPYuS13n+jdKN1b73hcDYl11S5k48=;
-        b=BCJVfFjZPd2lPfnc6uaADBWQhX6cvUnkrqfHaJcXgATC+rr5H78YnqgBd87zPLzeKs
-         aeDw00sJQNGmoEiS0sfnwQHRtUWVmY6yf2C5Sug8CZeAVOby/eLE9eZ8MFJP7VuF9Vnf
-         XhB7NLFsX2nEGvjOyF2WU5fciM23IAWW+4agD/aFh35hm7ruq2OEzgoCOjXyJrBqI61j
-         gvNIMnDJw0J6lahirE/SGmBZD2P39VG8v+0LWWV9UU1780JkOuxqato6MPkyiCDZouMS
-         OqE9V6M+YQ7vRGHE9p0hUU1BwItluwt4bGpvCnEe8YH/TzzsHLpaAn5sEA4/lF4CN0Jr
-         81aA==
-X-Gm-Message-State: AOAM53187bsGYGm8zzLhi3oQ0qjO2pymvE8vjKzykmHDWu3Y0qJ2nNvB
-        Rt5mSjpNCQwCTmujnRtaruA3oRebCN9gAQ==
-X-Google-Smtp-Source: ABdhPJx5VjjZGrq01hfm/wAIadJ0glwUbzhItqrV6reM41IM63ASAUqFi7aQ9k1K6dz6jtRugUsFng==
-X-Received: by 2002:a62:a507:0:b029:1ce:ddad:79de with SMTP id v7-20020a62a5070000b02901ceddad79demr1405682pfm.19.1614654990248;
-        Mon, 01 Mar 2021 19:16:30 -0800 (PST)
+        bh=r9gW7vTl4Q3G97jz3vz/LBzvVD3LBDMZ5vAlKoaGJYQ=;
+        b=gkcUY05R2yw5+YmNPZiUT0dv46KqqZ7SyJt8vAgXEAIoGC3RBSQaXpJKOJDjVp4kvY
+         Gr0GeGQk/o5zNHLZT9o+80A8C55Hv5FUcYt5HlJ4GqJD5cJYgvDlAh3c0J253G5VXgl5
+         OGsNRrEYACDiiTwiVYjyLBip4V+tnAkKTZygLFVl8wE7SYVkcVDclVyntK4w71JkbTxO
+         iGw89h7EyHdH6kfr8K8lJA5t94AYw9zM6ptAWvkri0LjJTG8HTWpPInaK+ENlwUVLfMQ
+         dmovtwdBtNEC53QGeFtln7oxvw8DIQqvuHyDKE6pyxTjecNRxkyxeg0rQazis++QFsDC
+         L9fQ==
+X-Gm-Message-State: AOAM533bmTj/CdKot0yAF7UnqpKmWg32bYKTxk2URVSVn5KZm2xYde/f
+        R+KehpAXCnv/qyn3DdMnycUxoun7O8O9Zg==
+X-Google-Smtp-Source: ABdhPJypsRd7mpLMlu//tuT473/t4csIdcnJhpUS2hbmkcj6qoiyu2DlY+dA+ky42wiQhcJin3cGew==
+X-Received: by 2002:aa7:8d05:0:b029:1ec:b460:f21d with SMTP id j5-20020aa78d050000b02901ecb460f21dmr18167412pfe.29.1614655314351;
+        Mon, 01 Mar 2021 19:21:54 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 68sm5724264pfd.75.2021.03.01.19.16.29
+        by smtp.gmail.com with ESMTPSA id e1sm902015pjt.10.2021.03.01.19.21.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Mar 2021 19:16:29 -0800 (PST)
-Message-ID: <603dae0d.1c69fb81.1298c.e002@mx.google.com>
-Date:   Mon, 01 Mar 2021 19:16:29 -0800 (PST)
+        Mon, 01 Mar 2021 19:21:53 -0800 (PST)
+Message-ID: <603daf51.1c69fb81.56d36.322e@mx.google.com>
+Date:   Mon, 01 Mar 2021 19:21:53 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.101-338-g7730b625139f9
+X-Kernelci-Kernel: v4.14.222-176-gd172906dd3e2
 X-Kernelci-Report-Type: build
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 build: 200 builds: 125 failed, 75 passed,
- 141 errors, 209 warnings (v5.4.101-338-g7730b625139f9)
+X-Kernelci-Branch: linux-4.14.y
+Subject: stable-rc/linux-4.14.y build: 201 builds: 132 failed, 69 passed,
+ 150 errors, 173 warnings (v4.14.222-176-gd172906dd3e2)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,19 +65,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 200 builds: 125 failed, 75 passed, 141 errors, 2=
-09 warnings (v5.4.101-338-g7730b625139f9)
+stable-rc/linux-4.14.y build: 201 builds: 132 failed, 69 passed, 150 errors=
+, 173 warnings (v4.14.222-176-gd172906dd3e2)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.101-338-g7730b625139f9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.222-176-gd172906dd3e2/
 
 Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.101-338-g7730b625139f9
-Git Commit: 7730b625139f970962ef543ee38b528aad563576
+Branch: linux-4.14.y
+Git Describe: v4.14.222-176-gd172906dd3e2
+Git Commit: d172906dd3e2578cf847bc43e533debd95870d4d
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 7 unique architectures
+Built: 6 unique architectures
 
 Build Failures Detected:
 
@@ -100,8 +100,12 @@ arm64:
     tinyconfig: (gcc-8) FAIL
 
 arm:
+    acs5k_defconfig: (gcc-8) FAIL
+    acs5k_tiny_defconfig: (gcc-8) FAIL
     allnoconfig: (gcc-8) FAIL
     am200epdkit_defconfig: (gcc-8) FAIL
+    aspeed_g4_defconfig: (gcc-8) FAIL
+    aspeed_g5_defconfig: (gcc-8) FAIL
     assabet_defconfig: (gcc-8) FAIL
     axm55xx_defconfig: (gcc-8) FAIL
     badge4_defconfig: (gcc-8) FAIL
@@ -117,19 +121,19 @@ arm:
     em_x270_defconfig: (gcc-8) FAIL
     eseries_pxa_defconfig: (gcc-8) FAIL
     footbridge_defconfig: (gcc-8) FAIL
+    gemini_defconfig: (gcc-8) FAIL
     h3600_defconfig: (gcc-8) FAIL
     h5000_defconfig: (gcc-8) FAIL
     hackkit_defconfig: (gcc-8) FAIL
     imx_v4_v5_defconfig: (gcc-8) FAIL
     integrator_defconfig: (gcc-8) FAIL
     ixp4xx_defconfig: (gcc-8) FAIL
-    jornada720_defconfig: (gcc-8) FAIL
+    ks8695_defconfig: (gcc-8) FAIL
     lart_defconfig: (gcc-8) FAIL
     lpc18xx_defconfig: (gcc-8) FAIL
     lubbock_defconfig: (gcc-8) FAIL
     magician_defconfig: (gcc-8) FAIL
     mainstone_defconfig: (gcc-8) FAIL
-    milbeaut_m10v_defconfig: (gcc-8) FAIL
     mini2440_defconfig: (gcc-8) FAIL
     mmp2_defconfig: (gcc-8) FAIL
     moxart_defconfig: (gcc-8) FAIL
@@ -141,6 +145,9 @@ arm:
     neponset_defconfig: (gcc-8) FAIL
     netwinder_defconfig: (gcc-8) FAIL
     nhk8815_defconfig: (gcc-8) FAIL
+    nuc910_defconfig: (gcc-8) FAIL
+    nuc950_defconfig: (gcc-8) FAIL
+    nuc960_defconfig: (gcc-8) FAIL
     orion5x_defconfig: (gcc-8) FAIL
     palmz72_defconfig: (gcc-8) FAIL
     pcm027_defconfig: (gcc-8) FAIL
@@ -154,6 +161,7 @@ arm:
     qcom_defconfig: (gcc-8) FAIL
     realview_defconfig: (gcc-8) FAIL
     s3c6400_defconfig: (gcc-8) FAIL
+    s5pv210_defconfig: (gcc-8) FAIL
     shannon_defconfig: (gcc-8) FAIL
     simpad_defconfig: (gcc-8) FAIL
     spear3xx_defconfig: (gcc-8) FAIL
@@ -210,11 +218,8 @@ mips:
     tinyconfig: (gcc-8) FAIL
     vocore2_defconfig: (gcc-8) FAIL
     workpad_defconfig: (gcc-8) FAIL
+    xilfpga_defconfig: (gcc-8) FAIL
     xway_defconfig: (gcc-8) FAIL
-
-riscv:
-    allnoconfig: (gcc-8) FAIL
-    tinyconfig: (gcc-8) FAIL
 
 x86_64:
     allnoconfig: (gcc-8) FAIL
@@ -223,30 +228,32 @@ x86_64:
 Errors and Warnings Detected:
 
 arc:
-    allnoconfig (gcc-8): 1 error, 2 warnings
-    axs103_defconfig (gcc-8): 1 error, 2 warnings
-    axs103_smp_defconfig (gcc-8): 1 error, 2 warnings
-    haps_hs_defconfig (gcc-8): 1 error, 2 warnings
-    haps_hs_smp_defconfig (gcc-8): 1 error, 2 warnings
-    hsdk_defconfig (gcc-8): 2 warnings
-    nsim_hs_defconfig (gcc-8): 1 error, 2 warnings
-    nsim_hs_smp_defconfig (gcc-8): 1 error, 2 warnings
-    nsimosci_hs_defconfig (gcc-8): 1 error, 2 warnings
-    nsimosci_hs_smp_defconfig (gcc-8): 1 error, 2 warnings
-    tinyconfig (gcc-8): 1 error, 2 warnings
-    vdk_hs38_defconfig (gcc-8): 1 error, 2 warnings
-    vdk_hs38_smp_defconfig (gcc-8): 1 error, 2 warnings
+    allnoconfig (gcc-8): 1 error, 1 warning
+    axs103_defconfig (gcc-8): 1 error, 1 warning
+    axs103_smp_defconfig (gcc-8): 1 error, 1 warning
+    haps_hs_defconfig (gcc-8): 1 error, 1 warning
+    haps_hs_smp_defconfig (gcc-8): 1 error, 1 warning
+    hsdk_defconfig (gcc-8): 1 warning
+    nsim_hs_defconfig (gcc-8): 1 error, 1 warning
+    nsim_hs_smp_defconfig (gcc-8): 1 error, 1 warning
+    nsimosci_hs_defconfig (gcc-8): 1 error, 1 warning
+    nsimosci_hs_smp_defconfig (gcc-8): 2 errors, 2 warnings
+    tinyconfig (gcc-8): 1 error, 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 error, 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 error, 1 warning
 
 arm64:
     allnoconfig (gcc-8): 1 error, 1 warning
-    defconfig (gcc-8): 14 warnings
     tinyconfig (gcc-8): 1 error, 1 warning
 
 arm:
+    acs5k_defconfig (gcc-8): 1 error, 1 warning
+    acs5k_tiny_defconfig (gcc-8): 1 error, 1 warning
     allnoconfig (gcc-8): 1 error, 1 warning
     am200epdkit_defconfig (gcc-8): 1 error, 1 warning
+    aspeed_g4_defconfig (gcc-8): 1 error, 1 warning
+    aspeed_g5_defconfig (gcc-8): 1 error, 1 warning
     assabet_defconfig (gcc-8): 1 error, 1 warning
-    at91_dt_defconfig (gcc-8): 1 warning
     axm55xx_defconfig (gcc-8): 1 error, 1 warning
     badge4_defconfig (gcc-8): 1 error, 1 warning
     cerfcube_defconfig (gcc-8): 1 error, 1 warning
@@ -257,50 +264,42 @@ arm:
     colibri_pxa270_defconfig (gcc-8): 1 error, 1 warning
     colibri_pxa300_defconfig (gcc-8): 1 warning
     collie_defconfig (gcc-8): 1 error, 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
+    corgi_defconfig (gcc-8): 1 warning
     dove_defconfig (gcc-8): 1 error, 1 warning
     efm32_defconfig (gcc-8): 1 error, 1 warning
     em_x270_defconfig (gcc-8): 1 error, 1 warning
-    ep93xx_defconfig (gcc-8): 1 warning
     eseries_pxa_defconfig (gcc-8): 1 error, 1 warning
-    exynos_defconfig (gcc-8): 1 warning
-    ezx_defconfig (gcc-8): 1 warning
     footbridge_defconfig (gcc-8): 1 error, 1 warning
+    gemini_defconfig (gcc-8): 1 error, 1 warning
     h3600_defconfig (gcc-8): 1 error, 1 warning
     h5000_defconfig (gcc-8): 1 error, 1 warning
     hackkit_defconfig (gcc-8): 1 error, 1 warning
-    imote2_defconfig (gcc-8): 1 warning
     imx_v4_v5_defconfig (gcc-8): 1 error, 1 warning
-    imx_v6_v7_defconfig (gcc-8): 1 warning
     integrator_defconfig (gcc-8): 1 error, 1 warning
     ixp4xx_defconfig (gcc-8): 1 error, 1 warning
-    jornada720_defconfig (gcc-8): 1 error, 1 warning
-    keystone_defconfig (gcc-8): 1 warning
+    ks8695_defconfig (gcc-8): 1 error, 1 warning
     lart_defconfig (gcc-8): 1 error, 1 warning
     lpc18xx_defconfig (gcc-8): 1 error, 1 warning
     lpc32xx_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
     lubbock_defconfig (gcc-8): 1 error, 1 warning
     magician_defconfig (gcc-8): 1 error, 1 warning
     mainstone_defconfig (gcc-8): 1 error, 1 warning
-    milbeaut_m10v_defconfig (gcc-8): 1 error, 1 warning
     mini2440_defconfig (gcc-8): 1 error, 1 warning
     mmp2_defconfig (gcc-8): 1 error, 1 warning
     moxart_defconfig (gcc-8): 1 error, 1 warning
     mps2_defconfig (gcc-8): 1 error, 1 warning
     multi_v4t_defconfig (gcc-8): 1 error, 1 warning
-    multi_v5_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 1 warning
     mv78xx0_defconfig (gcc-8): 1 error, 1 warning
     mvebu_v5_defconfig (gcc-8): 1 error, 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
     mxs_defconfig (gcc-8): 1 error, 1 warning
     neponset_defconfig (gcc-8): 1 error, 1 warning
     netwinder_defconfig (gcc-8): 1 error, 1 warning
     nhk8815_defconfig (gcc-8): 1 error, 1 warning
-    omap1_defconfig (gcc-8): 1 warning
-    omap2plus_defconfig (gcc-8): 1 warning
+    nuc910_defconfig (gcc-8): 1 error, 1 warning
+    nuc950_defconfig (gcc-8): 1 error, 1 warning
+    nuc960_defconfig (gcc-8): 1 error, 1 warning
     orion5x_defconfig (gcc-8): 1 error, 1 warning
-    oxnas_v6_defconfig (gcc-8): 1 warning
     palmz72_defconfig (gcc-8): 1 error, 1 warning
     pcm027_defconfig (gcc-8): 1 error, 1 warning
     pleb_defconfig (gcc-8): 1 error, 1 warning
@@ -311,53 +310,62 @@ arm:
     pxa910_defconfig (gcc-8): 1 error, 1 warning
     pxa_defconfig (gcc-8): 1 error, 1 warning
     qcom_defconfig (gcc-8): 1 error, 1 warning
+    raumfeld_defconfig (gcc-8): 1 warning
     realview_defconfig (gcc-8): 1 error, 1 warning
+    s3c2410_defconfig (gcc-8): 1 warning
     s3c6400_defconfig (gcc-8): 1 error, 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 error, 1 warning
     shannon_defconfig (gcc-8): 1 error, 1 warning
     simpad_defconfig (gcc-8): 1 error, 1 warning
-    spear13xx_defconfig (gcc-8): 1 warning
     spear3xx_defconfig (gcc-8): 1 error, 1 warning
     spear6xx_defconfig (gcc-8): 1 error, 1 warning
+    spitz_defconfig (gcc-8): 1 warning
     stm32_defconfig (gcc-8): 1 error, 1 warning
     sunxi_defconfig (gcc-8): 1 error, 1 warning
     tango4_defconfig (gcc-8): 1 error, 1 warning
     tct_hammer_defconfig (gcc-8): 1 error, 1 warning
-    tegra_defconfig (gcc-8): 1 warning
     tinyconfig (gcc-8): 1 error, 1 warning
     trizeps4_defconfig (gcc-8): 1 error, 1 warning
     u300_defconfig (gcc-8): 1 error, 1 warning
-    u8500_defconfig (gcc-8): 1 warning
     versatile_defconfig (gcc-8): 1 error, 1 warning
     vexpress_defconfig (gcc-8): 1 error, 1 warning
     vf610m4_defconfig (gcc-8): 1 error, 1 warning
     viper_defconfig (gcc-8): 1 error, 1 warning
+    vt8500_v6_v7_defconfig (gcc-8): 1 warning
     xcep_defconfig (gcc-8): 1 error, 1 warning
     zeus_defconfig (gcc-8): 1 error, 1 warning
     zx_defconfig (gcc-8): 1 error, 1 warning
 
 i386:
-    allnoconfig (gcc-8): 2 errors, 2 warnings
+    allnoconfig (gcc-8): 1 error, 1 warning
     tinyconfig (gcc-8): 1 error, 1 warning
 
 mips:
-    allnoconfig (gcc-8): 2 errors, 2 warnings
-    ar7_defconfig (gcc-8): 1 error, 1 warning
-    ath25_defconfig (gcc-8): 1 error, 1 warning
+    allnoconfig (gcc-8): 1 error, 1 warning
+    ar7_defconfig (gcc-8): 2 errors, 2 warnings
+    ath25_defconfig (gcc-8): 2 errors, 2 warnings
     ath79_defconfig (gcc-8): 1 error, 1 warning
-    bcm63xx_defconfig (gcc-8): 2 errors, 2 warnings
+    bcm63xx_defconfig (gcc-8): 1 error, 1 warning
     capcella_defconfig (gcc-8): 1 error, 1 warning
     ci20_defconfig (gcc-8): 1 error, 1 warning
     cobalt_defconfig (gcc-8): 2 errors, 2 warnings
-    e55_defconfig (gcc-8): 2 errors, 2 warnings
-    fuloong2e_defconfig (gcc-8): 2 errors, 2 warnings
+    db1xxx_defconfig (gcc-8): 1 warning
+    e55_defconfig (gcc-8): 1 error, 1 warning
+    fuloong2e_defconfig (gcc-8): 3 errors, 3 warnings
     gpr_defconfig (gcc-8): 2 errors, 2 warnings
-    ip28_defconfig (gcc-8): 3 errors, 3 warnings
+    ip28_defconfig (gcc-8): 2 errors, 2 warnings
     jmr3927_defconfig (gcc-8): 1 error, 1 warning
-    lasat_defconfig (gcc-8): 2 errors, 2 warnings
-    loongson1b_defconfig (gcc-8): 1 error, 1 warning
+    lasat_defconfig (gcc-8): 1 error, 1 warning
+    loongson1b_defconfig (gcc-8): 2 errors, 2 warnings
     loongson1c_defconfig (gcc-8): 1 error, 1 warning
+    malta_defconfig (gcc-8): 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
+    maltaaprp_defconfig (gcc-8): 1 warning
+    maltasmvp_defconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
+    maltaup_defconfig (gcc-8): 1 warning
+    maltaup_xpa_defconfig (gcc-8): 1 warning
     mpc30x_defconfig (gcc-8): 1 error, 1 warning
     msp71xx_defconfig (gcc-8): 1 error, 1 warning
     omega2p_defconfig (gcc-8): 1 error, 1 warning
@@ -368,86 +376,37 @@ mips:
     rbtx49xx_defconfig (gcc-8): 1 error, 1 warning
     rt305x_defconfig (gcc-8): 1 error, 1 warning
     sb1250_swarm_defconfig (gcc-8): 2 errors, 2 warnings
-    tb0219_defconfig (gcc-8): 2 errors, 2 warnings
+    tb0219_defconfig (gcc-8): 1 error, 1 warning
     tb0226_defconfig (gcc-8): 1 error, 1 warning
-    tb0287_defconfig (gcc-8): 1 error, 1 warning
-    tinyconfig (gcc-8): 1 error, 1 warning
+    tb0287_defconfig (gcc-8): 2 errors, 2 warnings
+    tinyconfig (gcc-8): 2 errors, 2 warnings
     vocore2_defconfig (gcc-8): 1 error, 1 warning
-    workpad_defconfig (gcc-8): 1 error, 1 warning
+    workpad_defconfig (gcc-8): 2 errors, 2 warnings
+    xilfpga_defconfig (gcc-8): 2 errors, 2 warnings
     xway_defconfig (gcc-8): 1 error, 1 warning
 
-riscv:
-    allnoconfig (gcc-8): 2 errors, 5 warnings
-    defconfig (gcc-8): 3 warnings
-    rv32_defconfig (gcc-8): 9 warnings
-    tinyconfig (gcc-8): 2 errors, 5 warnings
-
 x86_64:
-    allnoconfig (gcc-8): 1 error, 1 warning
-    tinyconfig (gcc-8): 1 error, 2 warnings
+    allnoconfig (gcc-8): 2 errors, 3 warnings
+    tinyconfig (gcc-8): 2 errors, 4 warnings
+    x86_64_defconfig (gcc-8): 1 warning
 
 Errors summary:
 
-    141  ./include/linux/icmpv6.h:70:2: error: implicit declaration of func=
+    150  ./include/linux/icmpv6.h:70:2: error: implicit declaration of func=
 tion =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=
 =80=99? [-Werror=3Dimplicit-function-declaration]
 
 Warnings summary:
 
-    138  cc1: some warnings being treated as errors
-    21   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-    16   <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-    4    ./include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device=
-_id=E2=80=99 declared inside parameter list will not be visible outside of =
-this definition or declaration
-    4    ./include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_no=
-de=E2=80=99 declared inside parameter list will not be visible outside of t=
-his definition or declaration
-    4    ./include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_no=
-de=E2=80=99 declared inside parameter list will not be visible outside of t=
-his definition or declaration
+    147  cc1: some warnings being treated as errors
+    18   drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 de=
+fined but not used [-Wunused-variable]
     3    cc1: all warnings being treated as errors
-    2    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_=
-format): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address=
--cells =3D=3D 2, #size-cells =3D=3D 2)
-    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
--Wcpp]
-    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
-d [-Wcpp]
-    2    ./arch/arm64/include/asm/memory.h:238:15: warning: cast from point=
-er to integer of different size [-Wpointer-to-int-cast]
-    1    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_form=
-at): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cel=
-ls =3D=3D 2, #size-cells =3D=3D 2)
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_=
-reg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_devi=
-ce_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_=
-reg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_r=
-eg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_devic=
-e_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_r=
-eg): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_re=
-g): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device=
-_bus_num): Failed prerequisite 'reg_format'
-    1    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_re=
-g): Failed prerequisite 'reg_format'
-    1    .config:1156:warning: override: UNWINDER_GUESS changes choice state
-
-Section mismatches summary:
-
-    1    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
-    1    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in ref=
-erence from the function pmax_setup_memory_region() to the function .init.t=
-ext:add_memory_region()
+    3    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h=
+' differs from latest kernel version at 'arch/x86/include/asm/insn.h'
+    1    {standard input}:29: Warning: macro instruction expanded into mult=
+iple instructions
+    1    .config:1028:warning: override: UNWINDER_GUESS changes choice state
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -463,58 +422,28 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section m=
-ismatches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
-atches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-8) =E2=80=94 FAIL, 2 errors, 5 warnings, 0 section =
+acs5k_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
 mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
+
+Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    cc1: some warnings being treated as errors
-    ./include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -532,8 +461,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
+allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -545,7 +474,7 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 section mis=
+allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
 matches
 
 Errors:
@@ -554,13 +483,25 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section m=
-ismatches
+allnoconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+atches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 FAIL, 2 errors, 3 warnings, 0 section=
+ mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -571,7 +512,22 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
     cc1: some warnings being treated as errors
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
+matches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -589,8 +545,25 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
+ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section=
+ mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -602,13 +575,16 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
+ion mismatches
 
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -625,23 +601,24 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ath25_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
+ath25_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 secti=
+on mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -672,8 +649,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sectio=
-n mismatches
+axs103_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -681,13 +658,12 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 se=
-ction mismatches
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+tion mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -695,7 +671,6 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -723,19 +698,15 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sec=
-tion mismatches
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -885,7 +856,8 @@ colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
 0 section mismatches
 
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -902,100 +874,36 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
 
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
 decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
 section mismatches
 
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x3484): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
 ---------------------------------------------------------------------------=
 -----
-decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
-Section mismatches:
-    WARNING: vmlinux.o(.text.unlikely+0x3110): Section mismatch in referenc=
-e from the function pmax_setup_memory_region() to the function .init.text:a=
-dd_memory_region()
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
 smatches
-
-Warnings:
-    ./include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 14 warnings, 0 section m=
-ismatches
-
-Warnings:
-    ./arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to=
- integer of different size [-Wpointer-to-int-cast]
-    ./arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to=
- integer of different size [-Wpointer-to-int-cast]
-    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
-t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
-s =3D=3D 2, #size-cells =3D=3D 2)
-    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (pci_device_bus_=
-num): Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (i2c_bus_reg): F=
-ailed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos5433-tm2.dtb: Warning (spi_bus_reg): F=
-ailed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos5433.dtsi:254.3-29: Warning (reg_forma=
-t): /gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cell=
-s =3D=3D 2, #size-cells =3D=3D 2)
-    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (pci_device_bus=
-_num): Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (i2c_bus_reg): =
-Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos5433-tm2e.dtb: Warning (spi_bus_reg): =
-Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos7.dtsi:83.3-29: Warning (reg_format): =
-/gpu@14ac0000:reg: property has invalid length (8 bytes) (#address-cells =
-=3D=3D 2, #size-cells =3D=3D 2)
-    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (pci_device_bu=
-s_num): Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (i2c_bus_reg):=
- Failed prerequisite 'reg_format'
-    arch/arm64/boot/dts/exynos/exynos7-espresso.dtb: Warning (spi_bus_reg):=
- Failed prerequisite 'reg_format'
 
 ---------------------------------------------------------------------------=
 -----
@@ -1012,19 +920,15 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section=
- mismatches
+e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
+ismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1060,11 +964,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1081,19 +982,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1110,7 +1005,7 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 s=
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 3 errors, 3 warnings, 0 s=
 ection mismatches
 
 Errors:
@@ -1120,20 +1015,27 @@ Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
     cc1: all warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+gemini_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
 
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -1193,8 +1095,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 secti=
-on mismatches
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1202,13 +1104,12 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 s=
-ection mismatches
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1216,7 +1117,6 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1226,12 +1126,12 @@ hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
 
 ---------------------------------------------------------------------------=
 -----
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
- mismatches
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1240,11 +1140,8 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1261,11 +1158,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1282,7 +1176,17 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
 iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
 on mismatches
 
 ---------------------------------------------------------------------------=
@@ -1297,13 +1201,10 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 3 errors, 3 warnings, 0 sectio=
+ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sectio=
 n mismatches
 
 Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
@@ -1314,7 +1215,6 @@ Errors:
 Warnings:
     cc1: some warnings being treated as errors
     cc1: all warnings being treated as errors
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -1354,8 +1254,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-jornada720_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1364,14 +1269,6 @@ Errors:
 
 Warnings:
     cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
 
 ---------------------------------------------------------------------------=
 -----
@@ -1388,19 +1285,15 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-lasat_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 secti=
-on mismatches
+lasat_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1410,15 +1303,19 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
-ction mismatches
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 =
+section mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -1458,12 +1355,17 @@ lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1506,8 +1408,12 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -1516,56 +1422,73 @@ ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
 s, 0 section mismatches
 
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
+Warnings:
+    {standard input}:29: Warning: macro instruction expanded into multiple =
+instructions
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
 markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
-
----------------------------------------------------------------------------=
------
-milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
-section mismatches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
@@ -1670,19 +1593,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1712,11 +1629,8 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1759,6 +1673,11 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
 nhk8815_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
 n mismatches
 
@@ -1782,8 +1701,8 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 secti=
-on mismatches
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1791,13 +1710,12 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 s=
-ection mismatches
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1805,13 +1723,12 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 s=
-ection mismatches
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
+ction mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -1819,38 +1736,73 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings,=
- 0 section mismatches
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings=
+, 0 section mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+nuc910_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
  mismatches
 
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
+nuc950_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
+ mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1877,14 +1829,6 @@ Errors:
 
 Warnings:
     cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
 
 ---------------------------------------------------------------------------=
 -----
@@ -2070,6 +2014,15 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
 rb532_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
  mismatches
 
@@ -2132,32 +2085,12 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 9 warnings, 0 secti=
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
 on mismatches
 
 Warnings:
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    ./include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
-    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
-    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
-cpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -2174,19 +2107,21 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -2243,11 +2178,8 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -2277,8 +2209,12 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
@@ -2321,19 +2257,15 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sect=
-ion mismatches
+tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
+n mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -2351,15 +2283,19 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
+tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sect=
+ion mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -2377,30 +2313,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 section mism=
-atches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
-atches
+tinyconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section misma=
+tches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -2438,47 +2357,7 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (x86_64, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 section m=
-ismatches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    .config:1156:warning: override: UNWINDER_GUESS changes choice state
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-8) =E2=80=94 FAIL, 2 errors, 5 warnings, 0 section m=
-ismatches
-
-Errors:
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
-=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
-? [-Werror=3Dimplicit-function-declaration]
-
-Warnings:
-    cc1: some warnings being treated as errors
-    ./include/linux/of_clk.h:11:45: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:12:43: warning: =E2=80=98struct device_node=E2=
-=80=99 declared inside parameter list will not be visible outside of this d=
-efinition or declaration
-    ./include/linux/of_clk.h:13:31: warning: =E2=80=98struct of_device_id=
-=E2=80=99 declared inside parameter list will not be visible outside of thi=
-s definition or declaration
-    cc1: some warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
+tinyconfig (i386, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
 atches
 
 Errors:
@@ -2487,6 +2366,43 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 section mi=
+smatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 FAIL, 2 errors, 4 warnings, 0 section =
+mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    .config:1028:warning: override: UNWINDER_GUESS changes choice state
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -2517,16 +2433,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 sect=
-ion mismatches
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -2534,13 +2447,12 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 2 warnings, 0 =
-section mismatches
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
+ection mismatches
 
 Errors:
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
@@ -2548,7 +2460,6 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
@@ -2618,26 +2529,38 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    drivers/clk/clk.c:48:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
+ but not used [-Wunused-variable]
 
 ---------------------------------------------------------------------------=
 -----
-workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
+workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sec=
+tion mismatches
 
 Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
     ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
 =E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
     cc1: some warnings being treated as errors
+    cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
 -----
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    Warning: synced file at 'tools/objtool/arch/x86/include/asm/insn.h' dif=
+fers from latest kernel version at 'arch/x86/include/asm/insn.h'
 
 ---------------------------------------------------------------------------=
 -----
@@ -2650,6 +2573,23 @@ Errors:
 ? [-Werror=3Dimplicit-function-declaration]
 
 Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Errors:
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+    ./include/linux/icmpv6.h:70:2: error: implicit declaration of function =
+=E2=80=98__icmpv6_send=E2=80=99; did you mean =E2=80=98icmpv6_send=E2=80=99=
+? [-Werror=3Dimplicit-function-declaration]
+
+Warnings:
+    cc1: some warnings being treated as errors
     cc1: some warnings being treated as errors
 
 ---------------------------------------------------------------------------=
