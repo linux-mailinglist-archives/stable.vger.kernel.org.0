@@ -2,79 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33BF932C81A
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1753132C81C
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344942AbhCDAd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 19:33:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42456 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1447592AbhCCPE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Mar 2021 10:04:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE1F764EDB;
-        Wed,  3 Mar 2021 15:03:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614783827;
-        bh=2/sTuEpFwd93bBqjR0EAjn1gZBYjn5jEVQYV6u7dFpA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCW/5/jdJW6J1uDynL4hdlpdZ6QFqusywN2AfcLYm89+5uQyzo1J3JJH7s7K/XLkL
-         sgUlmcuKM3USbHFNSplhnyntUhX9OlSPbqBoFaSt/KzMLuCfslGc/M6EMMBS2WY0I9
-         uhR+Yn64UlyVFxnxRF1BqAQiF4IFpbiKBIUIz+V4WuZs1iemvODAm2JU3HjxNEfclv
-         MLLELCYqMwfFmiDOkEnxGakz1+9D2TXquyvR+HASwwyvGYVLA6yhRGQVaC6Qify45z
-         apYJt1JAQfCW4sBO0+gRfWFitJi0XqhQWIm3T25ln/QYrkZLRILCwkvX3iK+D2Bn5y
-         rW4U28ryssPqg==
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     linux-sgx@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Serge Ayoun <serge.ayoun@intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/5] x86/sgx: Fix a resource leak in sgx_init()
-Date:   Wed,  3 Mar 2021 17:03:19 +0200
-Message-Id: <20210303150323.433207-2-jarkko@kernel.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210303150323.433207-1-jarkko@kernel.org>
-References: <20210303150323.433207-1-jarkko@kernel.org>
+        id S244565AbhCDAeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 19:34:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244441AbhCCPLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 10:11:33 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2958AC0613DF
+        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 07:08:37 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id d13so25373537edp.4
+        for <stable@vger.kernel.org>; Wed, 03 Mar 2021 07:08:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ma0aLe7L7wfc2EcnaVyjvoNiREEF5DORKFdfo+QCWX0=;
+        b=CiV7tOZtuvuWalzzsFt6r7jq9QI429v5CtstMoU2Mlw5gsHzio9Rdi9Qei8nTJmNC2
+         UZcMSJ7vOAqYq9RgLfGs3RhYh7LrMX1BZzm3Sa4DMjNAiSv2ZCQsYT903mkCoAsC+sc4
+         d1Vufc9PByAn6O+VJVCeDzkb2+8QUuI1j5ZcwGfusUYjAfllOENS5VATrJREFRKOFu2r
+         KxptPp7mLsOK/kAr5hZUQSijC08U2vc1uT4CwmpaSuiidh/nHwiHMIicJlQxuD2jJr2x
+         KIdiWAxX8hjn0hNs5jFDrf1pOJC4Ax/D1L3mFKLy42aZPIVMwoT19c7sqvR73vTjxlNq
+         Swbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ma0aLe7L7wfc2EcnaVyjvoNiREEF5DORKFdfo+QCWX0=;
+        b=pViI9RNuLA6RfbkTjJTG35j0P9DVFFFOIJJelr7jiVx/fEHM5X8teswkkmEFybbVmt
+         R75JjjYsCX+ALK0KNafE9nQSYfyWJUKoLjuSmUTOBS517fph3PW4TMUr4RoSkbQ7PzlN
+         lin+CWoxfM8PtgvkRriTDhN3T51zU/LzxEY7ZTFMBwQTZHZGqeawlOzGRdW3unBbuxes
+         nWFb+r9esQZcUaP6Ul9GAdFys6G9MfvhybMK5Vap2heYRvxUB5LKh4iHcvHcscudH7U2
+         VQz3xt7Ez9s3gi3ewLeIVf/lhDrW3cy+5nIIs5rlQ0U+kHbN7/uIyl5DgVqX+O4UbPXt
+         9Ntg==
+X-Gm-Message-State: AOAM533EoE0HBR8d1VXP1fMeGGlaDfdB3PIS01w1uunRLJtGwWei9Nl5
+        S4lMVdszJ3CFZ9ruZ3wlOaUpLA04RHS4VUupdWaN7g==
+X-Google-Smtp-Source: ABdhPJybVSS6YuAyjr24XGif6t4uCJxDSC8Dg1F94QRJFCb33vMmF58z4GFFNzf14hSLatqaLJEyS70Y970qbVtg2D4=
+X-Received: by 2002:aa7:c3cd:: with SMTP id l13mr20074891edr.52.1614784115667;
+ Wed, 03 Mar 2021 07:08:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210302192550.512870321@linuxfoundation.org>
+In-Reply-To: <20210302192550.512870321@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 3 Mar 2021 20:38:22 +0530
+Message-ID: <CA+G9fYvxnS5iiQJEe2dHbKJjQyeU=G_YWDYJK-e1UL_C6hPvLQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/246] 4.19.178-rc4 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If sgx_page_cache_init() fails in the middle, a trivial return statement
-causes unused memory and virtual address space reserved for the EPC
-section, not freed. Fix this by using the same rollback, as when
-sgx_page_reclaimer_init() fails.
+On Wed, 3 Mar 2021 at 00:58, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.178 release.
+> There are 246 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.178-rc4.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Cc: stable@vger.kernel.org # 5.11
-Fixes: e7e0545299d8 ("x86/sgx: Initialize metadata for Enclave Page Cache (EPC) sections")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
- arch/x86/kernel/cpu/sgx/main.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 8df81a3ed945..52d070fb4c9a 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -708,8 +708,10 @@ static int __init sgx_init(void)
- 	if (!cpu_feature_enabled(X86_FEATURE_SGX))
- 		return -ENODEV;
- 
--	if (!sgx_page_cache_init())
--		return -ENOMEM;
-+	if (!sgx_page_cache_init()) {
-+		ret = -ENOMEM;
-+		goto err_page_cache;
-+	}
- 
- 	if (!sgx_page_reclaimer_init()) {
- 		ret = -ENOMEM;
--- 
-2.30.1
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+Summary
+------------------------------------------------------------------------
+kernel: 4.19.178-rc4
+git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git',
+'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
+git branch: linux-4.19.y
+git commit: 26e47b79f5ec2ea5c7a46e578dc0b46b9073effe
+git describe: v4.19.177-247-g26e47b79f5ec
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.177-247-g26e47b79f5ec
+
+--
+Linaro LKFT
+https://lkft.linaro.org
