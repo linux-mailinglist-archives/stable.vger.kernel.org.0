@@ -2,86 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C59B32C83B
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A86D32C83C
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377146AbhCDAfG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 19:35:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51228 "EHLO
+        id S1377173AbhCDAfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 19:35:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387981AbhCCUJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 15:09:29 -0500
-Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B15C061756;
-        Wed,  3 Mar 2021 12:08:49 -0800 (PST)
-Received: by mail-ot1-x331.google.com with SMTP id w3so5112077oti.8;
-        Wed, 03 Mar 2021 12:08:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=Ji0+VmKZLwtuggeWbtaFHHjpiuLIrXLOhc4el/eVDOg=;
-        b=igKPuOBPf6UMr2zaszKRxemypGJE7vQDA5rzI+tYH7VRd7TYVFMLWZEAxNoi696D5H
-         lEd7xBfHhu4qRtCsZxCM3U3hv4B7cUlaurnDtUsA3IJzEXdh/qnMST9ZhlK05J1WeWPe
-         291fr7IIw2L4ffqCKmQ42j5XcwEF4M8e77yo1dOKvKKChRSf3gUevebBwBK8dwiuR7ht
-         9MfqbwkPCfVANR8nHVX0FMgIMFgS7EUE9hdLVDWoZSAFD5+/srEnMr69u41bihpH4t5h
-         B0Chy3UiK6f5vt+dIchxxsoG92I/s0OXc9RJ+e/Ovxf7NO2N9A6C50D3E2J7a8s6U485
-         rnnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Ji0+VmKZLwtuggeWbtaFHHjpiuLIrXLOhc4el/eVDOg=;
-        b=qXabXeiAJDz3K+zo/+b/E2Iwtg5aQsVhTDKJjevq0Pi+dbrzyZVLi/rYpg1acu+YYM
-         rZgm4640Mr2Rasvhppv9y924qMKPIDaqpBUxzDjXRI9OvUeLiHSWFD2pUdTk/PRz1Hik
-         eGHlSc8Zvm/bldyWyozX8dLRwcO3Xe5R3/E6R8EAR4r9QzNdgQHGLn757kq6c5pPYhjc
-         gUNZFy1mkgC8IIgD48vJDqlwXVDg/uR5FgJt/7eSbnI0ra25DJXY51CgTG+OOW2Z4UAU
-         /uUwG4jg8QlwwL3m0Y+uWF3y/WOnpFFrUhnKLvbgDcO94+LemhV4oFAm6BkzTJPki/Rh
-         vyBw==
-X-Gm-Message-State: AOAM532HHrvxNr7VOSDf9ZcB3ip6BsWr87SMWeIPJqI/wGWEP1rlqVvR
-        s3Z0SUn6iOq8eI72osptAZ8=
-X-Google-Smtp-Source: ABdhPJwjwTKxP7fFRPD8ScId17DjLWpedh+FBlMyBdUspu0XMlJ7w+8mTKVvnx/1qE7LQkBF68vXUw==
-X-Received: by 2002:a9d:2cf:: with SMTP id 73mr678597otl.28.1614802128858;
-        Wed, 03 Mar 2021 12:08:48 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id u15sm4665580oiu.28.2021.03.03.12.08.47
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 03 Mar 2021 12:08:48 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 3 Mar 2021 12:08:46 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.11 000/773] 5.11.3-rc3 review
-Message-ID: <20210303200846.GG33580@roeck-us.net>
-References: <20210302192719.741064351@linuxfoundation.org>
+        with ESMTP id S1388006AbhCCUXR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 15:23:17 -0500
+X-Greylist: delayed 4964 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 03 Mar 2021 12:22:37 PST
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8EFDC061756;
+        Wed,  3 Mar 2021 12:22:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=NJRVHOfY/wAjmUPZBNz4qgJex3zmcTXiYgWDUNlTG8o=; b=eqA9t6kzaBOgSsX6JWQ6bNyGRh
+        UgYeALN9opyR6KuSqGmP4uzPf+k1oBK6TCyU6a/1fX501vYjGmCpXFSWywGvkaonbPZhEayT++4iZ
+        oODGrrJEmiuUlswEbZ3fyg6gI9kYBFgn9UR+KDU3zx1LGek7KNREdgasXMr6iw6BLvLokSybzj3o0
+        FNG0+dPAVRHOOozCESR//7yz71L+9+0rl3yqiyPbu8P6DvpStpnaONCATRQi3TmBKlvyzIITN694t
+        lEto28QgNJ950rVl1iEY2vdIbNKBUcYGt3oxMUUHAEyvaVM0uFuclcgYh+03KSaFH8kTFiBm0BULu
+        IrCyN89A==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lHXzy-006Opo-Az; Wed, 03 Mar 2021 20:21:53 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 795C73017B7;
+        Wed,  3 Mar 2021 21:21:31 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 3FB8320B10DC6; Wed,  3 Mar 2021 21:21:31 +0100 (CET)
+Date:   Wed, 3 Mar 2021 21:21:31 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     "Liang, Kan" <kan.liang@linux.intel.com>
+Cc:     Vince Weaver <vincent.weaver@maine.edu>, mingo@redhat.com,
+        linux-kernel@vger.kernel.org, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, eranian@google.com,
+        ak@linux.intel.com, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "perf/x86: Allow zero PEBS status with only
+ single active event"
+Message-ID: <YD/vy2RnkWZYiJHP@hirez.programming.kicks-ass.net>
+References: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
+ <YD/cnnuh/AHOL8hV@hirez.programming.kicks-ass.net>
+ <9484ab6e-a6e5-bb72-106f-ed904e50fc0c@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210302192719.741064351@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <9484ab6e-a6e5-bb72-106f-ed904e50fc0c@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 08:29:01PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.11.3 release.
-> There are 773 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Mar 03, 2021 at 02:53:00PM -0500, Liang, Kan wrote:
+> On 3/3/2021 1:59 PM, Peter Zijlstra wrote:
+> > On Wed, Mar 03, 2021 at 05:42:18AM -0800, kan.liang@linux.intel.com wrote:
+
+> > > +++ b/arch/x86/events/intel/ds.c
+> > > @@ -2000,18 +2000,6 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
+> > >   			continue;
+> > >   		}
+> > > -		/*
+> > > -		 * On some CPUs the PEBS status can be zero when PEBS is
+> > > -		 * racing with clearing of GLOBAL_STATUS.
+> > > -		 *
+> > > -		 * Normally we would drop that record, but in the
+> > > -		 * case when there is only a single active PEBS event
+> > > -		 * we can assume it's for that event.
+> > > -		 */
+> > > -		if (!pebs_status && cpuc->pebs_enabled &&
+> > > -			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
+> > > -			pebs_status = cpuc->pebs_enabled;
+> > 
+> > Wouldn't something like:
+> > 
+> > 			pebs_status = p->status = cpus->pebs_enabled;
+> > 
 > 
-> Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
-> Anything received after that time might be too late.
-> 
+> I didn't consider it as a potential solution in this patch because I don't
+> think it's a proper way that SW modifies the buffer, which is supposed to be
+> manipulated by the HW.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 435 pass: 435 fail: 0
+Right, but then HW was supposed to write sane values and it doesn't do
+that either ;-)
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+> It's just a personal preference. I don't see any issue here. We may try it.
 
-Guenter
+So I mostly agree with you, but I think it's a shame to unsupport such
+chips, HSW is still a plenty useable chip today.
+
+
