@@ -2,125 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A7C32BC38
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BD1832BC3F
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383273AbhCCNpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:45:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39176 "EHLO
+        id S1444845AbhCCNrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241315AbhCCK2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:28:08 -0500
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C258C061756
-        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 02:27:28 -0800 (PST)
-Received: by mail-oi1-x22d.google.com with SMTP id w69so25425797oif.1
-        for <stable@vger.kernel.org>; Wed, 03 Mar 2021 02:27:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=94FU4aImSyveb72Fh42pjQwrSbJ+f3XzeivB4wSoR78=;
-        b=TPsmqF4DiwneZsBqICYdPOa29BGt70SR8yCZLys0WXRd8rFZIw1GUvfX7iMCLGVxQB
-         C5MxaiTdM2gnMZNd72rNUuRZReFaYDvCJjfAct7n3kaMDZiPbvkoIcgD51I7edBYM3uZ
-         G50f5hmZYM9BO0FHhjNfGoty7zvsPgda8dQcV/T0vY3cDDJEgTR12X+zUTJvY6dy6IUS
-         k35maJzmrft8jBKaRug9SJYxosur19yPY8DQpYLY3c4AqAmhEMOKX/mxPqj7+H0EQV7i
-         6FQgEmBjjdmvMIMRpbNJV+phC4qgeQ4OJ2usuyXDHwugttb/emwZ5rh53RsQyOm+P2TY
-         84fw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=94FU4aImSyveb72Fh42pjQwrSbJ+f3XzeivB4wSoR78=;
-        b=WXKV+8eNOh5F/+zrmDJhGlGYgTjV3xv7pe9X4xQAOBiHyEyQ4GuATpuCI8OSgCiQXK
-         77rFjqUw1LCxZuBYanVNDHm6+w1tzMOOvQyc94FPlL6Ye+WNT4kljEfBzl4YUKycwGmW
-         jwAZLuxu6fKIBtQCVi3A3B892XjIBGVwcVF39fEhFoehVV5yASGqhkbnrtpTl0VfvQbc
-         aa+czyeA6DWufocWvpUwmvW7EWAET+7ZWmcsD7AAezfb5p5M07qBHNs2rW0pmx1tGICu
-         0UeHp/fV+ANgKaRxdbuKFAylXgiVrnKDE2Vf2djQTyYZJTVuLxtzkdmLjBbCnNBfRk+z
-         lyyg==
-X-Gm-Message-State: AOAM531TJANAW7nf1z3q4DxzXWWLG8Cc4qfhASb+uCjz19nVyJYbldZc
-        1wTd2TANPuwPKfMoTz8/6FF5d8JT6DpnqUXiJhUzXQ==
-X-Google-Smtp-Source: ABdhPJzEjJBfP0+b5HSHdvaVlTjhK7j0sIV85vmNsnUkZyxcXT8JIFBTCSPTghfDv0QK1R9PoCFNQ75GdZzfRjZD7II=
-X-Received: by 2002:aca:5fd4:: with SMTP id t203mr6668726oib.121.1614767247769;
- Wed, 03 Mar 2021 02:27:27 -0800 (PST)
+        with ESMTP id S1442903AbhCCKvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:51:17 -0500
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C64C061793;
+        Wed,  3 Mar 2021 02:37:40 -0800 (PST)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: gtucker)
+        with ESMTPSA id 255631F40F32
+Subject: Re: [PATCH 5.10 000/661] 5.10.20-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
+        Suram Suram <suram@nxp.com>,
+        "kernelci-results@groups.io" <kernelci-results@groups.io>
+References: <20210301193642.707301430@linuxfoundation.org>
+ <32a6c609-642c-71cf-0a84-d5e8ccd104b1@collabora.com>
+ <YD4yUu6YH3wNQbwa@kroah.com>
+From:   Guillaume Tucker <guillaume.tucker@collabora.com>
+Message-ID: <a0a72d78-1153-6dbb-7234-8ae1bc7c04fd@collabora.com>
+Date:   Wed, 3 Mar 2021 10:34:11 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-References: <20210303093845.2743309-1-elver@google.com> <YD9dld26cz0RWHg7@kroah.com>
- <CANpmjNMxuj23ryjDCr+ShcNy_oZ=t3MrxFa=pVBXjODBopEAnw@mail.gmail.com> <YD9jujCYGnjwOMoP@kroah.com>
-In-Reply-To: <YD9jujCYGnjwOMoP@kroah.com>
-From:   Marco Elver <elver@google.com>
-Date:   Wed, 3 Mar 2021 11:27:16 +0100
-Message-ID: <CANpmjNPS7BXepA=G-Fbc_PEjeBhyc8PYEhzEO+TbWApGO7tL-g@mail.gmail.com>
-Subject: Re: [PATCH] kcsan, debugfs: Move debugfs file creation out of early init
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     rafael@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <YD4yUu6YH3wNQbwa@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 3 Mar 2021 at 11:24, Greg KH <gregkh@linuxfoundation.org> wrote:
-> On Wed, Mar 03, 2021 at 11:18:06AM +0100, Marco Elver wrote:
-> > On Wed, 3 Mar 2021 at 10:57, Greg KH <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > On Wed, Mar 03, 2021 at 10:38:45AM +0100, Marco Elver wrote:
-> > > > Commit 56348560d495 ("debugfs: do not attempt to create a new file
-> > > > before the filesystem is initalized") forbids creating new debugfs files
-> > > > until debugfs is fully initialized. This breaks KCSAN's debugfs file
-> > > > creation, which happened at the end of __init().
-> > >
-> > > How did it "break" it?  The files shouldn't have actually been created,
-> > > right?
-> >
-> > Right, with 56348560d495 the debugfs file isn't created anymore, which
-> > is the problem. Before 56348560d495 the file exists (syzbot wants the
-> > file to exist.)
-> >
-> > > > There is no reason to create the debugfs file during early
-> > > > initialization. Therefore, move it into a late_initcall() callback.
-> > > >
-> > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-> > > > Cc: stable <stable@vger.kernel.org>
-> > > > Fixes: 56348560d495 ("debugfs: do not attempt to create a new file before the filesystem is initalized")
-> > > > Signed-off-by: Marco Elver <elver@google.com>
-> > > > ---
-> > > > I've marked this for 'stable', since 56348560d495 is also intended for
-> > > > stable, and would subsequently break KCSAN in all stable kernels where
-> > > > KCSAN is available (since 5.8).
-> > >
-> > > No objection from me, just odd that this actually fixes anything :)
-> >
-> > 56348560d495 causes the file to just not be created if we try to
-> > create at the end of __init(). Having it created as late as
-> > late_initcall() gets us the file back.
-> >
-> > When you say "fixes anything", should the file be created even though
-> > it's at the end of __init()? Perhaps I misunderstood what 56348560d495
-> > changes, but I verified it to be the problem by reverting (upon which
-> > the file exists as expected).
->
-> All my change did is explicitly not allow you to create a file if
-> debugfs had not been initialized.  If you tried to do that before, you
-> should have gotten an error from the vfs layer that the file was not
-> created, as otherwise how would it have succeeded?
->
-> I just moved the check up higher in the "stack" to the debugfs code, and
-> not relied on the vfs layer to do a lot of work only to reject things
-> later on.
->
-> So there "should" not have been any functional change with this patch.
-> If there was, then something is really odd as how can the vfs layer
-> create a file for a filesystem _before_ that filesystem has been
-> registered with the vfs layer?
+On 02/03/2021 12:40, Greg Kroah-Hartman wrote:
+> On Tue, Mar 02, 2021 at 11:38:36AM +0000, Guillaume Tucker wrote:
+>> On 01/03/2021 19:37, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.10.20 release.
+>>> There are 661 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Wed, 03 Mar 2021 19:34:53 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.20-rc2.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>>
+>> I've been through the KernelCI results for v5.10.20-rc2 and made
+>> this manual reply, hoping to eventually get it all automated.
+>>
+>>
+>>
+>> First there was one build regression with the arm
+>> realview_defconfig:
+>>
+>> kernel/rcu/tree.c:683:2: error: implicit declaration of function ‘IRQ_WORK_INIT’; did you mean ‘IRQMASK_I_BIT’? [-Werror=implicit-function-declaration]
+>>   IRQ_WORK_INIT(late_wakeup_func);
+>>   ^~~~~~~~~~~~~
+>>   IRQMASK_I_BIT
+>> kernel/rcu/tree.c:683:2: error: invalid initializer
+>>
+>>
+>> Full log:
+>>
+>>   https://storage.kernelci.org/stable-rc/linux-5.10.y/v5.10.19-662-g92929e15cdc0/arm/realview_defconfig/gcc-8/build.log
+> 
+> That should now be resolved with a new -rc release for 5.4.y and 5.10.y.
 
-Ah, I see. I do confirm that the file has been created until
-56348560d495, without any errors.
+Confirmed in my other email for v5.10.20-rc4.
 
-Thanks,
--- Marco
+>> There were also a few new build warnings.  Here's a comparison of
+>> the number of builds that completed with no warnings, with at
+>> least one warning, and with an error between current stable and
+>> stable-rc:
+>>
+>>               pass  warn  error
+>> v5.10.19      188      6      0  
+>> v5.10.20-rc2  180     15      1
+>>
+>> Full details for these 2 revisions respectively:
+>>
+>>   https://kernelci.org/build/stable/branch/linux-5.10.y/kernel/v5.10.19/
+>>   https://kernelci.org/build/stable-rc/branch/linux-5.10.y/kernel/v5.10.19-662-g92929e15cdc0/
+> 
+> That error should be resolved.
+> 
+> Warnings for non-x86 arches I have not been tracking to try to get down
+> to 0.  That would be a good project for someone to work on...
+
+OK, so until we get to 0 we should probably ignore warnings when
+replying to the -rc review threads.  If someone wants to pick
+this up in the meantime, kernelci.org can definitely help.
+
+>> Then on the runtime testing side, there was one boot regression
+>> detected on imx8mp-evk as detailed here:
+>>
+>>   https://kernelci.org/test/case/id/603d69ec2924db6b9baddcb2/
+>>
+>> I've re-run a couple of tests with both v5.10.19 and v5.10.20-rc2
+>> and also got a failure with v5.10.19, so it looks like it's not
+>> really a new regression but more of an intermittent problem.
+>> Bisections are not enabled in NXP's lab so we don't have results
+>> about which commit caused it.  We should chase this up, I've
+>> already asked if they're OK to enable bisection.  Then we may
+>> bisect with an older revision that is really booting to find the
+>> root cause...
+> 
+> Finding that root cause would be good, but doesn't really sound like a
+> regression yet :)
+
+Yep.  Bisections are now getting enabled in the NXP test lab, so
+we'll share the news if it leads to something.  FWIW the same
+test passed with v5.10.20-rc4.
+
+>> Presumably it's not OK to have this build error in the v5.10.20
+>> release, assuming the boot regression is not new and can be
+>> ignored, but that's your call.  So it seems a bit early for
+>> KernelCI to stamp it with Tested-by, even though it was tested
+>> but it's more a matter of clarifying the semantics and whether
+>> Tested-by implicitly means "works for me".  What do you think?
+> 
+> Try the new release to see if that fixes the build errors for you.
+
+All passing now.
+
+> And thanks for doing all of the testing here, this round was a rough one
+> for a variety of different reasons...
+
+You're welcome.  That's what KernelCI is here for :)
+
+It'll just take a bit more typing to automate the replies and use
+the last stable release as a reference to detect new regressions
+on stable-rc.  I think patches@kernelci.org you're putting on CC
+will make things easier in this respect, in fact that's what it
+was originally created for.
+
+Best wishes,
+Guillaume
