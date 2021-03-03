@@ -2,121 +2,336 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2020032BC34
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BA432BC54
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:53:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383224AbhCCNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:44:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37992 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1843028AbhCCKYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:24:36 -0500
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9C9C061223
-        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 00:32:33 -0800 (PST)
-Received: by mail-ej1-x631.google.com with SMTP id bm21so21680920ejb.4
-        for <stable@vger.kernel.org>; Wed, 03 Mar 2021 00:32:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=BqekrOVrolDpMG5/JmcfAVvwbTu8RV0j7Se99VtBEcc=;
-        b=P/uquj684daW3A9Yv0Xkt8CYVBwRo6rBr82FZNHKB2DuIJdQC8PDPM/3w45UUn9gYj
-         SQkWWvqCBUmN6HhFSCsVTygg7Rs5JqBTo6nfEjpDFz10wooVgcphM0qYiCzvpHt7i5tX
-         IqxkmEOymk5/q8KAtpF0bG8WdlVSlahvvPZAjSQSr9VwJOgE9KLeoklPAv08UPQTuoqr
-         ZnHyWSXxDul0pcgPraS8bYVyMqdidsx5PhINDgqOpD72W5SYxJxU6uIfdydQ8eZOyNMn
-         lrmIdtT6l7RUpsiE5bD9L9cFBNwSXwjFmSBWFlJt9BRF2SqLAcIKtXZ8aars7BmtIhYj
-         uPWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=BqekrOVrolDpMG5/JmcfAVvwbTu8RV0j7Se99VtBEcc=;
-        b=osvGccTxU0T5MXrCxOm/YSsdEX3lBB9WVHXgIPLzUPncOVC1PMU7HSpBhrSGiIa4gI
-         rPm6wQ/AkeDSzQKAoj9EmMyufrkXWaz1x738Zuk4S+A8PBjXFdnF24uGTgFIESQIioRn
-         hNMJSXoG/GiQODRKG917zCXM/1hNi5XcyXDPBNsbfR72TxRSFNS62PgEyVwMceFuAsnN
-         DAqoa7gRaMTanqqvzZaIAXIlc+8wLDj3RF9TWyvBe5wMbKqnWPedFsP/OK4EMHBk7Ke/
-         AyZ2G9rwrSWtyQP1zvGfq9D+g6+urKqwooU7NZYHSLUMk07N2zCLbFxY5rgG6Hlw4mrx
-         iCaA==
-X-Gm-Message-State: AOAM53084tInRJ/XyHkHBvd7uO13GXix4FK/LYZDdmSWJTodm+DEczJY
-        pKdP/oEH5mkN/MM8g6Gw+G1t/4PUlfMEG2nzlHKgUw==
-X-Google-Smtp-Source: ABdhPJxLGkewqef2ptqvWfzIQC0wsO06AMlom/LK9nRXq1YbtxPiX/brbeeo/8lskFM/06A0G+ZRg92pBd4v5pf4mqM=
-X-Received: by 2002:a17:906:b2c3:: with SMTP id cf3mr23862604ejb.133.1614760352304;
- Wed, 03 Mar 2021 00:32:32 -0800 (PST)
+        id S1447243AbhCCNsZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:48:25 -0500
+Received: from mx2.suse.de ([195.135.220.15]:32884 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1358612AbhCCMOT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Mar 2021 07:14:19 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 26107AF3F;
+        Wed,  3 Mar 2021 08:45:19 +0000 (UTC)
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     daniel@ffwll.ch, airlied@linux.ie,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        sumit.semwal@linaro.org, christian.koenig@amd.com,
+        gregkh@linuxfoundation.org, hdegoede@redhat.com, sean@poorly.run,
+        noralf@tronnes.org, stern@rowland.harvard.edu,
+        dan.carpenter@oracle.com
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Pavel Machek <pavel@ucw.cz>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Christoph Hellwig <hch@lst.de>, stable@vger.kernel.org
+Subject: [PATCH v7] drm: Use USB controller's DMA mask when importing dmabufs
+Date:   Wed,  3 Mar 2021 09:45:12 +0100
+Message-Id: <20210303084512.25635-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-References: <20210302192719.741064351@linuxfoundation.org>
-In-Reply-To: <20210302192719.741064351@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 3 Mar 2021 14:02:20 +0530
-Message-ID: <CA+G9fYvkW+84U9e0Cjft_pq9bGnBBqCXST7Hg+gx4pKNyuGPFQ@mail.gmail.com>
-Subject: Re: [PATCH 5.11 000/773] 5.11.3-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LTP List <ltp@lists.linux.it>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 3 Mar 2021 at 00:59, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.11.3 release.
-> There are 773 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.11.3-rc3.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.11.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+USB devices cannot perform DMA and hence have no dma_mask set in their
+device structure. Therefore importing dmabuf into a USB-based driver
+fails, which breaks joining and mirroring of display in X11.
 
+For USB devices, pick the associated USB controller as attachment device.
+This allows the DRM import helpers to perform the DMA setup. If the DMA
+controller does not support DMA transfers, we're out of luck and cannot
+import. Our current USB-based DRM drivers don't use DMA, so the actual
+DMA device is not important.
 
-Results from Linaro=E2=80=99s test farm.
-All our builds are getting PASS now.
-But,
-Regressions detected on all devices (arm64, arm, x86_64 and i386).
-LTP pty test case hangup01 failed on all devices
+Drivers should use DRM_GEM_SHMEM_DROVER_OPS_USB to initialize their
+instance of struct drm_driver.
 
-hangup01    1  TFAIL  :  hangup01.c:133: unexpected message 3
+Tested by joining/mirroring displays of udl and radeon un der Gnome/X11.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+v7:
+	* fix use-before-init bug in gm12u320 (Dan)
+v6:
+	* implement workaround in DRM drivers and hold reference to
+	  DMA device while USB device is in use
+	* remove dev_is_usb() (Greg)
+	* collapse USB helper into usb_intf_get_dma_device() (Alan)
+	* integrate Daniel's TODO statement (Daniel)
+	* fix typos (Greg)
+v5:
+	* provide a helper for USB interfaces (Alan)
+	* add FIXME item to documentation and TODO list (Daniel)
+v4:
+	* implement workaround with USB helper functions (Greg)
+	* use struct usb_device->bus->sysdev as DMA device (Takashi)
+v3:
+	* drop gem_create_object
+	* use DMA mask of USB controller, if any (Daniel, Christian, Noralf)
+v2:
+	* move fix to importer side (Christian, Daniel)
+	* update SHMEM and CMA helpers for new PRIME callbacks
 
-This failure is specific to stable-rc v5.10.20-rc4 and v5.11.3-rc3
-Test PASS on the v5.12-rc1 mainline and Linux next kernel.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Fixes: 6eb0233ec2d0 ("usb: don't inherity DMA properties for USB devices")
+Tested-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Christian König <christian.koenig@amd.com>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org> # v5.10+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ Documentation/gpu/todo.rst      | 21 +++++++++++++++++++++
+ drivers/gpu/drm/tiny/gm12u320.c | 28 ++++++++++++++++++++++++++--
+ drivers/gpu/drm/udl/udl_drv.c   | 17 +++++++++++++++++
+ drivers/gpu/drm/udl/udl_drv.h   |  1 +
+ drivers/gpu/drm/udl/udl_main.c  |  9 +++++++++
+ drivers/usb/core/usb.c          | 32 ++++++++++++++++++++++++++++++++
+ include/linux/usb.h             |  2 ++
+ 7 files changed, 108 insertions(+), 2 deletions(-)
 
-Following two commits caused this test failure,
+diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
+index 0631b9b323d5..fdfd6a1081ec 100644
+--- a/Documentation/gpu/todo.rst
++++ b/Documentation/gpu/todo.rst
+@@ -571,6 +571,27 @@ Contact: Daniel Vetter
+ 
+ Level: Intermediate
+ 
++Remove automatic page mapping from dma-buf importing
++----------------------------------------------------
++
++When importing dma-bufs, the dma-buf and PRIME frameworks automatically map
++imported pages into the importer's DMA area. drm_gem_prime_fd_to_handle() and
++drm_gem_prime_handle_to_fd() require that importers call dma_buf_attach()
++even if they never do actual device DMA, but only CPU access through
++dma_buf_vmap(). This is a problem for USB devices, which do not support DMA
++operations.
++
++To fix the issue, automatic page mappings should be removed from the
++buffer-sharing code. Fixing this is a bit more involved, since the import/export
++cache is also tied to &drm_gem_object.import_attach. Meanwhile we paper over
++this problem for USB devices by fishing out the USB host controller device, as
++long as that supports DMA. Otherwise importing can still needlessly fail.
++
++Contact: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
++
++Level: Advanced
++
++
+ Better Testing
+ ==============
+ 
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 0b4f4f2af1ef..4fe372f43cf5 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -84,6 +84,7 @@ MODULE_PARM_DESC(eco_mode, "Turn on Eco mode (less bright, more silent)");
+ 
+ struct gm12u320_device {
+ 	struct drm_device	         dev;
++	struct device                   *dmadev;
+ 	struct drm_simple_display_pipe   pipe;
+ 	struct drm_connector	         conn;
+ 	unsigned char                   *cmd_buf;
+@@ -599,6 +600,22 @@ static const uint64_t gm12u320_pipe_modifiers[] = {
+ 	DRM_FORMAT_MOD_INVALID
+ };
+ 
++/*
++ * FIXME: Dma-buf sharing requires DMA support by the importing device.
++ *        This function is a workaround to make USB devices work as well.
++ *        See todo.rst for how to fix the issue in the dma-buf framework.
++ */
++static struct drm_gem_object *gm12u320_gem_prime_import(struct drm_device *dev,
++							struct dma_buf *dma_buf)
++{
++	struct gm12u320_device *gm12u320 = to_gm12u320(dev);
++
++	if (!gm12u320->dmadev)
++		return ERR_PTR(-ENODEV);
++
++	return drm_gem_prime_import_dev(dev, dma_buf, gm12u320->dmadev);
++}
++
+ DEFINE_DRM_GEM_FOPS(gm12u320_fops);
+ 
+ static const struct drm_driver gm12u320_drm_driver = {
+@@ -612,6 +629,7 @@ static const struct drm_driver gm12u320_drm_driver = {
+ 
+ 	.fops		 = &gm12u320_fops,
+ 	DRM_GEM_SHMEM_DRIVER_OPS,
++	.gem_prime_import = gm12u320_gem_prime_import,
+ };
+ 
+ static const struct drm_mode_config_funcs gm12u320_mode_config_funcs = {
+@@ -638,12 +656,15 @@ static int gm12u320_usb_probe(struct usb_interface *interface,
+ 				      struct gm12u320_device, dev);
+ 	if (IS_ERR(gm12u320))
+ 		return PTR_ERR(gm12u320);
++	dev = &gm12u320->dev;
++
++	gm12u320->dmadev = usb_intf_get_dma_device(to_usb_interface(dev->dev));
++	if (!gm12u320->dmadev)
++		drm_warn(dev, "buffer sharing not supported"); /* not an error */
+ 
+ 	INIT_DELAYED_WORK(&gm12u320->fb_update.work, gm12u320_fb_update_work);
+ 	mutex_init(&gm12u320->fb_update.lock);
+ 
+-	dev = &gm12u320->dev;
+-
+ 	ret = drmm_mode_config_init(dev);
+ 	if (ret)
+ 		return ret;
+@@ -691,7 +712,10 @@ static int gm12u320_usb_probe(struct usb_interface *interface,
+ static void gm12u320_usb_disconnect(struct usb_interface *interface)
+ {
+ 	struct drm_device *dev = usb_get_intfdata(interface);
++	struct gm12u320_device *gm12u320 = to_gm12u320(dev);
+ 
++	put_device(gm12u320->dmadev);
++	gm12u320->dmadev = NULL;
+ 	drm_dev_unplug(dev);
+ 	drm_atomic_helper_shutdown(dev);
+ }
+diff --git a/drivers/gpu/drm/udl/udl_drv.c b/drivers/gpu/drm/udl/udl_drv.c
+index 9269092697d8..5703277c6f52 100644
+--- a/drivers/gpu/drm/udl/udl_drv.c
++++ b/drivers/gpu/drm/udl/udl_drv.c
+@@ -32,6 +32,22 @@ static int udl_usb_resume(struct usb_interface *interface)
+ 	return drm_mode_config_helper_resume(dev);
+ }
+ 
++/*
++ * FIXME: Dma-buf sharing requires DMA support by the importing device.
++ *        This function is a workaround to make USB devices work as well.
++ *        See todo.rst for how to fix the issue in the dma-buf framework.
++ */
++static struct drm_gem_object *udl_driver_gem_prime_import(struct drm_device *dev,
++							  struct dma_buf *dma_buf)
++{
++	struct udl_device *udl = to_udl(dev);
++
++	if (!udl->dmadev)
++		return ERR_PTR(-ENODEV);
++
++	return drm_gem_prime_import_dev(dev, dma_buf, udl->dmadev);
++}
++
+ DEFINE_DRM_GEM_FOPS(udl_driver_fops);
+ 
+ static const struct drm_driver driver = {
+@@ -40,6 +56,7 @@ static const struct drm_driver driver = {
+ 	/* GEM hooks */
+ 	.fops = &udl_driver_fops,
+ 	DRM_GEM_SHMEM_DRIVER_OPS,
++	.gem_prime_import = udl_driver_gem_prime_import,
+ 
+ 	.name = DRIVER_NAME,
+ 	.desc = DRIVER_DESC,
+diff --git a/drivers/gpu/drm/udl/udl_drv.h b/drivers/gpu/drm/udl/udl_drv.h
+index 875e73551ae9..cc16a13316e4 100644
+--- a/drivers/gpu/drm/udl/udl_drv.h
++++ b/drivers/gpu/drm/udl/udl_drv.h
+@@ -50,6 +50,7 @@ struct urb_list {
+ struct udl_device {
+ 	struct drm_device drm;
+ 	struct device *dev;
++	struct device *dmadev;
+ 
+ 	struct drm_simple_display_pipe display_pipe;
+ 
+diff --git a/drivers/gpu/drm/udl/udl_main.c b/drivers/gpu/drm/udl/udl_main.c
+index 0e2a376cb075..7c0338bcadea 100644
+--- a/drivers/gpu/drm/udl/udl_main.c
++++ b/drivers/gpu/drm/udl/udl_main.c
+@@ -315,6 +315,10 @@ int udl_init(struct udl_device *udl)
+ 
+ 	DRM_DEBUG("\n");
+ 
++	udl->dmadev = usb_intf_get_dma_device(to_usb_interface(dev->dev));
++	if (!udl->dmadev)
++		drm_warn(dev, "buffer sharing not supported"); /* not an error */
++
+ 	mutex_init(&udl->gem_lock);
+ 
+ 	if (!udl_parse_vendor_descriptor(udl)) {
+@@ -349,6 +353,11 @@ int udl_init(struct udl_device *udl)
+ 
+ int udl_drop_usb(struct drm_device *dev)
+ {
++	struct udl_device *udl = to_udl(dev);
++
+ 	udl_free_urb_list(dev);
++	put_device(udl->dmadev);
++	udl->dmadev = NULL;
++
+ 	return 0;
+ }
+diff --git a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
+index 8f07b0516100..a566bb494e24 100644
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -748,6 +748,38 @@ void usb_put_intf(struct usb_interface *intf)
+ }
+ EXPORT_SYMBOL_GPL(usb_put_intf);
+ 
++/**
++ * usb_intf_get_dma_device - acquire a reference on the usb interface's DMA endpoint
++ * @intf: the usb interface
++ *
++ * While a USB device cannot perform DMA operations by itself, many USB
++ * controllers can. A call to usb_intf_get_dma_device() returns the DMA endpoint
++ * for the given USB interface, if any. The returned device structure must be
++ * released with put_device().
++ *
++ * See also usb_get_dma_device().
++ *
++ * Returns: A reference to the usb interface's DMA endpoint; or NULL if none
++ *          exists.
++ */
++struct device *usb_intf_get_dma_device(struct usb_interface *intf)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct device *dmadev;
++
++	if (!udev->bus)
++		return NULL;
++
++	dmadev = get_device(udev->bus->sysdev);
++	if (!dmadev || !dmadev->dma_mask) {
++		put_device(dmadev);
++		return NULL;
++	}
++
++	return dmadev;
++}
++EXPORT_SYMBOL_GPL(usb_intf_get_dma_device);
++
+ /*			USB device locking
+  *
+  * USB devices and interfaces are locked using the semaphore in their
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index 7d72c4e0713c..d6a41841b93e 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -746,6 +746,8 @@ extern int usb_lock_device_for_reset(struct usb_device *udev,
+ extern int usb_reset_device(struct usb_device *dev);
+ extern void usb_queue_reset_device(struct usb_interface *dev);
+ 
++extern struct device *usb_intf_get_dma_device(struct usb_interface *intf);
++
+ #ifdef CONFIG_ACPI
+ extern int usb_acpi_set_power_state(struct usb_device *hdev, int index,
+ 	bool enable);
 
-   Linus Torvalds <torvalds@linux-foundation.org>
-       tty: implement read_iter
+base-commit: b80182b9bffb51460e4a2ad7d96737ecd49126dc
+prerequisite-patch-id: c2b2f08f0eccc9f5df0c0da49fa1d36267deb11d
+-- 
+2.30.1
 
-   Linus Torvalds <torvalds@linux-foundation.org>
-       tty: convert tty_ldisc_ops 'read()' function to take a kernel pointe=
-r
-
-Test case failed link,
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11.y/build/v5.11=
-.2-774-g6ca52dbc58df/testrun/4070143/suite/ltp-pty-tests/test/hangup01/log
-
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
