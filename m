@@ -2,109 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1753132C81C
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CCDC32C81E
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244565AbhCDAeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 19:34:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244441AbhCCPLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 10:11:33 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2958AC0613DF
-        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 07:08:37 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id d13so25373537edp.4
-        for <stable@vger.kernel.org>; Wed, 03 Mar 2021 07:08:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ma0aLe7L7wfc2EcnaVyjvoNiREEF5DORKFdfo+QCWX0=;
-        b=CiV7tOZtuvuWalzzsFt6r7jq9QI429v5CtstMoU2Mlw5gsHzio9Rdi9Qei8nTJmNC2
-         UZcMSJ7vOAqYq9RgLfGs3RhYh7LrMX1BZzm3Sa4DMjNAiSv2ZCQsYT903mkCoAsC+sc4
-         d1Vufc9PByAn6O+VJVCeDzkb2+8QUuI1j5ZcwGfusUYjAfllOENS5VATrJREFRKOFu2r
-         KxptPp7mLsOK/kAr5hZUQSijC08U2vc1uT4CwmpaSuiidh/nHwiHMIicJlQxuD2jJr2x
-         KIdiWAxX8hjn0hNs5jFDrf1pOJC4Ax/D1L3mFKLy42aZPIVMwoT19c7sqvR73vTjxlNq
-         Swbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ma0aLe7L7wfc2EcnaVyjvoNiREEF5DORKFdfo+QCWX0=;
-        b=pViI9RNuLA6RfbkTjJTG35j0P9DVFFFOIJJelr7jiVx/fEHM5X8teswkkmEFybbVmt
-         R75JjjYsCX+ALK0KNafE9nQSYfyWJUKoLjuSmUTOBS517fph3PW4TMUr4RoSkbQ7PzlN
-         lin+CWoxfM8PtgvkRriTDhN3T51zU/LzxEY7ZTFMBwQTZHZGqeawlOzGRdW3unBbuxes
-         nWFb+r9esQZcUaP6Ul9GAdFys6G9MfvhybMK5Vap2heYRvxUB5LKh4iHcvHcscudH7U2
-         VQz3xt7Ez9s3gi3ewLeIVf/lhDrW3cy+5nIIs5rlQ0U+kHbN7/uIyl5DgVqX+O4UbPXt
-         9Ntg==
-X-Gm-Message-State: AOAM533EoE0HBR8d1VXP1fMeGGlaDfdB3PIS01w1uunRLJtGwWei9Nl5
-        S4lMVdszJ3CFZ9ruZ3wlOaUpLA04RHS4VUupdWaN7g==
-X-Google-Smtp-Source: ABdhPJybVSS6YuAyjr24XGif6t4uCJxDSC8Dg1F94QRJFCb33vMmF58z4GFFNzf14hSLatqaLJEyS70Y970qbVtg2D4=
-X-Received: by 2002:aa7:c3cd:: with SMTP id l13mr20074891edr.52.1614784115667;
- Wed, 03 Mar 2021 07:08:35 -0800 (PST)
+        id S241161AbhCDAeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 19:34:11 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64360 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1448192AbhCCPYX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 10:24:23 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 123F2QIK144009;
+        Wed, 3 Mar 2021 10:23:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=zWAJxsplEzw8/kWSmP04aU3CVx62dYTr+NwGdiCuCrI=;
+ b=Zc3DxdboLUeerw0AZ0Uz1XLhrfV/gWjqgfyBLrzAcGQ5zD3vPo80bHfHgGBDh814+GJ3
+ B8EChSLj7n6UjqCg6ibs2zEiljxjKU9PF1WRUlsui0EB3IHfEPfitK2jv0h12JNu63Gc
+ /7ZWmlmUqYkGhfBz75A1aCpfuBar6ZVLVlCQO32zchoy6Win6o+Yr/XKmhurc8ULoGRy
+ 3r3NaeWpah+ztng7+4VoEJlJludq9+e6xC5M07Eh6fdTjLhfeNaXNUXnmiFPIgRVE/oH
+ ZCibhCVItnnJBpkRl6BN7UnrlUQngkkAerPwNc6ghfMzRCahLDuzByF2mgS6Dc44Bjjx 3w== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372cp08x70-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 10:23:41 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 123F3PUQ151861;
+        Wed, 3 Mar 2021 10:23:40 -0500
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 372cp08x5v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 10:23:40 -0500
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 123FDjVd031038;
+        Wed, 3 Mar 2021 15:23:38 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma05fra.de.ibm.com with ESMTP id 3712v510tf-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 03 Mar 2021 15:23:38 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 123FNLRq22085970
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 3 Mar 2021 15:23:21 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2169B4207B;
+        Wed,  3 Mar 2021 15:23:35 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 71C9142061;
+        Wed,  3 Mar 2021 15:23:34 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.0.197])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed,  3 Mar 2021 15:23:34 +0000 (GMT)
+Date:   Wed, 3 Mar 2021 16:23:32 +0100
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, stable@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com,
+        pbonzini@redhat.com, alex.williamson@redhat.com,
+        pasic@linux.vnet.ibm.com
+Subject: Re: [PATCH v3 1/1] s390/vfio-ap: fix circular lockdep when
+ setting/clearing crypto masks
+Message-ID: <20210303162332.4d227dbe.pasic@linux.ibm.com>
+In-Reply-To: <20210302204322.24441-2-akrowiak@linux.ibm.com>
+References: <20210302204322.24441-1-akrowiak@linux.ibm.com>
+        <20210302204322.24441-2-akrowiak@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-References: <20210302192550.512870321@linuxfoundation.org>
-In-Reply-To: <20210302192550.512870321@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 3 Mar 2021 20:38:22 +0530
-Message-ID: <CA+G9fYvxnS5iiQJEe2dHbKJjQyeU=G_YWDYJK-e1UL_C6hPvLQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/246] 4.19.178-rc4 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.369,18.0.761
+ definitions=2021-03-03_04:2021-03-03,2021-03-03 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 priorityscore=1501 lowpriorityscore=0 spamscore=0
+ adultscore=0 bulkscore=0 clxscore=1011 malwarescore=0 impostorscore=0
+ mlxscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2103030116
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 3 Mar 2021 at 00:58, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.178 release.
-> There are 246 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.178-rc4.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue,  2 Mar 2021 15:43:22 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+> This patch fixes a lockdep splat introduced by commit f21916ec4826
+> ("s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated").
+> The lockdep splat only occurs when starting a Secure Execution guest.
+> Crypto virtualization (vfio_ap) is not yet supported for SE guests;
+> however, in order to avoid this problem when support becomes available,
+> this fix is being provided.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+[..]
 
-Summary
-------------------------------------------------------------------------
-kernel: 4.19.178-rc4
-git repo: ['https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git',
-'https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc']
-git branch: linux-4.19.y
-git commit: 26e47b79f5ec2ea5c7a46e578dc0b46b9073effe
-git describe: v4.19.177-247-g26e47b79f5ec
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
-.y/build/v4.19.177-247-g26e47b79f5ec
+> @@ -1038,14 +1116,28 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>  {
+>  	struct ap_matrix_mdev *m;
+> 
+> -	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> -		if ((m != matrix_mdev) && (m->kvm == kvm))
+> -			return -EPERM;
+> -	}
+> +	if (kvm->arch.crypto.crycbd) {
+> +		matrix_mdev->kvm_busy = true;
+> 
+> -	matrix_mdev->kvm = kvm;
+> -	kvm_get_kvm(kvm);
+> -	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> +		list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> +			if ((m != matrix_mdev) && (m->kvm == kvm)) {
+> +				wake_up_all(&matrix_mdev->wait_for_kvm);
 
---
-Linaro LKFT
-https://lkft.linaro.org
+This ain't no good. kvm_busy will remain true if we take this exit. The
+wake_up_all() is not needed, because we hold the lock, so nobody can
+observe it if we don't forget kvm_busy set.
+
+I suggest moving matrix_mdev->kvm_busy = true; after this loop, maybe right
+before the unlock, and removing the wake_up_all().
+
+> +				return -EPERM;
+> +			}
+> +		}
+> +
+> +		kvm_get_kvm(kvm);
+> +		mutex_unlock(&matrix_dev->lock);
+> +		kvm_arch_crypto_set_masks(kvm,
+> +					  matrix_mdev->matrix.apm,
+> +					  matrix_mdev->matrix.aqm,
+> +					  matrix_mdev->matrix.adm);
+> +		mutex_lock(&matrix_dev->lock);
+> +		kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> +		matrix_mdev->kvm = kvm;
+> +		matrix_mdev->kvm_busy = false;
+> +		wake_up_all(&matrix_mdev->wait_for_kvm);
+> +	}
+> 
+>  	return 0;
+>  }
+
+[..]
+
+> @@ -1300,7 +1406,21 @@ static ssize_t vfio_ap_mdev_ioctl(struct mdev_device *mdev,
+>  		ret = vfio_ap_mdev_get_device_info(arg);
+>  		break;
+>  	case VFIO_DEVICE_RESET:
+> -		ret = vfio_ap_mdev_reset_queues(mdev);
+> +		matrix_mdev = mdev_get_drvdata(mdev);
+> +
+> +		/*
+> +		 * If the KVM pointer is in the process of being set, wait until
+> +		 * the process has completed.
+> +		 */
+> +		wait_event_cmd(matrix_mdev->wait_for_kvm,
+> +			       matrix_mdev->kvm_busy == false,
+> +			       mutex_unlock(&matrix_dev->lock),
+> +			       mutex_lock(&matrix_dev->lock));
+> +
+> +		if (matrix_mdev->kvm)
+> +			ret = vfio_ap_mdev_reset_queues(mdev);
+> +		else
+> +			ret = -ENODEV;
+
+I don't think rejecting the reset is a good idea. I have you a more detailed
+explanation of the list, where we initially discussed this question.
+
+How do you exect userspace to react to this -ENODEV?
+
+Otherwise looks good to me!
+
+I've tested your branch from yesterday (which looks to me like this patch
+without the above check on ->kvm and reset) for the lockdep splat, but I
+didn't do any comprehensive testing -- which would ensure that we didn't
+break something else in the process. With the two issues fixed, and your
+word that the patch was properly tested (except for the lockdep splat
+which I tested myself), I feel comfortable with moving forward with this.
+
+Regards,
+
