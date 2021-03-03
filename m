@@ -2,25 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBF2B32C810
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C25EF32C812
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242128AbhCDAds (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 19:33:48 -0500
-Received: from 8bytes.org ([81.169.241.247]:57438 "EHLO theia.8bytes.org"
+        id S240319AbhCDAdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 19:33:49 -0500
+Received: from 8bytes.org ([81.169.241.247]:57472 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243058AbhCCOSZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Mar 2021 09:18:25 -0500
+        id S1348829AbhCCOSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Mar 2021 09:18:36 -0500
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de [84.154.220.246])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id 7763747C;
-        Wed,  3 Mar 2021 15:17:24 +0100 (CET)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 1E31D48E;
+        Wed,  3 Mar 2021 15:17:25 +0100 (CET)
 From:   Joerg Roedel <joro@8bytes.org>
 To:     x86@kernel.org
 Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Jiri Slaby <jslaby@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>,
@@ -37,9 +38,9 @@ Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
         Arvind Sankar <nivedita@alum.mit.edu>,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: [PATCH 4/5] x86/sev-es: Correctly track IRQ states in runtime #VC handler
-Date:   Wed,  3 Mar 2021 15:17:15 +0100
-Message-Id: <20210303141716.29223-5-joro@8bytes.org>
+Subject: [PATCH 5/5] x86/sev-es: Use __copy_from_user_inatomic()
+Date:   Wed,  3 Mar 2021 15:17:16 +0100
+Message-Id: <20210303141716.29223-6-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210303141716.29223-1-joro@8bytes.org>
 References: <20210303141716.29223-1-joro@8bytes.org>
@@ -51,53 +52,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Call irqentry_nmi_enter()/irqentry_nmi_exit() in the #VC handler to
-correctly track the IRQ state during its execution.
+The #VC handler must run atomic and can not be put to sleep. This is a
+problem when it tries to fetch instruction bytes from user-space via
+copy_from_user.
 
-Reported-by: Andy Lutomirski <luto@kernel.org>
-Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Introduce a insn_fetch_from_user_inatomic() helper which uses
+__copy_from_user_inatomic() to safely copy the instruction bytes to
+kernel memory in the #VC handler.
+
+Fixes: 5e3427a7bc432 ("x86/sev-es: Handle instruction fetches from user-space")
 Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/insn-eval.h |  2 +
+ arch/x86/kernel/sev-es.c         |  2 +-
+ arch/x86/lib/insn-eval.c         | 66 +++++++++++++++++++++++++-------
+ 3 files changed, 55 insertions(+), 15 deletions(-)
 
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index a0f839aa144d..98b4dae5e8bc 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -23,6 +23,8 @@ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
+ int insn_get_code_seg_params(struct pt_regs *regs);
+ int insn_fetch_from_user(struct pt_regs *regs,
+ 			 unsigned char buf[MAX_INSN_SIZE]);
++int insn_fetch_from_user_inatomic(struct pt_regs *regs,
++				  unsigned char buf[MAX_INSN_SIZE]);
+ bool insn_decode(struct insn *insn, struct pt_regs *regs,
+ 		 unsigned char buf[MAX_INSN_SIZE], int buf_size);
+ 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index e1eeb3ef58c5..3d8ec5bf6f79 100644
+index 3d8ec5bf6f79..26f5479a97a8 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -1270,13 +1270,12 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
- DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- {
- 	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	irqentry_state_t irq_state;
- 	struct ghcb_state state;
- 	struct es_em_ctxt ctxt;
- 	enum es_result result;
- 	struct ghcb *ghcb;
+@@ -270,7 +270,7 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
+ 	int res;
  
--	lockdep_assert_irqs_disabled();
--
- 	/*
- 	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
- 	 */
-@@ -1285,6 +1284,8 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 		return;
+ 	if (user_mode(ctxt->regs)) {
+-		res = insn_fetch_from_user(ctxt->regs, buffer);
++		res = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
+ 		if (!res) {
+ 			ctxt->fi.vector     = X86_TRAP_PF;
+ 			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 4229950a5d78..bb0b3fe1e0a0 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -1415,6 +1415,25 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
  	}
+ }
  
-+	irq_state = irqentry_nmi_enter(regs);
-+	lockdep_assert_irqs_disabled();
- 	instrumentation_begin();
++static unsigned long insn_get_effective_ip(struct pt_regs *regs)
++{
++	unsigned long seg_base = 0;
++
++	/*
++	 * If not in user-space long mode, a custom code segment could be in
++	 * use. This is true in protected mode (if the process defined a local
++	 * descriptor table), or virtual-8086 mode. In most of the cases
++	 * seg_base will be zero as in USER_CS.
++	 */
++	if (!user_64bit_mode(regs)) {
++		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
++		if (seg_base == -1L)
++			return 0;
++	}
++
++	return seg_base + regs->ip;
++}
++
+ /**
+  * insn_fetch_from_user() - Copy instruction bytes from user-space memory
+  * @regs:	Structure with register values as seen when entering kernel mode
+@@ -1431,24 +1450,43 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
+  */
+ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
+ {
+-	unsigned long seg_base = 0;
++	unsigned long ip;
+ 	int not_copied;
  
- 	/*
-@@ -1347,6 +1348,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+-	/*
+-	 * If not in user-space long mode, a custom code segment could be in
+-	 * use. This is true in protected mode (if the process defined a local
+-	 * descriptor table), or virtual-8086 mode. In most of the cases
+-	 * seg_base will be zero as in USER_CS.
+-	 */
+-	if (!user_64bit_mode(regs)) {
+-		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
+-		if (seg_base == -1L)
+-			return 0;
+-	}
++	ip = insn_get_effective_ip(regs);
++	if (!ip)
++		return 0;
++
++	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
  
- out:
- 	instrumentation_end();
-+	irqentry_nmi_exit(regs, irq_state);
++	return MAX_INSN_SIZE - not_copied;
++}
++
++/**
++ * insn_fetch_from_user_inatomic() - Copy instruction bytes from user-space memory
++ *                                   while in atomic code
++ * @regs:	Structure with register values as seen when entering kernel mode
++ * @buf:	Array to store the fetched instruction
++ *
++ * Gets the linear address of the instruction and copies the instruction bytes
++ * to the buf. This function must be used in atomic context.
++ *
++ * Returns:
++ *
++ * Number of instruction bytes copied.
++ *
++ * 0 if nothing was copied.
++ */
++int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
++{
++	unsigned long ip;
++	int not_copied;
++
++	ip = insn_get_effective_ip(regs);
++	if (!ip)
++		return 0;
  
- 	return;
+-	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
+-				    MAX_INSN_SIZE);
++	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
  
+ 	return MAX_INSN_SIZE - not_copied;
+ }
 -- 
 2.30.1
 
