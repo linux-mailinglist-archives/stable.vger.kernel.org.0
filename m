@@ -2,57 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BFF932BC31
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B44232BC2C
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347900AbhCCNoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:44:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37800 "EHLO
+        id S233055AbhCCNl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:41:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1842929AbhCCKWi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:22:38 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0435CC08ECB5;
-        Wed,  3 Mar 2021 02:01:39 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id j12so15874803pfj.12;
-        Wed, 03 Mar 2021 02:01:39 -0800 (PST)
+        with ESMTP id S1582439AbhCCKVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:21:53 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B7BC08ECAF;
+        Wed,  3 Mar 2021 01:57:12 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id g20so13759548plo.2;
+        Wed, 03 Mar 2021 01:57:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8DrZrPQbyPtgf2aW639cqNZTuk5sChQgDw7fi81dRqU=;
-        b=GRI7FdF3WjDJBJwLyAIRUyb/6dNvkGLEFbRin86oTgDmPfK8yt2xIz9eD6Y54f1QqI
-         Sk+ekbnCaBOpIIhSMfTIGLFF0fZpvTSbESePjq2VIvfczqPdiEnSBsjeBz6alijtOgsB
-         sVA/7DRhikwKbl2eWxQv8GKx6bZFn5i5auNco+fQU2oh/4eXQ9yfr/jqXnyOSvpBlRzB
-         88f2bYJcGQ5lZ0QknYqUygzV4IiMIXkN5MMmDQgJiRA/kX988l00Vvao3DS3VVAtt0AK
-         itH+6r4S8ZSXhjghXAOX8njzvFY7NG6OpwDUXkpSxPw0tCuPmRW8jf7iOCdOVBMsyHog
-         kVRg==
+        h=from:message-id:mime-version:subject:date:in-reply-to:cc:to
+         :references;
+        bh=rO9Y833nDH2+YLt8R02YKuOgTZIbRQR101oQDtAVGXE=;
+        b=Xez7ZQlXgayaQh5vq8//StWeI9hfC35doRt6LcGRHN9oIldF2PoCtaVY6wtbEKOjqw
+         MPzQOsjshSaQBkwSevXZMUeeEPlISMLBTuxRKLYuZkOA+/I1IyG3eAA4ATFd5KiTDf/T
+         gjp/Znf++R1A5NFyP9vWUfQEYtaVgbCo8l/UAh2x4P7/weObZGBs9nxuPhAFxKCKw0ck
+         y0MGXPxYbccLGh702YcP32UeW44R+k7EXHFHrCzolNkdkLnnsBD5UyVNKR4u+q1XhPlC
+         TQc3ZpjX+nvqzm8/P63WXf0ogVMBlGaSSX9kSr3WaMJDiiiUjJ7+AenUxh5rE4tMzXsP
+         Tm3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=8DrZrPQbyPtgf2aW639cqNZTuk5sChQgDw7fi81dRqU=;
-        b=FT9UzjvqVcSxy0dNJSvprH+ybZ+X/qs2dbYuK0zGy68PT7lkkO/8Rj099AZGbbixVV
-         FE4rmDMzs+r8QnT+aJ/VlvgUY77pcxpnOrlYrvslTTztftRrWDvX58gbRjYKdHyy4n0a
-         fqH98dO7XTzCEE2e6MK5yShBhJSFNIKVZ6RG8teuYKJFWZsVvWeKAM3DyxUd74VkhKR7
-         fiDlYWdN8mIljCEiQamOPIojCOc5fG+Nkxb6ZZBxPIyAYN8Xp4WOvmVoVtzd7CTRQC7q
-         O4PogNuFs9LeP/M3PYRhM6EDtPyoIDXGiTSvVTmkbgpIUXienFDqIauMNhFN0uou6xz7
-         g+gA==
-X-Gm-Message-State: AOAM533HOT1rmBjkqOwUQl674l+jUBGcYRTdcc809h+FMw9gZTgMyTOz
-        g7TekLOIl7ZygTrP2p1UaIEza4IZxm5ZTVh7
-X-Google-Smtp-Source: ABdhPJwO84KcxWuPUTPVV2FhPZV0rM7ZW1OyKzHFpIIDtlCgIYuaYNUj8cHdCyvvqOm8S9Kb8dtGYA==
-X-Received: by 2002:a62:e809:0:b029:1ed:c7ec:179b with SMTP id c9-20020a62e8090000b02901edc7ec179bmr2306577pfi.43.1614765699341;
-        Wed, 03 Mar 2021 02:01:39 -0800 (PST)
-Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id 132sm2292606pfu.158.2021.03.03.02.01.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 02:01:38 -0800 (PST)
+        h=x-gm-message-state:from:message-id:mime-version:subject:date
+         :in-reply-to:cc:to:references;
+        bh=rO9Y833nDH2+YLt8R02YKuOgTZIbRQR101oQDtAVGXE=;
+        b=NmQuae08T8xH+5adqCYulP9jZvPL8EXY9oa1n0oGyNFTXl51xkdtoKYcS/GgN0tZYN
+         xc1Vo90HKtrCwBs/ehfI4fLT0VmhSgfBqDfUZLMa609xCRfd8ZH1RF0FuGor4BSpOadV
+         WoAh37qGEXnhyVOc6ql2D8Cv+ti/DnS1CIEpReyet6HmiJExjdfS7OxGM2vWHGdF7pNP
+         EKtzkxw2af5nLTU5PXz2tenVP4hv0Ef8GPHm33ECg+aEvLeeB8gQ6UQubJBLtPWm+e8I
+         GRbloT0x1bUk2dsbgN3UZ4/pfnM6RLdUk/CoWvNc7ilBDBWVSpTEi8RH+AXbhhMzaq+K
+         Iw5g==
+X-Gm-Message-State: AOAM530YtI5/a/EXmZiHi9Ot7+QFg27nr6vz/DLIfHD3Bba/JBNNi1NU
+        j542gdvv+GxPInXW0dbgcvQ=
+X-Google-Smtp-Source: ABdhPJx72uTlFuQaVNYA6wP7x5v8gHrLGgSfCqeuNhuWsiZh8GRNqH2txME6FMui3dokXUQCcXe6HA==
+X-Received: by 2002:a17:90a:d516:: with SMTP id t22mr9016990pju.51.1614765432272;
+        Wed, 03 Mar 2021 01:57:12 -0800 (PST)
+Received: from [192.168.88.245] (c-24-6-216-183.hsd1.ca.comcast.net. [24.6.216.183])
+        by smtp.gmail.com with ESMTPSA id h12sm22299781pgs.7.2021.03.03.01.57.10
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 03 Mar 2021 01:57:11 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
-X-Google-Original-From: Nadav Amit
-To:     linux-mm@kvack.org
-Cc:     linux-kernel@vger.kernel.org,
+Message-Id: <A53B1EF2-345D-4D42-A662-77C38F3E8CB4@gmail.com>
+Content-Type: multipart/signed;
+        boundary="Apple-Mail=_988504CF-EF92-4AFA-BE5D-F379324AE072";
+        protocol="application/pgp-signature";
+        micalg=pgp-sha256
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.60.0.2.21\))
+Subject: Re: [PATCH v3] mm/userfaultfd: fix memory corruption due to
+ writeprotect
+Date:   Wed, 3 Mar 2021 01:57:09 -0800
+In-Reply-To: <20210303095116.3814443-1-namit@vmware.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Nadav Amit <namit@vmware.com>,
         Andrea Arcangeli <aarcange@redhat.com>,
         Andy Lutomirski <luto@kernel.org>,
         Peter Xu <peterx@redhat.com>,
@@ -61,143 +68,54 @@ Cc:     linux-kernel@vger.kernel.org,
         Mike Rapoport <rppt@linux.vnet.ibm.com>,
         Minchan Kim <minchan@kernel.org>,
         Will Deacon <will@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
-        Yu Zhao <yuzhao@google.com>
-Subject: [PATCH RESEND v3] mm/userfaultfd: fix memory corruption due to writeprotect
-Date:   Wed,  3 Mar 2021 01:57:02 -0800
-Message-Id: <20210303095702.3814618-1-namit@vmware.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        Peter Zijlstra <peterz@infradead.org>,
+        stable <stable@vger.kernel.org>, Yu Zhao <yuzhao@google.com>
+To:     Linux-MM <linux-mm@kvack.org>
+References: <20210303095116.3814443-1-namit@vmware.com>
+X-Mailer: Apple Mail (2.3654.60.0.2.21)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nadav Amit <namit@vmware.com>
 
-Userfaultfd self-test fails occasionally, indicating a memory
-corruption.
+--Apple-Mail=_988504CF-EF92-4AFA-BE5D-F379324AE072
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
 
-Analyzing this problem indicates that there is a real bug since
-mmap_lock is only taken for read in mwriteprotect_range() and defers
-flushes, and since there is insufficient consideration of concurrent
-deferred TLB flushes in wp_page_copy(). Although the PTE is flushed from
-the TLBs in wp_page_copy(), this flush takes place after the copy has
-already been performed, and therefore changes of the page are possible
-between the time of the copy and the time in which the PTE is flushed.
 
-To make matters worse, memory-unprotection using userfaultfd also poses
-a problem. Although memory unprotection is logically a promotion of PTE
-permissions, and therefore should not require a TLB flush, the current
-userrfaultfd code might actually cause a demotion of the architectural
-PTE permission: when userfaultfd_writeprotect() unprotects memory
-region, it unintentionally *clears* the RW-bit if it was already set.
-Note that this unprotecting a PTE that is not write-protected is a valid
-use-case: the userfaultfd monitor might ask to unprotect a region that
-holds both write-protected and write-unprotected PTEs.
+> On Mar 3, 2021, at 1:51 AM, Nadav Amit <nadav.amit@gmail.com> wrote:
+> 
+> From: Nadav Amit <namit@vmware.com>
+> 
+> Userfaultfd self-test fails occasionally, indicating a memory
+> corruption.
 
-The scenario that happens in selftests/vm/userfaultfd is as follows:
+Please ignore - I will resend.
 
-cpu0				cpu1			cpu2
-----				----			----
-							[ Writable PTE
-							  cached in TLB ]
-userfaultfd_writeprotect()
-[ write-*unprotect* ]
-mwriteprotect_range()
-mmap_read_lock()
-change_protection()
+--Apple-Mail=_988504CF-EF92-4AFA-BE5D-F379324AE072
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP
 
-change_protection_range()
-...
-change_pte_range()
-[ *clear* “write”-bit ]
-[ defer TLB flushes ]
-				[ page-fault ]
-				...
-				wp_page_copy()
-				 cow_user_page()
-				  [ copy page ]
-							[ write to old
-							  page ]
-				...
-				 set_pte_at_notify()
+-----BEGIN PGP SIGNATURE-----
 
-A similar scenario can happen:
+iQIzBAEBCAAdFiEESJL3osl5Ymx/w9I1HaAqSabaD1oFAmA/XXUACgkQHaAqSaba
+D1rufBAAk4Vo6Q73H1mV4rFLQFiYKkzUoUxDgyK6hHTv8JcXg38x80iyNu6tL/2W
+rsF9ql0mcPTI54NiTW+rvUeV4DuJjU0VuGM4xq7THZO9SV9P5K99B2Ozc1VEwJ2K
+FhYSp+5qEUh2KlySgoh0XlQ3keFF+H1CsrzoJC1DYGJDgYIlj6DNuTZPF7Tv8B6M
+GRpOHtA34v0K1nJTAa7LDhGTDxDqhUafu1d6SXI6wzfYO75OV1m/dJwkvJ1RSVKq
+za+56HYFdcqdADFktmpjuIDH2fBGum/xdg37ytIniMIHXCdo16+K2YB9zoWqli6c
+4prhAxACobX+4WB/+BkLOYaT1x8OCZTCH5aLHqKUy6lKHXRAIIMGSislXkoKJ+Mq
+JqmsJIlxGZLEeDQYX03vApSiTaepIjqYstqBzo1XchjmLOFD2YoOs/144n+50wxA
+xK5ejy7ZSh2iZXu8ttVJkqcZn3GSvnFyHlRXJZNSGUmH0cyuo7IoXFYC7rdHmxou
+Rjf+xxd3mzhuj+dsTwh6WRGSePUr/PNuzjy7yq/aPWWtUVmtE12FjBR08VXVMm/v
+IpP3XE7QuoLz3OyMczSYveKLDIsd2aJf5weYR/x8HZA1Qnli+zH5s41tWNAvrZk+
++xu83CA6lgkecw/Vueyiyjz+4ReCRPi/kGk2pny/GAEeC+TddgA=
+=U4N0
+-----END PGP SIGNATURE-----
 
-cpu0		cpu1		cpu2		cpu3
-----		----		----		----
-						[ Writable PTE
-				  		  cached in TLB ]
-userfaultfd_writeprotect()
-[ write-protect ]
-[ deferred TLB flush ]
-		userfaultfd_writeprotect()
-		[ write-unprotect ]
-		[ deferred TLB flush]
-				[ page-fault ]
-				wp_page_copy()
-				 cow_user_page()
-				 [ copy page ]
-				 ...		[ write to page ]
-				set_pte_at_notify()
-
-This race exists since commit 292924b26024 ("userfaultfd: wp: apply
-_PAGE_UFFD_WP bit"). Yet, as Yu Zhao pointed, these races became
-apparent since commit 09854ba94c6a ("mm: do_wp_page() simplification")
-which made wp_page_copy() more likely to take place, specifically if
-page_count(page) > 1.
-
-To resolve the aforementioned races, check whether there are pending
-flushes on uffd-write-protected VMAs, and if there are, perform a flush
-before doing the COW.
-
-Further optimizations will follow to avoid during uffd-write-unprotect
-unnecassary PTE write-protection and TLB flushes.
-
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Pavel Emelyanov <xemul@openvz.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Suggested-by: Yu Zhao <yuzhao@google.com>
-Fixes: 292924b26024 ("userfaultfd: wp: apply _PAGE_UFFD_WP bit")
-Signed-off-by: Nadav Amit <namit@vmware.com>
-
----
-v2->v3:
-* Do not acquire mmap_lock for write, flush conditionally instead [Yu]
-* Change the fixes tag to the patch that made the race apparent [Yu]
-* Removing patch to avoid write-protect on uffd unprotect. More
-  comprehensive solution to follow (and avoid the TLB flush as well).
----
- mm/memory.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/mm/memory.c b/mm/memory.c
-index 9e8576a83147..06da04f98936 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3092,6 +3092,13 @@ static vm_fault_t do_wp_page(struct vm_fault *vmf)
- 		return handle_userfault(vmf, VM_UFFD_WP);
- 	}
- 
-+	/*
-+	 * Userfaultfd write-protect can defer flushes. Ensure the TLB
-+	 * is flushed in this case before copying.
-+	 */
-+	if (userfaultfd_wp(vmf->vma) && mm_tlb_flush_pending(vmf->vma->vm_mm))
-+		flush_tlb_page(vmf->vma, vmf->address);
-+
- 	vmf->page = vm_normal_page(vma, vmf->address, vmf->orig_pte);
- 	if (!vmf->page) {
- 		/*
--- 
-2.25.1
-
+--Apple-Mail=_988504CF-EF92-4AFA-BE5D-F379324AE072--
