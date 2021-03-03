@@ -2,75 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6493E32BC2D
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7674832BC35
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239545AbhCCNme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:42:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37812 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1582440AbhCCKVy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:21:54 -0500
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E786AC08EDA0;
-        Wed,  3 Mar 2021 02:18:35 -0800 (PST)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: gtucker)
-        with ESMTPSA id 246B41F45B37
-Subject: Re: [PATCH 5.10 000/657] 5.10.20-rc4 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20210302192700.399054668@linuxfoundation.org>
-From:   Guillaume Tucker <guillaume.tucker@collabora.com>
-Message-ID: <d26f494c-4906-4ed4-e277-0c486e83e343@collabora.com>
-Date:   Wed, 3 Mar 2021 10:18:30 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S1383260AbhCCNpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:45:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43180 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1843033AbhCCKYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 3 Mar 2021 05:24:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63150601FF;
+        Wed,  3 Mar 2021 10:23:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1614767038;
+        bh=g13f1wNwycJzQzB482148MxXAKUri2zU2+znvRzH904=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mK8uAQYuWJevNgoGLCLA335nUMVwWOK/wmlcHdG6KcuJjhRwwYtZyZPQpuUNVltjO
+         ZLMSqrkfncvAe3WcDuYZVgSbYNZ5r1iBViT9aMoiOEHGsPwiaTzNmWCABeaLmZZlzM
+         /VGJFijW5wpXPzaPGsogAyGk1gxj1zlbihiSEh9Y=
+Date:   Wed, 3 Mar 2021 11:23:54 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marco Elver <elver@google.com>
+Cc:     rafael@kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@google.com>,
+        kasan-dev <kasan-dev@googlegroups.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] kcsan, debugfs: Move debugfs file creation out of early
+ init
+Message-ID: <YD9jujCYGnjwOMoP@kroah.com>
+References: <20210303093845.2743309-1-elver@google.com>
+ <YD9dld26cz0RWHg7@kroah.com>
+ <CANpmjNMxuj23ryjDCr+ShcNy_oZ=t3MrxFa=pVBXjODBopEAnw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210302192700.399054668@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANpmjNMxuj23ryjDCr+ShcNy_oZ=t3MrxFa=pVBXjODBopEAnw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 02/03/2021 19:28, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.20 release.
-> There are 657 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Wed, Mar 03, 2021 at 11:18:06AM +0100, Marco Elver wrote:
+> On Wed, 3 Mar 2021 at 10:57, Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Wed, Mar 03, 2021 at 10:38:45AM +0100, Marco Elver wrote:
+> > > Commit 56348560d495 ("debugfs: do not attempt to create a new file
+> > > before the filesystem is initalized") forbids creating new debugfs files
+> > > until debugfs is fully initialized. This breaks KCSAN's debugfs file
+> > > creation, which happened at the end of __init().
+> >
+> > How did it "break" it?  The files shouldn't have actually been created,
+> > right?
 > 
-> Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
-> Anything received after that time might be too late.
+> Right, with 56348560d495 the debugfs file isn't created anymore, which
+> is the problem. Before 56348560d495 the file exists (syzbot wants the
+> file to exist.)
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.20-rc4.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> > > There is no reason to create the debugfs file during early
+> > > initialization. Therefore, move it into a late_initcall() callback.
+> > >
+> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> > > Cc: stable <stable@vger.kernel.org>
+> > > Fixes: 56348560d495 ("debugfs: do not attempt to create a new file before the filesystem is initalized")
+> > > Signed-off-by: Marco Elver <elver@google.com>
+> > > ---
+> > > I've marked this for 'stable', since 56348560d495 is also intended for
+> > > stable, and would subsequently break KCSAN in all stable kernels where
+> > > KCSAN is available (since 5.8).
+> >
+> > No objection from me, just odd that this actually fixes anything :)
 > 
-> thanks,
+> 56348560d495 causes the file to just not be created if we try to
+> create at the end of __init(). Having it created as late as
+> late_initcall() gets us the file back.
 > 
-> greg k-h
+> When you say "fixes anything", should the file be created even though
+> it's at the end of __init()? Perhaps I misunderstood what 56348560d495
+> changes, but I verified it to be the problem by reverting (upon which
+> the file exists as expected).
 
+All my change did is explicitly not allow you to create a file if
+debugfs had not been initialized.  If you tried to do that before, you
+should have gotten an error from the vfs layer that the file was not
+created, as otherwise how would it have succeeded?
 
-No build errors seen on kernelci.org:
+I just moved the check up higher in the "stack" to the debugfs code, and
+not relied on the vfs layer to do a lot of work only to reject things
+later on.
 
-  https://kernelci.org/build/stable-rc/branch/linux-5.10.y/kernel/v5.10.19-658-g083cbba104d9/
+So there "should" not have been any functional change with this patch.
+If there was, then something is really odd as how can the vfs layer
+create a file for a filesystem _before_ that filesystem has been
+registered with the vfs layer?
 
+thanks,
 
-No test regressions either:
-
-  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/kernel/v5.10.19-658-g083cbba104d9/
-
-
-Tested-by: "kernelci.org bot" <bot@kernelci.org>
-
-
-Thanks,
-Guillaume
+greg k-h
