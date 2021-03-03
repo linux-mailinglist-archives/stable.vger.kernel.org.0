@@ -2,26 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3CD232C814
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D9832C813
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 02:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344957AbhCDAdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 19:33:54 -0500
-Received: from 8bytes.org ([81.169.241.247]:57304 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242972AbhCCOSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Mar 2021 09:18:36 -0500
+        id S1346120AbhCDAdw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 19:33:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60350 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344957AbhCCOSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 09:18:36 -0500
+Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 299F2C06178C;
+        Wed,  3 Mar 2021 06:17:28 -0800 (PST)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de [84.154.220.246])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id CC9513A7;
-        Wed,  3 Mar 2021 15:17:22 +0100 (CET)
+        by theia.8bytes.org (Postfix) with ESMTPSA id 58CC6412;
+        Wed,  3 Mar 2021 15:17:23 +0100 (CET)
 From:   Joerg Roedel <joro@8bytes.org>
 To:     x86@kernel.org
 Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
-        stable@vger.kernel.org, hpa@zytor.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        hpa@zytor.com, Dave Hansen <dave.hansen@linux.intel.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Jiri Slaby <jslaby@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>,
@@ -38,9 +40,9 @@ Cc:     Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>,
         Arvind Sankar <nivedita@alum.mit.edu>,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux-foundation.org
-Subject: [PATCH 1/5] x86/sev-es: Introduce ip_within_syscall_gap() helper
-Date:   Wed,  3 Mar 2021 15:17:12 +0100
-Message-Id: <20210303141716.29223-2-joro@8bytes.org>
+Subject: [PATCH 2/5] x86/sev-es: Check if regs->sp is trusted before adjusting #VC IST stack
+Date:   Wed,  3 Mar 2021 15:17:13 +0100
+Message-Id: <20210303141716.29223-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210303141716.29223-1-joro@8bytes.org>
 References: <20210303141716.29223-1-joro@8bytes.org>
@@ -52,92 +54,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Introduce a helper to check whether an exception came from the syscall
-gap and use it in the SEV-ES code. Extend the check to also cover the
-compatibility SYSCALL entry path.
+The code in the NMI handler to adjust the #VC handler IST stack is
+needed in case an NMI hits when the #VC handler is still using its IST
+stack.
+But the check for this condition also needs to look if the regs->sp
+value is trusted, meaning it was not set by user-space. Extend the
+check to not use regs->sp when the NMI interrupted user-space code or
+the SYSCALL gap.
 
+Reported-by: Andy Lutomirski <luto@kernel.org>
 Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
 Cc: stable@vger.kernel.org # 5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/entry/entry_64_compat.S |  2 ++
- arch/x86/include/asm/proto.h     |  1 +
- arch/x86/include/asm/ptrace.h    | 15 +++++++++++++++
- arch/x86/kernel/traps.c          |  3 +--
- 4 files changed, 19 insertions(+), 2 deletions(-)
+ arch/x86/kernel/sev-es.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/entry/entry_64_compat.S b/arch/x86/entry/entry_64_compat.S
-index 541fdaf64045..0051cf5c792d 100644
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -210,6 +210,8 @@ SYM_CODE_START(entry_SYSCALL_compat)
- 	/* Switch to the kernel stack */
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 1e78f4bd7bf2..28b0144daddd 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -121,8 +121,18 @@ static void __init setup_vc_stacks(int cpu)
+ 	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
+ }
  
-+SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
+-static __always_inline bool on_vc_stack(unsigned long sp)
++static __always_inline bool on_vc_stack(struct pt_regs *regs)
+ {
++	unsigned long sp = regs->sp;
 +
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER32_DS		/* pt_regs->ss */
- 	pushq	%r8			/* pt_regs->sp */
-diff --git a/arch/x86/include/asm/proto.h b/arch/x86/include/asm/proto.h
-index 2c35f1c01a2d..b6a9d51d1d79 100644
---- a/arch/x86/include/asm/proto.h
-+++ b/arch/x86/include/asm/proto.h
-@@ -25,6 +25,7 @@ void __end_SYSENTER_singlestep_region(void);
- void entry_SYSENTER_compat(void);
- void __end_entry_SYSENTER_compat(void);
- void entry_SYSCALL_compat(void);
-+void entry_SYSCALL_compat_safe_stack(void);
- void entry_INT80_compat(void);
- #ifdef CONFIG_XEN_PV
- void xen_entry_INT80_compat(void);
-diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
-index d8324a236696..409f661481e1 100644
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -94,6 +94,8 @@ struct pt_regs {
- #include <asm/paravirt_types.h>
- #endif
++	/* User-mode RSP is not trusted */
++	if (user_mode(regs))
++		return false;
++
++	/* SYSCALL gap still has user-mode RSP */
++	if (ip_within_syscall_gap(regs))
++		return false;
++
+ 	return ((sp >= __this_cpu_ist_bottom_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
+ }
  
-+#include <asm/proto.h>
-+
- struct cpuinfo_x86;
- struct task_struct;
+@@ -144,7 +154,7 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+ 	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
  
-@@ -175,6 +177,19 @@ static inline bool any_64bit_mode(struct pt_regs *regs)
- #ifdef CONFIG_X86_64
- #define current_user_stack_pointer()	current_pt_regs()->sp
- #define compat_user_stack_pointer()	current_pt_regs()->sp
-+
-+static inline bool ip_within_syscall_gap(struct pt_regs *regs)
-+{
-+	bool ret = (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
-+		    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
-+
-+#ifdef CONFIG_IA32_EMULATION
-+	ret = ret || (regs->ip >= (unsigned long)entry_SYSCALL_compat &&
-+		      regs->ip <  (unsigned long)entry_SYSCALL_compat_safe_stack);
-+#endif
-+
-+	return ret;
-+}
- #endif
- 
- static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 7f5aec758f0e..ac1874a2a70e 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -694,8 +694,7 @@ asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *r
- 	 * In the SYSCALL entry path the RSP value comes from user-space - don't
- 	 * trust it and switch to the current kernel stack
- 	 */
--	if (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
--	    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
-+	if (ip_within_syscall_gap(regs)) {
- 		sp = this_cpu_read(cpu_current_top_of_stack);
- 		goto sync;
- 	}
+ 	/* Make room on the IST stack */
+-	if (on_vc_stack(regs->sp))
++	if (on_vc_stack(regs))
+ 		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
+ 	else
+ 		new_ist = old_ist - sizeof(old_ist);
 -- 
 2.30.1
 
