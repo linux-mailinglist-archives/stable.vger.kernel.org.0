@@ -2,153 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0DF932BC2A
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F40D32BC40
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239769AbhCCNln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:41:43 -0500
-Received: from mail.zx2c4.com ([104.131.123.232]:53080 "EHLO mail.zx2c4.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1357109AbhCCISX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 3 Mar 2021 03:18:23 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1614759455;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZLtfv7liP9sheIHc8guHWd/rOX+DY0HjRXJO3iGx6Ls=;
-        b=Z4Q66JixWSvL71IvK1qW7OAR4IaSQ/LKHwRQKdJJTkNP3U0P5XiKwfSSTrKw7AjHvv4JAZ
-        tVfjdNBydM7/ZLyDkd177/7lKeyeQ3ZvtC/Uo8AoWsnb+4CZMjXfrBB7fI63lqFQjjwfqz
-        o4q8iRuMfVTh4jxex8jMH2mYFuy2vrg=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id a882ebe5 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Wed, 3 Mar 2021 08:17:35 +0000 (UTC)
-Received: by mail-yb1-f173.google.com with SMTP id l8so23582875ybe.12;
-        Wed, 03 Mar 2021 00:17:35 -0800 (PST)
-X-Gm-Message-State: AOAM533Mv4FzRoZ/z385EeP1c2A3mD1NEN66753+QORL+MFmYNs0ObTY
-        gs8fREIB+IQtL3TWLClSBTT2jeBXQx/8o4WISQU=
-X-Google-Smtp-Source: ABdhPJz93Q3Jv/QF50GXR2Bhsjbv0T4QxtNh0FljLixDFb+T83c3Ipyvu3CjU+MwvyJ0LwA2MDPxk+24giyiM3mePv8=
-X-Received: by 2002:a25:2d1f:: with SMTP id t31mr38765162ybt.239.1614759454472;
- Wed, 03 Mar 2021 00:17:34 -0800 (PST)
+        id S1445660AbhCCNrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:47:31 -0500
+Received: from vsp-unauthed02.binero.net ([195.74.38.227]:39535 "EHLO
+        vsp-unauthed02.binero.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344550AbhCCK7z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:59:55 -0500
+X-Halon-ID: 3290c9d2-7bf9-11eb-b73f-0050569116f7
+Authorized-sender: andreas@gaisler.com
+Received: from andreas.got.gaisler.com (h-98-128-223-123.na.cust.bahnhof.se [98.128.223.123])
+        by bin-vsp-out-03.atm.binero.net (Halon) with ESMTPA
+        id 3290c9d2-7bf9-11eb-b73f-0050569116f7;
+        Wed, 03 Mar 2021 09:19:49 +0100 (CET)
+Subject: Re: [PATCH AUTOSEL 4.14 06/13] sparc32: Limit memblock allocation to
+ low memory
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        sparclinux@vger.kernel.org
+References: <20210302115903.63458-1-sashal@kernel.org>
+ <20210302115903.63458-6-sashal@kernel.org>
+From:   Andreas Larsson <andreas@gaisler.com>
+Message-ID: <ad613de2-6fd4-f7a3-25b1-61f3a093c811@gaisler.com>
+Date:   Wed, 3 Mar 2021 09:19:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <alpine.DEB.2.21.2103030122010.19637@angie.orcam.me.uk>
-In-Reply-To: <alpine.DEB.2.21.2103030122010.19637@angie.orcam.me.uk>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Wed, 3 Mar 2021 09:17:23 +0100
-X-Gmail-Original-Message-ID: <CAHmME9qgEMdcVgkBkvBZ9Du=ae=wEyQ4uPa+Au8+LEs5ZQCzAg@mail.gmail.com>
-Message-ID: <CAHmME9qgEMdcVgkBkvBZ9Du=ae=wEyQ4uPa+Au8+LEs5ZQCzAg@mail.gmail.com>
-Subject: Re: [PATCH] crypto: mips/poly1305 - enable for all MIPS processors
-To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
-Cc:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        George Cherian <gcherian@marvell.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        stable <stable@vger.kernel.org>,
-        Andy Polyakov <appro@cryptogams.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210302115903.63458-6-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Maciej,
-
-On Wed, Mar 3, 2021 at 2:16 AM Maciej W. Rozycki <macro@orcam.me.uk> wrote:
->
-> The MIPS Poly1305 implementation is generic MIPS code written such as to
-> support down to the original MIPS I and MIPS III ISA for the 32-bit and
-> 64-bit variant respectively.  Lift the current limitation then to enable
-> code for MIPSr1 ISA or newer processors only and have it available for
-> all MIPS processors.
-
-That sounds like a good solution to me. Thanks for doing the research
-on it. Assuming your findings hold up:
-
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
-
-I'm also CC'ing Andy on this, who wrote the original assembly, in case
-he has some last minute objection.
-
-Jason
-
->
-> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-> Fixes: a11d055e7a64 ("crypto: mips/poly1305 - incorporate OpenSSL/CRYPTOGAMS optimized implementation")
-> Cc: stable@vger.kernel.org # v5.5+
+On 2021-03-02 12:58, Sasha Levin wrote:
+> From: Andreas Larsson <andreas@gaisler.com>
+> 
+> [ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
+> 
+> Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
+> memblocks instead of bootmem, but also made high memory available via
+> memblock allocation which does not work together with e.g. phys_to_virt
+> and can lead to kernel panic.
+> 
+> This changes back to only low memory being allocatable in the early
+> stages, now using memblock allocation.
+> 
+> Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 > ---
-> On Wed, 3 Mar 2021, Jason A. Donenfeld wrote:
->
-> > >> Would you mind sending this for 5.12 in an rc at some point, rather
-> > >> than waiting for 5.13? I'd like to see this backported to 5.10 and 5.4
-> > >> for OpenWRT.
-> > >
-> > > why is this so important for OpenWRT ? Just to select CRYPTO_POLY1305_MIPS
-> > > ?
-> >
-> > Yes. The performance boost on Octeon is significant for WireGuard users.
->
->  But that's the wrong fix for that purpose.  I've skimmed over that module
-> and there's nothing MIPS64-specific there.  In fact it's plain generic
-> MIPS assembly, with some R2 optimisations enabled where applicable but not
-> necessary (and then R6 tweaks, but that's irrelevant here).
->
->  As a matter of interest I have just built it successfully for a MIPS I
-> DECstation configuration:
->
-> $ file arch/mips/crypto/poly1305-mips.ko
-> arch/mips/crypto/poly1305-mips.ko: ELF 32-bit LSB relocatable, MIPS, MIPS-I version 1 (SYSV), BuildID[sha1]=d36384d94f60ba7deff638ca8a24500120b45b56, not stripped
-> $
->
-> Patch included, please apply.
->
->  So while your change is surely right, what you want is this really.
->
->   Maciej
-> ---
->  arch/mips/crypto/Makefile |    4 ++--
->  crypto/Kconfig            |    2 +-
->  drivers/net/Kconfig       |    2 +-
->  3 files changed, 4 insertions(+), 4 deletions(-)
->
-> Index: linux/arch/mips/crypto/Makefile
-> ===================================================================
-> --- linux.orig/arch/mips/crypto/Makefile
-> +++ linux/arch/mips/crypto/Makefile
-> @@ -12,8 +12,8 @@ AFLAGS_chacha-core.o += -O2 # needed to
->  obj-$(CONFIG_CRYPTO_POLY1305_MIPS) += poly1305-mips.o
->  poly1305-mips-y := poly1305-core.o poly1305-glue.o
->
-> -perlasm-flavour-$(CONFIG_CPU_MIPS32) := o32
-> -perlasm-flavour-$(CONFIG_CPU_MIPS64) := 64
-> +perlasm-flavour-$(CONFIG_32BIT) := o32
-> +perlasm-flavour-$(CONFIG_64BIT) := 64
->
->  quiet_cmd_perlasm = PERLASM $@
->        cmd_perlasm = $(PERL) $(<) $(perlasm-flavour-y) $(@)
-> Index: linux/crypto/Kconfig
-> ===================================================================
-> --- linux.orig/crypto/Kconfig
-> +++ linux/crypto/Kconfig
-> @@ -772,7 +772,7 @@ config CRYPTO_POLY1305_X86_64
->
->  config CRYPTO_POLY1305_MIPS
->         tristate "Poly1305 authenticator algorithm (MIPS optimized)"
-> -       depends on CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
-> +       depends on MIPS
->         select CRYPTO_ARCH_HAVE_LIB_POLY1305
->
->  config CRYPTO_MD4
-> Index: linux/drivers/net/Kconfig
-> ===================================================================
-> --- linux.orig/drivers/net/Kconfig
-> +++ linux/drivers/net/Kconfig
-> @@ -92,7 +92,7 @@ config WIREGUARD
->         select CRYPTO_POLY1305_ARM if ARM
->         select CRYPTO_CURVE25519_NEON if ARM && KERNEL_MODE_NEON
->         select CRYPTO_CHACHA_MIPS if CPU_MIPS32_R2
-> -       select CRYPTO_POLY1305_MIPS if CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
-> +       select CRYPTO_POLY1305_MIPS if MIPS
->         help
->           WireGuard is a secure, fast, and easy to use replacement for IPSec
->           that uses modern cryptography and clever networking tricks. It's
+>   arch/sparc/mm/init_32.c | 3 +++
+>   1 file changed, 3 insertions(+)
+> 
+> diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+> index 95fe4f081ba3..372a4f08ddf8 100644
+> --- a/arch/sparc/mm/init_32.c
+> +++ b/arch/sparc/mm/init_32.c
+> @@ -230,6 +230,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
+>   	reserve_bootmem((bootmap_pfn << PAGE_SHIFT), size, BOOTMEM_DEFAULT);
+>   	*pages_avail -= PAGE_ALIGN(size) >> PAGE_SHIFT;
+>   
+> +	/* Only allow low memory to be allocated via memblock allocation */
+> +	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
+> +
+>   	return max_pfn;
+>   }
+>   
+> 
+
+This is not needed for 4.14, and will not compile, as the problem it
+fixes was introduced in 4.19.
+
+-- 
+Andreas Larsson
