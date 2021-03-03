@@ -2,279 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D22732BC15
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:47:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA9B032BC17
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:47:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383080AbhCCNk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:40:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33630 "EHLO
+        id S1383089AbhCCNki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:40:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351134AbhCCDQe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 22:16:34 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A698DC06178A
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 19:15:48 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id i14so3273205pjz.4
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 19:15:48 -0800 (PST)
+        with ESMTP id S1450528AbhCCFef (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 00:34:35 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4B1FC061756;
+        Tue,  2 Mar 2021 21:33:53 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id c19so3446442pjq.3;
+        Tue, 02 Mar 2021 21:33:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=UEnin7WjdkY5Zu3Sl/33V+PPDkByMV1ZkfSNmOZelUk=;
-        b=gz0kpc0szBXUi4Ny1G2T3+MvbxDuoDXilp0fBgwZg3xQRC0XzQgwxecGYTnnnlRwa/
-         su+FHSUgNgIBv9EgyYz2yL6AMfIG6S9Oukm+U8mwrrFtzKaddAyDiRlU15SzIFG8wKR+
-         j8HpxNH1ZUyJ6M9vJfYki4jiiNvHdbN77CEmzhbLodHxnuWqjbo6EY3j4zgbqXhoxzrB
-         vB0rhsiT5m87amFaJfVwHVo6ulp0ntXmQzVssUArhKmySw3Q5O95YPQf+DG3HqvgqmCb
-         OmEZnlyJXRChC3nwBpoq5D0cyTtDP6qeKCsc58DpNd9Tpy+ul1iz/TYc7rPSqKzd0txK
-         0dSw==
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=+MSiC6Q+hpJUDnRmNCGx5NmKvF0JakvrOzmHbqYAYAQ=;
+        b=jEfwoOFIXglPwdaelMWV0KkBU2KId/ARX5H9ICDj8mSab65rGIh3PUBYaLgW9t/CdR
+         XQxkCdJLZ/4xHhpeb2sSN3h35y37CnUnLGTzjKLhpuw3D2LToa7pntLyeaFOLukX7chS
+         iKmmyQaLAEtZXfiDkJ3gFdSE6cXhua4mwgP8invwUPA18XvyaGzDx+quJuqf3BianMJe
+         1EX6zhK7ilKARyMJx1YHmjpeSxOlXRFRB8zsir1gOQayg6NOTlNxF4tlPpdW/VEDwyLC
+         V/sMJRUADFmbQdKusRNbYFyTglr3emO22YHjtPaENgo3LLKGmS4AbO4MWs7hE/ETmJFx
+         QEHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=UEnin7WjdkY5Zu3Sl/33V+PPDkByMV1ZkfSNmOZelUk=;
-        b=PTeVTXgpLl3jSH52fVB3aswSelNy461WM9+GkN7CZpb6BwTbszXeAjg6k7U03i3S+2
-         PO0H2qWiunUfNhXtlgCFOjPpgXUTEcUzMGFmkcwdxZ/fbksei6T44Iiby3BCqOMZKrye
-         fBi9GBjp+fQMP2eZdUKN99ur9864yVqTG3As6NjFLAFi4wgOfTY4GBwKDw/9rnlPEdeq
-         cUMk4Yrl3633fXTTB5UDN4i1w2mBZv1UomQ79PlQlPk+yWxMuMyk+WefnH4SYVicHnIU
-         5WJZ7CMyf1+RWZxoTD5Vd0pg3NaeZ4pS/WPEIpfDIq1g4Yb76+qJKckZmLHH4dIITT/Z
-         hLeA==
-X-Gm-Message-State: AOAM532kqZF+0hlaIRJiA0YZczg2kLK6AY/wNEXET5hoZopHuTxREwow
-        U57R031jihDI1fUOxD57IvZK+PPre8FCmA==
-X-Google-Smtp-Source: ABdhPJyz/JPQYn3nKaR5uowoZIw5LCWei9ms8olaBgifwQjOznLTiJHUK9wPRMCOrHE1KUfohuOHBQ==
-X-Received: by 2002:a17:90a:a789:: with SMTP id f9mr7795142pjq.192.1614741347999;
-        Tue, 02 Mar 2021 19:15:47 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m23sm20834618pgv.14.2021.03.02.19.15.47
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=+MSiC6Q+hpJUDnRmNCGx5NmKvF0JakvrOzmHbqYAYAQ=;
+        b=b575bdKnO4FWKJMhDzsFoGUZUlSJSO5unDRMu2gptMsvdXy+4TXom8BcDKUrmUdv5E
+         IDMzBcFV0LHVtnvr7txxZfCWzL+EsBmxicf+WOHvPvO2gCHS3RB2lwXIRPHkHaa5J0Kl
+         ZeCHzuPvmrPUUQPzKtXGequVgiZFg4RLdJDp+QguruyNgeubQ9FmHuXPa2HihFeiem4H
+         fTqXumjN1t0Vl91PF+0/t4vfH56XWSwHOtqRVXtlQx51wNG4rUP3v5+p4HqeicToSp3s
+         qlzth2dwS8MbzxirjafiUPS5zeGR6F1qidFLX2OOTOZDIENtfbH2tVHWcpeyOAS1SGwl
+         0VJQ==
+X-Gm-Message-State: AOAM531jb5GG5SODwuYXiy6rNsbHCA4+58MEIGdUjVKRvo7ZJNnj50Cb
+        mcv391npIbdNn30xH8PdFXXaOsirgZQVeQR4
+X-Google-Smtp-Source: ABdhPJxQIpLydLoTGfwLNpcQGmXXEauE+colW/V806X8sSFy3R8RKrRcECbfLRrxDY+x+rUEu3pwew==
+X-Received: by 2002:a17:902:8c8f:b029:e0:1663:fd34 with SMTP id t15-20020a1709028c8fb02900e01663fd34mr6693497plo.84.1614749633107;
+        Tue, 02 Mar 2021 21:33:53 -0800 (PST)
+Received: from localhost.localdomain ([60.247.76.83])
+        by smtp.gmail.com with ESMTPSA id bb24sm5511062pjb.5.2021.03.02.21.33.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 19:15:47 -0800 (PST)
-Message-ID: <603eff63.1c69fb81.24e48.13af@mx.google.com>
-Date:   Tue, 02 Mar 2021 19:15:47 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 02 Mar 2021 21:33:52 -0800 (PST)
+Sender: YunQiang Su <wzssyqa@gmail.com>
+From:   YunQiang Su <syq@debian.org>
+To:     tsbogend@alpha.franken.de, macro@orcam.me.uk,
+        jiaxun.yang@flygoat.com
+Cc:     linux-mips@vger.kernel.org,
+        YunQiang Su <yunqiang.su@cipunited.com>, stable@vger.kernel.org
+Subject: [PATCH v7] MIPS: force use FR=0 or FRE for FPXX binaries
+Date:   Wed,  3 Mar 2021 05:33:42 +0000
+Message-Id: <20210303053342.5920-1-syq@debian.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.4.258-92-gd4ed2da466c36
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 52 runs,
- 5 regressions (v4.4.258-92-gd4ed2da466c36)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 52 runs, 5 regressions (v4.4.258-92-gd4ed2da4=
-66c36)
+From: YunQiang Su <yunqiang.su@cipunited.com>
 
-Regressions Summary
--------------------
+The MIPS FPU may have 3 mode:
+  FR=0: MIPS I style, all of the FPR are single.
+  FR=1: all 32 FPR can be double.
+  FRE: redirecting the rw of odd-FPR to the upper 32bit of even-double FPR.
 
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
- | 1          =
+The binary may have 3 mode:
+  FP32: can only work with FR=0 and FRE mode
+  FPXX: can work with all of FR=0/FR=1/FRE mode.
+  FP64: can only work with FR=1 mode
 
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
+Some binary, for example the output of golang, may be mark as FPXX,
+while in fact they are FP32. It is caused by the bug of design and linker:
+  Object produced by pure Go has no FP annotation while in fact they are FP32;
+  if we link them with the C module which marked as FPXX,
+  the result will be marked as FPXX. If these fake-FPXX binaries is executed
+  in FR=1 mode, some problem will happen.
 
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
+In Golang, now we add the FP32 annotation, so the future golang programs
+won't have this problem. While for the existing binaries, we need a
+kernel workaround.
 
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
+Currently, FR=1 mode is used for all FPXX binary, it makes some wrong
+behivour of the binaries. Since FPXX binary can work with both FR=1 and FR=0,
+we force it to use FR=0 or FRE (for R6 CPU).
 
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
+Reference:
 
+https://web.archive.org/web/20180828210612/https://dmz-portal.mips.com/wiki/MIPS_O32_ABI_-_FR0_and_FR1_Interlinking
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.258-92-gd4ed2da466c36/plan/baseline/
+https://go-review.googlesource.com/c/go/+/239217
+https://go-review.googlesource.com/c/go/+/237058
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.258-92-gd4ed2da466c36
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d4ed2da466c366f1d7d97b45a27d5f62c8dfb813 =
+Signed-off-by: YunQiang Su <yunqiang.su@cipunited.com>
+Cc: stable@vger.kernel.org # 4.19+
 
+v6->v7:
+	Use FRE mode for pre-R6 binaries on R6 CPU.
 
+v5->v6:
+	Rollback to V3, aka remove config option.
 
-Test Regressions
----------------- =
+v4->v5:
+	Fix CONFIG_MIPS_O32_FPXX_USE_FR0 usage: if -> ifdef
 
+v3->v4:
+	introduce a config option: CONFIG_MIPS_O32_FPXX_USE_FR0
 
+v2->v3:
+	commit message: add Signed-off-by and Cc to stable.
 
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
- | 1          =
+v1->v2:
+	Fix bad commit message: in fact, we are switching to FR=0
+---
+ arch/mips/kernel/elf.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
+diff --git a/arch/mips/kernel/elf.c b/arch/mips/kernel/elf.c
+index 7b045d2a0b51..4d4db619544b 100644
+--- a/arch/mips/kernel/elf.c
++++ b/arch/mips/kernel/elf.c
+@@ -232,11 +232,16 @@ int arch_check_elf(void *_ehdr, bool has_interpreter, void *_interp_ehdr,
+ 	 *   that inherently require the hybrid FP mode.
+ 	 * - If FR1 and FRDEFAULT is true, that means we hit the any-abi or
+ 	 *   fpxx case. This is because, in any-ABI (or no-ABI) we have no FPU
+-	 *   instructions so we don't care about the mode. We will simply use
+-	 *   the one preferred by the hardware. In fpxx case, that ABI can
+-	 *   handle both FR=1 and FR=0, so, again, we simply choose the one
+-	 *   preferred by the hardware. Next, if we only use single-precision
+-	 *   FPU instructions, and the default ABI FPU mode is not good
++	 *   instructions so we don't care about the mode.
++	 *   In fpxx case, that ABI can handle all of FR=1/FR=0/FRE mode.
++	 *   Here, we need to use FR=0/FRE mode instead of FR=1, because some binaries
++	 *   may be mark as FPXX by mistake due to bugs of design and linker:
++	 *      The object produced by pure Go has no FP annotation,
++	 *      then is treated as any-ABI by linker, although in fact they are FP32;
++	 *      if any-ABI object is linked with FPXX object, the result will be mark as FPXX.
++	 *      Then the problem happens: run FP32 binaries in FR=1 mode.
++	 * - If we only use single-precision FPU instructions,
++	 *   and the default ABI FPU mode is not good
+ 	 *   (ie single + any ABI combination), we set again the FPU mode to the
+ 	 *   one is preferred by the hardware. Next, if we know that the code
+ 	 *   will only use single-precision instructions, shown by single being
+@@ -248,8 +253,9 @@ int arch_check_elf(void *_ehdr, bool has_interpreter, void *_interp_ehdr,
+ 	 */
+ 	if (prog_req.fre && !prog_req.frdefault && !prog_req.fr1)
+ 		state->overall_fp_mode = FP_FRE;
+-	else if ((prog_req.fr1 && prog_req.frdefault) ||
+-		 (prog_req.single && !prog_req.frdefault))
++	else if (prog_req.fr1 && prog_req.frdefault)
++		state->overall_fp_mode = cpu_has_mips_r6 ? FP_FRE : FP_FR0;
++	else if (prog_req.single && !prog_req.frdefault)
+ 		/* Make sure 64-bit MIPS III/IV/64R1 will not pick FR1 */
+ 		state->overall_fp_mode = ((raw_current_cpu_data.fpu_id & MIPS_FPIR_F64) &&
+ 					  cpu_has_mips_r2_r6) ?
+-- 
+2.20.1
 
-  Details:     https://kernelci.org/test/plan/id/603ecd39ca00766c63addcb6
-
-  Results:     3 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/603ecd39ca00766=
-c63addcbb
-        new failure (last pass: v4.4.258-92-g426a9f6fc6457)
-        2 lines
-
-    2021-03-02 23:41:41.375000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, udevd/116
-    2021-03-02 23:41:41.384000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xfffff26c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-03-02 23:41:41.405000+00:00  [   19.244750] <LAVA_SIGNAL_TESTCASE =
-TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603ece09dc24f7a27aaddcbd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603ece09dc24f7a27aadd=
-cbe
-        failing since 109 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603ecdac5a6f9e5572addcb5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603ecdac5a6f9e5572add=
-cb6
-        failing since 109 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603ecd6caebc8440b6addccd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
-t-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603ecd6caebc8440b6add=
-cce
-        failing since 109 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
- | regressions
---------------------+------+---------------+----------+--------------------=
--+------------
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603ecd66b1e63815bcadde67
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.258-9=
-2-gd4ed2da466c36/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603ecd66b1e63815bcadd=
-e68
-        failing since 109 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
- fail: v4.4.243-19-g71b6c961c7fe) =
-
- =20
