@@ -2,78 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A68E432BC19
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:47:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65BDF32BC1E
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383095AbhCCNkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:40:49 -0500
-Received: from szxga04-in.huawei.com ([45.249.212.190]:12677 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355018AbhCCGRy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 01:17:54 -0500
-Received: from DGGEMS414-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4Dr3cx6l7dzlRhs;
-        Wed,  3 Mar 2021 14:14:57 +0800 (CST)
-Received: from use12-sp2.huawei.com (10.67.189.174) by
- DGGEMS414-HUB.china.huawei.com (10.3.19.214) with Microsoft SMTP Server id
- 14.3.498.0; Wed, 3 Mar 2021 14:16:59 +0800
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-To:     <linux-kernel@vger.kernel.org>, <kiyin@tencent.com>,
-        <stable@vger.kernel.org>, <gregkh@linuxfoundation.org>,
-        <sameo@linux.intel.com>, <linville@tuxdriver.com>,
-        <davem@davemloft.net>, <kuba@kernel.org>, <mkl@pengutronix.de>,
-        <stefan@datenfreihafen.org>, <matthieu.baerts@tessares.net>,
-        <netdev@vger.kernel.org>
-CC:     <nixiaoming@huawei.com>, <wangle6@huawei.com>,
-        <xiaoqian9@huawei.com>
-Subject: [PATCH 4/4] nfc: Avoid endless loops caused by repeated llcp_sock_connect()
-Date:   Wed, 3 Mar 2021 14:16:54 +0800
-Message-ID: <20210303061654.127666-5-nixiaoming@huawei.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210303061654.127666-1-nixiaoming@huawei.com>
-References: <20210303061654.127666-1-nixiaoming@huawei.com>
+        id S1443013AbhCCNlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:41:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355334AbhCCGeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 01:34:19 -0500
+Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44003C061756
+        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 22:33:17 -0800 (PST)
+Received: by mail-io1-xd2b.google.com with SMTP id p16so24542051ioj.4
+        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 22:33:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Q64iFG3Ey7PFtAuHICFJ86ZWqNBONNvnRLeuSXKpOtg=;
+        b=MXvPcFwvaRiWoP883rxUo42wt3PIpeDZC+zNDqo2kjzhyy5GbgUnPgTxjo7j+yJffw
+         GDXA3D8to2HScufzlrfo5ip3QZTfymccUZj/szpSM6L8ZlPSLq6/eY3iBXBOqmNqagZO
+         QJxOBfVMkma0El+ycwMtrN1DrTMMWEjzebEyZijtVgXBxx0j5c9PQ5/tXtj255+KV7u9
+         ICcSv24dqFNNmjyw5uaUJ+ih60N1aamcc8MJ9v5VAncykyaP/Mr/Zs4lwwji6educ3uf
+         2BaTD8YlkaVbYi+VhbaLYJUf4P9GP40GjFU3xSN6TpT/a6Cemt6xlSvF83F6uVBPrqmu
+         2HUQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Q64iFG3Ey7PFtAuHICFJ86ZWqNBONNvnRLeuSXKpOtg=;
+        b=Tqn5tM4aDDbeF7r2NsohorJy8j+xmoUfQsE+Zs2rWmEtmY80JfHT45ivNIgb+zjx9B
+         fEsrpVH3yYlfdW56pt+ipfMNiKODPrzSMvzi1khc7Tv44GksGpjjzgECRlgFAL3zxIOv
+         1GAYATlrZiFJ0Fty1GFi+bjJXHOIPhximTE1boBBpMUI5ZB3TDtNgL4s3Cc0r9yCz0Ir
+         v1QYaInFf7SJYbWyZzKgKc1gheJDhWlFx26VpDLZDUog8YZE/AoXdBdZu6Fyf13VCjCm
+         bdig87xlrN8JrdU9xgu/nysF86/vpc59w6bu+FspG+BDcVGJ6Yo4K0wh4nqK1bMgPrir
+         hYrg==
+X-Gm-Message-State: AOAM532hd/aIazE6ds61NAbVhGRhC0v93Xdhdn2TpVgj+Do638LA82tC
+        vyaZCfVqffEL8YHoFhr5e2dqJWUdW2j9ha0w5GVkCAts6i0=
+X-Google-Smtp-Source: ABdhPJyCpTY/dQY44vqXElD0y+rta25INNXYueBqnWM8XOqYtKgomN3oUl3gHHGf5V0f4XioV1drRMydihHqMsCKmDA=
+X-Received: by 2002:a05:6638:43:: with SMTP id a3mr15494012jap.102.1614753196583;
+ Tue, 02 Mar 2021 22:33:16 -0800 (PST)
 MIME-Version: 1.0
+References: <161461457416034@kroah.com> <CAA68J_ZM-YhX+dWSw=JChPtQ-hQSJmSy_NZpD-pEWM+icVMuYg@mail.gmail.com>
+ <YD02/mC7BpCKIXub@kroah.com>
+In-Reply-To: <YD02/mC7BpCKIXub@kroah.com>
+From:   "Cong Wang ." <cong.wang@bytedance.com>
+Date:   Tue, 2 Mar 2021 22:33:05 -0800
+Message-ID: <CAA68J_b+f99z15opsJnNFGN5uVkCKsDiPiYH+wDtwLPiKBFqOQ@mail.gmail.com>
+Subject: Re: [Phishing Risk] [External] FAILED: patch "[PATCH] net_sched: fix
+ RTNL deadlock again caused by request_module()" failed to apply to 5.4-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jamal Hadi Salim <jhs@mojatatu.com>,
+        =?UTF-8?B?SmnFmcOtIFDDrXJrbw==?= <jiri@resnulli.us>,
+        kuba@kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.189.174]
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
- LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
- nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
- sk->sk_node->next will point to itself, that will make an endless loop
- and hang-up the system.
-To fix it, check whether sk->sk_state is LLCP_CONNECTING in
- llcp_sock_connect() to avoid repeated invoking.
+On Mon, Mar 1, 2021 at 10:53 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Mar 01, 2021 at 09:54:33AM -0800, Cong Wang . wrote:
+> > On Mon, Mar 1, 2021 at 8:02 AM <gregkh@linuxfoundation.org> wrote:
+> > >
+> > >
+> > > The patch below does not apply to the 5.4-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> >
+> > This patch is not suitable for -stable due to its large size.
+>
+> The size here is fine:
+>  3 files changed, 79 insertions(+), 41 deletions(-)
+>
 
-fix CVE-2020-25673
-Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
-Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
-Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
-Cc: <stable@vger.kernel.org> #v3.11
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
----
- net/nfc/llcp_sock.c | 4 ++++
- 1 file changed, 4 insertions(+)
+If you are fine with this, sure. I will take a look at your backports.
 
-diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-index 59172614b249..a3b46f888803 100644
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -673,6 +673,10 @@ static int llcp_sock_connect(struct socket *sock, struct sockaddr *_addr,
- 		ret = -EISCONN;
- 		goto error;
- 	}
-+	if (sk->sk_state == LLCP_CONNECTING) {
-+		ret = -EINPROGRESS;
-+		goto error;
-+	}
- 
- 	dev = nfc_get_device(addr->dev_idx);
- 	if (dev == NULL) {
--- 
-2.27.0
+> Given that syzbot can trigger this, that means that humans can as well,
+> so why shouldn't we fix this?
 
+I meant, it existed for a long time, probably longer than what the Fixes tag
+indicates, and no human reported it.
+
+Thanks.
