@@ -2,114 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C12232CB83
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 05:44:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2984B32CBB6
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 06:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233723AbhCDEn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 23:43:29 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:47112 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233699AbhCDEnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 23:43:18 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 1244fclP052737;
-        Wed, 3 Mar 2021 22:41:38 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1614832898;
-        bh=2gdcGvIiei2/gTTob5OagdVE47Jl6d4UbQfoaMc8G3o=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=Tvntns1O9mFwr8M97BUwCpT6H8JQS6F8qX1mYCeFaoRcVBHqH4X415QeogWucA6Xz
-         JT3Pva19t+sXEUYeXg5yvKr2c3rvl+GPP1D5fyXIUGgkycRacMfr6m1Hl+uwUKm0AU
-         XyJZvnr44s38fq5RFW+ml8WA/oJDAif5cbYpirts=
-Received: from DFLE104.ent.ti.com (dfle104.ent.ti.com [10.64.6.25])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 1244fcLC087978
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Wed, 3 Mar 2021 22:41:38 -0600
-Received: from DFLE101.ent.ti.com (10.64.6.22) by DFLE104.ent.ti.com
- (10.64.6.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Wed, 3 Mar
- 2021 22:41:38 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE101.ent.ti.com
- (10.64.6.22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Wed, 3 Mar 2021 22:41:38 -0600
-Received: from a0393678-ssd.dhcp.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 1244fQfj042911;
-        Wed, 3 Mar 2021 22:41:34 -0600
-From:   Kishon Vijay Abraham I <kishon@ti.com>
-To:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Swapnil Jakhade <sjakhade@cadence.com>
-CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Lokesh Vutla <lokeshvutla@ti.com>, <stable@vger.kernel.org>
-Subject: [PATCH v4 02/13] phy: ti: j721e-wiz: Invoke wiz_init() before of_platform_device_create()
-Date:   Thu, 4 Mar 2021 10:11:11 +0530
-Message-ID: <20210304044122.15166-3-kishon@ti.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210304044122.15166-1-kishon@ti.com>
-References: <20210304044122.15166-1-kishon@ti.com>
+        id S229458AbhCDFCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 00:02:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229494AbhCDFCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 00:02:39 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF3AC061756
+        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 21:01:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=B76ip7Z1pMeqyo0ZwLMBroQsISdWL+yZsCzxkZ1ErXk=; b=CTmtWS9/X/DNebLxAL9FMJdsZj
+        MeyCTW8LPdt1alZjzEG66q5CAN0ESBeYpmoD1bUUCEWRUaNnENvQ1mLXhMvTtU7+dOpmDLw7t1856
+        CFNuulPtFyxfAmJTovgQlmnEA5thKeOvP2qayrmsYP/vdsRyS/8HJY2CiAsPmsGf9+vHnw5deDTyH
+        /+vSURvY5IZunsuz0rVfFSxU4/CxfyitB1L/u7VPG5srfdYHbNntGyb5N7Qxsqld8CxvGzzUlVr39
+        t+dwhvMxw35PHCKgR/AKePTxdVGe1OT9tzB/+pPJIzGpx8ADObCqBoK4zct2pvt0dlvaqKL4AXRvr
+        63dUccFQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+        id 1lHWil-0067U3-3c; Wed, 03 Mar 2021 18:59:44 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7ADD530011C;
+        Wed,  3 Mar 2021 19:59:42 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 5DBD023CE7A7E; Wed,  3 Mar 2021 19:59:42 +0100 (CET)
+Date:   Wed, 3 Mar 2021 19:59:42 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     kan.liang@linux.intel.com
+Cc:     mingo@redhat.com, linux-kernel@vger.kernel.org, acme@kernel.org,
+        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+        jolsa@redhat.com, namhyung@kernel.org, eranian@google.com,
+        ak@linux.intel.com, stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "perf/x86: Allow zero PEBS status with only
+ single active event"
+Message-ID: <YD/cnnuh/AHOL8hV@hirez.programming.kicks-ass.net>
+References: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Invoke wiz_init() before configuring anything else in Sierra/Torrent
-(invoked as part of of_platform_device_create()). wiz_init() resets the
-SERDES device and any configuration done in the probe() of
-Sierra/Torrent will be lost. In order to prevent SERDES configuration
-from getting reset, invoke wiz_init() immediately before invoking
-of_platform_device_create().
+On Wed, Mar 03, 2021 at 05:42:18AM -0800, kan.liang@linux.intel.com wrote:
 
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: <stable@vger.kernel.org> # v5.10
----
- drivers/phy/ti/phy-j721e-wiz.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+> For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
+> may be mistakenly set to 0. To minimize the impact of the defect, the
+> commit was introduced to try to avoid dropping the PEBS record for some
+> cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
+> the local pebs_status accordingly. However, it doesn't correct the PEBS
+> status in the PEBS record, which may trigger the crash, especially for
+> the large PEBS.
+> 
+> It's possible that all the PEBS records in a large PEBS have the PEBS
+> status 0. If so, the first get_next_pebs_record_by_bit() in the
+> __intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
+> PEBS, the 'count' parameter must > 1. The second
+> get_next_pebs_record_by_bit() will crash.
+> 
+> Two solutions were considered to fix the crash.
+> - Keep the SW workaround and add extra checks in the
+>   get_next_pebs_record_by_bit() to workaround the issue. The
+>   get_next_pebs_record_by_bit() is a critical path. The extra checks
+>   will bring extra overhead for the latest CPUs which don't have the
+>   defect. Also, the defect can only be observed on some old CPUs
+>   (For example, the issue can be reproduced on an HSW client, but I
+>   didn't observe the issue on my Haswell server machine.). The impact
+>   of the defect should be limit.
+>   This solution is dropped.
+> - Drop the SW workaround and revert the commit.
+>   It seems that the commit never works, because the PEBS status in the
+>   PEBS record never be changed. The get_next_pebs_record_by_bit() only
+>   checks the PEBS status in the PEBS record. The record is dropped
+>   eventually. Reverting the commit should not change the current
+>   behavior.
 
-diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
-index 995c7dbec77b..1bb73822f44a 100644
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -1262,27 +1262,24 @@ static int wiz_probe(struct platform_device *pdev)
- 		goto err_get_sync;
- 	}
- 
-+	ret = wiz_init(wiz);
-+	if (ret) {
-+		dev_err(dev, "WIZ initialization failed\n");
-+		goto err_wiz_init;
-+	}
-+
- 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
- 	if (!serdes_pdev) {
- 		dev_WARN(dev, "Unable to create SERDES platform device\n");
- 		ret = -ENOMEM;
--		goto err_pdev_create;
--	}
--	wiz->serdes_pdev = serdes_pdev;
--
--	ret = wiz_init(wiz);
--	if (ret) {
--		dev_err(dev, "WIZ initialization failed\n");
- 		goto err_wiz_init;
- 	}
-+	wiz->serdes_pdev = serdes_pdev;
- 
- 	of_node_put(child_node);
- 	return 0;
- 
- err_wiz_init:
--	of_platform_device_destroy(&serdes_pdev->dev, NULL);
--
--err_pdev_create:
- 	wiz_clock_cleanup(wiz, node);
- 
- err_get_sync:
--- 
-2.17.1
+> +++ b/arch/x86/events/intel/ds.c
+> @@ -2000,18 +2000,6 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
+>  			continue;
+>  		}
+>  
+> -		/*
+> -		 * On some CPUs the PEBS status can be zero when PEBS is
+> -		 * racing with clearing of GLOBAL_STATUS.
+> -		 *
+> -		 * Normally we would drop that record, but in the
+> -		 * case when there is only a single active PEBS event
+> -		 * we can assume it's for that event.
+> -		 */
+> -		if (!pebs_status && cpuc->pebs_enabled &&
+> -			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
+> -			pebs_status = cpuc->pebs_enabled;
+
+Wouldn't something like:
+
+			pebs_status = p->status = cpus->pebs_enabled;
+
+actually fix things without adding overhead?
+
 
