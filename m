@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6398232BC32
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BFF932BC31
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349094AbhCCNoL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:44:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
+        id S1347900AbhCCNoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:44:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1842966AbhCCKXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:23:10 -0500
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F416C08ECAD;
-        Wed,  3 Mar 2021 01:56:12 -0800 (PST)
-Received: by mail-pg1-x52b.google.com with SMTP id t26so15995514pgv.3;
-        Wed, 03 Mar 2021 01:56:12 -0800 (PST)
+        with ESMTP id S1842929AbhCCKWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:22:38 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0435CC08ECB5;
+        Wed,  3 Mar 2021 02:01:39 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id j12so15874803pfj.12;
+        Wed, 03 Mar 2021 02:01:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6nAum7+Ob49UjR8SXRm3Bf/BdE+ABiXk8yB55vKwcjo=;
-        b=t6d98gwHsFVJx6OL8dYpXRpDtNn7Wf+l5TtZs67JkFEb3y/YMeNPE3cYMIqqJsGc2c
-         uSC+BojNjx2A3NumpC6ZYOxhMZ9IiKaB5uw3OW3gJkYwdWaPZTpMHu+1terIF3Bopn1t
-         0YiNxuaUp8jmLx/QaExikzl4y2FmQp1tWGLu6uREHeiWeYJ01Xw0QM+e2/qMq0gMHVn8
-         17DBUbY3w2iTBSts4kTlIQU3sYZNqsGHgwY0MBGGPAAzVwc3Wcog8nqkUeSZd4BVBH5q
-         DtJ/Ul5sr9khy5dsItqGvNTnV2WkaczvbMaOkvaTciFNEwmHC1lpzwL7vWTZpKBxBbpS
-         4BOA==
+        bh=8DrZrPQbyPtgf2aW639cqNZTuk5sChQgDw7fi81dRqU=;
+        b=GRI7FdF3WjDJBJwLyAIRUyb/6dNvkGLEFbRin86oTgDmPfK8yt2xIz9eD6Y54f1QqI
+         Sk+ekbnCaBOpIIhSMfTIGLFF0fZpvTSbESePjq2VIvfczqPdiEnSBsjeBz6alijtOgsB
+         sVA/7DRhikwKbl2eWxQv8GKx6bZFn5i5auNco+fQU2oh/4eXQ9yfr/jqXnyOSvpBlRzB
+         88f2bYJcGQ5lZ0QknYqUygzV4IiMIXkN5MMmDQgJiRA/kX988l00Vvao3DS3VVAtt0AK
+         itH+6r4S8ZSXhjghXAOX8njzvFY7NG6OpwDUXkpSxPw0tCuPmRW8jf7iOCdOVBMsyHog
+         kVRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6nAum7+Ob49UjR8SXRm3Bf/BdE+ABiXk8yB55vKwcjo=;
-        b=dji8hm0tiGYfEfLwgXQrUpHRV2WY27mEFNg4OW34ckCwJGV5wHMJkvjOybRrdCl9oI
-         nUsDvGxZhPPWWKr8ESXA93c8QbQcADaIMbMx4Fep29N1C55iwdPvpwsDDzRv5QPdzurK
-         GpRqS9AvQf+jZR8xkVJM7mDM+wzyGpFLTLgMGdFX1yYK6S3kYcwJKl/cmaf/ZfiCOnqa
-         SSvjqXAex/bVDKkHj7dH07zW9BI/84I9R6NEPUChsgaACe60bazBmS+x4l9ESwlbRNIR
-         iHj6zTvfJRePYPpiinr0y3pHfbC1jwhRWWVl/85RSZB9L2LUlZBWG/1vSgtEPwan6wSj
-         l8dw==
-X-Gm-Message-State: AOAM533Sbw/7Muk6hbFhDUov4phEA99j3cf8VccDOZ86b6ulzdYoHL79
-        E3RvFkCCP5hTjxBF3xn0FpI=
-X-Google-Smtp-Source: ABdhPJzL+/f5k+R8WaiFUPLm5x5UffaBaUc6zqPhsKJfhucmslPQZdW8AwZD4LLWEJkiLpiPGHy2tg==
-X-Received: by 2002:a62:5ec1:0:b029:1ee:7baf:8ed3 with SMTP id s184-20020a625ec10000b02901ee7baf8ed3mr2344276pfb.62.1614765371678;
-        Wed, 03 Mar 2021 01:56:11 -0800 (PST)
+        bh=8DrZrPQbyPtgf2aW639cqNZTuk5sChQgDw7fi81dRqU=;
+        b=FT9UzjvqVcSxy0dNJSvprH+ybZ+X/qs2dbYuK0zGy68PT7lkkO/8Rj099AZGbbixVV
+         FE4rmDMzs+r8QnT+aJ/VlvgUY77pcxpnOrlYrvslTTztftRrWDvX58gbRjYKdHyy4n0a
+         fqH98dO7XTzCEE2e6MK5yShBhJSFNIKVZ6RG8teuYKJFWZsVvWeKAM3DyxUd74VkhKR7
+         fiDlYWdN8mIljCEiQamOPIojCOc5fG+Nkxb6ZZBxPIyAYN8Xp4WOvmVoVtzd7CTRQC7q
+         O4PogNuFs9LeP/M3PYRhM6EDtPyoIDXGiTSvVTmkbgpIUXienFDqIauMNhFN0uou6xz7
+         g+gA==
+X-Gm-Message-State: AOAM533HOT1rmBjkqOwUQl674l+jUBGcYRTdcc809h+FMw9gZTgMyTOz
+        g7TekLOIl7ZygTrP2p1UaIEza4IZxm5ZTVh7
+X-Google-Smtp-Source: ABdhPJwO84KcxWuPUTPVV2FhPZV0rM7ZW1OyKzHFpIIDtlCgIYuaYNUj8cHdCyvvqOm8S9Kb8dtGYA==
+X-Received: by 2002:a62:e809:0:b029:1ed:c7ec:179b with SMTP id c9-20020a62e8090000b02901edc7ec179bmr2306577pfi.43.1614765699341;
+        Wed, 03 Mar 2021 02:01:39 -0800 (PST)
 Received: from sc2-haas01-esx0118.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id x14sm24351087pfm.207.2021.03.03.01.56.10
+        by smtp.gmail.com with ESMTPSA id 132sm2292606pfu.158.2021.03.03.02.01.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Mar 2021 01:56:11 -0800 (PST)
+        Wed, 03 Mar 2021 02:01:38 -0800 (PST)
 From:   Nadav Amit <nadav.amit@gmail.com>
 X-Google-Original-From: Nadav Amit
 To:     linux-mm@kvack.org
@@ -63,9 +63,9 @@ Cc:     linux-kernel@vger.kernel.org,
         Will Deacon <will@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
         Yu Zhao <yuzhao@google.com>
-Subject: [PATCH v3] mm/userfaultfd: fix memory corruption due to writeprotect
-Date:   Wed,  3 Mar 2021 01:51:16 -0800
-Message-Id: <20210303095116.3814443-1-namit@vmware.com>
+Subject: [PATCH RESEND v3] mm/userfaultfd: fix memory corruption due to writeprotect
+Date:   Wed,  3 Mar 2021 01:57:02 -0800
+Message-Id: <20210303095702.3814618-1-namit@vmware.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -153,8 +153,8 @@ To resolve the aforementioned races, check whether there are pending
 flushes on uffd-write-protected VMAs, and if there are, perform a flush
 before doing the COW.
 
-Further optimizations will follow, since currently write-unprotect would
-also
+Further optimizations will follow to avoid during uffd-write-unprotect
+unnecassary PTE write-protection and TLB flushes.
 
 Cc: Andrea Arcangeli <aarcange@redhat.com>
 Cc: Andy Lutomirski <luto@kernel.org>
