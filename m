@@ -2,119 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213F532B0B6
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5370732B0B9
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 04:44:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345104AbhCCAya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 2 Mar 2021 19:54:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236455AbhCCAKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 2 Mar 2021 19:10:08 -0500
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521A1C06178B
-        for <stable@vger.kernel.org>; Tue,  2 Mar 2021 16:09:21 -0800 (PST)
-Received: by mail-pf1-x432.google.com with SMTP id i10so5781101pfk.4
-        for <stable@vger.kernel.org>; Tue, 02 Mar 2021 16:09:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=uVJwdUXQcQwcm3HTa/4eaGKjRG6flNRjjfKUbGPD+s4=;
-        b=XNpNV4J8tel/XDLL3tIWAeJA1Sb9cCzl+NqWn/XXlD+fKmqPajWEawLbA7PUt+KGR+
-         ZiTzwaDxLHR4cBXLnX86KpNqNARiu2agVXoLpQtEMPd/Ka/FAGBT56VBSFeZzvNG0zVi
-         9YmGaFPFczcSfwF+wJse94Or5DdA7n78dHjwJCBv0mU7zLBU6OtxNol96toKVAciEpsK
-         F+jV4yidRv+o3THYIbOVoQhtpfU6k9AbjU2NmKXfaQ/N4qmDmYwX4AaHyoGC91ni6j/p
-         mB6YObfYssw/Oj/UjMwzMPLKdgC73J8xUVXMooN96I0zDLqD/xlyblMkJkxyZNInwvUK
-         7xHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=uVJwdUXQcQwcm3HTa/4eaGKjRG6flNRjjfKUbGPD+s4=;
-        b=SN3gM4MUtWMxOXzKnfqbRtQ1T2CujL9dOgOVecYscAMBh3tBACDgP2QNpMFglfXSkz
-         id05TEN7nSetI++kK0YxDy+WHzsv4Mk6Mxta4UQ5xkX/liiqyuM3kejeP/uyZww7JY6E
-         WJ/CHPFDjhz4LDrAAagrnJelA9RxWvMmXlcFbWuS0VONxUWCh/73mwwIzIDXxic5HbgQ
-         8QV0EJHHqwidGr9oaEt9o5cZu8/759DcXce54sfpwkGRHwYUppQCOiwiXDr6MmQcxAXT
-         4yqxpv27EVqhaFLUFbuAL+mFzjew6U9L3/c7Xzn9k+OxtjtUNyjZCSGlfmX5UgJD5hRY
-         nYYA==
-X-Gm-Message-State: AOAM530FZ1FvYFtJUjynSj+AYJEgB/dCjuJLZUbzx+jydmaerXcue5Hf
-        oIx+o5ufjDOQ4Hf14jlv1W0ZA7xR9LopZQ==
-X-Google-Smtp-Source: ABdhPJxeyDvhrgkwWbfU3DoppbKGet/4I5glx+WCOZmf+KXAYNcRrDA/nyrNuBPyz6KTTWjHXG9YEQ==
-X-Received: by 2002:a63:fd0a:: with SMTP id d10mr19828090pgh.405.1614730160688;
-        Tue, 02 Mar 2021 16:09:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r13sm23374169pfg.37.2021.03.02.16.09.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Mar 2021 16:09:20 -0800 (PST)
-Message-ID: <603ed3b0.1c69fb81.6b7c9.5b42@mx.google.com>
-Date:   Tue, 02 Mar 2021 16:09:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.19-657-g84fa1f13a46b7
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 104 runs,
- 1 regressions (v5.10.19-657-g84fa1f13a46b7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1345307AbhCCAyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 2 Mar 2021 19:54:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34996 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234179AbhCCASV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 2 Mar 2021 19:18:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08BB064F48;
+        Wed,  3 Mar 2021 00:17:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1614730637;
+        bh=mU5PveBMUOL4vXjHcyJ4Vk66Hg1AkYJuK82tzLO57oQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=fFazfdEQJPlwzLPWA6JwystQrC4mSJJ0zoD3Xq50mm051lTZHifhHMHF/vO2b7qsD
+         hEsqhrkxH2QGhYrBVPY3k8ZB+lO1TebGwSpRuIiL0pvMOXJuBVWH8Gx7JfF7FY2MJe
+         jbpQJXCGv4nz0tGyB83KR6vs4g/7fkmp4Kw1GMXs=
+Date:   Tue, 2 Mar 2021 16:17:16 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Shakeel Butt <shakeelb@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Edgar Arriaga =?ISO-8859-1?Q?Garc=EDa?= 
+        <edgararriaga@google.com>, Tim Murray <timmurray@google.com>,
+        linux-mm <linux-mm@kvack.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Michal Hocko <mhocko@suse.com>
+Subject: Re: [PATCH v2 1/1] mm/madvise: replace ptrace attach requirement
+ for process_madvise
+Message-Id: <20210302161716.89a65d3cb5b60dbc5074cfa7@linux-foundation.org>
+In-Reply-To: <CAJuCfpEOE8=L1fT4FSauy65cS82M_kW3EzTgH89ewE9HudL=VA@mail.gmail.com>
+References: <20210111170622.2613577-1-surenb@google.com>
+        <20210112074629.GG22493@dhcp22.suse.cz>
+        <20210112174507.GA23780@redhat.com>
+        <CAJuCfpFQz=x-LvONO3c4iqjKP4NKJMgUuiYc8HACKHAv1Omu0w@mail.gmail.com>
+        <20210113142202.GC22493@dhcp22.suse.cz>
+        <CAG48ez0=QSzuj96+5oVQ2qWqfjedv3oKtfEFzw--C8bzfvj7EQ@mail.gmail.com>
+        <20210126135254.GP827@dhcp22.suse.cz>
+        <CAJuCfpEnMyo9XAnoF+q1j9EkC0okZfUxxdAFhzhPJi+adJYqjw@mail.gmail.com>
+        <CAJuCfpF861zhp8yR_pYx8gb+WMrORAZ0tbzcKtKxaj7L=jzw+Q@mail.gmail.com>
+        <CAJuCfpFzxiBXp1rdY=H=bX+eOAVGOe72_FxwC-NTWF4fhUO26g@mail.gmail.com>
+        <CAJuCfpEOE8=L1fT4FSauy65cS82M_kW3EzTgH89ewE9HudL=VA@mail.gmail.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 104 runs, 1 regressions (v5.10.19-657-g84fa1=
-f13a46b7)
+On Tue, 2 Mar 2021 15:53:39 -0800 Suren Baghdasaryan <surenb@google.com> wrote:
 
-Regressions Summary
--------------------
+> Hi Andrew,
+> A friendly reminder to please include this patch into mm tree.
+> There seem to be no more questions or objections.
+> The man page you requested is accepted here:
+> https://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=a144f458bad476a3358e3a45023789cb7bb9f993
+> stable is CC'ed and this patch should go into 5.10 and later kernels
+> The patch has been:
+> Acked-by: Minchan Kim <minchan@kernel.org>
+> Acked-by: David Rientjes <rientjes@google.com>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> 
+> If you want me to resend it, please let me know.
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+This patch was tough.  I think it would be best to resend please, being
+sure to cc everyone who commented.  To give everyone another chance to
+get their heads around it.  If necessary, please update the changelog
+to address any confusion/questions which have arisen thus far.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.19-657-g84fa1f13a46b7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.19-657-g84fa1f13a46b7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      84fa1f13a46b7d394d799497d32f25af206d535f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/603ea154aca7e96b9daddcc6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-657-g84fa1f13a46b7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
-657-g84fa1f13a46b7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/603ea154aca7e96b9dadd=
-cc7
-        new failure (last pass: v5.10.19-658-g156997432be5) =
-
- =20
+Thanks.
