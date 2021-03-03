@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F40D32BC40
-	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:48:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D16D32BC48
+	for <lists+stable@lfdr.de>; Wed,  3 Mar 2021 22:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445660AbhCCNrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 3 Mar 2021 08:47:31 -0500
-Received: from vsp-unauthed02.binero.net ([195.74.38.227]:39535 "EHLO
+        id S1445733AbhCCNrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 3 Mar 2021 08:47:39 -0500
+Received: from vsp-unauthed02.binero.net ([195.74.38.227]:21414 "EHLO
         vsp-unauthed02.binero.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344550AbhCCK7z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 05:59:55 -0500
-X-Halon-ID: 3290c9d2-7bf9-11eb-b73f-0050569116f7
+        with ESMTP id S1349992AbhCCLAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 3 Mar 2021 06:00:20 -0500
+X-Halon-ID: 745b473b-7bf9-11eb-b73f-0050569116f7
 Authorized-sender: andreas@gaisler.com
 Received: from andreas.got.gaisler.com (h-98-128-223-123.na.cust.bahnhof.se [98.128.223.123])
         by bin-vsp-out-03.atm.binero.net (Halon) with ESMTPA
-        id 3290c9d2-7bf9-11eb-b73f-0050569116f7;
-        Wed, 03 Mar 2021 09:19:49 +0100 (CET)
-Subject: Re: [PATCH AUTOSEL 4.14 06/13] sparc32: Limit memblock allocation to
- low memory
+        id 745b473b-7bf9-11eb-b73f-0050569116f7;
+        Wed, 03 Mar 2021 09:21:34 +0100 (CET)
+Subject: Re: [PATCH AUTOSEL 4.4 4/8] sparc32: Limit memblock allocation to low
+ memory
 To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
 Cc:     Mike Rapoport <rppt@linux.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
         sparclinux@vger.kernel.org
-References: <20210302115903.63458-1-sashal@kernel.org>
- <20210302115903.63458-6-sashal@kernel.org>
+References: <20210302115935.63777-1-sashal@kernel.org>
+ <20210302115935.63777-4-sashal@kernel.org>
 From:   Andreas Larsson <andreas@gaisler.com>
-Message-ID: <ad613de2-6fd4-f7a3-25b1-61f3a093c811@gaisler.com>
-Date:   Wed, 3 Mar 2021 09:19:38 +0100
+Message-ID: <c9573605-e4e3-92a5-3a21-1b324277a345@gaisler.com>
+Date:   Wed, 3 Mar 2021 09:21:28 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20210302115903.63458-6-sashal@kernel.org>
+In-Reply-To: <20210302115935.63777-4-sashal@kernel.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -40,7 +40,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-03-02 12:58, Sasha Levin wrote:
+On 2021-03-02 12:59, Sasha Levin wrote:
 > From: Andreas Larsson <andreas@gaisler.com>
 > 
 > [ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
@@ -62,10 +62,10 @@ On 2021-03-02 12:58, Sasha Levin wrote:
 >   1 file changed, 3 insertions(+)
 > 
 > diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-> index 95fe4f081ba3..372a4f08ddf8 100644
+> index 3b7092d9ea8f..4abe4bf08377 100644
 > --- a/arch/sparc/mm/init_32.c
 > +++ b/arch/sparc/mm/init_32.c
-> @@ -230,6 +230,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
+> @@ -240,6 +240,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
 >   	reserve_bootmem((bootmap_pfn << PAGE_SHIFT), size, BOOTMEM_DEFAULT);
 >   	*pages_avail -= PAGE_ALIGN(size) >> PAGE_SHIFT;
 >   
@@ -77,7 +77,7 @@ On 2021-03-02 12:58, Sasha Levin wrote:
 >   
 > 
 
-This is not needed for 4.14, and will not compile, as the problem it
+This is not needed for 4.4, and will not compile, as the problem it
 fixes was introduced in 4.19.
 
 -- 
