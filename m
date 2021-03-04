@@ -2,180 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC8032D594
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44E4032D5AD
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:52:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbhCDOl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 09:41:56 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:41475 "EHLO
-        wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232172AbhCDOlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:41:31 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 4A2BE15AB;
-        Thu,  4 Mar 2021 09:40:45 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 04 Mar 2021 09:40:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VwliJK
-        iPbX1jdO1/KzrxSb6FQZ9uFXq/FWnWlB8OyGU=; b=Ne81HBhagdJPp1heYgEh2W
-        hmaBadOHWjyDefWBrelIZWiXQ1Mhv2Pf/THMqTZRqcLaY2skdXwKDF2p53RyNccY
-        12c6/SdsshzD1p/HtzfWBDHsnc7KxJj05qu6iAQQ0GlpyN2fKQVBaKyb+CzjXJfV
-        Tj9dQ6CRQ5GohXxMolsYhR+09IihKifjaKUqMxgP3PbuhkWysB7GMKvqwaIsl6Fi
-        9VtygqCOf/MGOPOxyJ2QDDVxLDU2C5FMunq+4noSH0hFtB+gccUeIkOFJKzfNN4P
-        QmV2fveLTSCGraD+km0MPiMrVlEBWt7ndjfGHPLGxH/sO+wGeGuWari5/fzXGIDg
-        ==
-X-ME-Sender: <xms:bPFAYGKgrHKcN2mX9nFmRRNGbjGpFB9QObXhdL4i0GcX22LQahzd2A>
-    <xme:bPFAYHwIhZ0lhvD_YOuuk_s0s5-DCgqRxjagSqXVkKBjQe8CwP61MlClNBOLO_01_
-    tbHIyos1hSsMw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgiedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:bPFAYGv8ZaOXhEl38LfmQ2_y2Y0ZKEtDHL4cNxqBIvJhZJdxaYysYg>
-    <xmx:bPFAYOujVuS1HQ51C8aOf72CER2XXvpqEX10sX4RCu18cR5S1erUSg>
-    <xmx:bPFAYLNwl99ixoUu76H-RGUCnmPUvoxxPG0Vac8irWnciocKRpUviw>
-    <xmx:bPFAYK7nSfTzin7XI737XY-SnjFyvirpAsgEBLdHVivuoN1T_faoICcEAek>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EB9BE24005E;
-        Thu,  4 Mar 2021 09:40:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mptcp: fix DATA_FIN generation on early shutdown" failed to apply to 5.10-stable tree
-To:     pabeni@redhat.com, kuba@kernel.org,
-        mathew.j.martineau@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Mar 2021 15:40:42 +0100
-Message-ID: <1614868842161253@kroah.com>
+        id S232789AbhCDOtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 09:49:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232786AbhCDOtW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:49:22 -0500
+Received: from Chamillionaire.breakpoint.cc (Chamillionaire.breakpoint.cc [IPv6:2a0a:51c0:0:12e:520::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD789C061574;
+        Thu,  4 Mar 2021 06:48:41 -0800 (PST)
+Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
+        (envelope-from <fw@breakpoint.cc>)
+        id 1lHpHH-00014W-VI; Thu, 04 Mar 2021 15:48:35 +0100
+From:   Florian Westphal <fw@strlen.de>
+To:     stable@vger.kernel.org
+Cc:     Paul Burton <paul.burton@mips.com>,
+        Alexander Lobakin <alobakin@dlink.ru>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        linux-mips@vger.kernel.org, Florian Westphal <fw@strlen.de>
+Subject: [PATCH 5.4.y] MIPS: Drop 32-bit asm string functions
+Date:   Thu,  4 Mar 2021 15:48:14 +0100
+Message-Id: <20210304144814.14131-1-fw@strlen.de>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Paul Burton <paul.burton@mips.com>
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+commit 3c0be5849259b729580c23549330973a2dd513a2 upstream.
 
-thanks,
+We have assembly implementations of strcpy(), strncpy(), strcmp() &
+strncmp() which:
 
-greg k-h
+ - Are simple byte-at-a-time loops with no particular optimizations. As
+   a comment in the code describes, they're "rather naive".
 
------------------- original commit in Linus's tree ------------------
+ - Offer no clear performance advantage over the generic C
+   implementations - in microbenchmarks performed by Alexander Lobakin
+   the asm functions sometimes win & sometimes lose, but generally not
+   by large margins in either direction.
 
-From d87903b63e3ce1eafaa701aec5cc1d0ecd0d84dc Mon Sep 17 00:00:00 2001
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Fri, 19 Feb 2021 18:35:38 +0100
-Subject: [PATCH] mptcp: fix DATA_FIN generation on early shutdown
+ - Don't support 64-bit kernels, where we already make use of the
+   generic C implementations.
 
-If the msk is closed before sending or receiving any data,
-no DATA_FIN is generated, instead an MPC ack packet is
-crafted out.
+ - Tend to bloat kernel code size due to inlining.
 
-In the above scenario, the MPTCP protocol creates and sends a
-pure ack and such packets matches also the criteria for an
-MPC ack and the protocol tries first to insert MPC options,
-leading to the described error.
+ - Don't support CONFIG_FORTIFY_SOURCE.
 
-This change addresses the issue by avoiding the insertion of an
-MPC option for DATA_FIN packets or if the sub-flow is not
-established.
+ - Won't support nanoMIPS without rework.
 
-To avoid doing multiple times the same test, fetch the data_fin
-flag in a bool variable and pass it to both the interested
-helpers.
+For all of these reasons, delete the asm implementations & make use of
+the generic C implementations for 32-bit kernels just like we already do
+for 64-bit kernels.
 
-Fixes: 6d0060f600ad ("mptcp: Write MPTCP DSS headers to outgoing data packets")
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[ stable note: mips32 strncpy does not pad remaining dest buf which causes
+  nftables iifname compare failures ].
 
-diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index b63574d6b812..444a38681e93 100644
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -411,6 +411,7 @@ static void clear_3rdack_retransmission(struct sock *sk)
- }
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+URL: https://lore.kernel.org/linux-mips/a2a35f1cf58d6db19eb4af9b4ae21e35@dlink.ru/
+Cc: Alexander Lobakin <alobakin@dlink.ru>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Florian Westphal <fw@strlen.de>
+---
+ arch/mips/include/asm/string.h | 121 ---------------------------------
+ 1 file changed, 121 deletions(-)
+
+diff --git a/arch/mips/include/asm/string.h b/arch/mips/include/asm/string.h
+index 29030cb398ee..1de3bbce8e88 100644
+--- a/arch/mips/include/asm/string.h
++++ b/arch/mips/include/asm/string.h
+@@ -10,127 +10,6 @@
+ #ifndef _ASM_STRING_H
+ #define _ASM_STRING_H
  
- static bool mptcp_established_options_mp(struct sock *sk, struct sk_buff *skb,
-+					 bool snd_data_fin_enable,
- 					 unsigned int *size,
- 					 unsigned int remaining,
- 					 struct mptcp_out_options *opts)
-@@ -428,9 +429,10 @@ static bool mptcp_established_options_mp(struct sock *sk, struct sk_buff *skb,
- 	if (!skb)
- 		return false;
+-
+-/*
+- * Most of the inline functions are rather naive implementations so I just
+- * didn't bother updating them for 64-bit ...
+- */
+-#ifdef CONFIG_32BIT
+-
+-#ifndef IN_STRING_C
+-
+-#define __HAVE_ARCH_STRCPY
+-static __inline__ char *strcpy(char *__dest, __const__ char *__src)
+-{
+-  char *__xdest = __dest;
+-
+-  __asm__ __volatile__(
+-	".set\tnoreorder\n\t"
+-	".set\tnoat\n"
+-	"1:\tlbu\t$1,(%1)\n\t"
+-	"addiu\t%1,1\n\t"
+-	"sb\t$1,(%0)\n\t"
+-	"bnez\t$1,1b\n\t"
+-	"addiu\t%0,1\n\t"
+-	".set\tat\n\t"
+-	".set\treorder"
+-	: "=r" (__dest), "=r" (__src)
+-	: "0" (__dest), "1" (__src)
+-	: "memory");
+-
+-  return __xdest;
+-}
+-
+-#define __HAVE_ARCH_STRNCPY
+-static __inline__ char *strncpy(char *__dest, __const__ char *__src, size_t __n)
+-{
+-  char *__xdest = __dest;
+-
+-  if (__n == 0)
+-    return __xdest;
+-
+-  __asm__ __volatile__(
+-	".set\tnoreorder\n\t"
+-	".set\tnoat\n"
+-	"1:\tlbu\t$1,(%1)\n\t"
+-	"subu\t%2,1\n\t"
+-	"sb\t$1,(%0)\n\t"
+-	"beqz\t$1,2f\n\t"
+-	"addiu\t%0,1\n\t"
+-	"bnez\t%2,1b\n\t"
+-	"addiu\t%1,1\n"
+-	"2:\n\t"
+-	".set\tat\n\t"
+-	".set\treorder"
+-	: "=r" (__dest), "=r" (__src), "=r" (__n)
+-	: "0" (__dest), "1" (__src), "2" (__n)
+-	: "memory");
+-
+-  return __xdest;
+-}
+-
+-#define __HAVE_ARCH_STRCMP
+-static __inline__ int strcmp(__const__ char *__cs, __const__ char *__ct)
+-{
+-  int __res;
+-
+-  __asm__ __volatile__(
+-	".set\tnoreorder\n\t"
+-	".set\tnoat\n\t"
+-	"lbu\t%2,(%0)\n"
+-	"1:\tlbu\t$1,(%1)\n\t"
+-	"addiu\t%0,1\n\t"
+-	"bne\t$1,%2,2f\n\t"
+-	"addiu\t%1,1\n\t"
+-	"bnez\t%2,1b\n\t"
+-	"lbu\t%2,(%0)\n\t"
+-#if defined(CONFIG_CPU_R3000)
+-	"nop\n\t"
+-#endif
+-	"move\t%2,$1\n"
+-	"2:\tsubu\t%2,$1\n"
+-	"3:\t.set\tat\n\t"
+-	".set\treorder"
+-	: "=r" (__cs), "=r" (__ct), "=r" (__res)
+-	: "0" (__cs), "1" (__ct));
+-
+-  return __res;
+-}
+-
+-#endif /* !defined(IN_STRING_C) */
+-
+-#define __HAVE_ARCH_STRNCMP
+-static __inline__ int
+-strncmp(__const__ char *__cs, __const__ char *__ct, size_t __count)
+-{
+-	int __res;
+-
+-	__asm__ __volatile__(
+-	".set\tnoreorder\n\t"
+-	".set\tnoat\n"
+-	"1:\tlbu\t%3,(%0)\n\t"
+-	"beqz\t%2,2f\n\t"
+-	"lbu\t$1,(%1)\n\t"
+-	"subu\t%2,1\n\t"
+-	"bne\t$1,%3,3f\n\t"
+-	"addiu\t%0,1\n\t"
+-	"bnez\t%3,1b\n\t"
+-	"addiu\t%1,1\n"
+-	"2:\n\t"
+-#if defined(CONFIG_CPU_R3000)
+-	"nop\n\t"
+-#endif
+-	"move\t%3,$1\n"
+-	"3:\tsubu\t%3,$1\n\t"
+-	".set\tat\n\t"
+-	".set\treorder"
+-	: "=r" (__cs), "=r" (__ct), "=r" (__count), "=r" (__res)
+-	: "0" (__cs), "1" (__ct), "2" (__count));
+-
+-	return __res;
+-}
+-#endif /* CONFIG_32BIT */
+-
+ #define __HAVE_ARCH_MEMSET
+ extern void *memset(void *__s, int __c, size_t __count);
  
--	/* MPC/MPJ needed only on 3rd ack packet */
--	if (subflow->fully_established ||
--	    subflow->snd_isn != TCP_SKB_CB(skb)->seq)
-+	/* MPC/MPJ needed only on 3rd ack packet, DATA_FIN and TCP shutdown take precedence */
-+	if (subflow->fully_established || snd_data_fin_enable ||
-+	    subflow->snd_isn != TCP_SKB_CB(skb)->seq ||
-+	    sk->sk_state != TCP_ESTABLISHED)
- 		return false;
- 
- 	if (subflow->mp_capable) {
-@@ -502,20 +504,20 @@ static void mptcp_write_data_fin(struct mptcp_subflow_context *subflow,
- }
- 
- static bool mptcp_established_options_dss(struct sock *sk, struct sk_buff *skb,
-+					  bool snd_data_fin_enable,
- 					  unsigned int *size,
- 					  unsigned int remaining,
- 					  struct mptcp_out_options *opts)
- {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
- 	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
--	u64 snd_data_fin_enable, ack_seq;
- 	unsigned int dss_size = 0;
- 	struct mptcp_ext *mpext;
- 	unsigned int ack_size;
- 	bool ret = false;
-+	u64 ack_seq;
- 
- 	mpext = skb ? mptcp_get_ext(skb) : NULL;
--	snd_data_fin_enable = mptcp_data_fin_enabled(msk);
- 
- 	if (!skb || (mpext && mpext->use_map) || snd_data_fin_enable) {
- 		unsigned int map_size;
-@@ -717,12 +719,15 @@ bool mptcp_established_options(struct sock *sk, struct sk_buff *skb,
- 			       unsigned int *size, unsigned int remaining,
- 			       struct mptcp_out_options *opts)
- {
-+	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
-+	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
- 	unsigned int opt_size = 0;
-+	bool snd_data_fin;
- 	bool ret = false;
- 
- 	opts->suboptions = 0;
- 
--	if (unlikely(mptcp_check_fallback(sk)))
-+	if (unlikely(__mptcp_check_fallback(msk)))
- 		return false;
- 
- 	/* prevent adding of any MPTCP related options on reset packet
-@@ -731,10 +736,10 @@ bool mptcp_established_options(struct sock *sk, struct sk_buff *skb,
- 	if (unlikely(skb && TCP_SKB_CB(skb)->tcp_flags & TCPHDR_RST))
- 		return false;
- 
--	if (mptcp_established_options_mp(sk, skb, &opt_size, remaining, opts))
-+	snd_data_fin = mptcp_data_fin_enabled(msk);
-+	if (mptcp_established_options_mp(sk, skb, snd_data_fin, &opt_size, remaining, opts))
- 		ret = true;
--	else if (mptcp_established_options_dss(sk, skb, &opt_size, remaining,
--					       opts))
-+	else if (mptcp_established_options_dss(sk, skb, snd_data_fin, &opt_size, remaining, opts))
- 		ret = true;
- 
- 	/* we reserved enough space for the above options, and exceeding the
+-- 
+2.26.2
 
