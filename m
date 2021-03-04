@@ -2,127 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7745132DBA7
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 22:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A542F32DBAB
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 22:20:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235208AbhCDVQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 16:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237429AbhCDVPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 16:15:52 -0500
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D0A7C061574
-        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 13:15:12 -0800 (PST)
-Received: by mail-lf1-x12c.google.com with SMTP id n16so181548lfb.4
-        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 13:15:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C4GiH7OsFqBXNgPH9lEXvnAS/VBedlFXUn708GSVLWs=;
-        b=HNy3dt+f1rBLexxgKM508D0xHwg6OpIpHIGpOed+5RHLqIKoVYGKTjERUIERsyQCur
-         RghFiw+842AbLBDt4WeumgW2bbCFFuIa9qbNGLWZ+j3f6wOegcZa4SwhZWdWbN0gkWuQ
-         Lq5DV+yjKFHmzW8AkALe9YvH9OYxFPaunwJPU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C4GiH7OsFqBXNgPH9lEXvnAS/VBedlFXUn708GSVLWs=;
-        b=Q2LlmkVEWPhfmF6co3BesXAWR+Hra3dQ2rSOmTAnaCezMwAwQWGWWZVyKBDY4ixO6h
-         JQ2O5wSSgs5svQ0EdELmOhTGb9xOYzlKmiZtQwMa0Rnu87jNaZ981B6epjd3hn+5Nqbl
-         QXXeUSAgdmx6fpOyEDeBB7zJsoA8pm8lHjDW0Fnp30qopvwwQp+fPwKv3DpXMJ/2aCyq
-         7cAn3uBMUPIKjp68fnGZa28ZCorWwbzI0j/4KOAss5ZtB5TnBZIk0PypbQLMAkVwm29P
-         G2lD4kj2I1xdKFY2R3gDP1DPmC5+yID16z2eBtPIxIhHvfPcWCuTVWoABgS2Jq2alTB6
-         4LXQ==
-X-Gm-Message-State: AOAM530CJ9jriQ2rMQabfrJNWsMUK/Nck1mAS1uIi0kQrFreDfqGGu52
-        x7AqcejjcmhopzqiTow9+t0wfBSVgfOEpg==
-X-Google-Smtp-Source: ABdhPJyyCZaMi5+phPHBakOk6Gdomwk79Pjz79Q+5CIDeA70Eie5z016f0BdVXv6Gie5h/I8dTc0/A==
-X-Received: by 2002:ac2:41d6:: with SMTP id d22mr3423537lfi.496.1614892510173;
-        Thu, 04 Mar 2021 13:15:10 -0800 (PST)
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com. [209.85.208.175])
-        by smtp.gmail.com with ESMTPSA id 124sm55829lfh.252.2021.03.04.13.15.08
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 Mar 2021 13:15:09 -0800 (PST)
-Received: by mail-lj1-f175.google.com with SMTP id p15so26223056ljc.13
-        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 13:15:08 -0800 (PST)
-X-Received: by 2002:a2e:9bd0:: with SMTP id w16mr3223231ljj.465.1614892508416;
- Thu, 04 Mar 2021 13:15:08 -0800 (PST)
+        id S235500AbhCDVSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 16:18:21 -0500
+Received: from mx2.suse.de ([195.135.220.15]:51908 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234894AbhCDVR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Mar 2021 16:17:56 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1614892629; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=/tZ880Yp/AKHzG1rpWeDp9V30VjIiNL6pvc/O/61Sck=;
+        b=nCoW2/W4dLR8+pG1rRhirVZ+Z9b+K4gJulKogHhl2KxAUI3Q1MY/2G1W7U3tCZTIOMpHPF
+        5vl7YKo1McvzNVmkXuYzU77vtyz+lrpGiKEy9WprGWE8uPhkWUWnlXAT64Z9QIcOQJ276K
+        hQIubeeMqKJtIEjp+l2+3+97NKjOUi8=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 88BD6AFB0;
+        Thu,  4 Mar 2021 21:17:09 +0000 (UTC)
+Date:   Thu, 4 Mar 2021 22:17:08 +0100
+From:   Anthony Iliopoulos <ailiop@suse.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthew Wilcox <willy@infradead.org>, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH STABLE 5.10 5.11] swap: fix swapfile page to sector
+ mapping
+Message-ID: <YEFOVDk1bTgrw6bt@technoir>
+References: <20210304150824.29878-1-ailiop@suse.com>
+ <20210304150824.29878-5-ailiop@suse.com>
+ <YED5ypwsrExHWD7N@kroah.com>
+ <YEELCJkGx78SP34d@technoir>
+ <YEERyfs8QSB5lGVz@kroah.com>
 MIME-Version: 1.0
-References: <20210302192700.399054668@linuxfoundation.org> <CA+G9fYsA7U7rzd=yGYQ=uWViY3_dXc4iY_pC-DM1K3R+gac19g@mail.gmail.com>
- <175fac9c-ac3f-bd82-9e5d-2c2970cfc519@roeck-us.net> <CA+G9fYtkrAs=ASaVVu6-Lnck8A6Pt_LGODxnpTYouvppbw_rbQ@mail.gmail.com>
-In-Reply-To: <CA+G9fYtkrAs=ASaVVu6-Lnck8A6Pt_LGODxnpTYouvppbw_rbQ@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 4 Mar 2021 13:14:52 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgxLTur2G5mvYKCXE4DkUo90T2Dy3X526sqJgOCm0gzNA@mail.gmail.com>
-Message-ID: <CAHk-=wgxLTur2G5mvYKCXE4DkUo90T2Dy3X526sqJgOCm0gzNA@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/657] 5.10.20-rc4 review
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YEERyfs8QSB5lGVz@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 4, 2021 at 9:56 AM Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->
-> On Thu, 4 Mar 2021 at 01:34, Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> > Upstream has:
-> >
-> > e71a8d5cf4b4 tty: fix up iterate_tty_read() EOVERFLOW handling
-> > ddc5fda74561 tty: fix up hung_up_tty_read() conversion
->
-> I have applied these two patches and the reported problem did not solve.
+On Thu, Mar 04, 2021 at 05:58:49PM +0100, Greg Kroah-Hartman wrote:
+> On Thu, Mar 04, 2021 at 05:30:00PM +0100, Anthony Iliopoulos wrote:
+> > On Thu, Mar 04, 2021 at 04:16:26PM +0100, Greg Kroah-Hartman wrote:
+> > > On Thu, Mar 04, 2021 at 04:08:24PM +0100, Anthony Iliopoulos wrote:
+> > > > commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
+> > > 
+> > > No, this does not look like that commit.
+> > > 
+> > > Why can I not just take caf6912f3f4a ("swap: fix swapfile read/write
+> > > offset") directly for 5.10 and 5.11?  WHat has changed to prevent that?
+> > 
+> > You're right of course, the upstream fix applies even on v5.4 so you
+> > could just take it directly for those branches if this is preferable.
+> 
+> But, that commit says it fixes 48d15436fde6 ("mm: remove get_swap_bio"),
+> which is NOT what you are saying here in these patches.
 
-Hmm. Upstream has:
+It is admittedly a bit confusing as the upstream commit fixes two issues
+in one swoop:
 
-*  3342ff2698e9 ("tty: protect tty_write from odd low-level tty disciplines")
-*  a9cbbb80e3e7 ("tty: avoid using vfs_iocb_iter_write() for
-redirected console writes")
-*  17749851eb9c ("tty: fix up hung_up_tty_write() conversion")
-G  e71a8d5cf4b4 ("tty: fix up iterate_tty_read() EOVERFLOW handling")
-G  ddc5fda74561 ("tty: fix up hung_up_tty_read() conversion")
- * c7135bbe5af2 ("tty: fix up hung_up_tty_write() conversion")
-  d7fe75cbc23c ("tty: teach the n_tty ICANON case about the new
-"cookie continuations" too")
-  15ea8ae8e03f ("tty: teach n_tty line discipline about the new
-"cookie continuations"")
-  64a69892afad ("tty: clean up legacy leftovers from n_tty line discipline")
-*  9bb48c82aced ("tty: implement write_iter")
-*  dd78b0c483e3 ("tty: implement read_iter")
-*  3b830a9c34d5 ("tty: convert tty_ldisc_ops 'read()' function to take
-a kernel pointer")
+- the bug which was introduced in v5.12-rc1 via 48d15436fde6 ("mm:
+  remove get_swap_bio"), which affected swapfiles running on regular
+  block devices, in addition to:
 
-Where those ones marked with '*' seem to be in v5.10.y, and the one
-prefixed with 'G' are the ones Guenter mentioned.
+- an identical bug which up until 48d15436fde6 was only applicable to
+  swapfiles on top of blockdevs that can do page io without the block
+  layer, which was introduced with dd6bd0d9c7db ("swap: use
+  bdev_read_page() / bdev_write_page()")
 
-(We seem to have the "tty: fix up hung_up_tty_write() conversion"
-commit twice. I'm not sure how that happened, but whatever).
+> So which is it?  Is there a problem in 5.11 and older kernels
+> (48d15436fde6 ("mm: remove get_swap_bio") showed up in 5.12-rc1), that
+> requires this fix, or is there nothing needed to be backported?
 
-But that still leaves three commits that don't seem to be in 5.10.y:
+The second point/bug mentioned above is present on 5.11 and all older
+kernels, so some form of this fix is required.
 
-  d7fe75cbc23c ("tty: teach the n_tty ICANON case about the new
-"cookie continuations" too")
-  15ea8ae8e03f ("tty: teach n_tty line discipline about the new
-"cookie continuations"")
-  64a69892afad ("tty: clean up legacy leftovers from n_tty line discipline")
+> As a note, I've been running swapfiles on 5.11 and earlier just fine for
+> a very long time now, so is this really an issue?
 
-and they might fix what are otherwise short reads. Which is allowed by
-POSIX, afaik, but ..
+Yes there is an issue on all kernels since v3.16-rc1 when dd6bd0d9c7db
+was introduced, but it is applicable only to setups with swapfiles on
+filesystems sitting on top of brd, zram, btt or pmem.
 
-Do those three commits fix your test-case?
+I can trivially reproduce this e.g. on v5.11 by creating a swapfile on
+top of a zram or pmem blockdev and pushing the system to swap out pages,
+at which point it corrupts filesystem blocks that don't belong to the
+swapfile.
 
-(And maybe my filtering and trying to figure out what is upstream and
-what is in 5.10.y is broken, and there's something else there too).
-
-                Linus
+Regards,
+Anthony
