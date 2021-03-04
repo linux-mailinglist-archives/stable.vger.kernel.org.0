@@ -2,126 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F40E32D2C0
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 13:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 034AC32D363
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 13:40:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240404AbhCDMUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 07:20:33 -0500
-Received: from 8bytes.org ([81.169.241.247]:57604 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240421AbhCDMUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 07:20:24 -0500
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id A4A0722E; Thu,  4 Mar 2021 13:19:42 +0100 (CET)
-Date:   Thu, 4 Mar 2021 13:19:41 +0100
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Andrey Ryabinin <arbn@yandex-team.com>
-Cc:     Will Deacon <will@kernel.org>, iommu@lists.linux-foundation.org,
-        linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        valesini@yandex-team.ru, stable@vger.kernel.org
-Subject: Re: [PATCH] iommu/amd: Fix sleeping in atomic in
- increase_address_space()
-Message-ID: <20210304121941.GB26414@8bytes.org>
-References: <20210217143004.19165-1-arbn@yandex-team.com>
- <20210217181002.GC4304@willie-the-truck>
+        id S232943AbhCDMil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 07:38:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38776 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241046AbhCDMi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 07:38:26 -0500
+Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5515C061574
+        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 04:37:45 -0800 (PST)
+Received: by mail-vs1-xe2b.google.com with SMTP id l192so14476419vsd.5
+        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 04:37:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=szeredi.hu; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=j8UaE9csxwrHB+GKIj9/WjJw8ugPbi9uDRrPYm3++N4=;
+        b=VCeRywpRl9tthKy/YkqPn830EDBnJC9oKrV74b7ty4YGvaW1GCRK46/SMFmPOVOrHl
+         7srY5qdFvGd8rC717zUCHbh8BVf50YSyBvSbvz1jNunMeatfGNvLTsea9IJXbXW4RTgI
+         M5/aaz3+f+4SQ/ZLYAoUOotIQudlbpttEozeE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=j8UaE9csxwrHB+GKIj9/WjJw8ugPbi9uDRrPYm3++N4=;
+        b=J0zE9AKYBlvLnXBUV9ZOkUMajjdf4Ttk9mOF2lAwiO/V0K/yPydJH4z70Gv1HFw/M+
+         Ti8Id8Vfhpyu3OMSi8soRoEYeeHvPvsb8MGmNzQLEUP+55sdnv1/o6gHXzEpBTGRToMN
+         60/NXmeF1baTbHSqR+onPPffyJAHrU3WefeiBPy0Z2APKxwdKcpuuAc+nGsvrtcb7btZ
+         h0EGJVevFXYWJCykRIsJldhVmHnCU1OVqGGZozWCWCScG+hGSW35JGuQWu/Gtk9voice
+         SaGRSmR5+Vtc7nQNKCfoFd87pUukeoZexNhS68eqiiIS4j/RHgvB7RRzvony7tRv0/dq
+         nqFA==
+X-Gm-Message-State: AOAM5335y5MNZDKZYfPB73wN1XLr0ILkmqsBXl+TsuMgfumX8f44sn7t
+        jnRNcII8ZBOR/4vKc4i94WiUpCVgGFnlIRnUfARFag==
+X-Google-Smtp-Source: ABdhPJzt3IbiwcOcZzChDNLGDZsDtMGvPNVxRuD3h93EJEoWW2BbIuBHe7pv2bYK7bCXN3TDqdBLB0haa+fISDzjxUE=
+X-Received: by 2002:a67:c992:: with SMTP id y18mr2211514vsk.7.1614861464960;
+ Thu, 04 Mar 2021 04:37:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210217181002.GC4304@willie-the-truck>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20210304090912.3936334-1-amir73il@gmail.com>
+In-Reply-To: <20210304090912.3936334-1-amir73il@gmail.com>
+From:   Miklos Szeredi <miklos@szeredi.hu>
+Date:   Thu, 4 Mar 2021 13:37:34 +0100
+Message-ID: <CAJfpegu9E0qHyNuYnQncWowYjpB+W3ktmTr0_PT=AHVwKE1Dig@mail.gmail.com>
+Subject: Re: [PATCH] fuse: fix live lock in fuse_iget()
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 17, 2021 at 06:10:02PM +0000, Will Deacon wrote:
-> >  drivers/iommu/amd/iommu.c | 10 ++++++----
-> >  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> Acked-by: Will Deacon <will@kernel.org>
+On Thu, Mar 4, 2021 at 10:09 AM Amir Goldstein <amir73il@gmail.com> wrote:
+>
+> Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
+> in fuse_iget() with a private implementation fuse_make_bad().
+>
+> The private implementation fails to remove the bad inode from inode
+> cache, so the retry loop with iget5_locked() finds the same bad inode
+> and marks it bad forever.
 
-Applied for v5.12, thanks.
+Thanks, applied.
 
-There were some conflicts which I resolved, can you please check the
-result, Andrey? The updated patch is attached.
-
-From 140456f994195b568ecd7fc2287a34eadffef3ca Mon Sep 17 00:00:00 2001
-From: Andrey Ryabinin <arbn@yandex-team.com>
-Date: Wed, 17 Feb 2021 17:30:04 +0300
-Subject: [PATCH] iommu/amd: Fix sleeping in atomic in increase_address_space()
-
-increase_address_space() calls get_zeroed_page(gfp) under spin_lock with
-disabled interrupts. gfp flags passed to increase_address_space() may allow
-sleeping, so it comes to this:
-
- BUG: sleeping function called from invalid context at mm/page_alloc.c:4342
- in_atomic(): 1, irqs_disabled(): 1, pid: 21555, name: epdcbbf1qnhbsd8
-
- Call Trace:
-  dump_stack+0x66/0x8b
-  ___might_sleep+0xec/0x110
-  __alloc_pages_nodemask+0x104/0x300
-  get_zeroed_page+0x15/0x40
-  iommu_map_page+0xdd/0x3e0
-  amd_iommu_map+0x50/0x70
-  iommu_map+0x106/0x220
-  vfio_iommu_type1_ioctl+0x76e/0x950 [vfio_iommu_type1]
-  do_vfs_ioctl+0xa3/0x6f0
-  ksys_ioctl+0x66/0x70
-  __x64_sys_ioctl+0x16/0x20
-  do_syscall_64+0x4e/0x100
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fix this by moving get_zeroed_page() out of spin_lock/unlock section.
-
-Fixes: 754265bcab ("iommu/amd: Fix race in increase_address_space()")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Acked-by: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210217143004.19165-1-arbn@yandex-team.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/amd/io_pgtable.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/iommu/amd/io_pgtable.c b/drivers/iommu/amd/io_pgtable.c
-index 1c4961e05c12..bb0ee5c9fde7 100644
---- a/drivers/iommu/amd/io_pgtable.c
-+++ b/drivers/iommu/amd/io_pgtable.c
-@@ -182,6 +182,10 @@ static bool increase_address_space(struct protection_domain *domain,
- 	bool ret = true;
- 	u64 *pte;
- 
-+	pte = (void *)get_zeroed_page(gfp);
-+	if (!pte)
-+		return false;
-+
- 	spin_lock_irqsave(&domain->lock, flags);
- 
- 	if (address <= PM_LEVEL_SIZE(domain->iop.mode))
-@@ -191,10 +195,6 @@ static bool increase_address_space(struct protection_domain *domain,
- 	if (WARN_ON_ONCE(domain->iop.mode == PAGE_MODE_6_LEVEL))
- 		goto out;
- 
--	pte = (void *)get_zeroed_page(gfp);
--	if (!pte)
--		goto out;
--
- 	*pte = PM_LEVEL_PDE(domain->iop.mode, iommu_virt_to_phys(domain->iop.root));
- 
- 	domain->iop.root  = pte;
-@@ -208,10 +208,12 @@ static bool increase_address_space(struct protection_domain *domain,
- 	 */
- 	amd_iommu_domain_set_pgtable(domain, pte, domain->iop.mode);
- 
-+	pte = NULL;
- 	ret = true;
- 
- out:
- 	spin_unlock_irqrestore(&domain->lock, flags);
-+	free_page((unsigned long)pte);
- 
- 	return ret;
- }
--- 
-2.26.2
-
+Miklos
