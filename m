@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E413C32D54D
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:33:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B20F32D54E
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:33:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbhCDOao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 09:30:44 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:58165 "EHLO
+        id S229711AbhCDOap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 09:30:45 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:60415 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229711AbhCDOaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:30:30 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 306C914A6;
-        Thu,  4 Mar 2021 09:29:25 -0500 (EST)
+        by vger.kernel.org with ESMTP id S231216AbhCDOak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:30:40 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.west.internal (Postfix) with ESMTP id 7F082142F;
+        Thu,  4 Mar 2021 09:29:34 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Thu, 04 Mar 2021 09:29:25 -0500
+  by compute6.internal (MEProxy); Thu, 04 Mar 2021 09:29:34 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=As7nXB
-        zcMzbgxLc9avslFxFyWpqLu5JpgWz4thETGYI=; b=pmCl/ShYa7R43YnM57nD9Z
-        5hDUMO693t/pJGAPSIW0hT2bcJLCTzsI+RY5YJ9N3XgP1RYPKN/lrpem83ZBjkNI
-        ZJP88hnJCrAOueLjUZpYElrA9hGfMq0TVuj9tC360eNXdPLSXmZ9a52AJTb1WsP4
-        rDHB9LTrZFNdmkrXblYemBOHL3pHnEQsAvK8ghJfUAWDp0sYqxVnGUWutDo4o+Wm
-        2OVP44azZTO+YD9d/9Fo1OhKxKYg9P0/KrwgKNbtkcktAJS/riim8ZYH6TEMqb0b
-        0ZxKWilhOAIJ7DNAdRvCxGjE1o6Z0XjWi27M8uL2ydSzwczatzM0i/rp2WL+OMcg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ukpb5m
+        nsG4zDG+7AcEai3pIOuLfV73a/anvr58/baV8=; b=QAbOiUAbpWH43uGL7EsEwG
+        +JrDR4IqasKYYI+SG/uyHQ9vZBQseF5uZlCReU7B1hj4fZ3U6M6rtoQXhjadocQq
+        zyQYJbuhnpo+h7vMNKa8HhMnPAmoBGHTsWp/+HYRsfUmbBvYT5GQXeH6cmQAeOqL
+        altZCcMXKzD6xACkw+ckQb0OBQjjEywuHc7yvae9tjRmSzvIIQgDEVsjS9fLGASC
+        kjCkysjXzclx2XkI75gp3z+LHNgtBLhCMlleANsxivKWG32jen/ZtH4l7za7jalz
+        KdOR/o/EPKkL+YAOj5ugpwfYSDtBj9WYH9ThXYta/Qvj8OwSECNdsN4qPxhzY+ZA
         ==
-X-ME-Sender: <xms:xO5AYPkCoujJ8I8sGwHpGtrX7I2ee3AsgmcaDdSkOwEZ8epWK2b8eg>
-    <xme:xO5AYMesxyJDrVvfoIuYd6mw73EGx3U1cBT_fzKUGNOZ6-cQjJsEtEXFhY4jcxplw
-    j4hR2yh5JyX6g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgiedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:ze5AYCvegx_2f7b-FFrkcFXx6BWEJ5EHy8_hlNaVU82T3Ucqp9i5Fg>
+    <xme:ze5AYJelhnqyIm0gX_kwcLrhe22V-8eDJIcHpiHLQZ-aOg9sAsaBce3SjgHAgZdP3
+    74wr2jX1r-sxg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgheelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgiedtucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:xO5AYFpShb_aCqDlcEzxMdbqwcWxQsAbDtO8UJQPTa4LY0AVOxMtUg>
-    <xmx:xO5AYK70Nn_FV8IkKsnZsB-91VrCQmCGrgeGXsJLEJswnwdxpht6sg>
-    <xmx:xO5AYLoFbefOj0O4PUV65zpgEPTHvF5Zd6RSOlBYl7WyhT6K7vHx_w>
-    <xmx:xO5AYNFtjAY_PWc-u22qsluHYclwJCiBH8U5czznQqilnbqmFM3TMD5khyo>
+X-ME-Proxy: <xmx:ze5AYHKswyXfVHqRZIufmtppQv8_w36R2IkwBnxOuMyMeRm3_Fhk0A>
+    <xmx:ze5AYPbNe1fGGl2xKGY5rvxdZyHxXUyWs833Fbq1mff-UqpSh1LaJg>
+    <xmx:ze5AYKuiNG8OiClPA-D5qbmMcyWUXDt6fE4xluUcHdmObLqlrj3M7w>
+    <xmx:zu5AYGOX0zOzcDUsjzDnBE6Dh9Xtu4-oULu0awfL1C8rE5iJygZ0nIaE5Jw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 14C9824005A;
-        Thu,  4 Mar 2021 09:29:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] media: zr364xx: fix memory leaks in probe()" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9464424005E;
+        Thu,  4 Mar 2021 09:29:33 -0500 (EST)
+Subject: FAILED: patch "[PATCH] media: zr364xx: fix memory leaks in probe()" failed to apply to 5.4-stable tree
 To:     dan.carpenter@oracle.com, hverkuil-cisco@xs4all.nl,
         mchehab+huawei@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Mar 2021 15:29:22 +0100
-Message-ID: <161486816222713@kroah.com>
+Date:   Thu, 04 Mar 2021 15:29:24 +0100
+Message-ID: <1614868164252207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
