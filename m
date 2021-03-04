@@ -2,111 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2984B32CBB6
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 06:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E6D32CD41
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 08:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229458AbhCDFCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 00:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53616 "EHLO
+        id S232540AbhCDHBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 02:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229494AbhCDFCj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 00:02:39 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF3AC061756
-        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 21:01:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=B76ip7Z1pMeqyo0ZwLMBroQsISdWL+yZsCzxkZ1ErXk=; b=CTmtWS9/X/DNebLxAL9FMJdsZj
-        MeyCTW8LPdt1alZjzEG66q5CAN0ESBeYpmoD1bUUCEWRUaNnENvQ1mLXhMvTtU7+dOpmDLw7t1856
-        CFNuulPtFyxfAmJTovgQlmnEA5thKeOvP2qayrmsYP/vdsRyS/8HJY2CiAsPmsGf9+vHnw5deDTyH
-        /+vSURvY5IZunsuz0rVfFSxU4/CxfyitB1L/u7VPG5srfdYHbNntGyb5N7Qxsqld8CxvGzzUlVr39
-        t+dwhvMxw35PHCKgR/AKePTxdVGe1OT9tzB/+pPJIzGpx8ADObCqBoK4zct2pvt0dlvaqKL4AXRvr
-        63dUccFQ==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by desiato.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
-        id 1lHWil-0067U3-3c; Wed, 03 Mar 2021 18:59:44 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7ADD530011C;
-        Wed,  3 Mar 2021 19:59:42 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 5DBD023CE7A7E; Wed,  3 Mar 2021 19:59:42 +0100 (CET)
-Date:   Wed, 3 Mar 2021 19:59:42 +0100
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     kan.liang@linux.intel.com
-Cc:     mingo@redhat.com, linux-kernel@vger.kernel.org, acme@kernel.org,
-        mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
-        jolsa@redhat.com, namhyung@kernel.org, eranian@google.com,
-        ak@linux.intel.com, stable@vger.kernel.org
-Subject: Re: [PATCH] Revert "perf/x86: Allow zero PEBS status with only
- single active event"
-Message-ID: <YD/cnnuh/AHOL8hV@hirez.programming.kicks-ass.net>
-References: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
+        with ESMTP id S235834AbhCDHAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 02:00:46 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54139C061574
+        for <stable@vger.kernel.org>; Wed,  3 Mar 2021 23:00:06 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lHhxs-0002sD-Lt; Thu, 04 Mar 2021 08:00:04 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lHhxn-00069o-2p; Thu, 04 Mar 2021 07:59:59 +0100
+Date:   Thu, 4 Mar 2021 07:59:58 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     stable@vger.kernel.org
+Cc:     jingle <jingle.wu@emc.com.tw>, kernel@pengutronix.de,
+        linux-input@vger.kernel.org,
+        'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: elan_i2c: failed to read report data: -71
+Message-ID: <20210304065958.n3u5ewoby6rjsdvj@pengutronix.de>
+References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
+ <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
+ <20210303183223.rtqi63hdl3a7hahv@pengutronix.de>
+ <20210303200330.udsge64hxlrdkbwt@pengutronix.de>
+ <YEA9oajb7qj6LGPD@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="33bpheodspxdcs3h"
 Content-Disposition: inline
-In-Reply-To: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
+In-Reply-To: <YEA9oajb7qj6LGPD@google.com>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 03, 2021 at 05:42:18AM -0800, kan.liang@linux.intel.com wrote:
 
-> For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
-> may be mistakenly set to 0. To minimize the impact of the defect, the
-> commit was introduced to try to avoid dropping the PEBS record for some
-> cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
-> the local pebs_status accordingly. However, it doesn't correct the PEBS
-> status in the PEBS record, which may trigger the crash, especially for
-> the large PEBS.
-> 
-> It's possible that all the PEBS records in a large PEBS have the PEBS
-> status 0. If so, the first get_next_pebs_record_by_bit() in the
-> __intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
-> PEBS, the 'count' parameter must > 1. The second
-> get_next_pebs_record_by_bit() will crash.
-> 
-> Two solutions were considered to fix the crash.
-> - Keep the SW workaround and add extra checks in the
->   get_next_pebs_record_by_bit() to workaround the issue. The
->   get_next_pebs_record_by_bit() is a critical path. The extra checks
->   will bring extra overhead for the latest CPUs which don't have the
->   defect. Also, the defect can only be observed on some old CPUs
->   (For example, the issue can be reproduced on an HSW client, but I
->   didn't observe the issue on my Haswell server machine.). The impact
->   of the defect should be limit.
->   This solution is dropped.
-> - Drop the SW workaround and revert the commit.
->   It seems that the commit never works, because the PEBS status in the
->   PEBS record never be changed. The get_next_pebs_record_by_bit() only
->   checks the PEBS status in the PEBS record. The record is dropped
->   eventually. Reverting the commit should not change the current
->   behavior.
+--33bpheodspxdcs3h
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +++ b/arch/x86/events/intel/ds.c
-> @@ -2000,18 +2000,6 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
->  			continue;
->  		}
->  
-> -		/*
-> -		 * On some CPUs the PEBS status can be zero when PEBS is
-> -		 * racing with clearing of GLOBAL_STATUS.
-> -		 *
-> -		 * Normally we would drop that record, but in the
-> -		 * case when there is only a single active PEBS event
-> -		 * we can assume it's for that event.
-> -		 */
-> -		if (!pebs_status && cpuc->pebs_enabled &&
-> -			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
-> -			pebs_status = cpuc->pebs_enabled;
+Hello,
 
-Wouldn't something like:
+On Wed, Mar 03, 2021 at 05:53:37PM -0800, 'Dmitry Torokhov' wrote:
+> On Wed, Mar 03, 2021 at 09:03:30PM +0100, Uwe Kleine-K=F6nig wrote:
+> > On Wed, Mar 03, 2021 at 07:32:23PM +0100, Uwe Kleine-K=F6nig wrote:
+> > > On Wed, Mar 03, 2021 at 11:13:21AM +0800, jingle wrote:
+> > > > Please updates this patchs.
+> > > >=20
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/comm=
+it/?h=3Dnext&id=3D056115daede8d01f71732bc7d778fb85acee8eb6
+> > > >=20
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/comm=
+it/?h=3Dnext&id=3De4c9062717feda88900b566463228d1c4910af6d
+> > >=20
+> > > The first was one of the two patches I already tried, but the latter
+> > > indeed fixes my problem \o/.
+> > >=20
+> > > @Dmitry: If you don't consider your tree stable, feel free to add a
+> > >=20
+> > > 	Tested-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > >=20
+> > > to e4c9062717feda88900b566463228d1c4910af6d.
+> >=20
+> > Do you consider this patch for stable? I'd like to see it in Debian's
+> > 5.10 kernel and I guess I'm not the only one who would benefit from such
+> > a backport.
+>=20
+> When I was applying the patches I did not realize that there was already
+> hardware in the wild that needed it. The patches are now in mainline, so
+> I can no longer adjust the tags, but I will not object if you propose
+> them for stable.
 
-			pebs_status = p->status = cpus->pebs_enabled;
+I want to propose to backport commit
 
-actually fix things without adding overhead?
+e4c9062717fe ("Input: elantech - fix protocol errors for some trackpoints i=
+n SMBus mode")
 
+to the active stable kernels. This commit repairs the track point and
+the touch pad buttons on a Lenovo Thinkpad E15 here. Without this change
+I don't get any events apart from an error message for each button press
+or move of the track point in the kernel log. (Also the error message is
+the same for all buttons and the track point, so I cannot create a new
+input event driver in userspace that emulates the right event depending
+on the error message :-)
 
+At least to 5.10.x it applies cleanly, I didn't try the older stable
+branches.
+
+Best regards and thanks
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--33bpheodspxdcs3h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmBAhWsACgkQwfwUeK3K
+7AnfCgf8DepAgt5HV9T00ILyqFKOSNjsnFTcq90lM1GfCYpgcD8Nvi30lS6W8Zyg
+Hv7cNfHShEPeo6FOiu0GJwp5ZwTFzXvNSGSUeqCK98ng60OqQJLRXrpQTDNh3KbP
+0sh9YB/7FSVRaQ7ne8Sr3i0uzs3NIg2LJnMA0OUQySCorqMr/E6yAxWKWnQPclPt
+5SvLm1pQAZbau0R//gxMdt4t8GBjp1wWVOFYO3Y/vjVJmutyeSNu7DGK+n3r4hRq
+zKLQz8gy4jbJ8C3BDoWRM6mg6LjzOl2Vvw92y2RsOMug7h43LjeTRXG9G9GmXohw
+6EliC0vQKR3jesUfO4JfPfLGpCqfDw==
+=OGz2
+-----END PGP SIGNATURE-----
+
+--33bpheodspxdcs3h--
