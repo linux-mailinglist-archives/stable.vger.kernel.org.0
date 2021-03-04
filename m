@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B20F32D54E
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:33:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95D7932D574
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 15:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbhCDOap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 09:30:45 -0500
-Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:60415 "EHLO
+        id S231527AbhCDOiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 09:38:12 -0500
+Received: from wforward4-smtp.messagingengine.com ([64.147.123.34]:56229 "EHLO
         wforward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231216AbhCDOak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:30:40 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 7F082142F;
-        Thu,  4 Mar 2021 09:29:34 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 04 Mar 2021 09:29:34 -0500
+        by vger.kernel.org with ESMTP id S232021AbhCDOhp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 09:37:45 -0500
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id BCF4D139B;
+        Thu,  4 Mar 2021 09:36:59 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Thu, 04 Mar 2021 09:37:00 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ukpb5m
-        nsG4zDG+7AcEai3pIOuLfV73a/anvr58/baV8=; b=QAbOiUAbpWH43uGL7EsEwG
-        +JrDR4IqasKYYI+SG/uyHQ9vZBQseF5uZlCReU7B1hj4fZ3U6M6rtoQXhjadocQq
-        zyQYJbuhnpo+h7vMNKa8HhMnPAmoBGHTsWp/+HYRsfUmbBvYT5GQXeH6cmQAeOqL
-        altZCcMXKzD6xACkw+ckQb0OBQjjEywuHc7yvae9tjRmSzvIIQgDEVsjS9fLGASC
-        kjCkysjXzclx2XkI75gp3z+LHNgtBLhCMlleANsxivKWG32jen/ZtH4l7za7jalz
-        KdOR/o/EPKkL+YAOj5ugpwfYSDtBj9WYH9ThXYta/Qvj8OwSECNdsN4qPxhzY+ZA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tyCwff
+        xDJHuOQ/6shbJj3U1qG3NytgpK1fd+JPaRIb8=; b=V2TCZ44mlb0GhnfkDkLV+z
+        Z6YhOwMg2lMpSb1z7fw+XKMKtl4lpDVlkJ0NToiY5HcY4B065M24dVyYM9Bjdyuc
+        eQCEVzmJnMkWFNNprMcHIRmY1GUshC6hwRyimBUBnSK6J0bLWkTcAmPsofFRRRLZ
+        PsFTT2AHT0GoktRXO5m0Dl95I/YiVGTt14olO+/oTlPm8Vweczmi3KMl6XdRvG3R
+        5Ts/kOW3yY9kZpKkOVKjFUwJHqlrXFt9bUfdYWh91mIYdbOjN4/AW/uWEXfq5pP+
+        NoueEHgGWmRbsGl3T40f0Qt3HOiQdrfQcs3UbhbeWqKndDGZx7WlXGkRY2mV8zTA
         ==
-X-ME-Sender: <xms:ze5AYCvegx_2f7b-FFrkcFXx6BWEJ5EHy8_hlNaVU82T3Ucqp9i5Fg>
-    <xme:ze5AYJelhnqyIm0gX_kwcLrhe22V-8eDJIcHpiHLQZ-aOg9sAsaBce3SjgHAgZdP3
-    74wr2jX1r-sxg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgheelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:i_BAYMc6Q99QyePKT6CffDh35qRUtJp4uCy3tC7xUiY75rn9sEaNfQ>
+    <xme:i_BAYIzezKU8kChtaEz_Ns1DiHqstVBAPaBqnTe5l6kI-1Go-vPsm5tJBuIZ63yQt
+    paxrk2Svedf8A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgieduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedgheelucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:ze5AYHKswyXfVHqRZIufmtppQv8_w36R2IkwBnxOuMyMeRm3_Fhk0A>
-    <xmx:ze5AYPbNe1fGGl2xKGY5rvxdZyHxXUyWs833Fbq1mff-UqpSh1LaJg>
-    <xmx:ze5AYKuiNG8OiClPA-D5qbmMcyWUXDt6fE4xluUcHdmObLqlrj3M7w>
-    <xmx:zu5AYGOX0zOzcDUsjzDnBE6Dh9Xtu4-oULu0awfL1C8rE5iJygZ0nIaE5Jw>
+X-ME-Proxy: <xmx:i_BAYKGXXBJQRKzVnl2IMgJ_sQjPy9rij0xPHT9lxutbcJeSLqHTow>
+    <xmx:i_BAYExrVBVThHdARe5T85lbX-Kk-YwLgU1r8vZGa5LOYjggAViqdg>
+    <xmx:i_BAYDtF_g2TelxUrZw2n3fWG-diGu0jpydBlhuIzvs8AsvnvGPK8g>
+    <xmx:i_BAYMbZ5k6UGS6Ng2HWfP3MP9GL0pwYG8gmpoh_kFnlQREfIl5TO8Fv3GI>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9464424005E;
-        Thu,  4 Mar 2021 09:29:33 -0500 (EST)
-Subject: FAILED: patch "[PATCH] media: zr364xx: fix memory leaks in probe()" failed to apply to 5.4-stable tree
-To:     dan.carpenter@oracle.com, hverkuil-cisco@xs4all.nl,
-        mchehab+huawei@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id B4B6B108005C;
+        Thu,  4 Mar 2021 09:36:58 -0500 (EST)
+Subject: FAILED: patch "[PATCH] vfio/type1: Use follow_pte()" failed to apply to 4.9-stable tree
+To:     alex.williamson@redhat.com, cohuck@redhat.com, jgg@nvidia.com,
+        peterx@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 04 Mar 2021 15:29:24 +0100
-Message-ID: <1614868164252207@kroah.com>
+Date:   Thu, 04 Mar 2021 15:35:38 +0100
+Message-ID: <161486853811797@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,179 +71,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ea354b6ddd6f09be29424f41fa75a3e637fea234 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Date: Thu, 21 Jan 2021 07:44:00 +0100
-Subject: [PATCH] media: zr364xx: fix memory leaks in probe()
+From 07956b6269d3ed05d854233d5bb776dca91751dd Mon Sep 17 00:00:00 2001
+From: Alex Williamson <alex.williamson@redhat.com>
+Date: Tue, 16 Feb 2021 15:49:34 -0700
+Subject: [PATCH] vfio/type1: Use follow_pte()
 
-Syzbot discovered that the probe error handling doesn't clean up the
-resources allocated in zr364xx_board_init().  There are several
-related bugs in this code so I have re-written the error handling.
+follow_pfn() doesn't make sure that we're using the correct page
+protections, get the pte with follow_pte() so that we can test
+protections and get the pfn from the pte.
 
-1)  Introduce a new function zr364xx_board_uninit() which cleans up
-    the resources in zr364xx_board_init().
-2)  In zr364xx_board_init() if the call to zr364xx_start_readpipe()
-    fails then release the "cam->buffer.frame[i].lpvbits" memory
-    before returning.  This way every function either allocates
-    everything successfully or it cleans up after itself.
-3)  Re-write the probe function so that each failure path goto frees
-    the most recent allocation.  That way we don't free anything
-    before it has been allocated and we can also verify that
-    everything is freed.
-4)  Originally, in the probe function the "cam->v4l2_dev.release"
-    pointer was set to "zr364xx_release" near the start but I moved
-    that assignment to the end, after everything had succeeded.  The
-    release function was never actually called during the probe cleanup
-    process, but with this change I wanted to make it clear that we
-    don't want to call zr364xx_release() until everything is
-    allocated successfully.
+Fixes: 5cbf3264bc71 ("vfio/type1: Fix VA->PA translation for PFNMAP VMAs in vaddr_get_pfn()")
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 
-Next I re-wrote the zr364xx_release() function.  Ideally this would
-have been a simple matter of copy and pasting the cleanup code from
-probe and adding an additional call to video_unregister_device().  But
-there are a couple quirks to note.
-
-1)  The probe function does not call videobuf_mmap_free() and I don't
-    know where the videobuf_mmap is allocated.  I left the code as-is to
-    avoid introducing a bug in code I don't understand.
-2)  The zr364xx_board_uninit() has a call to zr364xx_stop_readpipe()
-    which is a change from the original behavior with regards to
-    unloading the driver.  Calling zr364xx_stop_readpipe() on a stopped
-    pipe is not a problem so this is safe and is potentially a bugfix.
-
-Reported-by: syzbot+b4d54814b339b5c6bbd4@syzkaller.appspotmail.com
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
-diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
-index 1e1c6b4d1874..d29b861367ea 100644
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -1181,15 +1181,11 @@ static int zr364xx_open(struct file *file)
- 	return err;
- }
- 
--static void zr364xx_release(struct v4l2_device *v4l2_dev)
-+static void zr364xx_board_uninit(struct zr364xx_camera *cam)
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index b3df383d7028..ed03f3fcb07e 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -24,6 +24,7 @@
+ #include <linux/compat.h>
+ #include <linux/device.h>
+ #include <linux/fs.h>
++#include <linux/highmem.h>
+ #include <linux/iommu.h>
+ #include <linux/module.h>
+ #include <linux/mm.h>
+@@ -462,9 +463,11 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ 			    unsigned long vaddr, unsigned long *pfn,
+ 			    bool write_fault)
  {
--	struct zr364xx_camera *cam =
--		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
- 	unsigned long i;
++	pte_t *ptep;
++	spinlock_t *ptl;
+ 	int ret;
  
--	v4l2_device_unregister(&cam->v4l2_dev);
--
--	videobuf_mmap_free(&cam->vb_vidq);
-+	zr364xx_stop_readpipe(cam);
+-	ret = follow_pfn(vma, vaddr, pfn);
++	ret = follow_pte(vma->vm_mm, vaddr, &ptep, &ptl);
+ 	if (ret) {
+ 		bool unlocked = false;
  
- 	/* release sys buffers */
- 	for (i = 0; i < FRAMES; i++) {
-@@ -1200,9 +1196,19 @@ static void zr364xx_release(struct v4l2_device *v4l2_dev)
- 		cam->buffer.frame[i].lpvbits = NULL;
+@@ -478,9 +481,17 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = follow_pfn(vma, vaddr, pfn);
++		ret = follow_pte(vma->vm_mm, vaddr, &ptep, &ptl);
++		if (ret)
++			return ret;
  	}
  
--	v4l2_ctrl_handler_free(&cam->ctrl_handler);
- 	/* release transfer buffer */
- 	kfree(cam->pipe->transfer_buffer);
-+}
++	if (write_fault && !pte_write(*ptep))
++		ret = -EFAULT;
++	else
++		*pfn = pte_pfn(*ptep);
 +
-+static void zr364xx_release(struct v4l2_device *v4l2_dev)
-+{
-+	struct zr364xx_camera *cam =
-+		container_of(v4l2_dev, struct zr364xx_camera, v4l2_dev);
-+
-+	videobuf_mmap_free(&cam->vb_vidq);
-+	v4l2_ctrl_handler_free(&cam->ctrl_handler);
-+	zr364xx_board_uninit(cam);
-+	v4l2_device_unregister(&cam->v4l2_dev);
- 	kfree(cam);
++	pte_unmap_unlock(ptep, ptl);
+ 	return ret;
  }
  
-@@ -1376,11 +1382,14 @@ static int zr364xx_board_init(struct zr364xx_camera *cam)
- 	/* start read pipe */
- 	err = zr364xx_start_readpipe(cam);
- 	if (err)
--		goto err_free;
-+		goto err_free_frames;
- 
- 	DBG(": board initialized\n");
- 	return 0;
- 
-+err_free_frames:
-+	for (i = 0; i < FRAMES; i++)
-+		vfree(cam->buffer.frame[i].lpvbits);
- err_free:
- 	kfree(cam->pipe->transfer_buffer);
- 	cam->pipe->transfer_buffer = NULL;
-@@ -1409,12 +1418,10 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (!cam)
- 		return -ENOMEM;
- 
--	cam->v4l2_dev.release = zr364xx_release;
- 	err = v4l2_device_register(&intf->dev, &cam->v4l2_dev);
- 	if (err < 0) {
- 		dev_err(&udev->dev, "couldn't register v4l2_device\n");
--		kfree(cam);
--		return err;
-+		goto free_cam;
- 	}
- 	hdl = &cam->ctrl_handler;
- 	v4l2_ctrl_handler_init(hdl, 1);
-@@ -1423,7 +1430,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (hdl->error) {
- 		err = hdl->error;
- 		dev_err(&udev->dev, "couldn't register control\n");
--		goto fail;
-+		goto unregister;
- 	}
- 	/* save the init method used by this camera */
- 	cam->method = id->driver_info;
-@@ -1496,7 +1503,7 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	if (!cam->read_endpoint) {
- 		err = -ENOMEM;
- 		dev_err(&intf->dev, "Could not find bulk-in endpoint\n");
--		goto fail;
-+		goto unregister;
- 	}
- 
- 	/* v4l */
-@@ -1507,10 +1514,11 @@ static int zr364xx_probe(struct usb_interface *intf,
- 
- 	/* load zr364xx board specific */
- 	err = zr364xx_board_init(cam);
--	if (!err)
--		err = v4l2_ctrl_handler_setup(hdl);
- 	if (err)
--		goto fail;
-+		goto unregister;
-+	err = v4l2_ctrl_handler_setup(hdl);
-+	if (err)
-+		goto board_uninit;
- 
- 	spin_lock_init(&cam->slock);
- 
-@@ -1525,16 +1533,21 @@ static int zr364xx_probe(struct usb_interface *intf,
- 	err = video_register_device(&cam->vdev, VFL_TYPE_VIDEO, -1);
- 	if (err) {
- 		dev_err(&udev->dev, "video_register_device failed\n");
--		goto fail;
-+		goto free_handler;
- 	}
-+	cam->v4l2_dev.release = zr364xx_release;
- 
- 	dev_info(&udev->dev, DRIVER_DESC " controlling device %s\n",
- 		 video_device_node_name(&cam->vdev));
- 	return 0;
- 
--fail:
-+free_handler:
- 	v4l2_ctrl_handler_free(hdl);
-+board_uninit:
-+	zr364xx_board_uninit(cam);
-+unregister:
- 	v4l2_device_unregister(&cam->v4l2_dev);
-+free_cam:
- 	kfree(cam);
- 	return err;
- }
 
