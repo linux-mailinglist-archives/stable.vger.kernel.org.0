@@ -2,236 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1AEE32DB87
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 22:04:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F23EF32DB8C
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 22:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbhCDVDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 16:03:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234409AbhCDVDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 16:03:43 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B9B2C061574
-        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 13:03:03 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id kx1so1570411pjb.3
-        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 13:03:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=04sgyWJTv7bmrtnX2AL8oujMBGXLHUnZYnHHLSuzJwg=;
-        b=gI64lsOB7XemfGHP6iDiYsJTMsafO+H15WmZU1i9fsr238HN71z9qZRZr8fr8TWwGv
-         pIzpSRAA/Xt03D9hNXBeP3GI4rqFsETxUdBl7Exan0BUtmZuu+kIBKfZKFFazb+u0eRn
-         SfRrTTNsQlAvpTsoEJ4XshrCWrRcqOyEIgWS/xPVYOGdAyNDoYrjdMrVPk84cDuIMd7g
-         Erz+BwGuZK0weTwfFHucGxn+7vlewgyFAUGoHCDb9Z8lv3knlETkrr/52se9Pe/gPV+c
-         GrrD+AXjJQZI7laH8/0l7ZpacF8KuptIJXMbEBDravjRbmzYflVo4pUvYelX0uPkJibk
-         ymAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=04sgyWJTv7bmrtnX2AL8oujMBGXLHUnZYnHHLSuzJwg=;
-        b=qZSaL6AkFxDaM7T8IGUkH0jYv0k6UVlWIyLOHNs/eeHEpoYwEGUw+I2dAsKx97I7rV
-         W7HVqo4BfvjNkz+6AF8yJnBezd2mGmObN1yWn3dhyAMl4oK+OJ5GzW0Wyoq8QrNhOEpb
-         3PRYh8Yx8pNrkWA+P97SObONPQBO8jlhZY0OZ7Awz8aW7XxeJPCSon8oFFbqwYgI9I3B
-         d95XIww3T4OUBt09Ue+B00rRNpsK528Q6mSlhsU2j9G9PWWn2hi3CNJK39Wh1XU80CS1
-         8cQytYvhfueOnyI5gCLARSZyjQ/69aUd1Ac4PUZF1EqWjfoCrQ6+vZNejICStqpXswLd
-         3iuA==
-X-Gm-Message-State: AOAM531n7pYy8R/0rlM0k2iMZ51YTHIj5rimhwUyePn0scXI/7hBgTI/
-        unSU42m/+nRlAyOFD3kNJUIkp3w1KQvLYyIq
-X-Google-Smtp-Source: ABdhPJxSdcqbz2KCExCVkKIOBc2lO6yTkiPl2mQFa02H2Jz1mDioSTk68W1o9b4mF8jr2mBHMDtIMA==
-X-Received: by 2002:a17:902:e886:b029:e4:2b8e:3c65 with SMTP id w6-20020a170902e886b02900e42b8e3c65mr5573058plg.1.1614891782348;
-        Thu, 04 Mar 2021 13:03:02 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m21sm261152pff.61.2021.03.04.13.03.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Mar 2021 13:03:02 -0800 (PST)
-Message-ID: <60414b06.1c69fb81.70a40.1132@mx.google.com>
-Date:   Thu, 04 Mar 2021 13:03:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S235319AbhCDVIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 16:08:42 -0500
+Received: from mail-out.m-online.net ([212.18.0.9]:51564 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234921AbhCDVId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 16:08:33 -0500
+Received: from frontend01.mail.m-online.net (unknown [192.168.8.182])
+        by mail-out.m-online.net (Postfix) with ESMTP id 4Ds3NF6Zhxz1qs10;
+        Thu,  4 Mar 2021 22:07:24 +0100 (CET)
+Received: from localhost (dynscan1.mnet-online.de [192.168.6.70])
+        by mail.m-online.net (Postfix) with ESMTP id 4Ds3ND3k9kz1qqkJ;
+        Thu,  4 Mar 2021 22:07:24 +0100 (CET)
+X-Virus-Scanned: amavisd-new at mnet-online.de
+Received: from mail.mnet-online.de ([192.168.8.182])
+        by localhost (dynscan1.mail.m-online.net [192.168.6.70]) (amavisd-new, port 10024)
+        with ESMTP id NF9l6MSuqCwo; Thu,  4 Mar 2021 22:07:22 +0100 (CET)
+X-Auth-Info: /bjdHCSRRBO1hy/kHQ3KWZ31WRCi0CyJyL23VTq/CMI=
+Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.mnet-online.de (Postfix) with ESMTPSA;
+        Thu,  4 Mar 2021 22:07:22 +0100 (CET)
+Subject: Re: [PATCH AUTOSEL 5.10 050/217] rsi: Fix TX EAPOL packet handling
+ against iwlwifi AP
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Martin Kepplinger <martink@posteo.de>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Siva Rebbagondla <siva8118@gmail.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+References: <20201223021626.2790791-1-sashal@kernel.org>
+ <20201223021626.2790791-50-sashal@kernel.org>
+ <68699f8a-2fcd-3b3d-f809-afa54790e9f9@denx.de> <YEFHULdbXVVxORn9@sashalap>
+From:   Marek Vasut <marex@denx.de>
+Message-ID: <d4b4f1d1-8041-3563-708a-850fe95549b8@denx.de>
+Date:   Thu, 4 Mar 2021 22:07:22 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.102-25-g37b9116c40a70
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 111 runs,
- 4 regressions (v5.4.102-25-g37b9116c40a70)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <YEFHULdbXVVxORn9@sashalap>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 111 runs, 4 regressions (v5.4.102-25-g37b9116=
-c40a70)
+On 3/4/21 9:47 PM, Sasha Levin wrote:
+> On Tue, Mar 02, 2021 at 08:25:49PM +0100, Marek Vasut wrote:
+>> On 12/23/20 3:13 AM, Sasha Levin wrote:
+>>
+>> Hello Sasha,
+>>
+>>> From: Marek Vasut <marex@denx.de>
+>>>
+>>> [ Upstream commit 65277100caa2f2c62b6f3c4648b90d6f0435f3bc ]
+>>>
+>>> In case RSI9116 SDIO WiFi operates in STA mode against Intel 9260 in 
+>>> AP mode,
+>>> the association fails. The former is using wpa_supplicant during 
+>>> association,
+>>> the later is set up using hostapd:
+>>
+>> [...]
+>>
+>> Was this patch possibly missed from 5.10.y ?
+> 
+> I'm not sure what happened there, but I can queue it up.
 
-Regressions Summary
--------------------
+Thank you
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+>> Also, while at it, I think it might make sense to pick the following 
+>> two patches as well, they dramatically reduce interrupt rate of the 
+>> RSI WiFi device, so it stops overloading lower-end devices:
+>> 287431463e786 ("rsi: Move card interrupt handling to RX thread")
+> 
+> And this one too.
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+Thanks
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+>> abd131a19f6b8 ("rsi: Clean up loop in the interrupt handler")
+> 
+> But not this one, it looks like just a cleanup. Why is it needed?
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.102-25-g37b9116c40a70/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.102-25-g37b9116c40a70
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      37b9116c40a703313499532834cd4bd3458605a6 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60413cabe907f1d4ecaddcb3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60413cabe907f1d4ecadd=
-cb4
-        failing since 110 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
- fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60411957775a51d2bfaddcc1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60411957775a51d2bfadd=
-cc2
-        failing since 110 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
- fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604115808d69b0036aaddccc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604115808d69b0036aadd=
-ccd
-        failing since 110 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
- fail: v5.4.77-45-gfd610189f77e1) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60412b1f3fb805f3c7addcba
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
-5-g37b9116c40a70/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60412b1f3fb805f3c7add=
-cbb
-        failing since 110 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
- fail: v5.4.77-45-gfd610189f77e1) =
-
- =20
+Now I got confused, yes, please skip abd131a19f6b8, thanks for spotting 
+it. (I still have one more patch for the RSI wifi which I need to send 
+out, but that's for later)
