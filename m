@@ -2,130 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD79032D612
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 16:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5B832D626
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 16:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233671AbhCDPHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 10:07:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:53618 "EHLO mx2.suse.de"
+        id S234052AbhCDPKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 10:10:44 -0500
+Received: from mx2.suse.de ([195.135.220.15]:55732 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233757AbhCDPHU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 10:07:20 -0500
+        id S234201AbhCDPKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Mar 2021 10:10:12 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1614870357; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qKb1eO4WUAT5vsMYWiUhE9jovRH7CGqYo6BmHs34EgE=;
-        b=aPrzgjyGBh9t+JWh02WplQ3ZFNcn1hGCPBWQHkK96R333yX/HkWHmGthcJzxAFwBHS8u/Y
-        hdOSuCGNaFQJK4GVuN4noRmxtqEA7hy7iMlQU30so8m2ouRDiRJpWEzPpFDSC7CCTeNVAS
-        ExJ8ueyZG8r2zVCDTw2TLIn3ITdMbRg=
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 4A5DDAE1C;
-        Thu,  4 Mar 2021 15:05:57 +0000 (UTC)
-From:   Anthony Iliopoulos <ailiop@suse.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Matthew Wilcox <willy@infradead.org>
-Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH STABLE 5.4] swap: fix swapfile page to sector mapping
-Date:   Thu,  4 Mar 2021 16:08:25 +0100
-Message-Id: <20210304150824.29878-6-ailiop@suse.com>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210304150824.29878-1-ailiop@suse.com>
-References: <20210304150824.29878-1-ailiop@suse.com>
+        by mx2.suse.de (Postfix) with ESMTP id 07974AAC5;
+        Thu,  4 Mar 2021 15:09:31 +0000 (UTC)
+Message-ID: <827b317d7f5da6e048806922098291faacdb19f9.camel@suse.de>
+Subject: Re: [PATCH stable v5.10 0/7] arm64: Default to 32-bit wide ZONE_DMA
+From:   Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Jing Xiangfeng <jingxiangfeng@huawei.com>, catalin.marinas@arm.com,
+        will@kernel.org, akpm@linux-foundation.org,
+        paul.walmsley@sifive.com, palmer@dabbelt.com,
+        aou@eecs.berkeley.edu, rppt@kernel.org, lorenzo.pieralisi@arm.com,
+        guohanjun@huawei.com, sudeep.holla@arm.com, rjw@rjwysocki.net,
+        lenb@kernel.org, song.bao.hua@hisilicon.com, ardb@kernel.org,
+        anshuman.khandual@arm.com, bhelgaas@google.com, guro@fb.com,
+        robh+dt@kernel.org, stable@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, frowand.list@gmail.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-riscv@lists.infradead.org,
+        wangkefeng.wang@huawei.com
+Date:   Thu, 04 Mar 2021 16:09:28 +0100
+In-Reply-To: <YEDr/lYZHew88/Ip@kroah.com>
+References: <20210303073319.2215839-1-jingxiangfeng@huawei.com>
+         <YEDkmj6cchMPAq2h@kroah.com>
+         <9bc396116372de5b538d71d8f9ae9c3259f1002e.camel@suse.de>
+         <YEDr/lYZHew88/Ip@kroah.com>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-MTEftY67Mi99IToWhxLf"
+User-Agent: Evolution 3.38.4 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
 
-Fix block device sector offset calculation for swap page io on top of
-blockdevs that provide a rw_page operation and do page-sized io directly
-(without the block layer).
+--=-MTEftY67Mi99IToWhxLf
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently swap_page_sector() maps a swap page into a blockdev sector by
-obtaining the swap page offset (swap map slot), but ignores the swapfile
-starting offset into the blockdev.
+On Thu, 2021-03-04 at 15:17 +0100, Greg KH wrote:
+> On Thu, Mar 04, 2021 at 03:05:32PM +0100, Nicolas Saenz Julienne wrote:
+> > Hi Greg.
+> >=20
+> > On Thu, 2021-03-04 at 14:46 +0100, Greg KH wrote:
+> > > On Wed, Mar 03, 2021 at 03:33:12PM +0800, Jing Xiangfeng wrote:
+> > > > Using two distinct DMA zones turned out to be problematic. Here's a=
+n
+> > > > attempt go back to a saner default.
+> > >=20
+> > > What problem does this solve?  How does this fit into the stable kern=
+el
+> > > rules?
+> >=20
+> > We changed the way we setup memory zones in arm64 in order to cater for
+> > Raspberry Pi 4's weird DMA constraints: ZONE_DMA spans the lower 1GB of=
+ memory
+> > and ZONE_DMA32 the rest of the 32bit address space. Since you can't all=
+ocate
+> > memory that crosses zone boundaries, this broke crashkernel allocations=
+ on big
+> > machines. This series fixes all this by parsing the HW description and =
+checking
+> > for DMA constrained buses. When not found, the unnecessary zone creatio=
+n is
+> > skipped.
+>=20
+> What kernel/commit caused this "breakage"?
 
-In setups where swapfiles are sitting on top of a filesystem, this
-results into swapping out activity potentially overwriting filesystem
-blocks that fall outside the swapfile region.
+1a8e1cef7603 arm64: use both ZONE_DMA and ZONE_DMA32
 
-[This issue only affects swapfiles on filesystems on top of blockdevs
-that implement rw_page ops (brd, zram, btt, pmem), and not on top of any
-other block devices, in contrast to the upstream commit fix.]
+Regards,
+Nicolas
 
-Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
-Cc: stable@vger.kernel.org # 5.4
 
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
----
- mm/page_io.c  | 11 +++--------
- mm/swapfile.c |  2 +-
- 2 files changed, 4 insertions(+), 9 deletions(-)
+--=-MTEftY67Mi99IToWhxLf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
 
-diff --git a/mm/page_io.c b/mm/page_io.c
-index 60a66a58b9bf..f03dca3f43d9 100644
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -37,7 +37,6 @@ static struct bio *get_swap_bio(gfp_t gfp_flags,
- 
- 		bio->bi_iter.bi_sector = map_swap_page(page, &bdev);
- 		bio_set_dev(bio, bdev);
--		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
- 		bio->bi_end_io = end_io;
- 
- 		bio_add_page(bio, page, PAGE_SIZE * hpage_nr_pages(page), 0);
-@@ -260,11 +259,6 @@ int swap_writepage(struct page *page, struct writeback_control *wbc)
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_SHIFT - 9);
--}
--
- static inline void count_swpout_vm_event(struct page *page)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -323,7 +317,8 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
- 		return ret;
- 	}
- 
--	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
-+	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
-+			      page, wbc);
- 	if (!ret) {
- 		count_swpout_vm_event(page);
- 		return 0;
-@@ -374,7 +369,7 @@ int swap_readpage(struct page *page, bool synchronous)
- 		return ret;
- 	}
- 
--	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
-+	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
- 	if (!ret) {
- 		if (trylock_page(page)) {
- 			swap_slot_free_notify(page);
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 7947633d3ced..2434387194e6 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -2275,7 +2275,7 @@ sector_t map_swap_page(struct page *page, struct block_device **bdev)
- {
- 	swp_entry_t entry;
- 	entry.val = page_private(page);
--	return map_swap_entry(entry, bdev);
-+	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
- }
- 
- /*
--- 
-2.30.1
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEErOkkGDHCg2EbPcGjlfZmHno8x/4FAmBA+CgACgkQlfZmHno8
+x/5JVgf/eqHD1C2EmaD/V/HHrBczhUaM9DPc5otgTDC5gKnYF8FgdBOH4oJyh2Hb
+l9M2tznHD8hHoxowOw0BcxY+WOGYwZXRx8R5pNPb/NKZqFDCQ3Dgw1eMt8uYNg+5
+oPS7JE5ldh3siUgaLV32wueyIqbx3A8WbSLouwSPz0TVK2DqVKd+SkLAS68qwTc4
+QO9ikKdB7rg7RXvm6YOaP2uzWMn/PJgAEX/LMwv/CjfU+DVUE3uyqyXdsRby8nE8
+tzXJi5AvfsGaUXsqQShCqdAAGuuQ6raG/r0oKfvUfAypKd4d46JFfdGlJ5iT7w8s
+NlfFKZ2ZWHdwif+tNt2Lipct8pelxw==
+=RW7q
+-----END PGP SIGNATURE-----
+
+--=-MTEftY67Mi99IToWhxLf--
 
