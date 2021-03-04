@@ -2,72 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C4032D3F9
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 14:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3DB32D3F4
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 14:13:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241131AbhCDNMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 08:12:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44150 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241160AbhCDNL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 08:11:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1E2F60200;
-        Thu,  4 Mar 2021 13:11:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614863477;
-        bh=fiJoc141Ox+0/3y0Mk+fBbXEKUWXZpERHteNBMvVeYM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b8AHECZGiT6NQdL7UEgIZB/8n1/z7wToDaaiQ/u/yE3haDSWmTOp8I5mfFFIGdD8k
-         rZFbCMeAHIyQigX5mncRWpM/n2ifE1/hLAfXRaSdEgCrDouqD8ubP2Jwy7xnKXYgSE
-         0eUAlLjJIHO5KZJglvyQq6ckQbEZjKnn8xpDDSZk=
-Date:   Thu, 4 Mar 2021 14:11:15 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sharan Turlapati <sturlapati@vmware.com>
-Cc:     stable@vger.kernel.org, lee.jones@linaro.org, srivatsab@vmware.com,
-        srivatsa@csail.mit.edu, amakhalov@vmware.com, srinidhir@vmware.com,
-        bvikas@vmware.com, anishs@vmware.com, vsirnapalli@vmware.com,
-        akaher@vmware.com
-Subject: Re: [PATCH v4.4.y] futex: Ensure the correct return value from
- futex_lock_pi()
-Message-ID: <YEDccyrqhM5gGy7d@kroah.com>
-References: <20210302194749.82945-1-sturlapati@vmware.com>
+        id S241164AbhCDNMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 08:12:52 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:34069 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241163AbhCDNMe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 08:12:34 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 74B011435;
+        Thu,  4 Mar 2021 08:11:28 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Thu, 04 Mar 2021 08:11:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=sCQ/5QHRHtcOSYu1YRNa/QPa+mZ
+        +TmQSrDiitU+XBNQ=; b=or1b3MlG1vEnSOB+vb4TFIkGT7JwnkFFWpeTPxVUFxI
+        fG3+FJZSBSkZnC1AoBdI43t+aDAj/8PF7tJIe8o7JjAMYT4ihFoG2lEZDoyVHZLC
+        hs8m5957dHlJz6osqmOvvOCB7d3MF7mIeRw02JPe0xJvyNQmPf1r6ieaErykWAzY
+        odmXfflpt6C18RbwHg9CUC9/QyH65YiDxl+p7KV6KUMtQPkDEIT1+MSEJKaqShJw
+        k5cguGUSnVgxoaAHt7Wv5eNKuAm0DQJbMVv0pOvFgXFIsLUiGB4dZPHJgYyDwK0j
+        ALgvwQHlRaC3jfRZZgYjF+YiZf960hL7moH7itkhpVQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sCQ/5Q
+        HRHtcOSYu1YRNa/QPa+mZ+TmQSrDiitU+XBNQ=; b=T71ORZalKvuurq9HlhLdL/
+        oNEkfvzGASA2qFHkEmv916eE7sGLON44WHZ0FUpTLVz7C2Ob/B+RoXHCReKloAp3
+        AqItIzy0/+FT/ZJm2zXXP8rpzzhDIhX6uxB66s3hUd5M4nTSvu0SbrzWFQEvZRLB
+        z+s/Y05Gn9kp3raEzhKSDFqDidBapbqW4DvHaTFtcxc0tt4n+jd8JEZ81rS0Dg/y
+        dd/Q6ow4k65zko/8TtO34XESnOFWqvI2btFT2FbtYtqnYy6LNACR7mypg7oQV7K/
+        f0npgZkBQYRNSNjQV+jaon0mVvDMsfO/kEQwM4MwAbf1rcZMgNYnl1Dtzr4dlh1Q
+        ==
+X-ME-Sender: <xms:ftxAYH14NVzBXY6Apdk1_B9SprykaoMNWeME2PNjBVBASGaWoAQq1Q>
+    <xme:ftxAYGActi5Vup5Je5PTXreKNr5otC_NXFMq4ULmlevDkIqCCZBdzNtYQgeh6mQ_f
+    BcbAf4tMZPtbg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtgedggeefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeuleeltd
+    ehkeeltefhleduuddvhfffuedvffduveegheekgeeiffevheegfeetgfenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhm
+X-ME-Proxy: <xmx:ftxAYExKrYrRWezo-Vc1quROEFNtC4plLCWBWwa7gFlTjEJZYCN5lw>
+    <xmx:ftxAYEnXQ-QOB1lOJCoM1iiTonvq4pQjNtbDr86TfQynbSW2VUvAjA>
+    <xmx:ftxAYJFJmfiHJnEyaTBxyc_6ialJzKoqNp8T0J3haKEwgn51nN4hZw>
+    <xmx:gNxAYCRJqosFNT3ufzURfCfVJVm_m4OSEaq6a6k96N0hap7pjhiyeA>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id AA3161080054;
+        Thu,  4 Mar 2021 08:11:26 -0500 (EST)
+Date:   Thu, 4 Mar 2021 14:11:23 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>
+Subject: Re: [PATCH 4.9 1/7] futex: Cleanup variable names for
+ futex_top_waiter()
+Message-ID: <YEDcez2630AlrWbJ@kroah.com>
+References: <YD0kv9H996Tkhg2o@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210302194749.82945-1-sturlapati@vmware.com>
+In-Reply-To: <YD0kv9H996Tkhg2o@decadent.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 11:47:49AM -0800, Sharan Turlapati wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
+On Mon, Mar 01, 2021 at 06:30:39PM +0100, Ben Hutchings wrote:
+> From: Peter Zijlstra <peterz@infradead.org>
 > 
-> commit 12bb3f7f1b03d5913b3f9d4236a488aa7774dfe9 upstream
+> commit 499f5aca2cdd5e958b27e2655e7e7f82524f46b1 upstream.
 > 
-> In case that futex_lock_pi() was aborted by a signal or a timeout and the
-> task returned without acquiring the rtmutex, but is the designated owner of
-> the futex due to a concurrent futex_unlock_pi() fixup_owner() is invoked to
-> establish consistent state. In that case it invokes fixup_pi_state_owner()
-> which in turn tries to acquire the rtmutex again. If that succeeds then it
-> does not propagate this success to fixup_owner() and futex_lock_pi()
-> returns -EINTR or -ETIMEOUT despite having the futex locked.
+> futex_top_waiter() returns the top-waiter on the pi_mutex. Assinging
+> this to a variable 'match' totally obscures the code.
 > 
-> Return success from fixup_pi_state_owner() in all cases where the current
-> task owns the rtmutex and therefore the futex and propagate it correctly
-> through fixup_owner(). Fixup the other callsite which does not expect a
-> positive return value.
-> 
-> Fixes: c1e2f0eaf015 ("futex: Avoid violating the 10th rule of futex")
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Cc: juri.lelli@arm.com
+> Cc: bigeasy@linutronix.de
+> Cc: xlpang@redhat.com
+> Cc: rostedt@goodmis.org
+> Cc: mathieu.desnoyers@efficios.com
+> Cc: jdesfossez@efficios.com
+> Cc: dvhart@infradead.org
+> Cc: bristot@redhat.com
+> Link: http://lkml.kernel.org/r/20170322104151.554710645@infradead.org
 > Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Cc: stable@vger.kernel.org
-> [Sharan: Backported patch for kernel 4.4.y. Also folded in is a part
->  of the cleanup patch d7c5ed73b19c("futex: Remove needless goto's")]
-> Signed-off-by: Sharan Turlapati <sturlapati@vmware.com>
+> [bwh: Backported to 4.9: adjust context]
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 > ---
->  kernel/futex.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
+>  kernel/futex.c | 28 ++++++++++++++--------------
+>  1 file changed, 14 insertions(+), 14 deletions(-)
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
