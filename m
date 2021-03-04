@@ -2,134 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 956D832D423
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 14:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 038BD32D431
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 14:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232953AbhCDN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 08:27:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47110 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235094AbhCDN1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 08:27:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA17764F21;
-        Thu,  4 Mar 2021 13:26:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614864412;
-        bh=lg6tqSU2HTWwyV3FgjNK7XlYEbcYvLdT7cvSOXtsjrk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KBeJM7pDE9F8IchvVZQM2VT729nDdHa1WHHqseepqBatNSJRUMiqW8BT/ylrEzLV2
-         l7LFijeQNBlYW9JOJ9cNuCnc8wrgTceeyjOlO0Js6nkO/fDB381//lGJn4wwtNgb3N
-         sjuBMiv8F0rjbLWvu1frf2Jtky1lxlJDSn1qYgNg=
-Date:   Thu, 4 Mar 2021 14:26:49 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Lech Perczak <lech.perczak@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>,
-        =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Subject: Re: [PATCH 5.10 491/663] USB: serial: option: update interface
- mapping for ZTE P685M
-Message-ID: <YEDgGY/VwiDM1jec@kroah.com>
-References: <20210301161141.760350206@linuxfoundation.org>
- <20210301161206.139213430@linuxfoundation.org>
- <07edca19-417d-4dab-adeb-cae7b2b17708@gmail.com>
+        id S241341AbhCDN3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 08:29:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49742 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233758AbhCDN3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 08:29:35 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BE13C061574
+        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 05:28:55 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id o6so6944832pjf.5
+        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 05:28:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FKD5dVNBL+c6Rsu2Q+oaZYufm7Tl+YEjGq6nC0KZekw=;
+        b=Q/l0IWouu3Nseij+DatIGkVCVXD9vIVLmtLoHb3rD8Dj0F3N2h1sELDrC1Swh819TR
+         gHgxVCR9Q8VfMakQ2/m3MlaQ+neVpmuNx0taSbceTSiqQrvKJNDyFMtRrIWm3s1YcIyT
+         V5RVKuOSBz1hw5HrUnJXfdlCTfde9OHkOCsbx0LiFJDUP5cy1PMxyCs4ulfon8pY2+/b
+         zo8uLSmIGIFZ8ygG68kdPUPBDgTlwgUzWrt1srPKoF0i2qXotQxUfgGJUDCC8mPDaulR
+         Q5cRDuDtiFzI12/C9lLhqa8P26Rg+7YhWpQmcdCg2I/K3Rfbmgugb2K6DWnPrqssLufi
+         gZOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FKD5dVNBL+c6Rsu2Q+oaZYufm7Tl+YEjGq6nC0KZekw=;
+        b=gNbqwf5+bcUhHEFmytXh5KNURzYF7xCpqzSOAfXT/y9zHJklt+5iyvUIreD3Tx+bWr
+         mciGNZkbukbIHXEDcpTpElSGsTeGaBB6rR0pgmyupr6h4ZfiWJ50EO4ZHlVGy08M6BKu
+         pKWt+Pg7gC6t3cAz2eSFkyYM5wV1I+zaT57IUQ6RhUr2q4EaexwqguWvvWFq9LlJA606
+         QQx4RG1TXcDqYWwrjPOSGJuuVbt3CNSJ0uArMfYLfEvgCLMblsJUaF+UN7XGftWcTr7l
+         jWunDTFWOKf+P5gsSquFQ7akjxiNncSdTrNsF/tXsGt1ZJ8fuBkj+y1t/Y6ErjgYqv8i
+         YyzA==
+X-Gm-Message-State: AOAM5327gEKkPRlvlo1M+pMQk3r35gmxZFCS/j9PfZ/eE7Xh9O7ejoBY
+        fal1tr8Wj2dHVTwfMfa+totvl0Ih0QpjwUXV
+X-Google-Smtp-Source: ABdhPJxhF8h+lxssxKwnXK8AlgtvRFYRGH/+B6I0PEdjMTeA9iHqPjsVT8ZN1epCRMo9DOZ93/QA4A==
+X-Received: by 2002:a17:902:e781:b029:e4:3bd3:3b00 with SMTP id cp1-20020a170902e781b02900e43bd33b00mr4045256plb.70.1614864534658;
+        Thu, 04 Mar 2021 05:28:54 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d75sm25212049pfd.20.2021.03.04.05.28.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Mar 2021 05:28:54 -0800 (PST)
+Message-ID: <6040e096.1c69fb81.b942b.a403@mx.google.com>
+Date:   Thu, 04 Mar 2021 05:28:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <07edca19-417d-4dab-adeb-cae7b2b17708@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.19-656-gd3a7334586025
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 172 runs,
+ 4 regressions (v5.10.19-656-gd3a7334586025)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 04, 2021 at 12:58:19AM +0100, Lech Perczak wrote:
-> Hi,
-> 
-> On 2021-03-01 at 17:12, Greg Kroah-Hartman wrote:
-> > From: Lech Perczak <lech.perczak@gmail.com>
-> > 
-> > commit 6420a569504e212d618d4a4736e2c59ed80a8478 upstream.
-> > 
-> > This patch prepares for qmi_wwan driver support for the device.
-> > Previously "option" driver mapped itself to interfaces 0 and 3 (matching
-> > ff/ff/ff), while interface 3 is in fact a QMI port.
-> > Interfaces 1 and 2 (matching ff/00/00) expose AT commands,
-> > and weren't supported previously at all.
-> > Without this patch, a possible conflict would exist if device ID was
-> > added to qmi_wwan driver for interface 3.
-> > 
-> > Update and simplify device ID to match interfaces 0-2 directly,
-> > to expose QCDM (0), PCUI (1), and modem (2) ports and avoid conflict
-> > with QMI (3), and ADB (4).
-> > 
-> > The modem is used inside ZTE MF283+ router and carriers identify it as
-> > such.
-> > Interface mapping is:
-> > 0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
-> > 
-> > T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-> > D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> > P:  Vendor=19d2 ProdID=1275 Rev=f0.00
-> > S:  Manufacturer=ZTE,Incorporated
-> > S:  Product=ZTE Technologies MSM
-> > S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
-> > C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-> > I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-> > E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> > E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-> > E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> > E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-> > E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-> > E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-> > E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-> > E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-> > 
-> > Cc: Johan Hovold <johan@kernel.org>
-> > Cc: Bjørn Mork <bjorn@mork.no>
-> > Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
-> > Link: https://lore.kernel.org/r/20210207005443.12936-1-lech.perczak@gmail.com
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >   drivers/usb/serial/option.c |    3 ++-
-> >   1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > --- a/drivers/usb/serial/option.c
-> > +++ b/drivers/usb/serial/option.c
-> > @@ -1569,7 +1569,8 @@ static const struct usb_device_id option
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1272, 0xff, 0xff, 0xff) },
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1273, 0xff, 0xff, 0xff) },
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1274, 0xff, 0xff, 0xff) },
-> > -	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1275, 0xff, 0xff, 0xff) },
-> > +	{ USB_DEVICE(ZTE_VENDOR_ID, 0x1275),	/* ZTE P685M */
-> > +	  .driver_info = RSVD(3) | RSVD(4) },
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1276, 0xff, 0xff, 0xff) },
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1277, 0xff, 0xff, 0xff) },
-> >   	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1278, 0xff, 0xff, 0xff) },
-> > 
-> > 
-> If this patch is selected, then 88eee9b7b42e69fb622ddb3ff6f37e8e4347f5b2
-> ("net: usb: qmi_wwan: support ZTE P685M modem")
-> probably should be selected, too. This patch frees up an interface to be
-> claimed by qmi_wwan driver by the mentioned patch.
-> The mentioned patch only adds a device ID to qmi_wwan driver.
-> 
-> In my opinion, those two should come in pair. Regarding version, I think
-> that backporting to 5.4.y and later is enough, as OpenWrt,
-> from which those patches originate is currently on 5.4.y on the target
-> requiring it, and will move to 5.10.y soon.
-> Backporting this would certainly make OpenWrt folks happy, however I don't
-> insist on it.
+stable-rc/queue/5.10 baseline: 172 runs, 4 regressions (v5.10.19-656-gd3a73=
+34586025)
 
-Now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+2          =
+
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
+
+meson-gxm-q200     | arm64 | lab-baylibre | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.19-656-gd3a7334586025/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.19-656-gd3a7334586025
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d3a7334586025049de1e723a4edb061a78f3d2d3 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
+2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6040acd4f3b53e35e3addcc9
+
+  Results:     3 PASS, 2 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
+7-rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
+7-rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/6040acd4f3b53e3=
+5e3addccd
+        new failure (last pass: v5.10.19-655-g2acc6a4ae931)
+        12 lines
+
+    2021-03-04 09:47:49.193000+00:00  kern  :alert : Unable to handle kerne=
+l NULL pointer dereference at virtual address 00<8>[   42.735057] <LAVA_SIG=
+NAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=
+=3D12>
+    2021-03-04 09:47:49.194000+00:00  000000   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6040acd4f3b53e3=
+5e3addcce
+        new failure (last pass: v5.10.19-655-g2acc6a4ae931)
+        84 lines
+
+    2021-03-04 09:47:49.198000+00:00  kern  :alert : [00000000] *pgd=3D0421=
+3835, *pte=3D00000000, *ppte=3D00000000
+    2021-03-04 09:47:49.199000+00:00  kern  :alert : 8<--- cut here ---
+    2021-03-04 09:47:49.200000+00:00  kern  :alert : Unable to handle kerne=
+l NULL pointer dereference at virtual address 00000000
+    2021-03-04 09:47:49.200000+00:00  kern  :alert : pgd =3D edef5ff7
+    2021-03-04 09:47:49.236000+00:00  kern  :alert : [00000000] *pgd=3D0422=
+5835, *pte=3D00000000, *ppte=3D00000000
+    2021-03-04 09:47:49.236000+00:00  kern  :alert : 8<--- cut here ---
+    2021-03-04 09:47:49.237000+00:00  kern  :alert : Unable to handle kerne=
+l NULL pointer dereference at virtual address 00000000
+    2021-03-04 09:47:49.238000+00:00  kern  :alert : pgd =3D b092ebc8
+    2021-03-04 09:47:49.239000+00:00  kern  :alert : [00000000] *pgd=3D0416=
+d835, *pte=3D00000000, *ppte=3D00000000
+    2021-03-04 09:47:49.240000+00:00  kern  :emerg : Internal error: Oops: =
+17 [#1] ARM =
+
+    ... (48 line(s) more)  =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6040b05b8aa8de7919addcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6040b05b8aa8de7919add=
+cb2
+        new failure (last pass: v5.10.19-655-g2acc6a4ae931) =
+
+ =
+
+
+
+platform           | arch  | lab          | compiler | defconfig         | =
+regressions
+-------------------+-------+--------------+----------+-------------------+-=
+-----------
+meson-gxm-q200     | arm64 | lab-baylibre | gcc-8    | defconfig         | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6040af482859b94d04addcc9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.19-=
+656-gd3a7334586025/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6040af482859b94d04add=
+cca
+        new failure (last pass: v5.10.19-655-g2acc6a4ae931) =
+
+ =20
