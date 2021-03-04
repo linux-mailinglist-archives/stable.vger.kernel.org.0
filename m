@@ -2,63 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37F7A32D218
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 12:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7D5D32D238
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 13:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239575AbhCDL5h convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 4 Mar 2021 06:57:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239578AbhCDL5c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 06:57:32 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39D8EC06175F
-        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 03:56:52 -0800 (PST)
-Received: from lupine.hi.pengutronix.de ([2001:67c:670:100:3ad5:47ff:feaf:1a17] helo=lupine)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1lHmaw-0002CJ-Ip; Thu, 04 Mar 2021 12:56:42 +0100
-Received: from pza by lupine with local (Exim 4.92)
-        (envelope-from <p.zabel@pengutronix.de>)
-        id 1lHmav-0005GO-NI; Thu, 04 Mar 2021 12:56:41 +0100
-Message-ID: <04122d95be5489a9a2b7de1e36d3744538cc3c30.camel@pengutronix.de>
-Subject: Re: [PATCH v4 01/13] phy: cadence: Sierra: Fix PHY power_on sequence
-From:   Philipp Zabel <p.zabel@pengutronix.de>
-To:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Swapnil Jakhade <sjakhade@cadence.com>
-Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        Lokesh Vutla <lokeshvutla@ti.com>, stable@vger.kernel.org
-Date:   Thu, 04 Mar 2021 12:56:41 +0100
-In-Reply-To: <20210304044122.15166-2-kishon@ti.com>
-References: <20210304044122.15166-1-kishon@ti.com>
-         <20210304044122.15166-2-kishon@ti.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.30.5-1.1 
+        id S239812AbhCDMD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 07:03:29 -0500
+Received: from mx2.suse.de ([195.135.220.15]:48770 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239807AbhCDMD1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Mar 2021 07:03:27 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id EE8ADAE44;
+        Thu,  4 Mar 2021 12:02:45 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 2DCAA1F2B0A; Thu,  4 Mar 2021 13:02:45 +0100 (CET)
+Date:   Thu, 4 Mar 2021 13:02:45 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] block: Try to handle busy underlying device on discard
+Message-ID: <20210304120245.GA17824@quack2.suse.cz>
+References: <20210222094809.21775-1-jack@suse.cz>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2001:67c:670:100:3ad5:47ff:feaf:1a17
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210222094809.21775-1-jack@suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2021-03-04 at 10:11 +0530, Kishon Vijay Abraham I wrote:
-> Commit 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
-> de-asserts PHY_RESET even before the configurations are loaded in
-> phy_init(). However PHY_RESET should be de-asserted only after
-> all the configurations has been initialized, instead of de-asserting
-> in probe. Fix it here.
+On Mon 22-02-21 10:48:09, Jan Kara wrote:
+> Commit 384d87ef2c95 ("block: Do not discard buffers under a mounted
+> filesystem") made paths issuing discard or zeroout requests to the
+> underlying device try to grab block device in exclusive mode. If that
+> failed we returned EBUSY to userspace. This however caused unexpected
+> fallout in userspace where e.g. FUSE filesystems issue discard requests
+> from userspace daemons although the device is open exclusively by the
+> kernel. Also shrinking of logical volume by LVM issues discard requests
+> to a device which may be claimed exclusively because there's another LV
+> on the same PV. So to avoid these userspace regressions, fall back to
+> invalidate_inode_pages2_range() instead of returning EBUSY to userspace
+> and return EBUSY only of that call fails as well (meaning that there's
+> indeed someone using the particular device range we are trying to
+> discard).
 > 
-> Fixes: 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
-> Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-> Cc: <stable@vger.kernel.org> # v5.4+
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=211167
+> Fixes: 384d87ef2c95 ("block: Do not discard buffers under a mounted filesystem")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jan Kara <jack@suse.cz>
 
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Ping guys? Can we get this reviewed and merged? Thanks!
 
-regards
-Philipp
+								Honza
+
+> ---
+>  fs/block_dev.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index 235b5042672e..c33151020bcd 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -118,13 +118,22 @@ int truncate_bdev_range(struct block_device *bdev, fmode_t mode,
+>  	if (!(mode & FMODE_EXCL)) {
+>  		int err = bd_prepare_to_claim(bdev, truncate_bdev_range);
+>  		if (err)
+> -			return err;
+> +			goto invalidate;
+>  	}
+>  
+>  	truncate_inode_pages_range(bdev->bd_inode->i_mapping, lstart, lend);
+>  	if (!(mode & FMODE_EXCL))
+>  		bd_abort_claiming(bdev, truncate_bdev_range);
+>  	return 0;
+> +
+> +invalidate:
+> +	/*
+> +	 * Someone else has handle exclusively open. Try invalidating instead.
+> +	 * The 'end' argument is inclusive so the rounding is safe.
+> +	 */
+> +	return invalidate_inode_pages2_range(bdev->bd_inode->i_mapping,
+> +					     lstart >> PAGE_SHIFT,
+> +					     lend >> PAGE_SHIFT);
+>  }
+>  EXPORT_SYMBOL(truncate_bdev_range);
+>  
+> -- 
+> 2.26.2
+> 
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
