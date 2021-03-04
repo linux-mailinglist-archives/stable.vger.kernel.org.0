@@ -2,110 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEC132D845
-	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 18:04:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44EB32D862
+	for <lists+stable@lfdr.de>; Thu,  4 Mar 2021 18:12:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232716AbhCDRDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 12:03:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33588 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238880AbhCDRDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 12:03:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D375864F5F;
-        Thu,  4 Mar 2021 17:02:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614877346;
-        bh=olDcRtJ+t+lJRyUWeLlACC10m/jXX6cmy5ZSvP7+fMk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X1c8dYmxPme5nDJ5jJBax+akaxmeavwP2zwTlE9GI8aR60FlohQKfh7hHPgKbGI97
-         gSBQ4zE2Vyo0AGD4FO+YIpL9l+apuq5uVhx2ieIXVz12G13RtPlR0tuBF++VUR/WOT
-         CWIPlRNQoh+x24S8XNiUzDB5Icai1lA69GAocw7Y=
-Date:   Thu, 4 Mar 2021 18:02:23 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>, pavel@denx.de,
-        Andrew Morton <akpm@linux-foundation.org>,
-        LTP List <ltp@lists.linux.it>
-Subject: Re: [PATCH 5.11 000/773] 5.11.3-rc3 review
-Message-ID: <YEESn1JboVRjfJGN@kroah.com>
-References: <20210302192719.741064351@linuxfoundation.org>
- <CA+G9fYvkW+84U9e0Cjft_pq9bGnBBqCXST7Hg+gx4pKNyuGPFQ@mail.gmail.com>
- <YEDDIzz32JqSvi1S@kroah.com>
- <20210304165247.GA131220@roeck-us.net>
+        id S239035AbhCDRLs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 12:11:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41054 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239054AbhCDRLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 12:11:33 -0500
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02460C061574
+        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 09:10:53 -0800 (PST)
+Received: by mail-pl1-x629.google.com with SMTP id j6so2939379plx.6
+        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 09:10:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eY3rujZRt/83qSRYT/ljgFjCPtUQgA6/Fg0/BQmJFbA=;
+        b=ACJjRrNbnokXLVPi4HAZ0Ffijbj+iA/tMVguKiodhukJa6TcqO87DZWHvGCrrrH/Ke
+         4f34O3rMEbk9a+5MteELOoorIaoAbvH+vYz4TustjOjlzIlrfFRMw6C9LOcFGYnBf+Ac
+         Q1Hd1X+Mti3iNX7vVPHmC3ViUtYmpAkiifH46iMpOG64e8XavB2qVupemGnkMUp+3ugE
+         Whid4NGk7syI055pgihs/eqz0kYPlIMOebjDTMtgTixFxJMAHlbbo4fF0EPZ056tCVjN
+         d9aYlzlTyQGw/nCoSWSZ3AlttkwdAxtoZYz1Bv+czGg5ylWj3/2iM9mZ/wWzaLmKkvkR
+         6beQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eY3rujZRt/83qSRYT/ljgFjCPtUQgA6/Fg0/BQmJFbA=;
+        b=qzwGipLLiCSZ9QfURQ0VVWfv9VHzdFXp8sRiiVHIQANoK6szKFhVJFefQoioxVKVEv
+         Clrlw//cxqnvPfkJML/xVCbnkdcF/mWq21M2PvV7KpzBElgUX/ZgELNmUpNZ3dcqVG68
+         zaJEbTxrvPASDuuZyvd8VI1Y+g0i5J4LVcbJxF5DT5PMqkfYaI/EXktml4f10xYR3CbQ
+         ViT7+kgIc5NRdwA1O1mBY9cHYszmkoh9Yw8QtxnaMQ+7mkRUjIO6am7LON2EUskeTnF9
+         uzogocB8Cq3ldjU9GJxEbQUgKRIqn6MRgPauaN/YE4K5qN0EcggEOoCuJrT09DD114lO
+         ezJA==
+X-Gm-Message-State: AOAM530PmOvpc+lfpGZrjYPQhEsgnI8dBpXgbRLGT8REpTuPQQGYXci4
+        FCXcUxdpKDnrshXuzi9xb2vqjDlYnEo2RWEs
+X-Google-Smtp-Source: ABdhPJxQrzLu9l3JN0FZokiUmRDxyjzNPuzL8GiAFaLT5zf2r74ecWiUjzHPQ1v2nBqEh5TmgkWGBQ==
+X-Received: by 2002:a17:90a:6286:: with SMTP id d6mr5509869pjj.234.1614877852439;
+        Thu, 04 Mar 2021 09:10:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m21sm5915pff.61.2021.03.04.09.10.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Mar 2021 09:10:52 -0800 (PST)
+Message-ID: <6041149c.1c69fb81.70a40.003d@mx.google.com>
+Date:   Thu, 04 Mar 2021 09:10:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210304165247.GA131220@roeck-us.net>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.20
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 114 runs, 1 regressions (v5.10.20)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 04, 2021 at 08:52:47AM -0800, Guenter Roeck wrote:
-> On Thu, Mar 04, 2021 at 12:23:15PM +0100, Greg Kroah-Hartman wrote:
-> > On Wed, Mar 03, 2021 at 02:02:20PM +0530, Naresh Kamboju wrote:
-> > > On Wed, 3 Mar 2021 at 00:59, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 5.11.3 release.
-> > > > There are 773 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Thu, 04 Mar 2021 19:25:07 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.3-rc3.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > > 
-> > > 
-> > > Results from Linaro’s test farm.
-> > > All our builds are getting PASS now.
-> > > But,
-> > > Regressions detected on all devices (arm64, arm, x86_64 and i386).
-> > > LTP pty test case hangup01 failed on all devices
-> > > 
-> > > hangup01    1  TFAIL  :  hangup01.c:133: unexpected message 3
-> > > 
-> > > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> > > 
-> > > This failure is specific to stable-rc v5.10.20-rc4 and v5.11.3-rc3
-> > > Test PASS on the v5.12-rc1 mainline and Linux next kernel.
-> > > 
-> > > Following two commits caused this test failure,
-> > > 
-> > >    Linus Torvalds <torvalds@linux-foundation.org>
-> > >        tty: implement read_iter
-> > > 
-> > >    Linus Torvalds <torvalds@linux-foundation.org>
-> > >        tty: convert tty_ldisc_ops 'read()' function to take a kernel pointer
-> > > 
-> > > Test case failed link,
-> > > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11.y/build/v5.11.2-774-g6ca52dbc58df/testrun/4070143/suite/ltp-pty-tests/test/hangup01/log
-> > > 
-> > 
-> > Thanks for testing them all, I'll try to debug this later today...
-> > 
-> 
-> Did you see my response to v5.10.y ? It looks like two related patches
-> may be missing from v5.10.y and v5.11.y.
+stable-rc/linux-5.10.y baseline: 114 runs, 1 regressions (v5.10.20)
 
-I did, thank you, I need to get through some other tasks first before
-trying the reproducer and see if the patches you list fix it or not...
+Regressions Summary
+-------------------
 
-thanks,
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-greg k-h
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.20/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.20
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      83be32b6c9e55d5b04181fc9788591d5611d4a96 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6040e39cb5571c3c30addcb2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.2=
+0/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.2=
+0/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6040e39cb5571c3c30add=
+cb3
+        new failure (last pass: v5.10.19-658-g083cbba104d9) =
+
+ =20
