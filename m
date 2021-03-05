@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DC432EB31
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE36632EAE3
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232930AbhCEMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59066 "EHLO mail.kernel.org"
+        id S232712AbhCEMkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233847AbhCEMm2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C016501C;
-        Fri,  5 Mar 2021 12:42:27 +0000 (UTC)
+        id S233348AbhCEMk1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3C6365024;
+        Fri,  5 Mar 2021 12:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948147;
-        bh=Mqw/Xi4CtknF9CnDt+xfZR2WJq/GQJJN7ERbesdt2Zo=;
+        s=korg; t=1614948027;
+        bh=R5LID6VHS2dbt1ghX/wBr2xZkyqC8VJjXHbI17ai8IQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZXCqQHN0OXVcNE9gnDUPRDG/b/dDYCgRTG7JU5xV1gb7PvM1mPfouGFP67nTjtwpf
-         fap4W+vaxvhs/EVvQA8bo1BchHH4L6L29xhGVb4E4QDjQRRq5Dvkcd2ZoNNHbc1HFT
-         ELUSOZzVOeYWTMjknfalkqkKTmnECBLMwexSR06w=
+        b=C6wIvj3mlmOc23+1MyQ1sfq4vwNK7UgiuASWezX74V18KioSph/2YO8/vPsiQfEqG
+         T7xApNLLbMatjV70brA4RcqMNSUjE8TgqjXWonr6dpGXKk7/P0wf3/+VyKoVAu2xKa
+         rKdDR1+F1bU2UQ4ZCUN50p6WTyisrq1R1u1h/Xho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+36315852ece4132ec193@syzkaller.appspotmail.com,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        jfs-discussion@lists.sourceforge.net,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 4.9 18/41] JFS: more checks for invalid superblock
+        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/39] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
 Date:   Fri,  5 Mar 2021 13:22:25 +0100
-Message-Id: <20210305120852.182320874@linuxfoundation.org>
+Message-Id: <20210305120853.082359160@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Gopal Tiwari <gtiwari@redhat.com>
 
-commit 3bef198f1b17d1bb89260bad947ef084c0a2d1a6 upstream.
+[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
 
-syzbot is feeding invalid superblock data to JFS for mount testing.
-JFS does not check several of the fields -- just assumes that they
-are good since the JFS_MAGIC and version fields are good.
+kernel panic trace looks like:
 
-In this case (syzbot reproducer), we have s_l2bsize == 0xda0c,
-pad == 0xf045, and s_state == 0x50, all of which are invalid IMO.
-Having s_l2bsize == 0xda0c causes this UBSAN warning:
-  UBSAN: shift-out-of-bounds in fs/jfs/jfs_mount.c:373:25
-  shift exponent -9716 is negative
+ #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
+ #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
+    [exception RIP: amp_read_loc_assoc_final_data+63]
+    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
+    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
+    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
+    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
+    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
+ #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
+ #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
 
-s_l2bsize can be tested for correctness. pad can be tested for non-0
-and punted. s_state can be tested for its valid values and punted.
+hcon->amp_mgr seems NULL triggered kernel panic in following line inside
+function amp_read_loc_assoc_final_data
 
-Do those 3 tests and if any of them fails, report the superblock as
-invalid/corrupt and let fsck handle it.
+        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
 
-With this patch, chkSuper() says this when JFS_DEBUG is enabled:
-  jfs_mount: Mount Failure: superblock is corrupt!
-  Mount JFS Failure: -22
-  jfs_mount failed w/return code = -22
+Fixed by checking NULL for mgr.
 
-The obvious problem with this method is that next week there could
-be another syzbot test that uses different fields for invalid values,
-this making this like a game of whack-a-mole.
-
-syzkaller link: https://syzkaller.appspot.com/bug?extid=36315852ece4132ec193
-
-Reported-by: syzbot+36315852ece4132ec193@syzkaller.appspotmail.com
-Reported-by: kernel test robot <lkp@intel.com> # v2
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
-Cc: jfs-discussion@lists.sourceforge.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/jfs_filsys.h |    1 +
- fs/jfs/jfs_mount.c  |   10 ++++++++++
- 2 files changed, 11 insertions(+)
+ net/bluetooth/amp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/jfs/jfs_filsys.h
-+++ b/fs/jfs/jfs_filsys.h
-@@ -281,5 +281,6 @@
- 				 * fsck() must be run to repair
- 				 */
- #define	FM_EXTENDFS 0x00000008	/* file system extendfs() in progress */
-+#define	FM_STATE_MAX 0x0000000f	/* max value of s_state */
+diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
+index ebcab5bbadd7..9f645a1d0202 100644
+--- a/net/bluetooth/amp.c
++++ b/net/bluetooth/amp.c
+@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
+ 	struct hci_request req;
+ 	int err;
  
- #endif				/* _H_JFS_FILSYS */
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -49,6 +49,7 @@
- 
- #include <linux/fs.h>
- #include <linux/buffer_head.h>
-+#include <linux/log2.h>
- 
- #include "jfs_incore.h"
- #include "jfs_filsys.h"
-@@ -378,6 +379,15 @@ static int chkSuper(struct super_block *
- 	sbi->bsize = bsize;
- 	sbi->l2bsize = le16_to_cpu(j_sb->s_l2bsize);
- 
-+	/* check some fields for possible corruption */
-+	if (sbi->l2bsize != ilog2((u32)bsize) ||
-+	    j_sb->pad != 0 ||
-+	    le32_to_cpu(j_sb->s_state) > FM_STATE_MAX) {
-+		rc = -EINVAL;
-+		jfs_err("jfs_mount: Mount Failure: superblock is corrupt!");
-+		goto out;
-+	}
++	if (!mgr)
++		return;
 +
- 	/*
- 	 * For now, ignore s_pbsize, l2bfactor.  All I/O going through buffer
- 	 * cache.
+ 	cp.phy_handle = hcon->handle;
+ 	cp.len_so_far = cpu_to_le16(0);
+ 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
+-- 
+2.30.1
+
 
 
