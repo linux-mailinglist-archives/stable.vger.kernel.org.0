@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5C732EB72
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF7A32EAD2
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232109AbhCEMoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:44:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32808 "EHLO mail.kernel.org"
+        id S232494AbhCEMk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233348AbhCEMnm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:43:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 934B165017;
-        Fri,  5 Mar 2021 12:43:39 +0000 (UTC)
+        id S233394AbhCEMkL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46C0664E84;
+        Fri,  5 Mar 2021 12:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948220;
-        bh=Ax0g+x+frFbz0TrUsOKUlZmRcwcqTW35WdcyiLvRNmE=;
+        s=korg; t=1614948010;
+        bh=4PHH/mtGcsjPty8Qtr8w/oxUHz4h/LwqDweDyz9eirA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxrrkAotzD+DeEnP5RLH93mteBcl/GbcIdsGNtspb/52UowZYCg9hoVJbSKboZriI
-         QJ6TGvBxn1Vi4LEJv2G9UyC+GUcERaWtC/6QkxsKhtnONdriXH/8V9/gkUYkAe6s5d
-         OrCkck1v0/99RsSbcFBVpTJoG8FuyZ8O+E1DKnKM=
+        b=ysZJ07BETogfw71DmRCptRFxGLaLW702o6Hf7lHFgSw61LlmLbZEUSpLoMxH4zzw8
+         F/JKvouq2XqZTorwtAvJSZbN8YfdsG4gNwV7/shfzl4lrEv6p7k/oFQB0Kyp+xQ4+y
+         yPvT8ELrb4CBdLFFo0Rs1fgUO8HudlKKVReM2WA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zi Yan <ziy@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Joao Martins <joao.m.martins@oracle.com>,
+        stable@vger.kernel.org, Rokudo Yan <wu-yan@tcl.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 07/30] hugetlb: fix update_and_free_page contig page struct assumption
+Subject: [PATCH 4.14 37/39] zsmalloc: account the number of compacted pages correctly
 Date:   Fri,  5 Mar 2021 13:22:36 +0100
-Message-Id: <20210305120849.757224059@linuxfoundation.org>
+Message-Id: <20210305120853.626250068@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Rokudo Yan <wu-yan@tcl.com>
 
-commit dbfee5aee7e54f83d96ceb8e3e80717fac62ad63 upstream.
+commit 2395928158059b8f9858365fce7713ce7fef62e4 upstream.
 
-page structs are not guaranteed to be contiguous for gigantic pages.  The
-routine update_and_free_page can encounter a gigantic page, yet it assumes
-page structs are contiguous when setting page flags in subpages.
+There exists multiple path may do zram compaction concurrently.
+1. auto-compaction triggered during memory reclaim
+2. userspace utils write zram<id>/compaction node
 
-If update_and_free_page encounters non-contiguous page structs, we can see
-“BUG: Bad page state in process …” errors.
+So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
+But pages_compacted is a per zsmalloc pool variable and modification
+of the variable is not serialized(through under class->lock).
+There are two issues here:
+1. the pages_compacted may not equal to total number of pages
+freed(due to concurrently add).
+2. zs_shrinker_scan may not return the correct number of pages
+freed(issued by current shrinker).
 
-Non-contiguous page structs are generally not an issue.  However, they can
-exist with a specific kernel configuration and hotplug operations.  For
-example: Configure the kernel with CONFIG_SPARSEMEM and
-!CONFIG_SPARSEMEM_VMEMMAP.  Then, hotplug add memory for the area where
-the gigantic page will be allocated.  Zi Yan outlined steps to reproduce
-here [1].
+The fix is simple:
+1. account the number of pages freed in zs_compact locally.
+2. use actomic variable pages_compacted to accumulate total number.
 
-[1] https://lore.kernel.org/linux-mm/16F7C58B-4D79-41C5-9B64-A1A1628F4AF2@nvidia.com/
-
-Link: https://lkml.kernel.org/r/20210217184926.33567-1-mike.kravetz@oracle.com
-Fixes: 944d9fec8d7a ("hugetlb: add support for gigantic page allocation at runtime")
-Signed-off-by: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Joao Martins <joao.m.martins@oracle.com>
+Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
+Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
+Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 ---
- mm/hugetlb.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/block/zram/zram_drv.c |    2 +-
+ include/linux/zsmalloc.h      |    2 +-
+ mm/zsmalloc.c                 |   17 +++++++++++------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1159,14 +1159,16 @@ static inline int alloc_fresh_gigantic_p
- static void update_and_free_page(struct hstate *h, struct page *page)
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -738,7 +738,7 @@ static ssize_t mm_stat_show(struct devic
+ 			zram->limit_pages << PAGE_SHIFT,
+ 			max_used << PAGE_SHIFT,
+ 			(u64)atomic64_read(&zram->stats.same_pages),
+-			pool_stats.pages_compacted);
++			atomic_long_read(&pool_stats.pages_compacted));
+ 	up_read(&zram->init_lock);
+ 
+ 	return ret;
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -36,7 +36,7 @@ enum zs_mapmode {
+ 
+ struct zs_pool_stats {
+ 	/* How many pages were migrated (freed) */
+-	unsigned long pages_compacted;
++	atomic_long_t pages_compacted;
+ };
+ 
+ struct zs_pool;
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2281,11 +2281,13 @@ static unsigned long zs_can_compact(stru
+ 	return obj_wasted * class->pages_per_zspage;
+ }
+ 
+-static void __zs_compact(struct zs_pool *pool, struct size_class *class)
++static unsigned long __zs_compact(struct zs_pool *pool,
++				  struct size_class *class)
+ {
+ 	struct zs_compact_control cc;
+ 	struct zspage *src_zspage;
+ 	struct zspage *dst_zspage = NULL;
++	unsigned long pages_freed = 0;
+ 
+ 	spin_lock(&class->lock);
+ 	while ((src_zspage = isolate_zspage(class, true))) {
+@@ -2315,7 +2317,7 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, dst_zspage);
+ 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
+ 			free_zspage(pool, class, src_zspage);
+-			pool->stats.pages_compacted += class->pages_per_zspage;
++			pages_freed += class->pages_per_zspage;
+ 		}
+ 		spin_unlock(&class->lock);
+ 		cond_resched();
+@@ -2326,12 +2328,15 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, src_zspage);
+ 
+ 	spin_unlock(&class->lock);
++
++	return pages_freed;
+ }
+ 
+ unsigned long zs_compact(struct zs_pool *pool)
  {
  	int i;
-+	struct page *subpage = page;
+ 	struct size_class *class;
++	unsigned long pages_freed = 0;
  
- 	if (hstate_is_gigantic(h) && !gigantic_page_supported())
- 		return;
+ 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
+ 		class = pool->size_class[i];
+@@ -2339,10 +2344,11 @@ unsigned long zs_compact(struct zs_pool
+ 			continue;
+ 		if (class->index != i)
+ 			continue;
+-		__zs_compact(pool, class);
++		pages_freed += __zs_compact(pool, class);
+ 	}
++	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
  
- 	h->nr_huge_pages--;
- 	h->nr_huge_pages_node[page_to_nid(page)]--;
--	for (i = 0; i < pages_per_huge_page(h); i++) {
--		page[i].flags &= ~(1 << PG_locked | 1 << PG_error |
-+	for (i = 0; i < pages_per_huge_page(h);
-+	     i++, subpage = mem_map_next(subpage, page, i)) {
-+		subpage->flags &= ~(1 << PG_locked | 1 << PG_error |
- 				1 << PG_referenced | 1 << PG_dirty |
- 				1 << PG_active | 1 << PG_private |
- 				1 << PG_writeback);
+-	return pool->stats.pages_compacted;
++	return pages_freed;
+ }
+ EXPORT_SYMBOL_GPL(zs_compact);
+ 
+@@ -2359,13 +2365,12 @@ static unsigned long zs_shrinker_scan(st
+ 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
+ 			shrinker);
+ 
+-	pages_freed = pool->stats.pages_compacted;
+ 	/*
+ 	 * Compact classes and calculate compaction delta.
+ 	 * Can run concurrently with a manually triggered
+ 	 * (by user) compaction.
+ 	 */
+-	pages_freed = zs_compact(pool) - pages_freed;
++	pages_freed = zs_compact(pool);
+ 
+ 	return pages_freed ? pages_freed : SHRINK_STOP;
+ }
 
 
