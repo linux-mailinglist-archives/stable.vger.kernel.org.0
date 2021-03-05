@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD14B32E90C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2577332E99F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbhCEMaI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
+        id S230413AbhCEMd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231196AbhCEM37 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:29:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ABC65004;
-        Fri,  5 Mar 2021 12:29:58 +0000 (UTC)
+        id S231675AbhCEMda (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F7686501A;
+        Fri,  5 Mar 2021 12:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947399;
-        bh=AVwNOxzQYptEcfyWMZzdVLVDjOKlWVcElqnWPDZWrU8=;
+        s=korg; t=1614947609;
+        bh=2TFzhGIT6edKdwWyhZYFtdzQseAAnH/i1ygi4KFGDEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+JpF8zacafC0Y1vi1QkG78M4tBK9985VnqCt456CZP0phcTX9jv1Up5TZiaPeqtf
-         cEltjbRBudcKurP6YGm7e9LZ40ygKlzTWaIwNg67Enco5hSBF8IDKRCBJwhLpYulfe
-         fEAqJUnHVnME7HK6MfTocuOzXFfwm9NcMIl4KGD8=
+        b=bC97EvQe38K8ZPXOTpJwEyKi2BsFoBod9P9azXvNw2zN0bAM2Usb3rWJaSPmpRILK
+         Tw/cCbf44lmVgt4Tq3H9/ZcRXTXjNooM8YMIacFbu143wkPmiJObRF7lP5wNmAPwYm
+         LWZGIBrjZzSSTX1pzspFwmNc6DQjwNhGqV0yoBpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raz Bouganim <r-bouganim@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 044/102] wlcore: Fix command execute failure 19 for wl12xx
-Date:   Fri,  5 Mar 2021 13:21:03 +0100
-Message-Id: <20210305120905.467586106@linuxfoundation.org>
+        stable@vger.kernel.org, Jingle Wu <jingle.wu@emc.com.tw>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.4 02/72] Input: elantech - fix protocol errors for some trackpoints in SMBus mode
+Date:   Fri,  5 Mar 2021 13:21:04 +0100
+Message-Id: <20210305120857.462146294@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +41,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: jingle.wu <jingle.wu@emc.com.tw>
 
-[ Upstream commit cb88d01b67383a095e3f7caeb4cdade5a6cf0417 ]
+commit e4c9062717feda88900b566463228d1c4910af6d upstream.
 
-We can currently get a "command execute failure 19" error on beacon loss
-if the signal is weak:
+There are some version of Elan trackpads that send incorrect data when
+in SMbus mode, unless they are switched to use 0x5f reports instead of
+standard 0x5e. This patch implements querying device to retrieve chips
+identifying data, and switching it, when needed to the alternative
+report.
 
-wlcore: Beacon loss detected. roles:0xff
-wlcore: Connection loss work (role_id: 0).
-...
-wlcore: ERROR command execute failure 19
-...
-WARNING: CPU: 0 PID: 1552 at drivers/net/wireless/ti/wlcore/main.c:803
-...
-(wl12xx_queue_recovery_work.part.0 [wlcore])
-(wl12xx_cmd_role_start_sta [wlcore])
-(wl1271_op_bss_info_changed [wlcore])
-(ieee80211_prep_connection [mac80211])
-
-Error 19 is defined as CMD_STATUS_WRONG_NESTING from the wlcore firmware,
-and seems to mean that the firmware no longer wants to see the quirk
-handling for WLCORE_QUIRK_START_STA_FAILS done.
-
-This quirk got added with commit 18eab430700d ("wlcore: workaround
-start_sta problem in wl12xx fw"), and it seems that this already got fixed
-in the firmware long time ago back in 2012 as wl18xx never had this quirk
-in place to start with.
-
-As we no longer even support firmware that early, to me it seems that it's
-safe to just drop WLCORE_QUIRK_START_STA_FAILS to fix the error. Looks
-like earlier firmware got disabled back in 2013 with commit 0e284c074ef9
-("wl12xx: increase minimum singlerole firmware version required").
-
-If it turns out we still need WLCORE_QUIRK_START_STA_FAILS with any
-firmware that the driver works with, we can simply revert this patch and
-add extra checks for firmware version used.
-
-With this fix wlcore reconnects properly after a beacon loss.
-
-Cc: Raz Bouganim <r-bouganim@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210115065613.7731-1-tony@atomide.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+Link: https://lore.kernel.org/r/20201211071531.32413-1-jingle.wu@emc.com.tw
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ti/wl12xx/main.c   |  3 ---
- drivers/net/wireless/ti/wlcore/main.c   | 15 +--------------
- drivers/net/wireless/ti/wlcore/wlcore.h |  3 ---
- 3 files changed, 1 insertion(+), 20 deletions(-)
+ drivers/input/mouse/elantech.c |   99 ++++++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/elantech.h |    4 +
+ 2 files changed, 101 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
-index 3c9c623bb428..9d7dbfe7fe0c 100644
---- a/drivers/net/wireless/ti/wl12xx/main.c
-+++ b/drivers/net/wireless/ti/wl12xx/main.c
-@@ -635,7 +635,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
- 		wl->mr_fw_name = WL127X_FW_NAME_MULTI;
-@@ -659,7 +658,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->plt_fw_name = WL127X_PLT_FW_NAME;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
-@@ -688,7 +686,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 
- 		wlcore_set_min_fw_ver(wl, WL128X_CHIP_VER,
-diff --git a/drivers/net/wireless/ti/wlcore/main.c b/drivers/net/wireless/ti/wlcore/main.c
-index 6863fd552d5e..6e402d62dbe4 100644
---- a/drivers/net/wireless/ti/wlcore/main.c
-+++ b/drivers/net/wireless/ti/wlcore/main.c
-@@ -2872,21 +2872,8 @@ static int wlcore_join(struct wl1271 *wl, struct wl12xx_vif *wlvif)
- 
- 	if (is_ibss)
- 		ret = wl12xx_cmd_role_start_ibss(wl, wlvif);
--	else {
--		if (wl->quirks & WLCORE_QUIRK_START_STA_FAILS) {
--			/*
--			 * TODO: this is an ugly workaround for wl12xx fw
--			 * bug - we are not able to tx/rx after the first
--			 * start_sta, so make dummy start+stop calls,
--			 * and then call start_sta again.
--			 * this should be fixed in the fw.
--			 */
--			wl12xx_cmd_role_start_sta(wl, wlvif);
--			wl12xx_cmd_role_stop_sta(wl, wlvif);
--		}
--
-+	else
- 		ret = wl12xx_cmd_role_start_sta(wl, wlvif);
--	}
- 
- 	return ret;
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -90,6 +90,47 @@ static int elantech_ps2_command(struct p
  }
-diff --git a/drivers/net/wireless/ti/wlcore/wlcore.h b/drivers/net/wireless/ti/wlcore/wlcore.h
-index b7821311ac75..81c94d390623 100644
---- a/drivers/net/wireless/ti/wlcore/wlcore.h
-+++ b/drivers/net/wireless/ti/wlcore/wlcore.h
-@@ -547,9 +547,6 @@ wlcore_set_min_fw_ver(struct wl1271 *wl, unsigned int chip,
- /* Each RX/TX transaction requires an end-of-transaction transfer */
- #define WLCORE_QUIRK_END_OF_TRANSACTION		BIT(0)
  
--/* the first start_role(sta) sometimes doesn't work on wl12xx */
--#define WLCORE_QUIRK_START_STA_FAILS		BIT(1)
--
- /* wl127x and SPI don't support SDIO block size alignment */
- #define WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN		BIT(2)
+ /*
++ * Send an Elantech style special command to read 3 bytes from a register
++ */
++static int elantech_read_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
++{
++	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, reg) ||
++	    elantech_ps2_command(psmouse, param, PSMOUSE_CMD_GETINFO)) {
++		psmouse_err(psmouse,
++			    "failed to read register %#02x\n", reg);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/*
++ * Send an Elantech style special command to write a register with a parameter
++ */
++static int elantech_write_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
++{
++	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, reg) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, param[0]) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, param[1]) ||
++	    elantech_ps2_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11)) {
++		psmouse_err(psmouse,
++			    "failed to write register %#02x with value %#02x%#02x\n",
++			    reg, param[0], param[1]);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/*
+  * Send an Elantech style special command to read a value from a register
+  */
+ static int elantech_read_reg(struct psmouse *psmouse, unsigned char reg,
+@@ -1530,18 +1571,34 @@ static const struct dmi_system_id no_hw_
+ };
  
--- 
-2.30.1
-
+ /*
++ * Change Report id 0x5E to 0x5F.
++ */
++static int elantech_change_report_id(struct psmouse *psmouse)
++{
++	unsigned char param[2] = { 0x10, 0x03 };
++
++	if (elantech_write_reg_params(psmouse, 0x7, param) ||
++	    elantech_read_reg_params(psmouse, 0x7, param) ||
++	    param[0] != 0x10 || param[1] != 0x03) {
++		psmouse_err(psmouse, "Unable to change report ID to 0x5f.\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++/*
+  * determine hardware version and set some properties according to it.
+  */
+ static int elantech_set_properties(struct elantech_device_info *info)
+ {
+ 	/* This represents the version of IC body. */
+-	int ver = (info->fw_version & 0x0f0000) >> 16;
++	info->ic_version = (info->fw_version & 0x0f0000) >> 16;
+ 
+ 	/* Early version of Elan touchpads doesn't obey the rule. */
+ 	if (info->fw_version < 0x020030 || info->fw_version == 0x020600)
+ 		info->hw_version = 1;
+ 	else {
+-		switch (ver) {
++		switch (info->ic_version) {
+ 		case 2:
+ 		case 4:
+ 			info->hw_version = 2;
+@@ -1557,6 +1614,11 @@ static int elantech_set_properties(struc
+ 		}
+ 	}
+ 
++	/* Get information pattern for hw_version 4 */
++	info->pattern = 0x00;
++	if (info->ic_version == 0x0f && (info->fw_version & 0xff) <= 0x02)
++		info->pattern = info->fw_version & 0xff;
++
+ 	/* decide which send_cmd we're gonna use early */
+ 	info->send_cmd = info->hw_version >= 3 ? elantech_send_cmd :
+ 						 synaptics_send_cmd;
+@@ -1598,6 +1660,7 @@ static int elantech_query_info(struct ps
+ {
+ 	unsigned char param[3];
+ 	unsigned char traces;
++	unsigned char ic_body[3];
+ 
+ 	memset(info, 0, sizeof(*info));
+ 
+@@ -1640,6 +1703,21 @@ static int elantech_query_info(struct ps
+ 			     info->samples[2]);
+ 	}
+ 
++	if (info->pattern > 0x00 && info->ic_version == 0xf) {
++		if (info->send_cmd(psmouse, ETP_ICBODY_QUERY, ic_body)) {
++			psmouse_err(psmouse, "failed to query ic body\n");
++			return -EINVAL;
++		}
++		info->ic_version = be16_to_cpup((__be16 *)ic_body);
++		psmouse_info(psmouse,
++			     "Elan ic body: %#04x, current fw version: %#02x\n",
++			     info->ic_version, ic_body[2]);
++	}
++
++	info->product_id = be16_to_cpup((__be16 *)info->samples);
++	if (info->pattern == 0x00)
++		info->product_id &= 0xff;
++
+ 	if (info->samples[1] == 0x74 && info->hw_version == 0x03) {
+ 		/*
+ 		 * This module has a bug which makes absolute mode
+@@ -1654,6 +1732,23 @@ static int elantech_query_info(struct ps
+ 	/* The MSB indicates the presence of the trackpoint */
+ 	info->has_trackpoint = (info->capabilities[0] & 0x80) == 0x80;
+ 
++	if (info->has_trackpoint && info->ic_version == 0x0011 &&
++	    (info->product_id == 0x08 || info->product_id == 0x09 ||
++	     info->product_id == 0x0d || info->product_id == 0x0e)) {
++		/*
++		 * This module has a bug which makes trackpoint in SMBus
++		 * mode return invalid data unless trackpoint is switched
++		 * from using 0x5e reports to 0x5f. If we are not able to
++		 * make the switch, let's abort initialization so we'll be
++		 * using standard PS/2 protocol.
++		 */
++		if (elantech_change_report_id(psmouse)) {
++			psmouse_info(psmouse,
++				     "Trackpoint report is broken, forcing standard PS/2 protocol\n");
++			return -ENODEV;
++		}
++	}
++
+ 	info->x_res = 31;
+ 	info->y_res = 31;
+ 	if (info->hw_version == 4) {
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -18,6 +18,7 @@
+ #define ETP_CAPABILITIES_QUERY		0x02
+ #define ETP_SAMPLE_QUERY		0x03
+ #define ETP_RESOLUTION_QUERY		0x04
++#define ETP_ICBODY_QUERY		0x05
+ 
+ /*
+  * Command values for register reading or writing
+@@ -140,7 +141,10 @@ struct elantech_device_info {
+ 	unsigned char samples[3];
+ 	unsigned char debug;
+ 	unsigned char hw_version;
++	unsigned char pattern;
+ 	unsigned int fw_version;
++	unsigned int ic_version;
++	unsigned int product_id;
+ 	unsigned int x_min;
+ 	unsigned int y_min;
+ 	unsigned int x_max;
 
 
