@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F2B232E93A
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B7732E9A5
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbhCEMbi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:31:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40988 "EHLO mail.kernel.org"
+        id S231190AbhCEMd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232312AbhCEMbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F1426501A;
-        Fri,  5 Mar 2021 12:31:01 +0000 (UTC)
+        id S232284AbhCEMdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E539F65031;
+        Fri,  5 Mar 2021 12:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947463;
-        bh=Lglk/Lc85mRy6qzRZ8LBbcStxjDuYC/60W4pB+fOPus=;
+        s=korg; t=1614947617;
+        bh=BJ47TRwlWXvFhRCoo7kohcLGde2zATmuhBKPLUtphMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1gRkDG8NCFn0wsMPp9I5DDMw3p4PKVWtsZHCOYl3M7Pg/7djco5whx0qUPMmaly0
-         GSxQFgtXW0ZlrfWvubE/tZLGHRGLmebMv0GhJ3/U+Ego0nXV0wCpIdrMCz9syyUhZP
-         4VeEDbpSog2lhwR7AlhgFOymCi70p6iJSeT7noHY=
+        b=HF2A8667LIBkgygSPF5YKyVI/ZV68kiu2jxf/b7+MRftEatnZmFxd+JxHNkcIL52R
+         rXYduDmmby1+FwF3VhsYY5TulggbhhUJyJoAZrreCt19+nSLyR8vEILl+tEB+FJZyo
+         M7YkSVYy3IoGZwBMsiJJJQ4xJ3FCsR/CIAnwrVcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/102] Bluetooth: btusb: fix memory leak on suspend and resume
+        Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>, Marc Orr <marcorr@google.com>
+Subject: [PATCH 5.4 03/72] nvme-pci: refactor nvme_unmap_data
 Date:   Fri,  5 Mar 2021 13:21:05 +0100
-Message-Id: <20210305120905.558372621@linuxfoundation.org>
+Message-Id: <20210305120857.514738570@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,139 +39,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 5ff20cbe6752a5bc06ff58fee8aa11a0d5075819 ]
+commit 9275c206f88e5c49cb3e71932c81c8561083db9e upstream.
 
-kmemleak report:
-unreferenced object 0xffff9b1127f00500 (size 208):
-  comm "kworker/u17:2", pid 500, jiffies 4294937470 (age 580.136s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 60 ed 05 11 9b ff ff 00 00 00 00 00 00 00 00  .`..............
-  backtrace:
-    [<000000006ab3fd59>] kmem_cache_alloc_node+0x17a/0x480
-    [<0000000051a5f6f9>] __alloc_skb+0x5b/0x1d0
-    [<0000000037e2d252>] hci_prepare_cmd+0x32/0xc0 [bluetooth]
-    [<0000000010b586d5>] hci_req_add_ev+0x84/0xe0 [bluetooth]
-    [<00000000d2deb520>] hci_req_clear_event_filter+0x42/0x70 [bluetooth]
-    [<00000000f864bd8c>] hci_req_prepare_suspend+0x84/0x470 [bluetooth]
-    [<000000001deb2cc4>] hci_prepare_suspend+0x31/0x40 [bluetooth]
-    [<000000002677dd79>] process_one_work+0x209/0x3b0
-    [<00000000aaa62b07>] worker_thread+0x34/0x400
-    [<00000000826d176c>] kthread+0x126/0x140
-    [<000000002305e558>] ret_from_fork+0x22/0x30
-unreferenced object 0xffff9b1125c6ee00 (size 512):
-  comm "kworker/u17:2", pid 500, jiffies 4294937470 (age 580.136s)
-  hex dump (first 32 bytes):
-    04 00 00 00 0d 00 00 00 05 0c 01 00 11 9b ff ff  ................
-    00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000009f07c0cc>] slab_post_alloc_hook+0x59/0x270
-    [<0000000049431dc2>] __kmalloc_node_track_caller+0x15f/0x330
-    [<00000000027a42f6>] __kmalloc_reserve.isra.70+0x31/0x90
-    [<00000000e8e3e76a>] __alloc_skb+0x87/0x1d0
-    [<0000000037e2d252>] hci_prepare_cmd+0x32/0xc0 [bluetooth]
-    [<0000000010b586d5>] hci_req_add_ev+0x84/0xe0 [bluetooth]
-    [<00000000d2deb520>] hci_req_clear_event_filter+0x42/0x70 [bluetooth]
-    [<00000000f864bd8c>] hci_req_prepare_suspend+0x84/0x470 [bluetooth]
-    [<000000001deb2cc4>] hci_prepare_suspend+0x31/0x40 [bluetooth]
-    [<000000002677dd79>] process_one_work+0x209/0x3b0
-    [<00000000aaa62b07>] worker_thread+0x34/0x400
-    [<00000000826d176c>] kthread+0x126/0x140
-    [<000000002305e558>] ret_from_fork+0x22/0x30
-unreferenced object 0xffff9b112b395788 (size 8):
-  comm "kworker/u17:2", pid 500, jiffies 4294937470 (age 580.136s)
-  hex dump (first 8 bytes):
-    20 00 00 00 00 00 04 00                           .......
-  backtrace:
-    [<0000000052dc28d2>] kmem_cache_alloc_trace+0x15e/0x460
-    [<0000000046147591>] alloc_ctrl_urb+0x52/0xe0 [btusb]
-    [<00000000a2ed3e9e>] btusb_send_frame+0x91/0x100 [btusb]
-    [<000000001e66030e>] hci_send_frame+0x7e/0xf0 [bluetooth]
-    [<00000000bf6b7269>] hci_cmd_work+0xc5/0x130 [bluetooth]
-    [<000000002677dd79>] process_one_work+0x209/0x3b0
-    [<00000000aaa62b07>] worker_thread+0x34/0x400
-    [<00000000826d176c>] kthread+0x126/0x140
-    [<000000002305e558>] ret_from_fork+0x22/0x30
+Split out three helpers from nvme_unmap_data that will allow finer grained
+unwinding from nvme_map_data.
 
-In pm sleep-resume context, while the btusb device rebinds, it enters
-hci_unregister_dev(), whilst there is a possibility of hdev receiving
-PM_POST_SUSPEND suspend_notifier event, leading to generation of msg
-frames. When hci_unregister_dev() completes, i.e. hdev context is
-destroyed/freed, those intermittently sent msg frames cause memory
-leak.
-
-BUG details:
-Below is stack trace of thread that enters hci_unregister_dev(), marks
-the hdev flag HCI_UNREGISTER to 1, and then goes onto to wait on notifier
-lock - refer unregister_pm_notifier().
-
-  hci_unregister_dev+0xa5/0x320 [bluetoot]
-  btusb_disconnect+0x68/0x150 [btusb]
-  usb_unbind_interface+0x77/0x250
-  ? kernfs_remove_by_name_ns+0x75/0xa0
-  device_release_driver_internal+0xfe/0x1
-  device_release_driver+0x12/0x20
-  bus_remove_device+0xe1/0x150
-  device_del+0x192/0x3e0
-  ? usb_remove_ep_devs+0x1f/0x30
-  usb_disable_device+0x92/0x1b0
-  usb_disconnect+0xc2/0x270
-  hub_event+0x9f6/0x15d0
-  ? rpm_idle+0x23/0x360
-  ? rpm_idle+0x26b/0x360
-  process_one_work+0x209/0x3b0
-  worker_thread+0x34/0x400
-  ? process_one_work+0x3b0/0x3b0
-  kthread+0x126/0x140
-  ? kthread_park+0x90/0x90
-  ret_from_fork+0x22/0x30
-
-Below is stack trace of thread executing hci_suspend_notifier() which
-processes the PM_POST_SUSPEND event, while the unbinding thread is
-waiting on lock.
-
-  hci_suspend_notifier.cold.39+0x5/0x2b [bluetooth]
-  blocking_notifier_call_chain+0x69/0x90
-  pm_notifier_call_chain+0x1a/0x20
-  pm_suspend.cold.9+0x334/0x352
-  state_store+0x84/0xf0
-  kobj_attr_store+0x12/0x20
-  sysfs_kf_write+0x3b/0x40
-  kernfs_fop_write+0xda/0x1c0
-  vfs_write+0xbb/0x250
-  ksys_write+0x61/0xe0
-  __x64_sys_write+0x1a/0x20
-  do_syscall_64+0x37/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fix hci_suspend_notifer(), not to act on events when flag HCI_UNREGISTER
-is set.
-
-Signed-off-by: Vamshi K Sthambamkadi <vamshi.k.sthambamkadi@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Marc Orr <marcorr@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/nvme/host/pci.c |   77 ++++++++++++++++++++++++++++++------------------
+ 1 file changed, 49 insertions(+), 28 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 555058270f11..7a2f9559e99a 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3529,7 +3529,8 @@ static int hci_suspend_notifier(struct notifier_block *nb, unsigned long action,
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -528,50 +528,71 @@ static inline bool nvme_pci_use_sgls(str
+ 	return true;
+ }
+ 
+-static void nvme_unmap_data(struct nvme_dev *dev, struct request *req)
++static void nvme_free_prps(struct nvme_dev *dev, struct request *req)
+ {
+-	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 	const int last_prp = dev->ctrl.page_size / sizeof(__le64) - 1;
+-	dma_addr_t dma_addr = iod->first_dma, next_dma_addr;
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
++	dma_addr_t dma_addr = iod->first_dma;
+ 	int i;
+ 
+-	if (iod->dma_len) {
+-		dma_unmap_page(dev->dev, dma_addr, iod->dma_len,
+-			       rq_dma_dir(req));
+-		return;
++	for (i = 0; i < iod->npages; i++) {
++		__le64 *prp_list = nvme_pci_iod_list(req)[i];
++		dma_addr_t next_dma_addr = le64_to_cpu(prp_list[last_prp]);
++
++		dma_pool_free(dev->prp_page_pool, prp_list, dma_addr);
++		dma_addr = next_dma_addr;
  	}
  
- 	/* Suspend notifier should only act on events when powered. */
--	if (!hdev_is_powered(hdev))
-+	if (!hdev_is_powered(hdev) ||
-+	    hci_dev_test_flag(hdev, HCI_UNREGISTER))
- 		goto done;
+-	WARN_ON_ONCE(!iod->nents);
++}
  
- 	if (action == PM_SUSPEND_PREPARE) {
--- 
-2.30.1
-
+-	if (is_pci_p2pdma_page(sg_page(iod->sg)))
+-		pci_p2pdma_unmap_sg(dev->dev, iod->sg, iod->nents,
+-				    rq_dma_dir(req));
+-	else
+-		dma_unmap_sg(dev->dev, iod->sg, iod->nents, rq_dma_dir(req));
++static void nvme_free_sgls(struct nvme_dev *dev, struct request *req)
++{
++	const int last_sg = SGES_PER_PAGE - 1;
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
++	dma_addr_t dma_addr = iod->first_dma;
++	int i;
+ 
++	for (i = 0; i < iod->npages; i++) {
++		struct nvme_sgl_desc *sg_list = nvme_pci_iod_list(req)[i];
++		dma_addr_t next_dma_addr = le64_to_cpu((sg_list[last_sg]).addr);
+ 
+-	if (iod->npages == 0)
+-		dma_pool_free(dev->prp_small_pool, nvme_pci_iod_list(req)[0],
+-			dma_addr);
++		dma_pool_free(dev->prp_page_pool, sg_list, dma_addr);
++		dma_addr = next_dma_addr;
++	}
+ 
+-	for (i = 0; i < iod->npages; i++) {
+-		void *addr = nvme_pci_iod_list(req)[i];
++}
+ 
+-		if (iod->use_sgl) {
+-			struct nvme_sgl_desc *sg_list = addr;
++static void nvme_unmap_sg(struct nvme_dev *dev, struct request *req)
++{
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 
+-			next_dma_addr =
+-			    le64_to_cpu((sg_list[SGES_PER_PAGE - 1]).addr);
+-		} else {
+-			__le64 *prp_list = addr;
++	if (is_pci_p2pdma_page(sg_page(iod->sg)))
++		pci_p2pdma_unmap_sg(dev->dev, iod->sg, iod->nents,
++				    rq_dma_dir(req));
++	else
++		dma_unmap_sg(dev->dev, iod->sg, iod->nents, rq_dma_dir(req));
++}
+ 
+-			next_dma_addr = le64_to_cpu(prp_list[last_prp]);
+-		}
++static void nvme_unmap_data(struct nvme_dev *dev, struct request *req)
++{
++	struct nvme_iod *iod = blk_mq_rq_to_pdu(req);
+ 
+-		dma_pool_free(dev->prp_page_pool, addr, dma_addr);
+-		dma_addr = next_dma_addr;
++	if (iod->dma_len) {
++		dma_unmap_page(dev->dev, iod->first_dma, iod->dma_len,
++			       rq_dma_dir(req));
++		return;
+ 	}
+ 
++	WARN_ON_ONCE(!iod->nents);
++
++	nvme_unmap_sg(dev, req);
++	if (iod->npages == 0)
++		dma_pool_free(dev->prp_small_pool, nvme_pci_iod_list(req)[0],
++			      iod->first_dma);
++	else if (iod->use_sgl)
++		nvme_free_sgls(dev, req);
++	else
++		nvme_free_prps(dev, req);
+ 	mempool_free(iod->sg, dev->iod_mempool);
+ }
+ 
 
 
