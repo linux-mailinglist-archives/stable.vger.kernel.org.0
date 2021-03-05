@@ -2,224 +2,278 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A706232E425
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 10:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C0D932E44A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 10:05:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbhCEJDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 04:03:31 -0500
-Received: from mailgw02.mediatek.com ([210.61.82.184]:44144 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S229592AbhCEJDV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 04:03:21 -0500
-X-UUID: 72add01885ab4103978fc8f1637a6efd-20210305
-X-UUID: 72add01885ab4103978fc8f1637a6efd-20210305
-Received: from mtkmrs01.mediatek.inc [(172.21.131.159)] by mailgw02.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1708881881; Fri, 05 Mar 2021 17:03:16 +0800
-Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
- mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Fri, 5 Mar 2021 17:03:15 +0800
-Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Fri, 5 Mar 2021 17:03:14 +0800
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ikjoon Jang <ikjn@chromium.org>
-CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        stable <stable@vger.kernel.org>, Yaqii Wu <yaqii.wu@mediatek.com>
-Subject: [PATCH 02/17] usb: xhci-mtk: improve bandwidth scheduling with TT
-Date:   Fri, 5 Mar 2021 17:02:40 +0800
-Message-ID: <1614934975-15188-2-git-send-email-chunfeng.yun@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
-In-Reply-To: <1614934975-15188-1-git-send-email-chunfeng.yun@mediatek.com>
-References: <1614934975-15188-1-git-send-email-chunfeng.yun@mediatek.com>
+        id S230127AbhCEJEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 04:04:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49330 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230403AbhCEJEb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 04:04:31 -0500
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8910C061574
+        for <stable@vger.kernel.org>; Fri,  5 Mar 2021 01:04:29 -0800 (PST)
+Received: by mail-pg1-x533.google.com with SMTP id e6so929048pgk.5
+        for <stable@vger.kernel.org>; Fri, 05 Mar 2021 01:04:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=95lYDQAZratemzrlkk+D+iblESApF27KjKXQBQhROIo=;
+        b=U8PqeNcS1Du8BHL1aexx3mezOBqkpjQ5rpiNrQ+9Wk3P9lyPHkxr7YllZDUg+UXGJl
+         A0xsce353BUbbRHmpT1DBLnF7Og4WI8I7N5ZR8vFFIIcEaQfKZVbIhZ0c5yNY42Xp3IO
+         7Bh5z+vIyOx4SzeHRf1HRUGypgj4/PKaLXDIlUcBtGHUpOVKBzuZpjYnLfAJzZlCh9+m
+         0P7lN7B9l9SRDKgAJ3m2RYvrIhemPZxye/TS3XlhTpJcwvwaHczPm2Bi70Tz06TuIzRV
+         MSlAObiNJw0bB3mSAsjOpoVWmUeZouzWLS535fvH+2c3AaxC6WAXbEUIKTEY/1TnZAVO
+         LvbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=95lYDQAZratemzrlkk+D+iblESApF27KjKXQBQhROIo=;
+        b=IARrmMzofJboYAzpkjHkuXoAu0s6GTbGp2+/4dhdm0De+qZK2XhRyERkK+sU7t6nBB
+         F2XQs5950UcoA7ffOLAiE7SjPyzU+UkYu0k+FRIzP/g5a8VqBXjQ7dGxTGMWQ9m0n0Ak
+         D71qiULYEpNZVhm3bdaROiJgrreR05xGEEECxQdAKdyoewhPvWVTpmHAe/UnV9Bd2bfs
+         HvV8Rr0PgQNd0z7W+U+zoWYCrH/sjHOcLpIigcxwARtzB2kCr2zktfPqbgNj25E4EThT
+         9kiDEjg1iJ0Yua3/HneU27pZy3HKaZ+pJCcE2IIOsRvm5K9Y73cB6n81P6VZJxt+iJ1d
+         Ubeg==
+X-Gm-Message-State: AOAM531lREGr58qAmqgtVS+s8Yg3JdqOY68FB4nQ59LJnpkPxdofHOvh
+        TA4Pcvj1PhXODAIAhETDkPSxwzdK2MIdQAoi
+X-Google-Smtp-Source: ABdhPJzoRo2YQxxzlTHgaAQnvbOvrSxl++SVcrGEIeTTeNUU3oUWOI9K7AG3p0k2HDo4refo7ZKdpg==
+X-Received: by 2002:a63:e415:: with SMTP id a21mr7406067pgi.241.1614935068969;
+        Fri, 05 Mar 2021 01:04:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d16sm1726158pfq.203.2021.03.05.01.04.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Mar 2021 01:04:28 -0800 (PST)
+Message-ID: <6041f41c.1c69fb81.86d0e.546c@mx.google.com>
+Date:   Fri, 05 Mar 2021 01:04:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.178-41-g1dffbe1ea7ec
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 108 runs,
+ 5 regressions (v4.19.178-41-g1dffbe1ea7ec)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the USB headset is plug into an external hub, sometimes
-can't set config due to not enough bandwidth, so need improve
-LS/FS INT/ISOC bandwidth scheduling with TT.
+stable-rc/queue/4.19 baseline: 108 runs, 5 regressions (v4.19.178-41-g1dffb=
+e1ea7ec)
 
-Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yaqii Wu <yaqii.wu@mediatek.com>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
----
- drivers/usb/host/xhci-mtk-sch.c | 74 ++++++++++++++++++++++++++-------
- drivers/usb/host/xhci-mtk.h     |  6 ++-
- 2 files changed, 64 insertions(+), 16 deletions(-)
+Regressions Summary
+-------------------
 
-diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index 5891f56c64da..8950d1f10a7f 100644
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -378,6 +378,31 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
- 	sch_ep->allocated = used;
- }
- 
-+static int check_fs_bus_bw(struct mu3h_sch_ep_info *sch_ep, int offset)
-+{
-+	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
-+	u32 num_esit, tmp;
-+	int base;
-+	int i, j;
-+
-+	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
-+	for (i = 0; i < num_esit; i++) {
-+		base = offset + i * sch_ep->esit;
-+
-+		/*
-+		 * Compared with hs bus, no matter what ep type,
-+		 * the hub will always delay one uframe to send data
-+		 */
-+		for (j = 0; j < sch_ep->cs_count; j++) {
-+			tmp = tt->fs_bus_bw[base + j] + sch_ep->bw_cost_per_microframe;
-+			if (tmp > FS_PAYLOAD_MAX)
-+				return -ERANGE;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int check_sch_tt(struct usb_device *udev,
- 	struct mu3h_sch_ep_info *sch_ep, u32 offset)
- {
-@@ -402,7 +427,7 @@ static int check_sch_tt(struct usb_device *udev,
- 			return -ERANGE;
- 
- 		for (i = 0; i < sch_ep->cs_count; i++)
--			if (test_bit(offset + i, tt->split_bit_map))
-+			if (test_bit(offset + i, tt->ss_bit_map))
- 				return -ERANGE;
- 
- 	} else {
-@@ -432,7 +457,7 @@ static int check_sch_tt(struct usb_device *udev,
- 			cs_count = 7; /* HW limit */
- 
- 		for (i = 0; i < cs_count + 2; i++) {
--			if (test_bit(offset + i, tt->split_bit_map))
-+			if (test_bit(offset + i, tt->ss_bit_map))
- 				return -ERANGE;
- 		}
- 
-@@ -448,24 +473,44 @@ static int check_sch_tt(struct usb_device *udev,
- 			sch_ep->num_budget_microframes = sch_ep->esit;
- 	}
- 
--	return 0;
-+	return check_fs_bus_bw(sch_ep, offset);
- }
- 
- static void update_sch_tt(struct usb_device *udev,
--	struct mu3h_sch_ep_info *sch_ep)
-+	struct mu3h_sch_ep_info *sch_ep, bool used)
- {
- 	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
- 	u32 base, num_esit;
-+	int bw_updated;
-+	int bits;
- 	int i, j;
- 
- 	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
-+	bits = (sch_ep->ep_type == ISOC_OUT_EP) ? sch_ep->cs_count : 1;
-+
-+	if (used)
-+		bw_updated = sch_ep->bw_cost_per_microframe;
-+	else
-+		bw_updated = -sch_ep->bw_cost_per_microframe;
-+
- 	for (i = 0; i < num_esit; i++) {
- 		base = sch_ep->offset + i * sch_ep->esit;
--		for (j = 0; j < sch_ep->num_budget_microframes; j++)
--			set_bit(base + j, tt->split_bit_map);
-+
-+		for (j = 0; j < bits; j++) {
-+			if (used)
-+				set_bit(base + j, tt->ss_bit_map);
-+			else
-+				clear_bit(base + j, tt->ss_bit_map);
-+		}
-+
-+		for (j = 0; j < sch_ep->cs_count; j++)
-+			tt->fs_bus_bw[base + j] += bw_updated;
- 	}
- 
--	list_add_tail(&sch_ep->tt_endpoint, &tt->ep_list);
-+	if (used)
-+		list_add_tail(&sch_ep->tt_endpoint, &tt->ep_list);
-+	else
-+		list_del(&sch_ep->tt_endpoint);
- }
- 
- static int check_sch_bw(struct usb_device *udev,
-@@ -535,7 +580,7 @@ static int check_sch_bw(struct usb_device *udev,
- 		if (!tt_offset_ok)
- 			return -ERANGE;
- 
--		update_sch_tt(udev, sch_ep);
-+		update_sch_tt(udev, sch_ep, 1);
- 	}
- 
- 	/* update bus bandwidth info */
-@@ -548,15 +593,16 @@ static void destroy_sch_ep(struct usb_device *udev,
- 	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
- {
- 	/* only release ep bw check passed by check_sch_bw() */
--	if (sch_ep->allocated)
-+	if (sch_ep->allocated) {
- 		update_bus_bw(sch_bw, sch_ep, 0);
-+		if (sch_ep->sch_tt)
-+			update_sch_tt(udev, sch_ep, 0);
-+	}
- 
--	list_del(&sch_ep->endpoint);
--
--	if (sch_ep->sch_tt) {
--		list_del(&sch_ep->tt_endpoint);
-+	if (sch_ep->sch_tt)
- 		drop_tt(udev);
--	}
-+
-+	list_del(&sch_ep->endpoint);
- 	kfree(sch_ep);
- }
- 
-diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
-index cbb09dfea62e..f42769c69249 100644
---- a/drivers/usb/host/xhci-mtk.h
-+++ b/drivers/usb/host/xhci-mtk.h
-@@ -20,13 +20,15 @@
- #define XHCI_MTK_MAX_ESIT	64
- 
- /**
-- * @split_bit_map: used to avoid split microframes overlay
-+ * @ss_bit_map: used to avoid start split microframes overlay
-+ * @fs_bus_bw: array to keep track of bandwidth already used for FS
-  * @ep_list: Endpoints using this TT
-  * @usb_tt: usb TT related
-  * @tt_port: TT port number
-  */
- struct mu3h_sch_tt {
--	DECLARE_BITMAP(split_bit_map, XHCI_MTK_MAX_ESIT);
-+	DECLARE_BITMAP(ss_bit_map, XHCI_MTK_MAX_ESIT);
-+	u32 fs_bus_bw[XHCI_MTK_MAX_ESIT];
- 	struct list_head ep_list;
- 	struct usb_tt *usb_tt;
- 	int tt_port;
--- 
-2.18.0
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.178-41-g1dffbe1ea7ec/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.178-41-g1dffbe1ea7ec
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1dffbe1ea7ec16261b2eb78fc20981601bcbed5b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041bf60011124952eaddccb
+
+  Results:     4 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6041bf600111249=
+52eaddcd0
+        failing since 0 day (last pass: v4.19.178-16-gdaaebef7f79c0, first =
+fail: v4.19.178-18-gecabdc57e1e82)
+        2 lines
+
+    2021-03-05 05:19:17.646000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
+    2021-03-05 05:19:17.660000+00:00  <8>[   22.725616] <LAVA_SIGNAL_TESTCA=
+SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041e4ece34243accfaddccb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041e4ece34243accfadd=
+ccc
+        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041c1ef2e5281665daddcbb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
+ersatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041c1ef2e5281665dadd=
+cbc
+        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041bd72e02fc24a83addcd6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041bd72e02fc24a83add=
+cd7
+        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041c70b65cc9c3fa6addcd9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
+-41-g1dffbe1ea7ec/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
+mu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041c70b65cc9c3fa6add=
+cda
+        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =20
