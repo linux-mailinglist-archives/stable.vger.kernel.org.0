@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61BEF32EB44
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A52E32EB1B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233509AbhCEMnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
+        id S233467AbhCEMmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229759AbhCEMmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:46 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 110A46501F;
-        Fri,  5 Mar 2021 12:42:45 +0000 (UTC)
+        id S231259AbhCEMlv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A93956501F;
+        Fri,  5 Mar 2021 12:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948166;
-        bh=Z9qREOSIzMhQPTuqF3NRq5oBloErHn22rIbf1nsD0kY=;
+        s=korg; t=1614948111;
+        bh=wWvdkD/gGDUfrBRjECaeEPcBEBLDlCHn/CODSAImjCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlcuAxHkC7xelKMaFrx+SZhIZyLrHvHfu00ZWO0pok63t4EdZLY83yG9UbK10fSoU
-         kG693+zxNi5RlqZ6T28X2W1lhXA4em+PkDVAqH+sOlGN3OAnj4yh3Y9bFz7pj9tX/8
-         AbbBP0mTihFQtXYR8QOcP/XJNP/tMpker1Zl0ez8=
+        b=Nxpvd6TN/Pn62KrnbVVK/dryAD6RA62Q2HEPitEEK8HSdmyDsXPqFQHCS/+r4tzy/
+         0So4jmJBpo0DJCP7dJ+13yXTL3QwwCEHp+7+QXMblaLitNzfoOnYyHZRIyJ3Xu3f2Q
+         wJdrhqYq5sYohl+cEMabBF0KrFr+ZflLMXHC/WFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Marco Elver <elver@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.4 10/30] net: fix up truesize of cloned skb in skb_prepare_for_shift()
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 32/41] media: uvcvideo: Allow entities with no pads
 Date:   Fri,  5 Mar 2021 13:22:39 +0100
-Message-Id: <20210305120849.909910163@linuxfoundation.org>
+Message-Id: <20210305120852.861820989@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 097b9146c0e26aabaa6ff3e5ea536a53f5254a79 upstream.
+[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
 
-Avoid the assumption that ksize(kmalloc(S)) == ksize(kmalloc(S)): when
-cloning an skb, save and restore truesize after pskb_expand_head(). This
-can occur if the allocator decides to service an allocation of the same
-size differently (e.g. use a different size class, or pass the
-allocation on to KFENCE).
+Avoid an underflow while calculating the number of inputs for entities
+with zero pads.
 
-Because truesize is used for bookkeeping (such as sk_wmem_queued), a
-modified truesize of a cloned skb may result in corrupt bookkeeping and
-relevant warnings (such as in sk_stream_kill_queues()).
-
-Link: https://lkml.kernel.org/r/X9JR/J6dMMOy1obu@elver.google.com
-Reported-by: syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Marco Elver <elver@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210201160420.2826895-1-elver@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2628,7 +2628,19 @@ EXPORT_SYMBOL(skb_split);
-  */
- static int skb_prepare_for_shift(struct sk_buff *skb)
- {
--	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-+	int ret = 0;
-+
-+	if (skb_cloned(skb)) {
-+		/* Save and restore truesize: pskb_expand_head() may reallocate
-+		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
-+		 * cannot change truesize at this point.
-+		 */
-+		unsigned int save_truesize = skb->truesize;
-+
-+		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-+		skb->truesize = save_truesize;
-+	}
-+	return ret;
- }
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 9803135f2e59..96e9c25926e1 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -869,7 +869,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 	unsigned int i;
  
- /**
+ 	extra_size = roundup(extra_size, sizeof(*entity->pads));
+-	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
++	if (num_pads)
++		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
++	else
++		num_inputs = 0;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
+ 	entity = kzalloc(size, GFP_KERNEL);
+@@ -885,7 +888,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 
+ 	for (i = 0; i < num_inputs; ++i)
+ 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
+-	if (!UVC_ENTITY_IS_OTERM(entity))
++	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
+ 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
+ 
+ 	entity->bNrInPins = num_inputs;
+-- 
+2.30.1
+
 
 
