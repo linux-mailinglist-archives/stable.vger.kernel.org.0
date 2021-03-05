@@ -2,155 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E75A532DF29
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 02:37:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05D9932DF3B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 02:49:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhCEBhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 20:37:35 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:13433 "EHLO
-        szxga06-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbhCEBhf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 20:37:35 -0500
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga06-in.huawei.com (SkyGuard) with ESMTP id 4Ds9LJ4wR4zjVb1;
-        Fri,  5 Mar 2021 09:36:08 +0800 (CST)
-Received: from [10.136.110.154] (10.136.110.154) by smtp.huawei.com
- (10.3.19.204) with Microsoft SMTP Server (TLS) id 14.3.498.0; Fri, 5 Mar 2021
- 09:37:27 +0800
-Subject: Re: [f2fs-dev] [PATCH 2/2] f2fs: fix error handling in
- f2fs_end_enable_verity()
-To:     Eric Biggers <ebiggers@kernel.org>, <linux-ext4@vger.kernel.org>,
-        <linux-f2fs-devel@lists.sourceforge.net>
-CC:     <linux-fscrypt@vger.kernel.org>, <stable@vger.kernel.org>
-References: <20210302200420.137977-1-ebiggers@kernel.org>
- <20210302200420.137977-3-ebiggers@kernel.org>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <9980e263-aa25-cf50-5a94-9f63a5ae667e@huawei.com>
-Date:   Fri, 5 Mar 2021 09:37:26 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S229500AbhCEBt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 20:49:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229436AbhCEBt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 4 Mar 2021 20:49:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90C896500C;
+        Fri,  5 Mar 2021 01:49:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1614908966;
+        bh=bzPBkcGBE+ojVBJFF9dsRIZwceAzEcsRQBFXrWNndxI=;
+        h=Date:From:To:Subject:From;
+        b=i0Eq3RYBAH6QlSisXJDceJYgF1GWVtf59xmATEfmBtHTS2L0x/fusPnevEvgpiNjs
+         pEWr8Lah4VlJ1peIgVfl/nJQIsML3GqXUkKhTwZepGx2CbxfIRBlkSYbSWrYFyeHD9
+         qS+wbuQjSe62w0MwLq/1oijXC65jYOylKoE8PcRM=
+Date:   Thu, 04 Mar 2021 17:49:24 -0800
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, luto@kernel.org, mike.kravetz@oracle.com,
+        minchan@kernel.org, mm-commits@vger.kernel.org, namit@vmware.com,
+        peterx@redhat.com, peterz@infradead.org, rppt@linux.vnet.ibm.com,
+        stable@vger.kernel.org, will@kernel.org, xemul@openvz.org,
+        yuzhao@google.com
+Subject:  +
+ mm-userfaultfd-fix-memory-corruption-due-to-writeprotect.patch added to -mm
+ tree
+Message-ID: <20210305014924.v3_zhhr2b%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-In-Reply-To: <20210302200420.137977-3-ebiggers@kernel.org>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.136.110.154]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/3/3 4:04, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> f2fs didn't properly clean up if verity failed to be enabled on a file:
-> 
-> - It left verity metadata (pages past EOF) in the page cache, which
->    would be exposed to userspace if the file was later extended.
-> 
-> - It didn't truncate the verity metadata at all (either from cache or
->    from disk) if an error occurred while setting the verity bit.
-> 
-> Fix these bugs by adding a call to truncate_inode_pages() and ensuring
-> that we truncate the verity metadata (both from cache and from disk) in
-> all error paths.  Also rework the code to cleanly separate the success
-> path from the error paths, which makes it much easier to understand.
-> 
-> Reported-by: Yunlei He <heyunlei@hihonor.com>
-> Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
-> Cc: <stable@vger.kernel.org> # v5.4+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->   fs/f2fs/verity.c | 61 ++++++++++++++++++++++++++++++++----------------
->   1 file changed, 41 insertions(+), 20 deletions(-)
-> 
-> diff --git a/fs/f2fs/verity.c b/fs/f2fs/verity.c
-> index 054ec852b5ea4..2db89967fde37 100644
-> --- a/fs/f2fs/verity.c
-> +++ b/fs/f2fs/verity.c
-> @@ -160,31 +160,52 @@ static int f2fs_end_enable_verity(struct file *filp, const void *desc,
->   	};
->   	int err = 0;
->   
-> -	if (desc != NULL) {
-> -		/* Succeeded; write the verity descriptor. */
-> -		err = pagecache_write(inode, desc, desc_size, desc_pos);
-> +	/*
-> +	 * If an error already occurred (which fs/verity/ signals by passing
-> +	 * desc == NULL), then only clean-up is needed.
-> +	 */
-> +	if (desc == NULL)
-> +		goto cleanup;
->   
-> -		/* Write all pages before clearing FI_VERITY_IN_PROGRESS. */
-> -		if (!err)
-> -			err = filemap_write_and_wait(inode->i_mapping);
-> -	}
-> +	/* Append the verity descriptor. */
-> +	err = pagecache_write(inode, desc, desc_size, desc_pos);
-> +	if (err)
-> +		goto cleanup;
->   
-> -	/* If we failed, truncate anything we wrote past i_size. */
-> -	if (desc == NULL || err)
-> -		f2fs_truncate(inode);
-> +	/*
-> +	 * Write all pages (both data and verity metadata).  Note that this must
-> +	 * happen before clearing FI_VERITY_IN_PROGRESS; otherwise pages beyond
-> +	 * i_size won't be written properly.  For crash consistency, this also
-> +	 * must happen before the verity inode flag gets persisted.
-> +	 */
-> +	err = filemap_write_and_wait(inode->i_mapping);
-> +	if (err)
-> +		goto cleanup;
-> +
-> +	/* Set the verity xattr. */
-> +	err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
-> +			    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
-> +			    NULL, XATTR_CREATE);
-> +	if (err)
-> +		goto cleanup;
-> +
-> +	/* Finally, set the verity inode flag. */
-> +	file_set_verity(inode);
-> +	f2fs_set_inode_flags(inode);
-> +	f2fs_mark_inode_dirty_sync(inode, true);
->   
->   	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-> +	return 0;
->   
-> -	if (desc != NULL && !err) {
-> -		err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
-> -				    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
-> -				    NULL, XATTR_CREATE);
-> -		if (!err) {
-> -			file_set_verity(inode);
-> -			f2fs_set_inode_flags(inode);
-> -			f2fs_mark_inode_dirty_sync(inode, true);
-> -		}
-> -	}
-> +cleanup:
-> +	/*
-> +	 * Verity failed to be enabled, so clean up by truncating any verity
-> +	 * metadata that was written beyond i_size (both from cache and from
-> +	 * disk) and clearing FI_VERITY_IN_PROGRESS.
-> +	 */
-> +	truncate_inode_pages(inode->i_mapping, inode->i_size);
-> +	f2fs_truncate(inode);
 
-Eric,
+The patch titled
+     Subject: mm/userfaultfd: fix memory corruption due to writeprotect
+has been added to the -mm tree.  Its filename is
+     mm-userfaultfd-fix-memory-corruption-due-to-writeprotect.patch
 
-Truncation can fail due to a lot of reasons, if we fail in f2fs_truncate(),
-do we need to at least print a message here? or it allows to keep those
-meta/data silently.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-userfaultfd-fix-memory-cor=
+ruption-due-to-writeprotect.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-userfaultfd-fix-memory-cor=
+ruption-due-to-writeprotect.patch
 
-One other concern is that how do you think of covering truncate_inode_pages &
-f2fs_truncate with F2FS_I(inode)->i_gc_rwsem[WRITE] lock to avoid racing with
-GC, so that page cache won't be revalidated after truncate_inode_pages().
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Thanks,
+*** Remember to use Documentation/process/submit-checklist.rst when testing=
+ your code ***
 
-> +	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS); >   	return err;
->   }
->   
-> 
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+=46rom: Nadav Amit <namit@vmware.com>
+Subject: mm/userfaultfd: fix memory corruption due to writeprotect
+
+Userfaultfd self-test fails occasionally, indicating a memory corruption.
+
+Analyzing this problem indicates that there is a real bug since mmap_lock
+is only taken for read in mwriteprotect_range() and defers flushes, and
+since there is insufficient consideration of concurrent deferred TLB
+flushes in wp_page_copy().  Although the PTE is flushed from the TLBs in
+wp_page_copy(), this flush takes place after the copy has already been
+performed, and therefore changes of the page are possible between the time
+of the copy and the time in which the PTE is flushed.
+
+To make matters worse, memory-unprotection using userfaultfd also poses a
+problem.  Although memory unprotection is logically a promotion of PTE
+permissions, and therefore should not require a TLB flush, the current
+userrfaultfd code might actually cause a demotion of the architectural PTE
+permission: when userfaultfd_writeprotect() unprotects memory region, it
+unintentionally *clears* the RW-bit if it was already set.  Note that this
+unprotecting a PTE that is not write-protected is a valid use-case: the
+userfaultfd monitor might ask to unprotect a region that holds both
+write-protected and write-unprotected PTEs.
+
+The scenario that happens in selftests/vm/userfaultfd is as follows:
+
+cpu0				cpu1			cpu2
+----				----			----
+							[ Writable PTE
+							  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-*unprotect* ]
+mwriteprotect_range()
+mmap_read_lock()
+change_protection()
+
+change_protection_range()
+...
+change_pte_range()
+[ *clear* =E2=80=9Cwrite=E2=80=9D-bit ]
+[ defer TLB flushes ]
+				[ page-fault ]
+				...
+				wp_page_copy()
+				 cow_user_page()
+				  [ copy page ]
+							[ write to old
+							  page ]
+				...
+				 set_pte_at_notify()
+
+A similar scenario can happen:
+
+cpu0		cpu1		cpu2		cpu3
+----		----		----		----
+						[ Writable PTE
+				  		  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-protect ]
+[ deferred TLB flush ]
+		userfaultfd_writeprotect()
+		[ write-unprotect ]
+		[ deferred TLB flush]
+				[ page-fault ]
+				wp_page_copy()
+				 cow_user_page()
+				 [ copy page ]
+				 ...		[ write to page ]
+				set_pte_at_notify()
+
+This race exists since commit 292924b26024 ("userfaultfd: wp: apply
+_PAGE_UFFD_WP bit").  Yet, as Yu Zhao pointed, these races became apparent
+since commit 09854ba94c6a ("mm: do_wp_page() simplification") which made
+wp_page_copy() more likely to take place, specifically if page_count(page)
+> 1.
+
+To resolve the aforementioned races, check whether there are pending
+flushes on uffd-write-protected VMAs, and if there are, perform a flush
+before doing the COW.
+
+Further optimizations will follow to avoid during uffd-write-unprotect
+unnecassary PTE write-protection and TLB flushes.
+
+Link: https://lkml.kernel.org/r/20210304095423.3825684-1-namit@vmware.com
+Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Suggested-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Tested-by: Peter Xu <peterx@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Pavel Emelyanov <xemul@openvz.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>	[5.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memory.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/mm/memory.c~mm-userfaultfd-fix-memory-corruption-due-to-writeprotect
++++ a/mm/memory.c
+@@ -3103,6 +3103,14 @@ static vm_fault_t do_wp_page(struct vm_f
+ 		return handle_userfault(vmf, VM_UFFD_WP);
+ 	}
+=20
++	/*
++	 * Userfaultfd write-protect can defer flushes. Ensure the TLB
++	 * is flushed in this case before copying.
++	 */
++	if (unlikely(userfaultfd_wp(vmf->vma) &&
++		     mm_tlb_flush_pending(vmf->vma->vm_mm)))
++		flush_tlb_page(vmf->vma, vmf->address);
++
+ 	vmf->page =3D vm_normal_page(vma, vmf->address, vmf->orig_pte);
+ 	if (!vmf->page) {
+ 		/*
+_
+
+Patches currently in -mm which might be from namit@vmware.com are
+
+mm-userfaultfd-fix-memory-corruption-due-to-writeprotect.patch
+
