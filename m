@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E68432EA11
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8AE32EA72
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231523AbhCEMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:36:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S233231AbhCEMil (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:38:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232140AbhCEMf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:35:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 638B56501A;
-        Fri,  5 Mar 2021 12:35:57 +0000 (UTC)
+        id S232984AbhCEMiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F40165004;
+        Fri,  5 Mar 2021 12:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947758;
-        bh=Ax2RWthM+dUYGnB/4pwieWTmDFhKHQGHHoOdPjPSxQA=;
+        s=korg; t=1614947884;
+        bh=Geub5W0qjDejt7n5V49PH7B06lWTQwWGnYyqByd3hrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDx37/jFho65FzI7IAdC3FirBYF3uNFtbrgmoh1/W7x0rvIMKtCh19ZdWJYdZ6KUb
-         MkYyvbx+s+Anu7Jx0by69oq+aLCCmTo88CWt2cRRgp1kdaCEtxChBLEMdL18Z83HPE
-         0Il+Ks1PEh3oyBsmdOb36yNvhIE3tocOR9ro5ymk=
+        b=QeS1Atm4ctU9JXxCRA3r6xFxTMJvh0OhRfXgwPhaP107P+QXuC7ok8b/2ET0QBb/A
+         TeqBSlcuYA+lGqnNVvGbHY5dILRobi6RdmHVTadwojp9ZpWcnbAhgcklsd00k5Aos0
+         xdvZDuyBTpnDBEtJ5ZrPMXtcTfonDfDMspfNwG6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 58/72] ASoC: Intel: bytcr_rt5640: Add quirk for the Voyo Winpad A15 tablet
+Subject: [PATCH 4.19 29/52] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
 Date:   Fri,  5 Mar 2021 13:22:00 +0100
-Message-Id: <20210305120900.184420643@linuxfoundation.org>
+Message-Id: <20210305120855.108407395@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Gopal Tiwari <gtiwari@redhat.com>
 
-[ Upstream commit e1317cc9ca4ac20262895fddb065ffda4fc29cfb ]
+[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
 
-The Voyo Winpad A15 tablet uses a Bay Trail (non CR) SoC, so it is using
-SSP2 (AIF1) and it mostly works with the defaults. But instead of using
-DMIC1 it is using an analog mic on IN1, add a quirk for this.
+kernel panic trace looks like:
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-3-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
+ #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
+    [exception RIP: amp_read_loc_assoc_final_data+63]
+    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
+    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
+    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
+    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
+    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
+ #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
+ #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
+
+hcon->amp_mgr seems NULL triggered kernel panic in following line inside
+function amp_read_loc_assoc_final_data
+
+        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
+
+Fixed by checking NULL for mgr.
+
+Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ net/bluetooth/amp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index cdbc00c77338..00e8d589a724 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -786,6 +786,20 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF2 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Voyo Winpad A15 */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS date */
-+			DMI_MATCH(DMI_BIOS_DATE, "11/20/2014"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* Catch-all for generic Insyde tablets, must be last */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
+diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
+index 78bec8df8525..72ef967c5663 100644
+--- a/net/bluetooth/amp.c
++++ b/net/bluetooth/amp.c
+@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
+ 	struct hci_request req;
+ 	int err;
+ 
++	if (!mgr)
++		return;
++
+ 	cp.phy_handle = hcon->handle;
+ 	cp.len_so_far = cpu_to_le16(0);
+ 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
 -- 
 2.30.1
 
