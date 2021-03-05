@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D1432EB2D
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90DC432EB31
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232861AbhCEMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232930AbhCEMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59036 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233811AbhCEMmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8281565027;
-        Fri,  5 Mar 2021 12:42:24 +0000 (UTC)
+        id S233847AbhCEMm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C016501C;
+        Fri,  5 Mar 2021 12:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948145;
-        bh=zOT+S/H4oozNXLzpUZ5/IC9GXWbWi8Ww7q0bS2tG8Fs=;
+        s=korg; t=1614948147;
+        bh=Mqw/Xi4CtknF9CnDt+xfZR2WJq/GQJJN7ERbesdt2Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDfPDPjVpZDg1YXlQmESgBrhu3rvbAoNIvFkIlfbN5gnnDKpLHAy5LShNfeBC85IX
-         r9VI1FKnQi7O7S+M1VSvcqJi1ulFPfL3+R13gRmWpSRscceUoV33AtDcOBuFyNHRko
-         2atgJ6w0dGTUlAfTGpwW7KjvSPbWDj0+Bmfa1e0U=
+        b=ZXCqQHN0OXVcNE9gnDUPRDG/b/dDYCgRTG7JU5xV1gb7PvM1mPfouGFP67nTjtwpf
+         fap4W+vaxvhs/EVvQA8bo1BchHH4L6L29xhGVb4E4QDjQRRq5Dvkcd2ZoNNHbc1HFT
+         ELUSOZzVOeYWTMjknfalkqkKTmnECBLMwexSR06w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Murray <andrew.murray@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 17/41] arm64: Use correct ll/sc atomic constraints
-Date:   Fri,  5 Mar 2021 13:22:24 +0100
-Message-Id: <20210305120852.144211256@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+36315852ece4132ec193@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        jfs-discussion@lists.sourceforge.net,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 4.9 18/41] JFS: more checks for invalid superblock
+Date:   Fri,  5 Mar 2021 13:22:25 +0100
+Message-Id: <20210305120852.182320874@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
 References: <20210305120851.255002428@linuxfoundation.org>
@@ -40,253 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Murray <andrew.murray@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 580fa1b874711d633f9b145b7777b0e83ebf3787 upstream.
+commit 3bef198f1b17d1bb89260bad947ef084c0a2d1a6 upstream.
 
-The A64 ISA accepts distinct (but overlapping) ranges of immediates for:
+syzbot is feeding invalid superblock data to JFS for mount testing.
+JFS does not check several of the fields -- just assumes that they
+are good since the JFS_MAGIC and version fields are good.
 
- * add arithmetic instructions ('I' machine constraint)
- * sub arithmetic instructions ('J' machine constraint)
- * 32-bit logical instructions ('K' machine constraint)
- * 64-bit logical instructions ('L' machine constraint)
+In this case (syzbot reproducer), we have s_l2bsize == 0xda0c,
+pad == 0xf045, and s_state == 0x50, all of which are invalid IMO.
+Having s_l2bsize == 0xda0c causes this UBSAN warning:
+  UBSAN: shift-out-of-bounds in fs/jfs/jfs_mount.c:373:25
+  shift exponent -9716 is negative
 
-... but we currently use the 'I' constraint for many atomic operations
-using sub or logical instructions, which is not always valid.
+s_l2bsize can be tested for correctness. pad can be tested for non-0
+and punted. s_state can be tested for its valid values and punted.
 
-When CONFIG_ARM64_LSE_ATOMICS is not set, this allows invalid immediates
-to be passed to instructions, potentially resulting in a build failure.
-When CONFIG_ARM64_LSE_ATOMICS is selected the out-of-line ll/sc atomics
-always use a register as they have no visibility of the value passed by
-the caller.
+Do those 3 tests and if any of them fails, report the superblock as
+invalid/corrupt and let fsck handle it.
 
-This patch adds a constraint parameter to the ATOMIC_xx and
-__CMPXCHG_CASE macros so that we can pass appropriate constraints for
-each case, with uses updated accordingly.
+With this patch, chkSuper() says this when JFS_DEBUG is enabled:
+  jfs_mount: Mount Failure: superblock is corrupt!
+  Mount JFS Failure: -22
+  jfs_mount failed w/return code = -22
 
-Unfortunately prior to GCC 8.1.0 the 'K' constraint erroneously accepted
-'4294967295', so we must instead force the use of a register.
+The obvious problem with this method is that next week there could
+be another syzbot test that uses different fields for invalid values,
+this making this like a game of whack-a-mole.
 
-Signed-off-by: Andrew Murray <andrew.murray@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+syzkaller link: https://syzkaller.appspot.com/bug?extid=36315852ece4132ec193
+
+Reported-by: syzbot+36315852ece4132ec193@syzkaller.appspotmail.com
+Reported-by: kernel test robot <lkp@intel.com> # v2
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Cc: jfs-discussion@lists.sourceforge.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h |   89 +++++++++++++++++-----------------
- 1 file changed, 47 insertions(+), 42 deletions(-)
+ fs/jfs/jfs_filsys.h |    1 +
+ fs/jfs/jfs_mount.c  |   10 ++++++++++
+ 2 files changed, 11 insertions(+)
 
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -37,7 +37,7 @@
-  * (the optimize attribute silently ignores these options).
-  */
+--- a/fs/jfs/jfs_filsys.h
++++ b/fs/jfs/jfs_filsys.h
+@@ -281,5 +281,6 @@
+ 				 * fsck() must be run to repair
+ 				 */
+ #define	FM_EXTENDFS 0x00000008	/* file system extendfs() in progress */
++#define	FM_STATE_MAX 0x0000000f	/* max value of s_state */
  
--#define ATOMIC_OP(op, asm_op)						\
-+#define ATOMIC_OP(op, asm_op, constraint)				\
- __LL_SC_INLINE void							\
- __LL_SC_PREFIX(atomic_##op(int i, atomic_t *v))				\
- {									\
-@@ -51,11 +51,11 @@ __LL_SC_PREFIX(atomic_##op(int i, atomic
- "	stxr	%w1, %w0, %2\n"						\
- "	cbnz	%w1, 1b"						\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i));							\
-+	: #constraint "r" (i));						\
- }									\
- __LL_SC_EXPORT(atomic_##op);
+ #endif				/* _H_JFS_FILSYS */
+--- a/fs/jfs/jfs_mount.c
++++ b/fs/jfs/jfs_mount.c
+@@ -49,6 +49,7 @@
  
--#define ATOMIC_OP_RETURN(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC_OP_RETURN(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE int							\
- __LL_SC_PREFIX(atomic_##op##_return##name(int i, atomic_t *v))		\
- {									\
-@@ -70,14 +70,14 @@ __LL_SC_PREFIX(atomic_##op##_return##nam
- "	cbnz	%w1, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
- }									\
- __LL_SC_EXPORT(atomic_##op##_return##name);
+ #include <linux/fs.h>
+ #include <linux/buffer_head.h>
++#include <linux/log2.h>
  
--#define ATOMIC_FETCH_OP(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)	\
- __LL_SC_INLINE int							\
- __LL_SC_PREFIX(atomic_fetch_##op##name(int i, atomic_t *v))		\
- {									\
-@@ -92,7 +92,7 @@ __LL_SC_PREFIX(atomic_fetch_##op##name(i
- "	cbnz	%w2, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
-@@ -110,8 +110,8 @@ __LL_SC_EXPORT(atomic_fetch_##op##name);
- 	ATOMIC_FETCH_OP (_acquire,        , a,  , "memory", __VA_ARGS__)\
- 	ATOMIC_FETCH_OP (_release,        ,  , l, "memory", __VA_ARGS__)
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+@@ -378,6 +379,15 @@ static int chkSuper(struct super_block *
+ 	sbi->bsize = bsize;
+ 	sbi->l2bsize = le16_to_cpu(j_sb->s_l2bsize);
  
--ATOMIC_OPS(add, add)
--ATOMIC_OPS(sub, sub)
-+ATOMIC_OPS(add, add, I)
-+ATOMIC_OPS(sub, sub, J)
- 
- #undef ATOMIC_OPS
- #define ATOMIC_OPS(...)							\
-@@ -121,17 +121,17 @@ ATOMIC_OPS(sub, sub)
- 	ATOMIC_FETCH_OP (_acquire,        , a,  , "memory", __VA_ARGS__)\
- 	ATOMIC_FETCH_OP (_release,        ,  , l, "memory", __VA_ARGS__)
- 
--ATOMIC_OPS(and, and)
--ATOMIC_OPS(andnot, bic)
--ATOMIC_OPS(or, orr)
--ATOMIC_OPS(xor, eor)
-+ATOMIC_OPS(and, and, )
-+ATOMIC_OPS(andnot, bic, )
-+ATOMIC_OPS(or, orr, )
-+ATOMIC_OPS(xor, eor, )
- 
- #undef ATOMIC_OPS
- #undef ATOMIC_FETCH_OP
- #undef ATOMIC_OP_RETURN
- #undef ATOMIC_OP
- 
--#define ATOMIC64_OP(op, asm_op)						\
-+#define ATOMIC64_OP(op, asm_op, constraint)				\
- __LL_SC_INLINE void							\
- __LL_SC_PREFIX(atomic64_##op(long i, atomic64_t *v))			\
- {									\
-@@ -145,11 +145,11 @@ __LL_SC_PREFIX(atomic64_##op(long i, ato
- "	stxr	%w1, %0, %2\n"						\
- "	cbnz	%w1, 1b"						\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i));							\
-+	: #constraint "r" (i));						\
- }									\
- __LL_SC_EXPORT(atomic64_##op);
- 
--#define ATOMIC64_OP_RETURN(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC64_OP_RETURN(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE long							\
- __LL_SC_PREFIX(atomic64_##op##_return##name(long i, atomic64_t *v))	\
- {									\
-@@ -164,14 +164,14 @@ __LL_SC_PREFIX(atomic64_##op##_return##n
- "	cbnz	%w1, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
- }									\
- __LL_SC_EXPORT(atomic64_##op##_return##name);
- 
--#define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op)		\
-+#define ATOMIC64_FETCH_OP(name, mb, acq, rel, cl, op, asm_op, constraint)\
- __LL_SC_INLINE long							\
- __LL_SC_PREFIX(atomic64_fetch_##op##name(long i, atomic64_t *v))	\
- {									\
-@@ -186,7 +186,7 @@ __LL_SC_PREFIX(atomic64_fetch_##op##name
- "	cbnz	%w2, 1b\n"						\
- "	" #mb								\
- 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
--	: "Ir" (i)							\
-+	: #constraint "r" (i)						\
- 	: cl);								\
- 									\
- 	return result;							\
-@@ -204,8 +204,8 @@ __LL_SC_EXPORT(atomic64_fetch_##op##name
- 	ATOMIC64_FETCH_OP (_acquire,, a,  , "memory", __VA_ARGS__)	\
- 	ATOMIC64_FETCH_OP (_release,,  , l, "memory", __VA_ARGS__)
- 
--ATOMIC64_OPS(add, add)
--ATOMIC64_OPS(sub, sub)
-+ATOMIC64_OPS(add, add, I)
-+ATOMIC64_OPS(sub, sub, J)
- 
- #undef ATOMIC64_OPS
- #define ATOMIC64_OPS(...)						\
-@@ -215,10 +215,10 @@ ATOMIC64_OPS(sub, sub)
- 	ATOMIC64_FETCH_OP (_acquire,, a,  , "memory", __VA_ARGS__)	\
- 	ATOMIC64_FETCH_OP (_release,,  , l, "memory", __VA_ARGS__)
- 
--ATOMIC64_OPS(and, and)
--ATOMIC64_OPS(andnot, bic)
--ATOMIC64_OPS(or, orr)
--ATOMIC64_OPS(xor, eor)
-+ATOMIC64_OPS(and, and, L)
-+ATOMIC64_OPS(andnot, bic, )
-+ATOMIC64_OPS(or, orr, L)
-+ATOMIC64_OPS(xor, eor, L)
- 
- #undef ATOMIC64_OPS
- #undef ATOMIC64_FETCH_OP
-@@ -248,7 +248,7 @@ __LL_SC_PREFIX(atomic64_dec_if_positive(
- }
- __LL_SC_EXPORT(atomic64_dec_if_positive);
- 
--#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl)		\
-+#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl, constraint)	\
- __LL_SC_INLINE u##sz							\
- __LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
- 					 unsigned long old,		\
-@@ -268,29 +268,34 @@ __LL_SC_PREFIX(__cmpxchg_case_##name##sz
- 	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
- 	  [v] "+Q" (*(u##sz *)ptr)					\
--	: [old] "Kr" (old), [new] "r" (new)				\
-+	: [old] #constraint "r" (old), [new] "r" (new)			\
- 	: cl);								\
- 									\
- 	return oldval;							\
- }									\
- __LL_SC_EXPORT(__cmpxchg_case_##name##sz);
- 
--__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         )
--__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         )
--__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         )
--__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         )
--__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory")
--__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory")
--__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory")
--__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory")
--__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory")
--__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory")
--__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory")
--__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory")
--__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory")
--__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory")
-+/*
-+ * Earlier versions of GCC (no later than 8.1.0) appear to incorrectly
-+ * handle the 'K' constraint for the value 4294967295 - thus we use no
-+ * constraint for 32 bit operations.
-+ */
-+__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         , )
-+__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         , )
-+__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         , )
-+__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         , L)
-+__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory", )
-+__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory", )
-+__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory", )
-+__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory", L)
-+__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory", )
-+__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory", )
-+__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory", )
-+__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory", L)
-+__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory", )
-+__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory", L)
- 
- #undef __CMPXCHG_CASE
- 
++	/* check some fields for possible corruption */
++	if (sbi->l2bsize != ilog2((u32)bsize) ||
++	    j_sb->pad != 0 ||
++	    le32_to_cpu(j_sb->s_state) > FM_STATE_MAX) {
++		rc = -EINVAL;
++		jfs_err("jfs_mount: Mount Failure: superblock is corrupt!");
++		goto out;
++	}
++
+ 	/*
+ 	 * For now, ignore s_pbsize, l2bfactor.  All I/O going through buffer
+ 	 * cache.
 
 
