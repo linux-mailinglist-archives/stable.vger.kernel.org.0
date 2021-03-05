@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E617632E8D6
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF3232E8D7
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232206AbhCEM3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37700 "EHLO mail.kernel.org"
+        id S232066AbhCEM3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:29:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232161AbhCEM2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:28:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 558E565019;
-        Fri,  5 Mar 2021 12:28:52 +0000 (UTC)
+        id S230423AbhCEM2z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:28:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0484665013;
+        Fri,  5 Mar 2021 12:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947332;
-        bh=r5Or3sSPn1sAAkBnRAzgQ0CZgdgJF/mMhso/6ru7Wi4=;
+        s=korg; t=1614947335;
+        bh=2Wgx6MVISznKDkpBBkDYzJNMeTM6PiEZhJpfXbZ2p9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZdIo6eSkdRrUsEYDvpmQnT0fD3DCcAEu0cQXu/fsPKZlDkhYScglvWrI351iBIbr
-         bhc37sJQ7F8EUdxGcB4cNOGRuANTaje6l0GGnKgdd+0KddZCgunRxyk8Y1Qk4m8IaI
-         C8NDWlAN7Osps76B4zAP1g9J2oMIo2rkU1PoBQVQ=
+        b=wR8wJv8YCiM0qqPcgSqlt8I5rEhfyODZvCYP2ANIWCM5v2Qiu3x5BF8S6QE4OWA9e
+         nwGYnudcK4vB9oorzTUetlkhLCOWx3RfqcqyV7q0VYjNdwWEa5CrNtUJLYqMDVmnLg
+         fXOUo7wubfQihY3ldzKZZmvmRGWGRlB4TwpJ5rSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 028/102] net: ag71xx: remove unnecessary MTU reservation
-Date:   Fri,  5 Mar 2021 13:20:47 +0100
-Message-Id: <20210305120904.664068855@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Wenzel <marco.wenzel@a-eberle.de>,
+        George McCollister <george.mccollister@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 029/102] net: hsr: add support for EntryForgetTime
+Date:   Fri,  5 Mar 2021 13:20:48 +0100
+Message-Id: <20210305120904.712123059@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
 References: <20210305120903.276489876@linuxfoundation.org>
@@ -40,43 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Marco Wenzel <marco.wenzel@a-eberle.de>
 
-commit 04b385f325080157ab1b5f8ce1b1de07ce0d9e27 upstream.
+commit f176411401127a07a9360dec14eca448eb2e9d45 upstream.
 
-2 bytes of the MTU are reserved for Atheros DSA tag, but DSA core
-has already handled that since commit dc0fe7d47f9f.
-Remove the unnecessary reservation.
+In IEC 62439-3 EntryForgetTime is defined with a value of 400 ms. When a
+node does not send any frame within this time, the sequence number check
+for can be ignored. This solves communication issues with Cisco IE 2000
+in Redbox mode.
 
-Fixes: d51b6ce441d3 ("net: ethernet: add ag71xx driver")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/r/20210218034514.3421-1-dqfext@gmail.com
+Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
+Signed-off-by: Marco Wenzel <marco.wenzel@a-eberle.de>
+Reviewed-by: George McCollister <george.mccollister@gmail.com>
+Tested-by: George McCollister <george.mccollister@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210224094653.1440-1-marco.wenzel@a-eberle.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/atheros/ag71xx.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/hsr/hsr_framereg.c |    9 +++++++--
+ net/hsr/hsr_framereg.h |    1 +
+ net/hsr/hsr_main.h     |    1 +
+ 3 files changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/atheros/ag71xx.c
-+++ b/drivers/net/ethernet/atheros/ag71xx.c
-@@ -223,8 +223,6 @@
- #define AG71XX_REG_RX_SM	0x01b0
- #define AG71XX_REG_TX_SM	0x01b4
+--- a/net/hsr/hsr_framereg.c
++++ b/net/hsr/hsr_framereg.c
+@@ -164,8 +164,10 @@ static struct hsr_node *hsr_add_node(str
+ 	 * as initialization. (0 could trigger an spurious ring error warning).
+ 	 */
+ 	now = jiffies;
+-	for (i = 0; i < HSR_PT_PORTS; i++)
++	for (i = 0; i < HSR_PT_PORTS; i++) {
+ 		new_node->time_in[i] = now;
++		new_node->time_out[i] = now;
++	}
+ 	for (i = 0; i < HSR_PT_PORTS; i++)
+ 		new_node->seq_out[i] = seq_out;
  
--#define ETH_SWITCH_HEADER_LEN	2
--
- #define AG71XX_DEFAULT_MSG_ENABLE	\
- 	(NETIF_MSG_DRV			\
- 	| NETIF_MSG_PROBE		\
-@@ -933,7 +931,7 @@ static void ag71xx_hw_setup(struct ag71x
- 
- static unsigned int ag71xx_max_frame_len(unsigned int mtu)
+@@ -411,9 +413,12 @@ void hsr_register_frame_in(struct hsr_no
+ int hsr_register_frame_out(struct hsr_port *port, struct hsr_node *node,
+ 			   u16 sequence_nr)
  {
--	return ETH_SWITCH_HEADER_LEN + ETH_HLEN + VLAN_HLEN + mtu + ETH_FCS_LEN;
-+	return ETH_HLEN + VLAN_HLEN + mtu + ETH_FCS_LEN;
- }
+-	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]))
++	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]) &&
++	    time_is_after_jiffies(node->time_out[port->type] +
++	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME)))
+ 		return 1;
  
- static void ag71xx_hw_set_macaddr(struct ag71xx *ag, unsigned char *mac)
++	node->time_out[port->type] = jiffies;
+ 	node->seq_out[port->type] = sequence_nr;
+ 	return 0;
+ }
+--- a/net/hsr/hsr_framereg.h
++++ b/net/hsr/hsr_framereg.h
+@@ -75,6 +75,7 @@ struct hsr_node {
+ 	enum hsr_port_type	addr_B_port;
+ 	unsigned long		time_in[HSR_PT_PORTS];
+ 	bool			time_in_stale[HSR_PT_PORTS];
++	unsigned long		time_out[HSR_PT_PORTS];
+ 	/* if the node is a SAN */
+ 	bool			san_a;
+ 	bool			san_b;
+--- a/net/hsr/hsr_main.h
++++ b/net/hsr/hsr_main.h
+@@ -21,6 +21,7 @@
+ #define HSR_LIFE_CHECK_INTERVAL		 2000 /* ms */
+ #define HSR_NODE_FORGET_TIME		60000 /* ms */
+ #define HSR_ANNOUNCE_INTERVAL		  100 /* ms */
++#define HSR_ENTRY_FORGET_TIME		  400 /* ms */
+ 
+ /* By how much may slave1 and slave2 timestamps of latest received frame from
+  * each node differ before we notify of communication problem?
 
 
