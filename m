@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49AA832E95A
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C2932E9D8
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231328AbhCEMcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:32:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41524 "EHLO mail.kernel.org"
+        id S231655AbhCEMfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:35:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231536AbhCEMbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 761DC65019;
-        Fri,  5 Mar 2021 12:31:48 +0000 (UTC)
+        id S232041AbhCEMeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:34:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1206565012;
+        Fri,  5 Mar 2021 12:34:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947509;
-        bh=u4UxzKrTS/EJHmrX4zpLAxRuLUbBygWE3VrBWoNeeOs=;
+        s=korg; t=1614947683;
+        bh=OwMQz5KXEvz6gkTdf5tY25ZgpaYcBxyyXegH2uE6mxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VYoFU8elcZwp1iSZrJwj9pq1WVFeqY6zAUu7d6hFD6X3pfMUCptD+AIggjqp3K+Xc
-         C5Ka9jQrsFpQaSVZ9bzdYfxaJmVhmnARlHykKyx99XxAhGNt2O7oWM0E+DXk8Efqdx
-         RyklH/k7kUmjvORM9jLLkTUAA8Ro3FKYmBoe2GDM=
+        b=DqAkIjTsGriKBX/VJIqFHoa/ua4yuiHJuM5I6lSAIof6YybJiMAv5JYkbvikfG7sY
+         qvDW6abnHYgV8rrUc8XABJWZpKAWeXeaSQETwxcb7WB7nERultK8guq6x/mHlBMIma
+         ryJGI2vQEH/E7HnlVedwJ7A+jtn+Hov8XTITFoCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rokudo Yan <wu-yan@tcl.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 089/102] zsmalloc: account the number of compacted pages correctly
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 46/72] media: uvcvideo: Allow entities with no pads
 Date:   Fri,  5 Mar 2021 13:21:48 +0100
-Message-Id: <20210305120907.657086016@linuxfoundation.org>
+Message-Id: <20210305120859.594718349@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,135 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rokudo Yan <wu-yan@tcl.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-commit 2395928158059b8f9858365fce7713ce7fef62e4 upstream.
+[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
 
-There exists multiple path may do zram compaction concurrently.
-1. auto-compaction triggered during memory reclaim
-2. userspace utils write zram<id>/compaction node
+Avoid an underflow while calculating the number of inputs for entities
+with zero pads.
 
-So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
-But pages_compacted is a per zsmalloc pool variable and modification
-of the variable is not serialized(through under class->lock).
-There are two issues here:
-1. the pages_compacted may not equal to total number of pages
-freed(due to concurrently add).
-2. zs_shrinker_scan may not return the correct number of pages
-freed(issued by current shrinker).
-
-The fix is simple:
-1. account the number of pages freed in zs_compact locally.
-2. use actomic variable pages_compacted to accumulate total number.
-
-Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
-Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
-Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/zram/zram_drv.c |    2 +-
- include/linux/zsmalloc.h      |    2 +-
- mm/zsmalloc.c                 |   17 +++++++++++------
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -1078,7 +1078,7 @@ static ssize_t mm_stat_show(struct devic
- 			zram->limit_pages << PAGE_SHIFT,
- 			max_used << PAGE_SHIFT,
- 			(u64)atomic64_read(&zram->stats.same_pages),
--			pool_stats.pages_compacted,
-+			atomic_long_read(&pool_stats.pages_compacted),
- 			(u64)atomic64_read(&zram->stats.huge_pages));
- 	up_read(&zram->init_lock);
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 99883550375e..40ca1d4e0348 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -967,7 +967,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 	unsigned int i;
  
---- a/include/linux/zsmalloc.h
-+++ b/include/linux/zsmalloc.h
-@@ -35,7 +35,7 @@ enum zs_mapmode {
+ 	extra_size = roundup(extra_size, sizeof(*entity->pads));
+-	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
++	if (num_pads)
++		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
++	else
++		num_inputs = 0;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
+ 	entity = kzalloc(size, GFP_KERNEL);
+@@ -983,7 +986,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
  
- struct zs_pool_stats {
- 	/* How many pages were migrated (freed) */
--	unsigned long pages_compacted;
-+	atomic_long_t pages_compacted;
- };
+ 	for (i = 0; i < num_inputs; ++i)
+ 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
+-	if (!UVC_ENTITY_IS_OTERM(entity))
++	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
+ 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
  
- struct zs_pool;
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -2216,11 +2216,13 @@ static unsigned long zs_can_compact(stru
- 	return obj_wasted * class->pages_per_zspage;
- }
- 
--static void __zs_compact(struct zs_pool *pool, struct size_class *class)
-+static unsigned long __zs_compact(struct zs_pool *pool,
-+				  struct size_class *class)
- {
- 	struct zs_compact_control cc;
- 	struct zspage *src_zspage;
- 	struct zspage *dst_zspage = NULL;
-+	unsigned long pages_freed = 0;
- 
- 	spin_lock(&class->lock);
- 	while ((src_zspage = isolate_zspage(class, true))) {
-@@ -2250,7 +2252,7 @@ static void __zs_compact(struct zs_pool
- 		putback_zspage(class, dst_zspage);
- 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
- 			free_zspage(pool, class, src_zspage);
--			pool->stats.pages_compacted += class->pages_per_zspage;
-+			pages_freed += class->pages_per_zspage;
- 		}
- 		spin_unlock(&class->lock);
- 		cond_resched();
-@@ -2261,12 +2263,15 @@ static void __zs_compact(struct zs_pool
- 		putback_zspage(class, src_zspage);
- 
- 	spin_unlock(&class->lock);
-+
-+	return pages_freed;
- }
- 
- unsigned long zs_compact(struct zs_pool *pool)
- {
- 	int i;
- 	struct size_class *class;
-+	unsigned long pages_freed = 0;
- 
- 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
- 		class = pool->size_class[i];
-@@ -2274,10 +2279,11 @@ unsigned long zs_compact(struct zs_pool
- 			continue;
- 		if (class->index != i)
- 			continue;
--		__zs_compact(pool, class);
-+		pages_freed += __zs_compact(pool, class);
- 	}
-+	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
- 
--	return pool->stats.pages_compacted;
-+	return pages_freed;
- }
- EXPORT_SYMBOL_GPL(zs_compact);
- 
-@@ -2294,13 +2300,12 @@ static unsigned long zs_shrinker_scan(st
- 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
- 			shrinker);
- 
--	pages_freed = pool->stats.pages_compacted;
- 	/*
- 	 * Compact classes and calculate compaction delta.
- 	 * Can run concurrently with a manually triggered
- 	 * (by user) compaction.
- 	 */
--	pages_freed = zs_compact(pool) - pages_freed;
-+	pages_freed = zs_compact(pool);
- 
- 	return pages_freed ? pages_freed : SHRINK_STOP;
- }
+ 	entity->bNrInPins = num_inputs;
+-- 
+2.30.1
+
 
 
