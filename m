@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A47E632EA61
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BEB32EA96
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232296AbhCEMiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50906 "EHLO mail.kernel.org"
+        id S232303AbhCEMjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:39:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231830AbhCEMhm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1861065038;
-        Fri,  5 Mar 2021 12:37:40 +0000 (UTC)
+        id S232966AbhCEMiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7096764EE8;
+        Fri,  5 Mar 2021 12:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947861;
-        bh=uHwE5b39BbQImqBuMWaHLjLW40f/QDURmD7jZWdCQWw=;
+        s=korg; t=1614947935;
+        bh=Mqw/Xi4CtknF9CnDt+xfZR2WJq/GQJJN7ERbesdt2Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UXFCmnloc4gKDOAh+I0l5vTkMmZxKzHhbzYWktcR1gRpqy9S7sCCPDbaJQ4pwfQq
-         KkSlgmPqRRNuBkiew1gIY3VXfmfKbA5+sFpnyA0J8FZgwqvd524J3HPHW9C5mT2DtG
-         LJh6ezJ7dDFjFxCwWVuyfzT9JSis7YmQvEExb8j8=
+        b=JxT1TYdKpitFWGB2iD1w90A0eJBqTxU5BPizGz5dujTcWSFqsad9veEKbbY1YDNeq
+         H19Q1PLn2WlH7x1HVSpwCTvZbkV4r7K3hqTQPgDiXJSpJ/tnO//6lyP4q5fPATNKuq
+         lp+eq1zrVWd05SJVkAGaPIKrWSBf2u+wiA7Q44bU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 39/52] ASoC: Intel: bytcr_rt5640: Add quirk for the Estar Beauty HD MID 7316R tablet
+        stable@vger.kernel.org,
+        syzbot+36315852ece4132ec193@syzkaller.appspotmail.com,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        jfs-discussion@lists.sourceforge.net,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 4.14 11/39] JFS: more checks for invalid superblock
 Date:   Fri,  5 Mar 2021 13:22:10 +0100
-Message-Id: <20210305120855.578708953@linuxfoundation.org>
+Message-Id: <20210305120852.329317492@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit bdea43fc0436c9e98fdfe151c2ed8a3fc7277404 ]
+commit 3bef198f1b17d1bb89260bad947ef084c0a2d1a6 upstream.
 
-The Estar Beauty HD MID 7316R tablet almost fully works with out default
-settings. The only problem is that it has only 1 speaker so any sounds
-only playing on the right channel get lost.
+syzbot is feeding invalid superblock data to JFS for mount testing.
+JFS does not check several of the fields -- just assumes that they
+are good since the JFS_MAGIC and version fields are good.
 
-Add a quirk for this model using the default settings + MONO_SPEAKER.
+In this case (syzbot reproducer), we have s_l2bsize == 0xda0c,
+pad == 0xf045, and s_state == 0x50, all of which are invalid IMO.
+Having s_l2bsize == 0xda0c causes this UBSAN warning:
+  UBSAN: shift-out-of-bounds in fs/jfs/jfs_mount.c:373:25
+  shift exponent -9716 is negative
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+s_l2bsize can be tested for correctness. pad can be tested for non-0
+and punted. s_state can be tested for its valid values and punted.
+
+Do those 3 tests and if any of them fails, report the superblock as
+invalid/corrupt and let fsck handle it.
+
+With this patch, chkSuper() says this when JFS_DEBUG is enabled:
+  jfs_mount: Mount Failure: superblock is corrupt!
+  Mount JFS Failure: -22
+  jfs_mount failed w/return code = -22
+
+The obvious problem with this method is that next week there could
+be another syzbot test that uses different fields for invalid values,
+this making this like a game of whack-a-mole.
+
+syzkaller link: https://syzkaller.appspot.com/bug?extid=36315852ece4132ec193
+
+Reported-by: syzbot+36315852ece4132ec193@syzkaller.appspotmail.com
+Reported-by: kernel test robot <lkp@intel.com> # v2
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Cc: jfs-discussion@lists.sourceforge.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/jfs/jfs_filsys.h |    1 +
+ fs/jfs/jfs_mount.c  |   10 ++++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index ec630127ef2f..4dd1941d4147 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -510,6 +510,16 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_MONO_SPEAKER |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Estar Beauty HD MID 7316R */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Estar"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
-+		},
-+		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
--- 
-2.30.1
-
+--- a/fs/jfs/jfs_filsys.h
++++ b/fs/jfs/jfs_filsys.h
+@@ -281,5 +281,6 @@
+ 				 * fsck() must be run to repair
+ 				 */
+ #define	FM_EXTENDFS 0x00000008	/* file system extendfs() in progress */
++#define	FM_STATE_MAX 0x0000000f	/* max value of s_state */
+ 
+ #endif				/* _H_JFS_FILSYS */
+--- a/fs/jfs/jfs_mount.c
++++ b/fs/jfs/jfs_mount.c
+@@ -49,6 +49,7 @@
+ 
+ #include <linux/fs.h>
+ #include <linux/buffer_head.h>
++#include <linux/log2.h>
+ 
+ #include "jfs_incore.h"
+ #include "jfs_filsys.h"
+@@ -378,6 +379,15 @@ static int chkSuper(struct super_block *
+ 	sbi->bsize = bsize;
+ 	sbi->l2bsize = le16_to_cpu(j_sb->s_l2bsize);
+ 
++	/* check some fields for possible corruption */
++	if (sbi->l2bsize != ilog2((u32)bsize) ||
++	    j_sb->pad != 0 ||
++	    le32_to_cpu(j_sb->s_state) > FM_STATE_MAX) {
++		rc = -EINVAL;
++		jfs_err("jfs_mount: Mount Failure: superblock is corrupt!");
++		goto out;
++	}
++
+ 	/*
+ 	 * For now, ignore s_pbsize, l2bfactor.  All I/O going through buffer
+ 	 * cache.
 
 
