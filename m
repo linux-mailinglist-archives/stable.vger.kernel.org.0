@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD5332E7F3
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F225332E7F2
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230139AbhCEMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:24:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58396 "EHLO mail.kernel.org"
+        id S230141AbhCEMYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:24:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229821AbhCEMXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:23:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B99DF6501B;
-        Fri,  5 Mar 2021 12:23:44 +0000 (UTC)
+        id S230056AbhCEMXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:23:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BAD86501C;
+        Fri,  5 Mar 2021 12:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947025;
-        bh=IXzLBCFB2AYjJQlwuZLT0fAW5nLd77effTLzpiRFvmg=;
+        s=korg; t=1614947028;
+        bh=r91vrIHAOPXRQ7PwOt/z6P6t4QK02lvrk+2C2Rg0RrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0LfLUSYnrLRFN5LUQp2IoDBjVY0kwxqT0TCaOCQQM8J0wTNPNsehsAwuN1PWCY8T
-         0TWv3ZVkRa3sJs01rr2ICJOBxRpjgbZsNeRg/zox3CD2QDIe0YXnb3LVArgMkV9RGd
-         TMSPhYQ4X3WQDDtvZdcBpMZyKXOyEJq4IyOzGNks=
+        b=AUGIwPgWCpGcwFQhSh96mMf1Z9/kY7UHs/aNgHhn2V4KJNjPNxi6SN8l6R87C/BId
+         pOnKRJ9k/0fceNIYZDpoaQ0dxV2rvhM8EwSdA3DkM4VrnypEMRwe0ENakFr5IfMsjZ
+         QHW/rLEyll4Mr3aX4SZ+L1PQwv1P5RZMtP2vEroQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Alex Williamson <alex.williamson@redhat.com>
-Subject: [PATCH 5.11 020/104] vfio/type1: Use follow_pte()
-Date:   Fri,  5 Mar 2021 13:20:25 +0100
-Message-Id: <20210305120904.167246416@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.11 021/104] RDMA/rtrs: Do not signal for heatbeat
+Date:   Fri,  5 Mar 2021 13:20:26 +0100
+Message-Id: <20210305120904.216744765@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -41,65 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-commit 07956b6269d3ed05d854233d5bb776dca91751dd upstream.
+commit b38041d50add1c881fbc60eb2be93b58fc58ea21 upstream.
 
-follow_pfn() doesn't make sure that we're using the correct page
-protections, get the pte with follow_pte() so that we can test
-protections and get the pfn from the pte.
+For HB, there is no need to generate signal for completion.
 
-Fixes: 5cbf3264bc71 ("vfio/type1: Fix VA->PA translation for PFNMAP VMAs in vaddr_get_pfn()")
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Also remove a comment accordingly.
+
+Fixes: c0894b3ea69d ("RDMA/rtrs: core: lib functions shared between client and server modules")
+Link: https://lore.kernel.org/r/20201217141915.56989-16-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reported-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/vfio_iommu_type1.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c |    1 -
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c |    1 -
+ drivers/infiniband/ulp/rtrs/rtrs.c     |    4 ++--
+ 3 files changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/vfio/vfio_iommu_type1.c
-+++ b/drivers/vfio/vfio_iommu_type1.c
-@@ -24,6 +24,7 @@
- #include <linux/compat.h>
- #include <linux/device.h>
- #include <linux/fs.h>
-+#include <linux/highmem.h>
- #include <linux/iommu.h>
- #include <linux/module.h>
- #include <linux/mm.h>
-@@ -431,9 +432,11 @@ static int follow_fault_pfn(struct vm_ar
- 			    unsigned long vaddr, unsigned long *pfn,
- 			    bool write_fault)
- {
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	int ret;
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -666,7 +666,6 @@ static void rtrs_clt_rdma_done(struct ib
+ 	case IB_WC_RDMA_WRITE:
+ 		/*
+ 		 * post_send() RDMA write completions of IO reqs (read/write)
+-		 * and hb
+ 		 */
+ 		break;
  
--	ret = follow_pfn(vma, vaddr, pfn);
-+	ret = follow_pte(vma->vm_mm, vaddr, &ptep, &ptl);
- 	if (ret) {
- 		bool unlocked = false;
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -1244,7 +1244,6 @@ static void rtrs_srv_rdma_done(struct ib
+ 	case IB_WC_SEND:
+ 		/*
+ 		 * post_send() RDMA write completions of IO reqs (read/write)
+-		 * and hb
+ 		 */
+ 		atomic_add(srv->queue_depth, &con->sq_wr_avail);
  
-@@ -447,9 +450,17 @@ static int follow_fault_pfn(struct vm_ar
- 		if (ret)
- 			return ret;
+--- a/drivers/infiniband/ulp/rtrs/rtrs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs.c
+@@ -310,7 +310,7 @@ void rtrs_send_hb_ack(struct rtrs_sess *
  
--		ret = follow_pfn(vma, vaddr, pfn);
-+		ret = follow_pte(vma->vm_mm, vaddr, &ptep, &ptl);
-+		if (ret)
-+			return ret;
+ 	imm = rtrs_to_imm(RTRS_HB_ACK_IMM, 0);
+ 	err = rtrs_post_rdma_write_imm_empty(usr_con, sess->hb_cqe, imm,
+-					      IB_SEND_SIGNALED, NULL);
++					     0, NULL);
+ 	if (err) {
+ 		sess->hb_err_handler(usr_con);
+ 		return;
+@@ -339,7 +339,7 @@ static void hb_work(struct work_struct *
  	}
- 
-+	if (write_fault && !pte_write(*ptep))
-+		ret = -EFAULT;
-+	else
-+		*pfn = pte_pfn(*ptep);
-+
-+	pte_unmap_unlock(ptep, ptl);
- 	return ret;
- }
- 
+ 	imm = rtrs_to_imm(RTRS_HB_MSG_IMM, 0);
+ 	err = rtrs_post_rdma_write_imm_empty(usr_con, sess->hb_cqe, imm,
+-					      IB_SEND_SIGNALED, NULL);
++					     0, NULL);
+ 	if (err) {
+ 		sess->hb_err_handler(usr_con);
+ 		return;
 
 
