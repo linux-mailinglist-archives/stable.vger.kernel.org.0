@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA0032E82A
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4339432E8ED
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbhCEMZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:25:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60044 "EHLO mail.kernel.org"
+        id S232026AbhCEM3e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:29:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231223AbhCEMZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:25:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CD2865028;
-        Fri,  5 Mar 2021 12:25:03 +0000 (UTC)
+        id S230471AbhCEM3P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 666A76502E;
+        Fri,  5 Mar 2021 12:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947104;
-        bh=jtmvNCMSLiFnha0mvyrxJiLQ8NGGtkXO/CgxslNA8RA=;
+        s=korg; t=1614947355;
+        bh=Q9sqOn5SFdE7TY4jACsKI5QfiMy8+Bl0jgzQDcuKQIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gOeZsB908zXygmIkDaWm8glR9HJT6llyCfNyT42wReiz7rOxez3h48YyYJVsxt2tf
-         gMDJ35CixZK7qkMTWQixWSvcsPCdeXRhd5sqns6WXxYfvfL4Nt+IJd/V6r/pSCh3Ue
-         hwh+R1Kt3oZqL62DjwdhxhEzvUZ6sGLVeEIrRgS4=
+        b=Ckg3OTFYFRglEYmhrcTYQFiKtvvBGnS6Kv5/xN0ZucsrWAjyAfp1jxg36Vy2wn+HE
+         xaRAWdsrfZOEABzZ8tAlaCkXIVyFate/Hg7kzdz70c8jvF2+95O70CwF1f/wu4f7YJ
+         ETk+tEO+PodLsVHZda7KcXn4o1u1DsWQw4ioLfps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Di Zhu <zhudi21@huawei.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S. Miller" <davem@davemloft.net>,
         Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Martin Kepplinger <martink@posteo.de>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Siva Rebbagondla <siva8118@gmail.com>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 049/104] pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+Subject: [PATCH 5.10 035/102] rsi: Fix TX EAPOL packet handling against iwlwifi AP
 Date:   Fri,  5 Mar 2021 13:20:54 +0100
-Message-Id: <20210305120905.572460103@linuxfoundation.org>
+Message-Id: <20210305120905.012086821@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +48,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Di Zhu <zhudi21@huawei.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 275b1e88cabb34dbcbe99756b67e9939d34a99b6 ]
+[ Upstream commit 65277100caa2f2c62b6f3c4648b90d6f0435f3bc ]
 
-pktgen create threads for all online cpus and bond these threads to
-relevant cpu repecivtily. when this thread firstly be woken up, it
-will compare cpu currently running with the cpu specified at the time
-of creation and if the two cpus are not equal, BUG_ON() will take effect
-causing panic on the system.
-Notice that these threads could be migrated to other cpus before start
-running because of the cpu hotplug after these threads have created. so the
-BUG_ON() used here seems unreasonable and we can replace it with WARN_ON()
-to just printf a warning other than panic the system.
+In case RSI9116 SDIO WiFi operates in STA mode against Intel 9260 in AP mode,
+the association fails. The former is using wpa_supplicant during association,
+the later is set up using hostapd:
 
-Signed-off-by: Di Zhu <zhudi21@huawei.com>
-Link: https://lore.kernel.org/r/20210125124229.19334-1-zhudi21@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+iwl$ cat hostapd.conf
+interface=wlp1s0
+ssid=test
+country_code=DE
+hw_mode=g
+channel=1
+wpa=2
+wpa_passphrase=test
+wpa_key_mgmt=WPA-PSK
+iwl$ hostapd -d hostapd.conf
+
+rsi$ wpa_supplicant -i wlan0 -c <(wpa_passphrase test test)
+
+The problem is that the TX EAPOL data descriptor RSI_DESC_REQUIRE_CFM_TO_HOST
+flag and extended descriptor EAPOL4_CONFIRM frame type are not set in case the
+AP is iwlwifi, because in that case the TX EAPOL packet is 2 bytes shorter.
+
+The downstream vendor driver has this change in place already [1], however
+there is no explanation for it, neither is there any commit history from which
+such explanation could be obtained.
+
+[1] https://github.com/SiliconLabs/RS911X-nLink-OSD/blob/master/rsi/rsi_91x_hal.c#L238
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Angus Ainslie <angus@akkea.ca>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Lee Jones <lee.jones@linaro.org>
+Cc: Martin Kepplinger <martink@posteo.de>
+Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Cc: Siva Rebbagondla <siva8118@gmail.com>
+Cc: linux-wireless@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201015111616.429220-1-marex@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/pktgen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index 105978604ffd..3fba429f1f57 100644
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3464,7 +3464,7 @@ static int pktgen_thread_worker(void *arg)
- 	struct pktgen_dev *pkt_dev = NULL;
- 	int cpu = t->cpu;
- 
--	BUG_ON(smp_processor_id() != cpu);
-+	WARN_ON(smp_processor_id() != cpu);
- 
- 	init_waitqueue_head(&t->queue);
- 	complete(&t->start_done);
+diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
+index 3f7e3cfb6f00..ce9892152f4d 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -248,7 +248,8 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
+ 			rsi_set_len_qno(&data_desc->len_qno,
+ 					(skb->len - FRAME_DESC_SZ),
+ 					RSI_WIFI_MGMT_Q);
+-		if ((skb->len - header_size) == EAPOL4_PACKET_LEN) {
++		if (((skb->len - header_size) == EAPOL4_PACKET_LEN) ||
++		    ((skb->len - header_size) == EAPOL4_PACKET_LEN - 2)) {
+ 			data_desc->misc_flags |=
+ 				RSI_DESC_REQUIRE_CFM_TO_HOST;
+ 			xtend_desc->confirm_frame_type = EAPOL4_CONFIRM;
 -- 
 2.30.1
 
