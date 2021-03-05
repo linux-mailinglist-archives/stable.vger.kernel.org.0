@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C0932EB2E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 809BA32EA79
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbhCEMmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:42:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
+        id S232814AbhCEMip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:38:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233749AbhCEMmW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63C2765027;
-        Fri,  5 Mar 2021 12:42:21 +0000 (UTC)
+        id S233017AbhCEMi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13AA765012;
+        Fri,  5 Mar 2021 12:38:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948142;
-        bh=tmbZ0ujeLAKfplvADqenZ3g25Ac5KzfRJiS9W3Sutrs=;
+        s=korg; t=1614947901;
+        bh=rOUtgUTjiS8Cpv8w/97/J1aK1y3RYe0MItjlEuFg7nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUNnKkNuZtGTQOlePmjVNDD6sxY49z6ROgaO0hJzJTJzwg4SQYPt7p7a77Q7JNpLQ
-         nTYr/AlFHsRUlLVfJKEnBOXvRu51fg2hc5cqt/pIoWAdSaCYJpqpr1A1w2dPsOAfgl
-         8Rspr7FGlgg8lWScCkKTMp1qPvsJ1ok9kmimeKNY=
+        b=0Dm/XphUhAWqUDmfFuqlEC+b/Nodh0eA84YyjWveJmt4XhCpQKRwcMlVEVlsaVIxr
+         AxsGWa0WVKevF/bPwBD2XN/DPuk9yIodywQwVUOEeMyxMOxRAHFMtB7O3fyMatuxw1
+         HIaj7Zo9pnJaRskC7DINCalylM6bnGGuu53zUL88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 16/41] arm64: cmpxchg: Use "K" instead of "L" for ll/sc immediate constraint
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 52/52] ALSA: hda/realtek: Apply dual codec quirks for MSI Godlike X570 board
 Date:   Fri,  5 Mar 2021 13:22:23 +0100
-Message-Id: <20210305120852.094424092@linuxfoundation.org>
+Message-Id: <20210305120856.202776778@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +38,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4230509978f2921182da4e9197964dccdbe463c3 upstream.
+commit 26af17722a07597d3e556eda92c6fce8d528bc9f upstream.
 
-The "L" AArch64 machine constraint, which we use for the "old" value in
-an LL/SC cmpxchg(), generates an immediate that is suitable for a 64-bit
-logical instruction. However, for cmpxchg() operations on types smaller
-than 64 bits, this constraint can result in an invalid instruction which
-is correctly rejected by GAS, such as EOR W1, W1, #0xffffffff.
+There is another MSI board (1462:cc34) that has dual Realtek codecs,
+and we need to apply the existing quirk for fixing the conflicts of
+Master control.
 
-Whilst we could special-case the constraint based on the cmpxchg size,
-it's far easier to change the constraint to "K" and put up with using
-a register for large 64-bit immediates. For out-of-line LL/SC atomics,
-this is all moot anyway.
-
-Reported-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211743
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210303142346.28182-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -268,7 +268,7 @@ __LL_SC_PREFIX(__cmpxchg_case_##name##sz
- 	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
- 	  [v] "+Q" (*(u##sz *)ptr)					\
--	: [old] "Lr" (old), [new] "r" (new)				\
-+	: [old] "Kr" (old), [new] "r" (new)				\
- 	: cl);								\
- 									\
- 	return oldval;							\
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2507,6 +2507,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x1462, 0x1276, "MSI-GL73", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1293, "MSI-GP65", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x7350, "MSI-7350", ALC889_FIXUP_CD),
++	SND_PCI_QUIRK(0x1462, 0xcc34, "MSI Godlike X570", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK(0x1462, 0xda57, "MSI Z270-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+ 	SND_PCI_QUIRK_VENDOR(0x1462, "MSI", ALC882_FIXUP_GPIO3),
+ 	SND_PCI_QUIRK(0x147b, 0x107a, "Abit AW9D-MAX", ALC882_FIXUP_ABIT_AW9D_MAX),
 
 
