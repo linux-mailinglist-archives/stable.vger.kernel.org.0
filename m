@@ -2,76 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D5532E40C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 09:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC7332E421
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 10:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbhCEI6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 03:58:05 -0500
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:56360 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229493AbhCEI5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 03:57:48 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R241e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UQXTKE3_1614934655;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQXTKE3_1614934655)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 05 Mar 2021 16:57:36 +0800
-Subject: Re: [PATCH 5.4.y 2/4] dm table: fix partial completion
- iterate_devices based device capability checks
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     sashal@kernel.org, stable@vger.kernel.org, snitzer@redhat.com
-References: <161460625264244@kroah.com>
- <20210305065722.73504-1-jefflexu@linux.alibaba.com>
- <20210305065722.73504-3-jefflexu@linux.alibaba.com>
- <YEHve5QkPuimNnnY@kroah.com>
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <641a897a-d860-9de0-7d67-a1546a449ea2@linux.alibaba.com>
-Date:   Fri, 5 Mar 2021 16:57:35 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
+        id S229494AbhCEJDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 04:03:30 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:44130 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S229674AbhCEJDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 04:03:20 -0500
+X-UUID: a1e477d3cc52436eaddd3ad09e6bf530-20210305
+X-UUID: a1e477d3cc52436eaddd3ad09e6bf530-20210305
+Received: from mtkmrs01.mediatek.inc [(172.21.131.159)] by mailgw02.mediatek.com
+        (envelope-from <chunfeng.yun@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 322041104; Fri, 05 Mar 2021 17:03:16 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 5 Mar 2021 17:03:14 +0800
+Received: from localhost.localdomain (10.17.3.153) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Fri, 5 Mar 2021 17:03:13 +0800
+From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
+To:     Mathias Nyman <mathias.nyman@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ikjoon Jang <ikjn@chromium.org>
+CC:     Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        Nicolas Boichat <drinkcat@chromium.org>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH 01/17] usb: xhci-mtk: remove or operator for setting schedule parameters
+Date:   Fri, 5 Mar 2021 17:02:39 +0800
+Message-ID: <1614934975-15188-1-git-send-email-chunfeng.yun@mediatek.com>
+X-Mailer: git-send-email 1.8.1.1.dirty
 MIME-Version: 1.0
-In-Reply-To: <YEHve5QkPuimNnnY@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Side effect may happen if use or operator to set schedule parameters
+when the parameters are already set before. Set them directly due to
+other bits are reserved.
 
+Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+---
+ drivers/usb/host/xhci-mtk-sch.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-On 3/5/21 4:44 PM, Greg KH wrote:
-> On Fri, Mar 05, 2021 at 02:57:20PM +0800, Jeffle Xu wrote:
->> Similar to commit a4c8dd9c2d09 ("dm table: fix iterate_devices based
->> device capability checks"), fix partial completion capability check and
->> invert logic of the corresponding iterate_devices_callout_fn so that all
->> devices' partial completion capabilities are properly checked.
->>
->> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
->> Fixes: 22c11858e800 ("dm: introduce DM_TYPE_NVME_BIO_BASED")
->> ---
->>  drivers/md/dm-table.c | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> Why isn't this a commit in Linus's tree?  That needs to be really really
-> explicitly documented here.
-
-
-Sorry, as I stated in the reply in the patch set for 4.19. (The replying
-mail doesn't appear in the archive yet, so I just copy the content here
-in the quotation format.)
-
-> Similarly, the code this patch fixes, i.e., commit 22c11858e800 ("dm:
-> introduce DM_TYPE_NVME_BIO_BASED"), was removed since commit
-> 9c37de297f65 ("dm: remove special-casing of bio-based immutable
-> singleton target on NVMe") in v5.10. Thus the code base doesn't exist in
-> the latest master branch.
-> 
-> It needs Mike's review.
-
-
-I could update the commit log and document all the information once Mike
-has reviewed.
-
+diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
+index b45e5bf08997..5891f56c64da 100644
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -643,7 +643,7 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
+ 		 */
+ 		if (usb_endpoint_xfer_int(&ep->desc)
+ 			|| usb_endpoint_xfer_isoc(&ep->desc))
+-			ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(1));
++			ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(1));
+ 
+ 		return 0;
+ 	}
+@@ -730,10 +730,10 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
+ 		list_move_tail(&sch_ep->endpoint, &sch_bw->bw_ep_list);
+ 
+ 		ep_ctx = xhci_get_ep_ctx(xhci, virt_dev->in_ctx, ep_index);
+-		ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(sch_ep->pkts)
++		ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(sch_ep->pkts)
+ 			| EP_BCSCOUNT(sch_ep->cs_count)
+ 			| EP_BBM(sch_ep->burst_mode));
+-		ep_ctx->reserved[1] |= cpu_to_le32(EP_BOFFSET(sch_ep->offset)
++		ep_ctx->reserved[1] = cpu_to_le32(EP_BOFFSET(sch_ep->offset)
+ 			| EP_BREPEAT(sch_ep->repeat));
+ 
+ 		xhci_dbg(xhci, " PKTS:%x, CSCOUNT:%x, BM:%x, OFFSET:%x, REPEAT:%x\n",
 -- 
-Thanks,
-Jeffle
+2.18.0
+
