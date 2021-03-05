@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E4432E8BA
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A157532E7F6
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbhCEM2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:28:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
+        id S230148AbhCEMYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:24:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230103AbhCEM2Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:28:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 457CA65029;
-        Fri,  5 Mar 2021 12:28:15 +0000 (UTC)
+        id S230093AbhCEMXv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:23:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73F0C6501D;
+        Fri,  5 Mar 2021 12:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947295;
-        bh=k8BsZv2zno64yzLzXPHU1zWaPP53ccpR7s6u5gGTgmY=;
+        s=korg; t=1614947031;
+        bh=RR7y0Q/mJCGnD0prJqvYuzSeG71pB4Q9qEcVBC43ACE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qr6uM72pGY7RcOc36LKiK2sry1zXwmTAj4lFsTUIdGh3uHQXREPcwZEhv9gjM+TTa
-         U5pN4Z0jrOkb9UUtSFOnthch2YseO2BG4UKgqnl9k+kXjHmwqwMDdQHkvV5zn9Lajv
-         2EuX8PIlY0Qo3CwvXt1gEPNSRvo94v+BaKjgYEoY=
+        b=ltZu1Fw/nidHnZy4OVhEuO6XLThpJD6cM6N9/RJvbi8uHq6a5IHSfyaje5krd7elm
+         exQQvXIlXOC01SmT1b83r8mSGoUKeL5dUie8IO6v+JrPTGoGb3aenhDRWdUHIXy743
+         jY8xUaeAg1STv7iAN2zQsZ+WPeug7Hb5CMTwUy78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 007/102] sched/core: Allow try_invoke_on_locked_down_task() with irqs disabled
-Date:   Fri,  5 Mar 2021 13:20:26 +0100
-Message-Id: <20210305120903.634486096@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.11 022/104] RDMA/rtrs-clt: Use bitmask to check sess->flags
+Date:   Fri,  5 Mar 2021 13:20:27 +0100
+Message-Id: <20210305120904.268254242@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
+References: <20210305120903.166929741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-commit 1b7af295541d75535374325fd617944534853919 upstream.
+commit aaed465f761700dace9ab39521013cddaae4f5a3 upstream.
 
-The try_invoke_on_locked_down_task() function currently requires
-that interrupts be enabled, but it is called with interrupts
-disabled from rcu_print_task_stall(), resulting in an "IRQs not
-enabled as expected" diagnostic.  This commit therefore updates
-try_invoke_on_locked_down_task() to use raw_spin_lock_irqsave() instead
-of raw_spin_lock_irq(), thus allowing use from either context.
+We may want to add new flags, so it's better to use bitmask to check flags.
 
-Link: https://lore.kernel.org/lkml/000000000000903d5805ab908fc4@google.com/
-Link: https://lore.kernel.org/lkml/20200928075729.GC2611@hirez.programming.kicks-ass.net/
-Reported-by: syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 6a98d71daea1 ("RDMA/rtrs: client: main functionality")
+Link: https://lore.kernel.org/r/20201217141915.56989-17-jinpu.wang@cloud.ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2989,7 +2989,7 @@ out:
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -496,7 +496,7 @@ static void rtrs_clt_recv_done(struct rt
+ 	int err;
+ 	struct rtrs_clt_sess *sess = to_clt_sess(con->c.sess);
  
- /**
-  * try_invoke_on_locked_down_task - Invoke a function on task in fixed state
-- * @p: Process for which the function is to be invoked.
-+ * @p: Process for which the function is to be invoked, can be @current.
-  * @func: Function to invoke.
-  * @arg: Argument to function.
-  *
-@@ -3007,12 +3007,11 @@ out:
-  */
- bool try_invoke_on_locked_down_task(struct task_struct *p, bool (*func)(struct task_struct *t, void *arg), void *arg)
- {
--	bool ret = false;
- 	struct rq_flags rf;
-+	bool ret = false;
- 	struct rq *rq;
+-	WARN_ON(sess->flags != RTRS_MSG_NEW_RKEY_F);
++	WARN_ON((sess->flags & RTRS_MSG_NEW_RKEY_F) == 0);
+ 	iu = container_of(wc->wr_cqe, struct rtrs_iu,
+ 			  cqe);
+ 	err = rtrs_iu_post_recv(&con->c, iu);
+@@ -516,7 +516,7 @@ static void rtrs_clt_rkey_rsp_done(struc
+ 	u32 buf_id;
+ 	int err;
  
--	lockdep_assert_irqs_enabled();
--	raw_spin_lock_irq(&p->pi_lock);
-+	raw_spin_lock_irqsave(&p->pi_lock, rf.flags);
- 	if (p->on_rq) {
- 		rq = __task_rq_lock(p, &rf);
- 		if (task_rq(p) == rq)
-@@ -3029,7 +3028,7 @@ bool try_invoke_on_locked_down_task(stru
- 				ret = func(p, arg);
- 		}
+-	WARN_ON(sess->flags != RTRS_MSG_NEW_RKEY_F);
++	WARN_ON((sess->flags & RTRS_MSG_NEW_RKEY_F) == 0);
+ 
+ 	iu = container_of(wc->wr_cqe, struct rtrs_iu, cqe);
+ 
+@@ -623,12 +623,12 @@ static void rtrs_clt_rdma_done(struct ib
+ 		} else if (imm_type == RTRS_HB_MSG_IMM) {
+ 			WARN_ON(con->c.cid);
+ 			rtrs_send_hb_ack(&sess->s);
+-			if (sess->flags == RTRS_MSG_NEW_RKEY_F)
++			if (sess->flags & RTRS_MSG_NEW_RKEY_F)
+ 				return  rtrs_clt_recv_done(con, wc);
+ 		} else if (imm_type == RTRS_HB_ACK_IMM) {
+ 			WARN_ON(con->c.cid);
+ 			sess->s.hb_missed_cnt = 0;
+-			if (sess->flags == RTRS_MSG_NEW_RKEY_F)
++			if (sess->flags & RTRS_MSG_NEW_RKEY_F)
+ 				return  rtrs_clt_recv_done(con, wc);
+ 		} else {
+ 			rtrs_wrn(con->c.sess, "Unknown IMM type %u\n",
+@@ -656,7 +656,7 @@ static void rtrs_clt_rdma_done(struct ib
+ 		WARN_ON(!(wc->wc_flags & IB_WC_WITH_INVALIDATE ||
+ 			  wc->wc_flags & IB_WC_WITH_IMM));
+ 		WARN_ON(wc->wr_cqe->done != rtrs_clt_rdma_done);
+-		if (sess->flags == RTRS_MSG_NEW_RKEY_F) {
++		if (sess->flags & RTRS_MSG_NEW_RKEY_F) {
+ 			if (wc->wc_flags & IB_WC_WITH_INVALIDATE)
+ 				return  rtrs_clt_recv_done(con, wc);
+ 
+@@ -681,7 +681,7 @@ static int post_recv_io(struct rtrs_clt_
+ 	struct rtrs_clt_sess *sess = to_clt_sess(con->c.sess);
+ 
+ 	for (i = 0; i < q_size; i++) {
+-		if (sess->flags == RTRS_MSG_NEW_RKEY_F) {
++		if (sess->flags & RTRS_MSG_NEW_RKEY_F) {
+ 			struct rtrs_iu *iu = &con->rsp_ius[i];
+ 
+ 			err = rtrs_iu_post_recv(&con->c, iu);
+@@ -1566,7 +1566,7 @@ static int create_con_cq_qp(struct rtrs_
+ 			      sess->queue_depth * 3 + 1);
  	}
--	raw_spin_unlock_irq(&p->pi_lock);
-+	raw_spin_unlock_irqrestore(&p->pi_lock, rf.flags);
- 	return ret;
- }
- 
+ 	/* alloc iu to recv new rkey reply when server reports flags set */
+-	if (sess->flags == RTRS_MSG_NEW_RKEY_F || con->c.cid == 0) {
++	if (sess->flags & RTRS_MSG_NEW_RKEY_F || con->c.cid == 0) {
+ 		con->rsp_ius = rtrs_iu_alloc(max_recv_wr, sizeof(*rsp),
+ 					      GFP_KERNEL, sess->s.dev->ib_dev,
+ 					      DMA_FROM_DEVICE,
 
 
