@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B6332E827
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F58A32E8EB
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbhCEMZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:25:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60086 "EHLO mail.kernel.org"
+        id S232043AbhCEM3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:29:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229528AbhCEMZK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:25:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B37DE6501D;
-        Fri,  5 Mar 2021 12:25:09 +0000 (UTC)
+        id S232177AbhCEM3V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4ADF65013;
+        Fri,  5 Mar 2021 12:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947110;
-        bh=krzjwlzccixkNfIEQJiHrwkF3eXrGTJ+HSTCi7XZv1w=;
+        s=korg; t=1614947360;
+        bh=lyxy3P6gyz+fDlGGv5KkTRhL44i0y5WYJRLEKlpuX2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=siW2zBv6V65NGvNH9UTwVtFEgS6ow22nZyt8oNgaV44Is+B1gnibrQT+2mNlJPGcT
-         oNZHQ9W75vd5rvyOonTa7nEG7nLf1Nh6o1+eFaBcyZ8x7+xYjsNyB5r+aDDZzbW/wP
-         K90Jq0dV407c4Jwz0+52OQZvBsQHlbJot5oB7o6g=
+        b=mcERhxdF1t1DKv8GzgZ9bRokRVgq0bYQFxisrRqIY3OyPdwJVVN61iNcJue+lsgM9
+         qcjPIeCSCQG1QWLYT1ix6Xi5mFhoejxmxOWj7Du6uG6nf4UftHmr0LppR9/KTjwrDm
+         DxHkoigJbm6U8d652XiosIPr8BwPGBkyohTMptzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 051/104] net: sfp: add mode quirk for GPON module Ubiquiti U-Fiber Instant
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 037/102] rcu/nocb: Trigger self-IPI on late deferred wake up before user resume
 Date:   Fri,  5 Mar 2021 13:20:56 +0100
-Message-Id: <20210305120905.671073755@linuxfoundation.org>
+Message-Id: <20210305120905.113222356@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,100 +41,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit f0b4f847673299577c29b71d3f3acd3c313d81b7 ]
+[ Upstream commit f8bb5cae9616224a39cbb399de382d36ac41df10 ]
 
-The Ubiquiti U-Fiber Instant SFP GPON module has nonsensical information
-stored in its EEPROM. It claims to support all transceiver types including
-10G Ethernet. Clear all claimed modes and set only 1000baseX_Full, which is
-the only one supported.
+Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
+kthread (rcuog) to be serviced.
 
-This module has also phys_id set to SFF, and the SFP subsystem currently
-does not allow to use SFP modules detected as SFFs. Add exception for this
-module so it can be detected as supported.
+Unfortunately the call to rcu_user_enter() is already past the last
+rescheduling opportunity before we resume to userspace or to guest mode.
+We may escape there with the woken task ignored.
 
-This change finally allows to detect and use SFP GPON module Ubiquiti
-U-Fiber Instant on Linux system.
+The ultimate resort to fix every callsites is to trigger a self-IPI
+(nohz_full depends on arch to implement arch_irq_work_raise()) that will
+trigger a reschedule on IRQ tail or guest exit.
 
-EEPROM content of this SFP module is (where XX is serial number):
+Eventually every site that want a saner treatment will need to carefully
+place a call to rcu_nocb_flush_deferred_wakeup() before the last explicit
+need_resched() check upon resume.
 
-00: 02 04 0b ff ff ff ff ff ff ff ff 03 0c 00 14 c8    ???........??.??
-10: 00 00 00 00 55 42 4e 54 20 20 20 20 20 20 20 20    ....UBNT
-20: 20 20 20 20 00 18 e8 29 55 46 2d 49 4e 53 54 41        .??)UF-INSTA
-30: 4e 54 20 20 20 20 20 20 34 20 20 20 05 1e 00 36    NT      4   ??.6
-40: 00 06 00 00 55 42 4e 54 XX XX XX XX XX XX XX XX    .?..UBNTXXXXXXXX
-50: 20 20 20 20 31 34 30 31 32 33 20 20 60 80 02 41        140123  `??A
-
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
+Reported-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20210131230548.32970-4-frederic@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp-bus.c | 15 +++++++++++++++
- drivers/net/phy/sfp.c     | 17 +++++++++++++++--
- 2 files changed, 30 insertions(+), 2 deletions(-)
+ kernel/rcu/tree.c        | 21 ++++++++++++++++++++-
+ kernel/rcu/tree.h        |  2 +-
+ kernel/rcu/tree_plugin.h | 25 ++++++++++++++++---------
+ 3 files changed, 37 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
-index 20b91f5dfc6e..4cf874fb5c5b 100644
---- a/drivers/net/phy/sfp-bus.c
-+++ b/drivers/net/phy/sfp-bus.c
-@@ -44,6 +44,17 @@ static void sfp_quirk_2500basex(const struct sfp_eeprom_id *id,
- 	phylink_set(modes, 2500baseX_Full);
- }
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 5dc36c6e80fd..f137a599941b 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -669,6 +669,18 @@ void rcu_idle_enter(void)
+ EXPORT_SYMBOL_GPL(rcu_idle_enter);
  
-+static void sfp_quirk_ubnt_uf_instant(const struct sfp_eeprom_id *id,
-+				      unsigned long *modes)
+ #ifdef CONFIG_NO_HZ_FULL
++
++/*
++ * An empty function that will trigger a reschedule on
++ * IRQ tail once IRQs get re-enabled on userspace resume.
++ */
++static void late_wakeup_func(struct irq_work *work)
 +{
-+	/* Ubiquiti U-Fiber Instant module claims that support all transceiver
-+	 * types including 10G Ethernet which is not truth. So clear all claimed
-+	 * modes and set only one mode which module supports: 1000baseX_Full.
-+	 */
-+	phylink_zero(modes);
-+	phylink_set(modes, 1000baseX_Full);
 +}
 +
- static const struct sfp_quirk sfp_quirks[] = {
- 	{
- 		// Alcatel Lucent G-010S-P can operate at 2500base-X, but
-@@ -63,6 +74,10 @@ static const struct sfp_quirk sfp_quirks[] = {
- 		.vendor = "HUAWEI",
- 		.part = "MA5671A",
- 		.modes = sfp_quirk_2500basex,
-+	}, {
-+		.vendor = "UBNT",
-+		.part = "UF-INSTANT",
-+		.modes = sfp_quirk_ubnt_uf_instant,
- 	},
- };
- 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index f2b5e467a800..7a680b5177f5 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -273,8 +273,21 @@ static const struct sff_data sff_data = {
- 
- static bool sfp_module_supported(const struct sfp_eeprom_id *id)
- {
--	return id->base.phys_id == SFF8024_ID_SFP &&
--	       id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP;
-+	if (id->base.phys_id == SFF8024_ID_SFP &&
-+	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP)
-+		return true;
++static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
++	IRQ_WORK_INIT(late_wakeup_func);
 +
-+	/* SFP GPON module Ubiquiti U-Fiber Instant has in its EEPROM stored
-+	 * phys id SFF instead of SFP. Therefore mark this module explicitly
-+	 * as supported based on vendor name and pn match.
+ /**
+  * rcu_user_enter - inform RCU that we are resuming userspace.
+  *
+@@ -686,12 +698,19 @@ noinstr void rcu_user_enter(void)
+ 
+ 	lockdep_assert_irqs_disabled();
+ 
++	/*
++	 * We may be past the last rescheduling opportunity in the entry code.
++	 * Trigger a self IPI that will fire and reschedule once we resume to
++	 * user/guest mode.
 +	 */
-+	if (id->base.phys_id == SFF8024_ID_SFF_8472 &&
-+	    id->base.phys_ext_id == SFP_PHYS_EXT_ID_SFP &&
-+	    !memcmp(id->base.vendor_name, "UBNT            ", 16) &&
-+	    !memcmp(id->base.vendor_pn, "UF-INSTANT      ", 16))
-+		return true;
+ 	instrumentation_begin();
+-	do_nocb_deferred_wakeup(rdp);
++	if (do_nocb_deferred_wakeup(rdp) && need_resched())
++		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
+ 	instrumentation_end();
+ 
+ 	rcu_eqs_enter(true);
+ }
 +
+ #endif /* CONFIG_NO_HZ_FULL */
+ 
+ /**
+diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
+index e4f66b8f7c47..0ec2b1f66b13 100644
+--- a/kernel/rcu/tree.h
++++ b/kernel/rcu/tree.h
+@@ -431,7 +431,7 @@ static bool rcu_nocb_try_bypass(struct rcu_data *rdp, struct rcu_head *rhp,
+ static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_empty,
+ 				 unsigned long flags);
+ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp);
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp);
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp);
+ static void rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp);
+ static void rcu_spawn_cpu_nocb_kthread(int cpu);
+ static void __init rcu_spawn_nocb_kthreads(void);
+diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+index 7d4f78bf4057..29a00d9ea286 100644
+--- a/kernel/rcu/tree_plugin.h
++++ b/kernel/rcu/tree_plugin.h
+@@ -1631,8 +1631,8 @@ bool rcu_is_nocb_cpu(int cpu)
+  * Kick the GP kthread for this NOCB group.  Caller holds ->nocb_lock
+  * and this function releases it.
+  */
+-static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+-			   unsigned long flags)
++static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
++			 unsigned long flags)
+ 	__releases(rdp->nocb_lock)
+ {
+ 	bool needwake = false;
+@@ -1643,7 +1643,7 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
+ 				    TPS("AlreadyAwake"));
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	del_timer(&rdp->nocb_timer);
+ 	rcu_nocb_unlock_irqrestore(rdp, flags);
+@@ -1656,6 +1656,8 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
+ 	raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
+ 	if (needwake)
+ 		wake_up_process(rdp_gp->nocb_gp_kthread);
++
++	return needwake;
+ }
+ 
+ /*
+@@ -2152,20 +2154,23 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread(). */
+-static void do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
+ {
+ 	unsigned long flags;
+ 	int ndw;
++	int ret;
+ 
+ 	rcu_nocb_lock_irqsave(rdp, flags);
+ 	if (!rcu_nocb_need_deferred_wakeup(rdp)) {
+ 		rcu_nocb_unlock_irqrestore(rdp, flags);
+-		return;
++		return false;
+ 	}
+ 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
+ 	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
+-	wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
++	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
+ 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
++
++	return ret;
+ }
+ 
+ /* Do a deferred wakeup of rcu_nocb_kthread() from a timer handler. */
+@@ -2181,10 +2186,11 @@ static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
+  * This means we do an inexact common-case check.  Note that if
+  * we miss, ->nocb_timer will eventually clean things up.
+  */
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
+ 	if (rcu_nocb_need_deferred_wakeup(rdp))
+-		do_nocb_deferred_wakeup_common(rdp);
++		return do_nocb_deferred_wakeup_common(rdp);
 +	return false;
  }
  
- static const struct sff_data sfp_data = {
+ void rcu_nocb_flush_deferred_wakeup(void)
+@@ -2523,8 +2529,9 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+ 	return false;
+ }
+ 
+-static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
++static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
+ {
++	return false;
+ }
+ 
+ static void rcu_spawn_cpu_nocb_kthread(int cpu)
 -- 
 2.30.1
 
