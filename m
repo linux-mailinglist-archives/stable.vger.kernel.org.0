@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 750FC32EAAB
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B43932EAF6
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230523AbhCEMjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53904 "EHLO mail.kernel.org"
+        id S233214AbhCEMlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232476AbhCEMjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23FD764F44;
-        Fri,  5 Mar 2021 12:39:18 +0000 (UTC)
+        id S229591AbhCEMkt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D00FC64EE8;
+        Fri,  5 Mar 2021 12:40:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947959;
-        bh=jdUAXWpmGLg4YZ2Y7442iRWpEGpG0oN4DVaG7EU+BnQ=;
+        s=korg; t=1614948048;
+        bh=MjHykEdtMrXOALV9k3gyfg8rgd/q7Qtas/JBrySBsA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvw4yEHBIBapblDniBCmPJ89FlqnW7kkbhcdS3hdZnQ4SehcosCp/6U0OCSWjA7LI
-         BPe1wTB0ig1N3Ak9LDWnUtkdyoQWGNyFj5lQnqPPUkVyky3gximoGmKiOCj8XwpKQU
-         0A9/guf5u3u7pV3rjIri3M5urlz40RUFcJ/ce9Zc=
+        b=YX4q3bSniRyb5E2cNqoGNcpkHLNtUSEIqULRN5scq+Wq6T7BL/RC/lbWMzJ8/GwJU
+         3BzrTlvMYbW0UADFUeCIHbQE4ak4wiDvfo2o/e9Kr/DbLe7eRrGoffFsK6OqB+mlGc
+         wpjM17xUiIZGgd9EbYDDkxX8jxWXQgTBXoVNw41k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Rob Herring <robh@kernel.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Rajat Jain <rajatja@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.14 18/39] dt-bindings: net: btusb: DT fix s/interrupt-name/interrupt-names/
+        Rolf Eike Beer <eb@emlix.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 4.9 10/41] scripts: use pkg-config to locate libcrypto
 Date:   Fri,  5 Mar 2021 13:22:17 +0100
-Message-Id: <20210305120852.681298375@linuxfoundation.org>
+Message-Id: <20210305120851.788098177@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Rolf Eike Beer <eb@emlix.com>
 
-commit f288988930e93857e0375bdf88bb670c312b82eb upstream.
+commit 2cea4a7a1885bd0c765089afc14f7ff0eb77864e upstream.
 
-The standard DT property name is "interrupt-names".
+Otherwise build fails if the headers are not in the default location. While at
+it also ask pkg-config for the libs, with fallback to the existing value.
 
-Fixes: fd913ef7ce619467 ("Bluetooth: btusb: Add out-of-band wakeup support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Acked-by: Rajat Jain <rajatja@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/net/btusb.txt |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/Makefile |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/net/btusb.txt
-+++ b/Documentation/devicetree/bindings/net/btusb.txt
-@@ -36,7 +36,7 @@ Following example uses irq pin number 3
- 	compatible = "usb1286,204e";
- 	reg = <1>;
- 	interrupt-parent = <&gpio0>;
--	interrupt-name = "wakeup";
-+	interrupt-names = "wakeup";
- 	interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
-     };
- };
+--- a/scripts/Makefile
++++ b/scripts/Makefile
+@@ -11,6 +11,9 @@
+ 
+ HOST_EXTRACFLAGS += -I$(srctree)/tools/include
+ 
++CRYPTO_LIBS = $(shell pkg-config --libs libcrypto 2> /dev/null || echo -lcrypto)
++CRYPTO_CFLAGS = $(shell pkg-config --cflags libcrypto 2> /dev/null)
++
+ hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
+ hostprogs-$(CONFIG_LOGO)         += pnmtologo
+ hostprogs-$(CONFIG_VT)           += conmakehash
+@@ -23,8 +26,9 @@ hostprogs-$(CONFIG_SYSTEM_EXTRA_CERTIFIC
+ 
+ HOSTCFLAGS_sortextable.o = -I$(srctree)/tools/include
+ HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
+-HOSTLOADLIBES_sign-file = -lcrypto
+-HOSTLOADLIBES_extract-cert = -lcrypto
++HOSTLOADLIBES_sign-file = $(CRYPTO_LIBS)
++HOSTCFLAGS_extract-cert.o = $(CRYPTO_CFLAGS)
++HOSTLOADLIBES_extract-cert = $(CRYPTO_LIBS)
+ 
+ always		:= $(hostprogs-y) $(hostprogs-m)
+ 
 
 
