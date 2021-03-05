@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFED32EA99
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1963232EAFF
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232426AbhCEMjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53074 "EHLO mail.kernel.org"
+        id S232728AbhCEMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233157AbhCEMjD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2939564EDB;
-        Fri,  5 Mar 2021 12:39:03 +0000 (UTC)
+        id S233406AbhCEMlL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A11A165022;
+        Fri,  5 Mar 2021 12:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947943;
-        bh=h1z53uxqsHam5ZsBYZw50JLpUZtyU6R90jbtUyzn+VE=;
+        s=korg; t=1614948071;
+        bh=PeWfzulb+clhPBVEu08GBvUVQyZF5shtRru7TSyQ4/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkDJxLpXm+kbSai///pe6+a9iNNsyGgJ5LphEO5GKDwRz0Xf7YEiyjNp/RVkNi3vI
-         +AHx9D/cYjcUKGIwfVimpeS0wibTfVzBiLUYjg0lZxjyG96+QHFakAHJvyDSfhoYVe
-         HeMVnsIwNjEqDyfCOhHo2+ZYNlaE3awi8wHRZMtk=
+        b=ObHuKLCkXvAqETFS5LS9ErBeYtpYx4QUk+nNnjTy1ogrDid03VjaSqC4pJ3D4R2IL
+         1kQiDmJXsVT2vMkbEuiR0wmr+nRCJcHyOF0px6nSfLmuZNt/Rn83rnQ+dzdbIbIDK9
+         no9ahAyW/ppvCGzsVdKRZH0rJJ9Q8oNiy/OQViZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.14 14/39] smackfs: restrict bytes count in smackfs write functions
-Date:   Fri,  5 Mar 2021 13:22:13 +0100
-Message-Id: <20210305120852.480944991@linuxfoundation.org>
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 07/41] futex: Dont enable IRQs unconditionally in put_pi_state()
+Date:   Fri,  5 Mar 2021 13:22:14 +0100
+Message-Id: <20210305120851.638890063@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 upstream.
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-syzbot found WARNINGs in several smackfs write operations where
-bytes count is passed to memdup_user_nul which exceeds
-GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
+commit 1e106aa3509b86738769775969822ffc1ec21bf4 upstream.
 
-Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
-smk_write_net6addr accepts any label or -DELETE. I couldn't find
-any general rule for other label lengths except SMK_LABELLEN,
-SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
+The exit_pi_state_list() function calls put_pi_state() with IRQs disabled
+and is not expecting that IRQs will be enabled inside the function.
 
-Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
-Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
+Use the _irqsave() variant so that IRQs are restored to the original state
+instead of being enabled unconditionally.
 
-Here is a quick way to reproduce the WARNING:
-python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
-
-Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Fixes: 153fbd1226fb ("futex: Fix more put_pi_state() vs. exit_pi_state_list() races")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20201106085205.GA1159983@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backported to 4.9: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smackfs.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ kernel/futex.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -1191,7 +1191,7 @@ static ssize_t smk_write_net4addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
-@@ -1451,7 +1451,7 @@ static ssize_t smk_write_net6addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
-@@ -1858,6 +1858,10 @@ static ssize_t smk_write_ambient(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2029,6 +2033,9 @@ static ssize_t smk_write_onlycap(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2116,6 +2123,9 @@ static ssize_t smk_write_unconfined(stru
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2669,6 +2679,10 @@ static ssize_t smk_write_syslog(struct f
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2761,10 +2775,13 @@ static ssize_t smk_write_relabel_self(st
- 		return -EPERM;
- 
- 	/*
-+	 * No partial write.
- 	 * Enough data must be present.
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -882,10 +882,12 @@ static void put_pi_state(struct futex_pi
+ 	 * and has cleaned up the pi_state already
  	 */
- 	if (*ppos != 0)
- 		return -EINVAL;
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
+ 	if (pi_state->owner) {
+-		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
++		unsigned long flags;
++
++		raw_spin_lock_irqsave(&pi_state->pi_mutex.wait_lock, flags);
+ 		pi_state_update_owner(pi_state, NULL);
+ 		rt_mutex_proxy_unlock(&pi_state->pi_mutex);
+-		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
++		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
+ 	}
  
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ 	if (current->pi_state_cache) {
 
 
