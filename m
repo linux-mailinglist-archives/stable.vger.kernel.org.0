@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3331432EB4C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D0B932EB2A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233861AbhCEMn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59944 "EHLO mail.kernel.org"
+        id S232623AbhCEMmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233994AbhCEMnG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:43:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F1A6501F;
-        Fri,  5 Mar 2021 12:43:05 +0000 (UTC)
+        id S233591AbhCEMmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D27C665023;
+        Fri,  5 Mar 2021 12:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948186;
-        bh=lXWNOxaHlaJoF101bXTkK6qG6H9w+MFQvaVqycfrF78=;
+        s=korg; t=1614948133;
+        bh=6rjbFeLyD/T5rOXwDI7Sr5AgnsUDF+kJZhL7CYW4dm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vbunAtajcWTIHnrM6LFf+sLCYF45EqvyRqJIA5DEfmH0OjgQwAIL/k7afCcMa+gSm
-         DKPj9R1XP+rK9uYa6q32Ze0dX0Qfef+msvITEJId8e6cYjX8fiIdWOMJxKkimCtWGL
-         gDDuqKFd2X/LsxVCq8FMn9T5t5u2Js5k0H/8o4f0=
+        b=Xt915akTiKV5yuRCL9ErJBHsBpV9q/mAyIqHty/lT/WfmCh3AjARwQ2z4IiQjjCDh
+         +4Tiy/Xg8AQtrJO05DFcw5+/6P5wwEBvIjxEqE2R1h3PpwYrjcndOatnskzwir712y
+         hlSGM4lKUqgMvObXUwRw2Y6PTx6NAvkgXFveN8BI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/30] ath10k: fix wmi mgmt tx queue full due to race condition
+        stable@vger.kernel.org, Rokudo Yan <wu-yan@tcl.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 39/41] zsmalloc: account the number of compacted pages correctly
 Date:   Fri,  5 Mar 2021 13:22:46 +0100
-Message-Id: <20210305120850.252292518@linuxfoundation.org>
+Message-Id: <20210305120853.211236990@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Rokudo Yan <wu-yan@tcl.com>
 
-[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
+commit 2395928158059b8f9858365fce7713ce7fef62e4 upstream.
 
-Failed to transmit wmi management frames:
+There exists multiple path may do zram compaction concurrently.
+1. auto-compaction triggered during memory reclaim
+2. userspace utils write zram<id>/compaction node
 
-[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
-[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
-[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
-[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
+So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
+But pages_compacted is a per zsmalloc pool variable and modification
+of the variable is not serialized(through under class->lock).
+There are two issues here:
+1. the pages_compacted may not equal to total number of pages
+freed(due to concurrently add).
+2. zs_shrinker_scan may not return the correct number of pages
+freed(issued by current shrinker).
 
-This issue is caused by race condition between skb_dequeue and
-__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
-different lock: ar->data_lock vs list->lock, the result is no protection.
-So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
-running concurrently on different CPUs, there appear to be a rare corner
-cases when the queue length is 1,
+The fix is simple:
+1. account the number of pages freed in zs_compact locally.
+2. use actomic variable pages_compacted to accumulate total number.
 
-  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
-					next=list
-					prev=list
-  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
-  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
-  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
-  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
-  skb->next  = skb->prev = NULL;	list->qlen++;
-  WRITE_ONCE(next->prev, prev);
-  WRITE_ONCE(prev->next, next);
-
-If the instruction ‘next = skb->next’ is executed before
-‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
-old ‘next’ pointer, but the length is still added by one. The final
-result is the length of the queue will reach the maximum value but
-the queue is empty.
-
-So remove ar->data_lock, and use 'skb_queue_tail' instead of
-'__skb_queue_tail' to prevent the potential race condition. Also switch
-to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
-
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
+Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
+Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/block/zram/zram_drv.c |    2 +-
+ include/linux/zsmalloc.h      |    2 +-
+ mm/zsmalloc.c                 |   17 +++++++++++------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 7fbf2abcfc43..5fad38c3feb1 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3336,23 +3336,16 @@ static bool ath10k_mac_need_offchan_tx_work(struct ath10k *ar)
- static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
- {
- 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
--	int ret = 0;
--
--	spin_lock_bh(&ar->data_lock);
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -440,7 +440,7 @@ static ssize_t mm_stat_show(struct devic
+ 			zram->limit_pages << PAGE_SHIFT,
+ 			max_used << PAGE_SHIFT,
+ 			(u64)atomic64_read(&zram->stats.zero_pages),
+-			pool_stats.pages_compacted);
++			atomic_long_read(&pool_stats.pages_compacted));
+ 	up_read(&zram->init_lock);
  
--	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
-+	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
- 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
--		ret = -ENOSPC;
--		goto unlock;
-+		return -ENOSPC;
- 	}
+ 	return ret;
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -36,7 +36,7 @@ enum zs_mapmode {
  
--	__skb_queue_tail(q, skb);
-+	skb_queue_tail(q, skb);
- 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
+ struct zs_pool_stats {
+ 	/* How many pages were migrated (freed) */
+-	unsigned long pages_compacted;
++	atomic_long_t pages_compacted;
+ };
  
--unlock:
--	spin_unlock_bh(&ar->data_lock);
--
--	return ret;
-+	return 0;
+ struct zs_pool;
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2332,11 +2332,13 @@ static unsigned long zs_can_compact(stru
+ 	return obj_wasted * class->pages_per_zspage;
  }
  
- static void ath10k_mac_tx(struct ath10k *ar, struct sk_buff *skb)
--- 
-2.30.1
-
+-static void __zs_compact(struct zs_pool *pool, struct size_class *class)
++static unsigned long __zs_compact(struct zs_pool *pool,
++				  struct size_class *class)
+ {
+ 	struct zs_compact_control cc;
+ 	struct zspage *src_zspage;
+ 	struct zspage *dst_zspage = NULL;
++	unsigned long pages_freed = 0;
+ 
+ 	spin_lock(&class->lock);
+ 	while ((src_zspage = isolate_zspage(class, true))) {
+@@ -2366,7 +2368,7 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, dst_zspage);
+ 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
+ 			free_zspage(pool, class, src_zspage);
+-			pool->stats.pages_compacted += class->pages_per_zspage;
++			pages_freed += class->pages_per_zspage;
+ 		}
+ 		spin_unlock(&class->lock);
+ 		cond_resched();
+@@ -2377,12 +2379,15 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, src_zspage);
+ 
+ 	spin_unlock(&class->lock);
++
++	return pages_freed;
+ }
+ 
+ unsigned long zs_compact(struct zs_pool *pool)
+ {
+ 	int i;
+ 	struct size_class *class;
++	unsigned long pages_freed = 0;
+ 
+ 	for (i = zs_size_classes - 1; i >= 0; i--) {
+ 		class = pool->size_class[i];
+@@ -2390,10 +2395,11 @@ unsigned long zs_compact(struct zs_pool
+ 			continue;
+ 		if (class->index != i)
+ 			continue;
+-		__zs_compact(pool, class);
++		pages_freed += __zs_compact(pool, class);
+ 	}
++	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
+ 
+-	return pool->stats.pages_compacted;
++	return pages_freed;
+ }
+ EXPORT_SYMBOL_GPL(zs_compact);
+ 
+@@ -2410,13 +2416,12 @@ static unsigned long zs_shrinker_scan(st
+ 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
+ 			shrinker);
+ 
+-	pages_freed = pool->stats.pages_compacted;
+ 	/*
+ 	 * Compact classes and calculate compaction delta.
+ 	 * Can run concurrently with a manually triggered
+ 	 * (by user) compaction.
+ 	 */
+-	pages_freed = zs_compact(pool) - pages_freed;
++	pages_freed = zs_compact(pool);
+ 
+ 	return pages_freed ? pages_freed : SHRINK_STOP;
+ }
 
 
