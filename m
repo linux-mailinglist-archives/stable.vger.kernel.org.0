@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A2132E940
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C501132E9A1
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbhCEMbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:31:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41596 "EHLO mail.kernel.org"
+        id S231915AbhCEMd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231652AbhCEMb1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E589065029;
-        Fri,  5 Mar 2021 12:31:16 +0000 (UTC)
+        id S231196AbhCEMdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:45 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B5CB64F23;
+        Fri,  5 Mar 2021 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947477;
-        bh=sGC019GjoYdCKhwocjintjheJqDKpiJDxeOOV4WVGxI=;
+        s=korg; t=1614947625;
+        bh=/kbV7KAVQR/jXOBaEYW5wrvcUKMwWsY22TtmVFuVWXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E2P3mLO8w0bi5zawyBiwpYry1uMWFvFlQw/gpokzXy4LvrMrcDMyg2tl5dGxgmGdd
-         3Ttaz2p7UtqWbbhYGK7n7n6MFjfLwoq6mp31alhN6ePyWw32qV3YwBvi4Mvlb2ygJS
-         ztkXe1IkvJo3rT6ehIXHRnrFWNn8SD+EzkqghDnw=
+        b=HKbvlIJyRZn6LP+Y4r+51JSxOXPtQN2ipAjdouU7GZ76ORCiCjitu+dbI21k3xoOK
+         sFmMG40f0Q9YYInhc6E79SvQ3uXyJjOA4691Z6q5U7EDFETqhkfr25nFxlopqqOp4o
+         fsrTN9Z8Yixpz4IqvhsK/WSUJXppI9xF2Hjxs+YA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/102] ath10k: fix wmi mgmt tx queue full due to race condition
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.4 06/72] MIPS: VDSO: Use CLANG_FLAGS instead of filtering out --target=
 Date:   Fri,  5 Mar 2021 13:21:08 +0100
-Message-Id: <20210305120905.702963220@linuxfoundation.org>
+Message-Id: <20210305120857.656114589@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
+commit 76d7fff22be3e4185ee5f9da2eecbd8188e76b2c upstream.
 
-Failed to transmit wmi management frames:
+Commit ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO
+cflags") allowed the '--target=' flag from the main Makefile to filter
+through to the vDSO. However, it did not bring any of the other clang
+specific flags for controlling the integrated assembler and the GNU
+tools locations (--prefix=, --gcc-toolchain=, and -no-integrated-as).
+Without these, we will get a warning (visible with tinyconfig):
 
-[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
-[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
-[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
-[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
+arch/mips/vdso/elf.S:14:1: warning: DWARF2 only supports one section per
+compilation unit
+.pushsection .note.Linux, "a",@note ; .balign 4 ; .long 2f - 1f ; .long
+4484f - 3f ; .long 0 ; 1:.asciz "Linux" ; 2:.balign 4 ; 3:
+^
+arch/mips/vdso/elf.S:34:2: warning: DWARF2 only supports one section per
+compilation unit
+ .section .mips_abiflags, "a"
+ ^
 
-This issue is caused by race condition between skb_dequeue and
-__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
-different lock: ar->data_lock vs list->lock, the result is no protection.
-So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
-running concurrently on different CPUs, there appear to be a rare corner
-cases when the queue length is 1,
+All of these flags are bundled up under CLANG_FLAGS in the main Makefile
+and exported so that they can be added to Makefiles that set their own
+CFLAGS. Use this value instead of filtering out '--target=' so there is
+no warning and all of the tools are properly used.
 
-  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
-					next=list
-					prev=list
-  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
-  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
-  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
-  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
-  skb->next  = skb->prev = NULL;	list->qlen++;
-  WRITE_ONCE(next->prev, prev);
-  WRITE_ONCE(prev->next, next);
-
-If the instruction ‘next = skb->next’ is executed before
-‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
-old ‘next’ pointer, but the length is still added by one. The final
-result is the length of the queue will reach the maximum value but
-the queue is empty.
-
-So remove ar->data_lock, and use 'skb_queue_tail' instead of
-'__skb_queue_tail' to prevent the potential race condition. Also switch
-to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
-
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: ee67855ecd9d ("MIPS: vdso: Allow clang's --target flag in VDSO cflags")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1256
+Reported-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+[nc: Fix conflict due to lack of 99570c3da96a in 5.4]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ arch/mips/vdso/Makefile |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 4bc84cc5e824..f5c0f9bac840 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3763,23 +3763,16 @@ bool ath10k_mac_tx_frm_has_freq(struct ath10k *ar)
- static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
- {
- 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
--	int ret = 0;
+--- a/arch/mips/vdso/Makefile
++++ b/arch/mips/vdso/Makefile
+@@ -16,12 +16,9 @@ ccflags-vdso := \
+ 	$(filter -march=%,$(KBUILD_CFLAGS)) \
+ 	$(filter -m%-float,$(KBUILD_CFLAGS)) \
+ 	$(filter -mno-loongson-%,$(KBUILD_CFLAGS)) \
++	$(CLANG_FLAGS) \
+ 	-D__VDSO__
+ 
+-ifdef CONFIG_CC_IS_CLANG
+-ccflags-vdso += $(filter --target=%,$(KBUILD_CFLAGS))
+-endif
 -
--	spin_lock_bh(&ar->data_lock);
- 
--	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
-+	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
- 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
--		ret = -ENOSPC;
--		goto unlock;
-+		return -ENOSPC;
- 	}
- 
--	__skb_queue_tail(q, skb);
-+	skb_queue_tail(q, skb);
- 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
- 
--unlock:
--	spin_unlock_bh(&ar->data_lock);
--
--	return ret;
-+	return 0;
- }
- 
- static enum ath10k_mac_tx_path
--- 
-2.30.1
-
+ #
+ # The -fno-jump-tables flag only prevents the compiler from generating
+ # jump tables but does not prevent the compiler from emitting absolute
 
 
