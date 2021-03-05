@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B14B232E85D
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D0832E868
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbhCEM0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:26:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33528 "EHLO mail.kernel.org"
+        id S229563AbhCEM0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:26:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231526AbhCEM0Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:26:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1499A6502C;
-        Fri,  5 Mar 2021 12:26:15 +0000 (UTC)
+        id S231167AbhCEM0T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:26:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B6E65040;
+        Fri,  5 Mar 2021 12:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947176;
-        bh=YcHw7DPVajv1ZR7KKnI2Sx3F36AdZ6sKkkXa6RkDnKM=;
+        s=korg; t=1614947179;
+        bh=brhiVKkxow1Hh7c1OLyBLR0OnSmKzxmkCMQlMWBeOkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OUid5U95d6FczFGpGwZdXvNIH16h3dF38p8K5TgywEsF86XirADd0Xm77cvBatHqb
-         CFXiHRJAu+uf+NVQYy7s4rbTiKI4hefjqklIo/ViD/cqGAHJKOMyUxx0bGNteNLZlg
-         lk/DF+CEC2Vtlbx0I8pHtcs7Fsep4GiD3FaBBFdo=
+        b=QaReQsxTsg0UgHBFaLlGPJwyHNO+aDZrvkhGKqqkvdGfOiW7mbzahoDr6fh6uhRUO
+         4OPks2BXuJm0FAwLIrk82maGWQu70FhYdBS1LEfFiThEFNfepnXPSSjiYxj0PdwCdX
+         N8V++ThH4c308WPcfPBoMdTAVurDhckABmHpyw0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivia Mackintosh <livvy@base.nu>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 076/104] ALSA: usb-audio: Add DJM-450 to the quirks table
-Date:   Fri,  5 Mar 2021 13:21:21 +0100
-Message-Id: <20210305120906.892772337@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 077/104] ASoC: Intel: Add DMI quirk table to soc_intel_is_byt_cr()
+Date:   Fri,  5 Mar 2021 13:21:22 +0100
+Message-Id: <20210305120906.941388686@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -39,97 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivia Mackintosh <livvy@base.nu>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9119e5661eab2c56a96b936cde49c6740dc49ff9 ]
+[ Upstream commit 8ade6d8b02b1ead741bd4f6c42921035caab6560 ]
 
-As with most Pioneer devices, the device descriptor is vendor specific
-and as such, the number of channels, the PCM format, endpoints and
-sample rate need to be specified. This device has 8 inputs and 8 outputs
-and a sample rate of 48000 only. The PCM format is S24_3LE like other
-devices.
+Some Bay Trail systems:
+1. Use a non CR version of the Bay Trail SoC
+2. Contain at least 6 interrupt resources so that the
+   platform_get_resource(pdev, IORESOURCE_IRQ, 5) check to workaround
+   non CR systems which list their IPC IRQ at index 0 despite being
+   non CR does not work
+3. Despite 1. and 2. still have their IPC IRQ at index 0 rather then 5
 
-There seems to be an appetite for reducing duplication amongs these
-Pioneer patches but again, I feel this is a step to be taken after
-support has been added as it's not completely clear where the
-commonalities are.
+Add a DMI quirk table to check for the few known models with this issue,
+so that the right IPC IRQ index is used on these systems.
 
-Signed-off-by: Olivia Mackintosh <livvy@base.nu>
-Link: https://lore.kernel.org/r/20210202134225.3217-3-livvy@base.nu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210120214957.140232-5-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks-table.h | 57 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 57 insertions(+)
+ sound/soc/intel/common/soc-intel-quirks.h | 25 +++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/sound/usb/quirks-table.h b/sound/usb/quirks-table.h
-index 93d55cd1a5a4..1165a5ac60f2 100644
---- a/sound/usb/quirks-table.h
-+++ b/sound/usb/quirks-table.h
-@@ -3817,6 +3817,63 @@ AU0828_DEVICE(0x2040, 0x7270, "Hauppauge", "HVR-950Q"),
- 		}
- 	}
- },
-+{
-+	/*
-+	 * Pioneer DJ DJM-450
-+	 * PCM is 8 channels out @ 48 fixed (endpoint 0x01)
-+	 * and 8 channels in @ 48 fixed (endpoint 0x82).
-+	 */
-+	USB_DEVICE_VENDOR_SPEC(0x2b73, 0x0013),
-+	.driver_info = (unsigned long) &(const struct snd_usb_audio_quirk) {
-+		.ifnum = QUIRK_ANY_INTERFACE,
-+		.type = QUIRK_COMPOSITE,
-+		.data = (const struct snd_usb_audio_quirk[]) {
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 8, // outputs
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x01,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						USB_ENDPOINT_SYNC_ASYNC,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 }
-+					}
-+			},
-+			{
-+				.ifnum = 0,
-+				.type = QUIRK_AUDIO_FIXED_ENDPOINT,
-+				.data = &(const struct audioformat) {
-+					.formats = SNDRV_PCM_FMTBIT_S24_3LE,
-+					.channels = 8, // inputs
-+					.iface = 0,
-+					.altsetting = 1,
-+					.altset_idx = 1,
-+					.endpoint = 0x82,
-+					.ep_idx = 1,
-+					.ep_attr = USB_ENDPOINT_XFER_ISOC|
-+						USB_ENDPOINT_SYNC_ASYNC|
-+						USB_ENDPOINT_USAGE_IMPLICIT_FB,
-+					.rates = SNDRV_PCM_RATE_48000,
-+					.rate_min = 48000,
-+					.rate_max = 48000,
-+					.nr_rates = 1,
-+					.rate_table = (unsigned int[]) { 48000 }
-+				}
-+			},
-+			{
-+				.ifnum = -1
-+			}
-+		}
-+	}
-+},
+diff --git a/sound/soc/intel/common/soc-intel-quirks.h b/sound/soc/intel/common/soc-intel-quirks.h
+index b07df3059926..a93987ab7f4d 100644
+--- a/sound/soc/intel/common/soc-intel-quirks.h
++++ b/sound/soc/intel/common/soc-intel-quirks.h
+@@ -11,6 +11,7 @@
  
- #undef USB_DEVICE_VENDOR_SPEC
- #undef USB_AUDIO_DEVICE
+ #if IS_ENABLED(CONFIG_X86)
+ 
++#include <linux/dmi.h>
+ #include <asm/cpu_device_id.h>
+ #include <asm/intel-family.h>
+ #include <asm/iosf_mbi.h>
+@@ -38,12 +39,36 @@ SOC_INTEL_IS_CPU(cml, KABYLAKE_L);
+ 
+ static inline bool soc_intel_is_byt_cr(struct platform_device *pdev)
+ {
++	/*
++	 * List of systems which:
++	 * 1. Use a non CR version of the Bay Trail SoC
++	 * 2. Contain at least 6 interrupt resources so that the
++	 *    platform_get_resource(pdev, IORESOURCE_IRQ, 5) check below
++	 *    succeeds
++	 * 3. Despite 1. and 2. still have their IPC IRQ at index 0 rather then 5
++	 *
++	 * This needs to be here so that it can be shared between the SST and
++	 * SOF drivers. We rely on the compiler to optimize this out in files
++	 * where soc_intel_is_byt_cr is not used.
++	 */
++	static const struct dmi_system_id force_bytcr_table[] = {
++		{	/* Lenovo Yoga Tablet 2 series */
++			.matches = {
++				DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++				DMI_MATCH(DMI_PRODUCT_FAMILY, "YOGATablet2"),
++			},
++		},
++		{}
++	};
+ 	struct device *dev = &pdev->dev;
+ 	int status = 0;
+ 
+ 	if (!soc_intel_is_byt())
+ 		return false;
+ 
++	if (dmi_check_system(force_bytcr_table))
++		return true;
++
+ 	if (iosf_mbi_available()) {
+ 		u32 bios_status;
+ 
 -- 
 2.30.1
 
