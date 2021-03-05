@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F5132EADF
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61BEF32EB44
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232156AbhCEMkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55238 "EHLO mail.kernel.org"
+        id S233509AbhCEMnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:43:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233414AbhCEMkQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D38865012;
-        Fri,  5 Mar 2021 12:40:15 +0000 (UTC)
+        id S229759AbhCEMmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 110A46501F;
+        Fri,  5 Mar 2021 12:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948015;
-        bh=NH6m+oKyLWRksVitxGNPrtEuM5pzmvRBpVdaqwItRLM=;
+        s=korg; t=1614948166;
+        bh=Z9qREOSIzMhQPTuqF3NRq5oBloErHn22rIbf1nsD0kY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG2BJgpUqFMbjW+FpsxuGnIWeOZs98RtjfwP9wDeP/b7tJ6PQwNnvCmj/5RARj5V2
-         O7mOb+NGSC+dNKuTk7uY3d0UqnHR71E/0rsfC0gpiE1Fg7VrcL+ToaRxvQwCwpOFKn
-         z+mRGLLvCjzhHuvmAG8Tbi9f33rNF48Fmgl3yHX8=
+        b=SlcuAxHkC7xelKMaFrx+SZhIZyLrHvHfu00ZWO0pok63t4EdZLY83yG9UbK10fSoU
+         kG693+zxNi5RlqZ6T28X2W1lhXA4em+PkDVAqH+sOlGN3OAnj4yh3Y9bFz7pj9tX/8
+         AbbBP0mTihFQtXYR8QOcP/XJNP/tMpker1Zl0ez8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 39/39] media: v4l: ioctl: Fix memory leak in video_usercopy
-Date:   Fri,  5 Mar 2021 13:22:38 +0100
-Message-Id: <20210305120853.731590407@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Marco Elver <elver@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.4 10/30] net: fix up truesize of cloned skb in skb_prepare_for_shift()
+Date:   Fri,  5 Mar 2021 13:22:39 +0100
+Message-Id: <20210305120849.909910163@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
+References: <20210305120849.381261651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Marco Elver <elver@google.com>
 
-commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
+commit 097b9146c0e26aabaa6ff3e5ea536a53f5254a79 upstream.
 
-When an IOCTL with argument size larger than 128 that also used array
-arguments were handled, two memory allocations were made but alas, only
-the latter one of them was released. This happened because there was only
-a single local variable to hold such a temporary allocation.
+Avoid the assumption that ksize(kmalloc(S)) == ksize(kmalloc(S)): when
+cloning an skb, save and restore truesize after pskb_expand_head(). This
+can occur if the allocator decides to service an allocation of the same
+size differently (e.g. use a different size class, or pass the
+allocation on to KFENCE).
 
-Fix this by adding separate variables to hold the pointers to the
-temporary allocations.
+Because truesize is used for bookkeeping (such as sk_wmem_queued), a
+modified truesize of a cloned skb may result in corrupt bookkeeping and
+relevant warnings (such as in sk_stream_kill_queues()).
 
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
-Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lkml.kernel.org/r/X9JR/J6dMMOy1obu@elver.google.com
+Reported-by: syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210201160420.2826895-1-elver@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ net/core/skbuff.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -2836,7 +2836,7 @@ video_usercopy(struct file *file, unsign
- 	       v4l2_kioctl func)
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2628,7 +2628,19 @@ EXPORT_SYMBOL(skb_split);
+  */
+ static int skb_prepare_for_shift(struct sk_buff *skb)
  {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -2894,20 +2894,14 @@ video_usercopy(struct file *file, unsign
- 	has_array_args = err;
- 
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kvmalloc(array_size, GFP_KERNEL);
-+		array_buf = kvmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
--		if (copy_from_user(mbuf, user_ptr, array_size))
-+		if (copy_from_user(array_buf, user_ptr, array_size))
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
- 	}
- 
- 	/* Handles IOCTL */
-@@ -2926,7 +2920,7 @@ video_usercopy(struct file *file, unsign
- 
- 	if (has_array_args) {
- 		*kernel_ptr = (void __force *)user_ptr;
--		if (copy_to_user(user_ptr, mbuf, array_size))
-+		if (copy_to_user(user_ptr, array_buf, array_size))
- 			err = -EFAULT;
- 		goto out_array_args;
- 	}
-@@ -2948,6 +2942,7 @@ out_array_args:
- 	}
- 
- out:
-+	kvfree(array_buf);
- 	kvfree(mbuf);
- 	return err;
+-	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++	int ret = 0;
++
++	if (skb_cloned(skb)) {
++		/* Save and restore truesize: pskb_expand_head() may reallocate
++		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
++		 * cannot change truesize at this point.
++		 */
++		unsigned int save_truesize = skb->truesize;
++
++		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++		skb->truesize = save_truesize;
++	}
++	return ret;
  }
+ 
+ /**
 
 
