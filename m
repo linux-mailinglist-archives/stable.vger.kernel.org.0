@@ -2,98 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7E332F33F
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 19:53:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD47F32F3B2
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 20:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbhCESx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 13:53:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58412 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229794AbhCESxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 13:53:06 -0500
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92BB6650AC;
-        Fri,  5 Mar 2021 18:53:06 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94)
-        (envelope-from <maz@kernel.org>)
-        id 1lIFZQ-00HYFA-Qa; Fri, 05 Mar 2021 18:53:04 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Alexandru Elisei <alexandru.elisei@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Andrew Scull <ascull@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Howard Zhang <Howard.Zhang@arm.com>,
-        Jia He <justin.he@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Quentin Perret <qperret@google.com>,
-        Shameerali Kolothum Thodi 
-        <shameerali.kolothum.thodi@huawei.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Julien Thierry <julien.thierry.kdev@gmail.com>,
-        kernel-team@android.com, linux-arm-kernel@lists.infradead.org,
-        kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH 8/8] KVM: arm64: Fix range alignment when walking page tables
-Date:   Fri,  5 Mar 2021 18:52:54 +0000
-Message-Id: <20210305185254.3730990-9-maz@kernel.org>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210305185254.3730990-1-maz@kernel.org>
-References: <87eegtzbch.wl-maz@kernel.org>
- <20210305185254.3730990-1-maz@kernel.org>
+        id S229906AbhCETSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 14:18:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40248 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229992AbhCETSP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 14:18:15 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04EE2C061574
+        for <stable@vger.kernel.org>; Fri,  5 Mar 2021 11:18:15 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lIFxj-0006kT-OZ; Fri, 05 Mar 2021 20:18:11 +0100
+Received: from ukl by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1lIFxe-0006wF-GI; Fri, 05 Mar 2021 20:18:06 +0100
+Date:   Fri, 5 Mar 2021 20:18:06 +0100
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To:     Nikolai Kostrigin <nickel@basealt.ru>
+Cc:     stable@vger.kernel.org,
+        'Dmitry Torokhov' <dmitry.torokhov@gmail.com>,
+        jingle <jingle.wu@emc.com.tw>, kernel@pengutronix.de,
+        linux-input@vger.kernel.org
+Subject: Re: elan_i2c: failed to read report data: -71
+Message-ID: <20210305191806.twbfrkgdgf4as7c2@pengutronix.de>
+References: <20210302210934.iro3a6chigx72r4n@pengutronix.de>
+ <016d01d70fdb$2aa48b00$7feda100$@emc.com.tw>
+ <20210303183223.rtqi63hdl3a7hahv@pengutronix.de>
+ <20210303200330.udsge64hxlrdkbwt@pengutronix.de>
+ <YEA9oajb7qj6LGPD@google.com>
+ <20210304065958.n3u5ewoby6rjsdvj@pengutronix.de>
+ <15cb57ba-9188-51a1-b931-da45932e199f@basealt.ru>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: pbonzini@redhat.com, alexandru.elisei@arm.com, andre.przywara@arm.com, ascull@google.com, catalin.marinas@arm.com, christoffer.dall@arm.com, Howard.Zhang@arm.com, justin.he@arm.com, mark.rutland@arm.com, qperret@google.com, shameerali.kolothum.thodi@huawei.com, suzuki.poulose@arm.com, will@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, kernel-team@android.com, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="wcq4hsgw6rzmyfal"
+Content-Disposition: inline
+In-Reply-To: <15cb57ba-9188-51a1-b931-da45932e199f@basealt.ru>
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia He <justin.he@arm.com>
 
-When walking the page tables at a given level, and if the start
-address for the range isn't aligned for that level, we propagate
-the misalignment on each iteration at that level.
+--wcq4hsgw6rzmyfal
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This results in the walker ignoring a number of entries (depending
-on the original misalignment) on each subsequent iteration.
+On Thu, Mar 04, 2021 at 11:49:59AM +0300, Nikolai Kostrigin wrote:
+> Hi,
+>=20
+> 04.03.2021 09:59, Uwe Kleine-K=C3=B6nig =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> > Hello,
+> >=20
+> > On Wed, Mar 03, 2021 at 05:53:37PM -0800, 'Dmitry Torokhov' wrote:
+> >> On Wed, Mar 03, 2021 at 09:03:30PM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> >>> On Wed, Mar 03, 2021 at 07:32:23PM +0100, Uwe Kleine-K=C3=B6nig wrote:
+> >>>> On Wed, Mar 03, 2021 at 11:13:21AM +0800, jingle wrote:
+> >>>>> Please updates this patchs.
+> >>>>>
+> >>>>> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/comm=
+it/?h=3Dnext&id=3D056115daede8d01f71732bc7d778fb85acee8eb6
+> >>>>>
+> >>>>> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/comm=
+it/?h=3Dnext&id=3De4c9062717feda88900b566463228d1c4910af6d
+> >>>>
+> >>>> The first was one of the two patches I already tried, but the latter
+> >>>> indeed fixes my problem \o/.
+> >>>>
+> >>>> @Dmitry: If you don't consider your tree stable, feel free to add a
+> >>>>
+> >>>> 	Tested-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+> >>>>
+> >>>> to e4c9062717feda88900b566463228d1c4910af6d.
+> >>>
+> >>> Do you consider this patch for stable? I'd like to see it in Debian's
+> >>> 5.10 kernel and I guess I'm not the only one who would benefit from s=
+uch
+> >>> a backport.
+> >>
+> >> When I was applying the patches I did not realize that there was alrea=
+dy
+> >> hardware in the wild that needed it. The patches are now in mainline, =
+so
+> >> I can no longer adjust the tags, but I will not object if you propose
+> >> them for stable.
+> >=20
+> > I want to propose to backport commit
+> >=20
+> > e4c9062717fe ("Input: elantech - fix protocol errors for some trackpoin=
+ts in SMBus mode")
+> >=20
+> > to the active stable kernels. This commit repairs the track point and
+> > the touch pad buttons on a Lenovo Thinkpad E15 here. Without this change
+> > I don't get any events apart from an error message for each button press
+> > or move of the track point in the kernel log. (Also the error message is
+> > the same for all buttons and the track point, so I cannot create a new
+> > input event driver in userspace that emulates the right event depending
+> > on the error message :-)
+> >=20
+> > At least to 5.10.x it applies cleanly, I didn't try the older stable
+> > branches.
+> >=20
+> > Best regards and thanks
+> > Uwe
+> >=20
+>=20
+> I'd like to propose to backport [1] also as it was checked along with
+> previously proposed patch and fixes Elan Trackpoint operation on
+> Thinkpad L13.
+>=20
+> Both patches apply cleanly to 5.10.17 in my case.
+>=20
+> I also tried to apply to 5.4.x, but failed.
+>=20
+> [1] 056115daede8 Input: elan_i2c - add new trackpoint report type 0x5F
+>=20
+> Additional info is available here:
+>=20
+> https://lore.kernel.org/linux-input/fe31f6f8-6e38-2ed6-8548-6fa271bf36e9@=
+basealt.ru/T/#m514047f2c5e7e2ec4ed9658782f14221ed7598fc
 
-Properly aligning the address before the next iteration addresses
-this issue.
+FTR: I tested 5.10 + e4c9062717fe ("Input: elantech - fix protocol
+errors for some trackpoints in SMBus mode") now and in this setup the
+touchpad is still broken. I assume that in combination with 056115daede8
+it will work. The working setup I tested was 5.10 + c7f0169e3bd2 +
+056115daede8 + e4c9062717fe and I assume c7f0169e3bd2 isn't relevant.
 
-Cc: stable@vger.kernel.org
-Reported-by: Howard Zhang <Howard.Zhang@arm.com>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Jia He <justin.he@arm.com>
-Fixes: b1e57de62cfb ("KVM: arm64: Add stand-alone page-table walker infrastructure")
-[maz: rewrite commit message]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210303024225.2591-1-justin.he@arm.com
----
- arch/arm64/kvm/hyp/pgtable.c | 1 +
- 1 file changed, 1 insertion(+)
+Best regards
+Uwe
 
-diff --git a/arch/arm64/kvm/hyp/pgtable.c b/arch/arm64/kvm/hyp/pgtable.c
-index 4d177ce1d536..926fc07074f5 100644
---- a/arch/arm64/kvm/hyp/pgtable.c
-+++ b/arch/arm64/kvm/hyp/pgtable.c
-@@ -223,6 +223,7 @@ static inline int __kvm_pgtable_visit(struct kvm_pgtable_walk_data *data,
- 		goto out;
- 
- 	if (!table) {
-+		data->addr = ALIGN_DOWN(data->addr, kvm_granule_size(level));
- 		data->addr += kvm_granule_size(level);
- 		goto out;
- 	}
--- 
-2.29.2
 
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig         =
+   |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--wcq4hsgw6rzmyfal
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmBCg+sACgkQwfwUeK3K
+7Am4YAf+OP00Ke+rm7oQcCgQ0J21ovdtkd20HbgWE/TQrdkxy1xE3A7YAwhiGkJM
+/lyStDb1gLbzXIpTdbMkeSrMRiQr8ASozTowvz7XQobKchB0iNfMw+DQfE/H5WMJ
+m73FkeZGBHfu9wWUDXIe5DRuiD/BMRe2Ml8aKg0v6C9wXeFHsFAYdXaKATxbuUOJ
+vtau3svrYgwEc621bO5sr5yC4b+45DG1bUB/lPhpwS93zdVK7gI3pnVZjGSuHzx6
+KjnOP/b6w146cTtgHaXIcTs0U3SiowYVm58LLKxPVHx0AhdCzAqFt0yolMfItrCN
+k/HDYglZAty6MOA5slvo0KCcZ1UAfg==
+=+pzN
+-----END PGP SIGNATURE-----
+
+--wcq4hsgw6rzmyfal--
