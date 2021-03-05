@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C8832EA74
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08A1932EB38
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229922AbhCEMim (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51622 "EHLO mail.kernel.org"
+        id S233309AbhCEMm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhCEMiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8F865044;
-        Fri,  5 Mar 2021 12:38:12 +0000 (UTC)
+        id S233937AbhCEMml (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B7EC6501E;
+        Fri,  5 Mar 2021 12:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947892;
-        bh=8ei/CYS8xQb5XrjFQ4+j+HL/fQtR6lLh7r6wnkYH01s=;
+        s=korg; t=1614948161;
+        bh=DlwxevAwl1h31rQTJECm1wGE30vmIYH41fbcchGjIdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUPGIsaKt86Nkp1rmJKzZSmqavTWiv/Ggw7zITJFbR7XfylW/JOloh1cXcmDsW30/
-         ghycwhM0E1jTwnGFBFLEXzAtkSQA4JVGv1aR+A+rkh+4l1MjS2RYc0jzht+lEVKGmc
-         1IOWk2Qhlji1tywXtQbC8tOwCLqCiMBMdg4tVLJI=
+        b=AlP4TYIgptktxgnYmrUkGw3V2S4N0lR5SI+E4H0AOYXJfF9denRC5SuV93rJluyEr
+         AiYBFxKAp5qQ0moY/Q3rJltZieMo7lKCR/jLPZay/yaBpe9VBhhYt0Rc7ujPSs6MDp
+         AAfoAHROAydEEzLCfgDL/LPyak1+RWcIFjD2FORg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Anthony Iliopoulos <ailiop@suse.com>
-Subject: [PATCH 4.19 49/52] swap: fix swapfile read/write offset
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Subject: [PATCH 4.9 13/41] printk: fix deadlock when kernel panic
 Date:   Fri,  5 Mar 2021 13:22:20 +0100
-Message-Id: <20210305120856.064797764@linuxfoundation.org>
+Message-Id: <20210305120851.935800288@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
+commit 8a8109f303e25a27f92c1d8edd67d7cbbc60a4eb upstream.
 
-We're not factoring in the start of the file for where to write and
-read the swapfile, which leads to very unfortunate side effects of
-writing where we should not be...
+printk_safe_flush_on_panic() caused the following deadlock on our
+server:
 
-[This issue only affects swapfiles on filesystems on top of blockdevs
-that implement rw_page ops (brd, zram, btt, pmem), and not on top of any
-other block devices, in contrast to the upstream commit fix.]
+CPU0:                                         CPU1:
+panic                                         rcu_dump_cpu_stacks
+  kdump_nmi_shootdown_cpus                      nmi_trigger_cpumask_backtrace
+    register_nmi_handler(crash_nmi_callback)      printk_safe_flush
+                                                    __printk_safe_flush
+                                                      raw_spin_lock_irqsave(&read_lock)
+    // send NMI to other processors
+    apic_send_IPI_allbutself(NMI_VECTOR)
+                                                        // NMI interrupt, dead loop
+                                                        crash_nmi_callback
+  printk_safe_flush_on_panic
+    printk_safe_flush
+      __printk_safe_flush
+        // deadlock
+        raw_spin_lock_irqsave(&read_lock)
 
-Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
+DEADLOCK: read_lock is taken on CPU1 and will never get released.
+
+It happens when panic() stops a CPU by NMI while it has been in
+the middle of printk_safe_flush().
+
+Handle the lock the same way as logbuf_lock. The printk_safe buffers
+are flushed only when both locks can be safely taken. It can avoid
+the deadlock _in this particular case_ at expense of losing contents
+of printk_safe buffers.
+
+Note: It would actually be safe to re-init the locks when all CPUs were
+      stopped by NMI. But it would require passing this information
+      from arch-specific code. It is not worth the complexity.
+      Especially because logbuf_lock and printk_safe buffers have been
+      obsoleted by the lockless ring buffer.
+
+Fixes: cf9b1106c81c ("printk/nmi: flush NMI messages on the system panic")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Cc: <stable@vger.kernel.org>
+Acked-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210210034823.64867-1-songmuchun@bytedance.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/page_io.c  |   11 +++--------
- mm/swapfile.c |    2 +-
- 2 files changed, 4 insertions(+), 9 deletions(-)
 
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -38,7 +38,6 @@ static struct bio *get_swap_bio(gfp_t gf
+---
+ kernel/printk/nmi.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+--- a/kernel/printk/nmi.c
++++ b/kernel/printk/nmi.c
+@@ -52,6 +52,8 @@ struct nmi_seq_buf {
+ };
+ static DEFINE_PER_CPU(struct nmi_seq_buf, nmi_print_seq);
  
- 		bio->bi_iter.bi_sector = map_swap_page(page, &bdev);
- 		bio_set_dev(bio, bdev);
--		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
- 		bio->bi_end_io = end_io;
- 
- 		for (i = 0; i < nr; i++)
-@@ -262,11 +261,6 @@ out:
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_SHIFT - 9);
--}
--
- static inline void count_swpout_vm_event(struct page *page)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -325,7 +319,8 @@ int __swap_writepage(struct page *page,
- 		return ret;
- 	}
- 
--	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
-+	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
-+			      page, wbc);
- 	if (!ret) {
- 		count_swpout_vm_event(page);
- 		return 0;
-@@ -376,7 +371,7 @@ int swap_readpage(struct page *page, boo
- 		return ret;
- 	}
- 
--	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
-+	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
- 	if (!ret) {
- 		if (trylock_page(page)) {
- 			swap_slot_free_notify(page);
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -2305,7 +2305,7 @@ sector_t map_swap_page(struct page *page
- {
- 	swp_entry_t entry;
- 	entry.val = page_private(page);
--	return map_swap_entry(entry, bdev);
-+	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
- }
- 
++static DEFINE_RAW_SPINLOCK(nmi_read_lock);
++
  /*
+  * Safe printk() for NMI context. It uses a per-CPU buffer to
+  * store the message. NMIs are not nested, so there is always only
+@@ -134,8 +136,6 @@ static void printk_nmi_flush_seq_line(st
+  */
+ static void __printk_nmi_flush(struct irq_work *work)
+ {
+-	static raw_spinlock_t read_lock =
+-		__RAW_SPIN_LOCK_INITIALIZER(read_lock);
+ 	struct nmi_seq_buf *s = container_of(work, struct nmi_seq_buf, work);
+ 	unsigned long flags;
+ 	size_t len, size;
+@@ -148,7 +148,7 @@ static void __printk_nmi_flush(struct ir
+ 	 * different CPUs. This is especially important when printing
+ 	 * a backtrace.
+ 	 */
+-	raw_spin_lock_irqsave(&read_lock, flags);
++	raw_spin_lock_irqsave(&nmi_read_lock, flags);
+ 
+ 	i = 0;
+ more:
+@@ -197,7 +197,7 @@ more:
+ 		goto more;
+ 
+ out:
+-	raw_spin_unlock_irqrestore(&read_lock, flags);
++	raw_spin_unlock_irqrestore(&nmi_read_lock, flags);
+ }
+ 
+ /**
+@@ -239,6 +239,14 @@ void printk_nmi_flush_on_panic(void)
+ 		raw_spin_lock_init(&logbuf_lock);
+ 	}
+ 
++	if (in_nmi() && raw_spin_is_locked(&nmi_read_lock)) {
++		if (num_online_cpus() > 1)
++			return;
++
++		debug_locks_off();
++		raw_spin_lock_init(&nmi_read_lock);
++	}
++
+ 	printk_nmi_flush();
+ }
+ 
 
 
