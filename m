@@ -2,31 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B05332EB5E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 308EC32EB59
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233679AbhCEMnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60350 "EHLO mail.kernel.org"
+        id S232968AbhCEMnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:43:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233781AbhCEMnY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:43:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A99865037;
-        Fri,  5 Mar 2021 12:43:23 +0000 (UTC)
+        id S233749AbhCEMn2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:43:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 535E56501E;
+        Fri,  5 Mar 2021 12:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948204;
-        bh=NrG+Vy08TDWPTGqLD7yn+tbUYEZVsHhvi1dT4c5g6x4=;
+        s=korg; t=1614948206;
+        bh=2F3pVysLsqG0bV7zFdcwsmz8wCOoRWJf6SO7Q3IP/oU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwBoM6liEl6KJmGcYnk+JpZaVaV2h+f1tQ+7WceC+DUHmMvoV3waalVrwFsHk1IUF
-         cB1JeKTaomUIOy4kTUs8ZqjF/+L7lHMsmFHz8xY/4xQwunSYG6muNpZgH88T1mfuuB
-         H5kpHeZdfgxJcJbCYCbekonXPmV1HKxYNgtlyFYA=
+        b=CIya+g++E1KOrACgk8be/eNscsQ78acfS0XLwSRp/s/6vOk5VjOl9owrP8sLCe8Q5
+         h0rz7Oahi4s1oLF43Cnbpto11qoUptYlreZroJ/yxz2o0EIfwATpkNQyzko93HJVzK
+         xmwesIBtJeQYmytFti/EF54sZ7OcObMk9bNJhr1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>
-Subject: [PATCH 4.4 23/30] sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
-Date:   Fri,  5 Mar 2021 13:22:52 +0100
-Message-Id: <20210305120850.555700875@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Nichols <adam@grimm-co.com>,
+        Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Chris Leech <cleech@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.4 24/30] scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
+Date:   Fri,  5 Mar 2021 13:22:53 +0100
+Message-Id: <20210305120850.606348833@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
 References: <20210305120849.381261651@linuxfoundation.org>
@@ -38,151 +42,438 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Chris Leech <cleech@redhat.com>
 
-commit 2efc459d06f1630001e3984854848a5647086232 upstream.
+commit ec98ea7070e94cc25a422ec97d1421e28d97b7ee upstream.
 
-Output defects can exist in sysfs content using sprintf and snprintf.
+As the iSCSI parameters are exported back through sysfs, it should be
+enforcing that they never are more than PAGE_SIZE (which should be more
+than enough) before accepting updates through netlink.
 
-sprintf does not know the PAGE_SIZE maximum of the temporary buffer
-used for outputting sysfs content and it's possible to overrun the
-PAGE_SIZE buffer length.
+Change all iSCSI sysfs attributes to use sysfs_emit().
 
-Add a generic sysfs_emit function that knows that the size of the
-temporary buffer and ensures that no overrun is done.
-
-Add a generic sysfs_emit_at function that can be used in multiple
-call situations that also ensures that no overrun is done.
-
-Validate the output buffer argument to be page aligned.
-Validate the offset len argument to be within the PAGE_SIZE buf.
-
-Signed-off-by: Joe Perches <joe@perches.com>
-Link: https://lore.kernel.org/r/884235202216d464d61ee975f7465332c86f76b2.1600285923.git.joe@perches.com
+Cc: stable@vger.kernel.org
+Reported-by: Adam Nichols <adam@grimm-co.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Chris Leech <cleech@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/filesystems/sysfs.txt |    8 +----
- fs/sysfs/file.c                     |   55 ++++++++++++++++++++++++++++++++++++
- include/linux/sysfs.h               |   16 ++++++++++
- 3 files changed, 74 insertions(+), 5 deletions(-)
+ drivers/scsi/libiscsi.c             |  148 ++++++++++++++++++------------------
+ drivers/scsi/scsi_transport_iscsi.c |   23 +++--
+ 2 files changed, 89 insertions(+), 82 deletions(-)
 
---- a/Documentation/filesystems/sysfs.txt
-+++ b/Documentation/filesystems/sysfs.txt
-@@ -211,12 +211,10 @@ Other notes:
-   is 4096. 
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -3371,125 +3371,125 @@ int iscsi_session_get_param(struct iscsi
  
- - show() methods should return the number of bytes printed into the
--  buffer. This is the return value of scnprintf().
-+  buffer.
+ 	switch(param) {
+ 	case ISCSI_PARAM_FAST_ABORT:
+-		len = sprintf(buf, "%d\n", session->fast_abort);
++		len = sysfs_emit(buf, "%d\n", session->fast_abort);
+ 		break;
+ 	case ISCSI_PARAM_ABORT_TMO:
+-		len = sprintf(buf, "%d\n", session->abort_timeout);
++		len = sysfs_emit(buf, "%d\n", session->abort_timeout);
+ 		break;
+ 	case ISCSI_PARAM_LU_RESET_TMO:
+-		len = sprintf(buf, "%d\n", session->lu_reset_timeout);
++		len = sysfs_emit(buf, "%d\n", session->lu_reset_timeout);
+ 		break;
+ 	case ISCSI_PARAM_TGT_RESET_TMO:
+-		len = sprintf(buf, "%d\n", session->tgt_reset_timeout);
++		len = sysfs_emit(buf, "%d\n", session->tgt_reset_timeout);
+ 		break;
+ 	case ISCSI_PARAM_INITIAL_R2T_EN:
+-		len = sprintf(buf, "%d\n", session->initial_r2t_en);
++		len = sysfs_emit(buf, "%d\n", session->initial_r2t_en);
+ 		break;
+ 	case ISCSI_PARAM_MAX_R2T:
+-		len = sprintf(buf, "%hu\n", session->max_r2t);
++		len = sysfs_emit(buf, "%hu\n", session->max_r2t);
+ 		break;
+ 	case ISCSI_PARAM_IMM_DATA_EN:
+-		len = sprintf(buf, "%d\n", session->imm_data_en);
++		len = sysfs_emit(buf, "%d\n", session->imm_data_en);
+ 		break;
+ 	case ISCSI_PARAM_FIRST_BURST:
+-		len = sprintf(buf, "%u\n", session->first_burst);
++		len = sysfs_emit(buf, "%u\n", session->first_burst);
+ 		break;
+ 	case ISCSI_PARAM_MAX_BURST:
+-		len = sprintf(buf, "%u\n", session->max_burst);
++		len = sysfs_emit(buf, "%u\n", session->max_burst);
+ 		break;
+ 	case ISCSI_PARAM_PDU_INORDER_EN:
+-		len = sprintf(buf, "%d\n", session->pdu_inorder_en);
++		len = sysfs_emit(buf, "%d\n", session->pdu_inorder_en);
+ 		break;
+ 	case ISCSI_PARAM_DATASEQ_INORDER_EN:
+-		len = sprintf(buf, "%d\n", session->dataseq_inorder_en);
++		len = sysfs_emit(buf, "%d\n", session->dataseq_inorder_en);
+ 		break;
+ 	case ISCSI_PARAM_DEF_TASKMGMT_TMO:
+-		len = sprintf(buf, "%d\n", session->def_taskmgmt_tmo);
++		len = sysfs_emit(buf, "%d\n", session->def_taskmgmt_tmo);
+ 		break;
+ 	case ISCSI_PARAM_ERL:
+-		len = sprintf(buf, "%d\n", session->erl);
++		len = sysfs_emit(buf, "%d\n", session->erl);
+ 		break;
+ 	case ISCSI_PARAM_TARGET_NAME:
+-		len = sprintf(buf, "%s\n", session->targetname);
++		len = sysfs_emit(buf, "%s\n", session->targetname);
+ 		break;
+ 	case ISCSI_PARAM_TARGET_ALIAS:
+-		len = sprintf(buf, "%s\n", session->targetalias);
++		len = sysfs_emit(buf, "%s\n", session->targetalias);
+ 		break;
+ 	case ISCSI_PARAM_TPGT:
+-		len = sprintf(buf, "%d\n", session->tpgt);
++		len = sysfs_emit(buf, "%d\n", session->tpgt);
+ 		break;
+ 	case ISCSI_PARAM_USERNAME:
+-		len = sprintf(buf, "%s\n", session->username);
++		len = sysfs_emit(buf, "%s\n", session->username);
+ 		break;
+ 	case ISCSI_PARAM_USERNAME_IN:
+-		len = sprintf(buf, "%s\n", session->username_in);
++		len = sysfs_emit(buf, "%s\n", session->username_in);
+ 		break;
+ 	case ISCSI_PARAM_PASSWORD:
+-		len = sprintf(buf, "%s\n", session->password);
++		len = sysfs_emit(buf, "%s\n", session->password);
+ 		break;
+ 	case ISCSI_PARAM_PASSWORD_IN:
+-		len = sprintf(buf, "%s\n", session->password_in);
++		len = sysfs_emit(buf, "%s\n", session->password_in);
+ 		break;
+ 	case ISCSI_PARAM_IFACE_NAME:
+-		len = sprintf(buf, "%s\n", session->ifacename);
++		len = sysfs_emit(buf, "%s\n", session->ifacename);
+ 		break;
+ 	case ISCSI_PARAM_INITIATOR_NAME:
+-		len = sprintf(buf, "%s\n", session->initiatorname);
++		len = sysfs_emit(buf, "%s\n", session->initiatorname);
+ 		break;
+ 	case ISCSI_PARAM_BOOT_ROOT:
+-		len = sprintf(buf, "%s\n", session->boot_root);
++		len = sysfs_emit(buf, "%s\n", session->boot_root);
+ 		break;
+ 	case ISCSI_PARAM_BOOT_NIC:
+-		len = sprintf(buf, "%s\n", session->boot_nic);
++		len = sysfs_emit(buf, "%s\n", session->boot_nic);
+ 		break;
+ 	case ISCSI_PARAM_BOOT_TARGET:
+-		len = sprintf(buf, "%s\n", session->boot_target);
++		len = sysfs_emit(buf, "%s\n", session->boot_target);
+ 		break;
+ 	case ISCSI_PARAM_AUTO_SND_TGT_DISABLE:
+-		len = sprintf(buf, "%u\n", session->auto_snd_tgt_disable);
++		len = sysfs_emit(buf, "%u\n", session->auto_snd_tgt_disable);
+ 		break;
+ 	case ISCSI_PARAM_DISCOVERY_SESS:
+-		len = sprintf(buf, "%u\n", session->discovery_sess);
++		len = sysfs_emit(buf, "%u\n", session->discovery_sess);
+ 		break;
+ 	case ISCSI_PARAM_PORTAL_TYPE:
+-		len = sprintf(buf, "%s\n", session->portal_type);
++		len = sysfs_emit(buf, "%s\n", session->portal_type);
+ 		break;
+ 	case ISCSI_PARAM_CHAP_AUTH_EN:
+-		len = sprintf(buf, "%u\n", session->chap_auth_en);
++		len = sysfs_emit(buf, "%u\n", session->chap_auth_en);
+ 		break;
+ 	case ISCSI_PARAM_DISCOVERY_LOGOUT_EN:
+-		len = sprintf(buf, "%u\n", session->discovery_logout_en);
++		len = sysfs_emit(buf, "%u\n", session->discovery_logout_en);
+ 		break;
+ 	case ISCSI_PARAM_BIDI_CHAP_EN:
+-		len = sprintf(buf, "%u\n", session->bidi_chap_en);
++		len = sysfs_emit(buf, "%u\n", session->bidi_chap_en);
+ 		break;
+ 	case ISCSI_PARAM_DISCOVERY_AUTH_OPTIONAL:
+-		len = sprintf(buf, "%u\n", session->discovery_auth_optional);
++		len = sysfs_emit(buf, "%u\n", session->discovery_auth_optional);
+ 		break;
+ 	case ISCSI_PARAM_DEF_TIME2WAIT:
+-		len = sprintf(buf, "%d\n", session->time2wait);
++		len = sysfs_emit(buf, "%d\n", session->time2wait);
+ 		break;
+ 	case ISCSI_PARAM_DEF_TIME2RETAIN:
+-		len = sprintf(buf, "%d\n", session->time2retain);
++		len = sysfs_emit(buf, "%d\n", session->time2retain);
+ 		break;
+ 	case ISCSI_PARAM_TSID:
+-		len = sprintf(buf, "%u\n", session->tsid);
++		len = sysfs_emit(buf, "%u\n", session->tsid);
+ 		break;
+ 	case ISCSI_PARAM_ISID:
+-		len = sprintf(buf, "%02x%02x%02x%02x%02x%02x\n",
++		len = sysfs_emit(buf, "%02x%02x%02x%02x%02x%02x\n",
+ 			      session->isid[0], session->isid[1],
+ 			      session->isid[2], session->isid[3],
+ 			      session->isid[4], session->isid[5]);
+ 		break;
+ 	case ISCSI_PARAM_DISCOVERY_PARENT_IDX:
+-		len = sprintf(buf, "%u\n", session->discovery_parent_idx);
++		len = sysfs_emit(buf, "%u\n", session->discovery_parent_idx);
+ 		break;
+ 	case ISCSI_PARAM_DISCOVERY_PARENT_TYPE:
+ 		if (session->discovery_parent_type)
+-			len = sprintf(buf, "%s\n",
++			len = sysfs_emit(buf, "%s\n",
+ 				      session->discovery_parent_type);
+ 		else
+-			len = sprintf(buf, "\n");
++			len = sysfs_emit(buf, "\n");
+ 		break;
+ 	default:
+ 		return -ENOSYS;
+@@ -3521,16 +3521,16 @@ int iscsi_conn_get_addr_param(struct soc
+ 	case ISCSI_PARAM_CONN_ADDRESS:
+ 	case ISCSI_HOST_PARAM_IPADDRESS:
+ 		if (sin)
+-			len = sprintf(buf, "%pI4\n", &sin->sin_addr.s_addr);
++			len = sysfs_emit(buf, "%pI4\n", &sin->sin_addr.s_addr);
+ 		else
+-			len = sprintf(buf, "%pI6\n", &sin6->sin6_addr);
++			len = sysfs_emit(buf, "%pI6\n", &sin6->sin6_addr);
+ 		break;
+ 	case ISCSI_PARAM_CONN_PORT:
+ 	case ISCSI_PARAM_LOCAL_PORT:
+ 		if (sin)
+-			len = sprintf(buf, "%hu\n", be16_to_cpu(sin->sin_port));
++			len = sysfs_emit(buf, "%hu\n", be16_to_cpu(sin->sin_port));
+ 		else
+-			len = sprintf(buf, "%hu\n",
++			len = sysfs_emit(buf, "%hu\n",
+ 				      be16_to_cpu(sin6->sin6_port));
+ 		break;
+ 	default:
+@@ -3549,88 +3549,88 @@ int iscsi_conn_get_param(struct iscsi_cl
  
--- show() must not use snprintf() when formatting the value to be
--  returned to user space. If you can guarantee that an overflow
--  will never happen you can use sprintf() otherwise you must use
--  scnprintf().
-+- show() should only use sysfs_emit() or sysfs_emit_at() when formatting
-+  the value to be returned to user space.
+ 	switch(param) {
+ 	case ISCSI_PARAM_PING_TMO:
+-		len = sprintf(buf, "%u\n", conn->ping_timeout);
++		len = sysfs_emit(buf, "%u\n", conn->ping_timeout);
+ 		break;
+ 	case ISCSI_PARAM_RECV_TMO:
+-		len = sprintf(buf, "%u\n", conn->recv_timeout);
++		len = sysfs_emit(buf, "%u\n", conn->recv_timeout);
+ 		break;
+ 	case ISCSI_PARAM_MAX_RECV_DLENGTH:
+-		len = sprintf(buf, "%u\n", conn->max_recv_dlength);
++		len = sysfs_emit(buf, "%u\n", conn->max_recv_dlength);
+ 		break;
+ 	case ISCSI_PARAM_MAX_XMIT_DLENGTH:
+-		len = sprintf(buf, "%u\n", conn->max_xmit_dlength);
++		len = sysfs_emit(buf, "%u\n", conn->max_xmit_dlength);
+ 		break;
+ 	case ISCSI_PARAM_HDRDGST_EN:
+-		len = sprintf(buf, "%d\n", conn->hdrdgst_en);
++		len = sysfs_emit(buf, "%d\n", conn->hdrdgst_en);
+ 		break;
+ 	case ISCSI_PARAM_DATADGST_EN:
+-		len = sprintf(buf, "%d\n", conn->datadgst_en);
++		len = sysfs_emit(buf, "%d\n", conn->datadgst_en);
+ 		break;
+ 	case ISCSI_PARAM_IFMARKER_EN:
+-		len = sprintf(buf, "%d\n", conn->ifmarker_en);
++		len = sysfs_emit(buf, "%d\n", conn->ifmarker_en);
+ 		break;
+ 	case ISCSI_PARAM_OFMARKER_EN:
+-		len = sprintf(buf, "%d\n", conn->ofmarker_en);
++		len = sysfs_emit(buf, "%d\n", conn->ofmarker_en);
+ 		break;
+ 	case ISCSI_PARAM_EXP_STATSN:
+-		len = sprintf(buf, "%u\n", conn->exp_statsn);
++		len = sysfs_emit(buf, "%u\n", conn->exp_statsn);
+ 		break;
+ 	case ISCSI_PARAM_PERSISTENT_PORT:
+-		len = sprintf(buf, "%d\n", conn->persistent_port);
++		len = sysfs_emit(buf, "%d\n", conn->persistent_port);
+ 		break;
+ 	case ISCSI_PARAM_PERSISTENT_ADDRESS:
+-		len = sprintf(buf, "%s\n", conn->persistent_address);
++		len = sysfs_emit(buf, "%s\n", conn->persistent_address);
+ 		break;
+ 	case ISCSI_PARAM_STATSN:
+-		len = sprintf(buf, "%u\n", conn->statsn);
++		len = sysfs_emit(buf, "%u\n", conn->statsn);
+ 		break;
+ 	case ISCSI_PARAM_MAX_SEGMENT_SIZE:
+-		len = sprintf(buf, "%u\n", conn->max_segment_size);
++		len = sysfs_emit(buf, "%u\n", conn->max_segment_size);
+ 		break;
+ 	case ISCSI_PARAM_KEEPALIVE_TMO:
+-		len = sprintf(buf, "%u\n", conn->keepalive_tmo);
++		len = sysfs_emit(buf, "%u\n", conn->keepalive_tmo);
+ 		break;
+ 	case ISCSI_PARAM_LOCAL_PORT:
+-		len = sprintf(buf, "%u\n", conn->local_port);
++		len = sysfs_emit(buf, "%u\n", conn->local_port);
+ 		break;
+ 	case ISCSI_PARAM_TCP_TIMESTAMP_STAT:
+-		len = sprintf(buf, "%u\n", conn->tcp_timestamp_stat);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_timestamp_stat);
+ 		break;
+ 	case ISCSI_PARAM_TCP_NAGLE_DISABLE:
+-		len = sprintf(buf, "%u\n", conn->tcp_nagle_disable);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_nagle_disable);
+ 		break;
+ 	case ISCSI_PARAM_TCP_WSF_DISABLE:
+-		len = sprintf(buf, "%u\n", conn->tcp_wsf_disable);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_wsf_disable);
+ 		break;
+ 	case ISCSI_PARAM_TCP_TIMER_SCALE:
+-		len = sprintf(buf, "%u\n", conn->tcp_timer_scale);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_timer_scale);
+ 		break;
+ 	case ISCSI_PARAM_TCP_TIMESTAMP_EN:
+-		len = sprintf(buf, "%u\n", conn->tcp_timestamp_en);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_timestamp_en);
+ 		break;
+ 	case ISCSI_PARAM_IP_FRAGMENT_DISABLE:
+-		len = sprintf(buf, "%u\n", conn->fragment_disable);
++		len = sysfs_emit(buf, "%u\n", conn->fragment_disable);
+ 		break;
+ 	case ISCSI_PARAM_IPV4_TOS:
+-		len = sprintf(buf, "%u\n", conn->ipv4_tos);
++		len = sysfs_emit(buf, "%u\n", conn->ipv4_tos);
+ 		break;
+ 	case ISCSI_PARAM_IPV6_TC:
+-		len = sprintf(buf, "%u\n", conn->ipv6_traffic_class);
++		len = sysfs_emit(buf, "%u\n", conn->ipv6_traffic_class);
+ 		break;
+ 	case ISCSI_PARAM_IPV6_FLOW_LABEL:
+-		len = sprintf(buf, "%u\n", conn->ipv6_flow_label);
++		len = sysfs_emit(buf, "%u\n", conn->ipv6_flow_label);
+ 		break;
+ 	case ISCSI_PARAM_IS_FW_ASSIGNED_IPV6:
+-		len = sprintf(buf, "%u\n", conn->is_fw_assigned_ipv6);
++		len = sysfs_emit(buf, "%u\n", conn->is_fw_assigned_ipv6);
+ 		break;
+ 	case ISCSI_PARAM_TCP_XMIT_WSF:
+-		len = sprintf(buf, "%u\n", conn->tcp_xmit_wsf);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_xmit_wsf);
+ 		break;
+ 	case ISCSI_PARAM_TCP_RECV_WSF:
+-		len = sprintf(buf, "%u\n", conn->tcp_recv_wsf);
++		len = sysfs_emit(buf, "%u\n", conn->tcp_recv_wsf);
+ 		break;
+ 	case ISCSI_PARAM_LOCAL_IPADDR:
+-		len = sprintf(buf, "%s\n", conn->local_ipaddr);
++		len = sysfs_emit(buf, "%s\n", conn->local_ipaddr);
+ 		break;
+ 	default:
+ 		return -ENOSYS;
+@@ -3648,13 +3648,13 @@ int iscsi_host_get_param(struct Scsi_Hos
  
- - store() should return the number of bytes used from the buffer. If the
-   entire buffer has been used, just return the count argument.
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -17,6 +17,7 @@
- #include <linux/list.h>
- #include <linux/mutex.h>
- #include <linux/seq_file.h>
-+#include <linux/mm.h>
+ 	switch (param) {
+ 	case ISCSI_HOST_PARAM_NETDEV_NAME:
+-		len = sprintf(buf, "%s\n", ihost->netdev);
++		len = sysfs_emit(buf, "%s\n", ihost->netdev);
+ 		break;
+ 	case ISCSI_HOST_PARAM_HWADDRESS:
+-		len = sprintf(buf, "%s\n", ihost->hwaddress);
++		len = sysfs_emit(buf, "%s\n", ihost->hwaddress);
+ 		break;
+ 	case ISCSI_HOST_PARAM_INITIATOR_NAME:
+-		len = sprintf(buf, "%s\n", ihost->initiatorname);
++		len = sysfs_emit(buf, "%s\n", ihost->initiatorname);
+ 		break;
+ 	default:
+ 		return -ENOSYS;
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -122,7 +122,8 @@ show_transport_handle(struct device *dev
  
- #include "sysfs.h"
- #include "../kernfs/kernfs-internal.h"
-@@ -549,3 +550,57 @@ void sysfs_remove_bin_file(struct kobjec
- 	kernfs_remove_by_name(kobj->sd, attr->attr.name);
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+-	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
++	return sysfs_emit(buf, "%llu\n",
++		  (unsigned long long)iscsi_handle(priv->iscsi_transport));
  }
- EXPORT_SYMBOL_GPL(sysfs_remove_bin_file);
-+
-+/**
-+ *	sysfs_emit - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @format
-+ *
-+ *
-+ * Returns number of characters written to @buf.
-+ */
-+int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf),
-+		 "invalid sysfs_emit: buf:%p\n", buf))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf, PAGE_SIZE, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit);
-+
-+/**
-+ *	sysfs_emit_at - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@at:	offset in @buf to start write in bytes
-+ *		@at must be >= 0 && < PAGE_SIZE
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @fmt
-+ *
-+ *
-+ * Returns number of characters written starting at &@buf[@at].
-+ */
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
-+		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf + at, PAGE_SIZE - at, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit_at);
---- a/include/linux/sysfs.h
-+++ b/include/linux/sysfs.h
-@@ -300,6 +300,11 @@ static inline void sysfs_enable_ns(struc
- 	return kernfs_enable_ns(kn);
- }
+ static DEVICE_ATTR(handle, S_IRUGO, show_transport_handle, NULL);
  
-+__printf(2, 3)
-+int sysfs_emit(char *buf, const char *fmt, ...);
-+__printf(3, 4)
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...);
-+
- #else /* CONFIG_SYSFS */
+@@ -132,7 +133,7 @@ show_transport_##name(struct device *dev
+ 		      struct device_attribute *attr,char *buf)		\
+ {									\
+ 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);	\
+-	return sprintf(buf, format"\n", priv->iscsi_transport->name);	\
++	return sysfs_emit(buf, format"\n", priv->iscsi_transport->name);\
+ }									\
+ static DEVICE_ATTR(name, S_IRUGO, show_transport_##name, NULL);
  
- static inline int sysfs_create_dir_ns(struct kobject *kobj, const void *ns)
-@@ -506,6 +511,17 @@ static inline void sysfs_enable_ns(struc
+@@ -173,7 +174,7 @@ static ssize_t
+ show_ep_handle(struct device *dev, struct device_attribute *attr, char *buf)
  {
+ 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
+-	return sprintf(buf, "%llu\n", (unsigned long long) ep->id);
++	return sysfs_emit(buf, "%llu\n", (unsigned long long) ep->id);
+ }
+ static ISCSI_ATTR(ep, handle, S_IRUGO, show_ep_handle, NULL);
+ 
+@@ -2786,6 +2787,9 @@ iscsi_set_param(struct iscsi_transport *
+ 	struct iscsi_cls_session *session;
+ 	int err = 0, value = 0;
+ 
++	if (ev->u.set_param.len > PAGE_SIZE)
++		return -EINVAL;
++
+ 	session = iscsi_session_lookup(ev->u.set_param.sid);
+ 	conn = iscsi_conn_lookup(ev->u.set_param.sid, ev->u.set_param.cid);
+ 	if (!conn || !session)
+@@ -2933,6 +2937,9 @@ iscsi_set_host_param(struct iscsi_transp
+ 	if (!transport->set_host_param)
+ 		return -ENOSYS;
+ 
++	if (ev->u.set_host_param.len > PAGE_SIZE)
++		return -EINVAL;
++
+ 	shost = scsi_host_lookup(ev->u.set_host_param.host_no);
+ 	if (!shost) {
+ 		printk(KERN_ERR "set_host_param could not find host no %u\n",
+@@ -4038,7 +4045,7 @@ show_priv_session_state(struct device *d
+ 			char *buf)
+ {
+ 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+-	return sprintf(buf, "%s\n", iscsi_session_state_name(session->state));
++	return sysfs_emit(buf, "%s\n", iscsi_session_state_name(session->state));
+ }
+ static ISCSI_CLASS_ATTR(priv_sess, state, S_IRUGO, show_priv_session_state,
+ 			NULL);
+@@ -4047,7 +4054,7 @@ show_priv_session_creator(struct device
+ 			char *buf)
+ {
+ 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+-	return sprintf(buf, "%d\n", session->creator);
++	return sysfs_emit(buf, "%d\n", session->creator);
+ }
+ static ISCSI_CLASS_ATTR(priv_sess, creator, S_IRUGO, show_priv_session_creator,
+ 			NULL);
+@@ -4056,7 +4063,7 @@ show_priv_session_target_id(struct devic
+ 			    char *buf)
+ {
+ 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
+-	return sprintf(buf, "%d\n", session->target_id);
++	return sysfs_emit(buf, "%d\n", session->target_id);
+ }
+ static ISCSI_CLASS_ATTR(priv_sess, target_id, S_IRUGO,
+ 			show_priv_session_target_id, NULL);
+@@ -4069,8 +4076,8 @@ show_priv_session_##field(struct device
+ 	struct iscsi_cls_session *session = 				\
+ 			iscsi_dev_to_session(dev->parent);		\
+ 	if (session->field == -1)					\
+-		return sprintf(buf, "off\n");				\
+-	return sprintf(buf, format"\n", session->field);		\
++		return sysfs_emit(buf, "off\n");			\
++	return sysfs_emit(buf, format"\n", session->field);		\
  }
  
-+__printf(2, 3)
-+static inline int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	return 0;
-+}
-+
-+__printf(3, 4)
-+static inline int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_SYSFS */
- 
- static inline int __must_check sysfs_create_file(struct kobject *kobj,
+ #define iscsi_priv_session_attr_store(field)				\
 
 
