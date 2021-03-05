@@ -2,128 +2,308 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60E9432E00B
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 04:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA6C32E04B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 04:48:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229478AbhCEDZF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 22:25:05 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13060 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229458AbhCEDZF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 22:25:05 -0500
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DsCjR3kjszMjHB;
-        Fri,  5 Mar 2021 11:22:51 +0800 (CST)
-Received: from [10.67.102.197] (10.67.102.197) by
- DGGEMS402-HUB.china.huawei.com (10.3.19.202) with Microsoft SMTP Server id
- 14.3.498.0; Fri, 5 Mar 2021 11:24:55 +0800
-Subject: Re: [PATCH 4/4] nfc: Avoid endless loops caused by repeated
- llcp_sock_connect()(Internet mail)
-To:     =?UTF-8?B?a2l5aW4o5bC55LquKQ==?= <kiyin@tencent.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "sameo@linux.intel.com" <sameo@linux.intel.com>,
-        "linville@tuxdriver.com" <linville@tuxdriver.com>,
-        "davem@davemloft.net" <davem@davemloft.net>,
-        "kuba@kernel.org" <kuba@kernel.org>,
-        "mkl@pengutronix.de" <mkl@pengutronix.de>,
-        "stefan@datenfreihafen.org" <stefan@datenfreihafen.org>,
-        "matthieu.baerts@tessares.net" <matthieu.baerts@tessares.net>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-CC:     "wangle6@huawei.com" <wangle6@huawei.com>,
-        "xiaoqian9@huawei.com" <xiaoqian9@huawei.com>
-References: <20210303061654.127666-1-nixiaoming@huawei.com>
- <20210303061654.127666-5-nixiaoming@huawei.com>
- <2965a9b88d254b7f8e7f4356875bbedb@tencent.com>
-From:   Xiaoming Ni <nixiaoming@huawei.com>
-Message-ID: <9295c052-a9e2-619c-eb40-87b592e2c08d@huawei.com>
-Date:   Fri, 5 Mar 2021 11:24:55 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.0.1
+        id S229463AbhCEDsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 22:48:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229458AbhCEDsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 22:48:04 -0500
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E740C061574
+        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 19:48:04 -0800 (PST)
+Received: by mail-pl1-x62c.google.com with SMTP id z5so702726plg.3
+        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 19:48:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7oorKn7/f11nn1Kp6LX3+JzOtFZGukfk4fd7jYnxLwc=;
+        b=RRcXdoxx8+hBJkSTQxvbMGizMvUsr17sgMSgvq+0ZzYEnlxLXyFi2UvYeGHD32iNa3
+         oVxBTABo+UhHBQ3IzbIoMLLf8LZ3oi/T40TmY9vs7kNkmxQRzfeTDsj22s93v4ZddJBM
+         +PIpWXXY+8oEvsxmO4h4p33m9B83SlSJz9IhZ0SibbAY6VeEc7gm+kisWC0115PgjHEE
+         7HATdR/IHlWq3HZQpV1LYX2TK1oEKMIeYKKBEXK/XgK9OpAFRqW+tYdDUc+dicFgpb0N
+         uXuFUkGDwFzpZf3+R6f2GZBMCUCwXV4HxsK7JmRCglMNJSIHN2O+M8K86SgfVAWrlmdd
+         uj7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7oorKn7/f11nn1Kp6LX3+JzOtFZGukfk4fd7jYnxLwc=;
+        b=Qf1aboLjuCD79rBNWO6puVapQk8FhIzs7CCV44ZBrNOTB5+g1a8XtRtVvq1G2PViqw
+         UiySdmSZvU0jOY4OcNssRpGLiDBR8NjAeMTpCAMbmGemFSpG9Idean+1iuPCEpxXn1Nr
+         wFYfnj1sc3+cCfnU30RX6UzPDWLTcX7k6Cvs2+orwyD77m9hNEfbPbAJxnZc0embYJVg
+         y2KNmo0RcNwniGUL2L1JeuhkICoe+Abi/ElBj27fZSqb3GUO8DXE6L9a5HzOEoxpJ5kh
+         G6Xs/+w8C3OPbTwC4OQErl1XDTOTXkwyItysIuaPMwJ/msEVDM2vfqrtM4iKnutM5hQO
+         t0AQ==
+X-Gm-Message-State: AOAM532DTyL5we12llzetodTUJ1pivilvPakqS91YscReTn/dSg2pY1S
+        u+40g/y/FIw6CqsfeuzRCdnv9asHPMyGwb3r
+X-Google-Smtp-Source: ABdhPJwv2hZSzIn5ReNVHZhCtUUepU9s+dJPZNE+1UOgMvbV5PicT6HwKY4IuBEKFAxIowbgFdoP/w==
+X-Received: by 2002:a17:90a:29a3:: with SMTP id h32mr8303306pjd.209.1614916083723;
+        Thu, 04 Mar 2021 19:48:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s22sm698080pgv.94.2021.03.04.19.48.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Mar 2021 19:48:03 -0800 (PST)
+Message-ID: <6041a9f3.1c69fb81.45283.3494@mx.google.com>
+Date:   Thu, 04 Mar 2021 19:48:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <2965a9b88d254b7f8e7f4356875bbedb@tencent.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.67.102.197]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.102-27-g660809e91068
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 174 runs,
+ 6 regressions (v5.4.102-27-g660809e91068)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021/3/3 17:28, kiyin(尹亮) wrote:
-> Hi xiaoming,
->    the path can only fix the endless loop problem. it can't fix the meaningless llcp_sock->service_name problem.
->    if we set llcp_sock->service_name to meaningless string, the connect will be failed. and sk->sk_state will not be LLCP_CONNECTED. then we can call llcp_sock_connect() many times. that leaks everything: llcp_sock->dev, llcp_sock->local, llcp_sock->ssap, llcp_sock->service_name...
+stable-rc/queue/5.4 baseline: 174 runs, 6 regressions (v5.4.102-27-g660809e=
+91068)
 
-I didn't find the code to modify sk->sk_state after a connect failure. 
-Can you provide guidance?
+Regressions Summary
+-------------------
 
-Based on my understanding of the current code:
-After llcp_sock_connect() is invoked using the meaningless service_name 
-as the parameter, sk->sk_state is set to LLCP_CONNECTING. After that, no 
-corresponding service responds to the request because the service_name 
-is meaningless, the value of sk->sk_state remains unchanged.
-Therefore, when llcp_sock_connect() is invoked again, resources such as 
-llcp_sock->service_name are not repeatedly applied because sk_state is 
-set to LLCP_CONNECTING.
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
 
-In this way, the repeated invoking of llcp_sock_connect() does not 
-repeatedly leak resources.
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
 
-Thanks
-Xiaoming Ni
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
 
 
-> 
->> -----Original Message-----
->> From: Xiaoming Ni [mailto:nixiaoming@huawei.com]
->> Sent: Wednesday, March 3, 2021 2:17 PM
->> To: linux-kernel@vger.kernel.org; kiyin(尹亮) <kiyin@tencent.com>;
->> stable@vger.kernel.org; gregkh@linuxfoundation.org; sameo@linux.intel.com;
->> linville@tuxdriver.com; davem@davemloft.net; kuba@kernel.org;
->> mkl@pengutronix.de; stefan@datenfreihafen.org;
->> matthieu.baerts@tessares.net; netdev@vger.kernel.org
->> Cc: nixiaoming@huawei.com; wangle6@huawei.com; xiaoqian9@huawei.com
->> Subject: [PATCH 4/4] nfc: Avoid endless loops caused by repeated
->> llcp_sock_connect()(Internet mail)
->>
->> When sock_wait_state() returns -EINPROGRESS, "sk->sk_state" is
->> LLCP_CONNECTING. In this case, llcp_sock_connect() is repeatedly invoked,
->>   nfc_llcp_sock_link() will add sk to local->connecting_sockets twice.
->>   sk->sk_node->next will point to itself, that will make an endless loop  and
->> hang-up the system.
->> To fix it, check whether sk->sk_state is LLCP_CONNECTING in
->>   llcp_sock_connect() to avoid repeated invoking.
->>
->> fix CVE-2020-25673
->> Fixes: b4011239a08e ("NFC: llcp: Fix non blocking sockets connections")
->> Reported-by: "kiyin(尹亮)" <kiyin@tencent.com>
->> Link: https://www.openwall.com/lists/oss-security/2020/11/01/1
->> Cc: <stable@vger.kernel.org> #v3.11
->> Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
->> ---
->>   net/nfc/llcp_sock.c | 4 ++++
->>   1 file changed, 4 insertions(+)
->>
->> diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c index
->> 59172614b249..a3b46f888803 100644
->> --- a/net/nfc/llcp_sock.c
->> +++ b/net/nfc/llcp_sock.c
->> @@ -673,6 +673,10 @@ static int llcp_sock_connect(struct socket *sock,
->> struct sockaddr *_addr,
->>   		ret = -EISCONN;
->>   		goto error;
->>   	}
->> +	if (sk->sk_state == LLCP_CONNECTING) {
->> +		ret = -EINPROGRESS;
->> +		goto error;
->> +	}
->>
->>   	dev = nfc_get_device(addr->dev_idx);
->>   	if (dev == NULL) {
->> --
->> 2.27.0
->>
-> 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.102-27-g660809e91068/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.102-27-g660809e91068
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      660809e91068cf40010ae4189fb3602c4d6f74bf =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+hifive-unleashed-a00 | riscv | lab-baylibre    | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041755e51dd410dfdaddcbf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashe=
+d-a00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashe=
+d-a00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041755e51dd410dfdadd=
+cc0
+        failing since 104 days (last pass: v5.4.78-5-g843222460ebea, first =
+fail: v5.4.78-13-g81acf0f7c6ec) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041764bf05ba4aee3addcc9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041764bf05ba4aee3add=
+cca
+        failing since 111 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041a4ec66654ae195addcc4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041a4ec66654ae195add=
+cc5
+        failing since 111 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604176c918648b3cdfaddcc3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604176c918648b3cdfadd=
+cc4
+        failing since 111 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604175e1e230888e40addcc2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604175e1e230888e40add=
+cc3
+        failing since 111 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041760667a55634eaaddcb4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.102-2=
+7-g660809e91068/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041760667a55634eaadd=
+cb5
+        failing since 111 days (last pass: v5.4.77-44-gce6b18c3a8969, first=
+ fail: v5.4.77-45-gfd610189f77e1) =
+
+ =20
