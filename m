@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B828D32E98D
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FF9132E91B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232218AbhCEMdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:33:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43892 "EHLO mail.kernel.org"
+        id S231332AbhCEMai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:30:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230406AbhCEMdJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:33:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 307866501A;
-        Fri,  5 Mar 2021 12:33:08 +0000 (UTC)
+        id S231147AbhCEMaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:30:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8863365013;
+        Fri,  5 Mar 2021 12:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947589;
-        bh=2O0lwenxAmIM5XsUES+XaigKREFGud5r6uG5Xbus590=;
+        s=korg; t=1614947414;
+        bh=6ToYbG/Vrjavyy1ecwuAQoFYXDTGEioVnUB4vTCjrMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSookPK9iz54UNWd5wGGfHSwvyh2Fst0CJ5UfTZARPaJtZTL9Pqv3rfHapSm0dJIA
-         wPMhxZYtXHZR42JA3Jel9nQswEl8EjT2yPEwmwBnYD7EUhkabSxq6zwbmJ6w+KsY0J
-         eIRM6uyaY/jhsEl4iJoBwYfPRiyc+5zEc+6Dx15s=
+        b=zuEYnkBcuFUtuKxC/pHueUX3Gl5XhQJ4DXQQ88Ps+PcPp6bsG1ufTclaZ4WShr1lP
+         HvSCo7H7HLP2DBH9N9DpPCKW7iAUY1p0EPct54kH6e7pq2Ge5WoYyyHj5rEVyyYS2X
+         7m5OCydS453qEoFOB1fe6L0K8x6RzywLfRRHfyoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 13/72] net/af_iucv: remove WARN_ONCE on malformed RX packets
-Date:   Fri,  5 Mar 2021 13:21:15 +0100
-Message-Id: <20210305120857.984571475@linuxfoundation.org>
+        stable@vger.kernel.org, Tian Tao <tiantao6@hisilicon.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/102] drm/hisilicon: Fix use-after-free
+Date:   Fri,  5 Mar 2021 13:21:16 +0100
+Message-Id: <20210305120906.092893205@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Egorenkov <egorenar@linux.ibm.com>
+From: Tian Tao <tiantao6@hisilicon.com>
 
-commit 27e9c1de529919d8dd7d072415d3bcae77709300 upstream.
+[ Upstream commit c855af2f9c5c60760fd1bed7889a81bc37d2591d ]
 
-syzbot reported the following finding:
+Fix the problem of dev being released twice.
+------------[ cut here ]------------
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 75 PID: 15700 at lib/refcount.c:28 refcount_warn_saturate+0xd4/0x150
+CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
+Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
+pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+pc : refcount_warn_saturate+0xd4/0x150
+lr : refcount_warn_saturate+0xd4/0x150
+sp : ffff2028150cbc00
+x29: ffff2028150cbc00 x28: ffff2028150121c0
+x27: 0000000000000000 x26: 0000000000000000
+x25: 0000000000000000 x24: 0000000000000003
+x23: 0000000000000000 x22: ffff2028150cbc90
+x21: ffff2020038a30a8 x20: ffff2028150cbc90
+x19: ffff0020cd938020 x18: 0000000000000010
+x17: 0000000000000000 x16: 0000000000000000
+x15: ffffffffffffffff x14: ffff2028950cb88f
+x13: ffff2028150cb89d x12: 0000000000000000
+x11: 0000000005f5e0ff x10: ffff2028150cb800
+x9 : 00000000ffffffd0 x8 : 75203b776f6c6672
+x7 : ffff800011a6f7c8 x6 : 0000000000000001
+x5 : 0000000000000000 x4 : 0000000000000000
+x3 : 0000000000000000 x2 : ffff202ffe2f9dc0
+x1 : ffffa02fecf40000 x0 : 0000000000000026
+Call trace:
+ refcount_warn_saturate+0xd4/0x150
+ devm_drm_dev_init_release+0x50/0x70
+ devm_action_release+0x20/0x30
+ release_nodes+0x13c/0x218
+ devres_release_all+0x80/0x170
+ device_release_driver_internal+0x128/0x1f0
+ driver_detach+0x6c/0xe0
+ bus_remove_driver+0x74/0x100
+ driver_unregister+0x34/0x60
+ pci_unregister_driver+0x24/0xd8
+ hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
+ __arm64_sys_delete_module+0x1fc/0x2d0
+ el0_svc_common.constprop.3+0xa8/0x188
+ do_el0_svc+0x80/0xa0
+ el0_sync_handler+0x8c/0xb0
+ el0_sync+0x15c/0x180
+CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
+Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
+Call trace:
+ dump_backtrace+0x0/0x208
+ show_stack+0x2c/0x40
+ dump_stack+0xd8/0x10c
+ __warn+0xac/0x128
+ report_bug+0xcc/0x180
+ bug_handler+0x24/0x78
+ call_break_hook+0x80/0xa0
+ brk_handler+0x28/0x68
+ do_debug_exception+0x9c/0x148
+ el1_sync_handler+0x7c/0x128
+ el1_sync+0x80/0x100
+ refcount_warn_saturate+0xd4/0x150
+ devm_drm_dev_init_release+0x50/0x70
+ devm_action_release+0x20/0x30
+ release_nodes+0x13c/0x218
+ devres_release_all+0x80/0x170
+ device_release_driver_internal+0x128/0x1f0
+ driver_detach+0x6c/0xe0
+ bus_remove_driver+0x74/0x100
+ driver_unregister+0x34/0x60
+ pci_unregister_driver+0x24/0xd8
+ hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
+ __arm64_sys_delete_module+0x1fc/0x2d0
+ el0_svc_common.constprop.3+0xa8/0x188
+ do_el0_svc+0x80/0xa0
+ el0_sync_handler+0x8c/0xb0
+ el0_sync+0x15c/0x180
+---[ end trace 00718630d6e5ff18 ]---
 
-AF_IUCV failed to receive skb, len=0
-WARNING: CPU: 0 PID: 522 at net/iucv/af_iucv.c:2039 afiucv_hs_rcv+0x174/0x190 net/iucv/af_iucv.c:2039
-CPU: 0 PID: 522 Comm: syz-executor091 Not tainted 5.10.0-rc1-syzkaller-07082-g55027a88ec9f #0
-Hardware name: IBM 3906 M04 701 (KVM/Linux)
-Call Trace:
- [<00000000b87ea538>] afiucv_hs_rcv+0x178/0x190 net/iucv/af_iucv.c:2039
-([<00000000b87ea534>] afiucv_hs_rcv+0x174/0x190 net/iucv/af_iucv.c:2039)
- [<00000000b796533e>] __netif_receive_skb_one_core+0x13e/0x188 net/core/dev.c:5315
- [<00000000b79653ce>] __netif_receive_skb+0x46/0x1c0 net/core/dev.c:5429
- [<00000000b79655fe>] netif_receive_skb_internal+0xb6/0x220 net/core/dev.c:5534
- [<00000000b796ac3a>] netif_receive_skb+0x42/0x318 net/core/dev.c:5593
- [<00000000b6fd45f4>] tun_rx_batched.isra.0+0x6fc/0x860 drivers/net/tun.c:1485
- [<00000000b6fddc4e>] tun_get_user+0x1c26/0x27f0 drivers/net/tun.c:1939
- [<00000000b6fe0f00>] tun_chr_write_iter+0x158/0x248 drivers/net/tun.c:1968
- [<00000000b4f22bfa>] call_write_iter include/linux/fs.h:1887 [inline]
- [<00000000b4f22bfa>] new_sync_write+0x442/0x648 fs/read_write.c:518
- [<00000000b4f238fe>] vfs_write.part.0+0x36e/0x5d8 fs/read_write.c:605
- [<00000000b4f2984e>] vfs_write+0x10e/0x148 fs/read_write.c:615
- [<00000000b4f29d0e>] ksys_write+0x166/0x290 fs/read_write.c:658
- [<00000000b8dc4ab4>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-Last Breaking-Event-Address:
- [<00000000b8dc64d4>] __s390_indirect_jump_r14+0x0/0xc
-
-Malformed RX packets shouldn't generate any warnings because
-debugging info already flows to dropmon via the kfree_skb().
-
-Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/1607941973-32287-1-git-send-email-tiantao6@hisilicon.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/iucv/af_iucv.c |    1 -
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 1 -
  1 file changed, 1 deletion(-)
 
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -2176,7 +2176,6 @@ static int afiucv_hs_rcv(struct sk_buff
- 	char nullstring[8];
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index 085d1b2fa8c0..d3485f742acc 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -368,7 +368,6 @@ static void hibmc_pci_remove(struct pci_dev *pdev)
  
- 	if (!pskb_may_pull(skb, sizeof(*trans_hdr))) {
--		WARN_ONCE(1, "AF_IUCV failed to receive skb, len=%u", skb->len);
- 		kfree_skb(skb);
- 		return NET_RX_SUCCESS;
- 	}
+ 	drm_dev_unregister(dev);
+ 	hibmc_unload(dev);
+-	drm_dev_put(dev);
+ }
+ 
+ static struct pci_device_id hibmc_pci_table[] = {
+-- 
+2.30.1
+
 
 
