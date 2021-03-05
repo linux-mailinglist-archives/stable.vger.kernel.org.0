@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F58A32E8EB
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5D4632E837
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbhCEM3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:29:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S231352AbhCEMZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:25:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232177AbhCEM3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:29:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4ADF65013;
-        Fri,  5 Mar 2021 12:29:19 +0000 (UTC)
+        id S230371AbhCEMZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:25:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 287F46503A;
+        Fri,  5 Mar 2021 12:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947360;
-        bh=lyxy3P6gyz+fDlGGv5KkTRhL44i0y5WYJRLEKlpuX2g=;
+        s=korg; t=1614947116;
+        bh=n/akUd8TOycWpX5RAtF+9av1q0LlX0wBc+2D9jZdWvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcERhxdF1t1DKv8GzgZ9bRokRVgq0bYQFxisrRqIY3OyPdwJVVN61iNcJue+lsgM9
-         qcjPIeCSCQG1QWLYT1ix6Xi5mFhoejxmxOWj7Du6uG6nf4UftHmr0LppR9/KTjwrDm
-         DxHkoigJbm6U8d652XiosIPr8BwPGBkyohTMptzE=
+        b=VdxEKJHTyLd6nQv3FC2kk9F6CvHfAD9wkwRA11uerasX8ab0uoeecNKud00rSmPlM
+         is/pKnCtsxS6srlVFZFjOiojlE14sxhYDgwfcxsYchLpsTgFNghU3NjO5Vh/YJAac2
+         CZaJ17y4tCRZP1i5WRZlWDlNfulPkxnEj7YCRwQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/102] rcu/nocb: Trigger self-IPI on late deferred wake up before user resume
-Date:   Fri,  5 Mar 2021 13:20:56 +0100
-Message-Id: <20210305120905.113222356@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 052/104] Bluetooth: Add new HCI_QUIRK_NO_SUSPEND_NOTIFIER quirk
+Date:   Fri,  5 Mar 2021 13:20:57 +0100
+Message-Id: <20210305120905.721858200@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
+References: <20210305120903.166929741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,181 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit f8bb5cae9616224a39cbb399de382d36ac41df10 ]
+[ Upstream commit 219991e6be7f4a31d471611e265b72f75b2d0538 ]
 
-Entering RCU idle mode may cause a deferred wake up of an RCU NOCB_GP
-kthread (rcuog) to be serviced.
+Some devices, e.g. the RTL8723BS bluetooth part, some USB attached devices,
+completely drop from the bus on a system-suspend. These devices will
+have their driver unbound and rebound on resume (when the dropping of
+the bus gets detected) and will show up as a new HCI after resume.
 
-Unfortunately the call to rcu_user_enter() is already past the last
-rescheduling opportunity before we resume to userspace or to guest mode.
-We may escape there with the woken task ignored.
+These devices do not benefit from the suspend / resume handling work done
+by the hci_suspend_notifier. At best this unnecessarily adds some time to
+the suspend/resume time. But this may also actually cause problems, if the
+code doing the driver unbinding runs after the pm-notifier then the
+hci_suspend_notifier code will try to talk to a device which is now in
+an uninitialized state.
 
-The ultimate resort to fix every callsites is to trigger a self-IPI
-(nohz_full depends on arch to implement arch_irq_work_raise()) that will
-trigger a reschedule on IRQ tail or guest exit.
+This commit adds a new HCI_QUIRK_NO_SUSPEND_NOTIFIER quirk which allows
+drivers to opt-out of the hci_suspend_notifier when they know beforehand
+that their device will be fully re-initialized / reprobed on resume.
 
-Eventually every site that want a saner treatment will need to carefully
-place a call to rcu_nocb_flush_deferred_wakeup() before the last explicit
-need_resched() check upon resume.
-
-Fixes: 96d3fd0d315a (rcu: Break call_rcu() deadlock involving scheduler and perf)
-Reported-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210131230548.32970-4-frederic@kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c        | 21 ++++++++++++++++++++-
- kernel/rcu/tree.h        |  2 +-
- kernel/rcu/tree_plugin.h | 25 ++++++++++++++++---------
- 3 files changed, 37 insertions(+), 11 deletions(-)
+ include/net/bluetooth/hci.h |  8 ++++++++
+ net/bluetooth/hci_core.c    | 18 +++++++++++-------
+ 2 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index 5dc36c6e80fd..f137a599941b 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -669,6 +669,18 @@ void rcu_idle_enter(void)
- EXPORT_SYMBOL_GPL(rcu_idle_enter);
- 
- #ifdef CONFIG_NO_HZ_FULL
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index c1504aa3d9cf..ba2f439bc04d 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -238,6 +238,14 @@ enum {
+ 	 * during the hdev->setup vendor callback.
+ 	 */
+ 	HCI_QUIRK_BROKEN_ERR_DATA_REPORTING,
 +
-+/*
-+ * An empty function that will trigger a reschedule on
-+ * IRQ tail once IRQs get re-enabled on userspace resume.
-+ */
-+static void late_wakeup_func(struct irq_work *work)
-+{
-+}
-+
-+static DEFINE_PER_CPU(struct irq_work, late_wakeup_work) =
-+	IRQ_WORK_INIT(late_wakeup_func);
-+
- /**
-  * rcu_user_enter - inform RCU that we are resuming userspace.
-  *
-@@ -686,12 +698,19 @@ noinstr void rcu_user_enter(void)
- 
- 	lockdep_assert_irqs_disabled();
- 
 +	/*
-+	 * We may be past the last rescheduling opportunity in the entry code.
-+	 * Trigger a self IPI that will fire and reschedule once we resume to
-+	 * user/guest mode.
++	 * When this quirk is set, then the hci_suspend_notifier is not
++	 * registered. This is intended for devices which drop completely
++	 * from the bus on system-suspend and which will show up as a new
++	 * HCI after resume.
 +	 */
- 	instrumentation_begin();
--	do_nocb_deferred_wakeup(rdp);
-+	if (do_nocb_deferred_wakeup(rdp) && need_resched())
-+		irq_work_queue(this_cpu_ptr(&late_wakeup_work));
- 	instrumentation_end();
++	HCI_QUIRK_NO_SUSPEND_NOTIFIER,
+ };
  
- 	rcu_eqs_enter(true);
- }
-+
- #endif /* CONFIG_NO_HZ_FULL */
+ /* HCI device flags */
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index ed3380db0217..6ea2e16c57bd 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3830,10 +3830,12 @@ int hci_register_dev(struct hci_dev *hdev)
+ 	hci_sock_dev_event(hdev, HCI_DEV_REG);
+ 	hci_dev_hold(hdev);
  
- /**
-diff --git a/kernel/rcu/tree.h b/kernel/rcu/tree.h
-index e4f66b8f7c47..0ec2b1f66b13 100644
---- a/kernel/rcu/tree.h
-+++ b/kernel/rcu/tree.h
-@@ -431,7 +431,7 @@ static bool rcu_nocb_try_bypass(struct rcu_data *rdp, struct rcu_head *rhp,
- static void __call_rcu_nocb_wake(struct rcu_data *rdp, bool was_empty,
- 				 unsigned long flags);
- static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp);
--static void do_nocb_deferred_wakeup(struct rcu_data *rdp);
-+static bool do_nocb_deferred_wakeup(struct rcu_data *rdp);
- static void rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp);
- static void rcu_spawn_cpu_nocb_kthread(int cpu);
- static void __init rcu_spawn_nocb_kthreads(void);
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 7d4f78bf4057..29a00d9ea286 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -1631,8 +1631,8 @@ bool rcu_is_nocb_cpu(int cpu)
-  * Kick the GP kthread for this NOCB group.  Caller holds ->nocb_lock
-  * and this function releases it.
-  */
--static void wake_nocb_gp(struct rcu_data *rdp, bool force,
--			   unsigned long flags)
-+static bool wake_nocb_gp(struct rcu_data *rdp, bool force,
-+			 unsigned long flags)
- 	__releases(rdp->nocb_lock)
- {
- 	bool needwake = false;
-@@ -1643,7 +1643,7 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
- 		trace_rcu_nocb_wake(rcu_state.name, rdp->cpu,
- 				    TPS("AlreadyAwake"));
- 		rcu_nocb_unlock_irqrestore(rdp, flags);
--		return;
-+		return false;
- 	}
- 	del_timer(&rdp->nocb_timer);
- 	rcu_nocb_unlock_irqrestore(rdp, flags);
-@@ -1656,6 +1656,8 @@ static void wake_nocb_gp(struct rcu_data *rdp, bool force,
- 	raw_spin_unlock_irqrestore(&rdp_gp->nocb_gp_lock, flags);
- 	if (needwake)
- 		wake_up_process(rdp_gp->nocb_gp_kthread);
-+
-+	return needwake;
- }
+-	hdev->suspend_notifier.notifier_call = hci_suspend_notifier;
+-	error = register_pm_notifier(&hdev->suspend_notifier);
+-	if (error)
+-		goto err_wqueue;
++	if (!test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
++		hdev->suspend_notifier.notifier_call = hci_suspend_notifier;
++		error = register_pm_notifier(&hdev->suspend_notifier);
++		if (error)
++			goto err_wqueue;
++	}
  
- /*
-@@ -2152,20 +2154,23 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
- }
+ 	queue_work(hdev->req_workqueue, &hdev->power_on);
  
- /* Do a deferred wakeup of rcu_nocb_kthread(). */
--static void do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
-+static bool do_nocb_deferred_wakeup_common(struct rcu_data *rdp)
- {
- 	unsigned long flags;
- 	int ndw;
-+	int ret;
+@@ -3868,9 +3870,11 @@ void hci_unregister_dev(struct hci_dev *hdev)
  
- 	rcu_nocb_lock_irqsave(rdp, flags);
- 	if (!rcu_nocb_need_deferred_wakeup(rdp)) {
- 		rcu_nocb_unlock_irqrestore(rdp, flags);
--		return;
-+		return false;
- 	}
- 	ndw = READ_ONCE(rdp->nocb_defer_wakeup);
- 	WRITE_ONCE(rdp->nocb_defer_wakeup, RCU_NOCB_WAKE_NOT);
--	wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
-+	ret = wake_nocb_gp(rdp, ndw == RCU_NOCB_WAKE_FORCE, flags);
- 	trace_rcu_nocb_wake(rcu_state.name, rdp->cpu, TPS("DeferredWake"));
-+
-+	return ret;
- }
+ 	cancel_work_sync(&hdev->power_on);
  
- /* Do a deferred wakeup of rcu_nocb_kthread() from a timer handler. */
-@@ -2181,10 +2186,11 @@ static void do_nocb_deferred_wakeup_timer(struct timer_list *t)
-  * This means we do an inexact common-case check.  Note that if
-  * we miss, ->nocb_timer will eventually clean things up.
-  */
--static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
-+static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
- {
- 	if (rcu_nocb_need_deferred_wakeup(rdp))
--		do_nocb_deferred_wakeup_common(rdp);
-+		return do_nocb_deferred_wakeup_common(rdp);
-+	return false;
- }
+-	hci_suspend_clear_tasks(hdev);
+-	unregister_pm_notifier(&hdev->suspend_notifier);
+-	cancel_work_sync(&hdev->suspend_prepare);
++	if (!test_bit(HCI_QUIRK_NO_SUSPEND_NOTIFIER, &hdev->quirks)) {
++		hci_suspend_clear_tasks(hdev);
++		unregister_pm_notifier(&hdev->suspend_notifier);
++		cancel_work_sync(&hdev->suspend_prepare);
++	}
  
- void rcu_nocb_flush_deferred_wakeup(void)
-@@ -2523,8 +2529,9 @@ static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
- 	return false;
- }
+ 	hci_dev_do_close(hdev);
  
--static void do_nocb_deferred_wakeup(struct rcu_data *rdp)
-+static bool do_nocb_deferred_wakeup(struct rcu_data *rdp)
- {
-+	return false;
- }
- 
- static void rcu_spawn_cpu_nocb_kthread(int cpu)
 -- 
 2.30.1
 
