@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D0832E868
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB5D32E86A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229563AbhCEM0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:26:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
+        id S231388AbhCEM0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231167AbhCEM0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:26:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B6E65040;
-        Fri,  5 Mar 2021 12:26:18 +0000 (UTC)
+        id S231357AbhCEM0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:26:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E88365029;
+        Fri,  5 Mar 2021 12:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947179;
-        bh=brhiVKkxow1Hh7c1OLyBLR0OnSmKzxmkCMQlMWBeOkM=;
+        s=korg; t=1614947182;
+        bh=c2v4MScSFJPscGDVWoy42cNFoQC37VrwYN6Okn4Ways=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QaReQsxTsg0UgHBFaLlGPJwyHNO+aDZrvkhGKqqkvdGfOiW7mbzahoDr6fh6uhRUO
-         4OPks2BXuJm0FAwLIrk82maGWQu70FhYdBS1LEfFiThEFNfepnXPSSjiYxj0PdwCdX
-         N8V++ThH4c308WPcfPBoMdTAVurDhckABmHpyw0Y=
+        b=CLPBbYqeVEmSh/ZMr6FyvcbnPatNXXgOjuMqEkLAq95Bzgha/rQs3q9DcUTTpxm8Z
+         aWE9x0jMKIopOcRfWsluocCfH/hVlgXMaqdPLMzJU7Z4bt5EgwTQCeneZsWS5Fl7Nl
+         /h8g/yKkDhPzgj4Xh1ShjWitmnchnEK3Z8TT4/rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 077/104] ASoC: Intel: Add DMI quirk table to soc_intel_is_byt_cr()
-Date:   Fri,  5 Mar 2021 13:21:22 +0100
-Message-Id: <20210305120906.941388686@linuxfoundation.org>
+Subject: [PATCH 5.11 078/104] btrfs: fix error handling in commit_fs_roots
+Date:   Fri,  5 Mar 2021 13:21:23 +0100
+Message-Id: <20210305120906.988528750@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -43,80 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 8ade6d8b02b1ead741bd4f6c42921035caab6560 ]
+[ Upstream commit 4f4317c13a40194940acf4a71670179c4faca2b5 ]
 
-Some Bay Trail systems:
-1. Use a non CR version of the Bay Trail SoC
-2. Contain at least 6 interrupt resources so that the
-   platform_get_resource(pdev, IORESOURCE_IRQ, 5) check to workaround
-   non CR systems which list their IPC IRQ at index 0 despite being
-   non CR does not work
-3. Despite 1. and 2. still have their IPC IRQ at index 0 rather then 5
+While doing error injection I would sometimes get a corrupt file system.
+This is because I was injecting errors at btrfs_search_slot, but would
+only do it one time per stack.  This uncovered a problem in
+commit_fs_roots, where if we get an error we would just break.  However
+we're in a nested loop, the first loop being a loop to find all the
+dirty fs roots, and then subsequent root updates would succeed clearing
+the error value.
 
-Add a DMI quirk table to check for the few known models with this issue,
-so that the right IPC IRQ index is used on these systems.
+This isn't likely to happen in real scenarios, however we could
+potentially get a random ENOMEM once and then not again, and we'd end up
+with a corrupted file system.  Fix this by moving the error checking
+around a bit to the main loop, as this is the only place where something
+will fail, and return the error as soon as it occurs.
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210120214957.140232-5-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+With this patch my reproducer no longer corrupts the file system.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/common/soc-intel-quirks.h | 25 +++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ fs/btrfs/transaction.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/intel/common/soc-intel-quirks.h b/sound/soc/intel/common/soc-intel-quirks.h
-index b07df3059926..a93987ab7f4d 100644
---- a/sound/soc/intel/common/soc-intel-quirks.h
-+++ b/sound/soc/intel/common/soc-intel-quirks.h
-@@ -11,6 +11,7 @@
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 6af7f2bf92de..fbf93067642a 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1319,7 +1319,6 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 	struct btrfs_root *gang[8];
+ 	int i;
+ 	int ret;
+-	int err = 0;
  
- #if IS_ENABLED(CONFIG_X86)
- 
-+#include <linux/dmi.h>
- #include <asm/cpu_device_id.h>
- #include <asm/intel-family.h>
- #include <asm/iosf_mbi.h>
-@@ -38,12 +39,36 @@ SOC_INTEL_IS_CPU(cml, KABYLAKE_L);
- 
- static inline bool soc_intel_is_byt_cr(struct platform_device *pdev)
- {
-+	/*
-+	 * List of systems which:
-+	 * 1. Use a non CR version of the Bay Trail SoC
-+	 * 2. Contain at least 6 interrupt resources so that the
-+	 *    platform_get_resource(pdev, IORESOURCE_IRQ, 5) check below
-+	 *    succeeds
-+	 * 3. Despite 1. and 2. still have their IPC IRQ at index 0 rather then 5
-+	 *
-+	 * This needs to be here so that it can be shared between the SST and
-+	 * SOF drivers. We rely on the compiler to optimize this out in files
-+	 * where soc_intel_is_byt_cr is not used.
-+	 */
-+	static const struct dmi_system_id force_bytcr_table[] = {
-+		{	/* Lenovo Yoga Tablet 2 series */
-+			.matches = {
-+				DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+				DMI_MATCH(DMI_PRODUCT_FAMILY, "YOGATablet2"),
-+			},
-+		},
-+		{}
-+	};
- 	struct device *dev = &pdev->dev;
- 	int status = 0;
- 
- 	if (!soc_intel_is_byt())
- 		return false;
- 
-+	if (dmi_check_system(force_bytcr_table))
-+		return true;
+ 	spin_lock(&fs_info->fs_roots_radix_lock);
+ 	while (1) {
+@@ -1331,6 +1330,8 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 			break;
+ 		for (i = 0; i < ret; i++) {
+ 			struct btrfs_root *root = gang[i];
++			int ret2;
 +
- 	if (iosf_mbi_available()) {
- 		u32 bios_status;
+ 			radix_tree_tag_clear(&fs_info->fs_roots_radix,
+ 					(unsigned long)root->root_key.objectid,
+ 					BTRFS_ROOT_TRANS_TAG);
+@@ -1350,17 +1351,17 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 						    root->node);
+ 			}
  
+-			err = btrfs_update_root(trans, fs_info->tree_root,
++			ret2 = btrfs_update_root(trans, fs_info->tree_root,
+ 						&root->root_key,
+ 						&root->root_item);
++			if (ret2)
++				return ret2;
+ 			spin_lock(&fs_info->fs_roots_radix_lock);
+-			if (err)
+-				break;
+ 			btrfs_qgroup_free_meta_all_pertrans(root);
+ 		}
+ 	}
+ 	spin_unlock(&fs_info->fs_roots_radix_lock);
+-	return err;
++	return 0;
+ }
+ 
+ /*
 -- 
 2.30.1
 
