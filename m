@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F04DD32EA49
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE17432E9BF
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232429AbhCEMhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
+        id S232085AbhCEMeh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:34:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233120AbhCEMhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65CF665004;
-        Fri,  5 Mar 2021 12:37:17 +0000 (UTC)
+        id S232435AbhCEMeJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:34:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5306065012;
+        Fri,  5 Mar 2021 12:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947838;
-        bh=J2D7/x4m0IBsynDiFzOuCySCWoKqTn+QiixGa+F0MUg=;
+        s=korg; t=1614947647;
+        bh=gdxJEs1DFnntSkeDL5EApLLuoDK+5pL1v9evU5obI+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyIzvZiZ3ahqTLAJwIb1CgUwt1+8lUAYEiv7MhaYXApJj7DgMv10OgYD7tzUyeN53
-         289julw0MTmkfE+5vo7OATNqYy5VfwaDx+9TtkOdxtzevmBbRenJFOciB64NVhkaaI
-         xGlxqn8ldaNNQEle4URq5KbZhFpoEJXvhcM9BZZ0=
+        b=Q32kg0gcE1Yn05m1VUkTY+GoNhjig9MTFs6Wb8nDB+eR6gikxodbl8H4mXvFiIF/y
+         i1sfg682f1XRT7v8Z0RfmqePXohneNhGbwLcL8eRZP7hvib56bHzRuVqDZeo2FZeXA
+         IiIVLjN+bP5UnA43zZOHw5csZocjWxwoRv04iNAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
-        Shaoying Xu <shaoyi@amazon.com>, Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 05/52] arm64 module: set plt* section addresses to 0x0
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/72] ath10k: fix wmi mgmt tx queue full due to race condition
 Date:   Fri,  5 Mar 2021 13:21:36 +0100
-Message-Id: <20210305120853.927081823@linuxfoundation.org>
+Message-Id: <20210305120859.004623059@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaoying Xu <shaoyi@amazon.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-commit f5c6d0fcf90ce07ee0d686d465b19b247ebd5ed7 upstream.
+[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
 
-These plt* and .text.ftrace_trampoline sections specified for arm64 have
-non-zero addressses. Non-zero section addresses in a relocatable ELF would
-confuse GDB when it tries to compute the section offsets and it ends up
-printing wrong symbol addresses. Therefore, set them to zero, which mirrors
-the change in commit 5d8591bc0fba ("module: set ksymtab/kcrctab* section
-addresses to 0x0").
+Failed to transmit wmi management frames:
 
-Reported-by: Frank van der Linden <fllinden@amazon.com>
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210216183234.GA23876@amazon.com
-Signed-off-by: Will Deacon <will@kernel.org>
-[shaoyi@amazon.com: made same changes in arch/arm64/kernel/module.lds for 5.4]
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
+[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
+[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
+[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
+
+This issue is caused by race condition between skb_dequeue and
+__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
+different lock: ar->data_lock vs list->lock, the result is no protection.
+So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
+running concurrently on different CPUs, there appear to be a rare corner
+cases when the queue length is 1,
+
+  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
+					next=list
+					prev=list
+  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
+  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
+  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
+  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
+  skb->next  = skb->prev = NULL;	list->qlen++;
+  WRITE_ONCE(next->prev, prev);
+  WRITE_ONCE(prev->next, next);
+
+If the instruction ‘next = skb->next’ is executed before
+‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
+old ‘next’ pointer, but the length is still added by one. The final
+result is the length of the queue will reach the maximum value but
+the queue is empty.
+
+So remove ar->data_lock, and use 'skb_queue_tail' instead of
+'__skb_queue_tail' to prevent the potential race condition. Also switch
+to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
+
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
+
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-arch/arm64/include/asm/module.lds.h was renamed from arch/arm64/kernel/module.lds
-by commit 596b0474d3d9 ("kbuild: preprocess module linker script") since v5.10.
-Therefore, made same changes in arch/arm64/kernel/module.lds for 5.4. 
+ drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
- arch/arm64/kernel/module.lds |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/arch/arm64/kernel/module.lds
-+++ b/arch/arm64/kernel/module.lds
-@@ -1,5 +1,5 @@
- SECTIONS {
--	.plt (NOLOAD) : { BYTE(0) }
--	.init.plt (NOLOAD) : { BYTE(0) }
--	.text.ftrace_trampoline (NOLOAD) : { BYTE(0) }
-+	.plt 0 (NOLOAD) : { BYTE(0) }
-+	.init.plt 0 (NOLOAD) : { BYTE(0) }
-+	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 915ba2a7f744..47b733fdf4fc 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -3624,23 +3624,16 @@ bool ath10k_mac_tx_frm_has_freq(struct ath10k *ar)
+ static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
+ {
+ 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
+-	int ret = 0;
+-
+-	spin_lock_bh(&ar->data_lock);
+ 
+-	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
++	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
+ 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
+-		ret = -ENOSPC;
+-		goto unlock;
++		return -ENOSPC;
+ 	}
+ 
+-	__skb_queue_tail(q, skb);
++	skb_queue_tail(q, skb);
+ 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
+ 
+-unlock:
+-	spin_unlock_bh(&ar->data_lock);
+-
+-	return ret;
++	return 0;
  }
+ 
+ static enum ath10k_mac_tx_path
+-- 
+2.30.1
+
 
 
