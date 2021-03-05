@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D7D32EB4F
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1869632EB30
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbhCEMn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59976 "EHLO mail.kernel.org"
+        id S232734AbhCEMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232718AbhCEMnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:43:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D3F165021;
-        Fri,  5 Mar 2021 12:43:08 +0000 (UTC)
+        id S233652AbhCEMmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF97B6501C;
+        Fri,  5 Mar 2021 12:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948188;
-        bh=KgJd/oaEObGj6tNGemZiW5I9UrgHNlzaqKNDJUBjtKI=;
+        s=korg; t=1614948136;
+        bh=fdp2ep/o5TwTWoKxiPmh1QTDIN9tYsK2XRIiif64Zs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0xk6S0fEihFLUV1ebysGfBu0Zkek3ViGOOgULNh8PW6lx+affICMYaH5FVRf7cKc
-         Ww6xQ8w8kkY68ZFnAQUETVw1KT4AqIiNooAuUCZSqH051/gsNQmEviQng1xAC926De
-         1D6W5l33Gze38EyNQ61dqAZUa4qHpwQDH4tDJw5U=
+        b=dRXmSim5EhR3KFS8F6/ndutlBkUTHIhTMk+QSMneHDE3ydUFb4F7WMPxPN0bxWcQ2
+         uPHWCaSgXIL9BN7pyN+GkOHrgtCk5kQJvPvJ0JumYxQ951Oee/W5K7P1y1qYUMSwT5
+         FIs8yo9Ru7gg7MyU6wyjQIiqQQQXFLYJze7RBGEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Fangrui Song <maskray@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 18/30] x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Anthony Iliopoulos <ailiop@suse.com>
+Subject: [PATCH 4.9 40/41] swap: fix swapfile read/write offset
 Date:   Fri,  5 Mar 2021 13:22:47 +0100
-Message-Id: <20210305120850.300779994@linuxfoundation.org>
+Message-Id: <20210305120853.260721397@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,111 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit bb73d07148c405c293e576b40af37737faf23a6a ]
+commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
 
-This is similar to commit
+We're not factoring in the start of the file for where to write and
+read the swapfile, which leads to very unfortunate side effects of
+writing where we should not be...
 
-  b21ebf2fb4cd ("x86: Treat R_X86_64_PLT32 as R_X86_64_PC32")
+[This issue only affects swapfiles on filesystems on top of blockdevs
+that implement rw_page ops (brd, zram, btt, pmem), and not on top of any
+other block devices, in contrast to the upstream commit fix.]
 
-but for i386. As far as the kernel is concerned, R_386_PLT32 can be
-treated the same as R_386_PC32.
-
-R_386_PLT32/R_X86_64_PLT32 are PC-relative relocation types which
-can only be used by branches. If the referenced symbol is defined
-externally, a PLT will be used.
-
-R_386_PC32/R_X86_64_PC32 are PC-relative relocation types which can be
-used by address taking operations and branches. If the referenced symbol
-is defined externally, a copy relocation/canonical PLT entry will be
-created in the executable.
-
-On x86-64, there is no PIC vs non-PIC PLT distinction and an
-R_X86_64_PLT32 relocation is produced for both `call/jmp foo` and
-`call/jmp foo@PLT` with newer (2018) GNU as/LLVM integrated assembler.
-This avoids canonical PLT entries (st_shndx=0, st_value!=0).
-
-On i386, there are 2 types of PLTs, PIC and non-PIC. Currently,
-the GCC/GNU as convention is to use R_386_PC32 for non-PIC PLT and
-R_386_PLT32 for PIC PLT. Copy relocations/canonical PLT entries
-are possible ABI issues but GCC/GNU as will likely keep the status
-quo because (1) the ABI is legacy (2) the change will drop a GNU
-ld diagnostic for non-default visibility ifunc in shared objects.
-
-clang-12 -fno-pic (since [1]) can emit R_386_PLT32 for compiler
-generated function declarations, because preventing canonical PLT
-entries is weighed over the rare ifunc diagnostic.
-
-Further info for the more interested:
-
-  https://github.com/ClangBuiltLinux/linux/issues/1210
-  https://sourceware.org/bugzilla/show_bug.cgi?id=27169
-  https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6 [1]
-
- [ bp: Massage commit message. ]
-
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210127205600.1227437-1-maskray@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org # 4.9
+Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/module.c |  1 +
- arch/x86/tools/relocs.c  | 12 ++++++++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ mm/page_io.c  |   11 +++--------
+ mm/swapfile.c |    2 +-
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 94779f66bf49..6f0d340594ca 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -124,6 +124,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 			*location += sym->st_value;
- 			break;
- 		case R_386_PC32:
-+		case R_386_PLT32:
- 			/* Add the value, subtract its position */
- 			*location += sym->st_value - (uint32_t)location;
- 			break;
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index 5b6c8486a0be..d1c3f82c7882 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -839,9 +839,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
+--- a/mm/page_io.c
++++ b/mm/page_io.c
+@@ -32,7 +32,6 @@ static struct bio *get_swap_bio(gfp_t gf
+ 	bio = bio_alloc(gfp_flags, 1);
+ 	if (bio) {
+ 		bio->bi_iter.bi_sector = map_swap_page(page, &bio->bi_bdev);
+-		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
+ 		bio->bi_end_io = end_io;
  
-@@ -882,9 +884,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
+ 		bio_add_page(bio, page, PAGE_SIZE, 0);
+@@ -252,11 +251,6 @@ out:
+ 	return ret;
+ }
  
--- 
-2.30.1
-
+-static sector_t swap_page_sector(struct page *page)
+-{
+-	return (sector_t)__page_file_index(page) << (PAGE_SHIFT - 9);
+-}
+-
+ int __swap_writepage(struct page *page, struct writeback_control *wbc,
+ 		bio_end_io_t end_write_func)
+ {
+@@ -306,7 +300,8 @@ int __swap_writepage(struct page *page,
+ 		return ret;
+ 	}
+ 
+-	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
++	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
++			      page, wbc);
+ 	if (!ret) {
+ 		count_vm_event(PSWPOUT);
+ 		return 0;
+@@ -357,7 +352,7 @@ int swap_readpage(struct page *page)
+ 		return ret;
+ 	}
+ 
+-	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
++	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
+ 	if (!ret) {
+ 		if (trylock_page(page)) {
+ 			swap_slot_free_notify(page);
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -1666,7 +1666,7 @@ sector_t map_swap_page(struct page *page
+ {
+ 	swp_entry_t entry;
+ 	entry.val = page_private(page);
+-	return map_swap_entry(entry, bdev);
++	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
+ }
+ 
+ /*
 
 
