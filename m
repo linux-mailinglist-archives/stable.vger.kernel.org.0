@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FFAC32E9E4
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ECCC32EA24
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232643AbhCEMfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:35:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47458 "EHLO mail.kernel.org"
+        id S230259AbhCEMgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232746AbhCEMfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:35:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41DE76501F;
-        Fri,  5 Mar 2021 12:35:19 +0000 (UTC)
+        id S231653AbhCEMgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:36:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA16565004;
+        Fri,  5 Mar 2021 12:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947720;
-        bh=4nYSbNqMutgbBL6Cl/4fHrCzA2YHV+36Kb540gA7SRI=;
+        s=korg; t=1614947780;
+        bh=6XbPyMXrPH8f/n12FwrhRU/yqo78/XYFjvo/xkSA89U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0l9kHuP+dTaIuhweSNcSjnVoCpw2JiNlFWcPd1nGyYrq3kxcIx8xAmJdToCJfomeC
-         jH9PURpwXVg5dFbbnlHV9D6KrKgTkkMVaGuMXqcgXGtiySIvGS733NJuCPk/c4xHOf
-         7m1a+jbClbSuxBkUVQ0Eo1LNs3jDWQ0Wmi++252U=
+        b=m3zi9ckjYSuS2r5pj1fLuCl9jLoIQd0zlEY80DkN/zHlbdkJlhTvhLnJiVjZpFbo7
+         eNNwaTN8wijo9uO/NRenzANV3/m/U3MHrKg4I+tlOl7Ty5jET0KAwO4V1O/zc7i9bz
+         DSEvJCGL/zDEiRRoC+kUfbuEIkSE4oEUGqwmOCeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/72] x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
-Date:   Fri,  5 Mar 2021 13:21:31 +0100
-Message-Id: <20210305120858.762163646@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 01/52] net: usb: qmi_wwan: support ZTE P685M modem
+Date:   Fri,  5 Mar 2021 13:21:32 +0100
+Message-Id: <20210305120853.733431768@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -39,52 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-[ Upstream commit 4b2d8ca9208be636b30e924b1cbcb267b0740c93 ]
+commit 88eee9b7b42e69fb622ddb3ff6f37e8e4347f5b2 upstream.
 
-On this system the M.2 PCIe WiFi card isn't detected after reboot, only
-after cold boot. reboot=pci fixes this behavior. In [0] the same issue
-is described, although on another system and with another Intel WiFi
-card. In case it's relevant, both systems have Celeron CPUs.
+Now that interface 3 in "option" driver is no longer mapped, add device
+ID matching it to qmi_wwan.
 
-Add a PCI reboot quirk on affected systems until a more generic fix is
-available.
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=202399
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
- [ bp: Massage commit message. ]
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/1524eafd-f89c-cfa4-ed70-0bde9e45eec9@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210223183456.6377-1-lech.perczak@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/reboot.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 835b6fc0c1bb..b1b96d461bc7 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -477,6 +477,15 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
- 		},
- 	},
- 
-+	{	/* PCIe Wifi card isn't detected after reboot otherwise */
-+		.callback = set_pci_reboot,
-+		.ident = "Zotac ZBOX CI327 nano",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
-+		},
-+	},
-+
- 	/* Sony */
- 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
- 		.callback = set_bios_reboot,
--- 
-2.30.1
-
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1217,6 +1217,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x19d2, 0x1255, 4)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1256, 4)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1270, 5)},	/* ZTE MF667 */
++	{QMI_FIXED_INTF(0x19d2, 0x1275, 3)},	/* ZTE P685M */
+ 	{QMI_FIXED_INTF(0x19d2, 0x1401, 2)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1402, 2)},	/* ZTE MF60 */
+ 	{QMI_FIXED_INTF(0x19d2, 0x1424, 2)},
 
 
