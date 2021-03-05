@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A193C32EB0F
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A7832EAC7
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbhCEMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:41:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57468 "EHLO mail.kernel.org"
+        id S233015AbhCEMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232366AbhCEMlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:41:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65AA765024;
-        Fri,  5 Mar 2021 12:41:24 +0000 (UTC)
+        id S233311AbhCEMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:39:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FBA965012;
+        Fri,  5 Mar 2021 12:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948085;
-        bh=2xCm54yH5KeIKpgJe8y2sigqUUZyyouKzb0iI/l6/aE=;
+        s=korg; t=1614947997;
+        bh=frnYT284QuGVrTDpO3YkJKBmHq1Omk+YL+zJ8mZCsK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJw2iajkCgZsajJ8jkjXSeRAps2b49+SuuDF/oK11eLAVj3OiMbeGRvuRsCWOS1/U
-         ytRy3RyQfdyS+xYORvzgmRrfuVn4qMD2/PdAbQbFljO8zQ3Fx/cXlLmAn2J8bC7GCA
-         By3046s6rVcIcP9oNrfxA0etDvvaZJPPHVhFL/84=
+        b=RL3PUogpme/lzRqpI/2OY6g1QiJaBAjtiTJFyAndLV/UL00nJPXJW+Dq0oJrg3Ce7
+         MgEjZHBP1WEFUo5JGJUQT4osDQt84mqEGQw49We/3g64pA1bHyDDEbVDurpe5RoJcU
+         xS4+NQyMWOeCSzgw/HxB3xPQKWXknzxZPYuojLos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/41] staging: fwserial: Fix error handling in fwserial_create
-Date:   Fri,  5 Mar 2021 13:22:30 +0100
-Message-Id: <20210305120852.438544109@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>
+Subject: [PATCH 4.14 32/39] sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
+Date:   Fri,  5 Mar 2021 13:22:31 +0100
+Message-Id: <20210305120853.392925382@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +38,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Joe Perches <joe@perches.com>
 
-[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
+commit 2efc459d06f1630001e3984854848a5647086232 upstream.
 
-When fw_core_add_address_handler() fails, we need to destroy
-the port by tty_port_destroy(). Also we need to unregister
-the address handler by fw_core_remove_address_handler() on
-failure.
+Output defects can exist in sysfs content using sprintf and snprintf.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
+sprintf does not know the PAGE_SIZE maximum of the temporary buffer
+used for outputting sysfs content and it's possible to overrun the
+PAGE_SIZE buffer length.
+
+Add a generic sysfs_emit function that knows that the size of the
+temporary buffer and ensures that no overrun is done.
+
+Add a generic sysfs_emit_at function that can be used in multiple
+call situations that also ensures that no overrun is done.
+
+Validate the output buffer argument to be page aligned.
+Validate the offset len argument to be within the PAGE_SIZE buf.
+
+Signed-off-by: Joe Perches <joe@perches.com>
+Link: https://lore.kernel.org/r/884235202216d464d61ee975f7465332c86f76b2.1600285923.git.joe@perches.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fwserial/fwserial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/filesystems/sysfs.txt |    8 +----
+ fs/sysfs/file.c                     |   55 ++++++++++++++++++++++++++++++++++++
+ include/linux/sysfs.h               |   16 ++++++++++
+ 3 files changed, 74 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index 49c718b91e55..16f6f35954fb 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -2255,6 +2255,7 @@ static int fwserial_create(struct fw_unit *unit)
- 		err = fw_core_add_address_handler(&port->rx_handler,
- 						  &fw_high_memory_region);
- 		if (err) {
-+			tty_port_destroy(&port->port);
- 			kfree(port);
- 			goto free_ports;
- 		}
-@@ -2337,6 +2338,7 @@ unregister_ttys:
+--- a/Documentation/filesystems/sysfs.txt
++++ b/Documentation/filesystems/sysfs.txt
+@@ -211,12 +211,10 @@ Other notes:
+   is 4096. 
  
- free_ports:
- 	for (--i; i >= 0; --i) {
-+		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
- 		tty_port_destroy(&serial->ports[i]->port);
- 		kfree(serial->ports[i]);
- 	}
--- 
-2.30.1
-
+ - show() methods should return the number of bytes printed into the
+-  buffer. This is the return value of scnprintf().
++  buffer.
+ 
+-- show() must not use snprintf() when formatting the value to be
+-  returned to user space. If you can guarantee that an overflow
+-  will never happen you can use sprintf() otherwise you must use
+-  scnprintf().
++- show() should only use sysfs_emit() or sysfs_emit_at() when formatting
++  the value to be returned to user space.
+ 
+ - store() should return the number of bytes used from the buffer. If the
+   entire buffer has been used, just return the count argument.
+--- a/fs/sysfs/file.c
++++ b/fs/sysfs/file.c
+@@ -17,6 +17,7 @@
+ #include <linux/list.h>
+ #include <linux/mutex.h>
+ #include <linux/seq_file.h>
++#include <linux/mm.h>
+ 
+ #include "sysfs.h"
+ #include "../kernfs/kernfs-internal.h"
+@@ -549,3 +550,57 @@ void sysfs_remove_bin_file(struct kobjec
+ 	kernfs_remove_by_name(kobj->sd, attr->attr.name);
+ }
+ EXPORT_SYMBOL_GPL(sysfs_remove_bin_file);
++
++/**
++ *	sysfs_emit - scnprintf equivalent, aware of PAGE_SIZE buffer.
++ *	@buf:	start of PAGE_SIZE buffer.
++ *	@fmt:	format
++ *	@...:	optional arguments to @format
++ *
++ *
++ * Returns number of characters written to @buf.
++ */
++int sysfs_emit(char *buf, const char *fmt, ...)
++{
++	va_list args;
++	int len;
++
++	if (WARN(!buf || offset_in_page(buf),
++		 "invalid sysfs_emit: buf:%p\n", buf))
++		return 0;
++
++	va_start(args, fmt);
++	len = vscnprintf(buf, PAGE_SIZE, fmt, args);
++	va_end(args);
++
++	return len;
++}
++EXPORT_SYMBOL_GPL(sysfs_emit);
++
++/**
++ *	sysfs_emit_at - scnprintf equivalent, aware of PAGE_SIZE buffer.
++ *	@buf:	start of PAGE_SIZE buffer.
++ *	@at:	offset in @buf to start write in bytes
++ *		@at must be >= 0 && < PAGE_SIZE
++ *	@fmt:	format
++ *	@...:	optional arguments to @fmt
++ *
++ *
++ * Returns number of characters written starting at &@buf[@at].
++ */
++int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
++{
++	va_list args;
++	int len;
++
++	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
++		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
++		return 0;
++
++	va_start(args, fmt);
++	len = vscnprintf(buf + at, PAGE_SIZE - at, fmt, args);
++	va_end(args);
++
++	return len;
++}
++EXPORT_SYMBOL_GPL(sysfs_emit_at);
+--- a/include/linux/sysfs.h
++++ b/include/linux/sysfs.h
+@@ -301,6 +301,11 @@ static inline void sysfs_enable_ns(struc
+ 	return kernfs_enable_ns(kn);
+ }
+ 
++__printf(2, 3)
++int sysfs_emit(char *buf, const char *fmt, ...);
++__printf(3, 4)
++int sysfs_emit_at(char *buf, int at, const char *fmt, ...);
++
+ #else /* CONFIG_SYSFS */
+ 
+ static inline int sysfs_create_dir_ns(struct kobject *kobj, const void *ns)
+@@ -507,6 +512,17 @@ static inline void sysfs_enable_ns(struc
+ {
+ }
+ 
++__printf(2, 3)
++static inline int sysfs_emit(char *buf, const char *fmt, ...)
++{
++	return 0;
++}
++
++__printf(3, 4)
++static inline int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
++{
++	return 0;
++}
+ #endif /* CONFIG_SYSFS */
+ 
+ static inline int __must_check sysfs_create_file(struct kobject *kobj,
 
 
