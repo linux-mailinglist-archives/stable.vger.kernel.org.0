@@ -2,113 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7888332E07E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 05:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5412232E082
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 05:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229609AbhCEERM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 23:17:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229458AbhCEERL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 4 Mar 2021 23:17:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D256500C;
-        Fri,  5 Mar 2021 04:17:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614917831;
-        bh=Zc6jH/y5D3mJkIKC5vVqs3ZTzbN81eOPry2bjbCBQjk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=OQz8UGPlRZNWpq3crJx80py1PDo79b2MbEVTnvp+7UTRxxgkzW5hVEAq1gYlvVmi3
-         b/HLvlte8HPmBYtqWX4OOUcEzG7tuxMPThR3gutOBzBY+aLa1JnYqY6LK7ci8gmcoW
-         WgW2SQW6hqJQXRylENEKK7eBnWPtIm+noQPAaj8UP2g9BbeCWke0j07k/8Zxfw70Mc
-         +zVQ3j6Ie2AWuqiAwB2QUO2u0RIGJlox+lFSglTbHDMgze9bpERJVoPKSfF53Zd6ZJ
-         +SqOcK+HcgXc8zIGZQ7MS7KhgfhPoJaLhuxBzrm5//gRryzlYXBSgGgnakh5PyR4YU
-         Pj5doL8e/+v5A==
-Date:   Fri, 5 Mar 2021 09:47:07 +0530
-From:   Vinod Koul <vkoul@kernel.org>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     srinivas.kandagatla@linaro.org, stable-commits@vger.kernel.org
-Subject: Re: Patch "soundwire: debugfs: use controller id instead of link_id"
- has been added to the 5.11-stable tree
-Message-ID: <YEGww3u0QR3pYGhF@vkoul-mobl>
-References: <161487107335140@kroah.com>
+        id S229437AbhCEETQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 23:19:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229528AbhCEETP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 23:19:15 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC30C06175F
+        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 20:19:13 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id ch11so1131941pjb.4
+        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 20:19:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=++9jMs7yDkttmTIsURKXh055y8AzbP1PE04SPp6bHe0=;
+        b=JT15K4hQXo9MaiRxmUNaz7+cql21pLoHCBlzwmBbMU+TVqJrUKZf7Euo7mXZfeDByo
+         Tus5s+fdFe6x3NrNk7B/NT3D95I/R+wCaurog5cQSUW06QxXDF+dbn7N0sEGsLpolxDy
+         Ku/fo8udbTAZA4YrlKjBY5teo8u5vCEf5vzKCAe0afvVbKyPjOl1pNc+6xEoUYEnXA8m
+         aBxgD0o7j1YUiUz8/Ss+2jbNRaUfwROXlMNL9x3yYaBkfhr4kj4YL/3tZ9kejfYJO3qz
+         VfYY1Ia2mxM9/KUesQfUygk19U3bI9jvFUgF6i30XUJkOiBnrFltqol8N8dktQ9Iwv+J
+         genA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=++9jMs7yDkttmTIsURKXh055y8AzbP1PE04SPp6bHe0=;
+        b=IgW47aO0yXwvWOl4y0sanARtd3TB5Ddx6V4AJv+m1PDtYhIVaK5h5BIjxt0cBVzcXJ
+         vl7NN/7Z2JEGqRA2RTFYr/bZcSWuW1OgTJWIS0whsiPUaN8x/Fz38Q+BpZxJUY6minDk
+         436nlLAOZmScLR4GYlufyY21+x+UC3Zc/VI0CZUHSv5UsNCXEkeLvzMS7wtI/pixNJJr
+         Kdtup5nGBhAygvsRbaBQQm1skNIw9KP90eiqRFonPfdJmEN0+I0/pM7llKjQ5QZNHqXV
+         gvdoh3YSkrDo75VqDmlRvCa/SD6kXkGS9yf1QoySgZGHU34UP22lDKz+sq7Tr0/XNcWE
+         7njw==
+X-Gm-Message-State: AOAM532Nea/X9oz8tJdYZbrebjrYulZIKRtQVbpDIxs8wRvqK8P2xCe4
+        8ofAWWnvr425rNBnFGvj7Trh1WOLKFoP4rQJ
+X-Google-Smtp-Source: ABdhPJzFFDvsP2cojdDhwzJlO8pSj50KPZ3IY0LYXrCMJTht0vVEznkMqN6767sGiTHz1oO/lEkYEw==
+X-Received: by 2002:a17:90b:609:: with SMTP id gb9mr7920183pjb.209.1614917952680;
+        Thu, 04 Mar 2021 20:19:12 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c24sm719850pjv.18.2021.03.04.20.19.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Mar 2021 20:19:12 -0800 (PST)
+Message-ID: <6041b140.1c69fb81.9eba1.3516@mx.google.com>
+Date:   Thu, 04 Mar 2021 20:19:12 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <161487107335140@kroah.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.20-40-g925d40b7c48fb
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 120 runs,
+ 1 regressions (v5.10.20-40-g925d40b7c48fb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+stable-rc/queue/5.10 baseline: 120 runs, 1 regressions (v5.10.20-40-g925d40=
+b7c48fb)
 
-On 04-03-21, 16:17, gregkh@linuxfoundation.org wrote:
-> 
-> This is a note to let you know that I've just added the patch titled
-> 
->     soundwire: debugfs: use controller id instead of link_id
-> 
-> to the 5.11-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      soundwire-debugfs-use-controller-id-instead-of-link_id.patch
-> and it can be found in the queue-5.11 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
+Regressions Summary
+-------------------
 
-Please drop this patch from stable, it was not tagged to stable and it
-is reverted
-
-Thanks
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.20-40-g925d40b7c48fb/plan/baseline/
 
-> 
-> 
-> >From 6d5e7af1f6f5924de5dd1ebe97675c2363100878 Mon Sep 17 00:00:00 2001
-> From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> Date: Fri, 15 Jan 2021 16:25:59 +0000
-> Subject: soundwire: debugfs: use controller id instead of link_id
-> 
-> From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> 
-> commit 6d5e7af1f6f5924de5dd1ebe97675c2363100878 upstream.
-> 
-> link_id can be zero and if we have multiple controller instances
-> in a system like Qualcomm debugfs will end-up with duplicate namespace
-> resulting in incorrect debugfs entries.
-> 
-> Using id should give a unique debugfs directory entry and should fix below
-> warning too.
-> "debugfs: Directory 'master-0' with parent 'soundwire' already present!"
-> 
-> Fixes: bf03473d5bcc ("soundwire: add debugfs support")
-> Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-> Link: https://lore.kernel.org/r/20210115162559.20869-1-srinivas.kandagatla@linaro.org
-> Signed-off-by: Vinod Koul <vkoul@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/soundwire/debugfs.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- a/drivers/soundwire/debugfs.c
-> +++ b/drivers/soundwire/debugfs.c
-> @@ -19,7 +19,7 @@ void sdw_bus_debugfs_init(struct sdw_bus
->  		return;
->  
->  	/* create the debugfs master-N */
-> -	snprintf(name, sizeof(name), "master-%d", bus->link_id);
-> +	snprintf(name, sizeof(name), "master-%d", bus->id);
->  	bus->debugfs = debugfs_create_dir(name, sdw_debugfs_root);
->  }
->  
-> 
-> 
-> Patches currently in stable-queue which might be from srinivas.kandagatla@linaro.org are
-> 
-> queue-5.11/asoc-qcom-remove-useless-debug-print.patch
-> queue-5.11/soundwire-debugfs-use-controller-id-instead-of-link_id.patch
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.20-40-g925d40b7c48fb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      925d40b7c48fbb529c095de3d9e214e9cca06b8a =
 
--- 
-~Vinod
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60417e64ae1a7c73e7addcb5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.20-=
+40-g925d40b7c48fb/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.20-=
+40-g925d40b7c48fb/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60417e64ae1a7c73e7add=
+cb6
+        new failure (last pass: v5.10.20-35-g4637f55e38e2) =
+
+ =20
