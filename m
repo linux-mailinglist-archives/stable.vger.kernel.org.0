@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A361032E95D
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B75C32E9DE
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231559AbhCEMc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:32:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42222 "EHLO mail.kernel.org"
+        id S231971AbhCEMfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:35:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232468AbhCEMbz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 656CF65013;
-        Fri,  5 Mar 2021 12:31:54 +0000 (UTC)
+        id S230342AbhCEMet (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:34:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C59C06502A;
+        Fri,  5 Mar 2021 12:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947515;
-        bh=q7I4pmhwraH2lRHfLtNcM8GYzt2Ga/wuWQ3myYhyTSE=;
+        s=korg; t=1614947689;
+        bh=maV2DsHmUJ8snfxc9JZDFMZXOoVKzUkJuq6TtFF9avo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFhUKmC724q1e8Aw57ejb9bv3y8Hw9hTy9H2UMUTLJ/XYZV/PUn12pBdKgqymmuQg
-         soPLCCEnT+a0bI1mNeDVR2bMk398mV/6m2mVGkFze1lhtYPcUbo6BkT4DHv8fYhSYR
-         qXkj9CDXyKa/Lcs2PNTKc87vHF3VZrbrHrhGqAT4=
+        b=kYMbPUt7osVhiGPU5Pp1cNQMh5oGGIg9AGkgCsj75QDqmWUhJlJvp7QntlD3g/jmu
+         lW5P2NaFvzOpOYBsyR0D+edKfl68RwESipdfrNUB0knikdKhpJ06RtVitaLbElPFVW
+         EWVilm6qe0FC5obo+t4CjXBY1W4jg222k87/e2qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Anthony Iliopoulos <ailiop@suse.com>
-Subject: [PATCH 5.10 091/102] swap: fix swapfile read/write offset
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 48/72] f2fs: fix to set/clear I_LINKABLE under i_lock
 Date:   Fri,  5 Mar 2021 13:21:50 +0100
-Message-Id: <20210305120907.758781565@linuxfoundation.org>
+Message-Id: <20210305120859.683869319@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
+[ Upstream commit 46085f37fc9e12d5c3539fb768b5ad7951e72acf ]
 
-We're not factoring in the start of the file for where to write and
-read the swapfile, which leads to very unfortunate side effects of
-writing where we should not be...
+fsstress + fault injection test case reports a warning message as
+below:
 
-Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: CPU: 13 PID: 6226 at fs/inode.c:361 inc_nlink+0x32/0x40
+Call Trace:
+ f2fs_init_inode_metadata+0x25c/0x4a0 [f2fs]
+ f2fs_add_inline_entry+0x153/0x3b0 [f2fs]
+ f2fs_add_dentry+0x75/0x80 [f2fs]
+ f2fs_do_add_link+0x108/0x160 [f2fs]
+ f2fs_rename2+0x6ab/0x14f0 [f2fs]
+ vfs_rename+0x70c/0x940
+ do_renameat2+0x4d8/0x4f0
+ __x64_sys_renameat2+0x4b/0x60
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Following race case can cause this:
+Thread A				Kworker
+- f2fs_rename
+ - f2fs_create_whiteout
+  - __f2fs_tmpfile
+   - f2fs_i_links_write
+    - f2fs_mark_inode_dirty_sync
+     - mark_inode_dirty_sync
+					- writeback_single_inode
+					 - __writeback_single_inode
+					  - spin_lock(&inode->i_lock)
+   - inode->i_state |= I_LINKABLE
+					  - inode->i_state &= ~dirty
+					  - spin_unlock(&inode->i_lock)
+ - f2fs_add_link
+  - f2fs_do_add_link
+   - f2fs_add_dentry
+    - f2fs_add_inline_entry
+     - f2fs_init_inode_metadata
+      - f2fs_i_links_write
+       - inc_nlink
+        - WARN_ON(!(inode->i_state & I_LINKABLE))
+
+Fix to add i_lock to avoid i_state update race condition.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/swap.h |    1 +
- mm/page_io.c         |    5 -----
- mm/swapfile.c        |   13 +++++++++++++
- 3 files changed, 14 insertions(+), 5 deletions(-)
+ fs/f2fs/namei.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -484,6 +484,7 @@ struct backing_dev_info;
- extern int init_swap_address_space(unsigned int type, unsigned long nr_pages);
- extern void exit_swap_address_space(unsigned int type);
- extern struct swap_info_struct *get_swap_device(swp_entry_t entry);
-+sector_t swap_page_sector(struct page *page);
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 5d9584281935..3a97ac56821b 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -797,7 +797,11 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
  
- static inline void put_swap_device(struct swap_info_struct *si)
- {
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -273,11 +273,6 @@ out:
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_SHIFT - 9);
--}
--
- static inline void count_swpout_vm_event(struct page *page)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -220,6 +220,19 @@ offset_to_swap_extent(struct swap_info_s
- 	BUG();
- }
- 
-+sector_t swap_page_sector(struct page *page)
-+{
-+	struct swap_info_struct *sis = page_swap_info(page);
-+	struct swap_extent *se;
-+	sector_t sector;
-+	pgoff_t offset;
+ 	if (whiteout) {
+ 		f2fs_i_links_write(inode, false);
 +
-+	offset = __page_file_index(page);
-+	se = offset_to_swap_extent(sis, offset);
-+	sector = se->start_block + (offset - se->start_page);
-+	return sector << (PAGE_SHIFT - 9);
-+}
++		spin_lock(&inode->i_lock);
+ 		inode->i_state |= I_LINKABLE;
++		spin_unlock(&inode->i_lock);
 +
- /*
-  * swap allocation tell device that a cluster of swap can now be discarded,
-  * to allow the swap device to optimize its wear-levelling.
+ 		*whiteout = inode;
+ 	} else {
+ 		d_tmpfile(dentry, inode);
+@@ -996,7 +1000,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		err = f2fs_add_link(old_dentry, whiteout);
+ 		if (err)
+ 			goto put_out_dir;
++
++		spin_lock(&whiteout->i_lock);
+ 		whiteout->i_state &= ~I_LINKABLE;
++		spin_unlock(&whiteout->i_lock);
++
+ 		iput(whiteout);
+ 	}
+ 
+-- 
+2.30.1
+
 
 
