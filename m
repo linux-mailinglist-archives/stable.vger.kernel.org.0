@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C2232EA46
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78B6F32E9DF
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbhCEMht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50192 "EHLO mail.kernel.org"
+        id S230525AbhCEMfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:35:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233043AbhCEMhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD8B165004;
-        Fri,  5 Mar 2021 12:37:06 +0000 (UTC)
+        id S232533AbhCEMfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:35:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E95B36501C;
+        Fri,  5 Mar 2021 12:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947827;
-        bh=qMvQs+Lpjk0Dwq5+CLfg1m7yJAQUyrZyagoHKjCZbj8=;
+        s=korg; t=1614947708;
+        bh=dlQSSnNDfKip8xHfnUotCBhp9HEVlxhqZGg+Ws7Pp3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ajzZL4MpWKVmT2MaHLEt7QkiYzg0vWzyy/p2Kw1sYAa+7q+L5hEQN1u4nJpXXucWL
-         cIs/EfHB7uMHc4y2AlReZXFf8SPu3czQeMvOsSX6rek/iHZJCK2YLqYieLZthRMKaR
-         EAPSWT+U1LjlJA/gOXolLmny8CYPaBBPXarGTkQc=
+        b=bC+J1sY2LGEknaCPhhNdvHvnHQ53TUg0uHbVegNVeTLuGexk6hRjXDbhJGxmYNnK+
+         0+reOosYKCoSwaPPE+LUSaJ4VSFvJ3WmUYZtNGMWNrgjXzLkKOAnckZZkJmOryaZ78
+         Z0f3ntAubsqtnzd5imxonufIduZ1QL27gurvtuJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 25/52] Bluetooth: hci_h5: Set HCI_QUIRK_SIMULTANEOUS_DISCOVERY for btrtl
+Subject: [PATCH 5.4 54/72] perf/x86/kvm: Add Cascade Lake Xeon steppings to isolation_ucodes[]
 Date:   Fri,  5 Mar 2021 13:21:56 +0100
-Message-Id: <20210305120854.911683081@linuxfoundation.org>
+Message-Id: <20210305120859.982652220@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claire Chang <tientzu@chromium.org>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit 7f9f2c3f7d99b8ae773459c74ac5e99a0dd46db9 ]
+[ Upstream commit b3c3361fe325074d4144c29d46daae4fc5a268d5 ]
 
-Realtek Bluetooth controllers can do both LE scan and BR/EDR inquiry
-at once, need to set HCI_QUIRK_SIMULTANEOUS_DISCOVERY quirk.
+Cascade Lake Xeon parts have the same model number as Skylake Xeon
+parts, so they are tagged with the intel_pebs_isolation
+quirk. However, as with Skylake Xeon H0 stepping parts, the PEBS
+isolation issue is fixed in all microcode versions.
 
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Add the Cascade Lake Xeon steppings (5, 6, and 7) to the
+isolation_ucodes[] table so that these parts benefit from Andi's
+optimization in commit 9b545c04abd4f ("perf/x86/kvm: Avoid unnecessary
+work in guest filtering").
+
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Link: https://lkml.kernel.org/r/20210205191324.2889006-1-jmattson@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_h5.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/events/intel/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index 7ffeb37e8f20..79b96251de80 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -885,6 +885,11 @@ static int h5_btrtl_setup(struct h5 *h5)
- 	/* Give the device some time before the hci-core sends it a reset */
- 	usleep_range(10000, 20000);
- 
-+	/* Enable controller to do both LE scan and BR/EDR inquiry
-+	 * simultaneously.
-+	 */
-+	set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &h5->hu->hdev->quirks);
-+
- out_free:
- 	btrtl_free(btrtl_dev);
- 
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index b24c38090dd9..90760393a964 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4002,6 +4002,9 @@ static const struct x86_cpu_desc isolation_ucodes[] = {
+ 	INTEL_CPU_DESC(INTEL_FAM6_BROADWELL_X,		 2, 0x0b000014),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 3, 0x00000021),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 4, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 5, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 6, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 7, 0x00000000),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_L,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_KABYLAKE,		 9, 0x0000004e),
 -- 
 2.30.1
 
