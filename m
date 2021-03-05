@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA7E32EAB4
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0469132EA7D
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232921AbhCEMjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54044 "EHLO mail.kernel.org"
+        id S233053AbhCEMis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:38:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233212AbhCEMjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E99664F44;
-        Fri,  5 Mar 2021 12:39:30 +0000 (UTC)
+        id S233042AbhCEMia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5C6465004;
+        Fri,  5 Mar 2021 12:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947971;
-        bh=n5v9m3If6tThXq7wDWN4Mlh0tICm5Mo+weV6OqW6Dno=;
+        s=korg; t=1614947910;
+        bh=pOnXyIopRqSAaIIHCd2ZdSWwnUnSrpl281czLHeUJdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0O/PaJeCLTeu7LK8HvWULvCbhgLuPk+bsV4swh8oyCwXGz6FvCu0l7RRONKh5y0/z
-         7N+LToCZdAkPkdSgCHREcadGNsMebbxk8OCBXHRa1d9aMEXF406qpLAn5M4ChEeMu9
-         +Jx6VfwdSnLYJT0VjCztl+A29jKdKpshBcRT6HBI=
+        b=LJcX1PowKyTLxasgS+VR/i0FQe+YEoGEUAB43HbG+EuPt8Sug/et915n9uRQfuqK1
+         ck+l1O7Zp2NLHc/vLkr98in6x5S8iMQe9RlCp/tl/VsMl4ZwQfghdwuV88LtXwLQfm
+         a19YQA3A6T9ammKZ+4D8iwidhViVfeUL6Zs8/BXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Rolf Eike Beer <eb@emlix.com>,
-        Masahiro Yamada <masahiroy@kernel.org>
-Subject: [PATCH 4.14 03/39] scripts: set proper OpenSSL include dir also for  sign-file
-Date:   Fri,  5 Mar 2021 13:22:02 +0100
-Message-Id: <20210305120851.923087262@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Nirmoy Das <nirmoy.das@amd.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/52] PCI: Add a REBAR size quirk for Sapphire RX 5600 XT Pulse
+Date:   Fri,  5 Mar 2021 13:22:03 +0100
+Message-Id: <20210305120855.244517669@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,27 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rolf Eike Beer <eb@emlix.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-commit fe968c41ac4f4ec9ffe3c4cf16b72285f5e9674f upstream.
+[ Upstream commit 907830b0fc9e374d00f3c83de5e426157b482c01 ]
 
-Fixes: 2cea4a7a1885 ("scripts: use pkg-config to locate libcrypto")
-Signed-off-by: Rolf Eike Beer <eb@emlix.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+RX 5600 XT Pulse advertises support for BAR 0 being 256MB, 512MB,
+or 1GB, but it also supports 2GB, 4GB, and 8GB. Add a rebar
+size quirk so that the BAR 0 is big enough to cover complete VARM.
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://patchwork.kernel.org/project/dri-devel/patch/20210107175017.15893-5-nirmoy.das@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/pci.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -25,6 +25,7 @@ hostprogs-$(CONFIG_SYSTEM_EXTRA_CERTIFIC
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index cd628dd73719..83fda1987d1f 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3361,7 +3361,14 @@ u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar)
+ 		return 0;
  
- HOSTCFLAGS_sortextable.o = -I$(srctree)/tools/include
- HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
-+HOSTCFLAGS_sign-file.o = $(CRYPTO_CFLAGS)
- HOSTLOADLIBES_sign-file = $(CRYPTO_LIBS)
- HOSTCFLAGS_extract-cert.o = $(CRYPTO_CFLAGS)
- HOSTLOADLIBES_extract-cert = $(CRYPTO_LIBS)
+ 	pci_read_config_dword(pdev, pos + PCI_REBAR_CAP, &cap);
+-	return (cap & PCI_REBAR_CAP_SIZES) >> 4;
++	cap &= PCI_REBAR_CAP_SIZES;
++
++	/* Sapphire RX 5600 XT Pulse has an invalid cap dword for BAR 0 */
++	if (pdev->vendor == PCI_VENDOR_ID_ATI && pdev->device == 0x731f &&
++	    bar == 0 && cap == 0x7000)
++		cap = 0x3f000;
++
++	return cap >> 4;
+ }
+ 
+ /**
+-- 
+2.30.1
+
 
 
