@@ -2,153 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA99732EA50
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6650C32EAC5
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232537AbhCEMhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
+        id S233421AbhCEMkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233328AbhCEMhd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1D4565004;
-        Fri,  5 Mar 2021 12:37:32 +0000 (UTC)
+        id S232388AbhCEMjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:39:49 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE8064E84;
+        Fri,  5 Mar 2021 12:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947853;
-        bh=Z2M2ys1lmKRh/M2Kjm2EflgGySWlW9fRITQ7E/fdjqc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxMCnxXoy/PJCdP/mo3fQNvi/K7b+8R2Ki39ZiKi0vK+RY4TCksIW/xjavEBb6meR
-         /b+j+bVvI69N5GPQsvm//FljoydRQSqWcOd1X/7sOrdRlCOTPkc+Nai9L/vGBdnlRm
-         DyzQfJ0waVRIeL7aD/USgi9sI4aXwfTjcga4cRE0=
+        s=korg; t=1614947988;
+        bh=F1brUhnJlDIC3CcJdA1Z4GLJ1tW7RcTEgFTZoBSe/2A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GWBSBblsdxk6ovSlUv8CvKGQv5xrGjadsJPH4FL/RMc9zTORtHm8LWvZCTPDJayHI
+         AsBAmutuXkPh8pAiKvhS5J62tqFMPqfblRgcVTr1SjTjRgmj+2rPfl32+/dZfMGL7x
+         SIIU8snTUWEzxdZE/Y5CPfQ5aQlGaT/AdhmNPxtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Fangrui Song <maskray@google.com>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/52] x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/39] 4.14.224-rc1 review
 Date:   Fri,  5 Mar 2021 13:21:59 +0100
-Message-Id: <20210305120855.058396983@linuxfoundation.org>
+Message-Id: <20210305120851.751937389@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.224-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.224-rc1
+X-KernelTest-Deadline: 2021-03-07T12:08+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fangrui Song <maskray@google.com>
+This is the start of the stable review cycle for the 4.14.224 release.
+There are 39 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit bb73d07148c405c293e576b40af37737faf23a6a ]
+Responses should be made by Sun, 07 Mar 2021 12:08:39 +0000.
+Anything received after that time might be too late.
 
-This is similar to commit
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.224-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
-  b21ebf2fb4cd ("x86: Treat R_X86_64_PLT32 as R_X86_64_PC32")
+thanks,
 
-but for i386. As far as the kernel is concerned, R_386_PLT32 can be
-treated the same as R_386_PC32.
+greg k-h
 
-R_386_PLT32/R_X86_64_PLT32 are PC-relative relocation types which
-can only be used by branches. If the referenced symbol is defined
-externally, a PLT will be used.
+-------------
+Pseudo-Shortlog of commits:
 
-R_386_PC32/R_X86_64_PC32 are PC-relative relocation types which can be
-used by address taking operations and branches. If the referenced symbol
-is defined externally, a copy relocation/canonical PLT entry will be
-created in the executable.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.224-rc1
 
-On x86-64, there is no PIC vs non-PIC PLT distinction and an
-R_X86_64_PLT32 relocation is produced for both `call/jmp foo` and
-`call/jmp foo@PLT` with newer (2018) GNU as/LLVM integrated assembler.
-This avoids canonical PLT entries (st_shndx=0, st_value!=0).
+Sakari Ailus <sakari.ailus@linux.intel.com>
+    media: v4l: ioctl: Fix memory leak in video_usercopy
 
-On i386, there are 2 types of PLTs, PIC and non-PIC. Currently,
-the GCC/GNU as convention is to use R_386_PC32 for non-PIC PLT and
-R_386_PLT32 for PIC PLT. Copy relocations/canonical PLT entries
-are possible ABI issues but GCC/GNU as will likely keep the status
-quo because (1) the ABI is legacy (2) the change will drop a GNU
-ld diagnostic for non-default visibility ifunc in shared objects.
+Jens Axboe <axboe@kernel.dk>
+    swap: fix swapfile read/write offset
 
-clang-12 -fno-pic (since [1]) can emit R_386_PLT32 for compiler
-generated function declarations, because preventing canonical PLT
-entries is weighed over the rare ifunc diagnostic.
+Rokudo Yan <wu-yan@tcl.com>
+    zsmalloc: account the number of compacted pages correctly
 
-Further info for the more interested:
+Jan Beulich <jbeulich@suse.com>
+    xen-netback: respect gnttab_map_refs()'s return value
 
-  https://github.com/ClangBuiltLinux/linux/issues/1210
-  https://sourceware.org/bugzilla/show_bug.cgi?id=27169
-  https://github.com/llvm/llvm-project/commit/a084c0388e2a59b9556f2de0083333232da3f1d6 [1]
+Jan Beulich <jbeulich@suse.com>
+    Xen/gnttab: handle p2m update errors on a per-slot basis
 
- [ bp: Massage commit message. ]
+Chris Leech <cleech@redhat.com>
+    scsi: iscsi: Verify lengths on passthrough PDUs
 
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nick Desaulniers <ndesaulniers@google.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210127205600.1227437-1-maskray@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/x86/kernel/module.c |  1 +
- arch/x86/tools/relocs.c  | 12 ++++++++----
- 2 files changed, 9 insertions(+), 4 deletions(-)
+Chris Leech <cleech@redhat.com>
+    scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
 
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 6645f123419c..9f0be2c7e346 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -126,6 +126,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 			*location += sym->st_value;
- 			break;
- 		case R_386_PC32:
-+		case R_386_PLT32:
- 			/* Add the value, subtract its position */
- 			*location += sym->st_value - (uint32_t)location;
- 			break;
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index 3a6c8ebc8032..aa046d46ff8f 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -841,9 +841,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
- 
-@@ -884,9 +886,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
- 
--- 
-2.30.1
+Joe Perches <joe@perches.com>
+    sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
 
+Lee Duncan <lduncan@suse.com>
+    scsi: iscsi: Restrict sessions and handles to admin capabilities
+
+John David Anglin <dave.anglin@bell.net>
+    parisc: Bump 64-bit IRQ stack size to 64 KB
+
+Jaegeuk Kim <jaegeuk@kernel.org>
+    f2fs: handle unallocated section and zone on pinned/atgc
+
+Ricardo Ribalda <ribalda@chromium.org>
+    media: uvcvideo: Allow entities with no pads
+
+Christian Gromm <christian.gromm@microchip.com>
+    staging: most: sound: add sanity check for function argument
+
+Gopal Tiwari <gtiwari@redhat.com>
+    Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+
+Fangrui Song <maskray@google.com>
+    x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+
+Miaoqing Pan <miaoqing@codeaurora.org>
+    ath10k: fix wmi mgmt tx queue full due to race condition
+
+Di Zhu <zhudi21@huawei.com>
+    pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+
+Tony Lindgren <tony@atomide.com>
+    wlcore: Fix command execute failure 19 for wl12xx
+
+Jiri Slaby <jslaby@suse.cz>
+    vt/consolemap: do font sum unsigned
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+
+Dinghao Liu <dinghao.liu@zju.edu.cn>
+    staging: fwserial: Fix error handling in fwserial_create
+
+Geert Uytterhoeven <geert+renesas@glider.be>
+    dt-bindings: net: btusb: DT fix s/interrupt-name/interrupt-names/
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: bridge: use switchdev for port flags set through sysfs too
+
+Li Xinhai <lixinhai.lxh@gmail.com>
+    mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
+
+Marco Elver <elver@google.com>
+    net: fix up truesize of cloned skb in skb_prepare_for_shift()
+
+Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+    smackfs: restrict bytes count in smackfs write functions
+
+Yumei Huang <yuhuang@redhat.com>
+    xfs: Fix assert failure in xfs_setattr_size()
+
+Sean Young <sean@mess.org>
+    media: mceusb: sanity check for prescaler value
+
+Randy Dunlap <rdunlap@infradead.org>
+    JFS: more checks for invalid superblock
+
+Andrew Murray <andrew.murray@arm.com>
+    arm64: Use correct ll/sc atomic constraints
+
+Will Deacon <will.deacon@arm.com>
+    arm64: cmpxchg: Use "K" instead of "L" for ll/sc immediate constraint
+
+Will Deacon <will.deacon@arm.com>
+    arm64: Avoid redundant type conversions in xchg() and cmpxchg()
+
+Shaoying Xu <shaoyi@amazon.com>
+    arm64 module: set plt* section addresses to 0x0
+
+Cornelia Huck <cohuck@redhat.com>
+    virtio/s390: implement virtio-ccw revision 2 correctly
+
+Sergey Senozhatsky <senozhatsky@chromium.org>
+    drm/virtio: use kvmalloc for large allocations
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlb: fix update_and_free_page contig page struct assumption
+
+Rolf Eike Beer <eb@emlix.com>
+    scripts: set proper OpenSSL include dir also for sign-file
+
+Rolf Eike Beer <eb@emlix.com>
+    scripts: use pkg-config to locate libcrypto
+
+Lech Perczak <lech.perczak@gmail.com>
+    net: usb: qmi_wwan: support ZTE P685M modem
+
+
+-------------
+
+Diffstat:
+
+ Documentation/devicetree/bindings/net/btusb.txt |   2 +-
+ Documentation/filesystems/sysfs.txt             |   8 +-
+ Makefile                                        |   4 +-
+ arch/arm/xen/p2m.c                              |  35 +++++-
+ arch/arm64/include/asm/atomic_ll_sc.h           | 108 +++++++++--------
+ arch/arm64/include/asm/atomic_lse.h             |  46 ++++----
+ arch/arm64/include/asm/cmpxchg.h                | 116 +++++++++----------
+ arch/arm64/kernel/module.lds                    |   6 +-
+ arch/parisc/kernel/irq.c                        |   4 +
+ arch/x86/kernel/module.c                        |   1 +
+ arch/x86/kernel/reboot.c                        |   9 ++
+ arch/x86/tools/relocs.c                         |  12 +-
+ arch/x86/xen/p2m.c                              |  44 ++++++-
+ drivers/block/zram/zram_drv.c                   |   2 +-
+ drivers/gpu/drm/virtio/virtgpu_vq.c             |   6 +-
+ drivers/media/rc/mceusb.c                       |   9 +-
+ drivers/media/usb/uvc/uvc_driver.c              |   7 +-
+ drivers/media/v4l2-core/v4l2-ioctl.c            |  19 ++-
+ drivers/net/usb/qmi_wwan.c                      |   1 +
+ drivers/net/wireless/ath/ath10k/mac.c           |  15 +--
+ drivers/net/wireless/ti/wl12xx/main.c           |   3 -
+ drivers/net/wireless/ti/wlcore/main.c           |  15 +--
+ drivers/net/wireless/ti/wlcore/wlcore.h         |   3 -
+ drivers/net/xen-netback/netback.c               |  12 +-
+ drivers/s390/virtio/virtio_ccw.c                |   4 +-
+ drivers/scsi/libiscsi.c                         | 148 ++++++++++++------------
+ drivers/scsi/scsi_transport_iscsi.c             |  38 ++++--
+ drivers/staging/fwserial/fwserial.c             |   2 +
+ drivers/staging/most/aim-sound/sound.c          |   2 +
+ drivers/tty/vt/consolemap.c                     |   2 +-
+ fs/f2fs/segment.h                               |   4 +-
+ fs/jfs/jfs_filsys.h                             |   1 +
+ fs/jfs/jfs_mount.c                              |  10 ++
+ fs/sysfs/file.c                                 |  55 +++++++++
+ fs/xfs/xfs_iops.c                               |   2 +-
+ include/linux/sysfs.h                           |  16 +++
+ include/linux/zsmalloc.h                        |   2 +-
+ mm/hugetlb.c                                    |  28 +++--
+ mm/page_io.c                                    |  11 +-
+ mm/swapfile.c                                   |   2 +-
+ mm/zsmalloc.c                                   |  17 ++-
+ net/bluetooth/amp.c                             |   3 +
+ net/bridge/br_sysfs_if.c                        |   9 +-
+ net/core/pktgen.c                               |   2 +-
+ net/core/skbuff.c                               |  14 ++-
+ scripts/Makefile                                |   9 +-
+ security/smack/smackfs.c                        |  21 +++-
+ 47 files changed, 559 insertions(+), 330 deletions(-)
 
 
