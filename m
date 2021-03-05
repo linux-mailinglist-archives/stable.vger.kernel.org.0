@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1F9132EAE5
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E7A32EB36
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232719AbhCEMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
+        id S233165AbhCEMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231224AbhCEMkd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:33 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EED6464E84;
-        Fri,  5 Mar 2021 12:40:32 +0000 (UTC)
+        id S233900AbhCEMme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4F065021;
+        Fri,  5 Mar 2021 12:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948033;
-        bh=UGV5qd3w4UPGJb4DeqXeTXxebdQ7BrsB1t7JvviE3ug=;
+        s=korg; t=1614948152;
+        bh=3WXTlsl1Lh1o8XbCpfwEZfleYsKAnP/lvibuuuswW1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Arsh7XMTx+pUNnjQImm95G/AglGhv8J2FDIMw6kvUtSpccZ4P6LGeFE6fh8tvFbqo
-         5a2XtvqMt4scoy+Q6ilFPntW0R0V0w7Nzr5bkjwFFMChutWCwFL8ssMGmdC1+5S/uP
-         AC1uThmzbWHFUAHltSG4FXHgZv/5R0bw0wfgnP6o=
+        b=W6vOqlTKsDCA2jFMLyUz+pM3yJVT8+ijuDVGhlsq4IaPxWEj9W2+RY31jL1iWz50L
+         6nGvqtzEtxN+SNixyBjINCtnsa+gkRAuH8FxnN8POBe8jKFX3BnxahepjNhFWQhWRB
+         zWBTn7+UMPvksWRCuSevNt6LqlIDpgIiAAHhnJqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/39] media: uvcvideo: Allow entities with no pads
+        stable@vger.kernel.org,
+        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.9 20/41] smackfs: restrict bytes count in smackfs write functions
 Date:   Fri,  5 Mar 2021 13:22:27 +0100
-Message-Id: <20210305120853.185626410@linuxfoundation.org>
+Message-Id: <20210305120852.290110306@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
+commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 upstream.
 
-Avoid an underflow while calculating the number of inputs for entities
-with zero pads.
+syzbot found WARNINGs in several smackfs write operations where
+bytes count is passed to memdup_user_nul which exceeds
+GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
+smk_write_net6addr accepts any label or -DELETE. I couldn't find
+any general rule for other label lengths except SMK_LABELLEN,
+SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
+
+Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
+Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
+
+Here is a quick way to reproduce the WARNING:
+python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
+
+Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ security/smack/smackfs.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 5899593dabaf..aaaee039fb30 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -904,7 +904,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 	unsigned int i;
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -1186,7 +1186,7 @@ static ssize_t smk_write_net4addr(struct
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- 	extra_size = roundup(extra_size, sizeof(*entity->pads));
--	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
-+	if (num_pads)
-+		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
-+	else
-+		num_inputs = 0;
- 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
- 	     + num_inputs;
- 	entity = kzalloc(size, GFP_KERNEL);
-@@ -920,7 +923,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 	data = memdup_user_nul(buf, count);
+@@ -1446,7 +1446,7 @@ static ssize_t smk_write_net6addr(struct
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- 	for (i = 0; i < num_inputs; ++i)
- 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
--	if (!UVC_ENTITY_IS_OTERM(entity))
-+	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
- 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
+ 	data = memdup_user_nul(buf, count);
+@@ -1853,6 +1853,10 @@ static ssize_t smk_write_ambient(struct
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
  
- 	entity->bNrInPins = num_inputs;
--- 
-2.30.1
-
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2024,6 +2028,9 @@ static ssize_t smk_write_onlycap(struct
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2111,6 +2118,9 @@ static ssize_t smk_write_unconfined(stru
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2664,6 +2674,10 @@ static ssize_t smk_write_syslog(struct f
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2756,10 +2770,13 @@ static ssize_t smk_write_relabel_self(st
+ 		return -EPERM;
+ 
+ 	/*
++	 * No partial write.
+ 	 * Enough data must be present.
+ 	 */
+ 	if (*ppos != 0)
+ 		return -EINVAL;
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
+ 
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
 
 
