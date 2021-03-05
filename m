@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF9132E91B
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73F0532E98F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231332AbhCEMai (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40074 "EHLO mail.kernel.org"
+        id S231366AbhCEMd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231147AbhCEMaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:30:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8863365013;
-        Fri,  5 Mar 2021 12:30:13 +0000 (UTC)
+        id S232384AbhCEMdM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0680B65019;
+        Fri,  5 Mar 2021 12:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947414;
-        bh=6ToYbG/Vrjavyy1ecwuAQoFYXDTGEioVnUB4vTCjrMQ=;
+        s=korg; t=1614947592;
+        bh=2EqZg4RU7LVE7gbSx+bg95LHGMPaJje5IXToq/HNGVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuEYnkBcuFUtuKxC/pHueUX3Gl5XhQJ4DXQQ88Ps+PcPp6bsG1ufTclaZ4WShr1lP
-         HvSCo7H7HLP2DBH9N9DpPCKW7iAUY1p0EPct54kH6e7pq2Ge5WoYyyHj5rEVyyYS2X
-         7m5OCydS453qEoFOB1fe6L0K8x6RzywLfRRHfyoE=
+        b=Ou87NsNUyszrL/3rGH5evOaw5KFjQ0boCS5TnrxrLg+MLmlOy8ZkTWUTHgXR0tTlu
+         q1ger9x6M6W/0g3ng3dXzQQHrIy5D+C484uNIhJIO5+98uaZJAnBMn8U0omqArdWoO
+         tC1RnzyDBUjDzEs2E2JYI8B5bdh7Q2jX2L+0c29w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tian Tao <tiantao6@hisilicon.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/102] drm/hisilicon: Fix use-after-free
+        stable@vger.kernel.org,
+        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
+        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 5.4 14/72] smackfs: restrict bytes count in smackfs write functions
 Date:   Fri,  5 Mar 2021 13:21:16 +0100
-Message-Id: <20210305120906.092893205@linuxfoundation.org>
+Message-Id: <20210305120858.032965574@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,106 +41,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tian Tao <tiantao6@hisilicon.com>
+From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
 
-[ Upstream commit c855af2f9c5c60760fd1bed7889a81bc37d2591d ]
+commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 upstream.
 
-Fix the problem of dev being released twice.
-------------[ cut here ]------------
-refcount_t: underflow; use-after-free.
-WARNING: CPU: 75 PID: 15700 at lib/refcount.c:28 refcount_warn_saturate+0xd4/0x150
-CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
-Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
-pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-pc : refcount_warn_saturate+0xd4/0x150
-lr : refcount_warn_saturate+0xd4/0x150
-sp : ffff2028150cbc00
-x29: ffff2028150cbc00 x28: ffff2028150121c0
-x27: 0000000000000000 x26: 0000000000000000
-x25: 0000000000000000 x24: 0000000000000003
-x23: 0000000000000000 x22: ffff2028150cbc90
-x21: ffff2020038a30a8 x20: ffff2028150cbc90
-x19: ffff0020cd938020 x18: 0000000000000010
-x17: 0000000000000000 x16: 0000000000000000
-x15: ffffffffffffffff x14: ffff2028950cb88f
-x13: ffff2028150cb89d x12: 0000000000000000
-x11: 0000000005f5e0ff x10: ffff2028150cb800
-x9 : 00000000ffffffd0 x8 : 75203b776f6c6672
-x7 : ffff800011a6f7c8 x6 : 0000000000000001
-x5 : 0000000000000000 x4 : 0000000000000000
-x3 : 0000000000000000 x2 : ffff202ffe2f9dc0
-x1 : ffffa02fecf40000 x0 : 0000000000000026
-Call trace:
- refcount_warn_saturate+0xd4/0x150
- devm_drm_dev_init_release+0x50/0x70
- devm_action_release+0x20/0x30
- release_nodes+0x13c/0x218
- devres_release_all+0x80/0x170
- device_release_driver_internal+0x128/0x1f0
- driver_detach+0x6c/0xe0
- bus_remove_driver+0x74/0x100
- driver_unregister+0x34/0x60
- pci_unregister_driver+0x24/0xd8
- hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
- __arm64_sys_delete_module+0x1fc/0x2d0
- el0_svc_common.constprop.3+0xa8/0x188
- do_el0_svc+0x80/0xa0
- el0_sync_handler+0x8c/0xb0
- el0_sync+0x15c/0x180
-CPU: 75 PID: 15700 Comm: rmmod Tainted: G            E     5.10.0-rc3+ #3
-Hardware name: Huawei TaiShan 200 (Model 2280)/BC82AMDDA, BIOS 0.88 07/24/2019
-Call trace:
- dump_backtrace+0x0/0x208
- show_stack+0x2c/0x40
- dump_stack+0xd8/0x10c
- __warn+0xac/0x128
- report_bug+0xcc/0x180
- bug_handler+0x24/0x78
- call_break_hook+0x80/0xa0
- brk_handler+0x28/0x68
- do_debug_exception+0x9c/0x148
- el1_sync_handler+0x7c/0x128
- el1_sync+0x80/0x100
- refcount_warn_saturate+0xd4/0x150
- devm_drm_dev_init_release+0x50/0x70
- devm_action_release+0x20/0x30
- release_nodes+0x13c/0x218
- devres_release_all+0x80/0x170
- device_release_driver_internal+0x128/0x1f0
- driver_detach+0x6c/0xe0
- bus_remove_driver+0x74/0x100
- driver_unregister+0x34/0x60
- pci_unregister_driver+0x24/0xd8
- hibmc_pci_driver_exit+0x14/0xe858 [hibmc_drm]
- __arm64_sys_delete_module+0x1fc/0x2d0
- el0_svc_common.constprop.3+0xa8/0x188
- do_el0_svc+0x80/0xa0
- el0_sync_handler+0x8c/0xb0
- el0_sync+0x15c/0x180
----[ end trace 00718630d6e5ff18 ]---
+syzbot found WARNINGs in several smackfs write operations where
+bytes count is passed to memdup_user_nul which exceeds
+GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
 
-Signed-off-by: Tian Tao <tiantao6@hisilicon.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/1607941973-32287-1-git-send-email-tiantao6@hisilicon.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
+smk_write_net6addr accepts any label or -DELETE. I couldn't find
+any general rule for other label lengths except SMK_LABELLEN,
+SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
+
+Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
+Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
+
+Here is a quick way to reproduce the WARNING:
+python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
+
+Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
+Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 1 -
- 1 file changed, 1 deletion(-)
+ security/smack/smackfs.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-index 085d1b2fa8c0..d3485f742acc 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-+++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-@@ -368,7 +368,6 @@ static void hibmc_pci_remove(struct pci_dev *pdev)
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -1163,7 +1163,7 @@ static ssize_t smk_write_net4addr(struct
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- 	drm_dev_unregister(dev);
- 	hibmc_unload(dev);
--	drm_dev_put(dev);
- }
+ 	data = memdup_user_nul(buf, count);
+@@ -1423,7 +1423,7 @@ static ssize_t smk_write_net6addr(struct
+ 		return -EPERM;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+-	if (count < SMK_NETLBLADDRMIN)
++	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+ 		return -EINVAL;
  
- static struct pci_device_id hibmc_pci_table[] = {
--- 
-2.30.1
-
+ 	data = memdup_user_nul(buf, count);
+@@ -1830,6 +1830,10 @@ static ssize_t smk_write_ambient(struct
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2001,6 +2005,9 @@ static ssize_t smk_write_onlycap(struct
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2088,6 +2095,9 @@ static ssize_t smk_write_unconfined(stru
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	if (count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2643,6 +2653,10 @@ static ssize_t smk_write_syslog(struct f
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
+ 
++	/* Enough data must be present */
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
++
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+@@ -2735,10 +2749,13 @@ static ssize_t smk_write_relabel_self(st
+ 		return -EPERM;
+ 
+ 	/*
++	 * No partial write.
+ 	 * Enough data must be present.
+ 	 */
+ 	if (*ppos != 0)
+ 		return -EINVAL;
++	if (count == 0 || count > PAGE_SIZE)
++		return -EINVAL;
+ 
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
 
 
