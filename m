@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D585032EA28
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A8332EA31
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232812AbhCEMgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:36:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49256 "EHLO mail.kernel.org"
+        id S233368AbhCEMhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232286AbhCEMg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:36:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6C664FF0;
-        Fri,  5 Mar 2021 12:36:28 +0000 (UTC)
+        id S232874AbhCEMgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:36:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D6064FF0;
+        Fri,  5 Mar 2021 12:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947788;
-        bh=2bo71qpCCT+TnORrIQ17DkEIX86OvWsxQeV8oXRVmtU=;
+        s=korg; t=1614947791;
+        bh=dHBiady+nPQsgDZOwSCSLTuR0o3FMSr4Ja4MvMhNnqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zqtmVWVo6pC2FWKXUXCLp3y1mjJrVJw7iQaMX1JGXVCPxYFS0l0s30zN0cXn85LBl
-         EdECpIgCHuv5Tm8kwMpUlVWIJv0TuIZ/ok7fveSFZtlKTxQOSNgrF3qCDDYlcLgcmY
-         GH54R2rABxFZTsOKKzJzjZ7zAbDSOZDklFK8zAcc=
+        b=m8PRxErPiKvJLZtLDe8yFt+bO+fVSLnV1sN3AnUYBNBOQbhjIAkuIv6Rytnp2msHs
+         UGJFNMpynRWzVkOK7eR8j+K6IipKA0wCdWfGp4CRPRt4qXZeT+z2Z3O429qREPibRr
+         WUZoG/YR+1o2WWYB6AIrabZPXdSimZyHGnVosR9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 12/52] media: mceusb: sanity check for prescaler value
-Date:   Fri,  5 Mar 2021 13:21:43 +0100
-Message-Id: <20210305120854.269375710@linuxfoundation.org>
+        stable@vger.kernel.org, Yumei Huang <yuhuang@redhat.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 4.19 13/52] xfs: Fix assert failure in xfs_setattr_size()
+Date:   Fri,  5 Mar 2021 13:21:44 +0100
+Message-Id: <20210305120854.317695150@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
 References: <20210305120853.659441428@linuxfoundation.org>
@@ -41,42 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Yumei Huang <yuhuang@redhat.com>
 
-commit 9dec0f48a75e0dadca498002d25ef4e143e60194 upstream.
+commit 88a9e03beef22cc5fabea344f54b9a0dfe63de08 upstream.
 
-prescaler larger than 8 would mean the carrier is at most 152Hz,
-which does not make sense for IR carriers.
+An assert failure is triggered by syzkaller test due to
+ATTR_KILL_PRIV is not cleared before xfs_setattr_size.
+As ATTR_KILL_PRIV is not checked/used by xfs_setattr_size,
+just remove it from the assert.
 
-Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Yumei Huang <yuhuang@redhat.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_iops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -685,11 +685,18 @@ static void mceusb_dev_printdata(struct
- 				data[0], data[1]);
- 			break;
- 		case MCE_RSP_EQIRCFS:
-+			if (!data[0] && !data[1]) {
-+				dev_dbg(dev, "%s: no carrier", inout);
-+				break;
-+			}
-+			// prescaler should make sense
-+			if (data[0] > 8)
-+				break;
- 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
- 						   (data[1] + 1), 10);
- 			if (!period)
- 				break;
--			carrier = (1000 * 1000) / period;
-+			carrier = USEC_PER_SEC / period;
- 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
- 				 inout, carrier, period);
- 			break;
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -849,7 +849,7 @@ xfs_setattr_size(
+ 	ASSERT(xfs_isilocked(ip, XFS_MMAPLOCK_EXCL));
+ 	ASSERT(S_ISREG(inode->i_mode));
+ 	ASSERT((iattr->ia_valid & (ATTR_UID|ATTR_GID|ATTR_ATIME|ATTR_ATIME_SET|
+-		ATTR_MTIME_SET|ATTR_KILL_PRIV|ATTR_TIMES_SET)) == 0);
++		ATTR_MTIME_SET|ATTR_TIMES_SET)) == 0);
+ 
+ 	oldsize = inode->i_size;
+ 	newsize = iattr->ia_size;
 
 
