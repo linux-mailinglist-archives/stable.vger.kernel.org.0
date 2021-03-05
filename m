@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DBC32E885
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEEAA32E884
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231390AbhCEM1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230175AbhCEM1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:27:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231167AbhCEM0v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:26:51 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8E3765042;
-        Fri,  5 Mar 2021 12:26:50 +0000 (UTC)
+        id S231429AbhCEM0y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:26:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A338B6502E;
+        Fri,  5 Mar 2021 12:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947211;
-        bh=ULcF/9DVmWjgbZlaP7YQwNMSFf7THB96hECQvc6+5x8=;
+        s=korg; t=1614947214;
+        bh=7TDKmWeaGn7XLJ2yiG+Xc3Z/4UpCGKpkm5kqgBNubEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgJ+MyFG8vV3srsUSkeSJ1jkG6m5GFSzEE00sO1otY2VN08fY6pjdmaPj1MaUB9Ps
-         MGyaWRKnGSlwMNyJnCEl3bOsN4nIh4ceboAjJ9LNO2asn2kH/V6yQZ8zqAqmG4zhcP
-         fC8Cpcqi9PcEyBfONsdutzcu/Qk5cgLhxTX2lg4Q=
+        b=1cy1Pk2Ey2pyRTItuF+9g+WMIZYNM15bzo7qiQtAPGCsajO5gzlsQySqRka0goHBn
+         z9IuvyZRfXT+ws3yv4RYSIxbcOS/9tK4Lygip7Sv4OdeLj7x7HNXJJjPzmPK/sEcLP
+         683pFg8mtTP/JJtuwz7SbCvuQujIjS/ZQ/8pMpJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 088/104] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
-Date:   Fri,  5 Mar 2021 13:21:33 +0100
-Message-Id: <20210305120907.483952567@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Nichols <adam@grimm-co.com>,
+        Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.11 089/104] scsi: iscsi: Restrict sessions and handles to admin capabilities
+Date:   Fri,  5 Mar 2021 13:21:34 +0100
+Message-Id: <20210305120907.529162751@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -41,55 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Lee Duncan <lduncan@suse.com>
 
-[ Upstream commit c58947af08aedbdee0fce5ea6e6bf3e488ae0e2c ]
+commit 688e8128b7a92df982709a4137ea4588d16f24aa upstream.
 
-The Acer One S1002 tablet is using an analog mic on IN1 and has
-its jack-detect connected to JD2_IN4N, instead of using the default
-IN3 for its internal mic and JD1_IN4P for jack-detect.
+Protect the iSCSI transport handle, available in sysfs, by requiring
+CAP_SYS_ADMIN to read it. Also protect the netlink socket by restricting
+reception of messages to ones sent with CAP_SYS_ADMIN. This disables
+normal users from being able to end arbitrary iSCSI sessions.
 
-Note it is also using AIF2 instead of AIF1 which is somewhat unusual,
-this is correctly advertised in the ACPI CHAN package, so the speakers
-do work without the quirk.
-
-Add a quirk for the mic and jack-detect settings.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-5-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Adam Nichols <adam@grimm-co.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/scsi/scsi_transport_iscsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index ba8ea651a22e..f00d4e417b6c 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -402,6 +402,19 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Acer One 10 S1002 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "One S1002"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_SSP0_AIF2 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
--- 
-2.30.1
-
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -132,6 +132,9 @@ show_transport_handle(struct device *dev
+ 		      char *buf)
+ {
+ 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
+ 	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
+ }
+ static DEVICE_ATTR(handle, S_IRUGO, show_transport_handle, NULL);
+@@ -3624,6 +3627,9 @@ iscsi_if_recv_msg(struct sk_buff *skb, s
+ 	struct iscsi_cls_conn *conn;
+ 	struct iscsi_endpoint *ep = NULL;
+ 
++	if (!netlink_capable(skb, CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	if (nlh->nlmsg_type == ISCSI_UEVENT_PATH_UPDATE)
+ 		*group = ISCSI_NL_GRP_UIP;
+ 	else
 
 
