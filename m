@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D24D32E988
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD14B32E90C
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231152AbhCEMdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:33:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43574 "EHLO mail.kernel.org"
+        id S232176AbhCEMaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:30:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231273AbhCEMcy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:32:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3039065029;
-        Fri,  5 Mar 2021 12:32:52 +0000 (UTC)
+        id S231196AbhCEM37 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ABC65004;
+        Fri,  5 Mar 2021 12:29:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947573;
-        bh=tUZKNZhWJpjkWShUnhOGdTZEMrFmHan31w7T4kvf+MY=;
+        s=korg; t=1614947399;
+        bh=AVwNOxzQYptEcfyWMZzdVLVDjOKlWVcElqnWPDZWrU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jRsxzbZ6F7xhWK4NWv89NgTwef4/eYHg/GAZFKq3ZZHwMwWoq0VZsoiPZ+S6qyzAI
-         mcohHe3BTj4+uPC8N21ed821MHNviBTDgkoSVnGz4Pvx2QWsOpknf1J5jYKS7KX3JD
-         Tgf5r5hZyQQGTTydwM9XKBFaSG2vFnqNgCAip8CM=
+        b=A+JpF8zacafC0Y1vi1QkG78M4tBK9985VnqCt456CZP0phcTX9jv1Up5TZiaPeqtf
+         cEltjbRBudcKurP6YGm7e9LZ40ygKlzTWaIwNg67Enco5hSBF8IDKRCBJwhLpYulfe
+         fEAqJUnHVnME7HK6MfTocuOzXFfwm9NcMIl4KGD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Lech Perczak <lech.perczak@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 01/72] net: usb: qmi_wwan: support ZTE P685M modem
+        stable@vger.kernel.org, Raz Bouganim <r-bouganim@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 044/102] wlcore: Fix command execute failure 19 for wl12xx
 Date:   Fri,  5 Mar 2021 13:21:03 +0100
-Message-Id: <20210305120857.411288511@linuxfoundation.org>
+Message-Id: <20210305120905.467586106@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,62 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lech Perczak <lech.perczak@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 88eee9b7b42e69fb622ddb3ff6f37e8e4347f5b2 upstream.
+[ Upstream commit cb88d01b67383a095e3f7caeb4cdade5a6cf0417 ]
 
-Now that interface 3 in "option" driver is no longer mapped, add device
-ID matching it to qmi_wwan.
+We can currently get a "command execute failure 19" error on beacon loss
+if the signal is weak:
 
-The modem is used inside ZTE MF283+ router and carriers identify it as
-such.
-Interface mapping is:
-0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
+wlcore: Beacon loss detected. roles:0xff
+wlcore: Connection loss work (role_id: 0).
+...
+wlcore: ERROR command execute failure 19
+...
+WARNING: CPU: 0 PID: 1552 at drivers/net/wireless/ti/wlcore/main.c:803
+...
+(wl12xx_queue_recovery_work.part.0 [wlcore])
+(wl12xx_cmd_role_start_sta [wlcore])
+(wl1271_op_bss_info_changed [wlcore])
+(ieee80211_prep_connection [mac80211])
 
-T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
-D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=19d2 ProdID=1275 Rev=f0.00
-S:  Manufacturer=ZTE,Incorporated
-S:  Product=ZTE Technologies MSM
-S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+Error 19 is defined as CMD_STATUS_WRONG_NESTING from the wlcore firmware,
+and seems to mean that the firmware no longer wants to see the quirk
+handling for WLCORE_QUIRK_START_STA_FAILS done.
 
-Acked-by: Bjørn Mork <bjorn@mork.no>
-Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
-Link: https://lore.kernel.org/r/20210223183456.6377-1-lech.perczak@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This quirk got added with commit 18eab430700d ("wlcore: workaround
+start_sta problem in wl12xx fw"), and it seems that this already got fixed
+in the firmware long time ago back in 2012 as wl18xx never had this quirk
+in place to start with.
+
+As we no longer even support firmware that early, to me it seems that it's
+safe to just drop WLCORE_QUIRK_START_STA_FAILS to fix the error. Looks
+like earlier firmware got disabled back in 2013 with commit 0e284c074ef9
+("wl12xx: increase minimum singlerole firmware version required").
+
+If it turns out we still need WLCORE_QUIRK_START_STA_FAILS with any
+firmware that the driver works with, we can simply revert this patch and
+add extra checks for firmware version used.
+
+With this fix wlcore reconnects properly after a beacon loss.
+
+Cc: Raz Bouganim <r-bouganim@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210115065613.7731-1-tony@atomide.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ti/wl12xx/main.c   |  3 ---
+ drivers/net/wireless/ti/wlcore/main.c   | 15 +--------------
+ drivers/net/wireless/ti/wlcore/wlcore.h |  3 ---
+ 3 files changed, 1 insertion(+), 20 deletions(-)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1280,6 +1280,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x19d2, 0x1255, 4)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1256, 4)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1270, 5)},	/* ZTE MF667 */
-+	{QMI_FIXED_INTF(0x19d2, 0x1275, 3)},	/* ZTE P685M */
- 	{QMI_FIXED_INTF(0x19d2, 0x1401, 2)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1402, 2)},	/* ZTE MF60 */
- 	{QMI_FIXED_INTF(0x19d2, 0x1424, 2)},
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 3c9c623bb428..9d7dbfe7fe0c 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -635,7 +635,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+ 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
+ 		wl->mr_fw_name = WL127X_FW_NAME_MULTI;
+@@ -659,7 +658,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+ 		wl->plt_fw_name = WL127X_PLT_FW_NAME;
+ 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
+@@ -688,7 +686,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+ 
+ 		wlcore_set_min_fw_ver(wl, WL128X_CHIP_VER,
+diff --git a/drivers/net/wireless/ti/wlcore/main.c b/drivers/net/wireless/ti/wlcore/main.c
+index 6863fd552d5e..6e402d62dbe4 100644
+--- a/drivers/net/wireless/ti/wlcore/main.c
++++ b/drivers/net/wireless/ti/wlcore/main.c
+@@ -2872,21 +2872,8 @@ static int wlcore_join(struct wl1271 *wl, struct wl12xx_vif *wlvif)
+ 
+ 	if (is_ibss)
+ 		ret = wl12xx_cmd_role_start_ibss(wl, wlvif);
+-	else {
+-		if (wl->quirks & WLCORE_QUIRK_START_STA_FAILS) {
+-			/*
+-			 * TODO: this is an ugly workaround for wl12xx fw
+-			 * bug - we are not able to tx/rx after the first
+-			 * start_sta, so make dummy start+stop calls,
+-			 * and then call start_sta again.
+-			 * this should be fixed in the fw.
+-			 */
+-			wl12xx_cmd_role_start_sta(wl, wlvif);
+-			wl12xx_cmd_role_stop_sta(wl, wlvif);
+-		}
+-
++	else
+ 		ret = wl12xx_cmd_role_start_sta(wl, wlvif);
+-	}
+ 
+ 	return ret;
+ }
+diff --git a/drivers/net/wireless/ti/wlcore/wlcore.h b/drivers/net/wireless/ti/wlcore/wlcore.h
+index b7821311ac75..81c94d390623 100644
+--- a/drivers/net/wireless/ti/wlcore/wlcore.h
++++ b/drivers/net/wireless/ti/wlcore/wlcore.h
+@@ -547,9 +547,6 @@ wlcore_set_min_fw_ver(struct wl1271 *wl, unsigned int chip,
+ /* Each RX/TX transaction requires an end-of-transaction transfer */
+ #define WLCORE_QUIRK_END_OF_TRANSACTION		BIT(0)
+ 
+-/* the first start_role(sta) sometimes doesn't work on wl12xx */
+-#define WLCORE_QUIRK_START_STA_FAILS		BIT(1)
+-
+ /* wl127x and SPI don't support SDIO block size alignment */
+ #define WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN		BIT(2)
+ 
+-- 
+2.30.1
+
 
 
