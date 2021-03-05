@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E8D32E952
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A7EA32E9B7
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229948AbhCEMcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:32:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41524 "EHLO mail.kernel.org"
+        id S230476AbhCEMe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:34:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230214AbhCEMbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFE036501A;
-        Fri,  5 Mar 2021 12:31:31 +0000 (UTC)
+        id S230344AbhCEMeF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:34:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D77C65004;
+        Fri,  5 Mar 2021 12:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947492;
-        bh=RXbyjtAOyXiMC8bIraWZO7C8vXtNmPjjN1rkD8x2pg0=;
+        s=korg; t=1614947645;
+        bh=2RB90m+x29Zn83M1ng5Nkq4zWD2YnbtAkwr4aUe3ZCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JIvb0IekjP1Ix8LNx/XwQvyFfTJ6q5wtG4+S6Ch7/95pIgvQE0chbBOvQ816Msnuc
-         EzIjKQ45tayOHnVoDyBWkugyBq9QE20hGHYmJ9ugaRPbUVBuBuI100IFtLe2Vh7uYY
-         iTdQnKyEhs2wx/FTZ85Q1uDZHETw/SEwZLoj3Jb0=
+        b=CPsKcN1nNJCTsJ6Z+j3ZVe/RJCwdD4lYy59pOBE4A7m2/+o7GfVOsuS5U9UoGXi+1
+         x8hH8RFaHP+A6DHFGLPe/LuIGoJ4hAZ+D7VJrC0bABXnS80FjtC1YTMOOXYZB0jnZQ
+         2HCOu/cqUmGadNxL9Dfh8mcPXQInKpbzyR8tUNwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bard Liao <bard.liao@intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Di Zhu <zhudi21@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/102] ASoC: Intel: sof_sdw: detect DMIC number based on mach params
+Subject: [PATCH 5.4 33/72] pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
 Date:   Fri,  5 Mar 2021 13:21:35 +0100
-Message-Id: <20210305120907.017649813@linuxfoundation.org>
+Message-Id: <20210305120858.955164681@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rander Wang <rander.wang@intel.com>
+From: Di Zhu <zhudi21@huawei.com>
 
-[ Upstream commit f88dcb9b98d3f86ead04d2453475267910448bb8 ]
+[ Upstream commit 275b1e88cabb34dbcbe99756b67e9939d34a99b6 ]
 
-Current driver create DMIC dai based on quirk for each platforms,
-so we need to add quirk for new platforms. Now driver reports DMIC
-number to machine driver and machine driver can create DMIC dai based
-on this information. The old check is reserved for some platforms
-may be failed to set the DMIC number in BIOS.
+pktgen create threads for all online cpus and bond these threads to
+relevant cpu repecivtily. when this thread firstly be woken up, it
+will compare cpu currently running with the cpu specified at the time
+of creation and if the two cpus are not equal, BUG_ON() will take effect
+causing panic on the system.
+Notice that these threads could be migrated to other cpus before start
+running because of the cpu hotplug after these threads have created. so the
+BUG_ON() used here seems unreasonable and we can replace it with WARN_ON()
+to just printf a warning other than panic the system.
 
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Signed-off-by: Rander Wang <rander.wang@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208233336.59449-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Di Zhu <zhudi21@huawei.com>
+Link: https://lore.kernel.org/r/20210125124229.19334-1-zhudi21@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 2 +-
+ net/core/pktgen.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index d441ef324c06..0f1d845a0cca 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -925,7 +925,7 @@ static int sof_card_dai_links_create(struct device *dev,
- 		ctx->idisp_codec = true;
+diff --git a/net/core/pktgen.c b/net/core/pktgen.c
+index cb3b565ff5ad..1d20dd70879b 100644
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -3465,7 +3465,7 @@ static int pktgen_thread_worker(void *arg)
+ 	struct pktgen_dev *pkt_dev = NULL;
+ 	int cpu = t->cpu;
  
- 	/* enable dmic01 & dmic16k */
--	dmic_num = (sof_sdw_quirk & SOF_SDW_PCH_DMIC) ? 2 : 0;
-+	dmic_num = (sof_sdw_quirk & SOF_SDW_PCH_DMIC || mach_params->dmic_num) ? 2 : 0;
- 	comp_num += dmic_num;
+-	BUG_ON(smp_processor_id() != cpu);
++	WARN_ON(smp_processor_id() != cpu);
  
- 	dev_dbg(dev, "sdw %d, ssp %d, dmic %d, hdmi %d", sdw_be_num, ssp_num,
+ 	init_waitqueue_head(&t->queue);
+ 	complete(&t->start_done);
 -- 
 2.30.1
 
