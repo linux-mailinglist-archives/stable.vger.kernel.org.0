@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496B532E8BE
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E8C32E7F4
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbhCEM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:28:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36824 "EHLO mail.kernel.org"
+        id S229674AbhCEMYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:24:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232024AbhCEM2V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:28:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B86E265031;
-        Fri,  5 Mar 2021 12:28:20 +0000 (UTC)
+        id S230116AbhCEMX5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:23:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 340496501D;
+        Fri,  5 Mar 2021 12:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947301;
-        bh=vYgvXoN3wwVVvtoQQCIDTzL+fYUc0nyf9MK/GhmMJdI=;
+        s=korg; t=1614947036;
+        bh=IxnJxRiT4HmKwHo+MU2Tp4cjV2vTzr0uWsF1wjVTaN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmWBqM3hEhvstLRy4ZnXZKfrF/F4RfRrWUMdU4tnjK/3KHGejq4PWfmnF/kSdt7fB
-         Fgdi8cnafTPWYaR91AXTNdLMhrRwF2QMQwUlvebQSZSKkIiMEolWAap++RjQIrvyhh
-         2Q2c/iKympZ+G4gjOlmyVEG/3ml2fmEZGH/cF2/4=
+        b=ppoU640MzOzc0tijU2NOYqTOMStw6+vXCXDmcUcXAUE7EgZxQRxBhJMUvhwqIO3lL
+         Pj8jm1YQxX/xuZfwcV0Xt9b5E5WbQ1/CEuYsAedWX78t9Q0gq/lbwoN9Bmh6apM7jc
+         vO+yMdFUMn2pgoi+yhByj2tls1qbr2MfSg9aLhE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 009/102] media: mceusb: sanity check for prescaler value
-Date:   Fri,  5 Mar 2021 13:20:28 +0100
-Message-Id: <20210305120903.727549356@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Zhibin Liu <zhibinliu@google.com>,
+        Yuchung Cheng <ycheng@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 024/104] tcp: fix tcp_rmem documentation
+Date:   Fri,  5 Mar 2021 13:20:29 +0100
+Message-Id: <20210305120904.365189762@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
+References: <20210305120903.166929741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 9dec0f48a75e0dadca498002d25ef4e143e60194 upstream.
+commit 1d1be91254bbdd189796041561fd430f7553bb88 upstream.
 
-prescaler larger than 8 would mean the carrier is at most 152Hz,
-which does not make sense for IR carriers.
+tcp_rmem[1] has been changed to 131072, we should update the documentation
+to reflect this.
 
-Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Zhibin Liu <zhibinliu@google.com>
+Cc: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ Documentation/networking/ip-sysctl.rst |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -701,11 +701,18 @@ static void mceusb_dev_printdata(struct
- 				data[0], data[1]);
- 			break;
- 		case MCE_RSP_EQIRCFS:
-+			if (!data[0] && !data[1]) {
-+				dev_dbg(dev, "%s: no carrier", inout);
-+				break;
-+			}
-+			// prescaler should make sense
-+			if (data[0] > 8)
-+				break;
- 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
- 						   (data[1] + 1), 10);
- 			if (!period)
- 				break;
--			carrier = (1000 * 1000) / period;
-+			carrier = USEC_PER_SEC / period;
- 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
- 				 inout, carrier, period);
- 			break;
+--- a/Documentation/networking/ip-sysctl.rst
++++ b/Documentation/networking/ip-sysctl.rst
+@@ -630,16 +630,15 @@ tcp_rmem - vector of 3 INTEGERs: min, de
+ 
+ 	default: initial size of receive buffer used by TCP sockets.
+ 	This value overrides net.core.rmem_default used by other protocols.
+-	Default: 87380 bytes. This value results in window of 65535 with
+-	default setting of tcp_adv_win_scale and tcp_app_win:0 and a bit
+-	less for default tcp_app_win. See below about these variables.
++	Default: 131072 bytes.
++	This value results in initial window of 65535.
+ 
+ 	max: maximal size of receive buffer allowed for automatically
+ 	selected receiver buffers for TCP socket. This value does not override
+ 	net.core.rmem_max.  Calling setsockopt() with SO_RCVBUF disables
+ 	automatic tuning of that socket's receive buffer size, in which
+ 	case this value is ignored.
+-	Default: between 87380B and 6MB, depending on RAM size.
++	Default: between 131072 and 6MB, depending on RAM size.
+ 
+ tcp_sack - BOOLEAN
+ 	Enable select acknowledgments (SACKS).
 
 
