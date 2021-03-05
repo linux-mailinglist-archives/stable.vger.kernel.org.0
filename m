@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B4D32EB7F
+	by mail.lfdr.de (Postfix) with ESMTP id D551532EB80
 	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbhCEMoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:44:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32810 "EHLO mail.kernel.org"
+        id S233620AbhCEMob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:44:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232815AbhCEMn7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:43:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBD666501E;
-        Fri,  5 Mar 2021 12:43:58 +0000 (UTC)
+        id S233946AbhCEMoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:44:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC30C64F4B;
+        Fri,  5 Mar 2021 12:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948239;
-        bh=5A8MzKuBa5QwN4+e03SXTTAE+aNwmgxjioVn5zLiJhY=;
+        s=korg; t=1614948242;
+        bh=F00Gzlwgd4PNrlafgw1hly9/O+G0X6GGjIT8+GDLR1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS7j+TWNiGuk5A2qb52wl3sCit6GD5pZqYQagi0V7gXKU4j3GK+foJbK+/Ifw95uE
-         N1fgMiX/pdKUpe7aBrn3NaO5mRbvdKxFPxcDo10hDUEWgDYUoZdBdwUddUodYPyxTN
-         kwrO/PSOIi6Add/zk7w9vcf6FQs1pGBaxrsAeB8A=
+        b=FltfeAoF0Hwff9Ds1W9P/9mR3fU4fV3lMXxzDgj1UG8vNjSZbpcv5xtiB8cr1e5ni
+         7/Yff/aUl4sVi6vJSUIRFB4Lid0Odj31hAiFFx/qbasfo47vDotzRn2B+Nhdhi6kRY
+         fduNAKHfHPrIkkR22ejIC3Emaxq+Ez8iqQACTRVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony Iliopoulos <ailiop@suse.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 29/30] swap: fix swapfile read/write offset
-Date:   Fri,  5 Mar 2021 13:22:58 +0100
-Message-Id: <20210305120850.860813577@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 30/30] media: v4l: ioctl: Fix memory leak in video_usercopy
+Date:   Fri,  5 Mar 2021 13:22:59 +0100
+Message-Id: <20210305120850.909148856@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
 References: <20210305120849.381261651@linuxfoundation.org>
@@ -39,79 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
+commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
 
-We're not factoring in the start of the file for where to write and
-read the swapfile, which leads to very unfortunate side effects of
-writing where we should not be...
+When an IOCTL with argument size larger than 128 that also used array
+arguments were handled, two memory allocations were made but alas, only
+the latter one of them was released. This happened because there was only
+a single local variable to hold such a temporary allocation.
 
-[This issue only affects swapfiles on filesystems on top of blockdevs
-that implement rw_page ops (brd, zram, btt, pmem), and not on top of any
-other block devices, in contrast to the upstream commit fix.]
+Fix this by adding separate variables to hold the pointers to the
+temporary allocations.
 
-Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
-Cc: stable@vger.kernel.org # 4.4
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Arnd Bergmann <arnd@kernel.org>
+Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
+Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_io.c  |   11 +++--------
- mm/swapfile.c |    2 +-
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -32,7 +32,6 @@ static struct bio *get_swap_bio(gfp_t gf
- 	bio = bio_alloc(gfp_flags, 1);
- 	if (bio) {
- 		bio->bi_iter.bi_sector = map_swap_page(page, &bio->bi_bdev);
--		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
- 		bio->bi_end_io = end_io;
- 
- 		bio_add_page(bio, page, PAGE_SIZE, 0);
-@@ -244,11 +243,6 @@ out:
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_CACHE_SHIFT - 9);
--}
--
- int __swap_writepage(struct page *page, struct writeback_control *wbc,
- 		bio_end_io_t end_write_func)
+--- a/drivers/media/v4l2-core/v4l2-ioctl.c
++++ b/drivers/media/v4l2-core/v4l2-ioctl.c
+@@ -2710,7 +2710,7 @@ video_usercopy(struct file *file, unsign
+ 	       v4l2_kioctl func)
  {
-@@ -297,7 +291,8 @@ int __swap_writepage(struct page *page,
- 		return ret;
+ 	char	sbuf[128];
+-	void    *mbuf = NULL;
++	void    *mbuf = NULL, *array_buf = NULL;
+ 	void	*parg = (void *)arg;
+ 	long	err  = -EINVAL;
+ 	bool	has_array_args;
+@@ -2765,20 +2765,14 @@ video_usercopy(struct file *file, unsign
+ 	has_array_args = err;
+ 
+ 	if (has_array_args) {
+-		/*
+-		 * When adding new types of array args, make sure that the
+-		 * parent argument to ioctl (which contains the pointer to the
+-		 * array) fits into sbuf (so that mbuf will still remain
+-		 * unused up to here).
+-		 */
+-		mbuf = kmalloc(array_size, GFP_KERNEL);
++		array_buf = kmalloc(array_size, GFP_KERNEL);
+ 		err = -ENOMEM;
+-		if (NULL == mbuf)
++		if (array_buf == NULL)
+ 			goto out_array_args;
+ 		err = -EFAULT;
+-		if (copy_from_user(mbuf, user_ptr, array_size))
++		if (copy_from_user(array_buf, user_ptr, array_size))
+ 			goto out_array_args;
+-		*kernel_ptr = mbuf;
++		*kernel_ptr = array_buf;
  	}
  
--	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
-+	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
-+			      page, wbc);
- 	if (!ret) {
- 		count_vm_event(PSWPOUT);
- 		return 0;
-@@ -345,7 +340,7 @@ int swap_readpage(struct page *page)
- 		return ret;
+ 	/* Handles IOCTL */
+@@ -2797,7 +2791,7 @@ video_usercopy(struct file *file, unsign
+ 
+ 	if (has_array_args) {
+ 		*kernel_ptr = (void __force *)user_ptr;
+-		if (copy_to_user(user_ptr, mbuf, array_size))
++		if (copy_to_user(user_ptr, array_buf, array_size))
+ 			err = -EFAULT;
+ 		goto out_array_args;
+ 	}
+@@ -2817,6 +2811,7 @@ out_array_args:
  	}
  
--	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
-+	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
- 	if (!ret) {
- 		count_vm_event(PSWPIN);
- 		return 0;
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1653,7 +1653,7 @@ sector_t map_swap_page(struct page *page
- {
- 	swp_entry_t entry;
- 	entry.val = page_private(page);
--	return map_swap_entry(entry, bdev);
-+	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
+ out:
++	kfree(array_buf);
+ 	kfree(mbuf);
+ 	return err;
  }
- 
- /*
 
 
