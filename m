@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F9232EA45
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2158F32E963
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232338AbhCEMhs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50162 "EHLO mail.kernel.org"
+        id S231398AbhCEMce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:32:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232983AbhCEMhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E81F6501B;
-        Fri,  5 Mar 2021 12:37:03 +0000 (UTC)
+        id S232692AbhCEMcM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:32:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B95565004;
+        Fri,  5 Mar 2021 12:32:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947824;
-        bh=vm4x03zdaHIA6yzvsowAcQxl7bJGw00nP27qGvCNIJk=;
+        s=korg; t=1614947531;
+        bh=ZL/ISVxB/URfSiYGOh/8n7lxXaouo+uBF14P0qxpBoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELAgYkIQvYCjIXAHRwdWUjUT4SY1SGcrCUicClEj5bQ1xMC/kjlHK+0fOxEEPwG6e
-         tKrAPHIzlmIU2SEVOwIol7HJMFH/09ZPKmxhOOEWxkGwtKJmDIp+QarU00qGSG8bH/
-         4djeTDrR3bw+cqTrHQEgMcp/JoZZrUy92/1XMlN8=
+        b=Q2fipudGPlJ4g6J5KJMyAqocQ9OfbCbiPxZW9DSXolipE7fUsn0K9v9VdTWGAOgNe
+         kKdCIVZXNWoP4N5B4RBw6Y37eKMcyVFTuHftNAudxZckOr/XIrXN1IHCejvSo29/KQ
+         qNrsVAgDgbfccsLNSlyofzIJVzQ3+lE546u30naE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raz Bouganim <r-bouganim@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/52] wlcore: Fix command execute failure 19 for wl12xx
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 096/102] tty: clean up legacy leftovers from n_tty line discipline
 Date:   Fri,  5 Mar 2021 13:21:55 +0100
-Message-Id: <20210305120854.861443521@linuxfoundation.org>
+Message-Id: <20210305120908.002060146@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +39,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit cb88d01b67383a095e3f7caeb4cdade5a6cf0417 ]
+commit 64a69892afadd6fffaeadc65427bb7601161139d upstream.
 
-We can currently get a "command execute failure 19" error on beacon loss
-if the signal is weak:
+Back when the line disciplines did their own direct user accesses, they
+had to deal with the data copy possibly failing in the middle.
 
-wlcore: Beacon loss detected. roles:0xff
-wlcore: Connection loss work (role_id: 0).
-...
-wlcore: ERROR command execute failure 19
-...
-WARNING: CPU: 0 PID: 1552 at drivers/net/wireless/ti/wlcore/main.c:803
-...
-(wl12xx_queue_recovery_work.part.0 [wlcore])
-(wl12xx_cmd_role_start_sta [wlcore])
-(wl1271_op_bss_info_changed [wlcore])
-(ieee80211_prep_connection [mac80211])
+Now that the user copy is done by the tty_io.c code, that failure case
+no longer exists.
 
-Error 19 is defined as CMD_STATUS_WRONG_NESTING from the wlcore firmware,
-and seems to mean that the firmware no longer wants to see the quirk
-handling for WLCORE_QUIRK_START_STA_FAILS done.
+Remove the left-over error handling code that cannot trigger.
 
-This quirk got added with commit 18eab430700d ("wlcore: workaround
-start_sta problem in wl12xx fw"), and it seems that this already got fixed
-in the firmware long time ago back in 2012 as wl18xx never had this quirk
-in place to start with.
-
-As we no longer even support firmware that early, to me it seems that it's
-safe to just drop WLCORE_QUIRK_START_STA_FAILS to fix the error. Looks
-like earlier firmware got disabled back in 2013 with commit 0e284c074ef9
-("wl12xx: increase minimum singlerole firmware version required").
-
-If it turns out we still need WLCORE_QUIRK_START_STA_FAILS with any
-firmware that the driver works with, we can simply revert this patch and
-add extra checks for firmware version used.
-
-With this fix wlcore reconnects properly after a beacon loss.
-
-Cc: Raz Bouganim <r-bouganim@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210115065613.7731-1-tony@atomide.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ti/wl12xx/main.c   |  3 ---
- drivers/net/wireless/ti/wlcore/main.c   | 15 +--------------
- drivers/net/wireless/ti/wlcore/wlcore.h |  3 ---
- 3 files changed, 1 insertion(+), 20 deletions(-)
+ drivers/tty/n_tty.c |   29 +++++++++--------------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
-index 4a4f797bb10f..e10fff42751e 100644
---- a/drivers/net/wireless/ti/wl12xx/main.c
-+++ b/drivers/net/wireless/ti/wl12xx/main.c
-@@ -649,7 +649,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
- 		wl->mr_fw_name = WL127X_FW_NAME_MULTI;
-@@ -673,7 +672,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->plt_fw_name = WL127X_PLT_FW_NAME;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
-@@ -702,7 +700,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+--- a/drivers/tty/n_tty.c
++++ b/drivers/tty/n_tty.c
+@@ -1955,19 +1955,17 @@ static inline int input_available_p(stru
+  *		read_tail published
+  */
  
- 		wlcore_set_min_fw_ver(wl, WL128X_CHIP_VER,
-diff --git a/drivers/net/wireless/ti/wlcore/main.c b/drivers/net/wireless/ti/wlcore/main.c
-index 43c7b37dec0c..e24ffdff5bdc 100644
---- a/drivers/net/wireless/ti/wlcore/main.c
-+++ b/drivers/net/wireless/ti/wlcore/main.c
-@@ -2875,21 +2875,8 @@ static int wlcore_join(struct wl1271 *wl, struct wl12xx_vif *wlvif)
+-static int copy_from_read_buf(struct tty_struct *tty,
++static void copy_from_read_buf(struct tty_struct *tty,
+ 				      unsigned char **kbp,
+ 				      size_t *nr)
  
- 	if (is_ibss)
- 		ret = wl12xx_cmd_role_start_ibss(wl, wlvif);
--	else {
--		if (wl->quirks & WLCORE_QUIRK_START_STA_FAILS) {
--			/*
--			 * TODO: this is an ugly workaround for wl12xx fw
--			 * bug - we are not able to tx/rx after the first
--			 * start_sta, so make dummy start+stop calls,
--			 * and then call start_sta again.
--			 * this should be fixed in the fw.
--			 */
--			wl12xx_cmd_role_start_sta(wl, wlvif);
--			wl12xx_cmd_role_stop_sta(wl, wlvif);
--		}
--
-+	else
- 		ret = wl12xx_cmd_role_start_sta(wl, wlvif);
--	}
+ {
+ 	struct n_tty_data *ldata = tty->disc_data;
+-	int retval;
+ 	size_t n;
+ 	bool is_eof;
+ 	size_t head = smp_load_acquire(&ldata->commit_head);
+ 	size_t tail = ldata->read_tail & (N_TTY_BUF_SIZE - 1);
  
- 	return ret;
+-	retval = 0;
+ 	n = min(head - ldata->read_tail, N_TTY_BUF_SIZE - tail);
+ 	n = min(*nr, n);
+ 	if (n) {
+@@ -1984,7 +1982,6 @@ static int copy_from_read_buf(struct tty
+ 		*kbp += n;
+ 		*nr -= n;
+ 	}
+-	return retval;
  }
-diff --git a/drivers/net/wireless/ti/wlcore/wlcore.h b/drivers/net/wireless/ti/wlcore/wlcore.h
-index d4b1f66ef457..af7cf70b3832 100644
---- a/drivers/net/wireless/ti/wlcore/wlcore.h
-+++ b/drivers/net/wireless/ti/wlcore/wlcore.h
-@@ -559,9 +559,6 @@ wlcore_set_min_fw_ver(struct wl1271 *wl, unsigned int chip,
- /* Each RX/TX transaction requires an end-of-transaction transfer */
- #define WLCORE_QUIRK_END_OF_TRANSACTION		BIT(0)
  
--/* the first start_role(sta) sometimes doesn't work on wl12xx */
--#define WLCORE_QUIRK_START_STA_FAILS		BIT(1)
+ /**
+@@ -2010,9 +2007,9 @@ static int copy_from_read_buf(struct tty
+  *		read_tail published
+  */
+ 
+-static int canon_copy_from_read_buf(struct tty_struct *tty,
+-				    unsigned char **kbp,
+-				    size_t *nr)
++static void canon_copy_from_read_buf(struct tty_struct *tty,
++				     unsigned char **kbp,
++				     size_t *nr)
+ {
+ 	struct n_tty_data *ldata = tty->disc_data;
+ 	size_t n, size, more, c;
+@@ -2022,7 +2019,7 @@ static int canon_copy_from_read_buf(stru
+ 
+ 	/* N.B. avoid overrun if nr == 0 */
+ 	if (!*nr)
+-		return 0;
++		return;
+ 
+ 	n = min(*nr + 1, smp_load_acquire(&ldata->canon_head) - ldata->read_tail);
+ 
+@@ -2069,7 +2066,6 @@ static int canon_copy_from_read_buf(stru
+ 			ldata->push = 0;
+ 		tty_audit_push();
+ 	}
+-	return 0;
+ }
+ 
+ /**
+@@ -2219,24 +2215,17 @@ static ssize_t n_tty_read(struct tty_str
+ 		}
+ 
+ 		if (ldata->icanon && !L_EXTPROC(tty)) {
+-			retval = canon_copy_from_read_buf(tty, &kb, &nr);
+-			if (retval)
+-				break;
++			canon_copy_from_read_buf(tty, &kb, &nr);
+ 		} else {
+-			int uncopied;
 -
- /* wl127x and SPI don't support SDIO block size alignment */
- #define WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN		BIT(2)
+ 			/* Deal with packet mode. */
+ 			if (packet && kb == kbuf) {
+ 				*kb++ = TIOCPKT_DATA;
+ 				nr--;
+ 			}
  
--- 
-2.30.1
-
+-			uncopied = copy_from_read_buf(tty, &kb, &nr);
+-			uncopied += copy_from_read_buf(tty, &kb, &nr);
+-			if (uncopied) {
+-				retval = -EFAULT;
+-				break;
+-			}
++			/* See comment above copy_from_read_buf() why twice */
++			copy_from_read_buf(tty, &kb, &nr);
++			copy_from_read_buf(tty, &kb, &nr);
+ 		}
+ 
+ 		n_tty_check_unthrottle(tty);
 
 
