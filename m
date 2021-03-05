@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D48632E9BE
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FA532E979
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232190AbhCEMeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:34:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45728 "EHLO mail.kernel.org"
+        id S231907AbhCEMc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:32:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231681AbhCEMeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:34:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15BCF6501B;
-        Fri,  5 Mar 2021 12:34:17 +0000 (UTC)
+        id S231338AbhCEMcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:32:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9D3F65013;
+        Fri,  5 Mar 2021 12:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947658;
-        bh=mHNNPDCp8Zgwl91isb07FNi0PUkm9Gk7nybw2CZQrYA=;
+        s=korg; t=1614947562;
+        bh=mnFawbuCu/ciSuXbklagVh6TjIlkZjb5a2D/wefHXEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TYjChGe8PpsohJJhH2pIM+lbcuiKy8qy7mW/WCQeBq7TkUvb7OrEcmT59yPiFLQhx
-         JFSbQBQVQHCxozWQOU2jTmpPPUl/RrUTT0ratNq8PaWJkjomVRZW50Q7Od7aDoMiVJ
-         50XtDIbZ0Fqet57f16dPP88fXyDtl9udLLXEev2E=
+        b=murQ7UWN58UK5QSvXceo9FHOCyWZM9WXm7d8nv24TosVgHkYGjZ+f+H2JOKOTUGMS
+         FRHzKzNACFGy1XvIuC97ISfv/QdESzlRMuGCmJ5pFZt7KQ7HdgmGKf7cVjX/RlIpTO
+         fHWacPYvWGjVSLV/9mnXb75KBd1BZBpcNvkYdQlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juerg Haefliger <juergh@canonical.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 38/72] staging: bcm2835-audio: Replace unsafe strcpy() with strscpy()
-Date:   Fri,  5 Mar 2021 13:21:40 +0100
-Message-Id: <20210305120859.208093584@linuxfoundation.org>
+Subject: [PATCH 5.10 082/102] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
+Date:   Fri,  5 Mar 2021 13:21:41 +0100
+Message-Id: <20210305120907.315428040@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,141 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juerg Haefliger <juerg.haefliger@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 4964a4300660d27907ceb655f219ac47e5941534 ]
+[ Upstream commit c58947af08aedbdee0fce5ea6e6bf3e488ae0e2c ]
 
-Replace strcpy() with strscpy() in bcm2835-audio/bcm2835.c to prevent the
-following when loading snd-bcm2835:
+The Acer One S1002 tablet is using an analog mic on IN1 and has
+its jack-detect connected to JD2_IN4N, instead of using the default
+IN3 for its internal mic and JD1_IN4P for jack-detect.
 
-[   58.480634] ------------[ cut here ]------------
-[   58.485321] kernel BUG at lib/string.c:1149!
-[   58.489650] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[   58.495214] Modules linked in: snd_bcm2835(COE+) snd_pcm snd_timer snd dm_multipath scsi_dh_rdac scsi_dh_emc scsi_dh_alua btsdio bluetooth ecdh_generic ecc bcm2835_v4l2(CE) bcm2835_codec(CE) brcmfmac bcm2835_isp(CE) bcm2835_mmal_vchiq(CE) brcmutil cfg80211 v4l2_mem2mem videobuf2_vmalloc videobuf2_dma_contig videobuf2_memops raspberrypi_hwmon videobuf2_v4l2 videobuf2_common videodev bcm2835_gpiomem mc vc_sm_cma(CE) rpivid_mem uio_pdrv_genirq uio sch_fq_codel drm ip_tables x_tables autofs4 btrfs blake2b_generic raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor xor_neon raid6_pq libcrc32c raid1 raid0 multipath linear dwc2 roles spidev udc_core crct10dif_ce xhci_pci xhci_pci_renesas phy_generic aes_neon_bs aes_neon_blk crypto_simd cryptd
-[   58.563787] CPU: 3 PID: 1959 Comm: insmod Tainted: G         C OE     5.11.0-1001-raspi #1
-[   58.572172] Hardware name: Raspberry Pi 4 Model B Rev 1.2 (DT)
-[   58.578086] pstate: 60400005 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[   58.584178] pc : fortify_panic+0x20/0x24
-[   58.588161] lr : fortify_panic+0x20/0x24
-[   58.592136] sp : ffff800010a83990
-[   58.595491] x29: ffff800010a83990 x28: 0000000000000002
-[   58.600879] x27: ffffb0b07cb72928 x26: 0000000000000000
-[   58.606268] x25: ffff39e884973838 x24: ffffb0b07cb74190
-[   58.611655] x23: ffffb0b07cb72030 x22: 0000000000000000
-[   58.617042] x21: ffff39e884973014 x20: ffff39e88b793010
-[   58.622428] x19: ffffb0b07cb72670 x18: 0000000000000030
-[   58.627814] x17: 0000000000000000 x16: ffffb0b092ce2c1c
-[   58.633200] x15: ffff39e88b901500 x14: 0720072007200720
-[   58.638588] x13: 0720072007200720 x12: 0720072007200720
-[   58.643979] x11: ffffb0b0936cbdf0 x10: 00000000fffff000
-[   58.649366] x9 : ffffb0b09220cfa8 x8 : 0000000000000000
-[   58.654752] x7 : ffffb0b093673df0 x6 : ffffb0b09364e000
-[   58.660140] x5 : 0000000000000000 x4 : ffff39e93b7db948
-[   58.665526] x3 : ffff39e93b7ebcf0 x2 : 0000000000000000
-[   58.670913] x1 : 0000000000000000 x0 : 0000000000000022
-[   58.676299] Call trace:
-[   58.678775]  fortify_panic+0x20/0x24
-[   58.682402]  snd_bcm2835_alsa_probe+0x5b8/0x7d8 [snd_bcm2835]
-[   58.688247]  platform_probe+0x74/0xe4
-[   58.691963]  really_probe+0xf0/0x510
-[   58.695585]  driver_probe_device+0xe0/0x100
-[   58.699826]  device_driver_attach+0xcc/0xd4
-[   58.704068]  __driver_attach+0xb0/0x17c
-[   58.707956]  bus_for_each_dev+0x7c/0xd4
-[   58.711843]  driver_attach+0x30/0x40
-[   58.715467]  bus_add_driver+0x154/0x250
-[   58.719354]  driver_register+0x84/0x140
-[   58.723242]  __platform_driver_register+0x34/0x40
-[   58.728013]  bcm2835_alsa_driver_init+0x30/0x1000 [snd_bcm2835]
-[   58.734024]  do_one_initcall+0x54/0x300
-[   58.737914]  do_init_module+0x60/0x280
-[   58.741719]  load_module+0x680/0x770
-[   58.745344]  __do_sys_finit_module+0xbc/0x130
-[   58.749761]  __arm64_sys_finit_module+0x2c/0x40
-[   58.754356]  el0_svc_common.constprop.0+0x88/0x220
-[   58.759216]  do_el0_svc+0x30/0xa0
-[   58.762575]  el0_svc+0x28/0x70
-[   58.765669]  el0_sync_handler+0x1a4/0x1b0
-[   58.769732]  el0_sync+0x178/0x180
-[   58.773095] Code: aa0003e1 91366040 910003fd 97ffee21 (d4210000)
-[   58.779275] ---[ end trace 29be5b17497bd898 ]---
-[   58.783955] note: insmod[1959] exited with preempt_count 1
-[   58.791921] ------------[ cut here ]------------
+Note it is also using AIF2 instead of AIF1 which is somewhat unusual,
+this is correctly advertised in the ACPI CHAN package, so the speakers
+do work without the quirk.
 
-For the sake of it, replace all the other occurences of strcpy() under
-bcm2835-audio/ as well.
+Add a quirk for the mic and jack-detect settings.
 
-Signed-off-by: Juerg Haefliger <juergh@canonical.com>
-Link: https://lore.kernel.org/r/20210205072502.10907-1-juergh@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210216213555.36555-5-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vc04_services/bcm2835-audio/bcm2835-ctl.c | 6 +++---
- drivers/staging/vc04_services/bcm2835-audio/bcm2835-pcm.c | 2 +-
- drivers/staging/vc04_services/bcm2835-audio/bcm2835.c     | 6 +++---
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/staging/vc04_services/bcm2835-audio/bcm2835-ctl.c b/drivers/staging/vc04_services/bcm2835-audio/bcm2835-ctl.c
-index 4c2cae99776b..3703409715da 100644
---- a/drivers/staging/vc04_services/bcm2835-audio/bcm2835-ctl.c
-+++ b/drivers/staging/vc04_services/bcm2835-audio/bcm2835-ctl.c
-@@ -224,7 +224,7 @@ int snd_bcm2835_new_ctl(struct bcm2835_chip *chip)
- {
- 	int err;
- 
--	strcpy(chip->card->mixername, "Broadcom Mixer");
-+	strscpy(chip->card->mixername, "Broadcom Mixer", sizeof(chip->card->mixername));
- 	err = create_ctls(chip, ARRAY_SIZE(snd_bcm2835_ctl), snd_bcm2835_ctl);
- 	if (err < 0)
- 		return err;
-@@ -261,7 +261,7 @@ static const struct snd_kcontrol_new snd_bcm2835_headphones_ctl[] = {
- 
- int snd_bcm2835_new_headphones_ctl(struct bcm2835_chip *chip)
- {
--	strcpy(chip->card->mixername, "Broadcom Mixer");
-+	strscpy(chip->card->mixername, "Broadcom Mixer", sizeof(chip->card->mixername));
- 	return create_ctls(chip, ARRAY_SIZE(snd_bcm2835_headphones_ctl),
- 			   snd_bcm2835_headphones_ctl);
- }
-@@ -295,7 +295,7 @@ static const struct snd_kcontrol_new snd_bcm2835_hdmi[] = {
- 
- int snd_bcm2835_new_hdmi_ctl(struct bcm2835_chip *chip)
- {
--	strcpy(chip->card->mixername, "Broadcom Mixer");
-+	strscpy(chip->card->mixername, "Broadcom Mixer", sizeof(chip->card->mixername));
- 	return create_ctls(chip, ARRAY_SIZE(snd_bcm2835_hdmi),
- 			   snd_bcm2835_hdmi);
- }
-diff --git a/drivers/staging/vc04_services/bcm2835-audio/bcm2835-pcm.c b/drivers/staging/vc04_services/bcm2835-audio/bcm2835-pcm.c
-index 826016c3431a..8708f97b46f3 100644
---- a/drivers/staging/vc04_services/bcm2835-audio/bcm2835-pcm.c
-+++ b/drivers/staging/vc04_services/bcm2835-audio/bcm2835-pcm.c
-@@ -351,7 +351,7 @@ int snd_bcm2835_new_pcm(struct bcm2835_chip *chip, const char *name,
- 
- 	pcm->private_data = chip;
- 	pcm->nonatomic = true;
--	strcpy(pcm->name, name);
-+	strscpy(pcm->name, name, sizeof(pcm->name));
- 	if (!spdif) {
- 		chip->dest = route;
- 		chip->volume = 0;
-diff --git a/drivers/staging/vc04_services/bcm2835-audio/bcm2835.c b/drivers/staging/vc04_services/bcm2835-audio/bcm2835.c
-index cf5f80f5ca6b..c250fbef2fa3 100644
---- a/drivers/staging/vc04_services/bcm2835-audio/bcm2835.c
-+++ b/drivers/staging/vc04_services/bcm2835-audio/bcm2835.c
-@@ -185,9 +185,9 @@ static int snd_add_child_device(struct device *dev,
- 		goto error;
- 	}
- 
--	strcpy(card->driver, audio_driver->driver.name);
--	strcpy(card->shortname, audio_driver->shortname);
--	strcpy(card->longname, audio_driver->longname);
-+	strscpy(card->driver, audio_driver->driver.name, sizeof(card->driver));
-+	strscpy(card->shortname, audio_driver->shortname, sizeof(card->shortname));
-+	strscpy(card->longname, audio_driver->longname, sizeof(card->longname));
- 
- 	err = audio_driver->newpcm(chip, audio_driver->shortname,
- 		audio_driver->route,
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 626677fa1b5c..3af4cb87032c 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -402,6 +402,19 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Acer One 10 S1002 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "One S1002"),
++		},
++		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_SSP0_AIF2 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 -- 
 2.30.1
 
