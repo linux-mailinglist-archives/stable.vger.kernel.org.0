@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8AE32EA72
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3264132EA10
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233231AbhCEMil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51150 "EHLO mail.kernel.org"
+        id S232105AbhCEMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232984AbhCEMiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F40165004;
-        Fri,  5 Mar 2021 12:38:03 +0000 (UTC)
+        id S229901AbhCEMgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:36:01 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E90165004;
+        Fri,  5 Mar 2021 12:36:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947884;
-        bh=Geub5W0qjDejt7n5V49PH7B06lWTQwWGnYyqByd3hrI=;
+        s=korg; t=1614947760;
+        bh=5pLIBrGcrGGo/t1daVCjK9MoHkca4h837IwbcbBBmG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QeS1Atm4ctU9JXxCRA3r6xFxTMJvh0OhRfXgwPhaP107P+QXuC7ok8b/2ET0QBb/A
-         TeqBSlcuYA+lGqnNVvGbHY5dILRobi6RdmHVTadwojp9ZpWcnbAhgcklsd00k5Aos0
-         xdvZDuyBTpnDBEtJ5ZrPMXtcTfonDfDMspfNwG6I=
+        b=KRksh2k/CLOEjynntBRvpdlC6gLiPlYi9sCq+dZHgV6D8WCSrhlfayRV1QrZldf1T
+         9l+n5B6Hl0n84UXjkShh+gm9kuHO8sBW4hZrkbhzxpPPh4U2HoCsYShpYk+QpRdRfm
+         T1gol02FIUnVVOKS2z3hhT267aaEYZdt8U5ujkRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 29/52] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
-Date:   Fri,  5 Mar 2021 13:22:00 +0100
-Message-Id: <20210305120855.108407395@linuxfoundation.org>
+Subject: [PATCH 5.4 59/72] ASoC: Intel: bytcr_rt5651: Add quirk for the Jumper EZpad 7 tablet
+Date:   Fri,  5 Mar 2021 13:22:01 +0100
+Message-Id: <20210305120900.232006142@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gopal Tiwari <gtiwari@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
+[ Upstream commit df8359c512fa770ffa6b0b0309807d9b9825a47f ]
 
-kernel panic trace looks like:
+Add a DMI quirk for the Jumper EZpad 7 tablet, this tablet has
+a jack-detect switch which reads 1/high when a jack is inserted,
+rather then using the standard active-low setup which most
+jack-detect switches use. All other settings are using the defaults.
 
- #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
- #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
-    [exception RIP: amp_read_loc_assoc_final_data+63]
-    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
-    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
-    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
-    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
-    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
-    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
- #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
- #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
+Add a DMI-quirk setting the defaults + the BYT_RT5651_JD_NOT_INV
+flags for this.
 
-hcon->amp_mgr seems NULL triggered kernel panic in following line inside
-function amp_read_loc_assoc_final_data
-
-        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
-
-Fixed by checking NULL for mgr.
-
-Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210216213555.36555-4-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/amp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/intel/boards/bytcr_rt5651.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
-index 78bec8df8525..72ef967c5663 100644
---- a/net/bluetooth/amp.c
-+++ b/net/bluetooth/amp.c
-@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
- 	struct hci_request req;
- 	int err;
- 
-+	if (!mgr)
-+		return;
-+
- 	cp.phy_handle = hcon->handle;
- 	cp.len_so_far = cpu_to_le16(0);
- 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
+diff --git a/sound/soc/intel/boards/bytcr_rt5651.c b/sound/soc/intel/boards/bytcr_rt5651.c
+index 4606f6f582d6..921c09cdb480 100644
+--- a/sound/soc/intel/boards/bytcr_rt5651.c
++++ b/sound/soc/intel/boards/bytcr_rt5651.c
+@@ -435,6 +435,19 @@ static const struct dmi_system_id byt_rt5651_quirk_table[] = {
+ 					BYT_RT5651_SSP0_AIF1 |
+ 					BYT_RT5651_MONO_SPEAKER),
+ 	},
++	{
++		/* Jumper EZpad 7 */
++		.callback = byt_rt5651_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Jumper"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "EZpad"),
++			/* Jumper12x.WJ2012.bsBKRCP05 with the version dropped */
++			DMI_MATCH(DMI_BIOS_VERSION, "Jumper12x.WJ2012.bsBKRCP"),
++		},
++		.driver_data = (void *)(BYT_RT5651_DEFAULT_QUIRKS |
++					BYT_RT5651_IN2_MAP |
++					BYT_RT5651_JD_NOT_INV),
++	},
+ 	{
+ 		/* KIANO SlimNote 14.2 */
+ 		.callback = byt_rt5651_quirk_cb,
 -- 
 2.30.1
 
