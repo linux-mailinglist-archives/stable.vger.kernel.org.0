@@ -2,107 +2,278 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D1232E5FC
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:17:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F069132E63B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229666AbhCEKQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 05:16:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36526 "EHLO
+        id S229558AbhCEKX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 05:23:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229729AbhCEKQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 05:16:19 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63B0CC061574;
-        Fri,  5 Mar 2021 02:16:19 -0800 (PST)
-Date:   Fri, 05 Mar 2021 10:16:15 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1614939376;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=04a0H18vqlVyjuYMpzIQ3AUdAEbsDZ3RETQN/UKYFIs=;
-        b=SaAiazyP7Dr21NPycWSv+FO2vziRF3n/93uJXdZoaDZgjWs2W3Ta2Y9Tt3dSozxdOjZPQ9
-        RjfYacSwkVCl/ENFjQ/veO+v4A2OvCbKPjHrNhJg9LVurVRXhMc5M8jaqzNWkukAgiB9wP
-        fU+U37TcBpV5gj2zZQC64OogYrh1oZZ0iaWXZIUslTuUU220MrjceoisJ5yZPA0nvVGrou
-        zVF5ZprHC0fiOWwGg3T6lE3pUa4mUCj0bhN4vV0pwHTKQnRqRsdGdLt1Undq/cKZFDI9AG
-        McceutUGCYPDOaJeT0l3XHtBeFxLqF2Y4yA4zz8HkMm5gy2L0EMx7WnAM0+cig==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1614939376;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=04a0H18vqlVyjuYMpzIQ3AUdAEbsDZ3RETQN/UKYFIs=;
-        b=YQOb34SeftEK6dssbdyJq3YlthyYu33kM38rQ5XHjGWt8i6Zcrt1TkgRGp1hr8WGQUttoW
-        7Sza71QrH6+YKUAA==
-From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/entry: Fix entry/exit mismatch on failed fast
- 32-bit syscalls
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org>
-References: <8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org>
-MIME-Version: 1.0
-Message-ID: <161493937508.398.8936209544992148886.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        with ESMTP id S229616AbhCEKXf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 05:23:35 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB05EC061574
+        for <stable@vger.kernel.org>; Fri,  5 Mar 2021 02:23:35 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id m6so1855127pfk.1
+        for <stable@vger.kernel.org>; Fri, 05 Mar 2021 02:23:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=0ICnzrK5yHVTghSWE2MeENiFCyypLDrUiRjom4H/Ngk=;
+        b=TJ8B3AInTUFbcaj4GcwOYNUdGU/hYvPcdqChfdLui0A8FyFoVqHrI4aGhi8re9YBD5
+         4ug1G9h1m3pfo7UWUxEbbZmOBRmtCz2IBqw01WwZQYrBM8/E5azmDTde9GUakzhqKmtP
+         uEpcDk+Ki+pC6/75ljUiTwDbUowJ+BZf45i1ALKTlpIWp5DNx6NV1nN3tX8WXeqPCYWb
+         maCJBbqeS/gBPS0dnBnj+IJ+fYYxP+DU5vg7wRlnvUcQLR3ATYNiUnxlB132U3w/RC4q
+         DitgjakRu2EY/EGVbZ2jovO3yDs6CRxabGZyDs2dX6D0kqfDjYHHEgnYJKFwC3BbtqTv
+         7z/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=0ICnzrK5yHVTghSWE2MeENiFCyypLDrUiRjom4H/Ngk=;
+        b=bdtCVq3fA9119O4+9p5VVav4dTEhfCZrJ+8Hh/fIc9fVMJMxwF/ZrCOkSWSrFuRYFO
+         onSj7wvBnQL0KgdaTrXvqubhwVgvWv8u+jeMnu0ulj/lY/KaAq7dKEI5NfouggWhTBO8
+         IjKomtj0xhGgRixNQV/NwBamxuEMllxedc6Y4rl0muAfSWCnscflLgygMEkB84+iaJoo
+         iw2C0xP3U9/5QEM3xMCpRMkP5ItAoyMhJJDm5zRJB+qFENsTg9sPlngCOe7VeVcFPNiS
+         iLBr6KfKrHfMVmvNrC9ULBI0dnfKX/CGuLVhrvDDWHblHQpCboabCFY2X9RXb8C2JVNg
+         L2sg==
+X-Gm-Message-State: AOAM530b/d5LwrGb7Z6wXmdyogiNYXdPg37OdkCRbwzfYQjjYmDYXq8P
+        iSZUrmCyx3OvOBssa0Wq3locD2v4ZnTbcVmM
+X-Google-Smtp-Source: ABdhPJzUnWGovz8EAAd+xjvlmin0RsW9bzD/82QKYFPCuEGsuky5kjzoHu7hIX/ffgS5Sone6Qu+1g==
+X-Received: by 2002:a65:6208:: with SMTP id d8mr7729536pgv.365.1614939814555;
+        Fri, 05 Mar 2021 02:23:34 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c4sm2262346pfo.2.2021.03.05.02.23.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Mar 2021 02:23:34 -0800 (PST)
+Message-ID: <604206a6.1c69fb81.bbdb5.6572@mx.google.com>
+Date:   Fri, 05 Mar 2021 02:23:34 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.259-32-gecb4251a2012a
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 93 runs,
+ 5 regressions (v4.9.259-32-gecb4251a2012a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+stable-rc/queue/4.9 baseline: 93 runs, 5 regressions (v4.9.259-32-gecb4251a=
+2012a)
 
-Commit-ID:     dabf017539988a9bfc40a38dbafd35c501bacc44
-Gitweb:        https://git.kernel.org/tip/dabf017539988a9bfc40a38dbafd35c501bacc44
-Author:        Andy Lutomirski <luto@kernel.org>
-AuthorDate:    Thu, 04 Mar 2021 11:05:54 -08:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 05 Mar 2021 11:10:13 +01:00
+Regressions Summary
+-------------------
 
-x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
-On a 32-bit fast syscall that fails to read its arguments from user
-memory, the kernel currently does syscall exit work but not
-syscall entry work.  This confuses audit and ptrace.  For example:
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-    $ ./tools/testing/selftests/x86/syscall_arg_fault_32
-    ...
-    strace: pid 264258: entering, ptrace_syscall_info.op == 2
-    ...
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-This is a minimal fix intended for ease of backporting.  A more
-complete cleanup is coming.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fixes: 0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
----
- arch/x86/entry/common.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
-index a2433ae..4efd39a 100644
---- a/arch/x86/entry/common.c
-+++ b/arch/x86/entry/common.c
-@@ -128,7 +128,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_regs *regs)
- 		regs->ax = -EFAULT;
- 
- 		instrumentation_end();
--		syscall_exit_to_user_mode(regs);
-+		local_irq_disable();
-+		irqentry_exit_to_user_mode(regs);
- 		return false;
- 	}
- 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.259-32-gecb4251a2012a/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.259-32-gecb4251a2012a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ecb4251a2012a6d0f5b0b8b05290f08fb6bc0cbc =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041d3f9a715a49878addce8
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6041d3f9a715a49=
+878addced
+        failing since 0 day (last pass: v4.9.259-22-gef981795155f, first fa=
+il: v4.9.259-22-g60dc3d39f4a2)
+        2 lines
+
+    2021-03-05 06:47:17.699000+00:00  kern  :emerg : BUG: spinlock bad magi=
+c on CPU#0, udevd/129
+    2021-03-05 06:47:17.708000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041f8ec2032be0994addcd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041f8ec2032be0994add=
+cd2
+        failing since 111 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041e34043434836efaddcb4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
+rsatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041e34043434836efadd=
+cb5
+        failing since 111 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041d07a819080b3c9addd4a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041d07a819080b3c9add=
+d4b
+        failing since 111 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6041db5ce582ffbb2faddcba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.259-3=
+2-gecb4251a2012a/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6041db5ce582ffbb2fadd=
+cbb
+        failing since 111 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
