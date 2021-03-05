@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA1032E842
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A7BD32E851
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbhCEMZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:25:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
+        id S231527AbhCEM0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:26:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231350AbhCEMZo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:25:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00A0165036;
-        Fri,  5 Mar 2021 12:25:43 +0000 (UTC)
+        id S231183AbhCEMZs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:25:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C524165030;
+        Fri,  5 Mar 2021 12:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947144;
-        bh=59Uycn//OLZDkYZJQYaxjwI5lNdfoXfKpL9fPJTWRYo=;
+        s=korg; t=1614947147;
+        bh=7ecgypTl3pP47kt0FGxySLAkMds6E3NfuNIh8lu+A+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GuUEh8GUt7URvdIy2ue4eFxTSkuWIsJdwPShzQn3NyRQHtdNWq9pd+byMiDyIZlPK
-         K+wlXoU6ce5DSmjsTOPTmEFMOkDUaTO50iCrgxmCh0h/HxVON6fSZCmbr5XsgwF/Cd
-         TMD1B+FaLc7O/hG7bFYhKOefBdNmf0GnnPBr5pGM=
+        b=y6S+IfEtwMM6sFhSOI4VXnVNif5k6LzyOMIvnyA3Dl55QkiXnCMjky9NehGQOaAI9
+         EKqQxZev1QD4dwuJtNkbE3vbcRkcenru0to7kQDLfypUm0Kx7vD23tiLrvfUV6prga
+         omxkdRE8xEUaBNivWCOQfhdzLNnLw40LfyAxfBkk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 062/104] fs: make unlazy_walk() error handling consistent
-Date:   Fri,  5 Mar 2021 13:21:07 +0100
-Message-Id: <20210305120906.223233863@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Defang Bo <bodefang@126.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 063/104] drm/amdgpu: Add check to prevent IH overflow
+Date:   Fri,  5 Mar 2021 13:21:08 +0100
+Message-Id: <20210305120906.271942650@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -39,171 +42,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Defang Bo <bodefang@126.com>
 
-[ Upstream commit e36cffed20a324e116f329a94061ae30dd26fb51 ]
+[ Upstream commit e4180c4253f3f2da09047f5139959227f5cf1173 ]
 
-Most callers check for non-zero return, and assume it's -ECHILD (which
-it always will be). One caller uses the actual error return. Clean this
-up and make it fully consistent, by having unlazy_walk() return a bool
-instead. Rename it to try_to_unlazy() and return true on success, and
-failure on error. That's easier to read.
+Similar to commit <b82175750131>("drm/amdgpu: fix IH overflow on Vega10 v2").
+When an ring buffer overflow happens the appropriate bit is set in the WPTR
+register which is also written back to memory. But clearing the bit in the
+WPTR doesn't trigger another memory writeback.
 
-No functional changes in this patch.
+So what can happen is that we end up processing the buffer overflow over and
+over again because the bit is never cleared. Resulting in a random system
+lockup because of an infinite loop in an interrupt handler.
 
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Defang Bo <bodefang@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namei.c | 43 +++++++++++++++++--------------------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/cz_ih.c      | 37 ++++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/iceland_ih.c | 36 +++++++++++++++---------
+ drivers/gpu/drm/amd/amdgpu/tonga_ih.c   | 37 ++++++++++++++++---------
+ 3 files changed, 71 insertions(+), 39 deletions(-)
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 78443a85480a..dd85e12ac85a 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -669,17 +669,17 @@ static bool legitimize_root(struct nameidata *nd)
-  */
+diff --git a/drivers/gpu/drm/amd/amdgpu/cz_ih.c b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+index da37f8a900af..307c01301c87 100644
+--- a/drivers/gpu/drm/amd/amdgpu/cz_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/cz_ih.c
+@@ -194,19 +194,30 @@ static u32 cz_ih_get_wptr(struct amdgpu_device *adev,
  
- /**
-- * unlazy_walk - try to switch to ref-walk mode.
-+ * try_to_unlazy - try to switch to ref-walk mode.
-  * @nd: nameidata pathwalk data
-- * Returns: 0 on success, -ECHILD on failure
-+ * Returns: true on success, false on failure
-  *
-- * unlazy_walk attempts to legitimize the current nd->path and nd->root
-+ * try_to_unlazy attempts to legitimize the current nd->path and nd->root
-  * for ref-walk mode.
-  * Must be called from rcu-walk context.
-- * Nothing should touch nameidata between unlazy_walk() failure and
-+ * Nothing should touch nameidata between try_to_unlazy() failure and
-  * terminate_walk().
-  */
--static int unlazy_walk(struct nameidata *nd)
-+static bool try_to_unlazy(struct nameidata *nd)
- {
- 	struct dentry *parent = nd->path.dentry;
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
-@@ -694,14 +694,14 @@ static int unlazy_walk(struct nameidata *nd)
- 		goto out;
- 	rcu_read_unlock();
- 	BUG_ON(nd->inode != parent->d_inode);
--	return 0;
-+	return true;
- 
- out1:
- 	nd->path.mnt = NULL;
- 	nd->path.dentry = NULL;
- out:
- 	rcu_read_unlock();
--	return -ECHILD;
-+	return false;
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
  }
  
- /**
-@@ -792,7 +792,7 @@ static int complete_walk(struct nameidata *nd)
- 		 */
- 		if (!(nd->flags & (LOOKUP_ROOT | LOOKUP_IS_SCOPED)))
- 			nd->root.mnt = NULL;
--		if (unlikely(unlazy_walk(nd)))
-+		if (!try_to_unlazy(nd))
- 			return -ECHILD;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+index 37d8b6ca4dab..cc957471f31e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/iceland_ih.c
+@@ -194,19 +194,29 @@ static u32 iceland_ih_get_wptr(struct amdgpu_device *adev,
  
-@@ -1466,7 +1466,7 @@ static struct dentry *lookup_fast(struct nameidata *nd,
- 		unsigned seq;
- 		dentry = __d_lookup_rcu(parent, &nd->last, &seq);
- 		if (unlikely(!dentry)) {
--			if (unlazy_walk(nd))
-+			if (!try_to_unlazy(nd))
- 				return ERR_PTR(-ECHILD);
- 			return NULL;
- 		}
-@@ -1567,10 +1567,8 @@ static inline int may_lookup(struct nameidata *nd)
- {
- 	if (nd->flags & LOOKUP_RCU) {
- 		int err = inode_permission(nd->inode, MAY_EXEC|MAY_NOT_BLOCK);
--		if (err != -ECHILD)
-+		if (err != -ECHILD || !try_to_unlazy(nd))
- 			return err;
--		if (unlazy_walk(nd))
--			return -ECHILD;
- 	}
- 	return inode_permission(nd->inode, MAY_EXEC);
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
+ 
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++
++out:
+ 	return (wptr & ih->ptr_mask);
  }
-@@ -1592,7 +1590,7 @@ static int reserve_stack(struct nameidata *nd, struct path *link, unsigned seq)
- 		// unlazy even if we fail to grab the link - cleanup needs it
- 		bool grabbed_link = legitimize_path(nd, link, seq);
  
--		if (unlazy_walk(nd) != 0 || !grabbed_link)
-+		if (!try_to_unlazy(nd) != 0 || !grabbed_link)
- 			return -ECHILD;
+diff --git a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+index ce3319993b4b..249fcbee7871 100644
+--- a/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
++++ b/drivers/gpu/drm/amd/amdgpu/tonga_ih.c
+@@ -196,19 +196,30 @@ static u32 tonga_ih_get_wptr(struct amdgpu_device *adev,
  
- 		if (nd_alloc_stack(nd))
-@@ -1634,7 +1632,7 @@ static const char *pick_link(struct nameidata *nd, struct path *link,
- 		touch_atime(&last->link);
- 		cond_resched();
- 	} else if (atime_needs_update(&last->link, inode)) {
--		if (unlikely(unlazy_walk(nd)))
-+		if (!try_to_unlazy(nd))
- 			return ERR_PTR(-ECHILD);
- 		touch_atime(&last->link);
- 	}
-@@ -1651,11 +1649,8 @@ static const char *pick_link(struct nameidata *nd, struct path *link,
- 		get = inode->i_op->get_link;
- 		if (nd->flags & LOOKUP_RCU) {
- 			res = get(NULL, inode, &last->done);
--			if (res == ERR_PTR(-ECHILD)) {
--				if (unlikely(unlazy_walk(nd)))
--					return ERR_PTR(-ECHILD);
-+			if (res == ERR_PTR(-ECHILD) && try_to_unlazy(nd))
- 				res = get(link->dentry, inode, &last->done);
--			}
- 		} else {
- 			res = get(link->dentry, inode, &last->done);
- 		}
-@@ -2195,7 +2190,7 @@ OK:
- 		}
- 		if (unlikely(!d_can_lookup(nd->path.dentry))) {
- 			if (nd->flags & LOOKUP_RCU) {
--				if (unlazy_walk(nd))
-+				if (!try_to_unlazy(nd))
- 					return -ECHILD;
- 			}
- 			return -ENOTDIR;
-@@ -3129,7 +3124,6 @@ static const char *open_last_lookups(struct nameidata *nd,
- 	struct inode *inode;
- 	struct dentry *dentry;
- 	const char *res;
--	int error;
+ 	wptr = le32_to_cpu(*ih->wptr_cpu);
  
- 	nd->flags |= op->intent;
+-	if (REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW)) {
+-		wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
+-		/* When a ring buffer overflow happen start parsing interrupt
+-		 * from the last not overwritten vector (wptr + 16). Hopefully
+-		 * this should allow us to catchup.
+-		 */
+-		dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
+-			 wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
+-		ih->rptr = (wptr + 16) & ih->ptr_mask;
+-		tmp = RREG32(mmIH_RB_CNTL);
+-		tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
+-		WREG32(mmIH_RB_CNTL, tmp);
+-	}
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	/* Double check that the overflow wasn't already cleared. */
++	wptr = RREG32(mmIH_RB_WPTR);
++
++	if (!REG_GET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW))
++		goto out;
++
++	wptr = REG_SET_FIELD(wptr, IH_RB_WPTR, RB_OVERFLOW, 0);
++
++	/* When a ring buffer overflow happen start parsing interrupt
++	 * from the last not overwritten vector (wptr + 16). Hopefully
++	 * this should allow us to catchup.
++	 */
++
++	dev_warn(adev->dev, "IH ring buffer overflow (0x%08X, 0x%08X, 0x%08X)\n",
++		wptr, ih->rptr, (wptr + 16) & ih->ptr_mask);
++	ih->rptr = (wptr + 16) & ih->ptr_mask;
++	tmp = RREG32(mmIH_RB_CNTL);
++	tmp = REG_SET_FIELD(tmp, IH_RB_CNTL, WPTR_OVERFLOW_CLEAR, 1);
++	WREG32(mmIH_RB_CNTL, tmp);
++
++out:
+ 	return (wptr & ih->ptr_mask);
+ }
  
-@@ -3153,9 +3147,8 @@ static const char *open_last_lookups(struct nameidata *nd,
- 	} else {
- 		/* create side of things */
- 		if (nd->flags & LOOKUP_RCU) {
--			error = unlazy_walk(nd);
--			if (unlikely(error))
--				return ERR_PTR(error);
-+			if (!try_to_unlazy(nd))
-+				return ERR_PTR(-ECHILD);
- 		}
- 		audit_inode(nd->name, dir, AUDIT_INODE_PARENT);
- 		/* trailing slashes? */
-@@ -3164,9 +3157,7 @@ static const char *open_last_lookups(struct nameidata *nd,
- 	}
- 
- 	if (open_flag & (O_CREAT | O_TRUNC | O_WRONLY | O_RDWR)) {
--		error = mnt_want_write(nd->path.mnt);
--		if (!error)
--			got_write = true;
-+		got_write = !mnt_want_write(nd->path.mnt);
- 		/*
- 		 * do _not_ fail yet - we might not need that or fail with
- 		 * a different error; let lookup_open() decide; we'll be
 -- 
 2.30.1
 
