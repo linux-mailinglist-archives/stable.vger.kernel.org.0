@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD6032E89E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF37C32E8A1
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231638AbhCEM15 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:27:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35930 "EHLO mail.kernel.org"
+        id S231701AbhCEM16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:27:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231755AbhCEM1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:27:36 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E98EE6502C;
-        Fri,  5 Mar 2021 12:27:35 +0000 (UTC)
+        id S231826AbhCEM1j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:27:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA7B6502C;
+        Fri,  5 Mar 2021 12:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947256;
-        bh=c4/oQuZe2eJAsfRHmRNQozBXiK/byfwXKcsmHm3Ha6M=;
+        s=korg; t=1614947259;
+        bh=eQH4sVyaUmDaSdsLEpdk2k6wms+MOReodxamtT0l3yE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOfVAZEj3HP7OnnyLFeA22oancocPzBilU0b7QCQqsO6qSw3gJmzX0ScS0TquUjRs
-         aVHsMHSVg6n7fAa6jMIDmK4mEJb4O34Lf3TpYjUsSKMQPoKk2Jtohy3KSCjK5YPwWh
-         c5pm84cFIaFwBb/lLftqYy4rBqCSjmsE1vkvPNq4=
+        b=O2aeNyhJhOq+sZDup4b4v/b5JMVuIri4STs9pfT7CQsdUB+arpc9aRYpyB37WAdvI
+         NvRNB0OVRZuiZyhcNWqNsHTcJLVbWYg3N0NPhHsJLC3pDdBo8DoSZNA+amX3LsLWPN
+         2EZ7vZAt3mn4+9E0PpLbplXwe7v/IzJ/dAX/MKuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 098/104] tty: clean up legacy leftovers from n_tty line discipline
-Date:   Fri,  5 Mar 2021 13:21:43 +0100
-Message-Id: <20210305120907.982538072@linuxfoundation.org>
+Subject: [PATCH 5.11 099/104] tty: teach n_tty line discipline about the new "cookie continuations"
+Date:   Fri,  5 Mar 2021 13:21:44 +0100
+Message-Id: <20210305120908.031586906@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -41,109 +41,135 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 64a69892afadd6fffaeadc65427bb7601161139d upstream.
+commit 15ea8ae8e03fdb845ed3ff5d9f11dd5f4f60252c upstream.
 
-Back when the line disciplines did their own direct user accesses, they
-had to deal with the data copy possibly failing in the middle.
+With the conversion to do the tty ldisc read operations in small chunks,
+the n_tty line discipline became noticeably slower for throughput
+oriented loads, because rather than read things in up to 2kB chunks, it
+would return at most 64 bytes per read() system call.
 
-Now that the user copy is done by the tty_io.c code, that failure case
-no longer exists.
+The cost is mainly all in the "do system calls over and over", not
+really in the new "copy to an extra kernel buffer".
 
-Remove the left-over error handling code that cannot trigger.
+This can be fixed by teaching the n_tty line discipline about the
+"cookie continuation" model, which the chunking code supports because
+things like hdlc need to be able to handle packets up to 64kB in size.
+
+Doing that doesn't just get us back to the old performace, but to much
+better performance: my stupid "copy 10MB of data over a pty" test
+program is now almost twice as fast as it used to be (going down from
+0.1s to 0.054s).
+
+This is entirely because it now creates maximal chunks (which happens to
+be "one byte less than one page" due to how we do the circular tty
+buffers).
+
+NOTE! This case only handles the simpler non-icanon case, which is the
+one where people may care about throughput.  I'm going to do the icanon
+case later too, because while performance isn't a major issue for that,
+there may be programs that think they'll always get a full line and
+don't like the 64-byte chunking for that reason.
+
+Such programs are arguably buggy (signals etc can cause random partial
+results from tty reads anyway), and good programs will handle such
+partial reads, but expecting everybody to write "good programs" has
+never been a winning policy for the kernel..
 
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_tty.c |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/tty/n_tty.c |   52 ++++++++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 42 insertions(+), 10 deletions(-)
 
 --- a/drivers/tty/n_tty.c
 +++ b/drivers/tty/n_tty.c
-@@ -1957,19 +1957,17 @@ static inline int input_available_p(stru
+@@ -1945,19 +1945,17 @@ static inline int input_available_p(stru
+  *	Helper function to speed up n_tty_read.  It is only called when
+  *	ICANON is off; it copies characters straight from the tty queue.
+  *
+- *	It can be profitably called twice; once to drain the space from
+- *	the tail pointer to the (physical) end of the buffer, and once
+- *	to drain the space from the (physical) beginning of the buffer
+- *	to head pointer.
+- *
+  *	Called under the ldata->atomic_read_lock sem
+  *
++ *	Returns true if it successfully copied data, but there is still
++ *	more data to be had.
++ *
+  *	n_tty_read()/consumer path:
+  *		caller holds non-exclusive termios_rwsem
   *		read_tail published
   */
  
--static int copy_from_read_buf(struct tty_struct *tty,
-+static void copy_from_read_buf(struct tty_struct *tty,
+-static void copy_from_read_buf(struct tty_struct *tty,
++static bool copy_from_read_buf(struct tty_struct *tty,
  				      unsigned char **kbp,
  				      size_t *nr)
  
- {
- 	struct n_tty_data *ldata = tty->disc_data;
--	int retval;
- 	size_t n;
- 	bool is_eof;
- 	size_t head = smp_load_acquire(&ldata->commit_head);
- 	size_t tail = ldata->read_tail & (N_TTY_BUF_SIZE - 1);
- 
--	retval = 0;
- 	n = min(head - ldata->read_tail, N_TTY_BUF_SIZE - tail);
- 	n = min(*nr, n);
- 	if (n) {
-@@ -1986,7 +1984,6 @@ static int copy_from_read_buf(struct tty
+@@ -1980,10 +1978,14 @@ static void copy_from_read_buf(struct tt
+ 		/* Turn single EOF into zero-length read */
+ 		if (L_EXTPROC(tty) && ldata->icanon && is_eof &&
+ 		    (head == ldata->read_tail))
+-			n = 0;
++			return false;
  		*kbp += n;
  		*nr -= n;
++
++		/* If we have more to copy, let the caller know */
++		return head != ldata->read_tail;
  	}
--	return retval;
++	return false;
  }
  
  /**
-@@ -2012,9 +2009,9 @@ static int copy_from_read_buf(struct tty
-  *		read_tail published
-  */
+@@ -2131,6 +2133,25 @@ static ssize_t n_tty_read(struct tty_str
+ 	int packet;
+ 	size_t tail;
  
--static int canon_copy_from_read_buf(struct tty_struct *tty,
--				    unsigned char **kbp,
--				    size_t *nr)
-+static void canon_copy_from_read_buf(struct tty_struct *tty,
-+				     unsigned char **kbp,
-+				     size_t *nr)
- {
- 	struct n_tty_data *ldata = tty->disc_data;
- 	size_t n, size, more, c;
-@@ -2024,7 +2021,7 @@ static int canon_copy_from_read_buf(stru
- 
- 	/* N.B. avoid overrun if nr == 0 */
- 	if (!*nr)
--		return 0;
-+		return;
- 
- 	n = min(*nr + 1, smp_load_acquire(&ldata->canon_head) - ldata->read_tail);
- 
-@@ -2071,7 +2068,6 @@ static int canon_copy_from_read_buf(stru
- 			ldata->push = 0;
- 		tty_audit_push();
- 	}
--	return 0;
- }
- 
- /**
-@@ -2221,24 +2217,17 @@ static ssize_t n_tty_read(struct tty_str
- 		}
- 
- 		if (ldata->icanon && !L_EXTPROC(tty)) {
--			retval = canon_copy_from_read_buf(tty, &kb, &nr);
--			if (retval)
--				break;
-+			canon_copy_from_read_buf(tty, &kb, &nr);
- 		} else {
--			int uncopied;
--
- 			/* Deal with packet mode. */
- 			if (packet && kb == kbuf) {
- 				*kb++ = TIOCPKT_DATA;
++	/*
++	 * Is this a continuation of a read started earler?
++	 *
++	 * If so, we still hold the atomic_read_lock and the
++	 * termios_rwsem, and can just continue to copy data.
++	 */
++	if (*cookie) {
++		if (copy_from_read_buf(tty, &kb, &nr))
++			return kb - kbuf;
++
++		/* No more data - release locks and stop retries */
++		n_tty_kick_worker(tty);
++		n_tty_check_unthrottle(tty);
++		up_read(&tty->termios_rwsem);
++		mutex_unlock(&ldata->atomic_read_lock);
++		*cookie = NULL;
++		return kb - kbuf;
++	}
++
+ 	c = job_control(tty, file);
+ 	if (c < 0)
+ 		return c;
+@@ -2225,9 +2246,20 @@ static ssize_t n_tty_read(struct tty_str
  				nr--;
  			}
  
--			uncopied = copy_from_read_buf(tty, &kb, &nr);
--			uncopied += copy_from_read_buf(tty, &kb, &nr);
--			if (uncopied) {
--				retval = -EFAULT;
--				break;
--			}
-+			/* See comment above copy_from_read_buf() why twice */
-+			copy_from_read_buf(tty, &kb, &nr);
-+			copy_from_read_buf(tty, &kb, &nr);
+-			/* See comment above copy_from_read_buf() why twice */
+-			copy_from_read_buf(tty, &kb, &nr);
+-			copy_from_read_buf(tty, &kb, &nr);
++			/*
++			 * Copy data, and if there is more to be had
++			 * and we have nothing more to wait for, then
++			 * let's mark us for retries.
++			 *
++			 * NOTE! We return here with both the termios_sem
++			 * and atomic_read_lock still held, the retries
++			 * will release them when done.
++			 */
++			if (copy_from_read_buf(tty, &kb, &nr) && kb - kbuf >= minimum) {
++				remove_wait_queue(&tty->read_wait, &wait);
++				*cookie = cookie;
++				return kb - kbuf;
++			}
  		}
  
  		n_tty_check_unthrottle(tty);
