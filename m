@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0469132EA7D
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE2BC32EA1D
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbhCEMis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52078 "EHLO mail.kernel.org"
+        id S232885AbhCEMge (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233042AbhCEMia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5C6465004;
-        Fri,  5 Mar 2021 12:38:29 +0000 (UTC)
+        id S231169AbhCEMgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:36:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C3965004;
+        Fri,  5 Mar 2021 12:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947910;
-        bh=pOnXyIopRqSAaIIHCd2ZdSWwnUnSrpl281czLHeUJdw=;
+        s=korg; t=1614947766;
+        bh=YCyo7jLMHyREv5b4CJsE4SH9lBSX6ViiLthbpeXBfPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJcX1PowKyTLxasgS+VR/i0FQe+YEoGEUAB43HbG+EuPt8Sug/et915n9uRQfuqK1
-         ck+l1O7Zp2NLHc/vLkr98in6x5S8iMQe9RlCp/tl/VsMl4ZwQfghdwuV88LtXwLQfm
-         a19YQA3A6T9ammKZ+4D8iwidhViVfeUL6Zs8/BXo=
+        b=H/139ZSwg5g62poeKjiKqpjGfbMtDPkY4goF//4CUbNwGOfUKFyRD5lbO5YrDwsGZ
+         KAVFCu5uj/OzpgnpaqYaa1s/vQEvgB3VtypBspYAZXkiGtR/mEY7FZrDhdXYkNrKb0
+         7UHgvEHh7AnlK/Fjh4uTUkoNxmNzLGzjnc03voeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Nirmoy Das <nirmoy.das@amd.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/52] PCI: Add a REBAR size quirk for Sapphire RX 5600 XT Pulse
+        stable@vger.kernel.org, Adam Nichols <adam@grimm-co.com>,
+        Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.4 61/72] scsi: iscsi: Restrict sessions and handles to admin capabilities
 Date:   Fri,  5 Mar 2021 13:22:03 +0100
-Message-Id: <20210305120855.244517669@linuxfoundation.org>
+Message-Id: <20210305120900.323493568@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Lee Duncan <lduncan@suse.com>
 
-[ Upstream commit 907830b0fc9e374d00f3c83de5e426157b482c01 ]
+commit 688e8128b7a92df982709a4137ea4588d16f24aa upstream.
 
-RX 5600 XT Pulse advertises support for BAR 0 being 256MB, 512MB,
-or 1GB, but it also supports 2GB, 4GB, and 8GB. Add a rebar
-size quirk so that the BAR 0 is big enough to cover complete VARM.
+Protect the iSCSI transport handle, available in sysfs, by requiring
+CAP_SYS_ADMIN to read it. Also protect the netlink socket by restricting
+reception of messages to ones sent with CAP_SYS_ADMIN. This disables
+normal users from being able to end arbitrary iSCSI sessions.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Link: https://patchwork.kernel.org/project/dri-devel/patch/20210107175017.15893-5-nirmoy.das@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Adam Nichols <adam@grimm-co.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/scsi/scsi_transport_iscsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index cd628dd73719..83fda1987d1f 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -3361,7 +3361,14 @@ u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar)
- 		return 0;
- 
- 	pci_read_config_dword(pdev, pos + PCI_REBAR_CAP, &cap);
--	return (cap & PCI_REBAR_CAP_SIZES) >> 4;
-+	cap &= PCI_REBAR_CAP_SIZES;
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -124,6 +124,9 @@ show_transport_handle(struct device *dev
+ 		      char *buf)
+ {
+ 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);
 +
-+	/* Sapphire RX 5600 XT Pulse has an invalid cap dword for BAR 0 */
-+	if (pdev->vendor == PCI_VENDOR_ID_ATI && pdev->device == 0x731f &&
-+	    bar == 0 && cap == 0x7000)
-+		cap = 0x3f000;
-+
-+	return cap >> 4;
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
+ 	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
  }
+ static DEVICE_ATTR(handle, S_IRUGO, show_transport_handle, NULL);
+@@ -3506,6 +3509,9 @@ iscsi_if_recv_msg(struct sk_buff *skb, s
+ 	struct iscsi_cls_conn *conn;
+ 	struct iscsi_endpoint *ep = NULL;
  
- /**
--- 
-2.30.1
-
++	if (!netlink_capable(skb, CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	if (nlh->nlmsg_type == ISCSI_UEVENT_PATH_UPDATE)
+ 		*group = ISCSI_NL_GRP_UIP;
+ 	else
 
 
