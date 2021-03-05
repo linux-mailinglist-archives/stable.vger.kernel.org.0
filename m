@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE5732E7DD
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8395732E8B4
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229737AbhCEMXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:23:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58232 "EHLO mail.kernel.org"
+        id S229957AbhCEM21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:28:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229821AbhCEMXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:23:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D861564FEE;
-        Fri,  5 Mar 2021 12:23:24 +0000 (UTC)
+        id S231804AbhCEM17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:27:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44BE165029;
+        Fri,  5 Mar 2021 12:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947005;
-        bh=MuQQ9FfgXAtpfwnYyB0YETjp8KeoehMkoIzxsMgu8ZM=;
+        s=korg; t=1614947278;
+        bh=iWJlyq8MQN2DSHljvscz2wwEW75P3abaHEUBsNK6sHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1P6dKXSPaKdidcMVw04o2PlNEYa+APr2L5bf7vq+vH0yW3rZqUffRSHgJHZSby9uM
-         eg/jk3t8P69s4vozoxEl1Xfoc8p3rEe9s2YykvyHapC/DAQKH7di0Ms/yrNK8Ocjgf
-         m8mvGTHDKAq+rxNQcK6LiIvBdBF6BtxCxLGFp5NY=
+        b=pY89mYF6bj3RCJiBrTYva0aPswvVJ7aefiUrNgzlpMc2zKIO5wRZ0x3wvGxOhab4e
+         XYSKW4NqyYW4aIqPTwperESsFHdlXHBjlIVVkCpCeYrrzP5t19NZVG9nbNkoP9DtfY
+         DgOKoU49zkbfbavb6FLnJM44sA3liDX+jtUPrU8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.11 014/104] tomoyo: ignore data race while checking quota
-Date:   Fri,  5 Mar 2021 13:20:19 +0100
-Message-Id: <20210305120903.884706871@linuxfoundation.org>
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        Lech Perczak <lech.perczak@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 001/102] net: usb: qmi_wwan: support ZTE P685M modem
+Date:   Fri,  5 Mar 2021 13:20:20 +0100
+Message-Id: <20210305120903.356261207@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,177 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Lech Perczak <lech.perczak@gmail.com>
 
-commit 5797e861e402fff2bedce4ec8b7c89f4248b6073 upstream.
+commit 88eee9b7b42e69fb622ddb3ff6f37e8e4347f5b2 upstream.
 
-syzbot is reporting that tomoyo's quota check is racy [1]. But this check
-is tolerant of some degree of inaccuracy. Thus, teach KCSAN to ignore
-this data race.
+Now that interface 3 in "option" driver is no longer mapped, add device
+ID matching it to qmi_wwan.
 
-[1] https://syzkaller.appspot.com/bug?id=999533deec7ba6337f8aa25d8bd1a4d5f7e50476
+The modem is used inside ZTE MF283+ router and carriers identify it as
+such.
+Interface mapping is:
+0: QCDM, 1: AT (PCUI), 2: AT (Modem), 3: QMI, 4: ADB
 
-Reported-by: syzbot <syzbot+0789a72b46fd91431bd8@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+T:  Bus=02 Lev=02 Prnt=02 Port=05 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.01 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1275 Rev=f0.00
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=P685M510ZTED0000CP&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&0
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=87(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: Lech Perczak <lech.perczak@gmail.com>
+Link: https://lore.kernel.org/r/20210223183456.6377-1-lech.perczak@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/tomoyo/file.c    |   16 ++++++++--------
- security/tomoyo/network.c |    8 ++++----
- security/tomoyo/util.c    |   24 ++++++++++++------------
- 3 files changed, 24 insertions(+), 24 deletions(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/tomoyo/file.c
-+++ b/security/tomoyo/file.c
-@@ -362,14 +362,14 @@ static bool tomoyo_merge_path_acl(struct
- {
- 	u16 * const a_perm = &container_of(a, struct tomoyo_path_acl, head)
- 		->perm;
--	u16 perm = *a_perm;
-+	u16 perm = READ_ONCE(*a_perm);
- 	const u16 b_perm = container_of(b, struct tomoyo_path_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -437,7 +437,7 @@ static bool tomoyo_merge_mkdev_acl(struc
- {
- 	u8 *const a_perm = &container_of(a, struct tomoyo_mkdev_acl,
- 					 head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_mkdev_acl, head)
- 		->perm;
- 
-@@ -445,7 +445,7 @@ static bool tomoyo_merge_mkdev_acl(struc
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -517,14 +517,14 @@ static bool tomoyo_merge_path2_acl(struc
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path2_acl, head)
- 		->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path2_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -655,7 +655,7 @@ static bool tomoyo_merge_path_number_acl
- {
- 	u8 * const a_perm = &container_of(a, struct tomoyo_path_number_acl,
- 					  head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_path_number_acl, head)
- 		->perm;
- 
-@@ -663,7 +663,7 @@ static bool tomoyo_merge_path_number_acl
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
---- a/security/tomoyo/network.c
-+++ b/security/tomoyo/network.c
-@@ -233,14 +233,14 @@ static bool tomoyo_merge_inet_acl(struct
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_inet_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_inet_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
-@@ -259,14 +259,14 @@ static bool tomoyo_merge_unix_acl(struct
- {
- 	u8 * const a_perm =
- 		&container_of(a, struct tomoyo_unix_acl, head)->perm;
--	u8 perm = *a_perm;
-+	u8 perm = READ_ONCE(*a_perm);
- 	const u8 b_perm = container_of(b, struct tomoyo_unix_acl, head)->perm;
- 
- 	if (is_delete)
- 		perm &= ~b_perm;
- 	else
- 		perm |= b_perm;
--	*a_perm = perm;
-+	WRITE_ONCE(*a_perm, perm);
- 	return !perm;
- }
- 
---- a/security/tomoyo/util.c
-+++ b/security/tomoyo/util.c
-@@ -1058,30 +1058,30 @@ bool tomoyo_domain_quota_is_ok(struct to
- 
- 		if (ptr->is_deleted)
- 			continue;
-+		/*
-+		 * Reading perm bitmap might race with tomoyo_merge_*() because
-+		 * caller does not hold tomoyo_policy_lock mutex. But exceeding
-+		 * max_learning_entry parameter by a few entries does not harm.
-+		 */
- 		switch (ptr->type) {
- 		case TOMOYO_TYPE_PATH_ACL:
--			perm = container_of(ptr, struct tomoyo_path_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH2_ACL:
--			perm = container_of(ptr, struct tomoyo_path2_acl, head)
--				->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path2_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_PATH_NUMBER_ACL:
--			perm = container_of(ptr, struct tomoyo_path_number_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_path_number_acl, head)
-+				  ->perm);
- 			break;
- 		case TOMOYO_TYPE_MKDEV_ACL:
--			perm = container_of(ptr, struct tomoyo_mkdev_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_mkdev_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_INET_ACL:
--			perm = container_of(ptr, struct tomoyo_inet_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_inet_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_UNIX_ACL:
--			perm = container_of(ptr, struct tomoyo_unix_acl,
--					    head)->perm;
-+			data_race(perm = container_of(ptr, struct tomoyo_unix_acl, head)->perm);
- 			break;
- 		case TOMOYO_TYPE_MANUAL_TASK_ACL:
- 			perm = 0;
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1258,6 +1258,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x19d2, 0x1255, 4)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1256, 4)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1270, 5)},	/* ZTE MF667 */
++	{QMI_FIXED_INTF(0x19d2, 0x1275, 3)},	/* ZTE P685M */
+ 	{QMI_FIXED_INTF(0x19d2, 0x1401, 2)},
+ 	{QMI_FIXED_INTF(0x19d2, 0x1402, 2)},	/* ZTE MF60 */
+ 	{QMI_FIXED_INTF(0x19d2, 0x1424, 2)},
 
 
