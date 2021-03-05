@@ -2,201 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29DA632E295
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 07:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BCE32E29F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 07:57:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229493AbhCEGzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 01:55:35 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:43728 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229486AbhCEGzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 01:55:35 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R261e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UQXT2-._1614927331;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQXT2-._1614927331)
+        id S229486AbhCEG50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 01:57:26 -0500
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:47034 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229458AbhCEG50 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 01:57:26 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R801e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UQXPcpp_1614927443;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQXPcpp_1614927443)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Fri, 05 Mar 2021 14:55:32 +0800
+          Fri, 05 Mar 2021 14:57:23 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org
 Cc:     stable@vger.kernel.org, jefflexu@linux.alibaba.com,
         snitzer@redhat.com
-Subject: [PATCH 4.19.y 5/5] dm table: fix zoned iterate_devices based device capability checks
-Date:   Fri,  5 Mar 2021 14:55:26 +0800
-Message-Id: <20210305065526.72663-6-jefflexu@linux.alibaba.com>
+Subject: [PATCH 5.4.y 0/4]  dm: device capability check fixes
+Date:   Fri,  5 Mar 2021 14:57:18 +0800
+Message-Id: <20210305065722.73504-1-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20210305065526.72663-1-jefflexu@linux.alibaba.com>
-References: <1614606251118245@kroah.com>
- <20210305065526.72663-1-jefflexu@linux.alibaba.com>
+In-Reply-To: <161460625264244@kroah.com>
+References: <161460625264244@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 24f6b6036c9eec21191646930ad42808e6180510 upstream.
+- patch 1/3/4 is from upstream
+- patch 2 is to fix the code specific to 4.4 (has been removed in upstream)
 
-Fix dm_table_supports_zoned_model() and invert logic of both
-iterate_devices_callout_fn so that all devices' zoned capabilities are
-properly checked.
+Jeffle Xu (4):
+  dm table: fix iterate_devices based device capability checks
+  dm table: fix partial completion iterate_devices based device
+    capability checks
+  dm table: fix DAX iterate_devices based device capability checks
+  dm table: fix zoned iterate_devices based device capability checks
 
-Add one more parameter to dm_table_any_dev_attr(), which is actually
-used as the @data parameter of iterate_devices_callout_fn, so that
-dm_table_matches_zone_sectors() can be replaced by
-dm_table_any_dev_attr().
+ drivers/md/dm-table.c | 174 ++++++++++++++++++------------------------
+ drivers/md/dm.c       |   2 +-
+ drivers/md/dm.h       |   2 +-
+ 3 files changed, 75 insertions(+), 103 deletions(-)
 
-Fixes: dd88d313bef02 ("dm table: add zoned block devices validation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-[jeffle: also convert no_sg_merge and partial completion check]
----
- drivers/md/dm-table.c | 52 +++++++++++++++----------------------------
- 1 file changed, 18 insertions(+), 34 deletions(-)
-
-diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index ca0b936300ca..71d3fdbce50a 100644
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1413,10 +1413,10 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
-  * should use the iteration structure like dm_table_supports_nowait() or
-  * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
-  * uses an @anti_func that handle semantics of counter examples, e.g. not
-- * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
-+ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func, data);
-  */
- static bool dm_table_any_dev_attr(struct dm_table *t,
--				  iterate_devices_callout_fn func)
-+				  iterate_devices_callout_fn func, void *data)
- {
- 	struct dm_target *ti;
- 	unsigned int i;
-@@ -1425,7 +1425,7 @@ static bool dm_table_any_dev_attr(struct dm_table *t,
- 		ti = dm_table_get_target(t, i);
- 
- 		if (ti->type->iterate_devices &&
--		    ti->type->iterate_devices(ti, func, NULL))
-+		    ti->type->iterate_devices(ti, func, data))
- 			return true;
-         }
- 
-@@ -1468,13 +1468,13 @@ bool dm_table_has_no_data_devices(struct dm_table *table)
- 	return true;
- }
- 
--static int device_is_zoned_model(struct dm_target *ti, struct dm_dev *dev,
--				 sector_t start, sector_t len, void *data)
-+static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
-+				  sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	enum blk_zoned_model *zoned_model = data;
- 
--	return q && blk_queue_zoned_model(q) == *zoned_model;
-+	return !q || blk_queue_zoned_model(q) != *zoned_model;
- }
- 
- static bool dm_table_supports_zoned_model(struct dm_table *t,
-@@ -1491,37 +1491,20 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
- 			return false;
- 
- 		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, device_is_zoned_model, &zoned_model))
-+		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
- 			return false;
- 	}
- 
- 	return true;
- }
- 
--static int device_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
--				       sector_t start, sector_t len, void *data)
-+static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
-+					   sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 	unsigned int *zone_sectors = data;
- 
--	return q && blk_queue_zone_sectors(q) == *zone_sectors;
--}
--
--static bool dm_table_matches_zone_sectors(struct dm_table *t,
--					  unsigned int zone_sectors)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, device_matches_zone_sectors, &zone_sectors))
--			return false;
--	}
--
--	return true;
-+	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
- }
- 
- static int validate_hardware_zoned_model(struct dm_table *table,
-@@ -1541,7 +1524,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
- 	if (!zone_sectors || !is_power_of_2(zone_sectors))
- 		return -EINVAL;
- 
--	if (!dm_table_matches_zone_sectors(table, zone_sectors)) {
-+	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
- 		DMERR("%s: zone sectors is not consistent across all devices",
- 		      dm_device_name(table->md));
- 		return -EINVAL;
-@@ -1766,7 +1749,7 @@ static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev
- 
- static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
- {
--	return !dm_table_any_dev_attr(t, device_is_partial_completion);
-+	return !dm_table_any_dev_attr(t, device_is_partial_completion, NULL);
- }
- 
- static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
-@@ -1929,11 +1912,11 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	else
- 		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
- 
--	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
-+	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled, NULL))
- 		dax_write_cache(t->md->dax_dev, true);
- 
- 	/* Ensure that all underlying devices are non-rotational. */
--	if (dm_table_any_dev_attr(t, device_is_rotational))
-+	if (dm_table_any_dev_attr(t, device_is_rotational, NULL))
- 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
- 	else
- 		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
-@@ -1943,7 +1926,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	if (!dm_table_supports_write_zeroes(t))
- 		q->limits.max_write_zeroes_sectors = 0;
- 
--	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
-+	if (dm_table_any_dev_attr(t, queue_no_sg_merge, NULL))
- 		blk_queue_flag_set(QUEUE_FLAG_NO_SG_MERGE, q);
- 	else
- 		blk_queue_flag_clear(QUEUE_FLAG_NO_SG_MERGE, q);
-@@ -1957,7 +1940,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	 * them as well.  Only targets that support iterate_devices are considered:
- 	 * don't want error, zero, etc to require stable pages.
- 	 */
--	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
-+	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
- 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
- 	else
- 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
-@@ -1968,7 +1951,8 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
- 	 * have it set.
- 	 */
--	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
-+	if (blk_queue_add_random(q) &&
-+	    dm_table_any_dev_attr(t, device_is_not_random, NULL))
- 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
- }
- 
 -- 
 2.27.0
 
