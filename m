@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAC932EA3E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2149B32E95E
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbhCEMhp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50064 "EHLO mail.kernel.org"
+        id S231235AbhCEMc1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:32:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231950AbhCEMgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:36:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C77B36501B;
-        Fri,  5 Mar 2021 12:36:53 +0000 (UTC)
+        id S231652AbhCEMb6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:31:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C1265004;
+        Fri,  5 Mar 2021 12:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947814;
-        bh=lbTReERXvxq2Oru5uruefCkjvtBnEBp2vea4bu9bgAs=;
+        s=korg; t=1614947517;
+        bh=EoxocRsBpA2vzprPILBLtHPVeUnUdZ4iq8JNqgAtIVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWp9An0S9tKgiQ8vwl4Dc1H6vr7sFaqrcZz03hbv078+vJBk5gkeQh/mKexxKdNcY
-         mzEPT8axr1wBLFNzaE6MTwwIWQKw4qSO83ELfZsrqM8UGgLr3v1LPq10BG2pjq6IzF
-         aQKkLo8qQF2wgfIQdvPLKzO/Bq9wAusmCSAen5gA=
+        b=J+J75kSM/vhv0LjFO/7W78142KLpDsE49BT2PszbWoezWz7aVeCI7jXaEzdPrv/HZ
+         uv/9DOmZ/U0PWiViEWOnjjjmBmYUv9RIWfgW1taT8ixbv1UEfKgd8hEtBRNbzpAx0Z
+         wWoCO9koLgGGMslTm3N0nVUDqRJ5ys1OZ3BhG1YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Martin Kepplinger <martink@posteo.de>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        Martin Kepplinger <martin.kepplinger@puri.sm>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 20/52] rsi: Move card interrupt handling to RX thread
+        stable@vger.kernel.org,
+        Ananth N Mavinakayanahalli <ananth@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Subject: [PATCH 5.10 092/102] powerpc/sstep: Check instruction validity against ISA version before emulation
 Date:   Fri,  5 Mar 2021 13:21:51 +0100
-Message-Id: <20210305120854.668240751@linuxfoundation.org>
+Message-Id: <20210305120907.805315406@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,217 +41,326 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
 
-[ Upstream commit 287431463e786766e05e4dc26d0a11d5f8ac8815 ]
+commit 8813ff49607eab3caaf40fe8929b0ce7dc68e85f upstream.
 
-The interrupt handling of the RS911x is particularly heavy. For each RX
-packet, the card does three SDIO transactions, one to read interrupt
-status register, one to RX buffer length, one to read the RX packet(s).
-This translates to ~330 uS per one cycle of interrupt handler. In case
-there is more incoming traffic, this will be more.
+We currently unconditionally try to emulate newer instructions on older
+Power versions that could cause issues. Gate it.
 
-The drivers/mmc/core/sdio_irq.c has the following comment, quote "Just
-like traditional hard IRQ handlers, we expect SDIO IRQ handlers to be
-quick and to the point, so that the holding of the host lock does not
-cover too much work that doesn't require that lock to be held."
-
-The RS911x interrupt handler does not fit that. This patch therefore
-changes it such that the entire IRQ handler is moved to the RX thread
-instead, and the interrupt handler only wakes the RX thread.
-
-This is OK, because the interrupt handler only does things which can
-also be done in the RX thread, that is, it checks for firmware loading
-error(s), it checks buffer status, it checks whether a packet arrived
-and if so, reads out the packet and passes it to network stack.
-
-Moreover, this change permits removal of a code which allocated an
-skbuff only to get 4-byte-aligned buffer, read up to 8kiB of data
-into the skbuff, queue this skbuff into local private queue, then in
-RX thread, this buffer is dequeued, the data in the skbuff as passed
-to the RSI driver core, and the skbuff is deallocated. All this is
-replaced by directly calling the RSI driver core with local buffer.
-
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Lee Jones <lee.jones@linaro.org>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: linux-wireless@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Tested-by: Martin Kepplinger <martin.kepplinger@puri.sm>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201103180941.443528-1-marex@denx.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 350779a29f11 ("powerpc: Handle most loads and stores in instruction emulation code")
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/161157995977.64773.13794501093457185080.stgit@thinktux.local
+[Dropped a few missing hunks for the backport to v5.10]
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_sdio.c     |  6 +--
- drivers/net/wireless/rsi/rsi_91x_sdio_ops.c | 52 ++++++---------------
- drivers/net/wireless/rsi/rsi_sdio.h         |  8 +---
- 3 files changed, 15 insertions(+), 51 deletions(-)
+ arch/powerpc/lib/sstep.c |   72 ++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 59 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio.c b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-index 81cc1044532d..f76a360cf1e3 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio.c
-@@ -153,9 +153,7 @@ static void rsi_handle_interrupt(struct sdio_func *function)
- 	if (adapter->priv->fsm_state == FSM_FW_NOT_LOADED)
- 		return;
+--- a/arch/powerpc/lib/sstep.c
++++ b/arch/powerpc/lib/sstep.c
+@@ -1241,9 +1241,11 @@ int analyse_instr(struct instruction_op
+ 		if ((word & 0xfe2) == 2)
+ 			op->type = SYSCALL;
+ 		else if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) &&
+-				(word & 0xfe3) == 1)
++				(word & 0xfe3) == 1) {	/* scv */
+ 			op->type = SYSCALL_VECTORED_0;
+-		else
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
++		} else
+ 			op->type = UNKNOWN;
+ 		return 0;
+ #endif
+@@ -1347,7 +1349,7 @@ int analyse_instr(struct instruction_op
+ #ifdef __powerpc64__
+ 	case 1:
+ 		if (!cpu_has_feature(CPU_FTR_ARCH_31))
+-			return -1;
++			goto unknown_opcode;
  
--	dev->sdio_irq_task = current;
--	rsi_interrupt_handler(adapter);
--	dev->sdio_irq_task = NULL;
-+	rsi_set_event(&dev->rx_thread.event);
- }
+ 		prefix_r = GET_PREFIX_R(word);
+ 		ra = GET_PREFIX_RA(suffix);
+@@ -1381,7 +1383,7 @@ int analyse_instr(struct instruction_op
+ #ifdef __powerpc64__
+ 	case 4:
+ 		if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-			return -1;
++			goto unknown_opcode;
  
- /**
-@@ -973,8 +971,6 @@ static int rsi_probe(struct sdio_func *pfunction,
- 		rsi_dbg(ERR_ZONE, "%s: Unable to init rx thrd\n", __func__);
- 		goto fail_kill_thread;
- 	}
--	skb_queue_head_init(&sdev->rx_q.head);
--	sdev->rx_q.num_rx_pkts = 0;
+ 		switch (word & 0x3f) {
+ 		case 48:	/* maddhd */
+@@ -1467,6 +1469,8 @@ int analyse_instr(struct instruction_op
+ 	case 19:
+ 		if (((word >> 1) & 0x1f) == 2) {
+ 			/* addpcis */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			imm = (short) (word & 0xffc1);	/* d0 + d2 fields */
+ 			imm |= (word >> 15) & 0x3e;	/* d1 field */
+ 			op->val = regs->nip + (imm << 16) + 4;
+@@ -1779,7 +1783,7 @@ int analyse_instr(struct instruction_op
+ #ifdef __powerpc64__
+ 		case 265:	/* modud */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			op->val = regs->gpr[ra] % regs->gpr[rb];
+ 			goto compute_done;
+ #endif
+@@ -1789,7 +1793,7 @@ int analyse_instr(struct instruction_op
  
- 	sdio_claim_host(pfunction);
- 	if (sdio_claim_irq(pfunction, rsi_handle_interrupt)) {
-diff --git a/drivers/net/wireless/rsi/rsi_91x_sdio_ops.c b/drivers/net/wireless/rsi/rsi_91x_sdio_ops.c
-index 612c211e21a1..d66ae2f57314 100644
---- a/drivers/net/wireless/rsi/rsi_91x_sdio_ops.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_sdio_ops.c
-@@ -60,39 +60,20 @@ int rsi_sdio_master_access_msword(struct rsi_hw *adapter, u16 ms_word)
- 	return status;
- }
+ 		case 267:	/* moduw */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			op->val = (unsigned int) regs->gpr[ra] %
+ 				(unsigned int) regs->gpr[rb];
+ 			goto compute_done;
+@@ -1826,7 +1830,7 @@ int analyse_instr(struct instruction_op
+ #endif
+ 		case 755:	/* darn */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			switch (ra & 0x3) {
+ 			case 0:
+ 				/* 32-bit conditioned */
+@@ -1848,14 +1852,14 @@ int analyse_instr(struct instruction_op
+ #ifdef __powerpc64__
+ 		case 777:	/* modsd */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			op->val = (long int) regs->gpr[ra] %
+ 				(long int) regs->gpr[rb];
+ 			goto compute_done;
+ #endif
+ 		case 779:	/* modsw */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			op->val = (int) regs->gpr[ra] %
+ 				(int) regs->gpr[rb];
+ 			goto compute_done;
+@@ -1932,14 +1936,14 @@ int analyse_instr(struct instruction_op
+ #endif
+ 		case 538:	/* cnttzw */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			val = (unsigned int) regs->gpr[rd];
+ 			op->val = (val ? __builtin_ctz(val) : 32);
+ 			goto logical_done;
+ #ifdef __powerpc64__
+ 		case 570:	/* cnttzd */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			val = regs->gpr[rd];
+ 			op->val = (val ? __builtin_ctzl(val) : 64);
+ 			goto logical_done;
+@@ -2049,7 +2053,7 @@ int analyse_instr(struct instruction_op
+ 		case 890:	/* extswsli with sh_5 = 0 */
+ 		case 891:	/* extswsli with sh_5 = 1 */
+ 			if (!cpu_has_feature(CPU_FTR_ARCH_300))
+-				return -1;
++				goto unknown_opcode;
+ 			op->type = COMPUTE + SETREG;
+ 			sh = rb | ((word & 2) << 4);
+ 			val = (signed int) regs->gpr[rd];
+@@ -2376,6 +2380,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
-+static void rsi_rx_handler(struct rsi_hw *adapter);
-+
- void rsi_sdio_rx_thread(struct rsi_common *common)
- {
- 	struct rsi_hw *adapter = common->priv;
- 	struct rsi_91x_sdiodev *sdev = adapter->rsi_dev;
--	struct sk_buff *skb;
--	int status;
+ 		case 268:	/* lxvx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 16);
+ 			op->element_size = 16;
+@@ -2385,6 +2391,8 @@ int analyse_instr(struct instruction_op
+ 		case 269:	/* lxvl */
+ 		case 301: {	/* lxvll */
+ 			int nb;
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->ea = ra ? regs->gpr[ra] : 0;
+ 			nb = regs->gpr[rb] & 0xff;
+@@ -2404,6 +2412,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
- 	do {
- 		rsi_wait_event(&sdev->rx_thread.event, EVENT_WAIT_FOREVER);
- 		rsi_reset_event(&sdev->rx_thread.event);
-+		rsi_rx_handler(adapter);
-+	} while (!atomic_read(&sdev->rx_thread.thread_done));
+ 		case 364:	/* lxvwsx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 4);
+ 			op->element_size = 4;
+@@ -2411,6 +2421,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
--		while (true) {
--			if (atomic_read(&sdev->rx_thread.thread_done))
--				goto out;
--
--			skb = skb_dequeue(&sdev->rx_q.head);
--			if (!skb)
--				break;
--			if (sdev->rx_q.num_rx_pkts > 0)
--				sdev->rx_q.num_rx_pkts--;
--			status = rsi_read_pkt(common, skb->data, skb->len);
--			if (status) {
--				rsi_dbg(ERR_ZONE, "Failed to read the packet\n");
--				dev_kfree_skb(skb);
--				break;
--			}
--			dev_kfree_skb(skb);
--		}
--	} while (1);
--
--out:
- 	rsi_dbg(INFO_ZONE, "%s: Terminated SDIO RX thread\n", __func__);
--	skb_queue_purge(&sdev->rx_q.head);
- 	atomic_inc(&sdev->rx_thread.thread_done);
- 	complete_and_exit(&sdev->rx_thread.completion, 0);
- }
-@@ -113,10 +94,6 @@ static int rsi_process_pkt(struct rsi_common *common)
- 	u32 rcv_pkt_len = 0;
- 	int status = 0;
- 	u8 value = 0;
--	struct sk_buff *skb;
--
--	if (dev->rx_q.num_rx_pkts >= RSI_MAX_RX_PKTS)
--		return 0;
+ 		case 396:	/* stxvx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(STORE_VSX, 0, 16);
+ 			op->element_size = 16;
+@@ -2420,6 +2432,8 @@ int analyse_instr(struct instruction_op
+ 		case 397:	/* stxvl */
+ 		case 429: {	/* stxvll */
+ 			int nb;
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->ea = ra ? regs->gpr[ra] : 0;
+ 			nb = regs->gpr[rb] & 0xff;
+@@ -2464,6 +2478,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
- 	num_blks = ((adapter->interrupt_status & 1) |
- 			((adapter->interrupt_status >> RECV_NUM_BLOCKS) << 1));
-@@ -144,22 +121,19 @@ static int rsi_process_pkt(struct rsi_common *common)
+ 		case 781:	/* lxsibzx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 1);
+ 			op->element_size = 8;
+@@ -2471,6 +2487,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
- 	rcv_pkt_len = (num_blks * 256);
+ 		case 812:	/* lxvh8x */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 16);
+ 			op->element_size = 2;
+@@ -2478,6 +2496,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
--	skb = dev_alloc_skb(rcv_pkt_len);
--	if (!skb)
--		return -ENOMEM;
--
--	status = rsi_sdio_host_intf_read_pkt(adapter, skb->data, rcv_pkt_len);
-+	status = rsi_sdio_host_intf_read_pkt(adapter, dev->pktbuffer,
-+					     rcv_pkt_len);
- 	if (status) {
- 		rsi_dbg(ERR_ZONE, "%s: Failed to read packet from card\n",
- 			__func__);
--		dev_kfree_skb(skb);
- 		return status;
- 	}
--	skb_put(skb, rcv_pkt_len);
--	skb_queue_tail(&dev->rx_q.head, skb);
--	dev->rx_q.num_rx_pkts++;
+ 		case 813:	/* lxsihzx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 2);
+ 			op->element_size = 8;
+@@ -2491,6 +2511,8 @@ int analyse_instr(struct instruction_op
+ 			break;
  
--	rsi_set_event(&dev->rx_thread.event);
-+	status = rsi_read_pkt(common, dev->pktbuffer, rcv_pkt_len);
-+	if (status) {
-+		rsi_dbg(ERR_ZONE, "Failed to read the packet\n");
-+		return status;
-+	}
+ 		case 876:	/* lxvb16x */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(LOAD_VSX, 0, 16);
+ 			op->element_size = 1;
+@@ -2504,6 +2526,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 909:	/* stxsibx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(STORE_VSX, 0, 1);
+ 			op->element_size = 8;
+@@ -2511,6 +2535,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 940:	/* stxvh8x */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(STORE_VSX, 0, 16);
+ 			op->element_size = 2;
+@@ -2518,6 +2544,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 941:	/* stxsihx */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(STORE_VSX, 0, 2);
+ 			op->element_size = 8;
+@@ -2531,6 +2559,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 1004:	/* stxvb16x */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd | ((word & 1) << 5);
+ 			op->type = MKOP(STORE_VSX, 0, 16);
+ 			op->element_size = 1;
+@@ -2639,12 +2669,16 @@ int analyse_instr(struct instruction_op
+ 			op->type = MKOP(LOAD_FP, 0, 16);
+ 			break;
+ 		case 2:		/* lxsd */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd + 32;
+ 			op->type = MKOP(LOAD_VSX, 0, 8);
+ 			op->element_size = 8;
+ 			op->vsx_flags = VSX_CHECK_VEC;
+ 			break;
+ 		case 3:		/* lxssp */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->reg = rd + 32;
+ 			op->type = MKOP(LOAD_VSX, 0, 4);
+ 			op->element_size = 8;
+@@ -2681,6 +2715,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 1:		/* lxv */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->ea = dqform_ea(word, regs);
+ 			if (word & 8)
+ 				op->reg = rd + 32;
+@@ -2691,6 +2727,8 @@ int analyse_instr(struct instruction_op
+ 
+ 		case 2:		/* stxsd with LSB of DS field = 0 */
+ 		case 6:		/* stxsd with LSB of DS field = 1 */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->ea = dsform_ea(word, regs);
+ 			op->reg = rd + 32;
+ 			op->type = MKOP(STORE_VSX, 0, 8);
+@@ -2700,6 +2738,8 @@ int analyse_instr(struct instruction_op
+ 
+ 		case 3:		/* stxssp with LSB of DS field = 0 */
+ 		case 7:		/* stxssp with LSB of DS field = 1 */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->ea = dsform_ea(word, regs);
+ 			op->reg = rd + 32;
+ 			op->type = MKOP(STORE_VSX, 0, 4);
+@@ -2708,6 +2748,8 @@ int analyse_instr(struct instruction_op
+ 			break;
+ 
+ 		case 5:		/* stxv */
++			if (!cpu_has_feature(CPU_FTR_ARCH_300))
++				goto unknown_opcode;
+ 			op->ea = dqform_ea(word, regs);
+ 			if (word & 8)
+ 				op->reg = rd + 32;
+@@ -2737,7 +2779,7 @@ int analyse_instr(struct instruction_op
+ 		break;
+ 	case 1: /* Prefixed instructions */
+ 		if (!cpu_has_feature(CPU_FTR_ARCH_31))
+-			return -1;
++			goto unknown_opcode;
+ 
+ 		prefix_r = GET_PREFIX_R(word);
+ 		ra = GET_PREFIX_RA(suffix);
+@@ -2872,6 +2914,10 @@ int analyse_instr(struct instruction_op
  
  	return 0;
- }
-@@ -251,12 +225,12 @@ int rsi_init_sdio_slave_regs(struct rsi_hw *adapter)
- }
  
- /**
-- * rsi_interrupt_handler() - This function read and process SDIO interrupts.
-+ * rsi_rx_handler() - Read and process SDIO interrupts.
-  * @adapter: Pointer to the adapter structure.
-  *
-  * Return: None.
-  */
--void rsi_interrupt_handler(struct rsi_hw *adapter)
-+static void rsi_rx_handler(struct rsi_hw *adapter)
- {
- 	struct rsi_common *common = adapter->priv;
- 	struct rsi_91x_sdiodev *dev =
-diff --git a/drivers/net/wireless/rsi/rsi_sdio.h b/drivers/net/wireless/rsi/rsi_sdio.h
-index 66dcd2ec9051..fd11f16fc74f 100644
---- a/drivers/net/wireless/rsi/rsi_sdio.h
-+++ b/drivers/net/wireless/rsi/rsi_sdio.h
-@@ -110,11 +110,6 @@ struct receive_info {
- 	u32 buf_available_counter;
- };
- 
--struct rsi_sdio_rx_q {
--	u8 num_rx_pkts;
--	struct sk_buff_head head;
--};
--
- struct rsi_91x_sdiodev {
- 	struct sdio_func *pfunction;
- 	struct task_struct *sdio_irq_task;
-@@ -127,11 +122,10 @@ struct rsi_91x_sdiodev {
- 	u16 tx_blk_size;
- 	u8 write_fail;
- 	bool buff_status_updated;
--	struct rsi_sdio_rx_q rx_q;
- 	struct rsi_thread rx_thread;
-+	u8 pktbuffer[8192] __aligned(4);
- };
- 
--void rsi_interrupt_handler(struct rsi_hw *adapter);
- int rsi_init_sdio_slave_regs(struct rsi_hw *adapter);
- int rsi_sdio_read_register(struct rsi_hw *adapter, u32 addr, u8 *data);
- int rsi_sdio_host_intf_read_pkt(struct rsi_hw *adapter, u8 *pkt, u32 length);
--- 
-2.30.1
-
++ unknown_opcode:
++	op->type = UNKNOWN;
++	return 0;
++
+  logical_done:
+ 	if (word & 1)
+ 		set_cr0(regs, op);
 
 
