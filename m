@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE36632EAE3
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDF3532EB32
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232712AbhCEMkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55990 "EHLO mail.kernel.org"
+        id S232954AbhCEMmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233348AbhCEMk1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3C6365024;
-        Fri,  5 Mar 2021 12:40:26 +0000 (UTC)
+        id S233875AbhCEMma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2E2A6501E;
+        Fri,  5 Mar 2021 12:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948027;
-        bh=R5LID6VHS2dbt1ghX/wBr2xZkyqC8VJjXHbI17ai8IQ=;
+        s=korg; t=1614948150;
+        bh=aoE5J0PWrctxcKeIz3yU39Ecvb3NOa4u+eeGm84Eg3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6wIvj3mlmOc23+1MyQ1sfq4vwNK7UgiuASWezX74V18KioSph/2YO8/vPsiQfEqG
-         T7xApNLLbMatjV70brA4RcqMNSUjE8TgqjXWonr6dpGXKk7/P0wf3/+VyKoVAu2xKa
-         rKdDR1+F1bU2UQ4ZCUN50p6WTyisrq1R1u1h/Xho=
+        b=SCsD+wsiezA/MhifRXoFtOeRNmSegQ17cU6vqwK19V7uF0wXXn4/LE7hQbVM2Vs1A
+         cto/D2mS1jDq5Gr12Ziy1FwNMSHJUo/MoATJMEFzdMfVhRHE8wjyOS4kvefEYuTGZU
+         FBVcSFGoI2NiJwJhitOwKPQ+qnas+ChfeWQYOvpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 26/39] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
-Date:   Fri,  5 Mar 2021 13:22:25 +0100
-Message-Id: <20210305120853.082359160@linuxfoundation.org>
+        stable@vger.kernel.org, Yumei Huang <yuhuang@redhat.com>,
+        Brian Foster <bfoster@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 4.9 19/41] xfs: Fix assert failure in xfs_setattr_size()
+Date:   Fri,  5 Mar 2021 13:22:26 +0100
+Message-Id: <20210305120852.237865767@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gopal Tiwari <gtiwari@redhat.com>
+From: Yumei Huang <yuhuang@redhat.com>
 
-[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
+commit 88a9e03beef22cc5fabea344f54b9a0dfe63de08 upstream.
 
-kernel panic trace looks like:
+An assert failure is triggered by syzkaller test due to
+ATTR_KILL_PRIV is not cleared before xfs_setattr_size.
+As ATTR_KILL_PRIV is not checked/used by xfs_setattr_size,
+just remove it from the assert.
 
- #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
- #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
-    [exception RIP: amp_read_loc_assoc_final_data+63]
-    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
-    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
-    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
-    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
-    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
-    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
- #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
- #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
-
-hcon->amp_mgr seems NULL triggered kernel panic in following line inside
-function amp_read_loc_assoc_final_data
-
-        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
-
-Fixed by checking NULL for mgr.
-
-Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yumei Huang <yuhuang@redhat.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/amp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/xfs/xfs_iops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
-index ebcab5bbadd7..9f645a1d0202 100644
---- a/net/bluetooth/amp.c
-+++ b/net/bluetooth/amp.c
-@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
- 	struct hci_request req;
- 	int err;
+--- a/fs/xfs/xfs_iops.c
++++ b/fs/xfs/xfs_iops.c
+@@ -820,7 +820,7 @@ xfs_setattr_size(
+ 	ASSERT(xfs_isilocked(ip, XFS_MMAPLOCK_EXCL));
+ 	ASSERT(S_ISREG(inode->i_mode));
+ 	ASSERT((iattr->ia_valid & (ATTR_UID|ATTR_GID|ATTR_ATIME|ATTR_ATIME_SET|
+-		ATTR_MTIME_SET|ATTR_KILL_PRIV|ATTR_TIMES_SET)) == 0);
++		ATTR_MTIME_SET|ATTR_TIMES_SET)) == 0);
  
-+	if (!mgr)
-+		return;
-+
- 	cp.phy_handle = hcon->handle;
- 	cp.len_so_far = cpu_to_le16(0);
- 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
--- 
-2.30.1
-
+ 	oldsize = inode->i_size;
+ 	newsize = iattr->ia_size;
 
 
