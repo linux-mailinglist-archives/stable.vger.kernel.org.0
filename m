@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA14732E7F9
+	by mail.lfdr.de (Postfix) with ESMTP id 2198D32E7F7
 	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229957AbhCEMYP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230177AbhCEMYP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:24:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58498 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229687AbhCEMX7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:23:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 024EC6501F;
-        Fri,  5 Mar 2021 12:23:58 +0000 (UTC)
+        id S230118AbhCEMYC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:24:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1AC56501C;
+        Fri,  5 Mar 2021 12:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947039;
-        bh=SzojYnQCwhc1w1wKOIOAH6N0pVGtFLcp5m3/nW4OaS8=;
+        s=korg; t=1614947042;
+        bh=BrIL91X7w/K/6K3lseu2UGZ/tSpzjJoiG51w+joUvzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A/YQwGmes3VM0ZGdkoMXTYbhUcsHVbem9NnPeq1Z3z6QtmEvC9qRbTYGzGxu86nus
-         2DmhTR8FqMTcARrVaFUqEBMV6updaH6xAfMqv5AwLzi/btoB3Ts2gVn9CmXZsLm7Su
-         Ii57KEvReil2CFNK32/1UQe8ExUy1ojSaA7D7gKE=
+        b=k2R3HXt1iilnvN+UUHpSBf9I+iy7EEnFFvefTYgEJnIsHMGhoWYp/HwKP8ZeHdI6F
+         pyg+Gw4YKZnMpCOBieUBot2itUTkghR78moGbQsu+sOYr+e3I9uZaIgWrBLKpGh1dS
+         Nq4W/zq7lic8fP4cp2w9JMl/4pbHlMim0QQ2aZRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 025/104] mptcp: do not wakeup listener for MPJ subflows
-Date:   Fri,  5 Mar 2021 13:20:30 +0100
-Message-Id: <20210305120904.414387454@linuxfoundation.org>
+Subject: [PATCH 5.11 026/104] mptcp: fix DATA_FIN generation on early shutdown
+Date:   Fri,  5 Mar 2021 13:20:31 +0100
+Message-Id: <20210305120904.462928273@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -44,44 +43,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Abeni <pabeni@redhat.com>
 
-commit 52557dbc7538ecceb27ef2206719a47a8039a335 upstream.
+commit d87903b63e3ce1eafaa701aec5cc1d0ecd0d84dc upstream.
 
-MPJ subflows are not exposed as fds to user spaces. As such,
-incoming MPJ subflows are removed from the accept queue by
-tcp_check_req()/tcp_get_cookie_sock().
+If the msk is closed before sending or receiving any data,
+no DATA_FIN is generated, instead an MPC ack packet is
+crafted out.
 
-Later tcp_child_process() invokes subflow_data_ready() on the
-parent socket regardless of the subflow kind, leading to poll
-wakeups even if the later accept will block.
+In the above scenario, the MPTCP protocol creates and sends a
+pure ack and such packets matches also the criteria for an
+MPC ack and the protocol tries first to insert MPC options,
+leading to the described error.
 
-Address the issue by double-checking the queue state before
-waking the user-space.
+This change addresses the issue by avoiding the insertion of an
+MPC option for DATA_FIN packets or if the sub-flow is not
+established.
 
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/164
-Reported-by: Dr. David Alan Gilbert <dgilbert@redhat.com>
-Fixes: f296234c98a8 ("mptcp: Add handling of incoming MP_JOIN requests")
+To avoid doing multiple times the same test, fetch the data_fin
+flag in a bool variable and pass it to both the interested
+helpers.
+
+Fixes: 6d0060f600ad ("mptcp: Write MPTCP DSS headers to outgoing data packets")
 Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/mptcp/options.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1026,6 +1026,12 @@ static void subflow_data_ready(struct so
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -401,6 +401,7 @@ static void clear_3rdack_retransmission(
+ }
  
- 	msk = mptcp_sk(parent);
- 	if (state & TCPF_LISTEN) {
-+		/* MPJ subflow are removed from accept queue before reaching here,
-+		 * avoid stray wakeups
-+		 */
-+		if (reqsk_queue_empty(&inet_csk(sk)->icsk_accept_queue))
-+			return;
-+
- 		set_bit(MPTCP_DATA_READY, &msk->flags);
- 		parent->sk_data_ready(parent);
- 		return;
+ static bool mptcp_established_options_mp(struct sock *sk, struct sk_buff *skb,
++					 bool snd_data_fin_enable,
+ 					 unsigned int *size,
+ 					 unsigned int remaining,
+ 					 struct mptcp_out_options *opts)
+@@ -418,9 +419,10 @@ static bool mptcp_established_options_mp
+ 	if (!skb)
+ 		return false;
+ 
+-	/* MPC/MPJ needed only on 3rd ack packet */
+-	if (subflow->fully_established ||
+-	    subflow->snd_isn != TCP_SKB_CB(skb)->seq)
++	/* MPC/MPJ needed only on 3rd ack packet, DATA_FIN and TCP shutdown take precedence */
++	if (subflow->fully_established || snd_data_fin_enable ||
++	    subflow->snd_isn != TCP_SKB_CB(skb)->seq ||
++	    sk->sk_state != TCP_ESTABLISHED)
+ 		return false;
+ 
+ 	if (subflow->mp_capable) {
+@@ -492,6 +494,7 @@ static void mptcp_write_data_fin(struct
+ }
+ 
+ static bool mptcp_established_options_dss(struct sock *sk, struct sk_buff *skb,
++					  bool snd_data_fin_enable,
+ 					  unsigned int *size,
+ 					  unsigned int remaining,
+ 					  struct mptcp_out_options *opts)
+@@ -499,13 +502,11 @@ static bool mptcp_established_options_ds
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
+ 	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
+ 	unsigned int dss_size = 0;
+-	u64 snd_data_fin_enable;
+ 	struct mptcp_ext *mpext;
+ 	unsigned int ack_size;
+ 	bool ret = false;
+ 
+ 	mpext = skb ? mptcp_get_ext(skb) : NULL;
+-	snd_data_fin_enable = mptcp_data_fin_enabled(msk);
+ 
+ 	if (!skb || (mpext && mpext->use_map) || snd_data_fin_enable) {
+ 		unsigned int map_size;
+@@ -683,12 +684,15 @@ bool mptcp_established_options(struct so
+ 			       unsigned int *size, unsigned int remaining,
+ 			       struct mptcp_out_options *opts)
+ {
++	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
++	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
+ 	unsigned int opt_size = 0;
++	bool snd_data_fin;
+ 	bool ret = false;
+ 
+ 	opts->suboptions = 0;
+ 
+-	if (unlikely(mptcp_check_fallback(sk)))
++	if (unlikely(__mptcp_check_fallback(msk)))
+ 		return false;
+ 
+ 	/* prevent adding of any MPTCP related options on reset packet
+@@ -697,10 +701,10 @@ bool mptcp_established_options(struct so
+ 	if (unlikely(skb && TCP_SKB_CB(skb)->tcp_flags & TCPHDR_RST))
+ 		return false;
+ 
+-	if (mptcp_established_options_mp(sk, skb, &opt_size, remaining, opts))
++	snd_data_fin = mptcp_data_fin_enabled(msk);
++	if (mptcp_established_options_mp(sk, skb, snd_data_fin, &opt_size, remaining, opts))
+ 		ret = true;
+-	else if (mptcp_established_options_dss(sk, skb, &opt_size, remaining,
+-					       opts))
++	else if (mptcp_established_options_dss(sk, skb, snd_data_fin, &opt_size, remaining, opts))
+ 		ret = true;
+ 
+ 	/* we reserved enough space for the above options, and exceeding the
 
 
