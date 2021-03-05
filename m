@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FAFE32E908
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3C0132E8FE
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230521AbhCEMaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39282 "EHLO mail.kernel.org"
+        id S232313AbhCEMaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:30:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232280AbhCEM3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:29:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A9CB65004;
-        Fri,  5 Mar 2021 12:29:52 +0000 (UTC)
+        id S231828AbhCEM3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1A465019;
+        Fri,  5 Mar 2021 12:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947393;
-        bh=1sGEKkUe+G735zncaaACYfiEnrvUcS/u8o/LkeHYwbY=;
+        s=korg; t=1614947371;
+        bh=MzECXvRCfTdhhl662iinpmpj+CqmNMIktdP22PxNuuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UNSt3+NKQCEDSi0N7u+1dfBdzMs24n7rraXWAzDYO9DPgO69NHcQVgM6CJZuGo693
-         1/Olz39pnviVA6gG34D7v/wmEr8lXEVTrx6mR2BGtumxBbPox7zDSZaUhu9WOb2Cbb
-         /IjDDRohYuhXE8Vlean6OJfvBZbSNffYsb+P2CtY=
+        b=m79fP7WukIdJBMzj7bM6dInL3wj7EAWfFU32d3VUUXgMRvom7/pvFBCUx0HkjWqQ0
+         HKADr94bPhJaMelOF6IzmgTfN5h/ZY+0WFxjGASsabxXqoXEfE1JJrhJVMzH89Agge
+         1+UGaOqDCAuKpxZDkyMEeKdtEq30RHOfz1IUnngs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Xinhai <lixinhai.lxh@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 019/102] mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
-Date:   Fri,  5 Mar 2021 13:20:38 +0100
-Message-Id: <20210305120904.223384426@linuxfoundation.org>
+        stable@vger.kernel.org, Don Curtis <bugrprt21882@online.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 040/102] EDAC/amd64: Do not load on family 0x15, model 0x13
+Date:   Fri,  5 Mar 2021 13:20:59 +0100
+Message-Id: <20210305120905.265204467@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
 References: <20210305120903.276489876@linuxfoundation.org>
@@ -42,83 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Xinhai <lixinhai.lxh@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-commit a1ba9da8f0f9a37d900ff7eff66482cf7de8015e upstream.
+[ Upstream commit 6c13d7ff81e6d2f01f62ccbfa49d1b8d87f274d0 ]
 
-The current code would unnecessarily expand the address range.  Consider
-one example, (start, end) = (1G-2M, 3G+2M), and (vm_start, vm_end) =
-(1G-4M, 3G+4M), the expected adjustment should be keep (1G-2M, 3G+2M)
-without expand.  But the current result will be (1G-4M, 3G+4M).  Actually,
-the range (1G-4M, 1G) and (3G, 3G+4M) would never been involved in pmd
-sharing.
+Those were only laptops and are very very unlikely to have ECC memory.
+Currently, when the driver attempts to load, it issues:
 
-After this patch, we will check that the vma span at least one PUD aligned
-size and the start,end range overlap the aligned range of vma.
+  EDAC amd64: Error: F1 not found: device 0x1601 (broken BIOS?)
 
-With above example, the aligned vma range is (1G, 3G), so if (start, end)
-range is within (1G-4M, 1G), or within (3G, 3G+4M), then no adjustment to
-both start and end.  Otherwise, we will have chance to adjust start
-downwards or end upwards without exceeding (vm_start, vm_end).
+because the PCI device is the wrong one (it uses the F15h default one).
 
-Mike:
+So do not load the driver on them as that is pointless.
 
-: The 'adjusted range' is used for calls to mmu notifiers and cache(tlb)
-: flushing.  Since the current code unnecessarily expands the range in some
-: cases, more entries than necessary would be flushed.  This would/could
-: result in performance degradation.  However, this is highly dependent on
-: the user runtime.  Is there a combination of vma layout and calls to
-: actually hit this issue?  If the issue is hit, will those entries
-: unnecessarily flushed be used again and need to be unnecessarily reloaded?
-
-Link: https://lkml.kernel.org/r/20210104081631.2921415-1-lixinhai.lxh@gmail.com
-Fixes: 75802ca66354 ("mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible")
-Signed-off-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Don Curtis <bugrprt21882@online.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Don Curtis <bugrprt21882@online.de>
+Link: http://bugzilla.opensuse.org/show_bug.cgi?id=1179763
+Link: https://lkml.kernel.org/r/20201218160622.20146-1-bp@alien8.de
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/edac/amd64_edac.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5302,21 +5302,23 @@ static bool vma_shareable(struct vm_area
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
- {
--	unsigned long a_start, a_end;
-+	unsigned long v_start = ALIGN(vma->vm_start, PUD_SIZE),
-+		v_end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
+diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
+index 620f7041db6b..b36d5879b91e 100644
+--- a/drivers/edac/amd64_edac.c
++++ b/drivers/edac/amd64_edac.c
+@@ -3350,10 +3350,13 @@ static struct amd64_family_type *per_family_init(struct amd64_pvt *pvt)
+ 			fam_type = &family_types[F15_M60H_CPUS];
+ 			pvt->ops = &family_types[F15_M60H_CPUS].ops;
+ 			break;
++		/* Richland is only client */
++		} else if (pvt->model == 0x13) {
++			return NULL;
++		} else {
++			fam_type	= &family_types[F15_CPUS];
++			pvt->ops	= &family_types[F15_CPUS].ops;
+ 		}
+-
+-		fam_type	= &family_types[F15_CPUS];
+-		pvt->ops	= &family_types[F15_CPUS].ops;
+ 		break;
  
--	if (!(vma->vm_flags & VM_MAYSHARE))
-+	/*
-+	 * vma need span at least one aligned PUD size and the start,end range
-+	 * must at least partialy within it.
-+	 */
-+	if (!(vma->vm_flags & VM_MAYSHARE) || !(v_end > v_start) ||
-+		(*end <= v_start) || (*start >= v_end))
- 		return;
+ 	case 0x16:
+@@ -3547,6 +3550,7 @@ static int probe_one_instance(unsigned int nid)
+ 	pvt->mc_node_id	= nid;
+ 	pvt->F3 = F3;
  
- 	/* Extend the range to be PUD aligned for a worst case scenario */
--	a_start = ALIGN_DOWN(*start, PUD_SIZE);
--	a_end = ALIGN(*end, PUD_SIZE);
-+	if (*start > v_start)
-+		*start = ALIGN_DOWN(*start, PUD_SIZE);
- 
--	/*
--	 * Intersect the range with the vma range, since pmd sharing won't be
--	 * across vma after all
--	 */
--	*start = max(vma->vm_start, a_start);
--	*end = min(vma->vm_end, a_end);
-+	if (*end < v_end)
-+		*end = ALIGN(*end, PUD_SIZE);
- }
- 
- /*
++	ret = -ENODEV;
+ 	fam_type = per_family_init(pvt);
+ 	if (!fam_type)
+ 		goto err_enable;
+-- 
+2.30.1
+
 
 
