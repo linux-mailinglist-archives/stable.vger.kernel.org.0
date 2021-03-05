@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0012532EAE9
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 889A732EB35
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbhCEMk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56144 "EHLO mail.kernel.org"
+        id S233285AbhCEMm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233431AbhCEMkk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24D2D64FF0;
-        Fri,  5 Mar 2021 12:40:39 +0000 (UTC)
+        id S233909AbhCEMmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2FBE6501E;
+        Fri,  5 Mar 2021 12:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948039;
-        bh=CF3d8rCbDwBuOX082sgWKOJbCa+v8mzKHvsB77fmxjo=;
+        s=korg; t=1614948158;
+        bh=x2pZO0Ll6m1FhfnW52ZnN31MY/w7Njhu8L43SndQ9Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cbmIjmykUYttyxzr0UtTn7ISm5GShBr58495suoayr53x3B8Evav+Bcno5r8YR0xx
-         UZNKt7Vdu7Y2gA2uWCRk4P6JCUx+nNH2IMuglS070IawcP8t5Oy5Bd/IWR+LIREGqk
-         E133Sfse1Tr8ODEztx4aFREIyyV/STwtJa7QN86I=
+        b=yUNFhCQxefg4QsFLdmKZA7JJ343rOD5nz6ETjfMucCi1Wc4sqDD39LtmrY1kznkpn
+         yguM5TrswXtc2aHel5ASxMwE+US6cP2UL65rd1XzLH4xNbPA0YFRu0I38M1j/J/m25
+         0C7H93Z7hmPd7MPNFNlbvSz59Rv5jr0oY2/TyJrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 30/39] parisc: Bump 64-bit IRQ stack size to 64 KB
+        stable@vger.kernel.org, Li Xinhai <lixinhai.lxh@gmail.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 22/41] mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
 Date:   Fri,  5 Mar 2021 13:22:29 +0100
-Message-Id: <20210305120853.289049539@linuxfoundation.org>
+Message-Id: <20210305120852.390526315@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Li Xinhai <lixinhai.lxh@gmail.com>
 
-[ Upstream commit 31680c1d1595a59e17c14ec036b192a95f8e5f4a ]
+commit a1ba9da8f0f9a37d900ff7eff66482cf7de8015e upstream.
 
-Bump 64-bit IRQ stack size to 64 KB.
+The current code would unnecessarily expand the address range.  Consider
+one example, (start, end) = (1G-2M, 3G+2M), and (vm_start, vm_end) =
+(1G-4M, 3G+4M), the expected adjustment should be keep (1G-2M, 3G+2M)
+without expand.  But the current result will be (1G-4M, 3G+4M).  Actually,
+the range (1G-4M, 1G) and (3G, 3G+4M) would never been involved in pmd
+sharing.
 
-I had a kernel IRQ stack overflow on the mx3210 debian buildd machine.  This patch increases the
-64-bit IRQ stack size to 64 KB.  The 64-bit stack size needs to be larger than the 32-bit stack
-size since registers are twice as big.
+After this patch, we will check that the vma span at least one PUD aligned
+size and the start,end range overlap the aligned range of vma.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+With above example, the aligned vma range is (1G, 3G), so if (start, end)
+range is within (1G-4M, 1G), or within (3G, 3G+4M), then no adjustment to
+both start and end.  Otherwise, we will have chance to adjust start
+downwards or end upwards without exceeding (vm_start, vm_end).
+
+Mike:
+
+: The 'adjusted range' is used for calls to mmu notifiers and cache(tlb)
+: flushing.  Since the current code unnecessarily expands the range in some
+: cases, more entries than necessary would be flushed.  This would/could
+: result in performance degradation.  However, this is highly dependent on
+: the user runtime.  Is there a combination of vma layout and calls to
+: actually hit this issue?  If the issue is hit, will those entries
+: unnecessarily flushed be used again and need to be unnecessarily reloaded?
+
+Link: https://lkml.kernel.org/r/20210104081631.2921415-1-lixinhai.lxh@gmail.com
+Fixes: 75802ca66354 ("mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible")
+Signed-off-by: Li Xinhai <lixinhai.lxh@gmail.com>
+Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/irq.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ mm/hugetlb.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
-index 0ca254085a66..c152c30c2d06 100644
---- a/arch/parisc/kernel/irq.c
-+++ b/arch/parisc/kernel/irq.c
-@@ -380,7 +380,11 @@ static inline int eirr_to_irq(unsigned long eirr)
- /*
-  * IRQ STACK - used for irq handler
-  */
-+#ifdef CONFIG_64BIT
-+#define IRQ_STACK_SIZE      (4096 << 4) /* 64k irq stack size */
-+#else
- #define IRQ_STACK_SIZE      (4096 << 3) /* 32k irq stack size */
-+#endif
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4436,21 +4436,23 @@ static bool vma_shareable(struct vm_area
+ void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
+ 				unsigned long *start, unsigned long *end)
+ {
+-	unsigned long a_start, a_end;
++	unsigned long v_start = ALIGN(vma->vm_start, PUD_SIZE),
++		v_end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
  
- union irq_stack_union {
- 	unsigned long stack[IRQ_STACK_SIZE/sizeof(unsigned long)];
--- 
-2.30.1
-
+-	if (!(vma->vm_flags & VM_MAYSHARE))
++	/*
++	 * vma need span at least one aligned PUD size and the start,end range
++	 * must at least partialy within it.
++	 */
++	if (!(vma->vm_flags & VM_MAYSHARE) || !(v_end > v_start) ||
++		(*end <= v_start) || (*start >= v_end))
+ 		return;
+ 
+ 	/* Extend the range to be PUD aligned for a worst case scenario */
+-	a_start = ALIGN_DOWN(*start, PUD_SIZE);
+-	a_end = ALIGN(*end, PUD_SIZE);
++	if (*start > v_start)
++		*start = ALIGN_DOWN(*start, PUD_SIZE);
+ 
+-	/*
+-	 * Intersect the range with the vma range, since pmd sharing won't be
+-	 * across vma after all
+-	 */
+-	*start = max(vma->vm_start, a_start);
+-	*end = min(vma->vm_end, a_end);
++	if (*end < v_end)
++		*end = ALIGN(*end, PUD_SIZE);
+ }
+ 
+ /*
 
 
