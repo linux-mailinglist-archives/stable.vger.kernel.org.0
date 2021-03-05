@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 713C732E7E2
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2BE32E8B5
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229882AbhCEMXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:23:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58272 "EHLO mail.kernel.org"
+        id S231826AbhCEM22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:28:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229669AbhCEMXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:23:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68AA964FED;
-        Fri,  5 Mar 2021 12:23:30 +0000 (UTC)
+        id S231903AbhCEM2C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:28:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BF5365033;
+        Fri,  5 Mar 2021 12:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947011;
-        bh=zAWYyGYJNc3+5PGuzBJamF3D3UHWFg4X/HGAlrziTdI=;
+        s=korg; t=1614947281;
+        bh=2TFzhGIT6edKdwWyhZYFtdzQseAAnH/i1ygi4KFGDEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fXJ5bV4B77SaB0V0QBfEgjbHMhckdr1P7YXb2NxtYp8XIJwqo99Bn6koEkOcW+aE
-         s4ruHHsHQG1PtJCDedGShfBDPuppUL52CLhrmjLrx6pVXG6m+Zv57gb2S1bvthRbK5
-         nu5HjIIl9KFVtojZlGvdflBKzmChVuvI5zN32h88=
+        b=nBkbhURLkEPZ/QOnweWic483NAOUTan2v56xtJ8x6I8R5SeW1Pc2BRgc7JsItnVh+
+         214U41VbCSacYAjdwJLr1VJG17N+SBWtLKAV4mhRZhdVUpn8CEUDx+ggFo+YvYnILN
+         x1OMPLuc7X3NdXoM7qTpbnOObliFlDFJkL83poCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 016/104] mptcp: fix spurious retransmissions
+        stable@vger.kernel.org, Jingle Wu <jingle.wu@emc.com.tw>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 5.10 002/102] Input: elantech - fix protocol errors for some trackpoints in SMBus mode
 Date:   Fri,  5 Mar 2021 13:20:21 +0100
-Message-Id: <20210305120903.977847571@linuxfoundation.org>
+Message-Id: <20210305120903.406732015@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,101 +41,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: jingle.wu <jingle.wu@emc.com.tw>
 
-commit 64b9cea7a0afe579dd2682f1f1c04f2e4e72fd25 upstream.
+commit e4c9062717feda88900b566463228d1c4910af6d upstream.
 
-Syzkaller was able to trigger the following splat again:
+There are some version of Elan trackpads that send incorrect data when
+in SMbus mode, unless they are switched to use 0x5f reports instead of
+standard 0x5e. This patch implements querying device to retrieve chips
+identifying data, and switching it, when needed to the alternative
+report.
 
-WARNING: CPU: 1 PID: 12512 at net/mptcp/protocol.c:761 mptcp_reset_timer+0x12a/0x160 net/mptcp/protocol.c:761
-Modules linked in:
-CPU: 1 PID: 12512 Comm: kworker/1:6 Not tainted 5.10.0-rc6 #52
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Workqueue: events mptcp_worker
-RIP: 0010:mptcp_reset_timer+0x12a/0x160 net/mptcp/protocol.c:761
-Code: e8 4b 0c ad ff e8 56 21 88 fe 48 b8 00 00 00 00 00 fc ff df 48 c7 04 03 00 00 00 00 48 83 c4 40 5b 5d 41 5c c3 e8 36 21 88 fe <0f> 0b 41 bc c8 00 00 00 eb 98 e8 e7 b1 af fe e9 30 ff ff ff 48 c7
-RSP: 0018:ffffc900018c7c68 EFLAGS: 00010293
-RAX: ffff888108cb1c80 RBX: 1ffff92000318f8d RCX: ffffffff82ad0307
-RDX: 0000000000000000 RSI: ffffffff82ad036a RDI: 0000000000000007
-RBP: ffff888113e2d000 R08: ffff888108cb1c80 R09: ffffed10227c5ab7
-R10: ffff888113e2d5b7 R11: ffffed10227c5ab6 R12: 0000000000000000
-R13: ffff88801f100000 R14: ffff888113e2d5b0 R15: 0000000000000001
-FS:  0000000000000000(0000) GS:ffff88811b500000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fd76a874ef8 CR3: 000000001689c005 CR4: 0000000000170ee0
-Call Trace:
- mptcp_worker+0xaa4/0x1560 net/mptcp/protocol.c:2334
- process_one_work+0x8d3/0x1200 kernel/workqueue.c:2272
- worker_thread+0x9c/0x1090 kernel/workqueue.c:2418
- kthread+0x303/0x410 kernel/kthread.c:292
- ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:296
-
-The mptcp_worker tries to update the MPTCP retransmission timer
-even if such timer is not currently scheduled.
-
-The mptcp_rtx_head() return value is bogus: we can have enqueued
-data not yet transmitted. The above may additionally cause spurious,
-unneeded MPTCP-level retransmissions.
-
-Fix the issue adding an explicit clearing of the rtx queue before
-trying to retransmit and checking for unacked data.
-Additionally drop an unneeded timer stop call and the unused
-mptcp_rtx_tail() helper.
-
-Reported-by: Christoph Paasch <cpaasch@apple.com>
-Fixes: 6e628cd3a8f7 ("mptcp: use mptcp release_cb for delayed tasks")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
+Link: https://lore.kernel.org/r/20201211071531.32413-1-jingle.wu@emc.com.tw
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/protocol.c |    3 +--
- net/mptcp/protocol.h |   11 ++---------
- 2 files changed, 3 insertions(+), 11 deletions(-)
+ drivers/input/mouse/elantech.c |   99 ++++++++++++++++++++++++++++++++++++++++-
+ drivers/input/mouse/elantech.h |    4 +
+ 2 files changed, 101 insertions(+), 2 deletions(-)
 
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -364,8 +364,6 @@ static void mptcp_check_data_fin_ack(str
- 
- 	/* Look for an acknowledged DATA_FIN */
- 	if (mptcp_pending_data_fin_ack(sk)) {
--		mptcp_stop_timer(sk);
--
- 		WRITE_ONCE(msk->snd_data_fin_enable, 0);
- 
- 		switch (sk->sk_state) {
-@@ -2299,6 +2297,7 @@ static void mptcp_worker(struct work_str
- 	if (!test_and_clear_bit(MPTCP_WORK_RTX, &msk->flags))
- 		goto unlock;
- 
-+	__mptcp_clean_una(sk);
- 	dfrag = mptcp_rtx_head(sk);
- 	if (!dfrag)
- 		goto unlock;
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -325,20 +325,13 @@ static inline struct mptcp_data_frag *mp
- 	return list_last_entry(&msk->rtx_queue, struct mptcp_data_frag, list);
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -90,6 +90,47 @@ static int elantech_ps2_command(struct p
  }
  
--static inline struct mptcp_data_frag *mptcp_rtx_tail(const struct sock *sk)
-+static inline struct mptcp_data_frag *mptcp_rtx_head(const struct sock *sk)
+ /*
++ * Send an Elantech style special command to read 3 bytes from a register
++ */
++static int elantech_read_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
++{
++	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, reg) ||
++	    elantech_ps2_command(psmouse, param, PSMOUSE_CMD_GETINFO)) {
++		psmouse_err(psmouse,
++			    "failed to read register %#02x\n", reg);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/*
++ * Send an Elantech style special command to write a register with a parameter
++ */
++static int elantech_write_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
++{
++	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, reg) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, param[0]) ||
++	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++	    elantech_ps2_command(psmouse, NULL, param[1]) ||
++	    elantech_ps2_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11)) {
++		psmouse_err(psmouse,
++			    "failed to write register %#02x with value %#02x%#02x\n",
++			    reg, param[0], param[1]);
++		return -EIO;
++	}
++
++	return 0;
++}
++
++/*
+  * Send an Elantech style special command to read a value from a register
+  */
+ static int elantech_read_reg(struct psmouse *psmouse, unsigned char reg,
+@@ -1530,18 +1571,34 @@ static const struct dmi_system_id no_hw_
+ };
+ 
+ /*
++ * Change Report id 0x5E to 0x5F.
++ */
++static int elantech_change_report_id(struct psmouse *psmouse)
++{
++	unsigned char param[2] = { 0x10, 0x03 };
++
++	if (elantech_write_reg_params(psmouse, 0x7, param) ||
++	    elantech_read_reg_params(psmouse, 0x7, param) ||
++	    param[0] != 0x10 || param[1] != 0x03) {
++		psmouse_err(psmouse, "Unable to change report ID to 0x5f.\n");
++		return -EIO;
++	}
++
++	return 0;
++}
++/*
+  * determine hardware version and set some properties according to it.
+  */
+ static int elantech_set_properties(struct elantech_device_info *info)
  {
- 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	/* This represents the version of IC body. */
+-	int ver = (info->fw_version & 0x0f0000) >> 16;
++	info->ic_version = (info->fw_version & 0x0f0000) >> 16;
  
--	if (!before64(msk->snd_nxt, READ_ONCE(msk->snd_una)))
-+	if (msk->snd_una == READ_ONCE(msk->snd_nxt))
- 		return NULL;
+ 	/* Early version of Elan touchpads doesn't obey the rule. */
+ 	if (info->fw_version < 0x020030 || info->fw_version == 0x020600)
+ 		info->hw_version = 1;
+ 	else {
+-		switch (ver) {
++		switch (info->ic_version) {
+ 		case 2:
+ 		case 4:
+ 			info->hw_version = 2;
+@@ -1557,6 +1614,11 @@ static int elantech_set_properties(struc
+ 		}
+ 	}
  
--	return list_last_entry(&msk->rtx_queue, struct mptcp_data_frag, list);
--}
--
--static inline struct mptcp_data_frag *mptcp_rtx_head(const struct sock *sk)
--{
--	struct mptcp_sock *msk = mptcp_sk(sk);
--
- 	return list_first_entry_or_null(&msk->rtx_queue, struct mptcp_data_frag, list);
- }
++	/* Get information pattern for hw_version 4 */
++	info->pattern = 0x00;
++	if (info->ic_version == 0x0f && (info->fw_version & 0xff) <= 0x02)
++		info->pattern = info->fw_version & 0xff;
++
+ 	/* decide which send_cmd we're gonna use early */
+ 	info->send_cmd = info->hw_version >= 3 ? elantech_send_cmd :
+ 						 synaptics_send_cmd;
+@@ -1598,6 +1660,7 @@ static int elantech_query_info(struct ps
+ {
+ 	unsigned char param[3];
+ 	unsigned char traces;
++	unsigned char ic_body[3];
  
+ 	memset(info, 0, sizeof(*info));
+ 
+@@ -1640,6 +1703,21 @@ static int elantech_query_info(struct ps
+ 			     info->samples[2]);
+ 	}
+ 
++	if (info->pattern > 0x00 && info->ic_version == 0xf) {
++		if (info->send_cmd(psmouse, ETP_ICBODY_QUERY, ic_body)) {
++			psmouse_err(psmouse, "failed to query ic body\n");
++			return -EINVAL;
++		}
++		info->ic_version = be16_to_cpup((__be16 *)ic_body);
++		psmouse_info(psmouse,
++			     "Elan ic body: %#04x, current fw version: %#02x\n",
++			     info->ic_version, ic_body[2]);
++	}
++
++	info->product_id = be16_to_cpup((__be16 *)info->samples);
++	if (info->pattern == 0x00)
++		info->product_id &= 0xff;
++
+ 	if (info->samples[1] == 0x74 && info->hw_version == 0x03) {
+ 		/*
+ 		 * This module has a bug which makes absolute mode
+@@ -1654,6 +1732,23 @@ static int elantech_query_info(struct ps
+ 	/* The MSB indicates the presence of the trackpoint */
+ 	info->has_trackpoint = (info->capabilities[0] & 0x80) == 0x80;
+ 
++	if (info->has_trackpoint && info->ic_version == 0x0011 &&
++	    (info->product_id == 0x08 || info->product_id == 0x09 ||
++	     info->product_id == 0x0d || info->product_id == 0x0e)) {
++		/*
++		 * This module has a bug which makes trackpoint in SMBus
++		 * mode return invalid data unless trackpoint is switched
++		 * from using 0x5e reports to 0x5f. If we are not able to
++		 * make the switch, let's abort initialization so we'll be
++		 * using standard PS/2 protocol.
++		 */
++		if (elantech_change_report_id(psmouse)) {
++			psmouse_info(psmouse,
++				     "Trackpoint report is broken, forcing standard PS/2 protocol\n");
++			return -ENODEV;
++		}
++	}
++
+ 	info->x_res = 31;
+ 	info->y_res = 31;
+ 	if (info->hw_version == 4) {
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -18,6 +18,7 @@
+ #define ETP_CAPABILITIES_QUERY		0x02
+ #define ETP_SAMPLE_QUERY		0x03
+ #define ETP_RESOLUTION_QUERY		0x04
++#define ETP_ICBODY_QUERY		0x05
+ 
+ /*
+  * Command values for register reading or writing
+@@ -140,7 +141,10 @@ struct elantech_device_info {
+ 	unsigned char samples[3];
+ 	unsigned char debug;
+ 	unsigned char hw_version;
++	unsigned char pattern;
+ 	unsigned int fw_version;
++	unsigned int ic_version;
++	unsigned int product_id;
+ 	unsigned int x_min;
+ 	unsigned int y_min;
+ 	unsigned int x_max;
 
 
