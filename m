@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FC032E921
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 307FF32E9A7
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbhCEMan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40184 "EHLO mail.kernel.org"
+        id S231273AbhCEMd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231229AbhCEMa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:30:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 594886501A;
-        Fri,  5 Mar 2021 12:30:27 +0000 (UTC)
+        id S231405AbhCEMdc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 829E565029;
+        Fri,  5 Mar 2021 12:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947427;
-        bh=m47c8CyMAJsxicRFIgL66Wpta6RrjK/b0KyBOsiQs1Y=;
+        s=korg; t=1614947612;
+        bh=4MvNo77LJoZchWS7D8Mg2V6GjVFvCCUKRdt0Qeu5KcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h5eWdLx5fpo7Tl+Xnn4wo+8VO1FHDvq6l+pF/fns9ZAnwI+j1MWxUDYwybClf/RXG
-         5/kaCDWH4vxRQaemmgZxep5wfe4b3Ugw09lJnZmGhl3Q1J7GZEqOMuh3AXoUFcWvGP
-         oOfAgHnQZGydpDVWHSR3od0mBnZ8mQizHx+cJnb4=
+        b=fmGBlJP8ZuYdu/U8YIc1rdvLYUyyF3qN/cxjMwj4RPH8U+ohEsvDJMmEvkBzMHijJ
+         u+SvxJHu7EgtKZnCQCOGwABQegRdqh1wiWE9nsxtMrFd60aNsbcuyVQEZBgIrN86MR
+         3qUvaq1PJZOuGovvsI0PyyRtPTLFfMz/92zS/3AQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rasmus Porsager <rasmus@beat.dk>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/102] ASoC: Intel: bytcr_rt5640: Add new BYT_RT5640_NO_SPEAKERS quirk-flag
-Date:   Fri,  5 Mar 2021 13:21:21 +0100
-Message-Id: <20210305120906.333140056@linuxfoundation.org>
+        stable@vger.kernel.org, "Gong, Sishuai" <sishuai@purdue.edu>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 20/72] net: fix dev_ifsioc_locked() race condition
+Date:   Fri,  5 Mar 2021 13:21:22 +0100
+Message-Id: <20210305120858.329000993@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,106 +42,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 1851ccf9e155b2a6f6cca1a7bd49325f5efbd5d2 ]
+commit 3b23a32a63219f51a5298bc55a65ecee866e79d0 upstream.
 
-Some devices, like mini PCs/media/top-set boxes do not have any speakers
-at all, an example of the is the Mele PCG03 Mini PC.
+dev_ifsioc_locked() is called with only RCU read lock, so when
+there is a parallel writer changing the mac address, it could
+get a partially updated mac address, as shown below:
 
-Add a new BYT_RT5640_NO_SPEAKERS quirk-flag which when sets does not add
-speaker routes and modifies the components and the (optional) long_name
-strings to reflect that there are no speakers.
+Thread 1			Thread 2
+// eth_commit_mac_addr_change()
+memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
+				// dev_ifsioc_locked()
+				memcpy(ifr->ifr_hwaddr.sa_data,
+					dev->dev_addr,...);
 
-Cc: Rasmus Porsager <rasmus@beat.dk>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210109210119.159032-2-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Close this race condition by guarding them with a RW semaphore,
+like netdev_get_name(). We can not use seqlock here as it does not
+allow blocking. The writers already take RTNL anyway, so this does
+not affect the slow path. To avoid bothering existing
+dev_set_mac_address() callers in drivers, introduce a new wrapper
+just for user-facing callers on ioctl and rtnetlink paths.
+
+Note, bonding also changes slave mac addresses but that requires
+a separate patch due to the complexity of bonding code.
+
+Fixes: 3710becf8a58 ("net: RCU locking for simple ioctl()")
+Reported-by: "Gong, Sishuai" <sishuai@purdue.edu>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/net/tap.c         |    7 +++----
+ drivers/net/tun.c         |    4 ++--
+ include/linux/netdevice.h |    3 +++
+ net/core/dev.c            |   42 ++++++++++++++++++++++++++++++++++++++++++
+ net/core/dev_ioctl.c      |   20 +++++++-------------
+ net/core/rtnetlink.c      |    2 +-
+ 6 files changed, 58 insertions(+), 20 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index f790514a147d..db3633de9122 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -71,6 +71,7 @@ enum {
- #define BYT_RT5640_SSP0_AIF2		BIT(21)
- #define BYT_RT5640_MCLK_EN		BIT(22)
- #define BYT_RT5640_MCLK_25MHZ		BIT(23)
-+#define BYT_RT5640_NO_SPEAKERS		BIT(24)
- 
- #define BYTCR_INPUT_DEFAULTS				\
- 	(BYT_RT5640_IN3_MAP |				\
-@@ -132,6 +133,8 @@ static void log_quirks(struct device *dev)
- 		dev_info(dev, "quirk JD_NOT_INV enabled\n");
- 	if (byt_rt5640_quirk & BYT_RT5640_MONO_SPEAKER)
- 		dev_info(dev, "quirk MONO_SPEAKER enabled\n");
-+	if (byt_rt5640_quirk & BYT_RT5640_NO_SPEAKERS)
-+		dev_info(dev, "quirk NO_SPEAKERS enabled\n");
- 	if (byt_rt5640_quirk & BYT_RT5640_DIFF_MIC)
- 		dev_info(dev, "quirk DIFF_MIC enabled\n");
- 	if (byt_rt5640_quirk & BYT_RT5640_SSP0_AIF1) {
-@@ -934,7 +937,7 @@ static int byt_rt5640_init(struct snd_soc_pcm_runtime *runtime)
- 		ret = snd_soc_dapm_add_routes(&card->dapm,
- 					byt_rt5640_mono_spk_map,
- 					ARRAY_SIZE(byt_rt5640_mono_spk_map));
--	} else {
-+	} else if (!(byt_rt5640_quirk & BYT_RT5640_NO_SPEAKERS)) {
- 		ret = snd_soc_dapm_add_routes(&card->dapm,
- 					byt_rt5640_stereo_spk_map,
- 					ARRAY_SIZE(byt_rt5640_stereo_spk_map));
-@@ -1179,6 +1182,7 @@ struct acpi_chan_package {   /* ACPICA seems to require 64 bit integers */
- static int snd_byt_rt5640_mc_probe(struct platform_device *pdev)
- {
- 	static const char * const map_name[] = { "dmic1", "dmic2", "in1", "in3" };
-+	__maybe_unused const char *spk_type;
- 	const struct dmi_system_id *dmi_id;
- 	struct byt_rt5640_private *priv;
- 	struct snd_soc_acpi_mach *mach;
-@@ -1186,7 +1190,7 @@ static int snd_byt_rt5640_mc_probe(struct platform_device *pdev)
- 	struct acpi_device *adev;
- 	int ret_val = 0;
- 	int dai_index = 0;
--	int i;
-+	int i, cfg_spk;
- 
- 	is_bytcr = false;
- 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-@@ -1325,16 +1329,24 @@ static int snd_byt_rt5640_mc_probe(struct platform_device *pdev)
+--- a/drivers/net/tap.c
++++ b/drivers/net/tap.c
+@@ -1095,10 +1095,9 @@ static long tap_ioctl(struct file *file,
+ 			return -ENOLINK;
  		}
- 	}
+ 		ret = 0;
+-		u = tap->dev->type;
++		dev_get_mac_address(&sa, dev_net(tap->dev), tap->dev->name);
+ 		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
+-		    copy_to_user(&ifr->ifr_hwaddr.sa_data, tap->dev->dev_addr, ETH_ALEN) ||
+-		    put_user(u, &ifr->ifr_hwaddr.sa_family))
++		    copy_to_user(&ifr->ifr_hwaddr, &sa, sizeof(sa)))
+ 			ret = -EFAULT;
+ 		tap_put_tap_dev(tap);
+ 		rtnl_unlock();
+@@ -1113,7 +1112,7 @@ static long tap_ioctl(struct file *file,
+ 			rtnl_unlock();
+ 			return -ENOLINK;
+ 		}
+-		ret = dev_set_mac_address(tap->dev, &sa, NULL);
++		ret = dev_set_mac_address_user(tap->dev, &sa, NULL);
+ 		tap_put_tap_dev(tap);
+ 		rtnl_unlock();
+ 		return ret;
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -3224,7 +3224,7 @@ static long __tun_chr_ioctl(struct file
+ 	case SIOCGIFHWADDR:
+ 		/* Get hw address */
+ 		memcpy(ifr.ifr_hwaddr.sa_data, tun->dev->dev_addr, ETH_ALEN);
+-		ifr.ifr_hwaddr.sa_family = tun->dev->type;
++		dev_get_mac_address(&ifr.ifr_hwaddr, net, tun->dev->name);
+ 		if (copy_to_user(argp, &ifr, ifreq_len))
+ 			ret = -EFAULT;
+ 		break;
+@@ -3234,7 +3234,7 @@ static long __tun_chr_ioctl(struct file
+ 		tun_debug(KERN_DEBUG, tun, "set hw address: %pM\n",
+ 			  ifr.ifr_hwaddr.sa_data);
  
-+	if (byt_rt5640_quirk & BYT_RT5640_NO_SPEAKERS) {
-+		cfg_spk = 0;
-+		spk_type = "none";
-+	} else if (byt_rt5640_quirk & BYT_RT5640_MONO_SPEAKER) {
-+		cfg_spk = 1;
-+		spk_type = "mono";
-+	} else {
-+		cfg_spk = 2;
-+		spk_type = "stereo";
-+	}
+-		ret = dev_set_mac_address(tun->dev, &ifr.ifr_hwaddr, NULL);
++		ret = dev_set_mac_address_user(tun->dev, &ifr.ifr_hwaddr, NULL);
+ 		break;
+ 
+ 	case TUNGETSNDBUF:
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -3679,6 +3679,9 @@ int dev_pre_changeaddr_notify(struct net
+ 			      struct netlink_ext_ack *extack);
+ int dev_set_mac_address(struct net_device *dev, struct sockaddr *sa,
+ 			struct netlink_ext_ack *extack);
++int dev_set_mac_address_user(struct net_device *dev, struct sockaddr *sa,
++			     struct netlink_ext_ack *extack);
++int dev_get_mac_address(struct sockaddr *sa, struct net *net, char *dev_name);
+ int dev_change_carrier(struct net_device *, bool new_carrier);
+ int dev_get_phys_port_id(struct net_device *dev,
+ 			 struct netdev_phys_item_id *ppid);
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -8144,6 +8144,48 @@ int dev_set_mac_address(struct net_devic
+ }
+ EXPORT_SYMBOL(dev_set_mac_address);
+ 
++static DECLARE_RWSEM(dev_addr_sem);
 +
- 	snprintf(byt_rt5640_components, sizeof(byt_rt5640_components),
--		 "cfg-spk:%s cfg-mic:%s",
--		 (byt_rt5640_quirk & BYT_RT5640_MONO_SPEAKER) ? "1" : "2",
-+		 "cfg-spk:%d cfg-mic:%s", cfg_spk,
- 		 map_name[BYT_RT5640_MAP(byt_rt5640_quirk)]);
- 	byt_rt5640_card.components = byt_rt5640_components;
- #if !IS_ENABLED(CONFIG_SND_SOC_INTEL_USER_FRIENDLY_LONG_NAMES)
- 	snprintf(byt_rt5640_long_name, sizeof(byt_rt5640_long_name),
--		 "bytcr-rt5640-%s-spk-%s-mic",
--		 (byt_rt5640_quirk & BYT_RT5640_MONO_SPEAKER) ?
--			"mono" : "stereo",
-+		 "bytcr-rt5640-%s-spk-%s-mic", spk_type,
- 		 map_name[BYT_RT5640_MAP(byt_rt5640_quirk)]);
- 	byt_rt5640_card.long_name = byt_rt5640_long_name;
- #endif
--- 
-2.30.1
-
++int dev_set_mac_address_user(struct net_device *dev, struct sockaddr *sa,
++			     struct netlink_ext_ack *extack)
++{
++	int ret;
++
++	down_write(&dev_addr_sem);
++	ret = dev_set_mac_address(dev, sa, extack);
++	up_write(&dev_addr_sem);
++	return ret;
++}
++EXPORT_SYMBOL(dev_set_mac_address_user);
++
++int dev_get_mac_address(struct sockaddr *sa, struct net *net, char *dev_name)
++{
++	size_t size = sizeof(sa->sa_data);
++	struct net_device *dev;
++	int ret = 0;
++
++	down_read(&dev_addr_sem);
++	rcu_read_lock();
++
++	dev = dev_get_by_name_rcu(net, dev_name);
++	if (!dev) {
++		ret = -ENODEV;
++		goto unlock;
++	}
++	if (!dev->addr_len)
++		memset(sa->sa_data, 0, size);
++	else
++		memcpy(sa->sa_data, dev->dev_addr,
++		       min_t(size_t, size, dev->addr_len));
++	sa->sa_family = dev->type;
++
++unlock:
++	rcu_read_unlock();
++	up_read(&dev_addr_sem);
++	return ret;
++}
++EXPORT_SYMBOL(dev_get_mac_address);
++
+ /**
+  *	dev_change_carrier - Change device carrier
+  *	@dev: device
+--- a/net/core/dev_ioctl.c
++++ b/net/core/dev_ioctl.c
+@@ -122,17 +122,6 @@ static int dev_ifsioc_locked(struct net
+ 		ifr->ifr_mtu = dev->mtu;
+ 		return 0;
+ 
+-	case SIOCGIFHWADDR:
+-		if (!dev->addr_len)
+-			memset(ifr->ifr_hwaddr.sa_data, 0,
+-			       sizeof(ifr->ifr_hwaddr.sa_data));
+-		else
+-			memcpy(ifr->ifr_hwaddr.sa_data, dev->dev_addr,
+-			       min(sizeof(ifr->ifr_hwaddr.sa_data),
+-				   (size_t)dev->addr_len));
+-		ifr->ifr_hwaddr.sa_family = dev->type;
+-		return 0;
+-
+ 	case SIOCGIFSLAVE:
+ 		err = -EINVAL;
+ 		break;
+@@ -246,7 +235,7 @@ static int dev_ifsioc(struct net *net, s
+ 	case SIOCSIFHWADDR:
+ 		if (dev->addr_len > sizeof(struct sockaddr))
+ 			return -EINVAL;
+-		return dev_set_mac_address(dev, &ifr->ifr_hwaddr, NULL);
++		return dev_set_mac_address_user(dev, &ifr->ifr_hwaddr, NULL);
+ 
+ 	case SIOCSIFHWBROADCAST:
+ 		if (ifr->ifr_hwaddr.sa_family != dev->type)
+@@ -396,6 +385,12 @@ int dev_ioctl(struct net *net, unsigned
+ 	 */
+ 
+ 	switch (cmd) {
++	case SIOCGIFHWADDR:
++		dev_load(net, ifr->ifr_name);
++		ret = dev_get_mac_address(&ifr->ifr_hwaddr, net, ifr->ifr_name);
++		if (colon)
++			*colon = ':';
++		return ret;
+ 	/*
+ 	 *	These ioctl calls:
+ 	 *	- can be done by all.
+@@ -405,7 +400,6 @@ int dev_ioctl(struct net *net, unsigned
+ 	case SIOCGIFFLAGS:
+ 	case SIOCGIFMETRIC:
+ 	case SIOCGIFMTU:
+-	case SIOCGIFHWADDR:
+ 	case SIOCGIFSLAVE:
+ 	case SIOCGIFMAP:
+ 	case SIOCGIFINDEX:
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -2471,7 +2471,7 @@ static int do_setlink(const struct sk_bu
+ 		sa->sa_family = dev->type;
+ 		memcpy(sa->sa_data, nla_data(tb[IFLA_ADDRESS]),
+ 		       dev->addr_len);
+-		err = dev_set_mac_address(dev, sa, extack);
++		err = dev_set_mac_address_user(dev, sa, extack);
+ 		kfree(sa);
+ 		if (err)
+ 			goto errout;
 
 
