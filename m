@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 587BB32EA60
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA2532EAFB
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbhCEMiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
+        id S232203AbhCEMlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232005AbhCEMhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:37:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB7D65004;
-        Fri,  5 Mar 2021 12:37:43 +0000 (UTC)
+        id S231852AbhCEMlD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BE2264F44;
+        Fri,  5 Mar 2021 12:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947864;
-        bh=ilO/xNqsOcCX7Cms4TpczYCrbu0BtTE+nRX7LeCQJDw=;
+        s=korg; t=1614948063;
+        bh=Ua8uMB+3J2yuKK65fDFSM/1F0CTq/Uj2iq29WEfOcho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucJogOdn/oJkBk2KWcz8rBKc5YJJC/2F7Jr/C0TkdxvouPfJQyLYWr77N61sXl1qt
-         rBZSIQml9U97eEfWcMov5B1E7rpH2zocDbpZBv1h1jO1sr3VTGwgjiDOWgn6I9ICEC
-         bVca1nBr0Yu9ul8slY1Vfa6m2OffdOHw7jcgwoyw=
+        b=oV5d2bcHcskUZNJWt4klchT+lkB8PgLKTWc/NKCCbVh0ArlDG/kuzNHCjxQQl08LH
+         4i0Y74H2cL0cbglMwn7edyYTYx6zT5J5opqKg6B75dRk4tobY72aMfH9w0vlVc6Ahp
+         GSSX/9nz7t+G6IefIXoucs9JKUkXueNOqKcL43WE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 40/52] ASoC: Intel: bytcr_rt5640: Add quirk for the Voyo Winpad A15 tablet
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
+        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
+        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 04/41] futex: Futex_unlock_pi() determinism
 Date:   Fri,  5 Mar 2021 13:22:11 +0100
-Message-Id: <20210305120855.630069471@linuxfoundation.org>
+Message-Id: <20210305120851.486188046@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-[ Upstream commit e1317cc9ca4ac20262895fddb065ffda4fc29cfb ]
+From: Peter Zijlstra <peterz@infradead.org>
 
-The Voyo Winpad A15 tablet uses a Bay Trail (non CR) SoC, so it is using
-SSP2 (AIF1) and it mostly works with the defaults. But instead of using
-DMIC1 it is using an analog mic on IN1, add a quirk for this.
+commit bebe5b514345f09be2c15e414d076b02ecb9cce8 upstream.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-3-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem with returning -EAGAIN when the waiter state mismatches is that
+it becomes very hard to proof a bounded execution time on the
+operation. And seeing that this is a RT operation, this is somewhat
+important.
+
+While in practise; given the previous patch; it will be very unlikely to
+ever really take more than one or two rounds, proving so becomes rather
+hard.
+
+However, now that modifying wait_list is done while holding both hb->lock
+and wait_lock, the scenario can be avoided entirely by acquiring wait_lock
+while still holding hb-lock. Doing a hand-over, without leaving a hole.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: bigeasy@linutronix.de
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104152.112378812@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ kernel/futex.c |   24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 4dd1941d4147..910214ab140e 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -756,6 +756,20 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF2 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{	/* Voyo Winpad A15 */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS date */
-+			DMI_MATCH(DMI_BIOS_DATE, "11/20/2014"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{	/* Catch-all for generic Insyde tablets, must be last */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
--- 
-2.30.1
-
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1555,15 +1555,10 @@ static int wake_futex_pi(u32 __user *uad
+ 	WAKE_Q(wake_q);
+ 	int ret = 0;
+ 
+-	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 	new_owner = rt_mutex_next_owner(&pi_state->pi_mutex);
+-	if (!new_owner) {
++	if (WARN_ON_ONCE(!new_owner)) {
+ 		/*
+-		 * Since we held neither hb->lock nor wait_lock when coming
+-		 * into this function, we could have raced with futex_lock_pi()
+-		 * such that we might observe @this futex_q waiter, but the
+-		 * rt_mutex's wait_list can be empty (either still, or again,
+-		 * depending on which side we land).
++		 * As per the comment in futex_unlock_pi() this should not happen.
+ 		 *
+ 		 * When this happens, give up our locks and try again, giving
+ 		 * the futex_lock_pi() instance time to complete, either by
+@@ -3018,15 +3013,18 @@ retry:
+ 		if (pi_state->owner != current)
+ 			goto out_unlock;
+ 
++		get_pi_state(pi_state);
+ 		/*
+-		 * Grab a reference on the pi_state and drop hb->lock.
++		 * Since modifying the wait_list is done while holding both
++		 * hb->lock and wait_lock, holding either is sufficient to
++		 * observe it.
+ 		 *
+-		 * The reference ensures pi_state lives, dropping the hb->lock
+-		 * is tricky.. wake_futex_pi() will take rt_mutex::wait_lock to
+-		 * close the races against futex_lock_pi(), but in case of
+-		 * _any_ fail we'll abort and retry the whole deal.
++		 * By taking wait_lock while still holding hb->lock, we ensure
++		 * there is no point where we hold neither; and therefore
++		 * wake_futex_pi() must observe a state consistent with what we
++		 * observed.
+ 		 */
+-		get_pi_state(pi_state);
++		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 		spin_unlock(&hb->lock);
+ 
+ 		ret = wake_futex_pi(uaddr, uval, pi_state);
 
 
