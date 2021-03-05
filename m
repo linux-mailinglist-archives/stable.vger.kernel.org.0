@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E605E32E852
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9571232E8D2
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231252AbhCEM0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:26:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33326 "EHLO mail.kernel.org"
+        id S232021AbhCEM3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:29:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231256AbhCEMZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:25:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C04ED65024;
-        Fri,  5 Mar 2021 12:25:54 +0000 (UTC)
+        id S232076AbhCEM2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:28:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0C5565013;
+        Fri,  5 Mar 2021 12:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947155;
-        bh=eDL/9MPBYV99q0GeChgfJ/p1S/mC/CDFiMcmxkqnFuk=;
+        s=korg; t=1614947324;
+        bh=KKFEiqyIJJSnu8U2sU9rD4d5UqVxif6VaTUmGfcFVes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMo8caA8yvfiEURGdiuUCcbNLMHxLd41bquGP0qMY+lVzLMLpbaQyrhRRoYwCVYA7
-         kZFmGO1gXfTjGhyj6w7/Nve94QVKYWyCqEW0T/AD833NsexJZem0ZPzh02EsgOgjUT
-         X79Y6d1m721PoJQnz9vS2l2RKdI83DCyWzFSR3Do=
+        b=tpfT2QUeq511idDhuL//+v55bio+zuC61BciZi9yxH/lzum4o4C2PQKUmUzaNcg2c
+         M+4vt5N4v8UH6zQw+0CzPkbP+CgZ+L7ulKqZfeyzvAi2QiWoQaXBx3xw6ddJoFTDop
+         bQ/KmwqFYMmPD08dsgYFFzLscGwfm2OLVAsYJDOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Don Curtis <bugrprt21882@online.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 038/104] EDAC/amd64: Do not load on family 0x15, model 0x13
-Date:   Fri,  5 Mar 2021 13:20:43 +0100
-Message-Id: <20210305120905.036301186@linuxfoundation.org>
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 025/102] net: bridge: use switchdev for port flags set through sysfs too
+Date:   Fri,  5 Mar 2021 13:20:44 +0100
+Message-Id: <20210305120904.522134789@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 6c13d7ff81e6d2f01f62ccbfa49d1b8d87f274d0 ]
+commit 8043c845b63a2dd88daf2d2d268a33e1872800f0 upstream.
 
-Those were only laptops and are very very unlikely to have ECC memory.
-Currently, when the driver attempts to load, it issues:
+Looking through patchwork I don't see that there was any consensus to
+use switchdev notifiers only in case of netlink provided port flags but
+not sysfs (as a sort of deprecation, punishment or anything like that),
+so we should probably keep the user interface consistent in terms of
+functionality.
 
-  EDAC amd64: Error: F1 not found: device 0x1601 (broken BIOS?)
+http://patchwork.ozlabs.org/project/netdev/patch/20170605092043.3523-3-jiri@resnulli.us/
+http://patchwork.ozlabs.org/project/netdev/patch/20170608064428.4785-3-jiri@resnulli.us/
 
-because the PCI device is the wrong one (it uses the F15h default one).
-
-So do not load the driver on them as that is pointless.
-
-Reported-by: Don Curtis <bugrprt21882@online.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Don Curtis <bugrprt21882@online.de>
-Link: http://bugzilla.opensuse.org/show_bug.cgi?id=1179763
-Link: https://lkml.kernel.org/r/20201218160622.20146-1-bp@alien8.de
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3922285d96e7 ("net: bridge: Add support for offloading port attributes")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/amd64_edac.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/bridge/br_sysfs_if.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index f7087ddddb90..5754f429a8d2 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -3342,10 +3342,13 @@ static struct amd64_family_type *per_family_init(struct amd64_pvt *pvt)
- 			fam_type = &family_types[F15_M60H_CPUS];
- 			pvt->ops = &family_types[F15_M60H_CPUS].ops;
- 			break;
-+		/* Richland is only client */
-+		} else if (pvt->model == 0x13) {
-+			return NULL;
-+		} else {
-+			fam_type	= &family_types[F15_CPUS];
-+			pvt->ops	= &family_types[F15_CPUS].ops;
- 		}
+--- a/net/bridge/br_sysfs_if.c
++++ b/net/bridge/br_sysfs_if.c
+@@ -55,9 +55,8 @@ static BRPORT_ATTR(_name, 0644,					\
+ static int store_flag(struct net_bridge_port *p, unsigned long v,
+ 		      unsigned long mask)
+ {
+-	unsigned long flags;
 -
--		fam_type	= &family_types[F15_CPUS];
--		pvt->ops	= &family_types[F15_CPUS].ops;
- 		break;
+-	flags = p->flags;
++	unsigned long flags = p->flags;
++	int err;
  
- 	case 0x16:
-@@ -3539,6 +3542,7 @@ static int probe_one_instance(unsigned int nid)
- 	pvt->mc_node_id	= nid;
- 	pvt->F3 = F3;
+ 	if (v)
+ 		flags |= mask;
+@@ -65,6 +64,10 @@ static int store_flag(struct net_bridge_
+ 		flags &= ~mask;
  
-+	ret = -ENODEV;
- 	fam_type = per_family_init(pvt);
- 	if (!fam_type)
- 		goto err_enable;
--- 
-2.30.1
-
+ 	if (flags != p->flags) {
++		err = br_switchdev_set_port_flag(p, flags, mask);
++		if (err)
++			return err;
++
+ 		p->flags = flags;
+ 		br_port_flags_change(p, mask);
+ 	}
 
 
