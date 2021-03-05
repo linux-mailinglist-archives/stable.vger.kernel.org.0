@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAFA932E9B8
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A9632EA4C
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232355AbhCEMed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:34:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
+        id S232450AbhCEMhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231387AbhCEMeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:34:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E2B16501D;
-        Fri,  5 Mar 2021 12:34:12 +0000 (UTC)
+        id S233212AbhCEMhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:37:23 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F2D65012;
+        Fri,  5 Mar 2021 12:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947653;
-        bh=Mz+lubvSBGbLo+GRYUVMAnYBklGNM92y7SYL1IZQJbY=;
+        s=korg; t=1614947843;
+        bh=tmbZ0ujeLAKfplvADqenZ3g25Ac5KzfRJiS9W3Sutrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOM4/N/WmGokRf84jhjI20kiTS2mvr3XfRbpGlZB0e2vzrNXD7L4afuvXTOVOqw6N
-         6nMfUfcWfzGF530GcTwYzwQFe/abSZf2PSnTnCxjTF9yF3XT26+5+xYJlzlufUGMda
-         xLsc52h42UeVwtNyxf8DMtSGFJIGDiRIpVAaw+CE=
+        b=x9qUe+GZksFwNqluc8HxVrRwhKN90mJN+fMDbRpQuR6wk9eQvJINULBUIVeL8bana
+         +xfz1a9paMIcKmDHCVOLOjpn8cS0e/glp9MV+/E4CCrRX+1zYT299dEqw/jpU6jlsS
+         AVvd4HRmSgAg5Z2w5J83s0E8rp5UidCi4ngRT4Nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/72] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.19 07/52] arm64: cmpxchg: Use "K" instead of "L" for ll/sc immediate constraint
 Date:   Fri,  5 Mar 2021 13:21:38 +0100
-Message-Id: <20210305120859.105809493@linuxfoundation.org>
+Message-Id: <20210305120854.016708187@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gopal Tiwari <gtiwari@redhat.com>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
+commit 4230509978f2921182da4e9197964dccdbe463c3 upstream.
 
-kernel panic trace looks like:
+The "L" AArch64 machine constraint, which we use for the "old" value in
+an LL/SC cmpxchg(), generates an immediate that is suitable for a 64-bit
+logical instruction. However, for cmpxchg() operations on types smaller
+than 64 bits, this constraint can result in an invalid instruction which
+is correctly rejected by GAS, such as EOR W1, W1, #0xffffffff.
 
- #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
- #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
-    [exception RIP: amp_read_loc_assoc_final_data+63]
-    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
-    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
-    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
-    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
-    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
-    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
- #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
- #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
+Whilst we could special-case the constraint based on the cmpxchg size,
+it's far easier to change the constraint to "K" and put up with using
+a register for large 64-bit immediates. For out-of-line LL/SC atomics,
+this is all moot anyway.
 
-hcon->amp_mgr seems NULL triggered kernel panic in following line inside
-function amp_read_loc_assoc_final_data
-
-        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
-
-Fixed by checking NULL for mgr.
-
-Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/amp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/include/asm/atomic_ll_sc.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
-index 9c711f0dfae3..be2d469d6369 100644
---- a/net/bluetooth/amp.c
-+++ b/net/bluetooth/amp.c
-@@ -297,6 +297,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
- 	struct hci_request req;
- 	int err;
- 
-+	if (!mgr)
-+		return;
-+
- 	cp.phy_handle = hcon->handle;
- 	cp.len_so_far = cpu_to_le16(0);
- 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
--- 
-2.30.1
-
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -268,7 +268,7 @@ __LL_SC_PREFIX(__cmpxchg_case_##name##sz
+ 	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+ 	  [v] "+Q" (*(u##sz *)ptr)					\
+-	: [old] "Lr" (old), [new] "r" (new)				\
++	: [old] "Kr" (old), [new] "r" (new)				\
+ 	: cl);								\
+ 									\
+ 	return oldval;							\
 
 
