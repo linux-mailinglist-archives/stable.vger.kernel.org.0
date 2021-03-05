@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC5B32E93C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 364EE32EA3C
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbhCEMbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:31:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41008 "EHLO mail.kernel.org"
+        id S231902AbhCEMhn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231408AbhCEMbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:31:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37E9265004;
-        Fri,  5 Mar 2021 12:31:05 +0000 (UTC)
+        id S232941AbhCEMgw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:36:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC51B65014;
+        Fri,  5 Mar 2021 12:36:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947465;
-        bh=TWUGPPqkvfvv2STr0XUL61LS7LnmzHwOXo9++uh+lrU=;
+        s=korg; t=1614947811;
+        bh=JtaYzPNlDI7tqDNphEOdtbx2Ac0hDe4hPbGR1bbhcj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AOCvHZMFyNdU75WK0uWAjQdsZ7ILPuHk3dEpjH4/OxzMLn3yPf/0lYOTsLvPBkNqn
-         AEuaHx3UfeevjFStpo4x7cU1TkJpCt0WRfr/ThGomxJyLY996EFkZqe3McVYVaxQLk
-         ggDl2MykRoqsIzMCwlRQyXFYO9bDGHrzWJN6aJxI=
+        b=xnDknYLGHHeOY19YeSR6+ws9kiGAcf9dLd6CqhQXnjt8chAkL4NcarOM/OFMNmGBE
+         nPv5xNpLAyNtUP47nYubRqYLyBVV4zsVCEBhutm/sA7GgpiEaCD6zma++hkpS4iZxv
+         EKDYwYGY+XNJu0DDpl3E7fyy4mbWwQSv5tNpC0Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/102] drm/amdgpu: enable only one high prio compute queue
-Date:   Fri,  5 Mar 2021 13:21:32 +0100
-Message-Id: <20210305120906.868368544@linuxfoundation.org>
+        stable@vger.kernel.org, Zi Yan <ziy@nvidia.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Oscar Salvador <osalvador@suse.de>,
+        Joao Martins <joao.m.martins@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 02/52] hugetlb: fix update_and_free_page contig page struct assumption
+Date:   Fri,  5 Mar 2021 13:21:33 +0100
+Message-Id: <20210305120853.778850487@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,145 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 8c0225d79273968a65e73a4204fba023ae02714d ]
+commit dbfee5aee7e54f83d96ceb8e3e80717fac62ad63 upstream.
 
-For high priority compute to work properly we need to enable
-wave limiting on gfx pipe. Wave limiting is done through writing
-into mmSPI_WCL_PIPE_PERCENT_GFX register. Enable only one high
-priority compute queue to avoid race condition between multiple
-high priority compute queues writing that register simultaneously.
+page structs are not guaranteed to be contiguous for gigantic pages.  The
+routine update_and_free_page can encounter a gigantic page, yet it assumes
+page structs are contiguous when setting page flags in subpages.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If update_and_free_page encounters non-contiguous page structs, we can see
+“BUG: Bad page state in process …” errors.
+
+Non-contiguous page structs are generally not an issue.  However, they can
+exist with a specific kernel configuration and hotplug operations.  For
+example: Configure the kernel with CONFIG_SPARSEMEM and
+!CONFIG_SPARSEMEM_VMEMMAP.  Then, hotplug add memory for the area where
+the gigantic page will be allocated.  Zi Yan outlined steps to reproduce
+here [1].
+
+[1] https://lore.kernel.org/linux-mm/16F7C58B-4D79-41C5-9B64-A1A1628F4AF2@nvidia.com/
+
+Link: https://lkml.kernel.org/r/20210217184926.33567-1-mike.kravetz@oracle.com
+Fixes: 944d9fec8d7a ("hugetlb: add support for gigantic page allocation at runtime")
+Signed-off-by: Zi Yan <ziy@nvidia.com>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Davidlohr Bueso <dbueso@suse.de>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Joao Martins <joao.m.martins@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c | 15 ++++++++-------
- drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h |  2 +-
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c  |  6 ++----
- drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c   |  6 ++----
- drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c   |  7 ++-----
- 5 files changed, 15 insertions(+), 21 deletions(-)
+ mm/hugetlb.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-index c485ec86804e..034a0f3b4c66 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
-@@ -193,15 +193,16 @@ static bool amdgpu_gfx_is_multipipe_capable(struct amdgpu_device *adev)
- }
- 
- bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
--					       int pipe, int queue)
-+					       struct amdgpu_ring *ring)
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1171,14 +1171,16 @@ static inline void destroy_compound_giga
+ static void update_and_free_page(struct hstate *h, struct page *page)
  {
--	bool multipipe_policy = amdgpu_gfx_is_multipipe_capable(adev);
--	int cond;
--	/* Policy: alternate between normal and high priority */
--	cond = multipipe_policy ? pipe : queue;
--
--	return ((cond % 2) != 0);
-+	/* Policy: use 1st queue as high priority compute queue if we
-+	 * have more than one compute queue.
-+	 */
-+	if (adev->gfx.num_compute_rings > 1 &&
-+	    ring == &adev->gfx.compute_ring[0])
-+		return true;
+ 	int i;
++	struct page *subpage = page;
  
-+	return false;
- }
+ 	if (hstate_is_gigantic(h) && !gigantic_page_supported())
+ 		return;
  
- void amdgpu_gfx_compute_queue_acquire(struct amdgpu_device *adev)
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
-index f353a5b71804..6e0cba6f4bdc 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.h
-@@ -373,7 +373,7 @@ void amdgpu_queue_mask_bit_to_mec_queue(struct amdgpu_device *adev, int bit,
- bool amdgpu_gfx_is_mec_queue_enabled(struct amdgpu_device *adev, int mec,
- 				     int pipe, int queue);
- bool amdgpu_gfx_is_high_priority_compute_queue(struct amdgpu_device *adev,
--					       int pipe, int queue);
-+					       struct amdgpu_ring *ring);
- int amdgpu_gfx_me_queue_to_bit(struct amdgpu_device *adev, int me,
- 			       int pipe, int queue);
- void amdgpu_gfx_bit_to_me_queue(struct amdgpu_device *adev, int bit,
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-index 4ebb43e09099..4cc83b399b66 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -4334,8 +4334,7 @@ static int gfx_v10_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
- 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
- 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
- 		+ ring->pipe;
--	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
--							    ring->queue) ?
-+	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
- 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
- 	/* type-2 packets are deprecated on MEC, use type-3 instead */
- 	r = amdgpu_ring_init(adev, ring, 1024,
-@@ -6361,8 +6360,7 @@ static void gfx_v10_0_compute_mqd_set_priority(struct amdgpu_ring *ring, struct
- 	struct amdgpu_device *adev = ring->adev;
- 
- 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
--		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
--							      ring->queue)) {
-+		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
- 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
- 			mqd->cp_hqd_queue_priority =
- 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-index c36258d56b44..f2f603fa0288 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v8_0.c
-@@ -1915,8 +1915,7 @@ static int gfx_v8_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
- 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
- 		+ ring->pipe;
- 
--	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
--							    ring->queue) ?
-+	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
- 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_RING_PRIO_DEFAULT;
- 	/* type-2 packets are deprecated on MEC, use type-3 instead */
- 	r = amdgpu_ring_init(adev, ring, 1024,
-@@ -4434,8 +4433,7 @@ static void gfx_v8_0_mqd_set_priority(struct amdgpu_ring *ring, struct vi_mqd *m
- 	struct amdgpu_device *adev = ring->adev;
- 
- 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
--		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
--							      ring->queue)) {
-+		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
- 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
- 			mqd->cp_hqd_queue_priority =
- 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
-diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-index 957c12b72767..fa843bda70ba 100644
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
-@@ -2228,8 +2228,7 @@ static int gfx_v9_0_compute_ring_init(struct amdgpu_device *adev, int ring_id,
- 	irq_type = AMDGPU_CP_IRQ_COMPUTE_MEC1_PIPE0_EOP
- 		+ ((ring->me - 1) * adev->gfx.mec.num_pipe_per_mec)
- 		+ ring->pipe;
--	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring->pipe,
--							    ring->queue) ?
-+	hw_prio = amdgpu_gfx_is_high_priority_compute_queue(adev, ring) ?
- 			AMDGPU_GFX_PIPE_PRIO_HIGH : AMDGPU_GFX_PIPE_PRIO_NORMAL;
- 	/* type-2 packets are deprecated on MEC, use type-3 instead */
- 	return amdgpu_ring_init(adev, ring, 1024,
-@@ -3384,9 +3383,7 @@ static void gfx_v9_0_mqd_set_priority(struct amdgpu_ring *ring, struct v9_mqd *m
- 	struct amdgpu_device *adev = ring->adev;
- 
- 	if (ring->funcs->type == AMDGPU_RING_TYPE_COMPUTE) {
--		if (amdgpu_gfx_is_high_priority_compute_queue(adev,
--							      ring->pipe,
--							      ring->queue)) {
-+		if (amdgpu_gfx_is_high_priority_compute_queue(adev, ring)) {
- 			mqd->cp_hqd_pipe_priority = AMDGPU_GFX_PIPE_PRIO_HIGH;
- 			mqd->cp_hqd_queue_priority =
- 				AMDGPU_GFX_QUEUE_PRIORITY_MAXIMUM;
--- 
-2.30.1
-
+ 	h->nr_huge_pages--;
+ 	h->nr_huge_pages_node[page_to_nid(page)]--;
+-	for (i = 0; i < pages_per_huge_page(h); i++) {
+-		page[i].flags &= ~(1 << PG_locked | 1 << PG_error |
++	for (i = 0; i < pages_per_huge_page(h);
++	     i++, subpage = mem_map_next(subpage, page, i)) {
++		subpage->flags &= ~(1 << PG_locked | 1 << PG_error |
+ 				1 << PG_referenced | 1 << PG_dirty |
+ 				1 << PG_active | 1 << PG_private |
+ 				1 << PG_writeback);
 
 
