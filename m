@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF3232E8D7
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 267C732E820
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232066AbhCEM3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:29:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37722 "EHLO mail.kernel.org"
+        id S230161AbhCEMZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:25:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230423AbhCEM2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:28:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0484665013;
-        Fri,  5 Mar 2021 12:28:54 +0000 (UTC)
+        id S230286AbhCEMYs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:24:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4446502C;
+        Fri,  5 Mar 2021 12:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947335;
-        bh=2Wgx6MVISznKDkpBBkDYzJNMeTM6PiEZhJpfXbZ2p9c=;
+        s=korg; t=1614947088;
+        bh=UJmPe9WralTMEhfI2Y7i+K2H3NTNk5mJaqnK3WBB9R4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wR8wJv8YCiM0qqPcgSqlt8I5rEhfyODZvCYP2ANIWCM5v2Qiu3x5BF8S6QE4OWA9e
-         nwGYnudcK4vB9oorzTUetlkhLCOWx3RfqcqyV7q0VYjNdwWEa5CrNtUJLYqMDVmnLg
-         fXOUo7wubfQihY3ldzKZZmvmRGWGRlB4TwpJ5rSc=
+        b=vWxw1MZUQgyOsnzRA16a00USqMepPrY3Ism3UPR7z1Gu+RL2rYR4cQ9pvFaUz41zF
+         CW5+QApoA7z7NdIBULKi/efaGPwAni5U5ueIR/Mo2kRLIE3EZq54LuMPUKDLaS3eBH
+         FQ4fz87xSYQ36K08MBVaND7FoMU27XdMPk7VQnPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Wenzel <marco.wenzel@a-eberle.de>,
-        George McCollister <george.mccollister@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 029/102] net: hsr: add support for EntryForgetTime
+        stable@vger.kernel.org, Raz Bouganim <r-bouganim@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 043/104] wlcore: Fix command execute failure 19 for wl12xx
 Date:   Fri,  5 Mar 2021 13:20:48 +0100
-Message-Id: <20210305120904.712123059@linuxfoundation.org>
+Message-Id: <20210305120905.282766392@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
+References: <20210305120903.166929741@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +41,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Wenzel <marco.wenzel@a-eberle.de>
+From: Tony Lindgren <tony@atomide.com>
 
-commit f176411401127a07a9360dec14eca448eb2e9d45 upstream.
+[ Upstream commit cb88d01b67383a095e3f7caeb4cdade5a6cf0417 ]
 
-In IEC 62439-3 EntryForgetTime is defined with a value of 400 ms. When a
-node does not send any frame within this time, the sequence number check
-for can be ignored. This solves communication issues with Cisco IE 2000
-in Redbox mode.
+We can currently get a "command execute failure 19" error on beacon loss
+if the signal is weak:
 
-Fixes: f421436a591d ("net/hsr: Add support for the High-availability Seamless Redundancy protocol (HSRv0)")
-Signed-off-by: Marco Wenzel <marco.wenzel@a-eberle.de>
-Reviewed-by: George McCollister <george.mccollister@gmail.com>
-Tested-by: George McCollister <george.mccollister@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20210224094653.1440-1-marco.wenzel@a-eberle.de
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+wlcore: Beacon loss detected. roles:0xff
+wlcore: Connection loss work (role_id: 0).
+...
+wlcore: ERROR command execute failure 19
+...
+WARNING: CPU: 0 PID: 1552 at drivers/net/wireless/ti/wlcore/main.c:803
+...
+(wl12xx_queue_recovery_work.part.0 [wlcore])
+(wl12xx_cmd_role_start_sta [wlcore])
+(wl1271_op_bss_info_changed [wlcore])
+(ieee80211_prep_connection [mac80211])
+
+Error 19 is defined as CMD_STATUS_WRONG_NESTING from the wlcore firmware,
+and seems to mean that the firmware no longer wants to see the quirk
+handling for WLCORE_QUIRK_START_STA_FAILS done.
+
+This quirk got added with commit 18eab430700d ("wlcore: workaround
+start_sta problem in wl12xx fw"), and it seems that this already got fixed
+in the firmware long time ago back in 2012 as wl18xx never had this quirk
+in place to start with.
+
+As we no longer even support firmware that early, to me it seems that it's
+safe to just drop WLCORE_QUIRK_START_STA_FAILS to fix the error. Looks
+like earlier firmware got disabled back in 2013 with commit 0e284c074ef9
+("wl12xx: increase minimum singlerole firmware version required").
+
+If it turns out we still need WLCORE_QUIRK_START_STA_FAILS with any
+firmware that the driver works with, we can simply revert this patch and
+add extra checks for firmware version used.
+
+With this fix wlcore reconnects properly after a beacon loss.
+
+Cc: Raz Bouganim <r-bouganim@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210115065613.7731-1-tony@atomide.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c |    9 +++++++--
- net/hsr/hsr_framereg.h |    1 +
- net/hsr/hsr_main.h     |    1 +
- 3 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ti/wl12xx/main.c   |  3 ---
+ drivers/net/wireless/ti/wlcore/main.c   | 15 +--------------
+ drivers/net/wireless/ti/wlcore/wlcore.h |  3 ---
+ 3 files changed, 1 insertion(+), 20 deletions(-)
 
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -164,8 +164,10 @@ static struct hsr_node *hsr_add_node(str
- 	 * as initialization. (0 could trigger an spurious ring error warning).
- 	 */
- 	now = jiffies;
--	for (i = 0; i < HSR_PT_PORTS; i++)
-+	for (i = 0; i < HSR_PT_PORTS; i++) {
- 		new_node->time_in[i] = now;
-+		new_node->time_out[i] = now;
-+	}
- 	for (i = 0; i < HSR_PT_PORTS; i++)
- 		new_node->seq_out[i] = seq_out;
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 3c9c623bb428..9d7dbfe7fe0c 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -635,7 +635,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+ 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
+ 		wl->mr_fw_name = WL127X_FW_NAME_MULTI;
+@@ -659,7 +658,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
+ 		wl->plt_fw_name = WL127X_PLT_FW_NAME;
+ 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
+@@ -688,7 +686,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
+ 		wl->quirks |= WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN |
+ 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
+ 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
+-			      WLCORE_QUIRK_START_STA_FAILS |
+ 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
  
-@@ -411,9 +413,12 @@ void hsr_register_frame_in(struct hsr_no
- int hsr_register_frame_out(struct hsr_port *port, struct hsr_node *node,
- 			   u16 sequence_nr)
- {
--	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]))
-+	if (seq_nr_before_or_eq(sequence_nr, node->seq_out[port->type]) &&
-+	    time_is_after_jiffies(node->time_out[port->type] +
-+	    msecs_to_jiffies(HSR_ENTRY_FORGET_TIME)))
- 		return 1;
+ 		wlcore_set_min_fw_ver(wl, WL128X_CHIP_VER,
+diff --git a/drivers/net/wireless/ti/wlcore/main.c b/drivers/net/wireless/ti/wlcore/main.c
+index 122c7a4b374f..0f9cc3de6aeb 100644
+--- a/drivers/net/wireless/ti/wlcore/main.c
++++ b/drivers/net/wireless/ti/wlcore/main.c
+@@ -2872,21 +2872,8 @@ static int wlcore_join(struct wl1271 *wl, struct wl12xx_vif *wlvif)
  
-+	node->time_out[port->type] = jiffies;
- 	node->seq_out[port->type] = sequence_nr;
- 	return 0;
+ 	if (is_ibss)
+ 		ret = wl12xx_cmd_role_start_ibss(wl, wlvif);
+-	else {
+-		if (wl->quirks & WLCORE_QUIRK_START_STA_FAILS) {
+-			/*
+-			 * TODO: this is an ugly workaround for wl12xx fw
+-			 * bug - we are not able to tx/rx after the first
+-			 * start_sta, so make dummy start+stop calls,
+-			 * and then call start_sta again.
+-			 * this should be fixed in the fw.
+-			 */
+-			wl12xx_cmd_role_start_sta(wl, wlvif);
+-			wl12xx_cmd_role_stop_sta(wl, wlvif);
+-		}
+-
++	else
+ 		ret = wl12xx_cmd_role_start_sta(wl, wlvif);
+-	}
+ 
+ 	return ret;
  }
---- a/net/hsr/hsr_framereg.h
-+++ b/net/hsr/hsr_framereg.h
-@@ -75,6 +75,7 @@ struct hsr_node {
- 	enum hsr_port_type	addr_B_port;
- 	unsigned long		time_in[HSR_PT_PORTS];
- 	bool			time_in_stale[HSR_PT_PORTS];
-+	unsigned long		time_out[HSR_PT_PORTS];
- 	/* if the node is a SAN */
- 	bool			san_a;
- 	bool			san_b;
---- a/net/hsr/hsr_main.h
-+++ b/net/hsr/hsr_main.h
-@@ -21,6 +21,7 @@
- #define HSR_LIFE_CHECK_INTERVAL		 2000 /* ms */
- #define HSR_NODE_FORGET_TIME		60000 /* ms */
- #define HSR_ANNOUNCE_INTERVAL		  100 /* ms */
-+#define HSR_ENTRY_FORGET_TIME		  400 /* ms */
+diff --git a/drivers/net/wireless/ti/wlcore/wlcore.h b/drivers/net/wireless/ti/wlcore/wlcore.h
+index b7821311ac75..81c94d390623 100644
+--- a/drivers/net/wireless/ti/wlcore/wlcore.h
++++ b/drivers/net/wireless/ti/wlcore/wlcore.h
+@@ -547,9 +547,6 @@ wlcore_set_min_fw_ver(struct wl1271 *wl, unsigned int chip,
+ /* Each RX/TX transaction requires an end-of-transaction transfer */
+ #define WLCORE_QUIRK_END_OF_TRANSACTION		BIT(0)
  
- /* By how much may slave1 and slave2 timestamps of latest received frame from
-  * each node differ before we notify of communication problem?
+-/* the first start_role(sta) sometimes doesn't work on wl12xx */
+-#define WLCORE_QUIRK_START_STA_FAILS		BIT(1)
+-
+ /* wl127x and SPI don't support SDIO block size alignment */
+ #define WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN		BIT(2)
+ 
+-- 
+2.30.1
+
 
 
