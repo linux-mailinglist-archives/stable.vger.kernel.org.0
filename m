@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DE5932E80B
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF11D32E80E
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbhCEMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:24:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
+        id S230288AbhCEMYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:24:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230409AbhCEMYY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:24:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C4665023;
-        Fri,  5 Mar 2021 12:24:23 +0000 (UTC)
+        id S230437AbhCEMY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:24:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67F3F65022;
+        Fri,  5 Mar 2021 12:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947064;
-        bh=GM+0cx1RspxAZTGMRF4bmBrImrhA1SdxQTfGeOTsh7c=;
+        s=korg; t=1614947066;
+        bh=LpRxSxz570LPl4FhsgncgcIg1WWeTco822lXBdjv1Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y6IUzLGlHf9RlgGLroovLtTaMRFoCu8OK9f87K7ABZ0QsVEsU+Z0B9jGrGKqCyvWo
-         /RrBuhKAfpGvr+3HppaUd3pxgKrkCdlxljZGMF//Yt4oLQ3iYzQtqzKv8uXBTkwt+d
-         Ij1c3EPjArzFINmGwfs3rE4zJkri6KalLrNkSLlc=
+        b=Hg/sC9MfB7V+O7iXt7gfg+WdV1NNtdoQlqh1ZESTMpr975PNy/QqcMpgSxE205Bnm
+         cjj2MyJ3MsrTdTFiyezqSOvVs4HFDBI4aFqGrr1xG5uD7xyL9/UynAAt20wiBFDwN3
+         GNV4aW3LfZTaRUx0QlLmUlDZ7V1K/LihhyvmD5ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.11 005/104] sched/core: Allow try_invoke_on_locked_down_task() with irqs disabled
-Date:   Fri,  5 Mar 2021 13:20:10 +0100
-Message-Id: <20210305120903.441413880@linuxfoundation.org>
+        syzbot+c9e365d7f450e8aa615d@syzkaller.appspotmail.com,
+        Zqiang <qiang.zhang@windriver.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.11 006/104] udlfb: Fix memory leak in dlfb_usb_probe
+Date:   Fri,  5 Mar 2021 13:20:11 +0100
+Message-Id: <20210305120903.494800138@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -41,61 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Zqiang <qiang.zhang@windriver.com>
 
-commit 1b7af295541d75535374325fd617944534853919 upstream.
+commit 5c0e4110f751934e748a66887c61f8e73805f0f9 upstream.
 
-The try_invoke_on_locked_down_task() function currently requires
-that interrupts be enabled, but it is called with interrupts
-disabled from rcu_print_task_stall(), resulting in an "IRQs not
-enabled as expected" diagnostic.  This commit therefore updates
-try_invoke_on_locked_down_task() to use raw_spin_lock_irqsave() instead
-of raw_spin_lock_irq(), thus allowing use from either context.
+The dlfb_alloc_urb_list function is called in dlfb_usb_probe function,
+after that if an error occurs, the dlfb_free_urb_list function need to
+be called.
 
-Link: https://lore.kernel.org/lkml/000000000000903d5805ab908fc4@google.com/
-Link: https://lore.kernel.org/lkml/20200928075729.GC2611@hirez.programming.kicks-ass.net/
-Reported-by: syzbot+cb3b69ae80afd6535b0e@syzkaller.appspotmail.com
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+BUG: memory leak
+unreferenced object 0xffff88810adde100 (size 32):
+  comm "kworker/1:0", pid 17, jiffies 4294947788 (age 19.520s)
+  hex dump (first 32 bytes):
+    10 30 c3 0d 81 88 ff ff c0 fa 63 12 81 88 ff ff  .0........c.....
+    00 30 c3 0d 81 88 ff ff 80 d1 3a 08 81 88 ff ff  .0........:.....
+  backtrace:
+    [<0000000019512953>] kmalloc include/linux/slab.h:552 [inline]
+    [<0000000019512953>] kzalloc include/linux/slab.h:664 [inline]
+    [<0000000019512953>] dlfb_alloc_urb_list drivers/video/fbdev/udlfb.c:1892 [inline]
+    [<0000000019512953>] dlfb_usb_probe.cold+0x289/0x988 drivers/video/fbdev/udlfb.c:1704
+    [<0000000072160152>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000a8d6726f>] really_probe+0x159/0x480 drivers/base/dd.c:554
+    [<00000000c3ce4b0e>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+    [<00000000e942e01c>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+    [<00000000de0a5a5c>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000463fbcb4>] __device_attach+0x122/0x250 drivers/base/dd.c:912
+    [<00000000b881a711>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000364bbda5>] device_add+0x5ac/0xc30 drivers/base/core.c:2936
+    [<00000000eecca418>] usb_set_configuration+0x9de/0xb90 drivers/usb/core/message.c:2159
+    [<00000000edfeca2d>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<000000001830872b>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000a8d6726f>] really_probe+0x159/0x480 drivers/base/dd.c:554
+    [<00000000c3ce4b0e>] driver_probe_device+0x84/0x100 drivers/base/dd.c:738
+    [<00000000e942e01c>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:844
+    [<00000000de0a5a5c>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+
+Reported-by: syzbot+c9e365d7f450e8aa615d@syzkaller.appspotmail.com
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20201215063022.16746-1-qiang.zhang@windriver.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/udlfb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3478,7 +3478,7 @@ out:
- 
- /**
-  * try_invoke_on_locked_down_task - Invoke a function on task in fixed state
-- * @p: Process for which the function is to be invoked.
-+ * @p: Process for which the function is to be invoked, can be @current.
-  * @func: Function to invoke.
-  * @arg: Argument to function.
-  *
-@@ -3496,12 +3496,11 @@ out:
-  */
- bool try_invoke_on_locked_down_task(struct task_struct *p, bool (*func)(struct task_struct *t, void *arg), void *arg)
- {
--	bool ret = false;
- 	struct rq_flags rf;
-+	bool ret = false;
- 	struct rq *rq;
- 
--	lockdep_assert_irqs_enabled();
--	raw_spin_lock_irq(&p->pi_lock);
-+	raw_spin_lock_irqsave(&p->pi_lock, rf.flags);
- 	if (p->on_rq) {
- 		rq = __task_rq_lock(p, &rf);
- 		if (task_rq(p) == rq)
-@@ -3518,7 +3517,7 @@ bool try_invoke_on_locked_down_task(stru
- 				ret = func(p, arg);
- 		}
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -1017,6 +1017,7 @@ static void dlfb_ops_destroy(struct fb_i
  	}
--	raw_spin_unlock_irq(&p->pi_lock);
-+	raw_spin_unlock_irqrestore(&p->pi_lock, rf.flags);
- 	return ret;
- }
+ 	vfree(dlfb->backing_buffer);
+ 	kfree(dlfb->edid);
++	dlfb_free_urb_list(dlfb);
+ 	usb_put_dev(dlfb->udev);
+ 	kfree(dlfb);
  
 
 
