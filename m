@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2577332E99F
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8680B32E922
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230413AbhCEMd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:33:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44746 "EHLO mail.kernel.org"
+        id S231265AbhCEMan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:30:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231675AbhCEMda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:33:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F7686501A;
-        Fri,  5 Mar 2021 12:33:28 +0000 (UTC)
+        id S232357AbhCEMab (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:30:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BF7F65019;
+        Fri,  5 Mar 2021 12:30:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947609;
-        bh=2TFzhGIT6edKdwWyhZYFtdzQseAAnH/i1ygi4KFGDEY=;
+        s=korg; t=1614947430;
+        bh=EPFxJQjWuDFkWoVbhvuMng8JMM13EjuStJJNKOavW9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bC97EvQe38K8ZPXOTpJwEyKi2BsFoBod9P9azXvNw2zN0bAM2Usb3rWJaSPmpRILK
-         Tw/cCbf44lmVgt4Tq3H9/ZcRXTXjNooM8YMIacFbu143wkPmiJObRF7lP5wNmAPwYm
-         LWZGIBrjZzSSTX1pzspFwmNc6DQjwNhGqV0yoBpo=
+        b=mhydZ3AUC1RZWfWFYBcrqQr32ybpNn6Xfq+3reSAy9HDPV5XyzOijC4Z5t8CY4dRA
+         IvPFUF7LyAhYX5Jkveib5NrJrr+4/bdZka+0PPbWOI6kFTZQKmIEHrFxQMnC6bWjPJ
+         0x7WTXGGjMmEU0Du3kNNMudVKrnWOoShdQcLf8G8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingle Wu <jingle.wu@emc.com.tw>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 5.4 02/72] Input: elantech - fix protocol errors for some trackpoints in SMBus mode
+        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 045/102] Bluetooth: hci_h5: Set HCI_QUIRK_SIMULTANEOUS_DISCOVERY for btrtl
 Date:   Fri,  5 Mar 2021 13:21:04 +0100
-Message-Id: <20210305120857.462146294@linuxfoundation.org>
+Message-Id: <20210305120905.507539566@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,199 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: jingle.wu <jingle.wu@emc.com.tw>
+From: Claire Chang <tientzu@chromium.org>
 
-commit e4c9062717feda88900b566463228d1c4910af6d upstream.
+[ Upstream commit 7f9f2c3f7d99b8ae773459c74ac5e99a0dd46db9 ]
 
-There are some version of Elan trackpads that send incorrect data when
-in SMbus mode, unless they are switched to use 0x5f reports instead of
-standard 0x5e. This patch implements querying device to retrieve chips
-identifying data, and switching it, when needed to the alternative
-report.
+Realtek Bluetooth controllers can do both LE scan and BR/EDR inquiry
+at once, need to set HCI_QUIRK_SIMULTANEOUS_DISCOVERY quirk.
 
-Signed-off-by: Jingle Wu <jingle.wu@emc.com.tw>
-Link: https://lore.kernel.org/r/20201211071531.32413-1-jingle.wu@emc.com.tw
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Claire Chang <tientzu@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/elantech.c |   99 ++++++++++++++++++++++++++++++++++++++++-
- drivers/input/mouse/elantech.h |    4 +
- 2 files changed, 101 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_h5.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -90,6 +90,47 @@ static int elantech_ps2_command(struct p
- }
+diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
+index 78d635f1d156..996729e78105 100644
+--- a/drivers/bluetooth/hci_h5.c
++++ b/drivers/bluetooth/hci_h5.c
+@@ -906,6 +906,11 @@ static int h5_btrtl_setup(struct h5 *h5)
+ 	/* Give the device some time before the hci-core sends it a reset */
+ 	usleep_range(10000, 20000);
  
- /*
-+ * Send an Elantech style special command to read 3 bytes from a register
-+ */
-+static int elantech_read_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
-+{
-+	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, reg) ||
-+	    elantech_ps2_command(psmouse, param, PSMOUSE_CMD_GETINFO)) {
-+		psmouse_err(psmouse,
-+			    "failed to read register %#02x\n", reg);
-+		return -EIO;
-+	}
++	/* Enable controller to do both LE scan and BR/EDR inquiry
++	 * simultaneously.
++	 */
++	set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &h5->hu->hdev->quirks);
 +
-+	return 0;
-+}
-+
-+/*
-+ * Send an Elantech style special command to write a register with a parameter
-+ */
-+static int elantech_write_reg_params(struct psmouse *psmouse, u8 reg, u8 *param)
-+{
-+	if (elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_REGISTER_READWRITE) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, reg) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, param[0]) ||
-+	    elantech_ps2_command(psmouse, NULL, ETP_PS2_CUSTOM_COMMAND) ||
-+	    elantech_ps2_command(psmouse, NULL, param[1]) ||
-+	    elantech_ps2_command(psmouse, NULL, PSMOUSE_CMD_SETSCALE11)) {
-+		psmouse_err(psmouse,
-+			    "failed to write register %#02x with value %#02x%#02x\n",
-+			    reg, param[0], param[1]);
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-  * Send an Elantech style special command to read a value from a register
-  */
- static int elantech_read_reg(struct psmouse *psmouse, unsigned char reg,
-@@ -1530,18 +1571,34 @@ static const struct dmi_system_id no_hw_
- };
+ out_free:
+ 	btrtl_free(btrtl_dev);
  
- /*
-+ * Change Report id 0x5E to 0x5F.
-+ */
-+static int elantech_change_report_id(struct psmouse *psmouse)
-+{
-+	unsigned char param[2] = { 0x10, 0x03 };
-+
-+	if (elantech_write_reg_params(psmouse, 0x7, param) ||
-+	    elantech_read_reg_params(psmouse, 0x7, param) ||
-+	    param[0] != 0x10 || param[1] != 0x03) {
-+		psmouse_err(psmouse, "Unable to change report ID to 0x5f.\n");
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+/*
-  * determine hardware version and set some properties according to it.
-  */
- static int elantech_set_properties(struct elantech_device_info *info)
- {
- 	/* This represents the version of IC body. */
--	int ver = (info->fw_version & 0x0f0000) >> 16;
-+	info->ic_version = (info->fw_version & 0x0f0000) >> 16;
- 
- 	/* Early version of Elan touchpads doesn't obey the rule. */
- 	if (info->fw_version < 0x020030 || info->fw_version == 0x020600)
- 		info->hw_version = 1;
- 	else {
--		switch (ver) {
-+		switch (info->ic_version) {
- 		case 2:
- 		case 4:
- 			info->hw_version = 2;
-@@ -1557,6 +1614,11 @@ static int elantech_set_properties(struc
- 		}
- 	}
- 
-+	/* Get information pattern for hw_version 4 */
-+	info->pattern = 0x00;
-+	if (info->ic_version == 0x0f && (info->fw_version & 0xff) <= 0x02)
-+		info->pattern = info->fw_version & 0xff;
-+
- 	/* decide which send_cmd we're gonna use early */
- 	info->send_cmd = info->hw_version >= 3 ? elantech_send_cmd :
- 						 synaptics_send_cmd;
-@@ -1598,6 +1660,7 @@ static int elantech_query_info(struct ps
- {
- 	unsigned char param[3];
- 	unsigned char traces;
-+	unsigned char ic_body[3];
- 
- 	memset(info, 0, sizeof(*info));
- 
-@@ -1640,6 +1703,21 @@ static int elantech_query_info(struct ps
- 			     info->samples[2]);
- 	}
- 
-+	if (info->pattern > 0x00 && info->ic_version == 0xf) {
-+		if (info->send_cmd(psmouse, ETP_ICBODY_QUERY, ic_body)) {
-+			psmouse_err(psmouse, "failed to query ic body\n");
-+			return -EINVAL;
-+		}
-+		info->ic_version = be16_to_cpup((__be16 *)ic_body);
-+		psmouse_info(psmouse,
-+			     "Elan ic body: %#04x, current fw version: %#02x\n",
-+			     info->ic_version, ic_body[2]);
-+	}
-+
-+	info->product_id = be16_to_cpup((__be16 *)info->samples);
-+	if (info->pattern == 0x00)
-+		info->product_id &= 0xff;
-+
- 	if (info->samples[1] == 0x74 && info->hw_version == 0x03) {
- 		/*
- 		 * This module has a bug which makes absolute mode
-@@ -1654,6 +1732,23 @@ static int elantech_query_info(struct ps
- 	/* The MSB indicates the presence of the trackpoint */
- 	info->has_trackpoint = (info->capabilities[0] & 0x80) == 0x80;
- 
-+	if (info->has_trackpoint && info->ic_version == 0x0011 &&
-+	    (info->product_id == 0x08 || info->product_id == 0x09 ||
-+	     info->product_id == 0x0d || info->product_id == 0x0e)) {
-+		/*
-+		 * This module has a bug which makes trackpoint in SMBus
-+		 * mode return invalid data unless trackpoint is switched
-+		 * from using 0x5e reports to 0x5f. If we are not able to
-+		 * make the switch, let's abort initialization so we'll be
-+		 * using standard PS/2 protocol.
-+		 */
-+		if (elantech_change_report_id(psmouse)) {
-+			psmouse_info(psmouse,
-+				     "Trackpoint report is broken, forcing standard PS/2 protocol\n");
-+			return -ENODEV;
-+		}
-+	}
-+
- 	info->x_res = 31;
- 	info->y_res = 31;
- 	if (info->hw_version == 4) {
---- a/drivers/input/mouse/elantech.h
-+++ b/drivers/input/mouse/elantech.h
-@@ -18,6 +18,7 @@
- #define ETP_CAPABILITIES_QUERY		0x02
- #define ETP_SAMPLE_QUERY		0x03
- #define ETP_RESOLUTION_QUERY		0x04
-+#define ETP_ICBODY_QUERY		0x05
- 
- /*
-  * Command values for register reading or writing
-@@ -140,7 +141,10 @@ struct elantech_device_info {
- 	unsigned char samples[3];
- 	unsigned char debug;
- 	unsigned char hw_version;
-+	unsigned char pattern;
- 	unsigned int fw_version;
-+	unsigned int ic_version;
-+	unsigned int product_id;
- 	unsigned int x_min;
- 	unsigned int y_min;
- 	unsigned int x_max;
+-- 
+2.30.1
+
 
 
