@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E20532E9A8
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:34:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F14E532E92B
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbhCEMeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:34:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44806 "EHLO mail.kernel.org"
+        id S231423AbhCEMbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:31:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231294AbhCEMdf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:33:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F4EF6502E;
-        Fri,  5 Mar 2021 12:33:34 +0000 (UTC)
+        id S230516AbhCEMah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:30:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DC776501A;
+        Fri,  5 Mar 2021 12:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947614;
-        bh=cPj837zK88+9mFvcEOyi96omTqjlTMcjh4KWI54Gqzc=;
+        s=korg; t=1614947437;
+        bh=+gNYgdiPN5ljdiYDoNP+TEofI6lHz2nhy+TQychr16w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RxBt8kqzmPEt6ijOBzB4phCR0Ftgt5PK3/D94+EFgn6dMTrF7nybhFSr8j174a7GI
-         TGdkyxjLDN4r/FQ33FUZ82QF4sqpxmNDt2r2NRpaC3XzZZEvvxMqDMuBd98wdrptuW
-         Oi3xDI45itOAxzckOYsiORxLCtw8fDYevU2e0qGM=
+        b=uJbf4OCVbiGs2argigRjZ3GzWtT837mRJ2fV2Oq/9pB9j7R+YrtORqiFbQxMJHOFc
+         lEenFhIGTCHxq7jovdiTMCLJFWOQHTVKjBtwzm/ZcDYqqhXtSxa0ia2GUEyoAuO2fC
+         smFmFY/h8T3lerR6QsC0vRjdwkXZB8JWjJTQJDpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 21/72] dt-bindings: ethernet-controller: fix fixed-link specification
+        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
+        Monk Liu <monk.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 064/102] drm/amd/amdgpu: add error handling to amdgpu_virt_read_pf2vf_data
 Date:   Fri,  5 Mar 2021 13:21:23 +0100
-Message-Id: <20210305120858.379587399@linuxfoundation.org>
+Message-Id: <20210305120906.430202495@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-commit 322322d15b9b912bc8710c367a95a7de62220a72 upstream.
+[ Upstream commit 64dcf2f01d59cf9fad19b1a387bd39736a8f4d69 ]
 
-The original fixed-link.txt allowed a pause property for fixed link.
-This has been missed in the conversion to yaml format.
+[Why]
+when vram lost happened in guest, try to write vram can lead to
+kernel stuck.
 
-Fixes: 9d3de3c58347 ("dt-bindings: net: Add YAML schemas for the generic Ethernet options")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/E1l6W2G-0002Ga-0O@rmk-PC.armlinux.org.uk
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[How]
+When the readback data is invalid, don't do write work, directly
+reschedule a new work.
+
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Reviewed-by: Monk Liu<monk.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/net/ethernet-controller.yaml |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-+++ b/Documentation/devicetree/bindings/net/ethernet-controller.yaml
-@@ -190,6 +190,11 @@ properties:
-                 Indicates that full-duplex is used. When absent, half
-                 duplex is assumed.
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+index d0aea5e39531..e7678ba8fdcf 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c
+@@ -558,10 +558,14 @@ static int amdgpu_virt_write_vf2pf_data(struct amdgpu_device *adev)
+ void amdgpu_virt_update_vf2pf_work_item(struct work_struct *work)
+ {
+ 	struct amdgpu_device *adev = container_of(work, struct amdgpu_device, virt.vf2pf_work.work);
++	int ret;
  
-+            pause:
-+              $ref: /schemas/types.yaml#definitions/flag
-+              description:
-+                Indicates that pause should be enabled.
-+
-             asym-pause:
-               $ref: /schemas/types.yaml#definitions/flag
-               description:
+-	amdgpu_virt_read_pf2vf_data(adev);
++	ret = amdgpu_virt_read_pf2vf_data(adev);
++	if (ret)
++		goto out;
+ 	amdgpu_virt_write_vf2pf_data(adev);
+ 
++out:
+ 	schedule_delayed_work(&(adev->virt.vf2pf_work), adev->virt.vf2pf_update_interval_ms);
+ }
+ 
+-- 
+2.30.1
+
 
 
