@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A4932EB47
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F1AB32EB25
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233539AbhCEMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59594 "EHLO mail.kernel.org"
+        id S229582AbhCEMmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232349AbhCEMmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8BEB6501C;
-        Fri,  5 Mar 2021 12:42:48 +0000 (UTC)
+        id S229558AbhCEMl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 686A96501E;
+        Fri,  5 Mar 2021 12:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948169;
-        bh=sA2HQpu4II2WiiQXaMZdJ8NIRIgTSkJLrqeByqHct6s=;
+        s=korg; t=1614948116;
+        bh=WjEAog0f8Qtcs1aXT2i6lX9hZnCcem9uJpztSw7U3GU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5bv6gmA9UdZYQzaRcGy+Fn5nUPlCjdPhYfb5CyFoWFOXI2NE3J+rJknis84mKsNw
-         uMPdLB8OzWEhXDweag+8ypyv0TCURFNn1X9uCbXjGEkt+UWb4kaix9e6YxhKmBqX4s
-         80z+zw8j/ndxmqsHkqy72IaJvhXsUoJA85w4N8Qs=
+        b=K/vLEMvPYnJ52nupHNUpSdB1uavFtPbhP7igOtC/k318PJw+rGSd8mwhflFdOTHv8
+         DZmhTBvT4c6vVPo+e+MDK0/OakkyXBrep/pZZTa3PwRzcVN3vY7HTOU3oJgwe/3hhG
+         vuIHvdrSF9UZ7A832cr3M7vxpvI7Jq/qkIwktWgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Xinhai <lixinhai.lxh@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 11/30] mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
+        stable@vger.kernel.org, Adam Nichols <adam@grimm-co.com>,
+        Chris Leech <cleech@redhat.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 33/41] scsi: iscsi: Restrict sessions and handles to admin capabilities
 Date:   Fri,  5 Mar 2021 13:22:40 +0100
-Message-Id: <20210305120849.954206708@linuxfoundation.org>
+Message-Id: <20210305120852.912202137@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Xinhai <lixinhai.lxh@gmail.com>
+From: Lee Duncan <lduncan@suse.com>
 
-commit a1ba9da8f0f9a37d900ff7eff66482cf7de8015e upstream.
+commit 688e8128b7a92df982709a4137ea4588d16f24aa upstream.
 
-The current code would unnecessarily expand the address range.  Consider
-one example, (start, end) = (1G-2M, 3G+2M), and (vm_start, vm_end) =
-(1G-4M, 3G+4M), the expected adjustment should be keep (1G-2M, 3G+2M)
-without expand.  But the current result will be (1G-4M, 3G+4M).  Actually,
-the range (1G-4M, 1G) and (3G, 3G+4M) would never been involved in pmd
-sharing.
+Protect the iSCSI transport handle, available in sysfs, by requiring
+CAP_SYS_ADMIN to read it. Also protect the netlink socket by restricting
+reception of messages to ones sent with CAP_SYS_ADMIN. This disables
+normal users from being able to end arbitrary iSCSI sessions.
 
-After this patch, we will check that the vma span at least one PUD aligned
-size and the start,end range overlap the aligned range of vma.
-
-With above example, the aligned vma range is (1G, 3G), so if (start, end)
-range is within (1G-4M, 1G), or within (3G, 3G+4M), then no adjustment to
-both start and end.  Otherwise, we will have chance to adjust start
-downwards or end upwards without exceeding (vm_start, vm_end).
-
-Mike:
-
-: The 'adjusted range' is used for calls to mmu notifiers and cache(tlb)
-: flushing.  Since the current code unnecessarily expands the range in some
-: cases, more entries than necessary would be flushed.  This would/could
-: result in performance degradation.  However, this is highly dependent on
-: the user runtime.  Is there a combination of vma layout and calls to
-: actually hit this issue?  If the issue is hit, will those entries
-: unnecessarily flushed be used again and need to be unnecessarily reloaded?
-
-Link: https://lkml.kernel.org/r/20210104081631.2921415-1-lixinhai.lxh@gmail.com
-Fixes: 75802ca66354 ("mm/hugetlb: fix calculation of adjust_range_if_pmd_sharing_possible")
-Signed-off-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Suggested-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Adam Nichols <adam@grimm-co.com>
+Reviewed-by: Chris Leech <cleech@redhat.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4322,21 +4322,23 @@ static bool vma_shareable(struct vm_area
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -119,6 +119,9 @@ show_transport_handle(struct device *dev
+ 		      char *buf)
  {
--	unsigned long a_start, a_end;
-+	unsigned long v_start = ALIGN(vma->vm_start, PUD_SIZE),
-+		v_end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
- 
--	if (!(vma->vm_flags & VM_MAYSHARE))
-+	/*
-+	 * vma need span at least one aligned PUD size and the start,end range
-+	 * must at least partialy within it.
-+	 */
-+	if (!(vma->vm_flags & VM_MAYSHARE) || !(v_end > v_start) ||
-+		(*end <= v_start) || (*start >= v_end))
- 		return;
- 
- 	/* Extend the range to be PUD aligned for a worst case scenario */
--	a_start = ALIGN_DOWN(*start, PUD_SIZE);
--	a_end = ALIGN(*end, PUD_SIZE);
-+	if (*start > v_start)
-+		*start = ALIGN_DOWN(*start, PUD_SIZE);
- 
--	/*
--	 * Intersect the range with the vma range, since pmd sharing won't be
--	 * across vma after all
--	 */
--	*start = max(vma->vm_start, a_start);
--	*end = min(vma->vm_end, a_end);
-+	if (*end < v_end)
-+		*end = ALIGN(*end, PUD_SIZE);
+ 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);
++
++	if (!capable(CAP_SYS_ADMIN))
++		return -EACCES;
+ 	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
  }
+ static DEVICE_ATTR(handle, S_IRUGO, show_transport_handle, NULL);
+@@ -3522,6 +3525,9 @@ iscsi_if_recv_msg(struct sk_buff *skb, s
+ 	struct iscsi_cls_conn *conn;
+ 	struct iscsi_endpoint *ep = NULL;
  
- /*
++	if (!netlink_capable(skb, CAP_SYS_ADMIN))
++		return -EPERM;
++
+ 	if (nlh->nlmsg_type == ISCSI_UEVENT_PATH_UPDATE)
+ 		*group = ISCSI_NL_GRP_UIP;
+ 	else
 
 
