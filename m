@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B2D232EAEA
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D9C32EB0E
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232622AbhCEMk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56164 "EHLO mail.kernel.org"
+        id S231828AbhCEMlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232532AbhCEMkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0689664E84;
-        Fri,  5 Mar 2021 12:40:41 +0000 (UTC)
+        id S229768AbhCEMlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 779D36502E;
+        Fri,  5 Mar 2021 12:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948042;
-        bh=wbmkcUqPiCV/4tE1uJG/lJv6hlg+wZVX5hO7HXeR1XM=;
+        s=korg; t=1614948082;
+        bh=UWLIWfYD+prOzt22pde3LwfE441zn2YNFpURl7hefXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pEIuapTDVFKU0ggxB5oN24BL/DMgLK0E9sTqsrwafMs7INJ+6Sj2OhoWuuy/7j21d
-         4NEq1Pq1NJaob06NP/QyNsnD4bEBUpLsGAu1YTwXOrPb8NanUUlFDkTrR32EU3PoMe
-         2upqmax5fPf7l7jOj8bGmwrwlIRuF8Ulo8mnc1OY=
+        b=x50rXlHjLozYN8VuJGc4Q/0EnpmGdBM914ZSUVFs3Xg5+9V0RJodjKk2i6VGVDiJE
+         LOZk+1b0L7hosfMdS40TyAYtxKZinXOQnKdRS3AIb8IUi8t4RQF1QVUNjYg0eMNvvq
+         BsEyv96RKUPoDQoSgiUeO4nUhVr/UX+xw5fqngaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/39] vt/consolemap: do font sum unsigned
-Date:   Fri,  5 Mar 2021 13:22:20 +0100
-Message-Id: <20210305120852.834587657@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 14/41] arm64: Remove redundant mov from LL/SC cmpxchg
+Date:   Fri,  5 Mar 2021 13:22:21 +0100
+Message-Id: <20210305120851.988419372@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 9777f8e60e718f7b022a94f2524f967d8def1931 ]
+commit 8df728e1ae614f592961e51f65d3e3212ede5a75 upstream.
 
-The constant 20 makes the font sum computation signed which can lead to
-sign extensions and signed wraps. It's not much of a problem as we build
-with -fno-strict-overflow. But if we ever decide not to, be ready, so
-switch the constant to unsigned.
+The cmpxchg implementation introduced by commit c342f78217e8 ("arm64:
+cmpxchg: patch in lse instructions when supported by the CPU") performs
+an apparently redundant register move of [old] to [oldval] in the
+success case - it always uses the same register width as [oldval] was
+originally loaded with, and is only executed when [old] and [oldval] are
+known to be equal anyway.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210105120239.28031-7-jslaby@suse.cz
+The only effect it seemingly does have is to take up a surprising amount
+of space in the kernel text, as removing it reveals:
+
+   text	   data	    bss	    dec	    hex	filename
+12426658	1348614	4499749	18275021	116dacd	vmlinux.o.new
+12429238	1348614	4499749	18277601	116e4e1	vmlinux.o.old
+
+Reviewed-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/consolemap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/atomic_ll_sc.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/tty/vt/consolemap.c b/drivers/tty/vt/consolemap.c
-index a5f88cf0f61d..a2c1a02f0407 100644
---- a/drivers/tty/vt/consolemap.c
-+++ b/drivers/tty/vt/consolemap.c
-@@ -493,7 +493,7 @@ con_insert_unipair(struct uni_pagedir *p, u_short unicode, u_short fontpos)
- 
- 	p2[unicode & 0x3f] = fontpos;
- 	
--	p->sum += (fontpos << 20) + unicode;
-+	p->sum += (fontpos << 20U) + unicode;
- 
- 	return 0;
- }
--- 
-2.30.1
-
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -264,7 +264,6 @@ __LL_SC_PREFIX(__cmpxchg_case_##name(vol
+ 	"	st" #rel "xr" #sz "\t%w[tmp], %" #w "[new], %[v]\n"	\
+ 	"	cbnz	%w[tmp], 1b\n"					\
+ 	"	" #mb "\n"						\
+-	"	mov	%" #w "[oldval], %" #w "[old]\n"		\
+ 	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+ 	  [v] "+Q" (*(unsigned long *)ptr)				\
 
 
