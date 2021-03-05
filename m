@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8D2532DFAB
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 03:31:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECA7732DFB7
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 03:44:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbhCECbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 21:31:05 -0500
-Received: from relay.corp-email.com ([222.73.234.233]:51536 "EHLO
+        id S229463AbhCECof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 4 Mar 2021 21:44:35 -0500
+Received: from relay.corp-email.com ([222.73.234.233]:54773 "EHLO
         relay.corp-email.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhCECbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 21:31:05 -0500
+        with ESMTP id S229436AbhCECof (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 21:44:35 -0500
 Received: from ([183.47.25.45])
-        by relay.corp-email.com ((LNX1044)) with ASMTP (SSL) id YVK00101;
-        Fri, 05 Mar 2021 10:31:01 +0800
-Received: from GCY-EXS-15.TCL.com (10.74.128.165) by GCY-EXS-08.TCL.com
- (10.74.128.158) with Microsoft SMTP Server (version=TLS1_2,
+        by relay.corp-email.com ((LNX1044)) with ASMTP (SSL) id YVX00126;
+        Fri, 05 Mar 2021 10:44:26 +0800
+Received: from GCY-EXS-15.TCL.com (10.74.128.165) by GCY-EXS-10.TCL.com
+ (10.74.128.160) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
- 10:31:02 +0800
+ 10:44:22 +0800
 Received: from localhost.localdomain (172.16.34.11) by GCY-EXS-15.TCL.com
  (10.74.128.165) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
- 10:31:01 +0800
+ 10:44:22 +0800
 From:   Rokudo Yan <wu-yan@tcl.com>
 To:     <gregkh@linuxfoundation.org>
 CC:     <akpm@linux-foundation.org>, <minchan@kernel.org>,
         <sergey.senozhatsky@gmail.com>, <stable@vger.kernel.org>,
         <torvalds@linux-foundation.org>, <wu-yan@tcl.com>
 Subject: [PATCH] zsmalloc: account the number of compacted pages correctly
-Date:   Fri, 5 Mar 2021 10:30:51 +0800
-Message-ID: <20210305023051.2628141-1-wu-yan@tcl.com>
+Date:   Fri, 5 Mar 2021 10:44:07 +0800
+Message-ID: <20210305024407.2631499-1-wu-yan@tcl.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <16145206276634@kroah.com>
-References: <16145206276634@kroah.com>
+In-Reply-To: <1614520628114242@kroah.com>
+References: <1614520628114242@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [172.16.34.11]
 X-ClientProxiedBy: GCY-EXS-04.TCL.com (10.74.128.154) To GCY-EXS-15.TCL.com
  (10.74.128.165)
-tUid:   20213051031012291049a52bd52d79606d70f51b4bab4
+tUid:   2021305104427ccedea662c04f12ca696ae73ac391354
 X-Abuse-Reports-To: service@corp-email.com
 Abuse-Reports-To: service@corp-email.com
 X-Complaints-To: service@corp-email.com
@@ -83,10 +83,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  3 files changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index d64a53d3270a..7ab415215062 100644
+index 616ee4f9c233..b243452d4788 100644
 --- a/drivers/block/zram/zram_drv.c
 +++ b/drivers/block/zram/zram_drv.c
-@@ -440,7 +440,7 @@ static ssize_t mm_stat_show(struct device *dev,
+@@ -450,7 +450,7 @@ static ssize_t mm_stat_show(struct device *dev,
  			zram->limit_pages << PAGE_SHIFT,
  			max_used << PAGE_SHIFT,
  			(u64)atomic64_read(&zram->stats.zero_pages),
@@ -96,7 +96,7 @@ index d64a53d3270a..7ab415215062 100644
  
  	return ret;
 diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
-index 57a8e98f2708..6c871102c273 100644
+index 34eb16098a33..05ca2acea8dc 100644
 --- a/include/linux/zsmalloc.h
 +++ b/include/linux/zsmalloc.h
 @@ -36,7 +36,7 @@ enum zs_mapmode {
@@ -109,35 +109,35 @@ index 57a8e98f2708..6c871102c273 100644
  
  struct zs_pool;
 diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index e4cca3f5331e..8db3c2b27a17 100644
+index c1ea19478119..8ebcab7b4d2f 100644
 --- a/mm/zsmalloc.c
 +++ b/mm/zsmalloc.c
-@@ -2332,11 +2332,13 @@ static unsigned long zs_can_compact(struct size_class *class)
+@@ -1745,11 +1745,13 @@ static unsigned long zs_can_compact(struct size_class *class)
  	return obj_wasted * class->pages_per_zspage;
  }
  
 -static void __zs_compact(struct zs_pool *pool, struct size_class *class)
 +static unsigned long __zs_compact(struct zs_pool *pool,
-+				  struct size_class *class)
++				   struct size_class *class)
  {
  	struct zs_compact_control cc;
- 	struct zspage *src_zspage;
- 	struct zspage *dst_zspage = NULL;
+ 	struct page *src_page;
+ 	struct page *dst_page = NULL;
 +	unsigned long pages_freed = 0;
  
  	spin_lock(&class->lock);
- 	while ((src_zspage = isolate_zspage(class, true))) {
-@@ -2366,7 +2368,7 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 		putback_zspage(class, dst_zspage);
- 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
- 			free_zspage(pool, class, src_zspage);
+ 	while ((src_page = isolate_source_page(class))) {
+@@ -1780,7 +1782,7 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 
+ 		putback_zspage(pool, class, dst_page);
+ 		if (putback_zspage(pool, class, src_page) == ZS_EMPTY)
 -			pool->stats.pages_compacted += class->pages_per_zspage;
 +			pages_freed += class->pages_per_zspage;
- 		}
  		spin_unlock(&class->lock);
  		cond_resched();
-@@ -2377,12 +2379,15 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 		putback_zspage(class, src_zspage);
+ 		spin_lock(&class->lock);
+@@ -1790,12 +1792,15 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 		putback_zspage(pool, class, src_page);
  
  	spin_unlock(&class->lock);
 +
@@ -152,7 +152,7 @@ index e4cca3f5331e..8db3c2b27a17 100644
  
  	for (i = zs_size_classes - 1; i >= 0; i--) {
  		class = pool->size_class[i];
-@@ -2390,10 +2395,11 @@ unsigned long zs_compact(struct zs_pool *pool)
+@@ -1803,10 +1808,11 @@ unsigned long zs_compact(struct zs_pool *pool)
  			continue;
  		if (class->index != i)
  			continue;
@@ -166,7 +166,7 @@ index e4cca3f5331e..8db3c2b27a17 100644
  }
  EXPORT_SYMBOL_GPL(zs_compact);
  
-@@ -2410,13 +2416,12 @@ static unsigned long zs_shrinker_scan(struct shrinker *shrinker,
+@@ -1823,13 +1829,12 @@ static unsigned long zs_shrinker_scan(struct shrinker *shrinker,
  	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
  			shrinker);
  
