@@ -2,126 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D551532EB80
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A803832EB8C
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:46:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233620AbhCEMob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:44:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233946AbhCEMoC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:44:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC30C64F4B;
-        Fri,  5 Mar 2021 12:44:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948242;
-        bh=F00Gzlwgd4PNrlafgw1hly9/O+G0X6GGjIT8+GDLR1w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FltfeAoF0Hwff9Ds1W9P/9mR3fU4fV3lMXxzDgj1UG8vNjSZbpcv5xtiB8cr1e5ni
-         7/Yff/aUl4sVi6vJSUIRFB4Lid0Odj31hAiFFx/qbasfo47vDotzRn2B+Nhdhi6kRY
-         fduNAKHfHPrIkkR22ejIC3Emaxq+Ez8iqQACTRVc=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.4 30/30] media: v4l: ioctl: Fix memory leak in video_usercopy
-Date:   Fri,  5 Mar 2021 13:22:59 +0100
-Message-Id: <20210305120850.909148856@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S232165AbhCEMpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:45:25 -0500
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:45569 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232736AbhCEMpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 07:45:11 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 3F1D05C015E;
+        Fri,  5 Mar 2021 07:45:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 05 Mar 2021 07:45:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=I
+        Ao/TgFkA8q1KfzfOfn2Nsv0DUppMxw1zg5zaLqW+h4=; b=mg+5N96KQQPm6V/kc
+        Q8rt+IAU6YFygpZPWLMx3KO0fWc8IrFSQtrmEVCJtv1lcZsz07Qw4MzxgjqPAZOm
+        l7hSY+8QO1pKnzENU7ymBDkZHpAvmUGFuM/Dq4tY778aPq/8GAbnYolwka8MBE4i
+        DbFtIQWYPh01p7o5JLgdwyW/sE1PSeNT0mgZTH0D2SDveCV5Zoe5TgmWNDOWOOUE
+        xPbz4t2CkzYO8GZ1yCKrqKwQSJifAkHOAipuoCFdzndV4AllFcjKguj+11s8VSjU
+        D7iN4j+B2pPyvXNgfH4okgHMax33rTFLC6wDoOprXWAY+SWMSgcVo+0/es6x/r2K
+        BSxiQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=IAo/TgFkA8q1KfzfOfn2Nsv0DUppMxw1zg5zaLqW+
+        h4=; b=khH5NLEghVktTwn5QOONrzUmpCifAV2n7FfB9u/Dzb6Iv2+iE63SU+N/e
+        TyHFbrHVg1QiAfgUHLnDU2Ie0eN9xIm6R17m614Sjn5ntL92FmgWXXNUCtbgnv+9
+        NcRkFlESVGlvnWWz092ohahPvwlh+mIDP4RDZao2oLx715CyEjq5wwDsy8sysJed
+        W1NhMCvpYMLMd9mM2oYD4SoJ8WQApxvV6nfUcG9XNJOAstpAeNiXs5kd9oC2EjRE
+        ncD9m1yQrMnCpOz7n8TV1PcYjx4sqWDeDoTZvy/vegHkMOKvDTctJh2zvW1e5eIR
+        tmHPE3Rbul/j1ssMp2SJNrVcSlwxg==
+X-ME-Sender: <xms:0ydCYPKtHzlwwgbGH0xGO3Nhd887VxJ_6CtAWpXuGkSeu2Qzd2ZJSQ>
+    <xme:0ydCYG9QkUd8JiItlXkEMjPUGUc8XLiG7fQLfVtJsq6gYfCkm0-4Z5uVvv9MHnKaA
+    CYPNSpY3bZ4sA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddtiedggeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueehke
+    ehlefffeeiudetfeekjeffvdeuheejjeffheeludfgteekvdelkeduuddvnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:0ydCYAxZxMGhpJxgYZ0UUtPmtExL0iFuE-it2giy5DIBx2uurFpb5w>
+    <xmx:0ydCYL4NhdtmVo07YDN16ftB4HdGG1JXGRRvMQ-NQN4PUryA1ObaTg>
+    <xmx:0ydCYP-IkP89m7ClHojwkSdxhYnr7Q6Tn8k6_LCTaXcgqpXCyIqTKw>
+    <xmx:1CdCYAMefQxo-tRBRdhBaUbKIzwMyVPy3Gz2HsvkyNqMJzv_Gk9nwg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 3B37B1080059;
+        Fri,  5 Mar 2021 07:45:06 -0500 (EST)
+Date:   Fri, 5 Mar 2021 13:39:08 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Petr =?utf-8?Q?=C5=A0tetiar?= <ynezz@true.cz>
+Cc:     stable@vger.kernel.org, Rui Salvaterra <rsalvaterra@gmail.com>,
+        openwrt-devel@lists.openwrt.org, rosenp@gmail.com
+Subject: Re: Backport of 'usbip: tools: fix build error for multiple
+ definition' [Was: Re: [PATCH] kernel: backport GCC 10 usbip build fix for
+ 5.4]
+Message-ID: <YEImbOQrEbb002VL@kroah.com>
+References: <20210305120931.692973-1-rsalvaterra@gmail.com>
+ <20210305122236.GG92607@meh.true.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210305122236.GG92607@meh.true.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+On Fri, Mar 05, 2021 at 01:22:36PM +0100, Petr Štetiar wrote:
+> Hi stable,
+> 
+> can we please get following patch from v5.9-rc1~142^2~213 backported into the
+> stable kernels?
+> 
+>  From d5efc2e6b98fe661dbd8dd0d5d5bfb961728e57a Mon Sep 17 00:00:00 2001
+>  From: Antonio Borneo <borneo.antonio@gmail.com>
+>  Date: Thu, 18 Jun 2020 02:08:44 +0200
+>  Subject: usbip: tools: fix build error for multiple definition
 
-commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
+What stable kernel(s) have you found that this is needed for?
 
-When an IOCTL with argument size larger than 128 that also used array
-arguments were handled, two memory allocations were made but alas, only
-the latter one of them was released. This happened because there was only
-a single local variable to hold such a temporary allocation.
+thanks,
 
-Fix this by adding separate variables to hold the pointers to the
-temporary allocations.
-
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
-Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
-
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -2710,7 +2710,7 @@ video_usercopy(struct file *file, unsign
- 	       v4l2_kioctl func)
- {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -2765,20 +2765,14 @@ video_usercopy(struct file *file, unsign
- 	has_array_args = err;
- 
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kmalloc(array_size, GFP_KERNEL);
-+		array_buf = kmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
--		if (copy_from_user(mbuf, user_ptr, array_size))
-+		if (copy_from_user(array_buf, user_ptr, array_size))
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
- 	}
- 
- 	/* Handles IOCTL */
-@@ -2797,7 +2791,7 @@ video_usercopy(struct file *file, unsign
- 
- 	if (has_array_args) {
- 		*kernel_ptr = (void __force *)user_ptr;
--		if (copy_to_user(user_ptr, mbuf, array_size))
-+		if (copy_to_user(user_ptr, array_buf, array_size))
- 			err = -EFAULT;
- 		goto out_array_args;
- 	}
-@@ -2817,6 +2811,7 @@ out_array_args:
- 	}
- 
- out:
-+	kfree(array_buf);
- 	kfree(mbuf);
- 	return err;
- }
-
-
+greg k-h
