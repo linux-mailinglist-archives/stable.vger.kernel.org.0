@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364EE32EA3C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5013E32E93E
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231902AbhCEMhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:37:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50030 "EHLO mail.kernel.org"
+        id S230327AbhCEMbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:31:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232941AbhCEMgw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:36:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC51B65014;
-        Fri,  5 Mar 2021 12:36:50 +0000 (UTC)
+        id S231481AbhCEMbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:31:09 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA1A6503E;
+        Fri,  5 Mar 2021 12:31:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947811;
-        bh=JtaYzPNlDI7tqDNphEOdtbx2Ac0hDe4hPbGR1bbhcj4=;
+        s=korg; t=1614947468;
+        bh=iZsLd584RbSUhwjPW9xpgntjv5HdqZmgRYr2gYXj+3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xnDknYLGHHeOY19YeSR6+ws9kiGAcf9dLd6CqhQXnjt8chAkL4NcarOM/OFMNmGBE
-         nPv5xNpLAyNtUP47nYubRqYLyBVV4zsVCEBhutm/sA7GgpiEaCD6zma++hkpS4iZxv
-         EKDYwYGY+XNJu0DDpl3E7fyy4mbWwQSv5tNpC0Mg=
+        b=b3TQUvsFOmE/Y/RW1kRGdScwxg7qNs71IEbnLTKC/zr5Q+ky+CotT1/DAOY5+w0xk
+         zKavj8TVB+oU6nanOOLwFJf5pHGVPOlZq78QuwvHNnOVZPlj4CI176U/ywQ3hSVB3B
+         3sZW/M02Vu4aJ2AAIAXdUrzeRCPs1XUYtXQ4WxO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zi Yan <ziy@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 02/52] hugetlb: fix update_and_free_page contig page struct assumption
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 074/102] perf/x86/kvm: Add Cascade Lake Xeon steppings to isolation_ucodes[]
 Date:   Fri,  5 Mar 2021 13:21:33 +0100
-Message-Id: <20210305120853.778850487@linuxfoundation.org>
+Message-Id: <20210305120906.917849403@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,66 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Jim Mattson <jmattson@google.com>
 
-commit dbfee5aee7e54f83d96ceb8e3e80717fac62ad63 upstream.
+[ Upstream commit b3c3361fe325074d4144c29d46daae4fc5a268d5 ]
 
-page structs are not guaranteed to be contiguous for gigantic pages.  The
-routine update_and_free_page can encounter a gigantic page, yet it assumes
-page structs are contiguous when setting page flags in subpages.
+Cascade Lake Xeon parts have the same model number as Skylake Xeon
+parts, so they are tagged with the intel_pebs_isolation
+quirk. However, as with Skylake Xeon H0 stepping parts, the PEBS
+isolation issue is fixed in all microcode versions.
 
-If update_and_free_page encounters non-contiguous page structs, we can see
-“BUG: Bad page state in process …” errors.
+Add the Cascade Lake Xeon steppings (5, 6, and 7) to the
+isolation_ucodes[] table so that these parts benefit from Andi's
+optimization in commit 9b545c04abd4f ("perf/x86/kvm: Avoid unnecessary
+work in guest filtering").
 
-Non-contiguous page structs are generally not an issue.  However, they can
-exist with a specific kernel configuration and hotplug operations.  For
-example: Configure the kernel with CONFIG_SPARSEMEM and
-!CONFIG_SPARSEMEM_VMEMMAP.  Then, hotplug add memory for the area where
-the gigantic page will be allocated.  Zi Yan outlined steps to reproduce
-here [1].
-
-[1] https://lore.kernel.org/linux-mm/16F7C58B-4D79-41C5-9B64-A1A1628F4AF2@nvidia.com/
-
-Link: https://lkml.kernel.org/r/20210217184926.33567-1-mike.kravetz@oracle.com
-Fixes: 944d9fec8d7a ("hugetlb: add support for gigantic page allocation at runtime")
-Signed-off-by: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Joao Martins <joao.m.martins@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andi Kleen <ak@linux.intel.com>
+Link: https://lkml.kernel.org/r/20210205191324.2889006-1-jmattson@google.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1171,14 +1171,16 @@ static inline void destroy_compound_giga
- static void update_and_free_page(struct hstate *h, struct page *page)
- {
- 	int i;
-+	struct page *subpage = page;
- 
- 	if (hstate_is_gigantic(h) && !gigantic_page_supported())
- 		return;
- 
- 	h->nr_huge_pages--;
- 	h->nr_huge_pages_node[page_to_nid(page)]--;
--	for (i = 0; i < pages_per_huge_page(h); i++) {
--		page[i].flags &= ~(1 << PG_locked | 1 << PG_error |
-+	for (i = 0; i < pages_per_huge_page(h);
-+	     i++, subpage = mem_map_next(subpage, page, i)) {
-+		subpage->flags &= ~(1 << PG_locked | 1 << PG_error |
- 				1 << PG_referenced | 1 << PG_dirty |
- 				1 << PG_active | 1 << PG_private |
- 				1 << PG_writeback);
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 7d4d89fa8647..aaa7bffdb20f 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -4384,6 +4384,9 @@ static const struct x86_cpu_desc isolation_ucodes[] = {
+ 	INTEL_CPU_DESC(INTEL_FAM6_BROADWELL_X,		 2, 0x0b000014),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 3, 0x00000021),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 4, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 5, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 6, 0x00000000),
++	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_X,		 7, 0x00000000),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE_L,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_SKYLAKE,		 3, 0x0000007c),
+ 	INTEL_CPU_DESC(INTEL_FAM6_KABYLAKE,		 9, 0x0000004e),
+-- 
+2.30.1
+
 
 
