@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F0532E98F
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA9732E991
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbhCEMd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:33:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
+        id S231633AbhCEMd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232384AbhCEMdM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:33:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0680B65019;
-        Fri,  5 Mar 2021 12:33:11 +0000 (UTC)
+        id S232208AbhCEMdP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8B0665013;
+        Fri,  5 Mar 2021 12:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947592;
-        bh=2EqZg4RU7LVE7gbSx+bg95LHGMPaJje5IXToq/HNGVw=;
+        s=korg; t=1614947595;
+        bh=J64CiavfkogiSNFznzT+dDZhZyPkE8t9d/R6+g3UtVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ou87NsNUyszrL/3rGH5evOaw5KFjQ0boCS5TnrxrLg+MLmlOy8ZkTWUTHgXR0tTlu
-         q1ger9x6M6W/0g3ng3dXzQQHrIy5D+C484uNIhJIO5+98uaZJAnBMn8U0omqArdWoO
-         tC1RnzyDBUjDzEs2E2JYI8B5bdh7Q2jX2L+0c29w=
+        b=vdifopZJN30XAU6M5LfqAUMQuNrwmFPwO9UsyaAm4PGeGHzRqOzfC/RpTphZ9qZVo
+         /Inld4MAxdbig/U1IzelzBbQ6DOIzapI4rOdsJlN3cWNjEY+jbJS6OWF7vB8egJXxN
+         swKcGL0Pr/mE24Pzc0ghX17kaZzVlDp1KFPLK9fU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 5.4 14/72] smackfs: restrict bytes count in smackfs write functions
-Date:   Fri,  5 Mar 2021 13:21:16 +0100
-Message-Id: <20210305120858.032965574@linuxfoundation.org>
+        syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Marco Elver <elver@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 15/72] net: fix up truesize of cloned skb in skb_prepare_for_shift()
+Date:   Fri,  5 Mar 2021 13:21:17 +0100
+Message-Id: <20210305120858.082718900@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
 References: <20210305120857.341630346@linuxfoundation.org>
@@ -41,108 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Marco Elver <elver@google.com>
 
-commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 upstream.
+commit 097b9146c0e26aabaa6ff3e5ea536a53f5254a79 upstream.
 
-syzbot found WARNINGs in several smackfs write operations where
-bytes count is passed to memdup_user_nul which exceeds
-GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
+Avoid the assumption that ksize(kmalloc(S)) == ksize(kmalloc(S)): when
+cloning an skb, save and restore truesize after pskb_expand_head(). This
+can occur if the allocator decides to service an allocation of the same
+size differently (e.g. use a different size class, or pass the
+allocation on to KFENCE).
 
-Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
-smk_write_net6addr accepts any label or -DELETE. I couldn't find
-any general rule for other label lengths except SMK_LABELLEN,
-SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
+Because truesize is used for bookkeeping (such as sk_wmem_queued), a
+modified truesize of a cloned skb may result in corrupt bookkeeping and
+relevant warnings (such as in sk_stream_kill_queues()).
 
-Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
-Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
-
-Here is a quick way to reproduce the WARNING:
-python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
-
-Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Link: https://lkml.kernel.org/r/X9JR/J6dMMOy1obu@elver.google.com
+Reported-by: syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210201160420.2826895-1-elver@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smackfs.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ net/core/skbuff.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -1163,7 +1163,7 @@ static ssize_t smk_write_net4addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
-@@ -1423,7 +1423,7 @@ static ssize_t smk_write_net6addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
-@@ -1830,6 +1830,10 @@ static ssize_t smk_write_ambient(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3290,7 +3290,19 @@ EXPORT_SYMBOL(skb_split);
+  */
+ static int skb_prepare_for_shift(struct sk_buff *skb)
+ {
+-	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++	int ret = 0;
 +
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2001,6 +2005,9 @@ static ssize_t smk_write_onlycap(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
++	if (skb_cloned(skb)) {
++		/* Save and restore truesize: pskb_expand_head() may reallocate
++		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
++		 * cannot change truesize at this point.
++		 */
++		unsigned int save_truesize = skb->truesize;
 +
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2088,6 +2095,9 @@ static ssize_t smk_write_unconfined(stru
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
++		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++		skb->truesize = save_truesize;
++	}
++	return ret;
+ }
  
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2643,6 +2653,10 @@ static ssize_t smk_write_syslog(struct f
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2735,10 +2749,13 @@ static ssize_t smk_write_relabel_self(st
- 		return -EPERM;
- 
- 	/*
-+	 * No partial write.
- 	 * Enough data must be present.
- 	 */
- 	if (*ppos != 0)
- 		return -EINVAL;
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ /**
 
 
