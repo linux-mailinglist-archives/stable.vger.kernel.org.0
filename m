@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7EA32E9B7
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F04DD32EA49
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbhCEMe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:34:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45598 "EHLO mail.kernel.org"
+        id S232429AbhCEMhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230344AbhCEMeF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:34:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D77C65004;
-        Fri,  5 Mar 2021 12:34:04 +0000 (UTC)
+        id S233120AbhCEMhS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:37:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65CF665004;
+        Fri,  5 Mar 2021 12:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947645;
-        bh=2RB90m+x29Zn83M1ng5Nkq4zWD2YnbtAkwr4aUe3ZCw=;
+        s=korg; t=1614947838;
+        bh=J2D7/x4m0IBsynDiFzOuCySCWoKqTn+QiixGa+F0MUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPsKcN1nNJCTsJ6Z+j3ZVe/RJCwdD4lYy59pOBE4A7m2/+o7GfVOsuS5U9UoGXi+1
-         x8hH8RFaHP+A6DHFGLPe/LuIGoJ4hAZ+D7VJrC0bABXnS80FjtC1YTMOOXYZB0jnZQ
-         2HCOu/cqUmGadNxL9Dfh8mcPXQInKpbzyR8tUNwU=
+        b=vyIzvZiZ3ahqTLAJwIb1CgUwt1+8lUAYEiv7MhaYXApJj7DgMv10OgYD7tzUyeN53
+         289julw0MTmkfE+5vo7OATNqYy5VfwaDx+9TtkOdxtzevmBbRenJFOciB64NVhkaaI
+         xGlxqn8ldaNNQEle4URq5KbZhFpoEJXvhcM9BZZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Di Zhu <zhudi21@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 33/72] pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
-Date:   Fri,  5 Mar 2021 13:21:35 +0100
-Message-Id: <20210305120858.955164681@linuxfoundation.org>
+        stable@vger.kernel.org, Frank van der Linden <fllinden@amazon.com>,
+        Shaoying Xu <shaoyi@amazon.com>, Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 05/52] arm64 module: set plt* section addresses to 0x0
+Date:   Fri,  5 Mar 2021 13:21:36 +0100
+Message-Id: <20210305120853.927081823@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Di Zhu <zhudi21@huawei.com>
+From: Shaoying Xu <shaoyi@amazon.com>
 
-[ Upstream commit 275b1e88cabb34dbcbe99756b67e9939d34a99b6 ]
+commit f5c6d0fcf90ce07ee0d686d465b19b247ebd5ed7 upstream.
 
-pktgen create threads for all online cpus and bond these threads to
-relevant cpu repecivtily. when this thread firstly be woken up, it
-will compare cpu currently running with the cpu specified at the time
-of creation and if the two cpus are not equal, BUG_ON() will take effect
-causing panic on the system.
-Notice that these threads could be migrated to other cpus before start
-running because of the cpu hotplug after these threads have created. so the
-BUG_ON() used here seems unreasonable and we can replace it with WARN_ON()
-to just printf a warning other than panic the system.
+These plt* and .text.ftrace_trampoline sections specified for arm64 have
+non-zero addressses. Non-zero section addresses in a relocatable ELF would
+confuse GDB when it tries to compute the section offsets and it ends up
+printing wrong symbol addresses. Therefore, set them to zero, which mirrors
+the change in commit 5d8591bc0fba ("module: set ksymtab/kcrctab* section
+addresses to 0x0").
 
-Signed-off-by: Di Zhu <zhudi21@huawei.com>
-Link: https://lore.kernel.org/r/20210125124229.19334-1-zhudi21@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210216183234.GA23876@amazon.com
+Signed-off-by: Will Deacon <will@kernel.org>
+[shaoyi@amazon.com: made same changes in arch/arm64/kernel/module.lds for 5.4]
+Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/pktgen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+arch/arm64/include/asm/module.lds.h was renamed from arch/arm64/kernel/module.lds
+by commit 596b0474d3d9 ("kbuild: preprocess module linker script") since v5.10.
+Therefore, made same changes in arch/arm64/kernel/module.lds for 5.4. 
 
-diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index cb3b565ff5ad..1d20dd70879b 100644
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3465,7 +3465,7 @@ static int pktgen_thread_worker(void *arg)
- 	struct pktgen_dev *pkt_dev = NULL;
- 	int cpu = t->cpu;
- 
--	BUG_ON(smp_processor_id() != cpu);
-+	WARN_ON(smp_processor_id() != cpu);
- 
- 	init_waitqueue_head(&t->queue);
- 	complete(&t->start_done);
--- 
-2.30.1
+ arch/arm64/kernel/module.lds |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+--- a/arch/arm64/kernel/module.lds
++++ b/arch/arm64/kernel/module.lds
+@@ -1,5 +1,5 @@
+ SECTIONS {
+-	.plt (NOLOAD) : { BYTE(0) }
+-	.init.plt (NOLOAD) : { BYTE(0) }
+-	.text.ftrace_trampoline (NOLOAD) : { BYTE(0) }
++	.plt 0 (NOLOAD) : { BYTE(0) }
++	.init.plt 0 (NOLOAD) : { BYTE(0) }
++	.text.ftrace_trampoline 0 (NOLOAD) : { BYTE(0) }
+ }
 
 
