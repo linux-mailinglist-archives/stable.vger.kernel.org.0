@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDAD32E900
+	by mail.lfdr.de (Postfix) with ESMTP id 4C9A332E8FF
 	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbhCEMaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229965AbhCEMaD (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:30:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38948 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230192AbhCEM3e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:29:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3486E6505C;
-        Fri,  5 Mar 2021 12:29:33 +0000 (UTC)
+        id S232127AbhCEM3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 192B165004;
+        Fri,  5 Mar 2021 12:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947373;
-        bh=/rxuu6LmRXOwkLaxMwFznu8dHOi9leJrRWo45P0GUxI=;
+        s=korg; t=1614947376;
+        bh=KkX2977L1RGIyZaT6f1f/AGVdwt1FAKtsv1JCqMpUdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P5GBtTT0j+dzWEuDgbBOmor2tKCYUSkWyF99KdtM0V5HU5yev0f9LghjFn6YrKAS7
-         V4yhnkfmiJDZsvs+sddCXAHwFo0+48zzgUg07RiH3cfb05hJUR+BXVsloMZYVA3AKg
-         87LflIPquJ+6iMe6If/qpHUeFG++SqdxNnSZr6zw=
+        b=KfVCRKueUtzFJopFjoXCkHnYAIT6MmMqFmHx1f66i2+2RmDgaukFO8X9lnNUoXrul
+         +591cSD18ixHd0Ovlxary5DhsSATrKAJs1u4XDmr9y8hDptlvqEUl4XqHN86NrIW9q
+         lBXaC7k9ZPnU4ML24fTwSpOMN7Q6nbfK+H522uls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/102] staging: fwserial: Fix error handling in fwserial_create
-Date:   Fri,  5 Mar 2021 13:21:00 +0100
-Message-Id: <20210305120905.315623496@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 042/102] x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+Date:   Fri,  5 Mar 2021 13:21:01 +0100
+Message-Id: <20210305120905.368394211@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
 References: <20210305120903.276489876@linuxfoundation.org>
@@ -39,43 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
+[ Upstream commit 4b2d8ca9208be636b30e924b1cbcb267b0740c93 ]
 
-When fw_core_add_address_handler() fails, we need to destroy
-the port by tty_port_destroy(). Also we need to unregister
-the address handler by fw_core_remove_address_handler() on
-failure.
+On this system the M.2 PCIe WiFi card isn't detected after reboot, only
+after cold boot. reboot=pci fixes this behavior. In [0] the same issue
+is described, although on another system and with another Intel WiFi
+card. In case it's relevant, both systems have Celeron CPUs.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add a PCI reboot quirk on affected systems until a more generic fix is
+available.
+
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=202399
+
+ [ bp: Massage commit message. ]
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/1524eafd-f89c-cfa4-ed70-0bde9e45eec9@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fwserial/fwserial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/reboot.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index db83d34cd677..c368082aae1a 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -2189,6 +2189,7 @@ static int fwserial_create(struct fw_unit *unit)
- 		err = fw_core_add_address_handler(&port->rx_handler,
- 						  &fw_high_memory_region);
- 		if (err) {
-+			tty_port_destroy(&port->port);
- 			kfree(port);
- 			goto free_ports;
- 		}
-@@ -2271,6 +2272,7 @@ unregister_ttys:
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index efbaef8b4de9..b29657b76e3f 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -477,6 +477,15 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
+ 		},
+ 	},
  
- free_ports:
- 	for (--i; i >= 0; --i) {
-+		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
- 		tty_port_destroy(&serial->ports[i]->port);
- 		kfree(serial->ports[i]);
- 	}
++	{	/* PCIe Wifi card isn't detected after reboot otherwise */
++		.callback = set_pci_reboot,
++		.ident = "Zotac ZBOX CI327 nano",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
++		},
++	},
++
+ 	/* Sony */
+ 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
+ 		.callback = set_bios_reboot,
 -- 
 2.30.1
 
