@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 686D532E888
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B27A732E886
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231627AbhCEM1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231532AbhCEM1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:27:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229674AbhCEM07 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:26:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E31466502E;
-        Fri,  5 Mar 2021 12:26:58 +0000 (UTC)
+        id S231616AbhCEM1C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:27:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC39365032;
+        Fri,  5 Mar 2021 12:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947219;
-        bh=eAwaXMiEXyKxabvLrXknajWjXn6HfIAyhd9zxfYJk8w=;
+        s=korg; t=1614947222;
+        bh=e/I7ecebu8lhCRwpzQcscC41Ud0NkyvmuWpdsP+3PBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vE7Aa3JPh5d8IZldI/qho8zrKceCRdwy8I9tsc8AtcpltPqX8M9ZAzWWfDnchJmpv
-         xQKG+SDdigiPKmNWc0PiW+CeJvZ+F1QSwpJ0d2oz0Ft50svgxIZLDYI4Xn4UO1qxHj
-         E7w5okPo6HNTqMQpszyJNBQrgSO4/z8a6OVh40cI=
+        b=E1ouSyDA5GjiQfv7RHzT2Ncxl9gJPJFAY0R6vAPa2naBVyDSavqRWDLrH2GGG4J56
+         js9lLXh/ZNTVlyrSrCu7T3Oq4N2pumnjI9uch1Fqn3bcuc8FnE6/UJ2F7M6IpnZUdF
+         VnIQBvMcgAuQQFYhVjdN4g2p53zQuyrb8jln4980=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Nichols <adam@grimm-co.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Chris Leech <cleech@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.11 091/104] scsi: iscsi: Verify lengths on passthrough PDUs
-Date:   Fri,  5 Mar 2021 13:21:36 +0100
-Message-Id: <20210305120907.629246219@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.11 092/104] Xen/gnttab: handle p2m update errors on a per-slot basis
+Date:   Fri,  5 Mar 2021 13:21:37 +0100
+Message-Id: <20210305120907.678475310@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -42,49 +39,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Leech <cleech@redhat.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit f9dbdf97a5bd92b1a49cee3d591b55b11fd7a6d5 upstream.
+commit 8310b77b48c5558c140e7a57a702e7819e62f04e upstream.
 
-Open-iSCSI sends passthrough PDUs over netlink, but the kernel should be
-verifying that the provided PDU header and data lengths fall within the
-netlink message to prevent accessing beyond that in memory.
+Bailing immediately from set_foreign_p2m_mapping() upon a p2m updating
+error leaves the full batch in an ambiguous state as far as the caller
+is concerned. Instead flags respective slots as bad, unmapping what
+was mapped there right away.
 
-Cc: stable@vger.kernel.org
-Reported-by: Adam Nichols <adam@grimm-co.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Chris Leech <cleech@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+HYPERVISOR_grant_table_op()'s return value and the individual unmap
+slots' status fields get used only for a one-time - there's not much we
+can do in case of a failure.
+
+Note that there's no GNTST_enomem or alike, so GNTST_general_error gets
+used.
+
+The map ops' handle fields get overwritten just to be on the safe side.
+
+This is part of XSA-367.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/96cccf5d-e756-5f53-b91a-ea269bfb9be0@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm/xen/p2m.c |   35 +++++++++++++++++++++++++++++++----
+ arch/x86/xen/p2m.c |   44 +++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 72 insertions(+), 7 deletions(-)
 
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -3627,6 +3627,7 @@ iscsi_if_recv_msg(struct sk_buff *skb, s
- {
- 	int err = 0;
- 	u32 portid;
-+	u32 pdu_len;
- 	struct iscsi_uevent *ev = nlmsg_data(nlh);
- 	struct iscsi_transport *transport = NULL;
- 	struct iscsi_internal *priv;
-@@ -3769,6 +3770,14 @@ iscsi_if_recv_msg(struct sk_buff *skb, s
- 			err = -EINVAL;
- 		break;
- 	case ISCSI_UEVENT_SEND_PDU:
-+		pdu_len = nlh->nlmsg_len - sizeof(*nlh) - sizeof(*ev);
+--- a/arch/arm/xen/p2m.c
++++ b/arch/arm/xen/p2m.c
+@@ -93,12 +93,39 @@ int set_foreign_p2m_mapping(struct gntta
+ 	int i;
+ 
+ 	for (i = 0; i < count; i++) {
++		struct gnttab_unmap_grant_ref unmap;
++		int rc;
 +
-+		if ((ev->u.send_pdu.hdr_size > pdu_len) ||
-+		    (ev->u.send_pdu.data_size > (pdu_len - ev->u.send_pdu.hdr_size))) {
-+			err = -EINVAL;
-+			break;
-+		}
+ 		if (map_ops[i].status)
+ 			continue;
+-		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
+-				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
+-			return -ENOMEM;
+-		}
++		if (likely(set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
++				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT)))
++			continue;
 +
- 		conn = iscsi_conn_lookup(ev->u.send_pdu.sid, ev->u.send_pdu.cid);
- 		if (conn) {
- 			mutex_lock(&conn_mutex);
++		/*
++		 * Signal an error for this slot. This in turn requires
++		 * immediate unmapping.
++		 */
++		map_ops[i].status = GNTST_general_error;
++		unmap.host_addr = map_ops[i].host_addr,
++		unmap.handle = map_ops[i].handle;
++		map_ops[i].handle = ~0;
++		if (map_ops[i].flags & GNTMAP_device_map)
++			unmap.dev_bus_addr = map_ops[i].dev_bus_addr;
++		else
++			unmap.dev_bus_addr = 0;
++
++		/*
++		 * Pre-populate the status field, to be recognizable in
++		 * the log message below.
++		 */
++		unmap.status = 1;
++
++		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
++					       &unmap, 1);
++		if (rc || unmap.status != GNTST_okay)
++			pr_err_once("gnttab unmap failed: rc=%d st=%d\n",
++				    rc, unmap.status);
+ 	}
+ 
+ 	return 0;
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -710,6 +710,8 @@ int set_foreign_p2m_mapping(struct gntta
+ 
+ 	for (i = 0; i < count; i++) {
+ 		unsigned long mfn, pfn;
++		struct gnttab_unmap_grant_ref unmap[2];
++		int rc;
+ 
+ 		/* Do not add to override if the map failed. */
+ 		if (map_ops[i].status != GNTST_okay ||
+@@ -727,10 +729,46 @@ int set_foreign_p2m_mapping(struct gntta
+ 
+ 		WARN(pfn_to_mfn(pfn) != INVALID_P2M_ENTRY, "page must be ballooned");
+ 
+-		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
+-			ret = -ENOMEM;
+-			goto out;
++		if (likely(set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
++			continue;
++
++		/*
++		 * Signal an error for this slot. This in turn requires
++		 * immediate unmapping.
++		 */
++		map_ops[i].status = GNTST_general_error;
++		unmap[0].host_addr = map_ops[i].host_addr,
++		unmap[0].handle = map_ops[i].handle;
++		map_ops[i].handle = ~0;
++		if (map_ops[i].flags & GNTMAP_device_map)
++			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
++		else
++			unmap[0].dev_bus_addr = 0;
++
++		if (kmap_ops) {
++			kmap_ops[i].status = GNTST_general_error;
++			unmap[1].host_addr = kmap_ops[i].host_addr,
++			unmap[1].handle = kmap_ops[i].handle;
++			kmap_ops[i].handle = ~0;
++			if (kmap_ops[i].flags & GNTMAP_device_map)
++				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
++			else
++				unmap[1].dev_bus_addr = 0;
+ 		}
++
++		/*
++		 * Pre-populate both status fields, to be recognizable in
++		 * the log message below.
++		 */
++		unmap[0].status = 1;
++		unmap[1].status = 1;
++
++		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
++					       unmap, 1 + !!kmap_ops);
++		if (rc || unmap[0].status != GNTST_okay ||
++		    unmap[1].status != GNTST_okay)
++			pr_err_once("gnttab unmap failed: rc=%d st0=%d st1=%d\n",
++				    rc, unmap[0].status, unmap[1].status);
+ 	}
+ 
+ out:
 
 
