@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66DE732EAB1
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7461732EA73
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbhCEMjv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54024 "EHLO mail.kernel.org"
+        id S232547AbhCEMim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:38:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233106AbhCEMj2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACC2B64E84;
-        Fri,  5 Mar 2021 12:39:27 +0000 (UTC)
+        id S231826AbhCEMiK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8729565026;
+        Fri,  5 Mar 2021 12:38:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947968;
-        bh=7XXtaGApa8JWrM+GbGZ5EJTSEgRpjYVbkbv86MZMxnA=;
+        s=korg; t=1614947890;
+        bh=wB84boOLjUW9ANmQbwvgjvYZHOMChAWo+X+sBqaK2ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUQU3IPDmKTBYSvfeclcAyZwoxmh39aLUtk1CZ5bqRAnSQVPgobtQ9C1xGlnx6eb4
-         38ToIilReG0ei1P71tO3x+BUnZ3MGeWHzyNNDMXq1oxBEejO5y2SKsL0+G3ZTx7NS8
-         G59/kdSakjtpJbQW1beT5xgO1gAPFnOi7UyfQm+8=
+        b=M5LSch/qqlx+S1BF2wq/Yns8vVe95r9vErHvysrwfHwaxy4D0Y+0Ychau3TasbNXB
+         IvZ+97BWgJnqMKj9pYZnoooIWyIxgS/TpFT5Ex+oyTD6mZjuKxOmMDFLkEFNZ6vWyP
+         xvgK0b9tce2WIbacbkGZVA+5xL3JLQis6SqELTS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 20/39] x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+        stable@vger.kernel.org, Rokudo Yan <wu-yan@tcl.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 48/52] zsmalloc: account the number of compacted pages correctly
 Date:   Fri,  5 Mar 2021 13:22:19 +0100
-Message-Id: <20210305120852.784437706@linuxfoundation.org>
+Message-Id: <20210305120856.014050999@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Rokudo Yan <wu-yan@tcl.com>
 
-[ Upstream commit 4b2d8ca9208be636b30e924b1cbcb267b0740c93 ]
+commit 2395928158059b8f9858365fce7713ce7fef62e4 upstream.
 
-On this system the M.2 PCIe WiFi card isn't detected after reboot, only
-after cold boot. reboot=pci fixes this behavior. In [0] the same issue
-is described, although on another system and with another Intel WiFi
-card. In case it's relevant, both systems have Celeron CPUs.
+There exists multiple path may do zram compaction concurrently.
+1. auto-compaction triggered during memory reclaim
+2. userspace utils write zram<id>/compaction node
 
-Add a PCI reboot quirk on affected systems until a more generic fix is
-available.
+So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
+But pages_compacted is a per zsmalloc pool variable and modification
+of the variable is not serialized(through under class->lock).
+There are two issues here:
+1. the pages_compacted may not equal to total number of pages
+freed(due to concurrently add).
+2. zs_shrinker_scan may not return the correct number of pages
+freed(issued by current shrinker).
 
-[0] https://bugzilla.kernel.org/show_bug.cgi?id=202399
+The fix is simple:
+1. account the number of pages freed in zs_compact locally.
+2. use actomic variable pages_compacted to accumulate total number.
 
- [ bp: Massage commit message. ]
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/1524eafd-f89c-cfa4-ed70-0bde9e45eec9@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
+Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
+Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/reboot.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/block/zram/zram_drv.c |    2 +-
+ include/linux/zsmalloc.h      |    2 +-
+ mm/zsmalloc.c                 |   17 +++++++++++------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 0d52c9050113..729e288718cc 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -477,6 +477,15 @@ static const struct dmi_system_id reboot_dmi_table[] __initconst = {
- 		},
- 	},
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -873,7 +873,7 @@ static ssize_t mm_stat_show(struct devic
+ 			zram->limit_pages << PAGE_SHIFT,
+ 			max_used << PAGE_SHIFT,
+ 			(u64)atomic64_read(&zram->stats.same_pages),
+-			pool_stats.pages_compacted,
++			atomic_long_read(&pool_stats.pages_compacted),
+ 			(u64)atomic64_read(&zram->stats.huge_pages));
+ 	up_read(&zram->init_lock);
  
-+	{	/* PCIe Wifi card isn't detected after reboot otherwise */
-+		.callback = set_pci_reboot,
-+		.ident = "Zotac ZBOX CI327 nano",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
-+		},
-+	},
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -36,7 +36,7 @@ enum zs_mapmode {
+ 
+ struct zs_pool_stats {
+ 	/* How many pages were migrated (freed) */
+-	unsigned long pages_compacted;
++	atomic_long_t pages_compacted;
+ };
+ 
+ struct zs_pool;
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -2285,11 +2285,13 @@ static unsigned long zs_can_compact(stru
+ 	return obj_wasted * class->pages_per_zspage;
+ }
+ 
+-static void __zs_compact(struct zs_pool *pool, struct size_class *class)
++static unsigned long __zs_compact(struct zs_pool *pool,
++				  struct size_class *class)
+ {
+ 	struct zs_compact_control cc;
+ 	struct zspage *src_zspage;
+ 	struct zspage *dst_zspage = NULL;
++	unsigned long pages_freed = 0;
+ 
+ 	spin_lock(&class->lock);
+ 	while ((src_zspage = isolate_zspage(class, true))) {
+@@ -2319,7 +2321,7 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, dst_zspage);
+ 		if (putback_zspage(class, src_zspage) == ZS_EMPTY) {
+ 			free_zspage(pool, class, src_zspage);
+-			pool->stats.pages_compacted += class->pages_per_zspage;
++			pages_freed += class->pages_per_zspage;
+ 		}
+ 		spin_unlock(&class->lock);
+ 		cond_resched();
+@@ -2330,12 +2332,15 @@ static void __zs_compact(struct zs_pool
+ 		putback_zspage(class, src_zspage);
+ 
+ 	spin_unlock(&class->lock);
 +
- 	/* Sony */
- 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
- 		.callback = set_bios_reboot,
--- 
-2.30.1
-
++	return pages_freed;
+ }
+ 
+ unsigned long zs_compact(struct zs_pool *pool)
+ {
+ 	int i;
+ 	struct size_class *class;
++	unsigned long pages_freed = 0;
+ 
+ 	for (i = ZS_SIZE_CLASSES - 1; i >= 0; i--) {
+ 		class = pool->size_class[i];
+@@ -2343,10 +2348,11 @@ unsigned long zs_compact(struct zs_pool
+ 			continue;
+ 		if (class->index != i)
+ 			continue;
+-		__zs_compact(pool, class);
++		pages_freed += __zs_compact(pool, class);
+ 	}
++	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
+ 
+-	return pool->stats.pages_compacted;
++	return pages_freed;
+ }
+ EXPORT_SYMBOL_GPL(zs_compact);
+ 
+@@ -2363,13 +2369,12 @@ static unsigned long zs_shrinker_scan(st
+ 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
+ 			shrinker);
+ 
+-	pages_freed = pool->stats.pages_compacted;
+ 	/*
+ 	 * Compact classes and calculate compaction delta.
+ 	 * Can run concurrently with a manually triggered
+ 	 * (by user) compaction.
+ 	 */
+-	pages_freed = zs_compact(pool) - pages_freed;
++	pages_freed = zs_compact(pool);
+ 
+ 	return pages_freed ? pages_freed : SHRINK_STOP;
+ }
 
 
