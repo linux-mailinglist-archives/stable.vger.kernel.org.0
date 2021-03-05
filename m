@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14A7832EAC7
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEA5832EB10
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbhCEMkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55020 "EHLO mail.kernel.org"
+        id S232766AbhCEMly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233311AbhCEMj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:57 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FBA965012;
-        Fri,  5 Mar 2021 12:39:56 +0000 (UTC)
+        id S232876AbhCEMl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C436502D;
+        Fri,  5 Mar 2021 12:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947997;
-        bh=frnYT284QuGVrTDpO3YkJKBmHq1Omk+YL+zJ8mZCsK8=;
+        s=korg; t=1614948087;
+        bh=rPMtFXtHoxrrcsS0gbst/dGD4+Bi8ipqeO1tUd88g+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RL3PUogpme/lzRqpI/2OY6g1QiJaBAjtiTJFyAndLV/UL00nJPXJW+Dq0oJrg3Ce7
-         MgEjZHBP1WEFUo5JGJUQT4osDQt84mqEGQw49We/3g64pA1bHyDDEbVDurpe5RoJcU
-         xS4+NQyMWOeCSzgw/HxB3xPQKWXknzxZPYuojLos=
+        b=lIHmaMgE+H7AJv+aJKz5aNcIwNza3dq5pH8zP5U/hoCij4XHUemILVph6T+HwhIL2
+         hFe36n92aNxTe3sXDWh7/6kX/J7wr9ARJyNKLEzVCyfpXprjtUQp3hs+geZD2xO3DU
+         t7R0EIsdDWrSVZKWCt9bF1h4ckGPVt1p4krma/NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>
-Subject: [PATCH 4.14 32/39] sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 24/41] x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
 Date:   Fri,  5 Mar 2021 13:22:31 +0100
-Message-Id: <20210305120853.392925382@linuxfoundation.org>
+Message-Id: <20210305120852.480831792@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,151 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Perches <joe@perches.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 2efc459d06f1630001e3984854848a5647086232 upstream.
+[ Upstream commit 4b2d8ca9208be636b30e924b1cbcb267b0740c93 ]
 
-Output defects can exist in sysfs content using sprintf and snprintf.
+On this system the M.2 PCIe WiFi card isn't detected after reboot, only
+after cold boot. reboot=pci fixes this behavior. In [0] the same issue
+is described, although on another system and with another Intel WiFi
+card. In case it's relevant, both systems have Celeron CPUs.
 
-sprintf does not know the PAGE_SIZE maximum of the temporary buffer
-used for outputting sysfs content and it's possible to overrun the
-PAGE_SIZE buffer length.
+Add a PCI reboot quirk on affected systems until a more generic fix is
+available.
 
-Add a generic sysfs_emit function that knows that the size of the
-temporary buffer and ensures that no overrun is done.
+[0] https://bugzilla.kernel.org/show_bug.cgi?id=202399
 
-Add a generic sysfs_emit_at function that can be used in multiple
-call situations that also ensures that no overrun is done.
+ [ bp: Massage commit message. ]
 
-Validate the output buffer argument to be page aligned.
-Validate the offset len argument to be within the PAGE_SIZE buf.
-
-Signed-off-by: Joe Perches <joe@perches.com>
-Link: https://lore.kernel.org/r/884235202216d464d61ee975f7465332c86f76b2.1600285923.git.joe@perches.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/1524eafd-f89c-cfa4-ed70-0bde9e45eec9@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/filesystems/sysfs.txt |    8 +----
- fs/sysfs/file.c                     |   55 ++++++++++++++++++++++++++++++++++++
- include/linux/sysfs.h               |   16 ++++++++++
- 3 files changed, 74 insertions(+), 5 deletions(-)
+ arch/x86/kernel/reboot.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/Documentation/filesystems/sysfs.txt
-+++ b/Documentation/filesystems/sysfs.txt
-@@ -211,12 +211,10 @@ Other notes:
-   is 4096. 
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index 597ce32fa33f..75a1fd8b0e90 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -478,6 +478,15 @@ static struct dmi_system_id __initdata reboot_dmi_table[] = {
+ 		},
+ 	},
  
- - show() methods should return the number of bytes printed into the
--  buffer. This is the return value of scnprintf().
-+  buffer.
- 
--- show() must not use snprintf() when formatting the value to be
--  returned to user space. If you can guarantee that an overflow
--  will never happen you can use sprintf() otherwise you must use
--  scnprintf().
-+- show() should only use sysfs_emit() or sysfs_emit_at() when formatting
-+  the value to be returned to user space.
- 
- - store() should return the number of bytes used from the buffer. If the
-   entire buffer has been used, just return the count argument.
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -17,6 +17,7 @@
- #include <linux/list.h>
- #include <linux/mutex.h>
- #include <linux/seq_file.h>
-+#include <linux/mm.h>
- 
- #include "sysfs.h"
- #include "../kernfs/kernfs-internal.h"
-@@ -549,3 +550,57 @@ void sysfs_remove_bin_file(struct kobjec
- 	kernfs_remove_by_name(kobj->sd, attr->attr.name);
- }
- EXPORT_SYMBOL_GPL(sysfs_remove_bin_file);
++	{	/* PCIe Wifi card isn't detected after reboot otherwise */
++		.callback = set_pci_reboot,
++		.ident = "Zotac ZBOX CI327 nano",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
++		},
++	},
 +
-+/**
-+ *	sysfs_emit - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @format
-+ *
-+ *
-+ * Returns number of characters written to @buf.
-+ */
-+int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf),
-+		 "invalid sysfs_emit: buf:%p\n", buf))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf, PAGE_SIZE, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit);
-+
-+/**
-+ *	sysfs_emit_at - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@at:	offset in @buf to start write in bytes
-+ *		@at must be >= 0 && < PAGE_SIZE
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @fmt
-+ *
-+ *
-+ * Returns number of characters written starting at &@buf[@at].
-+ */
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
-+		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf + at, PAGE_SIZE - at, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit_at);
---- a/include/linux/sysfs.h
-+++ b/include/linux/sysfs.h
-@@ -301,6 +301,11 @@ static inline void sysfs_enable_ns(struc
- 	return kernfs_enable_ns(kn);
- }
- 
-+__printf(2, 3)
-+int sysfs_emit(char *buf, const char *fmt, ...);
-+__printf(3, 4)
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...);
-+
- #else /* CONFIG_SYSFS */
- 
- static inline int sysfs_create_dir_ns(struct kobject *kobj, const void *ns)
-@@ -507,6 +512,17 @@ static inline void sysfs_enable_ns(struc
- {
- }
- 
-+__printf(2, 3)
-+static inline int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	return 0;
-+}
-+
-+__printf(3, 4)
-+static inline int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_SYSFS */
- 
- static inline int __must_check sysfs_create_file(struct kobject *kobj,
+ 	/* Sony */
+ 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
+ 		.callback = set_bios_reboot,
+-- 
+2.30.1
+
 
 
