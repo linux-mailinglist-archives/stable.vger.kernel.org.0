@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F9232EA91
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B80A32EA4F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230462AbhCEMjO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
+        id S232585AbhCEMhx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232477AbhCEMim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D381C64EE8;
-        Fri,  5 Mar 2021 12:38:41 +0000 (UTC)
+        id S233346AbhCEMhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:37:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 645696501B;
+        Fri,  5 Mar 2021 12:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947922;
-        bh=ZG6MeAOlQj9aP/zAjEgnAH8GoxyQc6z907PWPzeLi5o=;
+        s=korg; t=1614947856;
+        bh=mH5lfZ8/5v9mgS6Y436aF+xZF4680Y0Wb2+gP2hbx34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XOsNyJtzrR6pMSZ1Vc5qmazYr/lCQvf8S+EHXPfMDUXg+vp4cxhpTC6oy7lO+Io0Q
-         OHZRcl3uO1UQfQroQnqhFtsQ4zT0q+4nRgB03d7D/uonhUYLDBjfhz8OIGY44T4oxM
-         d7MKsygpLkE8VSe1g0Bj5AOXqlt2TxEzajgvFPr0=
+        b=NWZ67lWeZvGlPwKqovcuHouMADQHL7nsWsoCzFxv662wLt1yHMQC60NfKxY478yjx
+         qzXj8I1i4cq4kqm8wPtkU+78EeUMnVqEiUtI1RG43QzES+TE/sMaZH9dqhWKAZui9G
+         mGeqns3SP+YmkZVapHQnHe+QXmSVlphojGSGDZVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 36/52] f2fs: fix to set/clear I_LINKABLE under i_lock
-Date:   Fri,  5 Mar 2021 13:22:07 +0100
-Message-Id: <20210305120855.433477815@linuxfoundation.org>
+Subject: [PATCH 4.19 37/52] btrfs: fix error handling in commit_fs_roots
+Date:   Fri,  5 Mar 2021 13:22:08 +0100
+Message-Id: <20210305120855.483963642@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
 References: <20210305120853.659441428@linuxfoundation.org>
@@ -40,86 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 46085f37fc9e12d5c3539fb768b5ad7951e72acf ]
+[ Upstream commit 4f4317c13a40194940acf4a71670179c4faca2b5 ]
 
-fsstress + fault injection test case reports a warning message as
-below:
+While doing error injection I would sometimes get a corrupt file system.
+This is because I was injecting errors at btrfs_search_slot, but would
+only do it one time per stack.  This uncovered a problem in
+commit_fs_roots, where if we get an error we would just break.  However
+we're in a nested loop, the first loop being a loop to find all the
+dirty fs roots, and then subsequent root updates would succeed clearing
+the error value.
 
-WARNING: CPU: 13 PID: 6226 at fs/inode.c:361 inc_nlink+0x32/0x40
-Call Trace:
- f2fs_init_inode_metadata+0x25c/0x4a0 [f2fs]
- f2fs_add_inline_entry+0x153/0x3b0 [f2fs]
- f2fs_add_dentry+0x75/0x80 [f2fs]
- f2fs_do_add_link+0x108/0x160 [f2fs]
- f2fs_rename2+0x6ab/0x14f0 [f2fs]
- vfs_rename+0x70c/0x940
- do_renameat2+0x4d8/0x4f0
- __x64_sys_renameat2+0x4b/0x60
- do_syscall_64+0x33/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+This isn't likely to happen in real scenarios, however we could
+potentially get a random ENOMEM once and then not again, and we'd end up
+with a corrupted file system.  Fix this by moving the error checking
+around a bit to the main loop, as this is the only place where something
+will fail, and return the error as soon as it occurs.
 
-Following race case can cause this:
-Thread A				Kworker
-- f2fs_rename
- - f2fs_create_whiteout
-  - __f2fs_tmpfile
-   - f2fs_i_links_write
-    - f2fs_mark_inode_dirty_sync
-     - mark_inode_dirty_sync
-					- writeback_single_inode
-					 - __writeback_single_inode
-					  - spin_lock(&inode->i_lock)
-   - inode->i_state |= I_LINKABLE
-					  - inode->i_state &= ~dirty
-					  - spin_unlock(&inode->i_lock)
- - f2fs_add_link
-  - f2fs_do_add_link
-   - f2fs_add_dentry
-    - f2fs_add_inline_entry
-     - f2fs_init_inode_metadata
-      - f2fs_i_links_write
-       - inc_nlink
-        - WARN_ON(!(inode->i_state & I_LINKABLE))
+With this patch my reproducer no longer corrupts the file system.
 
-Fix to add i_lock to avoid i_state update race condition.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/btrfs/transaction.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index 8617e742d087..e20a0f9e6845 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -772,7 +772,11 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index 8829d89eb4af..1b52c960682d 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -1249,7 +1249,6 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 	struct btrfs_root *gang[8];
+ 	int i;
+ 	int ret;
+-	int err = 0;
  
- 	if (whiteout) {
- 		f2fs_i_links_write(inode, false);
+ 	spin_lock(&fs_info->fs_roots_radix_lock);
+ 	while (1) {
+@@ -1261,6 +1260,8 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 			break;
+ 		for (i = 0; i < ret; i++) {
+ 			struct btrfs_root *root = gang[i];
++			int ret2;
 +
-+		spin_lock(&inode->i_lock);
- 		inode->i_state |= I_LINKABLE;
-+		spin_unlock(&inode->i_lock);
-+
- 		*whiteout = inode;
- 	} else {
- 		d_tmpfile(dentry, inode);
-@@ -966,7 +970,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
- 		err = f2fs_add_link(old_dentry, whiteout);
- 		if (err)
- 			goto put_out_dir;
-+
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state &= ~I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		iput(whiteout);
+ 			radix_tree_tag_clear(&fs_info->fs_roots_radix,
+ 					(unsigned long)root->root_key.objectid,
+ 					BTRFS_ROOT_TRANS_TAG);
+@@ -1282,17 +1283,17 @@ static noinline int commit_fs_roots(struct btrfs_trans_handle *trans)
+ 						    root->node);
+ 			}
+ 
+-			err = btrfs_update_root(trans, fs_info->tree_root,
++			ret2 = btrfs_update_root(trans, fs_info->tree_root,
+ 						&root->root_key,
+ 						&root->root_item);
++			if (ret2)
++				return ret2;
+ 			spin_lock(&fs_info->fs_roots_radix_lock);
+-			if (err)
+-				break;
+ 			btrfs_qgroup_free_meta_all_pertrans(root);
+ 		}
  	}
+ 	spin_unlock(&fs_info->fs_roots_radix_lock);
+-	return err;
++	return 0;
+ }
  
+ /*
 -- 
 2.30.1
 
