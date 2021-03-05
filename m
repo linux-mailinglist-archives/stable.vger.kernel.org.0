@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC1832EA76
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2AB632EAE0
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231531AbhCEMio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:38:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51976 "EHLO mail.kernel.org"
+        id S232116AbhCEMku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229759AbhCEMiQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DA5065030;
-        Fri,  5 Mar 2021 12:38:15 +0000 (UTC)
+        id S231858AbhCEMkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62BBF6502A;
+        Fri,  5 Mar 2021 12:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947896;
-        bh=eRWpS8/FiFTXMIgt9svYfyM6K5IbWgyA7RW/iy/bypc=;
+        s=korg; t=1614948019;
+        bh=drxMbElXbKylGnwkqnEgVdK7h30LmcEJRPvitXl20rQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXz3exwDn39iZde5GE4899vvup3Ow47/ZSS4IioI0d3CbosUOckDSC1UfXvyEyoid
-         CQWt+DO6d9Q84Ry3khZtIZQcBJYdNcCvL5K7GwZmILTRDw9GG2X68Qe/LqTxevoXBf
-         VUNJh0GpBOwInBmoF63+kkHyeVIIsYxva71sdrPI=
+        b=jLxBj7kCkmbmrdBpVAUcpXljsgaaPlR/Usq08a4iVwGnst33Xnv2taWpYyDB/xzMh
+         3OLad35bKKCzLid+Rmp9Vj9XQiMb6ypU6vMrQqd768h/Z2IN14xR78C2ruj289W+np
+         xkvpUm5QOkNB7TwTZW82XCHbh3mcE175gl9k99yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 50/52] media: v4l: ioctl: Fix memory leak in video_usercopy
-Date:   Fri,  5 Mar 2021 13:22:21 +0100
-Message-Id: <20210305120856.115599458@linuxfoundation.org>
+        stable@vger.kernel.org, Di Zhu <zhudi21@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 23/39] pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+Date:   Fri,  5 Mar 2021 13:22:22 +0100
+Message-Id: <20210305120852.934850247@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Di Zhu <zhudi21@huawei.com>
 
-commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
+[ Upstream commit 275b1e88cabb34dbcbe99756b67e9939d34a99b6 ]
 
-When an IOCTL with argument size larger than 128 that also used array
-arguments were handled, two memory allocations were made but alas, only
-the latter one of them was released. This happened because there was only
-a single local variable to hold such a temporary allocation.
+pktgen create threads for all online cpus and bond these threads to
+relevant cpu repecivtily. when this thread firstly be woken up, it
+will compare cpu currently running with the cpu specified at the time
+of creation and if the two cpus are not equal, BUG_ON() will take effect
+causing panic on the system.
+Notice that these threads could be migrated to other cpus before start
+running because of the cpu hotplug after these threads have created. so the
+BUG_ON() used here seems unreasonable and we can replace it with WARN_ON()
+to just printf a warning other than panic the system.
 
-Fix this by adding separate variables to hold the pointers to the
-temporary allocations.
-
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
-Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Di Zhu <zhudi21@huawei.com>
+Link: https://lore.kernel.org/r/20210125124229.19334-1-zhudi21@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ net/core/pktgen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -2939,7 +2939,7 @@ video_usercopy(struct file *file, unsign
- 	       v4l2_kioctl func)
- {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -2998,20 +2998,14 @@ video_usercopy(struct file *file, unsign
- 	has_array_args = err;
+diff --git a/net/core/pktgen.c b/net/core/pktgen.c
+index 884afb8e9fc4..b3132f11afeb 100644
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -3555,7 +3555,7 @@ static int pktgen_thread_worker(void *arg)
+ 	struct pktgen_dev *pkt_dev = NULL;
+ 	int cpu = t->cpu;
  
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kvmalloc(array_size, GFP_KERNEL);
-+		array_buf = kvmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
--		if (copy_from_user(mbuf, user_ptr, array_size))
-+		if (copy_from_user(array_buf, user_ptr, array_size))
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
- 	}
+-	BUG_ON(smp_processor_id() != cpu);
++	WARN_ON(smp_processor_id() != cpu);
  
- 	/* Handles IOCTL */
-@@ -3030,7 +3024,7 @@ video_usercopy(struct file *file, unsign
- 
- 	if (has_array_args) {
- 		*kernel_ptr = (void __force *)user_ptr;
--		if (copy_to_user(user_ptr, mbuf, array_size))
-+		if (copy_to_user(user_ptr, array_buf, array_size))
- 			err = -EFAULT;
- 		goto out_array_args;
- 	}
-@@ -3052,6 +3046,7 @@ out_array_args:
- 	}
- 
- out:
-+	kvfree(array_buf);
- 	kvfree(mbuf);
- 	return err;
- }
+ 	init_waitqueue_head(&t->queue);
+ 	complete(&t->start_done);
+-- 
+2.30.1
+
 
 
