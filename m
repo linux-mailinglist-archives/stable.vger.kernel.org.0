@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC26A32E88E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F012B32E898
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231700AbhCEM1c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:27:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35178 "EHLO mail.kernel.org"
+        id S231894AbhCEM1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:27:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231828AbhCEM1T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:27:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7586565029;
-        Fri,  5 Mar 2021 12:27:18 +0000 (UTC)
+        id S231838AbhCEM1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:27:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3574C65031;
+        Fri,  5 Mar 2021 12:27:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947239;
-        bh=Z/ZgHd6CqRR3er6Q0w0CyCgNkrMKsP18NjD0gjvJDRc=;
+        s=korg; t=1614947241;
+        bh=aE+dWMJVKZer7UxIt8aobEweH08k75JbLndzKUQcplA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8clc1PwS+MTDsyg2uM3Cubr4k+mGz8mck6UdsdOImYgF6AhbNniFtSR6p+XfmDkB
-         OpNWkQ4/y/CIOa43ff9d3AqIxCArzFfzBNYU1KtAcLAKiLM0u5+UnTEiUFrgt7q+w3
-         tl1SPnbQe0HUNgfDvQz/OM7g8bR878lxTZjzFYHw=
+        b=R9M+CfJfmi6aovWId0coYMMBgCztlfFxORIo3UhS4QMoJA0NpvkG2ndWd2xRiCGXo
+         kP/ilQNnngC70KggmXNm1n1kOfocdZcq7zhUn4+DsViQBokVUzU5RnBzHRmvpzid1j
+         93utvYdxovLT3EZaz5A7iBxpSp4t4GT0oDLyVar0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 069/104] media: uvcvideo: Allow entities with no pads
-Date:   Fri,  5 Mar 2021 13:21:14 +0100
-Message-Id: <20210305120906.551224392@linuxfoundation.org>
+Subject: [PATCH 5.11 070/104] f2fs: handle unallocated section and zone on pinned/atgc
+Date:   Fri,  5 Mar 2021 13:21:15 +0100
+Message-Id: <20210305120906.599343616@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -41,46 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
+[ Upstream commit 632faca72938f9f63049e48a8c438913828ac7a9 ]
 
-Avoid an underflow while calculating the number of inputs for entities
-with zero pads.
+If we have large section/zone, unallocated segment makes them corrupted.
 
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+E.g.,
+
+  - Pinned file:       -1 119304647 119304647
+  - ATGC   data:       -1 119304647 119304647
+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/f2fs/segment.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index ddb9eaa11be7..5ad528264135 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1028,7 +1028,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 	unsigned int i;
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index e81eb0748e2a..229814b4f4a6 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -101,11 +101,11 @@ static inline void sanity_check_seg_type(struct f2fs_sb_info *sbi,
+ #define BLKS_PER_SEC(sbi)					\
+ 	((sbi)->segs_per_sec * (sbi)->blocks_per_seg)
+ #define GET_SEC_FROM_SEG(sbi, segno)				\
+-	((segno) / (sbi)->segs_per_sec)
++	(((segno) == -1) ? -1: (segno) / (sbi)->segs_per_sec)
+ #define GET_SEG_FROM_SEC(sbi, secno)				\
+ 	((secno) * (sbi)->segs_per_sec)
+ #define GET_ZONE_FROM_SEC(sbi, secno)				\
+-	((secno) / (sbi)->secs_per_zone)
++	(((secno) == -1) ? -1: (secno) / (sbi)->secs_per_zone)
+ #define GET_ZONE_FROM_SEG(sbi, segno)				\
+ 	GET_ZONE_FROM_SEC(sbi, GET_SEC_FROM_SEG(sbi, segno))
  
- 	extra_size = roundup(extra_size, sizeof(*entity->pads));
--	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
-+	if (num_pads)
-+		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
-+	else
-+		num_inputs = 0;
- 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
- 	     + num_inputs;
- 	entity = kzalloc(size, GFP_KERNEL);
-@@ -1044,7 +1047,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 
- 	for (i = 0; i < num_inputs; ++i)
- 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
--	if (!UVC_ENTITY_IS_OTERM(entity))
-+	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
- 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
- 
- 	entity->bNrInPins = num_inputs;
 -- 
 2.30.1
 
