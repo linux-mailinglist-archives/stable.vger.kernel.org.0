@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77E8732EA97
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E847332EA0A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232360AbhCEMjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53024 "EHLO mail.kernel.org"
+        id S231278AbhCEMgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232041AbhCEMi6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3774664FF0;
-        Fri,  5 Mar 2021 12:38:57 +0000 (UTC)
+        id S232533AbhCEMfo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:35:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FC316501C;
+        Fri,  5 Mar 2021 12:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947937;
-        bh=ten8VZA0HMjTVB4OJBxb18K57bDdXHdD+HdxiunCSFI=;
+        s=korg; t=1614947744;
+        bh=eXuvVLsIoJTtBSrllPg+LbvP5hevaIXkGvrpXESizSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7uIw1N5eZSzNip37Nug+Fuqq4AfZy3Q8rpYLU1N0dKHh3bUZR0OD4B3sTkssRY1x
-         VoSkUYYhCbdfV5+BGut2AzO85HKaveHdy0xMCUzf6Xs9AV6OTWHDZ097y+3Ifk+nnm
-         p+mbGsLlNZ82UcuP/QR43leOFw7zSUPJHrv/V9qo=
+        b=Yu8Cm7TQEJH9yua9hSts/KClk42Ya+a3bP2vJZYMk9pzBlli1I+JzZc3J6h4xL1sb
+         yhVefsC99/Z3lC6o1uLbE9usFkr+kgVBqX41pcd6X/wPUNuez/4B2pKHOosmZKeNAw
+         OFK7XvGDSRXnzXQMAxKUCP4QvFKVZGrCLQFhCiu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
-        Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 12/39] media: mceusb: sanity check for prescaler value
+Subject: [PATCH 5.4 69/72] media: v4l: ioctl: Fix memory leak in video_usercopy
 Date:   Fri,  5 Mar 2021 13:22:11 +0100
-Message-Id: <20210305120852.379092766@linuxfoundation.org>
+Message-Id: <20210305120900.714856623@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit 9dec0f48a75e0dadca498002d25ef4e143e60194 upstream.
+commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
 
-prescaler larger than 8 would mean the carrier is at most 152Hz,
-which does not make sense for IR carriers.
+When an IOCTL with argument size larger than 128 that also used array
+arguments were handled, two memory allocations were made but alas, only
+the latter one of them was released. This happened because there was only
+a single local variable to hold such a temporary allocation.
 
-Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
-Signed-off-by: Sean Young <sean@mess.org>
+Fix this by adding separate variables to hold the pointers to the
+temporary allocations.
+
+Reported-by: Arnd Bergmann <arnd@kernel.org>
+Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
+Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/rc/mceusb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -630,11 +630,18 @@ static void mceusb_dev_printdata(struct
- 				data[0], data[1]);
- 			break;
- 		case MCE_RSP_EQIRCFS:
-+			if (!data[0] && !data[1]) {
-+				dev_dbg(dev, "%s: no carrier", inout);
-+				break;
-+			}
-+			// prescaler should make sense
-+			if (data[0] > 8)
-+				break;
- 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
- 						   (data[1] + 1), 10);
- 			if (!period)
- 				break;
--			carrier = (1000 * 1000) / period;
-+			carrier = USEC_PER_SEC / period;
- 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
- 				 inout, carrier, period);
- 			break;
+--- a/drivers/media/v4l2-core/v4l2-ioctl.c
++++ b/drivers/media/v4l2-core/v4l2-ioctl.c
+@@ -3016,7 +3016,7 @@ video_usercopy(struct file *file, unsign
+ 	       v4l2_kioctl func)
+ {
+ 	char	sbuf[128];
+-	void    *mbuf = NULL;
++	void    *mbuf = NULL, *array_buf = NULL;
+ 	void	*parg = (void *)arg;
+ 	long	err  = -EINVAL;
+ 	bool	has_array_args;
+@@ -3075,20 +3075,14 @@ video_usercopy(struct file *file, unsign
+ 	has_array_args = err;
+ 
+ 	if (has_array_args) {
+-		/*
+-		 * When adding new types of array args, make sure that the
+-		 * parent argument to ioctl (which contains the pointer to the
+-		 * array) fits into sbuf (so that mbuf will still remain
+-		 * unused up to here).
+-		 */
+-		mbuf = kvmalloc(array_size, GFP_KERNEL);
++		array_buf = kvmalloc(array_size, GFP_KERNEL);
+ 		err = -ENOMEM;
+-		if (NULL == mbuf)
++		if (array_buf == NULL)
+ 			goto out_array_args;
+ 		err = -EFAULT;
+-		if (copy_from_user(mbuf, user_ptr, array_size))
++		if (copy_from_user(array_buf, user_ptr, array_size))
+ 			goto out_array_args;
+-		*kernel_ptr = mbuf;
++		*kernel_ptr = array_buf;
+ 	}
+ 
+ 	/* Handles IOCTL */
+@@ -3107,7 +3101,7 @@ video_usercopy(struct file *file, unsign
+ 
+ 	if (has_array_args) {
+ 		*kernel_ptr = (void __force *)user_ptr;
+-		if (copy_to_user(user_ptr, mbuf, array_size))
++		if (copy_to_user(user_ptr, array_buf, array_size))
+ 			err = -EFAULT;
+ 		goto out_array_args;
+ 	}
+@@ -3129,6 +3123,7 @@ out_array_args:
+ 	}
+ 
+ out:
++	kvfree(array_buf);
+ 	kvfree(mbuf);
+ 	return err;
+ }
 
 
