@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07E7A32EB36
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0B2132EAE6
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhCEMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:42:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59130 "EHLO mail.kernel.org"
+        id S232681AbhCEMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:40:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233900AbhCEMme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4F065021;
-        Fri,  5 Mar 2021 12:42:32 +0000 (UTC)
+        id S232659AbhCEMkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3F2564EE8;
+        Fri,  5 Mar 2021 12:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948152;
-        bh=3WXTlsl1Lh1o8XbCpfwEZfleYsKAnP/lvibuuuswW1w=;
+        s=korg; t=1614948037;
+        bh=/L8RgTkiiLICWqBuKZKSOqyNFiTIn4f/gXZAs1zfS/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6vOqlTKsDCA2jFMLyUz+pM3yJVT8+ijuDVGhlsq4IaPxWEj9W2+RY31jL1iWz50L
-         6nGvqtzEtxN+SNixyBjINCtnsa+gkRAuH8FxnN8POBe8jKFX3BnxahepjNhFWQhWRB
-         zWBTn7+UMPvksWRCuSevNt6LqlIDpgIiAAHhnJqI=
+        b=OcczqEmNe0b4B0K68aMIiOQJkST4v2oD5jAiNbkLU62QHRtscdoLT9hBp44dzQaRt
+         CCYBzsdLanBIOW4u0LlQjmNU9/c2r2sVB1Q/nY6gX2j1Tjke+rClucM91aBKT9VlHH
+         3hOnJBVsuhlnja+GzM9eX7JvAiM5397Ys/aHzB24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com,
-        Sabyrzhan Tasbolatov <snovitoll@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.9 20/41] smackfs: restrict bytes count in smackfs write functions
-Date:   Fri,  5 Mar 2021 13:22:27 +0100
-Message-Id: <20210305120852.290110306@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 29/39] f2fs: handle unallocated section and zone on pinned/atgc
+Date:   Fri,  5 Mar 2021 13:22:28 +0100
+Message-Id: <20210305120853.238256885@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,108 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 7ef4c19d245f3dc233fd4be5acea436edd1d83d8 upstream.
+[ Upstream commit 632faca72938f9f63049e48a8c438913828ac7a9 ]
 
-syzbot found WARNINGs in several smackfs write operations where
-bytes count is passed to memdup_user_nul which exceeds
-GFP MAX_ORDER. Check count size if bigger than PAGE_SIZE.
+If we have large section/zone, unallocated segment makes them corrupted.
 
-Per smackfs doc, smk_write_net4addr accepts any label or -CIPSO,
-smk_write_net6addr accepts any label or -DELETE. I couldn't find
-any general rule for other label lengths except SMK_LABELLEN,
-SMK_LONGLABEL, SMK_CIPSOMAX which are documented.
+E.g.,
 
-Let's constrain, in general, smackfs label lengths for PAGE_SIZE.
-Although fuzzer crashes write to smackfs/netlabel on 0x400000 length.
+  - Pinned file:       -1 119304647 119304647
+  - ATGC   data:       -1 119304647 119304647
 
-Here is a quick way to reproduce the WARNING:
-python -c "print('A' * 0x400000)" > /sys/fs/smackfs/netlabel
-
-Reported-by: syzbot+a71a442385a0b2815497@syzkaller.appspotmail.com
-Signed-off-by: Sabyrzhan Tasbolatov <snovitoll@gmail.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c |   21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ fs/f2fs/segment.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -1186,7 +1186,7 @@ static ssize_t smk_write_net4addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index 0d46e936d54e..00c415131b06 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -91,11 +91,11 @@
+ #define BLKS_PER_SEC(sbi)					\
+ 	((sbi)->segs_per_sec * (sbi)->blocks_per_seg)
+ #define GET_SEC_FROM_SEG(sbi, segno)				\
+-	((segno) / (sbi)->segs_per_sec)
++	(((segno) == -1) ? -1: (segno) / (sbi)->segs_per_sec)
+ #define GET_SEG_FROM_SEC(sbi, secno)				\
+ 	((secno) * (sbi)->segs_per_sec)
+ #define GET_ZONE_FROM_SEC(sbi, secno)				\
+-	((secno) / (sbi)->secs_per_zone)
++	(((secno) == -1) ? -1: (secno) / (sbi)->secs_per_zone)
+ #define GET_ZONE_FROM_SEG(sbi, segno)				\
+ 	GET_ZONE_FROM_SEC(sbi, GET_SEC_FROM_SEG(sbi, segno))
  
- 	data = memdup_user_nul(buf, count);
-@@ -1446,7 +1446,7 @@ static ssize_t smk_write_net6addr(struct
- 		return -EPERM;
- 	if (*ppos != 0)
- 		return -EINVAL;
--	if (count < SMK_NETLBLADDRMIN)
-+	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
- 		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
-@@ -1853,6 +1853,10 @@ static ssize_t smk_write_ambient(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2024,6 +2028,9 @@ static ssize_t smk_write_onlycap(struct
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2111,6 +2118,9 @@ static ssize_t smk_write_unconfined(stru
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2664,6 +2674,10 @@ static ssize_t smk_write_syslog(struct f
- 	if (!smack_privileged(CAP_MAC_ADMIN))
- 		return -EPERM;
- 
-+	/* Enough data must be present */
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
-@@ -2756,10 +2770,13 @@ static ssize_t smk_write_relabel_self(st
- 		return -EPERM;
- 
- 	/*
-+	 * No partial write.
- 	 * Enough data must be present.
- 	 */
- 	if (*ppos != 0)
- 		return -EINVAL;
-+	if (count == 0 || count > PAGE_SIZE)
-+		return -EINVAL;
- 
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+-- 
+2.30.1
+
 
 
