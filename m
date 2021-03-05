@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9392832E973
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAFA932E9B8
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231418AbhCEMcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:32:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43050 "EHLO mail.kernel.org"
+        id S232355AbhCEMed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:34:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231706AbhCEMcc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:32:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D1DF65004;
-        Fri,  5 Mar 2021 12:32:30 +0000 (UTC)
+        id S231387AbhCEMeN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:34:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E2B16501D;
+        Fri,  5 Mar 2021 12:34:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947551;
-        bh=sAAUMxzJvsIrTKwj0/c6KtxIqUDZu/44pvKskrTbGIo=;
+        s=korg; t=1614947653;
+        bh=Mz+lubvSBGbLo+GRYUVMAnYBklGNM92y7SYL1IZQJbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/EO4v0Kn6D3mqdRW95yXNjGrKZcP5MaGPn/Pu5JchmxVGxfFyO/5gNtk0HeKMG9F
-         OVX+xHavDhAegXO9oetznKquddl5Onlem4PtNbRXDGokcVqJr89SGq25B6Ue8vCnqE
-         MJGIgdXDQ0cGE3+nnU92TsbCXB2FNW1vdFzGEuII=
+        b=KOM4/N/WmGokRf84jhjI20kiTS2mvr3XfRbpGlZB0e2vzrNXD7L4afuvXTOVOqw6N
+         6nMfUfcWfzGF530GcTwYzwQFe/abSZf2PSnTnCxjTF9yF3XT26+5+xYJlzlufUGMda
+         xLsc52h42UeVwtNyxf8DMtSGFJIGDiRIpVAaw+CE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/102] sched/features: Fix hrtick reprogramming
-Date:   Fri,  5 Mar 2021 13:21:37 +0100
-Message-Id: <20210305120907.115354115@linuxfoundation.org>
+        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 36/72] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+Date:   Fri,  5 Mar 2021 13:21:38 +0100
+Message-Id: <20210305120859.105809493@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juri Lelli <juri.lelli@redhat.com>
+From: Gopal Tiwari <gtiwari@redhat.com>
 
-[ Upstream commit 156ec6f42b8d300dbbf382738ff35c8bad8f4c3a ]
+[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
 
-Hung tasks and RCU stall cases were reported on systems which were not
-100% busy. Investigation of such unexpected cases (no sign of potential
-starvation caused by tasks hogging the system) pointed out that the
-periodic sched tick timer wasn't serviced anymore after a certain point
-and that caused all machinery that depends on it (timers, RCU, etc.) to
-stop working as well. This issues was however only reproducible if
-HRTICK was enabled.
+kernel panic trace looks like:
 
-Looking at core dumps it was found that the rbtree of the hrtimer base
-used also for the hrtick was corrupted (i.e. next as seen from the base
-root and actual leftmost obtained by traversing the tree are different).
-Same base is also used for periodic tick hrtimer, which might get "lost"
-if the rbtree gets corrupted.
+ #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
+ #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
+    [exception RIP: amp_read_loc_assoc_final_data+63]
+    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
+    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
+    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
+    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
+    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
+ #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
+ #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
 
-Much alike what described in commit 1f71addd34f4c ("tick/sched: Do not
-mess with an enqueued hrtimer") there is a race window between
-hrtimer_set_expires() in hrtick_start and hrtimer_start_expires() in
-__hrtick_restart() in which the former might be operating on an already
-queued hrtick hrtimer, which might lead to corruption of the base.
+hcon->amp_mgr seems NULL triggered kernel panic in following line inside
+function amp_read_loc_assoc_final_data
 
-Use hrtick_start() (which removes the timer before enqueuing it back) to
-ensure hrtick hrtimer reprogramming is entirely guarded by the base
-lock, so that no race conditions can occur.
+        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
 
-Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Luis Claudio R. Goncalves <lgoncalv@redhat.com>
-Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20210208073554.14629-2-juri.lelli@redhat.com
+Fixed by checking NULL for mgr.
+
+Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c  | 8 +++-----
- kernel/sched/sched.h | 1 +
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ net/bluetooth/amp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 269165bf440a..3a150445e0cb 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -363,8 +363,9 @@ static enum hrtimer_restart hrtick(struct hrtimer *timer)
- static void __hrtick_restart(struct rq *rq)
- {
- 	struct hrtimer *timer = &rq->hrtick_timer;
-+	ktime_t time = rq->hrtick_time;
+diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
+index 9c711f0dfae3..be2d469d6369 100644
+--- a/net/bluetooth/amp.c
++++ b/net/bluetooth/amp.c
+@@ -297,6 +297,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
+ 	struct hci_request req;
+ 	int err;
  
--	hrtimer_start_expires(timer, HRTIMER_MODE_ABS_PINNED_HARD);
-+	hrtimer_start(timer, time, HRTIMER_MODE_ABS_PINNED_HARD);
- }
- 
- /*
-@@ -388,7 +389,6 @@ static void __hrtick_start(void *arg)
- void hrtick_start(struct rq *rq, u64 delay)
- {
- 	struct hrtimer *timer = &rq->hrtick_timer;
--	ktime_t time;
- 	s64 delta;
- 
- 	/*
-@@ -396,9 +396,7 @@ void hrtick_start(struct rq *rq, u64 delay)
- 	 * doesn't make sense and can cause timer DoS.
- 	 */
- 	delta = max_t(s64, delay, 10000LL);
--	time = ktime_add_ns(timer->base->get_time(), delta);
--
--	hrtimer_set_expires(timer, time);
-+	rq->hrtick_time = ktime_add_ns(timer->base->get_time(), delta);
- 
- 	if (rq == this_rq())
- 		__hrtick_restart(rq);
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index c122176c627e..fac1b121d113 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -1018,6 +1018,7 @@ struct rq {
- 	call_single_data_t	hrtick_csd;
- #endif
- 	struct hrtimer		hrtick_timer;
-+	ktime_t 		hrtick_time;
- #endif
- 
- #ifdef CONFIG_SCHEDSTATS
++	if (!mgr)
++		return;
++
+ 	cp.phy_handle = hcon->handle;
+ 	cp.len_so_far = cpu_to_le16(0);
+ 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
 -- 
 2.30.1
 
