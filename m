@@ -2,89 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D2532E66C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11CED32E676
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbhCEKaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 05:30:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55708 "EHLO mail.kernel.org"
+        id S229582AbhCEKb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 05:31:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229805AbhCEKaP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 05:30:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0081064F5F;
-        Fri,  5 Mar 2021 10:30:07 +0000 (UTC)
+        id S229836AbhCEKa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 05:30:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E290964F5F;
+        Fri,  5 Mar 2021 10:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614940208;
-        bh=YDvvFL3cI6/LYE8gxya57Hjtdll5eRILg43TuGqUT4I=;
+        s=korg; t=1614940258;
+        bh=cBFq+dI8PopiA7EVQoY4mmINOxhcSRe1HY1wlknFZ4c=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n5I9sbqc4ZTOm3zoZx14rtxo0yykIfZmTNYN9IFr+Q9/HtpBjhflhZl6l6dDuDAWU
-         hT/B+To3kpIEHVr/Yj7RU+EoaAlRa1Vuq9LqnmMOoQQaanzIf60caFFipQBf0hUU2D
-         I3GzdNhVmzcXPuEYHxbCw4TJPmWPCzz41g0reJo0=
-Date:   Fri, 5 Mar 2021 11:30:05 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Vinod Koul <vkoul@kernel.org>
-Cc:     stable@vger.kernel.org, Linux Phy <linux-phy@lists.infradead.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>
-Subject: Re: Commits for 5.11 stable
-Message-ID: <YEIILa2FLKBCcs1S@kroah.com>
-References: <YD4LfQEXWawk2b4C@vkoul-mobl>
- <YD4NINW6u28SxedJ@kroah.com>
- <YD4SlyXIVFZQYip5@vkoul-mobl>
- <YD4WTn1mdE+RBoR1@kroah.com>
- <YD4su5gWILbbrd0z@vkoul-mobl>
- <YD4un+98ZK7yLJNV@kroah.com>
+        b=Q0dqxEI29WOqDVx12XnoY4EOYZnW2XgtOEt3uJtjbsLsZR4ChxcSvgSmb1s4n5feG
+         G6Jyx38DUAXXij/QV+X+rJ3na+a+zx9Ca4iW/ikHe8aR/RXsSLp7oULYp2vCpmVczo
+         PALI1PtuWvnhJ36qOqbTurEwRCpRGOwQDKmZl8tc=
+Date:   Fri, 5 Mar 2021 11:30:55 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Salvatore Bonaccorso <carnil@debian.org>,
+        stable <stable@vger.kernel.org>,
+        Laurent Vivier <laurent@vivier.eu>,
+        YunQiang Su <ysu@wavecomp.com>, Helge Deller <deller@gmx.de>
+Subject: Re: Please apply commit 2347961b11d4 ("binfmt_misc: pass binfmt_misc
+ flags to the interpreter") to 5.10.y and later
+Message-ID: <YEIIX4s3ERuM1+R6@kroah.com>
+References: <YD42Sh5n2sjF9tNj@eldamar.lan>
+ <YEFJVENyU9QaO/NK@sashalap>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YD4un+98ZK7yLJNV@kroah.com>
+In-Reply-To: <YEFJVENyU9QaO/NK@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 01:25:03PM +0100, Greg KH wrote:
-> On Tue, Mar 02, 2021 at 05:46:59PM +0530, Vinod Koul wrote:
-> > On 02-03-21, 11:41, Greg KH wrote:
-> > > On Tue, Mar 02, 2021 at 03:55:27PM +0530, Vinod Koul wrote:
-> > > > 
-> > > > HI Greg,
-> > > > 
-> > > > On 02-03-21, 11:02, Greg KH wrote:
-> > > > > On Tue, Mar 02, 2021 at 03:25:09PM +0530, Vinod Koul wrote:
-> > > > > > Hi Greg,
-> > > > > > 
-> > > > > > Please include these commits for 5.11 stable series
-> > > > > > 
-> > > > > > 9a8b9434c60f phy: mediatek: Add missing MODULE_DEVICE_TABLE()
-> > > > > > 25e3ee590f62 phy: phy-brcm-sata: remove unneeded semicolon
-> > > > > > 6b46e60a6943 phy: USB_LGM_PHY should depend on X86
-> > > > > > 36acd5e24e30 phy: lantiq: rcu-usb2: wait after clock enable
-> > > > > > c188365402f6 phy: rockchip: emmc, add vendor prefix to dts properties
-> > > > > > 88d9f40c4b71 devicetree: phy: rockchip-emmc optional add vendor prefix
-> > > > > > aaf316de3bba phy: cpcap-usb: remove unneeded conversion to bool
-> > > > > > 39961bd6b70e phy: rockchip-emmc: emmc_phy_init() always return 0
-> > > > > 
-> > > > > Why take these?
-> > > > > 
-> > > > > What problems do they solve?
-> > > > 
-> > > > Sorry I should have provided the context. I had sent these as fixes for
-> > > > 5.11 but that was bit late so we merged it for 5.12 [1]
-> > > 
-> > > I still do not have any context :(
+On Thu, Mar 04, 2021 at 03:55:48PM -0500, Sasha Levin wrote:
+> On Tue, Mar 02, 2021 at 01:57:46PM +0100, Salvatore Bonaccorso wrote:
+> > Hi
 > > 
-> > Please see the discussion we had in https://lore.kernel.org/lkml/20210210091249.GC2774@vkoul-mobl.Dlink/
+> > 2347961b11d4 ("binfmt_misc: pass binfmt_misc flags to the
+> > interpreter") was applied in mainline and included in 5.12-rc1.
+> > 
+> > Probably you could argue here on both a bugfix or feature addition.
+> > 
+> > My intention is the following: In the Debian bugreport
+> > https://bugs.debian.org/970460 an issue was raised with qemu-user
+> > which needs to know if it has to preserve the argv[0]. As shown there
+> > it is an issue with multi-call binaries.
+> > 
+> > So again, not sure if you want to consider it, but defintively
+> > Yunqiang Su and others would appreicate. If it gets backported we will
+> > pick it up automatically.
 > 
-> All that means is that you felt some of these needed to go into 5.11 but
-> did not make it.  That does not mean that all of the above qualifies for
-> stable backporting, correct?
+> Given it needs changes in userspace too I'm not sure it qulifies as a
+> fix per-se. Though as you point out, it's really borderline.
 > 
-> So can I have a list of ids, in the order in which they should be
-> applied, that you feel should go into 5.11, and any other older stable
-> releases?
+> Generally I would just take it, but it affects interactions with
+> userspace, so I feel less comfortable with this.
 
-And again, not all of the above are relevant for stable kernels, and
-some have already been applied, so a list of needed patches would be
-most helpful here.
+Yes, I'm not ok with taking this either at this point in time, as it
+requires userspace changes.
 
 thanks,
 
