@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3007632E7F5
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:24:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 496B532E8BE
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229898AbhCEMYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:24:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        id S231804AbhCEM2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:28:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229805AbhCEMXy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:23:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D1A66501E;
-        Fri,  5 Mar 2021 12:23:53 +0000 (UTC)
+        id S232024AbhCEM2V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:28:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B86E265031;
+        Fri,  5 Mar 2021 12:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947034;
-        bh=soj4QiHBc66aJBsxUwU3XfxdnIHabCgNkqkbO7MBtF8=;
+        s=korg; t=1614947301;
+        bh=vYgvXoN3wwVVvtoQQCIDTzL+fYUc0nyf9MK/GhmMJdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXSpFcXUD6FXoaUoft9dIQe09+Y7gVribmTlV1I9EMpHM36adQ9moPFFeTN+qlw9v
-         KGds+ECr4m5JqZZXx1/VC+771+XyWJMTCv3g0B702+js9zrVP+hHV/IHt6t0vXwseK
-         6GxNKoSd4UBfFGyPTZspIY4fSF9O/ZlC2j+zSB7k=
+        b=NmWBqM3hEhvstLRy4ZnXZKfrF/F4RfRrWUMdU4tnjK/3KHGejq4PWfmnF/kSdt7fB
+         Fgdi8cnafTPWYaR91AXTNdLMhrRwF2QMQwUlvebQSZSKkIiMEolWAap++RjQIrvyhh
+         2Q2c/iKympZ+G4gjOlmyVEG/3ml2fmEZGH/cF2/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
-        Gioh Kim <gi-oh.kim@cloud.ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.11 023/104] RDMA/rtrs-srv: Do not signal REG_MR
+        stable@vger.kernel.org,
+        syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 009/102] media: mceusb: sanity check for prescaler value
 Date:   Fri,  5 Mar 2021 13:20:28 +0100
-Message-Id: <20210305120904.316197918@linuxfoundation.org>
+Message-Id: <20210305120903.727549356@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@cloud.ionos.com>
+From: Sean Young <sean@mess.org>
 
-commit e8ae7ddb48a1b81fd1e67da34a0cb59daf0445d6 upstream.
+commit 9dec0f48a75e0dadca498002d25ef4e143e60194 upstream.
 
-We do not need to wait for REG_MR completion, so remove the
-SIGNAL flag.
+prescaler larger than 8 would mean the carrier is at most 152Hz,
+which does not make sense for IR carriers.
 
-Fixes: 9cb837480424 ("RDMA/rtrs: server: main functionality")
-Link: https://lore.kernel.org/r/20201217141915.56989-18-jinpu.wang@cloud.ionos.com
-Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
-Signed-off-by: Gioh Kim <gi-oh.kim@cloud.ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-by: syzbot+6d31bf169a8265204b8d@syzkaller.appspotmail.com
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/mceusb.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
-@@ -820,7 +820,7 @@ static int process_info_req(struct rtrs_
- 		rwr[mri].wr.opcode = IB_WR_REG_MR;
- 		rwr[mri].wr.wr_cqe = &local_reg_cqe;
- 		rwr[mri].wr.num_sge = 0;
--		rwr[mri].wr.send_flags = mri ? 0 : IB_SEND_SIGNALED;
-+		rwr[mri].wr.send_flags = 0;
- 		rwr[mri].mr = mr;
- 		rwr[mri].key = mr->rkey;
- 		rwr[mri].access = (IB_ACCESS_LOCAL_WRITE |
+--- a/drivers/media/rc/mceusb.c
++++ b/drivers/media/rc/mceusb.c
+@@ -701,11 +701,18 @@ static void mceusb_dev_printdata(struct
+ 				data[0], data[1]);
+ 			break;
+ 		case MCE_RSP_EQIRCFS:
++			if (!data[0] && !data[1]) {
++				dev_dbg(dev, "%s: no carrier", inout);
++				break;
++			}
++			// prescaler should make sense
++			if (data[0] > 8)
++				break;
+ 			period = DIV_ROUND_CLOSEST((1U << data[0] * 2) *
+ 						   (data[1] + 1), 10);
+ 			if (!period)
+ 				break;
+-			carrier = (1000 * 1000) / period;
++			carrier = USEC_PER_SEC / period;
+ 			dev_dbg(dev, "%s carrier of %u Hz (period %uus)",
+ 				 inout, carrier, period);
+ 			break;
 
 
