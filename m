@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4D932EAE7
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1F9132EAE5
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbhCEMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232719AbhCEMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 5 Mar 2021 07:40:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56040 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233386AbhCEMka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC36364EE8;
-        Fri,  5 Mar 2021 12:40:29 +0000 (UTC)
+        id S231224AbhCEMkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:40:33 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EED6464E84;
+        Fri,  5 Mar 2021 12:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948030;
-        bh=5D/oe9p2HEYs9BSK4ZbRzw/WvDx4brx0dIqWPydmd3A=;
+        s=korg; t=1614948033;
+        bh=UGV5qd3w4UPGJb4DeqXeTXxebdQ7BrsB1t7JvviE3ug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2YcNAuARkYZprVIv5ZsCNtL+WjFSaSDH69j/QYrBgzLZ3hJngGI3I4/U6oWzqPE5
-         xcoGNPorBRQk/OBq7IXCUFJtvCh9e9Gc8JMqTZEcmoLMDFtyPnMTf8IQ0NaWcdYoYS
-         93RE/i0pI9QKdrVrnTnQ73yCXBdc2xgAIkWWUm/8=
+        b=Arsh7XMTx+pUNnjQImm95G/AglGhv8J2FDIMw6kvUtSpccZ4P6LGeFE6fh8tvFbqo
+         5a2XtvqMt4scoy+Q6ilFPntW0R0V0w7Nzr5bkjwFFMChutWCwFL8ssMGmdC1+5S/uP
+         AC1uThmzbWHFUAHltSG4FXHgZv/5R0bw0wfgnP6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Gromm <christian.gromm@microchip.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/39] staging: most: sound: add sanity check for function argument
-Date:   Fri,  5 Mar 2021 13:22:26 +0100
-Message-Id: <20210305120853.135395910@linuxfoundation.org>
+Subject: [PATCH 4.14 28/39] media: uvcvideo: Allow entities with no pads
+Date:   Fri,  5 Mar 2021 13:22:27 +0100
+Message-Id: <20210305120853.185626410@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
 References: <20210305120851.751937389@linuxfoundation.org>
@@ -41,35 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Gromm <christian.gromm@microchip.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 45b754ae5b82949dca2b6e74fa680313cefdc813 ]
+[ Upstream commit 7532dad6634031d083df7af606fac655b8d08b5c ]
 
-This patch checks the function parameter 'bytes' before doing the
-subtraction to prevent memory corruption.
+Avoid an underflow while calculating the number of inputs for entities
+with zero pads.
 
-Signed-off-by: Christian Gromm <christian.gromm@microchip.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/1612282865-21846-1-git-send-email-christian.gromm@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/most/aim-sound/sound.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/uvc/uvc_driver.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/most/aim-sound/sound.c b/drivers/staging/most/aim-sound/sound.c
-index ea1366a44008..e259bf4956ab 100644
---- a/drivers/staging/most/aim-sound/sound.c
-+++ b/drivers/staging/most/aim-sound/sound.c
-@@ -92,6 +92,8 @@ static void swap_copy24(u8 *dest, const u8 *source, unsigned int bytes)
- {
- 	unsigned int i = 0;
+diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
+index 5899593dabaf..aaaee039fb30 100644
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -904,7 +904,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 	unsigned int i;
  
-+	if (bytes < 2)
-+		return;
- 	while (i < bytes - 2) {
- 		dest[i] = source[i + 2];
- 		dest[i + 1] = source[i + 1];
+ 	extra_size = roundup(extra_size, sizeof(*entity->pads));
+-	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
++	if (num_pads)
++		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
++	else
++		num_inputs = 0;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
+ 	entity = kzalloc(size, GFP_KERNEL);
+@@ -920,7 +923,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
+ 
+ 	for (i = 0; i < num_inputs; ++i)
+ 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
+-	if (!UVC_ENTITY_IS_OTERM(entity))
++	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
+ 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
+ 
+ 	entity->bNrInPins = num_inputs;
 -- 
 2.30.1
 
