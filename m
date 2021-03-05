@@ -2,278 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6AB32E0EA
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 05:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC8232E152
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 06:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbhCEE7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 4 Mar 2021 23:59:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbhCEE7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 4 Mar 2021 23:59:02 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD34AC061574
-        for <stable@vger.kernel.org>; Thu,  4 Mar 2021 20:59:01 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id w18so1175663pfu.9
-        for <stable@vger.kernel.org>; Thu, 04 Mar 2021 20:59:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fkNDeeH8nuaIrdz/CejFpuphgRcRBsmGnBdBIhfziAA=;
-        b=uFi/mNscJovtLDcie6yo3vuqP4gCaGCc908uqAMvKiShEOC+tTAa/z51di2MrDjCTX
-         p0BlqE9IkPr5RNVa2T0Ab+qlHhyBxGbwgcYfcfzctopWj7l7hPxhwLeureM4HX/HK6sN
-         7GI/EE0CLHpd1eq0cJeWGSdaVCVJ+V5HhIRv6T3ak49XHcO0hVo01PzwqmB0yPYOr+Ee
-         yj79Bl4K84MdF+EEwTtmrAqyYsD6SN5bkg+LDev/xx0/tX8nauyZIWSBbeA/TYcks+wr
-         XfltZ5VqZ/BNBV8eaDZCBXy3KC2W+0E6dT39vSm6b+t4Zgh9EznWATsvzc4R6yA46B1A
-         lOeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fkNDeeH8nuaIrdz/CejFpuphgRcRBsmGnBdBIhfziAA=;
-        b=QLYwxpJGbhk8KQnfkkKdG9Ddf/P5dNt8BbRWRQCYIs24i9oMiQz4j/VkqQjTKWNm4K
-         qFjfvUGMFIq6sbUwa6vfvpERdadVk1kqiIU8wUCGxFO5PkDSrJvsxHdMh01fn/Sn5LSo
-         zltpP5GU0HZ4pGBgfAMv8Rfvg7fqawkDPpnAJb+3FGA4zgMGOMiiFwUPYhtsyRaGjP75
-         yC8FJjQqawKwGlvEfGWst1DtR7tifEM8/t1uLJabOD8UbZee0rymhBtHZLxd8K8NXn9A
-         2kJ4cL9LmwxSY5JVNj6QWI+Oj/QhXC/T1MisaRG/6kuHHHVqCCITcpQB/0akAXckZsFK
-         IIsw==
-X-Gm-Message-State: AOAM533VPKZR9hS7Xst3yNu+2roI8+s0bRov2vsysv1BVRJbVB/N6ALF
-        78BNX0FM/2KnTT2ojvQQwzFIm7tJTxVnZxGd
-X-Google-Smtp-Source: ABdhPJznmAKHl8TmlWq/XldvFyfO00RYuqZig62ctDunKnVVRcegvrKU+KxERyWVswFCeoSjNOPgiQ==
-X-Received: by 2002:aa7:9843:0:b029:1ed:a151:306 with SMTP id n3-20020aa798430000b02901eda1510306mr7099727pfq.11.1614920341041;
-        Thu, 04 Mar 2021 20:59:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b3sm836029pgd.48.2021.03.04.20.59.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Mar 2021 20:59:00 -0800 (PST)
-Message-ID: <6041ba94.1c69fb81.8c2a0.368e@mx.google.com>
-Date:   Thu, 04 Mar 2021 20:59:00 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229469AbhCEFOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 00:14:44 -0500
+Received: from relay.corp-email.com ([222.73.234.233]:39756 "EHLO
+        relay.corp-email.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229465AbhCEFOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 00:14:44 -0500
+Received: from ([183.47.25.45])
+        by relay.corp-email.com ((LNX1044)) with ASMTP (SSL) id YYT00133;
+        Fri, 05 Mar 2021 13:14:33 +0800
+Received: from GCY-EXS-15.TCL.com (10.74.128.165) by GCY-EXS-09.TCL.com
+ (10.74.128.159) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
+ 13:14:34 +0800
+Received: from localhost.localdomain (172.16.34.11) by GCY-EXS-15.TCL.com
+ (10.74.128.165) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
+ 13:14:33 +0800
+From:   Rokudo Yan <wu-yan@tcl.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <akpm@linux-foundation.org>, <minchan@kernel.org>,
+        <sergey.senozhatsky@gmail.com>, <stable@vger.kernel.org>,
+        <torvalds@linux-foundation.org>, <wu-yan@tcl.com>
+Subject: Re: FAILED: patch "[PATCH] zsmalloc: account the number of compacted pages correctly" failed to apply to 4.4-stable tree
+Date:   Fri, 5 Mar 2021 13:13:38 +0800
+Message-ID: <20210305051338.2638116-1-wu-yan@tcl.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <1614520628114242@kroah.com>
+References: <1614520628114242@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.178-20-g343507cdf71e2
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 106 runs,
- 5 regressions (v4.19.178-20-g343507cdf71e2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [172.16.34.11]
+X-ClientProxiedBy: GCY-EXS-04.TCL.com (10.74.128.154) To GCY-EXS-15.TCL.com
+ (10.74.128.165)
+tUid:   2021305131433b626fac414acbc148b04fdb9ea4130d4
+X-Abuse-Reports-To: service@corp-email.com
+Abuse-Reports-To: service@corp-email.com
+X-Complaints-To: service@corp-email.com
+X-Report-Abuse-To: service@corp-email.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 106 runs, 5 regressions (v4.19.178-20-g34350=
-7cdf71e2)
+commit 2395928158059b8f9858365fce7713ce7fef62e4 backported to
+4.4-stable tree.
 
-Regressions Summary
--------------------
+There exists multiple path may do zram compaction concurrently.
+1. auto-compaction triggered during memory reclaim
+2. userspace utils write zram<id>/compaction node
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
+So, multiple threads may call zs_shrinker_scan/zs_compact concurrently.
+But pages_compacted is a per zsmalloc pool variable and modification
+of the variable is not serialized(through under class->lock).
+There are two issues here:
+1. the pages_compacted may not equal to total number of pages
+freed(due to concurrently add).
+2. zs_shrinker_scan may not return the correct number of pages
+freed(issued by current shrinker).
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+The fix is simple:
+1. account the number of pages freed in zs_compact locally.
+2. use actomic variable pages_compacted to accumulate total number.
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+Link: https://lkml.kernel.org/r/20210202122235.26885-1-wu-yan@tcl.com
+Fixes: 860c707dca155a56 ("zsmalloc: account the number of compacted pages")
+Signed-off-by: Rokudo Yan <wu-yan@tcl.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/block/zram/zram_drv.c |  2 +-
+ include/linux/zsmalloc.h      |  2 +-
+ mm/zsmalloc.c                 | 17 +++++++++++------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 616ee4f9c233..b243452d4788 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -450,7 +450,7 @@ static ssize_t mm_stat_show(struct device *dev,
+ 			zram->limit_pages << PAGE_SHIFT,
+ 			max_used << PAGE_SHIFT,
+ 			(u64)atomic64_read(&zram->stats.zero_pages),
+-			pool_stats.pages_compacted);
++			atomic_long_read(&pool_stats.pages_compacted));
+ 	up_read(&zram->init_lock);
+ 
+ 	return ret;
+diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
+index 34eb16098a33..05ca2acea8dc 100644
+--- a/include/linux/zsmalloc.h
++++ b/include/linux/zsmalloc.h
+@@ -36,7 +36,7 @@ enum zs_mapmode {
+ 
+ struct zs_pool_stats {
+ 	/* How many pages were migrated (freed) */
+-	unsigned long pages_compacted;
++	atomic_long_t pages_compacted;
+ };
+ 
+ struct zs_pool;
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index c1ea19478119..8ebcab7b4d2f 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1745,11 +1745,13 @@ static unsigned long zs_can_compact(struct size_class *class)
+ 	return obj_wasted * class->pages_per_zspage;
+ }
+ 
+-static void __zs_compact(struct zs_pool *pool, struct size_class *class)
++static unsigned long __zs_compact(struct zs_pool *pool,
++				   struct size_class *class)
+ {
+ 	struct zs_compact_control cc;
+ 	struct page *src_page;
+ 	struct page *dst_page = NULL;
++	unsigned long pages_freed = 0;
+ 
+ 	spin_lock(&class->lock);
+ 	while ((src_page = isolate_source_page(class))) {
+@@ -1780,7 +1782,7 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 
+ 		putback_zspage(pool, class, dst_page);
+ 		if (putback_zspage(pool, class, src_page) == ZS_EMPTY)
+-			pool->stats.pages_compacted += class->pages_per_zspage;
++			pages_freed += class->pages_per_zspage;
+ 		spin_unlock(&class->lock);
+ 		cond_resched();
+ 		spin_lock(&class->lock);
+@@ -1790,12 +1792,15 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
+ 		putback_zspage(pool, class, src_page);
+ 
+ 	spin_unlock(&class->lock);
++
++	return pages_freed;
+ }
+ 
+ unsigned long zs_compact(struct zs_pool *pool)
+ {
+ 	int i;
+ 	struct size_class *class;
++	unsigned long pages_freed = 0;
+ 
+ 	for (i = zs_size_classes - 1; i >= 0; i--) {
+ 		class = pool->size_class[i];
+@@ -1803,10 +1808,11 @@ unsigned long zs_compact(struct zs_pool *pool)
+ 			continue;
+ 		if (class->index != i)
+ 			continue;
+-		__zs_compact(pool, class);
++		pages_freed += __zs_compact(pool, class);
+ 	}
++	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
+ 
+-	return pool->stats.pages_compacted;
++	return pages_freed;
+ }
+ EXPORT_SYMBOL_GPL(zs_compact);
+ 
+@@ -1823,13 +1829,12 @@ static unsigned long zs_shrinker_scan(struct shrinker *shrinker,
+ 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
+ 			shrinker);
+ 
+-	pages_freed = pool->stats.pages_compacted;
+ 	/*
+ 	 * Compact classes and calculate compaction delta.
+ 	 * Can run concurrently with a manually triggered
+ 	 * (by user) compaction.
+ 	 */
+-	pages_freed = zs_compact(pool) - pages_freed;
++	pages_freed = zs_compact(pool);
+ 
+ 	return pages_freed ? pages_freed : SHRINK_STOP;
+ }
+-- 
+2.25.1
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.178-20-g343507cdf71e2/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.178-20-g343507cdf71e2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      343507cdf71e21d856c8968c70776633efff316f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604189b497924823c4addce3
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/604189b59792482=
-3c4addce8
-        failing since 0 day (last pass: v4.19.178-16-gdaaebef7f79c0, first =
-fail: v4.19.178-18-gecabdc57e1e82)
-        2 lines
-
-    2021-03-05 01:30:24.135000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2021-03-05 01:30:24.154000+00:00  <8>[   22.922515] <LAVA_SIGNAL_TESTCA=
-SE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6041adad7b4e68b9d4addcbd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6041adad7b4e68b9d4add=
-cbe
-        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6041853210580f48ebaddcce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6041853210580f48ebadd=
-ccf
-        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604184f96ca6b567d6addcdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604184f96ca6b567d6add=
-cde
-        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604185048f023d5046addcd8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--20-g343507cdf71e2/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604185048f023d5046add=
-cd9
-        failing since 111 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
