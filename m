@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D14B32E5ED
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D66DC32E5EE
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 11:15:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229615AbhCEKOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 05:14:11 -0500
-Received: from mga12.intel.com ([192.55.52.136]:30324 "EHLO mga12.intel.com"
+        id S229497AbhCEKOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 05:14:42 -0500
+Received: from mga17.intel.com ([192.55.52.151]:54019 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229608AbhCEKOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 05:14:04 -0500
-IronPort-SDR: D3uejRIGl7QfBiXy6Np0rCWz6k09IpjISpUy73Psxf2iuXNs62k2C2MuP4yaEyzPc+/MCoaMXD
- 34LgcdBWSrCg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9913"; a="166879650"
+        id S229718AbhCEKOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 05:14:33 -0500
+IronPort-SDR: d5VpSxXWpbWZFKflZrCqKhJJpINCJxvjzepKJ8uoRgTpSpPje+ebup3UoAOE0wZFmPk2Zdqe8C
+ MIQUHzGcsO2Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9913"; a="167515740"
 X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; 
-   d="scan'208";a="166879650"
+   d="scan'208";a="167515740"
 Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2021 02:14:03 -0800
-IronPort-SDR: eRLZviK3oIdTJe+TDl6Vnuvfv0YG6Ru+nccKjqqvNupam0mWQjhmaIV+rTVwdyX8Na0zoJPYSc
- 2x+JJCxFspqA==
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2021 02:14:33 -0800
+IronPort-SDR: BcSKGXgjfNkfYEzN//bgpFjuiqbT0bIdspy0yxwVr2LXUd1KiG6hmbr+t/ShBqxGACuL10t5+K
+ bSWkk/XZy2bA==
 X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; 
-   d="scan'208";a="370134132"
+   d="scan'208";a="370134330"
 Received: from paasikivi.fi.intel.com ([10.237.72.42])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2021 02:14:02 -0800
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Mar 2021 02:14:31 -0800
 Received: from punajuuri.localdomain (punajuuri.localdomain [192.168.240.130])
-        by paasikivi.fi.intel.com (Postfix) with ESMTP id 02B9820815;
+        by paasikivi.fi.intel.com (Postfix) with ESMTP id 0BB8D2084B;
         Fri,  5 Mar 2021 12:14:00 +0200 (EET)
 Received: from sailus by punajuuri.localdomain with local (Exim 4.92)
         (envelope-from <sakari.ailus@linux.intel.com>)
-        id 1lI7Te-0001aC-JR; Fri, 05 Mar 2021 12:14:34 +0200
+        id 1lI7Te-0001aF-Kr; Fri, 05 Mar 2021 12:14:34 +0200
 From:   Sakari Ailus <sakari.ailus@linux.intel.com>
 To:     gregkh@linuxfoundation.org
 Cc:     arnd@arndb.de, arnd@kernel.org, hverkuil-cisco@xs4all.nl,
         laurent.pinchart@ideasonboard.com, mchehab+huawei@kernel.org,
         stable@vger.kernel.org
-Subject: [PATCH FOR stable v4.19 1/1] media: v4l: ioctl: Fix memory leak in video_usercopy
-Date:   Fri,  5 Mar 2021 12:14:30 +0200
-Message-Id: <20210305101434.6038-2-sakari.ailus@linux.intel.com>
+Subject: [PATCH FOR stable v4.4 1/1] media: v4l: ioctl: Fix memory leak in video_usercopy
+Date:   Fri,  5 Mar 2021 12:14:31 +0200
+Message-Id: <20210305101434.6038-3-sakari.ailus@linux.intel.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20210305101329.GP3@paasikivi.fi.intel.com>
 References: <20210305101329.GP3@paasikivi.fi.intel.com>
@@ -72,10 +72,10 @@ Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
  1 file changed, 7 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index f75d892b6f033..76ef79733a4e5 100644
+index 5e2a7e59f5784..75bdcb4b7d57b 100644
 --- a/drivers/media/v4l2-core/v4l2-ioctl.c
 +++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -2939,7 +2939,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
+@@ -2710,7 +2710,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
  	       v4l2_kioctl func)
  {
  	char	sbuf[128];
@@ -84,7 +84,7 @@ index f75d892b6f033..76ef79733a4e5 100644
  	void	*parg = (void *)arg;
  	long	err  = -EINVAL;
  	bool	has_array_args;
-@@ -2998,20 +2998,14 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
+@@ -2765,20 +2765,14 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
  	has_array_args = err;
  
  	if (has_array_args) {
@@ -94,8 +94,8 @@ index f75d892b6f033..76ef79733a4e5 100644
 -		 * array) fits into sbuf (so that mbuf will still remain
 -		 * unused up to here).
 -		 */
--		mbuf = kvmalloc(array_size, GFP_KERNEL);
-+		array_buf = kvmalloc(array_size, GFP_KERNEL);
+-		mbuf = kmalloc(array_size, GFP_KERNEL);
++		array_buf = kmalloc(array_size, GFP_KERNEL);
  		err = -ENOMEM;
 -		if (NULL == mbuf)
 +		if (array_buf == NULL)
@@ -109,7 +109,7 @@ index f75d892b6f033..76ef79733a4e5 100644
  	}
  
  	/* Handles IOCTL */
-@@ -3030,7 +3024,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
+@@ -2797,7 +2791,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
  
  	if (has_array_args) {
  		*kernel_ptr = (void __force *)user_ptr;
@@ -118,12 +118,12 @@ index f75d892b6f033..76ef79733a4e5 100644
  			err = -EFAULT;
  		goto out_array_args;
  	}
-@@ -3052,6 +3046,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
+@@ -2817,6 +2811,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
  	}
  
  out:
-+	kvfree(array_buf);
- 	kvfree(mbuf);
++	kfree(array_buf);
+ 	kfree(mbuf);
  	return err;
  }
 -- 
