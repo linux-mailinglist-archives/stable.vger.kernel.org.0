@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D04D32EA92
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4827432EA05
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbhCEMjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
+        id S232069AbhCEMgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232005AbhCEMip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:38:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6E576503A;
-        Fri,  5 Mar 2021 12:38:44 +0000 (UTC)
+        id S231681AbhCEMfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:35:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 805E16501D;
+        Fri,  5 Mar 2021 12:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947925;
-        bh=d+q80kQSMRpcRLO1N4ipTPIJYZsU/cjDy/rQFHpnJHE=;
+        s=korg; t=1614947731;
+        bh=R2Hk4Rmtt0eWvMIFSFgPzxniXaHejw+vT07E/5xAx4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7fJRoqBWm6JMtE5dOy16YMcJYdOZBge+BCZ6MjEZLvykJxL+j0nPkBU5gmTE6lFC
-         8oMsE+I3NN8tDlLOEmkrHIZG3fB3pufP6cMBo7jP23a2VSEv1wr7rJdglJH6FKNF4g
-         Mp+T2iKeiYyw/9tls5kuN8wUexncBDtOLyoTemCk=
+        b=sWUNXC38dgUZTqWcAdKYiOID8nUj1C/jG58DzsmXBtKVP75ZiKZAh6q5O08GjZTjX
+         cHT5V0pMwcjYGqn4TBZdWDs21rozrbhYU+BEib1/zEiDGhHrRkRTV43SRLqLJfau8Q
+         D0dKQFoPkDi+latvhXx9r3pFUvhB8lVgPdvQq6dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/52] ath10k: fix wmi mgmt tx queue full due to race condition
+        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
+        "Luis Claudio R. Goncalves" <lgoncalv@redhat.com>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 56/72] sched/features: Fix hrtick reprogramming
 Date:   Fri,  5 Mar 2021 13:21:58 +0100
-Message-Id: <20210305120855.008497719@linuxfoundation.org>
+Message-Id: <20210305120900.082486268@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
-References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,88 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Juri Lelli <juri.lelli@redhat.com>
 
-[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
+[ Upstream commit 156ec6f42b8d300dbbf382738ff35c8bad8f4c3a ]
 
-Failed to transmit wmi management frames:
+Hung tasks and RCU stall cases were reported on systems which were not
+100% busy. Investigation of such unexpected cases (no sign of potential
+starvation caused by tasks hogging the system) pointed out that the
+periodic sched tick timer wasn't serviced anymore after a certain point
+and that caused all machinery that depends on it (timers, RCU, etc.) to
+stop working as well. This issues was however only reproducible if
+HRTICK was enabled.
 
-[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
-[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
-[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
-[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
+Looking at core dumps it was found that the rbtree of the hrtimer base
+used also for the hrtick was corrupted (i.e. next as seen from the base
+root and actual leftmost obtained by traversing the tree are different).
+Same base is also used for periodic tick hrtimer, which might get "lost"
+if the rbtree gets corrupted.
 
-This issue is caused by race condition between skb_dequeue and
-__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
-different lock: ar->data_lock vs list->lock, the result is no protection.
-So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
-running concurrently on different CPUs, there appear to be a rare corner
-cases when the queue length is 1,
+Much alike what described in commit 1f71addd34f4c ("tick/sched: Do not
+mess with an enqueued hrtimer") there is a race window between
+hrtimer_set_expires() in hrtick_start and hrtimer_start_expires() in
+__hrtick_restart() in which the former might be operating on an already
+queued hrtick hrtimer, which might lead to corruption of the base.
 
-  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
-					next=list
-					prev=list
-  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
-  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
-  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
-  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
-  skb->next  = skb->prev = NULL;	list->qlen++;
-  WRITE_ONCE(next->prev, prev);
-  WRITE_ONCE(prev->next, next);
+Use hrtick_start() (which removes the timer before enqueuing it back) to
+ensure hrtick hrtimer reprogramming is entirely guarded by the base
+lock, so that no race conditions can occur.
 
-If the instruction ‘next = skb->next’ is executed before
-‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
-old ‘next’ pointer, but the length is still added by one. The final
-result is the length of the queue will reach the maximum value but
-the queue is empty.
-
-So remove ar->data_lock, and use 'skb_queue_tail' instead of
-'__skb_queue_tail' to prevent the potential race condition. Also switch
-to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
-
-Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Reviewed-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
+Signed-off-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Luis Claudio R. Goncalves <lgoncalv@redhat.com>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20210208073554.14629-2-juri.lelli@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ kernel/sched/core.c  | 8 +++-----
+ kernel/sched/sched.h | 1 +
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index faaca7fe9ad1..f32d35e03708 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3567,23 +3567,16 @@ bool ath10k_mac_tx_frm_has_freq(struct ath10k *ar)
- static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 7841e738e38f..2ce61018e33b 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -254,8 +254,9 @@ static enum hrtimer_restart hrtick(struct hrtimer *timer)
+ static void __hrtick_restart(struct rq *rq)
  {
- 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
--	int ret = 0;
--
--	spin_lock_bh(&ar->data_lock);
+ 	struct hrtimer *timer = &rq->hrtick_timer;
++	ktime_t time = rq->hrtick_time;
  
--	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
-+	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
- 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
--		ret = -ENOSPC;
--		goto unlock;
-+		return -ENOSPC;
- 	}
- 
--	__skb_queue_tail(q, skb);
-+	skb_queue_tail(q, skb);
- 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
- 
--unlock:
--	spin_unlock_bh(&ar->data_lock);
--
--	return ret;
-+	return 0;
+-	hrtimer_start_expires(timer, HRTIMER_MODE_ABS_PINNED_HARD);
++	hrtimer_start(timer, time, HRTIMER_MODE_ABS_PINNED_HARD);
  }
  
- static enum ath10k_mac_tx_path
+ /*
+@@ -280,7 +281,6 @@ static void __hrtick_start(void *arg)
+ void hrtick_start(struct rq *rq, u64 delay)
+ {
+ 	struct hrtimer *timer = &rq->hrtick_timer;
+-	ktime_t time;
+ 	s64 delta;
+ 
+ 	/*
+@@ -288,9 +288,7 @@ void hrtick_start(struct rq *rq, u64 delay)
+ 	 * doesn't make sense and can cause timer DoS.
+ 	 */
+ 	delta = max_t(s64, delay, 10000LL);
+-	time = ktime_add_ns(timer->base->get_time(), delta);
+-
+-	hrtimer_set_expires(timer, time);
++	rq->hrtick_time = ktime_add_ns(timer->base->get_time(), delta);
+ 
+ 	if (rq == this_rq()) {
+ 		__hrtick_restart(rq);
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index e10fb9bf2988..4e490e3db2f8 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -973,6 +973,7 @@ struct rq {
+ 	call_single_data_t	hrtick_csd;
+ #endif
+ 	struct hrtimer		hrtick_timer;
++	ktime_t 		hrtick_time;
+ #endif
+ 
+ #ifdef CONFIG_SCHEDSTATS
 -- 
 2.30.1
 
