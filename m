@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C0132E8FE
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CDAD32E900
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbhCEMaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38576 "EHLO mail.kernel.org"
+        id S230425AbhCEMaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:30:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231828AbhCEM3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:29:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1A465019;
-        Fri,  5 Mar 2021 12:29:30 +0000 (UTC)
+        id S230192AbhCEM3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3486E6505C;
+        Fri,  5 Mar 2021 12:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947371;
-        bh=MzECXvRCfTdhhl662iinpmpj+CqmNMIktdP22PxNuuo=;
+        s=korg; t=1614947373;
+        bh=/rxuu6LmRXOwkLaxMwFznu8dHOi9leJrRWo45P0GUxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m79fP7WukIdJBMzj7bM6dInL3wj7EAWfFU32d3VUUXgMRvom7/pvFBCUx0HkjWqQ0
-         HKADr94bPhJaMelOF6IzmgTfN5h/ZY+0WFxjGASsabxXqoXEfE1JJrhJVMzH89Agge
-         1+UGaOqDCAuKpxZDkyMEeKdtEq30RHOfz1IUnngs=
+        b=P5GBtTT0j+dzWEuDgbBOmor2tKCYUSkWyF99KdtM0V5HU5yev0f9LghjFn6YrKAS7
+         V4yhnkfmiJDZsvs+sddCXAHwFo0+48zzgUg07RiH3cfb05hJUR+BXVsloMZYVA3AKg
+         87LflIPquJ+6iMe6If/qpHUeFG++SqdxNnSZr6zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Don Curtis <bugrprt21882@online.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/102] EDAC/amd64: Do not load on family 0x15, model 0x13
-Date:   Fri,  5 Mar 2021 13:20:59 +0100
-Message-Id: <20210305120905.265204467@linuxfoundation.org>
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 041/102] staging: fwserial: Fix error handling in fwserial_create
+Date:   Fri,  5 Mar 2021 13:21:00 +0100
+Message-Id: <20210305120905.315623496@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
 References: <20210305120903.276489876@linuxfoundation.org>
@@ -39,58 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 6c13d7ff81e6d2f01f62ccbfa49d1b8d87f274d0 ]
+[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
 
-Those were only laptops and are very very unlikely to have ECC memory.
-Currently, when the driver attempts to load, it issues:
+When fw_core_add_address_handler() fails, we need to destroy
+the port by tty_port_destroy(). Also we need to unregister
+the address handler by fw_core_remove_address_handler() on
+failure.
 
-  EDAC amd64: Error: F1 not found: device 0x1601 (broken BIOS?)
-
-because the PCI device is the wrong one (it uses the F15h default one).
-
-So do not load the driver on them as that is pointless.
-
-Reported-by: Don Curtis <bugrprt21882@online.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Tested-by: Don Curtis <bugrprt21882@online.de>
-Link: http://bugzilla.opensuse.org/show_bug.cgi?id=1179763
-Link: https://lkml.kernel.org/r/20201218160622.20146-1-bp@alien8.de
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/amd64_edac.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/staging/fwserial/fwserial.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/edac/amd64_edac.c b/drivers/edac/amd64_edac.c
-index 620f7041db6b..b36d5879b91e 100644
---- a/drivers/edac/amd64_edac.c
-+++ b/drivers/edac/amd64_edac.c
-@@ -3350,10 +3350,13 @@ static struct amd64_family_type *per_family_init(struct amd64_pvt *pvt)
- 			fam_type = &family_types[F15_M60H_CPUS];
- 			pvt->ops = &family_types[F15_M60H_CPUS].ops;
- 			break;
-+		/* Richland is only client */
-+		} else if (pvt->model == 0x13) {
-+			return NULL;
-+		} else {
-+			fam_type	= &family_types[F15_CPUS];
-+			pvt->ops	= &family_types[F15_CPUS].ops;
+diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
+index db83d34cd677..c368082aae1a 100644
+--- a/drivers/staging/fwserial/fwserial.c
++++ b/drivers/staging/fwserial/fwserial.c
+@@ -2189,6 +2189,7 @@ static int fwserial_create(struct fw_unit *unit)
+ 		err = fw_core_add_address_handler(&port->rx_handler,
+ 						  &fw_high_memory_region);
+ 		if (err) {
++			tty_port_destroy(&port->port);
+ 			kfree(port);
+ 			goto free_ports;
  		}
--
--		fam_type	= &family_types[F15_CPUS];
--		pvt->ops	= &family_types[F15_CPUS].ops;
- 		break;
+@@ -2271,6 +2272,7 @@ unregister_ttys:
  
- 	case 0x16:
-@@ -3547,6 +3550,7 @@ static int probe_one_instance(unsigned int nid)
- 	pvt->mc_node_id	= nid;
- 	pvt->F3 = F3;
- 
-+	ret = -ENODEV;
- 	fam_type = per_family_init(pvt);
- 	if (!fam_type)
- 		goto err_enable;
+ free_ports:
+ 	for (--i; i >= 0; --i) {
++		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
+ 		tty_port_destroy(&serial->ports[i]->port);
+ 		kfree(serial->ports[i]);
+ 	}
 -- 
 2.30.1
 
