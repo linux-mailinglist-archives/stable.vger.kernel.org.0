@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB04732E877
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08DBC32E885
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:28:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbhCEM05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:26:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34368 "EHLO mail.kernel.org"
+        id S231390AbhCEM1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:27:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231669AbhCEM0s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:26:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1A006502C;
-        Fri,  5 Mar 2021 12:26:47 +0000 (UTC)
+        id S231167AbhCEM0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:26:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8E3765042;
+        Fri,  5 Mar 2021 12:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947208;
-        bh=wSc8CuSoMyij4zh1jZMhcgXiidQnd1mA7kB/9GWG2xg=;
+        s=korg; t=1614947211;
+        bh=ULcF/9DVmWjgbZlaP7YQwNMSFf7THB96hECQvc6+5x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBfwki1qTzNRGwSsrSkjKt/F4IaDP9Y0EYCTmVvNuKAp2n4LbaFsI6PGOvl6KD6PZ
-         XGlMvXdO/09slwvPlNtKwrToe0uofheGiKh0tyAbmc55VJCGRQnjCOK3O6Dsnl//Fa
-         yLoJj3rH4sQofmVhS1mSArmFP4sz5rn0iEfnQieY=
+        b=jgJ+MyFG8vV3srsUSkeSJ1jkG6m5GFSzEE00sO1otY2VN08fY6pjdmaPj1MaUB9Ps
+         MGyaWRKnGSlwMNyJnCEl3bOsN4nIh4ceboAjJ9LNO2asn2kH/V6yQZ8zqAqmG4zhcP
+         fC8Cpcqi9PcEyBfONsdutzcu/Qk5cgLhxTX2lg4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 087/104] ASoC: Intel: bytcr_rt5651: Add quirk for the Jumper EZpad 7 tablet
-Date:   Fri,  5 Mar 2021 13:21:32 +0100
-Message-Id: <20210305120907.436348698@linuxfoundation.org>
+Subject: [PATCH 5.11 088/104] ASoC: Intel: bytcr_rt5640: Add quirk for the Acer One S1002 tablet
+Date:   Fri,  5 Mar 2021 13:21:33 +0100
+Message-Id: <20210305120907.483952567@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
 References: <20210305120903.166929741@linuxfoundation.org>
@@ -43,49 +43,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit df8359c512fa770ffa6b0b0309807d9b9825a47f ]
+[ Upstream commit c58947af08aedbdee0fce5ea6e6bf3e488ae0e2c ]
 
-Add a DMI quirk for the Jumper EZpad 7 tablet, this tablet has
-a jack-detect switch which reads 1/high when a jack is inserted,
-rather then using the standard active-low setup which most
-jack-detect switches use. All other settings are using the defaults.
+The Acer One S1002 tablet is using an analog mic on IN1 and has
+its jack-detect connected to JD2_IN4N, instead of using the default
+IN3 for its internal mic and JD1_IN4P for jack-detect.
 
-Add a DMI-quirk setting the defaults + the BYT_RT5651_JD_NOT_INV
-flags for this.
+Note it is also using AIF2 instead of AIF1 which is somewhat unusual,
+this is correctly advertised in the ACPI CHAN package, so the speakers
+do work without the quirk.
+
+Add a quirk for the mic and jack-detect settings.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210216213555.36555-4-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20210216213555.36555-5-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5651.c | 13 +++++++++++++
+ sound/soc/intel/boards/bytcr_rt5640.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5651.c b/sound/soc/intel/boards/bytcr_rt5651.c
-index f289ec8563a1..148b7b1bd3e8 100644
---- a/sound/soc/intel/boards/bytcr_rt5651.c
-+++ b/sound/soc/intel/boards/bytcr_rt5651.c
-@@ -435,6 +435,19 @@ static const struct dmi_system_id byt_rt5651_quirk_table[] = {
- 					BYT_RT5651_SSP0_AIF1 |
- 					BYT_RT5651_MONO_SPEAKER),
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index ba8ea651a22e..f00d4e417b6c 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -402,6 +402,19 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
  	},
-+	{
-+		/* Jumper EZpad 7 */
-+		.callback = byt_rt5651_quirk_cb,
++	{	/* Acer One 10 S1002 */
 +		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Jumper"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "EZpad"),
-+			/* Jumper12x.WJ2012.bsBKRCP05 with the version dropped */
-+			DMI_MATCH(DMI_BIOS_VERSION, "Jumper12x.WJ2012.bsBKRCP"),
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "One S1002"),
 +		},
-+		.driver_data = (void *)(BYT_RT5651_DEFAULT_QUIRKS |
-+					BYT_RT5651_IN2_MAP |
-+					BYT_RT5651_JD_NOT_INV),
++		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_SSP0_AIF2 |
++					BYT_RT5640_MCLK_EN),
 +	},
  	{
- 		/* KIANO SlimNote 14.2 */
- 		.callback = byt_rt5651_quirk_cb,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
 -- 
 2.30.1
 
