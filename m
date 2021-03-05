@@ -2,87 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE9F32F66A
-	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 00:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2407232F6A7
+	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 00:37:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230083AbhCEXKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 18:10:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50528 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230122AbhCEXKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 18:10:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPS id 240A3650A6;
-        Fri,  5 Mar 2021 23:10:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1614985811;
-        bh=0+laHNr2nbB0iqCi/qD2IFteGxqMNkypx4ESZUG8dlA=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=a26deF7SQp5m6Xoa2/t98aIfRt5XjCHSyflKK3F5+Vhltc2UycXpD0rZALllkRhmi
-         T1yNPrrPYizgUGT5Ig4BIjkEdO6pi94isNlB/uISoNS2vu1K1q+ooI3PhxENbP/X6T
-         RxUhk004chKc8QL+HL/vVoAYtCMfrhSrvGX12A+JKArvfltGFq7RcRhTLWlLXfrjBC
-         6U00sWIFOR8F2p7OrSmVMKoYBfb1rjVmtLqtYaS8vHlsJXeZOqCMN40QZ2Z4NVlg/g
-         3Yyfb5mXTcDXu0YsHcVw+O5JQXQpZxRdfoqamwjUomslL8Vn2s7eUZc6RLKZgP5AFP
-         MYm9wbSDIfPlw==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 197FF60A22;
-        Fri,  5 Mar 2021 23:10:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] ethernet: alx: fix order of calls on resume
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161498581110.14945.17599653986246768706.git-patchwork-notify@kernel.org>
-Date:   Fri, 05 Mar 2021 23:10:11 +0000
-References: <20210305221729.206096-1-kuba@kernel.org>
-In-Reply-To: <20210305221729.206096-1-kuba@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     davem@davemloft.net, netdev@vger.kernel.org,
-        zbynek.michl@gmail.com, chris.snook@gmail.com,
-        bruceshenzk@gmail.com, stable@vger.kernel.org
+        id S229701AbhCEXhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 18:37:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229672AbhCEXgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 18:36:39 -0500
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5380DC061760
+        for <stable@vger.kernel.org>; Fri,  5 Mar 2021 15:36:39 -0800 (PST)
+Received: by mail-qv1-xf4a.google.com with SMTP id n1so2730689qvi.4
+        for <stable@vger.kernel.org>; Fri, 05 Mar 2021 15:36:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=MNZ6L1aoJDnvOEvMxOUk5KgG8S0E1lmCTxqkRycD2ZQ=;
+        b=lRxvY4KKDvqZKuNX1Tl3icHmQWAvffTqQRCvTpt+3V7sZsi7tYKqVnmaIlrt3u5Vzr
+         bolx5J0c1YpV/Zh8eyNR9f64jABwRyTE7d6NDn31U9pqDHdIuHHVFYQXtx2LN/+E+/NM
+         2ADrbneU1zRymqKO4sbeqpUDK3v6trsmMGr/L70Yo/IYR7CvJZS5kKVI2WmVp/uKSjO+
+         4gDzyxUJgDjW5OR+/MDcECeY8Ss50TV3gMaGOyEkEADlwnzocPKzuaqT/gC0D/ugQbv8
+         akyryxoC3ihls/98DC11ASKNeQqe2+0VsMuXZeqiZoNRhzUgfSrXpDVU3xJMAngWT48f
+         +yLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=MNZ6L1aoJDnvOEvMxOUk5KgG8S0E1lmCTxqkRycD2ZQ=;
+        b=W+03VZHr9zbFXac9s4+6Pn1BMomg2cBNuwdI/FkK7OX/B6EVOM96FhFIAxYpjfojxz
+         8eZlIHJ6+TOHB8QqogFsV5skBmgamF8FknXHT4+/JgT/yWULHrfDUwz79JLypbN4gPRl
+         LCOeiiM8lvzz+8AOQKqcShLBF6FZ7FuOrhgjIYEQiysq/SxcYTHNT3utziJo5wMbMfUj
+         JTS91gGk/5CHSH3ZyLQ0q1dJ9D5Xrc2C1d1VvidXqeSTRKRa2mlQ2fO/8B6FAcLMIZ8E
+         thELB3N3hPAUBquaDUIhaoqQW1np8loSxwfxYBcY0PnPOE2G8gmo1+ncozJQpeusdvaF
+         0jGg==
+X-Gm-Message-State: AOAM530tajbXuiKsotT7w77w2O6o8MrA7+DP0rnEsP24d37e9E/NfbeK
+        m3iWwKzthQipqfO7aKU5L7+CUkC9bo/RnpMK
+X-Google-Smtp-Source: ABdhPJzd20tLO23T5pXp0bHE5QJ4BYRPW1FhEx+WK2EYa8ywF7Fp5O6OObSx4vmYzyLM7fcw9UWAo7D2s7PyojO9
+Sender: "andreyknvl via sendgmr" <andreyknvl@andreyknvl3.muc.corp.google.com>
+X-Received: from andreyknvl3.muc.corp.google.com ([2a00:79e0:15:13:953b:d7cf:2b01:f178])
+ (user=andreyknvl job=sendgmr) by 2002:a05:6214:1144:: with SMTP id
+ b4mr11326208qvt.12.1614987396545; Fri, 05 Mar 2021 15:36:36 -0800 (PST)
+Date:   Sat,  6 Mar 2021 00:36:33 +0100
+Message-Id: <24cd7db274090f0e5bc3adcdc7399243668e3171.1614987311.git.andreyknvl@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
+Subject: [PATCH v2] kasan, mm: fix crash with HW_TAGS and DEBUG_PAGEALLOC
+From:   Andrey Konovalov <andreyknvl@google.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Potapenko <glider@google.com>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Marco Elver <elver@google.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Branislav Rankov <Branislav.Rankov@arm.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrey Konovalov <andreyknvl@google.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Currently, kasan_free_nondeferred_pages()->kasan_free_pages() is called
+after debug_pagealloc_unmap_pages(). This causes a crash when
+debug_pagealloc is enabled, as HW_TAGS KASAN can't set tags on an
+unmapped page.
 
-This patch was applied to netdev/net.git (refs/heads/master):
+This patch puts kasan_free_nondeferred_pages() before
+debug_pagealloc_unmap_pages() and arch_free_page(), which can also make
+the page unavailable.
 
-On Fri,  5 Mar 2021 14:17:29 -0800 you wrote:
-> netif_device_attach() will unpause the queues so we can't call
-> it before __alx_open(). This went undetected until
-> commit b0999223f224 ("alx: add ability to allocate and free
-> alx_napi structures") but now if stack tries to xmit immediately
-> on resume before __alx_open() we'll crash on the NAPI being null:
-> 
->  BUG: kernel NULL pointer dereference, address: 0000000000000198
->  CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
->  Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
->  RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
->  Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
-> 0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
->  RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
->  RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
->  RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
->  RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
->  R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
->  R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
->  FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
->  i915 0000:00:02.0: vblank wait timed out on crtc 0
->  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->  CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
->  Call Trace:
->   dev_hard_start_xmit+0xc7/0x1e0
->   sch_direct_xmit+0x10f/0x310
-> 
-> [...]
+Fixes: 94ab5b61ee16 ("kasan, arm64: enable CONFIG_KASAN_HW_TAGS")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
 
-Here is the summary with links:
-  - [net] ethernet: alx: fix order of calls on resume
-    https://git.kernel.org/netdev/net/c/a4dcfbc4ee22
+---
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Changes v1->v2:
+- Move kasan_free_nondeferred_pages() before arch_free_page().
 
+---
+ mm/page_alloc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 969e7012fce0..0efb07b5907c 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1304,6 +1304,12 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 
+ 	kernel_poison_pages(page, 1 << order);
+ 
++	/*
++	 * With hardware tag-based KASAN, memory tags must be set before the
++	 * page becomes unavailable via debug_pagealloc or arch_free_page.
++	 */
++	kasan_free_nondeferred_pages(page, order, fpi_flags);
++
+ 	/*
+ 	 * arch_free_page() can make the page's contents inaccessible.  s390
+ 	 * does this.  So nothing which can access the page's contents should
+@@ -1313,8 +1319,6 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 
+ 	debug_pagealloc_unmap_pages(page, 1 << order);
+ 
+-	kasan_free_nondeferred_pages(page, order, fpi_flags);
+-
+ 	return true;
+ }
+ 
+-- 
+2.30.1.766.gb4fecdf3b7-goog
 
