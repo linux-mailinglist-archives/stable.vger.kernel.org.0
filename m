@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B2132EAE6
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D19EA32EB34
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbhCEMk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56122 "EHLO mail.kernel.org"
+        id S233111AbhCEMmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232659AbhCEMkh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3F2564EE8;
-        Fri,  5 Mar 2021 12:40:35 +0000 (UTC)
+        id S233906AbhCEMmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF136501F;
+        Fri,  5 Mar 2021 12:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948037;
-        bh=/L8RgTkiiLICWqBuKZKSOqyNFiTIn4f/gXZAs1zfS/k=;
+        s=korg; t=1614948155;
+        bh=nPt+uSCKZ3h6N89q2fDnwAWYSXzpQYeE8nURH36c4fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OcczqEmNe0b4B0K68aMIiOQJkST4v2oD5jAiNbkLU62QHRtscdoLT9hBp44dzQaRt
-         CCYBzsdLanBIOW4u0LlQjmNU9/c2r2sVB1Q/nY6gX2j1Tjke+rClucM91aBKT9VlHH
-         3hOnJBVsuhlnja+GzM9eX7JvAiM5397Ys/aHzB24=
+        b=ssAiloUzuWLMqqUpLGS+UCq5QQWt0nkFZgU3Hczbd8yCGrZ/588RT+chd6AbvyajM
+         /bU+lwmmwZLAD2TaTWPIAS4UlGDBubRtO6x2OaXHu27BxbMFgS0nTb6ZtnDdZpShsQ
+         J3M+KiXl4Thyt9KIHKtta/Psxt6bg0nDF7DbkJko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/39] f2fs: handle unallocated section and zone on pinned/atgc
+        stable@vger.kernel.org,
+        syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Marco Elver <elver@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 21/41] net: fix up truesize of cloned skb in skb_prepare_for_shift()
 Date:   Fri,  5 Mar 2021 13:22:28 +0100
-Message-Id: <20210305120853.238256885@linuxfoundation.org>
+Message-Id: <20210305120852.339523244@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Marco Elver <elver@google.com>
 
-[ Upstream commit 632faca72938f9f63049e48a8c438913828ac7a9 ]
+commit 097b9146c0e26aabaa6ff3e5ea536a53f5254a79 upstream.
 
-If we have large section/zone, unallocated segment makes them corrupted.
+Avoid the assumption that ksize(kmalloc(S)) == ksize(kmalloc(S)): when
+cloning an skb, save and restore truesize after pskb_expand_head(). This
+can occur if the allocator decides to service an allocation of the same
+size differently (e.g. use a different size class, or pass the
+allocation on to KFENCE).
 
-E.g.,
+Because truesize is used for bookkeeping (such as sk_wmem_queued), a
+modified truesize of a cloned skb may result in corrupt bookkeeping and
+relevant warnings (such as in sk_stream_kill_queues()).
 
-  - Pinned file:       -1 119304647 119304647
-  - ATGC   data:       -1 119304647 119304647
-
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/X9JR/J6dMMOy1obu@elver.google.com
+Reported-by: syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210201160420.2826895-1-elver@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/segment.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/skbuff.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
-index 0d46e936d54e..00c415131b06 100644
---- a/fs/f2fs/segment.h
-+++ b/fs/f2fs/segment.h
-@@ -91,11 +91,11 @@
- #define BLKS_PER_SEC(sbi)					\
- 	((sbi)->segs_per_sec * (sbi)->blocks_per_seg)
- #define GET_SEC_FROM_SEG(sbi, segno)				\
--	((segno) / (sbi)->segs_per_sec)
-+	(((segno) == -1) ? -1: (segno) / (sbi)->segs_per_sec)
- #define GET_SEG_FROM_SEC(sbi, secno)				\
- 	((secno) * (sbi)->segs_per_sec)
- #define GET_ZONE_FROM_SEC(sbi, secno)				\
--	((secno) / (sbi)->secs_per_zone)
-+	(((secno) == -1) ? -1: (secno) / (sbi)->secs_per_zone)
- #define GET_ZONE_FROM_SEG(sbi, segno)				\
- 	GET_ZONE_FROM_SEC(sbi, GET_SEC_FROM_SEG(sbi, segno))
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -2673,7 +2673,19 @@ EXPORT_SYMBOL(skb_split);
+  */
+ static int skb_prepare_for_shift(struct sk_buff *skb)
+ {
+-	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++	int ret = 0;
++
++	if (skb_cloned(skb)) {
++		/* Save and restore truesize: pskb_expand_head() may reallocate
++		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
++		 * cannot change truesize at this point.
++		 */
++		unsigned int save_truesize = skb->truesize;
++
++		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++		skb->truesize = save_truesize;
++	}
++	return ret;
+ }
  
--- 
-2.30.1
-
+ /**
 
 
