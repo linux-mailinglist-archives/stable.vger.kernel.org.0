@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AD1032E91C
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E2E32E990
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231326AbhCEMak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:30:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40096 "EHLO mail.kernel.org"
+        id S232014AbhCEMda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:33:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231278AbhCEMaR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:30:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F0F6501A;
-        Fri,  5 Mar 2021 12:30:16 +0000 (UTC)
+        id S232475AbhCEMdS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:33:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4EAF65019;
+        Fri,  5 Mar 2021 12:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947416;
-        bh=cbZzRmSiuyPgrg1UgPbLQq3gEeWVVBIiLbQ1sHBdyLc=;
+        s=korg; t=1614947598;
+        bh=mfAySNEa88SlxUULPZ/RGwYcACywgr7ccC9wtcUTPDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yp2PWEYoafPcFgiS2gx98yTdGqR9i5aQ3NawzWOQthvnWPFHdxrx0OsYm3SnUqShZ
-         zAjN+0t0CcVhsOl2XoUqGrdVmBFDzJ1gpdggHqSEdDwxGMWHUSjTlIVez8CUs/VeuC
-         3h/488390ibWRLW/VJjQ68VNvYPQzHjm3wtxLwzE=
+        b=bjoz8Z73DOYhW/GsO0PMuR8JKu/yzCUggadHME8jj5BXBClkOyrMxWVFhx/lcGXCU
+         Zox0f6ckWdrd8K3ln7AmxPgo5/bMwlO4YxY7xp8cwHnJ3UXqXTEiK5NHH5Sgkcto/i
+         BZOupAGUru5sH4dnALAzB3ETddxTQMRmVwI5paFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 058/102] crypto: tcrypt - avoid signed overflow in byte count
-Date:   Fri,  5 Mar 2021 13:21:17 +0100
-Message-Id: <20210305120906.141044818@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        syzbot+429d3f82d757c211bff3@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 16/72] nbd: handle device refs for DESTROY_ON_DISCONNECT properly
+Date:   Fri,  5 Mar 2021 13:21:18 +0100
+Message-Id: <20210305120858.129529846@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,86 +40,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 303fd3e1c771077e32e96e5788817f025f0067e2 ]
+commit c9a2f90f4d6b9d42b9912f7aaf68e8d748acfffd upstream.
 
-The signed long type used for printing the number of bytes processed in
-tcrypt benchmarks limits the range to -/+ 2 GiB, which is not sufficient
-to cover the performance of common accelerated ciphers such as AES-NI
-when benchmarked with sec=1. So switch to u64 instead.
+There exists a race where we can be attempting to create a new nbd
+configuration while a previous configuration is going down, both
+configured with DESTROY_ON_DISCONNECT.  Normally devices all have a
+reference of 1, as they won't be cleaned up until the module is torn
+down.  However with DESTROY_ON_DISCONNECT we'll make sure that there is
+only 1 reference (generally) on the device for the config itself, and
+then once the config is dropped, the device is torn down.
 
-While at it, fix up a missing printk->pr_cont conversion in the AEAD
-benchmark.
+The race that exists looks like this
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+TASK1					TASK2
+nbd_genl_connect()
+  idr_find()
+    refcount_inc_not_zero(nbd)
+      * count is 2 here ^^
+					nbd_config_put()
+					  nbd_put(nbd) (count is 1)
+    setup new config
+      check DESTROY_ON_DISCONNECT
+	put_dev = true
+    if (put_dev) nbd_put(nbd)
+	* free'd here ^^
+
+In nbd_genl_connect() we assume that the nbd ref count will be 2,
+however clearly that won't be true if the nbd device had been setup as
+DESTROY_ON_DISCONNECT with its prior configuration.  Fix this by getting
+rid of the runtime flag to check if we need to mess with the nbd device
+refcount, and use the device NBD_DESTROY_ON_DISCONNECT flag to check if
+we need to adjust the ref counts.  This was reported by syzkaller with
+the following kasan dump
+
+BUG: KASAN: use-after-free in instrument_atomic_read include/linux/instrumented.h:71 [inline]
+BUG: KASAN: use-after-free in atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+BUG: KASAN: use-after-free in refcount_dec_not_one+0x71/0x1e0 lib/refcount.c:76
+Read of size 4 at addr ffff888143bf71a0 by task systemd-udevd/8451
+
+CPU: 0 PID: 8451 Comm: systemd-udevd Not tainted 5.11.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x107/0x163 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:230
+ __kasan_report mm/kasan/report.c:396 [inline]
+ kasan_report.cold+0x79/0xd5 mm/kasan/report.c:413
+ check_memory_region_inline mm/kasan/generic.c:179 [inline]
+ check_memory_region+0x13d/0x180 mm/kasan/generic.c:185
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic_read include/asm-generic/atomic-instrumented.h:27 [inline]
+ refcount_dec_not_one+0x71/0x1e0 lib/refcount.c:76
+ refcount_dec_and_mutex_lock+0x19/0x140 lib/refcount.c:115
+ nbd_put drivers/block/nbd.c:248 [inline]
+ nbd_release+0x116/0x190 drivers/block/nbd.c:1508
+ __blkdev_put+0x548/0x800 fs/block_dev.c:1579
+ blkdev_put+0x92/0x570 fs/block_dev.c:1632
+ blkdev_close+0x8c/0xb0 fs/block_dev.c:1640
+ __fput+0x283/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x190 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:174 [inline]
+ exit_to_user_mode_prepare+0x249/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7fc1e92b5270
+Code: 73 01 c3 48 8b 0d 38 7d 20 00 f7 d8 64 89 01 48 83 c8 ff c3 66 0f 1f 44 00 00 83 3d 59 c1 20 00 00 75 10 b8 03 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ee fb ff ff 48 89 04 24
+RSP: 002b:00007ffe8beb2d18 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000007 RCX: 00007fc1e92b5270
+RDX: 000000000aba9500 RSI: 0000000000000000 RDI: 0000000000000007
+RBP: 00007fc1ea16f710 R08: 000000000000004a R09: 0000000000000008
+R10: 0000562f8cb0b2a8 R11: 0000000000000246 R12: 0000000000000000
+R13: 0000562f8cb0afd0 R14: 0000000000000003 R15: 000000000000000e
+
+Allocated by task 1:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:46 [inline]
+ set_alloc_info mm/kasan/common.c:401 [inline]
+ ____kasan_kmalloc.constprop.0+0x82/0xa0 mm/kasan/common.c:429
+ kmalloc include/linux/slab.h:552 [inline]
+ kzalloc include/linux/slab.h:682 [inline]
+ nbd_dev_add+0x44/0x8e0 drivers/block/nbd.c:1673
+ nbd_init+0x250/0x271 drivers/block/nbd.c:2394
+ do_one_initcall+0x103/0x650 init/main.c:1223
+ do_initcall_level init/main.c:1296 [inline]
+ do_initcalls init/main.c:1312 [inline]
+ do_basic_setup init/main.c:1332 [inline]
+ kernel_init_freeable+0x605/0x689 init/main.c:1533
+ kernel_init+0xd/0x1b8 init/main.c:1421
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:296
+
+Freed by task 8451:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x1c/0x30 mm/kasan/common.c:46
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:356
+ ____kasan_slab_free+0xe1/0x110 mm/kasan/common.c:362
+ kasan_slab_free include/linux/kasan.h:192 [inline]
+ slab_free_hook mm/slub.c:1547 [inline]
+ slab_free_freelist_hook+0x5d/0x150 mm/slub.c:1580
+ slab_free mm/slub.c:3143 [inline]
+ kfree+0xdb/0x3b0 mm/slub.c:4139
+ nbd_dev_remove drivers/block/nbd.c:243 [inline]
+ nbd_put.part.0+0x180/0x1d0 drivers/block/nbd.c:251
+ nbd_put drivers/block/nbd.c:295 [inline]
+ nbd_config_put+0x6dd/0x8c0 drivers/block/nbd.c:1242
+ nbd_release+0x103/0x190 drivers/block/nbd.c:1507
+ __blkdev_put+0x548/0x800 fs/block_dev.c:1579
+ blkdev_put+0x92/0x570 fs/block_dev.c:1632
+ blkdev_close+0x8c/0xb0 fs/block_dev.c:1640
+ __fput+0x283/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x190 kernel/task_work.c:140
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:174 [inline]
+ exit_to_user_mode_prepare+0x249/0x250 kernel/entry/common.c:201
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:283 [inline]
+ syscall_exit_to_user_mode+0x19/0x50 kernel/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+The buggy address belongs to the object at ffff888143bf7000
+ which belongs to the cache kmalloc-1k of size 1024
+The buggy address is located 416 bytes inside of
+ 1024-byte region [ffff888143bf7000, ffff888143bf7400)
+The buggy address belongs to the page:
+page:000000005238f4ce refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x143bf0
+head:000000005238f4ce order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x57ff00000010200(slab|head)
+raw: 057ff00000010200 ffffea00004b1400 0000000300000003 ffff888010c41140
+raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff888143bf7080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888143bf7100: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>ffff888143bf7180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                               ^
+ ffff888143bf7200: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Reported-and-tested-by: syzbot+429d3f82d757c211bff3@syzkaller.appspotmail.com
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/tcrypt.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/block/nbd.c |   32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
-diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index eea0f453cfb6..8609174e036e 100644
---- a/crypto/tcrypt.c
-+++ b/crypto/tcrypt.c
-@@ -199,8 +199,8 @@ static int test_mb_aead_jiffies(struct test_mb_aead_data *data, int enc,
- 			goto out;
- 	}
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -78,8 +78,7 @@ struct link_dead_args {
+ #define NBD_RT_HAS_PID_FILE		3
+ #define NBD_RT_HAS_CONFIG_REF		4
+ #define NBD_RT_BOUND			5
+-#define NBD_RT_DESTROY_ON_DISCONNECT	6
+-#define NBD_RT_DISCONNECT_ON_CLOSE	7
++#define NBD_RT_DISCONNECT_ON_CLOSE	6
  
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
+ #define NBD_DESTROY_ON_DISCONNECT	0
+ #define NBD_DISCONNECT_REQUESTED	1
+@@ -1940,12 +1939,21 @@ again:
+ 	if (info->attrs[NBD_ATTR_CLIENT_FLAGS]) {
+ 		u64 flags = nla_get_u64(info->attrs[NBD_ATTR_CLIENT_FLAGS]);
+ 		if (flags & NBD_CFLAG_DESTROY_ON_DISCONNECT) {
+-			set_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-				&config->runtime_flags);
+-			set_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+-			put_dev = true;
++			/*
++			 * We have 1 ref to keep the device around, and then 1
++			 * ref for our current operation here, which will be
++			 * inherited by the config.  If we already have
++			 * DESTROY_ON_DISCONNECT set then we know we don't have
++			 * that extra ref already held so we don't need the
++			 * put_dev.
++			 */
++			if (!test_and_set_bit(NBD_DESTROY_ON_DISCONNECT,
++					      &nbd->flags))
++				put_dev = true;
+ 		} else {
+-			clear_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
++			if (test_and_clear_bit(NBD_DESTROY_ON_DISCONNECT,
++					       &nbd->flags))
++				refcount_inc(&nbd->refs);
+ 		}
+ 		if (flags & NBD_CFLAG_DISCONNECT_ON_CLOSE) {
+ 			set_bit(NBD_RT_DISCONNECT_ON_CLOSE,
+@@ -2116,15 +2124,13 @@ static int nbd_genl_reconfigure(struct s
+ 	if (info->attrs[NBD_ATTR_CLIENT_FLAGS]) {
+ 		u64 flags = nla_get_u64(info->attrs[NBD_ATTR_CLIENT_FLAGS]);
+ 		if (flags & NBD_CFLAG_DESTROY_ON_DISCONNECT) {
+-			if (!test_and_set_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-					      &config->runtime_flags))
++			if (!test_and_set_bit(NBD_DESTROY_ON_DISCONNECT,
++					      &nbd->flags))
+ 				put_dev = true;
+-			set_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+ 		} else {
+-			if (test_and_clear_bit(NBD_RT_DESTROY_ON_DISCONNECT,
+-					       &config->runtime_flags))
++			if (test_and_clear_bit(NBD_DESTROY_ON_DISCONNECT,
++					       &nbd->flags))
+ 				refcount_inc(&nbd->refs);
+-			clear_bit(NBD_DESTROY_ON_DISCONNECT, &nbd->flags);
+ 		}
  
- out:
- 	kfree(rc);
-@@ -469,8 +469,8 @@ static int test_aead_jiffies(struct aead_request *req, int enc,
- 			return ret;
- 	}
- 
--	printk("%d operations in %d seconds (%ld bytes)\n",
--	       bcount, secs, (long)bcount * blen);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+	        bcount, secs, (u64)bcount * blen);
- 	return 0;
- }
- 
-@@ -760,8 +760,8 @@ static int test_mb_ahash_jiffies(struct test_mb_ahash_data *data, int blen,
- 			goto out;
- 	}
- 
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
- 
- out:
- 	kfree(rc);
-@@ -1197,8 +1197,8 @@ static int test_mb_acipher_jiffies(struct test_mb_skcipher_data *data, int enc,
- 			goto out;
- 	}
- 
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount * num_mb, secs, (long)bcount * blen * num_mb);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount * num_mb, secs, (u64)bcount * blen * num_mb);
- 
- out:
- 	kfree(rc);
-@@ -1435,8 +1435,8 @@ static int test_acipher_jiffies(struct skcipher_request *req, int enc,
- 			return ret;
- 	}
- 
--	pr_cont("%d operations in %d seconds (%ld bytes)\n",
--		bcount, secs, (long)bcount * blen);
-+	pr_cont("%d operations in %d seconds (%llu bytes)\n",
-+		bcount, secs, (u64)bcount * blen);
- 	return 0;
- }
- 
--- 
-2.30.1
-
+ 		if (flags & NBD_CFLAG_DISCONNECT_ON_CLOSE) {
 
 
