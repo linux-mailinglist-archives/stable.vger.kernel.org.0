@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268E932EAAA
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EEC832EA75
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232865AbhCEMjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53954 "EHLO mail.kernel.org"
+        id S232973AbhCEMin (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:38:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232771AbhCEMjW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCC4C64E84;
-        Fri,  5 Mar 2021 12:39:21 +0000 (UTC)
+        id S233208AbhCEMiI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F2264FF0;
+        Fri,  5 Mar 2021 12:38:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947962;
-        bh=3wWKz8LVs5ONsKthnXcofV8TWArJmn4B9jP3h5OtTSU=;
+        s=korg; t=1614947887;
+        bh=0geVAclmWYxJtTl967G7WCvrc0OimZqO6eXFDTYSpc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxqshM8nKJ7WeH0hNstBCjuEQjk2QuTWO/CycYTt/GkFzYZGf2oWSNTQ9G2GOYK8e
-         a73GUpMfMDVIUWf/I/Hk6Re32pjRJ5aOXGlOeqQ/61iUX6/z08vJRBuPmYIe6jvhe3
-         RkUcnw/Vkmzwz2qX6/40bJpRGe6GLSYInrSb9mO0=
+        b=ijNEfzqSe6veHcT3wVwA4vMuXP/EdAVpEf6CARfZHDFEAnIDkTLgNNyGyX3jX29jf
+         eTxhkzN/+XdqfmG1f0xQhiha+PpW7AxkpyMKAQZHYthf4ST+dqsXIamAo6x4FByBnp
+         2jbBQ6AUtJXmz4LxOtNIR8HNlTqW4Nr4sFIySVjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 19/39] staging: fwserial: Fix error handling in fwserial_create
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 47/52] xen-netback: respect gnttab_map_refs()s return value
 Date:   Fri,  5 Mar 2021 13:22:18 +0100
-Message-Id: <20210305120852.733676472@linuxfoundation.org>
+Message-Id: <20210305120855.963665111@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit f31559af97a0eabd467e4719253675b7dccb8a46 ]
+commit 2991397d23ec597405b116d96de3813420bdcbc3 upstream.
 
-When fw_core_add_address_handler() fails, we need to destroy
-the port by tty_port_destroy(). Also we need to unregister
-the address handler by fw_core_remove_address_handler() on
-failure.
+Commit 3194a1746e8a ("xen-netback: don't "handle" error by BUG()")
+dropped respective a BUG_ON() without noticing that with this the
+variable's value wouldn't be consumed anymore. With gnttab_set_map_op()
+setting all status fields to a non-zero value, in case of an error no
+slot should have a status of GNTST_okay (zero).
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20201221122437.10274-1-dinghao.liu@zju.edu.cn
+This is part of XSA-367.
+
+Cc: <stable@vger.kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/d933f495-619a-0086-5fb4-1ec3cf81a8fc@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fwserial/fwserial.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/xen-netback/netback.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index 41a49c8194e5..b19c46bd2557 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -2249,6 +2249,7 @@ static int fwserial_create(struct fw_unit *unit)
- 		err = fw_core_add_address_handler(&port->rx_handler,
- 						  &fw_high_memory_region);
- 		if (err) {
-+			tty_port_destroy(&port->port);
- 			kfree(port);
- 			goto free_ports;
- 		}
-@@ -2331,6 +2332,7 @@ unregister_ttys:
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -1326,11 +1326,21 @@ int xenvif_tx_action(struct xenvif_queue
+ 		return 0;
  
- free_ports:
- 	for (--i; i >= 0; --i) {
-+		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
- 		tty_port_destroy(&serial->ports[i]->port);
- 		kfree(serial->ports[i]);
- 	}
--- 
-2.30.1
-
+ 	gnttab_batch_copy(queue->tx_copy_ops, nr_cops);
+-	if (nr_mops != 0)
++	if (nr_mops != 0) {
+ 		ret = gnttab_map_refs(queue->tx_map_ops,
+ 				      NULL,
+ 				      queue->pages_to_map,
+ 				      nr_mops);
++		if (ret) {
++			unsigned int i;
++
++			netdev_err(queue->vif->dev, "Map fail: nr %u ret %d\n",
++				   nr_mops, ret);
++			for (i = 0; i < nr_mops; ++i)
++				WARN_ON_ONCE(queue->tx_map_ops[i].status ==
++				             GNTST_okay);
++		}
++	}
+ 
+ 	work_done = xenvif_tx_submit(queue);
+ 
 
 
