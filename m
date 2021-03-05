@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A0732EABB
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F9232EA91
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233295AbhCEMjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:39:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54218 "EHLO mail.kernel.org"
+        id S230462AbhCEMjO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:39:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231819AbhCEMjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:39:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9431A64E84;
-        Fri,  5 Mar 2021 12:39:42 +0000 (UTC)
+        id S232477AbhCEMim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:38:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D381C64EE8;
+        Fri,  5 Mar 2021 12:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947983;
-        bh=agsnVqp3wvdPHlwPDj/UEvzinV+0jsawC5N7WhxyIk4=;
+        s=korg; t=1614947922;
+        bh=ZG6MeAOlQj9aP/zAjEgnAH8GoxyQc6z907PWPzeLi5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FXDHPupk+eef3cjFBjWYruRTqnHtHKm+PbGL08oa2CsDB4NbYZ0Dq1yWhwHTqRJss
-         mTo1+zsKlufOS0qy1AXW2XY8bYnHsbT7+ZDbTwfMG3VfDT0Jw36K6ddwAIpa6bVXhp
-         PO++FfeeftBcIpWkCLvLbgLIzbyZWnosuP5v5xTU=
+        b=XOsNyJtzrR6pMSZ1Vc5qmazYr/lCQvf8S+EHXPfMDUXg+vp4cxhpTC6oy7lO+Io0Q
+         OHZRcl3uO1UQfQroQnqhFtsQ4zT0q+4nRgB03d7D/uonhUYLDBjfhz8OIGY44T4oxM
+         d7MKsygpLkE8VSe1g0Bj5AOXqlt2TxEzajgvFPr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.14 08/39] arm64: Avoid redundant type conversions in xchg() and cmpxchg()
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/52] f2fs: fix to set/clear I_LINKABLE under i_lock
 Date:   Fri,  5 Mar 2021 13:22:07 +0100
-Message-Id: <20210305120852.174072231@linuxfoundation.org>
+Message-Id: <20210305120855.433477815@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,348 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 5ef3fe4cecdf82fdd71ce78988403963d01444d4 upstream.
+[ Upstream commit 46085f37fc9e12d5c3539fb768b5ad7951e72acf ]
 
-Our atomic instructions (either LSE atomics of LDXR/STXR sequences)
-natively support byte, half-word, word and double-word memory accesses
-so there is no need to mask the data register prior to being stored.
+fsstress + fault injection test case reports a warning message as
+below:
 
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: CPU: 13 PID: 6226 at fs/inode.c:361 inc_nlink+0x32/0x40
+Call Trace:
+ f2fs_init_inode_metadata+0x25c/0x4a0 [f2fs]
+ f2fs_add_inline_entry+0x153/0x3b0 [f2fs]
+ f2fs_add_dentry+0x75/0x80 [f2fs]
+ f2fs_do_add_link+0x108/0x160 [f2fs]
+ f2fs_rename2+0x6ab/0x14f0 [f2fs]
+ vfs_rename+0x70c/0x940
+ do_renameat2+0x4d8/0x4f0
+ __x64_sys_renameat2+0x4b/0x60
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Following race case can cause this:
+Thread A				Kworker
+- f2fs_rename
+ - f2fs_create_whiteout
+  - __f2fs_tmpfile
+   - f2fs_i_links_write
+    - f2fs_mark_inode_dirty_sync
+     - mark_inode_dirty_sync
+					- writeback_single_inode
+					 - __writeback_single_inode
+					  - spin_lock(&inode->i_lock)
+   - inode->i_state |= I_LINKABLE
+					  - inode->i_state &= ~dirty
+					  - spin_unlock(&inode->i_lock)
+ - f2fs_add_link
+  - f2fs_do_add_link
+   - f2fs_add_dentry
+    - f2fs_add_inline_entry
+     - f2fs_init_inode_metadata
+      - f2fs_i_links_write
+       - inc_nlink
+        - WARN_ON(!(inode->i_state & I_LINKABLE))
+
+Fix to add i_lock to avoid i_state update race condition.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/atomic_ll_sc.h |   53 +++++++--------
- arch/arm64/include/asm/atomic_lse.h   |   46 ++++++-------
- arch/arm64/include/asm/cmpxchg.h      |  116 +++++++++++++++++-----------------
- 3 files changed, 108 insertions(+), 107 deletions(-)
+ fs/f2fs/namei.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/arm64/include/asm/atomic_ll_sc.h
-+++ b/arch/arm64/include/asm/atomic_ll_sc.h
-@@ -248,48 +248,49 @@ __LL_SC_PREFIX(atomic64_dec_if_positive(
- }
- __LL_SC_EXPORT(atomic64_dec_if_positive);
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 8617e742d087..e20a0f9e6845 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -772,7 +772,11 @@ static int __f2fs_tmpfile(struct inode *dir, struct dentry *dentry,
  
--#define __CMPXCHG_CASE(w, sz, name, mb, acq, rel, cl)			\
--__LL_SC_INLINE unsigned long						\
--__LL_SC_PREFIX(__cmpxchg_case_##name(volatile void *ptr,		\
--				     unsigned long old,			\
--				     unsigned long new))		\
-+#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl)		\
-+__LL_SC_INLINE u##sz							\
-+__LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
-+					 unsigned long old,		\
-+					 u##sz new))			\
- {									\
--	unsigned long tmp, oldval;					\
-+	unsigned long tmp;						\
-+	u##sz oldval;							\
- 									\
- 	asm volatile(							\
- 	"	prfm	pstl1strm, %[v]\n"				\
--	"1:	ld" #acq "xr" #sz "\t%" #w "[oldval], %[v]\n"		\
-+	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
- 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
- 	"	cbnz	%" #w "[tmp], 2f\n"				\
--	"	st" #rel "xr" #sz "\t%w[tmp], %" #w "[new], %[v]\n"	\
-+	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
- 	"	cbnz	%w[tmp], 1b\n"					\
- 	"	" #mb "\n"						\
- 	"2:"								\
- 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
--	  [v] "+Q" (*(unsigned long *)ptr)				\
-+	  [v] "+Q" (*(u##sz *)ptr)					\
- 	: [old] "Lr" (old), [new] "r" (new)				\
- 	: cl);								\
- 									\
- 	return oldval;							\
- }									\
--__LL_SC_EXPORT(__cmpxchg_case_##name);
-+__LL_SC_EXPORT(__cmpxchg_case_##name##sz);
+ 	if (whiteout) {
+ 		f2fs_i_links_write(inode, false);
++
++		spin_lock(&inode->i_lock);
+ 		inode->i_state |= I_LINKABLE;
++		spin_unlock(&inode->i_lock);
++
+ 		*whiteout = inode;
+ 	} else {
+ 		d_tmpfile(dentry, inode);
+@@ -966,7 +970,11 @@ static int f2fs_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 		err = f2fs_add_link(old_dentry, whiteout);
+ 		if (err)
+ 			goto put_out_dir;
++
++		spin_lock(&whiteout->i_lock);
+ 		whiteout->i_state &= ~I_LINKABLE;
++		spin_unlock(&whiteout->i_lock);
++
+ 		iput(whiteout);
+ 	}
  
--__CMPXCHG_CASE(w, b,     1,        ,  ,  ,         )
--__CMPXCHG_CASE(w, h,     2,        ,  ,  ,         )
--__CMPXCHG_CASE(w,  ,     4,        ,  ,  ,         )
--__CMPXCHG_CASE( ,  ,     8,        ,  ,  ,         )
--__CMPXCHG_CASE(w, b, acq_1,        , a,  , "memory")
--__CMPXCHG_CASE(w, h, acq_2,        , a,  , "memory")
--__CMPXCHG_CASE(w,  , acq_4,        , a,  , "memory")
--__CMPXCHG_CASE( ,  , acq_8,        , a,  , "memory")
--__CMPXCHG_CASE(w, b, rel_1,        ,  , l, "memory")
--__CMPXCHG_CASE(w, h, rel_2,        ,  , l, "memory")
--__CMPXCHG_CASE(w,  , rel_4,        ,  , l, "memory")
--__CMPXCHG_CASE( ,  , rel_8,        ,  , l, "memory")
--__CMPXCHG_CASE(w, b,  mb_1, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w, h,  mb_2, dmb ish,  , l, "memory")
--__CMPXCHG_CASE(w,  ,  mb_4, dmb ish,  , l, "memory")
--__CMPXCHG_CASE( ,  ,  mb_8, dmb ish,  , l, "memory")
-+__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         )
-+__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         )
-+__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         )
-+__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         )
-+__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory")
-+__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory")
-+__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory")
-+__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory")
-+__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory")
-+__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory")
-+__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory")
-+__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory")
-+__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory")
-+__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory")
-+__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory")
-+__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory")
- 
- #undef __CMPXCHG_CASE
- 
---- a/arch/arm64/include/asm/atomic_lse.h
-+++ b/arch/arm64/include/asm/atomic_lse.h
-@@ -446,22 +446,22 @@ static inline long atomic64_dec_if_posit
- 
- #define __LL_SC_CMPXCHG(op)	__LL_SC_CALL(__cmpxchg_case_##op)
- 
--#define __CMPXCHG_CASE(w, sz, name, mb, cl...)				\
--static inline unsigned long __cmpxchg_case_##name(volatile void *ptr,	\
--						  unsigned long old,	\
--						  unsigned long new)	\
-+#define __CMPXCHG_CASE(w, sfx, name, sz, mb, cl...)			\
-+static inline u##sz __cmpxchg_case_##name##sz(volatile void *ptr,	\
-+					      unsigned long old,	\
-+					      u##sz new)		\
- {									\
- 	register unsigned long x0 asm ("x0") = (unsigned long)ptr;	\
- 	register unsigned long x1 asm ("x1") = old;			\
--	register unsigned long x2 asm ("x2") = new;			\
-+	register u##sz x2 asm ("x2") = new;				\
- 									\
- 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
- 	/* LL/SC */							\
--	__LL_SC_CMPXCHG(name)						\
-+	__LL_SC_CMPXCHG(name##sz)					\
- 	__nops(2),							\
- 	/* LSE atomics */						\
- 	"	mov	" #w "30, %" #w "[old]\n"			\
--	"	cas" #mb #sz "\t" #w "30, %" #w "[new], %[v]\n"		\
-+	"	cas" #mb #sfx "\t" #w "30, %" #w "[new], %[v]\n"	\
- 	"	mov	%" #w "[ret], " #w "30")			\
- 	: [ret] "+r" (x0), [v] "+Q" (*(unsigned long *)ptr)		\
- 	: [old] "r" (x1), [new] "r" (x2)				\
-@@ -470,22 +470,22 @@ static inline unsigned long __cmpxchg_ca
- 	return x0;							\
- }
- 
--__CMPXCHG_CASE(w, b,     1,   )
--__CMPXCHG_CASE(w, h,     2,   )
--__CMPXCHG_CASE(w,  ,     4,   )
--__CMPXCHG_CASE(x,  ,     8,   )
--__CMPXCHG_CASE(w, b, acq_1,  a, "memory")
--__CMPXCHG_CASE(w, h, acq_2,  a, "memory")
--__CMPXCHG_CASE(w,  , acq_4,  a, "memory")
--__CMPXCHG_CASE(x,  , acq_8,  a, "memory")
--__CMPXCHG_CASE(w, b, rel_1,  l, "memory")
--__CMPXCHG_CASE(w, h, rel_2,  l, "memory")
--__CMPXCHG_CASE(w,  , rel_4,  l, "memory")
--__CMPXCHG_CASE(x,  , rel_8,  l, "memory")
--__CMPXCHG_CASE(w, b,  mb_1, al, "memory")
--__CMPXCHG_CASE(w, h,  mb_2, al, "memory")
--__CMPXCHG_CASE(w,  ,  mb_4, al, "memory")
--__CMPXCHG_CASE(x,  ,  mb_8, al, "memory")
-+__CMPXCHG_CASE(w, b,     ,  8,   )
-+__CMPXCHG_CASE(w, h,     , 16,   )
-+__CMPXCHG_CASE(w,  ,     , 32,   )
-+__CMPXCHG_CASE(x,  ,     , 64,   )
-+__CMPXCHG_CASE(w, b, acq_,  8,  a, "memory")
-+__CMPXCHG_CASE(w, h, acq_, 16,  a, "memory")
-+__CMPXCHG_CASE(w,  , acq_, 32,  a, "memory")
-+__CMPXCHG_CASE(x,  , acq_, 64,  a, "memory")
-+__CMPXCHG_CASE(w, b, rel_,  8,  l, "memory")
-+__CMPXCHG_CASE(w, h, rel_, 16,  l, "memory")
-+__CMPXCHG_CASE(w,  , rel_, 32,  l, "memory")
-+__CMPXCHG_CASE(x,  , rel_, 64,  l, "memory")
-+__CMPXCHG_CASE(w, b,  mb_,  8, al, "memory")
-+__CMPXCHG_CASE(w, h,  mb_, 16, al, "memory")
-+__CMPXCHG_CASE(w,  ,  mb_, 32, al, "memory")
-+__CMPXCHG_CASE(x,  ,  mb_, 64, al, "memory")
- 
- #undef __LL_SC_CMPXCHG
- #undef __CMPXCHG_CASE
---- a/arch/arm64/include/asm/cmpxchg.h
-+++ b/arch/arm64/include/asm/cmpxchg.h
-@@ -29,46 +29,46 @@
-  * barrier case is generated as release+dmb for the former and
-  * acquire+release for the latter.
-  */
--#define __XCHG_CASE(w, sz, name, mb, nop_lse, acq, acq_lse, rel, cl)	\
--static inline unsigned long __xchg_case_##name(unsigned long x,		\
--					       volatile void *ptr)	\
--{									\
--	unsigned long ret, tmp;						\
--									\
--	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
--	/* LL/SC */							\
--	"	prfm	pstl1strm, %2\n"				\
--	"1:	ld" #acq "xr" #sz "\t%" #w "0, %2\n"			\
--	"	st" #rel "xr" #sz "\t%w1, %" #w "3, %2\n"		\
--	"	cbnz	%w1, 1b\n"					\
--	"	" #mb,							\
--	/* LSE atomics */						\
--	"	swp" #acq_lse #rel #sz "\t%" #w "3, %" #w "0, %2\n"	\
--		__nops(3)						\
--	"	" #nop_lse)						\
--	: "=&r" (ret), "=&r" (tmp), "+Q" (*(unsigned long *)ptr)	\
--	: "r" (x)							\
--	: cl);								\
--									\
--	return ret;							\
-+#define __XCHG_CASE(w, sfx, name, sz, mb, nop_lse, acq, acq_lse, rel, cl)	\
-+static inline u##sz __xchg_case_##name##sz(u##sz x, volatile void *ptr)		\
-+{										\
-+	u##sz ret;								\
-+	unsigned long tmp;							\
-+										\
-+	asm volatile(ARM64_LSE_ATOMIC_INSN(					\
-+	/* LL/SC */								\
-+	"	prfm	pstl1strm, %2\n"					\
-+	"1:	ld" #acq "xr" #sfx "\t%" #w "0, %2\n"				\
-+	"	st" #rel "xr" #sfx "\t%w1, %" #w "3, %2\n"			\
-+	"	cbnz	%w1, 1b\n"						\
-+	"	" #mb,								\
-+	/* LSE atomics */							\
-+	"	swp" #acq_lse #rel #sfx "\t%" #w "3, %" #w "0, %2\n"		\
-+		__nops(3)							\
-+	"	" #nop_lse)							\
-+	: "=&r" (ret), "=&r" (tmp), "+Q" (*(u##sz *)ptr)			\
-+	: "r" (x)								\
-+	: cl);									\
-+										\
-+	return ret;								\
- }
- 
--__XCHG_CASE(w, b,     1,        ,    ,  ,  ,  ,         )
--__XCHG_CASE(w, h,     2,        ,    ,  ,  ,  ,         )
--__XCHG_CASE(w,  ,     4,        ,    ,  ,  ,  ,         )
--__XCHG_CASE( ,  ,     8,        ,    ,  ,  ,  ,         )
--__XCHG_CASE(w, b, acq_1,        ,    , a, a,  , "memory")
--__XCHG_CASE(w, h, acq_2,        ,    , a, a,  , "memory")
--__XCHG_CASE(w,  , acq_4,        ,    , a, a,  , "memory")
--__XCHG_CASE( ,  , acq_8,        ,    , a, a,  , "memory")
--__XCHG_CASE(w, b, rel_1,        ,    ,  ,  , l, "memory")
--__XCHG_CASE(w, h, rel_2,        ,    ,  ,  , l, "memory")
--__XCHG_CASE(w,  , rel_4,        ,    ,  ,  , l, "memory")
--__XCHG_CASE( ,  , rel_8,        ,    ,  ,  , l, "memory")
--__XCHG_CASE(w, b,  mb_1, dmb ish, nop,  , a, l, "memory")
--__XCHG_CASE(w, h,  mb_2, dmb ish, nop,  , a, l, "memory")
--__XCHG_CASE(w,  ,  mb_4, dmb ish, nop,  , a, l, "memory")
--__XCHG_CASE( ,  ,  mb_8, dmb ish, nop,  , a, l, "memory")
-+__XCHG_CASE(w, b,     ,  8,        ,    ,  ,  ,  ,         )
-+__XCHG_CASE(w, h,     , 16,        ,    ,  ,  ,  ,         )
-+__XCHG_CASE(w,  ,     , 32,        ,    ,  ,  ,  ,         )
-+__XCHG_CASE( ,  ,     , 64,        ,    ,  ,  ,  ,         )
-+__XCHG_CASE(w, b, acq_,  8,        ,    , a, a,  , "memory")
-+__XCHG_CASE(w, h, acq_, 16,        ,    , a, a,  , "memory")
-+__XCHG_CASE(w,  , acq_, 32,        ,    , a, a,  , "memory")
-+__XCHG_CASE( ,  , acq_, 64,        ,    , a, a,  , "memory")
-+__XCHG_CASE(w, b, rel_,  8,        ,    ,  ,  , l, "memory")
-+__XCHG_CASE(w, h, rel_, 16,        ,    ,  ,  , l, "memory")
-+__XCHG_CASE(w,  , rel_, 32,        ,    ,  ,  , l, "memory")
-+__XCHG_CASE( ,  , rel_, 64,        ,    ,  ,  , l, "memory")
-+__XCHG_CASE(w, b,  mb_,  8, dmb ish, nop,  , a, l, "memory")
-+__XCHG_CASE(w, h,  mb_, 16, dmb ish, nop,  , a, l, "memory")
-+__XCHG_CASE(w,  ,  mb_, 32, dmb ish, nop,  , a, l, "memory")
-+__XCHG_CASE( ,  ,  mb_, 64, dmb ish, nop,  , a, l, "memory")
- 
- #undef __XCHG_CASE
- 
-@@ -79,13 +79,13 @@ static __always_inline  unsigned long __
- {									\
- 	switch (size) {							\
- 	case 1:								\
--		return __xchg_case##sfx##_1(x, ptr);			\
-+		return __xchg_case##sfx##_8(x, ptr);			\
- 	case 2:								\
--		return __xchg_case##sfx##_2(x, ptr);			\
-+		return __xchg_case##sfx##_16(x, ptr);			\
- 	case 4:								\
--		return __xchg_case##sfx##_4(x, ptr);			\
-+		return __xchg_case##sfx##_32(x, ptr);			\
- 	case 8:								\
--		return __xchg_case##sfx##_8(x, ptr);			\
-+		return __xchg_case##sfx##_64(x, ptr);			\
- 	default:							\
- 		BUILD_BUG();						\
- 	}								\
-@@ -122,13 +122,13 @@ static __always_inline unsigned long __c
- {									\
- 	switch (size) {							\
- 	case 1:								\
--		return __cmpxchg_case##sfx##_1(ptr, (u8)old, new);	\
-+		return __cmpxchg_case##sfx##_8(ptr, (u8)old, new);	\
- 	case 2:								\
--		return __cmpxchg_case##sfx##_2(ptr, (u16)old, new);	\
-+		return __cmpxchg_case##sfx##_16(ptr, (u16)old, new);	\
- 	case 4:								\
--		return __cmpxchg_case##sfx##_4(ptr, old, new);		\
-+		return __cmpxchg_case##sfx##_32(ptr, old, new);		\
- 	case 8:								\
--		return __cmpxchg_case##sfx##_8(ptr, old, new);		\
-+		return __cmpxchg_case##sfx##_64(ptr, old, new);		\
- 	default:							\
- 		BUILD_BUG();						\
- 	}								\
-@@ -222,16 +222,16 @@ __CMPXCHG_GEN(_mb)
- 	__ret;								\
- })
- 
--#define __CMPWAIT_CASE(w, sz, name)					\
--static inline void __cmpwait_case_##name(volatile void *ptr,		\
--					 unsigned long val)		\
-+#define __CMPWAIT_CASE(w, sfx, sz)					\
-+static inline void __cmpwait_case_##sz(volatile void *ptr,		\
-+				       unsigned long val)		\
- {									\
- 	unsigned long tmp;						\
- 									\
- 	asm volatile(							\
- 	"	sevl\n"							\
- 	"	wfe\n"							\
--	"	ldxr" #sz "\t%" #w "[tmp], %[v]\n"			\
-+	"	ldxr" #sfx "\t%" #w "[tmp], %[v]\n"			\
- 	"	eor	%" #w "[tmp], %" #w "[tmp], %" #w "[val]\n"	\
- 	"	cbnz	%" #w "[tmp], 1f\n"				\
- 	"	wfe\n"							\
-@@ -240,10 +240,10 @@ static inline void __cmpwait_case_##name
- 	: [val] "r" (val));						\
- }
- 
--__CMPWAIT_CASE(w, b, 1);
--__CMPWAIT_CASE(w, h, 2);
--__CMPWAIT_CASE(w,  , 4);
--__CMPWAIT_CASE( ,  , 8);
-+__CMPWAIT_CASE(w, b, 8);
-+__CMPWAIT_CASE(w, h, 16);
-+__CMPWAIT_CASE(w,  , 32);
-+__CMPWAIT_CASE( ,  , 64);
- 
- #undef __CMPWAIT_CASE
- 
-@@ -254,13 +254,13 @@ static __always_inline void __cmpwait##s
- {									\
- 	switch (size) {							\
- 	case 1:								\
--		return __cmpwait_case##sfx##_1(ptr, (u8)val);		\
-+		return __cmpwait_case##sfx##_8(ptr, (u8)val);		\
- 	case 2:								\
--		return __cmpwait_case##sfx##_2(ptr, (u16)val);		\
-+		return __cmpwait_case##sfx##_16(ptr, (u16)val);		\
- 	case 4:								\
--		return __cmpwait_case##sfx##_4(ptr, val);		\
-+		return __cmpwait_case##sfx##_32(ptr, val);		\
- 	case 8:								\
--		return __cmpwait_case##sfx##_8(ptr, val);		\
-+		return __cmpwait_case##sfx##_64(ptr, val);		\
- 	default:							\
- 		BUILD_BUG();						\
- 	}								\
+-- 
+2.30.1
+
 
 
