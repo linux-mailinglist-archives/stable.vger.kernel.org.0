@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C30E32E822
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:25:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36ABE32E8EA
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230444AbhCEMZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:25:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59990 "EHLO mail.kernel.org"
+        id S230493AbhCEM3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:29:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231148AbhCEMY7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:24:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7856465028;
-        Fri,  5 Mar 2021 12:24:58 +0000 (UTC)
+        id S232124AbhCEM3M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:29:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03FBF65004;
+        Fri,  5 Mar 2021 12:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947099;
-        bh=iLwubWxhvhUlNc6rOFVX93JqktLbJof17wRubEj8Alk=;
+        s=korg; t=1614947352;
+        bh=uNPsiKjotprz8hABvgEZoEYJtZTtcm+14N1heKP7OFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ikQZbivdNK+ne7isdX2OPOH38HQPZCwB/eg+MXOgZ5aC+zFc/OBaBYcudoScrStr
-         leV5fdXKzWFqD2KmV7Urx7v9fT1TXKCFvHpo/KnIQARNn1mkZxWyargSp2wBo3V84D
-         67RyOBT6speJBzdFXtR60/XYlrPusPVhizEbW4fE=
+        b=c6JaQkCjkGxFcNLtaAWS5TEDGzQCMkXt66KQHahFaJZ3casE6yTQeUCoyylXOUWNU
+         HkcXd5rTR388KXe7v+t2M1B/4SznVTIQ2zrc5yu5RP8fLSK1mFJRcvizmom83cRe6C
+         yQt8SCIyQFzhBPhm5OkwVxuLvAZvLmXqP8ZYr2tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo Jiao <bo.jiao@mediatek.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 047/104] mt76: mt7915: reset token when mac_reset happens
-Date:   Fri,  5 Mar 2021 13:20:52 +0100
-Message-Id: <20210305120905.474587773@linuxfoundation.org>
+        stable@vger.kernel.org,
+        V Sujith Kumar Reddy <vsujithk@codeaurora.org>,
+        Srinivasa Rao <srivasam@codeaurora.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Cheng-Yi Chiang <cychiang@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 034/102] ASoC: qcom: Remove useless debug print
+Date:   Fri,  5 Mar 2021 13:20:53 +0100
+Message-Id: <20210305120904.962473143@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.166929741@linuxfoundation.org>
-References: <20210305120903.166929741@linuxfoundation.org>
+In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
+References: <20210305120903.276489876@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryder Lee <ryder.lee@mediatek.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit f285dfb98562e8380101095d168910df1d07d8be ]
+commit 16117beb16f01a470d40339960ffae1e287c03be upstream.
 
-Reset buffering token in mt7915_mac_reset_work() to avoid possible leakege,
-which leads to Tx stop after mac reset.
+This looks like a left over debug print that tells us that HDMI is
+enabled. Let's remove it as that's definitely not an error to have HDMI
+enabled.
 
-Tested-by: Bo Jiao <bo.jiao@mediatek.com>
-Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: V Sujith Kumar Reddy <vsujithk@codeaurora.org>
+Cc: Srinivasa Rao <srivasam@codeaurora.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: Cheng-Yi Chiang <cychiang@chromium.org>
+Fixes: 7cb37b7bd0d3 ("ASoC: qcom: Add support for lpass hdmi driver")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210115034327.617223-2-swboyd@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../net/wireless/mediatek/mt76/mt7915/init.c  | 18 +-------------
- .../net/wireless/mediatek/mt76/mt7915/mac.c   | 24 +++++++++++++++++++
- .../wireless/mediatek/mt76/mt7915/mt7915.h    |  1 +
- 3 files changed, 26 insertions(+), 17 deletions(-)
+ sound/soc/qcom/lpass-cpu.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-index 102a8f14c22d..2ec18aaa8280 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
-@@ -672,28 +672,12 @@ int mt7915_register_device(struct mt7915_dev *dev)
- 
- void mt7915_unregister_device(struct mt7915_dev *dev)
- {
--	struct mt76_txwi_cache *txwi;
--	int id;
--
- 	mt7915_unregister_ext_phy(dev);
- 	mt76_unregister_device(&dev->mt76);
- 	mt7915_mcu_exit(dev);
- 	mt7915_dma_cleanup(dev);
- 
--	spin_lock_bh(&dev->token_lock);
--	idr_for_each_entry(&dev->token, txwi, id) {
--		mt7915_txp_skb_unmap(&dev->mt76, txwi);
--		if (txwi->skb) {
--			struct ieee80211_hw *hw;
--
--			hw = mt76_tx_status_get_hw(&dev->mt76, txwi->skb);
--			ieee80211_free_txskb(hw, txwi->skb);
--		}
--		mt76_put_txwi(&dev->mt76, txwi);
--		dev->token_count--;
--	}
--	spin_unlock_bh(&dev->token_lock);
--	idr_destroy(&dev->token);
-+	mt7915_tx_token_put(dev);
- 
- 	mt76_free_device(&dev->mt76);
- }
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index f504eeb221f9..1b4d65310b88 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1485,6 +1485,27 @@ mt7915_dma_reset(struct mt7915_phy *phy)
- 		 MT_WFDMA1_GLO_CFG_TX_DMA_EN | MT_WFDMA1_GLO_CFG_RX_DMA_EN);
- }
- 
-+void mt7915_tx_token_put(struct mt7915_dev *dev)
-+{
-+	struct mt76_txwi_cache *txwi;
-+	int id;
-+
-+	spin_lock_bh(&dev->token_lock);
-+	idr_for_each_entry(&dev->token, txwi, id) {
-+		mt7915_txp_skb_unmap(&dev->mt76, txwi);
-+		if (txwi->skb) {
-+			struct ieee80211_hw *hw;
-+
-+			hw = mt76_tx_status_get_hw(&dev->mt76, txwi->skb);
-+			ieee80211_free_txskb(hw, txwi->skb);
-+		}
-+		mt76_put_txwi(&dev->mt76, txwi);
-+		dev->token_count--;
-+	}
-+	spin_unlock_bh(&dev->token_lock);
-+	idr_destroy(&dev->token);
-+}
-+
- /* system error recovery */
- void mt7915_mac_reset_work(struct work_struct *work)
- {
-@@ -1525,6 +1546,9 @@ void mt7915_mac_reset_work(struct work_struct *work)
- 
- 	mt76_wr(dev, MT_MCU_INT_EVENT, MT_MCU_INT_EVENT_DMA_STOPPED);
- 
-+	mt7915_tx_token_put(dev);
-+	idr_init(&dev->token);
-+
- 	if (mt7915_wait_reset_state(dev, MT_MCU_CMD_RESET_DONE)) {
- 		mt7915_dma_reset(&dev->phy);
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-index 0339abf360d3..94bed8a3a050 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mt7915.h
-@@ -463,6 +463,7 @@ int mt7915_tx_prepare_skb(struct mt76_dev *mdev, void *txwi_ptr,
- 			  struct ieee80211_sta *sta,
- 			  struct mt76_tx_info *tx_info);
- void mt7915_tx_complete_skb(struct mt76_dev *mdev, struct mt76_queue_entry *e);
-+void mt7915_tx_token_put(struct mt7915_dev *dev);
- int mt7915_init_tx_queues(struct mt7915_phy *phy, int idx, int n_desc);
- void mt7915_queue_rx_skb(struct mt76_dev *mdev, enum mt76_rxq_id q,
- 			 struct sk_buff *skb);
--- 
-2.30.1
-
+--- a/sound/soc/qcom/lpass-cpu.c
++++ b/sound/soc/qcom/lpass-cpu.c
+@@ -743,7 +743,6 @@ static void of_lpass_cpu_parse_dai_data(
+ 		}
+ 		if (id == LPASS_DP_RX) {
+ 			data->hdmi_port_enable = 1;
+-			dev_err(dev, "HDMI Port is enabled: %d\n", id);
+ 		} else {
+ 			data->mi2s_playback_sd_mode[id] =
+ 				of_lpass_cpu_parse_sd_lines(dev, node,
 
 
