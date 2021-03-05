@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1963232EAFF
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9034A32EA9A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232728AbhCEMl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:41:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57116 "EHLO mail.kernel.org"
+        id S232064AbhCEMjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:39:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233406AbhCEMlL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:41:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A11A165022;
-        Fri,  5 Mar 2021 12:41:10 +0000 (UTC)
+        id S233150AbhCEMjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:39:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B10C964F27;
+        Fri,  5 Mar 2021 12:39:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948071;
-        bh=PeWfzulb+clhPBVEu08GBvUVQyZF5shtRru7TSyQ4/0=;
+        s=korg; t=1614947946;
+        bh=KUuTsOkO2u9pXaJOVbi0gyr6Ku6BCiPczctQjV2gM7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObHuKLCkXvAqETFS5LS9ErBeYtpYx4QUk+nNnjTy1ogrDid03VjaSqC4pJ3D4R2IL
-         1kQiDmJXsVT2vMkbEuiR0wmr+nRCJcHyOF0px6nSfLmuZNt/Rn83rnQ+dzdbIbIDK9
-         no9ahAyW/ppvCGzsVdKRZH0rJJ9Q8oNiy/OQViZI=
+        b=rmXyWrfkbhdTaRy08PUxUjnnSPFLM+QEtZ63D40F7X6UwdC3dSG1s89j1VbnYTH+Z
+         00EdwRlnouprr4sZAKn9BTe69aK5ebeKkBNwzVpSly2LrztV0LXlyW2X6lg5R5m+X2
+         R2Bon+5/HumZA38QpBxMcnnYEpEX8oAy2xqJ5lKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 07/41] futex: Dont enable IRQs unconditionally in put_pi_state()
+        stable@vger.kernel.org,
+        syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Marco Elver <elver@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 15/39] net: fix up truesize of cloned skb in skb_prepare_for_shift()
 Date:   Fri,  5 Mar 2021 13:22:14 +0100
-Message-Id: <20210305120851.638890063@linuxfoundation.org>
+Message-Id: <20210305120852.533785703@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Marco Elver <elver@google.com>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+commit 097b9146c0e26aabaa6ff3e5ea536a53f5254a79 upstream.
 
-commit 1e106aa3509b86738769775969822ffc1ec21bf4 upstream.
+Avoid the assumption that ksize(kmalloc(S)) == ksize(kmalloc(S)): when
+cloning an skb, save and restore truesize after pskb_expand_head(). This
+can occur if the allocator decides to service an allocation of the same
+size differently (e.g. use a different size class, or pass the
+allocation on to KFENCE).
 
-The exit_pi_state_list() function calls put_pi_state() with IRQs disabled
-and is not expecting that IRQs will be enabled inside the function.
+Because truesize is used for bookkeeping (such as sk_wmem_queued), a
+modified truesize of a cloned skb may result in corrupt bookkeeping and
+relevant warnings (such as in sk_stream_kill_queues()).
 
-Use the _irqsave() variant so that IRQs are restored to the original state
-instead of being enabled unconditionally.
-
-Fixes: 153fbd1226fb ("futex: Fix more put_pi_state() vs. exit_pi_state_list() races")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20201106085205.GA1159983@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backported to 4.9: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Link: https://lkml.kernel.org/r/X9JR/J6dMMOy1obu@elver.google.com
+Reported-by: syzbot+7b99aafdcc2eedea6178@syzkaller.appspotmail.com
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Marco Elver <elver@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210201160420.2826895-1-elver@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/core/skbuff.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -882,10 +882,12 @@ static void put_pi_state(struct futex_pi
- 	 * and has cleaned up the pi_state already
- 	 */
- 	if (pi_state->owner) {
--		raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
-+		unsigned long flags;
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3089,7 +3089,19 @@ EXPORT_SYMBOL(skb_split);
+  */
+ static int skb_prepare_for_shift(struct sk_buff *skb)
+ {
+-	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++	int ret = 0;
 +
-+		raw_spin_lock_irqsave(&pi_state->pi_mutex.wait_lock, flags);
- 		pi_state_update_owner(pi_state, NULL);
- 		rt_mutex_proxy_unlock(&pi_state->pi_mutex);
--		raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
-+		raw_spin_unlock_irqrestore(&pi_state->pi_mutex.wait_lock, flags);
- 	}
++	if (skb_cloned(skb)) {
++		/* Save and restore truesize: pskb_expand_head() may reallocate
++		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
++		 * cannot change truesize at this point.
++		 */
++		unsigned int save_truesize = skb->truesize;
++
++		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
++		skb->truesize = save_truesize;
++	}
++	return ret;
+ }
  
- 	if (current->pi_state_cache) {
+ /**
 
 
