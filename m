@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E384332E9B6
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D7F232EA4A
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:39:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230446AbhCEMe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:34:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45574 "EHLO mail.kernel.org"
+        id S229957AbhCEMhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:37:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231675AbhCEMeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:34:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB60A65012;
-        Fri,  5 Mar 2021 12:34:01 +0000 (UTC)
+        id S233084AbhCEMhP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:37:15 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B966F65012;
+        Fri,  5 Mar 2021 12:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947642;
-        bh=V6a1U7lqXlsAJ1tz5T1rGTO5KZF1D553XEr4KgUbrGQ=;
+        s=korg; t=1614947835;
+        bh=+j8l7Edd1zPoeE+8qyLoZbAA7u7w/qB7pgWC9sc0568=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMx3M1uR9gMeKi8VV8mrZPGuvv+35NAlwWxVrHWAemrxp5FGBljeerDqCOV4CuDV5
-         c4yEghWnepGTn+2xWUUqbe262Q4Uz2BE/GN/YoUkPoK6TuY+0Np+pKoUbLaqYPbYER
-         bo4IYunoq7uwyW36NlLAD4uGcwN5eD20mhwgzDXE=
+        b=L/nfna1/qCHLssFDw3UinYOVevTbT14LK/qbsqomLeNBIWES3ULUBLVob0YDtDIAV
+         rNIqX6jtE46kSIz8Ox4gwYmGMGI3Y/Z2zEVQK8NqHrWEVKBJUNzcQlzhzi38IM8Xxy
+         SLFH341TCqj+mjydgStl/qydxTs9sLku4kfIwGDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claire Chang <tientzu@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/72] Bluetooth: hci_h5: Set HCI_QUIRK_SIMULTANEOUS_DISCOVERY for btrtl
-Date:   Fri,  5 Mar 2021 13:21:34 +0100
-Message-Id: <20210305120858.903241388@linuxfoundation.org>
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.19 04/52] virtio/s390: implement virtio-ccw revision 2 correctly
+Date:   Fri,  5 Mar 2021 13:21:35 +0100
+Message-Id: <20210305120853.878276639@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+References: <20210305120853.659441428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claire Chang <tientzu@chromium.org>
+From: Cornelia Huck <cohuck@redhat.com>
 
-[ Upstream commit 7f9f2c3f7d99b8ae773459c74ac5e99a0dd46db9 ]
+commit 182f709c5cff683e6732d04c78e328de0532284f upstream.
 
-Realtek Bluetooth controllers can do both LE scan and BR/EDR inquiry
-at once, need to set HCI_QUIRK_SIMULTANEOUS_DISCOVERY quirk.
+CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
+and drivers should only rely on it being implemented when they
+negotiated at least that revision with the device.
 
-Signed-off-by: Claire Chang <tientzu@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However, virtio_ccw_get_status() issued READ_STATUS for any
+device operating at least at revision 1. If the device accepts
+READ_STATUS regardless of the negotiated revision (which some
+implementations like QEMU do, even though the spec currently does
+not allow it), everything works as intended. While a device
+rejecting the command should also be handled gracefully, we will
+not be able to see any changes the device makes to the status,
+such as setting NEEDS_RESET or setting the status to zero after
+a completed reset.
+
+We negotiated the revision to at most 1, as we never bumped the
+maximum revision; let's do that now and properly send READ_STATUS
+only if we are operating at least at revision 2.
+
+Cc: stable@vger.kernel.org
+Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210216110645.1087321-1-cohuck@redhat.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/bluetooth/hci_h5.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/s390/virtio/virtio_ccw.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/hci_h5.c b/drivers/bluetooth/hci_h5.c
-index e11af747395d..bf3e23104194 100644
---- a/drivers/bluetooth/hci_h5.c
-+++ b/drivers/bluetooth/hci_h5.c
-@@ -894,6 +894,11 @@ static int h5_btrtl_setup(struct h5 *h5)
- 	/* Give the device some time before the hci-core sends it a reset */
- 	usleep_range(10000, 20000);
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -103,7 +103,7 @@ struct virtio_rev_info {
+ };
  
-+	/* Enable controller to do both LE scan and BR/EDR inquiry
-+	 * simultaneously.
-+	 */
-+	set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &h5->hu->hdev->quirks);
-+
- out_free:
- 	btrtl_free(btrtl_dev);
+ /* the highest virtio-ccw revision we support */
+-#define VIRTIO_CCW_REV_MAX 1
++#define VIRTIO_CCW_REV_MAX 2
  
--- 
-2.30.1
-
+ struct virtio_ccw_vq_info {
+ 	struct virtqueue *vq;
+@@ -911,7 +911,7 @@ static u8 virtio_ccw_get_status(struct v
+ 	u8 old_status = *vcdev->status;
+ 	struct ccw1 *ccw;
+ 
+-	if (vcdev->revision < 1)
++	if (vcdev->revision < 2)
+ 		return *vcdev->status;
+ 
+ 	ccw = kzalloc(sizeof(*ccw), GFP_DMA | GFP_KERNEL);
 
 
