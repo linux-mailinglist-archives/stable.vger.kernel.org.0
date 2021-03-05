@@ -2,260 +2,339 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0813432F420
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 20:41:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C866932F43F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 20:51:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbhCETlS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 14:41:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:23029 "EHLO
+        id S229582AbhCETuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 14:50:35 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:42938 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229768AbhCETlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 14:41:11 -0500
+        by vger.kernel.org with ESMTP id S229446AbhCETuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 14:50:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1614973271;
+        s=mimecast20190719; t=1614973821;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rIyScA6Mo4EmL+2XyKsh9B4ovscCNZHcZ56Sz7w7WWU=;
-        b=DqZiwEpfhXuez59jQlceoQtLGU3jhlWqgwPgSaD4NirWBufrlpd+uL0aScmUgyBLHQEUBB
-        +Ax2KYA3MF2qEReLdXFw5BqhN1KVK8koP2TWeuJCpAhjIFr7vL9tvDo4tH8pCBzKK2CKeA
-        mZ4OIxf5Nmwrsj1yPCOaVwY6Xt11XZ8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-RDh-5cVAN5iISlZmbyOmsg-1; Fri, 05 Mar 2021 14:41:08 -0500
-X-MC-Unique: RDh-5cVAN5iISlZmbyOmsg-1
-Received: by mail-wm1-f71.google.com with SMTP id a63so746150wmd.8
-        for <stable@vger.kernel.org>; Fri, 05 Mar 2021 11:41:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:content-transfer-encoding:from:mime-version
-         :subject:date:message-id:references:cc:in-reply-to:to;
-        bh=rIyScA6Mo4EmL+2XyKsh9B4ovscCNZHcZ56Sz7w7WWU=;
-        b=JxJjO1LG1eLOb9FnHqzjTuA1QMfD0Zbx9fDQAixmMBVdXr6i8NFFLdUocJJyd0FBFa
-         owPxOTinK9VfQS5Ojx/mwj8e+0ejAIDLXFfy7E9EYhKbcehjUHGXyxyM6vWEdhXObz3K
-         SyeyV+OySGSmo73vcXzjcFkIJSDUYwel9TCl7riu3BVkxbvFvPO16a8v/RWHc/d7ZnsM
-         MffSLbzE2PdkWjTuWrFr9CTXdB7k+ZLBtqtajM/5PddErRcMTguWmyIgn6EYlu8SCq/L
-         jpVZD2t85wKQtTp7iw2ardmdh6EYKP7K1WsKofyIT+Gdn9jhkaK3doIw7WzhiNbWyLlL
-         HL/g==
-X-Gm-Message-State: AOAM530aUCz0jLRBcNIjz/HPfPTbAA8HPQ9vLuC8eh1M8EsNZgW8IMx7
-        C9ctqyiGpy2Aol4X2W9/CWe9F5VCcgTQy+cy7nRwQzUMe5Skxoe1KJSX8+ie6WnrMZunGR95lBr
-        YWrbUW126AV3CQu0P
-X-Received: by 2002:adf:ebcb:: with SMTP id v11mr10763996wrn.231.1614973267346;
-        Fri, 05 Mar 2021 11:41:07 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzqDcoG6FcwCmOVbjwrPRYQFV7JxlxpioxDFxV9pX+oshrNklhdZBtTvpbW2VEu4S4Eb2JV7w==
-X-Received: by 2002:adf:ebcb:: with SMTP id v11mr10763976wrn.231.1614973267004;
-        Fri, 05 Mar 2021 11:41:07 -0800 (PST)
-Received: from [192.168.3.108] (p5b0c6b97.dip0.t-ipconnect.de. [91.12.107.151])
-        by smtp.gmail.com with ESMTPSA id m11sm5693156wrz.40.2021.03.05.11.41.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Mar 2021 11:41:06 -0800 (PST)
-Content-Type: text/plain; charset=utf-8
+         content-transfer-encoding:content-transfer-encoding;
+        bh=KxO81Oj7+s1GhMjO4O0AyTMB8hUslkQKJT6ZbLtI8Kk=;
+        b=eNvK+Atz+iuoq9ObBPJXCK1yR6IACy8P0dYT3zWpmwl5X5qiWBoIg7eDE60dxpGl58rcrd
+        q1BsdM2ZOtb52aoZLM5j736MbXOdNiUmCYnVOxBTg6aWwH9Tc1y19bO7PrnatcoFiBri+O
+        6Lo5yzYS4/YNR+RaOhwMvSUWiEXQ9Yc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-556-9cWPKhgLOo66byEN_wAAyw-1; Fri, 05 Mar 2021 14:50:18 -0500
+X-MC-Unique: 9cWPKhgLOo66byEN_wAAyw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C7A798042C3
+        for <stable@vger.kernel.org>; Fri,  5 Mar 2021 19:50:17 +0000 (UTC)
+Received: from [172.22.11.47] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3AEC47095E;
+        Fri,  5 Mar 2021 19:50:13 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-From:   David Hildenbrand <david@redhat.com>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH v3 1/1] mm/madvise: replace ptrace attach requirement for process_madvise
-Date:   Fri, 5 Mar 2021 20:41:04 +0100
-Message-Id: <245612A8-56DA-47D8-BB18-613FF9C8AF96@redhat.com>
-References: <CAJuCfpHDtu0R6zZ0uo0YZgCE=dyhy6bsToUU2+reo3pBV0PcBg@mail.gmail.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        David Rientjes <rientjes@google.com>,
-        =?utf-8?Q?Edgar_Arriaga_Garc=C3=ADa?= <edgararriaga@google.com>,
-        Tim Murray <timmurray@google.com>,
-        Florian Weimer <fweimer@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Linux MM <linux-mm@kvack.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>
-In-Reply-To: <CAJuCfpHDtu0R6zZ0uo0YZgCE=dyhy6bsToUU2+reo3pBV0PcBg@mail.gmail.com>
-To:     Suren Baghdasaryan <surenb@google.com>
-X-Mailer: iPhone Mail (18D52)
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.11.3 (stable-queue)
+Date:   Fri, 05 Mar 2021 19:50:13 -0000
+CC:     Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        David Arcari <darcari@redhat.com>
+Message-ID: <cki.83E6CFE034.9USXAZ4AK1@redhat.com>
+X-Gitlab-Pipeline-ID: 624944
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/624944
+X-DataWarehouse-Revision-IID: 10588
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-> Am 05.03.2021 um 19:36 schrieb Suren Baghdasaryan <surenb@google.com>:
->=20
-> =EF=BB=BFOn Fri, Mar 5, 2021 at 10:23 AM David Hildenbrand <david@redhat.c=
-om> wrote:
->>=20
->>> On 05.03.21 19:08, Suren Baghdasaryan wrote:
->>> On Fri, Mar 5, 2021 at 9:52 AM David Hildenbrand <david@redhat.com> wrot=
-e:
->>>>=20
->>>> On 05.03.21 18:45, Shakeel Butt wrote:
->>>>> On Fri, Mar 5, 2021 at 9:37 AM David Hildenbrand <david@redhat.com> wr=
-ote:
->>>>>>=20
->>>>>> On 04.03.21 01:03, Shakeel Butt wrote:
->>>>>>> On Wed, Mar 3, 2021 at 3:34 PM Suren Baghdasaryan <surenb@google.com=
-> wrote:
->>>>>>>>=20
->>>>>>>> On Wed, Mar 3, 2021 at 3:17 PM Shakeel Butt <shakeelb@google.com> w=
-rote:
->>>>>>>>>=20
->>>>>>>>> On Wed, Mar 3, 2021 at 10:58 AM Suren Baghdasaryan <surenb@google.=
-com> wrote:
->>>>>>>>>>=20
->>>>>>>>>> process_madvise currently requires ptrace attach capability.
->>>>>>>>>> PTRACE_MODE_ATTACH gives one process complete control over anothe=
-r
->>>>>>>>>> process. It effectively removes the security boundary between the=
+Hello,
 
->>>>>>>>>> two processes (in one direction). Granting ptrace attach capabili=
-ty
->>>>>>>>>> even to a system process is considered dangerous since it creates=
- an
->>>>>>>>>> attack surface. This severely limits the usage of this API.
->>>>>>>>>> The operations process_madvise can perform do not affect the corr=
-ectness
->>>>>>>>>> of the operation of the target process; they only affect where th=
-e data
->>>>>>>>>> is physically located (and therefore, how fast it can be accessed=
-).
->>>>>>>>>> What we want is the ability for one process to influence another p=
-rocess
->>>>>>>>>> in order to optimize performance across the entire system while l=
-eaving
->>>>>>>>>> the security boundary intact.
->>>>>>>>>> Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ=
+We ran automated tests on a recent commit from this kernel tree:
 
->>>>>>>>>> and CAP_SYS_NICE. PTRACE_MODE_READ to prevent leaking ASLR metada=
-ta
->>>>>>>>>> and CAP_SYS_NICE for influencing process performance.
->>>>>>>>>>=20
->>>>>>>>>> Cc: stable@vger.kernel.org # 5.10+
->>>>>>>>>> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
->>>>>>>>>> Reviewed-by: Kees Cook <keescook@chromium.org>
->>>>>>>>>> Acked-by: Minchan Kim <minchan@kernel.org>
->>>>>>>>>> Acked-by: David Rientjes <rientjes@google.com>
->>>>>>>>>> ---
->>>>>>>>>> changes in v3
->>>>>>>>>> - Added Reviewed-by: Kees Cook <keescook@chromium.org>
->>>>>>>>>> - Created man page for process_madvise per Andrew's request: http=
-s://git.kernel.org/pub/scm/docs/man-pages/man-pages.git/commit/?id=3Da144f45=
-8bad476a3358e3a45023789cb7bb9f993
->>>>>>>>>> - cc'ed stable@vger.kernel.org # 5.10+ per Andrew's request
->>>>>>>>>> - cc'ed linux-security-module@vger.kernel.org per James Morris's r=
-equest
->>>>>>>>>>=20
->>>>>>>>>>    mm/madvise.c | 13 ++++++++++++-
->>>>>>>>>>    1 file changed, 12 insertions(+), 1 deletion(-)
->>>>>>>>>>=20
->>>>>>>>>> diff --git a/mm/madvise.c b/mm/madvise.c
->>>>>>>>>> index df692d2e35d4..01fef79ac761 100644
->>>>>>>>>> --- a/mm/madvise.c
->>>>>>>>>> +++ b/mm/madvise.c
->>>>>>>>>> @@ -1198,12 +1198,22 @@ SYSCALL_DEFINE5(process_madvise, int, pid=
-fd, const struct iovec __user *, vec,
->>>>>>>>>>                   goto release_task;
->>>>>>>>>>           }
->>>>>>>>>>=20
->>>>>>>>>> -       mm =3D mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
->>>>>>>>>> +       /* Require PTRACE_MODE_READ to avoid leaking ASLR metadat=
-a. */
->>>>>>>>>> +       mm =3D mm_access(task, PTRACE_MODE_READ_FSCREDS);
->>>>>>>>>>           if (IS_ERR_OR_NULL(mm)) {
->>>>>>>>>>                   ret =3D IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
->>>>>>>>>>                   goto release_task;
->>>>>>>>>>           }
->>>>>>>>>>=20
->>>>>>>>>> +       /*
->>>>>>>>>> +        * Require CAP_SYS_NICE for influencing process performan=
-ce. Note that
->>>>>>>>>> +        * only non-destructive hints are currently supported.
->>>>>>>>>=20
->>>>>>>>> How is non-destructive defined? Is MADV_DONTNEED non-destructive?
->>>>>>>>=20
->>>>>>>> Non-destructive in this context means the data is not lost and can b=
-e
->>>>>>>> recovered. I follow the logic described in
->>>>>>>> https://lwn.net/Articles/794704/ where Minchan was introducing
->>>>>>>> MADV_COLD and MADV_PAGEOUT as non-destructive versions of MADV_FREE=
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 37724c63723f - phy: mediatek: Add missing MODULE_DEVICE_T=
+ABLE()
 
->>>>>>>> and MADV_DONTNEED. Following that logic, MADV_FREE and MADV_DONTNEE=
-D
->>>>>>>> would be considered destructive hints.
->>>>>>>> Note that process_madvise_behavior_valid() allows only MADV_COLD an=
-d
->>>>>>>> MADV_PAGEOUT at the moment, which are both non-destructive.
->>>>>>>>=20
->>>>>>>=20
->>>>>>> There is a plan to support MADV_DONTNEED for this syscall. Do we nee=
-d
->>>>>>> to change these access checks again with that support?
->>>>>>=20
->>>>>> Eh, I absolutely don't think letting another process discard memory i=
-n
->>>>>> another process' address space is a good idea. The target process can=
+The results of these automated tests are provided below.
 
->>>>>> observe that easily and might even run into real issues.
->>>>>>=20
->>>>>> What's the use case?
->>>>>>=20
->>>>>=20
->>>>> Userspace oom reaper. Please look at
->>>>> https://lore.kernel.org/linux-api/20201014183943.GA1489464@google.com/=
-T/
->>>>>=20
->>>>=20
->>>> Thanks, somehow I missed that (not that it really changed my opinion on=
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
->>>> the approach while skimming over the discussion :) will have a more
->>>> detailed look)
->>>=20
->>> The latest version of that patchset is:
->>> https://lore.kernel.org/patchwork/patch/1344419/
->>> Yeah, memory reaping is a special case when we are operating on a
->>> dying process to speed up the release of its memory. I don't know if
->>> for that particular case we need to make the checks stricter. It's a
->>> dying process anyway and the data is being destroyed. Allowing to
->>> speed up that process probably can still use CAP_SYS_NICE.
->>=20
->> I know, unrelated discussion (sorry, I don't have above thread in my
->> archive anymore due to automatic cleanups ...) , but introducing
->> MADV_DONTEED on a remote processes, having to tweak range logic because
->> we always want to apply it to the whole MM, just to speed up memory
->> reaping sounds like completely abusing madvise()/process_madvise() to me.=
+All kernel binaries, config files, and logs are available for download here:
 
->>=20
->> You want different semantics than MADV_DONTNEED. You want different
->> semantics than madvise.
->>=20
->> Simple example: mlock()ed pages in the target process. MADV_DONTNEED
->> would choke on that. For the use case of reaping, you certainly don't car=
-e.
->>=20
->> I am not sure if process_madvise() is the right interface to enforce
->> discarding of all target memory.
->>=20
->>=20
->> Not to mention that MADV_FREE doesn't make any sense IMHO for memory
->> reaping ... no to mention exposing this via process_madvise().
->=20
-> Yeah, that was the last comment from Christoph Hellwig on
-> https://lore.kernel.org/patchwork/patch/1344418/
-> I'll be rethinking the whole approach. Previously I proposed couple
-> different approaches that would make reaping a part of the kill by
-> adding a new flag for pidfd_send_signal:
-> https://lore.kernel.org/patchwork/patch/1338196/
-> https://lore.kernel.org/patchwork/patch/1060407/
-> but maybe a separate syscall for reaping is indeed the right way to go...
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/03/05/624944
 
-Yeah, most likely!
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
->=20
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
+
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
+
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
+
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
