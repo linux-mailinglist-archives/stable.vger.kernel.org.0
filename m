@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBFE132E96E
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:33:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA50632EA0F
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232075AbhCEMcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:32:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42528 "EHLO mail.kernel.org"
+        id S231952AbhCEMgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:36:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230300AbhCEMcU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:32:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A85C65037;
-        Fri,  5 Mar 2021 12:32:19 +0000 (UTC)
+        id S232842AbhCEMfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:35:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B565464FF0;
+        Fri,  5 Mar 2021 12:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947540;
-        bh=AEx0p7UX4vAPrJHwHQQ5Ry3hubmd2flfvHu0bZDv/Yg=;
+        s=korg; t=1614947755;
+        bh=fP+6ol2a8QTVxVEPDY1+isT0yNqBWbmcuW53BCUI0P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CX1YEhtbAaIWU490IM2AgYUqdQOhffeNCb+2/eU5ADRzj8vPOa5kO+oYlNkCLCC3F
-         fUvBf7KsQ0duduHx2uFTqjtmAzAQlco7pPVupFyiGkL0VAZ+ZvMlcTl3/Jl9Jd3zIG
-         xqxc7gZ973Mf7wZrer7srFLOxjSSFL2PdNkTxRrU=
+        b=CAAn4g4w8LB8lylZCEXon6ZIcUchfwUkFOJ2EK0XpPDGfWR+AODdx+9UrWlk/+ENC
+         4IqHe3ZPJIkh8G4JHJTcXZHu2jFJQdYfb9pO/1iFPUNbG4rQOWmCAs9N2cBDJ/Ejad
+         YvmTDzSllbHlbxxT3ioVmuEVZ/9aqQH261y3nZKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 099/102] media: v4l: ioctl: Fix memory leak in video_usercopy
-Date:   Fri,  5 Mar 2021 13:21:58 +0100
-Message-Id: <20210305120908.151280996@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 57/72] ASoC: Intel: bytcr_rt5640: Add quirk for the Estar Beauty HD MID 7316R tablet
+Date:   Fri,  5 Mar 2021 13:21:59 +0100
+Message-Id: <20210305120900.132796597@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-References: <20210305120903.276489876@linuxfoundation.org>
+In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
+References: <20210305120857.341630346@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit fb18802a338b36f675a388fc03d2aa504a0d0899 upstream.
+[ Upstream commit bdea43fc0436c9e98fdfe151c2ed8a3fc7277404 ]
 
-When an IOCTL with argument size larger than 128 that also used array
-arguments were handled, two memory allocations were made but alas, only
-the latter one of them was released. This happened because there was only
-a single local variable to hold such a temporary allocation.
+The Estar Beauty HD MID 7316R tablet almost fully works with out default
+settings. The only problem is that it has only 1 speaker so any sounds
+only playing on the right channel get lost.
 
-Fix this by adding separate variables to hold the pointers to the
-temporary allocations.
+Add a quirk for this model using the default settings + MONO_SPEAKER.
 
-Reported-by: Arnd Bergmann <arnd@kernel.org>
-Reported-by: syzbot+1115e79c8df6472c612b@syzkaller.appspotmail.com
-Fixes: d14e6d76ebf7 ("[media] v4l: Add multi-planar ioctl handling code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210216213555.36555-2-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-ioctl.c |   19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -3251,7 +3251,7 @@ video_usercopy(struct file *file, unsign
- 	       v4l2_kioctl func)
- {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -3286,20 +3286,14 @@ video_usercopy(struct file *file, unsign
- 	has_array_args = err;
- 
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kvmalloc(array_size, GFP_KERNEL);
-+		array_buf = kvmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
--		if (copy_from_user(mbuf, user_ptr, array_size))
-+		if (copy_from_user(array_buf, user_ptr, array_size))
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
- 	}
- 
- 	/* Handles IOCTL */
-@@ -3318,7 +3312,7 @@ video_usercopy(struct file *file, unsign
- 
- 	if (has_array_args) {
- 		*kernel_ptr = (void __force *)user_ptr;
--		if (copy_to_user(user_ptr, mbuf, array_size))
-+		if (copy_to_user(user_ptr, array_buf, array_size))
- 			err = -EFAULT;
- 		goto out_array_args;
- 	}
-@@ -3333,6 +3327,7 @@ out_array_args:
- 	if (video_put_user((void __user *)arg, parg, orig_cmd))
- 		err = -EFAULT;
- out:
-+	kvfree(array_buf);
- 	kvfree(mbuf);
- 	return err;
- }
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 6012367f6fe4..cdbc00c77338 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -513,6 +513,16 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_MONO_SPEAKER |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Estar Beauty HD MID 7316R */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Estar"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+-- 
+2.30.1
+
 
 
