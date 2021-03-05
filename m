@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0177D32EAD0
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70BF532EB14
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233330AbhCEMkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55102 "EHLO mail.kernel.org"
+        id S233087AbhCEMl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:41:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233364AbhCEMkG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3E264F44;
-        Fri,  5 Mar 2021 12:40:05 +0000 (UTC)
+        id S231852AbhCEMlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB5FA6501E;
+        Fri,  5 Mar 2021 12:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948005;
-        bh=pPhuODF5YQXrCVSoGD7/MI0sdXCCdPa2t2QXebb4Pdg=;
+        s=korg; t=1614948099;
+        bh=lQbAOskAQvk773Y3UVHoD9TuD/ynxE/cjo+6z+6pi8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2ECix1lokf/eDwmtx3AVNC6wIq4yPw4DyDi1K1hXZPqgtPU8L3/pflugASSPu5za
-         UtX5GpKcW1H+MKUHwOILelAlLbN5bQ8UonDF1pnNFvoIxCHpsYsBFPeyvoiYk3Lyx8
-         tSS8Z99hmLw79IrxdAo+1mPGOPyiu6I79w4OZ2x4=
+        b=fQ08JWmKZTU2nDTJboCnrcsLbXLxO6JDIx/oEPBTNHvc9VIm6mA3L6b+Sqzhp1/8s
+         Sot7xfpfOTRTAnDNuHeMQiPUjP/pR5Op4zOiOOVvd2JCqkmoPMoiKbtqHg1STm5IsZ
+         0HLmOrh3He5BVDx2uIfx7TG9LkcCx+Z1NZCA8sGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.14 35/39] Xen/gnttab: handle p2m update errors on a per-slot basis
-Date:   Fri,  5 Mar 2021 13:22:34 +0100
-Message-Id: <20210305120853.545955106@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 28/41] ath10k: fix wmi mgmt tx queue full due to race condition
+Date:   Fri,  5 Mar 2021 13:22:35 +0100
+Message-Id: <20210305120852.674704445@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,143 +41,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Miaoqing Pan <miaoqing@codeaurora.org>
 
-commit 8310b77b48c5558c140e7a57a702e7819e62f04e upstream.
+[ Upstream commit b55379e343a3472c35f4a1245906db5158cab453 ]
 
-Bailing immediately from set_foreign_p2m_mapping() upon a p2m updating
-error leaves the full batch in an ambiguous state as far as the caller
-is concerned. Instead flags respective slots as bad, unmapping what
-was mapped there right away.
+Failed to transmit wmi management frames:
 
-HYPERVISOR_grant_table_op()'s return value and the individual unmap
-slots' status fields get used only for a one-time - there's not much we
-can do in case of a failure.
+[84977.840894] ath10k_snoc a000000.wifi: wmi mgmt tx queue is full
+[84977.840913] ath10k_snoc a000000.wifi: failed to transmit packet, dropping: -28
+[84977.840924] ath10k_snoc a000000.wifi: failed to submit frame: -28
+[84977.840932] ath10k_snoc a000000.wifi: failed to transmit frame: -28
 
-Note that there's no GNTST_enomem or alike, so GNTST_general_error gets
-used.
+This issue is caused by race condition between skb_dequeue and
+__skb_queue_tail. The queue of ‘wmi_mgmt_tx_queue’ is protected by a
+different lock: ar->data_lock vs list->lock, the result is no protection.
+So when ath10k_mgmt_over_wmi_tx_work() and ath10k_mac_tx_wmi_mgmt()
+running concurrently on different CPUs, there appear to be a rare corner
+cases when the queue length is 1,
 
-The map ops' handle fields get overwritten just to be on the safe side.
+  CPUx (skb_deuque)			CPUy (__skb_queue_tail)
+					next=list
+					prev=list
+  struct sk_buff *skb = skb_peek(list);	WRITE_ONCE(newsk->next, next);
+  WRITE_ONCE(list->qlen, list->qlen - 1);WRITE_ONCE(newsk->prev, prev);
+  next       = skb->next;		WRITE_ONCE(next->prev, newsk);
+  prev       = skb->prev;		WRITE_ONCE(prev->next, newsk);
+  skb->next  = skb->prev = NULL;	list->qlen++;
+  WRITE_ONCE(next->prev, prev);
+  WRITE_ONCE(prev->next, next);
 
-This is part of XSA-367.
+If the instruction ‘next = skb->next’ is executed before
+‘WRITE_ONCE(prev->next, newsk)’, newsk will be lost, as CPUx get the
+old ‘next’ pointer, but the length is still added by one. The final
+result is the length of the queue will reach the maximum value but
+the queue is empty.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/96cccf5d-e756-5f53-b91a-ea269bfb9be0@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So remove ar->data_lock, and use 'skb_queue_tail' instead of
+'__skb_queue_tail' to prevent the potential race condition. Also switch
+to use skb_queue_len_lockless, in case we queue a few SKBs simultaneously.
+
+Tested-on: WCN3990 hw1.0 SNOC WLAN.HL.3.1.c2-00033-QCAHLSWMTPLZ-1
+
+Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1608618887-8857-1-git-send-email-miaoqing@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/xen/p2m.c |   35 +++++++++++++++++++++++++++++++----
- arch/x86/xen/p2m.c |   44 +++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 72 insertions(+), 7 deletions(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -91,12 +91,39 @@ int set_foreign_p2m_mapping(struct gntta
- 	int i;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 8b3fe88d1c4e..564181bb0906 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -3452,23 +3452,16 @@ bool ath10k_mac_tx_frm_has_freq(struct ath10k *ar)
+ static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
+ {
+ 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
+-	int ret = 0;
+-
+-	spin_lock_bh(&ar->data_lock);
  
- 	for (i = 0; i < count; i++) {
-+		struct gnttab_unmap_grant_ref unmap;
-+		int rc;
-+
- 		if (map_ops[i].status)
- 			continue;
--		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
--				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
--			return -ENOMEM;
--		}
-+		if (likely(set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
-+				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT)))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap.host_addr = map_ops[i].host_addr,
-+		unmap.handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap.dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap.dev_bus_addr = 0;
-+
-+		/*
-+		 * Pre-populate the status field, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap.status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       &unmap, 1);
-+		if (rc || unmap.status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st=%d\n",
-+				    rc, unmap.status);
+-	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
++	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
+ 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
+-		ret = -ENOSPC;
+-		goto unlock;
++		return -ENOSPC;
  	}
  
- 	return 0;
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -706,6 +706,8 @@ int set_foreign_p2m_mapping(struct gntta
+-	__skb_queue_tail(q, skb);
++	skb_queue_tail(q, skb);
+ 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
  
- 	for (i = 0; i < count; i++) {
- 		unsigned long mfn, pfn;
-+		struct gnttab_unmap_grant_ref unmap[2];
-+		int rc;
+-unlock:
+-	spin_unlock_bh(&ar->data_lock);
+-
+-	return ret;
++	return 0;
+ }
  
- 		/* Do not add to override if the map failed. */
- 		if (map_ops[i].status != GNTST_okay ||
-@@ -723,10 +725,46 @@ int set_foreign_p2m_mapping(struct gntta
- 
- 		WARN(pfn_to_mfn(pfn) != INVALID_P2M_ENTRY, "page must be ballooned");
- 
--		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
--			ret = -ENOMEM;
--			goto out;
-+		if (likely(set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap[0].host_addr = map_ops[i].host_addr,
-+		unmap[0].handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap[0].dev_bus_addr = 0;
-+
-+		if (kmap_ops) {
-+			kmap_ops[i].status = GNTST_general_error;
-+			unmap[1].host_addr = kmap_ops[i].host_addr,
-+			unmap[1].handle = kmap_ops[i].handle;
-+			kmap_ops[i].handle = ~0;
-+			if (kmap_ops[i].flags & GNTMAP_device_map)
-+				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
-+			else
-+				unmap[1].dev_bus_addr = 0;
- 		}
-+
-+		/*
-+		 * Pre-populate both status fields, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap[0].status = 1;
-+		unmap[1].status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       unmap, 1 + !!kmap_ops);
-+		if (rc || unmap[0].status != GNTST_okay ||
-+		    unmap[1].status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st0=%d st1=%d\n",
-+				    rc, unmap[0].status, unmap[1].status);
- 	}
- 
- out:
+ static enum ath10k_mac_tx_path
+-- 
+2.30.1
+
 
 
