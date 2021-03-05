@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AB632EAE0
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B97832EB24
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbhCEMku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:40:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55298 "EHLO mail.kernel.org"
+        id S231709AbhCEMms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231858AbhCEMkT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:40:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62BBF6502A;
-        Fri,  5 Mar 2021 12:40:18 +0000 (UTC)
+        id S231858AbhCEMly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:41:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7295065028;
+        Fri,  5 Mar 2021 12:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948019;
-        bh=drxMbElXbKylGnwkqnEgVdK7h30LmcEJRPvitXl20rQ=;
+        s=korg; t=1614948114;
+        bh=agsnVqp3wvdPHlwPDj/UEvzinV+0jsawC5N7WhxyIk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLxBj7kCkmbmrdBpVAUcpXljsgaaPlR/Usq08a4iVwGnst33Xnv2taWpYyDB/xzMh
-         3OLad35bKKCzLid+Rmp9Vj9XQiMb6ypU6vMrQqd768h/Z2IN14xR78C2ruj289W+np
-         xkvpUm5QOkNB7TwTZW82XCHbh3mcE175gl9k99yc=
+        b=BE6X8xi3tHSXmavZXeiH/APmgpVc8tLrDGswbm8gUmSocAYz2XSW+4MRRbR8uFUur
+         pTXEOqo58GzvMuGkw5qneU/LA2g+hyU5bZTV2zGesLn0m4pRxoorsj9QhEIjwKVvxf
+         DRPesETXnI/hOuLrJvXlIbk4d+rydY6DzOfPjBUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Di Zhu <zhudi21@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 23/39] pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 15/41] arm64: Avoid redundant type conversions in xchg() and cmpxchg()
 Date:   Fri,  5 Mar 2021 13:22:22 +0100
-Message-Id: <20210305120852.934850247@linuxfoundation.org>
+Message-Id: <20210305120852.041518921@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
-References: <20210305120851.751937389@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +39,348 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Di Zhu <zhudi21@huawei.com>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit 275b1e88cabb34dbcbe99756b67e9939d34a99b6 ]
+commit 5ef3fe4cecdf82fdd71ce78988403963d01444d4 upstream.
 
-pktgen create threads for all online cpus and bond these threads to
-relevant cpu repecivtily. when this thread firstly be woken up, it
-will compare cpu currently running with the cpu specified at the time
-of creation and if the two cpus are not equal, BUG_ON() will take effect
-causing panic on the system.
-Notice that these threads could be migrated to other cpus before start
-running because of the cpu hotplug after these threads have created. so the
-BUG_ON() used here seems unreasonable and we can replace it with WARN_ON()
-to just printf a warning other than panic the system.
+Our atomic instructions (either LSE atomics of LDXR/STXR sequences)
+natively support byte, half-word, word and double-word memory accesses
+so there is no need to mask the data register prior to being stored.
 
-Signed-off-by: Di Zhu <zhudi21@huawei.com>
-Link: https://lore.kernel.org/r/20210125124229.19334-1-zhudi21@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/pktgen.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/atomic_ll_sc.h |   53 +++++++--------
+ arch/arm64/include/asm/atomic_lse.h   |   46 ++++++-------
+ arch/arm64/include/asm/cmpxchg.h      |  116 +++++++++++++++++-----------------
+ 3 files changed, 108 insertions(+), 107 deletions(-)
 
-diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index 884afb8e9fc4..b3132f11afeb 100644
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3555,7 +3555,7 @@ static int pktgen_thread_worker(void *arg)
- 	struct pktgen_dev *pkt_dev = NULL;
- 	int cpu = t->cpu;
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -248,48 +248,49 @@ __LL_SC_PREFIX(atomic64_dec_if_positive(
+ }
+ __LL_SC_EXPORT(atomic64_dec_if_positive);
  
--	BUG_ON(smp_processor_id() != cpu);
-+	WARN_ON(smp_processor_id() != cpu);
+-#define __CMPXCHG_CASE(w, sz, name, mb, acq, rel, cl)			\
+-__LL_SC_INLINE unsigned long						\
+-__LL_SC_PREFIX(__cmpxchg_case_##name(volatile void *ptr,		\
+-				     unsigned long old,			\
+-				     unsigned long new))		\
++#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl)		\
++__LL_SC_INLINE u##sz							\
++__LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
++					 unsigned long old,		\
++					 u##sz new))			\
+ {									\
+-	unsigned long tmp, oldval;					\
++	unsigned long tmp;						\
++	u##sz oldval;							\
+ 									\
+ 	asm volatile(							\
+ 	"	prfm	pstl1strm, %[v]\n"				\
+-	"1:	ld" #acq "xr" #sz "\t%" #w "[oldval], %[v]\n"		\
++	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
+ 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
+ 	"	cbnz	%" #w "[tmp], 2f\n"				\
+-	"	st" #rel "xr" #sz "\t%w[tmp], %" #w "[new], %[v]\n"	\
++	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
+ 	"	cbnz	%w[tmp], 1b\n"					\
+ 	"	" #mb "\n"						\
+ 	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+-	  [v] "+Q" (*(unsigned long *)ptr)				\
++	  [v] "+Q" (*(u##sz *)ptr)					\
+ 	: [old] "Lr" (old), [new] "r" (new)				\
+ 	: cl);								\
+ 									\
+ 	return oldval;							\
+ }									\
+-__LL_SC_EXPORT(__cmpxchg_case_##name);
++__LL_SC_EXPORT(__cmpxchg_case_##name##sz);
  
- 	init_waitqueue_head(&t->queue);
- 	complete(&t->start_done);
--- 
-2.30.1
-
+-__CMPXCHG_CASE(w, b,     1,        ,  ,  ,         )
+-__CMPXCHG_CASE(w, h,     2,        ,  ,  ,         )
+-__CMPXCHG_CASE(w,  ,     4,        ,  ,  ,         )
+-__CMPXCHG_CASE( ,  ,     8,        ,  ,  ,         )
+-__CMPXCHG_CASE(w, b, acq_1,        , a,  , "memory")
+-__CMPXCHG_CASE(w, h, acq_2,        , a,  , "memory")
+-__CMPXCHG_CASE(w,  , acq_4,        , a,  , "memory")
+-__CMPXCHG_CASE( ,  , acq_8,        , a,  , "memory")
+-__CMPXCHG_CASE(w, b, rel_1,        ,  , l, "memory")
+-__CMPXCHG_CASE(w, h, rel_2,        ,  , l, "memory")
+-__CMPXCHG_CASE(w,  , rel_4,        ,  , l, "memory")
+-__CMPXCHG_CASE( ,  , rel_8,        ,  , l, "memory")
+-__CMPXCHG_CASE(w, b,  mb_1, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE(w, h,  mb_2, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE(w,  ,  mb_4, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE( ,  ,  mb_8, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         )
++__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         )
++__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         )
++__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         )
++__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory")
++__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory")
++__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory")
++__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory")
++__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory")
++__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory")
++__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory")
++__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory")
++__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory")
++__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory")
+ 
+ #undef __CMPXCHG_CASE
+ 
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -446,22 +446,22 @@ static inline long atomic64_dec_if_posit
+ 
+ #define __LL_SC_CMPXCHG(op)	__LL_SC_CALL(__cmpxchg_case_##op)
+ 
+-#define __CMPXCHG_CASE(w, sz, name, mb, cl...)				\
+-static inline unsigned long __cmpxchg_case_##name(volatile void *ptr,	\
+-						  unsigned long old,	\
+-						  unsigned long new)	\
++#define __CMPXCHG_CASE(w, sfx, name, sz, mb, cl...)			\
++static inline u##sz __cmpxchg_case_##name##sz(volatile void *ptr,	\
++					      unsigned long old,	\
++					      u##sz new)		\
+ {									\
+ 	register unsigned long x0 asm ("x0") = (unsigned long)ptr;	\
+ 	register unsigned long x1 asm ("x1") = old;			\
+-	register unsigned long x2 asm ("x2") = new;			\
++	register u##sz x2 asm ("x2") = new;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+ 	/* LL/SC */							\
+-	__LL_SC_CMPXCHG(name)						\
++	__LL_SC_CMPXCHG(name##sz)					\
+ 	__nops(2),							\
+ 	/* LSE atomics */						\
+ 	"	mov	" #w "30, %" #w "[old]\n"			\
+-	"	cas" #mb #sz "\t" #w "30, %" #w "[new], %[v]\n"		\
++	"	cas" #mb #sfx "\t" #w "30, %" #w "[new], %[v]\n"	\
+ 	"	mov	%" #w "[ret], " #w "30")			\
+ 	: [ret] "+r" (x0), [v] "+Q" (*(unsigned long *)ptr)		\
+ 	: [old] "r" (x1), [new] "r" (x2)				\
+@@ -470,22 +470,22 @@ static inline unsigned long __cmpxchg_ca
+ 	return x0;							\
+ }
+ 
+-__CMPXCHG_CASE(w, b,     1,   )
+-__CMPXCHG_CASE(w, h,     2,   )
+-__CMPXCHG_CASE(w,  ,     4,   )
+-__CMPXCHG_CASE(x,  ,     8,   )
+-__CMPXCHG_CASE(w, b, acq_1,  a, "memory")
+-__CMPXCHG_CASE(w, h, acq_2,  a, "memory")
+-__CMPXCHG_CASE(w,  , acq_4,  a, "memory")
+-__CMPXCHG_CASE(x,  , acq_8,  a, "memory")
+-__CMPXCHG_CASE(w, b, rel_1,  l, "memory")
+-__CMPXCHG_CASE(w, h, rel_2,  l, "memory")
+-__CMPXCHG_CASE(w,  , rel_4,  l, "memory")
+-__CMPXCHG_CASE(x,  , rel_8,  l, "memory")
+-__CMPXCHG_CASE(w, b,  mb_1, al, "memory")
+-__CMPXCHG_CASE(w, h,  mb_2, al, "memory")
+-__CMPXCHG_CASE(w,  ,  mb_4, al, "memory")
+-__CMPXCHG_CASE(x,  ,  mb_8, al, "memory")
++__CMPXCHG_CASE(w, b,     ,  8,   )
++__CMPXCHG_CASE(w, h,     , 16,   )
++__CMPXCHG_CASE(w,  ,     , 32,   )
++__CMPXCHG_CASE(x,  ,     , 64,   )
++__CMPXCHG_CASE(w, b, acq_,  8,  a, "memory")
++__CMPXCHG_CASE(w, h, acq_, 16,  a, "memory")
++__CMPXCHG_CASE(w,  , acq_, 32,  a, "memory")
++__CMPXCHG_CASE(x,  , acq_, 64,  a, "memory")
++__CMPXCHG_CASE(w, b, rel_,  8,  l, "memory")
++__CMPXCHG_CASE(w, h, rel_, 16,  l, "memory")
++__CMPXCHG_CASE(w,  , rel_, 32,  l, "memory")
++__CMPXCHG_CASE(x,  , rel_, 64,  l, "memory")
++__CMPXCHG_CASE(w, b,  mb_,  8, al, "memory")
++__CMPXCHG_CASE(w, h,  mb_, 16, al, "memory")
++__CMPXCHG_CASE(w,  ,  mb_, 32, al, "memory")
++__CMPXCHG_CASE(x,  ,  mb_, 64, al, "memory")
+ 
+ #undef __LL_SC_CMPXCHG
+ #undef __CMPXCHG_CASE
+--- a/arch/arm64/include/asm/cmpxchg.h
++++ b/arch/arm64/include/asm/cmpxchg.h
+@@ -29,46 +29,46 @@
+  * barrier case is generated as release+dmb for the former and
+  * acquire+release for the latter.
+  */
+-#define __XCHG_CASE(w, sz, name, mb, nop_lse, acq, acq_lse, rel, cl)	\
+-static inline unsigned long __xchg_case_##name(unsigned long x,		\
+-					       volatile void *ptr)	\
+-{									\
+-	unsigned long ret, tmp;						\
+-									\
+-	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+-	/* LL/SC */							\
+-	"	prfm	pstl1strm, %2\n"				\
+-	"1:	ld" #acq "xr" #sz "\t%" #w "0, %2\n"			\
+-	"	st" #rel "xr" #sz "\t%w1, %" #w "3, %2\n"		\
+-	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb,							\
+-	/* LSE atomics */						\
+-	"	swp" #acq_lse #rel #sz "\t%" #w "3, %" #w "0, %2\n"	\
+-		__nops(3)						\
+-	"	" #nop_lse)						\
+-	: "=&r" (ret), "=&r" (tmp), "+Q" (*(unsigned long *)ptr)	\
+-	: "r" (x)							\
+-	: cl);								\
+-									\
+-	return ret;							\
++#define __XCHG_CASE(w, sfx, name, sz, mb, nop_lse, acq, acq_lse, rel, cl)	\
++static inline u##sz __xchg_case_##name##sz(u##sz x, volatile void *ptr)		\
++{										\
++	u##sz ret;								\
++	unsigned long tmp;							\
++										\
++	asm volatile(ARM64_LSE_ATOMIC_INSN(					\
++	/* LL/SC */								\
++	"	prfm	pstl1strm, %2\n"					\
++	"1:	ld" #acq "xr" #sfx "\t%" #w "0, %2\n"				\
++	"	st" #rel "xr" #sfx "\t%w1, %" #w "3, %2\n"			\
++	"	cbnz	%w1, 1b\n"						\
++	"	" #mb,								\
++	/* LSE atomics */							\
++	"	swp" #acq_lse #rel #sfx "\t%" #w "3, %" #w "0, %2\n"		\
++		__nops(3)							\
++	"	" #nop_lse)							\
++	: "=&r" (ret), "=&r" (tmp), "+Q" (*(u##sz *)ptr)			\
++	: "r" (x)								\
++	: cl);									\
++										\
++	return ret;								\
+ }
+ 
+-__XCHG_CASE(w, b,     1,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w, h,     2,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w,  ,     4,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE( ,  ,     8,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w, b, acq_1,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w, h, acq_2,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w,  , acq_4,        ,    , a, a,  , "memory")
+-__XCHG_CASE( ,  , acq_8,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w, b, rel_1,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w, h, rel_2,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w,  , rel_4,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE( ,  , rel_8,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w, b,  mb_1, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE(w, h,  mb_2, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE(w,  ,  mb_4, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE( ,  ,  mb_8, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w, b,     ,  8,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w, h,     , 16,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w,  ,     , 32,        ,    ,  ,  ,  ,         )
++__XCHG_CASE( ,  ,     , 64,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w, b, acq_,  8,        ,    , a, a,  , "memory")
++__XCHG_CASE(w, h, acq_, 16,        ,    , a, a,  , "memory")
++__XCHG_CASE(w,  , acq_, 32,        ,    , a, a,  , "memory")
++__XCHG_CASE( ,  , acq_, 64,        ,    , a, a,  , "memory")
++__XCHG_CASE(w, b, rel_,  8,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w, h, rel_, 16,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w,  , rel_, 32,        ,    ,  ,  , l, "memory")
++__XCHG_CASE( ,  , rel_, 64,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w, b,  mb_,  8, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w, h,  mb_, 16, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w,  ,  mb_, 32, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE( ,  ,  mb_, 64, dmb ish, nop,  , a, l, "memory")
+ 
+ #undef __XCHG_CASE
+ 
+@@ -79,13 +79,13 @@ static __always_inline  unsigned long __
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __xchg_case##sfx##_1(x, ptr);			\
++		return __xchg_case##sfx##_8(x, ptr);			\
+ 	case 2:								\
+-		return __xchg_case##sfx##_2(x, ptr);			\
++		return __xchg_case##sfx##_16(x, ptr);			\
+ 	case 4:								\
+-		return __xchg_case##sfx##_4(x, ptr);			\
++		return __xchg_case##sfx##_32(x, ptr);			\
+ 	case 8:								\
+-		return __xchg_case##sfx##_8(x, ptr);			\
++		return __xchg_case##sfx##_64(x, ptr);			\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
+@@ -122,13 +122,13 @@ static __always_inline unsigned long __c
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __cmpxchg_case##sfx##_1(ptr, (u8)old, new);	\
++		return __cmpxchg_case##sfx##_8(ptr, (u8)old, new);	\
+ 	case 2:								\
+-		return __cmpxchg_case##sfx##_2(ptr, (u16)old, new);	\
++		return __cmpxchg_case##sfx##_16(ptr, (u16)old, new);	\
+ 	case 4:								\
+-		return __cmpxchg_case##sfx##_4(ptr, old, new);		\
++		return __cmpxchg_case##sfx##_32(ptr, old, new);		\
+ 	case 8:								\
+-		return __cmpxchg_case##sfx##_8(ptr, old, new);		\
++		return __cmpxchg_case##sfx##_64(ptr, old, new);		\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
+@@ -222,16 +222,16 @@ __CMPXCHG_GEN(_mb)
+ 	__ret;								\
+ })
+ 
+-#define __CMPWAIT_CASE(w, sz, name)					\
+-static inline void __cmpwait_case_##name(volatile void *ptr,		\
+-					 unsigned long val)		\
++#define __CMPWAIT_CASE(w, sfx, sz)					\
++static inline void __cmpwait_case_##sz(volatile void *ptr,		\
++				       unsigned long val)		\
+ {									\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
+ 	"	sevl\n"							\
+ 	"	wfe\n"							\
+-	"	ldxr" #sz "\t%" #w "[tmp], %[v]\n"			\
++	"	ldxr" #sfx "\t%" #w "[tmp], %[v]\n"			\
+ 	"	eor	%" #w "[tmp], %" #w "[tmp], %" #w "[val]\n"	\
+ 	"	cbnz	%" #w "[tmp], 1f\n"				\
+ 	"	wfe\n"							\
+@@ -240,10 +240,10 @@ static inline void __cmpwait_case_##name
+ 	: [val] "r" (val));						\
+ }
+ 
+-__CMPWAIT_CASE(w, b, 1);
+-__CMPWAIT_CASE(w, h, 2);
+-__CMPWAIT_CASE(w,  , 4);
+-__CMPWAIT_CASE( ,  , 8);
++__CMPWAIT_CASE(w, b, 8);
++__CMPWAIT_CASE(w, h, 16);
++__CMPWAIT_CASE(w,  , 32);
++__CMPWAIT_CASE( ,  , 64);
+ 
+ #undef __CMPWAIT_CASE
+ 
+@@ -254,13 +254,13 @@ static __always_inline void __cmpwait##s
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __cmpwait_case##sfx##_1(ptr, (u8)val);		\
++		return __cmpwait_case##sfx##_8(ptr, (u8)val);		\
+ 	case 2:								\
+-		return __cmpwait_case##sfx##_2(ptr, (u16)val);		\
++		return __cmpwait_case##sfx##_16(ptr, (u16)val);		\
+ 	case 4:								\
+-		return __cmpwait_case##sfx##_4(ptr, val);		\
++		return __cmpwait_case##sfx##_32(ptr, val);		\
+ 	case 8:								\
+-		return __cmpwait_case##sfx##_8(ptr, val);		\
++		return __cmpwait_case##sfx##_64(ptr, val);		\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
 
 
