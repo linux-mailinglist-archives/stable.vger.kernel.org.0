@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B4632E19B
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 06:29:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2AC132E19E
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 06:31:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229469AbhCEF3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 00:29:05 -0500
-Received: from relay.corp-email.com ([222.73.234.233]:14687 "EHLO
-        relay.corp-email.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbhCEF3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 00:29:04 -0500
+        id S229448AbhCEFbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 00:31:13 -0500
+Received: from support.corp-email.com ([222.73.234.235]:55342 "EHLO
+        support.corp-email.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229446AbhCEFbN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 5 Mar 2021 00:31:13 -0500
 Received: from ([183.47.25.45])
-        by relay.corp-email.com ((LNX1044)) with ASMTP (SSL) id YYH00157;
-        Fri, 05 Mar 2021 13:28:57 +0800
-Received: from GCY-EXS-15.TCL.com (10.74.128.165) by GCY-EXS-10.TCL.com
- (10.74.128.160) with Microsoft SMTP Server (version=TLS1_2,
+        by support.corp-email.com ((LNX1044)) with ASMTP (SSL) id YYK00103;
+        Fri, 05 Mar 2021 13:31:03 +0800
+Received: from GCY-EXS-15.TCL.com (10.74.128.165) by GCY-EXS-09.TCL.com
+ (10.74.128.159) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
- 13:28:58 +0800
+ 13:31:03 +0800
 Received: from localhost.localdomain (172.16.34.11) by GCY-EXS-15.TCL.com
  (10.74.128.165) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2; Fri, 5 Mar 2021
- 13:28:42 +0800
+ 13:31:02 +0800
 From:   Rokudo Yan <wu-yan@tcl.com>
 To:     <gregkh@linuxfoundation.org>
 CC:     <akpm@linux-foundation.org>, <minchan@kernel.org>,
         <sergey.senozhatsky@gmail.com>, <stable@vger.kernel.org>,
         <torvalds@linux-foundation.org>, <wu-yan@tcl.com>
-Subject: Re: FAILED: patch "[PATCH] zsmalloc: account the number of compacted pages correctly" failed to apply to 5.4-stable tree
-Date:   Fri, 5 Mar 2021 13:28:30 +0800
-Message-ID: <20210305052830.2641828-1-wu-yan@tcl.com>
+Subject: Re: FAILED: patch "[PATCH] zsmalloc: account the number of compacted pages correctly" failed to apply to 5.10-stable tree
+Date:   Fri, 5 Mar 2021 13:30:53 +0800
+Message-ID: <20210305053053.2642703-1-wu-yan@tcl.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <161452062538200@kroah.com>
-References: <161452062538200@kroah.com>
+In-Reply-To: <1614520624144188@kroah.com>
+References: <1614520624144188@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
 X-Originating-IP: [172.16.34.11]
 X-ClientProxiedBy: GCY-EXS-04.TCL.com (10.74.128.154) To GCY-EXS-15.TCL.com
  (10.74.128.165)
-tUid:   2021305132857d50b5a31fce94c3ce98b6c313b462db7
+tUid:   2021305133103c8fdd6b5532ea180f41c981c7dd7e18a
 X-Abuse-Reports-To: service@corp-email.com
 Abuse-Reports-To: service@corp-email.com
 X-Complaints-To: service@corp-email.com
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 commit 2395928158059b8f9858365fce7713ce7fef62e4 backported to
-5.4-stable tree.
+5.10-stable tree.
 
 There exists multiple path may do zram compaction concurrently.
 1. auto-compaction triggered during memory reclaim
@@ -84,10 +84,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  3 files changed, 13 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index 36d49159140f..22aa432a68bf 100644
+index 1b697208d661..711168451e9e 100644
 --- a/drivers/block/zram/zram_drv.c
 +++ b/drivers/block/zram/zram_drv.c
-@@ -1072,7 +1072,7 @@ static ssize_t mm_stat_show(struct device *dev,
+@@ -1078,7 +1078,7 @@ static ssize_t mm_stat_show(struct device *dev,
  			zram->limit_pages << PAGE_SHIFT,
  			max_used << PAGE_SHIFT,
  			(u64)atomic64_read(&zram->stats.same_pages),
@@ -110,7 +110,7 @@ index 4807ca4d52e0..2a430e713ce5 100644
  
  struct zs_pool;
 diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 8a72a3b3837b..443b3b1c9581 100644
+index cdfaaadea8ff..7a0b79b0a689 100644
 --- a/mm/zsmalloc.c
 +++ b/mm/zsmalloc.c
 @@ -2216,11 +2216,13 @@ static unsigned long zs_can_compact(struct size_class *class)
