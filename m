@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A19232EB4A
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D8E32EB2C
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233554AbhCEMnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:43:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59864 "EHLO mail.kernel.org"
+        id S232588AbhCEMmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233357AbhCEMm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75E676501C;
-        Fri,  5 Mar 2021 12:42:57 +0000 (UTC)
+        id S233536AbhCEMmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:42:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4681465027;
+        Fri,  5 Mar 2021 12:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948178;
-        bh=A5kPyEozCf89njhAD53bqvQSBSSLGtEu2+SBhQ7bjH8=;
+        s=korg; t=1614948128;
+        bh=ppVN/CDJoTVm7/0p/CYYt1+R1us46ApVzol6FJJxInc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2E3lHS7IsYRx0RzwNI3oarQhFHkcRsGHQIErl75BWM5ebeaBJnSElDKyk/LKOKnms
-         JAH9J5SuEByuxIN0k1XKV4xuObQpsmKpQC2WcHlpYYK/CGyx9z3XSxJqcM0ZKm1cyH
-         ExGddwCuXTFS6pWrveweOx5rLCrpfkHfRNjZyl/M=
+        b=ArM7VPFQHO2YBz2My7g6zWkTH9dgmKmmdYBSCJJJFwahOOzJb6CrahHFmRVxDkem5
+         C3OmgNRaVQiCHk5OwY4GDebpHUc3jAO3fzmYapC2eTojleXqHpkjnO6kBc9kyrDtY2
+         R2VDEIAUwHet2yxtABbc8Tg8SR6dmzoEaDPQ3x6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 14/30] vt/consolemap: do font sum unsigned
-Date:   Fri,  5 Mar 2021 13:22:43 +0100
-Message-Id: <20210305120850.101280831@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.9 37/41] Xen/gnttab: handle p2m update errors on a per-slot basis
+Date:   Fri,  5 Mar 2021 13:22:44 +0100
+Message-Id: <20210305120853.107365806@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-References: <20210305120849.381261651@linuxfoundation.org>
+In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
+References: <20210305120851.255002428@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +39,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 9777f8e60e718f7b022a94f2524f967d8def1931 ]
+commit 8310b77b48c5558c140e7a57a702e7819e62f04e upstream.
 
-The constant 20 makes the font sum computation signed which can lead to
-sign extensions and signed wraps. It's not much of a problem as we build
-with -fno-strict-overflow. But if we ever decide not to, be ready, so
-switch the constant to unsigned.
+Bailing immediately from set_foreign_p2m_mapping() upon a p2m updating
+error leaves the full batch in an ambiguous state as far as the caller
+is concerned. Instead flags respective slots as bad, unmapping what
+was mapped there right away.
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20210105120239.28031-7-jslaby@suse.cz
+HYPERVISOR_grant_table_op()'s return value and the individual unmap
+slots' status fields get used only for a one-time - there's not much we
+can do in case of a failure.
+
+Note that there's no GNTST_enomem or alike, so GNTST_general_error gets
+used.
+
+The map ops' handle fields get overwritten just to be on the safe side.
+
+This is part of XSA-367.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/96cccf5d-e756-5f53-b91a-ea269bfb9be0@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/consolemap.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/xen/p2m.c |   35 +++++++++++++++++++++++++++++++----
+ arch/x86/xen/p2m.c |   44 +++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 72 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/vt/consolemap.c b/drivers/tty/vt/consolemap.c
-index c8c91f0476a2..e8301dcf4c84 100644
---- a/drivers/tty/vt/consolemap.c
-+++ b/drivers/tty/vt/consolemap.c
-@@ -494,7 +494,7 @@ con_insert_unipair(struct uni_pagedir *p, u_short unicode, u_short fontpos)
+--- a/arch/arm/xen/p2m.c
++++ b/arch/arm/xen/p2m.c
+@@ -91,12 +91,39 @@ int set_foreign_p2m_mapping(struct gntta
+ 	int i;
  
- 	p2[unicode & 0x3f] = fontpos;
- 	
--	p->sum += (fontpos << 20) + unicode;
-+	p->sum += (fontpos << 20U) + unicode;
+ 	for (i = 0; i < count; i++) {
++		struct gnttab_unmap_grant_ref unmap;
++		int rc;
++
+ 		if (map_ops[i].status)
+ 			continue;
+-		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
+-				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
+-			return -ENOMEM;
+-		}
++		if (likely(set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
++				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT)))
++			continue;
++
++		/*
++		 * Signal an error for this slot. This in turn requires
++		 * immediate unmapping.
++		 */
++		map_ops[i].status = GNTST_general_error;
++		unmap.host_addr = map_ops[i].host_addr,
++		unmap.handle = map_ops[i].handle;
++		map_ops[i].handle = ~0;
++		if (map_ops[i].flags & GNTMAP_device_map)
++			unmap.dev_bus_addr = map_ops[i].dev_bus_addr;
++		else
++			unmap.dev_bus_addr = 0;
++
++		/*
++		 * Pre-populate the status field, to be recognizable in
++		 * the log message below.
++		 */
++		unmap.status = 1;
++
++		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
++					       &unmap, 1);
++		if (rc || unmap.status != GNTST_okay)
++			pr_err_once("gnttab unmap failed: rc=%d st=%d\n",
++				    rc, unmap.status);
+ 	}
  
  	return 0;
- }
--- 
-2.30.1
-
+--- a/arch/x86/xen/p2m.c
++++ b/arch/x86/xen/p2m.c
+@@ -723,6 +723,8 @@ int set_foreign_p2m_mapping(struct gntta
+ 
+ 	for (i = 0; i < count; i++) {
+ 		unsigned long mfn, pfn;
++		struct gnttab_unmap_grant_ref unmap[2];
++		int rc;
+ 
+ 		/* Do not add to override if the map failed. */
+ 		if (map_ops[i].status != GNTST_okay ||
+@@ -740,10 +742,46 @@ int set_foreign_p2m_mapping(struct gntta
+ 
+ 		WARN(pfn_to_mfn(pfn) != INVALID_P2M_ENTRY, "page must be ballooned");
+ 
+-		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
+-			ret = -ENOMEM;
+-			goto out;
++		if (likely(set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
++			continue;
++
++		/*
++		 * Signal an error for this slot. This in turn requires
++		 * immediate unmapping.
++		 */
++		map_ops[i].status = GNTST_general_error;
++		unmap[0].host_addr = map_ops[i].host_addr,
++		unmap[0].handle = map_ops[i].handle;
++		map_ops[i].handle = ~0;
++		if (map_ops[i].flags & GNTMAP_device_map)
++			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
++		else
++			unmap[0].dev_bus_addr = 0;
++
++		if (kmap_ops) {
++			kmap_ops[i].status = GNTST_general_error;
++			unmap[1].host_addr = kmap_ops[i].host_addr,
++			unmap[1].handle = kmap_ops[i].handle;
++			kmap_ops[i].handle = ~0;
++			if (kmap_ops[i].flags & GNTMAP_device_map)
++				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
++			else
++				unmap[1].dev_bus_addr = 0;
+ 		}
++
++		/*
++		 * Pre-populate both status fields, to be recognizable in
++		 * the log message below.
++		 */
++		unmap[0].status = 1;
++		unmap[1].status = 1;
++
++		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
++					       unmap, 1 + !!kmap_ops);
++		if (rc || unmap[0].status != GNTST_okay ||
++		    unmap[1].status != GNTST_okay)
++			pr_err_once("gnttab unmap failed: rc=%d st0=%d st1=%d\n",
++				    rc, unmap[0].status, unmap[1].status);
+ 	}
+ 
+ out:
 
 
