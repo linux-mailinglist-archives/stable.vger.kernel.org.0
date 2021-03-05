@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 994B832EA06
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A0732EABB
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231354AbhCEMgC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:36:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47644 "EHLO mail.kernel.org"
+        id S233295AbhCEMjz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:39:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232369AbhCEMfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:35:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30D5064FF0;
-        Fri,  5 Mar 2021 12:35:33 +0000 (UTC)
+        id S231819AbhCEMjn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:39:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9431A64E84;
+        Fri,  5 Mar 2021 12:39:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614947733;
-        bh=mxwPGyoj6tHA9XoYB55UgVyqpSa9nyqswibdYJksJ8A=;
+        s=korg; t=1614947983;
+        bh=agsnVqp3wvdPHlwPDj/UEvzinV+0jsawC5N7WhxyIk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FSFFwPaIyf+ocLW5vytlPuJdrG4qVMrC6uS5ZWNJtvDnh5/dH5pU3L0+/DFxW91I4
-         1w2QAsLWjXTiv2XJb45Ta41au7Ywb39EoT+j6PzstFQF79XDPIaA5jxk+UlHIryCHO
-         cszlC7E/UltRJAG+FtZFye0J7MDXb1vc+zvrTNeA=
+        b=FXDHPupk+eef3cjFBjWYruRTqnHtHKm+PbGL08oa2CsDB4NbYZ0Dq1yWhwHTqRJss
+         mTo1+zsKlufOS0qy1AXW2XY8bYnHsbT7+ZDbTwfMG3VfDT0Jw36K6ddwAIpa6bVXhp
+         PO++FfeeftBcIpWkCLvLbgLIzbyZWnosuP5v5xTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 65/72] Xen/gnttab: handle p2m update errors on a per-slot basis
+        stable@vger.kernel.org, Will Deacon <will.deacon@arm.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.14 08/39] arm64: Avoid redundant type conversions in xchg() and cmpxchg()
 Date:   Fri,  5 Mar 2021 13:22:07 +0100
-Message-Id: <20210305120900.521162855@linuxfoundation.org>
+Message-Id: <20210305120852.174072231@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120857.341630346@linuxfoundation.org>
-References: <20210305120857.341630346@linuxfoundation.org>
+In-Reply-To: <20210305120851.751937389@linuxfoundation.org>
+References: <20210305120851.751937389@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,143 +39,348 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit 8310b77b48c5558c140e7a57a702e7819e62f04e upstream.
+commit 5ef3fe4cecdf82fdd71ce78988403963d01444d4 upstream.
 
-Bailing immediately from set_foreign_p2m_mapping() upon a p2m updating
-error leaves the full batch in an ambiguous state as far as the caller
-is concerned. Instead flags respective slots as bad, unmapping what
-was mapped there right away.
+Our atomic instructions (either LSE atomics of LDXR/STXR sequences)
+natively support byte, half-word, word and double-word memory accesses
+so there is no need to mask the data register prior to being stored.
 
-HYPERVISOR_grant_table_op()'s return value and the individual unmap
-slots' status fields get used only for a one-time - there's not much we
-can do in case of a failure.
-
-Note that there's no GNTST_enomem or alike, so GNTST_general_error gets
-used.
-
-The map ops' handle fields get overwritten just to be on the safe side.
-
-This is part of XSA-367.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Link: https://lore.kernel.org/r/96cccf5d-e756-5f53-b91a-ea269bfb9be0@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/xen/p2m.c |   35 +++++++++++++++++++++++++++++++----
- arch/x86/xen/p2m.c |   44 +++++++++++++++++++++++++++++++++++++++++---
- 2 files changed, 72 insertions(+), 7 deletions(-)
+ arch/arm64/include/asm/atomic_ll_sc.h |   53 +++++++--------
+ arch/arm64/include/asm/atomic_lse.h   |   46 ++++++-------
+ arch/arm64/include/asm/cmpxchg.h      |  116 +++++++++++++++++-----------------
+ 3 files changed, 108 insertions(+), 107 deletions(-)
 
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -93,12 +93,39 @@ int set_foreign_p2m_mapping(struct gntta
- 	int i;
+--- a/arch/arm64/include/asm/atomic_ll_sc.h
++++ b/arch/arm64/include/asm/atomic_ll_sc.h
+@@ -248,48 +248,49 @@ __LL_SC_PREFIX(atomic64_dec_if_positive(
+ }
+ __LL_SC_EXPORT(atomic64_dec_if_positive);
  
- 	for (i = 0; i < count; i++) {
-+		struct gnttab_unmap_grant_ref unmap;
-+		int rc;
-+
- 		if (map_ops[i].status)
- 			continue;
--		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
--				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
--			return -ENOMEM;
--		}
-+		if (likely(set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
-+				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT)))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap.host_addr = map_ops[i].host_addr,
-+		unmap.handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap.dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap.dev_bus_addr = 0;
-+
-+		/*
-+		 * Pre-populate the status field, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap.status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       &unmap, 1);
-+		if (rc || unmap.status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st=%d\n",
-+				    rc, unmap.status);
- 	}
+-#define __CMPXCHG_CASE(w, sz, name, mb, acq, rel, cl)			\
+-__LL_SC_INLINE unsigned long						\
+-__LL_SC_PREFIX(__cmpxchg_case_##name(volatile void *ptr,		\
+-				     unsigned long old,			\
+-				     unsigned long new))		\
++#define __CMPXCHG_CASE(w, sfx, name, sz, mb, acq, rel, cl)		\
++__LL_SC_INLINE u##sz							\
++__LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
++					 unsigned long old,		\
++					 u##sz new))			\
+ {									\
+-	unsigned long tmp, oldval;					\
++	unsigned long tmp;						\
++	u##sz oldval;							\
+ 									\
+ 	asm volatile(							\
+ 	"	prfm	pstl1strm, %[v]\n"				\
+-	"1:	ld" #acq "xr" #sz "\t%" #w "[oldval], %[v]\n"		\
++	"1:	ld" #acq "xr" #sfx "\t%" #w "[oldval], %[v]\n"		\
+ 	"	eor	%" #w "[tmp], %" #w "[oldval], %" #w "[old]\n"	\
+ 	"	cbnz	%" #w "[tmp], 2f\n"				\
+-	"	st" #rel "xr" #sz "\t%w[tmp], %" #w "[new], %[v]\n"	\
++	"	st" #rel "xr" #sfx "\t%w[tmp], %" #w "[new], %[v]\n"	\
+ 	"	cbnz	%w[tmp], 1b\n"					\
+ 	"	" #mb "\n"						\
+ 	"2:"								\
+ 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
+-	  [v] "+Q" (*(unsigned long *)ptr)				\
++	  [v] "+Q" (*(u##sz *)ptr)					\
+ 	: [old] "Lr" (old), [new] "r" (new)				\
+ 	: cl);								\
+ 									\
+ 	return oldval;							\
+ }									\
+-__LL_SC_EXPORT(__cmpxchg_case_##name);
++__LL_SC_EXPORT(__cmpxchg_case_##name##sz);
  
- 	return 0;
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -714,6 +714,8 @@ int set_foreign_p2m_mapping(struct gntta
+-__CMPXCHG_CASE(w, b,     1,        ,  ,  ,         )
+-__CMPXCHG_CASE(w, h,     2,        ,  ,  ,         )
+-__CMPXCHG_CASE(w,  ,     4,        ,  ,  ,         )
+-__CMPXCHG_CASE( ,  ,     8,        ,  ,  ,         )
+-__CMPXCHG_CASE(w, b, acq_1,        , a,  , "memory")
+-__CMPXCHG_CASE(w, h, acq_2,        , a,  , "memory")
+-__CMPXCHG_CASE(w,  , acq_4,        , a,  , "memory")
+-__CMPXCHG_CASE( ,  , acq_8,        , a,  , "memory")
+-__CMPXCHG_CASE(w, b, rel_1,        ,  , l, "memory")
+-__CMPXCHG_CASE(w, h, rel_2,        ,  , l, "memory")
+-__CMPXCHG_CASE(w,  , rel_4,        ,  , l, "memory")
+-__CMPXCHG_CASE( ,  , rel_8,        ,  , l, "memory")
+-__CMPXCHG_CASE(w, b,  mb_1, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE(w, h,  mb_2, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE(w,  ,  mb_4, dmb ish,  , l, "memory")
+-__CMPXCHG_CASE( ,  ,  mb_8, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         )
++__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         )
++__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         )
++__CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         )
++__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory")
++__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory")
++__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory")
++__CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory")
++__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory")
++__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory")
++__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory")
++__CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory")
++__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory")
++__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory")
++__CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory")
  
- 	for (i = 0; i < count; i++) {
- 		unsigned long mfn, pfn;
-+		struct gnttab_unmap_grant_ref unmap[2];
-+		int rc;
+ #undef __CMPXCHG_CASE
  
- 		/* Do not add to override if the map failed. */
- 		if (map_ops[i].status != GNTST_okay ||
-@@ -731,10 +733,46 @@ int set_foreign_p2m_mapping(struct gntta
+--- a/arch/arm64/include/asm/atomic_lse.h
++++ b/arch/arm64/include/asm/atomic_lse.h
+@@ -446,22 +446,22 @@ static inline long atomic64_dec_if_posit
  
- 		WARN(pfn_to_mfn(pfn) != INVALID_P2M_ENTRY, "page must be ballooned");
+ #define __LL_SC_CMPXCHG(op)	__LL_SC_CALL(__cmpxchg_case_##op)
  
--		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
--			ret = -ENOMEM;
--			goto out;
-+		if (likely(set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap[0].host_addr = map_ops[i].host_addr,
-+		unmap[0].handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap[0].dev_bus_addr = 0;
-+
-+		if (kmap_ops) {
-+			kmap_ops[i].status = GNTST_general_error;
-+			unmap[1].host_addr = kmap_ops[i].host_addr,
-+			unmap[1].handle = kmap_ops[i].handle;
-+			kmap_ops[i].handle = ~0;
-+			if (kmap_ops[i].flags & GNTMAP_device_map)
-+				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
-+			else
-+				unmap[1].dev_bus_addr = 0;
- 		}
-+
-+		/*
-+		 * Pre-populate both status fields, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap[0].status = 1;
-+		unmap[1].status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       unmap, 1 + !!kmap_ops);
-+		if (rc || unmap[0].status != GNTST_okay ||
-+		    unmap[1].status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st0=%d st1=%d\n",
-+				    rc, unmap[0].status, unmap[1].status);
- 	}
+-#define __CMPXCHG_CASE(w, sz, name, mb, cl...)				\
+-static inline unsigned long __cmpxchg_case_##name(volatile void *ptr,	\
+-						  unsigned long old,	\
+-						  unsigned long new)	\
++#define __CMPXCHG_CASE(w, sfx, name, sz, mb, cl...)			\
++static inline u##sz __cmpxchg_case_##name##sz(volatile void *ptr,	\
++					      unsigned long old,	\
++					      u##sz new)		\
+ {									\
+ 	register unsigned long x0 asm ("x0") = (unsigned long)ptr;	\
+ 	register unsigned long x1 asm ("x1") = old;			\
+-	register unsigned long x2 asm ("x2") = new;			\
++	register u##sz x2 asm ("x2") = new;				\
+ 									\
+ 	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+ 	/* LL/SC */							\
+-	__LL_SC_CMPXCHG(name)						\
++	__LL_SC_CMPXCHG(name##sz)					\
+ 	__nops(2),							\
+ 	/* LSE atomics */						\
+ 	"	mov	" #w "30, %" #w "[old]\n"			\
+-	"	cas" #mb #sz "\t" #w "30, %" #w "[new], %[v]\n"		\
++	"	cas" #mb #sfx "\t" #w "30, %" #w "[new], %[v]\n"	\
+ 	"	mov	%" #w "[ret], " #w "30")			\
+ 	: [ret] "+r" (x0), [v] "+Q" (*(unsigned long *)ptr)		\
+ 	: [old] "r" (x1), [new] "r" (x2)				\
+@@ -470,22 +470,22 @@ static inline unsigned long __cmpxchg_ca
+ 	return x0;							\
+ }
  
- out:
+-__CMPXCHG_CASE(w, b,     1,   )
+-__CMPXCHG_CASE(w, h,     2,   )
+-__CMPXCHG_CASE(w,  ,     4,   )
+-__CMPXCHG_CASE(x,  ,     8,   )
+-__CMPXCHG_CASE(w, b, acq_1,  a, "memory")
+-__CMPXCHG_CASE(w, h, acq_2,  a, "memory")
+-__CMPXCHG_CASE(w,  , acq_4,  a, "memory")
+-__CMPXCHG_CASE(x,  , acq_8,  a, "memory")
+-__CMPXCHG_CASE(w, b, rel_1,  l, "memory")
+-__CMPXCHG_CASE(w, h, rel_2,  l, "memory")
+-__CMPXCHG_CASE(w,  , rel_4,  l, "memory")
+-__CMPXCHG_CASE(x,  , rel_8,  l, "memory")
+-__CMPXCHG_CASE(w, b,  mb_1, al, "memory")
+-__CMPXCHG_CASE(w, h,  mb_2, al, "memory")
+-__CMPXCHG_CASE(w,  ,  mb_4, al, "memory")
+-__CMPXCHG_CASE(x,  ,  mb_8, al, "memory")
++__CMPXCHG_CASE(w, b,     ,  8,   )
++__CMPXCHG_CASE(w, h,     , 16,   )
++__CMPXCHG_CASE(w,  ,     , 32,   )
++__CMPXCHG_CASE(x,  ,     , 64,   )
++__CMPXCHG_CASE(w, b, acq_,  8,  a, "memory")
++__CMPXCHG_CASE(w, h, acq_, 16,  a, "memory")
++__CMPXCHG_CASE(w,  , acq_, 32,  a, "memory")
++__CMPXCHG_CASE(x,  , acq_, 64,  a, "memory")
++__CMPXCHG_CASE(w, b, rel_,  8,  l, "memory")
++__CMPXCHG_CASE(w, h, rel_, 16,  l, "memory")
++__CMPXCHG_CASE(w,  , rel_, 32,  l, "memory")
++__CMPXCHG_CASE(x,  , rel_, 64,  l, "memory")
++__CMPXCHG_CASE(w, b,  mb_,  8, al, "memory")
++__CMPXCHG_CASE(w, h,  mb_, 16, al, "memory")
++__CMPXCHG_CASE(w,  ,  mb_, 32, al, "memory")
++__CMPXCHG_CASE(x,  ,  mb_, 64, al, "memory")
+ 
+ #undef __LL_SC_CMPXCHG
+ #undef __CMPXCHG_CASE
+--- a/arch/arm64/include/asm/cmpxchg.h
++++ b/arch/arm64/include/asm/cmpxchg.h
+@@ -29,46 +29,46 @@
+  * barrier case is generated as release+dmb for the former and
+  * acquire+release for the latter.
+  */
+-#define __XCHG_CASE(w, sz, name, mb, nop_lse, acq, acq_lse, rel, cl)	\
+-static inline unsigned long __xchg_case_##name(unsigned long x,		\
+-					       volatile void *ptr)	\
+-{									\
+-	unsigned long ret, tmp;						\
+-									\
+-	asm volatile(ARM64_LSE_ATOMIC_INSN(				\
+-	/* LL/SC */							\
+-	"	prfm	pstl1strm, %2\n"				\
+-	"1:	ld" #acq "xr" #sz "\t%" #w "0, %2\n"			\
+-	"	st" #rel "xr" #sz "\t%w1, %" #w "3, %2\n"		\
+-	"	cbnz	%w1, 1b\n"					\
+-	"	" #mb,							\
+-	/* LSE atomics */						\
+-	"	swp" #acq_lse #rel #sz "\t%" #w "3, %" #w "0, %2\n"	\
+-		__nops(3)						\
+-	"	" #nop_lse)						\
+-	: "=&r" (ret), "=&r" (tmp), "+Q" (*(unsigned long *)ptr)	\
+-	: "r" (x)							\
+-	: cl);								\
+-									\
+-	return ret;							\
++#define __XCHG_CASE(w, sfx, name, sz, mb, nop_lse, acq, acq_lse, rel, cl)	\
++static inline u##sz __xchg_case_##name##sz(u##sz x, volatile void *ptr)		\
++{										\
++	u##sz ret;								\
++	unsigned long tmp;							\
++										\
++	asm volatile(ARM64_LSE_ATOMIC_INSN(					\
++	/* LL/SC */								\
++	"	prfm	pstl1strm, %2\n"					\
++	"1:	ld" #acq "xr" #sfx "\t%" #w "0, %2\n"				\
++	"	st" #rel "xr" #sfx "\t%w1, %" #w "3, %2\n"			\
++	"	cbnz	%w1, 1b\n"						\
++	"	" #mb,								\
++	/* LSE atomics */							\
++	"	swp" #acq_lse #rel #sfx "\t%" #w "3, %" #w "0, %2\n"		\
++		__nops(3)							\
++	"	" #nop_lse)							\
++	: "=&r" (ret), "=&r" (tmp), "+Q" (*(u##sz *)ptr)			\
++	: "r" (x)								\
++	: cl);									\
++										\
++	return ret;								\
+ }
+ 
+-__XCHG_CASE(w, b,     1,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w, h,     2,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w,  ,     4,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE( ,  ,     8,        ,    ,  ,  ,  ,         )
+-__XCHG_CASE(w, b, acq_1,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w, h, acq_2,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w,  , acq_4,        ,    , a, a,  , "memory")
+-__XCHG_CASE( ,  , acq_8,        ,    , a, a,  , "memory")
+-__XCHG_CASE(w, b, rel_1,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w, h, rel_2,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w,  , rel_4,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE( ,  , rel_8,        ,    ,  ,  , l, "memory")
+-__XCHG_CASE(w, b,  mb_1, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE(w, h,  mb_2, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE(w,  ,  mb_4, dmb ish, nop,  , a, l, "memory")
+-__XCHG_CASE( ,  ,  mb_8, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w, b,     ,  8,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w, h,     , 16,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w,  ,     , 32,        ,    ,  ,  ,  ,         )
++__XCHG_CASE( ,  ,     , 64,        ,    ,  ,  ,  ,         )
++__XCHG_CASE(w, b, acq_,  8,        ,    , a, a,  , "memory")
++__XCHG_CASE(w, h, acq_, 16,        ,    , a, a,  , "memory")
++__XCHG_CASE(w,  , acq_, 32,        ,    , a, a,  , "memory")
++__XCHG_CASE( ,  , acq_, 64,        ,    , a, a,  , "memory")
++__XCHG_CASE(w, b, rel_,  8,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w, h, rel_, 16,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w,  , rel_, 32,        ,    ,  ,  , l, "memory")
++__XCHG_CASE( ,  , rel_, 64,        ,    ,  ,  , l, "memory")
++__XCHG_CASE(w, b,  mb_,  8, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w, h,  mb_, 16, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE(w,  ,  mb_, 32, dmb ish, nop,  , a, l, "memory")
++__XCHG_CASE( ,  ,  mb_, 64, dmb ish, nop,  , a, l, "memory")
+ 
+ #undef __XCHG_CASE
+ 
+@@ -79,13 +79,13 @@ static __always_inline  unsigned long __
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __xchg_case##sfx##_1(x, ptr);			\
++		return __xchg_case##sfx##_8(x, ptr);			\
+ 	case 2:								\
+-		return __xchg_case##sfx##_2(x, ptr);			\
++		return __xchg_case##sfx##_16(x, ptr);			\
+ 	case 4:								\
+-		return __xchg_case##sfx##_4(x, ptr);			\
++		return __xchg_case##sfx##_32(x, ptr);			\
+ 	case 8:								\
+-		return __xchg_case##sfx##_8(x, ptr);			\
++		return __xchg_case##sfx##_64(x, ptr);			\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
+@@ -122,13 +122,13 @@ static __always_inline unsigned long __c
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __cmpxchg_case##sfx##_1(ptr, (u8)old, new);	\
++		return __cmpxchg_case##sfx##_8(ptr, (u8)old, new);	\
+ 	case 2:								\
+-		return __cmpxchg_case##sfx##_2(ptr, (u16)old, new);	\
++		return __cmpxchg_case##sfx##_16(ptr, (u16)old, new);	\
+ 	case 4:								\
+-		return __cmpxchg_case##sfx##_4(ptr, old, new);		\
++		return __cmpxchg_case##sfx##_32(ptr, old, new);		\
+ 	case 8:								\
+-		return __cmpxchg_case##sfx##_8(ptr, old, new);		\
++		return __cmpxchg_case##sfx##_64(ptr, old, new);		\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
+@@ -222,16 +222,16 @@ __CMPXCHG_GEN(_mb)
+ 	__ret;								\
+ })
+ 
+-#define __CMPWAIT_CASE(w, sz, name)					\
+-static inline void __cmpwait_case_##name(volatile void *ptr,		\
+-					 unsigned long val)		\
++#define __CMPWAIT_CASE(w, sfx, sz)					\
++static inline void __cmpwait_case_##sz(volatile void *ptr,		\
++				       unsigned long val)		\
+ {									\
+ 	unsigned long tmp;						\
+ 									\
+ 	asm volatile(							\
+ 	"	sevl\n"							\
+ 	"	wfe\n"							\
+-	"	ldxr" #sz "\t%" #w "[tmp], %[v]\n"			\
++	"	ldxr" #sfx "\t%" #w "[tmp], %[v]\n"			\
+ 	"	eor	%" #w "[tmp], %" #w "[tmp], %" #w "[val]\n"	\
+ 	"	cbnz	%" #w "[tmp], 1f\n"				\
+ 	"	wfe\n"							\
+@@ -240,10 +240,10 @@ static inline void __cmpwait_case_##name
+ 	: [val] "r" (val));						\
+ }
+ 
+-__CMPWAIT_CASE(w, b, 1);
+-__CMPWAIT_CASE(w, h, 2);
+-__CMPWAIT_CASE(w,  , 4);
+-__CMPWAIT_CASE( ,  , 8);
++__CMPWAIT_CASE(w, b, 8);
++__CMPWAIT_CASE(w, h, 16);
++__CMPWAIT_CASE(w,  , 32);
++__CMPWAIT_CASE( ,  , 64);
+ 
+ #undef __CMPWAIT_CASE
+ 
+@@ -254,13 +254,13 @@ static __always_inline void __cmpwait##s
+ {									\
+ 	switch (size) {							\
+ 	case 1:								\
+-		return __cmpwait_case##sfx##_1(ptr, (u8)val);		\
++		return __cmpwait_case##sfx##_8(ptr, (u8)val);		\
+ 	case 2:								\
+-		return __cmpwait_case##sfx##_2(ptr, (u16)val);		\
++		return __cmpwait_case##sfx##_16(ptr, (u16)val);		\
+ 	case 4:								\
+-		return __cmpwait_case##sfx##_4(ptr, val);		\
++		return __cmpwait_case##sfx##_32(ptr, val);		\
+ 	case 8:								\
+-		return __cmpwait_case##sfx##_8(ptr, val);		\
++		return __cmpwait_case##sfx##_64(ptr, val);		\
+ 	default:							\
+ 		BUILD_BUG();						\
+ 	}								\
 
 
