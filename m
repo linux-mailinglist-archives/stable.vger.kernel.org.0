@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1869632EB30
-	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA7A32EB51
+	for <lists+stable@lfdr.de>; Fri,  5 Mar 2021 13:44:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbhCEMmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 5 Mar 2021 07:42:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58928 "EHLO mail.kernel.org"
+        id S233577AbhCEMn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 5 Mar 2021 07:43:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233652AbhCEMmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 5 Mar 2021 07:42:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF97B6501C;
-        Fri,  5 Mar 2021 12:42:15 +0000 (UTC)
+        id S231819AbhCEMnL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 5 Mar 2021 07:43:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDEB56501F;
+        Fri,  5 Mar 2021 12:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1614948136;
-        bh=fdp2ep/o5TwTWoKxiPmh1QTDIN9tYsK2XRIiif64Zs4=;
+        s=korg; t=1614948191;
+        bh=rCjQLpaXFPWhsy6+gKBiTLjmhg3HwXgLQgVHzoF0dMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRXmSim5EhR3KFS8F6/ndutlBkUTHIhTMk+QSMneHDE3ydUFb4F7WMPxPN0bxWcQ2
-         uPHWCaSgXIL9BN7pyN+GkOHrgtCk5kQJvPvJ0JumYxQ951Oee/W5K7P1y1qYUMSwT5
-         FIs8yo9Ru7gg7MyU6wyjQIiqQQQXFLYJze7RBGEM=
+        b=0vS+707dDo/YCjpiJaEfY8EYSJD+HjCHBfeT2RzwfOfuKeD3TqfluCGVYYMsD+d95
+         HGFYV9foOL3A6z7s6PxrJA/j4JG4yTJcRl92RigzY1hrNFTk+bxWQOCFt4OGwB8vYY
+         HsgX23zXI4pDLys5Ff06nnOVK4MsQOqXI3Cv0iKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Anthony Iliopoulos <ailiop@suse.com>
-Subject: [PATCH 4.9 40/41] swap: fix swapfile read/write offset
-Date:   Fri,  5 Mar 2021 13:22:47 +0100
-Message-Id: <20210305120853.260721397@linuxfoundation.org>
+        stable@vger.kernel.org, Gopal Tiwari <gtiwari@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 19/30] Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+Date:   Fri,  5 Mar 2021 13:22:48 +0100
+Message-Id: <20210305120850.351488282@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210305120851.255002428@linuxfoundation.org>
-References: <20210305120851.255002428@linuxfoundation.org>
+In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
+References: <20210305120849.381261651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,79 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Gopal Tiwari <gtiwari@redhat.com>
 
-commit caf6912f3f4af7232340d500a4a2008f81b93f14 upstream.
+[ Upstream commit e8bd76ede155fd54d8c41d045dda43cd3174d506 ]
 
-We're not factoring in the start of the file for where to write and
-read the swapfile, which leads to very unfortunate side effects of
-writing where we should not be...
+kernel panic trace looks like:
 
-[This issue only affects swapfiles on filesystems on top of blockdevs
-that implement rw_page ops (brd, zram, btt, pmem), and not on top of any
-other block devices, in contrast to the upstream commit fix.]
+ #5 [ffffb9e08698fc80] do_page_fault at ffffffffb666e0d7
+ #6 [ffffb9e08698fcb0] page_fault at ffffffffb70010fe
+    [exception RIP: amp_read_loc_assoc_final_data+63]
+    RIP: ffffffffc06ab54f  RSP: ffffb9e08698fd68  RFLAGS: 00010246
+    RAX: 0000000000000000  RBX: ffff8c8845a5a000  RCX: 0000000000000004
+    RDX: 0000000000000000  RSI: ffff8c8b9153d000  RDI: ffff8c8845a5a000
+    RBP: ffffb9e08698fe40   R8: 00000000000330e0   R9: ffffffffc0675c94
+    R10: ffffb9e08698fe58  R11: 0000000000000001  R12: ffff8c8b9cbf6200
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff8c8b2026da0b
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb9e08698fda8] hci_event_packet at ffffffffc0676904 [bluetooth]
+ #8 [ffffb9e08698fe50] hci_rx_work at ffffffffc06629ac [bluetooth]
+ #9 [ffffb9e08698fe98] process_one_work at ffffffffb66f95e7
 
-Fixes: dd6bd0d9c7db ("swap: use bdev_read_page() / bdev_write_page()")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: stable@vger.kernel.org # 4.9
-Signed-off-by: Anthony Iliopoulos <ailiop@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+hcon->amp_mgr seems NULL triggered kernel panic in following line inside
+function amp_read_loc_assoc_final_data
+
+        set_bit(READ_LOC_AMP_ASSOC_FINAL, &mgr->state);
+
+Fixed by checking NULL for mgr.
+
+Signed-off-by: Gopal Tiwari <gtiwari@redhat.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_io.c  |   11 +++--------
- mm/swapfile.c |    2 +-
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ net/bluetooth/amp.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -32,7 +32,6 @@ static struct bio *get_swap_bio(gfp_t gf
- 	bio = bio_alloc(gfp_flags, 1);
- 	if (bio) {
- 		bio->bi_iter.bi_sector = map_swap_page(page, &bio->bi_bdev);
--		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
- 		bio->bi_end_io = end_io;
+diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
+index e32f34189007..b01b43ab6f83 100644
+--- a/net/bluetooth/amp.c
++++ b/net/bluetooth/amp.c
+@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
+ 	struct hci_request req;
+ 	int err = 0;
  
- 		bio_add_page(bio, page, PAGE_SIZE, 0);
-@@ -252,11 +251,6 @@ out:
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_SHIFT - 9);
--}
--
- int __swap_writepage(struct page *page, struct writeback_control *wbc,
- 		bio_end_io_t end_write_func)
- {
-@@ -306,7 +300,8 @@ int __swap_writepage(struct page *page,
- 		return ret;
- 	}
- 
--	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
-+	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
-+			      page, wbc);
- 	if (!ret) {
- 		count_vm_event(PSWPOUT);
- 		return 0;
-@@ -357,7 +352,7 @@ int swap_readpage(struct page *page)
- 		return ret;
- 	}
- 
--	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
-+	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
- 	if (!ret) {
- 		if (trylock_page(page)) {
- 			swap_slot_free_notify(page);
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1666,7 +1666,7 @@ sector_t map_swap_page(struct page *page
- {
- 	swp_entry_t entry;
- 	entry.val = page_private(page);
--	return map_swap_entry(entry, bdev);
-+	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
- }
- 
- /*
++	if (!mgr)
++		return;
++
+ 	cp.phy_handle = hcon->handle;
+ 	cp.len_so_far = cpu_to_le16(0);
+ 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
+-- 
+2.30.1
+
 
 
