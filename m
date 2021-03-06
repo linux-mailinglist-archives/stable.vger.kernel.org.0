@@ -2,236 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 777F032FBB8
-	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 17:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A3132FBCD
+	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 17:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbhCFQLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Mar 2021 11:11:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231168AbhCFQLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 11:11:21 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58ED7C06174A
-        for <stable@vger.kernel.org>; Sat,  6 Mar 2021 08:11:21 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id d11so2891714plo.8
-        for <stable@vger.kernel.org>; Sat, 06 Mar 2021 08:11:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fmvDIsqO2ysYq2ZrJZx6ULn0ObM7ochssZLU3dwWYYg=;
-        b=xIBdilOOc9OzNaFhFzhu6UxIbhOsvIYQZF6mjhkKtpb7NKd+Gs3EuuHfXuePZK/8Sv
-         qE7pVNxAmUHKx8ZvTbg0BZFFRbrBKyCr5xmA4aPcIepK9rxmXiyc7tOUKyVp5FARpxlt
-         uq/n068F9o7/5ZT7C4E0uElMdsG/3N54+LxdMzJRgJsUC7ll6H+2ATCVXUY6fvLKZYU0
-         HSiCDOk3kye8UvnAq5aH8xQ9dicNQhmIoD44pKaU/RGj0ohJsKDgRWjRTSVXB9k2GW/a
-         XWlsvcLZuGjW9lZ/BfLutJjuxAegRrkoJiKPV8YDWKBWneKxvb0QhXZHq1sHOoFsVNgE
-         1Zmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fmvDIsqO2ysYq2ZrJZx6ULn0ObM7ochssZLU3dwWYYg=;
-        b=FZy7GpOW4zZn/tUuStMHbVgnuVKUulmMecFg+yoVC6KsKGOJkrO2ojCRsZBXSsHpnB
-         T9acet9urbC19nFC+71toJKXvxf2wGxUr+/49lSsKuYPiLJOjHp5UvAw1G8I8hKD07jt
-         bSuzqTbHUEzEp0/CXObrhIkTmNog2REH9j3z6WIG4Og0u9xzAugpJEXo5JOGv5howRfg
-         Rsn6CKI2WqGfWPkQ16DgoZfwXGe118tPbHIwBMTyOsu99hzmUrfZdFUUTuKyDrhV5Esy
-         mXNBhvRZkILpRBuexh/SBG0uWcxhcdVZ/Z1ApmRs1dlgXG+wjN/h3cC7z5IO7SpgSJ4Z
-         UHxg==
-X-Gm-Message-State: AOAM530u8yDxQItXAe4eabm2PiN5AM8TbTNCjIpg3yFNsvv3geyiQ3qi
-        X4BZf/WtR0iaT37kyG8qoAzVGleZ1Scs1w==
-X-Google-Smtp-Source: ABdhPJxyHuuVcMwUzS7DDvHfVh0PLnj925h88WN+XTsw6/nIjp/BK9VUBYtiV4UwJjdxNd3UuJ8PxA==
-X-Received: by 2002:a17:902:ed91:b029:e6:125b:6bed with SMTP id e17-20020a170902ed91b02900e6125b6bedmr399049plj.74.1615047080682;
-        Sat, 06 Mar 2021 08:11:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z68sm2275655pfz.39.2021.03.06.08.11.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 06 Mar 2021 08:11:20 -0800 (PST)
-Message-ID: <6043a9a8.1c69fb81.3af8f.44ad@mx.google.com>
-Date:   Sat, 06 Mar 2021 08:11:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S230311AbhCFQSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Mar 2021 11:18:34 -0500
+Received: from mx2.suse.de ([195.135.220.15]:39310 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230390AbhCFQS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Mar 2021 11:18:27 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1615047506; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nukSOwxYWB0nbFvij2/Dm4omz/vg/Y2S787KBEpkjPQ=;
+        b=ikq+lyIUCyWydGZBrbc/5vetOXvA7c9Q6hQJW0KBEmRC9tFWwX0wFFanEWxAZbeoDsxu74
+        J7hdq2bBlhniAgRF14O9XCLXvRIk9ujSdaYEc1+JSKoGpc1pQ4YIfgug7gB2edU3FkEwzy
+        nsuGkx/XECs/lscQfYjAWefZvBz6Qe0=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 0F0B2ACBF;
+        Sat,  6 Mar 2021 16:18:26 +0000 (UTC)
+Subject: Re: [PATCH v3 2/8] xen/events: don't unmask an event channel when an
+ eoi is pending
+To:     Ross Lagerwall <ross.lagerwall@citrix.com>,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+Cc:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>
+References: <20210219154030.10892-1-jgross@suse.com>
+ <20210219154030.10892-3-jgross@suse.com>
+ <d368a948-17d6-4e64-110e-bede3158f49f@citrix.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <134540c1-40ac-3607-6ca0-3dcd5f83a013@suse.com>
+Date:   Sat, 6 Mar 2021 17:18:25 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.178-52-g5082ea74d500
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 93 runs,
- 4 regressions (v4.19.178-52-g5082ea74d500)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <d368a948-17d6-4e64-110e-bede3158f49f@citrix.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="kTuR8myBCAf9zSbzIMWx6GIuaVMSZMcto"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 93 runs, 4 regressions (v4.19.178-52-g5082ea=
-74d500)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--kTuR8myBCAf9zSbzIMWx6GIuaVMSZMcto
+Content-Type: multipart/mixed; boundary="tI9qAvQfSWeoIIbUUygUcu92S5FGuW44I";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Ross Lagerwall <ross.lagerwall@citrix.com>,
+ xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
+ Julien Grall <julien@xen.org>
+Message-ID: <134540c1-40ac-3607-6ca0-3dcd5f83a013@suse.com>
+Subject: Re: [PATCH v3 2/8] xen/events: don't unmask an event channel when an
+ eoi is pending
+References: <20210219154030.10892-1-jgross@suse.com>
+ <20210219154030.10892-3-jgross@suse.com>
+ <d368a948-17d6-4e64-110e-bede3158f49f@citrix.com>
+In-Reply-To: <d368a948-17d6-4e64-110e-bede3158f49f@citrix.com>
 
-Regressions Summary
--------------------
+--tI9qAvQfSWeoIIbUUygUcu92S5FGuW44I
+Content-Type: multipart/mixed;
+ boundary="------------93BA1965D22E272FDC5B4750"
+Content-Language: en-US
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+This is a multi-part message in MIME format.
+--------------93BA1965D22E272FDC5B4750
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+On 23.02.21 10:26, Ross Lagerwall wrote:
+> On 2021-02-19 15:40, Juergen Gross wrote:
+>> An event channel should be kept masked when an eoi is pending for it.
+>> When being migrated to another cpu it might be unmasked, though.
+>>
+>> In order to avoid this keep three different flags for each event chann=
+el
+>> to be able to distinguish "normal" masking/unmasking from eoi related
+>> masking/unmasking and temporary masking. The event channel should only=
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+>> be able to generate an interrupt if all flags are cleared.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 54c9de89895e0a36047 ("xen/events: add a new late EOI evtchn fra=
+mework")
+>> Reported-by: Julien Grall <julien@xen.org>
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>=20
+> I tested this patch series backported to a 4.19 kernel and found that
+> when doing a reboot loop of Windows with PV drivers, occasionally it wi=
+ll
+> end up in a state with some event channels pending and masked in dom0
+> which breaks networking in the guest.
+>=20
+> The issue seems to have been introduced with this patch, though at firs=
+t
+> glance it appears correct. I haven't yet looked into why it is happenin=
+g.
+> Have you seen anything like this with this patch?
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+I have found the issue. lateeoi_mask_ack_dynirq() must not set the "eoi"
+mask reason flag, as this callback will be called when the handler will
+not be called later, so there will never be a call of xen_irq_lateeoi()
+to unmask the event channel again.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.178-52-g5082ea74d500/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.178-52-g5082ea74d500
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5082ea74d50000ded6337c433d59a48d05e86af1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6043786d316d9867c6addd0e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6043786d316d9867c6add=
-d0f
-        failing since 112 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
+Juergen
 
 
+--------------93BA1965D22E272FDC5B4750
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
 
-  Details:     https://kernelci.org/test/plan/id/60437e41f21a8da7abaddcdb
+--------------93BA1965D22E272FDC5B4750--
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+--tI9qAvQfSWeoIIbUUygUcu92S5FGuW44I--
 
+--kTuR8myBCAf9zSbzIMWx6GIuaVMSZMcto
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
+-----BEGIN PGP SIGNATURE-----
 
-  * baseline.login: https://kernelci.org/test/case/id/60437e41f21a8da7abadd=
-cdc
-        failing since 112 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmBDq1EFAwAAAAAACgkQsN6d1ii/Ey8J
+7Qf+NHVK97kON4roGF5RJItEisdxbr0ccBbz9u1cZr1HZERP3O8P79ah2OdFk0Xw2sgEp3Hgfvce
+/rmWAZIt0bfRZua04Z4q2jzoahX1bROTAqZ68/m9Dj3esK/st6gp+SKt7SwWlCDvv3JT7Zm8UR9U
+FGGf+ar0Sr6E01dC+KaOf7pUuZiGCbor60s4Ko9hZDvW3cGp2ofwaKX4IfVTCUmnHRX5ZGGSr6R7
+ZoCa1Mo1kS78RhVQ5zlGrS3HVR2p1+9xZwCcXdpO5py9iFI/5pwkBdZty7hFEolV5vnPyF8kLt8Q
+RbU2euBuFCYwCyQgv6zKRBtzoqZYZiCMcVcJH1a4cA==
+=2K6b
+-----END PGP SIGNATURE-----
 
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604375c1bf0e0ed9fdaddcc6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604375c1bf0e0ed9fdadd=
-cc7
-        failing since 112 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604375c5bf0e0ed9fdaddcd2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.178=
--52-g5082ea74d500/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604375c5bf0e0ed9fdadd=
-cd3
-        failing since 112 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
+--kTuR8myBCAf9zSbzIMWx6GIuaVMSZMcto--
