@@ -2,96 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61D1432F89F
-	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 07:26:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6D432F8E6
+	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 09:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229651AbhCFGZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Mar 2021 01:25:58 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13070 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbhCFGZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 01:25:51 -0500
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4DsvgY0cMQzMhlx;
-        Sat,  6 Mar 2021 14:23:37 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS411-HUB.china.huawei.com (10.3.19.211) with Microsoft SMTP Server id
- 14.3.498.0; Sat, 6 Mar 2021 14:25:45 +0800
-Subject: Re: [PATCH 5.10 000/102] 5.10.21-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210305120903.276489876@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <8d4fbde6-b004-2874-af2d-a10f20be4993@huawei.com>
-Date:   Sat, 6 Mar 2021 14:25:44 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S230094AbhCFIIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Mar 2021 03:08:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53276 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229917AbhCFII0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 6 Mar 2021 03:08:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70E3365005;
+        Sat,  6 Mar 2021 08:08:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615018106;
+        bh=7MqLNS/VVbz8eHfXJi5HBrZoe1beVZd2IWQ9p+o2vms=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=q+b7RDbCF6xrgAv+7WC3+rmIlDHv8XA4+tj8PDUXYlMQET+dyWlNQii9GsjXQUmej
+         wEyimfGsDXqYwwgKGAMn+yRMDbEIpo34fc6do0E78mMA7olHsyW4JsoST+KrK2pD8S
+         9agV0HnPuOO26E0+kSQlmTYzUxz/ac2MWVBHV53Q=
+Date:   Sat, 6 Mar 2021 09:08:23 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Chris.Paterson2@renesas.com, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/30] 4.4.260-rc1 review
+Message-ID: <YEM4d6O+6Jfw3RH/@kroah.com>
+References: <20210305120849.381261651@linuxfoundation.org>
+ <20210305220634.GA27686@amd>
 MIME-Version: 1.0
-In-Reply-To: <20210305120903.276489876@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210305220634.GA27686@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/3/5 20:20, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.21 release.
-> There are 102 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Fri, Mar 05, 2021 at 11:06:34PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Responses should be made by Sun, 07 Mar 2021 12:08:39 +0000.
-> Anything received after that time might be too late.
+> > This is the start of the stable review cycle for the 4.4.260 release.
+> > There are 30 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.21-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> Ok, so we ran some tests.
 > 
-> thanks,
+> And they failed:
 > 
-> greg k-h
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/1075959449
+> 
+> [   26.785861] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=CVE-2018-3639 RESULT=fail>
+> Received signal: <TESTCASE> TEST_CASE_ID=CVE-2018-3639 RESULT=fail
+> 
+> Testcase name is spectre-meltdown-checker... Failing on qemu? Somehow
+> strange, but it looks like real test failure.
+> 
+> I'm cc: ing Chris, perhaps he can help.
 
-Our test CI monitored the 5.10.21-rc1, and compile failure on arm64:
-
-Kernel repo: 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Arch: arm64/x86
-Version: 5.10.21-rc1+
-Commit: 80aaabbaf433294d1f075981fa3785d7f4b55159
-Compiler: gcc version 7.3.0 (GCC)
-
-
-arm64 (compile failure)
---------------------------------------------------------------------
-Kernel build failed, error log:
-kernel/rcu/tree.c:683:2: error: implicit declaration of function 
-‘IRQ_WORK_INIT’; did you mean ‘QSTR_INIT’? 
-[-Werror=implicit-function-declaration]
-   IRQ_WORK_INIT(late_wakeup_func);
-   ^~~~~~~~~~~~~
-   QSTR_INIT
-kernel/rcu/tree.c:683:2: error: invalid initializer
-
-
-x86 (No kernel failures)
---------------------------------------------------------------------
-Testcase Result Summary:
-total_num: 4716
-succeed_num: 4714
-failed_num: 2
-timeout_num: 0
-
-Tested-by: Hulk Robot <hulkci@huawei.com>
+Can you bisect?
