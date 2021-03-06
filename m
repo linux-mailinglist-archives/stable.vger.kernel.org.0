@@ -2,350 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD4332F951
-	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 11:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFA6132F953
+	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 11:11:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229701AbhCFKKv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Mar 2021 05:10:51 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:53561 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbhCFKKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 05:10:19 -0500
-Received: from ip5f5af0a0.dynamic.kabel-deutschland.de ([95.90.240.160] helo=wittgenstein.fritz.box)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1lITt0-0007mC-M3; Sat, 06 Mar 2021 10:10:14 +0000
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Christoph Hellwig <hch@lst.de>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Cc:     linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH] mount: fix mounting of detached mounts onto targets that reside on shared mounts
-Date:   Sat,  6 Mar 2021 11:10:10 +0100
-Message-Id: <20210306101010.243666-1-christian.brauner@ubuntu.com>
-X-Mailer: git-send-email 2.27.0
+        id S229672AbhCFKLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Mar 2021 05:11:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32924 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229637AbhCFKLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 05:11:01 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FE14C06175F
+        for <stable@vger.kernel.org>; Sat,  6 Mar 2021 02:11:00 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id b7so6425923edz.8
+        for <stable@vger.kernel.org>; Sat, 06 Mar 2021 02:11:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=GXftPex8UROwldlSTjWO5JLsjQS15Ns56NL5ObCiNC8=;
+        b=SvTld0M92Q7MHnM8nc+QVQ9+53zDdnZjT4F4K3hBoiK6ve6lDzObjamJVgtT5VHrLd
+         PlKYGGpZ6W3klwBv4vBzGA4S60/LetARTzomStSg9lBIMrIbBmT5tSlSCGOzd068FwUh
+         2MkUVAKf1221+QWszhj4j3plqioawRmjHBmJq1WXnnQqITzSBX3PB7f5l20C/BDaRsJr
+         a3Np06nvpt6fOecM3g2OfLHskTlbSXbrjZIG6t8DcQtjqEyOaBvGFGTIOV9tY6X0wxOl
+         5/KaPcOGH347dEsR2e2NbSUZcGtDx3BIXVUAqclfl72EdXQ58MvaRJq1FyQ4P0oxd9FP
+         t0OQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=GXftPex8UROwldlSTjWO5JLsjQS15Ns56NL5ObCiNC8=;
+        b=tRTtjmJdwe3zg0SgSZYXLqjwag2ogdY68HbVGMKkUmX86Jo4LB8X2yDx/wfRzacrtD
+         maymUpZci+VEi3J65GintSn9sRZrc1j6hiOFpLQBgVw9c3dm3daAnLa9LNjeswNavfeb
+         kQcYTI1BZRzPzfQojY4jeYH2UwP/kb/ejTpAStslta0Vq1yXD3HmDdWyZsl3CttrPMfD
+         qxQd2csLHSAuSmVlE0UjDLc3ptt7A3Tn9a1P0X9awlszqY9moUsv/RTvY4LL+McomeaY
+         zfcOxOHAW1Gj0muacXi+V3UdVtLuyTLEhjSFJP2vNOO069tS0z4JrzrtHjmPrOj5P9UL
+         1dcg==
+X-Gm-Message-State: AOAM532BLLVO14+5W7h2lNxesfO5e63DBfnyEddVvsGPRF7TfWVkISns
+        ISX+qVRquQxAnY59zWm+DH7Z+ukO6WiVna2yVPHR+w==
+X-Google-Smtp-Source: ABdhPJzeRiubDbm7Vo97ceRb6fzrxmXMHM5Wh1tMsgI2VlVxRDHPvzrE/6btAj39FrCgSfSqYufJb7uVcB/zMS+R7EQ=
+X-Received: by 2002:aa7:d287:: with SMTP id w7mr2681187edq.23.1615025459208;
+ Sat, 06 Mar 2021 02:10:59 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210305120853.659441428@linuxfoundation.org>
+In-Reply-To: <20210305120853.659441428@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 6 Mar 2021 15:40:47 +0530
+Message-ID: <CA+G9fYs6VQaLwKJXVpiRdAm7mAwFfTqL1zZxWg1L+AR1TQfnMg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/52] 4.19.179-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Creating a series of detached mounts, attaching them to the filesystem,
-and unmounting them can be used to trigger an integer overflow in
-ns->mounts causing the kernel to block any new mounts in count_mounts()
-and returning ENOSPC because it falsely assumes that the maximum number
-of mounts in the mount namespace has been reached, i.e. it thinks it
-can't fit the new mounts into the mount namespace anymore.
+On Fri, 5 Mar 2021 at 18:08, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.179 release.
+> There are 52 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 07 Mar 2021 12:08:39 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.179-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Depending on the number of mounts in your system, this can be reproduced
-on any kernel that supportes open_tree() and move_mount() by compiling
-and running the following program:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-  /* SPDX-License-Identifier: LGPL-2.1+ */
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-  #define _GNU_SOURCE
-  #include <errno.h>
-  #include <fcntl.h>
-  #include <getopt.h>
-  #include <limits.h>
-  #include <stdbool.h>
-  #include <stdio.h>
-  #include <stdlib.h>
-  #include <string.h>
-  #include <sys/mount.h>
-  #include <sys/stat.h>
-  #include <sys/syscall.h>
-  #include <sys/types.h>
-  #include <unistd.h>
+Summary
+------------------------------------------------------------------------
 
-  /* open_tree() */
-  #ifndef OPEN_TREE_CLONE
-  #define OPEN_TREE_CLONE 1
-  #endif
+kernel: 4.19.179-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.19.y
+git commit: 1112456421caf2562801d760aef4da53915246c0
+git describe: v4.19.178-53-g1112456421ca
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19=
+.y/build/v4.19.178-53-g1112456421ca
 
-  #ifndef OPEN_TREE_CLOEXEC
-  #define OPEN_TREE_CLOEXEC O_CLOEXEC
-  #endif
+No regressions (compared to build v4.19.178)
 
-  #ifndef __NR_open_tree
-          #if defined __alpha__
-                  #define __NR_open_tree 538
-          #elif defined _MIPS_SIM
-                  #if _MIPS_SIM == _MIPS_SIM_ABI32        /* o32 */
-                          #define __NR_open_tree 4428
-                  #endif
-                  #if _MIPS_SIM == _MIPS_SIM_NABI32       /* n32 */
-                          #define __NR_open_tree 6428
-                  #endif
-                  #if _MIPS_SIM == _MIPS_SIM_ABI64        /* n64 */
-                          #define __NR_open_tree 5428
-                  #endif
-          #elif defined __ia64__
-                  #define __NR_open_tree (428 + 1024)
-          #else
-                  #define __NR_open_tree 428
-          #endif
-  #endif
+No fixes (compared to build v4.19.178)
 
-  /* move_mount() */
-  #ifndef MOVE_MOUNT_F_EMPTY_PATH
-  #define MOVE_MOUNT_F_EMPTY_PATH 0x00000004 /* Empty from path permitted */
-  #endif
+Ran 59275 total tests in the following environments and test suites.
 
-  #ifndef __NR_move_mount
-          #if defined __alpha__
-                  #define __NR_move_mount 539
-          #elif defined _MIPS_SIM
-                  #if _MIPS_SIM == _MIPS_SIM_ABI32        /* o32 */
-                          #define __NR_move_mount 4429
-                  #endif
-                  #if _MIPS_SIM == _MIPS_SIM_NABI32       /* n32 */
-                          #define __NR_move_mount 6429
-                  #endif
-                  #if _MIPS_SIM == _MIPS_SIM_ABI64        /* n64 */
-                          #define __NR_move_mount 5429
-                  #endif
-          #elif defined __ia64__
-                  #define __NR_move_mount (428 + 1024)
-          #else
-                  #define __NR_move_mount 429
-          #endif
-  #endif
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- s390
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
 
-  static inline int sys_open_tree(int dfd, const char *filename, unsigned int flags)
-  {
-          return syscall(__NR_open_tree, dfd, filename, flags);
-  }
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* libhugetlbfs
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-securebits-tests
+* ltp-tracing-tests
+* perf
+* v4l2-compliance
+* fwts
+* kselftest-lkdtm
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-hugetlb-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-syscalls-tests
+* network-basic-tests
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-vm
+* kselftest-x86
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-open-posix-tests
+* ltp-sched-tests
+* kvm-unit-tests
+* rcutorture
+* ssuite
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
 
-  static inline int sys_move_mount(int from_dfd, const char *from_pathname, int to_dfd,
-                                   const char *to_pathname, unsigned int flags)
-  {
-          return syscall(__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
-  }
-
-  static bool is_shared_mountpoint(const char *path)
-  {
-          bool shared = false;
-          FILE *f = NULL;
-          char *line = NULL;
-          int i;
-          size_t len = 0;
-
-          f = fopen("/proc/self/mountinfo", "re");
-          if (!f)
-                  return 0;
-
-          while (getline(&line, &len, f) > 0) {
-                  char *slider1, *slider2;
-
-                  for (slider1 = line, i = 0; slider1 && i < 4; i++)
-                          slider1 = strchr(slider1 + 1, ' ');
-
-                  if (!slider1)
-                          continue;
-
-                  slider2 = strchr(slider1 + 1, ' ');
-                  if (!slider2)
-                          continue;
-
-                  *slider2 = '\0';
-                  if (strcmp(slider1 + 1, path) == 0) {
-                          /* This is the path. Is it shared? */
-                          slider1 = strchr(slider2 + 1, ' ');
-                          if (slider1 && strstr(slider1, "shared:")) {
-                                  shared = true;
-                                  break;
-                          }
-                  }
-          }
-          fclose(f);
-          free(line);
-
-          return shared;
-  }
-
-  static void usage(void)
-  {
-          const char *text = "mount-new [--recursive] <base-dir>\n";
-          fprintf(stderr, "%s", text);
-          _exit(EXIT_SUCCESS);
-  }
-
-  #define exit_usage(format, ...)                              \
-          ({                                                   \
-                  fprintf(stderr, format "\n", ##__VA_ARGS__); \
-                  usage();                                     \
-          })
-
-  #define exit_log(format, ...)                                \
-          ({                                                   \
-                  fprintf(stderr, format "\n", ##__VA_ARGS__); \
-                  exit(EXIT_FAILURE);                          \
-          })
-
-  static const struct option longopts[] = {
-          {"help",        no_argument,            0,      'a'},
-          { NULL,         no_argument,            0,       0 },
-  };
-
-  int main(int argc, char *argv[])
-  {
-          int exit_code = EXIT_SUCCESS, index = 0;
-          int dfd, fd_tree, new_argc, ret;
-          char *base_dir;
-          char *const *new_argv;
-          char target[PATH_MAX];
-
-          while ((ret = getopt_long_only(argc, argv, "", longopts, &index)) != -1) {
-                  switch (ret) {
-                  case 'a':
-                          /* fallthrough */
-                  default:
-                          usage();
-                  }
-          }
-
-          new_argv = &argv[optind];
-          new_argc = argc - optind;
-          if (new_argc < 1)
-                  exit_usage("Missing base directory\n");
-          base_dir = new_argv[0];
-
-          if (*base_dir != '/')
-                  exit_log("Please specify an absolute path");
-
-          /* Ensure that target is a shared mountpoint. */
-          if (!is_shared_mountpoint(base_dir))
-                  exit_log("Please ensure that \"%s\" is a shared mountpoint", base_dir);
-
-          dfd = open(base_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-          if (dfd < 0)
-                  exit_log("%m - Failed to open base directory \"%s\"", base_dir);
-
-          ret = mkdirat(dfd, "detached-move-mount", 0755);
-          if (ret < 0)
-                  exit_log("%m - Failed to create required temporary directories");
-
-          ret = snprintf(target, sizeof(target), "%s/detached-move-mount", base_dir);
-          if (ret < 0 || (size_t)ret >= sizeof(target))
-                  exit_log("%m - Failed to assemble target path");
-
-          /*
-           * Having a mount table with 10000 mounts is already quite excessive
-           * and shoult account even for weird test systems.
-           */
-          for (size_t i = 0; i < 10000; i++) {
-                  fd_tree = sys_open_tree(dfd, "detached-move-mount",
-                                          OPEN_TREE_CLONE |
-                                          OPEN_TREE_CLOEXEC |
-                                          AT_EMPTY_PATH);
-                  if (fd_tree < 0) {
-                          fprintf(stderr, "%m - Failed to open %d(detached-move-mount)", dfd);
-                          exit_code = EXIT_FAILURE;
-                          break;
-                  }
-
-                  ret = sys_move_mount(fd_tree, "", dfd, "detached-move-mount", MOVE_MOUNT_F_EMPTY_PATH);
-                  if (ret < 0) {
-                          if (errno == ENOSPC)
-                                  fprintf(stderr, "%m - Buggy mount counting");
-                          else
-                                  fprintf(stderr, "%m - Failed to attach mount to %d(detached-move-mount)", dfd);
-                          exit_code = EXIT_FAILURE;
-                          break;
-                  }
-                  close(fd_tree);
-
-                  ret = umount2(target, MNT_DETACH);
-                  if (ret < 0) {
-                          fprintf(stderr, "%m - Failed to unmount %s", target);
-                          exit_code = EXIT_FAILURE;
-                          break;
-                  }
-          }
-
-          (void)unlinkat(dfd, "detached-move-mount", AT_REMOVEDIR);
-          close(dfd);
-
-          exit(exit_code);
-  }
-
-and wait for the kernel to refuse any new mounts by returning ENOSPC.
-How many iterations are needed depends on the number of mounts in your
-system. Assuming you have something like 50 mounts on a standard system
-it should be almost instantaneous.
-
-The root cause of this is that detached mounts aren't handled correctly
-when source and target mount are identical and reside on a shared mount
-causing a broken mount tree where the detached source itself is
-propagated which propagation prevents for regular bind-mounts and new
-mounts. This ultimately leads to a miscalculation of the number of
-mounts in the mount namespace.
-
-Detached mounts created via
-open_tree(fd, path, OPEN_TREE_CLONE)
-are essentially like an unattached new mount, or an unattached
-bind-mount. They can then later on be attached to the filesystem via
-move_mount() which calls into attach_recursive_mount(). Part of
-attaching it to the filesystem is making sure that mounts get correctly
-propagated in case the destination mountpoint is MS_SHARED, i.e. is a
-shared mountpoint. This is done by calling into propagate_mnt() which
-walks the list of peers calling propagate_one() on each mount in this
-list making sure it receives the propagation event.
-The propagate_one() functions thereby skips both new mounts and bind
-mounts to not propagate them "into themselves". Both are identified by
-checking whether the mount is already attached to any mount namespace in
-mnt->mnt_ns. The is what the IS_MNT_NEW() helper is responsible for.
-
-However, detached mounts have an anonymous mount namespace attached to
-them stashed in mnt->mnt_ns which means that IS_MNT_NEW() doesn't
-realize they need to be skipped causing the mount to propagate "into
-itself" breaking the mount table and causing a disconnect between the
-number of mounts recorded as being beneath or reachable from the target
-mountpoint and the number of mounts actually recorded/counted in
-ns->mounts ultimately causing an overflow which in turn prevents any new
-mounts via the ENOSPC issue.
-
-So teach propagation to handle detached mounts by making it aware of
-them. I've been tracking this issue down for the last couple of days and
-then verifying that the fix is correct by
-unmounting everything in my current mount table leaving only /proc and
-/sys mounted and running the reproducer above overnight verifying the
-number of mounts counted in ns->mounts. With this fix the counts are
-correct and the ENOSPC issue can't be reproduced.
-
-This change will only have an effect on mounts created with the new
-mount API since detached mounts cannot be created with the old mount API
-so regressions are extremely unlikely.
-
-Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
----
- fs/pnode.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/pnode.h b/fs/pnode.h
-index 26f74e092bd9..988f1aa9b02a 100644
---- a/fs/pnode.h
-+++ b/fs/pnode.h
-@@ -12,7 +12,7 @@
- 
- #define IS_MNT_SHARED(m) ((m)->mnt.mnt_flags & MNT_SHARED)
- #define IS_MNT_SLAVE(m) ((m)->mnt_master)
--#define IS_MNT_NEW(m)  (!(m)->mnt_ns)
-+#define IS_MNT_NEW(m)  (!(m)->mnt_ns || is_anon_ns((m)->mnt_ns))
- #define CLEAR_MNT_SHARED(m) ((m)->mnt.mnt_flags &= ~MNT_SHARED)
- #define IS_MNT_UNBINDABLE(m) ((m)->mnt.mnt_flags & MNT_UNBINDABLE)
- #define IS_MNT_MARKED(m) ((m)->mnt.mnt_flags & MNT_MARKED)
-
-base-commit: f69d02e37a85645aa90d18cacfff36dba370f797
--- 
-2.27.0
-
+--=20
+Linaro LKFT
+https://lkft.linaro.org
