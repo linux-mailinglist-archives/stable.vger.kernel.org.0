@@ -2,307 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA5332F968
-	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 11:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C0932F96D
+	for <lists+stable@lfdr.de>; Sat,  6 Mar 2021 11:44:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229701AbhCFKkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 6 Mar 2021 05:40:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39286 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229969AbhCFKkX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 05:40:23 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867DAC06175F
-        for <stable@vger.kernel.org>; Sat,  6 Mar 2021 02:40:23 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id l12so6548364edt.3
-        for <stable@vger.kernel.org>; Sat, 06 Mar 2021 02:40:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=mRhKROtaG02yUwurNBgzOTBJWtWQvo2wqnE/vQQcSmk=;
-        b=uHa2yEiBKaCkyi2eo8gwvHkWoTfAlOh34qaFwnEn5pHf5ezWoAxpYNPYY8D4QvaiZ0
-         OqEnuVkYEdsAf0lBq3e5/OtIOx2SOz04eFHdHFssOPrwBXEk3gPBMViB6Nh/kFScA9J5
-         In4oAIFV4rlVKEX7Q7k7rzxxMuG3ZLyal5LWyxs6OgYJNzeuHU4lHyDW84C7v/fJ3u7o
-         3EhZqzSKsQHTK1iQIbU+ac1a5Iy1HGxmEu0LL/SgcJ/fVkR21Zgzb7c6qqrIPgORUKC/
-         lNpms2cxBbYbou30jBjWmSmd0K+CIrdPwYtOfkswxbhm6FIOfcuRcYazFqdRf8suM4gZ
-         ZOqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=mRhKROtaG02yUwurNBgzOTBJWtWQvo2wqnE/vQQcSmk=;
-        b=QrSn4o//CkJjmKQeWPT4UhIwg7ZjI+rBNG0gqdiZ3AXXaH+VWQ+uXYz6kBkptLBHoj
-         EdcS2JrMzcrpKUZE72TwikBc5xNMrVcjmnc132ClOlYjybsGajpftfVu58/5w009SW6y
-         kMCErX2+riWZJd266EwK1IkuU5RyY4etdvGFk+/wC46Uripo7ICtGMjkfawlts5toZT6
-         6A9bxXb8YcGqaHyDcWgO+j+4x20Y13a29jEp+TU4xIys+nui2RbpSemA3rmQYPJgHvvS
-         p+wAYTOYhSM3GARYcDJkvx36z0wgH8dgSIbn0cgza1oSIAixmU5czbOODzoLhTvkKMfh
-         Ds/w==
-X-Gm-Message-State: AOAM530nVViIdY0IcJqdbGsZzlpRPioEYnFwjcV4DD+WurFNVvWBux7E
-        iOXb7BtQFbpVoNh5ncsMPLJTAMNjqDV/r2F/I0q1Rw==
-X-Google-Smtp-Source: ABdhPJxD8OxYnbgWyUDqNvuc4AvP1eSI8LFiZp+kdYA3BMZjYgUVIM8HATojRxOpIw+7Bl4jpn0+xexQca6X49MKzqs=
-X-Received: by 2002:aa7:dd99:: with SMTP id g25mr13097382edv.230.1615027217055;
- Sat, 06 Mar 2021 02:40:17 -0800 (PST)
+        id S229981AbhCFKoP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 6 Mar 2021 05:44:15 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:33932 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229782AbhCFKoM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 6 Mar 2021 05:44:12 -0500
+Date:   Sat, 06 Mar 2021 10:44:09 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1615027450;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HBTjD6zV73ekOl/oBSpZFhkXjPYcZvWFowNsPr6svwc=;
+        b=lVw0wa8c37WL+uZ5qWILY/Rvzqhx/sYmMzTMMx6J7DAGYH2eJJLsEfNJXZbtCDw+QvOGJV
+        nwep/MKrtjPyL88QGKP4LKFxlQkzJtnR8sL4DyUKGxXCuyRatcfZcjkgI0w9dcdOWaVp4d
+        y+N2oAVnJt7qdJcsUDZqeqsdxR0FqDqqWDKErhmx6xzgemJOQUVMwA/5XNRamPoHL7XWJ4
+        snIxsVbjoQJplate2/OwSafx8Bd4jO+vxa01u+Sc/nVodvmp5BBEppyJ5NFudkE0yM3gg0
+        qDvx+7kvXj2/oVfcUMHUaO7NYNaStnjjj1pFaCYM1ZHqDYzMCDYJb8nVKHz7EQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1615027450;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=HBTjD6zV73ekOl/oBSpZFhkXjPYcZvWFowNsPr6svwc=;
+        b=u3NMMHs541HvsvOfSl2lFCNKhC+i41t/yAjf2GxhzkovSyvVkBU6O6CKE8Tyx+F80GRvCG
+        IEpxEwmhCksBpoCQ==
+From:   "tip-bot2 for Andy Lutomirski" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/entry: Fix entry/exit mismatch on failed fast
+ 32-bit syscalls
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org>
+References: <8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org>
 MIME-Version: 1.0
-References: <20210305120849.381261651@linuxfoundation.org>
-In-Reply-To: <20210305120849.381261651@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 6 Mar 2021 16:10:05 +0530
-Message-ID: <CA+G9fYsw702Hva2NZP-btNd9yNfmU0_xnNi9+ohQCMwgX-BusQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/30] 4.4.260-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <161502744987.398.7050665815456355997.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 5 Mar 2021 at 18:15, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.260 release.
-> There are 30 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 07 Mar 2021 12:08:39 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.260-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The following commit has been merged into the x86/urgent branch of tip:
 
+Commit-ID:     e59ba7bf71a09e474198741563e0e587ae43d1c7
+Gitweb:        https://git.kernel.org/tip/e59ba7bf71a09e474198741563e0e587ae43d1c7
+Author:        Andy Lutomirski <luto@kernel.org>
+AuthorDate:    Thu, 04 Mar 2021 11:05:54 -08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Sat, 06 Mar 2021 11:37:00 +01:00
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+x86/entry: Fix entry/exit mismatch on failed fast 32-bit syscalls
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+On a 32-bit fast syscall that fails to read its arguments from user
+memory, the kernel currently does syscall exit work but not
+syscall entry work.  This confuses audit and ptrace.  For example:
 
-Summary
-------------------------------------------------------------------------
+    $ ./tools/testing/selftests/x86/syscall_arg_fault_32
+    ...
+    strace: pid 264258: entering, ptrace_syscall_info.op == 2
+    ...
 
-kernel: 4.4.260-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 22ce103533f98c3a483b24b6e18069e581f58f16
-git describe: v4.4.259-31-g22ce103533f9
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
-y/build/v4.4.259-31-g22ce103533f9
+This is a minimal fix intended for ease of backporting.  A more
+complete cleanup is coming.
 
-No regressions (compared to build v4.4.259)
+Fixes: 0b085e68f407 ("x86/entry: Consolidate 32/64 bit syscall entry")
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/8c82296ddf803b91f8d1e5eac89e5803ba54ab0e.1614884673.git.luto@kernel.org
 
-No fixes (compared to build v4.4.259)
+---
+ arch/x86/entry/common.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Ran 22484 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- i386
-- juno-64k_page_size
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* ltp-open-posix-tests
-* network-basic-tests
-* perf
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest-kvm
-* kselftest-vm
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.260-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.260-rc1-hikey-20210305-947
-git commit: cce57b0d5e1b470f2de450435f74b9eba4e898a7
-git describe: 4.4.260-rc1-hikey-20210305-947
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.260-rc1-hikey-20210305-947
-
-
-No regressions (compared to build 4.4.259-rc2-hikey-20210302-945)
-
-No fixes (compared to build 4.4.259-rc2-hikey-20210302-945)
-
-Ran 1909 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
+index a2433ae..4efd39a 100644
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -128,7 +128,8 @@ static noinstr bool __do_fast_syscall_32(struct pt_regs *regs)
+ 		regs->ax = -EFAULT;
+ 
+ 		instrumentation_end();
+-		syscall_exit_to_user_mode(regs);
++		local_irq_disable();
++		irqentry_exit_to_user_mode(regs);
+ 		return false;
+ 	}
+ 
