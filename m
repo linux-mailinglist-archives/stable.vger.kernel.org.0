@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3999330153
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DECAA330155
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:46:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230200AbhCGNoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:44:20 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:58259 "EHLO
+        id S230404AbhCGNp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:45:59 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:35217 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231423AbhCGNoA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:44:00 -0500
+        by vger.kernel.org with ESMTP id S230416AbhCGNpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:45:41 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 43BCF186F;
-        Sun,  7 Mar 2021 08:44:00 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 1EF4D1A48;
+        Sun,  7 Mar 2021 08:45:41 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:44:00 -0500
+  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:45:41 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=v0AdcU
-        m14X5igm7GY+QWWhKF4QkOMcjIZPAcT5P8EII=; b=lmF7zP8SNxIJ8GvtKTrtFa
-        WDI8hsYcdIJ84akELZx3x3I0QIY230FBqKO3aVSQJIfG3Lf1GO9XJsnjsmLnJBMY
-        oeV5qn4cPATJl7fV03ZWNYcOcMh4dgKHXKM4y/jaDWwL65Em4goQDmDZA/tVldIo
-        ZFjL384PxVp6Nl8c/j1CfDGJWLJnqeUWDWqTAmWVh16TrLGlVVmipqk+dZlwUN3e
-        H59ZDMx+FYjZxQ/YC/0bepO8aaOdNHjEZTz6K9cBTf6Jjr20yDVQPw2PWzxtZ2Br
-        d/oPvEdkTKYDKR4XJYMvkGc5iK9TsxueDB9oqXJYP9pTutGTEaYvNCAyEl2Tp/Dg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=D+gzy+
+        M5ecdNg94st9ncR+Jn5uxQxXpGjMM2DEdLOwQ=; b=Kn9p+KpcrgJ1X/pc9QU2/7
+        QKJKlRJicx7TKa49PwbA4JdU1ZN+gFAMdGDvTB/Q59E9/nUDL5XBiy2oXLvxnlar
+        QSGaKRPXUAiwPxE9keJgHKTWcNoKCGlVN0I/8bGKHisq0gOe4HKtsWTaVUX01tTq
+        nT1rWNgx882Lw3VqrLBIWU/UbF4AU42B7NGo6XMl+hfCqMsTtixRu5ZWUuFGQmQK
+        N1tAQ2Ffh6EXj0uF4/I6kH69IUXPb47N4bZ18PZ425xCpskdwuB+N4o83+HYikkU
+        uEFmZInsWggdqrl6u6My5vWV0ugoZPrKSlqDZKiVmK/kjneenlEHl9vwsfIXfAQQ
         ==
-X-ME-Sender: <xms:n9hEYFOdJo_hIlNGrVyVrQNgYWPHYarGZrd8X131cfne1u08vlUiGA>
-    <xme:n9hEYH-qQ-_DC2seryYk2siJd_hY9-0hIwS6oHWlSlEsc_BbiVwDMAFnX222kFfXR
-    uuCS_YJdlTxcA>
+X-ME-Sender: <xms:BNlEYFlXC1N20SE_CR6fIiTdNPB2UP3C7uIazCjZ1i7kOJ6DKshnOw>
+    <xme:BNlEYA1DUIicLe4n_y-Jgz5HtG_QUHuIFOO5dXK550uY_jzOXBL1NAa20dTKrG-Tk
+    tcjL5qv49A47g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:n9hEYEQKcvEXjQyZRcdEHGGj5ir4Y2ZURPJ6AcdoPncopA-rcpokag>
-    <xmx:n9hEYBvjWvZyzodidup8X1NQvZHpSHfhLSfQTH1Wrbm0BQ8--2SkFw>
-    <xmx:n9hEYNe45I9nYQFZv4lRkyeisnroGoUavZjJAQdP-hot9r5C7DKt6A>
-    <xmx:n9hEYNmrNNTHk2XEa96n_xYgPUWycojnuV5SuOqFxl14BXsE0vjA47F81Io>
+X-ME-Proxy: <xmx:BNlEYLqSxjOC_oDGj08_42wIgmb7fTZYYyAfR_kKn_m2arDBZBN3Xg>
+    <xmx:BNlEYFkBu0ejGXYaHvIELP3175z0WZs-0Geeeokin0TxmYhafDtWqQ>
+    <xmx:BNlEYD1NJTYKI5X1IxNn9H97lIk5Ny1wWcvXycWcCZmN5ZXEq4xipQ>
+    <xmx:BNlEYA-N6eQLvj9HzVJyMgZyN5CY2FESKsarWsXjQpzYWmTZT4rYdnpgmIQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6FB74108005C;
-        Sun,  7 Mar 2021 08:43:59 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: fix raid6 qstripe kmap" failed to apply to 4.4-stable tree
-To:     ira.weiny@intel.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0CF85108005F;
+        Sun,  7 Mar 2021 08:45:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: avoid double put of block group when emptying cluster" failed to apply to 4.4-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Mar 2021 14:43:58 +0100
-Message-ID: <161512463810984@kroah.com>
+Date:   Sun, 07 Mar 2021 14:45:38 +0100
+Message-ID: <16151247383858@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,92 +70,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d70cef0d46729808dc53f145372c02b145c92604 Mon Sep 17 00:00:00 2001
-From: Ira Weiny <ira.weiny@intel.com>
-Date: Wed, 27 Jan 2021 22:15:03 -0800
-Subject: [PATCH] btrfs: fix raid6 qstripe kmap
+From 95c85fba1f64c3249c67f0078a29f8a125078189 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Mon, 25 Jan 2021 16:42:35 -0500
+Subject: [PATCH] btrfs: avoid double put of block group when emptying cluster
 
-When a qstripe is required an extra page is allocated and mapped.  There
-were 3 problems:
+It's wrong calling btrfs_put_block_group in
+__btrfs_return_cluster_to_free_space if the block group passed is
+different than the block group the cluster represents. As this means the
+cluster doesn't have a reference to the passed block group. This results
+in double put and a use-after-free bug.
 
-1) There is no corresponding call of kunmap() for the qstripe page.
-2) There is no reason to map the qstripe page more than once if the
-   number of bits set in rbio->dbitmap is greater than one.
-3) There is no reason to map the parity page and unmap it each time
-   through the loop.
+Fix this by simply bailing if the block group we passed in does not
+match the block group on the cluster.
 
-The page memory can continue to be reused with a single mapping on each
-iteration by raid6_call.gen_syndrome() without remapping.  So map the
-page for the duration of the loop.
-
-Similarly, improve the algorithm by mapping the parity page just 1 time.
-
-Fixes: 5a6ac9eacb49 ("Btrfs, raid56: support parity scrub on raid56")
-CC: stable@vger.kernel.org # 4.4.x: c17af96554a8: btrfs: raid56: simplify tracking of Q stripe presence
-CC: stable@vger.kernel.org # 4.4.x
-Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+Fixes: fa9c0d795f7b ("Btrfs: rework allocation clustering")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
+[ update changelog ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index 5394641541f7..abf17fae0912 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2362,16 +2362,21 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 	SetPageUptodate(p_page);
+diff --git a/fs/btrfs/free-space-cache.c b/fs/btrfs/free-space-cache.c
+index abcf951e6b44..711a6a751ae9 100644
+--- a/fs/btrfs/free-space-cache.c
++++ b/fs/btrfs/free-space-cache.c
+@@ -2801,8 +2801,10 @@ static void __btrfs_return_cluster_to_free_space(
+ 	struct rb_node *node;
  
- 	if (has_qstripe) {
-+		/* RAID6, allocate and map temp space for the Q stripe */
- 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
- 		if (!q_page) {
- 			__free_page(p_page);
- 			goto cleanup;
- 		}
- 		SetPageUptodate(q_page);
-+		pointers[rbio->real_stripes - 1] = kmap(q_page);
- 	}
- 
- 	atomic_set(&rbio->error, 0);
- 
-+	/* Map the parity stripe just once */
-+	pointers[nr_data] = kmap(p_page);
-+
- 	for_each_set_bit(pagenr, rbio->dbitmap, rbio->stripe_npages) {
- 		struct page *p;
- 		void *parity;
-@@ -2381,16 +2386,8 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 			pointers[stripe] = kmap(p);
- 		}
- 
--		/* then add the parity stripe */
--		pointers[stripe++] = kmap(p_page);
--
- 		if (has_qstripe) {
--			/*
--			 * raid6, add the qstripe and call the
--			 * library function to fill in our p/q
--			 */
--			pointers[stripe++] = kmap(q_page);
--
-+			/* RAID6, call the library function to fill in our P/Q */
- 			raid6_call.gen_syndrome(rbio->real_stripes, PAGE_SIZE,
- 						pointers);
- 		} else {
-@@ -2411,12 +2408,14 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 
- 		for (stripe = 0; stripe < nr_data; stripe++)
- 			kunmap(page_in_rbio(rbio, stripe, pagenr, 0));
--		kunmap(p_page);
- 	}
- 
-+	kunmap(p_page);
- 	__free_page(p_page);
--	if (q_page)
-+	if (q_page) {
-+		kunmap(q_page);
- 		__free_page(q_page);
+ 	spin_lock(&cluster->lock);
+-	if (cluster->block_group != block_group)
+-		goto out;
++	if (cluster->block_group != block_group) {
++		spin_unlock(&cluster->lock);
++		return;
 +	}
  
- writeback:
- 	/*
+ 	cluster->block_group = NULL;
+ 	cluster->window_start = 0;
+@@ -2840,8 +2842,6 @@ static void __btrfs_return_cluster_to_free_space(
+ 				   entry->offset, &entry->offset_index, bitmap);
+ 	}
+ 	cluster->root = RB_ROOT;
+-
+-out:
+ 	spin_unlock(&cluster->lock);
+ 	btrfs_put_block_group(block_group);
+ }
 
