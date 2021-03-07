@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2A633017A
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A10D933017E
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231509AbhCGNzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:55:31 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:59151 "EHLO
+        id S231514AbhCGN4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:56:03 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51681 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231497AbhCGNzY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:55:24 -0500
+        by vger.kernel.org with ESMTP id S230373AbhCGNzc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:55:32 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8666F1A78;
-        Sun,  7 Mar 2021 08:55:23 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:55:23 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id EB0C01A7C;
+        Sun,  7 Mar 2021 08:55:31 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:55:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wdaj7C
-        NPMIAWPl7qJPuWXIdLbe4qwmq+BX3ybnVpsc4=; b=QWoUxYZukgMDMTQrLOWGhW
-        ueuBOISFsmyHTzIKFKM5ishdUCk7nZe+71b8ddp/oQ5+vY33i7ebEGcKwb9+qPf8
-        /IHdA67pUXGplnTPqWZOl7XCiKvM2eAj5L9/n0k6vEPffMbhlm8GbvagwNOILQXD
-        81eryYFepkVIP1mRH6zQeL+vkns8zw1ah/rQwCAcPl9aljXm8FBR1Xs0zUV78dgN
-        YTrvoB29RQZ65QSz93vk2SKSvLxwj4eNWGcq1116aii0asnp2AovU74R36xZ2Ggm
-        6jqe9/5sufK23uGE3z3bL4dt7uKW+QlbvPVcA7TrlwvDUeZ8J3RPfaBXZBuUICGg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GbE0jL
+        XJkn+TCA7U60y/TTFgBz5zmlQxDvmXc67sKHI=; b=isSgYMSfgIEKyUIZp58c49
+        kBxGW4j4q6t3MMKZ+1sI89+hrAz7ggHLS/XpnghbrX2hnkAQjgwLcRiUZeZOJKvK
+        cWugZ8/LUxtUQQhElZcggl8/wU2qYXwNs1DdumodfcSkd+GrksL29gjbZbvxJS09
+        HhfbSr1AmdJKHkLMFFID8nlRhg5Nj53sRiWV84j3dAn+41jPTd+zOjmlRoEIzA2V
+        8pBkX0XjaDMCvtYvA24525i1hZxZSx8b5jR1GE58nlq1X0/nR5/d6tBZl2eK/7eC
+        RQgFFnNqVO08Giibq34Dq6FA2rj6fLs9XD2qvv/zdlEUkW6Arq9c2k3LcgLQL9Kg
         ==
-X-ME-Sender: <xms:S9tEYLZlXlGpaigte1QUCN898x532NrZxhAztE1bJg4n8oe4un1KOg>
-    <xme:S9tEYKbuUFTWFU5S1TqasGtTqBfDvfcmXNXUhyziJAr_O1WdIcbYvcM9WeNmFr2M2
-    ajQrDF2Xa7oHg>
+X-ME-Sender: <xms:U9tEYKwa9xOUsZFPjiIyO_QN9IzmVu7iBIUPzufNCnjcEph_CO8X1Q>
+    <xme:U9tEYGNkMqmNK3tBntVnjNrbRElnBXOH-expw3YUf8Hoan1yqQEkbppb-1bciL3KK
+    ib0YxeKxITQXg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddghedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepheenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:S9tEYN8YR4lgtQkcfJmza7qlMVbnC6utK4DEVi9-3X_sVL8CznctZg>
-    <xmx:S9tEYBpdFeguDFjB_zJ0HMg79Nqj7Q8QTVrDtKvVdhLLJChVECIPrg>
-    <xmx:S9tEYGrE-Z5rHTd3p_9Kb7T9XAVce2-kAifHejpecWmsRqRBSR5cvA>
-    <xmx:S9tEYLAxreXBV93X9z48wkF3VZ5LM3FhzSWIi0nqh1QMLCt5mi7LkkI-6HY>
+X-ME-Proxy: <xmx:U9tEYJOlDld9OZyrLbBsDlVLZpgIOHZRTKDj0AefONEHDqhJ5_2e3g>
+    <xmx:U9tEYIR-LRmnejCW2i1A1cNqsff5VC9-n02qSaPHZDNBhjGl8TNzbg>
+    <xmx:U9tEYLB_uMBQejt8ttXB0-w-ZHFp_Sb8Yb185jc7aHlST8zOVBpCaQ>
+    <xmx:U9tEYL98LU0Zwj2km_oTz3v7vAnT6rIIHpErbpOpKkjXuO3kGOGVxTmDDlA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C62FE24005B;
-        Sun,  7 Mar 2021 08:55:22 -0500 (EST)
-Subject: FAILED: patch "[PATCH] dm bufio: subtract the number of initial sectors in" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4984D1080057;
+        Sun,  7 Mar 2021 08:55:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dm bufio: subtract the number of initial sectors in" failed to apply to 4.9-stable tree
 To:     mpatocka@redhat.com, gmazyland@gmail.com, snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Mar 2021 14:55:20 +0100
-Message-ID: <1615125320196229@kroah.com>
+Date:   Sun, 07 Mar 2021 14:55:21 +0100
+Message-ID: <1615125321215161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
