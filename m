@@ -2,162 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35A333051E
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 00:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04B8C330533
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 00:35:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbhCGXAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 18:00:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231761AbhCGW7v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 17:59:51 -0500
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69098C06174A;
-        Sun,  7 Mar 2021 14:59:51 -0800 (PST)
-Received: by mail-qv1-xf2b.google.com with SMTP id r5so3789647qvv.9;
-        Sun, 07 Mar 2021 14:59:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tz+Rio/qaBic+aovNFslXXjVD5rlN4szJOCvAjzCYNo=;
-        b=LAip6MWhqrpHv6FbsHmbe9TeCsbS9XsE3DAY9h4aPKjPZkHGz9NsEUjwmOjlmmjo0W
-         mYnepG/G9afo9XxR2mmmiDCQuTFhLBBMDSo0b8dXjNqHr34mCuIDCKcv//LQJpGp3voZ
-         Qd3Kqu+F1/wTcB0zbSitohqWB3qsVQGxGslQX0t97h+P4fcR8JDcGnuMMnphFKPMDnC6
-         JoQITKylnqQ1n+4NPrv3cPv955idAnox8kQHaWuI+msdAXQflbW476bzUFvTHa6vwGhl
-         x5ZXAfPtxM0waZJrXMx4LJadT6eCILg0iC39VrM6eg5MaarLZJ9VPIrCF0YwRgaDGXb+
-         qrmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=tz+Rio/qaBic+aovNFslXXjVD5rlN4szJOCvAjzCYNo=;
-        b=Mh58L2jG+1lhtuc0ax71X/SYq079hxmxVFa9xBaRTaZFWFLSnrPYaYUmGb/bH3il3h
-         QuaygaDrrlOmJHcfk4h3SnfBHkHHJC6g58CVy8HU1YZyfrNNGtyN08Z3Xds2f0yVM1Yt
-         Y7eLBD4UEYvaFQ3tsBgdJQCBwYr6SQdF5Ha1ajxLf2zLzRP24q1ykojkEKvXiA8zgk0l
-         gmoDn32G8/4lmYxNSqvy4nFIfvvrMRHdfqqEOGszUqSnbxc39zr/aRzoUwj4cJ1FAD8p
-         iFbdml64HOqZa99Zl+F0ZvsLqXwEF6dtmUIzEjVQgmRz7zGBkaV/OUprhIw3mkCfszc5
-         U5Og==
-X-Gm-Message-State: AOAM5309kWJzTyawy2gDQNZzLhXd+A9QiD/yoaBjUJZYLluYZe9wv2CQ
-        BVaHOfbIO1Ke1Wqz+o4b2W0=
-X-Google-Smtp-Source: ABdhPJzCqKz4z+SnhCp7URvSEg72/QYhB65laBYJwIv/RefdITneNey+x+JC9WRIjcsSmL4jADNwCQ==
-X-Received: by 2002:a0c:c583:: with SMTP id a3mr18331302qvj.15.1615157990018;
-        Sun, 07 Mar 2021 14:59:50 -0800 (PST)
-Received: from OpenSuse ([156.146.37.209])
-        by smtp.gmail.com with ESMTPSA id d2sm6560241qkk.42.2021.03.07.14.59.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 07 Mar 2021 14:59:48 -0800 (PST)
-Date:   Mon, 8 Mar 2021 04:29:41 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
-        Ronald Warsow <rwarsow@gmx.de>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: stable kernel checksumming fails
-Message-ID: <YEVa3dLvugd4+9Cv@OpenSuse>
-Mail-Followup-To: Bhaskar Chowdhury <unixbhaskar@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Konstantin Ryabitsev <konstantin@linuxfoundation.org>,
-        Ronald Warsow <rwarsow@gmx.de>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <d58ab27a-78ad-1119-79ac-2a1fbcd3527a@gmx.de>
- <YETm+6sQqek6kY/A@kroah.com>
+        id S231804AbhCGXfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 18:35:01 -0500
+Received: from rere.qmqm.pl ([91.227.64.183]:55704 "EHLO rere.qmqm.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231700AbhCGXeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 18:34:46 -0500
+Received: from remote.user (localhost [127.0.0.1])
+        by rere.qmqm.pl (Postfix) with ESMTPSA id 4DtyVr26cyz6r;
+        Mon,  8 Mar 2021 00:34:43 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=rere.qmqm.pl; s=1;
+        t=1615160085; bh=34tf9yuKwerK8pFwi4ro7a4BQzaDEs6yraBJi8SnrD8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=lPOMIjqhm59wGNh4dtrfue7T9Q7DwzvJ1QA6qQeVtq8TpM/lwsSUm7jLKslFXbnRE
+         dk9Xhi0/DMZ7TvGNpEIufVCDlUz4I7fcgg4F7TDehCcTk30Lar+yBMjHxZE0uyyg7T
+         BYR1k80YK9n2gg1bbrLLt36d+sUgTq9XMDU0edM9OsM0yOakG306W5NTZbeUVmGGfA
+         /V4Skr4f3LGZr2Z/7c5Q7YuxXBd2iqvVfrnKkOCt/NhxgxQf9fZCqjaykUkzOBi3TT
+         Lafedk4lrykuaAzuqFIYEd1RXlz8kDDXmGTWH6GAqBMAhKg1PbDND7GDACt3HfzXG0
+         64f6rKTh6UCKA==
+X-Virus-Status: Clean
+X-Virus-Scanned: clamav-milter 0.102.4 at mail
+Date:   Mon, 8 Mar 2021 00:34:39 +0100
+From:   =?iso-8859-2?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
+To:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     stable@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Subject: Re: stable: KASan for ARM
+Message-ID: <20210307233439.GA8915@qmqm.qmqm.pl>
+References: <20210307150040.GB28240@qmqm.qmqm.pl>
+ <YETvOfBpfGrzewmt@kroah.com>
+ <CAMj1kXEDD0To+t40ymFTrWVpBJBdi5PXYfxzE3yi5-VjDPTKoA@mail.gmail.com>
+ <20210307224854.GF1463@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="i3HbxQlc7lFrG8j3"
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <YETm+6sQqek6kY/A@kroah.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210307224854.GF1463@shell.armlinux.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Mar 07, 2021 at 10:48:54PM +0000, Russell King - ARM Linux admin wrote:
+> On Sun, Mar 07, 2021 at 05:10:43PM +0100, Ard Biesheuvel wrote:
+> > (+ Russell)
+> > 
+> > On Sun, 7 Mar 2021 at 16:21, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > On Sun, Mar 07, 2021 at 04:00:40PM +0100, Micha³ Miros³aw wrote:
+> > > > Dear Greg,
+> > > >
+> > > > Would you consider KASan for ARM patches for LTS (5.10) kernel? Those
+> > > > are 7a1be318f579..421015713b30 if I understand correctly. They are
+> > > > not normal stable material, but I think they will help tremendously in
+> > > > discovering kernel bugs on 32-bit ARMs.
+> > >
+> > > Looks like a new feature to me, right?
+> > >
+> > > How many patches, and have you tested them?  If so, submit them as a
+> > > patch series and we can review them, but if this is a new feature, it
+> > > does not meet the stable kernel rules.
+> > >
+> > > And why not just use 5.11 or newer for discovering kernel bugs?  Why
+> > > does 5.10 matter here?
+> > 
+> > The KASan support was rather tricky to get right, so I don't think
+> > this is suitable for stable. The range 7a1be318f579..421015713b30 is
+> > definitely not complete (we'd need at least
+> > e9a2f8b599d0bc22a1b13e69527246ac39c697b4 and
+> > 10fce53c0ef8f6e79115c3d9e0d7ea1338c3fa37 as well), and the intrusive
+> > nature of those changes means they are definitely not appropriate as
+> > stable backports.
+> 
+> I agree - it took quite a while for KASan to settle down - and our last
+> issue with KASan causing a panic in the Kprobes codes was in February.
+> So, I think at the very least, requesting to backport this so soon is
+> premature. That fix is not included even in what you mention above.
+> Maybe that fix has already been picked up in stable, I don't know.
+> 
+> So, we know that there's probably more to getting kprobes working on
+> 32-bit ARM than even you've mentioned above.
+> 
+> Is it worth backporting such a major feature to stable kernels? Or
+> would it be better to backport the fixes found by KASan from later
+> kernels? My feeling is the latter is the better all round approach.
 
---i3HbxQlc7lFrG8j3
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+I guessed that KASan support code does not pose problems with
+CONFIG_KASAN=n.  If it does, then I understand that this is definitely
+a deal-breaker for stable, and I agree there is no point in further
+discussion. But, if in disabled state KASan patches meet the stable
+requirements, then maybe it is worth the trouble to help those who
+have to stay on a LTS kernel?
 
-On 15:45 Sun 07 Mar 2021, Greg KH wrote:
->On Sun, Mar 07, 2021 at 03:10:49PM +0100, Ronald Warsow wrote:
->> hello
->>
->> getting stable kernels with this script:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/mricon/korg-helpers.git/tree/get-verified-tarball
->>
->>
->> fails since the last 2 (?) stable releases with (last lines):
->>
->> ...
->>
->> + /usr/bin/curl -L -o
->> /home/ron/Downloads/linux-tarball-verify.1GiZid5WT.untrusted/linux-5.11.4.tar.xz
->> https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.11.4.tar.xz
->>   % Total    % Received % Xferd  Average Speed   Time    Time     Time
->> Current
->>                                  Dload  Upload   Total   Spent    Left
->> Speed
->> 100  112M  100  112M    0     0  5757k      0  0:00:19  0:00:19 --:--:--
->> 5938k
->>
->> pushd ${TMPDIR} >/dev/null
->> + pushd /home/ron/Downloads/linux-tarball-verify.1GiZid5WT.untrusted
->> echo "Verifying checksum on linux-${VER}.tar.xz"
->> + echo 'Verifying checksum on linux-5.11.4.tar.xz'
->> Verifying checksum on linux-5.11.4.tar.xz
->> if ! ${SHA256SUMBIN} -c ${SHACHECK}; then
->>     echo "FAILED to verify the downloaded tarball checksum"
->>     popd >/dev/null
->>     rm -rf ${TMPDIR}
->>     exit 1
->> fi
->> + /usr/bin/sha256sum -c
->> /home/ron/Downloads/linux-tarball-verify.1GiZid5WT.untrusted/sha256sums.txt
->> /usr/bin/sha256sum:
->> /home/ron/Downloads/linux-tarball-verify.1GiZid5WT.untrusted/sha256sums.txt:
->> no properly formatted SHA256 checksum lines found
->> + echo 'FAILED to verify the downloaded tarball checksum'
->> FAILED to verify the downloaded tarball checksum
->> + popd
->> + rm -rf /home/ron/Downloads/linux-tarball-verify.1GiZid5WT.untrusted
->> + exit 1
->>
->>
->> checksumming the downloaded kernel manually gives an "Okay" though.
->>
->>
->> is this just me (on Fedora 33) ?
->
->Fails for me on Arch:
->
->Verifying checksum on linux-5.11.4.tar.xz
->/usr/bin/sha256sum: /home/gregkh/Downloads/linux-tarball-verify.gZo313NCk.untrusted/sha256sums.txt: no properly formatted SHA256 checksum lines found
->FAILED to verify the downloaded tarball checksum
->
-I can confirm it works alright with me on OpenSuse Tumbleweed and Slackware
-...yet to test on others....Debian....Arch and Gentoo ...
->
+Regarding testing KASan for ARM: I'm currently running it on a SAMA5D2
+board. The 4 patches on top of v5.10.21 did allow the device to boot up
+(after fixing a false-positive in __clear_user_memset()).  I also applied
+the three patches Ard mentioned just to be closer to upstream and the
+board still went up. Kernel gets big and slow after enabling KASan,
+but I think this is expected.
 
-Oh btw ...sometimes I got that specific error because of lack of dns
-propogation to dns stuff in some reason...
-
-
->Konstantin, anything change recently?
->
-
---i3HbxQlc7lFrG8j3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAmBFWtcACgkQsjqdtxFL
-KRXtWwf+IMe1Li8fBwRLDuOOuZYdeSaki/BPoJdOZ5qBuxoIkSF1BOgj8Mj8D5JJ
-SuzZ8HkWop0AUJBj0Uhd1XOPmfG1Agul5/P96jqh0Izl1c2AEXBFk3vfHwnrPK4O
-qoq49VhlgKI7xny6lzxUt5uPWW6nbRel86Cn+4WM9FAeTYE1gMJ9KMqWPRh0UWw2
-opjxGpRIyplpItUrslq3rSbOqz6Capr1tEbY8cgmbVI7272LoZmblfJN9sRQXQ9a
-9n/qp73ODjU64gH5hfk9oNY1W+yCbmB6oPCOsJWvgmgdQuE7ycuiMU26tq+Bd8Es
-oaJvY4X8pU66trcYB5wp/0VVzC9IZA==
-=7Uho
------END PGP SIGNATURE-----
-
---i3HbxQlc7lFrG8j3--
+Best Regards
+Micha³ Miros³aw
