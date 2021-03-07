@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FF633019D
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4DBD330198
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231684AbhCGN6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:58:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43728 "EHLO mail.kernel.org"
+        id S231683AbhCGN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:58:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231542AbhCGN6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231543AbhCGN6G (ORCPT <rfc822;stable@vger.kernel.org>);
         Sun, 7 Mar 2021 08:58:06 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0163865111;
-        Sun,  7 Mar 2021 13:58:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AE3F64EE6;
+        Sun,  7 Mar 2021 13:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615125485;
-        bh=YKt1LXGSyxpuPifHhhxpZ+S1YLgBmWcQUOqe7nLhOq0=;
+        s=k20201202; t=1615125486;
+        bh=2XUnNTtlvGxQXClpSH6c+GbL3EX9uyGQUmht99bMnDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WqSK8JUX/29n3s4p+BOjOaPQWdjnQU1tJ+CcDryDmwwOHJdsKLPwFcdj2QksriMWs
-         0GEXGs3V4XWuuh617v0HkwHTL/aYexmXjtXP3qLLAQNSPG9XvbR2p/w+Atizgx2o9Y
-         hdE2cpQHkxmiR4HNfPL7gt+iJFdvc4LTEwSTIsVnqpOkDWNS83HyB4lzAcvvxuTlXN
-         lqZGlccH3sq7SH9COBeXgBDKqJa7RdX//3jMLmwxFeUYPXtnOFcLc25FugXFfBtj0+
-         cXgeWXmrBfk61X87x/xBCxM6dgvpV/skpS/pGFH5RGum6U+K/3x+ouYTU19fg9Udne
-         H8iwy2UHjF5wQ==
+        b=d91inNCGiBZt4ir6/MynYBB/vIppgH6P4qo6M6ofp99P4SwWTv+6niU3NL6ViNSBO
+         WfFydXKcYjsAFTrDxLwzHOwLzPUbDthEIU9c4ljTFDDkrxu5oTdmLbfP/vKRpmB2PZ
+         jLYuxdyMTNgjMoI870t7CQLfXiymkCe1ffl37vZJerhh9z9BZ5oeaN5exsBewFPtA0
+         hYBc/wvMsmapiFfL/0WNKihFALdBW6/6/wzdzqLHF9RsEI5U4f3vJjOf7TqlhH61J2
+         avWGlcJ6EzJ3jKmdd0EfYU0n0MEcdOAXiVZxJPqZ3r0bH8WtsG+75VmYDxKUnGGnSm
+         wXSfYOgc6l+QQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 3/8] drm/amdgpu: enable BACO runpm by default on sienna cichlid and navy flounder
-Date:   Sun,  7 Mar 2021 08:57:56 -0500
-Message-Id: <20210307135801.967583-3-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 4/8] tracing: Skip selftests if tracing is disabled
+Date:   Sun,  7 Mar 2021 08:57:57 -0500
+Message-Id: <20210307135801.967583-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210307135801.967583-1-sashal@kernel.org>
 References: <20210307135801.967583-1-sashal@kernel.org>
@@ -44,35 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 25951362db7b3791488ec45bf56c0043f107b94b ]
+[ Upstream commit ee666a185558ac9a929e53b902a568442ed62416 ]
 
-It works fine and was only disabled because primary GPUs
-don't enter runpm if there is a console bound to the fbdev due
-to the kmap.  This will at least allow runpm on secondary cards.
+If tracing is disabled for some reason (traceoff_on_warning, command line,
+etc), the ftrace selftests are guaranteed to fail, as their results are
+defined by trace data in the ring buffers. If the ring buffers are turned
+off, the tests will fail, due to lack of data.
 
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Because tracing being disabled is for a specific reason (warning, user
+decided to, etc), it does not make sense to enable tracing to run the self
+tests, as the test output may corrupt the reason for the tracing to be
+disabled.
+
+Instead, simply skip the self tests and report that they are being skipped
+due to tracing being disabled.
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 2 --
- 1 file changed, 2 deletions(-)
+ kernel/trace/trace.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index efda38349a03..48cd9109ec97 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -169,8 +169,6 @@ int amdgpu_driver_load_kms(struct amdgpu_device *adev, unsigned long flags)
- #endif
- 		case CHIP_VEGA20:
- 		case CHIP_ARCTURUS:
--		case CHIP_SIENNA_CICHLID:
--		case CHIP_NAVY_FLOUNDER:
- 			/* enable runpm if runpm=1 */
- 			if (amdgpu_runtime_pm > 0)
- 				adev->runpm = true;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index ee4be813ba85..54f74e2effb3 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1932,6 +1932,12 @@ static int run_tracer_selftest(struct tracer *type)
+ 	if (!selftests_can_run)
+ 		return save_selftest(type);
+ 
++	if (!tracing_is_on()) {
++		pr_warn("Selftest for tracer %s skipped due to tracing disabled\n",
++			type->name);
++		return 0;
++	}
++
+ 	/*
+ 	 * Run a selftest on this tracer.
+ 	 * Here we reset the trace buffer, and set the current
 -- 
 2.30.1
 
