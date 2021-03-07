@@ -2,132 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3D4D32FF99
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 09:21:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18DA3330037
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 12:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230285AbhCGIVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 03:21:23 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:39270 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230217AbhCGIVF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 03:21:05 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 59AEB1C0B76; Sun,  7 Mar 2021 09:20:58 +0100 (CET)
-Date:   Sun, 7 Mar 2021 09:20:57 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Chris.Paterson2@renesas.com, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: qemu meltdown test failure was Re: [PATCH 4.4 00/30] 4.4.260-rc1
- review
-Message-ID: <20210307082057.GA18813@amd>
-References: <20210305120849.381261651@linuxfoundation.org>
- <20210305220634.GA27686@amd>
- <YEM4d6O+6Jfw3RH/@kroah.com>
- <20210307000403.GB10472@amd>
+        id S231615AbhCGLLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 06:11:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57886 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231604AbhCGLLV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 06:11:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF6B65178;
+        Sun,  7 Mar 2021 11:11:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615115480;
+        bh=DdBCAEAIObtfum+vUgIZNMguOAnEOjO5lK5mark4Q6A=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Tvum+ff9kljBRcCOZwXlZwi1A/7FwCh6B2Ee2bVfTVmDxnLb3wV/3vrh0eWSD8KHa
+         DbL743YGImkWiYdjCRUGHKhCGFXaaL/HQrYJEZK4JNKjFZL58kuqfw8RiPKiNMeDIQ
+         pZNXBqn4Mm0PfACeRR7mdMJcx4PZyUafxkMvcQew=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.260
+Date:   Sun,  7 Mar 2021 12:11:16 +0100
+Message-Id: <161511547663204@kroah.com>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-In-Reply-To: <20210307000403.GB10472@amd>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.4.260 kernel.
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+All users of the 4.4 kernel series must upgrade.
 
-Hi!
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-> > > Ok, so we ran some tests.
-> > >=20
-> > > And they failed:
-> > >=20
-> > > https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/=
-1075959449
-> > >=20
-> > > [   26.785861] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3DCVE-2018-3639 RES=
-ULT=3Dfail>
-> > > Received signal: <TESTCASE> TEST_CASE_ID=3DCVE-2018-3639 RESULT=3Dfail
-> > >=20
-> > > Testcase name is spectre-meltdown-checker... Failing on qemu? Somehow
-> > > strange, but it looks like real test failure.
+thanks,
 
-This is pointer to the pipeline:
+greg k-h
 
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/pipelines/2=
-65992696
+------------
 
-> First let me try 7d472e4a11d6a2fb1c492b02c7d7dacd3297bbf4 --
-> v4.4.257-cip54. That is
-> https://gitlab.com/cip-project/cip-kernel/linux-cip/-/pipelines/266532179
-> ... Qemu is OKAY.
->=20
-> add3ff3730919447a7519fede0b8554132e0f8d5 Merge remote-tracking branch
-> 'stable/queue/4.4' in to v4.4.260-bisect. Results will be at
-> https://gitlab.com/cip-project/cip-kernel/linux-cip/-/pipelines/266534478
-> ... ... still pending.
+ Documentation/filesystems/sysfs.txt     |    8 -
+ Makefile                                |    2 
+ arch/arm/xen/p2m.c                      |   35 ++++++-
+ arch/x86/kernel/module.c                |    1 
+ arch/x86/kernel/reboot.c                |    9 +
+ arch/x86/tools/relocs.c                 |   12 +-
+ arch/x86/xen/p2m.c                      |   44 ++++++++-
+ drivers/block/zram/zram_drv.c           |    2 
+ drivers/media/usb/uvc/uvc_driver.c      |    7 +
+ drivers/media/v4l2-core/v4l2-ioctl.c    |   19 +---
+ drivers/mmc/host/sdhci-esdhc-imx.c      |    3 
+ drivers/net/usb/qmi_wwan.c              |    1 
+ drivers/net/wireless/ath/ath10k/mac.c   |   15 ---
+ drivers/net/wireless/iwlwifi/pcie/tx.c  |    4 
+ drivers/net/wireless/ti/wl12xx/main.c   |    3 
+ drivers/net/wireless/ti/wlcore/main.c   |   15 ---
+ drivers/net/wireless/ti/wlcore/wlcore.h |    3 
+ drivers/net/xen-netback/netback.c       |   12 ++
+ drivers/scsi/libiscsi.c                 |  148 ++++++++++++++++----------------
+ drivers/scsi/scsi_transport_iscsi.c     |   38 ++++++--
+ drivers/staging/fwserial/fwserial.c     |    2 
+ drivers/staging/most/aim-sound/sound.c  |    2 
+ drivers/tty/vt/consolemap.c             |    2 
+ fs/jfs/jfs_filsys.h                     |    1 
+ fs/jfs/jfs_mount.c                      |   10 ++
+ fs/sysfs/file.c                         |   55 +++++++++++
+ fs/xfs/xfs_iops.c                       |    2 
+ include/linux/sysfs.h                   |   16 +++
+ include/linux/zsmalloc.h                |    2 
+ kernel/futex.c                          |   24 ++---
+ mm/hugetlb.c                            |   28 +++---
+ mm/page_io.c                            |   11 --
+ mm/swapfile.c                           |    2 
+ mm/zsmalloc.c                           |   17 ++-
+ net/bluetooth/amp.c                     |    3 
+ net/core/pktgen.c                       |    2 
+ net/core/skbuff.c                       |   14 ++-
+ scripts/Makefile                        |    9 +
+ 38 files changed, 389 insertions(+), 194 deletions(-)
 
-Qemu is okay here, too.
+Chris Leech (2):
+      scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
+      scsi: iscsi: Verify lengths on passthrough PDUs
 
-> test 266539168       8c461bb103f89696576945ad9cb376df34fa9d28 xen-netback=
-: respect gnttab_map_refs()'s return value
+Christian Gromm (1):
+      staging: most: sound: add sanity check for function argument
 
-Qemu is ok.
+Di Zhu (1):
+      pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
 
-> test 266538760       1efe86b456816c95485c65cf9ba46a5bff8a241e staging: fw=
-serial: Fix error handling in fwserial_create
+Dinghao Liu (1):
+      staging: fwserial: Fix error handling in fwserial_create
 
-Qemu is ok.
+Fangrui Song (1):
+      x86/build: Treat R_386_PLT32 relocation as R_386_PC32
 
-> test 266539768       8b4bc0f97fdd13b08c2436aad01bd4515d07f93a iwlwifi: pc=
-ie: fix to correct null check
-								Pavel
-Qemu is ok.
+Frank Li (1):
+      mmc: sdhci-esdhc-imx: fix kernel panic when remove module
 
-https://gitlab.com/cip-project/cip-kernel/linux-cip/-/pipelines/266539768
+Gopal Tiwari (1):
+      Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
 
-So... failure apparently went away when trying to
-bisect. That's.... strange? Aha, except that it looks like the same
-"suceeded" tests still have failures in them:
+Greg Kroah-Hartman (1):
+      Linux 4.4.260
 
-https://lava.ciplatform.org/scheduler/job/173186
+Heiner Kallweit (1):
+      x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
 
-[   26.224557] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3DCVE-2017-5715
-RESULT=3Dfail>
-Received signal: <TESTCASE> TEST_CASE_ID=3DCVE-2017-5715 RESULT=3Dfail
+Jan Beulich (2):
+      Xen/gnttab: handle p2m update errors on a per-slot basis
+      xen-netback: respect gnttab_map_refs()'s return value
 
-=2E..I guess those fails are expected, then? And qemu tests on
--stable-rc are really failing on timeouts. ... Hmm, let's just re-run
-the tests.
+Jens Axboe (1):
+      swap: fix swapfile read/write offset
 
-I'm still not sure, but it looks like a test failure now.
+Jiri Slaby (1):
+      vt/consolemap: do font sum unsigned
 
-Best regards,
+Joe Perches (1):
+      sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
 
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Lech Perczak (1):
+      net: usb: qmi_wwan: support ZTE P685M modem
 
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Lee Duncan (1):
+      scsi: iscsi: Restrict sessions and handles to admin capabilities
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+Li Xinhai (1):
+      mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
 
-iEYEARECAAYFAmBEjOkACgkQMOfwapXb+vJSawCgqzPUaxWoCbbt4lqBbSqzYHfz
-5YIAn300t/XybF+CBlfvxUd8lng7PiCs
-=sF+b
------END PGP SIGNATURE-----
+Marco Elver (1):
+      net: fix up truesize of cloned skb in skb_prepare_for_shift()
 
---azLHFNyN32YCQGCU--
+Miaoqing Pan (1):
+      ath10k: fix wmi mgmt tx queue full due to race condition
+
+Mike Kravetz (1):
+      hugetlb: fix update_and_free_page contig page struct assumption
+
+Nobuhiro Iwamatsu (1):
+      iwlwifi: pcie: fix to correct null check
+
+Randy Dunlap (1):
+      JFS: more checks for invalid superblock
+
+Ricardo Ribalda (1):
+      media: uvcvideo: Allow entities with no pads
+
+Rokudo Yan (1):
+      zsmalloc: account the number of compacted pages correctly
+
+Rolf Eike Beer (2):
+      scripts: use pkg-config to locate libcrypto
+      scripts: set proper OpenSSL include dir also for sign-file
+
+Sakari Ailus (1):
+      media: v4l: ioctl: Fix memory leak in video_usercopy
+
+Thomas Gleixner (1):
+      futex: Ensure the correct return value from futex_lock_pi()
+
+Tony Lindgren (1):
+      wlcore: Fix command execute failure 19 for wl12xx
+
+Yumei Huang (1):
+      xfs: Fix assert failure in xfs_setattr_size()
+
