@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 582673301C1
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:59:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D743301BF
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231939AbhCGN6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231643AbhCGN6z (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Mar 2021 08:58:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44034 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231526AbhCGN62 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 08:58:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01B2065111;
-        Sun,  7 Mar 2021 13:58:27 +0000 (UTC)
+        id S231823AbhCGN6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 08:58:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A2C465115;
+        Sun,  7 Mar 2021 13:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615125508;
-        bh=CrlDiH4TzEmX/ofJ9a+XOHmR7iE0uCOfrMwVymurr6s=;
+        s=k20201202; t=1615125511;
+        bh=KQ00QTj0XVJIrkn8U7per0PslvEMuVvSyY5Tm39jvBs=;
         h=From:To:Cc:Subject:Date:From;
-        b=G8Xm3ty2n8eys9nv16kbIjbnplLav9eEexf8SrKbLTkc/TL6/NweP80cyqYbDZry3
-         L3DmnuY8RmccWGCBGs1EvbKcV3EkLduL2+XdRnTAefJGViLWVCpxk5qSU995h57JXU
-         hss+l66aMqA0KGWMsNWfhFo8pSVDYzgq+JXVFoZnA2max6UttQ0CF+jXOB9t6Wm00/
-         jY18pFpsMktKX376VXvx3Dp6YjAByCRCrS4V4r/kkg5Xcu18Q5U+3ne2HRrKjrktxH
-         SuPQf3m0CO+rX8B3+vXug/BH9sb4gSYe1DZNrcTpUyzFXIcxsHCgu+rLPrg8R9umXA
-         74EdY2PBNYV/g==
+        b=ClGgYKmoLzUBmN+4lC7RwiywUu6lZ//zTL5gaFlxrSF+fh1cVOCajWX8xKS986QRd
+         7FVrwSzuxMSpsIyzHtkqV98TkbY4Pjow+xpOfUfnNJIhfddusNS0t634C8XRDYNjfP
+         7qVqRuvFPwTER9oBXOC+3eQ4BYMvRJJv9E6Yx5EhaK6wPaX5EQ4T/GdAMejsB5Wr+s
+         k1u3jM+XRUTKo5gUjMEk1knMhpXBSzEAyfYcYvMq7iVpahfkPwIyrdtjNAwNO1z+Wp
+         sTsM4YnDUvaBuSL+RFFFrljKkUnkCl/smVS9mEMf9g21DPlaFCQ2KIlS+rsqzbJdmv
+         tpixwAg9v6k5Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Osipenko <digetx@gmail.com>,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9] pstore/ram: Rate-limit "uncorrectable error in header" message
-Date:   Sun,  7 Mar 2021 08:58:26 -0500
-Message-Id: <20210307135826.968018-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4] pstore/ram: Rate-limit "uncorrectable error in header" message
+Date:   Sun,  7 Mar 2021 08:58:29 -0500
+Message-Id: <20210307135829.968091-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
 X-stable: review
@@ -59,10 +59,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
-index 11e558efd61e..a953d5f04ea0 100644
+index 679d75a864d0..40bdf7d85a05 100644
 --- a/fs/pstore/ram_core.c
 +++ b/fs/pstore/ram_core.c
-@@ -237,7 +237,7 @@ static int persistent_ram_init_ecc(struct persistent_ram_zone *prz,
+@@ -236,7 +236,7 @@ static int persistent_ram_init_ecc(struct persistent_ram_zone *prz,
  		pr_info("error in header, %d\n", numerr);
  		prz->corrected_bytes += numerr;
  	} else if (numerr < 0) {
