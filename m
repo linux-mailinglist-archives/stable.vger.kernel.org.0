@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8711E330192
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68EEE330197
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231664AbhCGN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231675AbhCGN6S (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Mar 2021 08:58:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43710 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231537AbhCGN6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 08:58:03 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA77C65100;
-        Sun,  7 Mar 2021 13:58:02 +0000 (UTC)
+        id S231539AbhCGN6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 08:58:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1050D65109;
+        Sun,  7 Mar 2021 13:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615125483;
-        bh=cpUNuJh8DZ8gVzkLCPsLY72g8GnTW8V/qoJBz6CEgdg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JYRN1RvwtTgb8hgcvl8gqeUDiT/wDCDOBxI5vo2TohPFxfoLdMB5ZevfCG9uMduMS
-         SshhVA7LNN3KXvTl/4YouRXcaPr5TCj7h9h/AiVdTcnK7/vSVQ7rCByUl66VUaBWL6
-         +yWcTlg/zO/0D0ZZV/5nZGhSGVu4IeuKfLY7wVGY0maxRZdr1muLB8XPvNtTyQPTA+
-         Or+kqXns15DXyv89yEnYOZ9q/cBQx42YjjY45lJOoQrLJbFizJ3l5B1VatUtAuEtrD
-         bnFxvDVIqIoEayEyng9eWHG5Fg9JsA1MvVr6BZeX9EECr64LOHJzxXxJfh7aCYKpJ7
-         VYLZdO14NSh3g==
+        s=k20201202; t=1615125484;
+        bh=QPPKuQ4M8BA5N8oW7F3URkcN3zGFKJp2wkxgK1B99g0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=CL7em0DtdqcOpS2DvXNHlleIR/58guMo2ABH5kSwP5vQlddkv5Gz+JodDnsmFDUGS
+         h2uAzj/yj1v53fSGU8EGyVN8dqStGLED2ccZI9K78dAratEGkHLmteNbeWbkPw1EJa
+         wkrDLsyD84ro8ulYm/qaB4MX7eP6IsFjpzKcfNMlouMqyMAVTxYRm/hmYWnq6dmTqy
+         yMYr8drHPmiBwoGbko5PTLtXCN79mTvgKHhueyYodXjO7BddVO7HaFAyO4IyQqml0r
+         MqlnzbZd6DAJg9k6VkEc7zwMwX2GAeDgDWwRwXffWmfC+uUXa+N+bUHb55duuhNALh
+         OMzV80+PS9lvA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+d0cf0ad6513e9a1da5df@syzkaller.appspotmail.com>,
+Cc:     Dmitry Osipenko <digetx@gmail.com>,
         Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 1/8] pstore: Fix warning in pstore_kill_sb()
-Date:   Sun,  7 Mar 2021 08:57:54 -0500
-Message-Id: <20210307135801.967583-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 2/8] pstore/ram: Rate-limit "uncorrectable error in header" message
+Date:   Sun,  7 Mar 2021 08:57:55 -0500
+Message-Id: <20210307135801.967583-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210307135801.967583-1-sashal@kernel.org>
+References: <20210307135801.967583-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,42 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit 9c7d83ae6ba67d6c6199cce24573983db3b56332 ]
+[ Upstream commit 7db688e99c0f770ae73e0f1f3fb67f9b64266445 ]
 
-syzbot is hitting WARN_ON(pstore_sb != sb) at pstore_kill_sb() [1], for the
-assumption that pstore_sb != NULL is wrong because pstore_fill_super() will
-not assign pstore_sb = sb when new_inode() for d_make_root() returned NULL
-(due to memory allocation fault injection).
+There is a quite huge "uncorrectable error in header" flood in KMSG
+on a clean system boot since there is no pstore buffer saved in RAM.
+Let's silence the redundant noisy messages by rate-limiting the printk
+message. Now there are maximum 10 messages printed repeatedly instead
+of 35+.
 
-Since mount_single() calls pstore_kill_sb() when pstore_fill_super()
-failed, pstore_kill_sb() needs to be aware of such failure path.
-
-[1] https://syzkaller.appspot.com/bug?id=6abacb8da5137cb47a416f2bef95719ed60508a0
-
-Reported-by: syzbot <syzbot+d0cf0ad6513e9a1da5df@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210214031307.57903-1-penguin-kernel@I-love.SAKURA.ne.jp
+Link: https://lore.kernel.org/r/20210302095850.30894-1-digetx@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/inode.c | 2 +-
+ fs/pstore/ram_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/pstore/inode.c b/fs/pstore/inode.c
-index c331efe8de95..bbf241a431f2 100644
---- a/fs/pstore/inode.c
-+++ b/fs/pstore/inode.c
-@@ -467,7 +467,7 @@ static struct dentry *pstore_mount(struct file_system_type *fs_type,
- static void pstore_kill_sb(struct super_block *sb)
- {
- 	mutex_lock(&pstore_sb_lock);
--	WARN_ON(pstore_sb != sb);
-+	WARN_ON(pstore_sb && pstore_sb != sb);
+diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
+index aa8e0b65ff1a..fff363bfd484 100644
+--- a/fs/pstore/ram_core.c
++++ b/fs/pstore/ram_core.c
+@@ -246,7 +246,7 @@ static int persistent_ram_init_ecc(struct persistent_ram_zone *prz,
+ 		pr_info("error in header, %d\n", numerr);
+ 		prz->corrected_bytes += numerr;
+ 	} else if (numerr < 0) {
+-		pr_info("uncorrectable error in header\n");
++		pr_info_ratelimited("uncorrectable error in header\n");
+ 		prz->bad_blocks++;
+ 	}
  
- 	kill_litter_super(sb);
- 	pstore_sb = NULL;
 -- 
 2.30.1
 
