@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0FB933019E
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85CFE3301B9
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbhCGN6V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:58:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43834 "EHLO mail.kernel.org"
+        id S231911AbhCGN6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:58:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231558AbhCGN6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 08:58:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1985465115;
-        Sun,  7 Mar 2021 13:58:13 +0000 (UTC)
+        id S231592AbhCGN6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 08:58:14 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 210AB6511F;
+        Sun,  7 Mar 2021 13:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615125493;
-        bh=KQyV3f0GCu6+wEuonWFPpqdiRkCvvvn6oUm7WcRVP94=;
-        h=From:To:Cc:Subject:Date:From;
-        b=sdF+TutJJaOf08FDpaaDIzLfqCvgms0FFtyxlARjadHrGe07jcnXSLnUxqITgSoJF
-         CPLHccKQfRfsiPJEp7oyEaNbOA3UgC3x3JRuyeJXoU4FH9q/5bWnnv1tpvRCgjp1GJ
-         /xw/0wt4r/fm8hGDSsBw3AgaHcTci6sDsDA1PV7JRgJU/tk4rp99UbT2J8/S5PoAha
-         3kZ01T9GZgiRVyCnhYh7hfjHG1SENlMlse+R2xH5xObAAYf/muJ9au98yHMjM8UuJ6
-         JmFa9/ZCkrXyhKMJByzYDe47W8TQ+IJvEvABE2NF6BRngUH7EahqKdoTJ+uG23pAMQ
-         NOE/gEeP56RZw==
+        s=k20201202; t=1615125494;
+        bh=TBjw54YMhlEnkZc1oppHKVJrnat7THs2Fz48Xs7OAdI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=s/W4zW/IioXqYaEs5f8ckXhCKb2s6HMx2XsT39WW4pEZIHHCsb6yl4xqCia3r5nBS
+         D5536Si8qqOo6TeIws0XUzXO7AGP2A+81Ph4BXxXofEG9R7N0Q2+ID4k6TsOkYciOp
+         m8PD0xSsn1xxK3wTtSThsubMGURDU02lVFNirk6yvm0OtDMYTrHh6RqED1v6XsPK44
+         CVjiJpVKJCH7uHbDWr8/3v3NbpjGzbpTyzNc4b9hzStk7mjDqxb1ENeYiwHM9CBMPl
+         Vi7ZkrRg3XJKnVkQs6cLeED/wne+IGfTQ8P5PvNCxKLz/Gz+0Q+2PWa/Pkc0sfYMYv
+         nyJC8xT+EUe2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 1/5] pstore/ram: Rate-limit "uncorrectable error in header" message
-Date:   Sun,  7 Mar 2021 08:58:07 -0500
-Message-Id: <20210307135812.967702-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 2/5] tracing: Skip selftests if tracing is disabled
+Date:   Sun,  7 Mar 2021 08:58:08 -0500
+Message-Id: <20210307135812.967702-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210307135812.967702-1-sashal@kernel.org>
+References: <20210307135812.967702-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -40,37 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 7db688e99c0f770ae73e0f1f3fb67f9b64266445 ]
+[ Upstream commit ee666a185558ac9a929e53b902a568442ed62416 ]
 
-There is a quite huge "uncorrectable error in header" flood in KMSG
-on a clean system boot since there is no pstore buffer saved in RAM.
-Let's silence the redundant noisy messages by rate-limiting the printk
-message. Now there are maximum 10 messages printed repeatedly instead
-of 35+.
+If tracing is disabled for some reason (traceoff_on_warning, command line,
+etc), the ftrace selftests are guaranteed to fail, as their results are
+defined by trace data in the ring buffers. If the ring buffers are turned
+off, the tests will fail, due to lack of data.
 
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210302095850.30894-1-digetx@gmail.com
+Because tracing being disabled is for a specific reason (warning, user
+decided to, etc), it does not make sense to enable tracing to run the self
+tests, as the test output may corrupt the reason for the tracing to be
+disabled.
+
+Instead, simply skip the self tests and report that they are being skipped
+due to tracing being disabled.
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/pstore/ram_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/pstore/ram_core.c b/fs/pstore/ram_core.c
-index 1f4d8c06f9be..4cb0478a17f8 100644
---- a/fs/pstore/ram_core.c
-+++ b/fs/pstore/ram_core.c
-@@ -246,7 +246,7 @@ static int persistent_ram_init_ecc(struct persistent_ram_zone *prz,
- 		pr_info("error in header, %d\n", numerr);
- 		prz->corrected_bytes += numerr;
- 	} else if (numerr < 0) {
--		pr_info("uncorrectable error in header\n");
-+		pr_info_ratelimited("uncorrectable error in header\n");
- 		prz->bad_blocks++;
- 	}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 1a75610f5f57..91c722213431 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1679,6 +1679,12 @@ static int run_tracer_selftest(struct tracer *type)
+ 	if (!selftests_can_run)
+ 		return save_selftest(type);
  
++	if (!tracing_is_on()) {
++		pr_warn("Selftest for tracer %s skipped due to tracing disabled\n",
++			type->name);
++		return 0;
++	}
++
+ 	/*
+ 	 * Run a selftest on this tracer.
+ 	 * Here we reset the trace buffer, and set the current
 -- 
 2.30.1
 
