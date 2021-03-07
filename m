@@ -2,346 +2,492 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAC923304DA
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 22:28:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87968330507
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 23:32:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbhCGV1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 16:27:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35390 "EHLO
+        id S231744AbhCGWcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 17:32:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233029AbhCGV1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 16:27:25 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F664C06174A
-        for <stable@vger.kernel.org>; Sun,  7 Mar 2021 13:27:25 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id m20-20020a7bcb940000b029010cab7e5a9fso2622269wmi.3
-        for <stable@vger.kernel.org>; Sun, 07 Mar 2021 13:27:24 -0800 (PST)
+        with ESMTP id S231648AbhCGWcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 17:32:05 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C42BC06174A
+        for <stable@vger.kernel.org>; Sun,  7 Mar 2021 14:32:05 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id ga23-20020a17090b0397b02900c0b81bbcd4so1923893pjb.0
+        for <stable@vger.kernel.org>; Sun, 07 Mar 2021 14:32:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language;
-        bh=UNME1cmshD1kui4AaKz6vKOyi8LbK0oP3Nsoy/JNHBc=;
-        b=ks15rluHGcmgoUcHCyCXmqfP0ARBqvX7uS9YnLAnHrDXGJO/1JqNzbJVKSpUJlyjb3
-         NMTrZsLG5Y067fbfu5LFfYDTcyfYAHMPEP96gFwUvgynvZckFC6xpVKJyAKALMYvQC8c
-         Frbg9Zio+i7xjaNpYBBd0EhojzKtOsnJQP95UEY8cHviwfT485sv0mROUvX41dPZub+c
-         DMJJj1KVWUPtmvzzGE9OcRTGfow+BFQ4dr9dzVrtKy75vZ5sJQELnQjK2wk7gK2SINm5
-         tG3QuNmHjPk5WKmHZdlF3ZXvxTuTrdBNsfNmKen/FYb/BWSjTzz+xy6VBs2MOoLgaTdJ
-         Xxsg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=+lkMhnqB6U2wLk+Zo9Vv7apYh0HB6f3RpNBvLX8J1UY=;
+        b=qQAXiY5aXN3TLsuX3426yRkBaKXBjlUNOE7Tcg5J6WHa2+XfAlwLfKGjWGE+6nLjUW
+         59mNG6laPrgemBfBcX5F9IGz1Sh9npHSKQq7EbLd9YufJpIqsBKbYToRdHYLa9Lsxzth
+         d27HmRDC4qBF3ptOuUeeVF55+LSKk/cUgLwn/go47wg/1WQp4ilGdBc3GICapGAENN0V
+         CrxSvTrwryd+X21xTEUncO2yw3Jemd3F8fmoowboCEhPKtM0Tt1NKbXdh/V/nabOVPl2
+         gh9n5p7BJWTEfheAJE/L63jKPM5oWWlbUf2mW6L+V327gYQXw3MuxAJMku1vOvCPsWMH
+         xnYg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language;
-        bh=UNME1cmshD1kui4AaKz6vKOyi8LbK0oP3Nsoy/JNHBc=;
-        b=XirXz8m69uTNZm/AL7133fmf+LIPH5zJs3Non7wB5jRLRcKZ8CsY+0dymqDtO6HjbJ
-         qfLJITKuHhAiizdu3dG2DrZaH83XEqNBByP26quc9D4AOaPOejMa0dKA4v49tb2Jiah2
-         3PV7N4vdkGrVq28rbRpt6jafutjhmO6dpHAk7PO3GrBoUtQsyU1bBAQjarUmZnjUU0Q7
-         8F0dLh+JihswvD3WsqtOdkPcoTz7e5J5OJXlZXW7GURc7FY2dV526b8cmOfNzXTOLCR+
-         GGwD7kd2nuDFoViW2o8G8vxx7dsAKfSXWn/3nKI4wkArOlYYrNonzuPQSKwp5XUbbj6u
-         Ye7Q==
-X-Gm-Message-State: AOAM533ev8Ru9SN4Q06yF7GCAybW4+Qg/a6J6dTUnO385uPgHbbT9Mcs
-        wbTIcLlgW+YF152461rAb71j8ba47ds=
-X-Google-Smtp-Source: ABdhPJz93d7C/Yn8IrHsrI5gOeI8Z7nuWJ281pJ8F/HQu0B1u+bgTOeJ3ekCyXQLbv4hRsJWiO9mZg==
-X-Received: by 2002:a7b:c755:: with SMTP id w21mr19695528wmk.89.1615152443663;
-        Sun, 07 Mar 2021 13:27:23 -0800 (PST)
-Received: from [192.168.2.28] (39.35.broadband4.iol.cz. [85.71.35.39])
-        by smtp.gmail.com with ESMTPSA id q4sm7231260wma.20.2021.03.07.13.27.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Mar 2021 13:27:22 -0800 (PST)
-Subject: Re: FAILED: patch "[PATCH] dm verity: fix FEC for RS roots unaligned
- to block size" failed to apply to 4.19-stable tree
-To:     gregkh@linuxfoundation.org, cJ-ko@zougloub.eu,
-        samitolvanen@google.com, snitzer@redhat.com,
-        Mikulas Patocka <mpatocka@redhat.com>
-Cc:     stable@vger.kernel.org
-References: <161512534156239@kroah.com>
-From:   Milan Broz <gmazyland@gmail.com>
-Message-ID: <82970d00-c11d-e2fb-5999-d953f46901fa@gmail.com>
-Date:   Sun, 7 Mar 2021 22:27:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=+lkMhnqB6U2wLk+Zo9Vv7apYh0HB6f3RpNBvLX8J1UY=;
+        b=dOxE+ai88xhNrcX0naum0meBLS1/s1Ot2QvoY0ynldu3vZmf03UZ7XzMcvpiI4YSvI
+         xcqlh4Eo203aIdc5+sSL9E0VsYaggzDewMT6YFuRapuVHOfI/PrhwUpA/pTgSpat78dR
+         JPV73GZT3WULRemkeotckXrLgJ9D8y61pVAMdmRP2O3yolZD8O72HV4RZOZVJamBCoyF
+         CeWCZSq767fBqyOb+dukPWIPUwTNf+eTIHQ5YDwncAAAU9Ef/iy1Mwl3Xs+vtnapI6Bt
+         9JY8xXCQFQSAnW+YvQJlJU4kgMBoLlMW0tfh6SdwQAcu9LiVxPOtFtWO2x4tFhte8Ye+
+         9vMg==
+X-Gm-Message-State: AOAM530Z1Ahcvus4eC36wng9PmvLUlmPeGK41le7AAb5PktS+eY3fNuf
+        FDfzNlnK37m+6J5RnpnZ/0/o6GrcpkIDwQ==
+X-Google-Smtp-Source: ABdhPJz8BQbw4K9aSM2svbDx0FKeY6Tb0INYxQqD9IeNdipikFDSmbiyNepV17NbUrWBY/FoWqbBUQ==
+X-Received: by 2002:a17:90a:f40f:: with SMTP id ch15mr21780912pjb.128.1615156324754;
+        Sun, 07 Mar 2021 14:32:04 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e185sm8484193pfe.117.2021.03.07.14.32.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Mar 2021 14:32:04 -0800 (PST)
+Message-ID: <60455464.1c69fb81.fc654.5b3b@mx.google.com>
+Date:   Sun, 07 Mar 2021 14:32:04 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <161512534156239@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------C02B9C677A2F9FC6936FF60C"
-Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.259-33-g7d5afb658c057
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 104 runs,
+ 11 regressions (v4.4.259-33-g7d5afb658c057)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------C02B9C677A2F9FC6936FF60C
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+stable-rc/queue/4.4 baseline: 104 runs, 11 regressions (v4.4.259-33-g7d5afb=
+658c057)
 
-On 07/03/2021 14:55, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.19-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-Hello,
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
+ig | 1          =
 
-I think the patch should be backported to 4.19, only trivial diff context change needed.
-Backported patch based on top of 4.19.179 is in attachment.
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
-For older longterm (4.9, 4.14) it cannot be easily backported without additional
-changes to dm-bufio (mainly support for non-power-of-two block sizes).
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
-Thanks,
-Milan
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From df7b59ba9245c4a3115ebaa905e3e5719a3810da Mon Sep 17 00:00:00 2001
-> From: Milan Broz <gmazyland@gmail.com>
-> Date: Tue, 23 Feb 2021 21:21:21 +0100
-> Subject: [PATCH] dm verity: fix FEC for RS roots unaligned to block size
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> 
-> Optional Forward Error Correction (FEC) code in dm-verity uses
-> Reed-Solomon code and should support roots from 2 to 24.
-> 
-> The error correction parity bytes (of roots lengths per RS block) are
-> stored on a separate device in sequence without any padding.
-> 
-> Currently, to access FEC device, the dm-verity-fec code uses dm-bufio
-> client with block size set to verity data block (usually 4096 or 512
-> bytes).
-> 
-> Because this block size is not divisible by some (most!) of the roots
-> supported lengths, data repair cannot work for partially stored parity
-> bytes.
-> 
-> This fix changes FEC device dm-bufio block size to "roots << SECTOR_SHIFT"
-> where we can be sure that the full parity data is always available.
-> (There cannot be partial FEC blocks because parity must cover whole
-> sectors.)
-> 
-> Because the optional FEC starting offset could be unaligned to this
-> new block size, we have to use dm_bufio_set_sector_offset() to
-> configure it.
-> 
-> The problem is easily reproduced using veritysetup, e.g. for roots=13:
-> 
->   # create verity device with RS FEC
->   dd if=/dev/urandom of=data.img bs=4096 count=8 status=none
->   veritysetup format data.img hash.img --fec-device=fec.img --fec-roots=13 | awk '/^Root hash/{ print $3 }' >roothash
-> 
->   # create an erasure that should be always repairable with this roots setting
->   dd if=/dev/zero of=data.img conv=notrunc bs=1 count=8 seek=4088 status=none
-> 
->   # try to read it through dm-verity
->   veritysetup open data.img test hash.img --fec-device=fec.img --fec-roots=13 $(cat roothash)
->   dd if=/dev/mapper/test of=/dev/null bs=4096 status=noxfer
->   # wait for possible recursive recovery in kernel
->   udevadm settle
->   veritysetup close test
-> 
-> With this fix, errors are properly repaired.
->   device-mapper: verity-fec: 7:1: FEC 0: corrected 8 errors
->   ...
-> 
-> Without it, FEC code usually ends on unrecoverable failure in RS decoder:
->   device-mapper: verity-fec: 7:1: FEC 0: failed to correct: -74
->   ...
-> 
-> This problem is present in all kernels since the FEC code's
-> introduction (kernel 4.5).
-> 
-> It is thought that this problem is not visible in Android ecosystem
-> because it always uses a default RS roots=2.
-> 
-> Depends-on: a14e5ec66a7a ("dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size")
-> Signed-off-by: Milan Broz <gmazyland@gmail.com>
-> Tested-by: Jérôme Carretero <cJ-ko@zougloub.eu>
-> Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-> Cc: stable@vger.kernel.org # 4.5+
-> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-> 
-> diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
-> index fb41b4f23c48..66f4c6398f67 100644
-> --- a/drivers/md/dm-verity-fec.c
-> +++ b/drivers/md/dm-verity-fec.c
-> @@ -61,19 +61,18 @@ static int fec_decode_rs8(struct dm_verity *v, struct dm_verity_fec_io *fio,
->  static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
->  			   unsigned *offset, struct dm_buffer **buf)
->  {
-> -	u64 position, block;
-> +	u64 position, block, rem;
->  	u8 *res;
->  
->  	position = (index + rsb) * v->fec->roots;
-> -	block = position >> v->data_dev_block_bits;
-> -	*offset = (unsigned)(position - (block << v->data_dev_block_bits));
-> +	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
-> +	*offset = (unsigned)rem;
->  
-> -	res = dm_bufio_read(v->fec->bufio, v->fec->start + block, buf);
-> +	res = dm_bufio_read(v->fec->bufio, block, buf);
->  	if (IS_ERR(res)) {
->  		DMERR("%s: FEC %llu: parity read failed (block %llu): %ld",
->  		      v->data_dev->name, (unsigned long long)rsb,
-> -		      (unsigned long long)(v->fec->start + block),
-> -		      PTR_ERR(res));
-> +		      (unsigned long long)block, PTR_ERR(res));
->  		*buf = NULL;
->  	}
->  
-> @@ -155,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
->  
->  		/* read the next block when we run out of parity bytes */
->  		offset += v->fec->roots;
-> -		if (offset >= 1 << v->data_dev_block_bits) {
-> +		if (offset >= v->fec->roots << SECTOR_SHIFT) {
->  			dm_bufio_release(buf);
->  
->  			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
-> @@ -674,7 +673,7 @@ int verity_fec_ctr(struct dm_verity *v)
->  {
->  	struct dm_verity_fec *f = v->fec;
->  	struct dm_target *ti = v->ti;
-> -	u64 hash_blocks;
-> +	u64 hash_blocks, fec_blocks;
->  	int ret;
->  
->  	if (!verity_fec_is_enabled(v)) {
-> @@ -744,15 +743,17 @@ int verity_fec_ctr(struct dm_verity *v)
->  	}
->  
->  	f->bufio = dm_bufio_client_create(f->dev->bdev,
-> -					  1 << v->data_dev_block_bits,
-> +					  f->roots << SECTOR_SHIFT,
->  					  1, 0, NULL, NULL);
->  	if (IS_ERR(f->bufio)) {
->  		ti->error = "Cannot initialize FEC bufio client";
->  		return PTR_ERR(f->bufio);
->  	}
->  
-> -	if (dm_bufio_get_device_size(f->bufio) <
-> -	    ((f->start + f->rounds * f->roots) >> v->data_dev_block_bits)) {
-> +	dm_bufio_set_sector_offset(f->bufio, f->start << (v->data_dev_block_bits - SECTOR_SHIFT));
-> +
-> +	fec_blocks = div64_u64(f->rounds * f->roots, v->fec->roots << SECTOR_SHIFT);
-> +	if (dm_bufio_get_device_size(f->bufio) < fec_blocks) {
->  		ti->error = "FEC device is too small";
->  		return -E2BIG;
->  	}
-> 
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
---------------C02B9C677A2F9FC6936FF60C
-Content-Type: text/x-patch;
- name="0002-dm-verity-fix-FEC-for-RS-roots-unaligned-to-block-si.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="0002-dm-verity-fix-FEC-for-RS-roots-unaligned-to-block-si.pa";
- filename*1="tch"
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
 
-RnJvbSBkZjdiNTliYTkyNDVjNGEzMTE1ZWJhYTkwNWUzZTU3MTlhMzgxMGRhIE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBNaWxhbiBCcm96IDxnbWF6eWxhbmRAZ21haWwuY29t
-PgpEYXRlOiBUdWUsIDIzIEZlYiAyMDIxIDIxOjIxOjIxICswMTAwClN1YmplY3Q6IFtQQVRD
-SCAyLzJdIGRtIHZlcml0eTogZml4IEZFQyBmb3IgUlMgcm9vdHMgdW5hbGlnbmVkIHRvIGJs
-b2NrIHNpemUKTUlNRS1WZXJzaW9uOiAxLjAKQ29udGVudC1UeXBlOiB0ZXh0L3BsYWluOyBj
-aGFyc2V0PVVURi04CkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IDhiaXQKCk9wdGlvbmFs
-IEZvcndhcmQgRXJyb3IgQ29ycmVjdGlvbiAoRkVDKSBjb2RlIGluIGRtLXZlcml0eSB1c2Vz
-ClJlZWQtU29sb21vbiBjb2RlIGFuZCBzaG91bGQgc3VwcG9ydCByb290cyBmcm9tIDIgdG8g
-MjQuCgpUaGUgZXJyb3IgY29ycmVjdGlvbiBwYXJpdHkgYnl0ZXMgKG9mIHJvb3RzIGxlbmd0
-aHMgcGVyIFJTIGJsb2NrKSBhcmUKc3RvcmVkIG9uIGEgc2VwYXJhdGUgZGV2aWNlIGluIHNl
-cXVlbmNlIHdpdGhvdXQgYW55IHBhZGRpbmcuCgpDdXJyZW50bHksIHRvIGFjY2VzcyBGRUMg
-ZGV2aWNlLCB0aGUgZG0tdmVyaXR5LWZlYyBjb2RlIHVzZXMgZG0tYnVmaW8KY2xpZW50IHdp
-dGggYmxvY2sgc2l6ZSBzZXQgdG8gdmVyaXR5IGRhdGEgYmxvY2sgKHVzdWFsbHkgNDA5NiBv
-ciA1MTIKYnl0ZXMpLgoKQmVjYXVzZSB0aGlzIGJsb2NrIHNpemUgaXMgbm90IGRpdmlzaWJs
-ZSBieSBzb21lIChtb3N0ISkgb2YgdGhlIHJvb3RzCnN1cHBvcnRlZCBsZW5ndGhzLCBkYXRh
-IHJlcGFpciBjYW5ub3Qgd29yayBmb3IgcGFydGlhbGx5IHN0b3JlZCBwYXJpdHkKYnl0ZXMu
-CgpUaGlzIGZpeCBjaGFuZ2VzIEZFQyBkZXZpY2UgZG0tYnVmaW8gYmxvY2sgc2l6ZSB0byAi
-cm9vdHMgPDwgU0VDVE9SX1NISUZUIgp3aGVyZSB3ZSBjYW4gYmUgc3VyZSB0aGF0IHRoZSBm
-dWxsIHBhcml0eSBkYXRhIGlzIGFsd2F5cyBhdmFpbGFibGUuCihUaGVyZSBjYW5ub3QgYmUg
-cGFydGlhbCBGRUMgYmxvY2tzIGJlY2F1c2UgcGFyaXR5IG11c3QgY292ZXIgd2hvbGUKc2Vj
-dG9ycy4pCgpCZWNhdXNlIHRoZSBvcHRpb25hbCBGRUMgc3RhcnRpbmcgb2Zmc2V0IGNvdWxk
-IGJlIHVuYWxpZ25lZCB0byB0aGlzCm5ldyBibG9jayBzaXplLCB3ZSBoYXZlIHRvIHVzZSBk
-bV9idWZpb19zZXRfc2VjdG9yX29mZnNldCgpIHRvCmNvbmZpZ3VyZSBpdC4KClRoZSBwcm9i
-bGVtIGlzIGVhc2lseSByZXByb2R1Y2VkIHVzaW5nIHZlcml0eXNldHVwLCBlLmcuIGZvciBy
-b290cz0xMzoKCiAgIyBjcmVhdGUgdmVyaXR5IGRldmljZSB3aXRoIFJTIEZFQwogIGRkIGlm
-PS9kZXYvdXJhbmRvbSBvZj1kYXRhLmltZyBicz00MDk2IGNvdW50PTggc3RhdHVzPW5vbmUK
-ICB2ZXJpdHlzZXR1cCBmb3JtYXQgZGF0YS5pbWcgaGFzaC5pbWcgLS1mZWMtZGV2aWNlPWZl
-Yy5pbWcgLS1mZWMtcm9vdHM9MTMgfCBhd2sgJy9eUm9vdCBoYXNoL3sgcHJpbnQgJDMgfScg
-PnJvb3RoYXNoCgogICMgY3JlYXRlIGFuIGVyYXN1cmUgdGhhdCBzaG91bGQgYmUgYWx3YXlz
-IHJlcGFpcmFibGUgd2l0aCB0aGlzIHJvb3RzIHNldHRpbmcKICBkZCBpZj0vZGV2L3plcm8g
-b2Y9ZGF0YS5pbWcgY29udj1ub3RydW5jIGJzPTEgY291bnQ9OCBzZWVrPTQwODggc3RhdHVz
-PW5vbmUKCiAgIyB0cnkgdG8gcmVhZCBpdCB0aHJvdWdoIGRtLXZlcml0eQogIHZlcml0eXNl
-dHVwIG9wZW4gZGF0YS5pbWcgdGVzdCBoYXNoLmltZyAtLWZlYy1kZXZpY2U9ZmVjLmltZyAt
-LWZlYy1yb290cz0xMyAkKGNhdCByb290aGFzaCkKICBkZCBpZj0vZGV2L21hcHBlci90ZXN0
-IG9mPS9kZXYvbnVsbCBicz00MDk2IHN0YXR1cz1ub3hmZXIKICAjIHdhaXQgZm9yIHBvc3Np
-YmxlIHJlY3Vyc2l2ZSByZWNvdmVyeSBpbiBrZXJuZWwKICB1ZGV2YWRtIHNldHRsZQogIHZl
-cml0eXNldHVwIGNsb3NlIHRlc3QKCldpdGggdGhpcyBmaXgsIGVycm9ycyBhcmUgcHJvcGVy
-bHkgcmVwYWlyZWQuCiAgZGV2aWNlLW1hcHBlcjogdmVyaXR5LWZlYzogNzoxOiBGRUMgMDog
-Y29ycmVjdGVkIDggZXJyb3JzCiAgLi4uCgpXaXRob3V0IGl0LCBGRUMgY29kZSB1c3VhbGx5
-IGVuZHMgb24gdW5yZWNvdmVyYWJsZSBmYWlsdXJlIGluIFJTIGRlY29kZXI6CiAgZGV2aWNl
-LW1hcHBlcjogdmVyaXR5LWZlYzogNzoxOiBGRUMgMDogZmFpbGVkIHRvIGNvcnJlY3Q6IC03
-NAogIC4uLgoKVGhpcyBwcm9ibGVtIGlzIHByZXNlbnQgaW4gYWxsIGtlcm5lbHMgc2luY2Ug
-dGhlIEZFQyBjb2RlJ3MKaW50cm9kdWN0aW9uIChrZXJuZWwgNC41KS4KCkl0IGlzIHRob3Vn
-aHQgdGhhdCB0aGlzIHByb2JsZW0gaXMgbm90IHZpc2libGUgaW4gQW5kcm9pZCBlY29zeXN0
-ZW0KYmVjYXVzZSBpdCBhbHdheXMgdXNlcyBhIGRlZmF1bHQgUlMgcm9vdHM9Mi4KCkRlcGVu
-ZHMtb246IGExNGU1ZWM2NmE3YSAoImRtIGJ1ZmlvOiBzdWJ0cmFjdCB0aGUgbnVtYmVyIG9m
-IGluaXRpYWwgc2VjdG9ycyBpbiBkbV9idWZpb19nZXRfZGV2aWNlX3NpemUiKQpTaWduZWQt
-b2ZmLWJ5OiBNaWxhbiBCcm96IDxnbWF6eWxhbmRAZ21haWwuY29tPgpUZXN0ZWQtYnk6IErD
-qXLDtG1lIENhcnJldGVybyA8Y0ota29Aem91Z2xvdWIuZXU+ClJldmlld2VkLWJ5OiBTYW1p
-IFRvbHZhbmVuIDxzYW1pdG9sdmFuZW5AZ29vZ2xlLmNvbT4KQ2M6IHN0YWJsZUB2Z2VyLmtl
-cm5lbC5vcmcgIyA0LjUrClNpZ25lZC1vZmYtYnk6IE1pa2UgU25pdHplciA8c25pdHplckBy
-ZWRoYXQuY29tPgotLS0KIGRyaXZlcnMvbWQvZG0tdmVyaXR5LWZlYy5jIHwgICAyMyArKysr
-KysrKysrKystLS0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDEyIGluc2VydGlvbnMoKyks
-IDExIGRlbGV0aW9ucygtKQoKSW5kZXg6IGxpbnV4LTQuMTkvZHJpdmVycy9tZC9kbS12ZXJp
-dHktZmVjLmMKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgtNC4xOS5vcmlnL2RyaXZlcnMvbWQv
-ZG0tdmVyaXR5LWZlYy5jCTIwMjEtMDMtMDcgMjI6MDc6MjcuMzIxMzkxNDYyICswMTAwCisr
-KyBsaW51eC00LjE5L2RyaXZlcnMvbWQvZG0tdmVyaXR5LWZlYy5jCTIwMjEtMDMtMDcgMjI6
-MDc6MjcuMzE3MzkxNDgxICswMTAwCkBAIC02NSwxOSArNjUsMTggQEAgc3RhdGljIGludCBm
-ZWNfZGVjb2RlX3JzOChzdHJ1Y3QgZG1fdmVyaQogc3RhdGljIHU4ICpmZWNfcmVhZF9wYXJp
-dHkoc3RydWN0IGRtX3Zlcml0eSAqdiwgdTY0IHJzYiwgaW50IGluZGV4LAogCQkJICAgdW5z
-aWduZWQgKm9mZnNldCwgc3RydWN0IGRtX2J1ZmZlciAqKmJ1ZikKIHsKLQl1NjQgcG9zaXRp
-b24sIGJsb2NrOworCXU2NCBwb3NpdGlvbiwgYmxvY2ssIHJlbTsKIAl1OCAqcmVzOwogCiAJ
-cG9zaXRpb24gPSAoaW5kZXggKyByc2IpICogdi0+ZmVjLT5yb290czsKLQlibG9jayA9IHBv
-c2l0aW9uID4+IHYtPmRhdGFfZGV2X2Jsb2NrX2JpdHM7Ci0JKm9mZnNldCA9ICh1bnNpZ25l
-ZCkocG9zaXRpb24gLSAoYmxvY2sgPDwgdi0+ZGF0YV9kZXZfYmxvY2tfYml0cykpOworCWJs
-b2NrID0gZGl2NjRfdTY0X3JlbShwb3NpdGlvbiwgdi0+ZmVjLT5yb290cyA8PCBTRUNUT1Jf
-U0hJRlQsICZyZW0pOworCSpvZmZzZXQgPSAodW5zaWduZWQpcmVtOwogCi0JcmVzID0gZG1f
-YnVmaW9fcmVhZCh2LT5mZWMtPmJ1ZmlvLCB2LT5mZWMtPnN0YXJ0ICsgYmxvY2ssIGJ1Zik7
-CisJcmVzID0gZG1fYnVmaW9fcmVhZCh2LT5mZWMtPmJ1ZmlvLCBibG9jaywgYnVmKTsKIAlp
-ZiAodW5saWtlbHkoSVNfRVJSKHJlcykpKSB7CiAJCURNRVJSKCIlczogRkVDICVsbHU6IHBh
-cml0eSByZWFkIGZhaWxlZCAoYmxvY2sgJWxsdSk6ICVsZCIsCiAJCSAgICAgIHYtPmRhdGFf
-ZGV2LT5uYW1lLCAodW5zaWduZWQgbG9uZyBsb25nKXJzYiwKLQkJICAgICAgKHVuc2lnbmVk
-IGxvbmcgbG9uZykodi0+ZmVjLT5zdGFydCArIGJsb2NrKSwKLQkJICAgICAgUFRSX0VSUihy
-ZXMpKTsKKwkJICAgICAgKHVuc2lnbmVkIGxvbmcgbG9uZylibG9jaywgUFRSX0VSUihyZXMp
-KTsKIAkJKmJ1ZiA9IE5VTEw7CiAJfQogCkBAIC0xNTksNyArMTU4LDcgQEAgc3RhdGljIGlu
-dCBmZWNfZGVjb2RlX2J1ZnMoc3RydWN0IGRtX3ZlcgogCiAJCS8qIHJlYWQgdGhlIG5leHQg
-YmxvY2sgd2hlbiB3ZSBydW4gb3V0IG9mIHBhcml0eSBieXRlcyAqLwogCQlvZmZzZXQgKz0g
-di0+ZmVjLT5yb290czsKLQkJaWYgKG9mZnNldCA+PSAxIDw8IHYtPmRhdGFfZGV2X2Jsb2Nr
-X2JpdHMpIHsKKwkJaWYgKG9mZnNldCA+PSB2LT5mZWMtPnJvb3RzIDw8IFNFQ1RPUl9TSElG
-VCkgewogCQkJZG1fYnVmaW9fcmVsZWFzZShidWYpOwogCiAJCQlwYXIgPSBmZWNfcmVhZF9w
-YXJpdHkodiwgcnNiLCBibG9ja19vZmZzZXQsICZvZmZzZXQsICZidWYpOwpAQCAtNjc1LDcg
-KzY3NCw3IEBAIGludCB2ZXJpdHlfZmVjX2N0cihzdHJ1Y3QgZG1fdmVyaXR5ICp2KQogewog
-CXN0cnVjdCBkbV92ZXJpdHlfZmVjICpmID0gdi0+ZmVjOwogCXN0cnVjdCBkbV90YXJnZXQg
-KnRpID0gdi0+dGk7Ci0JdTY0IGhhc2hfYmxvY2tzOworCXU2NCBoYXNoX2Jsb2NrcywgZmVj
-X2Jsb2NrczsKIAlpbnQgcmV0OwogCiAJaWYgKCF2ZXJpdHlfZmVjX2lzX2VuYWJsZWQodikp
-IHsKQEAgLTc0NSwxNSArNzQ0LDE3IEBAIGludCB2ZXJpdHlfZmVjX2N0cihzdHJ1Y3QgZG1f
-dmVyaXR5ICp2KQogCX0KIAogCWYtPmJ1ZmlvID0gZG1fYnVmaW9fY2xpZW50X2NyZWF0ZShm
-LT5kZXYtPmJkZXYsCi0JCQkJCSAgMSA8PCB2LT5kYXRhX2Rldl9ibG9ja19iaXRzLAorCQkJ
-CQkgIGYtPnJvb3RzIDw8IFNFQ1RPUl9TSElGVCwKIAkJCQkJICAxLCAwLCBOVUxMLCBOVUxM
-KTsKIAlpZiAoSVNfRVJSKGYtPmJ1ZmlvKSkgewogCQl0aS0+ZXJyb3IgPSAiQ2Fubm90IGlu
-aXRpYWxpemUgRkVDIGJ1ZmlvIGNsaWVudCI7CiAJCXJldHVybiBQVFJfRVJSKGYtPmJ1Zmlv
-KTsKIAl9CiAKLQlpZiAoZG1fYnVmaW9fZ2V0X2RldmljZV9zaXplKGYtPmJ1ZmlvKSA8Ci0J
-ICAgICgoZi0+c3RhcnQgKyBmLT5yb3VuZHMgKiBmLT5yb290cykgPj4gdi0+ZGF0YV9kZXZf
-YmxvY2tfYml0cykpIHsKKwlkbV9idWZpb19zZXRfc2VjdG9yX29mZnNldChmLT5idWZpbywg
-Zi0+c3RhcnQgPDwgKHYtPmRhdGFfZGV2X2Jsb2NrX2JpdHMgLSBTRUNUT1JfU0hJRlQpKTsK
-KworCWZlY19ibG9ja3MgPSBkaXY2NF91NjQoZi0+cm91bmRzICogZi0+cm9vdHMsIHYtPmZl
-Yy0+cm9vdHMgPDwgU0VDVE9SX1NISUZUKTsKKwlpZiAoZG1fYnVmaW9fZ2V0X2RldmljZV9z
-aXplKGYtPmJ1ZmlvKSA8IGZlY19ibG9ja3MpIHsKIAkJdGktPmVycm9yID0gIkZFQyBkZXZp
-Y2UgaXMgdG9vIHNtYWxsIjsKIAkJcmV0dXJuIC1FMkJJRzsKIAl9Cg==
---------------C02B9C677A2F9FC6936FF60C--
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.259-33-g7d5afb658c057/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.259-33-g7d5afb658c057
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7d5afb658c05701eb6b2da2a39b3059d1fa7527b =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+panda               | arm  | lab-collabora   | gcc-8    | omap2plus_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60452133a75a707e4caddcc3
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60452133a75a707=
+e4caddcc8
+        failing since 1 day (last pass: v4.4.259-30-g62260e4c9abb1, first f=
+ail: v4.4.259-30-gb1fda807d9697)
+        2 lines
+
+    2021-03-07 18:53:35.532000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff26c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60451fe9626295737baddcb8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60451fe9626295737badd=
+cb9
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60453ac24f81cae37eaddcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60453ac24f81cae37eadd=
+cb2
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6045334af8c4533ef0addd7a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6045334af8c4533ef0add=
+d7b
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60452026b88221519aaddcb7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60452026b88221519aadd=
+cb8
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv2 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60451faa685f79bfefaddd1f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60451faa685f79bfefadd=
+d20
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60451fd43d39a42a9eaddcd6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60451fd43d39a42a9eadd=
+cd7
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60453a71f7867b3ec2addd14
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60453a71f7867b3ec2add=
+d15
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604532f75c2d426f7caddcd4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604532f75c2d426f7cadd=
+cd5
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60451fc02d87d7b6fcaddccd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60451fc02d87d7b6fcadd=
+cce
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+   | regressions
+--------------------+------+-----------------+----------+------------------=
+---+------------
+qemu_arm-virt-gicv3 | arm  | lab-linaro-lkft | gcc-8    | multi_v7_defconfi=
+g  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60451fa8685f79bfefaddd1c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.259-3=
+3-g7d5afb658c057/arm/multi_v7_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60451fa8685f79bfefadd=
+d1d
+        failing since 113 days (last pass: v4.4.243-18-gfc7e8c68369a, first=
+ fail: v4.4.243-19-g71b6c961c7fe) =
+
+ =20
