@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A10D933017E
+	by mail.lfdr.de (Postfix) with ESMTP id A160033017F
 	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231514AbhCGN4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230371AbhCGN4D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Mar 2021 08:56:03 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51681 "EHLO
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51723 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230373AbhCGNzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:55:32 -0500
+        by vger.kernel.org with ESMTP id S230408AbhCGNzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:55:45 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id EB0C01A7C;
-        Sun,  7 Mar 2021 08:55:31 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:55:32 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 7ACED1A78;
+        Sun,  7 Mar 2021 08:55:44 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:55:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GbE0jL
-        XJkn+TCA7U60y/TTFgBz5zmlQxDvmXc67sKHI=; b=isSgYMSfgIEKyUIZp58c49
-        kBxGW4j4q6t3MMKZ+1sI89+hrAz7ggHLS/XpnghbrX2hnkAQjgwLcRiUZeZOJKvK
-        cWugZ8/LUxtUQQhElZcggl8/wU2qYXwNs1DdumodfcSkd+GrksL29gjbZbvxJS09
-        HhfbSr1AmdJKHkLMFFID8nlRhg5Nj53sRiWV84j3dAn+41jPTd+zOjmlRoEIzA2V
-        8pBkX0XjaDMCvtYvA24525i1hZxZSx8b5jR1GE58nlq1X0/nR5/d6tBZl2eK/7eC
-        RQgFFnNqVO08Giibq34Dq6FA2rj6fLs9XD2qvv/zdlEUkW6Arq9c2k3LcgLQL9Kg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=STRiGR
+        Vrx/5ceJew1XZQ0ZzU7sG7WrEIa/1NTMHqz2s=; b=HW6ADDt0EOzB7P9b3Fhqa1
+        pMfKKKfz5/lulEXvywbcq8rUTWPgYEfrLq7qv4mt12arO0JoACac3PEH9+BU6qIH
+        q7eXEhrtIT23BAHJuubGvygCA7xaJbiRLwiAbfPpOxZLGKHo+LUjuo+/cXlCi6rT
+        zann1QjMFNVSIC8Vz51CYzQSIIGJjU5pd7XiCkTL2vm3GVuJ57mbDbfsR5uyaygl
+        NWljwf/KfrUfLWb8xnIFUdd3z+oRo/YBE5on9mkHHTfIWhwSQkYhnBBuXXlGYKxt
+        /D6oBbbazDQpGaCEuLNIHJj1Phab2BuTZELkfud8fLhW/b1NXHKfk+bVnqop5akQ
         ==
-X-ME-Sender: <xms:U9tEYKwa9xOUsZFPjiIyO_QN9IzmVu7iBIUPzufNCnjcEph_CO8X1Q>
-    <xme:U9tEYGNkMqmNK3tBntVnjNrbRElnBXOH-expw3YUf8Hoan1yqQEkbppb-1bciL3KK
-    ib0YxeKxITQXg>
+X-ME-Sender: <xms:X9tEYNv2fshL11LtupfiayLt9NLlOmn0pFbYt3BVJ0pyaOzogkWaNQ>
+    <xme:X9tEYGf5sTMu3nJxeRRWCNWIpvJneLNXQh_sV8XMHkfWcWfVg_LHYWMruPlxcL7jj
+    rHxjVNTWnolgw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddghedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
+    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:U9tEYJOlDld9OZyrLbBsDlVLZpgIOHZRTKDj0AefONEHDqhJ5_2e3g>
-    <xmx:U9tEYIR-LRmnejCW2i1A1cNqsff5VC9-n02qSaPHZDNBhjGl8TNzbg>
-    <xmx:U9tEYLB_uMBQejt8ttXB0-w-ZHFp_Sb8Yb185jc7aHlST8zOVBpCaQ>
-    <xmx:U9tEYL98LU0Zwj2km_oTz3v7vAnT6rIIHpErbpOpKkjXuO3kGOGVxTmDDlA>
+X-ME-Proxy: <xmx:X9tEYAwTLh3eNU28H8qPf73s35tg-tgzYpX8xbB6opJQZdkI18mFFw>
+    <xmx:X9tEYENQrg1Y84nCFVan4501Fd4BxT1YA2c2HR1Qgxlcffs3khJkBg>
+    <xmx:X9tEYN8iXMPSkssm1vB2ZrUMbiVuB5Gn7OyorEowpK1SXrHh1LY5Ow>
+    <xmx:X9tEYPIMj7DvxXgATIVxjI-N2xHR9y04Fg3KQkNlKuoMFHmj6YlGnI4lP_Y>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4984D1080057;
-        Sun,  7 Mar 2021 08:55:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] dm bufio: subtract the number of initial sectors in" failed to apply to 4.9-stable tree
-To:     mpatocka@redhat.com, gmazyland@gmail.com, snitzer@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2468524005C;
+        Sun,  7 Mar 2021 08:55:43 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dm verity: fix FEC for RS roots unaligned to block size" failed to apply to 4.19-stable tree
+To:     gmazyland@gmail.com, cJ-ko@zougloub.eu, samitolvanen@google.com,
+        snitzer@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Mar 2021 14:55:21 +0100
-Message-ID: <1615125321215161@kroah.com>
+Date:   Sun, 07 Mar 2021 14:55:41 +0100
+Message-ID: <161512534156239@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,39 +71,140 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a14e5ec66a7a66e57b24e2469f9212a78460207e Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Tue, 23 Feb 2021 21:21:20 +0100
-Subject: [PATCH] dm bufio: subtract the number of initial sectors in
- dm_bufio_get_device_size
+From df7b59ba9245c4a3115ebaa905e3e5719a3810da Mon Sep 17 00:00:00 2001
+From: Milan Broz <gmazyland@gmail.com>
+Date: Tue, 23 Feb 2021 21:21:21 +0100
+Subject: [PATCH] dm verity: fix FEC for RS roots unaligned to block size
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-dm_bufio_get_device_size returns the device size in blocks. Before
-returning the value, we must subtract the nubmer of starting
-sectors. The number of starting sectors may not be divisible by block
-size.
+Optional Forward Error Correction (FEC) code in dm-verity uses
+Reed-Solomon code and should support roots from 2 to 24.
 
-Note that currently, no target is using dm_bufio_set_sector_offset and
-dm_bufio_get_device_size simultaneously, so this change has no effect.
-However, an upcoming dm-verity-fec fix needs this change.
+The error correction parity bytes (of roots lengths per RS block) are
+stored on a separate device in sequence without any padding.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Milan Broz <gmazyland@gmail.com>
-Cc: stable@vger.kernel.org
+Currently, to access FEC device, the dm-verity-fec code uses dm-bufio
+client with block size set to verity data block (usually 4096 or 512
+bytes).
+
+Because this block size is not divisible by some (most!) of the roots
+supported lengths, data repair cannot work for partially stored parity
+bytes.
+
+This fix changes FEC device dm-bufio block size to "roots << SECTOR_SHIFT"
+where we can be sure that the full parity data is always available.
+(There cannot be partial FEC blocks because parity must cover whole
+sectors.)
+
+Because the optional FEC starting offset could be unaligned to this
+new block size, we have to use dm_bufio_set_sector_offset() to
+configure it.
+
+The problem is easily reproduced using veritysetup, e.g. for roots=13:
+
+  # create verity device with RS FEC
+  dd if=/dev/urandom of=data.img bs=4096 count=8 status=none
+  veritysetup format data.img hash.img --fec-device=fec.img --fec-roots=13 | awk '/^Root hash/{ print $3 }' >roothash
+
+  # create an erasure that should be always repairable with this roots setting
+  dd if=/dev/zero of=data.img conv=notrunc bs=1 count=8 seek=4088 status=none
+
+  # try to read it through dm-verity
+  veritysetup open data.img test hash.img --fec-device=fec.img --fec-roots=13 $(cat roothash)
+  dd if=/dev/mapper/test of=/dev/null bs=4096 status=noxfer
+  # wait for possible recursive recovery in kernel
+  udevadm settle
+  veritysetup close test
+
+With this fix, errors are properly repaired.
+  device-mapper: verity-fec: 7:1: FEC 0: corrected 8 errors
+  ...
+
+Without it, FEC code usually ends on unrecoverable failure in RS decoder:
+  device-mapper: verity-fec: 7:1: FEC 0: failed to correct: -74
+  ...
+
+This problem is present in all kernels since the FEC code's
+introduction (kernel 4.5).
+
+It is thought that this problem is not visible in Android ecosystem
+because it always uses a default RS roots=2.
+
+Depends-on: a14e5ec66a7a ("dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size")
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+Tested-by: Jérôme Carretero <cJ-ko@zougloub.eu>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Cc: stable@vger.kernel.org # 4.5+
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 
-diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
-index fce4cbf9529d..50f3e673729c 100644
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1526,6 +1526,10 @@ EXPORT_SYMBOL_GPL(dm_bufio_get_block_size);
- sector_t dm_bufio_get_device_size(struct dm_bufio_client *c)
+diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
+index fb41b4f23c48..66f4c6398f67 100644
+--- a/drivers/md/dm-verity-fec.c
++++ b/drivers/md/dm-verity-fec.c
+@@ -61,19 +61,18 @@ static int fec_decode_rs8(struct dm_verity *v, struct dm_verity_fec_io *fio,
+ static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
+ 			   unsigned *offset, struct dm_buffer **buf)
  {
- 	sector_t s = i_size_read(c->bdev->bd_inode) >> SECTOR_SHIFT;
-+	if (s >= c->start)
-+		s -= c->start;
-+	else
-+		s = 0;
- 	if (likely(c->sectors_per_block_bits >= 0))
- 		s >>= c->sectors_per_block_bits;
- 	else
+-	u64 position, block;
++	u64 position, block, rem;
+ 	u8 *res;
+ 
+ 	position = (index + rsb) * v->fec->roots;
+-	block = position >> v->data_dev_block_bits;
+-	*offset = (unsigned)(position - (block << v->data_dev_block_bits));
++	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
++	*offset = (unsigned)rem;
+ 
+-	res = dm_bufio_read(v->fec->bufio, v->fec->start + block, buf);
++	res = dm_bufio_read(v->fec->bufio, block, buf);
+ 	if (IS_ERR(res)) {
+ 		DMERR("%s: FEC %llu: parity read failed (block %llu): %ld",
+ 		      v->data_dev->name, (unsigned long long)rsb,
+-		      (unsigned long long)(v->fec->start + block),
+-		      PTR_ERR(res));
++		      (unsigned long long)block, PTR_ERR(res));
+ 		*buf = NULL;
+ 	}
+ 
+@@ -155,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
+ 
+ 		/* read the next block when we run out of parity bytes */
+ 		offset += v->fec->roots;
+-		if (offset >= 1 << v->data_dev_block_bits) {
++		if (offset >= v->fec->roots << SECTOR_SHIFT) {
+ 			dm_bufio_release(buf);
+ 
+ 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
+@@ -674,7 +673,7 @@ int verity_fec_ctr(struct dm_verity *v)
+ {
+ 	struct dm_verity_fec *f = v->fec;
+ 	struct dm_target *ti = v->ti;
+-	u64 hash_blocks;
++	u64 hash_blocks, fec_blocks;
+ 	int ret;
+ 
+ 	if (!verity_fec_is_enabled(v)) {
+@@ -744,15 +743,17 @@ int verity_fec_ctr(struct dm_verity *v)
+ 	}
+ 
+ 	f->bufio = dm_bufio_client_create(f->dev->bdev,
+-					  1 << v->data_dev_block_bits,
++					  f->roots << SECTOR_SHIFT,
+ 					  1, 0, NULL, NULL);
+ 	if (IS_ERR(f->bufio)) {
+ 		ti->error = "Cannot initialize FEC bufio client";
+ 		return PTR_ERR(f->bufio);
+ 	}
+ 
+-	if (dm_bufio_get_device_size(f->bufio) <
+-	    ((f->start + f->rounds * f->roots) >> v->data_dev_block_bits)) {
++	dm_bufio_set_sector_offset(f->bufio, f->start << (v->data_dev_block_bits - SECTOR_SHIFT));
++
++	fec_blocks = div64_u64(f->rounds * f->roots, v->fec->roots << SECTOR_SHIFT);
++	if (dm_bufio_get_device_size(f->bufio) < fec_blocks) {
+ 		ti->error = "FEC device is too small";
+ 		return -E2BIG;
+ 	}
 
