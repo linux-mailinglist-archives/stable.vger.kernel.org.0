@@ -2,126 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2697330185
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF55330187
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230490AbhCGN5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:57:42 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:47253 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231596AbhCGN52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:57:28 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 50EA01A7B;
-        Sun,  7 Mar 2021 08:57:28 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:57:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=se1lq0
-        Hn4bv/+x8anIR9RZgWMlDj1tsmnwECodanmnM=; b=rHdwx+Nr8Jnv8e7ZX0toU9
-        0xZj6Mh8mHORP71Y2Z23voKNh6S20O/Y3KdQE/G55iAdUwRPK6QqKDcHIMs1hhvj
-        ERdBeuIKF9rxMgWn7jPoZx6G5HbFOcAiL+nLPRHDd6qe52I8IfHrOwyVcFGj0Avo
-        nSeMkfpXAO2s8vh6A1iOawVkBRyCGmzX95Bz6XWLn03b5xsRuzLUacHh5mZLgQNa
-        zBltS0b9d8QwJnRC4nXmA4ol1CHauMCT/WzNqZILAETpEanV78ajcNN5S0s11aVU
-        fbi317Z2VIg4cky821CxlOnTjyDFUKHe04gB/642bIAEhGofByDEj0VKBw8feEqQ
-        ==
-X-ME-Sender: <xms:x9tEYIZDr0bIKdNlAoQfXLnX0LxcXLlN6POYO1nu6YwHnEE1rVQDww>
-    <xme:x9tEYDZAyEoTxS3ToWx18EjcGSQZPfHKiPZS79_fQkGUGFxTEZN8J3IWCVYg32uzv
-    mALaxPcRv42Fg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddghedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgoufhorhhtvggutfgvtghiphdvucdlgedtmdenuc
-    fjughrpefuvffhfffkgggtgfesthekredttddtlfenucfhrhhomhepoehgrhgvghhkhhes
-    lhhinhhugihfohhunhgurghtihhonhdrohhrgheqnecuggftrfgrthhtvghrnhepieetve
-    ehuedvhfdtgfdvieeiheehfeelveevheejudetveeuveeludejjefgteehnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:x9tEYC8zHL7lxM3uSalycWPixY4LnERMstoEcyEFcw86XBcyNUXZaw>
-    <xmx:x9tEYCpxNX4ug-WWUsy_BLFtpU4xvsZibiuf0wD66w9m0nnVigPlEw>
-    <xmx:x9tEYDqvaLvRq8kQWOmrF7DTvbZInIEGBw1NQwJAgehlKwgIqxPvBA>
-    <xmx:x9tEYMC3lQLSNzTwpMOnxNxL65S4yDcoMFI4lrj4XWtFEGbnOl7SzuowSdM>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 98C8324005B;
-        Sun,  7 Mar 2021 08:57:27 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl" failed to apply to 4.14-stable tree
-To:     dancarpenter@oracle.com, dan.carpenter@oracle.com, dsterba@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Mar 2021 14:57:17 +0100
-Message-ID: <16151254377044@kroah.com>
+        id S231561AbhCGN6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:58:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43496 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230488AbhCGN5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 08:57:48 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AB6E65100;
+        Sun,  7 Mar 2021 13:57:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615125468;
+        bh=R5aDyV21ICJKjV1r2Yxt5F+o1GFEuhN6ZjNXDk7Hqhk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Nr9xEm9VjRvLqEgXD4dXDB+nJXWvCuP4jwGP9FTl17dmq8bqmRsum2WFwwi/rZAOK
+         +oVEuYJGNAoyYtBmnbQQHqmrsEredDFldUrj0stuyjIzVhXI494SrVA4NbJ3uFnIb6
+         CckJbOEE2RUqPh3FIeBV0Jr/NZmLLhLapnypJGOFj2AgEOflem7oCoUjOZ1bkPfEYG
+         Xbk5n66hJeI5y4Co4o86bujDSIIF5ScpYTKCIdWh1vEIgV2YVjMN6ucAHKezLgQMPd
+         IPWCP/q+JZyAGwQEcct3n5mOWwM4sBcEeYHZvXZfmLHlhViIzbUgdvBocKV6RvHo2R
+         NBOdCIIPuHnQg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 01/12] btrfs: avoid checking for RO block group twice during nocow writeback
+Date:   Sun,  7 Mar 2021 08:57:35 -0500
+Message-Id: <20210307135746.967418-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Filipe Manana <fdmanana@suse.com>
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+[ Upstream commit 20903032cd9f0260b99aeab92e6540f0350e4a23 ]
 
-thanks,
+During the nocow writeback path, we currently iterate the rbtree of block
+groups twice: once for checking if the target block group is RO with the
+call to btrfs_extent_readonly()), and once again for getting a nocow
+reference on the block group with a call to btrfs_inc_nocow_writers().
 
-greg k-h
+Since btrfs_inc_nocow_writers() already returns false when the target
+block group is RO, remove the call to btrfs_extent_readonly(). Not only
+we avoid searching the blocks group rbtree twice, it also helps reduce
+contention on the lock that protects it (specially since it is a spin
+lock and not a read-write lock). That may make a noticeable difference
+on very large filesystems, with thousands of allocated block groups.
 
------------------- original commit in Linus's tree ------------------
-
-From 5011c5a663b9c6d6aff3d394f11049b371199627 Mon Sep 17 00:00:00 2001
-From: Dan Carpenter <dancarpenter@oracle.com>
-Date: Wed, 17 Feb 2021 09:04:34 +0300
-Subject: [PATCH] btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
-
-The problem is we're copying "inherit" from user space but we don't
-necessarily know that we're copying enough data for a 64 byte
-struct.  Then the next problem is that 'inherit' has a variable size
-array at the end, and we have to verify that array is the size we
-expected.
-
-Fixes: 6f72c7e20dba ("Btrfs: add qgroup inheritance")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/btrfs/inode.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index a8c60d46d19c..1b837c08ca90 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1935,7 +1935,10 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
- 	if (vol_args->flags & BTRFS_SUBVOL_RDONLY)
- 		readonly = true;
- 	if (vol_args->flags & BTRFS_SUBVOL_QGROUP_INHERIT) {
--		if (vol_args->size > PAGE_SIZE) {
-+		u64 nums;
-+
-+		if (vol_args->size < sizeof(*inherit) ||
-+		    vol_args->size > PAGE_SIZE) {
- 			ret = -EINVAL;
- 			goto free_args;
- 		}
-@@ -1944,6 +1947,20 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
- 			ret = PTR_ERR(inherit);
- 			goto free_args;
- 		}
-+
-+		if (inherit->num_qgroups > PAGE_SIZE ||
-+		    inherit->num_ref_copies > PAGE_SIZE ||
-+		    inherit->num_excl_copies > PAGE_SIZE) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
-+
-+		nums = inherit->num_qgroups + 2 * inherit->num_ref_copies +
-+		       2 * inherit->num_excl_copies;
-+		if (vol_args->size != struct_size(inherit, qgroups, nums)) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
- 	}
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index ad34c5a09bef..02c4bfa515fb 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -1657,9 +1657,6 @@ static noinline int run_delalloc_nocow(struct btrfs_inode *inode,
+ 			 */
+ 			btrfs_release_path(path);
  
- 	ret = __btrfs_ioctl_snap_create(file, vol_args->name, vol_args->fd,
+-			/* If extent is RO, we must COW it */
+-			if (btrfs_extent_readonly(fs_info, disk_bytenr))
+-				goto out_check;
+ 			ret = btrfs_cross_ref_exist(root, ino,
+ 						    found_key.offset -
+ 						    extent_offset, disk_bytenr, false);
+@@ -1706,6 +1703,7 @@ static noinline int run_delalloc_nocow(struct btrfs_inode *inode,
+ 				WARN_ON_ONCE(freespace_inode);
+ 				goto out_check;
+ 			}
++			/* If the extent's block group is RO, we must COW */
+ 			if (!btrfs_inc_nocow_writers(fs_info, disk_bytenr))
+ 				goto out_check;
+ 			nocow = true;
+-- 
+2.30.1
 
