@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E203C330279
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0EC330278
 	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 16:11:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230202AbhCGPKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 10:10:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57616 "EHLO mail.kernel.org"
+        id S229753AbhCGPKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 10:10:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230063AbhCGPKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 10:10:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E2564FC2;
-        Sun,  7 Mar 2021 15:10:30 +0000 (UTC)
+        id S230175AbhCGPKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 10:10:40 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB503650FA;
+        Sun,  7 Mar 2021 15:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615129831;
-        bh=GG1hbgE4V0OIjmdEnvxzqAD1AyZGRCaD3nrKoHftFfo=;
+        s=korg; t=1615129840;
+        bh=gjcr8uLOxfyRxbBrvhEXh9ZsrDNkpRLLhlCdgG4ysAI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K5Pk+Vf3TMeQ9ysnygl7E09mH24LcweS2Tli4cPcZo5E6w5u2YQ6lmNVVnbEaU3+o
-         AwEkmBy3t39PjkNXSB/7LAh9l/YdPcYiGBlb5FhmiBja1HF6gE1KPDDjqCBRbB3c6f
-         4nly1CmUoXzyKoB2MKExpO6yf5JBzvX/LDXMvDvQ=
-Date:   Sun, 7 Mar 2021 16:10:28 +0100
+        b=k71Eevojui7UKApxi9zWj2gZ5RvJKtszBLoCCBEVYxzUuM0u0ISIMN9hEzHCgwUjm
+         dQuFZWJ3eDYsx95GOfuN7lGGC+CAHROPF/z+1ysAK8F3BLQQZz9SA4wAcGOSTDahrQ
+         RGUBMujYQFI56YsHkmulADC/y9kWl6EPNttTLNo4=
+Date:   Sun, 7 Mar 2021 16:10:37 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Jeffle Xu <jefflexu@linux.alibaba.com>
 Cc:     sashal@kernel.org, stable@vger.kernel.org, snitzer@redhat.com
-Subject: Re: [PATCH 4.19.y 1/5] dm table: fix iterate_devices based device
+Subject: Re: [PATCH 4.14.y 1/4] dm table: fix iterate_devices based device
  capability checks
-Message-ID: <YETs5Nz5J14A26Qd@kroah.com>
-References: <1614606251118245@kroah.com>
- <20210305065526.72663-1-jefflexu@linux.alibaba.com>
- <20210305065526.72663-2-jefflexu@linux.alibaba.com>
+Message-ID: <YETs7eHCo82FMHR5@kroah.com>
+References: <16146062492354@kroah.com>
+ <20210305065250.70340-1-jefflexu@linux.alibaba.com>
+ <20210305065250.70340-2-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210305065526.72663-2-jefflexu@linux.alibaba.com>
+In-Reply-To: <20210305065250.70340-2-jefflexu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
+On Fri, Mar 05, 2021 at 02:52:47PM +0800, Jeffle Xu wrote:
 > commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
 > 
 > According to the definition of dm_iterate_devices_fn:
@@ -70,10 +70,10 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 >  1 file changed, 51 insertions(+), 46 deletions(-)
 > 
 > diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-> index 916433742485..686cc7c20113 100644
+> index c855ab2feb18..6fe720e2c6ba 100644
 > --- a/drivers/md/dm-table.c
 > +++ b/drivers/md/dm-table.c
-> @@ -1392,6 +1392,46 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
+> @@ -1351,6 +1351,46 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
 >  	return &t->targets[(KEYS_PER_NODE * n) + k];
 >  }
 >  
@@ -120,7 +120,7 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 >  static int count_device(struct dm_target *ti, struct dm_dev *dev,
 >  			sector_t start, sector_t len, void *data)
 >  {
-> @@ -1708,12 +1748,12 @@ static int dm_table_supports_dax_write_cache(struct dm_table *t)
+> @@ -1667,12 +1707,12 @@ static int dm_table_supports_dax_write_cache(struct dm_table *t)
 >  	return false;
 >  }
 >  
@@ -136,7 +136,7 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 >  }
 >  
 >  static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
-> @@ -1732,23 +1772,6 @@ static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
+> @@ -1691,23 +1731,6 @@ static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
 >  	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
 >  }
 >  
@@ -157,10 +157,10 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 > -	return true;
 > -}
 > -
->  static int device_no_partial_completion(struct dm_target *ti, struct dm_dev *dev,
->  					sector_t start, sector_t len, void *data)
+>  static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+>  					 sector_t start, sector_t len, void *data)
 >  {
-> @@ -1887,27 +1910,6 @@ static int device_requires_stable_pages(struct dm_target *ti,
+> @@ -1804,27 +1827,6 @@ static int device_requires_stable_pages(struct dm_target *ti,
 >  	return q && bdi_cap_stable_pages_required(q->backing_dev_info);
 >  }
 >  
@@ -188,21 +188,21 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 >  void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 >  			       struct queue_limits *limits)
 >  {
-> @@ -1948,10 +1950,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+> @@ -1856,10 +1858,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 >  		dax_write_cache(t->md->dax_dev, true);
 >  
 >  	/* Ensure that all underlying devices are non-rotational. */
 > -	if (dm_table_all_devices_attribute(t, device_is_nonrot))
-> -		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+> -		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
 > -	else
 > +	if (dm_table_any_dev_attr(t, device_is_rotational))
->  		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
+>  		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
 > +	else
-> +		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+> +		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
 >  
 >  	if (!dm_table_supports_write_same(t))
 >  		q->limits.max_write_same_sectors = 0;
-> @@ -1968,8 +1970,11 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+> @@ -1876,8 +1878,11 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 >  	/*
 >  	 * Some devices don't use blk_integrity but still want stable pages
 >  	 * because they do their own checksumming.
@@ -215,15 +215,15 @@ On Fri, Mar 05, 2021 at 02:55:22PM +0800, Jeffle Xu wrote:
 >  		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
 >  	else
 >  		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
-> @@ -1980,7 +1985,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+> @@ -1888,7 +1893,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
 >  	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
 >  	 * have it set.
 >  	 */
 > -	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
 > +	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
->  		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
->  }
+>  		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
 >  
+>  	/*
 > -- 
 > 2.27.0
 > 
