@@ -2,56 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A93333015D
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:48:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F6433015F
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbhCGNsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:48:09 -0500
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:54767 "EHLO
+        id S231453AbhCGNsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:48:42 -0500
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:39211 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231439AbhCGNrz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:47:55 -0500
+        by vger.kernel.org with ESMTP id S231439AbhCGNsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 08:48:22 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id B1E091A13;
-        Sun,  7 Mar 2021 08:47:54 -0500 (EST)
+        by mailforward.west.internal (Postfix) with ESMTP id 315ED1A46;
+        Sun,  7 Mar 2021 08:48:22 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:47:55 -0500
+  by compute4.internal (MEProxy); Sun, 07 Mar 2021 08:48:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lYVBlr
-        qjx6jHnLXSw7XiyQYJs3DS0JX4RovlxDcM0n0=; b=iUZj+35JQWhX6tilFN2R9l
-        Tj8+IXlVlbbeJ3SddG/PAZ/97IWvY0wJ4w33GEzlVCOyQklagkaqc50ixLWqGAXd
-        tM9EezwH0SEsgFcDVcIvER9/gNNL8WHSHEUSaugB/40x4V9t00QsOX7SsLr1R5zb
-        h2xkdyqJJ544UyapAT6awDGVaqhEEPpGvqEVaWiJ8+7kfDzR88esP0RtRoMb3Kzc
-        0LZ7WM4X+LCpRSiR0YOWqJsd7k1preU201VbG7py158JTmexM+xzM3wZwcRzj/Pv
-        ln9otJxPzg9Kqre/P07lVTiwdtxXmpiqqcT7ECist/gd5AUFk2jEhoqtmJzxikwg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IhjcGp
+        uXlwrL+C2Vf4gE7bJC/RFeTE3M9f2QO0J1Ax4=; b=tjCS8AFUkjEv0kXVZcGU2c
+        fa9j8/98onWCfDAf2PhywfYQDQHzu2b/RYLVGc3LyWtOVUXASWE/5fwSSpCO8BOn
+        jYFaoxAMX0YraGQewYxTUUUN9/0pYRBrlgbRXvJEhObX8Ik4sgnNJOhnyJqzKHmM
+        zMYpahGOdN9MJ4x4nxhO2N//LJAi0Jf0CbgRCyIKYUSCPZKbFUJ5J8xY3skBbO+o
+        y4a0eYqfdoeMejCI5FNq0vuetB4BxR0kRJQsH1vKj3Ww+l0ZoWepPhvedeaVs0jH
+        beFXVX0FVYUeAaCymMLgmvEJ+L9H77X0nh6UiPAhts2s6STBkRmJpnTucIeL/5nQ
         ==
-X-ME-Sender: <xms:itlEYO-5ozMW9bIrJYOVg9uDoxywVeipd7zQQ1vEqdKllv8JpFQKVA>
-    <xme:itlEYOsADQiISywPL_hn79l8m7NsoKfNoSBUeEFXVT95sa45fsl08c2PYB7dq48AA
-    VAlXenm1Wf1fg>
+X-ME-Sender: <xms:pdlEYKn0cNkcZ4XZ-hjCLEu8nlr1EoGJD7TpNV2qdQ186t9IuLAgdA>
+    <xme:pdlEYB0eqnIgsNSSZkNXRJzMS2rXDHxv_to9Yqa4k7Kb9QdxR3gOJ8xgih2g5fGOs
+    F0hRY8s3kIz5g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddggeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:itlEYEDeYLZ8qf5cXVM3KxErZgltyqfAh7V0azO7iwDOjbrSODqRmA>
-    <xmx:itlEYGeNz1ZA1sBzy5uNCWjlUihPPfRVxk4E5JcqjcByNr_v38WFTg>
-    <xmx:itlEYDODoVgPumOMo-JY76uqu639uW2jZ5NWYtnRxu8K-KtELCcwUA>
-    <xmx:itlEYMajeB1jtAr6xnJfWzMQdoFcNVweJUlgwLfVqg8VIYsTwzh7t-v87wI>
+X-ME-Proxy: <xmx:pdlEYIo4mYloXSGFd36GQaYVYHbkO8q65vPPmbkjS5xWCKGMI3xYnA>
+    <xmx:pdlEYOl6JE8beEoO7TuhvlFKRCu1pqldVlzVwbGTYUzpoOSVwcXKyQ>
+    <xmx:pdlEYI1vBRIt_4LW8V_SZYOmH9yi-pW5-_d1CWdhdY9h6Ec3EhPSAQ>
+    <xmx:pdlEYF-aDnITGTHg_rRD3vqZBisUMNLCTTOOHvNEXHIfKvLHJBWiNa_6A3Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 06E3624005A;
-        Sun,  7 Mar 2021 08:47:53 -0500 (EST)
-Subject: FAILED: patch "[PATCH] btrfs: fix race between swap file activation and snapshot" failed to apply to 5.4-stable tree
-To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
-        josef@toxicpanda.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7BE8B240054;
+        Sun,  7 Mar 2021 08:48:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] btrfs: fix stale data exposure after cloning a hole with" failed to apply to 5.4-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 07 Mar 2021 14:47:52 +0100
-Message-ID: <161512487216750@kroah.com>
+Date:   Sun, 07 Mar 2021 14:48:20 +0100
+Message-ID: <1615124900162136@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -71,108 +70,179 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dd0734f2a866f9d619d4abf97c3d71bcdee40ea9 Mon Sep 17 00:00:00 2001
+From 3660d0bcdb82807d434da9d2e57d88b37331182d Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Fri, 5 Feb 2021 12:55:38 +0000
-Subject: [PATCH] btrfs: fix race between swap file activation and snapshot
- creation
+Date: Tue, 16 Feb 2021 11:09:25 +0000
+Subject: [PATCH] btrfs: fix stale data exposure after cloning a hole with
+ NO_HOLES enabled
 
-When creating a snapshot we check if the current number of swap files, in
-the root, is non-zero, and if it is, we error out and warn that we can not
-create the snapshot because there are active swap files.
+When using the NO_HOLES feature, if we clone a file range that spans only
+a hole into a range that is at or beyond the current i_size of the
+destination file, we end up not setting the full sync runtime flag on the
+inode. As a result, if we then fsync the destination file and have a power
+failure, after log replay we can end up exposing stale data instead of
+having a hole for that range.
 
-However this is racy because when a task started activation of a swap
-file, another task might have started already snapshot creation and might
-have seen the counter for the number of swap files as zero. This means
-that after the swap file is activated we may end up with a snapshot of the
-same root successfully created, and therefore when the first write to the
-swap file happens it has to fall back into COW mode, which should never
-happen for active swap files.
+The conditions for this to happen are the following:
 
-Basically what can happen is:
+1) We have a file with a size of, for example, 1280K;
 
-1) Task A starts snapshot creation and enters ioctl.c:create_snapshot().
-   There it sees that root->nr_swapfiles has a value of 0 so it continues;
+2) There is a written (non-prealloc) extent for the file range from 1024K
+   to 1280K with a length of 256K;
 
-2) Task B enters btrfs_swap_activate(). It is not aware that another task
-   started snapshot creation but it did not finish yet. It increments
-   root->nr_swapfiles from 0 to 1;
+3) This particular file extent layout is durably persisted, so that the
+   existing superblock persisted on disk points to a subvolume root where
+   the file has that exact file extent layout and state;
 
-3) Task B checks that the file meets all requirements to be an active
-   swap file - it has NOCOW set, there are no snapshots for the inode's
-   root at the moment, no file holes, no reflinked extents, etc;
+4) The file is truncated to a smaller size, to an offset lower than the
+   start offset of its last extent, for example to 800K. The truncate sets
+   the full sync runtime flag on the inode;
 
-4) Task B returns success and now the file is an active swap file;
+6) Fsync the file to log it and clear the full sync runtime flag;
 
-5) Task A commits the transaction to create the snapshot and finishes.
-   The swap file's extents are now shared between the original root and
-   the snapshot;
+7) Clone a region that covers only a hole (implicit hole due to NO_HOLES)
+   into the file with a destination offset that starts at or beyond the
+   256K file extent item we had - for example to offset 1024K;
 
-6) A write into an extent of the swap file is attempted - there is a
-   snapshot of the file's root, so we fall back to COW mode and therefore
-   the physical location of the extent changes on disk.
+8) Since the clone operation does not find extents in the source range,
+   we end up in the if branch at the bottom of btrfs_clone() where we
+   punch a hole for the file range starting at offset 1024K by calling
+   btrfs_replace_file_extents(). There we end up not setting the full
+   sync flag on the inode, because we don't know we are being called in
+   a clone context (and not fallocate's punch hole operation), and
+   neither do we create an extent map to represent a hole because the
+   requested range is beyond eof;
 
-So fix this by taking the snapshot lock during swap file activation before
-locking the extent range, as that is the order in which we lock these
-during buffered writes.
+9) A further fsync to the file will be a fast fsync, since the clone
+   operation did not set the full sync flag, and therefore it relies on
+   modified extent maps to correctly log the file layout. But since
+   it does not find any extent map marking the range from 1024K (the
+   previous eof) to the new eof, it does not log a file extent item
+   for that range representing the hole;
 
-Fixes: ed46ff3d42378 ("Btrfs: support swap files")
+10) After a power failure no hole for the range starting at 1024K is
+   punched and we end up exposing stale data from the old 256K extent.
+
+Turning this into exact steps:
+
+  $ mkfs.btrfs -f -O no-holes /dev/sdi
+  $ mount /dev/sdi /mnt
+
+  # Create our test file with 3 extents of 256K and a 256K hole at offset
+  # 256K. The file has a size of 1280K.
+  $ xfs_io -f -s \
+              -c "pwrite -S 0xab -b 256K 0 256K" \
+              -c "pwrite -S 0xcd -b 256K 512K 256K" \
+              -c "pwrite -S 0xef -b 256K 768K 256K" \
+              -c "pwrite -S 0x73 -b 256K 1024K 256K" \
+              /mnt/sdi/foobar
+
+  # Make sure it's durably persisted. We want the last committed super
+  # block to point to this particular file extent layout.
+  sync
+
+  # Now truncate our file to a smaller size, falling within a position of
+  # the second extent. This sets the full sync runtime flag on the inode.
+  # Then fsync the file to log it and clear the full sync flag from the
+  # inode. The third extent is no longer part of the file and therefore
+  # it is not logged.
+  $ xfs_io -c "truncate 800K" -c "fsync" /mnt/foobar
+
+  # Now do a clone operation that only clones the hole and sets back the
+  # file size to match the size it had before the truncate operation
+  # (1280K).
+  $ xfs_io \
+        -c "reflink /mnt/foobar 256K 1024K 256K" \
+        -c "fsync" \
+        /mnt/foobar
+
+  # File data before power failure:
+  $ od -A d -t x1 /mnt/foobar
+  0000000 ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab
+  *
+  0262144 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  *
+  0524288 cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+  *
+  0786432 ef ef ef ef ef ef ef ef ef ef ef ef ef ef ef ef
+  *
+  0819200 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  *
+  1310720
+
+  <power fail>
+
+  # Mount the fs again to replay the log tree.
+  $ mount /dev/sdi /mnt
+
+  # File data after power failure:
+  $ od -A d -t x1 /mnt/foobar
+  0000000 ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab
+  *
+  0262144 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  *
+  0524288 cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd cd
+  *
+  0786432 ef ef ef ef ef ef ef ef ef ef ef ef ef ef ef ef
+  *
+  0819200 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  *
+  1048576 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73 73
+  *
+  1310720
+
+The range from 1024K to 1280K should correspond to a hole but instead it
+points to stale data, to the 256K extent that should not exist after the
+truncate operation.
+
+The issue does not exists when not using NO_HOLES, because for that case
+we use file extent items to represent holes, these are found and copied
+during the loop that iterates over extents at btrfs_clone(), and that
+causes btrfs_replace_file_extents() to be called with a non-NULL
+extent_info argument and therefore set the full sync runtime flag on the
+inode.
+
+So fix this by making the code that deals with a trailing hole during
+cloning, at btrfs_clone(), to set the full sync flag on the inode, if the
+range starts at or beyond the current i_size.
+
+A test case for fstests will follow soon.
+
+Backporting notes: for kernel 5.4 the change goes to ioctl.c into
+btrfs_clone before the last call to btrfs_punch_hole_range.
+
 CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index 30358a2e2bc0..4f2f1e932751 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -10298,7 +10298,8 @@ static int btrfs_swap_activate(struct swap_info_struct *sis, struct file *file,
- 			       sector_t *span)
- {
- 	struct inode *inode = file_inode(file);
--	struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
-+	struct btrfs_root *root = BTRFS_I(inode)->root;
-+	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
- 	struct extent_state *cached_state = NULL;
- 	struct extent_map *em = NULL;
-@@ -10349,13 +10350,27 @@ static int btrfs_swap_activate(struct swap_info_struct *sis, struct file *file,
- 	   "cannot activate swapfile while exclusive operation is running");
- 		return -EBUSY;
- 	}
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index b24396cf2f99..5413578d2c32 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -553,6 +553,24 @@ static int btrfs_clone(struct inode *src, struct inode *inode,
+ 		 */
+ 		btrfs_release_path(path);
+ 
++		/*
++		 * When using NO_HOLES and we are cloning a range that covers
++		 * only a hole (no extents) into a range beyond the current
++		 * i_size, punching a hole in the target range will not create
++		 * an extent map defining a hole, because the range starts at or
++		 * beyond current i_size. If the file previously had an i_size
++		 * greater than the new i_size set by this clone operation, we
++		 * need to make sure the next fsync is a full fsync, so that it
++		 * detects and logs a hole covering a range from the current
++		 * i_size to the new i_size. If the clone range covers extents,
++		 * besides a hole, then we know the full sync flag was already
++		 * set by previous calls to btrfs_replace_file_extents() that
++		 * replaced file extent items.
++		 */
++		if (last_dest_end >= i_size_read(inode))
++			set_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
++				&BTRFS_I(inode)->runtime_flags);
 +
-+	/*
-+	 * Prevent snapshot creation while we are activating the swap file.
-+	 * We do not want to race with snapshot creation. If snapshot creation
-+	 * already started before we bumped nr_swapfiles from 0 to 1 and
-+	 * completes before the first write into the swap file after it is
-+	 * activated, than that write would fallback to COW.
-+	 */
-+	if (!btrfs_drew_try_write_lock(&root->snapshot_lock)) {
-+		btrfs_exclop_finish(fs_info);
-+		btrfs_warn(fs_info,
-+	   "cannot activate swapfile because snapshot creation is in progress");
-+		return -EINVAL;
-+	}
- 	/*
- 	 * Snapshots can create extents which require COW even if NODATACOW is
- 	 * set. We use this counter to prevent snapshots. We must increment it
- 	 * before walking the extents because we don't want a concurrent
- 	 * snapshot to run after we've already checked the extents.
- 	 */
--	atomic_inc(&BTRFS_I(inode)->root->nr_swapfiles);
-+	atomic_inc(&root->nr_swapfiles);
- 
- 	isize = ALIGN_DOWN(inode->i_size, fs_info->sectorsize);
- 
-@@ -10501,6 +10516,8 @@ static int btrfs_swap_activate(struct swap_info_struct *sis, struct file *file,
- 	if (ret)
- 		btrfs_swap_deactivate(file);
- 
-+	btrfs_drew_write_unlock(&root->snapshot_lock);
-+
- 	btrfs_exclop_finish(fs_info);
- 
- 	if (ret)
+ 		ret = btrfs_replace_file_extents(inode, path, last_dest_end,
+ 				destoff + len - 1, NULL, &trans);
+ 		if (ret)
 
