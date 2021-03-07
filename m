@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8975F33018D
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A9C33018B
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 14:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbhCGN6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 08:58:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43574 "EHLO mail.kernel.org"
+        id S231628AbhCGN6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 08:58:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231520AbhCGN5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 08:57:54 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73BCF65100;
-        Sun,  7 Mar 2021 13:57:53 +0000 (UTC)
+        id S231521AbhCGN5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 08:57:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD0B565101;
+        Sun,  7 Mar 2021 13:57:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615125474;
-        bh=8COthqnlqskV+ejnIwp7nd9fz9TC5lrgNtwYpEGcdQc=;
+        s=k20201202; t=1615125475;
+        bh=bSBsVz9L6ND9+5WumudllZYU0YPappMgih8XRtJs3+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDuuX7gvRDTKFKSci1DXqcqKMkU+oNR0II5uwF60GzI0+ongRmlkOc0yE3UsKmClm
-         WuSxsG+2T78fAa2YS1O1m3kMoTGu3aiXjUlTEkQUtoWKJnED+EPvHV6F4uvktw4RIp
-         h+tN8J3uXhKSsyTqfTJJUSt4cLoaTNSHpwzQbVDWqiEeN9WwmOFBGK9CTJqsCwmKIP
-         VkQQ/HKrs/fi+rOVdotR1YBdZSbPUHT5//mgc7pDTrWYZ+4SfHDon59BBWIaF3ZesL
-         jDIGqyWu9MgqrvYIjL/OsDZOM9p6oqlcmrs8XcTA/9EF1pnRk5GOQ2/CSKpBS78YFm
-         8Zuk0IHC27H5Q==
+        b=dcCOv55nVaANrGGiyN6bJtVJ/5ZRca7bbR6yc3kaRRcjESDJ5xENUG7FEVo2HwlnO
+         LT6texI6GQ/3Sf+IaUKyUVqJ8GKHbsgsMd6j7wxI4XYC82CcYGALadV564K7j9UCke
+         pHWXjHT3ZGRDuZmQgjUqDLgnn1kw1bOyH0Y1H0+59sFm/WPIfwTqOOXkyUbPUqqtj9
+         3YKMyyYzML2MYhzifXIJcNQvsAxovBlUHhshbbWjGz5WAfT6CmUv1nSMo3aVN8QSuX
+         x6tS86/bMlBwaOufSLInIXi3+4pyGwewZN4jlOP6z4+gQ/n10kNathlzGIbq+T9bnO
+         080LBey9TGr6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.11 06/12] drm/amdgpu: enable BACO runpm by default on sienna cichlid and navy flounder
-Date:   Sun,  7 Mar 2021 08:57:40 -0500
-Message-Id: <20210307135746.967418-6-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.11 07/12] tracing: Skip selftests if tracing is disabled
+Date:   Sun,  7 Mar 2021 08:57:41 -0500
+Message-Id: <20210307135746.967418-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210307135746.967418-1-sashal@kernel.org>
 References: <20210307135746.967418-1-sashal@kernel.org>
@@ -44,35 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit 25951362db7b3791488ec45bf56c0043f107b94b ]
+[ Upstream commit ee666a185558ac9a929e53b902a568442ed62416 ]
 
-It works fine and was only disabled because primary GPUs
-don't enter runpm if there is a console bound to the fbdev due
-to the kmap.  This will at least allow runpm on secondary cards.
+If tracing is disabled for some reason (traceoff_on_warning, command line,
+etc), the ftrace selftests are guaranteed to fail, as their results are
+defined by trace data in the ring buffers. If the ring buffers are turned
+off, the tests will fail, due to lack of data.
 
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Because tracing being disabled is for a specific reason (warning, user
+decided to, etc), it does not make sense to enable tracing to run the self
+tests, as the test output may corrupt the reason for the tracing to be
+disabled.
+
+Instead, simply skip the self tests and report that they are being skipped
+due to tracing being disabled.
+
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c | 2 --
- 1 file changed, 2 deletions(-)
+ kernel/trace/trace.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-index b16b32797624..ccfa2f9d5446 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -173,8 +173,6 @@ int amdgpu_driver_load_kms(struct amdgpu_device *adev, unsigned long flags)
- 		switch (adev->asic_type) {
- 		case CHIP_VEGA20:
- 		case CHIP_ARCTURUS:
--		case CHIP_SIENNA_CICHLID:
--		case CHIP_NAVY_FLOUNDER:
- 			/* enable runpm if runpm=1 */
- 			if (amdgpu_runtime_pm > 0)
- 				adev->runpm = true;
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index b5815a022ecc..4b6df07d6dc6 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1932,6 +1932,12 @@ static int run_tracer_selftest(struct tracer *type)
+ 	if (!selftests_can_run)
+ 		return save_selftest(type);
+ 
++	if (!tracing_is_on()) {
++		pr_warn("Selftest for tracer %s skipped due to tracing disabled\n",
++			type->name);
++		return 0;
++	}
++
+ 	/*
+ 	 * Run a selftest on this tracer.
+ 	 * Here we reset the trace buffer, and set the current
 -- 
 2.30.1
 
