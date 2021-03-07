@@ -2,93 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72C3633026F
-	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 16:04:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBF54330272
+	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 16:06:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbhCGPDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 10:03:32 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:40519 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230063AbhCGPDJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 10:03:09 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 57F962408;
-        Sun,  7 Mar 2021 10:03:08 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sun, 07 Mar 2021 10:03:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=lMpMG5VZVPZqrn7upzdH0uShBQN
-        ra/BfJs8BBOkLjSA=; b=dwNrRd2PVc5wF4XvK0qSaB7/lFkTGI7t5k4YBRpYV8f
-        B1NH8ielaHKFHj7jw1k+qqBSfKaqYnYX+d0/bklemMUKwH3Bx8kGgTh73kF0v2uJ
-        tcIy7Vv8JaSJBWagiPOGbUZUw0ci17Kc63N5JLuTKBdwydBSg/SxpYhLEKEGUamW
-        BEjhM+k3WpYyu+eoXcoIXLDgTgJI6053hlFhJBHg0s0jT9hV1wfSvc8UkLaTIq3q
-        LiVtK7drleZJEoJmIWcTERj0yNR+OTgmvtp1TVWquiitT+pCFSWXRtDsImmfRQf3
-        44iR4ucS+95RW2Tp3CwtHSO6ATMaFXrlJ1foKPAhz8w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lMpMG5
-        VZVPZqrn7upzdH0uShBQNra/BfJs8BBOkLjSA=; b=m78rVVxQQRRezjiBN45iX9
-        Eps3l02slc9vXWDqnaGLQjRIKrS80NRHiKulQv++EO0Df60CwkV7/5mHuAV1H0Tw
-        YOK9NjPU20MwKc0RVrd2Rr9O8BcCCJ/NiluleO4FAvpWZRC2GVmrXBk3O4OB9sHf
-        EV+YgWn30SAKp3qgFTh7fyC3Fp3cXACSNfzwYHF9oiCC7cqGD/eP37a+fxQkLrr7
-        jiAG19wDijw0JpzFasq/in/iUoShRNdNZfM/NX2NWBFqf47gVf9G1ve7UMLZY/HY
-        lus970zAYd16ovQdvvvnd68U7RIipgUqpWc6YQmp0EXA7QbLrpbarui4FrwwxxJw
-        ==
-X-ME-Sender: <xms:K-tEYJgrtIiZiYUe0Rr05b8kszdsOK9bOtsT2-okOBb7ZVqPNXvbcg>
-    <xme:K-tEYOA791ulNgeaSU39QFpi68RmzIMuZ1fX-yIvsJ7olQuzzS4M1STCcC6PJVUBR
-    SBOvh5TM4pV3A>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddutddgieefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:K-tEYJEW8LFTzbD0ukWw4CIdvgQZdXAyrDfFlC1nJ1EWZP9DbHXFXA>
-    <xmx:K-tEYORND0jOsK9gXTlAUM6-hIx80tY9svdKFQzRKCqlYZBK7TQ8tQ>
-    <xmx:K-tEYGzG8jC6sHr5QQSFhFkfCsIqEJwxgnwTRkglGFkulk6vCMgS5w>
-    <xmx:K-tEYNqZrh0wYIzRVN1CowyCXt4pNCKajX6SOYTs3Kjv87VPCsc_CA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B4BF31080057;
-        Sun,  7 Mar 2021 10:03:06 -0500 (EST)
-Date:   Sun, 7 Mar 2021 16:03:04 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Android Kernel Team <kernel-team@android.com>
-Subject: Re: please apply 660d2062190db131 to v5.4+
-Message-ID: <YETrKGcENSBg5WT6@kroah.com>
-References: <CAMj1kXFhAmy746r+2VqtLHSwtM4-hcKsqqQRRMsFJkrQ99Yf2g@mail.gmail.com>
+        id S229928AbhCGPGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 10:06:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56330 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229753AbhCGPGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 10:06:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23BEE650F7;
+        Sun,  7 Mar 2021 15:06:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615129562;
+        bh=N+mSojTnpTgrPQ3DMGo8wjzEXA31bXRzLtywdLaVoLw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WLnpSuFuHA4e9FWw9PEC+CUaB0cJuneG7OMP5+h7M76BfunpMaNbxeG9Zt9Kpox6z
+         Y9H8hUdx4cZKDOjfjz6gH/qZjf0Uoufw98KVhWsCS8eT+sqwRRgzoJcTQP0B6YCkNU
+         LV/5KlsSaiO0c350wKlEgriRhaRXqOoZ1kw+/0tw=
+Date:   Sun, 7 Mar 2021 16:06:00 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc:     sashal@kernel.org, stable@vger.kernel.org, snitzer@redhat.com
+Subject: Re: [PATCH 5.4.y 3/4] dm table: fix DAX iterate_devices based device
+ capability checks
+Message-ID: <YETr2MwFMtHqymM3@kroah.com>
+References: <161460625264244@kroah.com>
+ <20210305065722.73504-1-jefflexu@linux.alibaba.com>
+ <20210305065722.73504-4-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAMj1kXFhAmy746r+2VqtLHSwtM4-hcKsqqQRRMsFJkrQ99Yf2g@mail.gmail.com>
+In-Reply-To: <20210305065722.73504-4-jefflexu@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 05, 2021 at 01:48:26PM +0100, Ard Biesheuvel wrote:
-> Please consider applying the following upstream patch to stable trees
-> v5.4 and up
-> 
-> commit 660d2062190db131d2feaf19914e90f868fe285c
-> Author: Ard Biesheuvel <ardb@kernel.org>
-> Date:   Wed Jan 13 10:11:35 2021 +0100
-> 
-> crypto - shash: reduce minimum alignment of shash_desc structure
-> 
-> On architectures such as arm64, it reduces the worst case memory
-> footprint of a SHASH_DESC_ON_STACK() allocation (which reserves space
-> for two struct shash_desc instances) by ~350 bytes.
+On Fri, Mar 05, 2021 at 02:57:21PM +0800, Jeffle Xu wrote:
+> commit 57ba3e506c30a84b1ba1dd77ddd9f2be9d472e98 upstream.
 
-Now queued up, thanks.
+There is no such git id "upstream" :(
+
+Please fix up all of these series with the needed information on the
+non-upstream patch, and make sure you have the correct git commit ids on
+your patches.
+
+thanks,
 
 greg k-h
