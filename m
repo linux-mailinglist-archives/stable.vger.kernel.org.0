@@ -2,1522 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BA2330039
+	by mail.lfdr.de (Postfix) with ESMTP id 97523330038
 	for <lists+stable@lfdr.de>; Sun,  7 Mar 2021 12:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbhCGLLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231624AbhCGLLq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 7 Mar 2021 06:11:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57906 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231605AbhCGLL2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 7 Mar 2021 06:11:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BB7E65178;
-        Sun,  7 Mar 2021 11:11:27 +0000 (UTC)
+        id S231607AbhCGLLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 7 Mar 2021 06:11:31 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33F5165178;
+        Sun,  7 Mar 2021 11:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615115488;
-        bh=JzLIiHnLwUArpOJUPdaQokCmOQJPAANIurL2wILBehA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKq4d18VIO6SJENi/D1TvWdXcItFX/G4lGJOp5Tci10OXRCUBo7HG03eF+SlvG4+d
-         Q5FOzUiqOiI/+5ziOvG6SOFZUEvOKq0C6euK2wSJzeqZ/B///sULUmkTJlTiMGRXwb
-         0d0pCmZJBxahkVjiD+UviG8xHQ2TkpyQDpAYUWSc=
+        s=korg; t=1615115490;
+        bh=yoy7DC55fgZrgAo7wPmWDc58bSjD4Sh1CJINZ0UltZU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jFsJSRbMUyXisig8bC28sLJBGfbJKcUFXUmUtS4GqtR7k0+6cCnTnYs/Ew7Yusxyw
+         Y2bWWJvThNxGt6Ve7RJrTvN4oY5i9SiFrJYQcdyjGoJMivdARyAWUyuXerBlNpf2Jl
+         oS+99TPwVlaJMOyBa3OB8kpVEdlmvrLSwqJpOfz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.4.260
-Date:   Sun,  7 Mar 2021 12:11:17 +0100
-Message-Id: <1615115476206212@kroah.com>
+Subject: Linux 4.9.260
+Date:   Sun,  7 Mar 2021 12:11:24 +0100
+Message-Id: <1615115484154129@kroah.com>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <161511547663204@kroah.com>
-References: <161511547663204@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Documentation/filesystems/sysfs.txt b/Documentation/filesystems/sysfs.txt
-index 24da7b32c489..1218a5e2975c 100644
---- a/Documentation/filesystems/sysfs.txt
-+++ b/Documentation/filesystems/sysfs.txt
-@@ -211,12 +211,10 @@ Other notes:
-   is 4096. 
- 
- - show() methods should return the number of bytes printed into the
--  buffer. This is the return value of scnprintf().
-+  buffer.
- 
--- show() must not use snprintf() when formatting the value to be
--  returned to user space. If you can guarantee that an overflow
--  will never happen you can use sprintf() otherwise you must use
--  scnprintf().
-+- show() should only use sysfs_emit() or sysfs_emit_at() when formatting
-+  the value to be returned to user space.
- 
- - store() should return the number of bytes used from the buffer. If the
-   entire buffer has been used, just return the count argument.
-diff --git a/Makefile b/Makefile
-index a8c906a79f34..7efb6921d9de 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 4
--SUBLEVEL = 259
-+SUBLEVEL = 260
- EXTRAVERSION =
- NAME = Blurry Fish Butt
- 
-diff --git a/arch/arm/xen/p2m.c b/arch/arm/xen/p2m.c
-index 02579e6569f0..b4ec8d1b0bef 100644
---- a/arch/arm/xen/p2m.c
-+++ b/arch/arm/xen/p2m.c
-@@ -91,12 +91,39 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
- 	int i;
- 
- 	for (i = 0; i < count; i++) {
-+		struct gnttab_unmap_grant_ref unmap;
-+		int rc;
-+
- 		if (map_ops[i].status)
- 			continue;
--		if (unlikely(!set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
--				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT))) {
--			return -ENOMEM;
--		}
-+		if (likely(set_phys_to_machine(map_ops[i].host_addr >> XEN_PAGE_SHIFT,
-+				    map_ops[i].dev_bus_addr >> XEN_PAGE_SHIFT)))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap.host_addr = map_ops[i].host_addr,
-+		unmap.handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap.dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap.dev_bus_addr = 0;
-+
-+		/*
-+		 * Pre-populate the status field, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap.status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       &unmap, 1);
-+		if (rc || unmap.status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st=%d\n",
-+				    rc, unmap.status);
- 	}
- 
- 	return 0;
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index 94779f66bf49..6f0d340594ca 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -124,6 +124,7 @@ int apply_relocate(Elf32_Shdr *sechdrs,
- 			*location += sym->st_value;
- 			break;
- 		case R_386_PC32:
-+		case R_386_PLT32:
- 			/* Add the value, subtract its position */
- 			*location += sym->st_value - (uint32_t)location;
- 			break;
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index cbe14f7c2826..1c2451107e49 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -418,6 +418,15 @@ static struct dmi_system_id __initdata reboot_dmi_table[] = {
- 		},
- 	},
- 
-+	{	/* PCIe Wifi card isn't detected after reboot otherwise */
-+		.callback = set_pci_reboot,
-+		.ident = "Zotac ZBOX CI327 nano",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "NA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZBOX-CI327NANO-GS-01"),
-+		},
-+	},
-+
- 	/* Sony */
- 	{	/* Handle problems with rebooting on Sony VGN-Z540N */
- 		.callback = set_bios_reboot,
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index 5b6c8486a0be..d1c3f82c7882 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -839,9 +839,11 @@ static int do_reloc32(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
- 
-@@ -882,9 +884,11 @@ static int do_reloc_real(struct section *sec, Elf_Rel *rel, Elf_Sym *sym,
- 	case R_386_PC32:
- 	case R_386_PC16:
- 	case R_386_PC8:
-+	case R_386_PLT32:
- 		/*
--		 * NONE can be ignored and PC relative relocations don't
--		 * need to be adjusted.
-+		 * NONE can be ignored and PC relative relocations don't need
-+		 * to be adjusted. Because sym must be defined, R_386_PLT32 can
-+		 * be treated the same way as R_386_PC32.
- 		 */
- 		break;
- 
-diff --git a/arch/x86/xen/p2m.c b/arch/x86/xen/p2m.c
-index 8c7c5bb94257..86047b18b013 100644
---- a/arch/x86/xen/p2m.c
-+++ b/arch/x86/xen/p2m.c
-@@ -723,6 +723,8 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
- 
- 	for (i = 0; i < count; i++) {
- 		unsigned long mfn, pfn;
-+		struct gnttab_unmap_grant_ref unmap[2];
-+		int rc;
- 
- 		/* Do not add to override if the map failed. */
- 		if (map_ops[i].status != GNTST_okay ||
-@@ -740,10 +742,46 @@ int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
- 
- 		WARN(pfn_to_mfn(pfn) != INVALID_P2M_ENTRY, "page must be ballooned");
- 
--		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
--			ret = -ENOMEM;
--			goto out;
-+		if (likely(set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
-+			continue;
-+
-+		/*
-+		 * Signal an error for this slot. This in turn requires
-+		 * immediate unmapping.
-+		 */
-+		map_ops[i].status = GNTST_general_error;
-+		unmap[0].host_addr = map_ops[i].host_addr,
-+		unmap[0].handle = map_ops[i].handle;
-+		map_ops[i].handle = ~0;
-+		if (map_ops[i].flags & GNTMAP_device_map)
-+			unmap[0].dev_bus_addr = map_ops[i].dev_bus_addr;
-+		else
-+			unmap[0].dev_bus_addr = 0;
-+
-+		if (kmap_ops) {
-+			kmap_ops[i].status = GNTST_general_error;
-+			unmap[1].host_addr = kmap_ops[i].host_addr,
-+			unmap[1].handle = kmap_ops[i].handle;
-+			kmap_ops[i].handle = ~0;
-+			if (kmap_ops[i].flags & GNTMAP_device_map)
-+				unmap[1].dev_bus_addr = kmap_ops[i].dev_bus_addr;
-+			else
-+				unmap[1].dev_bus_addr = 0;
- 		}
-+
-+		/*
-+		 * Pre-populate both status fields, to be recognizable in
-+		 * the log message below.
-+		 */
-+		unmap[0].status = 1;
-+		unmap[1].status = 1;
-+
-+		rc = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref,
-+					       unmap, 1 + !!kmap_ops);
-+		if (rc || unmap[0].status != GNTST_okay ||
-+		    unmap[1].status != GNTST_okay)
-+			pr_err_once("gnttab unmap failed: rc=%d st0=%d st1=%d\n",
-+				    rc, unmap[0].status, unmap[1].status);
- 	}
- 
- out:
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index 616ee4f9c233..b243452d4788 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -450,7 +450,7 @@ static ssize_t mm_stat_show(struct device *dev,
- 			zram->limit_pages << PAGE_SHIFT,
- 			max_used << PAGE_SHIFT,
- 			(u64)atomic64_read(&zram->stats.zero_pages),
--			pool_stats.pages_compacted);
-+			atomic_long_read(&pool_stats.pages_compacted));
- 	up_read(&zram->init_lock);
- 
- 	return ret;
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index f353ab569b8e..def22b7fef9c 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -869,7 +869,10 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 	unsigned int i;
- 
- 	extra_size = roundup(extra_size, sizeof(*entity->pads));
--	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
-+	if (num_pads)
-+		num_inputs = type & UVC_TERM_OUTPUT ? num_pads : num_pads - 1;
-+	else
-+		num_inputs = 0;
- 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
- 	     + num_inputs;
- 	entity = kzalloc(size, GFP_KERNEL);
-@@ -885,7 +888,7 @@ static struct uvc_entity *uvc_alloc_entity(u16 type, u8 id,
- 
- 	for (i = 0; i < num_inputs; ++i)
- 		entity->pads[i].flags = MEDIA_PAD_FL_SINK;
--	if (!UVC_ENTITY_IS_OTERM(entity))
-+	if (!UVC_ENTITY_IS_OTERM(entity) && num_pads)
- 		entity->pads[num_pads-1].flags = MEDIA_PAD_FL_SOURCE;
- 
- 	entity->bNrInPins = num_inputs;
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 5e2a7e59f578..75bdcb4b7d57 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -2710,7 +2710,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
- 	       v4l2_kioctl func)
- {
- 	char	sbuf[128];
--	void    *mbuf = NULL;
-+	void    *mbuf = NULL, *array_buf = NULL;
- 	void	*parg = (void *)arg;
- 	long	err  = -EINVAL;
- 	bool	has_array_args;
-@@ -2765,20 +2765,14 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
- 	has_array_args = err;
- 
- 	if (has_array_args) {
--		/*
--		 * When adding new types of array args, make sure that the
--		 * parent argument to ioctl (which contains the pointer to the
--		 * array) fits into sbuf (so that mbuf will still remain
--		 * unused up to here).
--		 */
--		mbuf = kmalloc(array_size, GFP_KERNEL);
-+		array_buf = kmalloc(array_size, GFP_KERNEL);
- 		err = -ENOMEM;
--		if (NULL == mbuf)
-+		if (array_buf == NULL)
- 			goto out_array_args;
- 		err = -EFAULT;
--		if (copy_from_user(mbuf, user_ptr, array_size))
-+		if (copy_from_user(array_buf, user_ptr, array_size))
- 			goto out_array_args;
--		*kernel_ptr = mbuf;
-+		*kernel_ptr = array_buf;
- 	}
- 
- 	/* Handles IOCTL */
-@@ -2797,7 +2791,7 @@ video_usercopy(struct file *file, unsigned int cmd, unsigned long arg,
- 
- 	if (has_array_args) {
- 		*kernel_ptr = (void __force *)user_ptr;
--		if (copy_to_user(user_ptr, mbuf, array_size))
-+		if (copy_to_user(user_ptr, array_buf, array_size))
- 			err = -EFAULT;
- 		goto out_array_args;
- 	}
-@@ -2817,6 +2811,7 @@ out_array_args:
- 	}
- 
- out:
-+	kfree(array_buf);
- 	kfree(mbuf);
- 	return err;
- }
-diff --git a/drivers/mmc/host/sdhci-esdhc-imx.c b/drivers/mmc/host/sdhci-esdhc-imx.c
-index 8d838779fd1b..b95d911ef497 100644
---- a/drivers/mmc/host/sdhci-esdhc-imx.c
-+++ b/drivers/mmc/host/sdhci-esdhc-imx.c
-@@ -1240,9 +1240,10 @@ static int sdhci_esdhc_imx_remove(struct platform_device *pdev)
- 	struct sdhci_host *host = platform_get_drvdata(pdev);
- 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
- 	struct pltfm_imx_data *imx_data = pltfm_host->priv;
--	int dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
-+	int dead;
- 
- 	pm_runtime_get_sync(&pdev->dev);
-+	dead = (readl(host->ioaddr + SDHCI_INT_STATUS) == 0xffffffff);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_put_noidle(&pdev->dev);
- 
-diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
-index 3f18faf99367..943dab8ef1e2 100644
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -877,6 +877,7 @@ static const struct usb_device_id products[] = {
- 	{QMI_FIXED_INTF(0x19d2, 0x1255, 4)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1256, 4)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1270, 5)},	/* ZTE MF667 */
-+	{QMI_FIXED_INTF(0x19d2, 0x1275, 3)},	/* ZTE P685M */
- 	{QMI_FIXED_INTF(0x19d2, 0x1401, 2)},
- 	{QMI_FIXED_INTF(0x19d2, 0x1402, 2)},	/* ZTE MF60 */
- 	{QMI_FIXED_INTF(0x19d2, 0x1424, 2)},
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 7fbf2abcfc43..5fad38c3feb1 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -3336,23 +3336,16 @@ static bool ath10k_mac_need_offchan_tx_work(struct ath10k *ar)
- static int ath10k_mac_tx_wmi_mgmt(struct ath10k *ar, struct sk_buff *skb)
- {
- 	struct sk_buff_head *q = &ar->wmi_mgmt_tx_queue;
--	int ret = 0;
--
--	spin_lock_bh(&ar->data_lock);
- 
--	if (skb_queue_len(q) == ATH10K_MAX_NUM_MGMT_PENDING) {
-+	if (skb_queue_len_lockless(q) >= ATH10K_MAX_NUM_MGMT_PENDING) {
- 		ath10k_warn(ar, "wmi mgmt tx queue is full\n");
--		ret = -ENOSPC;
--		goto unlock;
-+		return -ENOSPC;
- 	}
- 
--	__skb_queue_tail(q, skb);
-+	skb_queue_tail(q, skb);
- 	ieee80211_queue_work(ar->hw, &ar->wmi_mgmt_tx_work);
- 
--unlock:
--	spin_unlock_bh(&ar->data_lock);
--
--	return ret;
-+	return 0;
- }
- 
- static void ath10k_mac_tx(struct ath10k *ar, struct sk_buff *skb)
-diff --git a/drivers/net/wireless/iwlwifi/pcie/tx.c b/drivers/net/wireless/iwlwifi/pcie/tx.c
-index cb03c2855019..7584796131fa 100644
---- a/drivers/net/wireless/iwlwifi/pcie/tx.c
-+++ b/drivers/net/wireless/iwlwifi/pcie/tx.c
-@@ -583,13 +583,15 @@ static void iwl_pcie_txq_unmap(struct iwl_trans *trans, int txq_id)
- {
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
- 	struct iwl_txq *txq = &trans_pcie->txq[txq_id];
--	struct iwl_queue *q = &txq->q;
-+	struct iwl_queue *q;
- 
- 	if (!txq) {
- 		IWL_ERR(trans, "Trying to free a queue that wasn't allocated?\n");
- 		return;
- 	}
- 
-+	q = &txq->q;
-+
- 	spin_lock_bh(&txq->lock);
- 	while (q->write_ptr != q->read_ptr) {
- 		IWL_DEBUG_TX_REPLY(trans, "Q %d Free %d\n",
-diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
-index af0fe2e17151..e4b28d37046a 100644
---- a/drivers/net/wireless/ti/wl12xx/main.c
-+++ b/drivers/net/wireless/ti/wl12xx/main.c
-@@ -647,7 +647,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
- 		wl->mr_fw_name = WL127X_FW_NAME_MULTI;
-@@ -671,7 +670,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_LEGACY_NVS |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 		wl->plt_fw_name = WL127X_PLT_FW_NAME;
- 		wl->sr_fw_name = WL127X_FW_NAME_SINGLE;
-@@ -700,7 +698,6 @@ static int wl12xx_identify_chip(struct wl1271 *wl)
- 		wl->quirks |= WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN |
- 			      WLCORE_QUIRK_DUAL_PROBE_TMPL |
- 			      WLCORE_QUIRK_TKIP_HEADER_SPACE |
--			      WLCORE_QUIRK_START_STA_FAILS |
- 			      WLCORE_QUIRK_AP_ZERO_SESSION_ID;
- 
- 		wlcore_set_min_fw_ver(wl, WL128X_CHIP_VER,
-diff --git a/drivers/net/wireless/ti/wlcore/main.c b/drivers/net/wireless/ti/wlcore/main.c
-index cc10b72607c6..3f61289ce036 100644
---- a/drivers/net/wireless/ti/wlcore/main.c
-+++ b/drivers/net/wireless/ti/wlcore/main.c
-@@ -2889,21 +2889,8 @@ static int wlcore_join(struct wl1271 *wl, struct wl12xx_vif *wlvif)
- 
- 	if (is_ibss)
- 		ret = wl12xx_cmd_role_start_ibss(wl, wlvif);
--	else {
--		if (wl->quirks & WLCORE_QUIRK_START_STA_FAILS) {
--			/*
--			 * TODO: this is an ugly workaround for wl12xx fw
--			 * bug - we are not able to tx/rx after the first
--			 * start_sta, so make dummy start+stop calls,
--			 * and then call start_sta again.
--			 * this should be fixed in the fw.
--			 */
--			wl12xx_cmd_role_start_sta(wl, wlvif);
--			wl12xx_cmd_role_stop_sta(wl, wlvif);
--		}
--
-+	else
- 		ret = wl12xx_cmd_role_start_sta(wl, wlvif);
--	}
- 
- 	return ret;
- }
-diff --git a/drivers/net/wireless/ti/wlcore/wlcore.h b/drivers/net/wireless/ti/wlcore/wlcore.h
-index 906be6aa4eb6..a0647d4384d2 100644
---- a/drivers/net/wireless/ti/wlcore/wlcore.h
-+++ b/drivers/net/wireless/ti/wlcore/wlcore.h
-@@ -556,9 +556,6 @@ wlcore_set_min_fw_ver(struct wl1271 *wl, unsigned int chip,
- /* Each RX/TX transaction requires an end-of-transaction transfer */
- #define WLCORE_QUIRK_END_OF_TRANSACTION		BIT(0)
- 
--/* the first start_role(sta) sometimes doesn't work on wl12xx */
--#define WLCORE_QUIRK_START_STA_FAILS		BIT(1)
--
- /* wl127x and SPI don't support SDIO block size alignment */
- #define WLCORE_QUIRK_TX_BLOCKSIZE_ALIGN		BIT(2)
- 
-diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
-index 9a988ea5d797..c8c6afc0ab51 100644
---- a/drivers/net/xen-netback/netback.c
-+++ b/drivers/net/xen-netback/netback.c
-@@ -1792,11 +1792,21 @@ int xenvif_tx_action(struct xenvif_queue *queue, int budget)
- 		return 0;
- 
- 	gnttab_batch_copy(queue->tx_copy_ops, nr_cops);
--	if (nr_mops != 0)
-+	if (nr_mops != 0) {
- 		ret = gnttab_map_refs(queue->tx_map_ops,
- 				      NULL,
- 				      queue->pages_to_map,
- 				      nr_mops);
-+		if (ret) {
-+			unsigned int i;
-+
-+			netdev_err(queue->vif->dev, "Map fail: nr %u ret %d\n",
-+				   nr_mops, ret);
-+			for (i = 0; i < nr_mops; ++i)
-+				WARN_ON_ONCE(queue->tx_map_ops[i].status ==
-+				             GNTST_okay);
-+		}
-+	}
- 
- 	work_done = xenvif_tx_submit(queue);
- 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 36e415487fe5..ecf3950c4438 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -3371,125 +3371,125 @@ int iscsi_session_get_param(struct iscsi_cls_session *cls_session,
- 
- 	switch(param) {
- 	case ISCSI_PARAM_FAST_ABORT:
--		len = sprintf(buf, "%d\n", session->fast_abort);
-+		len = sysfs_emit(buf, "%d\n", session->fast_abort);
- 		break;
- 	case ISCSI_PARAM_ABORT_TMO:
--		len = sprintf(buf, "%d\n", session->abort_timeout);
-+		len = sysfs_emit(buf, "%d\n", session->abort_timeout);
- 		break;
- 	case ISCSI_PARAM_LU_RESET_TMO:
--		len = sprintf(buf, "%d\n", session->lu_reset_timeout);
-+		len = sysfs_emit(buf, "%d\n", session->lu_reset_timeout);
- 		break;
- 	case ISCSI_PARAM_TGT_RESET_TMO:
--		len = sprintf(buf, "%d\n", session->tgt_reset_timeout);
-+		len = sysfs_emit(buf, "%d\n", session->tgt_reset_timeout);
- 		break;
- 	case ISCSI_PARAM_INITIAL_R2T_EN:
--		len = sprintf(buf, "%d\n", session->initial_r2t_en);
-+		len = sysfs_emit(buf, "%d\n", session->initial_r2t_en);
- 		break;
- 	case ISCSI_PARAM_MAX_R2T:
--		len = sprintf(buf, "%hu\n", session->max_r2t);
-+		len = sysfs_emit(buf, "%hu\n", session->max_r2t);
- 		break;
- 	case ISCSI_PARAM_IMM_DATA_EN:
--		len = sprintf(buf, "%d\n", session->imm_data_en);
-+		len = sysfs_emit(buf, "%d\n", session->imm_data_en);
- 		break;
- 	case ISCSI_PARAM_FIRST_BURST:
--		len = sprintf(buf, "%u\n", session->first_burst);
-+		len = sysfs_emit(buf, "%u\n", session->first_burst);
- 		break;
- 	case ISCSI_PARAM_MAX_BURST:
--		len = sprintf(buf, "%u\n", session->max_burst);
-+		len = sysfs_emit(buf, "%u\n", session->max_burst);
- 		break;
- 	case ISCSI_PARAM_PDU_INORDER_EN:
--		len = sprintf(buf, "%d\n", session->pdu_inorder_en);
-+		len = sysfs_emit(buf, "%d\n", session->pdu_inorder_en);
- 		break;
- 	case ISCSI_PARAM_DATASEQ_INORDER_EN:
--		len = sprintf(buf, "%d\n", session->dataseq_inorder_en);
-+		len = sysfs_emit(buf, "%d\n", session->dataseq_inorder_en);
- 		break;
- 	case ISCSI_PARAM_DEF_TASKMGMT_TMO:
--		len = sprintf(buf, "%d\n", session->def_taskmgmt_tmo);
-+		len = sysfs_emit(buf, "%d\n", session->def_taskmgmt_tmo);
- 		break;
- 	case ISCSI_PARAM_ERL:
--		len = sprintf(buf, "%d\n", session->erl);
-+		len = sysfs_emit(buf, "%d\n", session->erl);
- 		break;
- 	case ISCSI_PARAM_TARGET_NAME:
--		len = sprintf(buf, "%s\n", session->targetname);
-+		len = sysfs_emit(buf, "%s\n", session->targetname);
- 		break;
- 	case ISCSI_PARAM_TARGET_ALIAS:
--		len = sprintf(buf, "%s\n", session->targetalias);
-+		len = sysfs_emit(buf, "%s\n", session->targetalias);
- 		break;
- 	case ISCSI_PARAM_TPGT:
--		len = sprintf(buf, "%d\n", session->tpgt);
-+		len = sysfs_emit(buf, "%d\n", session->tpgt);
- 		break;
- 	case ISCSI_PARAM_USERNAME:
--		len = sprintf(buf, "%s\n", session->username);
-+		len = sysfs_emit(buf, "%s\n", session->username);
- 		break;
- 	case ISCSI_PARAM_USERNAME_IN:
--		len = sprintf(buf, "%s\n", session->username_in);
-+		len = sysfs_emit(buf, "%s\n", session->username_in);
- 		break;
- 	case ISCSI_PARAM_PASSWORD:
--		len = sprintf(buf, "%s\n", session->password);
-+		len = sysfs_emit(buf, "%s\n", session->password);
- 		break;
- 	case ISCSI_PARAM_PASSWORD_IN:
--		len = sprintf(buf, "%s\n", session->password_in);
-+		len = sysfs_emit(buf, "%s\n", session->password_in);
- 		break;
- 	case ISCSI_PARAM_IFACE_NAME:
--		len = sprintf(buf, "%s\n", session->ifacename);
-+		len = sysfs_emit(buf, "%s\n", session->ifacename);
- 		break;
- 	case ISCSI_PARAM_INITIATOR_NAME:
--		len = sprintf(buf, "%s\n", session->initiatorname);
-+		len = sysfs_emit(buf, "%s\n", session->initiatorname);
- 		break;
- 	case ISCSI_PARAM_BOOT_ROOT:
--		len = sprintf(buf, "%s\n", session->boot_root);
-+		len = sysfs_emit(buf, "%s\n", session->boot_root);
- 		break;
- 	case ISCSI_PARAM_BOOT_NIC:
--		len = sprintf(buf, "%s\n", session->boot_nic);
-+		len = sysfs_emit(buf, "%s\n", session->boot_nic);
- 		break;
- 	case ISCSI_PARAM_BOOT_TARGET:
--		len = sprintf(buf, "%s\n", session->boot_target);
-+		len = sysfs_emit(buf, "%s\n", session->boot_target);
- 		break;
- 	case ISCSI_PARAM_AUTO_SND_TGT_DISABLE:
--		len = sprintf(buf, "%u\n", session->auto_snd_tgt_disable);
-+		len = sysfs_emit(buf, "%u\n", session->auto_snd_tgt_disable);
- 		break;
- 	case ISCSI_PARAM_DISCOVERY_SESS:
--		len = sprintf(buf, "%u\n", session->discovery_sess);
-+		len = sysfs_emit(buf, "%u\n", session->discovery_sess);
- 		break;
- 	case ISCSI_PARAM_PORTAL_TYPE:
--		len = sprintf(buf, "%s\n", session->portal_type);
-+		len = sysfs_emit(buf, "%s\n", session->portal_type);
- 		break;
- 	case ISCSI_PARAM_CHAP_AUTH_EN:
--		len = sprintf(buf, "%u\n", session->chap_auth_en);
-+		len = sysfs_emit(buf, "%u\n", session->chap_auth_en);
- 		break;
- 	case ISCSI_PARAM_DISCOVERY_LOGOUT_EN:
--		len = sprintf(buf, "%u\n", session->discovery_logout_en);
-+		len = sysfs_emit(buf, "%u\n", session->discovery_logout_en);
- 		break;
- 	case ISCSI_PARAM_BIDI_CHAP_EN:
--		len = sprintf(buf, "%u\n", session->bidi_chap_en);
-+		len = sysfs_emit(buf, "%u\n", session->bidi_chap_en);
- 		break;
- 	case ISCSI_PARAM_DISCOVERY_AUTH_OPTIONAL:
--		len = sprintf(buf, "%u\n", session->discovery_auth_optional);
-+		len = sysfs_emit(buf, "%u\n", session->discovery_auth_optional);
- 		break;
- 	case ISCSI_PARAM_DEF_TIME2WAIT:
--		len = sprintf(buf, "%d\n", session->time2wait);
-+		len = sysfs_emit(buf, "%d\n", session->time2wait);
- 		break;
- 	case ISCSI_PARAM_DEF_TIME2RETAIN:
--		len = sprintf(buf, "%d\n", session->time2retain);
-+		len = sysfs_emit(buf, "%d\n", session->time2retain);
- 		break;
- 	case ISCSI_PARAM_TSID:
--		len = sprintf(buf, "%u\n", session->tsid);
-+		len = sysfs_emit(buf, "%u\n", session->tsid);
- 		break;
- 	case ISCSI_PARAM_ISID:
--		len = sprintf(buf, "%02x%02x%02x%02x%02x%02x\n",
-+		len = sysfs_emit(buf, "%02x%02x%02x%02x%02x%02x\n",
- 			      session->isid[0], session->isid[1],
- 			      session->isid[2], session->isid[3],
- 			      session->isid[4], session->isid[5]);
- 		break;
- 	case ISCSI_PARAM_DISCOVERY_PARENT_IDX:
--		len = sprintf(buf, "%u\n", session->discovery_parent_idx);
-+		len = sysfs_emit(buf, "%u\n", session->discovery_parent_idx);
- 		break;
- 	case ISCSI_PARAM_DISCOVERY_PARENT_TYPE:
- 		if (session->discovery_parent_type)
--			len = sprintf(buf, "%s\n",
-+			len = sysfs_emit(buf, "%s\n",
- 				      session->discovery_parent_type);
- 		else
--			len = sprintf(buf, "\n");
-+			len = sysfs_emit(buf, "\n");
- 		break;
- 	default:
- 		return -ENOSYS;
-@@ -3521,16 +3521,16 @@ int iscsi_conn_get_addr_param(struct sockaddr_storage *addr,
- 	case ISCSI_PARAM_CONN_ADDRESS:
- 	case ISCSI_HOST_PARAM_IPADDRESS:
- 		if (sin)
--			len = sprintf(buf, "%pI4\n", &sin->sin_addr.s_addr);
-+			len = sysfs_emit(buf, "%pI4\n", &sin->sin_addr.s_addr);
- 		else
--			len = sprintf(buf, "%pI6\n", &sin6->sin6_addr);
-+			len = sysfs_emit(buf, "%pI6\n", &sin6->sin6_addr);
- 		break;
- 	case ISCSI_PARAM_CONN_PORT:
- 	case ISCSI_PARAM_LOCAL_PORT:
- 		if (sin)
--			len = sprintf(buf, "%hu\n", be16_to_cpu(sin->sin_port));
-+			len = sysfs_emit(buf, "%hu\n", be16_to_cpu(sin->sin_port));
- 		else
--			len = sprintf(buf, "%hu\n",
-+			len = sysfs_emit(buf, "%hu\n",
- 				      be16_to_cpu(sin6->sin6_port));
- 		break;
- 	default:
-@@ -3549,88 +3549,88 @@ int iscsi_conn_get_param(struct iscsi_cls_conn *cls_conn,
- 
- 	switch(param) {
- 	case ISCSI_PARAM_PING_TMO:
--		len = sprintf(buf, "%u\n", conn->ping_timeout);
-+		len = sysfs_emit(buf, "%u\n", conn->ping_timeout);
- 		break;
- 	case ISCSI_PARAM_RECV_TMO:
--		len = sprintf(buf, "%u\n", conn->recv_timeout);
-+		len = sysfs_emit(buf, "%u\n", conn->recv_timeout);
- 		break;
- 	case ISCSI_PARAM_MAX_RECV_DLENGTH:
--		len = sprintf(buf, "%u\n", conn->max_recv_dlength);
-+		len = sysfs_emit(buf, "%u\n", conn->max_recv_dlength);
- 		break;
- 	case ISCSI_PARAM_MAX_XMIT_DLENGTH:
--		len = sprintf(buf, "%u\n", conn->max_xmit_dlength);
-+		len = sysfs_emit(buf, "%u\n", conn->max_xmit_dlength);
- 		break;
- 	case ISCSI_PARAM_HDRDGST_EN:
--		len = sprintf(buf, "%d\n", conn->hdrdgst_en);
-+		len = sysfs_emit(buf, "%d\n", conn->hdrdgst_en);
- 		break;
- 	case ISCSI_PARAM_DATADGST_EN:
--		len = sprintf(buf, "%d\n", conn->datadgst_en);
-+		len = sysfs_emit(buf, "%d\n", conn->datadgst_en);
- 		break;
- 	case ISCSI_PARAM_IFMARKER_EN:
--		len = sprintf(buf, "%d\n", conn->ifmarker_en);
-+		len = sysfs_emit(buf, "%d\n", conn->ifmarker_en);
- 		break;
- 	case ISCSI_PARAM_OFMARKER_EN:
--		len = sprintf(buf, "%d\n", conn->ofmarker_en);
-+		len = sysfs_emit(buf, "%d\n", conn->ofmarker_en);
- 		break;
- 	case ISCSI_PARAM_EXP_STATSN:
--		len = sprintf(buf, "%u\n", conn->exp_statsn);
-+		len = sysfs_emit(buf, "%u\n", conn->exp_statsn);
- 		break;
- 	case ISCSI_PARAM_PERSISTENT_PORT:
--		len = sprintf(buf, "%d\n", conn->persistent_port);
-+		len = sysfs_emit(buf, "%d\n", conn->persistent_port);
- 		break;
- 	case ISCSI_PARAM_PERSISTENT_ADDRESS:
--		len = sprintf(buf, "%s\n", conn->persistent_address);
-+		len = sysfs_emit(buf, "%s\n", conn->persistent_address);
- 		break;
- 	case ISCSI_PARAM_STATSN:
--		len = sprintf(buf, "%u\n", conn->statsn);
-+		len = sysfs_emit(buf, "%u\n", conn->statsn);
- 		break;
- 	case ISCSI_PARAM_MAX_SEGMENT_SIZE:
--		len = sprintf(buf, "%u\n", conn->max_segment_size);
-+		len = sysfs_emit(buf, "%u\n", conn->max_segment_size);
- 		break;
- 	case ISCSI_PARAM_KEEPALIVE_TMO:
--		len = sprintf(buf, "%u\n", conn->keepalive_tmo);
-+		len = sysfs_emit(buf, "%u\n", conn->keepalive_tmo);
- 		break;
- 	case ISCSI_PARAM_LOCAL_PORT:
--		len = sprintf(buf, "%u\n", conn->local_port);
-+		len = sysfs_emit(buf, "%u\n", conn->local_port);
- 		break;
- 	case ISCSI_PARAM_TCP_TIMESTAMP_STAT:
--		len = sprintf(buf, "%u\n", conn->tcp_timestamp_stat);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_timestamp_stat);
- 		break;
- 	case ISCSI_PARAM_TCP_NAGLE_DISABLE:
--		len = sprintf(buf, "%u\n", conn->tcp_nagle_disable);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_nagle_disable);
- 		break;
- 	case ISCSI_PARAM_TCP_WSF_DISABLE:
--		len = sprintf(buf, "%u\n", conn->tcp_wsf_disable);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_wsf_disable);
- 		break;
- 	case ISCSI_PARAM_TCP_TIMER_SCALE:
--		len = sprintf(buf, "%u\n", conn->tcp_timer_scale);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_timer_scale);
- 		break;
- 	case ISCSI_PARAM_TCP_TIMESTAMP_EN:
--		len = sprintf(buf, "%u\n", conn->tcp_timestamp_en);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_timestamp_en);
- 		break;
- 	case ISCSI_PARAM_IP_FRAGMENT_DISABLE:
--		len = sprintf(buf, "%u\n", conn->fragment_disable);
-+		len = sysfs_emit(buf, "%u\n", conn->fragment_disable);
- 		break;
- 	case ISCSI_PARAM_IPV4_TOS:
--		len = sprintf(buf, "%u\n", conn->ipv4_tos);
-+		len = sysfs_emit(buf, "%u\n", conn->ipv4_tos);
- 		break;
- 	case ISCSI_PARAM_IPV6_TC:
--		len = sprintf(buf, "%u\n", conn->ipv6_traffic_class);
-+		len = sysfs_emit(buf, "%u\n", conn->ipv6_traffic_class);
- 		break;
- 	case ISCSI_PARAM_IPV6_FLOW_LABEL:
--		len = sprintf(buf, "%u\n", conn->ipv6_flow_label);
-+		len = sysfs_emit(buf, "%u\n", conn->ipv6_flow_label);
- 		break;
- 	case ISCSI_PARAM_IS_FW_ASSIGNED_IPV6:
--		len = sprintf(buf, "%u\n", conn->is_fw_assigned_ipv6);
-+		len = sysfs_emit(buf, "%u\n", conn->is_fw_assigned_ipv6);
- 		break;
- 	case ISCSI_PARAM_TCP_XMIT_WSF:
--		len = sprintf(buf, "%u\n", conn->tcp_xmit_wsf);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_xmit_wsf);
- 		break;
- 	case ISCSI_PARAM_TCP_RECV_WSF:
--		len = sprintf(buf, "%u\n", conn->tcp_recv_wsf);
-+		len = sysfs_emit(buf, "%u\n", conn->tcp_recv_wsf);
- 		break;
- 	case ISCSI_PARAM_LOCAL_IPADDR:
--		len = sprintf(buf, "%s\n", conn->local_ipaddr);
-+		len = sysfs_emit(buf, "%s\n", conn->local_ipaddr);
- 		break;
- 	default:
- 		return -ENOSYS;
-@@ -3648,13 +3648,13 @@ int iscsi_host_get_param(struct Scsi_Host *shost, enum iscsi_host_param param,
- 
- 	switch (param) {
- 	case ISCSI_HOST_PARAM_NETDEV_NAME:
--		len = sprintf(buf, "%s\n", ihost->netdev);
-+		len = sysfs_emit(buf, "%s\n", ihost->netdev);
- 		break;
- 	case ISCSI_HOST_PARAM_HWADDRESS:
--		len = sprintf(buf, "%s\n", ihost->hwaddress);
-+		len = sysfs_emit(buf, "%s\n", ihost->hwaddress);
- 		break;
- 	case ISCSI_HOST_PARAM_INITIATOR_NAME:
--		len = sprintf(buf, "%s\n", ihost->initiatorname);
-+		len = sysfs_emit(buf, "%s\n", ihost->initiatorname);
- 		break;
- 	default:
- 		return -ENOSYS;
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 490364031648..42bc4b71b0ba 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -119,7 +119,11 @@ show_transport_handle(struct device *dev, struct device_attribute *attr,
- 		      char *buf)
- {
- 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);
--	return sprintf(buf, "%llu\n", (unsigned long long)iscsi_handle(priv->iscsi_transport));
-+
-+	if (!capable(CAP_SYS_ADMIN))
-+		return -EACCES;
-+	return sysfs_emit(buf, "%llu\n",
-+		  (unsigned long long)iscsi_handle(priv->iscsi_transport));
- }
- static DEVICE_ATTR(handle, S_IRUGO, show_transport_handle, NULL);
- 
-@@ -129,7 +133,7 @@ show_transport_##name(struct device *dev, 				\
- 		      struct device_attribute *attr,char *buf)		\
- {									\
- 	struct iscsi_internal *priv = dev_to_iscsi_internal(dev);	\
--	return sprintf(buf, format"\n", priv->iscsi_transport->name);	\
-+	return sysfs_emit(buf, format"\n", priv->iscsi_transport->name);\
- }									\
- static DEVICE_ATTR(name, S_IRUGO, show_transport_##name, NULL);
- 
-@@ -170,7 +174,7 @@ static ssize_t
- show_ep_handle(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct iscsi_endpoint *ep = iscsi_dev_to_endpoint(dev);
--	return sprintf(buf, "%llu\n", (unsigned long long) ep->id);
-+	return sysfs_emit(buf, "%llu\n", (unsigned long long) ep->id);
- }
- static ISCSI_ATTR(ep, handle, S_IRUGO, show_ep_handle, NULL);
- 
-@@ -2783,6 +2787,9 @@ iscsi_set_param(struct iscsi_transport *transport, struct iscsi_uevent *ev)
- 	struct iscsi_cls_session *session;
- 	int err = 0, value = 0;
- 
-+	if (ev->u.set_param.len > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	session = iscsi_session_lookup(ev->u.set_param.sid);
- 	conn = iscsi_conn_lookup(ev->u.set_param.sid, ev->u.set_param.cid);
- 	if (!conn || !session)
-@@ -2930,6 +2937,9 @@ iscsi_set_host_param(struct iscsi_transport *transport,
- 	if (!transport->set_host_param)
- 		return -ENOSYS;
- 
-+	if (ev->u.set_host_param.len > PAGE_SIZE)
-+		return -EINVAL;
-+
- 	shost = scsi_host_lookup(ev->u.set_host_param.host_no);
- 	if (!shost) {
- 		printk(KERN_ERR "set_host_param could not find host no %u\n",
-@@ -3516,6 +3526,7 @@ static int
- iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- {
- 	int err = 0;
-+	u32 pdu_len;
- 	struct iscsi_uevent *ev = nlmsg_data(nlh);
- 	struct iscsi_transport *transport = NULL;
- 	struct iscsi_internal *priv;
-@@ -3523,6 +3534,9 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 	struct iscsi_cls_conn *conn;
- 	struct iscsi_endpoint *ep = NULL;
- 
-+	if (!netlink_capable(skb, CAP_SYS_ADMIN))
-+		return -EPERM;
-+
- 	if (nlh->nlmsg_type == ISCSI_UEVENT_PATH_UPDATE)
- 		*group = ISCSI_NL_GRP_UIP;
- 	else
-@@ -3628,6 +3642,14 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 			err = -EINVAL;
- 		break;
- 	case ISCSI_UEVENT_SEND_PDU:
-+		pdu_len = nlh->nlmsg_len - sizeof(*nlh) - sizeof(*ev);
-+
-+		if ((ev->u.send_pdu.hdr_size > pdu_len) ||
-+		    (ev->u.send_pdu.data_size > (pdu_len - ev->u.send_pdu.hdr_size))) {
-+			err = -EINVAL;
-+			break;
-+		}
-+
- 		conn = iscsi_conn_lookup(ev->u.send_pdu.sid, ev->u.send_pdu.cid);
- 		if (conn)
- 			ev->r.retcode =	transport->send_pdu(conn,
-@@ -4032,7 +4054,7 @@ show_priv_session_state(struct device *dev, struct device_attribute *attr,
- 			char *buf)
- {
- 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
--	return sprintf(buf, "%s\n", iscsi_session_state_name(session->state));
-+	return sysfs_emit(buf, "%s\n", iscsi_session_state_name(session->state));
- }
- static ISCSI_CLASS_ATTR(priv_sess, state, S_IRUGO, show_priv_session_state,
- 			NULL);
-@@ -4041,7 +4063,7 @@ show_priv_session_creator(struct device *dev, struct device_attribute *attr,
- 			char *buf)
- {
- 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
--	return sprintf(buf, "%d\n", session->creator);
-+	return sysfs_emit(buf, "%d\n", session->creator);
- }
- static ISCSI_CLASS_ATTR(priv_sess, creator, S_IRUGO, show_priv_session_creator,
- 			NULL);
-@@ -4050,7 +4072,7 @@ show_priv_session_target_id(struct device *dev, struct device_attribute *attr,
- 			    char *buf)
- {
- 	struct iscsi_cls_session *session = iscsi_dev_to_session(dev->parent);
--	return sprintf(buf, "%d\n", session->target_id);
-+	return sysfs_emit(buf, "%d\n", session->target_id);
- }
- static ISCSI_CLASS_ATTR(priv_sess, target_id, S_IRUGO,
- 			show_priv_session_target_id, NULL);
-@@ -4063,8 +4085,8 @@ show_priv_session_##field(struct device *dev, 				\
- 	struct iscsi_cls_session *session = 				\
- 			iscsi_dev_to_session(dev->parent);		\
- 	if (session->field == -1)					\
--		return sprintf(buf, "off\n");				\
--	return sprintf(buf, format"\n", session->field);		\
-+		return sysfs_emit(buf, "off\n");			\
-+	return sysfs_emit(buf, format"\n", session->field);		\
- }
- 
- #define iscsi_priv_session_attr_store(field)				\
-diff --git a/drivers/staging/fwserial/fwserial.c b/drivers/staging/fwserial/fwserial.c
-index b3ea4bb54e2c..68ed97398faf 100644
---- a/drivers/staging/fwserial/fwserial.c
-+++ b/drivers/staging/fwserial/fwserial.c
-@@ -2255,6 +2255,7 @@ static int fwserial_create(struct fw_unit *unit)
- 		err = fw_core_add_address_handler(&port->rx_handler,
- 						  &fw_high_memory_region);
- 		if (err) {
-+			tty_port_destroy(&port->port);
- 			kfree(port);
- 			goto free_ports;
- 		}
-@@ -2337,6 +2338,7 @@ unregister_ttys:
- 
- free_ports:
- 	for (--i; i >= 0; --i) {
-+		fw_core_remove_address_handler(&serial->ports[i]->rx_handler);
- 		tty_port_destroy(&serial->ports[i]->port);
- 		kfree(serial->ports[i]);
- 	}
-diff --git a/drivers/staging/most/aim-sound/sound.c b/drivers/staging/most/aim-sound/sound.c
-index 9c645801cff4..532ec0f7100e 100644
---- a/drivers/staging/most/aim-sound/sound.c
-+++ b/drivers/staging/most/aim-sound/sound.c
-@@ -92,6 +92,8 @@ static void swap_copy24(u8 *dest, const u8 *source, unsigned int bytes)
- {
- 	unsigned int i = 0;
- 
-+	if (bytes < 2)
-+		return;
- 	while (i < bytes - 2) {
- 		dest[i] = source[i + 2];
- 		dest[i + 1] = source[i + 1];
-diff --git a/drivers/tty/vt/consolemap.c b/drivers/tty/vt/consolemap.c
-index c8c91f0476a2..e8301dcf4c84 100644
---- a/drivers/tty/vt/consolemap.c
-+++ b/drivers/tty/vt/consolemap.c
-@@ -494,7 +494,7 @@ con_insert_unipair(struct uni_pagedir *p, u_short unicode, u_short fontpos)
- 
- 	p2[unicode & 0x3f] = fontpos;
- 	
--	p->sum += (fontpos << 20) + unicode;
-+	p->sum += (fontpos << 20U) + unicode;
- 
- 	return 0;
- }
-diff --git a/fs/jfs/jfs_filsys.h b/fs/jfs/jfs_filsys.h
-index b67d64671bb4..415bfa90607a 100644
---- a/fs/jfs/jfs_filsys.h
-+++ b/fs/jfs/jfs_filsys.h
-@@ -281,5 +281,6 @@
- 				 * fsck() must be run to repair
- 				 */
- #define	FM_EXTENDFS 0x00000008	/* file system extendfs() in progress */
-+#define	FM_STATE_MAX 0x0000000f	/* max value of s_state */
- 
- #endif				/* _H_JFS_FILSYS */
-diff --git a/fs/jfs/jfs_mount.c b/fs/jfs/jfs_mount.c
-index 9895595fd2f2..103788ecc28c 100644
---- a/fs/jfs/jfs_mount.c
-+++ b/fs/jfs/jfs_mount.c
-@@ -49,6 +49,7 @@
- 
- #include <linux/fs.h>
- #include <linux/buffer_head.h>
-+#include <linux/log2.h>
- 
- #include "jfs_incore.h"
- #include "jfs_filsys.h"
-@@ -378,6 +379,15 @@ static int chkSuper(struct super_block *sb)
- 	sbi->bsize = bsize;
- 	sbi->l2bsize = le16_to_cpu(j_sb->s_l2bsize);
- 
-+	/* check some fields for possible corruption */
-+	if (sbi->l2bsize != ilog2((u32)bsize) ||
-+	    j_sb->pad != 0 ||
-+	    le32_to_cpu(j_sb->s_state) > FM_STATE_MAX) {
-+		rc = -EINVAL;
-+		jfs_err("jfs_mount: Mount Failure: superblock is corrupt!");
-+		goto out;
-+	}
-+
- 	/*
- 	 * For now, ignore s_pbsize, l2bfactor.  All I/O going through buffer
- 	 * cache.
-diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
-index 666986b95c5d..300cdbdc8494 100644
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -17,6 +17,7 @@
- #include <linux/list.h>
- #include <linux/mutex.h>
- #include <linux/seq_file.h>
-+#include <linux/mm.h>
- 
- #include "sysfs.h"
- #include "../kernfs/kernfs-internal.h"
-@@ -549,3 +550,57 @@ void sysfs_remove_bin_file(struct kobject *kobj,
- 	kernfs_remove_by_name(kobj->sd, attr->attr.name);
- }
- EXPORT_SYMBOL_GPL(sysfs_remove_bin_file);
-+
-+/**
-+ *	sysfs_emit - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @format
-+ *
-+ *
-+ * Returns number of characters written to @buf.
-+ */
-+int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf),
-+		 "invalid sysfs_emit: buf:%p\n", buf))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf, PAGE_SIZE, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit);
-+
-+/**
-+ *	sysfs_emit_at - scnprintf equivalent, aware of PAGE_SIZE buffer.
-+ *	@buf:	start of PAGE_SIZE buffer.
-+ *	@at:	offset in @buf to start write in bytes
-+ *		@at must be >= 0 && < PAGE_SIZE
-+ *	@fmt:	format
-+ *	@...:	optional arguments to @fmt
-+ *
-+ *
-+ * Returns number of characters written starting at &@buf[@at].
-+ */
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	va_list args;
-+	int len;
-+
-+	if (WARN(!buf || offset_in_page(buf) || at < 0 || at >= PAGE_SIZE,
-+		 "invalid sysfs_emit_at: buf:%p at:%d\n", buf, at))
-+		return 0;
-+
-+	va_start(args, fmt);
-+	len = vscnprintf(buf + at, PAGE_SIZE - at, fmt, args);
-+	va_end(args);
-+
-+	return len;
-+}
-+EXPORT_SYMBOL_GPL(sysfs_emit_at);
-diff --git a/fs/xfs/xfs_iops.c b/fs/xfs/xfs_iops.c
-index 245268a0cdf0..d70a004378d8 100644
---- a/fs/xfs/xfs_iops.c
-+++ b/fs/xfs/xfs_iops.c
-@@ -770,7 +770,7 @@ xfs_setattr_size(
- 	ASSERT(xfs_isilocked(ip, XFS_MMAPLOCK_EXCL));
- 	ASSERT(S_ISREG(ip->i_d.di_mode));
- 	ASSERT((iattr->ia_valid & (ATTR_UID|ATTR_GID|ATTR_ATIME|ATTR_ATIME_SET|
--		ATTR_MTIME_SET|ATTR_KILL_PRIV|ATTR_TIMES_SET)) == 0);
-+		ATTR_MTIME_SET|ATTR_TIMES_SET)) == 0);
- 
- 	oldsize = inode->i_size;
- 	newsize = iattr->ia_size;
-diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
-index d3c19f8c4564..a0cbc4836f36 100644
---- a/include/linux/sysfs.h
-+++ b/include/linux/sysfs.h
-@@ -300,6 +300,11 @@ static inline void sysfs_enable_ns(struct kernfs_node *kn)
- 	return kernfs_enable_ns(kn);
- }
- 
-+__printf(2, 3)
-+int sysfs_emit(char *buf, const char *fmt, ...);
-+__printf(3, 4)
-+int sysfs_emit_at(char *buf, int at, const char *fmt, ...);
-+
- #else /* CONFIG_SYSFS */
- 
- static inline int sysfs_create_dir_ns(struct kobject *kobj, const void *ns)
-@@ -506,6 +511,17 @@ static inline void sysfs_enable_ns(struct kernfs_node *kn)
- {
- }
- 
-+__printf(2, 3)
-+static inline int sysfs_emit(char *buf, const char *fmt, ...)
-+{
-+	return 0;
-+}
-+
-+__printf(3, 4)
-+static inline int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_SYSFS */
- 
- static inline int __must_check sysfs_create_file(struct kobject *kobj,
-diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
-index 34eb16098a33..05ca2acea8dc 100644
---- a/include/linux/zsmalloc.h
-+++ b/include/linux/zsmalloc.h
-@@ -36,7 +36,7 @@ enum zs_mapmode {
- 
- struct zs_pool_stats {
- 	/* How many pages were migrated (freed) */
--	unsigned long pages_compacted;
-+	atomic_long_t pages_compacted;
- };
- 
- struct zs_pool;
-diff --git a/kernel/futex.c b/kernel/futex.c
-index 70ad21bbb1d5..a14b7ef90e5c 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2283,7 +2283,7 @@ retry:
- 		}
- 
- 		if (__rt_mutex_futex_trylock(&pi_state->pi_mutex)) {
--			/* We got the lock after all, nothing to fix. */
-+			/* We got the lock. pi_state is correct. Tell caller */
- 			return 1;
- 		}
- 
-@@ -2328,7 +2328,7 @@ retry:
- 	 */
- 	pi_state_update_owner(pi_state, newowner);
- 
--	return 0;
-+	return argowner == current;
- 
- 	/*
- 	 * To handle the page fault we need to drop the hash bucket
-@@ -2411,8 +2411,6 @@ static long futex_wait_restart(struct restart_block *restart);
-  */
- static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
- {
--	int ret = 0;
--
- 	if (locked) {
- 		/*
- 		 * Got the lock. We might not be the anticipated owner if we
-@@ -2423,8 +2421,8 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
- 		 * stable state, anything else needs more attention.
- 		 */
- 		if (q->pi_state->owner != current)
--			ret = fixup_pi_state_owner(uaddr, q, current);
--		goto out;
-+			return fixup_pi_state_owner(uaddr, q, current);
-+		return 1;
- 	}
- 
- 	/*
-@@ -2435,10 +2433,8 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
- 	 * Another speculative read; pi_state->owner == current is unstable
- 	 * but needs our attention.
- 	 */
--	if (q->pi_state->owner == current) {
--		ret = fixup_pi_state_owner(uaddr, q, NULL);
--		goto out;
--	}
-+	if (q->pi_state->owner == current)
-+		return fixup_pi_state_owner(uaddr, q, NULL);
- 
- 	/*
- 	 * Paranoia check. If we did not take the lock, then we should not be
-@@ -2447,8 +2443,7 @@ static int fixup_owner(u32 __user *uaddr, struct futex_q *q, int locked)
- 	if (WARN_ON_ONCE(rt_mutex_owner(&q->pi_state->pi_mutex) == current))
- 		return fixup_pi_state_owner(uaddr, q, current);
- 
--out:
--	return ret ? ret : locked;
-+	return 0;
- }
- 
- /**
-@@ -3070,6 +3065,11 @@ static int futex_wait_requeue_pi(u32 __user *uaddr, unsigned int flags,
- 			 */
- 			free_pi_state(q.pi_state);
- 			spin_unlock(q.lock_ptr);
-+			/*
-+			 * Adjust the return value. It's either -EFAULT or
-+			 * success (1) but the caller expects 0 for success.
-+			 */
-+			ret = ret < 0 ? ret : 0;
- 		}
- 	} else {
- 		struct rt_mutex *pi_mutex;
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 13a4f3fe2d91..e933cae307bf 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1159,14 +1159,16 @@ static inline int alloc_fresh_gigantic_page(struct hstate *h,
- static void update_and_free_page(struct hstate *h, struct page *page)
- {
- 	int i;
-+	struct page *subpage = page;
- 
- 	if (hstate_is_gigantic(h) && !gigantic_page_supported())
- 		return;
- 
- 	h->nr_huge_pages--;
- 	h->nr_huge_pages_node[page_to_nid(page)]--;
--	for (i = 0; i < pages_per_huge_page(h); i++) {
--		page[i].flags &= ~(1 << PG_locked | 1 << PG_error |
-+	for (i = 0; i < pages_per_huge_page(h);
-+	     i++, subpage = mem_map_next(subpage, page, i)) {
-+		subpage->flags &= ~(1 << PG_locked | 1 << PG_error |
- 				1 << PG_referenced | 1 << PG_dirty |
- 				1 << PG_active | 1 << PG_private |
- 				1 << PG_writeback);
-@@ -4320,21 +4322,23 @@ static bool vma_shareable(struct vm_area_struct *vma, unsigned long addr)
- void adjust_range_if_pmd_sharing_possible(struct vm_area_struct *vma,
- 				unsigned long *start, unsigned long *end)
- {
--	unsigned long a_start, a_end;
-+	unsigned long v_start = ALIGN(vma->vm_start, PUD_SIZE),
-+		v_end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
- 
--	if (!(vma->vm_flags & VM_MAYSHARE))
-+	/*
-+	 * vma need span at least one aligned PUD size and the start,end range
-+	 * must at least partialy within it.
-+	 */
-+	if (!(vma->vm_flags & VM_MAYSHARE) || !(v_end > v_start) ||
-+		(*end <= v_start) || (*start >= v_end))
- 		return;
- 
- 	/* Extend the range to be PUD aligned for a worst case scenario */
--	a_start = ALIGN_DOWN(*start, PUD_SIZE);
--	a_end = ALIGN(*end, PUD_SIZE);
-+	if (*start > v_start)
-+		*start = ALIGN_DOWN(*start, PUD_SIZE);
- 
--	/*
--	 * Intersect the range with the vma range, since pmd sharing won't be
--	 * across vma after all
--	 */
--	*start = max(vma->vm_start, a_start);
--	*end = min(vma->vm_end, a_end);
-+	if (*end < v_end)
-+		*end = ALIGN(*end, PUD_SIZE);
- }
- 
- /*
-diff --git a/mm/page_io.c b/mm/page_io.c
-index b995a5ba5e8f..ab92cd559404 100644
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -32,7 +32,6 @@ static struct bio *get_swap_bio(gfp_t gfp_flags,
- 	bio = bio_alloc(gfp_flags, 1);
- 	if (bio) {
- 		bio->bi_iter.bi_sector = map_swap_page(page, &bio->bi_bdev);
--		bio->bi_iter.bi_sector <<= PAGE_SHIFT - 9;
- 		bio->bi_end_io = end_io;
- 
- 		bio_add_page(bio, page, PAGE_SIZE, 0);
-@@ -244,11 +243,6 @@ out:
- 	return ret;
- }
- 
--static sector_t swap_page_sector(struct page *page)
--{
--	return (sector_t)__page_file_index(page) << (PAGE_CACHE_SHIFT - 9);
--}
--
- int __swap_writepage(struct page *page, struct writeback_control *wbc,
- 		bio_end_io_t end_write_func)
- {
-@@ -297,7 +291,8 @@ int __swap_writepage(struct page *page, struct writeback_control *wbc,
- 		return ret;
- 	}
- 
--	ret = bdev_write_page(sis->bdev, swap_page_sector(page), page, wbc);
-+	ret = bdev_write_page(sis->bdev, map_swap_page(page, &sis->bdev),
-+			      page, wbc);
- 	if (!ret) {
- 		count_vm_event(PSWPOUT);
- 		return 0;
-@@ -345,7 +340,7 @@ int swap_readpage(struct page *page)
- 		return ret;
- 	}
- 
--	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
-+	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
- 	if (!ret) {
- 		count_vm_event(PSWPIN);
- 		return 0;
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 8e25ff2b693a..b338d8829239 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1653,7 +1653,7 @@ sector_t map_swap_page(struct page *page, struct block_device **bdev)
- {
- 	swp_entry_t entry;
- 	entry.val = page_private(page);
--	return map_swap_entry(entry, bdev);
-+	return map_swap_entry(entry, bdev) << (PAGE_SHIFT - 9);
- }
- 
- /*
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index c1ea19478119..8ebcab7b4d2f 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1745,11 +1745,13 @@ static unsigned long zs_can_compact(struct size_class *class)
- 	return obj_wasted * class->pages_per_zspage;
- }
- 
--static void __zs_compact(struct zs_pool *pool, struct size_class *class)
-+static unsigned long __zs_compact(struct zs_pool *pool,
-+				   struct size_class *class)
- {
- 	struct zs_compact_control cc;
- 	struct page *src_page;
- 	struct page *dst_page = NULL;
-+	unsigned long pages_freed = 0;
- 
- 	spin_lock(&class->lock);
- 	while ((src_page = isolate_source_page(class))) {
-@@ -1780,7 +1782,7 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 
- 		putback_zspage(pool, class, dst_page);
- 		if (putback_zspage(pool, class, src_page) == ZS_EMPTY)
--			pool->stats.pages_compacted += class->pages_per_zspage;
-+			pages_freed += class->pages_per_zspage;
- 		spin_unlock(&class->lock);
- 		cond_resched();
- 		spin_lock(&class->lock);
-@@ -1790,12 +1792,15 @@ static void __zs_compact(struct zs_pool *pool, struct size_class *class)
- 		putback_zspage(pool, class, src_page);
- 
- 	spin_unlock(&class->lock);
-+
-+	return pages_freed;
- }
- 
- unsigned long zs_compact(struct zs_pool *pool)
- {
- 	int i;
- 	struct size_class *class;
-+	unsigned long pages_freed = 0;
- 
- 	for (i = zs_size_classes - 1; i >= 0; i--) {
- 		class = pool->size_class[i];
-@@ -1803,10 +1808,11 @@ unsigned long zs_compact(struct zs_pool *pool)
- 			continue;
- 		if (class->index != i)
- 			continue;
--		__zs_compact(pool, class);
-+		pages_freed += __zs_compact(pool, class);
- 	}
-+	atomic_long_add(pages_freed, &pool->stats.pages_compacted);
- 
--	return pool->stats.pages_compacted;
-+	return pages_freed;
- }
- EXPORT_SYMBOL_GPL(zs_compact);
- 
-@@ -1823,13 +1829,12 @@ static unsigned long zs_shrinker_scan(struct shrinker *shrinker,
- 	struct zs_pool *pool = container_of(shrinker, struct zs_pool,
- 			shrinker);
- 
--	pages_freed = pool->stats.pages_compacted;
- 	/*
- 	 * Compact classes and calculate compaction delta.
- 	 * Can run concurrently with a manually triggered
- 	 * (by user) compaction.
- 	 */
--	pages_freed = zs_compact(pool) - pages_freed;
-+	pages_freed = zs_compact(pool);
- 
- 	return pages_freed ? pages_freed : SHRINK_STOP;
- }
-diff --git a/net/bluetooth/amp.c b/net/bluetooth/amp.c
-index e32f34189007..b01b43ab6f83 100644
---- a/net/bluetooth/amp.c
-+++ b/net/bluetooth/amp.c
-@@ -305,6 +305,9 @@ void amp_read_loc_assoc_final_data(struct hci_dev *hdev,
- 	struct hci_request req;
- 	int err = 0;
- 
-+	if (!mgr)
-+		return;
-+
- 	cp.phy_handle = hcon->handle;
- 	cp.len_so_far = cpu_to_le16(0);
- 	cp.max_len = cpu_to_le16(hdev->amp_assoc_size);
-diff --git a/net/core/pktgen.c b/net/core/pktgen.c
-index 4ea957c1e7ee..5d0759e2102e 100644
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3519,7 +3519,7 @@ static int pktgen_thread_worker(void *arg)
- 	struct pktgen_dev *pkt_dev = NULL;
- 	int cpu = t->cpu;
- 
--	BUG_ON(smp_processor_id() != cpu);
-+	WARN_ON(smp_processor_id() != cpu);
- 
- 	init_waitqueue_head(&t->queue);
- 	complete(&t->start_done);
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 171f81ce81d0..7665154c85c2 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -2628,7 +2628,19 @@ EXPORT_SYMBOL(skb_split);
-  */
- static int skb_prepare_for_shift(struct sk_buff *skb)
- {
--	return skb_cloned(skb) && pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-+	int ret = 0;
-+
-+	if (skb_cloned(skb)) {
-+		/* Save and restore truesize: pskb_expand_head() may reallocate
-+		 * memory where ksize(kmalloc(S)) != ksize(kmalloc(S)), but we
-+		 * cannot change truesize at this point.
-+		 */
-+		unsigned int save_truesize = skb->truesize;
-+
-+		ret = pskb_expand_head(skb, 0, 0, GFP_ATOMIC);
-+		skb->truesize = save_truesize;
-+	}
-+	return ret;
- }
- 
- /**
-diff --git a/scripts/Makefile b/scripts/Makefile
-index fd0d53d4a234..151cedeeef4c 100644
---- a/scripts/Makefile
-+++ b/scripts/Makefile
-@@ -11,6 +11,9 @@
- 
- HOST_EXTRACFLAGS += -I$(srctree)/tools/include
- 
-+CRYPTO_LIBS = $(shell pkg-config --libs libcrypto 2> /dev/null || echo -lcrypto)
-+CRYPTO_CFLAGS = $(shell pkg-config --cflags libcrypto 2> /dev/null)
-+
- hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
- hostprogs-$(CONFIG_LOGO)         += pnmtologo
- hostprogs-$(CONFIG_VT)           += conmakehash
-@@ -22,8 +25,10 @@ hostprogs-$(CONFIG_SYSTEM_TRUSTED_KEYRING) += extract-cert
- 
- HOSTCFLAGS_sortextable.o = -I$(srctree)/tools/include
- HOSTCFLAGS_asn1_compiler.o = -I$(srctree)/include
--HOSTLOADLIBES_sign-file = -lcrypto
--HOSTLOADLIBES_extract-cert = -lcrypto
-+HOSTCFLAGS_sign-file.o = $(CRYPTO_CFLAGS)
-+HOSTLOADLIBES_sign-file = $(CRYPTO_LIBS)
-+HOSTCFLAGS_extract-cert.o = $(CRYPTO_CFLAGS)
-+HOSTLOADLIBES_extract-cert = $(CRYPTO_LIBS)
- 
- always		:= $(hostprogs-y) $(hostprogs-m)
- 
+I'm announcing the release of the 4.9.260 kernel.
+
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Documentation/filesystems/sysfs.txt     |    8 -
+ Makefile                                |    2 
+ arch/arm/probes/kprobes/core.c          |    6 +
+ arch/arm/xen/p2m.c                      |   35 +++++
+ arch/arm64/include/asm/atomic_ll_sc.h   |  109 +++++++++---------
+ arch/arm64/include/asm/atomic_lse.h     |   46 +++----
+ arch/arm64/include/asm/cmpxchg.h        |  116 +++++++++----------
+ arch/x86/kernel/module.c                |    1 
+ arch/x86/kernel/reboot.c                |    9 +
+ arch/x86/tools/relocs.c                 |   12 +-
+ arch/x86/xen/p2m.c                      |   44 ++++++-
+ drivers/block/zram/zram_drv.c           |    2 
+ drivers/media/usb/uvc/uvc_driver.c      |    7 -
+ drivers/media/v4l2-core/v4l2-ioctl.c    |   19 +--
+ drivers/net/usb/qmi_wwan.c              |    1 
+ drivers/net/wireless/ath/ath10k/mac.c   |   15 --
+ drivers/net/wireless/ti/wl12xx/main.c   |    3 
+ drivers/net/wireless/ti/wlcore/main.c   |   15 --
+ drivers/net/wireless/ti/wlcore/wlcore.h |    3 
+ drivers/net/xen-netback/netback.c       |   12 +-
+ drivers/scsi/libiscsi.c                 |  148 ++++++++++++-------------
+ drivers/scsi/scsi_transport_iscsi.c     |   38 +++++-
+ drivers/staging/fwserial/fwserial.c     |    2 
+ drivers/staging/most/aim-sound/sound.c  |    2 
+ drivers/tty/vt/consolemap.c             |    2 
+ fs/jfs/jfs_filsys.h                     |    1 
+ fs/jfs/jfs_mount.c                      |   10 +
+ fs/sysfs/file.c                         |   55 +++++++++
+ fs/xfs/xfs_iops.c                       |    2 
+ include/linux/sysfs.h                   |   16 ++
+ include/linux/zsmalloc.h                |    2 
+ kernel/futex.c                          |  188 ++++++++++++++++++++------------
+ kernel/printk/nmi.c                     |   16 ++
+ mm/hugetlb.c                            |   28 ++--
+ mm/page_io.c                            |   11 -
+ mm/swapfile.c                           |    2 
+ mm/zsmalloc.c                           |   17 +-
+ net/bluetooth/amp.c                     |    3 
+ net/core/pktgen.c                       |    2 
+ net/core/skbuff.c                       |   14 ++
+ scripts/Makefile                        |    9 +
+ security/smack/smackfs.c                |   21 +++
+ 42 files changed, 668 insertions(+), 386 deletions(-)
+
+Andrew Murray (1):
+      arm64: Use correct ll/sc atomic constraints
+
+Ben Hutchings (7):
+      futex: Cleanup variable names for futex_top_waiter()
+      futex: Cleanup refcounting
+      futex: Pull rt_mutex_futex_unlock() out from under hb->lock
+      futex: Futex_unlock_pi() determinism
+      futex: Fix pi_state->owner serialization
+      futex: Fix more put_pi_state() vs. exit_pi_state_list() races
+      futex: Don't enable IRQs unconditionally in put_pi_state()
+
+Chris Leech (2):
+      scsi: iscsi: Ensure sysfs attributes are limited to PAGE_SIZE
+      scsi: iscsi: Verify lengths on passthrough PDUs
+
+Christian Gromm (1):
+      staging: most: sound: add sanity check for function argument
+
+Di Zhu (1):
+      pktgen: fix misuse of BUG_ON() in pktgen_thread_worker()
+
+Dinghao Liu (1):
+      staging: fwserial: Fix error handling in fwserial_create
+
+Fangrui Song (1):
+      x86/build: Treat R_386_PLT32 relocation as R_386_PC32
+
+Gopal Tiwari (1):
+      Bluetooth: Fix null pointer dereference in amp_read_loc_assoc_final_data
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.260
+
+Heiner Kallweit (1):
+      x86/reboot: Add Zotac ZBOX CI327 nano PCI reboot quirk
+
+Jan Beulich (2):
+      Xen/gnttab: handle p2m update errors on a per-slot basis
+      xen-netback: respect gnttab_map_refs()'s return value
+
+Jens Axboe (1):
+      swap: fix swapfile read/write offset
+
+Jiri Slaby (1):
+      vt/consolemap: do font sum unsigned
+
+Joe Perches (1):
+      sysfs: Add sysfs_emit and sysfs_emit_at to format sysfs output
+
+Lech Perczak (1):
+      net: usb: qmi_wwan: support ZTE P685M modem
+
+Lee Duncan (1):
+      scsi: iscsi: Restrict sessions and handles to admin capabilities
+
+Li Xinhai (1):
+      mm/hugetlb.c: fix unnecessary address expansion of pmd sharing
+
+Marco Elver (1):
+      net: fix up truesize of cloned skb in skb_prepare_for_shift()
+
+Masami Hiramatsu (1):
+      arm: kprobes: Allow to handle reentered kprobe on single-stepping
+
+Miaoqing Pan (1):
+      ath10k: fix wmi mgmt tx queue full due to race condition
+
+Mike Kravetz (1):
+      hugetlb: fix update_and_free_page contig page struct assumption
+
+Muchun Song (1):
+      printk: fix deadlock when kernel panic
+
+Randy Dunlap (1):
+      JFS: more checks for invalid superblock
+
+Ricardo Ribalda (1):
+      media: uvcvideo: Allow entities with no pads
+
+Robin Murphy (1):
+      arm64: Remove redundant mov from LL/SC cmpxchg
+
+Rokudo Yan (1):
+      zsmalloc: account the number of compacted pages correctly
+
+Rolf Eike Beer (2):
+      scripts: use pkg-config to locate libcrypto
+      scripts: set proper OpenSSL include dir also for sign-file
+
+Sabyrzhan Tasbolatov (1):
+      smackfs: restrict bytes count in smackfs write functions
+
+Sakari Ailus (1):
+      media: v4l: ioctl: Fix memory leak in video_usercopy
+
+Tony Lindgren (1):
+      wlcore: Fix command execute failure 19 for wl12xx
+
+Will Deacon (2):
+      arm64: Avoid redundant type conversions in xchg() and cmpxchg()
+      arm64: cmpxchg: Use "K" instead of "L" for ll/sc immediate constraint
+
+Yumei Huang (1):
+      xfs: Fix assert failure in xfs_setattr_size()
+
