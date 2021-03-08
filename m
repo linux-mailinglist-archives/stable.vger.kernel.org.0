@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75764330E1F
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EC1330E21
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231924AbhCHMfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:35:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44200 "EHLO mail.kernel.org"
+        id S230078AbhCHMfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:35:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231981AbhCHMfH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:35:07 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A95651C9;
-        Mon,  8 Mar 2021 12:35:06 +0000 (UTC)
+        id S232064AbhCHMfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:35:11 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E54864EBC;
+        Mon,  8 Mar 2021 12:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206907;
-        bh=LzbW4j5Qgv6KG8N46KH0GEZepSQlTDjEDLa1GjY9YKQ=;
+        s=korg; t=1615206910;
+        bh=Rh/ElCYixtjbU3HjllVEZDy8BptIUC+6CwBIuGiiYNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPaPgIIzgS+pY58SFAUcLbSM4M8WaLw7+n1B12CCqElM/SOqf7C8y8CGA1g/wAmFj
-         YZXgrfumel8SFN/41cHFGrqneJs6eFmv+1Q5wL1OIqwrEUJwJyVqe/hwdmAZ3iXrUM
-         QWZW7shHpaqVeL2RXF6zskxZLQxXsbMhiVo8SyRM=
+        b=Pkc4HSWIGGntrRL9r9t8v+rMYifDfyR8PUEHSwgXs12Pd/5Zp5Q0GZdRfo2aowz9D
+         sQ1qV9hO+klQvxZp0Fbbb1M2YAvNhPlZVPo/o7XrIwivYki8bf33gNPkJ2Xa0WW79/
+         ZhPSLGI/vL6tEIDb8ToNwlQRPaAvwiNoaVh0wDdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        "Asher.Song" <Asher.Song@amd.com>,
+        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 21/42] drm/amdgpu:disable VCN for Navi12 SKU
-Date:   Mon,  8 Mar 2021 13:30:47 +0100
-Message-Id: <20210308122719.171442111@linuxfoundation.org>
+Subject: [PATCH 5.10 22/42] drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+Date:   Mon,  8 Mar 2021 13:30:48 +0100
+Message-Id: <20210308122719.214925954@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -40,42 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Asher.Song <Asher.Song@amd.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-commit 0c61ac8134ffc851681ce5d4bd60d97c3d5aed27 upstream.
+commit 1aa46901ee51c1c5779b3b239ea0374a50c6d9ff upstream.
 
-Navi12 0x7360/C7 SKU has no video support, so remove it.
+the register offset isn't needed division by 4 to pass RREG32_PCIE()
 
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Asher.Song <Asher.Song@amd.com>
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/nv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-@@ -459,7 +459,8 @@ static bool nv_is_headless_sku(struct pc
- {
- 	if ((pdev->device == 0x731E &&
- 	    (pdev->revision == 0xC6 || pdev->revision == 0xC7)) ||
--	    (pdev->device == 0x7340 && pdev->revision == 0xC9))
-+	    (pdev->device == 0x7340 && pdev->revision == 0xC9)  ||
-+	    (pdev->device == 0x7360 && pdev->revision == 0xC7))
- 		return true;
- 	return false;
- }
-@@ -524,7 +525,8 @@ int nv_set_ip_blocks(struct amdgpu_devic
- 		if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT &&
- 		    !amdgpu_sriov_vf(adev))
- 			amdgpu_device_ip_block_add(adev, &smu_v11_0_ip_block);
--		amdgpu_device_ip_block_add(adev, &vcn_v2_0_ip_block);
-+		if (!nv_is_headless_sku(adev->pdev))
-+		        amdgpu_device_ip_block_add(adev, &vcn_v2_0_ip_block);
- 		if (!amdgpu_sriov_vf(adev))
- 			amdgpu_device_ip_block_add(adev, &jpeg_v2_0_ip_block);
- 		break;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+@@ -355,7 +355,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 	while (size) {
+ 		uint32_t value;
+ 
+-		value = RREG32_PCIE(*pos >> 2);
++		value = RREG32_PCIE(*pos);
+ 		r = put_user(value, (uint32_t *)buf);
+ 		if (r) {
+ 			pm_runtime_mark_last_busy(adev_to_drm(adev)->dev);
+@@ -422,7 +422,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 			return r;
+ 		}
+ 
+-		WREG32_PCIE(*pos >> 2, value);
++		WREG32_PCIE(*pos, value);
+ 
+ 		result += 4;
+ 		buf += 4;
 
 
