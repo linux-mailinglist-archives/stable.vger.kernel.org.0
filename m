@@ -2,97 +2,359 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B909F331678
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 19:46:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BFB33171E
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 20:21:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230517AbhCHSqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 13:46:08 -0500
-Received: from esa.microchip.iphmx.com ([68.232.153.233]:35841 "EHLO
-        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229790AbhCHSpl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 13:45:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1615229142; x=1646765142;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=QlZkF/n+OFe4HMXAJQG4MFvDSH2sQBY/KgzRuDuLAfg=;
-  b=q/A+ZmVi+t/NOj2WVfaQd1QqJY/VDc0+Hk676ZHetA+42mSUkW1QN9DQ
-   ww20ysUiYa6pu90klOa2uTsySWeGtc9KG2Uqe8mr8bf8O9ocuq+O5DoVq
-   LSo7jyzuJprhBQ3VD2I8csX7ECdPInkaMRf0N6z1qodYGamC50xcFmzkd
-   xceedd0zzUB7i8G0lWNhLIsfBnVXHepTF7mi9IdmqN5oY77DoJk0c3OUr
-   JQbHGnK5fUD7t+NtTTRE7Dx++yFODNRkUQQ2AkICrpcF1Y/VMYzXw7v2M
-   Dx5/yXlplLoB1aaaCPhATUK7thHgdy28qFWggGJf1VE+FSX2i3yCU+lKY
-   g==;
-IronPort-SDR: Rp+BGoXaDahRqxX8xCPAlHbcB4bTR4j7Ej2EwdYYgGhKAGjEHIXvtDMs7bO27SySllDhE162Ic
- FiQVayUJUcCjX9fzgDRTGMUEmvOpv5GTnCwXuxLoRX9PCCygMNd83UNOGE7uKDZdahHPY1W85L
- LenNozH2KGn9Hc0c3cUjWJsN/rN8q8x6dcgm8+zG0KthwgqxRPAZnHmZajn0c/Qzap2qXqcgPb
- fC+bSa/iH9TD5dwgB/ibFFjFg+oHFmPXJ12C34z7DwiNUimXKfdfIuNr3fkdzwkzxgh6jS4m4C
- xFg=
-X-IronPort-AV: E=Sophos;i="5.81,233,1610434800"; 
-   d="scan'208";a="111918962"
-Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Mar 2021 11:45:40 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Mon, 8 Mar 2021 11:45:37 -0700
-Received: from ness.microchip.com (10.10.115.15) by chn-vm-ex02.mchp-main.com
- (10.10.85.144) with Microsoft SMTP Server id 15.1.2176.2 via Frontend
- Transport; Mon, 8 Mar 2021 11:45:36 -0700
-From:   <nicolas.ferre@microchip.com>
-To:     <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>
-CC:     Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        <stable@vger.kernel.org>,
-        "Sandeep Sheriker Mallikarjun" 
-        <sandeepsheriker.mallikarjun@microchip.com>
-Subject: [PATCH] ARM: dts: at91: sam9x60: fix mux-mask to match product's datasheet
-Date:   Mon, 8 Mar 2021 19:45:27 +0100
-Message-ID: <20210308184527.33036-1-nicolas.ferre@microchip.com>
-X-Mailer: git-send-email 2.30.1
+        id S230446AbhCHTUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 14:20:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229701AbhCHTUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 14:20:37 -0500
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19112C06174A
+        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 11:20:37 -0800 (PST)
+Received: by mail-oi1-x230.google.com with SMTP id t83so2189814oih.12
+        for <stable@vger.kernel.org>; Mon, 08 Mar 2021 11:20:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=G6y9IUYQv8Y3MWCJUBkb/aoXo1jh9S6J9tO4fzEdW8Y=;
+        b=QqUaMaLg7XoVAdjMAmVRk/x/tJIn58+FOLMlopC43GHhqy+kEsWpTyfKUpjqP4q0nN
+         AWtNoeqemGrptx/mqqIKKN5+Sa8nOGXY3PG+NH3VQNpgn34pbLeFrdQOSwAclSq7gGxx
+         B6JIjOPBsMCwPiUgDlbUTQ4J8PGLQ6wnhebijsNZ9OkpzboqjYLump9fynhl/28ZywjP
+         UvppU1mX+ulQ6V54py/Ua2Bo/IJE2omWnFLwF1BJCfIipgX6eaKNHt0st4tsCtLfZoxQ
+         3TApO9YOioLZId8+lMxFpLBM521QUMu01qs4YK9JTLnDDqRjYHSfCuCjEJ+CiQU4kDni
+         M1cA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=G6y9IUYQv8Y3MWCJUBkb/aoXo1jh9S6J9tO4fzEdW8Y=;
+        b=AVkKpWzHQaiJ4HJdlwyXER2RmBtf5jh8BumlilzG2F14EYw7pFYv438eIU6cEZClsx
+         zD1EaifcXTwe+EIzNX42JlE79t+uA/JC0Uyn+92V/4CEOeecsqpl6J9CYiYH/fmmDpuD
+         aFqv3iyXAaXRTwWGS0hc8bHzfjLVVh4Y00hPpx/eJhaWt9dTNfFmnXqrlYnc/wiE1C7D
+         KJoNDCcMEfZ+davDIEW+FTzWDawteLz30vjNPTTJpyOh8jz8PXbC1za8SA0Tn//Wvr8O
+         dfP8FRyMTA0HaU8S/cxidp4P2V+kito+REo8H/QQOPF5MsPhhYElSvSCuxinmxtPkzPA
+         j/nA==
+X-Gm-Message-State: AOAM532U1Nsjt4J/kzhrg60oh65amTgoKmYzRGnONWnCY3pZ3cLL0kei
+        pCkqi5YhLaIrY5ZFPdcT+4eXaAlvJNVW08HOM2TEn3Fjcrc=
+X-Google-Smtp-Source: ABdhPJw2IlMs5qdLIg54rmW4c78Ji/TwI8gLEqeRwVz1HxD7V0Dq8R91Rt6WZ9MV3z7CESd0wItElwTOC0cXjeKfXG4=
+X-Received: by 2002:aca:af10:: with SMTP id y16mr295655oie.120.1615231236458;
+ Mon, 08 Mar 2021 11:20:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+References: <20210228161022.53468-1-ledoian@kam.mff.cuni.cz>
+ <e7f0747c-cb10-692a-aa36-194efcab49ef@suse.de> <CAKMK7uEMgV=EN7EJh6tzpP6b0x4MX1on9Xoz_zACZVyMK-+QyA@mail.gmail.com>
+ <5bd3c672-3277-69b5-27ca-898c8cb79f9e@gmail.com>
+In-Reply-To: <5bd3c672-3277-69b5-27ca-898c8cb79f9e@gmail.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Mon, 8 Mar 2021 14:20:25 -0500
+Message-ID: <CADnq5_MyLatUasyU0W9_zQDSrkzfe96NP0YHkom6tthZzf3yvA@mail.gmail.com>
+Subject: Re: [PATCH] drm/gem: add checks of drm_gem_object->funcs
+To:     =?UTF-8?Q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>
+Cc:     Daniel Vetter <daniel@ffwll.ch>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
+        Dave Airlie <airlied@linux.ie>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        =?UTF-8?Q?Pavel_Turinsk=C3=BD?= <ledoian@kam.mff.cuni.cz>,
+        stable <stable@vger.kernel.org>,
+        Alexander Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Ferre <nicolas.ferre@microchip.com>
+On Mon, Mar 1, 2021 at 5:25 AM Christian K=C3=B6nig
+<ckoenig.leichtzumerken@gmail.com> wrote:
+>
+>
+>
+> Am 01.03.21 um 11:04 schrieb Daniel Vetter:
+> > On Mon, Mar 1, 2021 at 10:56 AM Thomas Zimmermann <tzimmermann@suse.de>=
+ wrote:
+> >> (cc'ing amd devs)
+> >>
+> >> Hi
+> >>
+> >> Am 28.02.21 um 17:10 schrieb Pavel Turinsk=C3=BD:
+> >>> The checks were removed in commit d693def4fd1c ("drm: Remove obsolete=
+ GEM
+> >>> and PRIME callbacks from struct drm_driver") and can lead to followin=
+g
+> >>> kernel oops:
+> >> Thanks for reporting. All drivers are supposed to set the funcs pointe=
+r
+> >> in their GEM objects. This looks like a radeon bug. Adding the AMD dev=
+s.
+> > Looks like we're setting obj->funcs only in radeon_gem_object_create,
+> > but should set it in radeon_bo_create instead so it catches internal
+> > functions too. I think this was missed in
+> >
+> > commit ce77038fdae385f947757a37573d90f2e83f0271
+> > Author: Gerd Hoffmann <kraxel@redhat.com>
+> > Date:   Mon Aug 5 16:01:06 2019 +0200
+> >
+> >     drm/radeon: use embedded gem object
+>
+> Maybe the same problem we had for amdgpu that the function pointer
+> wasn't set for imported DMA-bufs?
 
-Fix the whole mux-mask table according to datasheet for the sam9x60
-product.  Too much functions for pins were disabled leading to
-misunderstandings when enabling more peripherals or taking this table
-as an example for another board.
+Should be fixed here:
+https://patchwork.freedesktop.org/patch/423250/
 
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Cc: <stable@vger.kernel.org> # 5.6+
-Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
----
- arch/arm/boot/dts/at91-sam9x60ek.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Alex
 
-diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
-index 4c40ae571154..63207c952223 100644
---- a/arch/arm/boot/dts/at91-sam9x60ek.dts
-+++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
-@@ -336,9 +336,9 @@ ethernet-phy@0 {
- &pinctrl {
- 	atmel,mux-mask = <
- 			 /*	A	B	C	*/
--			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
--			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
--			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
-+			 0xFFFFFFFF 0xFFE03FFF 0xEF00019D	/* pioA */
-+			 0x03FFFFFF 0x02FC7E7F 0x00780000	/* pioB */
-+			 0xffffffff 0xFFFFFFFF 0xF83FFFFF	/* pioC */
- 			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
- 			 >;
- 
--- 
-2.30.1
-
+>
+> Regards,
+> Christian.
+>
+> >
+> > Adding Gerd.
+> > -Daniel
+> >
+> >> Best regards
+> >> Thomas
+> >>
+> >>> [  139.449098] BUG: kernel NULL pointer dereference, address: 0000000=
+000000008
+> >>> [  139.449110] #PF: supervisor read access in kernel mode
+> >>> [  139.449113] #PF: error_code(0x0000) - not-present page
+> >>> [  139.449116] PGD 0 P4D 0
+> >>> [  139.449121] Oops: 0000 [#1] PREEMPT SMP PTI
+> >>> [  139.449126] CPU: 4 PID: 1181 Comm: Xorg Not tainted 5.11.2LEdoian =
+#2
+> >>> [  139.449130] Hardware name: Gigabyte Technology Co., Ltd. To be fil=
+led by O.E.M./Z77-DS3H, BIOS F4 04/25/2012
+> >>> [  139.449133] RIP: 0010:drm_gem_handle_create_tail+0xcb/0x190 [drm]
+> >>> [  139.449185] Code: 00 48 89 ef e8 06 b4 49 f7 45 85 e4 78 77 48 8d =
+6b 18 4c 89 ee 48 89 ef e8 c2 f5 00 00 89 c2 85 c0 75 3e 48 8b 83 40 01 00 =
+00 <48> 8b 40 0
+> >>> 8 48 85 c0 74 0f 4c 89 ee 48 89 df e8 71 5d 87 f7 85 c0
+> >>> [  139.449190] RSP: 0018:ffffbe21c194bd28 EFLAGS: 00010246
+> >>> [  139.449194] RAX: 0000000000000000 RBX: ffff9da9b3caf078 RCX: 00000=
+00000000000
+> >>> [  139.449197] RDX: 0000000000000000 RSI: ffffffffc039b893 RDI: 00000=
+00000000000
+> >>> [  139.449199] RBP: ffff9da9b3caf090 R08: 0000000000000040 R09: ffff9=
+da983b911c0
+> >>> [  139.449202] R10: ffff9da984749e00 R11: ffff9da9859bfc38 R12: 00000=
+00000000007
+> >>> [  139.449204] R13: ffff9da9859bfc00 R14: ffff9da9859bfc50 R15: ffff9=
+da9859bfc38
+> >>> [  139.449207] FS:  00007f6332a56900(0000) GS:ffff9daea7b00000(0000) =
+knlGS:0000000000000000
+> >>> [  139.449211] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> >>> [  139.449214] CR2: 0000000000000008 CR3: 00000001319b8005 CR4: 00000=
+000001706e0
+> >>> [  139.449217] Call Trace:
+> >>> [  139.449224]  drm_gem_prime_fd_to_handle+0xff/0x1d0 [drm]
+> >>> [  139.449274]  ? drm_prime_destroy_file_private+0x20/0x20 [drm]
+> >>> [  139.449323]  drm_ioctl_kernel+0xac/0xf0 [drm]
+> >>> [  139.449363]  drm_ioctl+0x20f/0x3b0 [drm]
+> >>> [  139.449403]  ? drm_prime_destroy_file_private+0x20/0x20 [drm]
+> >>> [  139.449454]  radeon_drm_ioctl+0x49/0x80 [radeon]
+> >>> [  139.449500]  __x64_sys_ioctl+0x84/0xc0
+> >>> [  139.449507]  do_syscall_64+0x33/0x40
+> >>> [  139.449514]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> >>> [  139.449522] RIP: 0033:0x7f63330fbe6b
+> >>> [  139.449526] Code: ff ff ff 85 c0 79 8b 49 c7 c4 ff ff ff ff 5b 5d =
+4c 89 e0 41 5c c3 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa b8 10 00 00 00 0f =
+05 <48> 3d 01 f
+> >>> 0 ff ff 73 01 c3 48 8b 0d d5 af 0c 00 f7 d8 64 89 01 48
+> >>> [  139.449529] RSP: 002b:00007fff1e9c4438 EFLAGS: 00000246 ORIG_RAX: =
+0000000000000010
+> >>> [  139.449534] RAX: ffffffffffffffda RBX: 00007fff1e9c447c RCX: 00007=
+f63330fbe6b
+> >>> [  139.449537] RDX: 00007fff1e9c447c RSI: 00000000c00c642e RDI: 00000=
+00000000012
+> >>> [  139.449539] RBP: 00000000c00c642e R08: 00007fff1e9c4520 R09: 00007=
+f63331c7a60
+> >>> [  139.449542] R10: 00007f6329fb9ab0 R11: 0000000000000246 R12: 00005=
+5f69810ad40
+> >>> [  139.449544] R13: 0000000000000012 R14: 0000000000100000 R15: 00007=
+fff1e9c4c20
+> >>> [  139.449549] Modules linked in: 8021q garp mrp bridge stp llc nls_i=
+so8859_1 vfat fat fuse btrfs blake2b_generic xor raid6_pq libcrc32c crypto_=
+user tun i2c_de
+> >>> v it87 hwmon_vid snd_seq snd_hda_codec_realtek snd_hda_codec_generic =
+ledtrig_audio sg snd_hda_codec_hdmi virtio_balloon snd_hda_intel virtio_con=
+sole snd_intel_
+> >>> dspcfg soundwire_intel virtio_pci soundwire_generic_allocation soundw=
+ire_cadence virtio_blk snd_hda_codec intel_rapl_msr btusb intel_rapl_common=
+ virtio_net btr
+> >>> tl net_failover uvcvideo snd_usb_audio snd_hda_core btbcm x86_pkg_tem=
+p_thermal failover soundwire_bus btintel intel_powerclamp snd_soc_core core=
+temp snd_usbmid
+> >>> i_lib iTCO_wdt videobuf2_vmalloc bluetooth intel_pmc_bxt snd_hwdep kv=
+m_intel videobuf2_memops snd_rawmidi snd_compress videobuf2_v4l2 ac97_bus s=
+nd_pcm_dmaengin
+> >>> e iTCO_vendor_support crct10dif_pclmul at24 crc32_pclmul videobuf2_co=
+mmon snd_seq_device mei_hdcp snd_pcm ghash_clmulni_intel kvm videodev aesni=
+_intel crypto_s
+> >>> imd snd_timer snd cryptd mc ecdh_generic
+> >>> [  139.449642]  glue_helper rfkill soundcore joydev mousedev rapl ecc=
+ intel_cstate r8169 i2c_i801 intel_uncore atl1c realtek irqbypass mdio_devr=
+es mei_me libph
+> >>> y i2c_smbus mei mac_hid lpc_ich ext4 crc32c_generic crc16 mbcache jbd=
+2 dm_mod ata_generic pata_acpi uas usb_storage sr_mod crc32c_intel serio_ra=
+w cdrom xhci_pc
+> >>> i pata_jmicron xhci_pci_renesas radeon usbhid i915 intel_gtt nouveau =
+mxm_wmi wmi video i2c_algo_bit drm_ttm_helper ttm drm_kms_helper syscopyare=
+a sysfillrect s
+> >>> ysimgblt fb_sys_fops cec drm agpgart
+> >>> [  139.449707] CR2: 0000000000000008
+> >>> [  139.449710] ---[ end trace f5ce5774498d18e1 ]---
+> >>>
+> >>> Signed-off-by: Pavel Turinsk=C3=BD <ledoian@kam.mff.cuni.cz>
+> >>> Fixes: d693def4fd1c ("drm: Remove obsolete GEM and PRIME callbacks fr=
+om struct drm_driver")
+> >>> Cc: stable@vger.kernel.org
+> >>> ---
+> >>>
+> >>> This is a very symptomatic patch around issue I ran into. I do not kn=
+ow if the
+> >>> funcs property should ever be NULL. I basically restored all the chec=
+ks that
+> >>> were removed in the mentioned commit. Unfortunately, I do not underst=
+and drm
+> >>> nor will I have time to delve into it in forseeable future.
+> >>>
+> >>>    drivers/gpu/drm/drm_gem.c   | 20 ++++++++++----------
+> >>>    drivers/gpu/drm/drm_prime.c |  2 +-
+> >>>    2 files changed, 11 insertions(+), 11 deletions(-)
+> >>>
+> >>> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+> >>> index 92f89cee213e..451f290c737c 100644
+> >>> --- a/drivers/gpu/drm/drm_gem.c
+> >>> +++ b/drivers/gpu/drm/drm_gem.c
+> >>> @@ -249,7 +249,7 @@ drm_gem_object_release_handle(int id, void *ptr, =
+void *data)
+> >>>        struct drm_file *file_priv =3D data;
+> >>>        struct drm_gem_object *obj =3D ptr;
+> >>>
+> >>> -     if (obj->funcs->close)
+> >>> +     if (obj->funcs && obj->funcs->close)
+> >>>                obj->funcs->close(obj, file_priv);
+> >>>
+> >>>        drm_gem_remove_prime_handles(obj, file_priv);
+> >>> @@ -401,7 +401,7 @@ drm_gem_handle_create_tail(struct drm_file *file_=
+priv,
+> >>>        if (ret)
+> >>>                goto err_remove;
+> >>>
+> >>> -     if (obj->funcs->open) {
+> >>> +     if (obj->funcs && obj->funcs->open) {
+> >>>                ret =3D obj->funcs->open(obj, file_priv);
+> >>>                if (ret)
+> >>>                        goto err_revoke;
+> >>> @@ -977,7 +977,7 @@ drm_gem_object_free(struct kref *kref)
+> >>>        struct drm_gem_object *obj =3D
+> >>>                container_of(kref, struct drm_gem_object, refcount);
+> >>>
+> >>> -     if (WARN_ON(!obj->funcs->free))
+> >>> +     if (!obj->funcs || WARN_ON(!obj->funcs->free))
+> >>>                return;
+> >>>
+> >>>        obj->funcs->free(obj);
+> >>> @@ -1079,7 +1079,7 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj=
+, unsigned long obj_size,
+> >>>
+> >>>        vma->vm_private_data =3D obj;
+> >>>
+> >>> -     if (obj->funcs->mmap) {
+> >>> +     if (obj->funcs && obj->funcs->mmap) {
+> >>>                ret =3D obj->funcs->mmap(obj, vma);
+> >>>                if (ret) {
+> >>>                        drm_gem_object_put(obj);
+> >>> @@ -1087,7 +1087,7 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj=
+, unsigned long obj_size,
+> >>>                }
+> >>>                WARN_ON(!(vma->vm_flags & VM_DONTEXPAND));
+> >>>        } else {
+> >>> -             if (obj->funcs->vm_ops)
+> >>> +             if (obj->funcs && obj->funcs->vm_ops)
+> >>>                        vma->vm_ops =3D obj->funcs->vm_ops;
+> >>>                else {
+> >>>                        drm_gem_object_put(obj);
+> >>> @@ -1188,13 +1188,13 @@ void drm_gem_print_info(struct drm_printer *p=
+, unsigned int indent,
+> >>>        drm_printf_indent(p, indent, "imported=3D%s\n",
+> >>>                          obj->import_attach ? "yes" : "no");
+> >>>
+> >>> -     if (obj->funcs->print_info)
+> >>> +     if (obj->funcs && obj->funcs->print_info)
+> >>>                obj->funcs->print_info(p, indent, obj);
+> >>>    }
+> >>>
+> >>>    int drm_gem_pin(struct drm_gem_object *obj)
+> >>>    {
+> >>> -     if (obj->funcs->pin)
+> >>> +     if (obj->funcs && obj->funcs->pin)
+> >>>                return obj->funcs->pin(obj);
+> >>>        else
+> >>>                return 0;
+> >>> @@ -1202,7 +1202,7 @@ int drm_gem_pin(struct drm_gem_object *obj)
+> >>>
+> >>>    void drm_gem_unpin(struct drm_gem_object *obj)
+> >>>    {
+> >>> -     if (obj->funcs->unpin)
+> >>> +     if (obj->funcs && obj->funcs->unpin)
+> >>>                obj->funcs->unpin(obj);
+> >>>    }
+> >>>
+> >>> @@ -1210,7 +1210,7 @@ int drm_gem_vmap(struct drm_gem_object *obj, st=
+ruct dma_buf_map *map)
+> >>>    {
+> >>>        int ret;
+> >>>
+> >>> -     if (!obj->funcs->vmap)
+> >>> +     if (!obj->funcs || !obj->funcs->vmap)
+> >>>                return -EOPNOTSUPP;
+> >>>
+> >>>        ret =3D obj->funcs->vmap(obj, map);
+> >>> @@ -1227,7 +1227,7 @@ void drm_gem_vunmap(struct drm_gem_object *obj,=
+ struct dma_buf_map *map)
+> >>>        if (dma_buf_map_is_null(map))
+> >>>                return;
+> >>>
+> >>> -     if (obj->funcs->vunmap)
+> >>> +     if (obj->funcs && obj->funcs->vunmap)
+> >>>                obj->funcs->vunmap(obj, map);
+> >>>
+> >>>        /* Always set the mapping to NULL. Callers may rely on this. *=
+/
+> >>> diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.=
+c
+> >>> index 7db55fce35d8..1566dcf417e2 100644
+> >>> --- a/drivers/gpu/drm/drm_prime.c
+> >>> +++ b/drivers/gpu/drm/drm_prime.c
+> >>> @@ -620,7 +620,7 @@ struct sg_table *drm_gem_map_dma_buf(struct dma_b=
+uf_attachment *attach,
+> >>>        if (WARN_ON(dir =3D=3D DMA_NONE))
+> >>>                return ERR_PTR(-EINVAL);
+> >>>
+> >>> -     if (WARN_ON(!obj->funcs->get_sg_table))
+> >>> +     if (!obj->funcs || WARN_ON(!obj->funcs->get_sg_table))
+> >>>                return ERR_PTR(-ENOSYS);
+> >>>
+> >>>        sgt =3D obj->funcs->get_sg_table(obj);
+> >>>
+> >> --
+> >> Thomas Zimmermann
+> >> Graphics Driver Developer
+> >> SUSE Software Solutions Germany GmbH
+> >> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+> >> (HRB 36809, AG N=C3=BCrnberg)
+> >> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+> >>
+> >
+>
+> _______________________________________________
+> amd-gfx mailing list
+> amd-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/amd-gfx
