@@ -2,126 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B60330FD1
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 14:46:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 503F833107E
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 15:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230033AbhCHNqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 08:46:22 -0500
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:43537 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229697AbhCHNpt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 08:45:49 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04394;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UQwGe.Q_1615211144;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQwGe.Q_1615211144)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 08 Mar 2021 21:45:45 +0800
-Subject: Re: [PATCH 4.4.y 2/2] dm table: fix no_sg_merge iterate_devices based
- device capability checks
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-To:     Mike Snitzer <snitzer@redhat.com>
-Cc:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        sashal@kernel.org
-References: <161460624611368@kroah.com>
- <20210305063051.51030-1-jefflexu@linux.alibaba.com>
- <20210305063051.51030-3-jefflexu@linux.alibaba.com>
- <7a57dde6-7327-7517-1ece-d33329e5fc52@linux.alibaba.com>
-Message-ID: <318cf1f5-af70-7b4e-0594-e109b7234914@linux.alibaba.com>
-Date:   Mon, 8 Mar 2021 21:45:44 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
+        id S231311AbhCHOMX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 09:12:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39884 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231184AbhCHOLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 09:11:54 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80586650F2;
+        Mon,  8 Mar 2021 14:11:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615212714;
+        bh=7NQYViq1K/ArxZ0PMXgM0Mljqh1vleJSjOTVqm6z4SU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LMqKuem1vPWCxyhbPs5R71G600fCYN8q3kVVffh7HuPIYcB40JECDTJk9XRNJhYP/
+         WOIPMlAQZhGCe4JkO5k9XTmaB1KQnX4IYNDSOZ0vSIRXz5+kRwhRYuURuwG7Y8Mad9
+         BmIgiD81rtE4nAbJzRND5KuSPhbh2qNqVmWEJInM=
+Date:   Mon, 8 Mar 2021 14:21:15 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Gong, Sishuai" <sishuai@purdue.edu>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.10 031/102] net: fix dev_ifsioc_locked() race condition
+Message-ID: <YEYky4Lkd7CBWPT3@kroah.com>
+References: <20210305120903.276489876@linuxfoundation.org>
+ <20210305120904.814003997@linuxfoundation.org>
+ <20210308125057.GA19538@duo.ucw.cz>
 MIME-Version: 1.0
-In-Reply-To: <7a57dde6-7327-7517-1ece-d33329e5fc52@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210308125057.GA19538@duo.ucw.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 3/8/21 11:21 AM, JeffleXu wrote:
-> Hi, Mike,
+On Mon, Mar 08, 2021 at 01:50:57PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> Would you please spare some time to review the following patches for
-> stable tree?
+> > commit 3b23a32a63219f51a5298bc55a65ecee866e79d0 upstream.
+> > 
+> > dev_ifsioc_locked() is called with only RCU read lock, so when
+> > there is a parallel writer changing the mac address, it could
+> > get a partially updated mac address, as shown below:
+> > 
+> > Thread 1			Thread 2
+> > // eth_commit_mac_addr_change()
+> > memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
+> > 				// dev_ifsioc_locked()
+> > 				memcpy(ifr->ifr_hwaddr.sa_data,
+> > 					dev->dev_addr,...);
+> > 
+> > Close this race condition by guarding them with a RW semaphore,
+> > like netdev_get_name(). We can not use seqlock here as it does not
 > 
-> - [1] for 4.4.y
-> - [2] for 4.9.y
-> - [3] for 4.14.y
-> - [4] for 4.19.y
-> 
-> While backporting [5] for stable tree, there's some extra code specific
-> to stable tree needs to be fixed, see [6] for the background info.
-> 
-> [1] https://www.spinics.net/lists/stable/msg448728.html
-> [2] https://www.spinics.net/lists/stable/msg448737.html
-> [3] https://www.spinics.net/lists/stable/msg448740.html
-> [4] https://www.spinics.net/lists/stable/msg448748.html
-> [5]
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.12-rc2&id=a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e
-> [6] https://www.spinics.net/lists/stable/msg448757.html
-> 
-
-Sorry, it seems that this patch should not be separated from patch [5],
-as the NO_SG_MERGE capability check also calls
-dm_table_all_devices_attribute(), which has been removed in patch [5].
-It will break the per-patch build-test when leave this patch not applied.
-
-I will send a new version later. Please review on the new version directly.
-
-
+> I guess it may fix a race, but... does it leak kernel stack data to
+> userland?
 > 
 > 
-> On 3/5/21 2:30 PM, Jeffle Xu wrote:
->> Similar to commit a4c8dd9c2d09 ("dm table: fix iterate_devices based
->> device capability checks"), fix NO_SG_MERGE capability check and invert
->> logic of the corresponding iterate_devices_callout_fn so that all
->> devices' NO_SG_MERGE capabilities are properly checked.
->>
->> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
->> Fixes: 200612ec33e5 ("dm table: propagate QUEUE_FLAG_NO_SG_MERGE")
->> ---
->>  drivers/md/dm-table.c | 12 ++++++------
->>  1 file changed, 6 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
->> index 6580de65b81d..7ee520d4d216 100644
->> --- a/drivers/md/dm-table.c
->> +++ b/drivers/md/dm-table.c
->> @@ -1436,12 +1436,12 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
->>  	return q && !blk_queue_add_random(q);
->>  }
->>  
->> -static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
->> -				   sector_t start, sector_t len, void *data)
->> +static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
->> +			     sector_t start, sector_t len, void *data)
->>  {
->>  	struct request_queue *q = bdev_get_queue(dev->bdev);
->>  
->> -	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
->> +	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
->>  }
->>  
->>  static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
->> @@ -1542,10 +1542,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
->>  	if (!dm_table_supports_write_same(t))
->>  		q->limits.max_write_same_sectors = 0;
->>  
->> -	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
->> -		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
->> -	else
->> +	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
->>  		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
->> +	else
->> +		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
->>  
->>  	dm_table_verify_integrity(t);
->>  
->>
+> > +++ b/drivers/net/tap.c
+> > @@ -1093,10 +1093,9 @@ static long tap_ioctl(struct file *file,
+> >  			return -ENOLINK;
+> >  		}
+> >  		ret = 0;
+> > -		u = tap->dev->type;
+> > +		dev_get_mac_address(&sa, dev_net(tap->dev), tap->dev->name);
+> >  		if (copy_to_user(&ifr->ifr_name, tap->dev->name, IFNAMSIZ) ||
+> > -		    copy_to_user(&ifr->ifr_hwaddr.sa_data, tap->dev->dev_addr, ETH_ALEN) ||
+> > -		    put_user(u, &ifr->ifr_hwaddr.sa_family))
+> > +		    copy_to_user(&ifr->ifr_hwaddr, &sa, sizeof(sa)))
+> >  			ret = -EFAULT;
+> >  		tap_put_tap_dev(tap);
+> >  		rtnl_unlock();
+> 
+> We copy whole "struct sockaddr".
+> 
+> > +int dev_get_mac_address(struct sockaddr *sa, struct net *net, char *dev_name)
+> > +{
+> > +	size_t size = sizeof(sa->sa_data);
+> > +	struct net_device *dev;
+> > +	int ret = 0;
+> ...
+> > +	if (!dev->addr_len)
+> > +		memset(sa->sa_data, 0, size);
+> > +	else
+> > +		memcpy(sa->sa_data, dev->dev_addr,
+> > +		       min_t(size_t, size, dev->addr_len));
+> 
+> But we only coppied dev->addr_len bytes in.
+> 
+> This would be very simple way to plug the leak.
+> 
+> Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+> 
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 75ca6c6d01d6..b67ff23a1f0d 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -8714,11 +8714,9 @@ int dev_get_mac_address(struct sockaddr *sa, struct net *net, char *dev_name)
+>  		ret = -ENODEV;
+>  		goto unlock;
+>  	}
+> -	if (!dev->addr_len)
+> -		memset(sa->sa_data, 0, size);
+> -	else
+> -		memcpy(sa->sa_data, dev->dev_addr,
+> -		       min_t(size_t, size, dev->addr_len));
+> +	memset(sa->sa_data, 0, size);
+> +	memcpy(sa->sa_data, dev->dev_addr,
+> +	       min_t(size_t, size, dev->addr_len));
+>  	sa->sa_family = dev->type;
+>  
+>  unlock:
 > 
 
--- 
-Thanks,
-Jeffle
+Please submit this change properly to the networking developers, they
+are not going to pick anything up this way.
+
+greg k-h
