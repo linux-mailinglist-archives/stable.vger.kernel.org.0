@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB3D330E06
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5260330E09
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbhCHMev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231424AbhCHMev (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:34:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229578AbhCHMee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28ABB651CF;
-        Mon,  8 Mar 2021 12:34:32 +0000 (UTC)
+        id S231314AbhCHMeg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C22F8651CF;
+        Mon,  8 Mar 2021 12:34:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206873;
-        bh=pR5mEFRqToVqr9pTU17jnruAwkAHEAdgulMiemI0xF4=;
+        s=korg; t=1615206876;
+        bh=glepnS2PyHI4cIirF6sXbPDf6waIMx8obG42NtzmUmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7RPL9ZLqoX7brXLjvdB+9gO86tJ/Syvlz/1teG4/fYIrbg5SFHyXJiY/JDNcQyJm
-         UFYgwev809zgQa5AKPVue4aqJHQTPaDoQyudGqtYMojo6PdWNJGnZzBkri//9rcAMg
-         NqRsgbe7nOI7ZnhotOlMj1z6WOyEPxFZAUuSeRpY=
+        b=1WfwevuresGkZ6FllRbAlRgCF/8xZOAFiqDfzxaxugTHYWdvDRqs3DUVCx8c1W7TG
+         3Md8YjK/KzSr+doRO0cmPTONZ4JMn/N+j9TS/a1mvoARnoBNnjDFtVRYG0iXAgQI2f
+         j0+2Jxe0oC5sDyr/Ycpek60pqLPbr8qE5/y8ej/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/42] ALSA: hda: intel-nhlt: verify config type
-Date:   Mon,  8 Mar 2021 13:31:01 +0100
-Message-Id: <20210308122719.836519835@linuxfoundation.org>
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Chen Jun <chenjun102@huawei.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 36/42] ftrace: Have recordmcount use w8 to read relp->r_info in arm64_is_fake_mcount
+Date:   Mon,  8 Mar 2021 13:31:02 +0100
+Message-Id: <20210308122719.881477587@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -43,141 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Chen Jun <chenjun102@huawei.com>
 
-[ Upstream commit a864e8f159b13babf552aff14a5fbe11abc017e4 ]
+[ Upstream commit 999340d51174ce4141dd723105d4cef872b13ee9 ]
 
-Multiple bug reports report issues with the SOF and SST drivers when
-dealing with single microphone cases.
+On little endian system, Use aarch64_be(gcc v7.3) downloaded from
+linaro.org to build image with CONFIG_CPU_BIG_ENDIAN = y,
+CONFIG_FTRACE = y, CONFIG_DYNAMIC_FTRACE = y.
 
-We currently read the DMIC array information unconditionally but we
-don't check that the configuration type is actually a mic array.
+gcc will create symbols of _mcount but recordmcount can not create
+mcount_loc for *.o.
+aarch64_be-linux-gnu-objdump -r fs/namei.o | grep mcount
+00000000000000d0 R_AARCH64_CALL26  _mcount
+...
+0000000000007190 R_AARCH64_CALL26  _mcount
 
-When the DMIC link does not rely on a mic array configuration, the
-recommendation is to check the format information to infer the maximum
-number of channels, and map this to the number of microphones.
+The reason is than funciton arm64_is_fake_mcount can not work correctly.
+A symbol of _mcount in *.o compiled with big endian compiler likes:
+00 00 00 2d 00 00 01 1b
+w(rp->r_info) will return 0x2d instead of 0x011b. Because w() takes
+uint32_t as parameter, which truncates rp->r_info.
 
-This leaves a potential for a mismatch between actual microphones
-available in hardware and what the ACPI table contains, but we have no
-other source of information.
+Use w8() instead w() to read relp->r_info
 
-Note that single microphone configurations can alternatively be
-handled with a 'mic array' configuration along with a 'vendor-defined'
-geometry.
+Link: https://lkml.kernel.org/r/20210222135840.56250-1-chenjun102@huawei.com
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201251
-BugLink: https://github.com/thesofproject/linux/issues/2725
-Fixes: 7a33ea70e1868 ('ALSA: hda: intel-nhlt: handle NHLT VENDOR_DEFINED DMIC geometry')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210302000146.1177770-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: ea0eada45632 ("recordmcount: only record relocation of type R_AARCH64_CALL26 on arm64.")
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Chen Jun <chenjun102@huawei.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/sound/intel-nhlt.h |  5 ++++
- sound/hda/intel-nhlt.c     | 54 +++++++++++++++++++++++++++++++-------
- 2 files changed, 50 insertions(+), 9 deletions(-)
+ scripts/recordmcount.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/sound/intel-nhlt.h b/include/sound/intel-nhlt.h
-index 743c2f442280..d0574805865f 100644
---- a/include/sound/intel-nhlt.h
-+++ b/include/sound/intel-nhlt.h
-@@ -112,6 +112,11 @@ struct nhlt_vendor_dmic_array_config {
- 	/* TODO add vendor mic config */
- } __packed;
+diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+index b9c2ee7ab43f..cce12e1971d8 100644
+--- a/scripts/recordmcount.c
++++ b/scripts/recordmcount.c
+@@ -438,7 +438,7 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
  
-+enum {
-+	NHLT_CONFIG_TYPE_GENERIC = 0,
-+	NHLT_CONFIG_TYPE_MIC_ARRAY = 1
-+};
-+
- enum {
- 	NHLT_MIC_ARRAY_2CH_SMALL = 0xa,
- 	NHLT_MIC_ARRAY_2CH_BIG = 0xb,
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index 059aaf04f536..d053beccfaec 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -31,18 +31,44 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 	struct nhlt_endpoint *epnt;
- 	struct nhlt_dmic_array_config *cfg;
- 	struct nhlt_vendor_dmic_array_config *cfg_vendor;
-+	struct nhlt_fmt *fmt_configs;
- 	unsigned int dmic_geo = 0;
--	u8 j;
-+	u16 max_ch = 0;
-+	u8 i, j;
- 
- 	if (!nhlt)
- 		return 0;
- 
--	epnt = (struct nhlt_endpoint *)nhlt->desc;
-+	for (j = 0, epnt = nhlt->desc; j < nhlt->endpoint_count; j++,
-+	     epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length)) {
- 
--	for (j = 0; j < nhlt->endpoint_count; j++) {
--		if (epnt->linktype == NHLT_LINK_DMIC) {
--			cfg = (struct nhlt_dmic_array_config  *)
--					(epnt->config.caps);
-+		if (epnt->linktype != NHLT_LINK_DMIC)
-+			continue;
-+
-+		cfg = (struct nhlt_dmic_array_config  *)(epnt->config.caps);
-+		fmt_configs = (struct nhlt_fmt *)(epnt->config.caps + epnt->config.size);
-+
-+		/* find max number of channels based on format_configuration */
-+		if (fmt_configs->fmt_count) {
-+			dev_dbg(dev, "%s: found %d format definitions\n",
-+				__func__, fmt_configs->fmt_count);
-+
-+			for (i = 0; i < fmt_configs->fmt_count; i++) {
-+				struct wav_fmt_ext *fmt_ext;
-+
-+				fmt_ext = &fmt_configs->fmt_config[i].fmt_ext;
-+
-+				if (fmt_ext->fmt.channels > max_ch)
-+					max_ch = fmt_ext->fmt.channels;
-+			}
-+			dev_dbg(dev, "%s: max channels found %d\n", __func__, max_ch);
-+		} else {
-+			dev_dbg(dev, "%s: No format information found\n", __func__);
-+		}
-+
-+		if (cfg->device_config.config_type != NHLT_CONFIG_TYPE_MIC_ARRAY) {
-+			dmic_geo = max_ch;
-+		} else {
- 			switch (cfg->array_type) {
- 			case NHLT_MIC_ARRAY_2CH_SMALL:
- 			case NHLT_MIC_ARRAY_2CH_BIG:
-@@ -59,13 +85,23 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 				dmic_geo = cfg_vendor->nb_mics;
- 				break;
- 			default:
--				dev_warn(dev, "undefined DMIC array_type 0x%0x\n",
--					 cfg->array_type);
-+				dev_warn(dev, "%s: undefined DMIC array_type 0x%0x\n",
-+					 __func__, cfg->array_type);
-+			}
-+
-+			if (dmic_geo > 0) {
-+				dev_dbg(dev, "%s: Array with %d dmics\n", __func__, dmic_geo);
-+			}
-+			if (max_ch > dmic_geo) {
-+				dev_dbg(dev, "%s: max channels %d exceed dmic number %d\n",
-+					__func__, max_ch, dmic_geo);
- 			}
- 		}
--		epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length);
- 	}
- 
-+	dev_dbg(dev, "%s: dmic number %d max_ch %d\n",
-+		__func__, dmic_geo, max_ch);
-+
- 	return dmic_geo;
+ static int arm64_is_fake_mcount(Elf64_Rel const *rp)
+ {
+-	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
++	return ELF64_R_TYPE(w8(rp->r_info)) != R_AARCH64_CALL26;
  }
- EXPORT_SYMBOL_GPL(intel_nhlt_get_dmic_geo);
+ 
+ /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
 -- 
 2.30.1
 
