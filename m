@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79A50330DD9
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:34:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90602330DC6
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbhCHMdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42370 "EHLO mail.kernel.org"
+        id S231877AbhCHMcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:32:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229904AbhCHMdZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:33:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C313364EBC;
-        Mon,  8 Mar 2021 12:33:24 +0000 (UTC)
+        id S230094AbhCHMb5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:31:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BBEB651C3;
+        Mon,  8 Mar 2021 12:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206805;
-        bh=wzhuPkANCXCaekNYRQaxmpc/vxCAdUc0q3IvCWdgKbk=;
+        s=korg; t=1615206717;
+        bh=d5GmAzr8WJu85zGcSa7pnLQspma0WwLnWWEZqTCz4eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQRe60Z0n2M2BJ8KYlxnJFi7lBNtiHdcFAttnpSSwNY+nXRVSoTtH3UHv2GD6Rqe3
-         Yb6KOvPm9GGpKRdqW1V2KR3IBJTvzMLgY3EOz/pYuY4mLsk43zmfcEx9n2lW1AB2A7
-         4kmJO71zuej91T2R8xwnTosXs9ZOHxByM+OfREMw=
+        b=pzcr56/jbdcobQxcv6Pm7cl3SF4Q1veWcSyru+9+gwN+J2qcR4JrXFtUat4atLrz9
+         7qF2TAPIWPiStDD8SZRBnrul6iXfGEfHu54SwdASoChKRpjB4jwmXyNutn7f0+KABv
+         Ld6aeAsGPaIduKEs8MDAsPHoeFm+RBDlAduyXRTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 12/42] btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
-Date:   Mon,  8 Mar 2021 13:30:38 +0100
-Message-Id: <20210308122718.731384148@linuxfoundation.org>
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 22/22] r8169: fix resuming from suspend on RTL8105e if machine runs on battery
+Date:   Mon,  8 Mar 2021 13:30:39 +0100
+Message-Id: <20210308122715.474604148@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
-References: <20210308122718.120213856@linuxfoundation.org>
+In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
+References: <20210308122714.391917404@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dancarpenter@oracle.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 5011c5a663b9c6d6aff3d394f11049b371199627 upstream.
+commit d2a04370817fc7b0172dad2ef2decf907e1a304e upstream.
 
-The problem is we're copying "inherit" from user space but we don't
-necessarily know that we're copying enough data for a 64 byte
-struct.  Then the next problem is that 'inherit' has a variable size
-array at the end, and we have to verify that array is the size we
-expected.
+Armin reported that after referenced commit his RTL8105e is dead when
+resuming from suspend and machine runs on battery. This patch has been
+confirmed to fix the issue.
 
-Fixes: 6f72c7e20dba ("Btrfs: add qgroup inheritance")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e80bd76fbf56 ("r8169: work around power-saving bug on some chip versions")
+Reported-by: Armin Wolf <W_Armin@gmx.de>
+Tested-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ioctl.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1914,7 +1914,10 @@ static noinline int btrfs_ioctl_snap_cre
- 	if (vol_args->flags & BTRFS_SUBVOL_RDONLY)
- 		readonly = true;
- 	if (vol_args->flags & BTRFS_SUBVOL_QGROUP_INHERIT) {
--		if (vol_args->size > PAGE_SIZE) {
-+		u64 nums;
-+
-+		if (vol_args->size < sizeof(*inherit) ||
-+		    vol_args->size > PAGE_SIZE) {
- 			ret = -EINVAL;
- 			goto free_args;
- 		}
-@@ -1923,6 +1926,20 @@ static noinline int btrfs_ioctl_snap_cre
- 			ret = PTR_ERR(inherit);
- 			goto free_args;
- 		}
-+
-+		if (inherit->num_qgroups > PAGE_SIZE ||
-+		    inherit->num_ref_copies > PAGE_SIZE ||
-+		    inherit->num_excl_copies > PAGE_SIZE) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
-+
-+		nums = inherit->num_qgroups + 2 * inherit->num_ref_copies +
-+		       2 * inherit->num_excl_copies;
-+		if (vol_args->size != struct_size(inherit, qgroups, nums)) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
- 	}
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -3959,6 +3959,7 @@ static void rtl_pll_power_down(struct rt
  
- 	ret = __btrfs_ioctl_snap_create(file, vol_args->name, vol_args->fd,
+ 	switch (tp->mac_version) {
+ 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
+ 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+@@ -3989,6 +3990,7 @@ static void rtl_pll_power_up(struct rtl8
+ {
+ 	switch (tp->mac_version) {
+ 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
+ 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
 
 
