@@ -2,114 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5F2330714
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 06:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EAE330802
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 07:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234283AbhCHFIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 00:08:15 -0500
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:36254 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231231AbhCHFHy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 00:07:54 -0500
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 12857nDv077155;
-        Sun, 7 Mar 2021 23:07:49 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1615180069;
-        bh=2gdcGvIiei2/gTTob5OagdVE47Jl6d4UbQfoaMc8G3o=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=HNefMIbSZj4d7XSMezl3owZ8s1uwfLtuC4P/YROmgunGCfIy545yocU9oOIBytdAY
-         Uzpbm2Y1LZuaRK1CHuPZBH7L4wOVPYZt4ENisDayDwBuhOm+iP73otTCVoCNud5qKk
-         a2f7lqnlm+KeEUVJ8AIfGKDpkpDTMltYl7GA48zQ=
-Received: from DLEE104.ent.ti.com (dlee104.ent.ti.com [157.170.170.34])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 12857nVV039450
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sun, 7 Mar 2021 23:07:49 -0600
-Received: from DLEE105.ent.ti.com (157.170.170.35) by DLEE104.ent.ti.com
- (157.170.170.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Sun, 7 Mar
- 2021 23:07:49 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE105.ent.ti.com
- (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Sun, 7 Mar 2021 23:07:49 -0600
-Received: from a0393678-ssd.dhcp.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 12857aL0086547;
-        Sun, 7 Mar 2021 23:07:45 -0600
-From:   Kishon Vijay Abraham I <kishon@ti.com>
-To:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Swapnil Jakhade <sjakhade@cadence.com>
-CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Lokesh Vutla <lokeshvutla@ti.com>, <stable@vger.kernel.org>
-Subject: [PATCH v5 02/13] phy: ti: j721e-wiz: Invoke wiz_init() before of_platform_device_create()
-Date:   Mon, 8 Mar 2021 10:37:21 +0530
-Message-ID: <20210308050732.7140-3-kishon@ti.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210308050732.7140-1-kishon@ti.com>
-References: <20210308050732.7140-1-kishon@ti.com>
+        id S234849AbhCHGOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 01:14:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46450 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234832AbhCHGNr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 01:13:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D55C765142;
+        Mon,  8 Mar 2021 06:13:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615184026;
+        bh=2LFpEcY5EpUHEDML2bEb4boWC/k56iCOmwWKUbIrQmY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=luyJGe12MUFgZVYOVi4cG8AW9SMG1D1xRnX/LFLo+SS8Fbtfnlnwq8941KUo4QMi9
+         gdKZ7cPphc6rqnF1s3H2F0v8IRI5BKvvia/X0S7Q75esQTeAUrs22qhSMJV09sGByO
+         G7A3fEIAc6imC903TpPjSJkQ+3EnsJGQTtBAIBBo=
+Date:   Mon, 8 Mar 2021 07:13:42 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?utf-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>
+Cc:     Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Subject: Re: stable: KASan for ARM
+Message-ID: <YEXAlqye+r0qnchW@kroah.com>
+References: <20210307150040.GB28240@qmqm.qmqm.pl>
+ <YETvOfBpfGrzewmt@kroah.com>
+ <CAMj1kXEDD0To+t40ymFTrWVpBJBdi5PXYfxzE3yi5-VjDPTKoA@mail.gmail.com>
+ <20210307224854.GF1463@shell.armlinux.org.uk>
+ <20210307233439.GA8915@qmqm.qmqm.pl>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210307233439.GA8915@qmqm.qmqm.pl>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Invoke wiz_init() before configuring anything else in Sierra/Torrent
-(invoked as part of of_platform_device_create()). wiz_init() resets the
-SERDES device and any configuration done in the probe() of
-Sierra/Torrent will be lost. In order to prevent SERDES configuration
-from getting reset, invoke wiz_init() immediately before invoking
-of_platform_device_create().
+On Mon, Mar 08, 2021 at 12:34:39AM +0100, Michał Mirosław wrote:
+> On Sun, Mar 07, 2021 at 10:48:54PM +0000, Russell King - ARM Linux admin wrote:
+> > On Sun, Mar 07, 2021 at 05:10:43PM +0100, Ard Biesheuvel wrote:
+> > > (+ Russell)
+> > > 
+> > > On Sun, 7 Mar 2021 at 16:21, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > On Sun, Mar 07, 2021 at 04:00:40PM +0100, Michał Mirosław wrote:
+> > > > > Dear Greg,
+> > > > >
+> > > > > Would you consider KASan for ARM patches for LTS (5.10) kernel? Those
+> > > > > are 7a1be318f579..421015713b30 if I understand correctly. They are
+> > > > > not normal stable material, but I think they will help tremendously in
+> > > > > discovering kernel bugs on 32-bit ARMs.
+> > > >
+> > > > Looks like a new feature to me, right?
+> > > >
+> > > > How many patches, and have you tested them?  If so, submit them as a
+> > > > patch series and we can review them, but if this is a new feature, it
+> > > > does not meet the stable kernel rules.
+> > > >
+> > > > And why not just use 5.11 or newer for discovering kernel bugs?  Why
+> > > > does 5.10 matter here?
+> > > 
+> > > The KASan support was rather tricky to get right, so I don't think
+> > > this is suitable for stable. The range 7a1be318f579..421015713b30 is
+> > > definitely not complete (we'd need at least
+> > > e9a2f8b599d0bc22a1b13e69527246ac39c697b4 and
+> > > 10fce53c0ef8f6e79115c3d9e0d7ea1338c3fa37 as well), and the intrusive
+> > > nature of those changes means they are definitely not appropriate as
+> > > stable backports.
+> > 
+> > I agree - it took quite a while for KASan to settle down - and our last
+> > issue with KASan causing a panic in the Kprobes codes was in February.
+> > So, I think at the very least, requesting to backport this so soon is
+> > premature. That fix is not included even in what you mention above.
+> > Maybe that fix has already been picked up in stable, I don't know.
+> > 
+> > So, we know that there's probably more to getting kprobes working on
+> > 32-bit ARM than even you've mentioned above.
+> > 
+> > Is it worth backporting such a major feature to stable kernels? Or
+> > would it be better to backport the fixes found by KASan from later
+> > kernels? My feeling is the latter is the better all round approach.
+> 
+> I guessed that KASan support code does not pose problems with
+> CONFIG_KASAN=n.  If it does, then I understand that this is definitely
+> a deal-breaker for stable, and I agree there is no point in further
+> discussion. But, if in disabled state KASan patches meet the stable
+> requirements, then maybe it is worth the trouble to help those who
+> have to stay on a LTS kernel?
 
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: <stable@vger.kernel.org> # v5.10
----
- drivers/phy/ti/phy-j721e-wiz.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for what types of patches are acceptable for stable kernels.  These do
+not seem to fit into those categories at all.
 
-diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
-index 995c7dbec77b..1bb73822f44a 100644
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -1262,27 +1262,24 @@ static int wiz_probe(struct platform_device *pdev)
- 		goto err_get_sync;
- 	}
- 
-+	ret = wiz_init(wiz);
-+	if (ret) {
-+		dev_err(dev, "WIZ initialization failed\n");
-+		goto err_wiz_init;
-+	}
-+
- 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
- 	if (!serdes_pdev) {
- 		dev_WARN(dev, "Unable to create SERDES platform device\n");
- 		ret = -ENOMEM;
--		goto err_pdev_create;
--	}
--	wiz->serdes_pdev = serdes_pdev;
--
--	ret = wiz_init(wiz);
--	if (ret) {
--		dev_err(dev, "WIZ initialization failed\n");
- 		goto err_wiz_init;
- 	}
-+	wiz->serdes_pdev = serdes_pdev;
- 
- 	of_node_put(child_node);
- 	return 0;
- 
- err_wiz_init:
--	of_platform_device_destroy(&serdes_pdev->dev, NULL);
--
--err_pdev_create:
- 	wiz_clock_cleanup(wiz, node);
- 
- err_get_sync:
--- 
-2.17.1
+thanks,
 
+greg k-h
