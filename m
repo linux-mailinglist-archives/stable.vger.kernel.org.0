@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA33330563
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 01:35:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87A89330568
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 01:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233169AbhCHAeo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 19:34:44 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40733 "EHLO
+        id S229922AbhCHAhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 19:37:16 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:31306 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229922AbhCHAeX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 19:34:23 -0500
+        by vger.kernel.org with ESMTP id S233405AbhCHAgz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 19:36:55 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615163663;
+        s=mimecast20190719; t=1615163815;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding;
-        bh=vnNe0fU7QH+CusxfpXJYcCIvkQY6GhR5zy9TyeHPN8Y=;
-        b=NR0pfox87wVN5ubsTUM2e21O+CQ2z1q3plF5WgpzmvEwE+iT+2ByetRrohHpkxUTPTFk/m
-        ehp/Be//h3FUPo7+psb9/7bBYV9eXJJRHYaKFi4BmeF6FGyfztT6heIFqlz59KRUQ3qo7v
-        UNB2IfWgNrS1fxseM8Js+LCoAQZcgAE=
+        bh=jBMPi4FgMtftc8CemzS/PUYnnYwyUrbcWmpebieOC6s=;
+        b=BTvYrdh5CTdi4NzGjsVtgwcEMJrO7Aja0WBe5scBlkBYZPof7bOluzx7wg8YciMdyyzzjf
+        T05TKzZQmU3ocBirCvI4nZdbFW7UqagWC4gfu99lhWV6uU8yUoRE4ypVP7pJRPZKgV3KXo
+        s674wk7drh4v0/CZWfQDrE4MjaWY/Ak=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-275-g_bleT69N4iPnhpMZ9vm0Q-1; Sun, 07 Mar 2021 19:34:20 -0500
-X-MC-Unique: g_bleT69N4iPnhpMZ9vm0Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+ us-mta-471-76sUZywEPrOaOCt-8_167g-1; Sun, 07 Mar 2021 19:36:53 -0500
+X-MC-Unique: 76sUZywEPrOaOCt-8_167g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 48FDE8018A3
-        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 00:34:19 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0BB001018F72
+        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 00:36:52 +0000 (UTC)
 Received: from [172.22.11.47] (unknown [10.0.115.152])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D5E706F963;
-        Mon,  8 Mar 2021 00:34:15 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7335A19714;
+        Mon,  8 Mar 2021 00:36:47 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
@@ -39,16 +39,16 @@ From:   CKI Project <cki-project@redhat.com>
 To:     skt-results-master@redhat.com,
         Linux Stable maillist <stable@vger.kernel.org>
 Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.11.4 (stable-queue)
-Date:   Mon, 08 Mar 2021 00:34:15 -0000
+Date:   Mon, 08 Mar 2021 00:36:47 -0000
 CC:     Ondrej Moris <omoris@redhat.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         David Arcari <darcari@redhat.com>
-Message-ID: <cki.A45DB7BB66.ZEXF5K46AQ@redhat.com>
-X-Gitlab-Pipeline-ID: 625069
+Message-ID: <cki.1E92E032D3.TXE7IU4R5N@redhat.com>
+X-Gitlab-Pipeline-ID: 625065
 X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/625069
-X-DataWarehouse-Revision-IID: 10634
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/625065
+X-DataWarehouse-Revision-IID: 10633
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -60,8 +60,8 @@ We ran automated tests on a recent commit from this kernel tree:
 
        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
 nux-stable-rc.git
-            Commit: 4c06b568a763 - crypto - shash: reduce minimum alignment o=
-f shash_desc structure
+            Commit: 1280e8a65094 - drm/amdgpu: fix parameter error of RREG32_=
+PCIE() in amdgpu_regs_pcie
 
 The results of these automated tests are provided below.
 
@@ -73,7 +73,7 @@ The results of these automated tests are provided below.
 All kernel binaries, config files, and logs are available for download here:
 
   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
-x=3Ddatawarehouse-public/2021/03/07/625069
+x=3Ddatawarehouse-public/2021/03/07/625065
 
 Please reply to this email if you have any questions about the tests that we
 ran or if you have any suggestions on how to make future tests more effective.
@@ -176,22 +176,6 @@ dule test
   ppc64le:
     Host 1:
        =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-
-    Host 2:
-       =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
        =E2=9C=85 Memory: fork_mem
@@ -222,8 +206,32 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
        =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+
   s390x:
     Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 LTP
        =E2=9C=85 Loopdev Sanity
@@ -252,16 +260,37 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
        =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
-
   x86_64:
     Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+
+    Host 2:
        =E2=9C=85 Boot test
        =E2=9C=85 ACPI table test
        =E2=9C=85 LTP
@@ -299,27 +328,6 @@ dule test
        =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
        =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
        =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9D=8C CPU: Frequency Driver Test
-       =F0=9F=9A=A7 =E2=9C=85 CPU: Idle Test
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
-       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
-       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
-       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
-       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
-       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
-       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
 
   Test sources: https://gitlab.com/cki-project/kernel-tests
     =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
