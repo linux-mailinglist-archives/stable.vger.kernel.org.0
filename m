@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2982330E1A
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2020330E1D
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231730AbhCHMfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:35:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44124 "EHLO mail.kernel.org"
+        id S231919AbhCHMfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:35:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230075AbhCHMe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:56 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48BA3651C3;
-        Mon,  8 Mar 2021 12:34:55 +0000 (UTC)
+        id S231901AbhCHMe7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:59 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E6BD64EBC;
+        Mon,  8 Mar 2021 12:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206896;
-        bh=vIWiUThsyHZCHLlaNKeEPRiQlG72POJDl/1ZuOqmxKg=;
+        s=korg; t=1615206898;
+        bh=DP0m3lEA9FiXiSvyMraWvrwIX9AElsLMGsLFYNpPxnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEAiYSKITurem+3OmIcviNjsXK7itcTMrt53wCtsJjCMiuVToHRIIAzD9HvIVP5fp
-         VgH8Hm4o0rHcYXwhvAQkYFtFtiCwcZk/rAcN0wgA5fC5gfK8D5vD/GEgin4isBkQeB
-         HM5E/32smx8kucFE8MpXEkI8r5qRv0/im972Y57I=
+        b=sqboK8E1magEKOOp2N0667svBP85ufRKjUUfQfEo4JBn7QFBwOAi9wd08b8UoFkzR
+         K9BC6B2M3cr/cNW1OzTLgdG/yU7OjuBsPKlKqXC2FDBXCdSuQzQvjGWhnAsKNTJPbW
+         BEB4TwTAk3DACRMm3zcKVAJawS7JPJ7o5L2b/oV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 17/42] ring-buffer: Force before_stamp and write_stamp to be different on discard
-Date:   Mon,  8 Mar 2021 13:30:43 +0100
-Message-Id: <20210308122718.982124945@linuxfoundation.org>
+        syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 18/42] io_uring: ignore double poll add on the same waitqueue head
+Date:   Mon,  8 Mar 2021 13:30:44 +0100
+Message-Id: <20210308122719.030969949@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -39,60 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 6f6be606e763f2da9fc21de00538c97fe4ca1492 upstream.
+commit 1c3b3e6527e57156bf4082f11c2151957560fe6a upstream.
 
-Part of the logic of the new time stamp code depends on the before_stamp and
-the write_stamp to be different if the write_stamp does not match the last
-event on the buffer, as it will be used to calculate the delta of the next
-event written on the buffer.
+syzbot reports a deadlock, attempting to lock the same spinlock twice:
 
-The discard logic depends on this, as the next event to come in needs to
-inject a full timestamp as it can not rely on the last event timestamp in
-the buffer because it is unknown due to events after it being discarded. But
-by changing the write_stamp back to the time before it, it forces the next
-event to use a full time stamp, instead of relying on it.
+============================================
+WARNING: possible recursive locking detected
+5.11.0-syzkaller #0 Not tainted
+--------------------------------------------
+swapper/1/0 is trying to acquire lock:
+ffff88801b2b1130 (&runtime->sleep){..-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
+ffff88801b2b1130 (&runtime->sleep){..-.}-{2:2}, at: io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4960
 
-The issue came when a full time stamp was used for the event, and
-rb_time_delta() returns zero in that case. The update to the write_stamp
-(which subtracts delta) made it not change. Then when the event is removed
-from the buffer, because the before_stamp and write_stamp still match, the
-next event written would calculate its delta from the write_stamp, but that
-would be wrong as the write_stamp is of the time of the event that was
-discarded.
+but task is already holding lock:
+ffff88801b2b3130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
 
-In the case that the delta change being made to write_stamp is zero, set the
-before_stamp to zero as well, and this will force the next event to inject a
-full timestamp and not use the current write_stamp.
+other info that might help us debug this:
+ Possible unsafe locking scenario:
 
-Cc: stable@vger.kernel.org
-Fixes: a389d86f7fd09 ("ring-buffer: Have nested events still record running time stamp")
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+       CPU0
+       ----
+  lock(&runtime->sleep);
+  lock(&runtime->sleep);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+2 locks held by swapper/1/0:
+ #0: ffff888147474908 (&group->lock){..-.}-{2:2}, at: _snd_pcm_stream_lock_irqsave+0x9f/0xd0 sound/core/pcm_native.c:170
+ #1: ffff88801b2b3130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
+
+stack backtrace:
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.11.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0xfa/0x151 lib/dump_stack.c:120
+ print_deadlock_bug kernel/locking/lockdep.c:2829 [inline]
+ check_deadlock kernel/locking/lockdep.c:2872 [inline]
+ validate_chain kernel/locking/lockdep.c:3661 [inline]
+ __lock_acquire.cold+0x14c/0x3b4 kernel/locking/lockdep.c:4900
+ lock_acquire kernel/locking/lockdep.c:5510 [inline]
+ lock_acquire+0x1ab/0x730 kernel/locking/lockdep.c:5475
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
+ spin_lock include/linux/spinlock.h:354 [inline]
+ io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4960
+ __wake_up_common+0x147/0x650 kernel/sched/wait.c:108
+ __wake_up_common_lock+0xd0/0x130 kernel/sched/wait.c:138
+ snd_pcm_update_state+0x46a/0x540 sound/core/pcm_lib.c:203
+ snd_pcm_update_hw_ptr0+0xa75/0x1a50 sound/core/pcm_lib.c:464
+ snd_pcm_period_elapsed+0x160/0x250 sound/core/pcm_lib.c:1805
+ dummy_hrtimer_callback+0x94/0x1b0 sound/drivers/dummy.c:378
+ __run_hrtimer kernel/time/hrtimer.c:1519 [inline]
+ __hrtimer_run_queues+0x609/0xe40 kernel/time/hrtimer.c:1583
+ hrtimer_run_softirq+0x17b/0x360 kernel/time/hrtimer.c:1600
+ __do_softirq+0x29b/0x9f6 kernel/softirq.c:345
+ invoke_softirq kernel/softirq.c:221 [inline]
+ __irq_exit_rcu kernel/softirq.c:422 [inline]
+ irq_exit_rcu+0x134/0x200 kernel/softirq.c:434
+ sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1100
+ </IRQ>
+ asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:632
+RIP: 0010:native_save_fl arch/x86/include/asm/irqflags.h:29 [inline]
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/irqflags.h:70 [inline]
+RIP: 0010:arch_irqs_disabled arch/x86/include/asm/irqflags.h:137 [inline]
+RIP: 0010:acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+RIP: 0010:acpi_idle_do_entry+0x1c9/0x250 drivers/acpi/processor_idle.c:516
+Code: dd 38 6e f8 84 db 75 ac e8 54 32 6e f8 e8 0f 1c 74 f8 e9 0c 00 00 00 e8 45 32 6e f8 0f 00 2d 4e 4a c5 00 e8 39 32 6e f8 fb f4 <9c> 5b 81 e3 00 02 00 00 fa 31 ff 48 89 de e8 14 3a 6e f8 48 85 db
+RSP: 0018:ffffc90000d47d18 EFLAGS: 00000293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff8880115c3780 RSI: ffffffff89052537 RDI: 0000000000000000
+RBP: ffff888141127064 R08: 0000000000000001 R09: 0000000000000001
+R10: ffffffff81794168 R11: 0000000000000000 R12: 0000000000000001
+R13: ffff888141127000 R14: ffff888141127064 R15: ffff888143331804
+ acpi_idle_enter+0x361/0x500 drivers/acpi/processor_idle.c:647
+ cpuidle_enter_state+0x1b1/0xc80 drivers/cpuidle/cpuidle.c:237
+ cpuidle_enter+0x4a/0xa0 drivers/cpuidle/cpuidle.c:351
+ call_cpuidle kernel/sched/idle.c:158 [inline]
+ cpuidle_idle_call kernel/sched/idle.c:239 [inline]
+ do_idle+0x3e1/0x590 kernel/sched/idle.c:300
+ cpu_startup_entry+0x14/0x20 kernel/sched/idle.c:397
+ start_secondary+0x274/0x350 arch/x86/kernel/smpboot.c:272
+ secondary_startup_64_no_verify+0xb0/0xbb
+
+which is due to the driver doing poll_wait() twice on the same
+wait_queue_head. That is perfectly valid, but from checking the rest
+of the kernel tree, it's the only driver that does this.
+
+We can handle this just fine, we just need to ignore the second addition
+as we'll get woken just fine on the first one.
+
+Cc: stable@vger.kernel.org # 5.8+
+Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
+Reported-by: syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/ring_buffer.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ fs/io_uring.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -2837,6 +2837,17 @@ rb_try_to_discard(struct ring_buffer_per
- 			return 0;
- 
- 		/*
-+		 * It's possible that the event time delta is zero
-+		 * (has the same time stamp as the previous event)
-+		 * in which case write_stamp and before_stamp could
-+		 * be the same. In such a case, force before_stamp
-+		 * to be different than write_stamp. It doesn't
-+		 * matter what it is, as long as its different.
-+		 */
-+		if (!delta)
-+			rb_time_set(&cpu_buffer->before_stamp, 0);
-+
-+		/*
- 		 * If an event were to come in now, it would see that the
- 		 * write_stamp and the before_stamp are different, and assume
- 		 * that this event just added itself before updating
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5083,6 +5083,9 @@ static void __io_queue_proc(struct io_po
+ 			pt->error = -EINVAL;
+ 			return;
+ 		}
++		/* double add on the same waitqueue head, ignore */
++		if (poll->head == head)
++			return;
+ 		poll = kmalloc(sizeof(*poll), GFP_ATOMIC);
+ 		if (!poll) {
+ 			pt->error = -ENOMEM;
 
 
