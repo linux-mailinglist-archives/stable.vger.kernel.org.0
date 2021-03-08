@@ -2,94 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A5A330BB8
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 11:53:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E66330BD8
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 11:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229575AbhCHKwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 05:52:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
+        id S231204AbhCHK4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 05:56:22 -0500
+Received: from elvis.franken.de ([193.175.24.41]:57506 "EHLO elvis.franken.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231531AbhCHKw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 05:52:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1AF3651A5;
-        Mon,  8 Mar 2021 10:52:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615200747;
-        bh=pMZw1TDBbUwEEUX1lkSoLFf+kqIBxMbLfKVSPQF9aaQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Cq/00uHwzgIWa2KhCcr2lkUukJ6RAb7W8ZHe5c0F53BJVsTwVQfIh7wW0MgtqdSrP
-         2Fhdzs40UVdWveB9g+5MsYy3Q7JxWL1qORCs/1qonr8lKj/v1zZ99uwvh6VNZSgbIf
-         KBuPyT6XPnWIu3pF+z64xNcEeyMBUG0pfZ839f3yxPUdNWVhDU3YBG9TihxLQfmJx3
-         wBcMQaAkYeOY9yyebMeZGiLX9hwZdQoIMlLNMokOpbBpOgIRB7Xa9G/S4Rsa/kNg9m
-         I22JRNGXbXB4Ki/nFerZAqxsFTRZ3pQOkv5i4BV0//HiJ3CCcdijtN0rVWMXJmiTlI
-         aU4x6/1455Ujg==
-Received: by mail-ed1-f47.google.com with SMTP id dm26so13918784edb.12;
-        Mon, 08 Mar 2021 02:52:26 -0800 (PST)
-X-Gm-Message-State: AOAM530uJXgA8VZAVtPC7w5+zMZ4WLsJPwaDLMXHcNFmlBwQAoclvB7m
-        3xojD4LK7xymrb/1/tQ1gzWfyBUvd5LvYxHazg==
-X-Google-Smtp-Source: ABdhPJwqrES4G6zQVHpgFQQXFeYCzz2BE4zfV+Kku+1yeWjOOp6BnRWpxzqG37t7y9Uurj0BLHKxt6C58JJCGy7Z2A4=
-X-Received: by 2002:aa7:cf14:: with SMTP id a20mr21354191edy.49.1615200745215;
- Mon, 08 Mar 2021 02:52:25 -0800 (PST)
+        id S231142AbhCHK4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 05:56:06 -0500
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1lJDYR-0003M5-01; Mon, 08 Mar 2021 11:56:03 +0100
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id D599DC12B6; Mon,  8 Mar 2021 11:54:37 +0100 (CET)
+Date:   Mon, 8 Mar 2021 11:54:37 +0100
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     "Maciej W. Rozycki" <macro@orcam.me.uk>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        George Cherian <gcherian@marvell.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] crypto: mips/poly1305 - enable for all MIPS processors
+Message-ID: <20210308105437.GB6622@alpha.franken.de>
+References: <alpine.DEB.2.21.2103030122010.19637@angie.orcam.me.uk>
 MIME-Version: 1.0
-References: <20210308070520.40429-1-chunfeng.yun@mediatek.com>
-In-Reply-To: <20210308070520.40429-1-chunfeng.yun@mediatek.com>
-From:   Chun-Kuang Hu <chunkuang.hu@kernel.org>
-Date:   Mon, 8 Mar 2021 18:52:13 +0800
-X-Gmail-Original-Message-ID: <CAAOTY__rno0A_8WCWHiNv6tLyqDOVe+dVmbJbv7_pDse+BTpSQ@mail.gmail.com>
-Message-ID: <CAAOTY__rno0A_8WCWHiNv6tLyqDOVe+dVmbJbv7_pDse+BTpSQ@mail.gmail.com>
-Subject: Re: [PATCH] arm64: dts: mt8173: fix property typo of 'phys' in dsi node
-To:     Chunfeng Yun <chunfeng.yun@mediatek.com>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Cawa Cheng <cawa.cheng@mediatek.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Jie Qiu <jie.qiu@mediatek.com>, CK Hu <ck.hu@mediatek.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.21.2103030122010.19637@angie.orcam.me.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, Chunfeng:
-
-Chunfeng Yun <chunfeng.yun@mediatek.com> =E6=96=BC 2021=E5=B9=B43=E6=9C=888=
-=E6=97=A5 =E9=80=B1=E4=B8=80 =E4=B8=8B=E5=8D=883:05=E5=AF=AB=E9=81=93=EF=BC=
-=9A
->
-> Use 'phys' instead of 'phy'.
-
-Reviewed-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
-
->
-> Fixes: 81ad4dbaf7af ("arm64: dts: mt8173: Add display subsystem related n=
-odes")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+On Wed, Mar 03, 2021 at 02:16:04AM +0100, Maciej W. Rozycki wrote:
+> The MIPS Poly1305 implementation is generic MIPS code written such as to 
+> support down to the original MIPS I and MIPS III ISA for the 32-bit and 
+> 64-bit variant respectively.  Lift the current limitation then to enable 
+> code for MIPSr1 ISA or newer processors only and have it available for 
+> all MIPS processors.
+> 
+> Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+> Fixes: a11d055e7a64 ("crypto: mips/poly1305 - incorporate OpenSSL/CRYPTOGAMS optimized implementation")
+> Cc: stable@vger.kernel.org # v5.5+
 > ---
->  arch/arm64/boot/dts/mediatek/mt8173.dtsi | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/arm64/boot/dts/mediatek/mt8173.dtsi b/arch/arm64/boot/d=
-ts/mediatek/mt8173.dtsi
-> index 75040a820f0d..003a5653c505 100644
-> --- a/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-> +++ b/arch/arm64/boot/dts/mediatek/mt8173.dtsi
-> @@ -1236,7 +1236,7 @@
->                                  <&mmsys CLK_MM_DSI1_DIGITAL>,
->                                  <&mipi_tx1>;
->                         clock-names =3D "engine", "digital", "hs";
-> -                       phy =3D <&mipi_tx1>;
-> +                       phys =3D <&mipi_tx1>;
->                         phy-names =3D "dphy";
->                         status =3D "disabled";
->                 };
-> --
-> 2.18.0
->
+> On Wed, 3 Mar 2021, Jason A. Donenfeld wrote:
+> 
+> > >> Would you mind sending this for 5.12 in an rc at some point, rather
+> > >> than waiting for 5.13? I'd like to see this backported to 5.10 and 5.4
+> > >> for OpenWRT.
+> > >
+> > > why is this so important for OpenWRT ? Just to select CRYPTO_POLY1305_MIPS
+> > > ?
+> > 
+> > Yes. The performance boost on Octeon is significant for WireGuard users.
+> 
+>  But that's the wrong fix for that purpose.  I've skimmed over that module 
+> and there's nothing MIPS64-specific there.  In fact it's plain generic 
+> MIPS assembly, with some R2 optimisations enabled where applicable but not 
+> necessary (and then R6 tweaks, but that's irrelevant here).
+> 
+>  As a matter of interest I have just built it successfully for a MIPS I 
+> DECstation configuration:
+> 
+> $ file arch/mips/crypto/poly1305-mips.ko
+> arch/mips/crypto/poly1305-mips.ko: ELF 32-bit LSB relocatable, MIPS, MIPS-I version 1 (SYSV), BuildID[sha1]=d36384d94f60ba7deff638ca8a24500120b45b56, not stripped
+> $ 
+> 
+> Patch included, please apply.
+> 
+>  So while your change is surely right, what you want is this really.
+> 
+>   Maciej
+> ---
+>  arch/mips/crypto/Makefile |    4 ++--
+>  crypto/Kconfig            |    2 +-
+>  drivers/net/Kconfig       |    2 +-
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+
+applied to mips-fixes.
+
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
