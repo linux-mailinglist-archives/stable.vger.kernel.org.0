@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72190330DAA
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EC0330DAE
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230430AbhCHMbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230327AbhCHMbg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:31:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230111AbhCHMbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A82D7651C3;
-        Mon,  8 Mar 2021 12:31:24 +0000 (UTC)
+        id S229899AbhCHMb2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:31:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8685364EBC;
+        Mon,  8 Mar 2021 12:31:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206685;
-        bh=P75V3XSQXANXinS3xgTs9HUSnTtU6oownB/M2IpmAH8=;
+        s=korg; t=1615206688;
+        bh=JWcP2Ez3OrVt5pwP1x7P4o15l+tIK0bYpn4uFy4OUO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjRzHi6HyKJ3/h3UqJcZDLZvjjpFNB5lQD8KAO6lbus6gD2qbN0XEUK5lDjTcCOH0
-         s26kIZyrVzCkcTBf3OzO57fNCoBC+plIZjRQJizo6+CyhVShrVea+d32ClEi0qeTtg
-         PW6Y598KUtXLlbPczpSjJfnu9FCu0X2Bm5AlypcY=
+        b=EJb6PHs0IvnFJ3XE0woLLFzg80Y6sbz+FYdPt8UhXlXq/aphGbH16yrv4oURWiriH
+         SeIYGiffxBvZ0nSuIfIu4K9pGRGGxSMJY62Ebm6Gfd7dDHm7nX9KI/2aB3lSxRpDHU
+         1Pp3E31fyAvszh5QqAdmXruyZGhb4H+P7XNSijgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Laurent Bigonville <bigon@debian.org>,
-        Lukasz Majczak <lma@semihalf.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.4 02/22] tpm, tpm_tis: Decorate tpm_get_timeouts() with request_locality()
-Date:   Mon,  8 Mar 2021 13:30:19 +0100
-Message-Id: <20210308122714.516317331@linuxfoundation.org>
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.4 03/22] btrfs: raid56: simplify tracking of Q stripe presence
+Date:   Mon,  8 Mar 2021 13:30:20 +0100
+Message-Id: <20210308122714.563884205@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
 References: <20210308122714.391917404@linuxfoundation.org>
@@ -43,66 +40,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: David Sterba <dsterba@suse.com>
 
-commit a5665ec2affdba21bff3b0d4d3aed83b3951e8ff upstream.
+commit c17af96554a8a8777cbb0fd53b8497250e548b43 upstream.
 
-This is shown with Samsung Chromebook Pro (Caroline) with TPM 1.2
-(SLB 9670):
+There are temporary variables tracking the index of P and Q stripes, but
+none of them is really used as such, merely for determining if the Q
+stripe is present. This leads to compiler warnings with
+-Wunused-but-set-variable and has been reported several times.
 
-[    4.324298] TPM returned invalid status
-[    4.324806] WARNING: CPU: 2 PID: 1 at drivers/char/tpm/tpm_tis_core.c:275 tpm_tis_status+0x86/0x8f
+fs/btrfs/raid56.c: In function ‘finish_rmw’:
+fs/btrfs/raid56.c:1199:6: warning: variable ‘p_stripe’ set but not used [-Wunused-but-set-variable]
+ 1199 |  int p_stripe = -1;
+      |      ^~~~~~~~
+fs/btrfs/raid56.c: In function ‘finish_parity_scrub’:
+fs/btrfs/raid56.c:2356:6: warning: variable ‘p_stripe’ set but not used [-Wunused-but-set-variable]
+ 2356 |  int p_stripe = -1;
+      |      ^~~~~~~~
 
-Background
-==========
+Replace the two variables with one that has a clear meaning and also get
+rid of the warnings. The logic that verifies that there are only 2
+valid cases is unchanged.
 
-TCG PC Client Platform TPM Profile (PTP) Specification, paragraph 6.1 FIFO
-Interface Locality Usage per Register, Table 39 Register Behavior Based on
-Locality Setting for FIFO - a read attempt to TPM_STS_x Registers returns
-0xFF in case of lack of locality.
-
-The fix
-=======
-
-Decorate tpm_get_timeouts() with request_locality() and release_locality().
-
-Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Laurent Bigonville <bigon@debian.org>
-Cc: stable@vger.kernel.org
-Reported-by: Lukasz Majczak <lma@semihalf.com>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/btrfs/raid56.c |   37 +++++++++++++++----------------------
+ 1 file changed, 15 insertions(+), 22 deletions(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -939,11 +939,21 @@ int tpm_tis_core_init(struct device *dev
- 	init_waitqueue_head(&priv->read_queue);
- 	init_waitqueue_head(&priv->int_queue);
- 	if (irq != -1) {
--		/* Before doing irq testing issue a command to the TPM in polling mode
-+		/*
-+		 * Before doing irq testing issue a command to the TPM in polling mode
- 		 * to make sure it works. May as well use that command to set the
- 		 * proper timeouts for the driver.
- 		 */
--		if (tpm_get_timeouts(chip)) {
-+
-+		rc = request_locality(chip, 0);
-+		if (rc < 0)
-+			goto out_err;
-+
-+		rc = tpm_get_timeouts(chip);
-+
-+		release_locality(chip, 0);
-+
-+		if (rc) {
- 			dev_err(dev, "Could not get TPM timeouts and durations\n");
- 			rc = -ENODEV;
- 			goto out_err;
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -1198,22 +1198,19 @@ static noinline void finish_rmw(struct b
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct bio_list bio_list;
+ 	struct bio *bio;
+ 	int ret;
+ 
+ 	bio_list_init(&bio_list);
+ 
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
+ 
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+@@ -1257,7 +1254,7 @@ static noinline void finish_rmw(struct b
+ 		SetPageUptodate(p);
+ 		pointers[stripe++] = kmap(p);
+ 
+-		if (q_stripe != -1) {
++		if (has_qstripe) {
+ 
+ 			/*
+ 			 * raid6, add the qstripe and call the
+@@ -2355,8 +2352,7 @@ static noinline void finish_parity_scrub
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct page *p_page = NULL;
+ 	struct page *q_page = NULL;
+ 	struct bio_list bio_list;
+@@ -2366,14 +2362,12 @@ static noinline void finish_parity_scrub
+ 
+ 	bio_list_init(&bio_list);
+ 
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
+ 
+ 	if (bbio->num_tgtdevs && bbio->tgtdev_map[rbio->scrubp]) {
+ 		is_replace = 1;
+@@ -2395,7 +2389,7 @@ static noinline void finish_parity_scrub
+ 		goto cleanup;
+ 	SetPageUptodate(p_page);
+ 
+-	if (q_stripe != -1) {
++	if (has_qstripe) {
+ 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
+ 		if (!q_page) {
+ 			__free_page(p_page);
+@@ -2418,8 +2412,7 @@ static noinline void finish_parity_scrub
+ 		/* then add the parity stripe */
+ 		pointers[stripe++] = kmap(p_page);
+ 
+-		if (q_stripe != -1) {
+-
++		if (has_qstripe) {
+ 			/*
+ 			 * raid6, add the qstripe and call the
+ 			 * library function to fill in our p/q
 
 
