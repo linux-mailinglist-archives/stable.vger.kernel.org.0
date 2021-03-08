@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D456330DA4
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 264F3330DA9
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbhCHMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230165AbhCHMbe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:31:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230039AbhCHMbK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09BE2651C9;
-        Mon,  8 Mar 2021 12:31:09 +0000 (UTC)
+        id S230063AbhCHMbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:31:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE053651CC;
+        Mon,  8 Mar 2021 12:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206670;
-        bh=MsoXZ++coynfHRAlKz8xGmRnEMj5Maq2CkQhJ50YcX4=;
+        s=korg; t=1615206673;
+        bh=ba0p3qJvEOYyMzlVdurrizJvB1qFnqiYanvqoT1heso=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENSpt4MUcxI1ghIPdjz2AyANREET+hcej00FFrM5PnxvEsMQdod5KVOQCheBqBSZ5
-         TLRHjjmylUEHOn9hTNue1Iqi8LzQjIEyYBbImNz2My6RmqfXl8ZhgdFcG/rFcEx/mz
-         N9jV/5rRQ17Kf4C0HovI5KzTH2w2FGqxrOVPllPU=
+        b=ncJOouQ8C9FtLqUFYWpuMBKavbjxyI0+6KQikkmj0cFK2IvujXskNkK2nuK+moAyI
+         5GdUlCtDD1Lu6zv48mcMAsyujcQ1ZfJw/VOYmQufZjQkO+2RUrHEiKm6UX0PNtdPJO
+         7j6lKHTiP3nIQJ9P4hL/sroiQLFxaN9XiBgtxF68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.4 14/22] crypto - shash: reduce minimum alignment of shash_desc structure
-Date:   Mon,  8 Mar 2021 13:30:31 +0100
-Message-Id: <20210308122715.084969942@linuxfoundation.org>
+        stable@vger.kernel.org, Antonio Borneo <borneo.antonio@gmail.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
+Subject: [PATCH 5.4 15/22] usbip: tools: fix build error for multiple definition
+Date:   Mon,  8 Mar 2021 13:30:32 +0100
+Message-Id: <20210308122715.131460346@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
 References: <20210308122714.391917404@linuxfoundation.org>
@@ -39,84 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Antonio Borneo <borneo.antonio@gmail.com>
 
-commit 660d2062190db131d2feaf19914e90f868fe285c upstream.
+commit d5efc2e6b98fe661dbd8dd0d5d5bfb961728e57a upstream.
 
-Unlike many other structure types defined in the crypto API, the
-'shash_desc' structure is permitted to live on the stack, which
-implies its contents may not be accessed by DMA masters. (This is
-due to the fact that the stack may be located in the vmalloc area,
-which requires a different virtual-to-physical translation than the
-one implemented by the DMA subsystem)
+With GCC 10, building usbip triggers error for multiple definition
+of 'udev_context', in:
+- libsrc/vhci_driver.c:18 and
+- libsrc/usbip_host_common.c:27.
 
-Our definition of CRYPTO_MINALIGN_ATTR is based on ARCH_KMALLOC_MINALIGN,
-which may take DMA constraints into account on architectures that support
-non-cache coherent DMA such as ARM and arm64. In this case, the value is
-chosen to reflect the largest cacheline size in the system, in order to
-ensure that explicit cache maintenance as required by non-coherent DMA
-masters does not affect adjacent, unrelated slab allocations. On arm64,
-this value is currently set at 128 bytes.
+Declare as extern the definition in libsrc/usbip_host_common.c.
 
-This means that applying CRYPTO_MINALIGN_ATTR to struct shash_desc is both
-unnecessary (as it is never used for DMA), and undesirable, given that it
-wastes stack space (on arm64, performing the alignment costs 112 bytes in
-the worst case, and the hole between the 'tfm' and '__ctx' members takes
-up another 120 bytes, resulting in an increased stack footprint of up to
-232 bytes.) So instead, let's switch to the minimum SLAB alignment, which
-does not take DMA constraints into account.
-
-Note that this is a no-op for x86.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20200618000844.1048309-1-borneo.antonio@gmail.com
+Cc: Petr Štetiar <ynezz@true.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/crypto/hash.h  |    8 ++++----
- include/linux/crypto.h |    9 ++++++---
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ tools/usb/usbip/libsrc/usbip_host_common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/crypto/hash.h
-+++ b/include/crypto/hash.h
-@@ -141,7 +141,7 @@ struct ahash_alg {
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -23,7 +23,7 @@
+ #include "list.h"
+ #include "sysfs_utils.h"
  
- struct shash_desc {
- 	struct crypto_shash *tfm;
--	void *__ctx[] CRYPTO_MINALIGN_ATTR;
-+	void *__ctx[] __aligned(ARCH_SLAB_MINALIGN);
- };
+-struct udev *udev_context;
++extern struct udev *udev_context;
  
- #define HASH_MAX_DIGESTSIZE	 64
-@@ -154,9 +154,9 @@ struct shash_desc {
- 
- #define HASH_MAX_STATESIZE	512
- 
--#define SHASH_DESC_ON_STACK(shash, ctx)				  \
--	char __##shash##_desc[sizeof(struct shash_desc) +	  \
--		HASH_MAX_DESCSIZE] CRYPTO_MINALIGN_ATTR; \
-+#define SHASH_DESC_ON_STACK(shash, ctx)					     \
-+	char __##shash##_desc[sizeof(struct shash_desc) + HASH_MAX_DESCSIZE] \
-+		__aligned(__alignof__(struct shash_desc));		     \
- 	struct shash_desc *shash = (struct shash_desc *)__##shash##_desc
- 
- /**
---- a/include/linux/crypto.h
-+++ b/include/linux/crypto.h
-@@ -130,9 +130,12 @@
-  * The macro CRYPTO_MINALIGN_ATTR (along with the void * type in the actual
-  * declaration) is used to ensure that the crypto_tfm context structure is
-  * aligned correctly for the given architecture so that there are no alignment
-- * faults for C data types.  In particular, this is required on platforms such
-- * as arm where pointers are 32-bit aligned but there are data types such as
-- * u64 which require 64-bit alignment.
-+ * faults for C data types.  On architectures that support non-cache coherent
-+ * DMA, such as ARM or arm64, it also takes into account the minimal alignment
-+ * that is required to ensure that the context struct member does not share any
-+ * cachelines with the rest of the struct. This is needed to ensure that cache
-+ * maintenance for non-coherent DMA (cache invalidation in particular) does not
-+ * affect data that may be accessed by the CPU concurrently.
-  */
- #define CRYPTO_MINALIGN ARCH_KMALLOC_MINALIGN
- 
+ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ {
 
 
