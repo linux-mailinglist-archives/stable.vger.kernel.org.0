@@ -2,74 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4914D331667
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 19:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B909F331678
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 19:46:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229790AbhCHSmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 13:42:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57348 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230075AbhCHSm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 13:42:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C406521D;
-        Mon,  8 Mar 2021 18:42:26 +0000 (UTC)
-Date:   Mon, 8 Mar 2021 18:42:15 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Andrey Konovalov <andreyknvl@google.com>
-Cc:     Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Branislav Rankov <Branislav.Rankov@arm.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] arm64: kasan: fix page_alloc tagging with DEBUG_VIRTUAL
-Message-ID: <20210308184214.GI15644@arm.com>
-References: <4b55b35202706223d3118230701c6a59749d9b72.1615219501.git.andreyknvl@google.com>
+        id S230517AbhCHSqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 13:46:08 -0500
+Received: from esa.microchip.iphmx.com ([68.232.153.233]:35841 "EHLO
+        esa.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229790AbhCHSpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 13:45:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1615229142; x=1646765142;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=QlZkF/n+OFe4HMXAJQG4MFvDSH2sQBY/KgzRuDuLAfg=;
+  b=q/A+ZmVi+t/NOj2WVfaQd1QqJY/VDc0+Hk676ZHetA+42mSUkW1QN9DQ
+   ww20ysUiYa6pu90klOa2uTsySWeGtc9KG2Uqe8mr8bf8O9ocuq+O5DoVq
+   LSo7jyzuJprhBQ3VD2I8csX7ECdPInkaMRf0N6z1qodYGamC50xcFmzkd
+   xceedd0zzUB7i8G0lWNhLIsfBnVXHepTF7mi9IdmqN5oY77DoJk0c3OUr
+   JQbHGnK5fUD7t+NtTTRE7Dx++yFODNRkUQQ2AkICrpcF1Y/VMYzXw7v2M
+   Dx5/yXlplLoB1aaaCPhATUK7thHgdy28qFWggGJf1VE+FSX2i3yCU+lKY
+   g==;
+IronPort-SDR: Rp+BGoXaDahRqxX8xCPAlHbcB4bTR4j7Ej2EwdYYgGhKAGjEHIXvtDMs7bO27SySllDhE162Ic
+ FiQVayUJUcCjX9fzgDRTGMUEmvOpv5GTnCwXuxLoRX9PCCygMNd83UNOGE7uKDZdahHPY1W85L
+ LenNozH2KGn9Hc0c3cUjWJsN/rN8q8x6dcgm8+zG0KthwgqxRPAZnHmZajn0c/Qzap2qXqcgPb
+ fC+bSa/iH9TD5dwgB/ibFFjFg+oHFmPXJ12C34z7DwiNUimXKfdfIuNr3fkdzwkzxgh6jS4m4C
+ xFg=
+X-IronPort-AV: E=Sophos;i="5.81,233,1610434800"; 
+   d="scan'208";a="111918962"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 08 Mar 2021 11:45:40 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Mon, 8 Mar 2021 11:45:37 -0700
+Received: from ness.microchip.com (10.10.115.15) by chn-vm-ex02.mchp-main.com
+ (10.10.85.144) with Microsoft SMTP Server id 15.1.2176.2 via Frontend
+ Transport; Mon, 8 Mar 2021 11:45:36 -0700
+From:   <nicolas.ferre@microchip.com>
+To:     <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>
+CC:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        <stable@vger.kernel.org>,
+        "Sandeep Sheriker Mallikarjun" 
+        <sandeepsheriker.mallikarjun@microchip.com>
+Subject: [PATCH] ARM: dts: at91: sam9x60: fix mux-mask to match product's datasheet
+Date:   Mon, 8 Mar 2021 19:45:27 +0100
+Message-ID: <20210308184527.33036-1-nicolas.ferre@microchip.com>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4b55b35202706223d3118230701c6a59749d9b72.1615219501.git.andreyknvl@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 08, 2021 at 05:10:23PM +0100, Andrey Konovalov wrote:
-> When CONFIG_DEBUG_VIRTUAL is enabled, the default page_to_virt() macro
-> implementation from include/linux/mm.h is used. That definition doesn't
-> account for KASAN tags, which leads to no tags on page_alloc allocations.
-> 
-> Provide an arm64-specific definition for page_to_virt() when
-> CONFIG_DEBUG_VIRTUAL is enabled that takes care of KASAN tags.
-> 
-> Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-> ---
->  arch/arm64/include/asm/memory.h | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-> index c759faf7a1ff..0aabc3be9a75 100644
-> --- a/arch/arm64/include/asm/memory.h
-> +++ b/arch/arm64/include/asm/memory.h
-> @@ -328,6 +328,11 @@ static inline void *phys_to_virt(phys_addr_t x)
->  #define ARCH_PFN_OFFSET		((unsigned long)PHYS_PFN_OFFSET)
->  
->  #if !defined(CONFIG_SPARSEMEM_VMEMMAP) || defined(CONFIG_DEBUG_VIRTUAL)
-> +#define page_to_virt(x)	({						\
-> +	__typeof__(x) __page = x;					\
-> +	void *__addr = __va(page_to_phys(__page));			\
-> +	(void *)__tag_set((const void *)__addr, page_kasan_tag(__page));\
-> +})
->  #define virt_to_page(x)		pfn_to_page(virt_to_pfn(x))
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Fix the whole mux-mask table according to datasheet for the sam9x60
+product.  Too much functions for pins were disabled leading to
+misunderstandings when enabling more peripherals or taking this table
+as an example for another board.
+
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
+Cc: <stable@vger.kernel.org> # 5.6+
+Cc: Sandeep Sheriker Mallikarjun <sandeepsheriker.mallikarjun@microchip.com>
+---
+ arch/arm/boot/dts/at91-sam9x60ek.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/arch/arm/boot/dts/at91-sam9x60ek.dts b/arch/arm/boot/dts/at91-sam9x60ek.dts
+index 4c40ae571154..63207c952223 100644
+--- a/arch/arm/boot/dts/at91-sam9x60ek.dts
++++ b/arch/arm/boot/dts/at91-sam9x60ek.dts
+@@ -336,9 +336,9 @@ ethernet-phy@0 {
+ &pinctrl {
+ 	atmel,mux-mask = <
+ 			 /*	A	B	C	*/
+-			 0xFFFFFEFF 0xC0E039FF 0xEF00019D	/* pioA */
+-			 0x03FFFFFF 0x02FC7E68 0x00780000	/* pioB */
+-			 0xffffffff 0xF83FFFFF 0xB800F3FC	/* pioC */
++			 0xFFFFFFFF 0xFFE03FFF 0xEF00019D	/* pioA */
++			 0x03FFFFFF 0x02FC7E7F 0x00780000	/* pioB */
++			 0xffffffff 0xFFFFFFFF 0xF83FFFFF	/* pioC */
+ 			 0x003FFFFF 0x003F8000 0x00000000	/* pioD */
+ 			 >;
+ 
+-- 
+2.30.1
+
