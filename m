@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4755A330715
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 06:08:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA5F2330714
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 06:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229474AbhCHFIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234283AbhCHFIP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 00:08:15 -0500
-Received: from fllv0016.ext.ti.com ([198.47.19.142]:37996 "EHLO
-        fllv0016.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbhCHFHu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 00:07:50 -0500
-Received: from fllv0035.itg.ti.com ([10.64.41.0])
-        by fllv0016.ext.ti.com (8.15.2/8.15.2) with ESMTP id 12857j9S023557;
-        Sun, 7 Mar 2021 23:07:45 -0600
+Received: from fllv0015.ext.ti.com ([198.47.19.141]:36254 "EHLO
+        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231231AbhCHFHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 00:07:54 -0500
+Received: from fllv0034.itg.ti.com ([10.64.40.246])
+        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id 12857nDv077155;
+        Sun, 7 Mar 2021 23:07:49 -0600
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1615180065;
-        bh=kDesQPQvYRjN7JUDLg1aWRBB+2K3tXaBtJ48Qzz8gLs=;
+        s=ti-com-17Q1; t=1615180069;
+        bh=2gdcGvIiei2/gTTob5OagdVE47Jl6d4UbQfoaMc8G3o=;
         h=From:To:CC:Subject:Date:In-Reply-To:References;
-        b=LiSpDpkdv04HcKRhxO7apZWBqtBQDdcOd3V2xTCnCRX9MXb3/O00Vk+NKDweNlxTM
-         iTKdguhJti+wQ8B7sBJo8zY83mfGB1W7dC45S+HLXW2N315ZXzh376qEtB07SopUTb
-         IuQ8iv7TWK7UoJwWqjMt1pI+FeUjfKtUrYJYkoD4=
-Received: from DFLE107.ent.ti.com (dfle107.ent.ti.com [10.64.6.28])
-        by fllv0035.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 12857jmk068185
+        b=HNefMIbSZj4d7XSMezl3owZ8s1uwfLtuC4P/YROmgunGCfIy545yocU9oOIBytdAY
+         Uzpbm2Y1LZuaRK1CHuPZBH7L4wOVPYZt4ENisDayDwBuhOm+iP73otTCVoCNud5qKk
+         a2f7lqnlm+KeEUVJ8AIfGKDpkpDTMltYl7GA48zQ=
+Received: from DLEE104.ent.ti.com (dlee104.ent.ti.com [157.170.170.34])
+        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 12857nVV039450
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sun, 7 Mar 2021 23:07:45 -0600
-Received: from DFLE111.ent.ti.com (10.64.6.32) by DFLE107.ent.ti.com
- (10.64.6.28) with Microsoft SMTP Server (version=TLS1_2,
+        Sun, 7 Mar 2021 23:07:49 -0600
+Received: from DLEE105.ent.ti.com (157.170.170.35) by DLEE104.ent.ti.com
+ (157.170.170.34) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3; Sun, 7 Mar
- 2021 23:07:45 -0600
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DFLE111.ent.ti.com
- (10.64.6.32) with Microsoft SMTP Server (version=TLS1_2,
+ 2021 23:07:49 -0600
+Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE105.ent.ti.com
+ (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1979.3 via
- Frontend Transport; Sun, 7 Mar 2021 23:07:45 -0600
+ Frontend Transport; Sun, 7 Mar 2021 23:07:49 -0600
 Received: from a0393678-ssd.dhcp.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 12857aKx086547;
-        Sun, 7 Mar 2021 23:07:41 -0600
+        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id 12857aL0086547;
+        Sun, 7 Mar 2021 23:07:45 -0600
 From:   Kishon Vijay Abraham I <kishon@ti.com>
 To:     Kishon Vijay Abraham I <kishon@ti.com>,
         Vinod Koul <vkoul@kernel.org>,
@@ -44,9 +44,9 @@ To:     Kishon Vijay Abraham I <kishon@ti.com>,
         Swapnil Jakhade <sjakhade@cadence.com>
 CC:     <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         Lokesh Vutla <lokeshvutla@ti.com>, <stable@vger.kernel.org>
-Subject: [PATCH v5 01/13] phy: cadence: Sierra: Fix PHY power_on sequence
-Date:   Mon, 8 Mar 2021 10:37:20 +0530
-Message-ID: <20210308050732.7140-2-kishon@ti.com>
+Subject: [PATCH v5 02/13] phy: ti: j721e-wiz: Invoke wiz_init() before of_platform_device_create()
+Date:   Mon, 8 Mar 2021 10:37:21 +0530
+Message-ID: <20210308050732.7140-3-kishon@ti.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20210308050732.7140-1-kishon@ti.com>
 References: <20210308050732.7140-1-kishon@ti.com>
@@ -57,45 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
-de-asserts PHY_RESET even before the configurations are loaded in
-phy_init(). However PHY_RESET should be de-asserted only after
-all the configurations has been initialized, instead of de-asserting
-in probe. Fix it here.
+Invoke wiz_init() before configuring anything else in Sierra/Torrent
+(invoked as part of of_platform_device_create()). wiz_init() resets the
+SERDES device and any configuration done in the probe() of
+Sierra/Torrent will be lost. In order to prevent SERDES configuration
+from getting reset, invoke wiz_init() immediately before invoking
+of_platform_device_create().
 
-Fixes: 44d30d622821d ("phy: cadence: Add driver for Sierra PHY")
+Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Cc: <stable@vger.kernel.org> # v5.4+
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: <stable@vger.kernel.org> # v5.10
 ---
- drivers/phy/cadence/phy-cadence-sierra.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/phy/ti/phy-j721e-wiz.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/phy/cadence/phy-cadence-sierra.c b/drivers/phy/cadence/phy-cadence-sierra.c
-index 26a0badabe38..19f32ae877b9 100644
---- a/drivers/phy/cadence/phy-cadence-sierra.c
-+++ b/drivers/phy/cadence/phy-cadence-sierra.c
-@@ -319,6 +319,12 @@ static int cdns_sierra_phy_on(struct phy *gphy)
- 	u32 val;
- 	int ret;
+diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
+index 995c7dbec77b..1bb73822f44a 100644
+--- a/drivers/phy/ti/phy-j721e-wiz.c
++++ b/drivers/phy/ti/phy-j721e-wiz.c
+@@ -1262,27 +1262,24 @@ static int wiz_probe(struct platform_device *pdev)
+ 		goto err_get_sync;
+ 	}
  
-+	ret = reset_control_deassert(sp->phy_rst);
++	ret = wiz_init(wiz);
 +	if (ret) {
-+		dev_err(dev, "Failed to take the PHY out of reset\n");
-+		return ret;
++		dev_err(dev, "WIZ initialization failed\n");
++		goto err_wiz_init;
 +	}
 +
- 	/* Take the PHY lane group out of reset */
- 	ret = reset_control_deassert(ins->lnk_rst);
- 	if (ret) {
-@@ -616,7 +622,6 @@ static int cdns_sierra_phy_probe(struct platform_device *pdev)
+ 	serdes_pdev = of_platform_device_create(child_node, NULL, dev);
+ 	if (!serdes_pdev) {
+ 		dev_WARN(dev, "Unable to create SERDES platform device\n");
+ 		ret = -ENOMEM;
+-		goto err_pdev_create;
+-	}
+-	wiz->serdes_pdev = serdes_pdev;
+-
+-	ret = wiz_init(wiz);
+-	if (ret) {
+-		dev_err(dev, "WIZ initialization failed\n");
+ 		goto err_wiz_init;
+ 	}
++	wiz->serdes_pdev = serdes_pdev;
  
- 	pm_runtime_enable(dev);
- 	phy_provider = devm_of_phy_provider_register(dev, of_phy_simple_xlate);
--	reset_control_deassert(sp->phy_rst);
- 	return PTR_ERR_OR_ZERO(phy_provider);
+ 	of_node_put(child_node);
+ 	return 0;
  
- put_child:
+ err_wiz_init:
+-	of_platform_device_destroy(&serdes_pdev->dev, NULL);
+-
+-err_pdev_create:
+ 	wiz_clock_cleanup(wiz, node);
+ 
+ err_get_sync:
 -- 
 2.17.1
 
