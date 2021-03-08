@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DC4330DA6
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D94330DDC
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:34:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbhCHMbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:31:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40454 "EHLO mail.kernel.org"
+        id S231171AbhCHMdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:33:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229922AbhCHMbF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63503651C3;
-        Mon,  8 Mar 2021 12:31:04 +0000 (UTC)
+        id S230124AbhCHMde (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:33:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C391864EBC;
+        Mon,  8 Mar 2021 12:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206665;
-        bh=ByCRqeLEEzpntiMJDAkrrPvoQldkziMxNBmwI9AJIYY=;
+        s=korg; t=1615206814;
+        bh=EKdBxPTN/7OYDFTT4DV2RP4BAKF17ymlpS1yh2CbRMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dRUPpjz6NsmalBHXXadzPMUISh7SA21heFBoUWWHpYHkVpvMzKyEfTDrmHyj1wbil
-         GT9EnVgMFenBAyUHs0xLHiqEHOEaghwXMH1i1XO3tZbV0fU1J3B73o2YCvMuZcNo4Y
-         cD4UqOQO/x7+JgS1WvJU1SRjHtxgfiAYPoRVZOvI=
+        b=DjeBz0owUDXnZUs06aBidPGdIbIrelgkuNEyAhveUJ0DnsAxJfcpVvaEjtPERXG6u
+         H3qJcFud8mcnJKX0bXCfy4Aq0jpLqSQpEwMhr1KPIHgCZCHHGK548F0HPNnyM6/TiS
+         BaBw4FHg+NAl04ajreu8VyOpKjKp6QeLZYbs4J+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 12/22] drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 03/42] ALSA: usb-audio: Drop bogus dB range in too low level
 Date:   Mon,  8 Mar 2021 13:30:29 +0100
-Message-Id: <20210308122714.987080109@linuxfoundation.org>
+Message-Id: <20210308122718.297797810@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
-References: <20210308122714.391917404@linuxfoundation.org>
+In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
+References: <20210308122718.120213856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +38,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Wang <kevin1.wang@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 1aa46901ee51c1c5779b3b239ea0374a50c6d9ff upstream.
+commit 21cba9c5359dd9d1bffe355336cfec0b66d1ee52 upstream.
 
-the register offset isn't needed division by 4 to pass RREG32_PCIE()
+Some USB audio firmware seem to report broken dB values for the volume
+controls, and this screws up applications like PulseAudio who blindly
+trusts the given data.  For example, Edifier G2000 reports a PCM
+volume from -128dB to -127dB, and this results in barely inaudible
+sound.
 
-Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This patch adds a sort of sanity check at parsing the dB values in
+USB-audio driver and disables the dB reporting if the range looks
+bogus.  Here, we assume -96dB as the bottom line of the max dB.
+
+Note that, if one can figure out that proper dB range later, it can be
+patched in the mixer maps.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211929
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210227105737.3656-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/mixer.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-@@ -240,7 +240,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
- 	while (size) {
- 		uint32_t value;
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1301,6 +1301,17 @@ no_res_check:
+ 			/* totally crap, return an error */
+ 			return -EINVAL;
+ 		}
++	} else {
++		/* if the max volume is too low, it's likely a bogus range;
++		 * here we use -96dB as the threshold
++		 */
++		if (cval->dBmax <= -9600) {
++			usb_audio_info(cval->head.mixer->chip,
++				       "%d:%d: bogus dB values (%d/%d), disabling dB reporting\n",
++				       cval->head.id, mixer_ctrl_intf(cval->head.mixer),
++				       cval->dBmin, cval->dBmax);
++			cval->dBmin = cval->dBmax = 0;
++		}
+ 	}
  
--		value = RREG32_PCIE(*pos >> 2);
-+		value = RREG32_PCIE(*pos);
- 		r = put_user(value, (uint32_t *)buf);
- 		if (r)
- 			return r;
-@@ -283,7 +283,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
- 		if (r)
- 			return r;
- 
--		WREG32_PCIE(*pos >> 2, value);
-+		WREG32_PCIE(*pos, value);
- 
- 		result += 4;
- 		buf += 4;
+ 	return 0;
 
 
