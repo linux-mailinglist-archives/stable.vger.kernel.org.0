@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94398330E62
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C720330E64
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231175AbhCHMgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:36:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46124 "EHLO mail.kernel.org"
+        id S231628AbhCHMgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:36:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230056AbhCHMgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A35C0651DD;
-        Mon,  8 Mar 2021 12:36:22 +0000 (UTC)
+        id S230342AbhCHMg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:26 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF3A5651FF;
+        Mon,  8 Mar 2021 12:36:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206984;
-        bh=hTBnQBCLVMxR4QhT3h5lrSDArmxK5D2kuTiGwbZvCTY=;
+        s=korg; t=1615206986;
+        bh=YWeU1KnKf/SHh08i/Qvb6i2gRS8i46xKYdXDHJRBZBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEeIWDQgwPeUydhH7ZkjB6uMhJ/T/24Zw2mzOhayNsS0hJAITTGBvOGKKqLUDRL8V
-         U2tPLQVyL/cKzfSbxPFkucG8hzYKsoxt4fnAht6z3NtC1o+jZjMyJwB0+fg3bELH/V
-         D/v6V+lwZLn+29BQQIUZnxjxNlJ6jFODL72KIN/Y=
+        b=Z9c2iHf1X0CZTMPEphAzSNAlf20rQDqSFNH97gwmFXSo2P5XirUC/ppjM2B6eWoHK
+         tY+G6t1dkz11Hb2R8hBfc4Kwygmis9WeGLGFTiDuD/fm+HeI+DnR9LMUn6TClZPrY1
+         RCZ/qhE8ER0oXf6JAH+KrrjwWUamyzSCNsqX8hws=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 27/44] drm/amdgpu: Only check for S0ix if AMD_PMC is configured
-Date:   Mon,  8 Mar 2021 13:35:05 +0100
-Message-Id: <20210308122719.904210982@linuxfoundation.org>
+Subject: [PATCH 5.11 28/44] drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+Date:   Mon,  8 Mar 2021 13:35:06 +0100
+Message-Id: <20210308122719.947315475@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -42,37 +42,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-commit 31ada99bdd1b4d6b80462eeb87d383f374409e2a upstream.
+commit 1aa46901ee51c1c5779b3b239ea0374a50c6d9ff upstream.
 
-The S0ix check only makes sense if the AMD PMC driver is
-present.  We need to use the legacy S3 pathes when the
-PMC driver is not present.
+the register offset isn't needed division by 4 to pass RREG32_PCIE()
 
-Reviewed-by: Prike Liang <Prike.Liang@amd.com>
-Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
-@@ -903,10 +903,11 @@ void amdgpu_acpi_fini(struct amdgpu_devi
-  */
- bool amdgpu_acpi_is_s0ix_supported(struct amdgpu_device *adev)
- {
-+#if defined(CONFIG_AMD_PMC)
- 	if (acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0) {
- 		if (adev->flags & AMD_IS_APU)
- 			return true;
- 	}
--
-+#endif
- 	return false;
- }
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+@@ -356,7 +356,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 	while (size) {
+ 		uint32_t value;
+ 
+-		value = RREG32_PCIE(*pos >> 2);
++		value = RREG32_PCIE(*pos);
+ 		r = put_user(value, (uint32_t *)buf);
+ 		if (r) {
+ 			pm_runtime_mark_last_busy(adev_to_drm(adev)->dev);
+@@ -423,7 +423,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 			return r;
+ 		}
+ 
+-		WREG32_PCIE(*pos >> 2, value);
++		WREG32_PCIE(*pos, value);
+ 
+ 		result += 4;
+ 		buf += 4;
 
 
