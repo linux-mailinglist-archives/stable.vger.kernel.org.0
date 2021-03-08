@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6DDE330E51
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E99330E60
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbhCHMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45872 "EHLO mail.kernel.org"
+        id S232572AbhCHMgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:36:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232398AbhCHMgS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A9B2651FE;
-        Mon,  8 Mar 2021 12:36:16 +0000 (UTC)
+        id S231224AbhCHMgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:20 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC68A651DD;
+        Mon,  8 Mar 2021 12:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206978;
-        bh=8/WKeKz1XikLbyjERu6zsh9yUZIEyQeLXMDb0lliefA=;
+        s=korg; t=1615206980;
+        bh=tj4WuOSRPka5qXnH++FmxEFSn3ff9Ojr4uex2YvEmGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iPN5fXlWvBi6Jmw/ude44oIOwdh8Z+LOOvG83aYW+aRx3h2acjylVBrSs1bVVmHGR
-         nEJdGmgQIynbBpAf8Krlprz8fXKCz08FHJwPYEgDjgWIYNrs+XrJSNEjUodmnfI9Y2
-         FLKDkO771RHqh8cIhVOB/jgPzla94V6z/NxCGHvo=
+        b=UTx9VTJWOAn5MH+/vf17U2Iu3ctcbTFMm1/j1PUXGzxHIl8KmJISDbLpNteRovRe2
+         dJ8uY+AIx2kA7v45L8oBpr5I2BgNaFIN3+2SM3oAE1HRsVU3DwfRzoDec11NValdOy
+         agLjX2KIQ8+zhku+WbTUKoyVUgUX6l3PRp58COpA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Milan Broz <gmazyland@gmail.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Carretero?= <cJ-ko@zougloub.eu>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.11 24/44] dm verity: fix FEC for RS roots unaligned to block size
-Date:   Mon,  8 Mar 2021 13:35:02 +0100
-Message-Id: <20210308122719.767429188@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.11 25/44] drm/amd/pm: correct Arcturus mmTHM_BACO_CNTL register address
+Date:   Mon,  8 Mar 2021 13:35:03 +0100
+Message-Id: <20210308122719.818593160@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -43,139 +42,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Milan Broz <gmazyland@gmail.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit df7b59ba9245c4a3115ebaa905e3e5719a3810da upstream.
+commit 6efda1671312e8432216ee8b106e71fa3102e1d3 upstream.
 
-Optional Forward Error Correction (FEC) code in dm-verity uses
-Reed-Solomon code and should support roots from 2 to 24.
+Arcturus has a different register address from other SMU V11
+ASICs.
 
-The error correction parity bytes (of roots lengths per RS block) are
-stored on a separate device in sequence without any padding.
-
-Currently, to access FEC device, the dm-verity-fec code uses dm-bufio
-client with block size set to verity data block (usually 4096 or 512
-bytes).
-
-Because this block size is not divisible by some (most!) of the roots
-supported lengths, data repair cannot work for partially stored parity
-bytes.
-
-This fix changes FEC device dm-bufio block size to "roots << SECTOR_SHIFT"
-where we can be sure that the full parity data is always available.
-(There cannot be partial FEC blocks because parity must cover whole
-sectors.)
-
-Because the optional FEC starting offset could be unaligned to this
-new block size, we have to use dm_bufio_set_sector_offset() to
-configure it.
-
-The problem is easily reproduced using veritysetup, e.g. for roots=13:
-
-  # create verity device with RS FEC
-  dd if=/dev/urandom of=data.img bs=4096 count=8 status=none
-  veritysetup format data.img hash.img --fec-device=fec.img --fec-roots=13 | awk '/^Root hash/{ print $3 }' >roothash
-
-  # create an erasure that should be always repairable with this roots setting
-  dd if=/dev/zero of=data.img conv=notrunc bs=1 count=8 seek=4088 status=none
-
-  # try to read it through dm-verity
-  veritysetup open data.img test hash.img --fec-device=fec.img --fec-roots=13 $(cat roothash)
-  dd if=/dev/mapper/test of=/dev/null bs=4096 status=noxfer
-  # wait for possible recursive recovery in kernel
-  udevadm settle
-  veritysetup close test
-
-With this fix, errors are properly repaired.
-  device-mapper: verity-fec: 7:1: FEC 0: corrected 8 errors
-  ...
-
-Without it, FEC code usually ends on unrecoverable failure in RS decoder:
-  device-mapper: verity-fec: 7:1: FEC 0: failed to correct: -74
-  ...
-
-This problem is present in all kernels since the FEC code's
-introduction (kernel 4.5).
-
-It is thought that this problem is not visible in Android ecosystem
-because it always uses a default RS roots=2.
-
-Depends-on: a14e5ec66a7a ("dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size")
-Signed-off-by: Milan Broz <gmazyland@gmail.com>
-Tested-by: Jérôme Carretero <cJ-ko@zougloub.eu>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Cc: stable@vger.kernel.org # 4.5+
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Acked-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-verity-fec.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/drivers/md/dm-verity-fec.c
-+++ b/drivers/md/dm-verity-fec.c
-@@ -61,19 +61,18 @@ static int fec_decode_rs8(struct dm_veri
- static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
- 			   unsigned *offset, struct dm_buffer **buf)
- {
--	u64 position, block;
-+	u64 position, block, rem;
- 	u8 *res;
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/smu_v11_0.c
+@@ -78,6 +78,9 @@ MODULE_FIRMWARE("amdgpu/dimgrey_cavefish
+ #define PCIE_LC_SPEED_CNTL__LC_CURRENT_DATA_RATE_MASK 0xC000
+ #define PCIE_LC_SPEED_CNTL__LC_CURRENT_DATA_RATE__SHIFT 0xE
  
- 	position = (index + rsb) * v->fec->roots;
--	block = position >> v->data_dev_block_bits;
--	*offset = (unsigned)(position - (block << v->data_dev_block_bits));
-+	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
-+	*offset = (unsigned)rem;
- 
--	res = dm_bufio_read(v->fec->bufio, v->fec->start + block, buf);
-+	res = dm_bufio_read(v->fec->bufio, block, buf);
- 	if (IS_ERR(res)) {
- 		DMERR("%s: FEC %llu: parity read failed (block %llu): %ld",
- 		      v->data_dev->name, (unsigned long long)rsb,
--		      (unsigned long long)(v->fec->start + block),
--		      PTR_ERR(res));
-+		      (unsigned long long)block, PTR_ERR(res));
- 		*buf = NULL;
- 	}
- 
-@@ -155,7 +154,7 @@ static int fec_decode_bufs(struct dm_ver
- 
- 		/* read the next block when we run out of parity bytes */
- 		offset += v->fec->roots;
--		if (offset >= 1 << v->data_dev_block_bits) {
-+		if (offset >= v->fec->roots << SECTOR_SHIFT) {
- 			dm_bufio_release(buf);
- 
- 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
-@@ -674,7 +673,7 @@ int verity_fec_ctr(struct dm_verity *v)
- {
- 	struct dm_verity_fec *f = v->fec;
- 	struct dm_target *ti = v->ti;
--	u64 hash_blocks;
-+	u64 hash_blocks, fec_blocks;
- 	int ret;
- 
- 	if (!verity_fec_is_enabled(v)) {
-@@ -744,15 +743,17 @@ int verity_fec_ctr(struct dm_verity *v)
- 	}
- 
- 	f->bufio = dm_bufio_client_create(f->dev->bdev,
--					  1 << v->data_dev_block_bits,
-+					  f->roots << SECTOR_SHIFT,
- 					  1, 0, NULL, NULL);
- 	if (IS_ERR(f->bufio)) {
- 		ti->error = "Cannot initialize FEC bufio client";
- 		return PTR_ERR(f->bufio);
- 	}
- 
--	if (dm_bufio_get_device_size(f->bufio) <
--	    ((f->start + f->rounds * f->roots) >> v->data_dev_block_bits)) {
-+	dm_bufio_set_sector_offset(f->bufio, f->start << (v->data_dev_block_bits - SECTOR_SHIFT));
++#define mmTHM_BACO_CNTL_ARCT			0xA7
++#define mmTHM_BACO_CNTL_ARCT_BASE_IDX		0
 +
-+	fec_blocks = div64_u64(f->rounds * f->roots, v->fec->roots << SECTOR_SHIFT);
-+	if (dm_bufio_get_device_size(f->bufio) < fec_blocks) {
- 		ti->error = "FEC device is too small";
- 		return -E2BIG;
- 	}
+ static int link_width[] = {0, 1, 2, 4, 8, 12, 16};
+ static int link_speed[] = {25, 50, 80, 160};
+ 
+@@ -1581,9 +1584,15 @@ int smu_v11_0_baco_set_state(struct smu_
+ 			break;
+ 		default:
+ 			if (!ras || !ras->supported) {
+-				data = RREG32_SOC15(THM, 0, mmTHM_BACO_CNTL);
+-				data |= 0x80000000;
+-				WREG32_SOC15(THM, 0, mmTHM_BACO_CNTL, data);
++				if (adev->asic_type == CHIP_ARCTURUS) {
++					data = RREG32_SOC15(THM, 0, mmTHM_BACO_CNTL_ARCT);
++					data |= 0x80000000;
++					WREG32_SOC15(THM, 0, mmTHM_BACO_CNTL_ARCT, data);
++				} else {
++					data = RREG32_SOC15(THM, 0, mmTHM_BACO_CNTL);
++					data |= 0x80000000;
++					WREG32_SOC15(THM, 0, mmTHM_BACO_CNTL, data);
++				}
+ 
+ 				ret = smu_cmn_send_smc_msg_with_param(smu, SMU_MSG_EnterBaco, 0, NULL);
+ 			} else {
 
 
