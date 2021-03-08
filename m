@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D359B330DBC
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B53330DB9
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230476AbhCHMcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:32:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
+        id S231812AbhCHMcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:32:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229919AbhCHMbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F62F651CF;
-        Mon,  8 Mar 2021 12:31:30 +0000 (UTC)
+        id S230150AbhCHMbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:31:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D2E064EBC;
+        Mon,  8 Mar 2021 12:31:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206691;
-        bh=Nzg8RbWjmIpEzw0VlQZ5wai93AnBNXqfwuqLkmDBvQY=;
+        s=korg; t=1615206694;
+        bh=GoS1EONNrChvEgo5uCbEG0sXQw0iWTaE1lA20hbqlbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MksyZ4bsfxwwCmZAQGVPKhLdpqWP7N2zzavAd50rUVl6MZk0drYnKrZvDdjZG64XN
-         eENql4caXrHUBW+I9K5ciJ7lF6upKx5IQddTCWhsxDAduFnurH/PjErBQ4WEFesKcw
-         1173mY8jpy5hUIWG2QlXJcr5wiqYY2jBrcOpjuJk=
+        b=d0Fyo21B//tkz0OfUjuZiAFPnBF5ZpFnoJ+LaSDwPQOPsk3OmCCfy/WO7qMEYp2m9
+         kkcZtCDQwBFuUnth4SjCQ752qdeNk+//K/043TOBzY2Lnw6Nw1LX+qb4Ztukct8iUM
+         vnxvEHPow+G9KhUEY1Cw4DTxVQWzgwHfcY5JzMcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 04/22] btrfs: fix raid6 qstripe kmap
-Date:   Mon,  8 Mar 2021 13:30:21 +0100
-Message-Id: <20210308122714.602891224@linuxfoundation.org>
+Subject: [PATCH 5.4 05/22] btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
+Date:   Mon,  8 Mar 2021 13:30:22 +0100
+Message-Id: <20210308122714.654095897@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
 References: <20210308122714.391917404@linuxfoundation.org>
@@ -39,94 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ira Weiny <ira.weiny@intel.com>
+From: Dan Carpenter <dancarpenter@oracle.com>
 
-commit d70cef0d46729808dc53f145372c02b145c92604 upstream.
+commit 5011c5a663b9c6d6aff3d394f11049b371199627 upstream.
 
-When a qstripe is required an extra page is allocated and mapped.  There
-were 3 problems:
+The problem is we're copying "inherit" from user space but we don't
+necessarily know that we're copying enough data for a 64 byte
+struct.  Then the next problem is that 'inherit' has a variable size
+array at the end, and we have to verify that array is the size we
+expected.
 
-1) There is no corresponding call of kunmap() for the qstripe page.
-2) There is no reason to map the qstripe page more than once if the
-   number of bits set in rbio->dbitmap is greater than one.
-3) There is no reason to map the parity page and unmap it each time
-   through the loop.
-
-The page memory can continue to be reused with a single mapping on each
-iteration by raid6_call.gen_syndrome() without remapping.  So map the
-page for the duration of the loop.
-
-Similarly, improve the algorithm by mapping the parity page just 1 time.
-
-Fixes: 5a6ac9eacb49 ("Btrfs, raid56: support parity scrub on raid56")
-CC: stable@vger.kernel.org # 4.4.x: c17af96554a8: btrfs: raid56: simplify tracking of Q stripe presence
-CC: stable@vger.kernel.org # 4.4.x
-Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+Fixes: 6f72c7e20dba ("Btrfs: add qgroup inheritance")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/raid56.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ fs/btrfs/ioctl.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -2390,16 +2390,21 @@ static noinline void finish_parity_scrub
- 	SetPageUptodate(p_page);
- 
- 	if (has_qstripe) {
-+		/* RAID6, allocate and map temp space for the Q stripe */
- 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
- 		if (!q_page) {
- 			__free_page(p_page);
- 			goto cleanup;
- 		}
- 		SetPageUptodate(q_page);
-+		pointers[rbio->real_stripes - 1] = kmap(q_page);
- 	}
- 
- 	atomic_set(&rbio->error, 0);
- 
-+	/* Map the parity stripe just once */
-+	pointers[nr_data] = kmap(p_page);
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1907,7 +1907,10 @@ static noinline int btrfs_ioctl_snap_cre
+ 	if (vol_args->flags & BTRFS_SUBVOL_RDONLY)
+ 		readonly = true;
+ 	if (vol_args->flags & BTRFS_SUBVOL_QGROUP_INHERIT) {
+-		if (vol_args->size > PAGE_SIZE) {
++		u64 nums;
 +
- 	for_each_set_bit(pagenr, rbio->dbitmap, rbio->stripe_npages) {
- 		struct page *p;
- 		void *parity;
-@@ -2409,16 +2414,8 @@ static noinline void finish_parity_scrub
- 			pointers[stripe] = kmap(p);
++		if (vol_args->size < sizeof(*inherit) ||
++		    vol_args->size > PAGE_SIZE) {
+ 			ret = -EINVAL;
+ 			goto free_args;
  		}
- 
--		/* then add the parity stripe */
--		pointers[stripe++] = kmap(p_page);
--
- 		if (has_qstripe) {
--			/*
--			 * raid6, add the qstripe and call the
--			 * library function to fill in our p/q
--			 */
--			pointers[stripe++] = kmap(q_page);
--
-+			/* RAID6, call the library function to fill in our P/Q */
- 			raid6_call.gen_syndrome(rbio->real_stripes, PAGE_SIZE,
- 						pointers);
- 		} else {
-@@ -2439,12 +2436,14 @@ static noinline void finish_parity_scrub
- 
- 		for (stripe = 0; stripe < nr_data; stripe++)
- 			kunmap(page_in_rbio(rbio, stripe, pagenr, 0));
--		kunmap(p_page);
+@@ -1916,6 +1919,20 @@ static noinline int btrfs_ioctl_snap_cre
+ 			ret = PTR_ERR(inherit);
+ 			goto free_args;
+ 		}
++
++		if (inherit->num_qgroups > PAGE_SIZE ||
++		    inherit->num_ref_copies > PAGE_SIZE ||
++		    inherit->num_excl_copies > PAGE_SIZE) {
++			ret = -EINVAL;
++			goto free_inherit;
++		}
++
++		nums = inherit->num_qgroups + 2 * inherit->num_ref_copies +
++		       2 * inherit->num_excl_copies;
++		if (vol_args->size != struct_size(inherit, qgroups, nums)) {
++			ret = -EINVAL;
++			goto free_inherit;
++		}
  	}
  
-+	kunmap(p_page);
- 	__free_page(p_page);
--	if (q_page)
-+	if (q_page) {
-+		kunmap(q_page);
- 		__free_page(q_page);
-+	}
- 
- writeback:
- 	/*
+ 	ret = btrfs_ioctl_snap_create_transid(file, vol_args->name,
 
 
