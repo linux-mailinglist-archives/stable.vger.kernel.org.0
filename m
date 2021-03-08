@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C79AE33109A
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 15:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C2B033109C
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 15:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229627AbhCHORr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 09:17:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42000 "EHLO mail.kernel.org"
+        id S229775AbhCHOSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 09:18:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230050AbhCHORk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 09:17:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38F8F651D3;
-        Mon,  8 Mar 2021 14:17:39 +0000 (UTC)
+        id S229965AbhCHORv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 09:17:51 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 74C1A651DC;
+        Mon,  8 Mar 2021 14:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615213059;
-        bh=74SmVLQFtv6tj6t/7qSS/yVf3SBlRcISQTV/xeFhJmw=;
+        s=korg; t=1615213071;
+        bh=bbJ8xQ3WsjO8SPu1v/qIq8sFj3R7RRhcRN2GqnIJC6k=;
         h=Subject:To:From:Date:From;
-        b=uWSe5vFRPNinITz1No4Ogjt0tpF3vIUKO31t7AGuU4s/FalD2YVyichw4Q5CYmtZk
-         r9TZ8EXQe25GLkaf4PQuM1CLtsV/Jyl4PVgFcT0BAktpN0vZW9tiCIEvhxp4yeltuN
-         Pf6the+twtRE5NuRrQJvZigOI0fmlrYbtYGh7pg4=
-Subject: patch "usb: dwc3: qcom: Honor wakeup enabled/disabled state" added to usb-linus
-To:     mka@chromium.org, bjorn.andersson@linaro.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=Kbh+4wvdJZYVRBEV6vdB/aBwvruP7oNQqh/xeqpBtfbGOR5rQwiDpcHyQ1xSMzTyf
+         k2ictShWj3Jtgg6Hr9MUwUbhsZWjn9NKSlwE2R6YyRg/5nnmF7Hg0q6rkbYiGA4d2I
+         xNF4TqD8h9vRhqqdsDj0D1Sdn+bwld2NASGAl6Qc=
+Subject: patch "usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other" added to usb-linus
+To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 08 Mar 2021 15:17:37 +0100
-Message-ID: <1615213057141118@kroah.com>
+Date:   Mon, 08 Mar 2021 15:17:38 +0100
+Message-ID: <16152130589320@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: qcom: Honor wakeup enabled/disabled state
+    usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,52 +51,52 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From dc649f810a4c1e18dded8d4f1e1c42b40ff6bb2e Mon Sep 17 00:00:00 2001
-From: Matthias Kaehlcke <mka@chromium.org>
-Date: Tue, 2 Mar 2021 10:37:03 -0800
-Subject: usb: dwc3: qcom: Honor wakeup enabled/disabled state
+From 25af815a5e7369ff592812907c83d8ca435fc1ed Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Mon, 8 Mar 2021 10:55:38 +0900
+Subject: usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other
+ EPNUM
 
-The dwc3-qcom currently enables wakeup interrupts unconditionally
-when suspending, however this should not be done when wakeup is
-disabled (e.g. through the sysfs attribute power/wakeup). Only
-enable wakeup interrupts when device_may_wakeup() returns true.
+According to the datasheet, this controller has a restriction
+which "set an endpoint number so that combinations of the DIR bit and
+the EPNUM bits do not overlap.". However, since the udc core driver is
+possible to assign a bulk pipe as an interrupt endpoint, an endpoint
+number may not match the pipe number. After that, when user rebinds
+another gadget driver, this driver broke the restriction because
+the driver didn't clear any configuration in usb_ep_disable().
 
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Example:
+ # modprobe g_ncm
+ Then, EP3 = pipe 3, EP4 = pipe 4, EP5 = pipe 6
+ # rmmod g_ncm
+ # modprobe g_hid
+ Then, EP3 = pipe 6, EP4 = pipe 7.
+ So, pipe 3 and pipe 6 are set as EP3.
+
+So, clear PIPECFG register in usbhs_pipe_free().
+
+Fixes: dfb87b8bfe09 ("usb: renesas_usbhs: gadget: fix re-enabling pipe without re-connecting")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210302103659.v2.1.I44954d9e1169f2cf5c44e6454d357c75ddfa99a2@changeid
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1615168538-26101-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/renesas_usbhs/pipe.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index d8850f9ccb62..730e8d6a2aa6 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -358,8 +358,10 @@ static int dwc3_qcom_suspend(struct dwc3_qcom *qcom)
- 	if (ret)
- 		dev_warn(qcom->dev, "failed to disable interconnect: %d\n", ret);
+diff --git a/drivers/usb/renesas_usbhs/pipe.c b/drivers/usb/renesas_usbhs/pipe.c
+index e7334b7fb3a6..75fff2e4cbc6 100644
+--- a/drivers/usb/renesas_usbhs/pipe.c
++++ b/drivers/usb/renesas_usbhs/pipe.c
+@@ -746,6 +746,8 @@ struct usbhs_pipe *usbhs_pipe_malloc(struct usbhs_priv *priv,
  
-+	if (device_may_wakeup(qcom->dev))
-+		dwc3_qcom_enable_interrupts(qcom);
-+
- 	qcom->is_suspended = true;
--	dwc3_qcom_enable_interrupts(qcom);
- 
- 	return 0;
+ void usbhs_pipe_free(struct usbhs_pipe *pipe)
+ {
++	usbhsp_pipe_select(pipe);
++	usbhsp_pipe_cfg_set(pipe, 0xFFFF, 0);
+ 	usbhsp_put_pipe(pipe);
  }
-@@ -372,7 +374,8 @@ static int dwc3_qcom_resume(struct dwc3_qcom *qcom)
- 	if (!qcom->is_suspended)
- 		return 0;
  
--	dwc3_qcom_disable_interrupts(qcom);
-+	if (device_may_wakeup(qcom->dev))
-+		dwc3_qcom_disable_interrupts(qcom);
- 
- 	for (i = 0; i < qcom->num_clocks; i++) {
- 		ret = clk_prepare_enable(qcom->clks[i]);
 -- 
 2.30.1
 
