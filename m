@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84975330E00
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00EB1330E01
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbhCHMer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:34:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
+        id S230198AbhCHMes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231246AbhCHMeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 813B2651C3;
-        Mon,  8 Mar 2021 12:34:21 +0000 (UTC)
+        id S229928AbhCHMeZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB67A651CF;
+        Mon,  8 Mar 2021 12:34:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206862;
-        bh=QxnzNqd3JmxvYCMrytiF2UlvP860pukbOaMnEkprWHw=;
+        s=korg; t=1615206865;
+        bh=X1ZoBNwxa/MboWgbPk8CHKPA5D7S7dqWy2Ij/5pRykw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRhBu9TEWMUw6vAEY1m62QRHTdcR8JACt5lnxsYZGJ1h0nFHy3aEiXxKPRs/6nvcm
-         OZAn8FDVG39SNi12LBYJw5kbhhEO/7f4BXwR9S3TXZlwcyRgYr0KNJz45LomYkF+mH
-         a4rMosJ3lhzlnCQZaOdS9Uk/SVWRd38B3Xksf7/s=
+        b=MvbOa/uwZXaCcF0UBKxoIAzUM16Adg0FyUpGNwhMn8fmt8s5JRe2GRzmEr3GG38WQ
+         ieNIevEPIb9fwCqlIB4KnXAghQeILOcL43L7XR4DzA9sj3m6v3AYeNDNNwO79MZmY0
+         Bk2iv2RISlw7G3MNj4oRBksmhmZWKkqIFl7btgq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 32/42] RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
-Date:   Mon,  8 Mar 2021 13:30:58 +0100
-Message-Id: <20210308122719.699019203@linuxfoundation.org>
+Subject: [PATCH 5.10 33/42] RDMA/rxe: Fix missing kconfig dependency on CRYPTO
+Date:   Mon,  8 Mar 2021 13:30:59 +0100
+Message-Id: <20210308122719.747627284@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -41,82 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@nvidia.com>
+From: Julian Braha <julianbraha@gmail.com>
 
-[ Upstream commit 221384df6123747d2a75517dd06cc01752f81518 ]
+[ Upstream commit 475f23b8c66d2892ad6acbf90ed757cafab13de7 ]
 
-ib_send_cm_sidr_rep() {
-	spin_lock_irqsave()
-        cm_send_sidr_rep_locked() {
-                ...
-        	spin_lock_irq()
-                ....
-                spin_unlock_irq() <--- this will enable interrupts
-        }
-        spin_unlock_irqrestore()
-}
+When RDMA_RXE is enabled and CRYPTO is disabled, Kbuild gives the
+following warning:
 
-spin_unlock_irqrestore() expects interrupts to be disabled but the
-internal spin_unlock_irq() will always enable hard interrupts.
+ WARNING: unmet direct dependencies detected for CRYPTO_CRC32
+   Depends on [n]: CRYPTO [=n]
+   Selected by [y]:
+   - RDMA_RXE [=y] && (INFINIBAND_USER_ACCESS [=y] || !INFINIBAND_USER_ACCESS [=y]) && INET [=y] && PCI [=y] && INFINIBAND [=y] && INFINIBAND_VIRT_DMA [=y]
 
-Fix this by replacing the internal spin_{lock,unlock}_irq() with
-irqsave/restore variants.
+This is because RDMA_RXE selects CRYPTO_CRC32, without depending on or
+selecting CRYPTO, despite that config option being subordinate to CRYPTO.
 
-It fixes the following kernel trace:
-
- raw_local_irq_restore() called with IRQs enabled
- WARNING: CPU: 2 PID: 20001 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x1d/0x20
-
- Call Trace:
-  _raw_spin_unlock_irqrestore+0x4e/0x50
-  ib_send_cm_sidr_rep+0x3a/0x50 [ib_cm]
-  cma_send_sidr_rep+0xa1/0x160 [rdma_cm]
-  rdma_accept+0x25e/0x350 [rdma_cm]
-  ucma_accept+0x132/0x1cc [rdma_ucm]
-  ucma_write+0xbf/0x140 [rdma_ucm]
-  vfs_write+0xc1/0x340
-  ksys_write+0xb3/0xe0
-  do_syscall_64+0x2d/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 87c4c774cbef ("RDMA/cm: Protect access to remote_sidr_table")
-Link: https://lore.kernel.org/r/20210301081844.445823-1-leon@kernel.org
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: cee2688e3cd6 ("IB/rxe: Offload CRC calculation when possible")
+Signed-off-by: Julian Braha <julianbraha@gmail.com>
+Link: https://lore.kernel.org/r/21525878.NYvzQUHefP@ubuntu-mate-laptop
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cm.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/rxe/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 8e578f73a074..bbba0cd42c89 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -3650,6 +3650,7 @@ static int cm_send_sidr_rep_locked(struct cm_id_private *cm_id_priv,
- 				   struct ib_cm_sidr_rep_param *param)
- {
- 	struct ib_mad_send_buf *msg;
-+	unsigned long flags;
- 	int ret;
- 
- 	lockdep_assert_held(&cm_id_priv->lock);
-@@ -3675,12 +3676,12 @@ static int cm_send_sidr_rep_locked(struct cm_id_private *cm_id_priv,
- 		return ret;
- 	}
- 	cm_id_priv->id.state = IB_CM_IDLE;
--	spin_lock_irq(&cm.lock);
-+	spin_lock_irqsave(&cm.lock, flags);
- 	if (!RB_EMPTY_NODE(&cm_id_priv->sidr_id_node)) {
- 		rb_erase(&cm_id_priv->sidr_id_node, &cm.remote_sidr_table);
- 		RB_CLEAR_NODE(&cm_id_priv->sidr_id_node);
- 	}
--	spin_unlock_irq(&cm.lock);
-+	spin_unlock_irqrestore(&cm.lock, flags);
- 	return 0;
- }
- 
+diff --git a/drivers/infiniband/sw/rxe/Kconfig b/drivers/infiniband/sw/rxe/Kconfig
+index 452149066792..06b8dc5093f7 100644
+--- a/drivers/infiniband/sw/rxe/Kconfig
++++ b/drivers/infiniband/sw/rxe/Kconfig
+@@ -4,6 +4,7 @@ config RDMA_RXE
+ 	depends on INET && PCI && INFINIBAND
+ 	depends on INFINIBAND_VIRT_DMA
+ 	select NET_UDP_TUNNEL
++	select CRYPTO
+ 	select CRYPTO_CRC32
+ 	help
+ 	This driver implements the InfiniBand RDMA transport over
 -- 
 2.30.1
 
