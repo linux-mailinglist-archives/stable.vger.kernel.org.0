@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 395C5330DFF
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 977B6330E03
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229917AbhCHMeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:34:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43092 "EHLO mail.kernel.org"
+        id S230404AbhCHMes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230097AbhCHMeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0298A651CF;
-        Mon,  8 Mar 2021 12:34:15 +0000 (UTC)
+        id S230510AbhCHMeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:19 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA89865203;
+        Mon,  8 Mar 2021 12:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206856;
-        bh=Ka9ouMWEb0Nu9M24W7opbQSgicq4l+VrtNaiTnVYThw=;
+        s=korg; t=1615206859;
+        bh=QtfgpEbjnnt/6dA/dFPtbmehdAcvax97J26PQe0phFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFET7Ct0n0B1TVKwpKjq2ATQg/lk5Sg5Y1+9DemIA5I2Ia4m9ff48o9dwM+MSGMNL
-         t5oRdP0R29zFaY8lewdQVoDTasv0jRWdA3uyqbz2/Vn2r9CVWZFzCmdYqIZMW2Nunn
-         gxdwJFIpYFRyhuK+2y4DZCKgb9tqbpykUHOaWDF4=
+        b=LtLGVsaQAgHWglPYw51f2WV1BKtTbRMdmSl26zz+ZyATuCwj6wK2U8oonRdOENkfP
+         na6m2J5PhKS+7idnFBy1LnvI1mRgkY1MOxSQMVEczE2cX5cI6luPypEVuiMhcuHiVO
+         cqH1OGj2DfXVW2k8r3XQtqdZuCODx5Sz/aiNE6fM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>
-Subject: [PATCH 5.10 30/42] mm: Remove examples from enum zone_type comment
-Date:   Mon,  8 Mar 2021 13:30:56 +0100
-Message-Id: <20210308122719.604428347@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 31/42] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+Date:   Mon,  8 Mar 2021 13:30:57 +0100
+Message-Id: <20210308122719.652039636@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -41,54 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 04435217f96869ac3a8f055ff68c5237a60bcd7e upstream
+[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
 
-We can't really list every setup in common code. On top of that they are
-unlikely to stay true for long as things change in the arch trees
-independently of this comment.
+Currently the mask operation on variable conf is just 3 bits so
+the switch statement case value of 8 is unreachable dead code.
+The function daio_mgr_dao_init can be passed a 4 bit value,
+function dao_rsc_init calls it with conf set to:
 
-Suggested-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20201119175400.9995-8-nsaenzjulienne@suse.de
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     conf = (desc->msr & 0x7) | (desc->passthru << 3);
+
+so clearly when desc->passthru is set to 1 then conf can be
+at least 8.
+
+Fix this by changing the mask to 0xf.
+
+Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mmzone.h |   20 --------------------
- 1 file changed, 20 deletions(-)
+ sound/pci/ctxfi/cthw20k2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -354,26 +354,6 @@ enum zone_type {
- 	 * DMA mask is assumed when ZONE_DMA32 is defined. Some 64-bit
- 	 * platforms may need both zones as they support peripherals with
- 	 * different DMA addressing limitations.
--	 *
--	 * Some examples:
--	 *
--	 *  - i386 and x86_64 have a fixed 16M ZONE_DMA and ZONE_DMA32 for the
--	 *    rest of the lower 4G.
--	 *
--	 *  - arm only uses ZONE_DMA, the size, up to 4G, may vary depending on
--	 *    the specific device.
--	 *
--	 *  - arm64 has a fixed 1G ZONE_DMA and ZONE_DMA32 for the rest of the
--	 *    lower 4G.
--	 *
--	 *  - powerpc only uses ZONE_DMA, the size, up to 2G, may vary
--	 *    depending on the specific device.
--	 *
--	 *  - s390 uses ZONE_DMA fixed to the lower 2G.
--	 *
--	 *  - ia64 and riscv only use ZONE_DMA32.
--	 *
--	 *  - parisc uses neither.
- 	 */
- #ifdef CONFIG_ZONE_DMA
- 	ZONE_DMA,
+diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
+index fc1bc18caee9..85d1fc76f59e 100644
+--- a/sound/pci/ctxfi/cthw20k2.c
++++ b/sound/pci/ctxfi/cthw20k2.c
+@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
+ 
+ 	if (idx < 4) {
+ 		/* S/PDIF output */
+-		switch ((conf & 0x7)) {
++		switch ((conf & 0xf)) {
+ 		case 1:
+ 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
+ 			break;
+-- 
+2.30.1
+
 
 
