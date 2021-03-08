@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10580330E4F
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A36B330E52
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbhCHMg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:36:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
+        id S232340AbhCHMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:36:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231283AbhCHMgO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:14 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5913651DD;
-        Mon,  8 Mar 2021 12:36:12 +0000 (UTC)
+        id S232346AbhCHMgQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFC32651FF;
+        Mon,  8 Mar 2021 12:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206974;
-        bh=H+iID15HSOz5oceUKarenW3mdDmlgJt4Se9mHFMMqAc=;
+        s=korg; t=1615206976;
+        bh=G4hjZ3pTt/gyN4ds4qkwqIP5gSY2c06+DqtESeOAgIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AaZ8f3Uwc/YYLG6IPZS1CIpRHpnfL+AdxdoD68/5fYzKlK/HflvyIG9kSw2u34+OO
-         GAWgqrihxRUCmLJjTYcCnMeOErfnSv/dkpBTcgUTTsxl84XtyAA9L6MzzP0VZauywg
-         gZUT79ycBSfgcZBT9V3tLbFwE11tgqWnu7DbNLBs=
+        b=y1jvaDO37rWWDFyKhs41psUEEiV16Lqi5kWcTo1JUggiI+OxAKT01BtpJQZYdwgtC
+         vCKtzXZWQIVgN8R8YBNlr6devHwKDA6qn8ECj7KYqJUS71yZvay0zd6FRMEXfGGTdP
+         KMvw3Owv/OhhOr/Kv70gl4g6RPj6CNbEGn02nlsc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.11 22/44] io_uring: ignore double poll add on the same waitqueue head
-Date:   Mon,  8 Mar 2021 13:35:00 +0100
-Message-Id: <20210308122719.669881575@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Milan Broz <gmazyland@gmail.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.11 23/44] dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
+Date:   Mon,  8 Mar 2021 13:35:01 +0100
+Message-Id: <20210308122719.718755688@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -42,121 +42,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 1c3b3e6527e57156bf4082f11c2151957560fe6a upstream.
+commit a14e5ec66a7a66e57b24e2469f9212a78460207e upstream.
 
-syzbot reports a deadlock, attempting to lock the same spinlock twice:
+dm_bufio_get_device_size returns the device size in blocks. Before
+returning the value, we must subtract the nubmer of starting
+sectors. The number of starting sectors may not be divisible by block
+size.
 
-============================================
-WARNING: possible recursive locking detected
-5.11.0-syzkaller #0 Not tainted
---------------------------------------------
-swapper/1/0 is trying to acquire lock:
-ffff88801b2b1130 (&runtime->sleep){..-.}-{2:2}, at: spin_lock include/linux/spinlock.h:354 [inline]
-ffff88801b2b1130 (&runtime->sleep){..-.}-{2:2}, at: io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4960
+Note that currently, no target is using dm_bufio_set_sector_offset and
+dm_bufio_get_device_size simultaneously, so this change has no effect.
+However, an upcoming dm-verity-fec fix needs this change.
 
-but task is already holding lock:
-ffff88801b2b3130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(&runtime->sleep);
-  lock(&runtime->sleep);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-2 locks held by swapper/1/0:
- #0: ffff888147474908 (&group->lock){..-.}-{2:2}, at: _snd_pcm_stream_lock_irqsave+0x9f/0xd0 sound/core/pcm_native.c:170
- #1: ffff88801b2b3130 (&runtime->sleep){..-.}-{2:2}, at: __wake_up_common_lock+0xb4/0x130 kernel/sched/wait.c:137
-
-stack backtrace:
-CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.11.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_deadlock_bug kernel/locking/lockdep.c:2829 [inline]
- check_deadlock kernel/locking/lockdep.c:2872 [inline]
- validate_chain kernel/locking/lockdep.c:3661 [inline]
- __lock_acquire.cold+0x14c/0x3b4 kernel/locking/lockdep.c:4900
- lock_acquire kernel/locking/lockdep.c:5510 [inline]
- lock_acquire+0x1ab/0x730 kernel/locking/lockdep.c:5475
- __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
- _raw_spin_lock+0x2a/0x40 kernel/locking/spinlock.c:151
- spin_lock include/linux/spinlock.h:354 [inline]
- io_poll_double_wake+0x25f/0x6a0 fs/io_uring.c:4960
- __wake_up_common+0x147/0x650 kernel/sched/wait.c:108
- __wake_up_common_lock+0xd0/0x130 kernel/sched/wait.c:138
- snd_pcm_update_state+0x46a/0x540 sound/core/pcm_lib.c:203
- snd_pcm_update_hw_ptr0+0xa75/0x1a50 sound/core/pcm_lib.c:464
- snd_pcm_period_elapsed+0x160/0x250 sound/core/pcm_lib.c:1805
- dummy_hrtimer_callback+0x94/0x1b0 sound/drivers/dummy.c:378
- __run_hrtimer kernel/time/hrtimer.c:1519 [inline]
- __hrtimer_run_queues+0x609/0xe40 kernel/time/hrtimer.c:1583
- hrtimer_run_softirq+0x17b/0x360 kernel/time/hrtimer.c:1600
- __do_softirq+0x29b/0x9f6 kernel/softirq.c:345
- invoke_softirq kernel/softirq.c:221 [inline]
- __irq_exit_rcu kernel/softirq.c:422 [inline]
- irq_exit_rcu+0x134/0x200 kernel/softirq.c:434
- sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1100
- </IRQ>
- asm_sysvec_apic_timer_interrupt+0x12/0x20 arch/x86/include/asm/idtentry.h:632
-RIP: 0010:native_save_fl arch/x86/include/asm/irqflags.h:29 [inline]
-RIP: 0010:arch_local_save_flags arch/x86/include/asm/irqflags.h:70 [inline]
-RIP: 0010:arch_irqs_disabled arch/x86/include/asm/irqflags.h:137 [inline]
-RIP: 0010:acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
-RIP: 0010:acpi_idle_do_entry+0x1c9/0x250 drivers/acpi/processor_idle.c:516
-Code: dd 38 6e f8 84 db 75 ac e8 54 32 6e f8 e8 0f 1c 74 f8 e9 0c 00 00 00 e8 45 32 6e f8 0f 00 2d 4e 4a c5 00 e8 39 32 6e f8 fb f4 <9c> 5b 81 e3 00 02 00 00 fa 31 ff 48 89 de e8 14 3a 6e f8 48 85 db
-RSP: 0018:ffffc90000d47d18 EFLAGS: 00000293
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff8880115c3780 RSI: ffffffff89052537 RDI: 0000000000000000
-RBP: ffff888141127064 R08: 0000000000000001 R09: 0000000000000001
-R10: ffffffff81794168 R11: 0000000000000000 R12: 0000000000000001
-R13: ffff888141127000 R14: ffff888141127064 R15: ffff888143331804
- acpi_idle_enter+0x361/0x500 drivers/acpi/processor_idle.c:647
- cpuidle_enter_state+0x1b1/0xc80 drivers/cpuidle/cpuidle.c:237
- cpuidle_enter+0x4a/0xa0 drivers/cpuidle/cpuidle.c:351
- call_cpuidle kernel/sched/idle.c:158 [inline]
- cpuidle_idle_call kernel/sched/idle.c:239 [inline]
- do_idle+0x3e1/0x590 kernel/sched/idle.c:300
- cpu_startup_entry+0x14/0x20 kernel/sched/idle.c:397
- start_secondary+0x274/0x350 arch/x86/kernel/smpboot.c:272
- secondary_startup_64_no_verify+0xb0/0xbb
-
-which is due to the driver doing poll_wait() twice on the same
-wait_queue_head. That is perfectly valid, but from checking the rest
-of the kernel tree, it's the only driver that does this.
-
-We can handle this just fine, we just need to ignore the second addition
-as we'll get woken just fine on the first one.
-
-Cc: stable@vger.kernel.org # 5.8+
-Fixes: 18bceab101ad ("io_uring: allow POLL_ADD with double poll_wait() users")
-Reported-by: syzbot+28abd693db9e92c160d8@syzkaller.appspotmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Milan Broz <gmazyland@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/dm-bufio.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5316,6 +5316,9 @@ static void __io_queue_proc(struct io_po
- 			pt->error = -EINVAL;
- 			return;
- 		}
-+		/* double add on the same waitqueue head, ignore */
-+		if (poll->head == head)
-+			return;
- 		poll = kmalloc(sizeof(*poll), GFP_ATOMIC);
- 		if (!poll) {
- 			pt->error = -ENOMEM;
+--- a/drivers/md/dm-bufio.c
++++ b/drivers/md/dm-bufio.c
+@@ -1526,6 +1526,10 @@ EXPORT_SYMBOL_GPL(dm_bufio_get_block_siz
+ sector_t dm_bufio_get_device_size(struct dm_bufio_client *c)
+ {
+ 	sector_t s = i_size_read(c->bdev->bd_inode) >> SECTOR_SHIFT;
++	if (s >= c->start)
++		s -= c->start;
++	else
++		s = 0;
+ 	if (likely(c->sectors_per_block_bits >= 0))
+ 		s >>= c->sectors_per_block_bits;
+ 	else
 
 
