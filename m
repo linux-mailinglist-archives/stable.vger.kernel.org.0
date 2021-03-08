@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF7B330E63
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 319E7330E66
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231934AbhCHMgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:36:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46372 "EHLO mail.kernel.org"
+        id S232265AbhCHMg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:36:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232334AbhCHMg2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:28 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D400B651D3;
-        Mon,  8 Mar 2021 12:36:26 +0000 (UTC)
+        id S232370AbhCHMga (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:30 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC8AD651DC;
+        Mon,  8 Mar 2021 12:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206988;
-        bh=gWMunjt3rrKf77YFPDjKFj5ZjZpxQYzpkaVdbi7r0TU=;
+        s=korg; t=1615206990;
+        bh=PsQfcovXigeW/FzrXkBbAbWy/QF46F4YFl6sl0zMies=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QP9g2gwV2df1g3KP61jsjKbZv1auAMtsZIvuGw6mpV/jn/UZEJRtVd+u9abvlAxx/
-         MTPARY+AfRkNx7lf64mTB7IXcx2RapGqjGrc4NPuZpxAiuTZHqthcO2jgZG0rIgVIQ
-         AkpjsYs6nsGgcHwcljM30all50wryAsy1gLpu2T0=
+        b=D4ONXalf6VNgEizAJpSzu7swYy6+9+BNix6Z+PIjQK3f2K9QXc17wn4wQjdpGXFSK
+         H9yAB/WdA+yt4R/NnHzf6qAm4+b7mlKh/IyeOQoI97BszAFzEvcdTtjheECDacYG2y
+         qBpR19C5L50iPN42Dac9Y9VyU7xdwIlk8Cz8Wzjs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.11 29/44] crypto - shash: reduce minimum alignment of shash_desc structure
-Date:   Mon,  8 Mar 2021 13:35:07 +0100
-Message-Id: <20210308122719.996413312@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 30/44] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+Date:   Mon,  8 Mar 2021 13:35:08 +0100
+Message-Id: <20210308122720.036177188@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -41,84 +41,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 660d2062190db131d2feaf19914e90f868fe285c upstream.
+[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
 
-Unlike many other structure types defined in the crypto API, the
-'shash_desc' structure is permitted to live on the stack, which
-implies its contents may not be accessed by DMA masters. (This is
-due to the fact that the stack may be located in the vmalloc area,
-which requires a different virtual-to-physical translation than the
-one implemented by the DMA subsystem)
+Currently the mask operation on variable conf is just 3 bits so
+the switch statement case value of 8 is unreachable dead code.
+The function daio_mgr_dao_init can be passed a 4 bit value,
+function dao_rsc_init calls it with conf set to:
 
-Our definition of CRYPTO_MINALIGN_ATTR is based on ARCH_KMALLOC_MINALIGN,
-which may take DMA constraints into account on architectures that support
-non-cache coherent DMA such as ARM and arm64. In this case, the value is
-chosen to reflect the largest cacheline size in the system, in order to
-ensure that explicit cache maintenance as required by non-coherent DMA
-masters does not affect adjacent, unrelated slab allocations. On arm64,
-this value is currently set at 128 bytes.
+     conf = (desc->msr & 0x7) | (desc->passthru << 3);
 
-This means that applying CRYPTO_MINALIGN_ATTR to struct shash_desc is both
-unnecessary (as it is never used for DMA), and undesirable, given that it
-wastes stack space (on arm64, performing the alignment costs 112 bytes in
-the worst case, and the hole between the 'tfm' and '__ctx' members takes
-up another 120 bytes, resulting in an increased stack footprint of up to
-232 bytes.) So instead, let's switch to the minimum SLAB alignment, which
-does not take DMA constraints into account.
+so clearly when desc->passthru is set to 1 then conf can be
+at least 8.
 
-Note that this is a no-op for x86.
+Fix this by changing the mask to 0xf.
 
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/crypto/hash.h  |    8 ++++----
- include/linux/crypto.h |    9 ++++++---
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ sound/pci/ctxfi/cthw20k2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/crypto/hash.h
-+++ b/include/crypto/hash.h
-@@ -149,7 +149,7 @@ struct ahash_alg {
+diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
+index fc1bc18caee9..85d1fc76f59e 100644
+--- a/sound/pci/ctxfi/cthw20k2.c
++++ b/sound/pci/ctxfi/cthw20k2.c
+@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
  
- struct shash_desc {
- 	struct crypto_shash *tfm;
--	void *__ctx[] CRYPTO_MINALIGN_ATTR;
-+	void *__ctx[] __aligned(ARCH_SLAB_MINALIGN);
- };
- 
- #define HASH_MAX_DIGESTSIZE	 64
-@@ -162,9 +162,9 @@ struct shash_desc {
- 
- #define HASH_MAX_STATESIZE	512
- 
--#define SHASH_DESC_ON_STACK(shash, ctx)				  \
--	char __##shash##_desc[sizeof(struct shash_desc) +	  \
--		HASH_MAX_DESCSIZE] CRYPTO_MINALIGN_ATTR; \
-+#define SHASH_DESC_ON_STACK(shash, ctx)					     \
-+	char __##shash##_desc[sizeof(struct shash_desc) + HASH_MAX_DESCSIZE] \
-+		__aligned(__alignof__(struct shash_desc));		     \
- 	struct shash_desc *shash = (struct shash_desc *)__##shash##_desc
- 
- /**
---- a/include/linux/crypto.h
-+++ b/include/linux/crypto.h
-@@ -151,9 +151,12 @@
-  * The macro CRYPTO_MINALIGN_ATTR (along with the void * type in the actual
-  * declaration) is used to ensure that the crypto_tfm context structure is
-  * aligned correctly for the given architecture so that there are no alignment
-- * faults for C data types.  In particular, this is required on platforms such
-- * as arm where pointers are 32-bit aligned but there are data types such as
-- * u64 which require 64-bit alignment.
-+ * faults for C data types.  On architectures that support non-cache coherent
-+ * DMA, such as ARM or arm64, it also takes into account the minimal alignment
-+ * that is required to ensure that the context struct member does not share any
-+ * cachelines with the rest of the struct. This is needed to ensure that cache
-+ * maintenance for non-coherent DMA (cache invalidation in particular) does not
-+ * affect data that may be accessed by the CPU concurrently.
-  */
- #define CRYPTO_MINALIGN ARCH_KMALLOC_MINALIGN
- 
+ 	if (idx < 4) {
+ 		/* S/PDIF output */
+-		switch ((conf & 0x7)) {
++		switch ((conf & 0xf)) {
+ 		case 1:
+ 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
+ 			break;
+-- 
+2.30.1
+
 
 
