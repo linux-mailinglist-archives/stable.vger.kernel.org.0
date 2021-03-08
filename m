@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03BDC330E32
+	by mail.lfdr.de (Postfix) with ESMTP id B05E1330E33
 	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbhCHMfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229754AbhCHMfw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:35:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44990 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232166AbhCHMfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:35:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 921C6651DC;
-        Mon,  8 Mar 2021 12:35:36 +0000 (UTC)
+        id S232178AbhCHMfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:35:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 177B8651D3;
+        Mon,  8 Mar 2021 12:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206937;
-        bh=rAMjjK9s+a59lqPXO59oO/s8fAJOPiviYCrBl1784o8=;
+        s=korg; t=1615206939;
+        bh=yl3uYpl4eWGqwx0bnPQoz3bT/GGz1VJD3FwHdyGja2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlifchyX1/6+raEOlohjGgDvHoDGbzmp08FY6LsOVrJEVtbZqqhJdraQgSBV9HnEr
-         p33O/m+hV0wiL/DaQKmMsrxgtvQTs455xgtY0wg1y292MH30evZ5D6C6j3Mz6/XdLl
-         gdkyvVY9N2O0+F5jeclcIQK7PsTcdGBI4ZZTs3XQ=
+        b=OCSoO2mNZR+a/3/HE0/4RBHJVuwMuuAqjBQf0u+kNcZyB6RQN5kNPplVEtywo5rjN
+         CSM4pTLhXW0whIEBLMs+N3CNMwpl++hHBGgeFyjB8yrPc4uCgrBdodtpL8/cXG+O5O
+         CnQEQkzHFBnFjpGvf1xZRxIp3zGSY3ZYLX/X/j7U=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.11 04/44] ALSA: usb-audio: Drop bogus dB range in too low level
-Date:   Mon,  8 Mar 2021 13:34:42 +0100
-Message-Id: <20210308122718.807791412@linuxfoundation.org>
+Subject: [PATCH 5.11 05/44] ALSA: usb-audio: Allow modifying parameters with succeeding hw_params calls
+Date:   Mon,  8 Mar 2021 13:34:43 +0100
+Message-Id: <20210308122718.855464297@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -42,49 +42,69 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 21cba9c5359dd9d1bffe355336cfec0b66d1ee52 upstream.
+commit 5f5e6a3e8b1df52f79122e447855cffbf1710540 upstream.
 
-Some USB audio firmware seem to report broken dB values for the volume
-controls, and this screws up applications like PulseAudio who blindly
-trusts the given data.  For example, Edifier G2000 reports a PCM
-volume from -128dB to -127dB, and this results in barely inaudible
-sound.
+The recent fix for the hw constraints for implicit feedback streams
+via commit e4ea77f8e53f ("ALSA: usb-audio: Always apply the hw
+constraints for implicit fb sync") added the check of the matching
+endpoints and whether those EPs are already opened.  This is needed
+and correct, per se, even for the normal streams without the implicit
+feedback, as the endpoint setup is exclusive.
 
-This patch adds a sort of sanity check at parsing the dB values in
-USB-audio driver and disables the dB reporting if the range looks
-bogus.  Here, we assume -96dB as the bottom line of the max dB.
+However, it's reported that there seem applications that behave in
+unexpected ways to update the hw_params without clearing the previous
+setup via hw_free, and those hit a problem now: then hw_params is
+called with still the previous EP setup kept, hence it's restricted
+with the previous own setup.  Although the obvious fix is to call
+snd_pcm_hw_free() API in the application side, it's a kind of
+unwelcome change.
 
-Note that, if one can figure out that proper dB range later, it can be
-patched in the mixer maps.
+This patch tries to ease the situation: in the endpoint check, we add
+a couple of more conditions and now skip the endpoint that is being
+used only by the stream in question itself.  That is, in addition to
+the presence check of ep (ep->cur_audiofmt is non-NULL), when the
+following conditions are met, we skip such an ep:
+- ep->opened == 1, and
+- ep->cur_audiofmt == subs->cur_audiofmt.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211929
+subs->cur_audiofmt is non-NULL only if it's a re-setup of hw_params,
+and ep->cur_audiofmt points to the currently set up parameters.  So if
+those match, it must be this stream itself.
+
+Fixes: e4ea77f8e53f ("ALSA: usb-audio: Always apply the hw constraints for implicit fb sync")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211941
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210227105737.3656-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210228080138.9936-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ sound/usb/pcm.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1301,6 +1301,17 @@ no_res_check:
- 			/* totally crap, return an error */
- 			return -EINVAL;
- 		}
-+	} else {
-+		/* if the max volume is too low, it's likely a bogus range;
-+		 * here we use -96dB as the threshold
-+		 */
-+		if (cval->dBmax <= -9600) {
-+			usb_audio_info(cval->head.mixer->chip,
-+				       "%d:%d: bogus dB values (%d/%d), disabling dB reporting\n",
-+				       cval->head.id, mixer_ctrl_intf(cval->head.mixer),
-+				       cval->dBmin, cval->dBmax);
-+			cval->dBmin = cval->dBmax = 0;
-+		}
- 	}
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -845,13 +845,19 @@ get_sync_ep_from_substream(struct snd_us
  
- 	return 0;
+ 	list_for_each_entry(fp, &subs->fmt_list, list) {
+ 		ep = snd_usb_get_endpoint(chip, fp->endpoint);
+-		if (ep && ep->cur_rate)
+-			return ep;
++		if (ep && ep->cur_audiofmt) {
++			/* if EP is already opened solely for this substream,
++			 * we still allow us to change the parameter; otherwise
++			 * this substream has to follow the existing parameter
++			 */
++			if (ep->cur_audiofmt != subs->cur_audiofmt || ep->opened > 1)
++				return ep;
++		}
+ 		if (!fp->implicit_fb)
+ 			continue;
+ 		/* for the implicit fb, check the sync ep as well */
+ 		ep = snd_usb_get_endpoint(chip, fp->sync_ep);
+-		if (ep && ep->cur_rate)
++		if (ep && ep->cur_audiofmt)
+ 			return ep;
+ 	}
+ 	return NULL;
 
 
