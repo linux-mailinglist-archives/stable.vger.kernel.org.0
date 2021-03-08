@@ -2,184 +2,252 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 773BF330DBE
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7317F330DEC
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbhCHMcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:32:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40878 "EHLO mail.kernel.org"
+        id S229494AbhCHMeV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231463AbhCHMbn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:43 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D90651CC;
-        Mon,  8 Mar 2021 12:31:41 +0000 (UTC)
+        id S229578AbhCHMdz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:33:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0650F651CF;
+        Mon,  8 Mar 2021 12:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206702;
-        bh=K/OWNp/x+jjNoOkiiHtvtszhaligIt73oStFgQ4+0S0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPm5hujd8bncWdc58zoOdE4XsobcOurE33GneJOUCk5rnFrI1pWk6VSRWZoUdvD8a
-         8l/2wbXSdVMO8y6TwA176CLL6Q5Iv181BsbmdL0CwDrOjNXYmqQboGTYU0+aX8Wc/u
-         m8Y6MmZZx4zboX5Cfdf0buBXwht5T17b+dZgU+18=
+        s=korg; t=1615206834;
+        bh=v2FBf0X09CiW7usYJwSOJlAuObJPIpNcLlyzap3ZZN0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GomU0XBgezOGQDxO5kOC3pdPh7w3rZNCLp3QnIRjv9pxaQgJ6+XVLVA84WOgUi0d6
+         OKzfIPaFvnSa6HQnydowi2ohzIDqPYhEDgJrKU0jqiJ4cLlb9oHPbkfwS+kVZuoEqb
+         tRa75wE7b6JArIIrieY9lnahNge8E6+OioHecHk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 08/22] btrfs: fix warning when creating a directory with smack enabled
-Date:   Mon,  8 Mar 2021 13:30:25 +0100
-Message-Id: <20210308122714.801040210@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.10 00/42] 5.10.22-rc1 review
+Date:   Mon,  8 Mar 2021 13:30:26 +0100
+Message-Id: <20210308122718.120213856@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
-References: <20210308122714.391917404@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.10.22-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.22-rc1
+X-KernelTest-Deadline: 2021-03-10T12:27+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+This is the start of the stable review cycle for the 5.10.22 release.
+There are 42 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit fd57a98d6f0c98fa295813087f13afb26c224e73 upstream.
+Responses should be made by Wed, 10 Mar 2021 12:27:05 +0000.
+Anything received after that time might be too late.
 
-When we have smack enabled, during the creation of a directory smack may
-attempt to add a "smack transmute" xattr on the inode, which results in
-the following warning and trace:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.22-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-  WARNING: CPU: 3 PID: 2548 at fs/btrfs/transaction.c:537 start_transaction+0x489/0x4f0
-  Modules linked in: nft_objref nf_conntrack_netbios_ns (...)
-  CPU: 3 PID: 2548 Comm: mkdir Not tainted 5.9.0-rc2smack+ #81
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:start_transaction+0x489/0x4f0
-  Code: e9 be fc ff ff (...)
-  RSP: 0018:ffffc90001887d10 EFLAGS: 00010202
-  RAX: ffff88816f1e0000 RBX: 0000000000000201 RCX: 0000000000000003
-  RDX: 0000000000000201 RSI: 0000000000000002 RDI: ffff888177849000
-  RBP: ffff888177849000 R08: 0000000000000001 R09: 0000000000000004
-  R10: ffffffff825e8f7a R11: 0000000000000003 R12: ffffffffffffffe2
-  R13: 0000000000000000 R14: ffff88803d884270 R15: ffff8881680d8000
-  FS:  00007f67317b8440(0000) GS:ffff88817bcc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f67247a22a8 CR3: 000000004bfbc002 CR4: 0000000000370ee0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   ? slab_free_freelist_hook+0xea/0x1b0
-   ? trace_hardirqs_on+0x1c/0xe0
-   btrfs_setxattr_trans+0x3c/0xf0
-   __vfs_setxattr+0x63/0x80
-   smack_d_instantiate+0x2d3/0x360
-   security_d_instantiate+0x29/0x40
-   d_instantiate_new+0x38/0x90
-   btrfs_mkdir+0x1cf/0x1e0
-   vfs_mkdir+0x14f/0x200
-   do_mkdirat+0x6d/0x110
-   do_syscall_64+0x2d/0x40
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f673196ae6b
-  Code: 8b 05 11 (...)
-  RSP: 002b:00007ffc3c679b18 EFLAGS: 00000246 ORIG_RAX: 0000000000000053
-  RAX: ffffffffffffffda RBX: 00000000000001ff RCX: 00007f673196ae6b
-  RDX: 0000000000000000 RSI: 00000000000001ff RDI: 00007ffc3c67a30d
-  RBP: 00007ffc3c67a30d R08: 00000000000001ff R09: 0000000000000000
-  R10: 000055d3e39fe930 R11: 0000000000000246 R12: 0000000000000000
-  R13: 00007ffc3c679cd8 R14: 00007ffc3c67a30d R15: 00007ffc3c679ce0
-  irq event stamp: 11029
-  hardirqs last  enabled at (11037): [<ffffffff81153fe6>] console_unlock+0x486/0x670
-  hardirqs last disabled at (11044): [<ffffffff81153c01>] console_unlock+0xa1/0x670
-  softirqs last  enabled at (8864): [<ffffffff81e0102f>] asm_call_on_stack+0xf/0x20
-  softirqs last disabled at (8851): [<ffffffff81e0102f>] asm_call_on_stack+0xf/0x20
+thanks,
 
-This happens because at btrfs_mkdir() we call d_instantiate_new() while
-holding a transaction handle, which results in the following call chain:
+greg k-h
 
-  btrfs_mkdir()
-     trans = btrfs_start_transaction(root, 5);
+-------------
+Pseudo-Shortlog of commits:
 
-     d_instantiate_new()
-        smack_d_instantiate()
-            __vfs_setxattr()
-                btrfs_setxattr_trans()
-                   btrfs_start_transaction()
-                      start_transaction()
-                         WARN_ON()
-                           --> a tansaction start has TRANS_EXTWRITERS
-                               set in its type
-                         h->orig_rsv = h->block_rsv
-                         h->block_rsv = NULL
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.22-rc1
 
-     btrfs_end_transaction(trans)
+Heiner Kallweit <hkallweit1@gmail.com>
+    r8169: fix resuming from suspend on RTL8105e if machine runs on battery
 
-Besides the warning triggered at start_transaction, we set the handle's
-block_rsv to NULL which may cause some surprises later on.
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tomoyo: recognize kernel threads correctly
 
-So fix this by making btrfs_setxattr_trans() not start a transaction when
-we already have a handle on one, stored in current->journal_info, and use
-that handle. We are good to use the handle because at btrfs_mkdir() we did
-reserve space for the xattr and the inode item.
+Catalin Marinas <catalin.marinas@arm.com>
+    of: unittest: Fix build on architectures without CONFIG_OF_ADDRESS
 
-Reported-by: Casey Schaufler <casey@schaufler-ca.com>
-CC: stable@vger.kernel.org # 5.4+
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Tested-by: Casey Schaufler <casey@schaufler-ca.com>
-Link: https://lore.kernel.org/linux-btrfs/434d856f-bd7b-4889-a6ec-e81aaebfa735@schaufler-ca.com/
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/btrfs/xattr.c |   31 +++++++++++++++++++++++++++----
- 1 file changed, 27 insertions(+), 4 deletions(-)
+Neil Armstrong <narmstrong@baylibre.com>
+    Revert "arm64: dts: amlogic: add missing ethernet reset ID"
 
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -227,11 +227,33 @@ int btrfs_setxattr_trans(struct inode *i
- {
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 	struct btrfs_trans_handle *trans;
-+	const bool start_trans = (current->journal_info == NULL);
- 	int ret;
- 
--	trans = btrfs_start_transaction(root, 2);
--	if (IS_ERR(trans))
--		return PTR_ERR(trans);
-+	if (start_trans) {
-+		/*
-+		 * 1 unit for inserting/updating/deleting the xattr
-+		 * 1 unit for the inode item update
-+		 */
-+		trans = btrfs_start_transaction(root, 2);
-+		if (IS_ERR(trans))
-+			return PTR_ERR(trans);
-+	} else {
-+		/*
-+		 * This can happen when smack is enabled and a directory is being
-+		 * created. It happens through d_instantiate_new(), which calls
-+		 * smack_d_instantiate(), which in turn calls __vfs_setxattr() to
-+		 * set the transmute xattr (XATTR_NAME_SMACKTRANSMUTE) on the
-+		 * inode. We have already reserved space for the xattr and inode
-+		 * update at btrfs_mkdir(), so just use the transaction handle.
-+		 * We don't join or start a transaction, as that will reset the
-+		 * block_rsv of the handle and trigger a warning for the start
-+		 * case.
-+		 */
-+		ASSERT(strncmp(name, XATTR_SECURITY_PREFIX,
-+			       XATTR_SECURITY_PREFIX_LEN) == 0);
-+		trans = current->journal_info;
-+	}
- 
- 	ret = btrfs_setxattr(trans, inode, name, value, size, flags);
- 	if (ret)
-@@ -242,7 +264,8 @@ int btrfs_setxattr_trans(struct inode *i
- 	ret = btrfs_update_inode(trans, root, inode);
- 	BUG_ON(ret);
- out:
--	btrfs_end_transaction(trans);
-+	if (start_trans)
-+		btrfs_end_transaction(trans);
- 	return ret;
- }
- 
+Zenghui Yu <yuzenghui@huawei.com>
+    iommu/vt-d: Fix status code for Allocate/Free PASID command
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    rsxx: Return -EFAULT if copy_to_user() fails
+
+Chen Jun <chenjun102@huawei.com>
+    ftrace: Have recordmcount use w8 to read relp->r_info in arm64_is_fake_mcount
+
+Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+    ALSA: hda: intel-nhlt: verify config type
+
+YueHaibing <yuehaibing@huawei.com>
+    IB/mlx5: Add missing error code
+
+Julian Braha <julianbraha@gmail.com>
+    RDMA/rxe: Fix missing kconfig dependency on CRYPTO
+
+Saeed Mahameed <saeedm@nvidia.com>
+    RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
+
+Colin Ian King <colin.king@canonical.com>
+    ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    mm: Remove examples from enum zone_type comment
+
+Ard Biesheuvel <ardb@kernel.org>
+    arm64: mm: Set ZONE_DMA size based on early IORT scan
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    of: unittest: Add test for of_dma_get_max_cpu_address()
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    of/address: Introduce of_dma_get_max_cpu_address()
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    arm64: mm: Move zone_dma_bits initialization into zone_sizes_init()
+
+Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+    arm64: mm: Move reserve_crashkernel() into mem_init()
+
+Ard Biesheuvel <ardb@kernel.org>
+    crypto - shash: reduce minimum alignment of shash_desc structure
+
+Kevin Wang <kevin1.wang@amd.com>
+    drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+
+Asher.Song <Asher.Song@amd.com>
+    drm/amdgpu:disable VCN for Navi12 SKU
+
+Milan Broz <gmazyland@gmail.com>
+    dm verity: fix FEC for RS roots unaligned to block size
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: ignore double poll add on the same waitqueue head
+
+Steven Rostedt (VMware) <rostedt@goodmis.org>
+    ring-buffer: Force before_stamp and write_stamp to be different on discard
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    PM: runtime: Update device status before letting suppliers suspend
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix warning when creating a directory with smack enabled
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: unlock extents in btrfs_zero_range in case of quota reservation errors
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: free correct amount of space in btrfs_delayed_inode_reserve_metadata
+
+Dan Carpenter <dancarpenter@oracle.com>
+    btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: fix race between extent freeing/allocation when using bitmaps
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix stale data exposure after cloning a hole with NO_HOLES enabled
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race between swap file activation and snapshot creation
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: fix race between writes to swap files and scrub
+
+Ira Weiny <ira.weiny@intel.com>
+    btrfs: fix raid6 qstripe kmap
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: avoid double put of block group when emptying cluster
+
+Jarkko Sakkinen <jarkko@kernel.org>
+    tpm, tpm_tis: Decorate tpm_get_timeouts() with request_locality()
+
+Lukasz Majczak <lma@semihalf.com>
+    tpm, tpm_tis: Decorate tpm_tis_gen_interrupt() with request_locality()
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Drop bogus dB range in too low level
+
+Andrea Fagiani <andfagiani@gmail.com>
+    ALSA: usb-audio: use Corsair Virtuoso mapping for Corsair Virtuoso SE
+
+Chris Chiu <chris.chiu@canonical.com>
+    ALSA: hda/realtek: Enable headset mic of Acer SWIFT with ALC256
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                          |  4 +-
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi        |  2 -
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi |  2 -
+ arch/arm64/boot/dts/amlogic/meson-gx.dtsi         |  3 --
+ arch/arm64/mm/init.c                              | 22 ++++----
+ drivers/acpi/arm64/iort.c                         | 55 ++++++++++++++++++++
+ drivers/base/power/runtime.c                      | 62 ++++++++++++++---------
+ drivers/block/rsxx/core.c                         |  8 +--
+ drivers/char/tpm/tpm_tis_core.c                   | 30 +++++++++--
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c       |  4 +-
+ drivers/gpu/drm/amd/amdgpu/nv.c                   |  6 ++-
+ drivers/infiniband/core/cm.c                      |  5 +-
+ drivers/infiniband/hw/mlx5/devx.c                 |  4 +-
+ drivers/infiniband/sw/rxe/Kconfig                 |  1 +
+ drivers/iommu/intel/pasid.h                       |  4 +-
+ drivers/md/dm-bufio.c                             |  4 ++
+ drivers/md/dm-verity-fec.c                        | 23 +++++----
+ drivers/net/ethernet/realtek/r8169_main.c         |  2 +
+ drivers/of/address.c                              | 42 +++++++++++++++
+ drivers/of/unittest.c                             | 21 ++++++++
+ fs/btrfs/block-group.c                            | 33 +++++++++++-
+ fs/btrfs/block-group.h                            |  9 ++++
+ fs/btrfs/ctree.h                                  |  5 ++
+ fs/btrfs/delayed-inode.c                          |  2 +-
+ fs/btrfs/file.c                                   |  5 +-
+ fs/btrfs/free-space-cache.c                       | 14 ++---
+ fs/btrfs/inode.c                                  | 40 +++++++++++++--
+ fs/btrfs/ioctl.c                                  | 19 ++++++-
+ fs/btrfs/raid56.c                                 | 21 ++++----
+ fs/btrfs/reflink.c                                | 18 +++++++
+ fs/btrfs/scrub.c                                  |  9 +++-
+ fs/btrfs/xattr.c                                  | 31 ++++++++++--
+ fs/io_uring.c                                     |  3 ++
+ include/crypto/hash.h                             |  8 +--
+ include/linux/acpi_iort.h                         |  4 ++
+ include/linux/crypto.h                            |  9 ++--
+ include/linux/mmzone.h                            | 20 --------
+ include/linux/of.h                                |  7 +++
+ include/sound/intel-nhlt.h                        |  5 ++
+ kernel/trace/ring_buffer.c                        | 11 ++++
+ scripts/recordmcount.c                            |  2 +-
+ security/tomoyo/network.c                         |  2 +-
+ sound/hda/intel-nhlt.c                            | 54 ++++++++++++++++----
+ sound/pci/ctxfi/cthw20k2.c                        |  2 +-
+ sound/pci/hda/patch_realtek.c                     | 13 +++++
+ sound/usb/mixer.c                                 | 11 ++++
+ sound/usb/mixer_maps.c                            | 10 ++++
+ 47 files changed, 532 insertions(+), 139 deletions(-)
 
 
