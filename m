@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49504330DA7
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8535B330DE7
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229463AbhCHMbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:31:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40552 "EHLO mail.kernel.org"
+        id S229938AbhCHMeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230075AbhCHMbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC07C651C3;
-        Mon,  8 Mar 2021 12:31:15 +0000 (UTC)
+        id S231355AbhCHMdq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:33:46 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA166651D3;
+        Mon,  8 Mar 2021 12:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206676;
-        bh=o8eLUykRY3QS0J/bHgohUAQV/99RVyb8pUAlNDAxgEg=;
+        s=korg; t=1615206826;
+        bh=jB8cETNUIC8mg7gEru0wROA9+YYBqA2OHI4dHRHNxO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CZ9lMEywbq7+yaLkqxaeVEA7kuaFJcRVFKfKhvIM6zHxKifyoY9i/asMnipW5Mk0t
-         ArcBchp14CrdLBJ3qQ40wZVrIhGvjeKTumA/3H/VlygDHjSpBwKNxesK3UpW9cbZfC
-         hA6ddYqJLTeeHXxDP87E6GXSfHYgAjl9Ol58Hj/o=
+        b=z/J2kWNdc4DxIgpJ7JfAEC9XZMFc9TrB0oT36OVfN++4wwR1jdC0oVnfcyUt8FL02
+         PZy8YNORbMQ6oZj4EHaWXkAH6X34Cqs+L1h5oPGRps7MmP27fZP+pIeff9/NHkXdYZ
+         E4LLXpR/Gj5VTbJc27KP0rPU5nhZE1pSFcREX/AE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/22] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 07/42] btrfs: fix raid6 qstripe kmap
 Date:   Mon,  8 Mar 2021 13:30:33 +0100
-Message-Id: <20210308122715.179487089@linuxfoundation.org>
+Message-Id: <20210308122718.491518200@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
-References: <20210308122714.391917404@linuxfoundation.org>
+In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
+References: <20210308122718.120213856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Ira Weiny <ira.weiny@intel.com>
 
-[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
+commit d70cef0d46729808dc53f145372c02b145c92604 upstream.
 
-Currently the mask operation on variable conf is just 3 bits so
-the switch statement case value of 8 is unreachable dead code.
-The function daio_mgr_dao_init can be passed a 4 bit value,
-function dao_rsc_init calls it with conf set to:
+When a qstripe is required an extra page is allocated and mapped.  There
+were 3 problems:
 
-     conf = (desc->msr & 0x7) | (desc->passthru << 3);
+1) There is no corresponding call of kunmap() for the qstripe page.
+2) There is no reason to map the qstripe page more than once if the
+   number of bits set in rbio->dbitmap is greater than one.
+3) There is no reason to map the parity page and unmap it each time
+   through the loop.
 
-so clearly when desc->passthru is set to 1 then conf can be
-at least 8.
+The page memory can continue to be reused with a single mapping on each
+iteration by raid6_call.gen_syndrome() without remapping.  So map the
+page for the duration of the loop.
 
-Fix this by changing the mask to 0xf.
+Similarly, improve the algorithm by mapping the parity page just 1 time.
 
-Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5a6ac9eacb49 ("Btrfs, raid56: support parity scrub on raid56")
+CC: stable@vger.kernel.org # 4.4.x: c17af96554a8: btrfs: raid56: simplify tracking of Q stripe presence
+CC: stable@vger.kernel.org # 4.4.x
+Signed-off-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/ctxfi/cthw20k2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/raid56.c |   21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
-index 3cd4b7dad945..b1cc4cdc6c41 100644
---- a/sound/pci/ctxfi/cthw20k2.c
-+++ b/sound/pci/ctxfi/cthw20k2.c
-@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -2363,16 +2363,21 @@ static noinline void finish_parity_scrub
+ 	SetPageUptodate(p_page);
  
- 	if (idx < 4) {
- 		/* S/PDIF output */
--		switch ((conf & 0x7)) {
-+		switch ((conf & 0xf)) {
- 		case 1:
- 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
- 			break;
--- 
-2.30.1
-
+ 	if (has_qstripe) {
++		/* RAID6, allocate and map temp space for the Q stripe */
+ 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
+ 		if (!q_page) {
+ 			__free_page(p_page);
+ 			goto cleanup;
+ 		}
+ 		SetPageUptodate(q_page);
++		pointers[rbio->real_stripes - 1] = kmap(q_page);
+ 	}
+ 
+ 	atomic_set(&rbio->error, 0);
+ 
++	/* Map the parity stripe just once */
++	pointers[nr_data] = kmap(p_page);
++
+ 	for_each_set_bit(pagenr, rbio->dbitmap, rbio->stripe_npages) {
+ 		struct page *p;
+ 		void *parity;
+@@ -2382,16 +2387,8 @@ static noinline void finish_parity_scrub
+ 			pointers[stripe] = kmap(p);
+ 		}
+ 
+-		/* then add the parity stripe */
+-		pointers[stripe++] = kmap(p_page);
+-
+ 		if (has_qstripe) {
+-			/*
+-			 * raid6, add the qstripe and call the
+-			 * library function to fill in our p/q
+-			 */
+-			pointers[stripe++] = kmap(q_page);
+-
++			/* RAID6, call the library function to fill in our P/Q */
+ 			raid6_call.gen_syndrome(rbio->real_stripes, PAGE_SIZE,
+ 						pointers);
+ 		} else {
+@@ -2412,12 +2409,14 @@ static noinline void finish_parity_scrub
+ 
+ 		for (stripe = 0; stripe < nr_data; stripe++)
+ 			kunmap(page_in_rbio(rbio, stripe, pagenr, 0));
+-		kunmap(p_page);
+ 	}
+ 
++	kunmap(p_page);
+ 	__free_page(p_page);
+-	if (q_page)
++	if (q_page) {
++		kunmap(q_page);
+ 		__free_page(q_page);
++	}
+ 
+ writeback:
+ 	/*
 
 
