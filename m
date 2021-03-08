@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 319E7330E66
+	by mail.lfdr.de (Postfix) with ESMTP id 7D620330E67
 	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232265AbhCHMg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232207AbhCHMg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232370AbhCHMga (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:30 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC8AD651DC;
-        Mon,  8 Mar 2021 12:36:28 +0000 (UTC)
+        id S232312AbhCHMge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:34 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D22CF65202;
+        Mon,  8 Mar 2021 12:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206990;
-        bh=PsQfcovXigeW/FzrXkBbAbWy/QF46F4YFl6sl0zMies=;
+        s=korg; t=1615206992;
+        bh=IueDbkhTl8hBVc5SO1/D8FeDFxJjAhWSs06PEWeQBlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D4ONXalf6VNgEizAJpSzu7swYy6+9+BNix6Z+PIjQK3f2K9QXc17wn4wQjdpGXFSK
-         H9yAB/WdA+yt4R/NnHzf6qAm4+b7mlKh/IyeOQoI97BszAFzEvcdTtjheECDacYG2y
-         qBpR19C5L50iPN42Dac9Y9VyU7xdwIlk8Cz8Wzjs=
+        b=C38Cb4i1QTrghAsshlIrcZy0Sbl7naRpgYS7rx6I17QCIcRb8GJaKOVA8hhwrx00Y
+         /pNChw2ntvcqjbNpnXkJkmm9LbzvgpZZljwLeGlWrDJ5rvTcR9KfrXgrWvGMdVfJZz
+         ovAsCgS8V4ecM2bRWdbnqrVmzFVf7UweMp/+h2mU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Nicolas MURE <nicolas.mure2019@gmail.com>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 30/44] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
-Date:   Mon,  8 Mar 2021 13:35:08 +0100
-Message-Id: <20210308122720.036177188@linuxfoundation.org>
+Subject: [PATCH 5.11 31/44] ALSA: usb-audio: Fix Pioneer DJM devices URB_CONTROL request direction to set samplerate
+Date:   Mon,  8 Mar 2021 13:35:09 +0100
+Message-Id: <20210308122720.085196430@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -41,44 +41,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Nicolas MURE <nicolas.mure2019@gmail.com>
 
-[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
+[ Upstream commit 2c9119001dcb1dc7027257c5d8960d30f5ba58be ]
 
-Currently the mask operation on variable conf is just 3 bits so
-the switch statement case value of 8 is unreachable dead code.
-The function daio_mgr_dao_init can be passed a 4 bit value,
-function dao_rsc_init calls it with conf set to:
+This commit only contains the fix about the `URB_CONTROL` request
+direction to set the samplerate of Pioneer DJM devices (`URB_CONTROL out`).
 
-     conf = (desc->msr & 0x7) | (desc->passthru << 3);
-
-so clearly when desc->passthru is set to 1 then conf can be
-at least 8.
-
-Fix this by changing the mask to 0xf.
-
-Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
+Fixes: 3b85f5fc75d5 ("ALSA: usb-audio: Add DJM450 to Pioneer format quirk")
+Signed-off-by: Nicolas MURE <nicolas.mure2019@gmail.com>
+Link: https://lore.kernel.org/r/20210301142927.14552-1-nicolas.mure2019@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ctxfi/cthw20k2.c | 2 +-
+ sound/usb/quirks.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
-index fc1bc18caee9..85d1fc76f59e 100644
---- a/sound/pci/ctxfi/cthw20k2.c
-+++ b/sound/pci/ctxfi/cthw20k2.c
-@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
- 
- 	if (idx < 4) {
- 		/* S/PDIF output */
--		switch ((conf & 0x7)) {
-+		switch ((conf & 0xf)) {
- 		case 1:
- 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
- 			break;
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 9ba4682ebc48..737b2729c0d3 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1482,7 +1482,7 @@ static int pioneer_djm_set_format_quirk(struct snd_usb_substream *subs,
+ 	usb_set_interface(subs->dev, 0, 1);
+ 	// we should derive windex from fmt-sync_ep but it's not set
+ 	snd_usb_ctl_msg(subs->stream->chip->dev,
+-		usb_rcvctrlpipe(subs->stream->chip->dev, 0),
++		usb_sndctrlpipe(subs->stream->chip->dev, 0),
+ 		0x01, 0x22, 0x0100, windex, &sr, 0x0003);
+ 	return 0;
+ }
 -- 
 2.30.1
 
