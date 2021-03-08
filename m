@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B8A330DAC
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2962A330DE9
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230250AbhCHMbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:31:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40578 "EHLO mail.kernel.org"
+        id S229457AbhCHMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230095AbhCHMbU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:31:20 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E76E5651CF;
-        Mon,  8 Mar 2021 12:31:18 +0000 (UTC)
+        id S231201AbhCHMdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:33:52 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AF6F651C9;
+        Mon,  8 Mar 2021 12:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206679;
-        bh=FRY1A+s/qi4TM+fWp6kqQdtkZylGXehG+5bJKYi8r6k=;
+        s=korg; t=1615206832;
+        bh=WVR5SFIiijpd+K2DkWSwe0Lamd/GkLDhrCWBA0qE8tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IIVkk1a8p2bgL7gfmuzeho5S2wsLhWFVwcsOwceTKCYf+Bk6XV7QgXmk44spQeN+T
-         uLJ5PAM6zmbOqkKWL0G22kQeTofaLTjW4S8OT4BP/gfDZMzbiAPkacPW5QjKfXAOuc
-         wHWgQq9NsckRNBosiehthRcK2oDPN63uL+2KWYI8=
+        b=Q0M5+ylE5kKp4r2Wa9sLgoeSxMZcfs6kWSgDTOcNx4ICcIDcn+C5nNyxOtIDhmgnY
+         /kYIqlOfc6Fti2lkQEeuUBuTrP75cPBpRxJnEUcDG76yaVegSzbN4nP/BOJ2Ypoo/c
+         EMbwSF/yQUNNbhW7sKTszhEZgFYsCyQz4lpng6gI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/22] RDMA/rxe: Fix missing kconfig dependency on CRYPTO
-Date:   Mon,  8 Mar 2021 13:30:34 +0100
-Message-Id: <20210308122715.229099506@linuxfoundation.org>
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 09/42] btrfs: fix race between swap file activation and snapshot creation
+Date:   Mon,  8 Mar 2021 13:30:35 +0100
+Message-Id: <20210308122718.589190577@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
-References: <20210308122714.391917404@linuxfoundation.org>
+In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
+References: <20210308122718.120213856@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +41,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 475f23b8c66d2892ad6acbf90ed757cafab13de7 ]
+commit dd0734f2a866f9d619d4abf97c3d71bcdee40ea9 upstream.
 
-When RDMA_RXE is enabled and CRYPTO is disabled, Kbuild gives the
-following warning:
+When creating a snapshot we check if the current number of swap files, in
+the root, is non-zero, and if it is, we error out and warn that we can not
+create the snapshot because there are active swap files.
 
- WARNING: unmet direct dependencies detected for CRYPTO_CRC32
-   Depends on [n]: CRYPTO [=n]
-   Selected by [y]:
-   - RDMA_RXE [=y] && (INFINIBAND_USER_ACCESS [=y] || !INFINIBAND_USER_ACCESS [=y]) && INET [=y] && PCI [=y] && INFINIBAND [=y] && INFINIBAND_VIRT_DMA [=y]
+However this is racy because when a task started activation of a swap
+file, another task might have started already snapshot creation and might
+have seen the counter for the number of swap files as zero. This means
+that after the swap file is activated we may end up with a snapshot of the
+same root successfully created, and therefore when the first write to the
+swap file happens it has to fall back into COW mode, which should never
+happen for active swap files.
 
-This is because RDMA_RXE selects CRYPTO_CRC32, without depending on or
-selecting CRYPTO, despite that config option being subordinate to CRYPTO.
+Basically what can happen is:
 
-Fixes: cee2688e3cd6 ("IB/rxe: Offload CRC calculation when possible")
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Link: https://lore.kernel.org/r/21525878.NYvzQUHefP@ubuntu-mate-laptop
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+1) Task A starts snapshot creation and enters ioctl.c:create_snapshot().
+   There it sees that root->nr_swapfiles has a value of 0 so it continues;
+
+2) Task B enters btrfs_swap_activate(). It is not aware that another task
+   started snapshot creation but it did not finish yet. It increments
+   root->nr_swapfiles from 0 to 1;
+
+3) Task B checks that the file meets all requirements to be an active
+   swap file - it has NOCOW set, there are no snapshots for the inode's
+   root at the moment, no file holes, no reflinked extents, etc;
+
+4) Task B returns success and now the file is an active swap file;
+
+5) Task A commits the transaction to create the snapshot and finishes.
+   The swap file's extents are now shared between the original root and
+   the snapshot;
+
+6) A write into an extent of the swap file is attempted - there is a
+   snapshot of the file's root, so we fall back to COW mode and therefore
+   the physical location of the extent changes on disk.
+
+So fix this by taking the snapshot lock during swap file activation before
+locking the extent range, as that is the order in which we lock these
+during buffered writes.
+
+Fixes: ed46ff3d42378 ("Btrfs: support swap files")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/rxe/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/inode.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/Kconfig b/drivers/infiniband/sw/rxe/Kconfig
-index 71a773f607bb..0e8f1d05dfb2 100644
---- a/drivers/infiniband/sw/rxe/Kconfig
-+++ b/drivers/infiniband/sw/rxe/Kconfig
-@@ -4,6 +4,7 @@ config RDMA_RXE
- 	depends on INET && PCI && INFINIBAND
- 	depends on INFINIBAND_VIRT_DMA
- 	select NET_UDP_TUNNEL
-+	select CRYPTO
- 	select CRYPTO_CRC32
- 	select DMA_VIRT_OPS
- 	---help---
--- 
-2.30.1
-
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -10099,7 +10099,8 @@ static int btrfs_swap_activate(struct sw
+ 			       sector_t *span)
+ {
+ 	struct inode *inode = file_inode(file);
+-	struct btrfs_fs_info *fs_info = BTRFS_I(inode)->root->fs_info;
++	struct btrfs_root *root = BTRFS_I(inode)->root;
++	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct extent_io_tree *io_tree = &BTRFS_I(inode)->io_tree;
+ 	struct extent_state *cached_state = NULL;
+ 	struct extent_map *em = NULL;
+@@ -10150,13 +10151,27 @@ static int btrfs_swap_activate(struct sw
+ 	   "cannot activate swapfile while exclusive operation is running");
+ 		return -EBUSY;
+ 	}
++
++	/*
++	 * Prevent snapshot creation while we are activating the swap file.
++	 * We do not want to race with snapshot creation. If snapshot creation
++	 * already started before we bumped nr_swapfiles from 0 to 1 and
++	 * completes before the first write into the swap file after it is
++	 * activated, than that write would fallback to COW.
++	 */
++	if (!btrfs_drew_try_write_lock(&root->snapshot_lock)) {
++		btrfs_exclop_finish(fs_info);
++		btrfs_warn(fs_info,
++	   "cannot activate swapfile because snapshot creation is in progress");
++		return -EINVAL;
++	}
+ 	/*
+ 	 * Snapshots can create extents which require COW even if NODATACOW is
+ 	 * set. We use this counter to prevent snapshots. We must increment it
+ 	 * before walking the extents because we don't want a concurrent
+ 	 * snapshot to run after we've already checked the extents.
+ 	 */
+-	atomic_inc(&BTRFS_I(inode)->root->nr_swapfiles);
++	atomic_inc(&root->nr_swapfiles);
+ 
+ 	isize = ALIGN_DOWN(inode->i_size, fs_info->sectorsize);
+ 
+@@ -10302,6 +10317,8 @@ out:
+ 	if (ret)
+ 		btrfs_swap_deactivate(file);
+ 
++	btrfs_drew_write_unlock(&root->snapshot_lock);
++
+ 	btrfs_exclop_finish(fs_info);
+ 
+ 	if (ret)
 
 
