@@ -2,91 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 933E3330652
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 04:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D665330655
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 04:22:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233851AbhCHDUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 7 Mar 2021 22:20:25 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:13865 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231294AbhCHDUR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 22:20:17 -0500
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Dv3T15rNxz7kKK;
-        Mon,  8 Mar 2021 11:18:29 +0800 (CST)
-Received: from [10.174.178.215] (10.174.178.215) by smtp.huawei.com
- (10.3.19.203) with Microsoft SMTP Server (TLS) id 14.3.498.0; Mon, 8 Mar 2021
- 11:20:04 +0800
-Subject: Re: [PATCH stable v5.10 0/7] arm64: Default to 32-bit wide ZONE_DMA
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-References: <20210303073319.2215839-1-jingxiangfeng@huawei.com>
- <YEDkmj6cchMPAq2h@kroah.com>
- <9bc396116372de5b538d71d8f9ae9c3259f1002e.camel@suse.de>
- <YEDr/lYZHew88/Ip@kroah.com>
- <827b317d7f5da6e048806922098291faacdb19f9.camel@suse.de>
- <YETwL6QGWFyJTAzk@kroah.com>
-CC:     <catalin.marinas@arm.com>, <will@kernel.org>,
-        <akpm@linux-foundation.org>, <paul.walmsley@sifive.com>,
-        <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <rppt@kernel.org>,
-        <lorenzo.pieralisi@arm.com>, <guohanjun@huawei.com>,
-        <sudeep.holla@arm.com>, <rjw@rjwysocki.net>, <lenb@kernel.org>,
-        <song.bao.hua@hisilicon.com>, <ardb@kernel.org>,
-        <anshuman.khandual@arm.com>, <bhelgaas@google.com>, <guro@fb.com>,
-        <robh+dt@kernel.org>, <stable@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <frowand.list@gmail.com>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>, <linux-riscv@lists.infradead.org>,
-        <wangkefeng.wang@huawei.com>
-From:   Jing Xiangfeng <jingxiangfeng@huawei.com>
-Message-ID: <604597E3.5000605@huawei.com>
-Date:   Mon, 8 Mar 2021 11:20:03 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:38.0) Gecko/20100101
- Thunderbird/38.1.0
+        id S233890AbhCHDV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 7 Mar 2021 22:21:29 -0500
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:54539 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233906AbhCHDVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 7 Mar 2021 22:21:08 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UQoi3cO_1615173665;
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQoi3cO_1615173665)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 08 Mar 2021 11:21:06 +0800
+Subject: Re: [PATCH 4.4.y 2/2] dm table: fix no_sg_merge iterate_devices based
+ device capability checks
+To:     Mike Snitzer <snitzer@redhat.com>
+Cc:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
+        sashal@kernel.org
+References: <161460624611368@kroah.com>
+ <20210305063051.51030-1-jefflexu@linux.alibaba.com>
+ <20210305063051.51030-3-jefflexu@linux.alibaba.com>
+From:   JeffleXu <jefflexu@linux.alibaba.com>
+Message-ID: <7a57dde6-7327-7517-1ece-d33329e5fc52@linux.alibaba.com>
+Date:   Mon, 8 Mar 2021 11:21:05 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <YETwL6QGWFyJTAzk@kroah.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+In-Reply-To: <20210305063051.51030-3-jefflexu@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.215]
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi, Mike,
+
+Would you please spare some time to review the following patches for
+stable tree?
+
+- [1] for 4.4.y
+- [2] for 4.9.y
+- [3] for 4.14.y
+- [4] for 4.19.y
+
+While backporting [5] for stable tree, there's some extra code specific
+to stable tree needs to be fixed, see [6] for the background info.
+
+[1] https://www.spinics.net/lists/stable/msg448728.html
+[2] https://www.spinics.net/lists/stable/msg448737.html
+[3] https://www.spinics.net/lists/stable/msg448740.html
+[4] https://www.spinics.net/lists/stable/msg448748.html
+[5]
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.12-rc2&id=a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e
+[6] https://www.spinics.net/lists/stable/msg448757.html
 
 
-On 2021/3/7 23:24, Greg KH wrote:
-> On Thu, Mar 04, 2021 at 04:09:28PM +0100, Nicolas Saenz Julienne wrote:
->> On Thu, 2021-03-04 at 15:17 +0100, Greg KH wrote:
->>> On Thu, Mar 04, 2021 at 03:05:32PM +0100, Nicolas Saenz Julienne wrote:
->>>> Hi Greg.
->>>>
->>>> On Thu, 2021-03-04 at 14:46 +0100, Greg KH wrote:
->>>>> On Wed, Mar 03, 2021 at 03:33:12PM +0800, Jing Xiangfeng wrote:
->>>>>> Using two distinct DMA zones turned out to be problematic. Here's an
->>>>>> attempt go back to a saner default.
->>>>> What problem does this solve?  How does this fit into the stable kernel
->>>>> rules?
->>>> We changed the way we setup memory zones in arm64 in order to cater for
->>>> Raspberry Pi 4's weird DMA constraints: ZONE_DMA spans the lower 1GB of memory
->>>> and ZONE_DMA32 the rest of the 32bit address space. Since you can't allocate
->>>> memory that crosses zone boundaries, this broke crashkernel allocations on big
->>>> machines. This series fixes all this by parsing the HW description and checking
->>>> for DMA constrained buses. When not found, the unnecessary zone creation is
->>>> skipped.
->>> What kernel/commit caused this "breakage"?
->> 1a8e1cef7603 arm64: use both ZONE_DMA and ZONE_DMA32
-> Thanks for the info, all now queued up.
-There is a fix in 5.11. Please consider applying the following commit to 
-5.10.y:
+Thanks,
+Jeffle
 
-aed5041ef9a3 of: unittest: Fix build on architectures without 
-CONFIG_OF_ADDRES
 
-Thanks
+On 3/5/21 2:30 PM, Jeffle Xu wrote:
+> Similar to commit a4c8dd9c2d09 ("dm table: fix iterate_devices based
+> device capability checks"), fix NO_SG_MERGE capability check and invert
+> logic of the corresponding iterate_devices_callout_fn so that all
+> devices' NO_SG_MERGE capabilities are properly checked.
+> 
+> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+> Fixes: 200612ec33e5 ("dm table: propagate QUEUE_FLAG_NO_SG_MERGE")
+> ---
+>  drivers/md/dm-table.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+> index 6580de65b81d..7ee520d4d216 100644
+> --- a/drivers/md/dm-table.c
+> +++ b/drivers/md/dm-table.c
+> @@ -1436,12 +1436,12 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+>  	return q && !blk_queue_add_random(q);
+>  }
+>  
+> -static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
+> -				   sector_t start, sector_t len, void *data)
+> +static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
+> +			     sector_t start, sector_t len, void *data)
+>  {
+>  	struct request_queue *q = bdev_get_queue(dev->bdev);
+>  
+> -	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+> +	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+>  }
+>  
+>  static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+> @@ -1542,10 +1542,10 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+>  	if (!dm_table_supports_write_same(t))
+>  		q->limits.max_write_same_sectors = 0;
+>  
+> -	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
+> -		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+> -	else
+> +	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
+>  		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+> +	else
+> +		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+>  
+>  	dm_table_verify_integrity(t);
+>  
+> 
 
->
-> greg k-h
-> .
->
-
+-- 
+Thanks,
+Jeffle
