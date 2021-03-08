@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48698330E61
+	by mail.lfdr.de (Postfix) with ESMTP id 94398330E62
 	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:37:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231389AbhCHMgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:36:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45956 "EHLO mail.kernel.org"
+        id S231175AbhCHMgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:36:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230301AbhCHMgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:22 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97DA66520E;
-        Mon,  8 Mar 2021 12:36:20 +0000 (UTC)
+        id S230056AbhCHMgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A35C0651DD;
+        Mon,  8 Mar 2021 12:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206982;
-        bh=LvpPonbAzWfQZSicHISRa6FWv8i7ZKZdj29oYlBSh74=;
+        s=korg; t=1615206984;
+        bh=hTBnQBCLVMxR4QhT3h5lrSDArmxK5D2kuTiGwbZvCTY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeBFYpVYkon0Pf3lW1wV64fDVVGdd1cfbVL7BWov4WcckdFQMZUbY237k3P9oHpPM
-         chAMk6wr1sv4vhoG85qZJsF8tJ8EyjnBiQLx7HsoUj3XESfNxl5Y+z2PgPWXi0lRsN
-         MrM9wxhrWaOaobQa4lUV+ePIRwwKDmhkrxbo+kYY=
+        b=PEeIWDQgwPeUydhH7ZkjB6uMhJ/T/24Zw2mzOhayNsS0hJAITTGBvOGKKqLUDRL8V
+         U2tPLQVyL/cKzfSbxPFkucG8hzYKsoxt4fnAht6z3NtC1o+jZjMyJwB0+fg3bELH/V
+         D/v6V+lwZLn+29BQQIUZnxjxNlJ6jFODL72KIN/Y=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        "Asher.Song" <Asher.Song@amd.com>,
+        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 26/44] drm/amdgpu:disable VCN for Navi12 SKU
-Date:   Mon,  8 Mar 2021 13:35:04 +0100
-Message-Id: <20210308122719.867063665@linuxfoundation.org>
+Subject: [PATCH 5.11 27/44] drm/amdgpu: Only check for S0ix if AMD_PMC is configured
+Date:   Mon,  8 Mar 2021 13:35:05 +0100
+Message-Id: <20210308122719.904210982@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -42,42 +42,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Asher.Song <Asher.Song@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 0c61ac8134ffc851681ce5d4bd60d97c3d5aed27 upstream.
+commit 31ada99bdd1b4d6b80462eeb87d383f374409e2a upstream.
 
-Navi12 0x7360/C7 SKU has no video support, so remove it.
+The S0ix check only makes sense if the AMD PMC driver is
+present.  We need to use the legacy S3 pathes when the
+PMC driver is not present.
 
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Asher.Song <Asher.Song@amd.com>
+Reviewed-by: Prike Liang <Prike.Liang@amd.com>
+Reviewed-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/nv.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/nv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/nv.c
-@@ -498,7 +498,8 @@ static bool nv_is_headless_sku(struct pc
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -903,10 +903,11 @@ void amdgpu_acpi_fini(struct amdgpu_devi
+  */
+ bool amdgpu_acpi_is_s0ix_supported(struct amdgpu_device *adev)
  {
- 	if ((pdev->device == 0x731E &&
- 	    (pdev->revision == 0xC6 || pdev->revision == 0xC7)) ||
--	    (pdev->device == 0x7340 && pdev->revision == 0xC9))
-+	    (pdev->device == 0x7340 && pdev->revision == 0xC9)  ||
-+	    (pdev->device == 0x7360 && pdev->revision == 0xC7))
- 		return true;
++#if defined(CONFIG_AMD_PMC)
+ 	if (acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0) {
+ 		if (adev->flags & AMD_IS_APU)
+ 			return true;
+ 	}
+-
++#endif
  	return false;
  }
-@@ -568,7 +569,8 @@ int nv_set_ip_blocks(struct amdgpu_devic
- 		if (adev->firmware.load_type == AMDGPU_FW_LOAD_DIRECT &&
- 		    !amdgpu_sriov_vf(adev))
- 			amdgpu_device_ip_block_add(adev, &smu_v11_0_ip_block);
--		amdgpu_device_ip_block_add(adev, &vcn_v2_0_ip_block);
-+		if (!nv_is_headless_sku(adev->pdev))
-+		        amdgpu_device_ip_block_add(adev, &vcn_v2_0_ip_block);
- 		if (!amdgpu_sriov_vf(adev))
- 			amdgpu_device_ip_block_add(adev, &jpeg_v2_0_ip_block);
- 		break;
 
 
