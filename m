@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B3C8330E48
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD2A3330E47
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229821AbhCHMg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231388AbhCHMg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:36:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232019AbhCHMgF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:05 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D48D651D3;
-        Mon,  8 Mar 2021 12:36:03 +0000 (UTC)
+        id S232229AbhCHMgH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:36:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 572AD651DC;
+        Mon,  8 Mar 2021 12:36:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206964;
-        bh=UmnkXUqyfdgiK+RwUog45/cxDFGRZwQzWG+yd57ROZk=;
+        s=korg; t=1615206966;
+        bh=n1SeZU+xi7BdhXDbw1R79gzHie++Yhbpv16r+038UvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTVqyP1007MK1f/JSctEWwxCi8qpJAlE3MUtfD12PCMxfWVcif99ZSZ1zBT/7eh0Q
-         uxECn6epgyIczdCsj6xTKXrgYg5SHnvJlM1xs6HQABpF2poyM5jg4Ps4dhpA2j/kA3
-         7h6DZM1MLGaitRx2X7MSTBTlWRrOkOyJ8rrLMtEY=
+        b=EVAz42ceQYje5/dvMyfM7RIduvftmQX813AR+SwGp/fUFqS9vec923u05ZMM8zHib
+         yXd1eQUfVqTQtWmto166jb8N9TMhp2lyZ/nXOCmA5zR/JqAl8INYLHothfTs6yda6k
+         1aporYW4lP9j2RYkIDR/cYrh2SBIHyzUjl2iz6wI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 17/44] btrfs: fix spurious free_space_tree remount warning
-Date:   Mon,  8 Mar 2021 13:34:55 +0100
-Message-Id: <20210308122719.428529761@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Nikolay Borisov <nborisov@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.11 18/44] btrfs: unlock extents in btrfs_zero_range in case of quota reservation errors
+Date:   Mon,  8 Mar 2021 13:34:56 +0100
+Message-Id: <20210308122719.476611287@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -41,61 +42,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Boris Burkov <boris@bur.io>
+From: Nikolay Borisov <nborisov@suse.com>
 
-commit c55a4319c4f2c3ba0a385b1ebc454fa283cfe920 upstream.
+commit 4f6a49de64fd1b1dba5229c02047376da7cf24fd upstream.
 
-The intended logic of the check is to catch cases where the desired
-free_space_tree setting doesn't match the mounted setting, and the
-remount is anything but ro->rw. However, it makes the mistake of
-checking equality on a masked integer (btrfs_test_opt) against a boolean
-(btrfs_fs_compat_ro).
+If btrfs_qgroup_reserve_data returns an error (i.e quota limit reached)
+the handling logic directly goes to the 'out' label without first
+unlocking the extent range between lockstart, lockend. This results in
+deadlocks as other processes try to lock the same extent.
 
-If you run the reproducer:
-  $ mount -o space_cache=v2 dev mnt
-  $ mount -o remount,ro mnt
-
-you would expect no warning, because the remount is not attempting to
-change the free space tree setting, but we do see the warning.
-
-To fix this, add explicit bool type casts to the condition.
-
-I tested a variety of transitions:
-sudo mount -o space_cache=v2 /dev/vg0/lv0 mnt/lol
-(fst enabled)
-mount -o remount,ro mnt/lol
-(no warning, no fst change)
-sudo mount -o remount,rw,space_cache=v1,clear_cache
-(no warning, ro->rw)
-sudo mount -o remount,rw,space_cache=v2 mnt
-(warning, rw->rw with change)
-sudo mount -o remount,ro mnt
-(no warning, no fst change)
-sudo mount -o remount,rw,space_cache=v2 mnt
-(no warning, no fst change)
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-CC: stable@vger.kernel.org # 5.11
-Signed-off-by: Boris Burkov <boris@bur.io>
+Fixes: a7f8b1c2ac21 ("btrfs: file: reserve qgroup space after the hole punch range is locked")
+CC: stable@vger.kernel.org # 5.10+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Nikolay Borisov <nborisov@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/super.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/file.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1919,8 +1919,8 @@ static int btrfs_remount(struct super_bl
- 	btrfs_resize_thread_pool(fs_info,
- 		fs_info->thread_pool_size, old_thread_pool_size);
- 
--	if (btrfs_test_opt(fs_info, FREE_SPACE_TREE) !=
--	    btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
-+	if ((bool)btrfs_test_opt(fs_info, FREE_SPACE_TREE) !=
-+	    (bool)btrfs_fs_compat_ro(fs_info, FREE_SPACE_TREE) &&
- 	    (!sb_rdonly(sb) || (*flags & SB_RDONLY))) {
- 		btrfs_warn(fs_info,
- 		"remount supports changing free space tree only from ro to rw");
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -3264,8 +3264,11 @@ reserve_space:
+ 			goto out;
+ 		ret = btrfs_qgroup_reserve_data(BTRFS_I(inode), &data_reserved,
+ 						alloc_start, bytes_to_reserve);
+-		if (ret)
++		if (ret) {
++			unlock_extent_cached(&BTRFS_I(inode)->io_tree, lockstart,
++					     lockend, &cached_state);
+ 			goto out;
++		}
+ 		ret = btrfs_prealloc_file_range(inode, mode, alloc_start,
+ 						alloc_end - alloc_start,
+ 						i_blocksize(inode),
 
 
