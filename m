@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D2A330DD7
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DC4330DA6
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231139AbhCHMdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:33:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42404 "EHLO mail.kernel.org"
+        id S229690AbhCHMbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:31:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229865AbhCHMdc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:33:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8248C651C3;
-        Mon,  8 Mar 2021 12:33:30 +0000 (UTC)
+        id S229922AbhCHMbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:31:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63503651C3;
+        Mon,  8 Mar 2021 12:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206811;
-        bh=ZHHCXEZDJHJmEEo6rvFTnRKp2DGTuKU3tvHi8C2Vu+A=;
+        s=korg; t=1615206665;
+        bh=ByCRqeLEEzpntiMJDAkrrPvoQldkziMxNBmwI9AJIYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGrF+MO2eRCA8ynJblUPNnFqTahVEZhgpknrd/zUG/7kiPyinbBD0h77qVprv4Ixr
-         3ZmR+8Pp1lLE0+HwCugYwctu9V/jzcsEiuzVmpq/ROykFOANViZ7hc98Lw3WBA0jXk
-         FSyR4hehFJQl+HeCQ0eWhhKfIfYgWv3T/CwFfUhc=
+        b=dRUPpjz6NsmalBHXXadzPMUISh7SA21heFBoUWWHpYHkVpvMzKyEfTDrmHyj1wbil
+         GT9EnVgMFenBAyUHs0xLHiqEHOEaghwXMH1i1XO3tZbV0fU1J3B73o2YCvMuZcNo4Y
+         cD4UqOQO/x7+JgS1WvJU1SRjHtxgfiAYPoRVZOvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Fagiani <andfagiani@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 02/42] ALSA: usb-audio: use Corsair Virtuoso mapping for Corsair Virtuoso SE
-Date:   Mon,  8 Mar 2021 13:30:28 +0100
-Message-Id: <20210308122718.247941474@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 12/22] drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+Date:   Mon,  8 Mar 2021 13:30:29 +0100
+Message-Id: <20210308122714.987080109@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
-References: <20210308122718.120213856@linuxfoundation.org>
+In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
+References: <20210308122714.391917404@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Fagiani <andfagiani@gmail.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-commit 11302bb69e72d0526bc626ee5c451a3d22cde904 upstream.
+commit 1aa46901ee51c1c5779b3b239ea0374a50c6d9ff upstream.
 
-The Corsair Virtuoso SE RGB Wireless is a USB headset with a mic and a
-sidetone feature. Assign the Corsair Virtuoso name map to the SE product
-ids as well, in order to label its mixer appropriately and allow
-userspace to pick the correct volume controls.
+the register offset isn't needed division by 4 to pass RREG32_PCIE()
 
-Signed-off-by: Andrea Fagiani <andfagiani@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/40bbdf55-f854-e2ee-87b4-183e6451352c@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_maps.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/mixer_maps.c
-+++ b/sound/usb/mixer_maps.c
-@@ -537,6 +537,16 @@ static const struct usbmix_ctl_map usbmi
- 		.map = bose_companion5_map,
- 	},
- 	{
-+		/* Corsair Virtuoso SE (wired mode) */
-+		.id = USB_ID(0x1b1c, 0x0a3d),
-+		.map = corsair_virtuoso_map,
-+	},
-+	{
-+		/* Corsair Virtuoso SE (wireless mode) */
-+		.id = USB_ID(0x1b1c, 0x0a3e),
-+		.map = corsair_virtuoso_map,
-+	},
-+	{
- 		/* Corsair Virtuoso (wired mode) */
- 		.id = USB_ID(0x1b1c, 0x0a41),
- 		.map = corsair_virtuoso_map,
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
+@@ -240,7 +240,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 	while (size) {
+ 		uint32_t value;
+ 
+-		value = RREG32_PCIE(*pos >> 2);
++		value = RREG32_PCIE(*pos);
+ 		r = put_user(value, (uint32_t *)buf);
+ 		if (r)
+ 			return r;
+@@ -283,7 +283,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_
+ 		if (r)
+ 			return r;
+ 
+-		WREG32_PCIE(*pos >> 2, value);
++		WREG32_PCIE(*pos, value);
+ 
+ 		result += 4;
+ 		buf += 4;
 
 
