@@ -2,113 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF08331142
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 15:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B91331182
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 15:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229737AbhCHOwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 09:52:54 -0500
-Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:47942 "EHLO
-        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229690AbhCHOwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 09:52:24 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UQzgAOV_1615215142;
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UQzgAOV_1615215142)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 08 Mar 2021 22:52:22 +0800
-Subject: Re: [PATCH 4.19.y 3/5] dm table: fix partial completion
- iterate_devices based device capability checks
-From:   JeffleXu <jefflexu@linux.alibaba.com>
-To:     Mike Snitzer <snitzer@redhat.com>
-Cc:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        sashal@kernel.org
-References: <1614606251118245@kroah.com>
- <20210305065526.72663-1-jefflexu@linux.alibaba.com>
- <20210305065526.72663-4-jefflexu@linux.alibaba.com>
- <45b790c3-2508-92fe-5b90-c242a58b79ab@linux.alibaba.com>
-Message-ID: <4075804b-6f21-2831-1d24-abd1598d4060@linux.alibaba.com>
-Date:   Mon, 8 Mar 2021 22:52:21 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.0
-MIME-Version: 1.0
-In-Reply-To: <45b790c3-2508-92fe-5b90-c242a58b79ab@linux.alibaba.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S231395AbhCHO6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 09:58:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35108 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231301AbhCHO63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 09:58:29 -0500
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45632C06175F
+        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 06:58:29 -0800 (PST)
+Received: by mail-qv1-xf4a.google.com with SMTP id s16so7842957qvw.3
+        for <stable@vger.kernel.org>; Mon, 08 Mar 2021 06:58:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=sender:date:message-id:mime-version:subject:from:to:cc;
+        bh=BxhzP0W+qvkeGdKa9mCwOIPGRH/6WApGqekyUBkmdsU=;
+        b=CY88Hxf2Z8/gwTvCyBxUyuzMp7CoVm0G6k9lqiClBdaCH8B5QSel2N2Mj5PLm0i3yT
+         Hqvloxqbm9lRHA6jBiv/OWaskMEaPGN+1X+POacMZcPwB0m699GyZlTZnfpZbVkH/D8r
+         XM4GR0+EFi/Fv45w2TSAKL7nwGE8yTLUFS5AixCu+fjtSz41gcxDUOo21IUJdspNEp13
+         ewzp80BiD5xk0THgDQCxFULqm6xCJemMN/4iEmTcDHN3vS8rGKtG3skn1wdaO42YSiaz
+         H/n5YdB6s79G30DRpGrJarKGHI0X3p9oLJikdt69GK7B01LI5G+VV/i3sIZFhzKBbToP
+         zP9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:message-id:mime-version:subject:from
+         :to:cc;
+        bh=BxhzP0W+qvkeGdKa9mCwOIPGRH/6WApGqekyUBkmdsU=;
+        b=LteHhWDcJH2vdO1sSTVxC6OxUe0HLBItArBE5p6BQTze0zclcC0D76tzcVJ6L/kipP
+         0f3VIYfw/WiYPB8uH06oZoPErtNUWv3UQlcJCzVoiikQC7tWFeJsWSlXZxM6BZ48Pa/E
+         UZLtQA350czjQy+At5zs5Y+/MwjRMhVpHCVCkz9E63E7fVfwsdfBsrmJ1NkpQMJb6r3U
+         MuJ7818/KlTiaGCT7laiVJzVnof8BMtwj8VL5w3Z3W8FKuoCEswGi+Ltz3zcYbxorbIk
+         +vB9TTGNxAJR5KgKVtZTLay1/EoK5a1vAVfPKg2huZxvnVoF3Cz6aMByr0dMj2gRyO3F
+         a3JA==
+X-Gm-Message-State: AOAM5330lM+8HK8BxH/fZ6ezFJneLL3vErMzAGbMINAZcZawiRvwJh1h
+        UBEui5UTuD2xv9WyUs5Gh9ge7wTuopAaiZIl
+X-Google-Smtp-Source: ABdhPJyIR50ri0LAWjT90EsKXlRruxnqF4NWGe0j6wHw7WPZvJUWWmFvWXg60/U+OgeRpKTWkVSKKitaM0gH1zUr
+Sender: "andreyknvl via sendgmr" <andreyknvl@andreyknvl3.muc.corp.google.com>
+X-Received: from andreyknvl3.muc.corp.google.com ([2a00:79e0:15:13:85fb:aac9:69ed:e574])
+ (user=andreyknvl job=sendgmr) by 2002:a0c:b418:: with SMTP id
+ u24mr20842991qve.20.1615215508348; Mon, 08 Mar 2021 06:58:28 -0800 (PST)
+Date:   Mon,  8 Mar 2021 15:58:21 +0100
+Message-Id: <59e75426241dbb5611277758c8d4d6f5f9298dac.1615215441.git.andreyknvl@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.30.1.766.gb4fecdf3b7-goog
+Subject: [PATCH] kasan: fix KASAN_STACK dependency for HW_TAGS
+From:   Andrey Konovalov <andreyknvl@google.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Alexander Potapenko <glider@google.com>,
+        Marco Elver <elver@google.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Branislav Rankov <Branislav.Rankov@arm.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        kasan-dev@googlegroups.com, linux-arm-kernel@lists.infradead.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+        Andrey Konovalov <andreyknvl@google.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+There's a runtime failure when running HW_TAGS-enabled kernel built with
+GCC on hardware that doesn't support MTE. GCC-built kernels always have
+CONFIG_KASAN_STACK enabled, even though stack instrumentation isn't
+supported by HW_TAGS. Having that config enabled causes KASAN to issue
+MTE-only instructions to unpoison kernel stacks, which causes the failure.
 
+Fix the issue by disallowing CONFIG_KASAN_STACK when HW_TAGS is used.
 
-On 3/8/21 11:25 AM, JeffleXu wrote:
-> Hi, Mike,
-> 
-> Would you please spare some time to review the following patches for
-> stable tree?
-> 
-> - [1] for 4.19.y
-> - [2] for 5.4.y
-> 
-> While backporting [3] for stable tree, there's some extra code specific
-> to stable tree needs to be fixed, see [4] for the background info.
-> 
-> [1] https://www.spinics.net/lists/stable/msg448749.html
-> [2] https://www.spinics.net/lists/stable/msg448754.html
-> [3]
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.12-rc2&id=a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e
-> [4] https://www.spinics.net/lists/stable/msg448760.html
-> 
-> 
+(The commit that introduced CONFIG_KASAN_HW_TAGS specified proper
+ dependency for CONFIG_KASAN_STACK_ENABLE but not for CONFIG_KASAN_STACK.)
 
-Also hold on until I send a new version. Sorry for the noise.
+Fixes: 6a63a63ff1ac ("kasan: introduce CONFIG_KASAN_HW_TAGS")
+Cc: stable@vger.kernel.org
+Reported-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+---
+ lib/Kconfig.kasan | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Jeffle
-
-
-> 
-> 
-> On 3/5/21 2:55 PM, Jeffle Xu wrote:
->> Similar to commit a4c8dd9c2d09 ("dm table: fix iterate_devices based
->> device capability checks"), fix partial completion capability check and
->> invert logic of the corresponding iterate_devices_callout_fn so that all
->> devices' partial completion capabilities are properly checked.
->>
->> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
->> Fixes: 22c11858e800 ("dm: introduce DM_TYPE_NVME_BIO_BASED")
->> ---
->>  drivers/md/dm-table.c | 6 +++---
->>  1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
->> index 5a94e6dc0b70..1f745d371957 100644
->> --- a/drivers/md/dm-table.c
->> +++ b/drivers/md/dm-table.c
->> @@ -1772,18 +1772,18 @@ static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
->>  	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
->>  }
->>  
->> -static int device_no_partial_completion(struct dm_target *ti, struct dm_dev *dev,
->> +static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev,
->>  					sector_t start, sector_t len, void *data)
->>  {
->>  	char b[BDEVNAME_SIZE];
->>  
->>  	/* For now, NVMe devices are the only devices of this class */
->> -	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) == 0);
->> +	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) != 0);
->>  }
->>  
->>  static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
->>  {
->> -	return dm_table_all_devices_attribute(t, device_no_partial_completion);
->> +	return !dm_table_any_dev_attr(t, device_is_partial_completion);
->>  }
->>  
->>  static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
->>
-> 
-
+diff --git a/lib/Kconfig.kasan b/lib/Kconfig.kasan
+index 624ae1df7984..fba9909e31b7 100644
+--- a/lib/Kconfig.kasan
++++ b/lib/Kconfig.kasan
+@@ -156,6 +156,7 @@ config KASAN_STACK_ENABLE
+ 
+ config KASAN_STACK
+ 	int
++	depends on KASAN_GENERIC || KASAN_SW_TAGS
+ 	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
+ 	default 0
+ 
 -- 
-Thanks,
-Jeffle
+2.30.1.766.gb4fecdf3b7-goog
+
