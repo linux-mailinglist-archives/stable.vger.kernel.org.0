@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10DF6330E16
+	by mail.lfdr.de (Postfix) with ESMTP id 5CCB2330E18
 	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbhCHMfR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231312AbhCHMfR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:35:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43756 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229950AbhCHMes (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9D5D651C9;
-        Mon,  8 Mar 2021 12:34:46 +0000 (UTC)
+        id S231377AbhCHMeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:50 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D5D651C3;
+        Mon,  8 Mar 2021 12:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206887;
-        bh=ym8wd/Ubr9g/GbZG3aJ84RYjH82G13HigPDID7JJF6c=;
+        s=korg; t=1615206890;
+        bh=qPx5HoDeIJd5nqO3DGiogsWAn9wZ84K1xBXP1XmXZ6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYCZkk0Iefqrm74tNw0WNV+NkgMGWHjWsJXnKMR1pPCIgcBlbmLxKsNVpg2Cb036G
-         Bc1pOn+rWE70wk9TBJ7fNdajyA+zrh6Vf5WhEYvol3x25KMF8fUVzcmZSmNndrq8vg
-         kuIFWMaI3StGiKKd/W9X7Qmjp/T/UUKtC0gXmMPs=
+        b=amxX52nNkt2CkEtXsfFlofUH36XiU18kYxXIhK55kPTkOWU6sjppGyL5toXrm8TS8
+         M40B9fKfVF91uaUyqlOLkBAYsTCUsOlNHTzEZdDcTjC6gNgAqew+4Jfcc50FsbuzyT
+         1dTBxb66mG15qT7v8WF4GaI5ayCQLDdyBO9NOghk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Jing Xiangfeng <jingxiangfeng@huawei.com>
-Subject: [PATCH 5.10 40/42] of: unittest: Fix build on architectures without CONFIG_OF_ADDRESS
-Date:   Mon,  8 Mar 2021 13:31:06 +0100
-Message-Id: <20210308122720.062508474@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 5.10 41/42] tomoyo: recognize kernel threads correctly
+Date:   Mon,  8 Mar 2021 13:31:07 +0100
+Message-Id: <20210308122720.101768274@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -40,33 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit aed5041ef9a3f594ed9dc0bb5ee7e1bbccfd3366 upstream.
+commit 9c83465f3245c2faa82ffeb7016f40f02bfaa0ad upstream.
 
-of_dma_get_max_cpu_address() is not defined if !CONFIG_OF_ADDRESS, so
-return early in of_unittest_dma_get_max_cpu_address().
+Commit db68ce10c4f0a27c ("new helper: uaccess_kernel()") replaced
+segment_eq(get_fs(), KERNEL_DS) with uaccess_kernel(). But the correct
+method for tomoyo to check whether current is a kernel thread in order
+to assume that kernel threads are privileged for socket operations was
+(current->flags & PF_KTHREAD). Now that uaccess_kernel() became 0 on x86,
+tomoyo has to fix this problem. Do like commit 942cb357ae7d9249 ("Smack:
+Handle io_uring kernel thread privileges") does.
 
-Fixes: 07d13a1d6120 ("of: unittest: Add test for of_dma_get_max_cpu_address()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/of/unittest.c |    3 +++
- 1 file changed, 3 insertions(+)
+ security/tomoyo/network.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -874,6 +874,9 @@ static void __init of_unittest_dma_get_m
- 	struct device_node *np;
- 	phys_addr_t cpu_addr;
+--- a/security/tomoyo/network.c
++++ b/security/tomoyo/network.c
+@@ -613,7 +613,7 @@ static int tomoyo_check_unix_address(str
+ static bool tomoyo_kernel_service(void)
+ {
+ 	/* Nothing to do if I am a kernel service. */
+-	return uaccess_kernel();
++	return (current->flags & (PF_KTHREAD | PF_IO_WORKER)) == PF_KTHREAD;
+ }
  
-+	if (!IS_ENABLED(CONFIG_OF_ADDRESS))
-+		return;
-+
- 	np = of_find_node_by_path("/testcase-data/address-tests");
- 	if (!np) {
- 		pr_err("missing testcase data\n");
+ /**
 
 
