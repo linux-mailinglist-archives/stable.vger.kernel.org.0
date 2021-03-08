@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A554A330E81
+	by mail.lfdr.de (Postfix) with ESMTP id 599AE330E80
 	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231184AbhCHMhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231478AbhCHMhc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 07:37:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46998 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232360AbhCHMg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:36:58 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EED33651D3;
-        Mon,  8 Mar 2021 12:36:56 +0000 (UTC)
+        id S231265AbhCHMhA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:37:00 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86A8965210;
+        Mon,  8 Mar 2021 12:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615207018;
-        bh=R0dg36USuBADHdQtrQAPSO1eyE/dcQb82k0TrqymO3c=;
+        s=korg; t=1615207020;
+        bh=9laLJkxViT8GzsCkcgnBq6DX8/D4RF9Pf+i5XHtp2wQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8W0qUkG1ymGG3N3eFKDU/ulqsUSP7bM0AvN+0GVi06DVWG7CQU9cPPeYwcuUpmti
-         8jty5/Yljf8OMyF3WPTDBLr1mTVcMGU2ntlfx7SoU8RuPMZPEmEK0KhDVxJP++qLxk
-         LRFtzCvcxP1PGEVSUoG4FDtld8Kkn+6wCej1i0Y4=
+        b=MiEWv3ZiFK/2vhPQ5VkcUTHH0LcH8k/cyuNSSA6scJcLMcdgW8+/o1ekbd9QbQwVY
+         4TXzCJw0fz/GEgid2vg4RxYxYUR3d6FxHbOCySMmBqmztVuW++8zrjrZVbpFGmVSeU
+         g/6E1luvisFvnBb96YHqjInd9rxa0+ZIRRGT6EVY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.11 43/44] tomoyo: recognize kernel threads correctly
-Date:   Mon,  8 Mar 2021 13:35:21 +0100
-Message-Id: <20210308122720.655560259@linuxfoundation.org>
+        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 44/44] r8169: fix resuming from suspend on RTL8105e if machine runs on battery
+Date:   Mon,  8 Mar 2021 13:35:22 +0100
+Message-Id: <20210308122720.705591052@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.586629218@linuxfoundation.org>
 References: <20210308122718.586629218@linuxfoundation.org>
@@ -41,34 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 9c83465f3245c2faa82ffeb7016f40f02bfaa0ad upstream.
+commit d2a04370817fc7b0172dad2ef2decf907e1a304e upstream.
 
-Commit db68ce10c4f0a27c ("new helper: uaccess_kernel()") replaced
-segment_eq(get_fs(), KERNEL_DS) with uaccess_kernel(). But the correct
-method for tomoyo to check whether current is a kernel thread in order
-to assume that kernel threads are privileged for socket operations was
-(current->flags & PF_KTHREAD). Now that uaccess_kernel() became 0 on x86,
-tomoyo has to fix this problem. Do like commit 942cb357ae7d9249 ("Smack:
-Handle io_uring kernel thread privileges") does.
+Armin reported that after referenced commit his RTL8105e is dead when
+resuming from suspend and machine runs on battery. This patch has been
+confirmed to fix the issue.
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: e80bd76fbf56 ("r8169: work around power-saving bug on some chip versions")
+Reported-by: Armin Wolf <W_Armin@gmx.de>
+Tested-by: Armin Wolf <W_Armin@gmx.de>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/tomoyo/network.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/security/tomoyo/network.c
-+++ b/security/tomoyo/network.c
-@@ -613,7 +613,7 @@ static int tomoyo_check_unix_address(str
- static bool tomoyo_kernel_service(void)
- {
- 	/* Nothing to do if I am a kernel service. */
--	return uaccess_kernel();
-+	return (current->flags & (PF_KTHREAD | PF_IO_WORKER)) == PF_KTHREAD;
- }
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -2208,6 +2208,7 @@ static void rtl_pll_power_down(struct rt
  
- /**
+ 	switch (tp->mac_version) {
+ 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
+ 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
+@@ -2235,6 +2236,7 @@ static void rtl_pll_power_up(struct rtl8
+ {
+ 	switch (tp->mac_version) {
+ 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
++	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
+ 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
+ 	case RTL_GIGA_MAC_VER_37:
+ 	case RTL_GIGA_MAC_VER_39:
 
 
