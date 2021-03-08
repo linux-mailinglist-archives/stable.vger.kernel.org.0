@@ -2,259 +2,363 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 118D733155E
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 18:59:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA54F3315C1
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 19:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbhCHR6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 12:58:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47628 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229463AbhCHR6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 12:58:02 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBE9A652AB;
-        Mon,  8 Mar 2021 17:58:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615226282;
-        bh=p/LwAvOuvnmYP3lAw5Vqsc0uYr8yZefIkO8+aJ5d7mg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=dTFLC+s9w3geKhlAudRwaKTv/6fLFcHl3dHvzhf7Qzx+bDqwOxTIn5vBvkeMlSjth
-         SG1IZZjdSKtlsyMGYdupD/cH4SpLm1ySHo2WVDnqJt6LT7Rj7yl5Rlx9TiXFwZGIsz
-         XvxRbvRcSEu/25TFVS8Oh/yKnl//VFM+sJv2UFhNgsiVNEmuHDaNh1lVi2W716gPH/
-         ciEv0AWJrAqiU/AqSFNaoexNjNVA361DDDxeyZzdaCakryuvVf+VrirWmT8JH1mriL
-         YCsUSYzpx4dquGvXXnrgBYsl9kwIjE7WGsc+2hXBpu1Opy4GPklm7U0VEcWfE2BuT4
-         eZg6wc/XPIWGQ==
-Received: by pali.im (Postfix)
-        id BD6D285B; Mon,  8 Mar 2021 18:57:59 +0100 (CET)
-From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     Alexander Lobakin <bloodyreaper@yandex.ru>,
-        "David S . Miller" <davem@davemloft.net>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH] net: dsa: add GRO support via gro_cells
-Date:   Mon,  8 Mar 2021 18:57:57 +0100
-Message-Id: <20210308175757.8373-1-pali@kernel.org>
-X-Mailer: git-send-email 2.20.1
+        id S231149AbhCHSTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 13:19:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:20226 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230511AbhCHSTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 13:19:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615227542;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Fgt10LzTJQ/DxIKfV5bwr9hfQJ9G/y0HyAdj2f8r/QM=;
+        b=MRrh09iqRD8pQZ2Hux3CtUHbCna6s42Jvpciny/oT8gsqW/ei2J0gqqu6LLvCbIuEPnRmF
+        vcn0T37GWjI2sd7BYbccuduS/ZAE2kVYhopyjX5xBN6IDJa2weF9JDiSlUaXoSglFP+whY
+        aNkWYqybgd/an/U31gVQE83hC1+xZqs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-96-jM8_unCtOpetOaZ4ksYc0A-1; Mon, 08 Mar 2021 13:18:59 -0500
+X-MC-Unique: jM8_unCtOpetOaZ4ksYc0A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06F6D87A844
+        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 18:18:59 +0000 (UTC)
+Received: from [172.22.11.47] (unknown [10.0.115.152])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8361860C04;
+        Mon,  8 Mar 2021 18:18:58 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     skt-results-master@redhat.com,
+        Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.11.4 (stable-queue)
+Date:   Mon, 08 Mar 2021 18:18:58 -0000
+CC:     Ondrej Moris <omoris@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Message-ID: <cki.671AAB9CFC.IV205K4IJD@redhat.com>
+X-Gitlab-Pipeline-ID: 625087
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/625087
+X-DataWarehouse-Revision-IID: 10647
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <bloodyreaper@yandex.ru>
 
-commit e131a5634830047923c694b4ce0c3b31745ff01b upstream.
+Hello,
 
-gro_cells lib is used by different encapsulating netdevices, such as
-geneve, macsec, vxlan etc. to speed up decapsulated traffic processing.
-CPU tag is a sort of "encapsulation", and we can use the same mechs to
-greatly improve overall DSA performance.
-skbs are passed to the GRO layer after removing CPU tags, so we don't
-need any new packet offload types as it was firstly proposed by me in
-the first GRO-over-DSA variant [1].
+We ran automated tests on a recent commit from this kernel tree:
 
-The size of struct gro_cells is sizeof(void *), so hot struct
-dsa_slave_priv becomes only 4/8 bytes bigger, and all critical fields
-remain in one 32-byte cacheline.
-The other positive side effect is that drivers for network devices
-that can be shipped as CPU ports of DSA-driven switches can now use
-napi_gro_frags() to pass skbs to kernel. Packets built that way are
-completely non-linear and are likely being dropped without GRO.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 9b25e8e831ec - btrfs: zoned: use sector_t for zone sectors
 
-This was tested on to-be-mainlined-soon Ethernet driver that uses
-napi_gro_frags(), and the overall performance was on par with the
-variant from [1], sometimes even better due to minimal overhead.
-net.core.gro_normal_batch tuning may help to push it to the limit
-on particular setups and platforms.
+The results of these automated tests are provided below.
 
-iperf3 IPoE VLAN NAT TCP forwarding (port1.218 -> port0) setup
-on 1.2 GHz MIPS board:
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-5.7-rc2 baseline:
+All kernel binaries, config files, and logs are available for download here:
 
-[ID]  Interval         Transfer     Bitrate        Retr
-[ 5]  0.00-120.01 sec  9.00 GBytes  644 Mbits/sec  413  sender
-[ 5]  0.00-120.00 sec  8.99 GBytes  644 Mbits/sec       receiver
+  https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefi=
+x=3Ddatawarehouse-public/2021/03/08/625087
 
-Iface      RX packets  TX packets
-eth0       7097731     7097702
-port0      426050      6671829
-port1      6671681     425862
-port1.218  6671677     425851
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-With this patch:
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-[ID]  Interval         Transfer     Bitrate        Retr
-[ 5]  0.00-120.01 sec  12.2 GBytes  870 Mbits/sec  122  sender
-[ 5]  0.00-120.00 sec  12.2 GBytes  870 Mbits/sec       receiver
+Compile testing
+---------------
 
-Iface      RX packets  TX packets
-eth0       9474792     9474777
-port0      455200      353288
-port1      9019592     455035
-port1.218  353144      455024
+We compiled the kernel for 4 architectures:
 
-v2:
- - Add some performance examples in the commit message;
- - No functional changes.
+    aarch64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-[1] https://lore.kernel.org/netdev/20191230143028.27313-1-alobakin@dlink.ru/
+    ppc64le:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-Signed-off-by: Alexander Lobakin <bloodyreaper@yandex.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    s390x:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
----
-This patch radically increase network performance on DSA setup.
+    x86_64:
+      make options: make -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-Please include this patch into stable releases.
 
-I have done following tests:
 
-NAT is a tested Espressobin board (ARM64 Marvell Armada 3720 SoC with
-Marvell 88E6141 DSA switch) which was configured for IPv4 masquerade.
-WAN and LAN are another two static boxes on which was running iperf3.
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-4.19.179 without e131a5634830047923c694b4ce0c3b31745ff01b
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 ACPI enabled test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
-WAN --> NAT --> LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.01  sec   440 MBytes   369 Mbits/sec   12             sender
-[  5]   0.00-10.00  sec   437 MBytes   367 Mbits/sec                  receiver
+    Host 2:
 
-WAN <-- NAT <-- LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec   390 MBytes   327 Mbits/sec   90             sender
-[  5]   0.00-10.01  sec   388 MBytes   326 Mbits/sec                  receiver
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests (=
+marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
 
-4.19.179 with e131a5634830047923c694b4ce0c3b31745ff01b
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMI driver test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - filesystem fi=
+o test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage block - queue schedul=
+er test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: lvm device-mapper te=
+st
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage: swraid mdadm raid_mo=
+dule test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
 
-WAN --> NAT --> LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.01  sec   616 MBytes   516 Mbits/sec   18             sender
-[  5]   0.00-10.00  sec   613 MBytes   515 Mbits/sec                  receiver
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
 
-WAN <-- NAT <-- LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec   573 MBytes   480 Mbits/sec   32             sender
-[  5]   0.00-10.01  sec   570 MBytes   478 Mbits/sec                  receiver
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
 
-5.4.103 without e131a5634830047923c694b4ce0c3b31745ff01b
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
-WAN --> NAT --> LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.01  sec   454 MBytes   380 Mbits/sec   62             sender
-[  5]   0.00-10.00  sec   451 MBytes   378 Mbits/sec                  receiver
+  s390x:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
-WAN <-- NAT <-- LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec   425 MBytes   356 Mbits/sec  155             sender
-[  5]   0.00-10.01  sec   422 MBytes   354 Mbits/sec                  receiver
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
 
-5.4.103 with e131a5634830047923c694b4ce0c3b31745ff01b
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 CPU: Frequency Driver Test
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - xfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - btrfs
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - nfsv4.2
+       =F0=9F=9A=A7 =E2=9C=85 xfstests - cifsv3.11
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - filesystem fio test
+       =F0=9F=9A=A7 =E2=9C=85 Storage block - queue scheduler test
+       =F0=9F=9A=A7 =E2=9C=85 Storage nvme - tcp
+       =F0=9F=9A=A7 =E2=9C=85 Storage: lvm device-mapper test
+       =F0=9F=9A=A7 =E2=9C=85 Storage: swraid mdadm raid_module test
+       =F0=9F=9A=A7 =E2=9C=85 stress: stress-ng
 
-WAN --> NAT --> LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.01  sec   604 MBytes   506 Mbits/sec    8             sender
-[  5]   0.00-10.00  sec   601 MBytes   504 Mbits/sec                  receiver
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 ACPI table test
+       =E2=9C=85 LTP
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 Memory: fork_mem
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func - local
+       =E2=9C=85 Networking route_func - forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns - transport
+       =E2=9C=85 Networking ipsec: basic netns - tunnel
+       =E2=9C=85 Libkcapi AF_ALG test
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 pciutils: update pci ids test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 i2c: i2cdetect sanity
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Firmware test suite
+       =F0=9F=9A=A7 =E2=9C=85 jvm - jcstress tests
+       =F0=9F=9A=A7 =E2=9C=85 Memory function: kaslr
+       =F0=9F=9A=A7 =E2=9C=85 Ethernet drivers sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking cki netfilter test
+       =F0=9F=9A=A7 =E2=9D=8C audit: audit testsuite test
 
-WAN <-- NAT <-- LAN
-[ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-10.00  sec   578 MBytes   485 Mbits/sec   79             sender
-[  5]   0.00-10.01  sec   575 MBytes   482 Mbits/sec                  receiver
----
- net/dsa/Kconfig    |  1 +
- net/dsa/dsa.c      |  2 +-
- net/dsa/dsa_priv.h |  3 +++
- net/dsa/slave.c    | 10 +++++++++-
- 4 files changed, 14 insertions(+), 2 deletions(-)
+  Test sources: https://gitlab.com/cki-project/kernel-tests
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to e=
+xisting tests!
 
-diff --git a/net/dsa/Kconfig b/net/dsa/Kconfig
-index 29e2bd5cc5af..7dce11ab2806 100644
---- a/net/dsa/Kconfig
-+++ b/net/dsa/Kconfig
-@@ -9,6 +9,7 @@ menuconfig NET_DSA
- 	tristate "Distributed Switch Architecture"
- 	depends on HAVE_NET_DSA
- 	depends on BRIDGE || BRIDGE=n
-+	select GRO_CELLS
- 	select NET_SWITCHDEV
- 	select PHYLINK
- 	select NET_DEVLINK
-diff --git a/net/dsa/dsa.c b/net/dsa/dsa.c
-index 43120a3fb06f..ca80f86995e6 100644
---- a/net/dsa/dsa.c
-+++ b/net/dsa/dsa.c
-@@ -238,7 +238,7 @@ static int dsa_switch_rcv(struct sk_buff *skb, struct net_device *dev,
- 	if (dsa_skb_defer_rx_timestamp(p, skb))
- 		return 0;
- 
--	netif_receive_skb(skb);
-+	gro_cells_receive(&p->gcells, skb);
- 
- 	return 0;
- }
-diff --git a/net/dsa/dsa_priv.h b/net/dsa/dsa_priv.h
-index bf9947c577b6..d8e850724d13 100644
---- a/net/dsa/dsa_priv.h
-+++ b/net/dsa/dsa_priv.h
-@@ -11,6 +11,7 @@
- #include <linux/netdevice.h>
- #include <linux/netpoll.h>
- #include <net/dsa.h>
-+#include <net/gro_cells.h>
- 
- enum {
- 	DSA_NOTIFIER_AGEING_TIME,
-@@ -68,6 +69,8 @@ struct dsa_slave_priv {
- 
- 	struct pcpu_sw_netstats	*stats64;
- 
-+	struct gro_cells	gcells;
-+
- 	/* DSA port data, such as switch, port index, etc. */
- 	struct dsa_port		*dp;
- 
-diff --git a/net/dsa/slave.c b/net/dsa/slave.c
-index f734ce0bcb56..06f8874d53ee 100644
---- a/net/dsa/slave.c
-+++ b/net/dsa/slave.c
-@@ -1431,6 +1431,11 @@ int dsa_slave_create(struct dsa_port *port)
- 		free_netdev(slave_dev);
- 		return -ENOMEM;
- 	}
-+
-+	ret = gro_cells_init(&p->gcells, slave_dev);
-+	if (ret)
-+		goto out_free;
-+
- 	p->dp = port;
- 	INIT_LIST_HEAD(&p->mall_tc_list);
- 	INIT_WORK(&port->xmit_work, dsa_port_xmit_work);
-@@ -1443,7 +1448,7 @@ int dsa_slave_create(struct dsa_port *port)
- 	ret = dsa_slave_phy_setup(slave_dev);
- 	if (ret) {
- 		netdev_err(master, "error %d setting up slave phy\n", ret);
--		goto out_free;
-+		goto out_gcells;
- 	}
- 
- 	dsa_slave_notify(slave_dev, DSA_PORT_REGISTER);
-@@ -1462,6 +1467,8 @@ int dsa_slave_create(struct dsa_port *port)
- 	phylink_disconnect_phy(p->dp->pl);
- 	rtnl_unlock();
- 	phylink_destroy(p->dp->pl);
-+out_gcells:
-+	gro_cells_destroy(&p->gcells);
- out_free:
- 	free_percpu(p->stats64);
- 	free_netdev(slave_dev);
-@@ -1482,6 +1489,7 @@ void dsa_slave_destroy(struct net_device *slave_dev)
- 	dsa_slave_notify(slave_dev, DSA_PORT_UNREGISTER);
- 	unregister_netdev(slave_dev);
- 	phylink_destroy(dp->pl);
-+	gro_cells_destroy(&p->gcells);
- 	free_percpu(p->stats64);
- 	free_netdev(slave_dev);
- }
--- 
-2.20.1
+Aborted tests
+-------------
+Tests that didn't complete running successfully are marked with =E2=9A=A1=E2=
+=9A=A1=E2=9A=A1.
+If this was caused by an infrastructure issue, we try to mark that
+explicitly in the report.
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. Suc=
+h tests are
+executed but their results are not taken into account. Tests are waived when
+their results are not reliable enough, e.g. when they're just introduced or a=
+re
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running yet are marked with =E2=8F=B1.
 
