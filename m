@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 977B6330E03
-	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84975330E00
+	for <lists+stable@lfdr.de>; Mon,  8 Mar 2021 13:35:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230404AbhCHMes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 07:34:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43284 "EHLO mail.kernel.org"
+        id S229497AbhCHMer (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 07:34:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230510AbhCHMeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 8 Mar 2021 07:34:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA89865203;
-        Mon,  8 Mar 2021 12:34:18 +0000 (UTC)
+        id S231246AbhCHMeW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 8 Mar 2021 07:34:22 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 813B2651C3;
+        Mon,  8 Mar 2021 12:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615206859;
-        bh=QtfgpEbjnnt/6dA/dFPtbmehdAcvax97J26PQe0phFM=;
+        s=korg; t=1615206862;
+        bh=QxnzNqd3JmxvYCMrytiF2UlvP860pukbOaMnEkprWHw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LtLGVsaQAgHWglPYw51f2WV1BKtTbRMdmSl26zz+ZyATuCwj6wK2U8oonRdOENkfP
-         na6m2J5PhKS+7idnFBy1LnvI1mRgkY1MOxSQMVEczE2cX5cI6luPypEVuiMhcuHiVO
-         cqH1OGj2DfXVW2k8r3XQtqdZuCODx5Sz/aiNE6fM=
+        b=bRhBu9TEWMUw6vAEY1m62QRHTdcR8JACt5lnxsYZGJ1h0nFHy3aEiXxKPRs/6nvcm
+         OZAn8FDVG39SNi12LBYJw5kbhhEO/7f4BXwR9S3TXZlwcyRgYr0KNJz45LomYkF+mH
+         a4rMosJ3lhzlnCQZaOdS9Uk/SVWRd38B3Xksf7/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 31/42] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
-Date:   Mon,  8 Mar 2021 13:30:57 +0100
-Message-Id: <20210308122719.652039636@linuxfoundation.org>
+        stable@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 32/42] RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
+Date:   Mon,  8 Mar 2021 13:30:58 +0100
+Message-Id: <20210308122719.699019203@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210308122718.120213856@linuxfoundation.org>
 References: <20210308122718.120213856@linuxfoundation.org>
@@ -39,44 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Saeed Mahameed <saeedm@nvidia.com>
 
-[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
+[ Upstream commit 221384df6123747d2a75517dd06cc01752f81518 ]
 
-Currently the mask operation on variable conf is just 3 bits so
-the switch statement case value of 8 is unreachable dead code.
-The function daio_mgr_dao_init can be passed a 4 bit value,
-function dao_rsc_init calls it with conf set to:
+ib_send_cm_sidr_rep() {
+	spin_lock_irqsave()
+        cm_send_sidr_rep_locked() {
+                ...
+        	spin_lock_irq()
+                ....
+                spin_unlock_irq() <--- this will enable interrupts
+        }
+        spin_unlock_irqrestore()
+}
 
-     conf = (desc->msr & 0x7) | (desc->passthru << 3);
+spin_unlock_irqrestore() expects interrupts to be disabled but the
+internal spin_unlock_irq() will always enable hard interrupts.
 
-so clearly when desc->passthru is set to 1 then conf can be
-at least 8.
+Fix this by replacing the internal spin_{lock,unlock}_irq() with
+irqsave/restore variants.
 
-Fix this by changing the mask to 0xf.
+It fixes the following kernel trace:
 
-Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+ raw_local_irq_restore() called with IRQs enabled
+ WARNING: CPU: 2 PID: 20001 at kernel/locking/irqflag-debug.c:10 warn_bogus_irq_restore+0x1d/0x20
+
+ Call Trace:
+  _raw_spin_unlock_irqrestore+0x4e/0x50
+  ib_send_cm_sidr_rep+0x3a/0x50 [ib_cm]
+  cma_send_sidr_rep+0xa1/0x160 [rdma_cm]
+  rdma_accept+0x25e/0x350 [rdma_cm]
+  ucma_accept+0x132/0x1cc [rdma_ucm]
+  ucma_write+0xbf/0x140 [rdma_ucm]
+  vfs_write+0xc1/0x340
+  ksys_write+0xb3/0xe0
+  do_syscall_64+0x2d/0x40
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 87c4c774cbef ("RDMA/cm: Protect access to remote_sidr_table")
+Link: https://lore.kernel.org/r/20210301081844.445823-1-leon@kernel.org
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ctxfi/cthw20k2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/cm.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
-index fc1bc18caee9..85d1fc76f59e 100644
---- a/sound/pci/ctxfi/cthw20k2.c
-+++ b/sound/pci/ctxfi/cthw20k2.c
-@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
+diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
+index 8e578f73a074..bbba0cd42c89 100644
+--- a/drivers/infiniband/core/cm.c
++++ b/drivers/infiniband/core/cm.c
+@@ -3650,6 +3650,7 @@ static int cm_send_sidr_rep_locked(struct cm_id_private *cm_id_priv,
+ 				   struct ib_cm_sidr_rep_param *param)
+ {
+ 	struct ib_mad_send_buf *msg;
++	unsigned long flags;
+ 	int ret;
  
- 	if (idx < 4) {
- 		/* S/PDIF output */
--		switch ((conf & 0x7)) {
-+		switch ((conf & 0xf)) {
- 		case 1:
- 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
- 			break;
+ 	lockdep_assert_held(&cm_id_priv->lock);
+@@ -3675,12 +3676,12 @@ static int cm_send_sidr_rep_locked(struct cm_id_private *cm_id_priv,
+ 		return ret;
+ 	}
+ 	cm_id_priv->id.state = IB_CM_IDLE;
+-	spin_lock_irq(&cm.lock);
++	spin_lock_irqsave(&cm.lock, flags);
+ 	if (!RB_EMPTY_NODE(&cm_id_priv->sidr_id_node)) {
+ 		rb_erase(&cm_id_priv->sidr_id_node, &cm.remote_sidr_table);
+ 		RB_CLEAR_NODE(&cm_id_priv->sidr_id_node);
+ 	}
+-	spin_unlock_irq(&cm.lock);
++	spin_unlock_irqrestore(&cm.lock, flags);
+ 	return 0;
+ }
+ 
 -- 
 2.30.1
 
