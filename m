@@ -2,74 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA522332AB4
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 16:39:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6C25332AC2
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 16:41:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231195AbhCIPit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 10:38:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229790AbhCIPih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Mar 2021 10:38:37 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EF3265238;
-        Tue,  9 Mar 2021 15:38:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615304316;
-        bh=ywcMiRWM7hxvvEevLFLmRZPE513OmPXFK30CWeV/bnE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoqUOhWstxhc6j+BT+/nG/8KmEbGuGHDfQDJtT8PSM7qlmONXExdIkKFVOWoj2H09
-         1g2RzuZpQ+02f6bqqZi8rlUz0CoRDN8AjCRK7HwdtX5U9LFzhZNcUbC4S+3KkddZPS
-         OjfH/8iv5zwaG7ItlWupbSOr9a6AeArpIRMpXk5y7TLvAsu6y4eseQYyjxSVK6K43q
-         nx21K4j/sVb/jpg5AnCpAg/cnPDDMTLRcv0MUa/E6u2iotAR4/RI6K6G+cuZ3/Awgm
-         6uVTnu8QnOBRFeEAOl7LT2rHDAbHFUFhut6vo/f53S6J1Er6TLV1Pj9iWof7H0lkF8
-         foE1sl5DjFgmw==
-From:   Will Deacon <will@kernel.org>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Will Deacon <will.deacon@arm.com>
-Cc:     kernel-team@android.com, Will Deacon <will@kernel.org>,
-        Branislav Rankov <Branislav.Rankov@arm.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        linux-kernel@vger.kernel.org, Marco Elver <elver@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Alexander Potapenko <glider@google.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        linux-mm@kvack.org, kasan-dev@googlegroups.com,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Peter Collingbourne <pcc@google.com>
-Subject: Re: [PATCH] arm64: kasan: fix page_alloc tagging with DEBUG_VIRTUAL
-Date:   Tue,  9 Mar 2021 15:38:29 +0000
-Message-Id: <161529596129.3814589.13038514678630962150.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <4b55b35202706223d3118230701c6a59749d9b72.1615219501.git.andreyknvl@google.com>
-References: <4b55b35202706223d3118230701c6a59749d9b72.1615219501.git.andreyknvl@google.com>
-MIME-Version: 1.0
+        id S231243AbhCIPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 10:40:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45782 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231856AbhCIPkE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 10:40:04 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC29C06174A
+        for <stable@vger.kernel.org>; Tue,  9 Mar 2021 07:40:04 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id lr10-20020a17090b4b8ab02900dd61b95c5eso2956121pjb.4
+        for <stable@vger.kernel.org>; Tue, 09 Mar 2021 07:40:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cGSh/kpruwz7RL3NRjC692oP1OOpbWGX1YNsfFGDAoI=;
+        b=dRjCHS/MKHGoMpC8eLH7rZZgXkPGdaXFx1SRGhGtm4k6T3+mwrcS6A0HW+LzQ+JugJ
+         t8QUJy6YKwaTQSpWFxFsDzlIA/TFXa4fnX+R7pnc3p3gOVSBQsH0xSWEKOxuW2UAFNf7
+         llLhFt4lD59jdRABikJcx/Ga7y15QFLl6VTSmaTIbX+vXFmu8nIxG9APSRVFCeIA5wvw
+         zoSFwY/KwGv6em237Y5qNdsiCwfCyFKSrZg2bYwut8R4amtVoyk6swbKXQWjH659azYw
+         Thn1pwX0G3fagY9MzjksvWOV+QtGumOSQCTlrRECWojjmpZ3xYsF93gAS8T3gQocR06b
+         viHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cGSh/kpruwz7RL3NRjC692oP1OOpbWGX1YNsfFGDAoI=;
+        b=JddshMneq6/akAkxNqmkEuYxPIy2+RxrEPlG+R5K+y0zlAaA5V83EN/rzZ0xRA6o2F
+         4eMKFDsmJIVMB90qsmyUkHxCTTQqthnV7GmGSsuwWPet8MHKJyQCLaSkmb3+zkATG5PO
+         ZO49+pLTNaMR5UYWRcJhUmfrVajlW1rBWZ/DPFx86vLr5AH6Qv/GIDmAgzU8IYdiqGSV
+         yZTC+bUgIRgkJMN2F3SqPEkbNhU3FYgP0UEpxwwsl9dhx5NSMqEymMHCCpBTFSmyCh1T
+         +X4fFY+EgVmgc3qBoGdVNbIr6NM03n+1K/lydaqHGt09CFIdjymH47iend3E29VEA4Tg
+         /rJA==
+X-Gm-Message-State: AOAM533DbHIb/zKPaXGdThrEjVDNb/VLxLUQFNG9XIzkJ5CN1bCKW1O7
+        BAAiVQQ70WG4HKUj7X638fGNhpzQobzyj2/J
+X-Google-Smtp-Source: ABdhPJw8WvoKqWLFMeYzmtfITuekB/F6PRciieCCotwyzbFPAqIB1yIO1XnyELTSLyPKP4bK92xgow==
+X-Received: by 2002:a17:90a:8908:: with SMTP id u8mr5145425pjn.135.1615304403515;
+        Tue, 09 Mar 2021 07:40:03 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 192sm14103961pfa.122.2021.03.09.07.40.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Mar 2021 07:40:03 -0800 (PST)
+Message-ID: <604796d3.1c69fb81.f200e.2f58@mx.google.com>
+Date:   Tue, 09 Mar 2021 07:40:03 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.104
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable/linux-5.4.y baseline: 96 runs, 3 regressions (v5.4.104)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 8 Mar 2021 17:10:23 +0100, Andrey Konovalov wrote:
-> When CONFIG_DEBUG_VIRTUAL is enabled, the default page_to_virt() macro
-> implementation from include/linux/mm.h is used. That definition doesn't
-> account for KASAN tags, which leads to no tags on page_alloc allocations.
-> 
-> Provide an arm64-specific definition for page_to_virt() when
-> CONFIG_DEBUG_VIRTUAL is enabled that takes care of KASAN tags.
+stable/linux-5.4.y baseline: 96 runs, 3 regressions (v5.4.104)
 
-Applied to arm64 (for-next/fixes), thanks!
+Regressions Summary
+-------------------
 
-[1/1] arm64: kasan: fix page_alloc tagging with DEBUG_VIRTUAL
-      https://git.kernel.org/arm64/c/86c83365ab76
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-Cheers,
--- 
-Will
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-https://fixes.arm64.dev
-https://next.arm64.dev
-https://will.arm64.dev
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
+v5.4.104/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.4.y
+  Describe: v5.4.104
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      84d5d3c9d3fbcee10bc16d3a3316af9a924c91c6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60476722d3e578d288addcd8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60476722d3e578d288add=
+cd9
+        failing since 110 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604763e5bd297385d9addcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604763e5bd297385d9add=
+cb2
+        failing since 110 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60476338113a486ec6addcca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.104/ar=
+m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60476338113a486ec6add=
+ccb
+        failing since 110 days (last pass: v5.4.77, first fail: v5.4.78) =
+
+ =20
