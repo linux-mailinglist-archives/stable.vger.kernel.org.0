@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF1023326F7
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 14:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49ED3326FB
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 14:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229851AbhCINYG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230495AbhCINYG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Mar 2021 08:24:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47310 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230492AbhCINXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Mar 2021 08:23:39 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4CF8650F5;
-        Tue,  9 Mar 2021 13:23:38 +0000 (UTC)
+        id S230116AbhCINYF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Mar 2021 08:24:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 850EC650F5;
+        Tue,  9 Mar 2021 13:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615296219;
-        bh=Iw+YOhqlay73j1ZI4evE6oxane5/E/1FnI3QOgf1qqA=;
+        s=korg; t=1615296245;
+        bh=9ionGWb2H5/1t5nl1H6UaJseLLKfmw6/CdkeDyhSxhQ=;
         h=Subject:To:From:Date:From;
-        b=MJGOXvVQJPZeuWocw248iGeGI4sZFfQGDN0KAXrCkQIDfbNA/j6EcimC93g7PkG7e
-         yB+/Ufl3DfwzMgw072fzKuBKqBp0a28rlw33FG5/fxXoOpr80mxtW+W7dwnJbJWEHg
-         NDtecdudSVXM2IgszxJ4cxijeXfhhZU9KoWmmPXY=
+        b=x5svahxZqOFPMGmePNaKGQgI4+D1ktZBQqdNibdk4Dqji3vcrG+vNY0y8ZKc/tWjk
+         f60Y7p4hh0MBr0a4F8TqaX1R7fhcYXrGUS+E7fk2ZY8nAR1bdxDjfRCXlpdm7IMPC3
+         XffLej8JAmN9okZMyqn98PVrbDE5z5RG2K0u/XS8=
 Subject: patch "usb: dwc3: qcom: Add missing DWC3 OF node refcount decrement" added to usb-linus
 To:     Sergey.Semin@baikalelectronics.ru, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Mar 2021 14:23:29 +0100
-Message-ID: <16152962095139@kroah.com>
+Date:   Tue, 09 Mar 2021 14:24:02 +0100
+Message-ID: <161529624212223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 2d0a347ccb21363ccf7e0c009ff2e525329a3a56 Mon Sep 17 00:00:00 2001
+From 58f3367b2359e88b83bcfca5b77d48b609eb2123 Mon Sep 17 00:00:00 2001
 From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 Date: Fri, 12 Feb 2021 23:55:19 +0300
 Subject: usb: dwc3: qcom: Add missing DWC3 OF node refcount decrement
