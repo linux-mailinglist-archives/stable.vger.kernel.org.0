@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2FD833203F
+	by mail.lfdr.de (Postfix) with ESMTP id A67DE33203E
 	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 09:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbhCIIG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 03:06:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36108 "EHLO mail.kernel.org"
+        id S229637AbhCIIG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 03:06:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229637AbhCIIGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Mar 2021 03:06:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F8D765228;
-        Tue,  9 Mar 2021 08:06:30 +0000 (UTC)
+        id S229689AbhCIIGh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Mar 2021 03:06:37 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B5A652A8;
+        Tue,  9 Mar 2021 08:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615277191;
-        bh=lX4raUcXKug+BeYTdNomU2Wx4SEjVgBBSguss9HhV4M=;
+        s=korg; t=1615277197;
+        bh=Fvj1z8qUGKX5Tti5rlXM15bghysh4pKiHS+jcvjf0eM=;
         h=Subject:To:From:Date:From;
-        b=gywiUFdMhamGVHaoqfzo1Yhq7pzXqRN4pEzEewCp34djK6VaHu0pL8cojbDYu/SVb
-         7O1NfprVYp3E9QuM/dilE5z8WpnZG5WHUgdJtVvHbZWO+3fZcEdK+sllWoZxSAo1Qu
-         LS25As3MPVYYprI3KqqULGNaxtH7NRUJuukyBcjE=
-Subject: patch "usb: xhci-mtk: remove or operator for setting schedule parameters" added to usb-next
+        b=EfVovmOYdhAHhYOUqkLly2b6wpC3Yo506xXzCSd2ZMk8b8X0kW4V6DognXFuU+zDK
+         azbhYnwS5D9NS5VKfBvx4mVWh6UW6Se4vhB9YIUsl7DL/9uJIxX3epERuQ41r6YysD
+         6vM2/MuoN55Smlayw5eurPDlRp0y/ffNjYNQwCIw=
+Subject: patch "usb: xhci-mtk: improve bandwidth scheduling with TT" added to usb-next
 To:     chunfeng.yun@mediatek.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        stable@vger.kernel.org, yaqii.wu@mediatek.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 09 Mar 2021 09:06:27 +0100
-Message-ID: <16152771878204@kroah.com>
+Date:   Tue, 09 Mar 2021 09:06:28 +0100
+Message-ID: <16152771882164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci-mtk: remove or operator for setting schedule parameters
+    usb: xhci-mtk: improve bandwidth scheduling with TT
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,50 +51,184 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From f6e1ab32bf6843c592ac6e241f89caf90b132b76 Mon Sep 17 00:00:00 2001
+From 99ea56bd89aa3a644d6af34301a0b0f3f5f92314 Mon Sep 17 00:00:00 2001
 From: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Date: Mon, 8 Mar 2021 10:51:50 +0800
-Subject: usb: xhci-mtk: remove or operator for setting schedule parameters
+Date: Mon, 8 Mar 2021 10:51:51 +0800
+Subject: usb: xhci-mtk: improve bandwidth scheduling with TT
 
-Side effect may happen if use or operator to set schedule parameters
-when the parameters are already set before. Set them directly due to
-other bits are reserved.
+When the USB headset is plug into an external hub, sometimes
+can't set config due to not enough bandwidth, so need improve
+LS/FS INT/ISOC bandwidth scheduling with TT.
 
 Fixes: 54f6a8af3722 ("usb: xhci-mtk: skip dropping bandwidth of unchecked endpoints")
 Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Yaqii Wu <yaqii.wu@mediatek.com>
 Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/d287899e6beb2fc1bfb8900c75a872f628ecde55.1615170625.git.chunfeng.yun@mediatek.com
+Link: https://lore.kernel.org/r/2f30e81400a59afef5f8231c98149169c7520519.1615170625.git.chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-mtk-sch.c | 74 ++++++++++++++++++++++++++-------
+ drivers/usb/host/xhci-mtk.h     |  6 ++-
+ 2 files changed, 64 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/usb/host/xhci-mtk-sch.c b/drivers/usb/host/xhci-mtk-sch.c
-index b45e5bf08997..5891f56c64da 100644
+index 5891f56c64da..8950d1f10a7f 100644
 --- a/drivers/usb/host/xhci-mtk-sch.c
 +++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -643,7 +643,7 @@ int xhci_mtk_add_ep_quirk(struct usb_hcd *hcd, struct usb_device *udev,
- 		 */
- 		if (usb_endpoint_xfer_int(&ep->desc)
- 			|| usb_endpoint_xfer_isoc(&ep->desc))
--			ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(1));
-+			ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(1));
+@@ -378,6 +378,31 @@ static void update_bus_bw(struct mu3h_sch_bw_info *sch_bw,
+ 	sch_ep->allocated = used;
+ }
  
- 		return 0;
++static int check_fs_bus_bw(struct mu3h_sch_ep_info *sch_ep, int offset)
++{
++	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
++	u32 num_esit, tmp;
++	int base;
++	int i, j;
++
++	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
++	for (i = 0; i < num_esit; i++) {
++		base = offset + i * sch_ep->esit;
++
++		/*
++		 * Compared with hs bus, no matter what ep type,
++		 * the hub will always delay one uframe to send data
++		 */
++		for (j = 0; j < sch_ep->cs_count; j++) {
++			tmp = tt->fs_bus_bw[base + j] + sch_ep->bw_cost_per_microframe;
++			if (tmp > FS_PAYLOAD_MAX)
++				return -ERANGE;
++		}
++	}
++
++	return 0;
++}
++
+ static int check_sch_tt(struct usb_device *udev,
+ 	struct mu3h_sch_ep_info *sch_ep, u32 offset)
+ {
+@@ -402,7 +427,7 @@ static int check_sch_tt(struct usb_device *udev,
+ 			return -ERANGE;
+ 
+ 		for (i = 0; i < sch_ep->cs_count; i++)
+-			if (test_bit(offset + i, tt->split_bit_map))
++			if (test_bit(offset + i, tt->ss_bit_map))
+ 				return -ERANGE;
+ 
+ 	} else {
+@@ -432,7 +457,7 @@ static int check_sch_tt(struct usb_device *udev,
+ 			cs_count = 7; /* HW limit */
+ 
+ 		for (i = 0; i < cs_count + 2; i++) {
+-			if (test_bit(offset + i, tt->split_bit_map))
++			if (test_bit(offset + i, tt->ss_bit_map))
+ 				return -ERANGE;
+ 		}
+ 
+@@ -448,24 +473,44 @@ static int check_sch_tt(struct usb_device *udev,
+ 			sch_ep->num_budget_microframes = sch_ep->esit;
  	}
-@@ -730,10 +730,10 @@ int xhci_mtk_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev)
- 		list_move_tail(&sch_ep->endpoint, &sch_bw->bw_ep_list);
  
- 		ep_ctx = xhci_get_ep_ctx(xhci, virt_dev->in_ctx, ep_index);
--		ep_ctx->reserved[0] |= cpu_to_le32(EP_BPKTS(sch_ep->pkts)
-+		ep_ctx->reserved[0] = cpu_to_le32(EP_BPKTS(sch_ep->pkts)
- 			| EP_BCSCOUNT(sch_ep->cs_count)
- 			| EP_BBM(sch_ep->burst_mode));
--		ep_ctx->reserved[1] |= cpu_to_le32(EP_BOFFSET(sch_ep->offset)
-+		ep_ctx->reserved[1] = cpu_to_le32(EP_BOFFSET(sch_ep->offset)
- 			| EP_BREPEAT(sch_ep->repeat));
+-	return 0;
++	return check_fs_bus_bw(sch_ep, offset);
+ }
  
- 		xhci_dbg(xhci, " PKTS:%x, CSCOUNT:%x, BM:%x, OFFSET:%x, REPEAT:%x\n",
+ static void update_sch_tt(struct usb_device *udev,
+-	struct mu3h_sch_ep_info *sch_ep)
++	struct mu3h_sch_ep_info *sch_ep, bool used)
+ {
+ 	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
+ 	u32 base, num_esit;
++	int bw_updated;
++	int bits;
+ 	int i, j;
+ 
+ 	num_esit = XHCI_MTK_MAX_ESIT / sch_ep->esit;
++	bits = (sch_ep->ep_type == ISOC_OUT_EP) ? sch_ep->cs_count : 1;
++
++	if (used)
++		bw_updated = sch_ep->bw_cost_per_microframe;
++	else
++		bw_updated = -sch_ep->bw_cost_per_microframe;
++
+ 	for (i = 0; i < num_esit; i++) {
+ 		base = sch_ep->offset + i * sch_ep->esit;
+-		for (j = 0; j < sch_ep->num_budget_microframes; j++)
+-			set_bit(base + j, tt->split_bit_map);
++
++		for (j = 0; j < bits; j++) {
++			if (used)
++				set_bit(base + j, tt->ss_bit_map);
++			else
++				clear_bit(base + j, tt->ss_bit_map);
++		}
++
++		for (j = 0; j < sch_ep->cs_count; j++)
++			tt->fs_bus_bw[base + j] += bw_updated;
+ 	}
+ 
+-	list_add_tail(&sch_ep->tt_endpoint, &tt->ep_list);
++	if (used)
++		list_add_tail(&sch_ep->tt_endpoint, &tt->ep_list);
++	else
++		list_del(&sch_ep->tt_endpoint);
+ }
+ 
+ static int check_sch_bw(struct usb_device *udev,
+@@ -535,7 +580,7 @@ static int check_sch_bw(struct usb_device *udev,
+ 		if (!tt_offset_ok)
+ 			return -ERANGE;
+ 
+-		update_sch_tt(udev, sch_ep);
++		update_sch_tt(udev, sch_ep, 1);
+ 	}
+ 
+ 	/* update bus bandwidth info */
+@@ -548,15 +593,16 @@ static void destroy_sch_ep(struct usb_device *udev,
+ 	struct mu3h_sch_bw_info *sch_bw, struct mu3h_sch_ep_info *sch_ep)
+ {
+ 	/* only release ep bw check passed by check_sch_bw() */
+-	if (sch_ep->allocated)
++	if (sch_ep->allocated) {
+ 		update_bus_bw(sch_bw, sch_ep, 0);
++		if (sch_ep->sch_tt)
++			update_sch_tt(udev, sch_ep, 0);
++	}
+ 
+-	list_del(&sch_ep->endpoint);
+-
+-	if (sch_ep->sch_tt) {
+-		list_del(&sch_ep->tt_endpoint);
++	if (sch_ep->sch_tt)
+ 		drop_tt(udev);
+-	}
++
++	list_del(&sch_ep->endpoint);
+ 	kfree(sch_ep);
+ }
+ 
+diff --git a/drivers/usb/host/xhci-mtk.h b/drivers/usb/host/xhci-mtk.h
+index cbb09dfea62e..f42769c69249 100644
+--- a/drivers/usb/host/xhci-mtk.h
++++ b/drivers/usb/host/xhci-mtk.h
+@@ -20,13 +20,15 @@
+ #define XHCI_MTK_MAX_ESIT	64
+ 
+ /**
+- * @split_bit_map: used to avoid split microframes overlay
++ * @ss_bit_map: used to avoid start split microframes overlay
++ * @fs_bus_bw: array to keep track of bandwidth already used for FS
+  * @ep_list: Endpoints using this TT
+  * @usb_tt: usb TT related
+  * @tt_port: TT port number
+  */
+ struct mu3h_sch_tt {
+-	DECLARE_BITMAP(split_bit_map, XHCI_MTK_MAX_ESIT);
++	DECLARE_BITMAP(ss_bit_map, XHCI_MTK_MAX_ESIT);
++	u32 fs_bus_bw[XHCI_MTK_MAX_ESIT];
+ 	struct list_head ep_list;
+ 	struct usb_tt *usb_tt;
+ 	int tt_port;
 -- 
 2.30.1
 
