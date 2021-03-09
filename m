@@ -2,125 +2,311 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31075332E32
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 19:24:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25700332EA7
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 20:01:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230488AbhCISXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 13:23:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53220 "EHLO
+        id S230111AbhCITA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 14:00:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230421AbhCISXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 13:23:19 -0500
-Received: from forwardcorp1j.mail.yandex.net (forwardcorp1j.mail.yandex.net [IPv6:2a02:6b8:0:1619::183])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90BDC06174A;
-        Tue,  9 Mar 2021 10:23:18 -0800 (PST)
-Received: from iva8-d077482f1536.qloud-c.yandex.net (iva8-d077482f1536.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:2f26:0:640:d077:482f])
-        by forwardcorp1j.mail.yandex.net (Yandex) with ESMTP id B90F22E155F;
-        Tue,  9 Mar 2021 21:23:16 +0300 (MSK)
-Received: from iva4-f06c35e68a0a.qloud-c.yandex.net (iva4-f06c35e68a0a.qloud-c.yandex.net [2a02:6b8:c0c:152e:0:640:f06c:35e6])
-        by iva8-d077482f1536.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id nGrNUzJpes-NGJiWD5g;
-        Tue, 09 Mar 2021 21:23:16 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.com; s=default;
-        t=1615314196; bh=0Vl1UL44z/aTdn8OLiHHiAq4xAI007KFGxxjlakr82Y=;
-        h=In-Reply-To:Message-Id:References:Date:Subject:To:From:Cc;
-        b=zVRWLv8PUuRRFwFJlAU3O+Lf/NsLmTMhxM7QY9k+4X+UveL1+1hbYt7ExTJ4Mj4AS
-         iIeYStOUXmGM6oR4KwwY9buMkth7RXYR125Dk7QYiqdgHCnhs1c8zKfnyphXm6rtJ4
-         9RKPJpoKsfwwAuJWJxmaKnYWggFKdeh/iLiGUIbA=
-Authentication-Results: iva8-d077482f1536.qloud-c.yandex.net; dkim=pass header.i=@yandex-team.com
-Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b081:203::1:15])
-        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id T5bJwzP5HK-NGnW4HcN;
-        Tue, 09 Mar 2021 21:23:16 +0300
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (Client certificate not present)
-From:   Andrey Ryabinin <arbn@yandex-team.com>
-To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
-Cc:     jroedel@suse.de, will@kernel.org, linux-kernel@vger.kernel.org,
-        Andrey Ryabinin <arbn@yandex-team.com>
-Subject: [PATCH stable 5.4] iommu/amd: Fix sleeping in atomic in increase_address_space()
-Date:   Tue,  9 Mar 2021 21:24:30 +0300
-Message-Id: <20210309182430.18849-4-arbn@yandex-team.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210309182430.18849-1-arbn@yandex-team.com>
-References: <161512522533161@kroah.com>
- <20210309182430.18849-1-arbn@yandex-team.com>
+        with ESMTP id S231169AbhCITAf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 14:00:35 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78542C06174A
+        for <stable@vger.kernel.org>; Tue,  9 Mar 2021 11:00:35 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id jx13so1371521pjb.1
+        for <stable@vger.kernel.org>; Tue, 09 Mar 2021 11:00:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MwbgXnB2NKUHjYEF7V1r+DE8tkVBSdSyrshsRRdZHaE=;
+        b=koQFlwgUl8M/6jWULtvLEzcRE2YkPFFF850DsCKdo7JgjNkLdIuKXUUR7gP+F8gAqh
+         00PslgNG+yhRlcbGXZafLPKlfYZXRTd9OxUVEJ41mmmeVJKZ6Wuj2S2oCxVJPj9P0eVW
+         gy1XetwQR1RZnuMEZM/2jmpqrEuPHXyqCGU4Ro05Ho209BJizBfJLyhhUgVvPqOBt7Jl
+         +vcazIGz7lhLzZkiYWRsSztkANd63ZH4jEwCbHe2KzdYz5E0qTAxNzJsk64Ua/uerrvu
+         wxdjhL81qETB/SAtmPUe0dM/92mSntsUI29kNRPCJzCsFCHM+7huQBquIsn43QdWZSBE
+         iGDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MwbgXnB2NKUHjYEF7V1r+DE8tkVBSdSyrshsRRdZHaE=;
+        b=P6otWoXhzPe9NPtYpTGWLwMnaRvA79l4y9l5G32OdkqVWB2hYLYuNTSGhScxnswozX
+         NtuDMRGKgpVqI4aEXyXtKIQbBHkhbUftlSFrmITch1sUrrtGZxrGjUFiDcLADehuAlx5
+         1kXmHu4mJ5F019ThiDZ6pT74Drynkv1rBLNsum1HToR2ShR18uXa8BhLmr0xpcP3/mAc
+         BXIY70dvV2finW2Nlcck+tLNAjrT4/bzVBmlq8nR5BM/YO7+ssC1xJFXBwDZfkhCqgJ6
+         SktqvW99C5CcCUTGDsEkvG9XTRiLfryEid7MCWx52JmaOhIIrHMRlDaLLmDlm8O6/jqV
+         sUWQ==
+X-Gm-Message-State: AOAM532oDSX3ENKWMAgKXB5pksZukqmHL5kTAO7SCr9xLQen3ok7LA/q
+        6h6JYBgbFT7MmSUfvkOOKm7EWQGIWlAWSo8D
+X-Google-Smtp-Source: ABdhPJz9rZUXNaXtSZfyuAgdYwsj2/0YnIRhjpL5RyBJ/yd8Hlc8+hbXI2dwCenUh/E08IaFu8FakQ==
+X-Received: by 2002:a17:90b:110c:: with SMTP id gi12mr6089176pjb.48.1615316434699;
+        Tue, 09 Mar 2021 11:00:34 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p20sm14225807pgb.62.2021.03.09.11.00.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Mar 2021 11:00:34 -0800 (PST)
+Message-ID: <6047c5d2.1c69fb81.fdac.3169@mx.google.com>
+Date:   Tue, 09 Mar 2021 11:00:34 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.9.260-5-gf1918570b45d3
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 122 runs,
+ 6 regressions (v4.9.260-5-gf1918570b45d3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 140456f994195b568ecd7fc2287a34eadffef3ca upstream.
+stable-rc/queue/4.9 baseline: 122 runs, 6 regressions (v4.9.260-5-gf1918570=
+b45d3)
 
-increase_address_space() calls get_zeroed_page(gfp) under spin_lock with
-disabled interrupts. gfp flags passed to increase_address_space() may allow
-sleeping, so it comes to this:
+Regressions Summary
+-------------------
 
- BUG: sleeping function called from invalid context at mm/page_alloc.c:4342
- in_atomic(): 1, irqs_disabled(): 1, pid: 21555, name: epdcbbf1qnhbsd8
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
 
- Call Trace:
-  dump_stack+0x66/0x8b
-  ___might_sleep+0xec/0x110
-  __alloc_pages_nodemask+0x104/0x300
-  get_zeroed_page+0x15/0x40
-  iommu_map_page+0xdd/0x3e0
-  amd_iommu_map+0x50/0x70
-  iommu_map+0x106/0x220
-  vfio_iommu_type1_ioctl+0x76e/0x950 [vfio_iommu_type1]
-  do_vfs_ioctl+0xa3/0x6f0
-  ksys_ioctl+0x66/0x70
-  __x64_sys_ioctl+0x16/0x20
-  do_syscall_64+0x4e/0x100
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fix this by moving get_zeroed_page() out of spin_lock/unlock section.
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fixes: 754265bcab ("iommu/amd: Fix race in increase_address_space()")
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
-Acked-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20210217143004.19165-1-arbn@yandex-team.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
----
- drivers/iommu/amd_iommu.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 7b724f7b27a99..c392930253a30 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -1469,25 +1469,27 @@ static bool increase_address_space(struct protection_domain *domain,
- 	bool ret = false;
- 	u64 *pte;
- 
-+	pte = (void *)get_zeroed_page(gfp);
-+	if (!pte)
-+		return false;
-+
- 	spin_lock_irqsave(&domain->lock, flags);
- 
- 	if (address <= PM_LEVEL_SIZE(domain->mode) ||
- 	    WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
- 		goto out;
- 
--	pte = (void *)get_zeroed_page(gfp);
--	if (!pte)
--		goto out;
--
- 	*pte             = PM_LEVEL_PDE(domain->mode,
- 					iommu_virt_to_phys(domain->pt_root));
- 	domain->pt_root  = pte;
- 	domain->mode    += 1;
- 
-+	pte = NULL;
- 	ret = true;
- 
- out:
- 	spin_unlock_irqrestore(&domain->lock, flags);
-+	free_page((unsigned long)pte);
- 
- 	return ret;
- }
--- 
-2.26.2
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.260-5-gf1918570b45d3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.260-5-gf1918570b45d3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f1918570b45d39ecf5d47e30e949d610d93307d1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60479276ac31759a0faddd00
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60479276ac31759=
+a0faddd05
+        new failure (last pass: v4.9.260-5-g5418553745479)
+        2 lines
+
+    2021-03-09 15:21:23.232000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff24c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6047929c73110aa61daddcf7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6047929c73110aa61dadd=
+cf8
+        failing since 115 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604792f3ace47d9a9aaddcb5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604792f3ace47d9a9aadd=
+cb6
+        failing since 115 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6047958879e3f274e0addd35
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6047958879e3f274e0add=
+d36
+        failing since 115 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6047923a003d648a6caddcd1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6047923a003d648a6cadd=
+cd2
+        failing since 115 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6047a4d2df2886269daddcde
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.260-5=
+-gf1918570b45d3/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6047a4d2df2886269dadd=
+cdf
+        failing since 115 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
