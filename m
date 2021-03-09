@@ -2,100 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 488B4331D34
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:00:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C462331D49
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:05:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbhCIC71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 21:59:27 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:13871 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbhCIC7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 21:59:17 -0500
-Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DvfyJ5nCkz8vQj;
-        Tue,  9 Mar 2021 10:57:28 +0800 (CST)
-Received: from code-website.localdomain (10.175.127.227) by
- DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
- 14.3.498.0; Tue, 9 Mar 2021 10:59:06 +0800
-From:   Zheng Yejian <zhengyejian1@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <lee.jones@linaro.org>,
-        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC:     <tglx@linutronix.de>, <cj.chengjian@huawei.com>,
-        <judy.chenhui@huawei.com>, <zhangjinhao2@huawei.com>,
-        <nixiaoming@huawei.com>
-Subject: [PATCH 4.4 3/3] futex: fix dead code in attach_to_pi_owner()
-Date:   Tue, 9 Mar 2021 11:06:05 +0800
-Message-ID: <20210309030605.3295183-4-zhengyejian1@huawei.com>
-X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20210309030605.3295183-1-zhengyejian1@huawei.com>
-References: <20210309030605.3295183-1-zhengyejian1@huawei.com>
+        id S229520AbhCIDEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 22:04:49 -0500
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:43259 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229750AbhCIDEd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 22:04:33 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R361e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UR.Qc0l_1615259071;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UR.Qc0l_1615259071)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Tue, 09 Mar 2021 11:04:31 +0800
+From:   Jeffle Xu <jefflexu@linux.alibaba.com>
+To:     snitzer@redhat.com, gregkh@linuxfoundation.org, sashal@kernel.org
+Cc:     stable@vger.kernel.org, jefflexu@linux.alibaba.com
+Subject: [PATCH v2 4.4] dm table: fix iterate_devices based device capability checks
+Date:   Tue,  9 Mar 2021 11:04:31 +0800
+Message-Id: <20210309030431.85939-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
 
-The handle_exit_race() function is defined in commit 9c3f39860367
- ("futex: Cure exit race"), which never returns -EBUSY. This results
-in a small piece of dead code in the attach_to_pi_owner() function:
+According to the definition of dm_iterate_devices_fn:
+ * This function must iterate through each section of device used by the
+ * target until it encounters a non-zero return code, which it then returns.
+ * Returns zero if no callout returned non-zero.
 
-	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
-	...
-	if (ret == -EBUSY)
-		*exiting = p; /* dead code */
+For some target type (e.g. dm-stripe), one call of iterate_devices() may
+iterate multiple underlying devices internally, in which case a non-zero
+return code returned by iterate_devices_callout_fn will stop the iteration
+in advance. No iterate_devices_callout_fn should return non-zero unless
+device iteration should stop.
 
-The return value -EBUSY is added to handle_exit_race() in upsteam
-commit ac31c7ff8624409 ("futex: Provide distinct return value when
-owner is exiting"). This commit was incorporated into v4.9.255, before
-the function handle_exit_race() was introduced, whitout Modify
-handle_exit_race().
+Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
+elevate it for reuse to stop iterating (and return non-zero) on the
+first device that causes iterate_devices_callout_fn to return non-zero.
+Use dm_table_any_dev_attr() to properly iterate through devices.
 
-To fix dead code, extract the change of handle_exit_race() from
-commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
- is exiting"), re-incorporated.
+Rename device_is_nonrot() to device_is_rotational() and invert logic
+accordingly to fix improper disposition.
 
-Lee writes:
+[jeffle: backport notes]
+No stable writes. Also convert the no_sg_merge capability check,
+which is introduced by commit 200612ec33e5 ("dm table: propagate
+QUEUE_FLAG_NO_SG_MERGE"), and removed since commit 2705c93742e9 ("block:
+kill QUEUE_FLAG_NO_SG_MERGE") in v5.1.
 
-This commit takes the remaining functional snippet of:
-
- ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
-
-... and is the correct fix for this issue.
-
-Fixes: 9c3f39860367 ("futex: Cure exit race")
-Cc: stable@vger.kernel.org # v4.9.258
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
+Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 ---
- kernel/futex.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/dm-table.c | 83 +++++++++++++++++++++++++++----------------
+ 1 file changed, 53 insertions(+), 30 deletions(-)
 
-diff --git a/kernel/futex.c b/kernel/futex.c
-index 116766ef7de6..98c65b3c3a00 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1202,11 +1202,11 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
- 	u32 uval2;
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index a5a6c7f073af..7ee520d4d216 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1210,6 +1210,46 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
+ 	return &t->targets[(KEYS_PER_NODE * n) + k];
+ }
  
- 	/*
--	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
--	 * for it to finish.
-+	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
-+	 * caller that the alleged owner is busy.
++/*
++ * type->iterate_devices() should be called when the sanity check needs to
++ * iterate and check all underlying data devices. iterate_devices() will
++ * iterate all underlying data devices until it encounters a non-zero return
++ * code, returned by whether the input iterate_devices_callout_fn, or
++ * iterate_devices() itself internally.
++ *
++ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
++ * iterate multiple underlying devices internally, in which case a non-zero
++ * return code returned by iterate_devices_callout_fn will stop the iteration
++ * in advance.
++ *
++ * Cases requiring _any_ underlying device supporting some kind of attribute,
++ * should use the iteration structure like dm_table_any_dev_attr(), or call
++ * it directly. @func should handle semantics of positive examples, e.g.
++ * capable of something.
++ *
++ * Cases requiring _all_ underlying devices supporting some kind of attribute,
++ * should use the iteration structure like dm_table_supports_nowait() or
++ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
++ * uses an @anti_func that handle semantics of counter examples, e.g. not
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ */
++static bool dm_table_any_dev_attr(struct dm_table *t,
++				  iterate_devices_callout_fn func)
++{
++	struct dm_target *ti;
++	unsigned int i;
++
++	for (i = 0; i < dm_table_get_num_targets(t); i++) {
++		ti = dm_table_get_target(t, i);
++
++		if (ti->type->iterate_devices &&
++		    ti->type->iterate_devices(ti, func, NULL))
++			return true;
++        }
++
++	return false;
++}
++
+ static int count_device(struct dm_target *ti, struct dm_dev *dev,
+ 			sector_t start, sector_t len, void *data)
+ {
+@@ -1380,12 +1420,12 @@ static bool dm_table_discard_zeroes_data(struct dm_table *t)
+ 	return true;
+ }
+ 
+-static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
+-			    sector_t start, sector_t len, void *data)
++static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
++				sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && blk_queue_nonrot(q);
++	return q && !blk_queue_nonrot(q);
+ }
+ 
+ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+@@ -1396,29 +1436,12 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+ 	return q && !blk_queue_add_random(q);
+ }
+ 
+-static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
+-				   sector_t start, sector_t len, void *data)
++static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
++			     sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+-}
+-
+-static bool dm_table_all_devices_attribute(struct dm_table *t,
+-					   iterate_devices_callout_fn func)
+-{
+-	struct dm_target *ti;
+-	unsigned i = 0;
+-
+-	while (i < dm_table_get_num_targets(t)) {
+-		ti = dm_table_get_target(t, i++);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, func, NULL))
+-			return false;
+-	}
+-
+-	return true;
++	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+ }
+ 
+ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+@@ -1511,18 +1534,18 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 		q->limits.discard_zeroes_data = 0;
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_all_devices_attribute(t, device_is_nonrot))
+-		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
+-	else
++	if (dm_table_any_dev_attr(t, device_is_rotational))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
++	else
++		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
+ 
+ 	if (!dm_table_supports_write_same(t))
+ 		q->limits.max_write_same_sectors = 0;
+ 
+-	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
+-		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+-	else
++	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
+ 		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
++	else
++		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+ 
+ 	dm_table_verify_integrity(t);
+ 
+@@ -1532,7 +1555,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
  	 */
- 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
--		return -EAGAIN;
-+		return -EBUSY;
+-	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
++	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
  
  	/*
- 	 * Reread the user space value to handle the following situation:
 -- 
-2.25.4
+2.27.0
 
