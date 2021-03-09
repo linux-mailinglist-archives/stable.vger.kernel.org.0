@@ -2,78 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D4E331CD1
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 03:17:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6190331D35
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:00:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230303AbhCICRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 21:17:08 -0500
-Received: from smtprelay-out1.synopsys.com ([149.117.73.133]:34614 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230224AbhCICQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 21:16:52 -0500
-Received: from mailhost.synopsys.com (sv1-mailhost2.synopsys.com [10.205.2.132])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 95A754016B;
-        Tue,  9 Mar 2021 02:16:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1615256212; bh=wLMLIhb+/hvqLoumyo8tdobhhtAwqLv2YxVlGttEtxY=;
-        h=Date:In-Reply-To:References:From:Subject:To:Cc:From;
-        b=KrZvBoa36ieuluNPuxuPZdcCpZ6CORP4/n8X8Bn6nNMphryJJoLZ3pIAp9mNng+W0
-         bNfD3v7OVvkAcxbSgTJZ7VfiwQn1sSzIvOcGxdtBRgs3iJIMUfHLN3Qz+HWbOkZEMy
-         I4ndpCsjd8su4NaNK0Mkh1eXaMeJnGL9sjkm0mCtf/e4DwZUP4ZaNM/yYkqT4HrNZ3
-         vnjrzo3ew4WQ2jIAxHzMDW5W9ofIwuIb9a4By4BmkK0G6lA8XVi4lcGz62Z40lIEB6
-         uySAr5il72vAnbLkBiL9BoJNDPFCzOpVGcYdtJWaK/YoiPzTnvI71K3tRy0T1z6q15
-         ZOybrFobrmkIA==
-Received: from lab-vbox (unknown [10.205.145.68])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 30DDCA006F;
-        Tue,  9 Mar 2021 02:16:50 +0000 (UTC)
-Received: by lab-vbox (sSMTP sendmail emulation); Mon, 08 Mar 2021 18:16:50 -0800
-Date:   Mon, 08 Mar 2021 18:16:50 -0800
-Message-Id: <55ac7001af73bfe9bc750c6446ef4ac8cf6f9313.1615254129.git.Thinh.Nguyen@synopsys.com>
-In-Reply-To: <cover.1615254129.git.Thinh.Nguyen@synopsys.com>
-References: <cover.1615254129.git.Thinh.Nguyen@synopsys.com>
-X-SNPS-Relay: synopsys.com
-From:   Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 2/2] usb: dwc3: gadget: Use max speed if unspecified
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thinh.Nguyen@synopsys.com, linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>, <stable@vger.kernel.org>
+        id S229904AbhCIC70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 21:59:26 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:13873 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229599AbhCIC7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 21:59:16 -0500
+Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.59])
+        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4DvfyJ6HPqz8vQn;
+        Tue,  9 Mar 2021 10:57:28 +0800 (CST)
+Received: from code-website.localdomain (10.175.127.227) by
+ DGGEMS410-HUB.china.huawei.com (10.3.19.210) with Microsoft SMTP Server id
+ 14.3.498.0; Tue, 9 Mar 2021 10:59:04 +0800
+From:   Zheng Yejian <zhengyejian1@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <lee.jones@linaro.org>,
+        <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC:     <tglx@linutronix.de>, <cj.chengjian@huawei.com>,
+        <judy.chenhui@huawei.com>, <zhangjinhao2@huawei.com>,
+        <nixiaoming@huawei.com>
+Subject: [PATCH 4.4 0/3] Backport patch series to update Futex from 4.9
+Date:   Tue, 9 Mar 2021 11:06:02 +0800
+Message-ID: <20210309030605.3295183-1-zhengyejian1@huawei.com>
+X-Mailer: git-send-email 2.25.4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the gadget driver doesn't specify a max_speed, then use the
-controller's maximum supported speed as default. For DWC_usb32 IP, the
-gadget's speed maybe limited to gen2x1 rate only if the driver's
-max_speed is unknown. This scenario should not occur with the current
-implementation since the default gadget driver's max_speed should always
-be specified. However, to make the driver more robust and help with
-readability, let's cover all the scenarios in __dwc3_gadget_set_speed().
+Lee sent a patchset to update Futex for 4.9, see https://www.spinics.net/lists/stable/msg443081.html,
+Then Xiaoming sent a follow-up patch for it, see https://lore.kernel.org/lkml/20210225093120.GD641347@dell/.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 450b9e9fabd8 ("usb: dwc3: gadget: Set speed only up to the max supported")
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
----
- drivers/usb/dwc3/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+These patchsets may also resolve following issues in 4.4.260 which have been reported in 4.9,
+see https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/?h=linux-4.4.y&id=319f66f08de1083c1fe271261665c209009dd65a
+      > /*
+      >  * The task is on the way out. When the futex state is
+      >  * FUTEX_STATE_DEAD, we know that the task has finished
+      >  * the cleanup:
+      >  */
+      > int ret = (p->futex_state = FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 53696c4bed0a..a04a9757f541 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2083,7 +2083,7 @@ static void __dwc3_gadget_set_speed(struct dwc3 *dwc)
- 	u32			reg;
- 
- 	speed = dwc->gadget_max_speed;
--	if (speed > dwc->maximum_speed)
-+	if (speed == USB_SPEED_UNKNOWN || speed > dwc->maximum_speed)
- 		speed = dwc->maximum_speed;
- 
- 	if (speed == USB_SPEED_SUPER_PLUS &&
+    Here may be:
+      int ret = (p->futex_state == FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
+
+      > raw_spin_unlock_irq(&p->pi_lock);
+      > /*
+      >  * If the owner task is between FUTEX_STATE_EXITING and
+      >  * FUTEX_STATE_DEAD then store the task pointer and keep
+      >  * the reference on the task struct. The calling code will
+      >  * drop all locks, wait for the task to reach
+      >  * FUTEX_STATE_DEAD and then drop the refcount. This is
+      >  * required to prevent a live lock when the current task
+      >  * preempted the exiting task between the two states.
+      >  */
+      > if (ret == -EBUSY)
+
+    And here, the variable "ret" may only be "-ESRCH" or "-EAGAIN", but not "-EBUSY".
+
+      > 	*exiting = p;
+      > else
+      > 	put_task_struct(p);
+
+Since 074e7d515783 ("futex: Ensure the correct return value from futex_lock_pi()") has
+been merged in 4.4.260, I send the remain 3 patches.
+
+Peter Zijlstra (1):
+  futex: Change locking rules
+
+Thomas Gleixner (2):
+  futex: Cure exit race
+  futex: fix dead code in attach_to_pi_owner()
+
+ kernel/futex.c | 209 +++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 177 insertions(+), 32 deletions(-)
+
 -- 
-2.28.0
+2.25.4
 
