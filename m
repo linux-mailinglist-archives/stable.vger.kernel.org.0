@@ -2,18 +2,15 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA2B6332B8D
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 17:09:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B4C332B87
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 17:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231961AbhCIQIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 11:08:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52068 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232054AbhCIQIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 11:08:14 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9FDC06174A;
-        Tue,  9 Mar 2021 08:08:14 -0800 (PST)
+        id S231941AbhCIQIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 11:08:42 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:53926 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232098AbhCIQIN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 11:08:13 -0500
 Date:   Tue, 09 Mar 2021 16:08:11 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020; t=1615306092;
@@ -22,12 +19,12 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4oKnzr0uBAmthc+mtFDYGBTY0n/S6HSbqDR1yGD74oY=;
-        b=E32sU3XROmMExlWeHSLp022qB060dzbpQ2hKTHfWC4/ky/IiyauXBi1HyWHAdUo/EtMKXq
-        1if2zhQ5XqpxI39k4U3wAWQhn/7qhORCCawRvakRADxVb9PhiicdZLMQ2ySosDwcc2mGhC
-        XGm1mx4KJx9yHo/hy6girMA0bEiDIdaEiEStva1A5fxuRZOoPonprlLd8NKwzv4hkLipRB
-        +1Db2tp0LIQ0TGP0EJ9sxbTKmA+b28PuM9Ah752MTL38EGoM2HjKPDheYnBb7Pha1Es54d
-        nGd6x83pz+pSdqGkWxZE/LPPZCuEmjtYyKGH8FE10zTzE9z5dWm3hJuJxCIrVQ==
+        bh=ydP5OQo35wAYWz8Gi3ovOO+XhHXKCyB4t30sZUCfcWY=;
+        b=nsZ8Th5H5/zsO4YFl832ncOKMjnzzxio0VuJ6lBubI6i/9DUSr0PmT4kG7DD4WcfXOhLoa
+        ZBtVqz+9ygOrW37YaKJLMMQFKWAO+fdZymo9QItWZiC6Y0S3uGo97dp9jMZFnH7CdCUWgo
+        5MhMQYNtwNOJ3Z4wf+wLnIe9eGeoGUbKouZ3Ji1wijVkdSLy+ZHk1SaJ0I3kLILNOhBDg1
+        hDkolbGTIwW0j8f9bBWuP5YUsmJyrSG8jM7uajAvHCuJCY/pAC2uDGc3B9oJ7D9Zn82OAQ
+        VlLHVLqxSnGJ6e8r4NAB/bVciaPpJblssdN6lKth9GODMBA4+Yia53Qry1P/RQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020e; t=1615306092;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -35,22 +32,23 @@ DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4oKnzr0uBAmthc+mtFDYGBTY0n/S6HSbqDR1yGD74oY=;
-        b=RRKMEb8olJYcGa3jgLm9BHDX50w40whIN+oy0DZW2+jjwrMwst1ZEnwJvYYC873ME5aDkJ
-        UFueFuQkQjzREEDw==
+        bh=ydP5OQo35wAYWz8Gi3ovOO+XhHXKCyB4t30sZUCfcWY=;
+        b=LAyffzNC8k6oFMCgFgcPG7DdJWE7W+sff6EeaPNVcS60FT81IS7NQsaFJCYxX3yb3AFcYf
+        1HcgYsprM2pqZ0CA==
 From:   "tip-bot2 for Joerg Roedel" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sev-es: Use __copy_from_user_inatomic()
-Cc:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        stable@vger.kernel.org, #@tip-bot2.tec.linutronix.de,
-        v5.10+@tip-bot2.tec.linutronix.de, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20210303141716.29223-6-joro@8bytes.org>
-References: <20210303141716.29223-6-joro@8bytes.org>
+Subject: [tip: x86/urgent] x86/sev-es: Correctly track IRQ states in runtime
+ #VC handler
+Cc:     Andy Lutomirski <luto@kernel.org>, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
+        #@tip-bot2.tec.linutronix.de, v5.10+@tip-bot2.tec.linutronix.de,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20210303141716.29223-5-joro@8bytes.org>
+References: <20210303141716.29223-5-joro@8bytes.org>
 MIME-Version: 1.0
-Message-ID: <161530609145.398.11788933296819355210.tip-bot2@tip-bot2>
+Message-ID: <161530609185.398.9748998065952345534.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -61,145 +59,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     bffe30dd9f1f3b2608a87ac909a224d6be472485
-Gitweb:        https://git.kernel.org/tip/bffe30dd9f1f3b2608a87ac909a224d6be472485
+Commit-ID:     62441a1fb53263bda349b6e5997c3cc5c120d89e
+Gitweb:        https://git.kernel.org/tip/62441a1fb53263bda349b6e5997c3cc5c120d89e
 Author:        Joerg Roedel <jroedel@suse.de>
-AuthorDate:    Wed, 03 Mar 2021 15:17:16 +01:00
+AuthorDate:    Wed, 03 Mar 2021 15:17:15 +01:00
 Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 09 Mar 2021 12:37:54 +01:00
+CommitterDate: Tue, 09 Mar 2021 12:33:46 +01:00
 
-x86/sev-es: Use __copy_from_user_inatomic()
+x86/sev-es: Correctly track IRQ states in runtime #VC handler
 
-The #VC handler must run in atomic context and cannot sleep. This is a
-problem when it tries to fetch instruction bytes from user-space via
-copy_from_user().
+Call irqentry_nmi_enter()/irqentry_nmi_exit() in the #VC handler to
+correctly track the IRQ state during its execution.
 
-Introduce a insn_fetch_from_user_inatomic() helper which uses
-__copy_from_user_inatomic() to safely copy the instruction bytes to
-kernel memory in the #VC handler.
-
-Fixes: 5e3427a7bc432 ("x86/sev-es: Handle instruction fetches from user-space")
+Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Reported-by: Andy Lutomirski <luto@kernel.org>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org # v5.10+
-Link: https://lkml.kernel.org/r/20210303141716.29223-6-joro@8bytes.org
+Link: https://lkml.kernel.org/r/20210303141716.29223-5-joro@8bytes.org
 ---
- arch/x86/include/asm/insn-eval.h |  2 +-
- arch/x86/kernel/sev-es.c         |  2 +-
- arch/x86/lib/insn-eval.c         | 66 ++++++++++++++++++++++++-------
- 3 files changed, 55 insertions(+), 15 deletions(-)
+ arch/x86/kernel/sev-es.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index a0f839a..98b4dae 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -23,6 +23,8 @@ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
- int insn_fetch_from_user(struct pt_regs *regs,
- 			 unsigned char buf[MAX_INSN_SIZE]);
-+int insn_fetch_from_user_inatomic(struct pt_regs *regs,
-+				  unsigned char buf[MAX_INSN_SIZE]);
- bool insn_decode(struct insn *insn, struct pt_regs *regs,
- 		 unsigned char buf[MAX_INSN_SIZE], int buf_size);
- 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index c3fd8fa..04a780a 100644
+index 301f20f..c3fd8fa 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -258,7 +258,7 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
- 	int res;
- 
- 	if (user_mode(ctxt->regs)) {
--		res = insn_fetch_from_user(ctxt->regs, buffer);
-+		res = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
- 		if (!res) {
- 			ctxt->fi.vector     = X86_TRAP_PF;
- 			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 4229950..bb0b3fe 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1415,6 +1415,25 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
- 	}
- }
- 
-+static unsigned long insn_get_effective_ip(struct pt_regs *regs)
-+{
-+	unsigned long seg_base = 0;
-+
-+	/*
-+	 * If not in user-space long mode, a custom code segment could be in
-+	 * use. This is true in protected mode (if the process defined a local
-+	 * descriptor table), or virtual-8086 mode. In most of the cases
-+	 * seg_base will be zero as in USER_CS.
-+	 */
-+	if (!user_64bit_mode(regs)) {
-+		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
-+		if (seg_base == -1L)
-+			return 0;
-+	}
-+
-+	return seg_base + regs->ip;
-+}
-+
- /**
-  * insn_fetch_from_user() - Copy instruction bytes from user-space memory
-  * @regs:	Structure with register values as seen when entering kernel mode
-@@ -1431,24 +1450,43 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
-  */
- int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
+@@ -1258,13 +1258,12 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
+ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
  {
--	unsigned long seg_base = 0;
-+	unsigned long ip;
- 	int not_copied;
+ 	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
++	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
+ 	struct ghcb *ghcb;
  
--	/*
--	 * If not in user-space long mode, a custom code segment could be in
--	 * use. This is true in protected mode (if the process defined a local
--	 * descriptor table), or virtual-8086 mode. In most of the cases
--	 * seg_base will be zero as in USER_CS.
--	 */
--	if (!user_64bit_mode(regs)) {
--		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
--		if (seg_base == -1L)
--			return 0;
--	}
-+	ip = insn_get_effective_ip(regs);
-+	if (!ip)
-+		return 0;
-+
-+	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
+-	lockdep_assert_irqs_disabled();
+-
+ 	/*
+ 	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
+ 	 */
+@@ -1273,6 +1272,8 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 		return;
+ 	}
  
-+	return MAX_INSN_SIZE - not_copied;
-+}
-+
-+/**
-+ * insn_fetch_from_user_inatomic() - Copy instruction bytes from user-space memory
-+ *                                   while in atomic code
-+ * @regs:	Structure with register values as seen when entering kernel mode
-+ * @buf:	Array to store the fetched instruction
-+ *
-+ * Gets the linear address of the instruction and copies the instruction bytes
-+ * to the buf. This function must be used in atomic context.
-+ *
-+ * Returns:
-+ *
-+ * Number of instruction bytes copied.
-+ *
-+ * 0 if nothing was copied.
-+ */
-+int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
-+{
-+	unsigned long ip;
-+	int not_copied;
-+
-+	ip = insn_get_effective_ip(regs);
-+	if (!ip)
-+		return 0;
++	irq_state = irqentry_nmi_enter(regs);
++	lockdep_assert_irqs_disabled();
+ 	instrumentation_begin();
  
--	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
--				    MAX_INSN_SIZE);
-+	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
+ 	/*
+@@ -1335,6 +1336,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
  
- 	return MAX_INSN_SIZE - not_copied;
- }
+ out:
+ 	instrumentation_end();
++	irqentry_nmi_exit(regs, irq_state);
+ 
+ 	return;
+ 
