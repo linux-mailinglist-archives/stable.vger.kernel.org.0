@@ -2,251 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0EC6331E1E
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 06:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D50F331E3E
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 06:15:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbhCIE7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 23:59:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48120 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229599AbhCIE7R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 23:59:17 -0500
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6002C06175F
-        for <stable@vger.kernel.org>; Mon,  8 Mar 2021 20:59:16 -0800 (PST)
-Received: by mail-ed1-x52b.google.com with SMTP id l12so18100547edt.3
-        for <stable@vger.kernel.org>; Mon, 08 Mar 2021 20:59:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=NNsn0ufTvi2ZhdmZLPZ/mCVUGoeVfVXO8bsMlOKraZQ=;
-        b=xcdYd9CWVObqkrOASccmMaIZ8RFtWwy5vhs2pCdLkc9ZH8p9QGMHu4IyKqEd2Gjvdu
-         dC8y8QqY7JIZpqfSd+D1XBsnbAgrNmsCnhRyz7JddNyNP0/mrBG1CA0Mo+SbdFLR9GIq
-         BLnUaeVWCguu6j5YnXLIJD4QRjQBP0OzCdu7K8icwXnz8RVeanZ1awFhl3o3xG1M/bzb
-         ou/H1DhoicV9MZXu8TjT0AFYz/6NCBqdntJJotT/4YxdcOaDqILcPbUZfPlFFNTVgfjV
-         JjqZeBHufAiJTuUPaSJng85nkxl7Ns+/XMwVf/z8ZNWvqPO4XmMsuRkXIQHSf2aqYpoR
-         vhUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=NNsn0ufTvi2ZhdmZLPZ/mCVUGoeVfVXO8bsMlOKraZQ=;
-        b=MYynsU8pxGdIlFfOwr+eyJZ9GMVqxLgaO+69WrCPy5/Adh0eMFSOUGg1hKF6OIMRvZ
-         V8ed9OsVDgM+17eZEHiwmTcQaBVYctVonY4n9/PWv83XdiH9V7m1WAaAtlWDJWNGsV0/
-         4vtTh4sZy/lcd8Vxn545ZBnR7fnBL7dlKGowSCPgY6gqY8OEAm1Grn9duhEVVQRDnfNr
-         sDxSkFvK9mrTCwiQF0FHBa/KpzFHzNJ5cmv42IMN5RVRFfxxB8IQIiWVWcvKtm2ddW0M
-         ZQWPwUwfGfokhYFMRNRx7HptKbvtKy9WMmXgGvDWfgkQr72u76aEZK7BOrIMZ/7zel/2
-         rvWQ==
-X-Gm-Message-State: AOAM531eajzoAO79yInAYtO7x9/qnXTVTZqvBkPRrnuMVcYuWw6nJbTT
-        Vyop3ldXiX3dG33soCmQid+W0x/t1rZC7dm/IGRV1Q==
-X-Google-Smtp-Source: ABdhPJxWPym7XShOKgZ71XxnLgW+IYugTIrsXclVAT3z0F2KEkp3VlaPEtkKeRzo8Qtu2W+e1rb3CUQ9PRls/l+PSTo=
-X-Received: by 2002:aa7:d287:: with SMTP id w7mr1970518edq.23.1615265955213;
- Mon, 08 Mar 2021 20:59:15 -0800 (PST)
+        id S229544AbhCIFOl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 00:14:41 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34476 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229475AbhCIFOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Mar 2021 00:14:17 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1615266856; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BwvCGl4RerrOMc9D3VhJpaldx+CpAEoVSAb7RV+Msz0=;
+        b=PsjkzlUmjyNWLXREWyB7xNn47Lt1T1qcBVj929+SN9We23f06yjU0Cdu7T57DwVa+Y/JXI
+        00xxr6+6cdKI9bHU8uj/gH2FdCy7mfpjJLrhgFlpHw9pHjHi80qZlMWH3ngOq+8pI2FxM+
+        jY5DMrrzbd8QAXRkVn4CzPpCUJ5qojc=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id D2610AB8C;
+        Tue,  9 Mar 2021 05:14:15 +0000 (UTC)
+Subject: Re: [PATCH v4 2/3] xen/events: don't unmask an event channel when an
+ eoi is pending
+To:     Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        ross.lagerwall@citrix.com
+Cc:     Stefano Stabellini <sstabellini@kernel.org>,
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Julien Grall <jgrall@amazon.com>
+References: <20210306161833.4552-1-jgross@suse.com>
+ <20210306161833.4552-3-jgross@suse.com>
+ <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
+From:   =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
+Date:   Tue, 9 Mar 2021 06:14:14 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <20210308122714.391917404@linuxfoundation.org>
-In-Reply-To: <20210308122714.391917404@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 9 Mar 2021 10:29:03 +0530
-Message-ID: <CA+G9fYupNTEE_o-wwn6eHaZRAPqPsHwLDkpsQTHz=tXf2_VAvg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/22] 5.4.104-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="q01kZynA2QJbHdjvIabMM3OzYodc49c7C"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 8 Mar 2021 at 18:02, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.104 release.
-> There are 22 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 10 Mar 2021 12:27:05 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.104-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--q01kZynA2QJbHdjvIabMM3OzYodc49c7C
+Content-Type: multipart/mixed; boundary="tNpc0ydQx80iYjL3FMABQniegUgVN9sys";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ ross.lagerwall@citrix.com
+Cc: Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org,
+ Julien Grall <julien@xen.org>, Julien Grall <jgrall@amazon.com>
+Message-ID: <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
+Subject: Re: [PATCH v4 2/3] xen/events: don't unmask an event channel when an
+ eoi is pending
+References: <20210306161833.4552-1-jgross@suse.com>
+ <20210306161833.4552-3-jgross@suse.com>
+ <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
+In-Reply-To: <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+--tNpc0ydQx80iYjL3FMABQniegUgVN9sys
+Content-Type: multipart/mixed;
+ boundary="------------BE5ED103C411FDF22705A2DF"
+Content-Language: en-US
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+This is a multi-part message in MIME format.
+--------------BE5ED103C411FDF22705A2DF
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-Summary
-------------------------------------------------------------------------
+On 08.03.21 21:33, Boris Ostrovsky wrote:
+>=20
+> On 3/6/21 11:18 AM, Juergen Gross wrote:
+>> An event channel should be kept masked when an eoi is pending for it.
+>> When being migrated to another cpu it might be unmasked, though.
+>>
+>> In order to avoid this keep three different flags for each event chann=
+el
+>> to be able to distinguish "normal" masking/unmasking from eoi related
+>> masking/unmasking and temporary masking. The event channel should only=
 
-kernel: 5.4.104-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 1d493929c06100abd14b955538afa461dc2c8b69
-git describe: v5.4.103-23-g1d493929c061
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
-y/build/v5.4.103-23-g1d493929c061
+>> be able to generate an interrupt if all flags are cleared.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 54c9de89895e0a36047 ("xen/events: add a new late EOI evtchn fra=
+mework")
+>> Reported-by: Julien Grall <julien@xen.org>
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> Reviewed-by: Julien Grall <jgrall@amazon.com>
+>> ---
+>> V2:
+>> - introduce a lock around masking/unmasking
+>> - merge patch 3 into this one (Jan Beulich)
+>> V4:
+>> - don't set eoi masking flag in lateeoi_mask_ack_dynirq()
+>=20
+>=20
+> Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+>=20
+>=20
+> Ross, are you planning to test this?
 
-No regressions (compared to build v5.4.103)
+Just as another data point: With the previous version of the patches
+a reboot loop of a guest needed max 33 reboots to loose network in
+my tests (those were IIRC 6 test runs). With this patch version I
+stopped the test after about 1300 reboots without having seen any
+problems.
 
-No fixes (compared to build v5.4.103)
+Juergen
 
+--------------BE5ED103C411FDF22705A2DF
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
 
-Ran 53363 total tests in the following environments and test suites.
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Environments
---------------
-- arc
-- arm
-- arm64
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- parisc
-- powerpc
-- qemu-arm-clang
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu-x86_64-kcsan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- riscv
-- s390
-- sh
-- sparc
-- x15
-- x86
-- x86-kasan
-- x86_64
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
 
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-intel_pstate
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fs-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* fwts
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-tc-testing
-* kvm-unit-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-ipc-tests
-* network-basic-tests
-* kselftest-kexec
-* kselftest-vm
-* kselftest-x86
-* ltp-open-posix-tests
-* rcutorture
-* kselftest-
-* ssuite
+--------------BE5ED103C411FDF22705A2DF--
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+--tNpc0ydQx80iYjL3FMABQniegUgVN9sys--
+
+--q01kZynA2QJbHdjvIabMM3OzYodc49c7C
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmBHBCYFAwAAAAAACgkQsN6d1ii/Ey/A
+eQf/QH0znaB3+GMsnTj6zXH3Lw1t8QxjO7acZvpKciqqjxU6LRgnSY7h37Zu/SWPvf8tjantQM0z
+aSbxaifZ8dmJOAICQ/djKo4WL/Ib26xkPool0Y56dqm/MdUrLBRz7Mr83SGajlO+hIsgs0Jfk9R8
+whnC7ogsGZ1iFjGWVHhsEQyXdVTVgplWjf4NDFptDpRTYPT+5QOu4AL++SG0auWnFCNcN7LXv7g3
+aKMxs4iyA1jtN16kXvqLI7EHFHDKp/ETHvKBLpLq4ZfsNt23VVPxE95PK7HrDNTq4NhDsxntOF6T
+n3U0HgH407F+rwqhpuF5a+HAD9Z2Qb+jR8OwuNQxww==
+=9CG/
+-----END PGP SIGNATURE-----
+
+--q01kZynA2QJbHdjvIabMM3OzYodc49c7C--
