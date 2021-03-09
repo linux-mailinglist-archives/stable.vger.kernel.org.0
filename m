@@ -2,101 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0441332197
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 10:06:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E598332286
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 11:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229481AbhCIJFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 04:05:42 -0500
-Received: from esa5.hc3370-68.iphmx.com ([216.71.155.168]:35948 "EHLO
-        esa5.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229544AbhCIJFM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 04:05:12 -0500
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Mar 2021 04:05:12 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=citrix.com; s=securemail; t=1615280712;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=ucEyClNY7Tik8Yk7WI9RZer5oJR2JMMqQHVmFQC9FDE=;
-  b=QVONzvvlN7I7XsaRYUQCGNmh2ULqBq9zQrA/TQ0S0pkRkKnWaTW8SCrZ
-   gj/21jE5kFIp2NMtw2vpwEMoosCY/AHJUiydPKRfTf4V1VlPDFtZB45HP
-   AASZbA5TUuSthGPTvhPSpBuxjn/L6gxGBBuaXLPfAyVJj3/KEYOGIutr8
-   w=;
-Authentication-Results: esa5.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
-IronPort-SDR: ifhYFTrHtVgd68c/XUGtBuHNjVRWo6LfOxF3XIc6nQNmeHSBls/AkrbJ89p6twz1cYS0qfTMYE
- 8tm4S8oS6YFEHMWGJKuMwDAScH2anoCglpbi60qWwpVBQcBGKwPYm/A0aEeGbZ0OfFdfGCxVHB
- vTkzH4T5pVvmrmdoHlz1NFEYy/WZD59qZSW6ilFF8vw6GqX2T6sJmQVlPCrcKpYXvQI3Netdin
- SS2On1Z3Azsqs9QyW25t8LjPLwIcVK1udb23wbHb6LXikGmvqMqYehSQ5PxdYJL3zywqd/12FN
- xtU=
-X-SBRS: 4.0
-X-MesageID: 38751923
-X-Ironport-Server: esa5.hc3370-68.iphmx.com
-X-Remote-IP: 162.221.158.21
-X-Policy: $RELAYED
-X-IronPort-AV: E=Sophos;i="5.81,234,1610427600"; 
-   d="scan'208";a="38751923"
-Subject: Re: [PATCH v4 2/3] xen/events: don't unmask an event channel when an
- eoi is pending
-To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        <xen-devel@lists.xenproject.org>, <linux-kernel@vger.kernel.org>
-CC:     Stefano Stabellini <sstabellini@kernel.org>,
-        <stable@vger.kernel.org>, Julien Grall <julien@xen.org>,
-        Julien Grall <jgrall@amazon.com>
-References: <20210306161833.4552-1-jgross@suse.com>
- <20210306161833.4552-3-jgross@suse.com>
- <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
- <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
-From:   Ross Lagerwall <ross.lagerwall@citrix.com>
-Message-ID: <b6d41422-47cf-956c-9c4a-98998c64b103@citrix.com>
-Date:   Tue, 9 Mar 2021 08:57:23 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S229599AbhCIKEe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 05:04:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57480 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229815AbhCIKEU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 05:04:20 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3931EC06174A
+        for <stable@vger.kernel.org>; Tue,  9 Mar 2021 02:04:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=mj8eBj+VT4BL6egNSJRqQr4Kz1rqAxuIWsFt0M1Ifrk=; b=B5kzfAztvwnbNwxH63mkIYk2+H
+        3xrS0O/ElWDTvbu+cqV3g1Fv3N6coU9FiFuWb0diwUKpnCdHIqtobIvj95onVySHWzg/YYkd15cJJ
+        O1EyiLJdQWMVJb1icTMDPSGQBxahOF1AtNdMIjE0DttQvX27xfhFIEqDg1Pa/34RklctufOe4LRjt
+        rTDPALIFus7K3nl2FH3/GFR1WK4IdX3xXLWWcm5WKKgVkrBFiXGArHX5h0CuEWXlonkhkBlPkjm2i
+        ZnLgTAs54f1wp56wwwZykBCvXgKD91FmhJLVQlRsfHXDiwwkwAkp8k/YwY15S5j2VMPQnWC5fIm/M
+        vJbeYWdA==;
+Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1lJZDf-000QGN-C5; Tue, 09 Mar 2021 10:04:06 +0000
+Date:   Tue, 9 Mar 2021 10:04:03 +0000
+From:   Christoph Hellwig <hch@infradead.org>
+To:     James Smart <jsmart2021@gmail.com>
+Cc:     linux-nvme@lists.infradead.org, emilne@redhat.com,
+        stable@vger.kernel.org, Nigel Kirkland <nkirkland2304@gmail.com>
+Subject: Re: [PATCH v2] nvme-fc: fix racing controller reset and create
+ association
+Message-ID: <20210309100403.GA100868@infradead.org>
+References: <20210309005126.58460-1-jsmart2021@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210309005126.58460-1-jsmart2021@gmail.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-03-09 05:14, Jürgen Groß wrote:
-> On 08.03.21 21:33, Boris Ostrovsky wrote:
->>
->> On 3/6/21 11:18 AM, Juergen Gross wrote:
->>> An event channel should be kept masked when an eoi is pending for it.
->>> When being migrated to another cpu it might be unmasked, though.
->>>
->>> In order to avoid this keep three different flags for each event channel
->>> to be able to distinguish "normal" masking/unmasking from eoi related
->>> masking/unmasking and temporary masking. The event channel should only
->>> be able to generate an interrupt if all flags are cleared.
->>>
->>> Cc: stable@vger.kernel.org
->>> Fixes: 54c9de89895e0a36047 ("xen/events: add a new late EOI evtchn framework")
->>> Reported-by: Julien Grall <julien@xen.org>
->>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>> Reviewed-by: Julien Grall <jgrall@amazon.com>
->>> ---
->>> V2:
->>> - introduce a lock around masking/unmasking
->>> - merge patch 3 into this one (Jan Beulich)
->>> V4:
->>> - don't set eoi masking flag in lateeoi_mask_ack_dynirq()
->>
->>
->> Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
->>
->>
->> Ross, are you planning to test this?
-> 
-> Just as another data point: With the previous version of the patches
-> a reboot loop of a guest needed max 33 reboots to loose network in
-> my tests (those were IIRC 6 test runs). With this patch version I
-> stopped the test after about 1300 reboots without having seen any
-> problems.
-> 
+Thanks,
 
-Thanks, I'll test it today and get back to you.
-
-Ross
+applied to nvme-5.12.
