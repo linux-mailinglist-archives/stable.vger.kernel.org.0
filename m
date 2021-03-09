@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4028F332E2F
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 19:24:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF629332E34
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 19:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230328AbhCISX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230465AbhCISX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 9 Mar 2021 13:23:29 -0500
-Received: from forwardcorp1p.mail.yandex.net ([77.88.29.217]:46696 "EHLO
-        forwardcorp1p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230403AbhCISXK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 13:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53210 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229815AbhCISXP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 13:23:15 -0500
+Received: from forwardcorp1o.mail.yandex.net (forwardcorp1o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D56BC06174A;
+        Tue,  9 Mar 2021 10:23:15 -0800 (PST)
 Received: from iva8-d077482f1536.qloud-c.yandex.net (iva8-d077482f1536.qloud-c.yandex.net [IPv6:2a02:6b8:c0c:2f26:0:640:d077:482f])
-        by forwardcorp1p.mail.yandex.net (Yandex) with ESMTP id 7FB332E150B;
-        Tue,  9 Mar 2021 21:23:05 +0300 (MSK)
+        by forwardcorp1o.mail.yandex.net (Yandex) with ESMTP id 530DA2E15A0;
+        Tue,  9 Mar 2021 21:23:10 +0300 (MSK)
 Received: from iva4-f06c35e68a0a.qloud-c.yandex.net (iva4-f06c35e68a0a.qloud-c.yandex.net [2a02:6b8:c0c:152e:0:640:f06c:35e6])
-        by iva8-d077482f1536.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id wcnaa8RXHT-N5JiONba;
-        Tue, 09 Mar 2021 21:23:05 +0300
+        by iva8-d077482f1536.qloud-c.yandex.net (mxbackcorp/Yandex) with ESMTP id yuCti61pxa-N8J88Z6Q;
+        Tue, 09 Mar 2021 21:23:10 +0300
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.com; s=default;
-        t=1615314185; bh=04qMOwDZliJ4nJyv6wec/a7UlSmhF51F/NyAZPQ4Q9w=;
+        t=1615314190; bh=ghIL96dAj+teO7QRVsuWgtcm+qr8fBxdtE412wvD4Ek=;
         h=In-Reply-To:Message-Id:References:Date:Subject:To:From:Cc;
-        b=y3dHOgf/5hmNhvNu/3cGc5E2ES5yO94+MLGeeSxzMHmf3AkeVwEpV7RSDc1d/jBJB
-         bpDqXXsW19wWkvUqO5c3BEw2tXmHnpkKjDLT0EcZ+hs9TZudU3nSCcRxVNcXwnyHm1
-         8JtkWgXIL6YFaF7CGq6yLvtueQ/NKSuaad+YAHQo=
+        b=sTDWx4bwgzAXwWWRXuisf9SyPxZzUts6Rgolz27d+htGGZluzVR4b2WDTIPTjh427
+         NiUR2gC0aFAQNjoomWKwzt+/l2IV89P8v2PwcFykiOYEMdCGSg7RIshDVj5X00ocIo
+         rM7XIYCw+rXzWLb6pmZ1EssT7fWTEItGY8wo8vOk=
 Authentication-Results: iva8-d077482f1536.qloud-c.yandex.net; dkim=pass header.i=@yandex-team.com
 Received: from dynamic-vpn.dhcp.yndx.net (dynamic-vpn.dhcp.yndx.net [2a02:6b8:b081:203::1:15])
-        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id T5bJwzP5HK-N4nWQO9P;
-        Tue, 09 Mar 2021 21:23:04 +0300
+        by iva4-f06c35e68a0a.qloud-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id T5bJwzP5HK-N8nWRD8I;
+        Tue, 09 Mar 2021 21:23:08 +0300
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (Client certificate not present)
 From:   Andrey Ryabinin <arbn@yandex-team.com>
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     jroedel@suse.de, will@kernel.org, linux-kernel@vger.kernel.org,
         Andrey Ryabinin <arbn@yandex-team.com>
-Subject: [PATCH stable 4.14-4.19] iommu/amd: Fix sleeping in atomic in increase_address_space()
-Date:   Tue,  9 Mar 2021 21:24:27 +0300
-Message-Id: <20210309182430.18849-1-arbn@yandex-team.com>
+Subject: [PATCH stable 4.9] iommu/amd: Fix sleeping in atomic in increase_address_space()
+Date:   Tue,  9 Mar 2021 21:24:28 +0300
+Message-Id: <20210309182430.18849-2-arbn@yandex-team.com>
 X-Mailer: git-send-email 2.26.2
-In-Reply-To: <161512522533161@kroah.com>
+In-Reply-To: <20210309182430.18849-1-arbn@yandex-team.com>
 References: <161512522533161@kroah.com>
+ <20210309182430.18849-1-arbn@yandex-team.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -82,16 +86,16 @@ Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
  1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 494caaa265af0..8195ff219b48c 100644
+index f4a15d9f2bbb2..8377bd388d673 100644
 --- a/drivers/iommu/amd_iommu.c
 +++ b/drivers/iommu/amd_iommu.c
-@@ -1347,24 +1347,26 @@ static void increase_address_space(struct protection_domain *domain,
+@@ -1331,24 +1331,26 @@ static void increase_address_space(struct protection_domain *domain,
  	unsigned long flags;
  	u64 *pte;
  
 +	pte = (void *)get_zeroed_page(gfp);
 +	if (!pte)
-+		return;
++		goto out;
 +
  	spin_lock_irqsave(&domain->lock, flags);
  
@@ -104,7 +108,7 @@ index 494caaa265af0..8195ff219b48c 100644
 -		goto out;
 -
  	*pte             = PM_LEVEL_PDE(domain->mode,
- 					iommu_virt_to_phys(domain->pt_root));
+ 					virt_to_phys(domain->pt_root));
  	domain->pt_root  = pte;
  	domain->mode    += 1;
  	domain->updated  = true;
