@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8EFF33231F
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 11:35:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A088E332325
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 11:36:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbhCIKe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 05:34:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42378 "EHLO mail.kernel.org"
+        id S229815AbhCIKgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 05:36:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230156AbhCIKee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Mar 2021 05:34:34 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B22236522F;
-        Tue,  9 Mar 2021 10:34:31 +0000 (UTC)
+        id S229904AbhCIKf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Mar 2021 05:35:58 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2436265267;
+        Tue,  9 Mar 2021 10:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615286073;
-        bh=v767C0k4VPjVlR2gIA0UXY56wrD/viimOTqj0o52g4A=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0sXrq40GQN5TiLHxYDfY1F5OHkLkG3J2IVbdKzLO5O4b4IzbhI+cMYn00egXpOO9
-         dugfSVJAWh0usI7JY7hP9BKJXo0KuqTE8zgjbSw6acHUQ/iH5QxGu7VU+MKDxiQ+WT
-         dEyK2wKigWDrfidz/GAha43Abu8nfnBRsCiSQHrg=
+        s=korg; t=1615286158;
+        bh=eOt7D1/DQLmhe+qQ/5mg/yl9b7qCI2gAigYMW6nURi0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Vy29uIfnIF0PjZOuNztUYiIqadkGTWXfhBLKmCzZmjjHUeEXKU55Vh7b3R2tvjKX+
+         moBjTWjQ7vSKzDsiBcIP1gpsNSxOyCl/P6U+SIQBh25ZXavmw6WLzCBBtlSC1+vTfx
+         +q8th+uLnuqXYP/KqSFLPzfLFuxZQAFEgCiUgChk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.4.104
-Date:   Tue,  9 Mar 2021 11:34:26 +0100
-Message-Id: <1615286066234112@kroah.com>
+Subject: Linux 5.10.22
+Date:   Tue,  9 Mar 2021 11:35:51 +0100
+Message-Id: <161528615125203@kroah.com>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <161528606622750@kroah.com>
-References: <161528606622750@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -39,784 +37,172 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/Makefile b/Makefile
-index c95435d78fcb..e94dcf2d77f5 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 4
--SUBLEVEL = 103
-+SUBLEVEL = 104
- EXTRAVERSION =
- NAME = Kleptomaniac Octopus
- 
-diff --git a/arch/arm64/kernel/ptrace.c b/arch/arm64/kernel/ptrace.c
-index 30b877f8b85e..0cfd68577489 100644
---- a/arch/arm64/kernel/ptrace.c
-+++ b/arch/arm64/kernel/ptrace.c
-@@ -1844,7 +1844,7 @@ int syscall_trace_enter(struct pt_regs *regs)
- 
- 	if (flags & (_TIF_SYSCALL_EMU | _TIF_SYSCALL_TRACE)) {
- 		tracehook_report_syscall(regs, PTRACE_SYSCALL_ENTER);
--		if (!in_syscall(regs) || (flags & _TIF_SYSCALL_EMU))
-+		if (flags & _TIF_SYSCALL_EMU)
- 			return -1;
- 	}
- 
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index 137a7ba053d7..8e3d0228b05b 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -325,22 +325,22 @@ static void rpm_put_suppliers(struct device *dev)
- static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
- 	__releases(&dev->power.lock) __acquires(&dev->power.lock)
- {
--	int retval, idx;
- 	bool use_links = dev->power.links_count > 0;
-+	bool get = false;
-+	int retval, idx;
-+	bool put;
- 
- 	if (dev->power.irq_safe) {
- 		spin_unlock(&dev->power.lock);
-+	} else if (!use_links) {
-+		spin_unlock_irq(&dev->power.lock);
- 	} else {
-+		get = dev->power.runtime_status == RPM_RESUMING;
-+
- 		spin_unlock_irq(&dev->power.lock);
- 
--		/*
--		 * Resume suppliers if necessary.
--		 *
--		 * The device's runtime PM status cannot change until this
--		 * routine returns, so it is safe to read the status outside of
--		 * the lock.
--		 */
--		if (use_links && dev->power.runtime_status == RPM_RESUMING) {
-+		/* Resume suppliers if necessary. */
-+		if (get) {
- 			idx = device_links_read_lock();
- 
- 			retval = rpm_get_suppliers(dev);
-@@ -355,24 +355,36 @@ static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
- 
- 	if (dev->power.irq_safe) {
- 		spin_lock(&dev->power.lock);
--	} else {
--		/*
--		 * If the device is suspending and the callback has returned
--		 * success, drop the usage counters of the suppliers that have
--		 * been reference counted on its resume.
--		 *
--		 * Do that if resume fails too.
--		 */
--		if (use_links
--		    && ((dev->power.runtime_status == RPM_SUSPENDING && !retval)
--		    || (dev->power.runtime_status == RPM_RESUMING && retval))) {
--			idx = device_links_read_lock();
-+		return retval;
-+	}
- 
-- fail:
--			rpm_put_suppliers(dev);
-+	spin_lock_irq(&dev->power.lock);
- 
--			device_links_read_unlock(idx);
--		}
-+	if (!use_links)
-+		return retval;
-+
-+	/*
-+	 * If the device is suspending and the callback has returned success,
-+	 * drop the usage counters of the suppliers that have been reference
-+	 * counted on its resume.
-+	 *
-+	 * Do that if the resume fails too.
-+	 */
-+	put = dev->power.runtime_status == RPM_SUSPENDING && !retval;
-+	if (put)
-+		__update_runtime_status(dev, RPM_SUSPENDED);
-+	else
-+		put = get && retval;
-+
-+	if (put) {
-+		spin_unlock_irq(&dev->power.lock);
-+
-+		idx = device_links_read_lock();
-+
-+fail:
-+		rpm_put_suppliers(dev);
-+
-+		device_links_read_unlock(idx);
- 
- 		spin_lock_irq(&dev->power.lock);
- 	}
-diff --git a/drivers/block/rsxx/core.c b/drivers/block/rsxx/core.c
-index 10f6368117d8..804d28faa97b 100644
---- a/drivers/block/rsxx/core.c
-+++ b/drivers/block/rsxx/core.c
-@@ -165,15 +165,17 @@ static ssize_t rsxx_cram_read(struct file *fp, char __user *ubuf,
- {
- 	struct rsxx_cardinfo *card = file_inode(fp)->i_private;
- 	char *buf;
--	ssize_t st;
-+	int st;
- 
- 	buf = kzalloc(cnt, GFP_KERNEL);
- 	if (!buf)
- 		return -ENOMEM;
- 
- 	st = rsxx_creg_read(card, CREG_ADD_CRAM + (u32)*ppos, cnt, buf, 1);
--	if (!st)
--		st = copy_to_user(ubuf, buf, cnt);
-+	if (!st) {
-+		if (copy_to_user(ubuf, buf, cnt))
-+			st = -EFAULT;
-+	}
- 	kfree(buf);
- 	if (st)
- 		return st;
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index 46d1fac247db..7da35867b6ad 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -618,12 +618,22 @@ static int tpm_tis_gen_interrupt(struct tpm_chip *chip)
- 	const char *desc = "attempting to generate an interrupt";
- 	u32 cap2;
- 	cap_t cap;
-+	int ret;
- 
-+	/* TPM 2.0 */
- 	if (chip->flags & TPM_CHIP_FLAG_TPM2)
- 		return tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
--	else
--		return tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc,
--				  0);
-+
-+	/* TPM 1.2 */
-+	ret = request_locality(chip, 0);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc, 0);
-+
-+	release_locality(chip, 0);
-+
-+	return ret;
- }
- 
- /* Register the IRQ and issue a command that will cause an interrupt. If an
-@@ -929,11 +939,21 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 	init_waitqueue_head(&priv->read_queue);
- 	init_waitqueue_head(&priv->int_queue);
- 	if (irq != -1) {
--		/* Before doing irq testing issue a command to the TPM in polling mode
-+		/*
-+		 * Before doing irq testing issue a command to the TPM in polling mode
- 		 * to make sure it works. May as well use that command to set the
- 		 * proper timeouts for the driver.
- 		 */
--		if (tpm_get_timeouts(chip)) {
-+
-+		rc = request_locality(chip, 0);
-+		if (rc < 0)
-+			goto out_err;
-+
-+		rc = tpm_get_timeouts(chip);
-+
-+		release_locality(chip, 0);
-+
-+		if (rc) {
- 			dev_err(dev, "Could not get TPM timeouts and durations\n");
- 			rc = -ENODEV;
- 			goto out_err;
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-index 700e26b69abc..a9a81e55777b 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c
-@@ -240,7 +240,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_read(struct file *f, char __user *buf,
- 	while (size) {
- 		uint32_t value;
- 
--		value = RREG32_PCIE(*pos >> 2);
-+		value = RREG32_PCIE(*pos);
- 		r = put_user(value, (uint32_t *)buf);
- 		if (r)
- 			return r;
-@@ -283,7 +283,7 @@ static ssize_t amdgpu_debugfs_regs_pcie_write(struct file *f, const char __user
- 		if (r)
- 			return r;
- 
--		WREG32_PCIE(*pos >> 2, value);
-+		WREG32_PCIE(*pos, value);
- 
- 		result += 4;
- 		buf += 4;
-diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
-index 4d6f25fdcc0e..664e0f374ac0 100644
---- a/drivers/infiniband/hw/mlx5/devx.c
-+++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -2022,8 +2022,10 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_SUBSCRIBE_EVENT)(
- 
- 		num_alloc_xa_entries++;
- 		event_sub = kzalloc(sizeof(*event_sub), GFP_KERNEL);
--		if (!event_sub)
-+		if (!event_sub) {
-+			err = -ENOMEM;
- 			goto err;
-+		}
- 
- 		list_add_tail(&event_sub->event_list, &sub_list);
- 		if (use_eventfd) {
-diff --git a/drivers/infiniband/sw/rxe/Kconfig b/drivers/infiniband/sw/rxe/Kconfig
-index 71a773f607bb..0e8f1d05dfb2 100644
---- a/drivers/infiniband/sw/rxe/Kconfig
-+++ b/drivers/infiniband/sw/rxe/Kconfig
-@@ -4,6 +4,7 @@ config RDMA_RXE
- 	depends on INET && PCI && INFINIBAND
- 	depends on INFINIBAND_VIRT_DMA
- 	select NET_UDP_TUNNEL
-+	select CRYPTO
- 	select CRYPTO_CRC32
- 	select DMA_VIRT_OPS
- 	---help---
-diff --git a/drivers/md/dm-bufio.c b/drivers/md/dm-bufio.c
-index a9529dc2b26e..e8c37d9a652d 100644
---- a/drivers/md/dm-bufio.c
-+++ b/drivers/md/dm-bufio.c
-@@ -1438,6 +1438,10 @@ EXPORT_SYMBOL_GPL(dm_bufio_get_block_size);
- sector_t dm_bufio_get_device_size(struct dm_bufio_client *c)
- {
- 	sector_t s = i_size_read(c->bdev->bd_inode) >> SECTOR_SHIFT;
-+	if (s >= c->start)
-+		s -= c->start;
-+	else
-+		s = 0;
- 	if (likely(c->sectors_per_block_bits >= 0))
- 		s >>= c->sectors_per_block_bits;
- 	else
-diff --git a/drivers/md/dm-verity-fec.c b/drivers/md/dm-verity-fec.c
-index fb41b4f23c48..66f4c6398f67 100644
---- a/drivers/md/dm-verity-fec.c
-+++ b/drivers/md/dm-verity-fec.c
-@@ -61,19 +61,18 @@ static int fec_decode_rs8(struct dm_verity *v, struct dm_verity_fec_io *fio,
- static u8 *fec_read_parity(struct dm_verity *v, u64 rsb, int index,
- 			   unsigned *offset, struct dm_buffer **buf)
- {
--	u64 position, block;
-+	u64 position, block, rem;
- 	u8 *res;
- 
- 	position = (index + rsb) * v->fec->roots;
--	block = position >> v->data_dev_block_bits;
--	*offset = (unsigned)(position - (block << v->data_dev_block_bits));
-+	block = div64_u64_rem(position, v->fec->roots << SECTOR_SHIFT, &rem);
-+	*offset = (unsigned)rem;
- 
--	res = dm_bufio_read(v->fec->bufio, v->fec->start + block, buf);
-+	res = dm_bufio_read(v->fec->bufio, block, buf);
- 	if (IS_ERR(res)) {
- 		DMERR("%s: FEC %llu: parity read failed (block %llu): %ld",
- 		      v->data_dev->name, (unsigned long long)rsb,
--		      (unsigned long long)(v->fec->start + block),
--		      PTR_ERR(res));
-+		      (unsigned long long)block, PTR_ERR(res));
- 		*buf = NULL;
- 	}
- 
-@@ -155,7 +154,7 @@ static int fec_decode_bufs(struct dm_verity *v, struct dm_verity_fec_io *fio,
- 
- 		/* read the next block when we run out of parity bytes */
- 		offset += v->fec->roots;
--		if (offset >= 1 << v->data_dev_block_bits) {
-+		if (offset >= v->fec->roots << SECTOR_SHIFT) {
- 			dm_bufio_release(buf);
- 
- 			par = fec_read_parity(v, rsb, block_offset, &offset, &buf);
-@@ -674,7 +673,7 @@ int verity_fec_ctr(struct dm_verity *v)
- {
- 	struct dm_verity_fec *f = v->fec;
- 	struct dm_target *ti = v->ti;
--	u64 hash_blocks;
-+	u64 hash_blocks, fec_blocks;
- 	int ret;
- 
- 	if (!verity_fec_is_enabled(v)) {
-@@ -744,15 +743,17 @@ int verity_fec_ctr(struct dm_verity *v)
- 	}
- 
- 	f->bufio = dm_bufio_client_create(f->dev->bdev,
--					  1 << v->data_dev_block_bits,
-+					  f->roots << SECTOR_SHIFT,
- 					  1, 0, NULL, NULL);
- 	if (IS_ERR(f->bufio)) {
- 		ti->error = "Cannot initialize FEC bufio client";
- 		return PTR_ERR(f->bufio);
- 	}
- 
--	if (dm_bufio_get_device_size(f->bufio) <
--	    ((f->start + f->rounds * f->roots) >> v->data_dev_block_bits)) {
-+	dm_bufio_set_sector_offset(f->bufio, f->start << (v->data_dev_block_bits - SECTOR_SHIFT));
-+
-+	fec_blocks = div64_u64(f->rounds * f->roots, v->fec->roots << SECTOR_SHIFT);
-+	if (dm_bufio_get_device_size(f->bufio) < fec_blocks) {
- 		ti->error = "FEC device is too small";
- 		return -E2BIG;
- 	}
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 131be1fa770c..bd8decc54b87 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -3959,6 +3959,7 @@ static void rtl_pll_power_down(struct rtl8169_private *tp)
- 
- 	switch (tp->mac_version) {
- 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
-+	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
- 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
- 	case RTL_GIGA_MAC_VER_37:
- 	case RTL_GIGA_MAC_VER_39:
-@@ -3989,6 +3990,7 @@ static void rtl_pll_power_up(struct rtl8169_private *tp)
- {
- 	switch (tp->mac_version) {
- 	case RTL_GIGA_MAC_VER_25 ... RTL_GIGA_MAC_VER_26:
-+	case RTL_GIGA_MAC_VER_29 ... RTL_GIGA_MAC_VER_30:
- 	case RTL_GIGA_MAC_VER_32 ... RTL_GIGA_MAC_VER_33:
- 	case RTL_GIGA_MAC_VER_37:
- 	case RTL_GIGA_MAC_VER_39:
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index bef62b01824d..7dad8794ee38 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -649,7 +649,7 @@ static int btrfs_delayed_inode_reserve_metadata(
- 						      btrfs_ino(inode),
- 						      num_bytes, 1);
- 		} else {
--			btrfs_qgroup_free_meta_prealloc(root, fs_info->nodesize);
-+			btrfs_qgroup_free_meta_prealloc(root, num_bytes);
- 		}
- 		return ret;
- 	}
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 4126513e2429..f8e5c47b95e4 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3151,8 +3151,11 @@ static int btrfs_zero_range(struct inode *inode,
- 			goto out;
- 		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
- 						alloc_start, bytes_to_reserve);
--		if (ret)
-+		if (ret) {
-+			unlock_extent_cached(&BTRFS_I(inode)->io_tree, lockstart,
-+					     lockend, &cached_state);
- 			goto out;
-+		}
- 		ret = btrfs_prealloc_file_range(inode, mode, alloc_start,
- 						alloc_end - alloc_start,
- 						i_blocksize(inode),
-diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-index 8ed71b3b2546..4bbd4b09fb96 100644
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1907,7 +1907,10 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
- 	if (vol_args->flags & BTRFS_SUBVOL_RDONLY)
- 		readonly = true;
- 	if (vol_args->flags & BTRFS_SUBVOL_QGROUP_INHERIT) {
--		if (vol_args->size > PAGE_SIZE) {
-+		u64 nums;
-+
-+		if (vol_args->size < sizeof(*inherit) ||
-+		    vol_args->size > PAGE_SIZE) {
- 			ret = -EINVAL;
- 			goto free_args;
- 		}
-@@ -1916,6 +1919,20 @@ static noinline int btrfs_ioctl_snap_create_v2(struct file *file,
- 			ret = PTR_ERR(inherit);
- 			goto free_args;
- 		}
-+
-+		if (inherit->num_qgroups > PAGE_SIZE ||
-+		    inherit->num_ref_copies > PAGE_SIZE ||
-+		    inherit->num_excl_copies > PAGE_SIZE) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
-+
-+		nums = inherit->num_qgroups + 2 * inherit->num_ref_copies +
-+		       2 * inherit->num_excl_copies;
-+		if (vol_args->size != struct_size(inherit, qgroups, nums)) {
-+			ret = -EINVAL;
-+			goto free_inherit;
-+		}
- 	}
- 
- 	ret = btrfs_ioctl_snap_create_transid(file, vol_args->name,
-diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
-index 8f47a85944eb..7ac679ed2b6c 100644
---- a/fs/btrfs/raid56.c
-+++ b/fs/btrfs/raid56.c
-@@ -1198,22 +1198,19 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
- 	int nr_data = rbio->nr_data;
- 	int stripe;
- 	int pagenr;
--	int p_stripe = -1;
--	int q_stripe = -1;
-+	bool has_qstripe;
- 	struct bio_list bio_list;
- 	struct bio *bio;
- 	int ret;
- 
- 	bio_list_init(&bio_list);
- 
--	if (rbio->real_stripes - rbio->nr_data == 1) {
--		p_stripe = rbio->real_stripes - 1;
--	} else if (rbio->real_stripes - rbio->nr_data == 2) {
--		p_stripe = rbio->real_stripes - 2;
--		q_stripe = rbio->real_stripes - 1;
--	} else {
-+	if (rbio->real_stripes - rbio->nr_data == 1)
-+		has_qstripe = false;
-+	else if (rbio->real_stripes - rbio->nr_data == 2)
-+		has_qstripe = true;
-+	else
- 		BUG();
--	}
- 
- 	/* at this point we either have a full stripe,
- 	 * or we've read the full stripe from the drive.
-@@ -1257,7 +1254,7 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
- 		SetPageUptodate(p);
- 		pointers[stripe++] = kmap(p);
- 
--		if (q_stripe != -1) {
-+		if (has_qstripe) {
- 
- 			/*
- 			 * raid6, add the qstripe and call the
-@@ -2355,8 +2352,7 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 	int nr_data = rbio->nr_data;
- 	int stripe;
- 	int pagenr;
--	int p_stripe = -1;
--	int q_stripe = -1;
-+	bool has_qstripe;
- 	struct page *p_page = NULL;
- 	struct page *q_page = NULL;
- 	struct bio_list bio_list;
-@@ -2366,14 +2362,12 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 
- 	bio_list_init(&bio_list);
- 
--	if (rbio->real_stripes - rbio->nr_data == 1) {
--		p_stripe = rbio->real_stripes - 1;
--	} else if (rbio->real_stripes - rbio->nr_data == 2) {
--		p_stripe = rbio->real_stripes - 2;
--		q_stripe = rbio->real_stripes - 1;
--	} else {
-+	if (rbio->real_stripes - rbio->nr_data == 1)
-+		has_qstripe = false;
-+	else if (rbio->real_stripes - rbio->nr_data == 2)
-+		has_qstripe = true;
-+	else
- 		BUG();
--	}
- 
- 	if (bbio->num_tgtdevs && bbio->tgtdev_map[rbio->scrubp]) {
- 		is_replace = 1;
-@@ -2395,17 +2389,22 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 		goto cleanup;
- 	SetPageUptodate(p_page);
- 
--	if (q_stripe != -1) {
-+	if (has_qstripe) {
-+		/* RAID6, allocate and map temp space for the Q stripe */
- 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
- 		if (!q_page) {
- 			__free_page(p_page);
- 			goto cleanup;
- 		}
- 		SetPageUptodate(q_page);
-+		pointers[rbio->real_stripes - 1] = kmap(q_page);
- 	}
- 
- 	atomic_set(&rbio->error, 0);
- 
-+	/* Map the parity stripe just once */
-+	pointers[nr_data] = kmap(p_page);
-+
- 	for_each_set_bit(pagenr, rbio->dbitmap, rbio->stripe_npages) {
- 		struct page *p;
- 		void *parity;
-@@ -2415,17 +2414,8 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 			pointers[stripe] = kmap(p);
- 		}
- 
--		/* then add the parity stripe */
--		pointers[stripe++] = kmap(p_page);
--
--		if (q_stripe != -1) {
--
--			/*
--			 * raid6, add the qstripe and call the
--			 * library function to fill in our p/q
--			 */
--			pointers[stripe++] = kmap(q_page);
--
-+		if (has_qstripe) {
-+			/* RAID6, call the library function to fill in our P/Q */
- 			raid6_call.gen_syndrome(rbio->real_stripes, PAGE_SIZE,
- 						pointers);
- 		} else {
-@@ -2446,12 +2436,14 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
- 
- 		for (stripe = 0; stripe < nr_data; stripe++)
- 			kunmap(page_in_rbio(rbio, stripe, pagenr, 0));
--		kunmap(p_page);
- 	}
- 
-+	kunmap(p_page);
- 	__free_page(p_page);
--	if (q_page)
-+	if (q_page) {
-+		kunmap(q_page);
- 		__free_page(q_page);
-+	}
- 
- writeback:
- 	/*
-diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 95d9aebff2c4..48858510739b 100644
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -227,11 +227,33 @@ int btrfs_setxattr_trans(struct inode *inode, const char *name,
- {
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 	struct btrfs_trans_handle *trans;
-+	const bool start_trans = (current->journal_info == NULL);
- 	int ret;
- 
--	trans = btrfs_start_transaction(root, 2);
--	if (IS_ERR(trans))
--		return PTR_ERR(trans);
-+	if (start_trans) {
-+		/*
-+		 * 1 unit for inserting/updating/deleting the xattr
-+		 * 1 unit for the inode item update
-+		 */
-+		trans = btrfs_start_transaction(root, 2);
-+		if (IS_ERR(trans))
-+			return PTR_ERR(trans);
-+	} else {
-+		/*
-+		 * This can happen when smack is enabled and a directory is being
-+		 * created. It happens through d_instantiate_new(), which calls
-+		 * smack_d_instantiate(), which in turn calls __vfs_setxattr() to
-+		 * set the transmute xattr (XATTR_NAME_SMACKTRANSMUTE) on the
-+		 * inode. We have already reserved space for the xattr and inode
-+		 * update at btrfs_mkdir(), so just use the transaction handle.
-+		 * We don't join or start a transaction, as that will reset the
-+		 * block_rsv of the handle and trigger a warning for the start
-+		 * case.
-+		 */
-+		ASSERT(strncmp(name, XATTR_SECURITY_PREFIX,
-+			       XATTR_SECURITY_PREFIX_LEN) == 0);
-+		trans = current->journal_info;
-+	}
- 
- 	ret = btrfs_setxattr(trans, inode, name, value, size, flags);
- 	if (ret)
-@@ -242,7 +264,8 @@ int btrfs_setxattr_trans(struct inode *inode, const char *name,
- 	ret = btrfs_update_inode(trans, root, inode);
- 	BUG_ON(ret);
- out:
--	btrfs_end_transaction(trans);
-+	if (start_trans)
-+		btrfs_end_transaction(trans);
- 	return ret;
- }
- 
-diff --git a/include/crypto/hash.h b/include/crypto/hash.h
-index d52b95b75ae4..84e9f2380edf 100644
---- a/include/crypto/hash.h
-+++ b/include/crypto/hash.h
-@@ -141,7 +141,7 @@ struct ahash_alg {
- 
- struct shash_desc {
- 	struct crypto_shash *tfm;
--	void *__ctx[] CRYPTO_MINALIGN_ATTR;
-+	void *__ctx[] __aligned(ARCH_SLAB_MINALIGN);
- };
- 
- #define HASH_MAX_DIGESTSIZE	 64
-@@ -154,9 +154,9 @@ struct shash_desc {
- 
- #define HASH_MAX_STATESIZE	512
- 
--#define SHASH_DESC_ON_STACK(shash, ctx)				  \
--	char __##shash##_desc[sizeof(struct shash_desc) +	  \
--		HASH_MAX_DESCSIZE] CRYPTO_MINALIGN_ATTR; \
-+#define SHASH_DESC_ON_STACK(shash, ctx)					     \
-+	char __##shash##_desc[sizeof(struct shash_desc) + HASH_MAX_DESCSIZE] \
-+		__aligned(__alignof__(struct shash_desc));		     \
- 	struct shash_desc *shash = (struct shash_desc *)__##shash##_desc
- 
- /**
-diff --git a/include/linux/crypto.h b/include/linux/crypto.h
-index 19ea3a371d7b..0c720a2982ae 100644
---- a/include/linux/crypto.h
-+++ b/include/linux/crypto.h
-@@ -130,9 +130,12 @@
-  * The macro CRYPTO_MINALIGN_ATTR (along with the void * type in the actual
-  * declaration) is used to ensure that the crypto_tfm context structure is
-  * aligned correctly for the given architecture so that there are no alignment
-- * faults for C data types.  In particular, this is required on platforms such
-- * as arm where pointers are 32-bit aligned but there are data types such as
-- * u64 which require 64-bit alignment.
-+ * faults for C data types.  On architectures that support non-cache coherent
-+ * DMA, such as ARM or arm64, it also takes into account the minimal alignment
-+ * that is required to ensure that the context struct member does not share any
-+ * cachelines with the rest of the struct. This is needed to ensure that cache
-+ * maintenance for non-coherent DMA (cache invalidation in particular) does not
-+ * affect data that may be accessed by the CPU concurrently.
-  */
- #define CRYPTO_MINALIGN ARCH_KMALLOC_MINALIGN
- 
-diff --git a/include/sound/intel-nhlt.h b/include/sound/intel-nhlt.h
-index f657fd8fc0ad..f38947b9a1b9 100644
---- a/include/sound/intel-nhlt.h
-+++ b/include/sound/intel-nhlt.h
-@@ -112,6 +112,11 @@ struct nhlt_vendor_dmic_array_config {
- 	/* TODO add vendor mic config */
- } __packed;
- 
-+enum {
-+	NHLT_CONFIG_TYPE_GENERIC = 0,
-+	NHLT_CONFIG_TYPE_MIC_ARRAY = 1
-+};
-+
- enum {
- 	NHLT_MIC_ARRAY_2CH_SMALL = 0xa,
- 	NHLT_MIC_ARRAY_2CH_BIG = 0xb,
-diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-index b9c2ee7ab43f..cce12e1971d8 100644
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -438,7 +438,7 @@ static int arm_is_fake_mcount(Elf32_Rel const *rp)
- 
- static int arm64_is_fake_mcount(Elf64_Rel const *rp)
- {
--	return ELF64_R_TYPE(w(rp->r_info)) != R_AARCH64_CALL26;
-+	return ELF64_R_TYPE(w8(rp->r_info)) != R_AARCH64_CALL26;
- }
- 
- /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index daede96f28ee..baeda6c9716a 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -64,18 +64,44 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 	struct nhlt_endpoint *epnt;
- 	struct nhlt_dmic_array_config *cfg;
- 	struct nhlt_vendor_dmic_array_config *cfg_vendor;
-+	struct nhlt_fmt *fmt_configs;
- 	unsigned int dmic_geo = 0;
--	u8 j;
-+	u16 max_ch = 0;
-+	u8 i, j;
- 
- 	if (!nhlt)
- 		return 0;
- 
--	epnt = (struct nhlt_endpoint *)nhlt->desc;
-+	for (j = 0, epnt = nhlt->desc; j < nhlt->endpoint_count; j++,
-+	     epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length)) {
- 
--	for (j = 0; j < nhlt->endpoint_count; j++) {
--		if (epnt->linktype == NHLT_LINK_DMIC) {
--			cfg = (struct nhlt_dmic_array_config  *)
--					(epnt->config.caps);
-+		if (epnt->linktype != NHLT_LINK_DMIC)
-+			continue;
-+
-+		cfg = (struct nhlt_dmic_array_config  *)(epnt->config.caps);
-+		fmt_configs = (struct nhlt_fmt *)(epnt->config.caps + epnt->config.size);
-+
-+		/* find max number of channels based on format_configuration */
-+		if (fmt_configs->fmt_count) {
-+			dev_dbg(dev, "%s: found %d format definitions\n",
-+				__func__, fmt_configs->fmt_count);
-+
-+			for (i = 0; i < fmt_configs->fmt_count; i++) {
-+				struct wav_fmt_ext *fmt_ext;
-+
-+				fmt_ext = &fmt_configs->fmt_config[i].fmt_ext;
-+
-+				if (fmt_ext->fmt.channels > max_ch)
-+					max_ch = fmt_ext->fmt.channels;
-+			}
-+			dev_dbg(dev, "%s: max channels found %d\n", __func__, max_ch);
-+		} else {
-+			dev_dbg(dev, "%s: No format information found\n", __func__);
-+		}
-+
-+		if (cfg->device_config.config_type != NHLT_CONFIG_TYPE_MIC_ARRAY) {
-+			dmic_geo = max_ch;
-+		} else {
- 			switch (cfg->array_type) {
- 			case NHLT_MIC_ARRAY_2CH_SMALL:
- 			case NHLT_MIC_ARRAY_2CH_BIG:
-@@ -92,13 +118,23 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 				dmic_geo = cfg_vendor->nb_mics;
- 				break;
- 			default:
--				dev_warn(dev, "undefined DMIC array_type 0x%0x\n",
--					 cfg->array_type);
-+				dev_warn(dev, "%s: undefined DMIC array_type 0x%0x\n",
-+					 __func__, cfg->array_type);
-+			}
-+
-+			if (dmic_geo > 0) {
-+				dev_dbg(dev, "%s: Array with %d dmics\n", __func__, dmic_geo);
-+			}
-+			if (max_ch > dmic_geo) {
-+				dev_dbg(dev, "%s: max channels %d exceed dmic number %d\n",
-+					__func__, max_ch, dmic_geo);
- 			}
- 		}
--		epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length);
- 	}
- 
-+	dev_dbg(dev, "%s: dmic number %d max_ch %d\n",
-+		__func__, dmic_geo, max_ch);
-+
- 	return dmic_geo;
- }
- EXPORT_SYMBOL_GPL(intel_nhlt_get_dmic_geo);
-diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
-index 3cd4b7dad945..b1cc4cdc6c41 100644
---- a/sound/pci/ctxfi/cthw20k2.c
-+++ b/sound/pci/ctxfi/cthw20k2.c
-@@ -991,7 +991,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
- 
- 	if (idx < 4) {
- 		/* S/PDIF output */
--		switch ((conf & 0x7)) {
-+		switch ((conf & 0xf)) {
- 		case 1:
- 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
- 			break;
-diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
-index d1d8ba2a4a40..ca78aa368476 100644
---- a/tools/usb/usbip/libsrc/usbip_host_common.c
-+++ b/tools/usb/usbip/libsrc/usbip_host_common.c
-@@ -23,7 +23,7 @@
- #include "list.h"
- #include "sysfs_utils.h"
- 
--struct udev *udev_context;
-+extern struct udev *udev_context;
- 
- static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
- {
+I'm announcing the release of the 5.10.22 kernel.
+
+All users of the 5.10 kernel series must upgrade.
+
+The updated 5.10.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                          |    2 
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi        |    2 
+ arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi |    2 
+ arch/arm64/boot/dts/amlogic/meson-gx.dtsi         |    3 -
+ arch/arm64/mm/init.c                              |   22 ++++---
+ drivers/acpi/arm64/iort.c                         |   55 +++++++++++++++++++
+ drivers/base/power/runtime.c                      |   62 +++++++++++++---------
+ drivers/block/rsxx/core.c                         |    8 +-
+ drivers/char/tpm/tpm_tis_core.c                   |   30 ++++++++--
+ drivers/gpu/drm/amd/amdgpu/amdgpu_debugfs.c       |    4 -
+ drivers/gpu/drm/amd/amdgpu/nv.c                   |    6 +-
+ drivers/infiniband/core/cm.c                      |    5 +
+ drivers/infiniband/hw/mlx5/devx.c                 |    4 +
+ drivers/infiniband/sw/rxe/Kconfig                 |    1 
+ drivers/iommu/intel/pasid.h                       |    4 -
+ drivers/md/dm-bufio.c                             |    4 +
+ drivers/md/dm-verity-fec.c                        |   23 ++++----
+ drivers/net/ethernet/realtek/r8169_main.c         |    2 
+ drivers/of/address.c                              |   42 ++++++++++++++
+ drivers/of/unittest.c                             |   21 +++++++
+ fs/btrfs/block-group.c                            |   33 +++++++++++
+ fs/btrfs/block-group.h                            |    9 +++
+ fs/btrfs/ctree.h                                  |    5 +
+ fs/btrfs/delayed-inode.c                          |    2 
+ fs/btrfs/file.c                                   |    5 +
+ fs/btrfs/free-space-cache.c                       |   14 ++--
+ fs/btrfs/inode.c                                  |   40 +++++++++++++-
+ fs/btrfs/ioctl.c                                  |   19 ++++++
+ fs/btrfs/raid56.c                                 |   21 +++----
+ fs/btrfs/reflink.c                                |   18 ++++++
+ fs/btrfs/scrub.c                                  |    9 ++-
+ fs/btrfs/xattr.c                                  |   31 +++++++++--
+ fs/io_uring.c                                     |    3 +
+ include/crypto/hash.h                             |    8 +-
+ include/linux/acpi_iort.h                         |    4 +
+ include/linux/crypto.h                            |    9 ++-
+ include/linux/mmzone.h                            |   20 -------
+ include/linux/of.h                                |    7 ++
+ include/sound/intel-nhlt.h                        |    5 +
+ kernel/trace/ring_buffer.c                        |   11 +++
+ scripts/recordmcount.c                            |    2 
+ security/tomoyo/network.c                         |    2 
+ sound/hda/intel-nhlt.c                            |   54 +++++++++++++++----
+ sound/pci/ctxfi/cthw20k2.c                        |    2 
+ sound/pci/hda/patch_realtek.c                     |   13 ++++
+ sound/usb/mixer.c                                 |   11 +++
+ sound/usb/mixer_maps.c                            |   10 +++
+ 47 files changed, 531 insertions(+), 138 deletions(-)
+
+Andrea Fagiani (1):
+      ALSA: usb-audio: use Corsair Virtuoso mapping for Corsair Virtuoso SE
+
+Ard Biesheuvel (2):
+      crypto - shash: reduce minimum alignment of shash_desc structure
+      arm64: mm: Set ZONE_DMA size based on early IORT scan
+
+Asher.Song (1):
+      drm/amdgpu:disable VCN for Navi12 SKU
+
+Catalin Marinas (1):
+      of: unittest: Fix build on architectures without CONFIG_OF_ADDRESS
+
+Chen Jun (1):
+      ftrace: Have recordmcount use w8 to read relp->r_info in arm64_is_fake_mcount
+
+Chris Chiu (1):
+      ALSA: hda/realtek: Enable headset mic of Acer SWIFT with ALC256
+
+Colin Ian King (1):
+      ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+
+Dan Carpenter (2):
+      btrfs: validate qgroup inherit for SNAP_CREATE_V2 ioctl
+      rsxx: Return -EFAULT if copy_to_user() fails
+
+Filipe Manana (4):
+      btrfs: fix race between writes to swap files and scrub
+      btrfs: fix race between swap file activation and snapshot creation
+      btrfs: fix stale data exposure after cloning a hole with NO_HOLES enabled
+      btrfs: fix warning when creating a directory with smack enabled
+
+Greg Kroah-Hartman (1):
+      Linux 5.10.22
+
+Heiner Kallweit (1):
+      r8169: fix resuming from suspend on RTL8105e if machine runs on battery
+
+Ira Weiny (1):
+      btrfs: fix raid6 qstripe kmap
+
+Jarkko Sakkinen (1):
+      tpm, tpm_tis: Decorate tpm_get_timeouts() with request_locality()
+
+Jens Axboe (1):
+      io_uring: ignore double poll add on the same waitqueue head
+
+Josef Bacik (1):
+      btrfs: avoid double put of block group when emptying cluster
+
+Julian Braha (1):
+      RDMA/rxe: Fix missing kconfig dependency on CRYPTO
+
+Kevin Wang (1):
+      drm/amdgpu: fix parameter error of RREG32_PCIE() in amdgpu_regs_pcie
+
+Lukasz Majczak (1):
+      tpm, tpm_tis: Decorate tpm_tis_gen_interrupt() with request_locality()
+
+Mikulas Patocka (1):
+      dm bufio: subtract the number of initial sectors in dm_bufio_get_device_size
+
+Milan Broz (1):
+      dm verity: fix FEC for RS roots unaligned to block size
+
+Neil Armstrong (1):
+      Revert "arm64: dts: amlogic: add missing ethernet reset ID"
+
+Nicolas Saenz Julienne (6):
+      arm64: mm: Move reserve_crashkernel() into mem_init()
+      arm64: mm: Move zone_dma_bits initialization into zone_sizes_init()
+      of/address: Introduce of_dma_get_max_cpu_address()
+      of: unittest: Add test for of_dma_get_max_cpu_address()
+      arm64: mm: Set ZONE_DMA size based on devicetree's dma-ranges
+      mm: Remove examples from enum zone_type comment
+
+Nikolay Borisov (3):
+      btrfs: fix race between extent freeing/allocation when using bitmaps
+      btrfs: free correct amount of space in btrfs_delayed_inode_reserve_metadata
+      btrfs: unlock extents in btrfs_zero_range in case of quota reservation errors
+
+Pierre-Louis Bossart (1):
+      ALSA: hda: intel-nhlt: verify config type
+
+Rafael J. Wysocki (1):
+      PM: runtime: Update device status before letting suppliers suspend
+
+Saeed Mahameed (1):
+      RDMA/cm: Fix IRQ restore in ib_send_cm_sidr_rep
+
+Steven Rostedt (VMware) (1):
+      ring-buffer: Force before_stamp and write_stamp to be different on discard
+
+Takashi Iwai (1):
+      ALSA: usb-audio: Drop bogus dB range in too low level
+
+Tetsuo Handa (1):
+      tomoyo: recognize kernel threads correctly
+
+YueHaibing (1):
+      IB/mlx5: Add missing error code
+
+Zenghui Yu (1):
+      iommu/vt-d: Fix status code for Allocate/Free PASID command
+
