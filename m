@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26853331D69
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE71B331D68
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:21:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229446AbhCIDVE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229463AbhCIDVE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 8 Mar 2021 22:21:04 -0500
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:56522 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229463AbhCIDU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 22:20:28 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R501e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UR0OaPm_1615260025;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UR0OaPm_1615260025)
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:25222 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229573AbhCIDUi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 22:20:38 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R551e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UR.n2Sq_1615260026;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UR.n2Sq_1615260026)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 09 Mar 2021 11:20:25 +0800
+          Tue, 09 Mar 2021 11:20:26 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com, gregkh@linuxfoundation.org, sashal@kernel.org
 Cc:     stable@vger.kernel.org, jefflexu@linux.alibaba.com
-Subject: [PATCH v2 4.9 1/2] dm table: fix iterate_devices based device capability checks
-Date:   Tue,  9 Mar 2021 11:20:22 +0800
-Message-Id: <20210309032023.98465-2-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 4.9 2/2] dm table: fix DAX iterate_devices based device capability checks
+Date:   Tue,  9 Mar 2021 11:20:23 +0800
+Message-Id: <20210309032023.98465-3-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210309032023.98465-1-jefflexu@linux.alibaba.com>
 References: <20210309032023.98465-1-jefflexu@linux.alibaba.com>
@@ -30,176 +30,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
+commit 5b0fab508992c2e120971da658ce80027acbc405 upstream.
 
-According to the definition of dm_iterate_devices_fn:
- * This function must iterate through each section of device used by the
- * target until it encounters a non-zero return code, which it then returns.
- * Returns zero if no callout returned non-zero.
+Fix dm_table_supports_dax() and invert logic of both
+iterate_devices_callout_fn so that all devices' DAX capabilities are
+properly checked.
 
-For some target type (e.g. dm-stripe), one call of iterate_devices() may
-iterate multiple underlying devices internally, in which case a non-zero
-return code returned by iterate_devices_callout_fn will stop the iteration
-in advance. No iterate_devices_callout_fn should return non-zero unless
-device iteration should stop.
-
-Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
-elevate it for reuse to stop iterating (and return non-zero) on the
-first device that causes iterate_devices_callout_fn to return non-zero.
-Use dm_table_any_dev_attr() to properly iterate through devices.
-
-Rename device_is_nonrot() to device_is_rotational() and invert logic
-accordingly to fix improper disposition.
-
-[jeffle: backport notes]
-No stable writes. Also convert the no_sg_merge capability check, which
-is introduced by commit 200612ec33e5 ("dm table: propagate
-QUEUE_FLAG_NO_SG_MERGE"), and removed since commit 2705c93742e9 ("block:
-kill QUEUE_FLAG_NO_SG_MERGE") in v5.1.
-
-Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
-Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
+Fixes: 545ed20e6df6 ("dm: add infrastructure for DAX support")
 Cc: stable@vger.kernel.org
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[jeffle: no dax write cache, no dax synchronous]
 ---
- drivers/md/dm-table.c | 83 +++++++++++++++++++++++++++----------------
- 1 file changed, 53 insertions(+), 30 deletions(-)
+ drivers/md/dm-table.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index 5d120c3cee57..1728e3638136 100644
+index 1728e3638136..4fc68c00c231 100644
 --- a/drivers/md/dm-table.c
 +++ b/drivers/md/dm-table.c
-@@ -1306,6 +1306,46 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
- 	return &t->targets[(KEYS_PER_NODE * n) + k];
+@@ -848,12 +848,12 @@ void dm_table_set_type(struct dm_table *t, unsigned type)
  }
+ EXPORT_SYMBOL_GPL(dm_table_set_type);
  
-+/*
-+ * type->iterate_devices() should be called when the sanity check needs to
-+ * iterate and check all underlying data devices. iterate_devices() will
-+ * iterate all underlying data devices until it encounters a non-zero return
-+ * code, returned by whether the input iterate_devices_callout_fn, or
-+ * iterate_devices() itself internally.
-+ *
-+ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
-+ * iterate multiple underlying devices internally, in which case a non-zero
-+ * return code returned by iterate_devices_callout_fn will stop the iteration
-+ * in advance.
-+ *
-+ * Cases requiring _any_ underlying device supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_any_dev_attr(), or call
-+ * it directly. @func should handle semantics of positive examples, e.g.
-+ * capable of something.
-+ *
-+ * Cases requiring _all_ underlying devices supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_supports_nowait() or
-+ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
-+ * uses an @anti_func that handle semantics of counter examples, e.g. not
-+ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
-+ */
-+static bool dm_table_any_dev_attr(struct dm_table *t,
-+				  iterate_devices_callout_fn func)
-+{
-+	struct dm_target *ti;
-+	unsigned int i;
-+
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
-+
-+		if (ti->type->iterate_devices &&
-+		    ti->type->iterate_devices(ti, func, NULL))
-+			return true;
-+        }
-+
-+	return false;
-+}
-+
- static int count_device(struct dm_target *ti, struct dm_dev *dev,
- 			sector_t start, sector_t len, void *data)
- {
-@@ -1476,12 +1516,12 @@ static bool dm_table_discard_zeroes_data(struct dm_table *t)
- 	return true;
- }
- 
--static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
--			    sector_t start, sector_t len, void *data)
-+static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
-+				sector_t start, sector_t len, void *data)
+-static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+-			       sector_t start, sector_t len, void *data)
++static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
++				  sector_t start, sector_t len, void *data)
  {
  	struct request_queue *q = bdev_get_queue(dev->bdev);
  
--	return q && blk_queue_nonrot(q);
-+	return q && !blk_queue_nonrot(q);
+-	return q && blk_queue_dax(q);
++	return q && !blk_queue_dax(q);
  }
  
- static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
-@@ -1492,29 +1532,12 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
- 	return q && !blk_queue_add_random(q);
- }
+ static bool dm_table_supports_dax(struct dm_table *t)
+@@ -869,7 +869,7 @@ static bool dm_table_supports_dax(struct dm_table *t)
+ 			return false;
  
--static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
--				   sector_t start, sector_t len, void *data)
-+static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
-+			     sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_supports_dax, NULL))
++		    ti->type->iterate_devices(ti, device_not_dax_capable, NULL))
+ 			return false;
+ 	}
  
--	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
--}
--
--static bool dm_table_all_devices_attribute(struct dm_table *t,
--					   iterate_devices_callout_fn func)
--{
--	struct dm_target *ti;
--	unsigned i = 0;
--
--	while (i < dm_table_get_num_targets(t)) {
--		ti = dm_table_get_target(t, i++);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, func, NULL))
--			return false;
--	}
--
--	return true;
-+	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
- }
- 
- static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
-@@ -1607,18 +1630,18 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 		q->limits.discard_zeroes_data = 0;
- 
- 	/* Ensure that all underlying devices are non-rotational. */
--	if (dm_table_all_devices_attribute(t, device_is_nonrot))
--		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
--	else
-+	if (dm_table_any_dev_attr(t, device_is_rotational))
- 		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
-+	else
-+		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
- 
- 	if (!dm_table_supports_write_same(t))
- 		q->limits.max_write_same_sectors = 0;
- 
--	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
--		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
--	else
-+	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
- 		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
-+	else
-+		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
- 
- 	dm_table_verify_integrity(t);
- 
-@@ -1628,7 +1651,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
- 	 * have it set.
- 	 */
--	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
-+	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
- 		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
- 
- 	/*
 -- 
 2.27.0
 
