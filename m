@@ -2,77 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42B583320DB
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 09:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0441332197
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 10:06:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbhCIIh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 03:37:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38622 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230327AbhCIIhD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 03:37:03 -0500
-Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E357AC06174A
-        for <stable@vger.kernel.org>; Tue,  9 Mar 2021 00:37:02 -0800 (PST)
-Received: by mail-yb1-xb41.google.com with SMTP id u3so13138824ybk.6
-        for <stable@vger.kernel.org>; Tue, 09 Mar 2021 00:37:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=cNGljFPZRpYFKEu48myr7eYFUT4vLWZX348426Ewac8=;
-        b=sWAHG5blNtHW2GGnexG1SwU3AOQ+bCMVC2+dBguVfpnZLsBdGEulk2W3VdV69cC8VH
-         6KqcMaEFJeJmI0wRHVb1xiNE3u/HJAGpx0B/S43aD4ImbvqRLtBMA9etFBcjwOVhaQrb
-         Ux2ItFctM8Kq9uYj1I02MskXubLTt5m62M0Ff3x22HmIi5JSP2RxTh1GZ3adVHC/TXJc
-         KZ6GlaCUIAUOs+Vrv/m43QCQp6c09i6I8RO1n9T77mqxvmU/tyx0hyxE90QP5h+qjhKT
-         P1M8qdrnDoxT8iTfaSWkdd/uN0BaGjzs78ZcUWXJEPjjHIicm/Z9/2Wu8sbP1YcNni5t
-         +KtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=cNGljFPZRpYFKEu48myr7eYFUT4vLWZX348426Ewac8=;
-        b=U2qWZ0wGoi97kSXGBWXIlpJqwEHJVDEg6tsOhM10geItJtJnq22hhOGRRVrzA4AOTI
-         /kWd+UTOnhxH450ZCt4oLTJrGAzbgZjw3K0lXI0LO2YwqcgQYJMz/bhcRan8xgCPVik3
-         k/tfB19LVEV5nmlLXguf+933Cp2Nxbj7/6baKiLr7JpN9exID5bp6/Idxt/h3D2n0RbR
-         htocWL0CMyutACypolI/Z3Zk6VYX8f1qwdE+mmWqKoLx2XAM7VM6qOwYCX9qMA/s0otw
-         rW3yWazNf25SQop2ImhpFmIbF9fvAFIRh5ngTkuqgfo3hNpwfhttHZSjngkndChy/eQY
-         eNaw==
-X-Gm-Message-State: AOAM530ugkTpn+DIJLfEp+vgwfHH5ovi1El1k0I4faOu0e10vWFVbDmP
-        nP2GAIVgIYyf0tuJnPeCc2txMk9g833Q7UbXzC8=
-X-Google-Smtp-Source: ABdhPJzzxMaNmle26IPF9MgkLoRwXrFxABnV/MsblD6TN95V9bh7na7JVEFv6Cp7f3JnCzYs+0Pf7p7uAVpoD2iqnvw=
-X-Received: by 2002:a05:6902:4b3:: with SMTP id r19mr38933336ybs.432.1615279022092;
- Tue, 09 Mar 2021 00:37:02 -0800 (PST)
+        id S229481AbhCIJFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 04:05:42 -0500
+Received: from esa5.hc3370-68.iphmx.com ([216.71.155.168]:35948 "EHLO
+        esa5.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229544AbhCIJFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 04:05:12 -0500
+X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Mar 2021 04:05:12 EST
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=citrix.com; s=securemail; t=1615280712;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ucEyClNY7Tik8Yk7WI9RZer5oJR2JMMqQHVmFQC9FDE=;
+  b=QVONzvvlN7I7XsaRYUQCGNmh2ULqBq9zQrA/TQ0S0pkRkKnWaTW8SCrZ
+   gj/21jE5kFIp2NMtw2vpwEMoosCY/AHJUiydPKRfTf4V1VlPDFtZB45HP
+   AASZbA5TUuSthGPTvhPSpBuxjn/L6gxGBBuaXLPfAyVJj3/KEYOGIutr8
+   w=;
+Authentication-Results: esa5.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none
+IronPort-SDR: ifhYFTrHtVgd68c/XUGtBuHNjVRWo6LfOxF3XIc6nQNmeHSBls/AkrbJ89p6twz1cYS0qfTMYE
+ 8tm4S8oS6YFEHMWGJKuMwDAScH2anoCglpbi60qWwpVBQcBGKwPYm/A0aEeGbZ0OfFdfGCxVHB
+ vTkzH4T5pVvmrmdoHlz1NFEYy/WZD59qZSW6ilFF8vw6GqX2T6sJmQVlPCrcKpYXvQI3Netdin
+ SS2On1Z3Azsqs9QyW25t8LjPLwIcVK1udb23wbHb6LXikGmvqMqYehSQ5PxdYJL3zywqd/12FN
+ xtU=
+X-SBRS: 4.0
+X-MesageID: 38751923
+X-Ironport-Server: esa5.hc3370-68.iphmx.com
+X-Remote-IP: 162.221.158.21
+X-Policy: $RELAYED
+X-IronPort-AV: E=Sophos;i="5.81,234,1610427600"; 
+   d="scan'208";a="38751923"
+Subject: Re: [PATCH v4 2/3] xen/events: don't unmask an event channel when an
+ eoi is pending
+To:     =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        <xen-devel@lists.xenproject.org>, <linux-kernel@vger.kernel.org>
+CC:     Stefano Stabellini <sstabellini@kernel.org>,
+        <stable@vger.kernel.org>, Julien Grall <julien@xen.org>,
+        Julien Grall <jgrall@amazon.com>
+References: <20210306161833.4552-1-jgross@suse.com>
+ <20210306161833.4552-3-jgross@suse.com>
+ <ff9fb99f-12ca-c04e-e4bc-1b1c67381cc2@oracle.com>
+ <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
+From:   Ross Lagerwall <ross.lagerwall@citrix.com>
+Message-ID: <b6d41422-47cf-956c-9c4a-98998c64b103@citrix.com>
+Date:   Tue, 9 Mar 2021 08:57:23 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Received: by 2002:a05:7110:334a:b029:35:23e6:2159 with HTTP; Tue, 9 Mar 2021
- 00:37:01 -0800 (PST)
-Reply-To: georgemike7031@gmail.com
-From:   george mike <davisemm6@gmail.com>
-Date:   Tue, 9 Mar 2021 09:37:01 +0100
-Message-ID: <CAKAY_3WtLK=j0QKd4Zci-wr5Xy+H0fEdfmr1hg9KQaFVTiUWGw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <d6a1ab2e-4b77-7b14-e397-74aa71efb70d@suse.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
+On 2021-03-09 05:14, Jürgen Groß wrote:
+> On 08.03.21 21:33, Boris Ostrovsky wrote:
+>>
+>> On 3/6/21 11:18 AM, Juergen Gross wrote:
+>>> An event channel should be kept masked when an eoi is pending for it.
+>>> When being migrated to another cpu it might be unmasked, though.
+>>>
+>>> In order to avoid this keep three different flags for each event channel
+>>> to be able to distinguish "normal" masking/unmasking from eoi related
+>>> masking/unmasking and temporary masking. The event channel should only
+>>> be able to generate an interrupt if all flags are cleared.
+>>>
+>>> Cc: stable@vger.kernel.org
+>>> Fixes: 54c9de89895e0a36047 ("xen/events: add a new late EOI evtchn framework")
+>>> Reported-by: Julien Grall <julien@xen.org>
+>>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>>> Reviewed-by: Julien Grall <jgrall@amazon.com>
+>>> ---
+>>> V2:
+>>> - introduce a lock around masking/unmasking
+>>> - merge patch 3 into this one (Jan Beulich)
+>>> V4:
+>>> - don't set eoi masking flag in lateeoi_mask_ack_dynirq()
+>>
+>>
+>> Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+>>
+>>
+>> Ross, are you planning to test this?
+> 
+> Just as another data point: With the previous version of the patches
+> a reboot loop of a guest needed max 33 reboots to loose network in
+> my tests (those were IIRC 6 test runs). With this patch version I
+> stopped the test after about 1300 reboots without having seen any
+> problems.
+> 
 
-Ich hei=C3=9Fe George Mike. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte=
- dir anbieten
-engster Verwandter meines Klienten. Sie erben die Gesamtsumme (8,5
-Millionen US-Dollar).
-Dollar, die mein Kunde vor seinem Tod auf der Bank gelassen hat.
+Thanks, I'll test it today and get back to you.
 
-Mein Klient ist ein Staatsangeh=C3=B6riger Ihres Landes, der mit seiner
-Frau bei einem Autounfall ums Leben gekommen ist
-und einziger Sohn. Ich habe Anspruch auf 50% des Gesamtfonds, w=C3=A4hrend
-50% davon berechtigt sind
-Sein f=C3=BCr dich.
-F=C3=BCr weitere Informationen wenden Sie sich bitte an meine private
-E-Mail-Adresse: georgemike7031@gmail.com
-
-Vielen Dank im Voraus,
-Herr George Mike,
+Ross
