@@ -2,16 +2,16 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B4C332B87
-	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 17:09:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23DE7332B89
+	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 17:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231941AbhCIQIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 11:08:42 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:53926 "EHLO
+        id S231970AbhCIQIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 11:08:41 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:53932 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232098AbhCIQIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 11:08:13 -0500
-Date:   Tue, 09 Mar 2021 16:08:11 -0000
+        with ESMTP id S232099AbhCIQIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 9 Mar 2021 11:08:14 -0500
+Date:   Tue, 09 Mar 2021 16:08:12 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020; t=1615306092;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -19,12 +19,12 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ydP5OQo35wAYWz8Gi3ovOO+XhHXKCyB4t30sZUCfcWY=;
-        b=nsZ8Th5H5/zsO4YFl832ncOKMjnzzxio0VuJ6lBubI6i/9DUSr0PmT4kG7DD4WcfXOhLoa
-        ZBtVqz+9ygOrW37YaKJLMMQFKWAO+fdZymo9QItWZiC6Y0S3uGo97dp9jMZFnH7CdCUWgo
-        5MhMQYNtwNOJ3Z4wf+wLnIe9eGeoGUbKouZ3Ji1wijVkdSLy+ZHk1SaJ0I3kLILNOhBDg1
-        hDkolbGTIwW0j8f9bBWuP5YUsmJyrSG8jM7uajAvHCuJCY/pAC2uDGc3B9oJ7D9Zn82OAQ
-        VlLHVLqxSnGJ6e8r4NAB/bVciaPpJblssdN6lKth9GODMBA4+Yia53Qry1P/RQ==
+        bh=5F7N5kd+eK43s5MXIq7LdDQpORfqOxSFoXbLiPet8ko=;
+        b=06zOgsK3x5FYaWIZkDubheqh+7TeKYEBMh4Ac7SU9VJVRXKEiHjJ+zAF/wscrn7pVdyETJ
+        P33Yxq3hkqtPEQvmxAA/uhQUWI62npC629mDJDA8tB1dPSIfuBSJofIcWlod5aWciu9ONv
+        Q3H0LzxdrRVCenIDl7U/TcKY36fON7109V+5GtWoCwiAcff3OPtO9mubReztsuAAK8YHnz
+        wGqGjIdaWHv+RL0HLNgdW4B9lPjJRf8yszG8jGjYrvnvpVEqYfYn9LtXt/lrr/KFDbed/N
+        6jqjlrIEMr9a3fdM4jhpJ4QYhqO3NudCJ5Amot3ayCdUxLvBvNOcS0pocRl24Q==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020e; t=1615306092;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -32,23 +32,23 @@ DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ydP5OQo35wAYWz8Gi3ovOO+XhHXKCyB4t30sZUCfcWY=;
-        b=LAyffzNC8k6oFMCgFgcPG7DdJWE7W+sff6EeaPNVcS60FT81IS7NQsaFJCYxX3yb3AFcYf
-        1HcgYsprM2pqZ0CA==
+        bh=5F7N5kd+eK43s5MXIq7LdDQpORfqOxSFoXbLiPet8ko=;
+        b=oPmpdhWS3KKF5JSbhl40gII+AShRGTE1EjnuchBy0Hp4KkC1Lkfb+9rsRYxKuQPYeW7y24
+        Ieu0FrGFbRkFAQDQ==
 From:   "tip-bot2 for Joerg Roedel" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/sev-es: Correctly track IRQ states in runtime
- #VC handler
+Subject: [tip: x86/urgent] x86/sev-es: Check regs->sp is trusted before
+ adjusting #VC IST stack
 Cc:     Andy Lutomirski <luto@kernel.org>, Joerg Roedel <jroedel@suse.de>,
         Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
-        #@tip-bot2.tec.linutronix.de, v5.10+@tip-bot2.tec.linutronix.de,
+        #@tip-bot2.tec.linutronix.de, 5.10+@tip-bot2.tec.linutronix.de,
         x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210303141716.29223-5-joro@8bytes.org>
-References: <20210303141716.29223-5-joro@8bytes.org>
+In-Reply-To: <20210303141716.29223-3-joro@8bytes.org>
+References: <20210303141716.29223-3-joro@8bytes.org>
 MIME-Version: 1.0
-Message-ID: <161530609185.398.9748998065952345534.tip-bot2@tip-bot2>
+Message-ID: <161530609222.398.7645217212660727699.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -59,61 +59,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     62441a1fb53263bda349b6e5997c3cc5c120d89e
-Gitweb:        https://git.kernel.org/tip/62441a1fb53263bda349b6e5997c3cc5c120d89e
+Commit-ID:     545ac14c16b5dbd909d5a90ddf5b5a629a40fa94
+Gitweb:        https://git.kernel.org/tip/545ac14c16b5dbd909d5a90ddf5b5a629a40fa94
 Author:        Joerg Roedel <jroedel@suse.de>
-AuthorDate:    Wed, 03 Mar 2021 15:17:15 +01:00
+AuthorDate:    Wed, 03 Mar 2021 15:17:13 +01:00
 Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 09 Mar 2021 12:33:46 +01:00
+CommitterDate: Tue, 09 Mar 2021 12:26:26 +01:00
 
-x86/sev-es: Correctly track IRQ states in runtime #VC handler
+x86/sev-es: Check regs->sp is trusted before adjusting #VC IST stack
 
-Call irqentry_nmi_enter()/irqentry_nmi_exit() in the #VC handler to
-correctly track the IRQ state during its execution.
+The code in the NMI handler to adjust the #VC handler IST stack is
+needed in case an NMI hits when the #VC handler is still using its IST
+stack.
 
-Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+But the check for this condition also needs to look if the regs->sp
+value is trusted, meaning it was not set by user-space. Extend the check
+to not use regs->sp when the NMI interrupted user-space code or the
+SYSCALL gap.
+
+Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
 Reported-by: Andy Lutomirski <luto@kernel.org>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org # v5.10+
-Link: https://lkml.kernel.org/r/20210303141716.29223-5-joro@8bytes.org
+Cc: stable@vger.kernel.org # 5.10+
+Link: https://lkml.kernel.org/r/20210303141716.29223-3-joro@8bytes.org
 ---
- arch/x86/kernel/sev-es.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/sev-es.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 301f20f..c3fd8fa 100644
+index 84c1821..301f20f 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -1258,13 +1258,12 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
- DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+@@ -121,8 +121,18 @@ static void __init setup_vc_stacks(int cpu)
+ 	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
+ }
+ 
+-static __always_inline bool on_vc_stack(unsigned long sp)
++static __always_inline bool on_vc_stack(struct pt_regs *regs)
  {
- 	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	irqentry_state_t irq_state;
- 	struct ghcb_state state;
- 	struct es_em_ctxt ctxt;
- 	enum es_result result;
- 	struct ghcb *ghcb;
++	unsigned long sp = regs->sp;
++
++	/* User-mode RSP is not trusted */
++	if (user_mode(regs))
++		return false;
++
++	/* SYSCALL gap still has user-mode RSP */
++	if (ip_within_syscall_gap(regs))
++		return false;
++
+ 	return ((sp >= __this_cpu_ist_bottom_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
+ }
  
--	lockdep_assert_irqs_disabled();
--
- 	/*
- 	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
- 	 */
-@@ -1273,6 +1272,8 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 		return;
- 	}
+@@ -144,7 +154,7 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+ 	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
  
-+	irq_state = irqentry_nmi_enter(regs);
-+	lockdep_assert_irqs_disabled();
- 	instrumentation_begin();
- 
- 	/*
-@@ -1335,6 +1336,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 
- out:
- 	instrumentation_end();
-+	irqentry_nmi_exit(regs, irq_state);
- 
- 	return;
- 
+ 	/* Make room on the IST stack */
+-	if (on_vc_stack(regs->sp))
++	if (on_vc_stack(regs))
+ 		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
+ 	else
+ 		new_ist = old_ist - sizeof(old_ist);
