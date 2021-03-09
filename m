@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D94FE332305
+	by mail.lfdr.de (Postfix) with ESMTP id 32E2C332303
 	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 11:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230116AbhCIK17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 9 Mar 2021 05:27:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40880 "EHLO mail.kernel.org"
+        id S230143AbhCIK2A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 9 Mar 2021 05:28:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229799AbhCIK1m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 9 Mar 2021 05:27:42 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3A726526C;
-        Tue,  9 Mar 2021 10:27:41 +0000 (UTC)
+        id S229837AbhCIK15 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 9 Mar 2021 05:27:57 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CFE26526C;
+        Tue,  9 Mar 2021 10:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615285662;
-        bh=q8yBTLD7tAfoRrr7vcBht8JBFOLyR+2UW8xB7E06Zco=;
+        s=korg; t=1615285677;
+        bh=PcjRQb97NLrqJARV4Cq2RI6560kJrUeyQb1CuEiVvPU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=griOfM+gE0XSfFHGnILWXQ+Gby4bSokBTP4VkCkTrGlSMtuUa8zqFbRDLwCOALjMt
-         6VuGn3ihBu0ZQfuEGcX1cowkkTKbPWXRcQoJ9FTeY1ZneagVxW7DO+DnYMZwVjGvZE
-         uCyEYeWuvGEt4Ym15ODqAQPStUw6b0Ngnwe0loOs=
-Date:   Tue, 9 Mar 2021 11:27:40 +0100
+        b=GXYFuGivV0sIVNiQC5bpALKCbsocas3jx6cZS3GL0oATt54fL9Ksvn+1CC7cJAcwJ
+         FiL/qAbRqNroG2egkYxuDVI03R3IoJHg8cJ9hIOK9/Yx/qqJg+SUZiF5PlnfWbGIEz
+         XTr25g0Zajtc8apHvpGHIY6ckjFhhs0w6gJJzj4E=
+Date:   Tue, 9 Mar 2021 11:27:54 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Samuel Zou <zou_wei@huawei.com>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -28,7 +28,7 @@ Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
 Subject: Re: [PATCH 5.10 00/42] 5.10.22-rc1 review
-Message-ID: <YEdNnAkzIUq/Tpw9@kroah.com>
+Message-ID: <YEdNqj5c2H0njhgx@kroah.com>
 References: <20210308122718.120213856@linuxfoundation.org>
  <286bc1de-04cf-d60a-e928-8f94b2979b6d@huawei.com>
 MIME-Version: 1.0
@@ -77,18 +77,9 @@ On Tue, Mar 09, 2021 at 09:08:20AM +0800, Samuel Zou wrote:
 > total_num: 4710
 > succeed_num: 4709
 > failed_num: 1
-> timeout_num: 0
-> 
-> x86 (No kernel failures)
-> --------------------------------------------------------------------
-> Testcase Result Summary:
-> total_num: 4710
-> succeed_num: 4709
-> failed_num: 1
-> timeout_num: 0
-> 
-> Tested-by: Hulk Robot <hulkci@huawei.com>
 
-thanks for testing 2 of these and letting me know.
+What does "failed_num" mean?
+
+thanks,
 
 greg k-h
