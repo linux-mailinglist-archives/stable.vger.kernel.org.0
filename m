@@ -2,25 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 618C0331DA5
+	by mail.lfdr.de (Postfix) with ESMTP id 17F7C331DA4
 	for <lists+stable@lfdr.de>; Tue,  9 Mar 2021 04:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbhCIDka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 8 Mar 2021 22:40:30 -0500
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:37406 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229901AbhCIDkI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 22:40:08 -0500
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04395;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UR.n5Ic_1615261206;
-Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UR.n5Ic_1615261206)
+        id S229573AbhCIDkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 8 Mar 2021 22:40:31 -0500
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:34162 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229969AbhCIDkJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 8 Mar 2021 22:40:09 -0500
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04400;MF=jefflexu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0UR.n5Iq_1615261207;
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com fp:SMTPD_---0UR.n5Iq_1615261207)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 09 Mar 2021 11:40:06 +0800
+          Tue, 09 Mar 2021 11:40:07 +0800
 From:   Jeffle Xu <jefflexu@linux.alibaba.com>
 To:     snitzer@redhat.com, gregkh@linuxfoundation.org, sashal@kernel.org
 Cc:     stable@vger.kernel.org, jefflexu@linux.alibaba.com
-Subject: [PATCH v2 5.4 2/3] dm table: fix DAX iterate_devices based device capability checks
-Date:   Tue,  9 Mar 2021 11:40:02 +0800
-Message-Id: <20210309034003.117541-3-jefflexu@linux.alibaba.com>
+Subject: [PATCH v2 5.4 3/3] dm table: fix zoned iterate_devices based device capability checks
+Date:   Tue,  9 Mar 2021 11:40:03 +0800
+Message-Id: <20210309034003.117541-4-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210309034003.117541-1-jefflexu@linux.alibaba.com>
 References: <20210309034003.117541-1-jefflexu@linux.alibaba.com>
@@ -30,79 +30,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 5b0fab508992c2e120971da658ce80027acbc405 upstream.
+commit 24f6b6036c9eec21191646930ad42808e6180510 upstream.
 
-Fix dm_table_supports_dax() and invert logic of both
-iterate_devices_callout_fn so that all devices' DAX capabilities are
+Fix dm_table_supports_zoned_model() and invert logic of both
+iterate_devices_callout_fn so that all devices' zoned capabilities are
 properly checked.
 
-Fixes: 545ed20e6df6 ("dm: add infrastructure for DAX support")
+Add one more parameter to dm_table_any_dev_attr(), which is actually
+used as the @data parameter of iterate_devices_callout_fn, so that
+dm_table_matches_zone_sectors() can be replaced by
+dm_table_any_dev_attr().
+
+Fixes: dd88d313bef02 ("dm table: add zoned block devices validation")
 Cc: stable@vger.kernel.org
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[jeffle: also convert partial completion check]
 ---
- drivers/md/dm-table.c | 37 ++++++++++---------------------------
- drivers/md/dm.c       |  2 +-
- drivers/md/dm.h       |  2 +-
- 3 files changed, 12 insertions(+), 29 deletions(-)
+ drivers/md/dm-table.c | 50 +++++++++++++++----------------------------
+ 1 file changed, 17 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
-index c470e174e686..07530f2aa027 100644
+index 07530f2aa027..06b382304d92 100644
 --- a/drivers/md/dm-table.c
 +++ b/drivers/md/dm-table.c
-@@ -888,24 +888,24 @@ void dm_table_set_type(struct dm_table *t, enum dm_queue_mode type)
- EXPORT_SYMBOL_GPL(dm_table_set_type);
- 
- /* validate the dax capability of the target device span */
--int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
-+int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
- 			sector_t start, sector_t len, void *data)
+@@ -1397,10 +1397,10 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
+  * should use the iteration structure like dm_table_supports_nowait() or
+  * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
+  * uses an @anti_func that handle semantics of counter examples, e.g. not
+- * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func, data);
+  */
+ static bool dm_table_any_dev_attr(struct dm_table *t,
+-				  iterate_devices_callout_fn func)
++				  iterate_devices_callout_fn func, void *data)
  {
- 	int blocksize = *(int *) data, id;
- 	bool rc;
+ 	struct dm_target *ti;
+ 	unsigned int i;
+@@ -1409,7 +1409,7 @@ static bool dm_table_any_dev_attr(struct dm_table *t,
+ 		ti = dm_table_get_target(t, i);
  
- 	id = dax_read_lock();
--	rc = dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
-+	rc = !dax_supported(dev->dax_dev, dev->bdev, blocksize, start, len);
- 	dax_read_unlock(id);
+ 		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti, func, NULL))
++		    ti->type->iterate_devices(ti, func, data))
+ 			return true;
+         }
  
- 	return rc;
+@@ -1452,13 +1452,13 @@ bool dm_table_has_no_data_devices(struct dm_table *table)
+ 	return true;
  }
  
- /* Check devices support synchronous DAX */
--static int device_dax_synchronous(struct dm_target *ti, struct dm_dev *dev,
--				  sector_t start, sector_t len, void *data)
-+static int device_not_dax_synchronous_capable(struct dm_target *ti, struct dm_dev *dev,
-+					      sector_t start, sector_t len, void *data)
+-static int device_is_zoned_model(struct dm_target *ti, struct dm_dev *dev,
+-				 sector_t start, sector_t len, void *data)
++static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
++				  sector_t start, sector_t len, void *data)
  {
--	return dev->dax_dev && dax_synchronous(dev->dax_dev);
-+	return !dev->dax_dev || !dax_synchronous(dev->dax_dev);
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	enum blk_zoned_model *zoned_model = data;
+ 
+-	return q && blk_queue_zoned_model(q) == *zoned_model;
++	return !q || blk_queue_zoned_model(q) != *zoned_model;
  }
  
- bool dm_table_supports_dax(struct dm_table *t,
-@@ -922,7 +922,7 @@ bool dm_table_supports_dax(struct dm_table *t,
+ static bool dm_table_supports_zoned_model(struct dm_table *t,
+@@ -1475,37 +1475,20 @@ static bool dm_table_supports_zoned_model(struct dm_table *t,
  			return false;
  
  		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, iterate_fn, blocksize))
-+		    ti->type->iterate_devices(ti, iterate_fn, blocksize))
+-		    !ti->type->iterate_devices(ti, device_is_zoned_model, &zoned_model))
++		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
  			return false;
  	}
  
-@@ -996,7 +996,7 @@ static int dm_table_determine_type(struct dm_table *t)
- verify_bio_based:
- 		/* We must use this table as bio-based */
- 		t->type = DM_TYPE_BIO_BASED;
--		if (dm_table_supports_dax(t, device_supports_dax, &page_size) ||
-+		if (dm_table_supports_dax(t, device_not_dax_capable, &page_size) ||
- 		    (list_empty(devices) && live_md_type == DM_TYPE_DAX_BIO_BASED)) {
- 			t->type = DM_TYPE_DAX_BIO_BASED;
- 		} else {
-@@ -1715,23 +1715,6 @@ static int device_dax_write_cache_enabled(struct dm_target *ti,
- 	return false;
+ 	return true;
  }
  
--static int dm_table_supports_dax_write_cache(struct dm_table *t)
+-static int device_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
+-				       sector_t start, sector_t len, void *data)
++static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
++					   sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	unsigned int *zone_sectors = data;
+ 
+-	return q && blk_queue_zone_sectors(q) == *zone_sectors;
+-}
+-
+-static bool dm_table_matches_zone_sectors(struct dm_table *t,
+-					  unsigned int zone_sectors)
 -{
 -	struct dm_target *ti;
 -	unsigned i;
@@ -110,63 +125,67 @@ index c470e174e686..07530f2aa027 100644
 -	for (i = 0; i < dm_table_get_num_targets(t); i++) {
 -		ti = dm_table_get_target(t, i);
 -
--		if (ti->type->iterate_devices &&
--		    ti->type->iterate_devices(ti,
--				device_dax_write_cache_enabled, NULL))
--			return true;
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_matches_zone_sectors, &zone_sectors))
+-			return false;
 -	}
 -
--	return false;
--}
--
- static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
- 				sector_t start, sector_t len, void *data)
- {
-@@ -1918,15 +1901,15 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 	}
- 	blk_queue_write_cache(q, wc, fua);
+-	return true;
++	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
+ }
  
--	if (dm_table_supports_dax(t, device_supports_dax, &page_size)) {
-+	if (dm_table_supports_dax(t, device_not_dax_capable, &page_size)) {
- 		blk_queue_flag_set(QUEUE_FLAG_DAX, q);
--		if (dm_table_supports_dax(t, device_dax_synchronous, NULL))
-+		if (dm_table_supports_dax(t, device_not_dax_synchronous_capable, NULL))
- 			set_dax_synchronous(t->md->dax_dev);
- 	}
+ static int validate_hardware_zoned_model(struct dm_table *table,
+@@ -1525,7 +1508,7 @@ static int validate_hardware_zoned_model(struct dm_table *table,
+ 	if (!zone_sectors || !is_power_of_2(zone_sectors))
+ 		return -EINVAL;
+ 
+-	if (!dm_table_matches_zone_sectors(table, zone_sectors)) {
++	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
+ 		DMERR("%s: zone sectors is not consistent across all devices",
+ 		      dm_device_name(table->md));
+ 		return -EINVAL;
+@@ -1742,7 +1725,7 @@ static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev
+ 
+ static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
+ {
+-	return !dm_table_any_dev_attr(t, device_is_partial_completion);
++	return !dm_table_any_dev_attr(t, device_is_partial_completion, NULL);
+ }
+ 
+ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+@@ -1909,11 +1892,11 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
  	else
  		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
  
--	if (dm_table_supports_dax_write_cache(t))
-+	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
+-	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
++	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled, NULL))
  		dax_write_cache(t->md->dax_dev, true);
  
  	/* Ensure that all underlying devices are non-rotational. */
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index de32f8553735..530c0fe14229 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1139,7 +1139,7 @@ static bool dm_dax_supported(struct dax_device *dax_dev, struct block_device *bd
- 	if (!map)
- 		goto out;
+-	if (dm_table_any_dev_attr(t, device_is_rotational))
++	if (dm_table_any_dev_attr(t, device_is_rotational, NULL))
+ 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
+ 	else
+ 		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+@@ -1932,7 +1915,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 	 * them as well.  Only targets that support iterate_devices are considered:
+ 	 * don't want error, zero, etc to require stable pages.
+ 	 */
+-	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
++	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
+ 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
+ 	else
+ 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
+@@ -1943,7 +1926,8 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
++	if (blk_queue_add_random(q) &&
++	    dm_table_any_dev_attr(t, device_is_not_random, NULL))
+ 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
  
--	ret = dm_table_supports_dax(map, device_supports_dax, &blocksize);
-+	ret = dm_table_supports_dax(map, device_not_dax_capable, &blocksize);
- 
- out:
- 	dm_put_live_table(md, srcu_idx);
-diff --git a/drivers/md/dm.h b/drivers/md/dm.h
-index d7c4f6606b5f..9fbf87e04019 100644
---- a/drivers/md/dm.h
-+++ b/drivers/md/dm.h
-@@ -74,7 +74,7 @@ void dm_table_free_md_mempools(struct dm_table *t);
- struct dm_md_mempools *dm_table_get_md_mempools(struct dm_table *t);
- bool dm_table_supports_dax(struct dm_table *t, iterate_devices_callout_fn fn,
- 			   int *blocksize);
--int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
-+int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
- 			   sector_t start, sector_t len, void *data);
- 
- void dm_lock_md_type(struct mapped_device *md);
+ 	/*
 -- 
 2.27.0
 
