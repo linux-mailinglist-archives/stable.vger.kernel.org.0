@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82AB2333EA5
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7C76333E37
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233706AbhCJN0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48684 "EHLO mail.kernel.org"
+        id S233482AbhCJNZl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232993AbhCJNZp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:45 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4042964FEE;
-        Wed, 10 Mar 2021 13:25:43 +0000 (UTC)
+        id S233196AbhCJNZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2808764FEE;
+        Wed, 10 Mar 2021 13:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382744;
-        bh=8YDagtuGgfNLI4LgiAmlM32QPvFAwF2C7X9i86u/HXM=;
+        s=korg; t=1615382704;
+        bh=wuObpUnoJjjDOvL8yCLHFnREMgh0pVK4LpjMl6IBIPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4E0kEoqgYrFEIpZpF7Zxnc+SQu5TXt3lPuJsUPVR1T9JNujeKYn8yKS1H9w/Mr4f
-         4h/YZoGoOEdUfL5ouYN8Gtzjh30MF3N44VnQNgjCNv+evSeb7qOATDoxzpEVGZ3AAQ
-         DgwDxe4s2fjpDRWWQCgh8xhAZwhTcULGUdkR9AT8=
+        b=qyBqgYBbZeojfRHWBCxwzmNzoSi5xCJk2huiD9dyJ8NrpkZzwQNGjX3xglvkobn82
+         q184UWTN0zEjgo5mnoxvuCI1HEcjqrSBOF3CtRqe8isPYOL96JP9CZCamEOI3vZFpE
+         1h7flcjVflkk1YQ90vFOA+PjmHFN3lNPVIHHpF7I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 30/39] platform/x86: acer-wmi: Add ACER_CAP_SET_FUNCTION_MODE capability flag
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 01/20] btrfs: raid56: simplify tracking of Q stripe presence
 Date:   Wed, 10 Mar 2021 14:24:38 +0100
-Message-Id: <20210310132320.662946657@linuxfoundation.org>
+Message-Id: <20210310132320.559756662@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
+References: <20210310132320.512307035@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,57 +44,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 82cb8a5c395ea5be20e0fe31a8fe84380a502ca5 ]
+commit c17af96554a8a8777cbb0fd53b8497250e548b43 upstream.
 
-Not all devices supporting WMID_GUID3 support the wmid3_set_function_mode()
-call, leading to errors like these:
+There are temporary variables tracking the index of P and Q stripes, but
+none of them is really used as such, merely for determining if the Q
+stripe is present. This leads to compiler warnings with
+-Wunused-but-set-variable and has been reported several times.
 
-[   60.138358] acer_wmi: Enabling RF Button failed: 0x1 - 0xff
-[   60.140036] acer_wmi: Enabling Launch Manager failed: 0x1 - 0xff
+fs/btrfs/raid56.c: In function ‘finish_rmw’:
+fs/btrfs/raid56.c:1199:6: warning: variable ‘p_stripe’ set but not used [-Wunused-but-set-variable]
+ 1199 |  int p_stripe = -1;
+      |      ^~~~~~~~
+fs/btrfs/raid56.c: In function ‘finish_parity_scrub’:
+fs/btrfs/raid56.c:2356:6: warning: variable ‘p_stripe’ set but not used [-Wunused-but-set-variable]
+ 2356 |  int p_stripe = -1;
+      |      ^~~~~~~~
 
-Add an ACER_CAP_SET_FUNCTION_MODE capability flag, so that these calls
-can be disabled through the new force_caps mechanism.
+Replace the two variables with one that has a clear meaning and also get
+rid of the warnings. The logic that verifies that there are only 2
+valid cases is unchanged.
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201019185628.264473-5-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/acer-wmi.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/btrfs/raid56.c |   37 +++++++++++++++----------------------
+ 1 file changed, 15 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 2e77ac458bab..657fd8c49597 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -224,6 +224,7 @@ struct hotkey_function_type_aa {
- #define ACER_CAP_BLUETOOTH		BIT(2)
- #define ACER_CAP_BRIGHTNESS		BIT(3)
- #define ACER_CAP_THREEG			BIT(4)
-+#define ACER_CAP_SET_FUNCTION_MODE	BIT(5)
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -1190,22 +1190,19 @@ static noinline void finish_rmw(struct b
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct bio_list bio_list;
+ 	struct bio *bio;
+ 	int ret;
  
- /*
-  * Interface type flags
-@@ -2261,10 +2262,14 @@ static int __init acer_wmi_init(void)
- 	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
- 		interface->capability &= ~ACER_CAP_BRIGHTNESS;
+ 	bio_list_init(&bio_list);
  
-+	if (wmi_has_guid(WMID_GUID3))
-+		interface->capability |= ACER_CAP_SET_FUNCTION_MODE;
-+
- 	if (force_caps != -1)
- 		interface->capability = force_caps;
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
  
--	if (wmi_has_guid(WMID_GUID3)) {
-+	if (wmi_has_guid(WMID_GUID3) &&
-+	    (interface->capability & ACER_CAP_SET_FUNCTION_MODE)) {
- 		if (ACPI_FAILURE(acer_wmi_enable_rf_button()))
- 			pr_warn("Cannot enable RF Button Driver\n");
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+@@ -1249,7 +1246,7 @@ static noinline void finish_rmw(struct b
+ 		SetPageUptodate(p);
+ 		pointers[stripe++] = kmap(p);
  
--- 
-2.30.1
-
+-		if (q_stripe != -1) {
++		if (has_qstripe) {
+ 
+ 			/*
+ 			 * raid6, add the qstripe and call the
+@@ -2325,8 +2322,7 @@ static noinline void finish_parity_scrub
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct page *p_page = NULL;
+ 	struct page *q_page = NULL;
+ 	struct bio_list bio_list;
+@@ -2336,14 +2332,12 @@ static noinline void finish_parity_scrub
+ 
+ 	bio_list_init(&bio_list);
+ 
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
+ 
+ 	if (bbio->num_tgtdevs && bbio->tgtdev_map[rbio->scrubp]) {
+ 		is_replace = 1;
+@@ -2365,7 +2359,7 @@ static noinline void finish_parity_scrub
+ 		goto cleanup;
+ 	SetPageUptodate(p_page);
+ 
+-	if (q_stripe != -1) {
++	if (has_qstripe) {
+ 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
+ 		if (!q_page) {
+ 			__free_page(p_page);
+@@ -2388,8 +2382,7 @@ static noinline void finish_parity_scrub
+ 		/* then add the parity stripe */
+ 		pointers[stripe++] = kmap(p_page);
+ 
+-		if (q_stripe != -1) {
+-
++		if (has_qstripe) {
+ 			/*
+ 			 * raid6, add the qstripe and call the
+ 			 * library function to fill in our p/q
 
 
