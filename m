@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C90B333E9D
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23659333E32
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233670AbhCJN01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48260 "EHLO mail.kernel.org"
+        id S233476AbhCJNZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233337AbhCJNZY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:24 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50B3164FFB;
-        Wed, 10 Mar 2021 13:25:21 +0000 (UTC)
+        id S233200AbhCJNZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4763D64FFB;
+        Wed, 10 Mar 2021 13:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382722;
-        bh=m9ikSDjxS0/DHXNlAIK+OXpht2KBs3JnAENiSljRLZc=;
+        s=korg; t=1615382704;
+        bh=/Jk6kFVXqUQGFcZcbH3xg6FML+d5pKZ843w7fXmcXhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5t9sE1pMCH1SCy/9R0JCymqVbLunU+L5ZSiwFSJGm/DHzW8XDdSmPyaRgER+XTtN
-         JET6UHE36btbUPivj5loy8RMmMuA9fGh2fD74prYlnxeigJVCwP2Qp+vkJ6I2R+Qme
-         fW9FxIiSqL7To65dCecev+/2gjc8OhfnVIoRh4wE=
+        b=RTc9qXOHJW90RW6f0PkDQYDyxR+Ggc8CoNniqD6wlVTn0BEU3/7b1rdmUiKAPjTzq
+         dsEckivviihBukUgqqSq23UD58O1QMKAvuPFcbDuXhcr41PsccSm2HEOS9TVNfEHNW
+         GJQFEexSSvUuytVk95QBIvodO1YYdCHB5jxVRiG4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Braha <julianbraha@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 17/39] RDMA/rxe: Fix missing kconfig dependency on CRYPTO
-Date:   Wed, 10 Mar 2021 14:24:25 +0100
-Message-Id: <20210310132320.268513994@linuxfoundation.org>
+        stable@vger.kernel.org, Ethan Warth <redyoshi49q@gmail.com>,
+        "Wladimir J. van der Laan" <laanwj@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 14/24] HID: mf: add support for 0079:1846 Mayflash/Dragonrise USB Gamecube Adapter
+Date:   Wed, 10 Mar 2021 14:24:26 +0100
+Message-Id: <20210310132320.982693838@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
+References: <20210310132320.550932445@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Julian Braha <julianbraha@gmail.com>
+From: Ethan Warth <redyoshi49q@gmail.com>
 
-[ Upstream commit 475f23b8c66d2892ad6acbf90ed757cafab13de7 ]
+[ Upstream commit 1008230f2abeb624f6d71b2e1c424fa4eeebbf84 ]
 
-When RDMA_RXE is enabled and CRYPTO is disabled, Kbuild gives the
-following warning:
+Mayflash/Dragonrise seems to have yet another device ID for one of their
+Gamecube controller adapters.  Previous to this commit, the adapter
+registered only one /dev/input/js* device, and all controller inputs (from
+any controller) were mapped to this device.  This patch defines the 1846
+USB device ID and enables the HID_QUIRK_MULTI_INPUT quirk for it, which
+fixes that (with the patch, four /dev/input/js* devices are created, one
+for each of the four controller ports).
 
- WARNING: unmet direct dependencies detected for CRYPTO_CRC32
-   Depends on [n]: CRYPTO [=n]
-   Selected by [y]:
-   - RDMA_RXE [=y] && (INFINIBAND_USER_ACCESS [=y] || !INFINIBAND_USER_ACCESS [=y]) && INET [=y] && PCI [=y] && INFINIBAND [=y] && INFINIBAND_VIRT_DMA [=y]
-
-This is because RDMA_RXE selects CRYPTO_CRC32, without depending on or
-selecting CRYPTO, despite that config option being subordinate to CRYPTO.
-
-Fixes: cee2688e3cd6 ("IB/rxe: Offload CRC calculation when possible")
-Signed-off-by: Julian Braha <julianbraha@gmail.com>
-Link: https://lore.kernel.org/r/21525878.NYvzQUHefP@ubuntu-mate-laptop
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Ethan Warth <redyoshi49q@gmail.com>
+Tested-by: Wladimir J. van der Laan <laanwj@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-mf.c     | 2 ++
+ drivers/hid/hid-quirks.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/infiniband/sw/rxe/Kconfig b/drivers/infiniband/sw/rxe/Kconfig
-index 67ae960ab523..1fa19a77583e 100644
---- a/drivers/infiniband/sw/rxe/Kconfig
-+++ b/drivers/infiniband/sw/rxe/Kconfig
-@@ -3,6 +3,7 @@ config RDMA_RXE
- 	depends on INET && PCI && INFINIBAND
- 	depends on !64BIT || ARCH_DMA_ADDR_T_64BIT
- 	select NET_UDP_TUNNEL
-+	select CRYPTO
- 	select CRYPTO_CRC32
- 	select DMA_VIRT_OPS
- 	---help---
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 33183933337a..fc499c9039a0 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -365,6 +365,7 @@
+ #define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR	0x1803
+ #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE1	0x1843
+ #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE2	0x1844
++#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE3	0x1846
+ 
+ #define USB_VENDOR_ID_DWAV		0x0eef
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+diff --git a/drivers/hid/hid-mf.c b/drivers/hid/hid-mf.c
+index fc75f30f537c..92d7ecd41a78 100644
+--- a/drivers/hid/hid-mf.c
++++ b/drivers/hid/hid-mf.c
+@@ -153,6 +153,8 @@ static const struct hid_device_id mf_devices[] = {
+ 		.driver_data = HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2),
+ 		.driver_data = 0 }, /* No quirk required */
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3),
++		.driver_data = HID_QUIRK_MULTI_INPUT },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, mf_devices);
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 60d188a704e5..f35d919c4eba 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -72,6 +72,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_REDRAGON_SEYMUR2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1), HID_QUIRK_MULTI_INPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER), HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET },
+@@ -491,6 +492,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE3) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_MICROSOFT)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
 -- 
 2.30.1
 
