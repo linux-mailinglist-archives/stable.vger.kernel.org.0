@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35837333EAE
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:37:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA223333E34
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbhCJN0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
+        id S233466AbhCJNZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233313AbhCJNZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9ADD6504F;
-        Wed, 10 Mar 2021 13:25:19 +0000 (UTC)
+        id S233184AbhCJNZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD95E64FD8;
+        Wed, 10 Mar 2021 13:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382720;
-        bh=ZjTosE1btrgNQ9yia2PYQqA6APnbfePX61NsH64nF20=;
+        s=korg; t=1615382702;
+        bh=8X32iOgDKlS3S+lKRAQtApS+4qPcMAL1AjuDElNtk/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTz6+XAWwY+OHDCEUrc0+aG3WxZwDBuJWRhJfkHeDIsJr3jgsTVTefkSg109ZPePL
-         hxJKbyO6Dqswnq+PbD4imdGuyJZi4H91LzpbClCMzvDpkm0HswrSNsARUmu3oBHYqt
-         6uLeA3jhL67eVYsRFvwXlP1YYWryQuoCZSWiBW4A=
+        b=Vzs+QFRrk3X7vttpBfSmhWyXD6EE/uA6WBE09QnAA0FDU5LEJr1sVY9qdBjUG7eDd
+         mVvtdIODpp7d8CpWS3LetJp687r3eQnDfI6ZyYsYaL61bMNe9VrwHUP2mDXdfTCXQd
+         1zEWXWHu8kh4oJnx5FUg/k7P5QGZuLTZHYIL2lCI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 16/39] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
-Date:   Wed, 10 Mar 2021 14:24:24 +0100
-Message-Id: <20210310132320.236653992@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 13/24] platform/x86: acer-wmi: Add ACER_CAP_KBD_DOCK quirk for the Aspire Switch 10E SW3-016
+Date:   Wed, 10 Mar 2021 14:24:25 +0100
+Message-Id: <20210310132320.953247914@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
+References: <20210310132320.550932445@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
+[ Upstream commit bf753400280d1384abb783efc0b42c491d6deec3 ]
 
-Currently the mask operation on variable conf is just 3 bits so
-the switch statement case value of 8 is unreachable dead code.
-The function daio_mgr_dao_init can be passed a 4 bit value,
-function dao_rsc_init calls it with conf set to:
+Add the Acer Aspire Switch 10E SW3-016 to the list of models which use the
+Acer Switch WMI interface for reporting SW_TABLET_MODE.
 
-     conf = (desc->msr & 0x7) | (desc->passthru << 3);
-
-so clearly when desc->passthru is set to 1 then conf can be
-at least 8.
-
-Fix this by changing the mask to 0xf.
-
-Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201123151625.5530-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/ctxfi/cthw20k2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/acer-wmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
-index 3c966fafc754..6c9ab602212e 100644
---- a/sound/pci/ctxfi/cthw20k2.c
-+++ b/sound/pci/ctxfi/cthw20k2.c
-@@ -995,7 +995,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
- 
- 	if (idx < 4) {
- 		/* S/PDIF output */
--		switch ((conf & 0x7)) {
-+		switch ((conf & 0xf)) {
- 		case 1:
- 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
- 			break;
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 427dd0987338..d27a564389a4 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -511,6 +511,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
+ 		},
+ 		.driver_data = &quirk_acer_travelmate_2490,
+ 	},
++	{
++		.callback = set_force_caps,
++		.ident = "Acer Aspire Switch 10E SW3-016",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire SW3-016"),
++		},
++		.driver_data = (void *)ACER_CAP_KBD_DOCK,
++	},
+ 	{
+ 		.callback = set_force_caps,
+ 		.ident = "Acer Aspire Switch 10 SW5-012",
 -- 
 2.30.1
 
