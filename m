@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45A3C333E1C
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4968D333E55
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbhCJNZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46378 "EHLO mail.kernel.org"
+        id S233594AbhCJNZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233103AbhCJNYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:55 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5452765001;
-        Wed, 10 Mar 2021 13:24:53 +0000 (UTC)
+        id S233270AbhCJNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F55C6503E;
+        Wed, 10 Mar 2021 13:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382694;
-        bh=gnqQuhP5Q80bDVlG9mWYachcWHzYfz4kh+we0oKAvWc=;
+        s=korg; t=1615382715;
+        bh=dtOjaz4fqdVqMM9rDzoAnXqUd3J2Q+VpWaU4hqsOOyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nL9b0+0EdA/d9ln4aRGy72SjkJDH/ObWDOfy5D35qMtn/Hds9IrJsPuxpnyroNWOS
-         IsZymYpgszthNG5/gTaqmVFsqxLBFL2utJ162cY91dDaoFeewVCNRd70AXb9dzo3vn
-         s9DlkmLxCPEmppe05sYY+FbCaaF5K5qxormyTwm8=
+        b=HtLnmdt6mlmecQ4fmK4b69riTD6Ss0igBJgh8/YjF60oBw/gCiAYlbkNvORskfX41
+         yTT6S+Bbhnu9j6aTJc0b2sHawnOmC71cvqSW8Fs9P1My53LS3z+SJWxnaIbXyvAK1e
+         X9epBxz5E5bWBE1RDhJbpQwcwd5Xqz7jWdtgeR3I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/24] platform/x86: acer-wmi: Cleanup ACER_CAP_FOO defines
-Date:   Wed, 10 Mar 2021 14:24:20 +0100
-Message-Id: <20210310132320.803196267@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Ed L. Cachin" <ed.cashin@acm.org>,
+        Bart Van Assche <bart.vanassche@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: [PATCH 4.19 13/39] aoe: register default groups with device_add_disk()
+Date:   Wed, 10 Mar 2021 14:24:21 +0100
+Message-Id: <20210310132320.147185819@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +45,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 7c936d8d26afbc74deac0651d613dead2f76e81c ]
+commit 95cf7809bf9169fec4e4b7bb24b8069d8f354f96 upstream.
 
-Cleanup the ACER_CAP_FOO defines:
--Switch to using BIT() macro.
--The ACER_CAP_RFBTN flag is set, but it is never checked anywhere, drop it.
--Drop the unused ACER_CAP_ANY define.
+Register default sysfs groups during device_add_disk() to avoid a
+race condition with udev during startup.
 
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201019185628.264473-2-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Ed L. Cachin <ed.cashin@acm.org>
+Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/acer-wmi.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ drivers/block/aoe/aoe.h    |    1 -
+ drivers/block/aoe/aoeblk.c |   21 +++++++--------------
+ drivers/block/aoe/aoedev.c |    1 -
+ 3 files changed, 7 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 7fa27e753691..daf692fe7f77 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -206,14 +206,12 @@ struct hotkey_function_type_aa {
- /*
-  * Interface capability flags
-  */
--#define ACER_CAP_MAILLED		(1<<0)
--#define ACER_CAP_WIRELESS		(1<<1)
--#define ACER_CAP_BLUETOOTH		(1<<2)
--#define ACER_CAP_BRIGHTNESS		(1<<3)
--#define ACER_CAP_THREEG			(1<<4)
--#define ACER_CAP_ACCEL			(1<<5)
--#define ACER_CAP_RFBTN			(1<<6)
--#define ACER_CAP_ANY			(0xFFFFFFFF)
-+#define ACER_CAP_MAILLED		BIT(0)
-+#define ACER_CAP_WIRELESS		BIT(1)
-+#define ACER_CAP_BLUETOOTH		BIT(2)
-+#define ACER_CAP_BRIGHTNESS		BIT(3)
-+#define ACER_CAP_THREEG			BIT(4)
-+#define ACER_CAP_ACCEL			BIT(5)
+--- a/drivers/block/aoe/aoe.h
++++ b/drivers/block/aoe/aoe.h
+@@ -201,7 +201,6 @@ int aoeblk_init(void);
+ void aoeblk_exit(void);
+ void aoeblk_gdalloc(void *);
+ void aoedisk_rm_debugfs(struct aoedev *d);
+-void aoedisk_rm_sysfs(struct aoedev *d);
  
- /*
-  * Interface type flags
-@@ -1253,10 +1251,8 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
- 		interface->capability |= ACER_CAP_THREEG;
- 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
- 		interface->capability |= ACER_CAP_BLUETOOTH;
--	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN) {
--		interface->capability |= ACER_CAP_RFBTN;
-+	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN)
- 		commun_func_bitmap &= ~ACER_WMID3_GDS_RFBTN;
--	}
+ int aoechr_init(void);
+ void aoechr_exit(void);
+--- a/drivers/block/aoe/aoeblk.c
++++ b/drivers/block/aoe/aoeblk.c
+@@ -177,10 +177,15 @@ static struct attribute *aoe_attrs[] = {
+ 	NULL,
+ };
  
- 	commun_fn_key_number = type_aa->commun_fn_key_number;
+-static const struct attribute_group attr_group = {
++static const struct attribute_group aoe_attr_group = {
+ 	.attrs = aoe_attrs,
+ };
+ 
++static const struct attribute_group *aoe_attr_groups[] = {
++	&aoe_attr_group,
++	NULL,
++};
++
+ static const struct file_operations aoe_debugfs_fops = {
+ 	.open = aoe_debugfs_open,
+ 	.read = seq_read,
+@@ -220,17 +225,6 @@ aoedisk_rm_debugfs(struct aoedev *d)
  }
--- 
-2.30.1
-
+ 
+ static int
+-aoedisk_add_sysfs(struct aoedev *d)
+-{
+-	return sysfs_create_group(&disk_to_dev(d->gd)->kobj, &attr_group);
+-}
+-void
+-aoedisk_rm_sysfs(struct aoedev *d)
+-{
+-	sysfs_remove_group(&disk_to_dev(d->gd)->kobj, &attr_group);
+-}
+-
+-static int
+ aoeblk_open(struct block_device *bdev, fmode_t mode)
+ {
+ 	struct aoedev *d = bdev->bd_disk->private_data;
+@@ -417,8 +411,7 @@ aoeblk_gdalloc(void *vp)
+ 
+ 	spin_unlock_irqrestore(&d->lock, flags);
+ 
+-	add_disk(gd);
+-	aoedisk_add_sysfs(d);
++	device_add_disk(NULL, gd, aoe_attr_groups);
+ 	aoedisk_add_debugfs(d);
+ 
+ 	spin_lock_irqsave(&d->lock, flags);
+--- a/drivers/block/aoe/aoedev.c
++++ b/drivers/block/aoe/aoedev.c
+@@ -275,7 +275,6 @@ freedev(struct aoedev *d)
+ 	del_timer_sync(&d->timer);
+ 	if (d->gd) {
+ 		aoedisk_rm_debugfs(d);
+-		aoedisk_rm_sysfs(d);
+ 		del_gendisk(d->gd);
+ 		put_disk(d->gd);
+ 		blk_cleanup_queue(d->blkq);
 
 
