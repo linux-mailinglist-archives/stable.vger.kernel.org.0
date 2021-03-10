@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23186333B8A
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:37:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9C0B333B89
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:37:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231819AbhCJLf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 06:35:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50302 "EHLO
+        id S231790AbhCJLf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 06:35:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231790AbhCJLfP (ORCPT
+        with ESMTP id S231952AbhCJLfP (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 06:35:15 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1B9C061764
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB3EC061765
         for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:34:56 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id w11so22932297wrr.10
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:34:55 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id b18so22922913wrn.6
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:34:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=pJP+2SES5veTHN1w2o+EooIOS5gGA8fO2YFXyg3pw3k=;
-        b=bJJXB6Vym4PhGlvMEU0Tjth09CDe/RIr/A0zbOvzEvdo3pR5H/4xsCbT+l+5scb1Fu
-         HXn8Lf7jdhwycWH2zRq2m9ghenosD6K3bnYazuCQLp3ZqVoWuuNTtiQWLOp8o3jdxvV1
-         jovwJRsJdfCKDEPGuKLlhQly35eTqh7v0Vmg8JQ7vyshCHVIyzla9YizFSwD/HGr4/f/
-         vCkEAKB1fHUYD5Bw623OQELT/VTYRFvXcUIcFMeTpuly5CrOWt1FXMbNBro+y08IOrMh
-         iuajUvQ65Lwr1nEoGZ2wA69OafNEBwmY66yszDrRhIe6i4CKgRj7sXTQYRNge3wgGG+d
-         XS2A==
+        bh=jC2PbzBDap1eAGJrSMeju0k3/uX22JDyOTK/JWYWE0o=;
+        b=fed5pFDYZW403uJCTIg39LDekLYaOleCNmHKszdjcVdnjsRVsgi0pWQYMIgjCzewuV
+         Puq9bMtBpqU5CjaexE9FSikdsoj9W4qakCG/4GeSnIp+pDBBpQ7MLJNjLA7+rYZfUwTd
+         DqwzPmMZBuvvwAJOOiTj914IIRt9gWp/208Zi/o+ny/ZYeXZFN4LgThuHcwi7MS/6G5p
+         0wuy1jht5AwVvuu4g88Fc3X71NUXXKnGJj5EEdta2tON1YiXrsXOOKUKwRf9/kOeceeb
+         3jpJpIU5OXgNXIC/ERlNSbrCP+bXJtbtbyiMWOpcIJRn6SwnJ+Jv89qcZOHxNrmRxV95
+         WJEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=pJP+2SES5veTHN1w2o+EooIOS5gGA8fO2YFXyg3pw3k=;
-        b=KwSnfgpy7SIk4AZ638D4ZrHC9rRvII6q/9xiaLw5V9RICWM334wRqDDTycHNzvh+0Y
-         DPBxrtxE7oZQFiqJF198+fNcgB/pmBP6OdPtjXfyYt8t1BYi0Q2MC3MjpkXXOn+bTgWs
-         nT9oTtfiagCPzpKcGC3dEAWUXWEPnrrauL5pzw45+fBa9SanrxzE4o6Ca3HdNPGHcZLD
-         A1k5oTh26TWLOAIf1zFz7xippqGvkhRaGLpys24hBXzxLrkdYo1aC0W31p8Q7Pg0/S/o
-         s0S10LM5o5bNg3lY7eY6Qru3FCwyWbUZPr7v6F5S3N0nwdQhkyRUWsfY7wvcFK+1RKqV
-         TUZw==
-X-Gm-Message-State: AOAM5316WP18a4o1WwZEk3lTQJTUnsTuEuhPQueD8vvdnw3WFn8xib+J
-        EPvxH+7yK7bmZ9ijrqCZVbD030ADKa0lpw==
-X-Google-Smtp-Source: ABdhPJxYjuE8Fe7YtbTYNGICQhvp76DOZ/+erhK6IPt7moLD9MuojIaEjBaeKtjUnUsxPoliiCNPkw==
-X-Received: by 2002:adf:90c2:: with SMTP id i60mr3031463wri.75.1615376094477;
-        Wed, 10 Mar 2021 03:34:54 -0800 (PST)
+        bh=jC2PbzBDap1eAGJrSMeju0k3/uX22JDyOTK/JWYWE0o=;
+        b=RismiI/+MsdbdOPXJ853H2XWvuYz7HVOpoqBdQXEjqERNMl/c+SYQmvf+gdbhZoVfz
+         59UfRj8SiVXLpOW6fw/SyjSOLb6oSrG7iLv8LznJaE2pqrO5kxbbpPTI3W/7fTtGjQYh
+         b4nuqVQf8RA3jXGlsNgr18ZbsCCHO/Y4aMaAKsoOL18MXmITAS4CyCMDtMkZ+ucM+PaC
+         MA77HT4cCDKwYH/YzhRHQsn6wP7UcfU7NogPsfNWJKrXQJXWw7E8kLoSyNKj9h+S11sm
+         OB4QQm9qlnGsfFOeWPhwQIHoL2dtRNcl7MfVf2fTJtilZhHUaBS44lPSafekgDWb/l+L
+         Uw8Q==
+X-Gm-Message-State: AOAM533o8Ws1uukIVaZOwJsMOny5NTFqDHp/uQ+ppqBpomp9PF2VMrvZ
+        Dcxvb4TC3FzsGVcf6LOD7vMoJBGyB8XZVA==
+X-Google-Smtp-Source: ABdhPJwW55XlG+7ToVq1VAO/dI/kXlnAg49rUN1GfZ/dYthIfQ9QxeDPhrK+BxtugaVZqw8OoLMLqQ==
+X-Received: by 2002:adf:ea0e:: with SMTP id q14mr3108382wrm.389.1615376095439;
+        Wed, 10 Mar 2021 03:34:55 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.55])
-        by smtp.gmail.com with ESMTPSA id s18sm25179078wrr.27.2021.03.10.03.34.53
+        by smtp.gmail.com with ESMTPSA id s18sm25179078wrr.27.2021.03.10.03.34.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 03:34:54 -0800 (PST)
+        Wed, 10 Mar 2021 03:34:55 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4/9] io_uring: deduplicate failing task_work_add
-Date:   Wed, 10 Mar 2021 11:30:40 +0000
-Message-Id: <5ad81cd57c41877a4667ea8dd5397987af6cce41.1615375332.git.asml.silence@gmail.com>
+Subject: [PATCH 5/9] fs: provide locked helper variant of close_fd_get_file()
+Date:   Wed, 10 Mar 2021 11:30:41 +0000
+Message-Id: <ad604cc69f01343b6d8300d83e3a97f56f878e0d.1615375332.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1615375332.git.asml.silence@gmail.com>
 References: <cover.1615375332.git.asml.silence@gmail.com>
@@ -62,103 +62,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit eab30c4d20dc761d463445e5130421863ff81505 upstream
+From: Jens Axboe <axboe@kernel.dk>
 
-When io_req_task_work_add() fails, the request will be cancelled by
-enqueueing via task_works of io-wq. Extract a function for that.
+commit 53dec2ea74f2ef360e8455439be96a780baa6097 upstream
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Assumes current->files->file_lock is already held on invocation. Helps
+the caller check the file before removing the fd, if it needs to.
+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 ---
- fs/io_uring.c | 46 +++++++++++++++++-----------------------------
- 1 file changed, 17 insertions(+), 29 deletions(-)
+ fs/file.c     | 36 +++++++++++++++++++++++++-----------
+ fs/internal.h |  1 +
+ 2 files changed, 26 insertions(+), 11 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 842a7c017296..bc76929e0031 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2172,6 +2172,16 @@ static int io_req_task_work_add(struct io_kiocb *req)
- 	return ret;
+diff --git a/fs/file.c b/fs/file.c
+index dab120b71e44..f3a4bac2cbe9 100644
+--- a/fs/file.c
++++ b/fs/file.c
+@@ -22,6 +22,8 @@
+ #include <linux/close_range.h>
+ #include <net/sock.h>
+ 
++#include "internal.h"
++
+ unsigned int sysctl_nr_open __read_mostly = 1024*1024;
+ unsigned int sysctl_nr_open_min = BITS_PER_LONG;
+ /* our min() is unusable in constant expressions ;-/ */
+@@ -732,36 +734,48 @@ int __close_range(unsigned fd, unsigned max_fd, unsigned int flags)
  }
  
-+static void io_req_task_work_add_fallback(struct io_kiocb *req,
-+					  void (*cb)(struct callback_head *))
+ /*
+- * variant of close_fd that gets a ref on the file for later fput.
+- * The caller must ensure that filp_close() called on the file, and then
+- * an fput().
++ * See close_fd_get_file() below, this variant assumes current->files->file_lock
++ * is held.
+  */
+-int close_fd_get_file(unsigned int fd, struct file **res)
++int __close_fd_get_file(unsigned int fd, struct file **res)
+ {
+ 	struct files_struct *files = current->files;
+ 	struct file *file;
+ 	struct fdtable *fdt;
+ 
+-	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+ 	if (fd >= fdt->max_fds)
+-		goto out_unlock;
++		goto out_err;
+ 	file = fdt->fd[fd];
+ 	if (!file)
+-		goto out_unlock;
++		goto out_err;
+ 	rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	__put_unused_fd(files, fd);
+-	spin_unlock(&files->file_lock);
+ 	get_file(file);
+ 	*res = file;
+ 	return 0;
+-
+-out_unlock:
+-	spin_unlock(&files->file_lock);
++out_err:
+ 	*res = NULL;
+ 	return -ENOENT;
+ }
+ 
++/*
++ * variant of close_fd that gets a ref on the file for later fput.
++ * The caller must ensure that filp_close() called on the file, and then
++ * an fput().
++ */
++int close_fd_get_file(unsigned int fd, struct file **res)
 +{
-+	struct task_struct *tsk = io_wq_get_task(req->ctx->io_wq);
++	struct files_struct *files = current->files;
++	int ret;
 +
-+	init_task_work(&req->task_work, cb);
-+	task_work_add(tsk, &req->task_work, TWA_NONE);
-+	wake_up_process(tsk);
++	spin_lock(&files->file_lock);
++	ret = __close_fd_get_file(fd, res);
++	spin_unlock(&files->file_lock);
++
++	return ret;
 +}
 +
- static void __io_req_task_cancel(struct io_kiocb *req, int error)
+ void do_close_on_exec(struct files_struct *files)
  {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -2229,14 +2239,8 @@ static void io_req_task_queue(struct io_kiocb *req)
- 	percpu_ref_get(&req->ctx->refs);
+ 	unsigned i;
+diff --git a/fs/internal.h b/fs/internal.h
+index 77c50befbfbe..c6c85f6ad598 100644
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -132,6 +132,7 @@ extern struct file *do_file_open_root(struct dentry *, struct vfsmount *,
+ 		const char *, const struct open_flags *);
+ extern struct open_how build_open_how(int flags, umode_t mode);
+ extern int build_open_flags(const struct open_how *how, struct open_flags *op);
++extern int __close_fd_get_file(unsigned int fd, struct file **res);
  
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
--		init_task_work(&req->task_work, io_req_task_cancel);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
- }
- 
- static inline void io_queue_next(struct io_kiocb *req)
-@@ -2354,13 +2358,8 @@ static void io_free_req_deferred(struct io_kiocb *req)
- 
- 	init_task_work(&req->task_work, io_put_req_deferred_cb);
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_put_req_deferred_cb);
- }
- 
- static inline void io_put_req_deferred(struct io_kiocb *req, int refs)
-@@ -3439,15 +3438,8 @@ static int io_async_buf_func(struct wait_queue_entry *wait, unsigned mode,
- 	/* submit ref gets dropped, acquire a new one */
- 	refcount_inc(&req->refs);
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
--		/* queue just for cancelation */
--		init_task_work(&req->task_work, io_req_task_cancel);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
- 	return 1;
- }
- 
-@@ -5159,12 +5151,8 @@ static int __io_async_wake(struct io_kiocb *req, struct io_poll_iocb *poll,
- 	 */
- 	ret = io_req_task_work_add(req);
- 	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
- 		WRITE_ONCE(poll->canceled, true);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
-+		io_req_task_work_add_fallback(req, func);
- 	}
- 	return 1;
- }
+ long do_sys_ftruncate(unsigned int fd, loff_t length, int small);
+ int chmod_common(const struct path *path, umode_t mode);
 -- 
 2.24.0
 
