@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F29AB333E5A
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D651333E62
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbhCJNZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
+        id S233660AbhCJN0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233279AbhCJNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 018D764FEE;
-        Wed, 10 Mar 2021 13:25:14 +0000 (UTC)
+        id S233287AbhCJNZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:18 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D97B6508D;
+        Wed, 10 Mar 2021 13:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382716;
-        bh=f7Kn8v4zOgTkGLKulOTJJ7YHqvLS3unOHh60mRwHv74=;
+        s=korg; t=1615382717;
+        bh=mzcP6l4rTut90mi4k0H3tuOf4wjP53ALaglonlf0KLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEYF0/uMgUO1Sc8lXqRQA0iVvhh+PInWhO1B6OuddPTVKvlWHV95pv4vJtZDojFK5
-         Eoi1+MyW1xCUJ3EzHa/vQ2A9Fxoll6kXmfoDWiG8P4SbiNVIfvtuRfvQ0Kn1Q6MaJD
-         p6Pl3w6xjqhjnJrVVLVA14ndBu0T6nmYxKGHmq9A=
+        b=ZkJ8w5135cyn3zdmHkehc4lByKBNaD0cmrOukQgayfciw0/Ycsb2R/G4t9MAOMpZP
+         FITWAQmCHqvBWVfqNbMFw4yB9PxWuZDjxc342+QpzNdFD6njj/9M7vUjFLIRjb75ex
+         sKL1FmBdU0LG7wM9mCw2inDaqidcL2xlECnp8NHM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/24] mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
-Date:   Wed, 10 Mar 2021 14:24:33 +0100
-Message-Id: <20210310132321.198470021@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 22/24] HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo Winpad A15
+Date:   Wed, 10 Mar 2021 14:24:34 +0100
+Message-Id: <20210310132321.226315451@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
 References: <20210310132320.550932445@linuxfoundation.org>
@@ -43,33 +41,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5f7dfda4f2cec580c135fd81d96a05006651c128 ]
+[ Upstream commit fc6a31b00739356809dd566e16f2c4325a63285d ]
 
-The SDHCI_PRESET_FOR_* registers are not set(all read as zeros), so
-set the quirk.
+The ITE8568 EC on the Voyo Winpad A15 presents itself as an I2C-HID
+attached keyboard and mouse (which seems to never send any events).
 
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Link: https://lore.kernel.org/r/20201210165510.76b917e5@xhacker.debian
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This needs the I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirk, otherwise we get
+the following errors:
+
+[ 3688.770850] i2c_hid i2c-ITE8568:00: failed to reset device.
+[ 3694.915865] i2c_hid i2c-ITE8568:00: failed to reset device.
+[ 3701.059717] i2c_hid i2c-ITE8568:00: failed to reset device.
+[ 3707.205944] i2c_hid i2c-ITE8568:00: failed to reset device.
+[ 3708.227940] i2c_hid i2c-ITE8568:00: can't add hid device: -61
+[ 3708.236518] i2c_hid: probe of i2c-ITE8568:00 failed with error -61
+
+Which leads to a significant boot delay.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-dwcmshc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h              | 2 ++
+ drivers/hid/i2c-hid/i2c-hid-core.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
-index a5137845a1c7..6793fb8fe976 100644
---- a/drivers/mmc/host/sdhci-of-dwcmshc.c
-+++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
-@@ -58,6 +58,7 @@ static const struct sdhci_ops sdhci_dwcmshc_ops = {
- static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
- 	.ops = &sdhci_dwcmshc_ops,
- 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
- };
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index fc499c9039a0..d004f5645b30 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -641,6 +641,8 @@
+ #define USB_DEVICE_ID_INNEX_GENESIS_ATARI	0x4745
  
- static int dwcmshc_probe(struct platform_device *pdev)
+ #define USB_VENDOR_ID_ITE               0x048d
++#define I2C_VENDOR_ID_ITE		0x103c
++#define I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15	0x184f
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
+ #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
+ #define I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720	0x837a
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 592176aff027..96898983db99 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -173,6 +173,8 @@ static const struct i2c_hid_quirks {
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
++	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
++		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
+ 		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
+ 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
 -- 
 2.30.1
 
