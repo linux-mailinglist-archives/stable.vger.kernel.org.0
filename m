@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD70E333DFB
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C25E1333DF3
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233251AbhCJNZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45866 "EHLO mail.kernel.org"
+        id S233249AbhCJNZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232861AbhCJNYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:38 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADFAF64FEE;
-        Wed, 10 Mar 2021 13:24:36 +0000 (UTC)
+        id S232913AbhCJNYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:41 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B7DE64FFB;
+        Wed, 10 Mar 2021 13:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382678;
-        bh=t4wbKQkHr8VOj+KN5S17ImvrnH2z89sbylzR7oz7Ua8=;
+        s=korg; t=1615382679;
+        bh=03VvVo2hJ9Th1W4Ti2EDtJL0wv4GRIGT7NvTsAFW3W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIsQ7htotejzn2T64ePQ50LVKYdlibbZp/G+FaQf0B4CEfePF063aVkeie6dw/2x4
-         F1pZjGIlvpeFvPNTAAyM+ZI1gRwKItw7uB2zLzNGqcYP/lLEZx24T/SHzCnrdbalKZ
-         3S0SZ6sa5HyAAT4W9e+iU/aywNv5UyZXfZiNQIxs=
+        b=EmUDQnG1st0kQL9rXI3QxDQOMqxoCdx+Pws83bzLop9YPKK0/zY82f4xc3XuHfaCk
+         xtOh6ngsoeHbgwuH2sGBgtpH6DDSlCcnMF40ZD/pl4fzOBFEOwXqUHWVEBEBtjQ9xR
+         Wk44Sk1VpsstqxhKxUuDLq6gHoPHNdO6fiX6oyN8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 24/36] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
-Date:   Wed, 10 Mar 2021 14:23:37 +0100
-Message-Id: <20210310132321.263411845@linuxfoundation.org>
+Subject: [PATCH 5.11 25/36] mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+Date:   Wed, 10 Mar 2021 14:23:38 +0100
+Message-Id: <20210310132321.291582621@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
 References: <20210310132320.510840709@linuxfoundation.org>
@@ -45,44 +43,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
+[ Upstream commit 5f7dfda4f2cec580c135fd81d96a05006651c128 ]
 
-The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
-programmed to some different values on a per-model basis.
-At least, this is what we intend to do here;
+The SDHCI_PRESET_FOR_* registers are not set(all read as zeros), so
+set the quirk.
 
-Unfortunately, though, this register is being overwritten with a
-static magic number, right after applying the GPU-specific
-configuration (including the GPU-specific quirks) and that is
-effectively nullifying the efforts.
-
-Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
-register in order to retain the wanted configuration for the
-target GPU.
-
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Link: https://lore.kernel.org/r/20201210165510.76b917e5@xhacker.debian
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/mmc/host/sdhci-of-dwcmshc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index a5af223eaf50..81506d2539b0 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -626,8 +626,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
- 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
- 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
+diff --git a/drivers/mmc/host/sdhci-of-dwcmshc.c b/drivers/mmc/host/sdhci-of-dwcmshc.c
+index d90020ed3622..59d8d96ce206 100644
+--- a/drivers/mmc/host/sdhci-of-dwcmshc.c
++++ b/drivers/mmc/host/sdhci-of-dwcmshc.c
+@@ -112,6 +112,7 @@ static const struct sdhci_ops sdhci_dwcmshc_ops = {
+ static const struct sdhci_pltfm_data sdhci_dwcmshc_pdata = {
+ 	.ops = &sdhci_dwcmshc_ops,
+ 	.quirks = SDHCI_QUIRK_CAP_CLOCK_BASE_BROKEN,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
+ };
  
--	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
--
- 	/* Enable USE_RETENTION_FLOPS */
- 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
- 
+ static int dwcmshc_probe(struct platform_device *pdev)
 -- 
 2.30.1
 
