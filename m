@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC5F6333DA7
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01925333D94
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232873AbhCJNYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45382 "EHLO mail.kernel.org"
+        id S232129AbhCJNYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232295AbhCJNYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:08 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4F164FE8;
-        Wed, 10 Mar 2021 13:24:06 +0000 (UTC)
+        id S231790AbhCJNXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:23:55 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C2F764FD7;
+        Wed, 10 Mar 2021 13:23:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382648;
-        bh=Vv9UikeIutpoj7/MdU8rfR2YotWONpE5xLJ2Iw50AaA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHwqjs50Nt5GUvkq688UUaLNxH0tw0vQEKavoKYcITJauwR9Zu9sPWB9V4+034yH5
-         57f1V7ExK3+2BeA2w11W0toGKiMSzbgWGZLO2aIRJOp5a1F3PUAr3qOjaLXcHGPCGj
-         mlLtBQ6JTs3WXCMl2BwLgP1ult92sSGi5ronYVIc=
+        s=korg; t=1615382635;
+        bh=Qd0zAZQIgUzh1wPboQZLMsmXhHYwYkri5orPBCgDRhY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BG4GVRxwr/OtoBruMnNyV8RYioGQs2FdUgl3Av6SlEMBpQUosmmSCqmfLixQHD8fN
+         MPmJQRAKN6FIrnfm5dvX+CoF9Xx9c5p1TUvKV6ueTsdxkiu7c6bNhoFzo6C+d1FM4l
+         EwW0NOdOQIAZMTPDD31r+6zcT/zdl9PIfdHvAwQ4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 01/49] ACPICA: Fix race in generic_serial_bus (I2C) and GPIO op_region parameter handling
-Date:   Wed, 10 Mar 2021 14:23:12 +0100
-Message-Id: <20210310132321.997043366@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.11 00/36] 5.11.6-rc1 review
+Date:   Wed, 10 Mar 2021 14:23:13 +0100
+Message-Id: <20210310132320.510840709@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
-References: <20210310132321.948258062@linuxfoundation.org>
+MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-MIME-Version: 1.0
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.11.6-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.11.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.11.6-rc1
+X-KernelTest-Deadline: 2021-03-12T13:23+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -45,237 +49,180 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hans de Goede <hdegoede@redhat.com>
+This is the start of the stable review cycle for the 5.11.6 release.
+There are 36 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit c27f3d011b08540e68233cf56274fdc34bebb9b5 upstream.
+Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
+Anything received after that time might be too late.
 
-ACPICA commit c9e0116952363b0fa815143dca7e9a2eb4fefa61
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.6-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+and the diffstat can be found below.
 
-The handling of the generic_serial_bus (I2C) and GPIO op_regions in
-acpi_ev_address_space_dispatch() passes a number of extra parameters
-to the address-space handler through the address-space Context pointer
-(instead of using more function parameters).
+thanks,
 
-The Context is shared between threads, so if multiple threads try to
-call the handler for the same address-space at the same time, then
-a second thread could change the parameters of a first thread while
-the handler is running for the first thread.
+greg k-h
 
-An example of this race hitting is the Lenovo Yoga Tablet2 1015L,
-where there are both attrib_bytes accesses and attrib_byte accesses
-to the same address-space. The attrib_bytes access stores the number
-of bytes to transfer in Context->access_length. Where as for the
-attrib_byte access the number of bytes to transfer is always 1 and
-field_obj->Field.access_length is unused (so 0). Both types of
-accesses racing from different threads leads to the following problem:
+-------------
+Pseudo-Shortlog of commits:
 
- 1. Thread a. starts an attrib_bytes access, stores a non 0 value
-    from field_obj->Field.access_length in Context->access_length
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.11.6-rc1
 
- 2. Thread b. starts an attrib_byte access, stores 0 in
-    Context->access_length
+Pascal Terjan <pterjan@google.com>
+    nvme-pci: add quirks for Lexar 256GB SSD
 
- 3. Thread a. calls i2c_acpi_space_handler() (under Linux). Which
-    sees that the access-type is ACPI_GSB_ACCESS_ATTRIB_MULTIBYTE
-    and calls acpi_gsb_i2c_read_bytes(..., Context->access_length)
+Julian Einwag <jeinwag-nvme@marcapo.com>
+    nvme-pci: mark Seagate Nytro XM1440 as QUIRK_NO_NS_DESC_LIST.
 
- 4. At this point Context->access_length is 0 (set by thread b.)
+Babu Moger <babu.moger@amd.com>
+    KVM: SVM: Clear the CR4 register on reset
 
-rather then the field_obj->Field.access_length value from thread a.
-This 0 length reads leads to the following errors being logged:
+Avri Altman <avri.altman@wdc.com>
+    scsi: ufs: Fix a duplicate dev quirk number
 
- i2c i2c-0: adapter quirk: no zero length (addr 0x0078, size 0, read)
- i2c i2c-0: i2c read 0 bytes from client@0x78 starting at reg 0x0 failed, error: -95
+Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+    ASoC: Intel: sof_sdw: add quirk for HP Spectre x360 convertible
 
-Note this is just an example of the problems which this race can cause.
+Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+    ASoC: Intel: sof_sdw: reorganize quirks by generation
 
-There are likely many more (sporadic) problems caused by this race.
+Nadeem Athani <nadeem@cadence.com>
+    PCI: cadence: Retrain Link to work around Gen2 training defect
 
-This commit adds a new context_mutex to struct acpi_object_addr_handler
-and makes acpi_ev_address_space_dispatch() take that mutex when
-using the shared Context to pass extra parameters to an address-space
-handler, fixing this race.
+Hans de Goede <hdegoede@redhat.com>
+    HID: ite: Enable QUIRK_TOUCHPAD_ON_OFF_REPORT on Acer Aspire Switch 10E
 
-Note the new mutex must be taken *after* exiting the interpreter,
-therefor the existing acpi_ex_exit_interpreter() call is moved to above
-the code which stores the extra parameters in the Context.
+Fabian Lesniak <fabian@lesniak-it.de>
+    ALSA: usb-audio: add mixer quirks for Pioneer DJM-900NXS2
 
-Link: https://github.com/acpica/acpica/commit/c9e01169
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/acpi/acpica/acobject.h  |    1 
- drivers/acpi/acpica/evhandler.c |    7 ++++
- drivers/acpi/acpica/evregion.c  |   64 +++++++++++++++++++++++++++++-----------
- drivers/acpi/acpica/evxfregn.c  |    2 +
- 4 files changed, 57 insertions(+), 17 deletions(-)
+Olivia Mackintosh <livvy@base.nu>
+    ALSA: usb-audio: Add DJM750 to Pioneer mixer quirk
 
---- a/drivers/acpi/acpica/acobject.h
-+++ b/drivers/acpi/acpica/acobject.h
-@@ -284,6 +284,7 @@ struct acpi_object_addr_handler {
- 	acpi_adr_space_handler handler;
- 	struct acpi_namespace_node *node;	/* Parent device */
- 	void *context;
-+	acpi_mutex context_mutex;
- 	acpi_adr_space_setup setup;
- 	union acpi_operand_object *region_list;	/* Regions using this handler */
- 	union acpi_operand_object *next;
---- a/drivers/acpi/acpica/evhandler.c
-+++ b/drivers/acpi/acpica/evhandler.c
-@@ -489,6 +489,13 @@ acpi_ev_install_space_handler(struct acp
- 
- 	/* Init handler obj */
- 
-+	status =
-+	    acpi_os_create_mutex(&handler_obj->address_space.context_mutex);
-+	if (ACPI_FAILURE(status)) {
-+		acpi_ut_remove_reference(handler_obj);
-+		goto unlock_and_exit;
-+	}
-+
- 	handler_obj->address_space.space_id = (u8)space_id;
- 	handler_obj->address_space.handler_flags = flags;
- 	handler_obj->address_space.region_list = NULL;
---- a/drivers/acpi/acpica/evregion.c
-+++ b/drivers/acpi/acpica/evregion.c
-@@ -111,6 +111,8 @@ acpi_ev_address_space_dispatch(union acp
- 	union acpi_operand_object *region_obj2;
- 	void *region_context = NULL;
- 	struct acpi_connection_info *context;
-+	acpi_mutex context_mutex;
-+	u8 context_locked;
- 	acpi_physical_address address;
- 
- 	ACPI_FUNCTION_TRACE(ev_address_space_dispatch);
-@@ -135,6 +137,8 @@ acpi_ev_address_space_dispatch(union acp
- 	}
- 
- 	context = handler_desc->address_space.context;
-+	context_mutex = handler_desc->address_space.context_mutex;
-+	context_locked = FALSE;
- 
- 	/*
- 	 * It may be the case that the region has never been initialized.
-@@ -203,6 +207,23 @@ acpi_ev_address_space_dispatch(union acp
- 	handler = handler_desc->address_space.handler;
- 	address = (region_obj->region.address + region_offset);
- 
-+	ACPI_DEBUG_PRINT((ACPI_DB_OPREGION,
-+			  "Handler %p (@%p) Address %8.8X%8.8X [%s]\n",
-+			  &region_obj->region.handler->address_space, handler,
-+			  ACPI_FORMAT_UINT64(address),
-+			  acpi_ut_get_region_name(region_obj->region.
-+						  space_id)));
-+
-+	if (!(handler_desc->address_space.handler_flags &
-+	      ACPI_ADDR_HANDLER_DEFAULT_INSTALLED)) {
-+		/*
-+		 * For handlers other than the default (supplied) handlers, we must
-+		 * exit the interpreter because the handler *might* block -- we don't
-+		 * know what it will do, so we can't hold the lock on the interpreter.
-+		 */
-+		acpi_ex_exit_interpreter();
-+	}
-+
- 	/*
- 	 * Special handling for generic_serial_bus and general_purpose_io:
- 	 * There are three extra parameters that must be passed to the
-@@ -211,6 +232,11 @@ acpi_ev_address_space_dispatch(union acp
- 	 *   2) Length of the above buffer
- 	 *   3) Actual access length from the access_as() op
- 	 *
-+	 * Since we pass these extra parameters via the context, which is
-+	 * shared between threads, we must lock the context to avoid these
-+	 * parameters being changed from another thread before the handler
-+	 * has completed running.
-+	 *
- 	 * In addition, for general_purpose_io, the Address and bit_width fields
- 	 * are defined as follows:
- 	 *   1) Address is the pin number index of the field (bit offset from
-@@ -220,6 +246,14 @@ acpi_ev_address_space_dispatch(union acp
- 	if ((region_obj->region.space_id == ACPI_ADR_SPACE_GSBUS) &&
- 	    context && field_obj) {
- 
-+		status =
-+		    acpi_os_acquire_mutex(context_mutex, ACPI_WAIT_FOREVER);
-+		if (ACPI_FAILURE(status)) {
-+			goto re_enter_interpreter;
-+		}
-+
-+		context_locked = TRUE;
-+
- 		/* Get the Connection (resource_template) buffer */
- 
- 		context->connection = field_obj->field.resource_buffer;
-@@ -229,6 +263,14 @@ acpi_ev_address_space_dispatch(union acp
- 	if ((region_obj->region.space_id == ACPI_ADR_SPACE_GPIO) &&
- 	    context && field_obj) {
- 
-+		status =
-+		    acpi_os_acquire_mutex(context_mutex, ACPI_WAIT_FOREVER);
-+		if (ACPI_FAILURE(status)) {
-+			goto re_enter_interpreter;
-+		}
-+
-+		context_locked = TRUE;
-+
- 		/* Get the Connection (resource_template) buffer */
- 
- 		context->connection = field_obj->field.resource_buffer;
-@@ -238,28 +280,15 @@ acpi_ev_address_space_dispatch(union acp
- 		bit_width = field_obj->field.bit_length;
- 	}
- 
--	ACPI_DEBUG_PRINT((ACPI_DB_OPREGION,
--			  "Handler %p (@%p) Address %8.8X%8.8X [%s]\n",
--			  &region_obj->region.handler->address_space, handler,
--			  ACPI_FORMAT_UINT64(address),
--			  acpi_ut_get_region_name(region_obj->region.
--						  space_id)));
--
--	if (!(handler_desc->address_space.handler_flags &
--	      ACPI_ADDR_HANDLER_DEFAULT_INSTALLED)) {
--		/*
--		 * For handlers other than the default (supplied) handlers, we must
--		 * exit the interpreter because the handler *might* block -- we don't
--		 * know what it will do, so we can't hold the lock on the interpreter.
--		 */
--		acpi_ex_exit_interpreter();
--	}
--
- 	/* Call the handler */
- 
- 	status = handler(function, address, bit_width, value, context,
- 			 region_obj2->extra.region_context);
- 
-+	if (context_locked) {
-+		acpi_os_release_mutex(context_mutex);
-+	}
-+
- 	if (ACPI_FAILURE(status)) {
- 		ACPI_EXCEPTION((AE_INFO, status, "Returned by Handler for [%s]",
- 				acpi_ut_get_region_name(region_obj->region.
-@@ -276,6 +305,7 @@ acpi_ev_address_space_dispatch(union acp
- 		}
- 	}
- 
-+re_enter_interpreter:
- 	if (!(handler_desc->address_space.handler_flags &
- 	      ACPI_ADDR_HANDLER_DEFAULT_INSTALLED)) {
- 		/*
---- a/drivers/acpi/acpica/evxfregn.c
-+++ b/drivers/acpi/acpica/evxfregn.c
-@@ -201,6 +201,8 @@ acpi_remove_address_space_handler(acpi_h
- 
- 			/* Now we can delete the handler object */
- 
-+			acpi_os_release_mutex(handler_obj->address_space.
-+					      context_mutex);
- 			acpi_ut_remove_reference(handler_obj);
- 			goto unlock_and_exit;
- 		}
+Hans de Goede <hdegoede@redhat.com>
+    HID: i2c-hid: Add I2C_HID_QUIRK_NO_IRQ_AFTER_RESET for ITE8568 EC on Voyo Winpad A15
+
+Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+    mmc: sdhci-of-dwcmshc: set SDHCI_QUIRK2_PRESET_VALUE_BROKEN
+
+AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+    drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+
+Kiwoong Kim <kwmad.kim@samsung.com>
+    scsi: ufs: ufs-exynos: Use UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE
+
+Kiwoong Kim <kwmad.kim@samsung.com>
+    scsi: ufs: ufs-exynos: Apply vendor-specific values for three timeouts
+
+Kiwoong Kim <kwmad.kim@samsung.com>
+    scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
+
+Aswath Govindraju <a-govindraju@ti.com>
+    misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
+
+Kiwoong Kim <kwmad.kim@samsung.com>
+    scsi: ufs: Add a quirk to permit overriding UniPro defaults
+
+Stanley Chu <stanley.chu@mediatek.com>
+    scsi: ufs-mediatek: Enable UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
+
+Andrey Ryabinin <arbn@yandex-team.com>
+    iommu/amd: Fix sleeping in atomic in increase_address_space()
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: don't flush from btrfs_delayed_inode_reserve_metadata
+
+Nikolay Borisov <nborisov@suse.com>
+    btrfs: export and rename qgroup_reserve_meta
+
+Nathan Chancellor <nathan@kernel.org>
+    arm64: Make CPU_BIG_ENDIAN depend on ld.bfd or ld.lld 13.0.0+
+
+Helge Deller <deller@gmx.de>
+    parisc: Enable -mlong-calls gcc option with CONFIG_COMPILE_TEST
+
+Zoltán Böszörményi <zboszor@gmail.com>
+    nvme-pci: mark Kingston SKC2000 as not supporting the deepest power state
+
+Jernej Skrabec <jernej.skrabec@siol.net>
+    media: cedrus: Remove checking for required controls
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: don't take uring_lock during iowq cancel
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring/io-wq: return 2-step work swap scheme
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring/io-wq: kill off now unused IO_WQ_WORK_NO_CANCEL
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: get rid of intermediate IORING_OP_CLOSE stage
+
+Jens Axboe <axboe@kernel.dk>
+    fs: provide locked helper variant of close_fd_get_file()
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: deduplicate failing task_work_add
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: unpark SQPOLL thread for cancelation
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: deduplicate core cancellations sequence
+
+Pavel Begunkov <asml.silence@gmail.com>
+    io_uring: fix inconsistent lock state
+
+Hans de Goede <hdegoede@redhat.com>
+    ACPICA: Fix race in generic_serial_bus (I2C) and GPIO op_region parameter handling
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ arch/arm64/Kconfig                                 |   5 +-
+ arch/parisc/Kconfig                                |   7 +-
+ arch/x86/kvm/svm/svm.c                             |   1 +
+ drivers/acpi/acpica/acobject.h                     |   1 +
+ drivers/acpi/acpica/evhandler.c                    |   7 +
+ drivers/acpi/acpica/evregion.c                     |  64 +++-
+ drivers/acpi/acpica/evxfregn.c                     |   2 +
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c              |   2 -
+ drivers/hid/hid-ids.h                              |   2 +
+ drivers/hid/hid-ite.c                              |  12 +-
+ drivers/hid/i2c-hid/i2c-hid-core.c                 |   2 +
+ drivers/iommu/amd/iommu.c                          |  10 +-
+ drivers/misc/eeprom/eeprom_93xx46.c                |  15 +
+ drivers/mmc/host/sdhci-of-dwcmshc.c                |   1 +
+ drivers/nvme/host/pci.c                            |   8 +-
+ drivers/pci/controller/cadence/pci-j721e.c         |   3 +
+ drivers/pci/controller/cadence/pcie-cadence-host.c |  81 ++++-
+ drivers/pci/controller/cadence/pcie-cadence.h      |  11 +-
+ drivers/scsi/ufs/ufs-exynos.c                      |   9 +-
+ drivers/scsi/ufs/ufs-mediatek.c                    |   1 +
+ drivers/scsi/ufs/ufshcd.c                          |  42 +--
+ drivers/scsi/ufs/ufshcd.h                          |  10 +
+ drivers/staging/media/sunxi/cedrus/cedrus.c        |  49 ---
+ drivers/staging/media/sunxi/cedrus/cedrus.h        |   1 -
+ fs/btrfs/delayed-inode.c                           |   3 +-
+ fs/btrfs/inode.c                                   |   2 +-
+ fs/btrfs/qgroup.c                                  |   8 +-
+ fs/btrfs/qgroup.h                                  |   2 +
+ fs/file.c                                          |  36 +-
+ fs/internal.h                                      |   1 +
+ fs/io-wq.c                                         |  17 +-
+ fs/io-wq.h                                         |   5 +-
+ fs/io_uring.c                                      | 241 +++++++-------
+ include/linux/eeprom_93xx46.h                      |   2 +
+ sound/soc/intel/boards/sof_sdw.c                   |  89 +++--
+ sound/usb/mixer_quirks.c                           | 367 ++++++++++++++-------
+ 37 files changed, 686 insertions(+), 437 deletions(-)
 
 
