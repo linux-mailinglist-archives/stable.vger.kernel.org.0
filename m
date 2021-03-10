@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0F5333E14
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D86333E50
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233342AbhCJNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46334 "EHLO mail.kernel.org"
+        id S233559AbhCJNZy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233085AbhCJNYx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5245864FD8;
-        Wed, 10 Mar 2021 13:24:51 +0000 (UTC)
+        id S233074AbhCJNZN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:13 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B07C664FEF;
+        Wed, 10 Mar 2021 13:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382692;
-        bh=VMEaCsBDJjUgAOgXATa8bBpcv7LxZ7fYXHpedcFS1to=;
+        s=korg; t=1615382713;
+        bh=UmUBCifwD8zQQ4bstiMEURn1apwjQYW4+5gbZrEvCTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vi6XxXYu7Y5E1UakExIkNt6rmaxxYoxL5UX2BMRkvuj937INun4F32cm4qeKpjPZ7
-         xEqywcDJkhJ5ps63XXspI5lpkmTzitfhnyMx917b9T16iOucxTCJsWldLFc60cf4kw
-         3h4zqRumePS+QVFIlpeW5zrDrnCxkAzgjR1BT0uY=
+        b=xomY9EVI/9I+DBvVHHVUjFyVb9+drSHhTzHz9ocYDR18S6HCnPMZ46EH7pLoTl2sM
+         3puflqKqfz+U8yZJ9HCIO3pVE2exd82bMr30IFN5RPboZExnrOEhdBH2JKYlsrR2dN
+         TKJdhNPaa89pcFDg+0JIkU8KXrN6Ww7ctZMC9Yrw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/24] mwifiex: pcie: skip cancel_work_sync() on reset failure path
-Date:   Wed, 10 Mar 2021 14:24:19 +0100
-Message-Id: <20210310132320.772310804@linuxfoundation.org>
+        stable@vger.kernel.org, Bart van Assche <bvanassche@acm.org>,
+        Keith Busch <keith.busch@intel.com>,
+        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: [PATCH 4.19 12/39] nvme: register ns_id attributes as default sysfs groups
+Date:   Wed, 10 Mar 2021 14:24:20 +0100
+Message-Id: <20210310132320.114560173@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,170 +43,300 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit 4add4d988f95f47493500a7a19c623827061589b ]
+commit 33b14f67a4e1eabd219fd6543da8f15ed86b641c upstream.
 
-If a reset is performed, but even the reset fails for some reasons (e.g.,
-on Surface devices, the fw reset requires another quirks),
-cancel_work_sync() hangs in mwifiex_cleanup_pcie().
+We should be registering the ns_id attribute as default sysfs
+attribute groups, otherwise we have a race condition between
+the uevent and the attributes appearing in sysfs.
 
-    # firmware went into a bad state
-    [...]
-    [ 1608.281690] mwifiex_pcie 0000:03:00.0: info: shutdown mwifiex...
-    [ 1608.282724] mwifiex_pcie 0000:03:00.0: rx_pending=0, tx_pending=1,	cmd_pending=0
-    [ 1608.292400] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
-    [ 1608.292405] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
-    # reset performed after firmware went into a bad state
-    [ 1609.394320] mwifiex_pcie 0000:03:00.0: WLAN FW already running! Skip FW dnld
-    [ 1609.394335] mwifiex_pcie 0000:03:00.0: WLAN FW is active
-    # but even the reset failed
-    [ 1619.499049] mwifiex_pcie 0000:03:00.0: mwifiex_cmd_timeout_func: Timeout cmd id = 0xfa, act = 0xe000
-    [ 1619.499094] mwifiex_pcie 0000:03:00.0: num_data_h2c_failure = 0
-    [ 1619.499103] mwifiex_pcie 0000:03:00.0: num_cmd_h2c_failure = 0
-    [ 1619.499110] mwifiex_pcie 0000:03:00.0: is_cmd_timedout = 1
-    [ 1619.499117] mwifiex_pcie 0000:03:00.0: num_tx_timeout = 0
-    [ 1619.499124] mwifiex_pcie 0000:03:00.0: last_cmd_index = 0
-    [ 1619.499133] mwifiex_pcie 0000:03:00.0: last_cmd_id: fa 00 07 01 07 01 07 01 07 01
-    [ 1619.499140] mwifiex_pcie 0000:03:00.0: last_cmd_act: 00 e0 00 00 00 00 00 00 00 00
-    [ 1619.499147] mwifiex_pcie 0000:03:00.0: last_cmd_resp_index = 3
-    [ 1619.499155] mwifiex_pcie 0000:03:00.0: last_cmd_resp_id: 07 81 07 81 07 81 07 81 07 81
-    [ 1619.499162] mwifiex_pcie 0000:03:00.0: last_event_index = 2
-    [ 1619.499169] mwifiex_pcie 0000:03:00.0: last_event: 58 00 58 00 58 00 58 00 58 00
-    [ 1619.499177] mwifiex_pcie 0000:03:00.0: data_sent=0 cmd_sent=1
-    [ 1619.499185] mwifiex_pcie 0000:03:00.0: ps_mode=0 ps_state=0
-    [ 1619.499215] mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
-    # mwifiex_pcie_work hang happening
-    [ 1823.233923] INFO: task kworker/3:1:44 blocked for more than 122 seconds.
-    [ 1823.233932]       Tainted: G        WC OE     5.10.0-rc1-1-mainline #1
-    [ 1823.233935] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    [ 1823.233940] task:kworker/3:1     state:D stack:    0 pid:   44 ppid:     2 flags:0x00004000
-    [ 1823.233960] Workqueue: events mwifiex_pcie_work [mwifiex_pcie]
-    [ 1823.233965] Call Trace:
-    [ 1823.233981]  __schedule+0x292/0x820
-    [ 1823.233990]  schedule+0x45/0xe0
-    [ 1823.233995]  schedule_timeout+0x11c/0x160
-    [ 1823.234003]  wait_for_completion+0x9e/0x100
-    [ 1823.234012]  __flush_work.isra.0+0x156/0x210
-    [ 1823.234018]  ? flush_workqueue_prep_pwqs+0x130/0x130
-    [ 1823.234026]  __cancel_work_timer+0x11e/0x1a0
-    [ 1823.234035]  mwifiex_cleanup_pcie+0x28/0xd0 [mwifiex_pcie]
-    [ 1823.234049]  mwifiex_free_adapter+0x24/0xe0 [mwifiex]
-    [ 1823.234060]  _mwifiex_fw_dpc+0x294/0x560 [mwifiex]
-    [ 1823.234074]  mwifiex_reinit_sw+0x15d/0x300 [mwifiex]
-    [ 1823.234080]  mwifiex_pcie_reset_done+0x50/0x80 [mwifiex_pcie]
-    [ 1823.234087]  pci_try_reset_function+0x5c/0x90
-    [ 1823.234094]  process_one_work+0x1d6/0x3a0
-    [ 1823.234100]  worker_thread+0x4d/0x3d0
-    [ 1823.234107]  ? rescuer_thread+0x410/0x410
-    [ 1823.234112]  kthread+0x142/0x160
-    [ 1823.234117]  ? __kthread_bind_mask+0x60/0x60
-    [ 1823.234124]  ret_from_fork+0x22/0x30
-    [...]
+[Backport Notes]
+Resolve two context conflicts introduced by following two commits. These
+two commits are applied after the current commit in upstream, while have
+been merged into 4.19.y stable tree before the current commit.
+1. drivers/nvme/host/core.c:nvme_ns_remove, introduced by commit
+2181e455612a ("nvme: fix possible io failures when removing multipathed
+ns").
+2. drivers/nvme/host/multipath.c:nvme_mpath_set_live, introduced by
+commit 5e416b11b4a9 ("nvme-multipath: fix possible I/O hang when paths
+are updated").
 
-This is a deadlock caused by calling cancel_work_sync() in
-mwifiex_cleanup_pcie():
-
-- Device resets are done via mwifiex_pcie_card_reset()
-- which schedules card->work to call mwifiex_pcie_card_reset_work()
-- which calls pci_try_reset_function().
-- This leads to mwifiex_pcie_reset_done() be called on the same workqueue,
-  which in turn calls
-- mwifiex_reinit_sw() and that calls
-- _mwifiex_fw_dpc().
-
-The problem is now that _mwifiex_fw_dpc() calls mwifiex_free_adapter()
-in case firmware initialization fails. That ends up calling
-mwifiex_cleanup_pcie().
-
-Note that all those calls are still running on the workqueue. So when
-mwifiex_cleanup_pcie() now calls cancel_work_sync(), it's really waiting
-on itself to complete, causing a deadlock.
-
-This commit fixes the deadlock by skipping cancel_work_sync() on a reset
-failure path.
-
-After this commit, when reset fails, the following output is
-expected to be shown:
-
-    kernel: mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
-    kernel: mwifiex: Failed to bring up adapter: -5
-    kernel: mwifiex_pcie 0000:03:00.0: reinit failed: -5
-
-To reproduce this issue, for example, try putting the root port of wifi
-into D3 (replace "00:1d.3" with your setup).
-
-    # put into D3 (root port)
-    sudo setpci -v -s 00:1d.3 CAP_PM+4.b=0b
-
-Cc: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201028142346.18355-1-kitakar@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Suggested-by: Bart van Assche <bvanassche@acm.org>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 18 +++++++++++++++++-
- drivers/net/wireless/marvell/mwifiex/pcie.h |  2 ++
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c      |   21 +++-----
+ drivers/nvme/host/lightnvm.c  |  105 +++++++++++++++++-------------------------
+ drivers/nvme/host/multipath.c |   15 +-----
+ drivers/nvme/host/nvme.h      |   10 ----
+ 4 files changed, 59 insertions(+), 92 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index fc1706d0647d..58c9623c3a91 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -377,6 +377,8 @@ static void mwifiex_pcie_reset_prepare(struct pci_dev *pdev)
- 	clear_bit(MWIFIEX_IFACE_WORK_DEVICE_DUMP, &card->work_flags);
- 	clear_bit(MWIFIEX_IFACE_WORK_CARD_RESET, &card->work_flags);
- 	mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
-+
-+	card->pci_reset_ongoing = true;
- }
- 
- /*
-@@ -405,6 +407,8 @@ static void mwifiex_pcie_reset_done(struct pci_dev *pdev)
- 		dev_err(&pdev->dev, "reinit failed: %d\n", ret);
- 	else
- 		mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
-+
-+	card->pci_reset_ongoing = false;
- }
- 
- static const struct pci_error_handlers mwifiex_pcie_err_handler = {
-@@ -2995,7 +2999,19 @@ static void mwifiex_cleanup_pcie(struct mwifiex_adapter *adapter)
- 	int ret;
- 	u32 fw_status;
- 
--	cancel_work_sync(&card->work);
-+	/* Perform the cancel_work_sync() only when we're not resetting
-+	 * the card. It's because that function never returns if we're
-+	 * in reset path. If we're here when resetting the card, it means
-+	 * that we failed to reset the card (reset failure path).
-+	 */
-+	if (!card->pci_reset_ongoing) {
-+		mwifiex_dbg(adapter, MSG, "performing cancel_work_sync()...\n");
-+		cancel_work_sync(&card->work);
-+		mwifiex_dbg(adapter, MSG, "cancel_work_sync() done\n");
-+	} else {
-+		mwifiex_dbg(adapter, MSG,
-+			    "skipped cancel_work_sync() because we're in card reset failure path\n");
-+	}
- 
- 	ret = mwifiex_read_reg(adapter, reg->fw_status, &fw_status);
- 	if (fw_status == FIRMWARE_READY_PCIE) {
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.h b/drivers/net/wireless/marvell/mwifiex/pcie.h
-index f7ce9b6db6b4..72d0c01ff359 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.h
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.h
-@@ -391,6 +391,8 @@ struct pcie_service_card {
- 	struct mwifiex_msix_context share_irq_ctx;
- 	struct work_struct work;
- 	unsigned long work_flags;
-+
-+	bool pci_reset_ongoing;
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2842,6 +2842,14 @@ const struct attribute_group nvme_ns_id_
+ 	.is_visible	= nvme_ns_id_attrs_are_visible,
  };
  
- static inline int
--- 
-2.30.1
-
++const struct attribute_group *nvme_ns_id_attr_groups[] = {
++	&nvme_ns_id_attr_group,
++#ifdef CONFIG_NVM
++	&nvme_nvm_attr_group,
++#endif
++	NULL,
++};
++
+ #define nvme_show_str_function(field)						\
+ static ssize_t  field##_show(struct device *dev,				\
+ 			    struct device_attribute *attr, char *buf)		\
+@@ -3211,14 +3219,7 @@ static void nvme_alloc_ns(struct nvme_ct
+ 
+ 	nvme_get_ctrl(ctrl);
+ 
+-	device_add_disk(ctrl->device, ns->disk, NULL);
+-	if (sysfs_create_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvme_ns_id_attr_group))
+-		pr_warn("%s: failed to create sysfs group for identification\n",
+-			ns->disk->disk_name);
+-	if (ns->ndev && nvme_nvm_register_sysfs(ns))
+-		pr_warn("%s: failed to register lightnvm sysfs group for identification\n",
+-			ns->disk->disk_name);
++	device_add_disk(ctrl->device, ns->disk, nvme_ns_id_attr_groups);
+ 
+ 	nvme_mpath_add_disk(ns, id);
+ 	nvme_fault_inject_init(ns);
+@@ -3252,10 +3253,6 @@ static void nvme_ns_remove(struct nvme_n
+ 	synchronize_srcu(&ns->head->srcu); /* wait for concurrent submissions */
+ 
+ 	if (ns->disk && ns->disk->flags & GENHD_FL_UP) {
+-		sysfs_remove_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvme_ns_id_attr_group);
+-		if (ns->ndev)
+-			nvme_nvm_unregister_sysfs(ns);
+ 		del_gendisk(ns->disk);
+ 		blk_cleanup_queue(ns->queue);
+ 		if (blk_get_integrity(ns->disk))
+--- a/drivers/nvme/host/lightnvm.c
++++ b/drivers/nvme/host/lightnvm.c
+@@ -1193,10 +1193,29 @@ static NVM_DEV_ATTR_12_RO(multiplane_mod
+ static NVM_DEV_ATTR_12_RO(media_capabilities);
+ static NVM_DEV_ATTR_12_RO(max_phys_secs);
+ 
+-static struct attribute *nvm_dev_attrs_12[] = {
++/* 2.0 values */
++static NVM_DEV_ATTR_20_RO(groups);
++static NVM_DEV_ATTR_20_RO(punits);
++static NVM_DEV_ATTR_20_RO(chunks);
++static NVM_DEV_ATTR_20_RO(clba);
++static NVM_DEV_ATTR_20_RO(ws_min);
++static NVM_DEV_ATTR_20_RO(ws_opt);
++static NVM_DEV_ATTR_20_RO(maxoc);
++static NVM_DEV_ATTR_20_RO(maxocpu);
++static NVM_DEV_ATTR_20_RO(mw_cunits);
++static NVM_DEV_ATTR_20_RO(write_typ);
++static NVM_DEV_ATTR_20_RO(write_max);
++static NVM_DEV_ATTR_20_RO(reset_typ);
++static NVM_DEV_ATTR_20_RO(reset_max);
++
++static struct attribute *nvm_dev_attrs[] = {
++	/* version agnostic attrs */
+ 	&dev_attr_version.attr,
+ 	&dev_attr_capabilities.attr,
++	&dev_attr_read_typ.attr,
++	&dev_attr_read_max.attr,
+ 
++	/* 1.2 attrs */
+ 	&dev_attr_vendor_opcode.attr,
+ 	&dev_attr_device_mode.attr,
+ 	&dev_attr_media_manager.attr,
+@@ -1211,8 +1230,6 @@ static struct attribute *nvm_dev_attrs_1
+ 	&dev_attr_page_size.attr,
+ 	&dev_attr_hw_sector_size.attr,
+ 	&dev_attr_oob_sector_size.attr,
+-	&dev_attr_read_typ.attr,
+-	&dev_attr_read_max.attr,
+ 	&dev_attr_prog_typ.attr,
+ 	&dev_attr_prog_max.attr,
+ 	&dev_attr_erase_typ.attr,
+@@ -1221,33 +1238,7 @@ static struct attribute *nvm_dev_attrs_1
+ 	&dev_attr_media_capabilities.attr,
+ 	&dev_attr_max_phys_secs.attr,
+ 
+-	NULL,
+-};
+-
+-static const struct attribute_group nvm_dev_attr_group_12 = {
+-	.name		= "lightnvm",
+-	.attrs		= nvm_dev_attrs_12,
+-};
+-
+-/* 2.0 values */
+-static NVM_DEV_ATTR_20_RO(groups);
+-static NVM_DEV_ATTR_20_RO(punits);
+-static NVM_DEV_ATTR_20_RO(chunks);
+-static NVM_DEV_ATTR_20_RO(clba);
+-static NVM_DEV_ATTR_20_RO(ws_min);
+-static NVM_DEV_ATTR_20_RO(ws_opt);
+-static NVM_DEV_ATTR_20_RO(maxoc);
+-static NVM_DEV_ATTR_20_RO(maxocpu);
+-static NVM_DEV_ATTR_20_RO(mw_cunits);
+-static NVM_DEV_ATTR_20_RO(write_typ);
+-static NVM_DEV_ATTR_20_RO(write_max);
+-static NVM_DEV_ATTR_20_RO(reset_typ);
+-static NVM_DEV_ATTR_20_RO(reset_max);
+-
+-static struct attribute *nvm_dev_attrs_20[] = {
+-	&dev_attr_version.attr,
+-	&dev_attr_capabilities.attr,
+-
++	/* 2.0 attrs */
+ 	&dev_attr_groups.attr,
+ 	&dev_attr_punits.attr,
+ 	&dev_attr_chunks.attr,
+@@ -1258,8 +1249,6 @@ static struct attribute *nvm_dev_attrs_2
+ 	&dev_attr_maxocpu.attr,
+ 	&dev_attr_mw_cunits.attr,
+ 
+-	&dev_attr_read_typ.attr,
+-	&dev_attr_read_max.attr,
+ 	&dev_attr_write_typ.attr,
+ 	&dev_attr_write_max.attr,
+ 	&dev_attr_reset_typ.attr,
+@@ -1268,44 +1257,38 @@ static struct attribute *nvm_dev_attrs_2
+ 	NULL,
+ };
+ 
+-static const struct attribute_group nvm_dev_attr_group_20 = {
+-	.name		= "lightnvm",
+-	.attrs		= nvm_dev_attrs_20,
+-};
+-
+-int nvme_nvm_register_sysfs(struct nvme_ns *ns)
++static umode_t nvm_dev_attrs_visible(struct kobject *kobj,
++				     struct attribute *attr, int index)
+ {
++	struct device *dev = container_of(kobj, struct device, kobj);
++	struct gendisk *disk = dev_to_disk(dev);
++	struct nvme_ns *ns = disk->private_data;
+ 	struct nvm_dev *ndev = ns->ndev;
+-	struct nvm_geo *geo = &ndev->geo;
++	struct device_attribute *dev_attr =
++		container_of(attr, typeof(*dev_attr), attr);
+ 
+ 	if (!ndev)
+-		return -EINVAL;
+-
+-	switch (geo->major_ver_id) {
+-	case 1:
+-		return sysfs_create_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvm_dev_attr_group_12);
+-	case 2:
+-		return sysfs_create_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvm_dev_attr_group_20);
+-	}
++		return 0;
+ 
+-	return -EINVAL;
+-}
++	if (dev_attr->show == nvm_dev_attr_show)
++		return attr->mode;
+ 
+-void nvme_nvm_unregister_sysfs(struct nvme_ns *ns)
+-{
+-	struct nvm_dev *ndev = ns->ndev;
+-	struct nvm_geo *geo = &ndev->geo;
+-
+-	switch (geo->major_ver_id) {
++	switch (ndev->geo.major_ver_id) {
+ 	case 1:
+-		sysfs_remove_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvm_dev_attr_group_12);
++		if (dev_attr->show == nvm_dev_attr_show_12)
++			return attr->mode;
+ 		break;
+ 	case 2:
+-		sysfs_remove_group(&disk_to_dev(ns->disk)->kobj,
+-					&nvm_dev_attr_group_20);
++		if (dev_attr->show == nvm_dev_attr_show_20)
++			return attr->mode;
+ 		break;
+ 	}
++
++	return 0;
+ }
++
++const struct attribute_group nvme_nvm_attr_group = {
++	.name		= "lightnvm",
++	.attrs		= nvm_dev_attrs,
++	.is_visible	= nvm_dev_attrs_visible,
++};
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -313,13 +313,9 @@ static void nvme_mpath_set_live(struct n
+ 	if (!head->disk)
+ 		return;
+ 
+-	if (!(head->disk->flags & GENHD_FL_UP)) {
+-		device_add_disk(&head->subsys->dev, head->disk, NULL);
+-		if (sysfs_create_group(&disk_to_dev(head->disk)->kobj,
+-				&nvme_ns_id_attr_group))
+-			dev_warn(&head->subsys->dev,
+-				 "failed to create id group.\n");
+-	}
++	if (!(head->disk->flags & GENHD_FL_UP))
++		device_add_disk(&head->subsys->dev, head->disk,
++				nvme_ns_id_attr_groups);
+ 
+ 	synchronize_srcu(&ns->head->srcu);
+ 	kblockd_schedule_work(&ns->head->requeue_work);
+@@ -541,11 +537,8 @@ void nvme_mpath_remove_disk(struct nvme_
+ {
+ 	if (!head->disk)
+ 		return;
+-	if (head->disk->flags & GENHD_FL_UP) {
+-		sysfs_remove_group(&disk_to_dev(head->disk)->kobj,
+-				   &nvme_ns_id_attr_group);
++	if (head->disk->flags & GENHD_FL_UP)
+ 		del_gendisk(head->disk);
+-	}
+ 	blk_set_queue_dying(head->disk->queue);
+ 	/* make sure all pending bios are cleaned up */
+ 	kblockd_schedule_work(&head->requeue_work);
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -464,7 +464,7 @@ int nvme_delete_ctrl_sync(struct nvme_ct
+ int nvme_get_log(struct nvme_ctrl *ctrl, u32 nsid, u8 log_page, u8 lsp,
+ 		void *log, size_t size, u64 offset);
+ 
+-extern const struct attribute_group nvme_ns_id_attr_group;
++extern const struct attribute_group *nvme_ns_id_attr_groups[];
+ extern const struct block_device_operations nvme_ns_head_ops;
+ 
+ #ifdef CONFIG_NVME_MULTIPATH
+@@ -589,8 +589,7 @@ static inline void nvme_mpath_update_dis
+ void nvme_nvm_update_nvm_info(struct nvme_ns *ns);
+ int nvme_nvm_register(struct nvme_ns *ns, char *disk_name, int node);
+ void nvme_nvm_unregister(struct nvme_ns *ns);
+-int nvme_nvm_register_sysfs(struct nvme_ns *ns);
+-void nvme_nvm_unregister_sysfs(struct nvme_ns *ns);
++extern const struct attribute_group nvme_nvm_attr_group;
+ int nvme_nvm_ioctl(struct nvme_ns *ns, unsigned int cmd, unsigned long arg);
+ #else
+ static inline void nvme_nvm_update_nvm_info(struct nvme_ns *ns) {};
+@@ -601,11 +600,6 @@ static inline int nvme_nvm_register(stru
+ }
+ 
+ static inline void nvme_nvm_unregister(struct nvme_ns *ns) {};
+-static inline int nvme_nvm_register_sysfs(struct nvme_ns *ns)
+-{
+-	return 0;
+-}
+-static inline void nvme_nvm_unregister_sysfs(struct nvme_ns *ns) {};
+ static inline int nvme_nvm_ioctl(struct nvme_ns *ns, unsigned int cmd,
+ 							unsigned long arg)
+ {
 
 
