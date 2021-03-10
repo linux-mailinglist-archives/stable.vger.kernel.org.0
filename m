@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C48333DB5
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 489BD333D98
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232565AbhCJNYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
+        id S232408AbhCJNYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232787AbhCJNYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:17 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CB9064FF6;
-        Wed, 10 Mar 2021 13:24:16 +0000 (UTC)
+        id S231907AbhCJNYD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7719964FDA;
+        Wed, 10 Mar 2021 13:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382657;
-        bh=0vtkH3NkRqrCUtQBqM+61lev0wlAgAxK9Y/3NMhACQs=;
+        s=korg; t=1615382642;
+        bh=8PnZjmJnJ8XwYFe3tQsXEMTsIshZbzpo2C7X8CHBVBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hFmrvpU7LoZ5CGXWziDT+S2tU3NgvMfYNAFL4Ue0iZPJFVobLBGtZbrJWq5VpXnrb
-         9zKW4GK1csZpO0z8ZQPaBhqPPCegB7qCdJVi3CJqgbpP9KCGTLA0TS8iij56QYCAC7
-         ETlw9YZ5Nr5H6x5u1PCPvZmP6KvBkqN4OeTxW1io=
+        b=CDo+bjXG+AXnBr496lCCyKhQyU4Ug3dgzev9LIiAOJL/nkSd+VO8JkSzQn38nHW8E
+         IyRE0DU8JU9I2IqwqvEeGyw2GWUmLv4A4nnMvI5PQBKFZ57bQqfSbDDlPZvMuV+gzK
+         ASgdQ68WmrQFi120HfJPiwM+BrNmJG5PDct17494=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.10 06/49] btrfs: export and rename qgroup_reserve_meta
+        syzbot+695b03d82fa8e4901b06@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.11 04/36] io_uring: unpark SQPOLL thread for cancelation
 Date:   Wed, 10 Mar 2021 14:23:17 +0100
-Message-Id: <20210310132322.156755563@linuxfoundation.org>
+Message-Id: <20210310132320.660441161@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
-References: <20210310132321.948258062@linuxfoundation.org>
+In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
+References: <20210310132320.510840709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +42,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 80e9baed722c853056e0c5374f51524593cb1031 upstream
+commit 34343786ecc5ff493ca4d1f873b4386759ba52ee upstream
 
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+We park SQPOLL task before going into io_uring_cancel_files(), so the
+task won't run task_works including those that might be important for
+the cancellation passes. In this case it's io_poll_remove_one(), which
+frees requests via io_put_req_deferred().
+
+Unpark it for while waiting, it's ok as we disable submissions
+beforehand, so no new requests will be generated.
+
+INFO: task syz-executor893:8493 blocked for more than 143 seconds.
+Call Trace:
+ context_switch kernel/sched/core.c:4327 [inline]
+ __schedule+0x90c/0x21a0 kernel/sched/core.c:5078
+ schedule+0xcf/0x270 kernel/sched/core.c:5157
+ io_uring_cancel_files fs/io_uring.c:8912 [inline]
+ io_uring_cancel_task_requests+0xe70/0x11a0 fs/io_uring.c:8979
+ __io_uring_files_cancel+0x110/0x1b0 fs/io_uring.c:9067
+ io_uring_files_cancel include/linux/io_uring.h:51 [inline]
+ do_exit+0x2fe/0x2ae0 kernel/exit.c:780
+ do_group_exit+0x125/0x310 kernel/exit.c:922
+ __do_sys_exit_group kernel/exit.c:933 [inline]
+ __se_sys_exit_group kernel/exit.c:931 [inline]
+ __x64_sys_exit_group+0x3a/0x50 kernel/exit.c:931
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Cc: stable@vger.kernel.org # 5.5+
+Reported-by: syzbot+695b03d82fa8e4901b06@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/qgroup.c |    8 ++++----
- fs/btrfs/qgroup.h |    2 ++
- 2 files changed, 6 insertions(+), 4 deletions(-)
+ fs/io_uring.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3875,8 +3875,8 @@ static int sub_root_meta_rsv(struct btrf
- 	return num_bytes;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8955,11 +8955,16 @@ static void io_uring_cancel_files(struct
+ 			break;
+ 
+ 		io_uring_try_cancel_requests(ctx, task, files);
++
++		if (ctx->sq_data)
++			io_sq_thread_unpark(ctx->sq_data);
+ 		prepare_to_wait(&task->io_uring->wait, &wait,
+ 				TASK_UNINTERRUPTIBLE);
+ 		if (inflight == io_uring_count_inflight(ctx, task, files))
+ 			schedule();
+ 		finish_wait(&task->io_uring->wait, &wait);
++		if (ctx->sq_data)
++			io_sq_thread_park(ctx->sq_data);
+ 	}
  }
  
--static int qgroup_reserve_meta(struct btrfs_root *root, int num_bytes,
--				enum btrfs_qgroup_rsv_type type, bool enforce)
-+int btrfs_qgroup_reserve_meta(struct btrfs_root *root, int num_bytes,
-+			      enum btrfs_qgroup_rsv_type type, bool enforce)
- {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	int ret;
-@@ -3907,14 +3907,14 @@ int __btrfs_qgroup_reserve_meta(struct b
- {
- 	int ret;
- 
--	ret = qgroup_reserve_meta(root, num_bytes, type, enforce);
-+	ret = btrfs_qgroup_reserve_meta(root, num_bytes, type, enforce);
- 	if (ret <= 0 && ret != -EDQUOT)
- 		return ret;
- 
- 	ret = try_flush_qgroup(root);
- 	if (ret < 0)
- 		return ret;
--	return qgroup_reserve_meta(root, num_bytes, type, enforce);
-+	return btrfs_qgroup_reserve_meta(root, num_bytes, type, enforce);
- }
- 
- void btrfs_qgroup_free_meta_all_pertrans(struct btrfs_root *root)
---- a/fs/btrfs/qgroup.h
-+++ b/fs/btrfs/qgroup.h
-@@ -361,6 +361,8 @@ int btrfs_qgroup_release_data(struct btr
- int btrfs_qgroup_free_data(struct btrfs_inode *inode,
- 			   struct extent_changeset *reserved, u64 start,
- 			   u64 len);
-+int btrfs_qgroup_reserve_meta(struct btrfs_root *root, int num_bytes,
-+			      enum btrfs_qgroup_rsv_type type, bool enforce);
- int __btrfs_qgroup_reserve_meta(struct btrfs_root *root, int num_bytes,
- 				enum btrfs_qgroup_rsv_type type, bool enforce);
- /* Reserve metadata space for pertrans and prealloc type */
 
 
