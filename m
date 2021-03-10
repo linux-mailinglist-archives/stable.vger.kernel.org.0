@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15185333E84
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7957C333E8E
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233837AbhCJN0P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47832 "EHLO mail.kernel.org"
+        id S233506AbhCJN0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233422AbhCJNZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8057665004;
-        Wed, 10 Mar 2021 13:25:32 +0000 (UTC)
+        id S233431AbhCJNZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3B1E6500C;
+        Wed, 10 Mar 2021 13:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382733;
-        bh=/GhcZhxpE/8p2EAY/bbPYaHl0d+6gptWXp1K5B/5XlI=;
+        s=korg; t=1615382735;
+        bh=NiiI77OJxtbyNAUAzn7GDHJT+gADtBRhSw4GwwznSwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1dDZ9Eoeiq3ryisMGNwysRmI1vWw0DSfWbO/eVgPb1GVcJzbBQ1VURmzwJxlJ2Yv
-         xbASBoCMvxhDup+ZznE2enHNLBp6/FTFunChFN2TS2tedMoDALn6pim7Ra0UoHbvYA
-         9T8NM/aocE1w1WEGaTtrdBsot+M6XbB7OkpdFA4k=
+        b=IdC09kw9FCNzsRry5tjGt0nMDbvsnHTWwt+TuN2FTk0sjNwIsAaRbC8NvYZlm2veA
+         wfs1BUveYVqIAO8VwFZSWj/qEaptVTczgTWvt83HtiREFSFOCaqe3iGz0AVfNKdZ2X
+         tsZ2NEwkZZqlhfTQXQUK5b98a07eIrPkeSOxWcTE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.4 5/7] dm table: fix iterate_devices based device capability checks
-Date:   Wed, 10 Mar 2021 14:25:18 +0100
-Message-Id: <20210310132319.358494901@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 6/7] platform/x86: acer-wmi: Add new force_caps module parameter
+Date:   Wed, 10 Mar 2021 14:25:19 +0100
+Message-Id: <20210310132319.389240094@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132319.155338551@linuxfoundation.org>
 References: <20210310132319.155338551@linuxfoundation.org>
@@ -41,176 +43,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
+[ Upstream commit 39aa009bb66f9d5fbd1e58ca4aa03d6e6f2c9915 ]
 
-According to the definition of dm_iterate_devices_fn:
- * This function must iterate through each section of device used by the
- * target until it encounters a non-zero return code, which it then returns.
- * Returns zero if no callout returned non-zero.
+Add a new force_caps module parameter to allow overriding the drivers
+builtin capability detection mechanism.
 
-For some target type (e.g. dm-stripe), one call of iterate_devices() may
-iterate multiple underlying devices internally, in which case a non-zero
-return code returned by iterate_devices_callout_fn will stop the iteration
-in advance. No iterate_devices_callout_fn should return non-zero unless
-device iteration should stop.
+This can be used to for example:
+-Disable rfkill functionality on devices where there is an AA OEM DMI
+ record advertising non functional rfkill switches
+-Force loading of the driver on devices with a missing AA OEM DMI record
 
-Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
-elevate it for reuse to stop iterating (and return non-zero) on the
-first device that causes iterate_devices_callout_fn to return non-zero.
-Use dm_table_any_dev_attr() to properly iterate through devices.
+Note that force_caps is -1 when unset, this allows forcing the
+capability field to 0, which results in acer-wmi only providing WMI
+hotkey handling while disabling all other (led, rfkill, backlight)
+functionality.
 
-Rename device_is_nonrot() to device_is_rotational() and invert logic
-accordingly to fix improper disposition.
-
-[jeffle: backport notes]
-No stable writes. Also convert the no_sg_merge capability check,
-which is introduced by commit 200612ec33e5 ("dm table: propagate
-QUEUE_FLAG_NO_SG_MERGE"), and removed since commit 2705c93742e9 ("block:
-kill QUEUE_FLAG_NO_SG_MERGE") in v5.1.
-
-Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
-Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201019185628.264473-4-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-table.c |   83 +++++++++++++++++++++++++++++++-------------------
- 1 file changed, 53 insertions(+), 30 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1210,6 +1210,46 @@ struct dm_target *dm_table_find_target(s
- 	return &t->targets[(KEYS_PER_NODE * n) + k];
- }
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index b336f2620f9d..e4f278fa6d69 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -229,6 +229,7 @@ static int mailled = -1;
+ static int brightness = -1;
+ static int threeg = -1;
+ static int force_series;
++static int force_caps = -1;
+ static bool ec_raw_mode;
+ static bool has_type_aa;
+ static u16 commun_func_bitmap;
+@@ -238,11 +239,13 @@ module_param(mailled, int, 0444);
+ module_param(brightness, int, 0444);
+ module_param(threeg, int, 0444);
+ module_param(force_series, int, 0444);
++module_param(force_caps, int, 0444);
+ module_param(ec_raw_mode, bool, 0444);
+ MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
+ MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness");
+ MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
+ MODULE_PARM_DESC(force_series, "Force a different laptop series");
++MODULE_PARM_DESC(force_caps, "Force the capability bitmask to this value");
+ MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
  
-+/*
-+ * type->iterate_devices() should be called when the sanity check needs to
-+ * iterate and check all underlying data devices. iterate_devices() will
-+ * iterate all underlying data devices until it encounters a non-zero return
-+ * code, returned by whether the input iterate_devices_callout_fn, or
-+ * iterate_devices() itself internally.
-+ *
-+ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
-+ * iterate multiple underlying devices internally, in which case a non-zero
-+ * return code returned by iterate_devices_callout_fn will stop the iteration
-+ * in advance.
-+ *
-+ * Cases requiring _any_ underlying device supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_any_dev_attr(), or call
-+ * it directly. @func should handle semantics of positive examples, e.g.
-+ * capable of something.
-+ *
-+ * Cases requiring _all_ underlying devices supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_supports_nowait() or
-+ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
-+ * uses an @anti_func that handle semantics of counter examples, e.g. not
-+ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
-+ */
-+static bool dm_table_any_dev_attr(struct dm_table *t,
-+				  iterate_devices_callout_fn func)
-+{
-+	struct dm_target *ti;
-+	unsigned int i;
+ struct acer_data {
+@@ -2150,7 +2153,7 @@ static int __init acer_wmi_init(void)
+ 		}
+ 		/* WMID always provides brightness methods */
+ 		interface->capability |= ACER_CAP_BRIGHTNESS;
+-	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa) {
++	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa && force_caps == -1) {
+ 		pr_err("No WMID device detection method found\n");
+ 		return -ENODEV;
+ 	}
+@@ -2180,6 +2183,9 @@ static int __init acer_wmi_init(void)
+ 	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
+ 		interface->capability &= ~ACER_CAP_BRIGHTNESS;
+ 
++	if (force_caps != -1)
++		interface->capability = force_caps;
 +
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
-+
-+		if (ti->type->iterate_devices &&
-+		    ti->type->iterate_devices(ti, func, NULL))
-+			return true;
-+        }
-+
-+	return false;
-+}
-+
- static int count_device(struct dm_target *ti, struct dm_dev *dev,
- 			sector_t start, sector_t len, void *data)
- {
-@@ -1380,12 +1420,12 @@ static bool dm_table_discard_zeroes_data
- 	return true;
- }
- 
--static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
--			    sector_t start, sector_t len, void *data)
-+static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
-+				sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && blk_queue_nonrot(q);
-+	return q && !blk_queue_nonrot(q);
- }
- 
- static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
-@@ -1396,29 +1436,12 @@ static int device_is_not_random(struct d
- 	return q && !blk_queue_add_random(q);
- }
- 
--static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
--				   sector_t start, sector_t len, void *data)
-+static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
-+			     sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
--}
--
--static bool dm_table_all_devices_attribute(struct dm_table *t,
--					   iterate_devices_callout_fn func)
--{
--	struct dm_target *ti;
--	unsigned i = 0;
--
--	while (i < dm_table_get_num_targets(t)) {
--		ti = dm_table_get_target(t, i++);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, func, NULL))
--			return false;
--	}
--
--	return true;
-+	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
- }
- 
- static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
-@@ -1511,18 +1534,18 @@ void dm_table_set_restrictions(struct dm
- 		q->limits.discard_zeroes_data = 0;
- 
- 	/* Ensure that all underlying devices are non-rotational. */
--	if (dm_table_all_devices_attribute(t, device_is_nonrot))
--		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
--	else
-+	if (dm_table_any_dev_attr(t, device_is_rotational))
- 		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
-+	else
-+		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
- 
- 	if (!dm_table_supports_write_same(t))
- 		q->limits.max_write_same_sectors = 0;
- 
--	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
--		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
--	else
-+	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
- 		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
-+	else
-+		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
- 
- 	dm_table_verify_integrity(t);
- 
-@@ -1532,7 +1555,7 @@ void dm_table_set_restrictions(struct dm
- 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
- 	 * have it set.
- 	 */
--	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
-+	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
- 		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
- 
- 	/*
+ 	if (wmi_has_guid(WMID_GUID3)) {
+ 		if (ec_raw_mode) {
+ 			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
+-- 
+2.30.1
+
 
 
