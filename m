@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 530DC333E99
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BC72333E91
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233600AbhCJN0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46746 "EHLO mail.kernel.org"
+        id S233027AbhCJN0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233408AbhCJNZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233406AbhCJNZf (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 10 Mar 2021 08:25:35 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A59A6650A5;
-        Wed, 10 Mar 2021 13:25:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39ED36500D;
+        Wed, 10 Mar 2021 13:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382730;
-        bh=cvqGTjbIFJFiT+9+9VrZgmippuyhGjk0d0h5oTCPmkU=;
+        s=korg; t=1615382732;
+        bh=N22cbig8t+Kn3IYf1hcYc864LB/Gb8FXtHKig0zmB3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bpt0b0fcX0fs32qsakXQ93w52M3TbquXhwngAPluThhlQxVRt2O0Q/8uFWHFJH4/I
-         GNHzyGDe4BRXEnlUyDJcleAdEQL1KoK5u4+yYP+fkCeGZlyS3+t7n67Lphei/j8IEg
-         yUZ7QuUAUpTLXP/b/RcUIjVdkuDu9Cun0yRY7nAE=
+        b=WjZhr4w55LY96EewVyNk1X36Ma52694KgBC/JjMqesdBpqeFmNo3TR9rAVNk7X90W
+         jEGH+LvPKYYKW1+Idu7Lr2bIDWYgfthGMhswgpcwkULx4xqJwGtKdWNPRT3nyvdpm5
+         t93dqEAI3eRUaqCFEVltIZfTYCwHFyP8IuS8nvWg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/20] PCI: Add function 1 DMA alias quirk for Marvell 9215 SATA controller
-Date:   Wed, 10 Mar 2021 14:24:55 +0100
-Message-Id: <20210310132321.100568117@linuxfoundation.org>
+Subject: [PATCH 4.14 19/20] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
+Date:   Wed, 10 Mar 2021 14:24:56 +0100
+Message-Id: <20210310132321.129632974@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
 References: <20210310132320.512307035@linuxfoundation.org>
@@ -43,35 +41,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 059983790a4c963d92943e55a61fca55be427d55 ]
+[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
 
-Add function 1 DMA alias quirk for Marvell 88SS9215 PCIe SSD Controller.
+A dummy zero bit is sent preceding the data during a read transfer by the
+Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
+of data during a read. In order to ignore this bit a quirk can be added to
+send an extra zero bit after the read address.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135
-Link: https://lore.kernel.org/r/20201110220516.697934-1-helgaas@kernel.org
-Reported-by: John Smith <LK7S2ED64JHGLKj75shg9klejHWG49h5hk@protonmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Add a quirk to ignore the zero bit sent before data by adding a zero bit
+after the read address.
+
+[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
+
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
+ include/linux/eeprom_93xx46.h       |  2 ++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index da790f26d295..510cb05aa96f 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3934,6 +3934,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9182,
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c46 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x91a0,
- 			 quirk_dma_func1_alias);
-+/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135 */
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9215,
-+			 quirk_dma_func1_alias);
- /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c127 */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9220,
- 			 quirk_dma_func1_alias);
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index a3248ebd28c6..182feab6da25 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -38,6 +38,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
+ 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
+ };
+ 
++static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
++	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
++};
++
+ struct eeprom_93xx46_dev {
+ 	struct spi_device *spi;
+ 	struct eeprom_93xx46_platform_data *pdata;
+@@ -58,6 +62,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
+ 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
+ }
+ 
++static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
++{
++	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
++}
++
+ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 			      void *val, size_t count)
+ {
+@@ -99,6 +108,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
+ 			cmd_addr, edev->spi->max_speed_hz);
+ 
++		if (has_quirk_extra_read_cycle(edev)) {
++			cmd_addr <<= 1;
++			bits += 1;
++		}
++
+ 		spi_message_init(&m);
+ 
+ 		t[0].tx_buf = (char *)&cmd_addr;
+@@ -366,6 +380,7 @@ static void select_deassert(void *context)
+ static const struct of_device_id eeprom_93xx46_of_table[] = {
+ 	{ .compatible = "eeprom-93xx46", },
+ 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
++	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
+diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
+index eec7928ff8fe..99580c22f91a 100644
+--- a/include/linux/eeprom_93xx46.h
++++ b/include/linux/eeprom_93xx46.h
+@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
+ #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
+ /* Instructions such as EWEN are (addrlen + 2) in length. */
+ #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
++/* Add extra cycle after address during a read */
++#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
+ 
+ 	/*
+ 	 * optional hooks to control additional logic
 -- 
 2.30.1
 
