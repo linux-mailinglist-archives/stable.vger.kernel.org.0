@@ -2,266 +2,419 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A14A7334759
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 20:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6443347A7
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 20:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233403AbhCJTDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 14:03:12 -0500
-Received: from mga06.intel.com ([134.134.136.31]:37166 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233539AbhCJTCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 14:02:47 -0500
-IronPort-SDR: t/t4x5FXNghGSjHOhF+22juQriJRMs/HmGJCJfEYLo2gEWjUfdkYGThPrp23lbWaO0MLMmos05
- MWxcpLungouQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9919"; a="249910223"
-X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
-   d="scan'208";a="249910223"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2021 11:02:46 -0800
-IronPort-SDR: BU7XaEgN3AvibvQvUlCuCFib33K7LF6ziMiD+10/lgNgnMBVJXgCC4VG+2C1s6ZxAbyEUIu4tW
- 3GHNlFurYM6A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
-   d="scan'208";a="372055273"
-Received: from alison-desk.jf.intel.com (HELO alison-desk) ([10.54.74.53])
-  by orsmga006.jf.intel.com with ESMTP; 10 Mar 2021 11:02:46 -0800
-From:   Alison Schofield <alison.schofield@intel.com>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>
-Cc:     Alison Schofield <alison.schofield@intel.com>, x86@kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        David Rientjes <rientjes@google.com>,
-        Igor Mammedov <imammedo@redhat.com>,
-        Prarit Bhargava <prarit@redhat.com>, brice.goglin@gmail.com
-Subject: [PATCH v3] x86, sched: Treat Intel SNC topology as default, COD as exception
-Date:   Wed, 10 Mar 2021 11:02:33 -0800
-Message-Id: <20210310190233.31752-1-alison.schofield@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S233410AbhCJTNV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 14:13:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229828AbhCJTNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 14:13:21 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47BE4C061760
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 11:12:58 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id ha17so1411845pjb.2
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 11:12:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CIV7XjB5BEUyqJkgusOXUNDtHT9RooHI4V/rSDz28lo=;
+        b=fIMb54BOg1i+gDlm3ph4WNHOfCGBx9ptkULzV33noVHaZd/djte8QE02Ay9Hibmycr
+         b4WhHRgBFzigBGEMvoi7BvfIanlOBHYWF7Od/0BSTMS6O/oQ3Ix/DnazDW4jDxYYzwFm
+         2h9Tl7J245Wd/8+NIufldqo4A8WuiJ9jRTROR6ZFBLy9Zw9os6E+kQarmrdYQHOGfVD+
+         freCiRB6dC96nay7Wkh7fls6vt5DhfRtjPTJw9HWA0U+C35CreWdafRymLT1ZZubIgmu
+         jctZIGdufuPAprsVIHhEUdMyqV/E5QFYxkoE2KnB2Vc7ofiCCRdFh+aSpv9RqGOHZ0ro
+         +Bqw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CIV7XjB5BEUyqJkgusOXUNDtHT9RooHI4V/rSDz28lo=;
+        b=TeLAyiInCSfqSCWMK+scxJS/DgT5HD2oCq24US3L6VTeJSVx9DUYpTv0K1doNWZUMD
+         +elDIREelU6yfdpkyt7VACZwp8tohOgGHywfblMmEiQsnhgIZX9NiK1o7d2iEaKu2m0o
+         XIBKqk+kwh6gdvtgWPMWNw5AILfV5qf3EUu+vXIrw8ACBiHzc/Q1ssvcGCoJZJr6ox0Q
+         KCnZ9Sd4kgIcWc8bKOL+SDg0vdynyWq1feFsTaDpjCgxVhVpjaC0J/voTM1R8zJuUUMN
+         k6xluigjAMTFvfhY3NZvTmY0DOjxAXZYW3UWuvKKK4RZ9a3hUEb/SwpRbmMkR7tUJPUS
+         Oaew==
+X-Gm-Message-State: AOAM533IR925/Fc3NlOURCBQcPeLilAjuQJidFDC2d7nTzDi+5aPHRDn
+        maRAf8cGJbANd8yxuuEOq0fJKAr4GUXhLcnZ
+X-Google-Smtp-Source: ABdhPJzF0GsJ15nRRa7/YzvbRE2yvyXGGcRFltn5dBr7woWdGRA/qnw4z/OJaDzXZo2+clX+hrGjyA==
+X-Received: by 2002:a17:902:4a:b029:e4:74cb:7351 with SMTP id 68-20020a170902004ab02900e474cb7351mr4401488pla.62.1615403577559;
+        Wed, 10 Mar 2021 11:12:57 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e190sm278661pfe.3.2021.03.10.11.12.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Mar 2021 11:12:57 -0800 (PST)
+Message-ID: <60491a39.1c69fb81.68e2a.0fbc@mx.google.com>
+Date:   Wed, 10 Mar 2021 11:12:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.4.260-8-g9de32cd2fc51
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y baseline: 94 runs,
+ 9 regressions (v4.4.260-8-g9de32cd2fc51)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 1340ccfa9a9a ("x86,sched: Allow topologies where NUMA nodes
-share an LLC") added a vendor and model specific check to never
-call topology_sane() for Intel Skylake Server systems where NUMA
-nodes share an LLC.
+stable-rc/linux-4.4.y baseline: 94 runs, 9 regressions (v4.4.260-8-g9de32cd=
+2fc51)
 
-Intel Ice Lake and Sapphire Rapids CPUs also enumerate an LLC that is
-shared by multiple NUMA nodes. The LLC on these CPUs is shared for
-off-package data access but private to the NUMA node for on-package
-access. Rather than managing a list of allowable SNC topologies, make
-this SNC topology the default, and treat Intel's Cluster-On-Die (COD)
-topology as the exception.
+Regressions Summary
+-------------------
 
-In SNC mode, Sky Lake, Ice Lake, and Sapphire Rapids servers do not
-emit this warning:
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
+ | 1          =
 
-sched: CPU #3's llc-sibling CPU #0 is not on the same node! [node: 1 != 0]. Ignoring dependency.
+qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Alison Schofield <alison.schofield@intel.com>
-Cc: stable@vger.kernel.org
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@linux.intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Igor Mammedov <imammedo@redhat.com>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: brice.goglin@gmail.com
----
+qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-Changes v2->v3:
-- This is a v3 of this patch: https://lore.kernel.org/lkml/20210216195804.24204-1-alison.schofield@intel.com/
-- Implemented PeterZ suggestion, and his code, to check for COD instead
-  of SNC.
-- Updated commit message and log.
-- Added 'Cc stable.
+qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-Changes v1->v2:
-- Implemented the minimal required change of adding the new models to
-  the existing vendor and model specific check.
+qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-- Side effect of going minimalist: no longer labelled an X86_BUG (TonyL)
+qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-- Considered PeterZ suggestion of checking for COD CPUs, rather than
-  SNC CPUs. That meant this snc_cpu list would go away, and so it never
-  needs updating. That ups the stakes for this patch wrt LOC changed
-  and testing needed. It actually drove me back to this simplest soln.
+qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-- Considered DaveH suggestion to remove the check altogether and recognize
-  these topologies as sane. Not running with that further here. This patch
-  is what is needed now. The broader discussion of sane topologies can
-  carry on independent of this update.
+qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
-- Updated commit message and log.
+qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
 
 
- arch/x86/kernel/smpboot.c | 90 ++++++++++++++++++++-------------------
- 1 file changed, 46 insertions(+), 44 deletions(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.260-8-g9de32cd2fc51/plan/baseline/
 
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 02813a7f3a7c..147b2f3a2a09 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -458,29 +458,52 @@ static bool match_smt(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
- 	return false;
- }
- 
-+static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
-+{
-+	if (c->phys_proc_id == o->phys_proc_id &&
-+	    c->cpu_die_id == o->cpu_die_id)
-+		return true;
-+	return false;
-+}
-+
-+/*
-+ * Unlike the other levels, we do not enforce keeping a
-+ * multicore group inside a NUMA node.  If this happens, we will
-+ * discard the MC level of the topology later.
-+ */
-+static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
-+{
-+	if (c->phys_proc_id == o->phys_proc_id)
-+		return true;
-+	return false;
-+}
-+
- /*
-- * Define snc_cpu[] for SNC (Sub-NUMA Cluster) CPUs.
-+ * Define intel_cod_cpu[] for Intel COD (Cluster-on-Die) CPUs.
-  *
-- * These are Intel CPUs that enumerate an LLC that is shared by
-- * multiple NUMA nodes. The LLC on these systems is shared for
-- * off-package data access but private to the NUMA node (half
-- * of the package) for on-package access.
-+ * Any Intel CPU that has multiple nodes per package and does not
-+ * match intel_cod_cpu[] has the SNC (Sub-NUMA Cluster) topology.
-  *
-- * CPUID (the source of the information about the LLC) can only
-- * enumerate the cache as being shared *or* unshared, but not
-- * this particular configuration. The CPU in this case enumerates
-- * the cache to be shared across the entire package (spanning both
-- * NUMA nodes).
-+ * When in SNC mode, these CPUs enumerate an LLC that is shared
-+ * by multiple NUMA nodes. The LLC is shared for off-package data
-+ * access but private to the NUMA node (half of the package) for
-+ * on-package access. CPUID (the source of the information about
-+ * the LLC) can only enumerate the cache as shared or unshared,
-+ * but not this particular configuration.
-  */
- 
--static const struct x86_cpu_id snc_cpu[] = {
--	X86_MATCH_INTEL_FAM6_MODEL(SKYLAKE_X, NULL),
-+static const struct x86_cpu_id intel_cod_cpu[] = {
-+	X86_MATCH_INTEL_FAM6_MODEL(HASWELL_X, 0),	/* COD */
-+	X86_MATCH_INTEL_FAM6_MODEL(BROADWELL_X, 0),	/* COD */
-+	X86_MATCH_INTEL_FAM6_MODEL(ANY, 1),		/* SNC */
- 	{}
- };
- 
- static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
- {
-+	const struct x86_cpu_id *id = x86_match_cpu(intel_cod_cpu);
- 	int cpu1 = c->cpu_index, cpu2 = o->cpu_index;
-+	bool intel_snc = id && id->driver_data;
- 
- 	/* Do not match if we do not have a valid APICID for cpu: */
- 	if (per_cpu(cpu_llc_id, cpu1) == BAD_APICID)
-@@ -495,32 +518,12 @@ static bool match_llc(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
- 	 * means 'c' does not share the LLC of 'o'. This will be
- 	 * reflected to userspace.
- 	 */
--	if (!topology_same_node(c, o) && x86_match_cpu(snc_cpu))
-+	if (match_pkg(c, o) && !topology_same_node(c, o) && intel_snc)
- 		return false;
- 
- 	return topology_sane(c, o, "llc");
- }
- 
--/*
-- * Unlike the other levels, we do not enforce keeping a
-- * multicore group inside a NUMA node.  If this happens, we will
-- * discard the MC level of the topology later.
-- */
--static bool match_pkg(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
--{
--	if (c->phys_proc_id == o->phys_proc_id)
--		return true;
--	return false;
--}
--
--static bool match_die(struct cpuinfo_x86 *c, struct cpuinfo_x86 *o)
--{
--	if ((c->phys_proc_id == o->phys_proc_id) &&
--		(c->cpu_die_id == o->cpu_die_id))
--		return true;
--	return false;
--}
--
- 
- #if defined(CONFIG_SCHED_SMT) || defined(CONFIG_SCHED_MC)
- static inline int x86_sched_itmt_flags(void)
-@@ -592,14 +595,23 @@ void set_cpu_sibling_map(int cpu)
- 	for_each_cpu(i, cpu_sibling_setup_mask) {
- 		o = &cpu_data(i);
- 
-+		if (match_pkg(c, o) && !topology_same_node(c, o))
-+			x86_has_numa_in_package = true;
-+
- 		if ((i == cpu) || (has_smt && match_smt(c, o)))
- 			link_mask(topology_sibling_cpumask, cpu, i);
- 
- 		if ((i == cpu) || (has_mp && match_llc(c, o)))
- 			link_mask(cpu_llc_shared_mask, cpu, i);
- 
-+		if ((i == cpu) || (has_mp && match_die(c, o)))
-+			link_mask(topology_die_cpumask, cpu, i);
- 	}
- 
-+	threads = cpumask_weight(topology_sibling_cpumask(cpu));
-+	if (threads > __max_smt_threads)
-+		__max_smt_threads = threads;
-+
- 	/*
- 	 * This needs a separate iteration over the cpus because we rely on all
- 	 * topology_sibling_cpumask links to be set-up.
-@@ -613,8 +625,7 @@ void set_cpu_sibling_map(int cpu)
- 			/*
- 			 *  Does this new cpu bringup a new core?
- 			 */
--			if (cpumask_weight(
--			    topology_sibling_cpumask(cpu)) == 1) {
-+			if (threads == 1) {
- 				/*
- 				 * for each core in package, increment
- 				 * the booted_cores for this new cpu
-@@ -631,16 +642,7 @@ void set_cpu_sibling_map(int cpu)
- 			} else if (i != cpu && !c->booted_cores)
- 				c->booted_cores = cpu_data(i).booted_cores;
- 		}
--		if (match_pkg(c, o) && !topology_same_node(c, o))
--			x86_has_numa_in_package = true;
--
--		if ((i == cpu) || (has_mp && match_die(c, o)))
--			link_mask(topology_die_cpumask, cpu, i);
- 	}
--
--	threads = cpumask_weight(topology_sibling_cpumask(cpu));
--	if (threads > __max_smt_threads)
--		__max_smt_threads = threads;
- }
- 
- /* maps the cpu to the sched domain representing multi-core */
--- 
-2.20.1
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.260-8-g9de32cd2fc51
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9de32cd2fc5194157c9c116eec56a219048dc511 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+panda               | arm  | lab-collabora | gcc-8    | omap2plus_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e646517c81a11baddcbf
+
+  Results:     3 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/6048e646517c81a=
+11baddcc4
+        new failure (last pass: v4.4.260)
+        2 lines
+
+    2021-03-10 15:31:14.360000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
+xfffff26c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e6b6e1061b0159addccc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e6b6e1061b0159add=
+ccd
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e7a58d0c5de869addcba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e7a58d0c5de869add=
+cbb
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e81adda30e93f8addcd2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e81adda30e93f8add=
+cd3
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e6aee1061b0159addcba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e6afe1061b0159add=
+cbb
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e6caeb618eb027addcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e6caeb618eb027add=
+cb2
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e86d34e4bc4916addccf
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e86d34e4bc4916add=
+cd0
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e8e5b39237f7beaddcba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vir=
+t-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e8e5b39237f7beadd=
+cbb
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab           | compiler | defconfig          =
+ | regressions
+--------------------+------+---------------+----------+--------------------=
+-+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6048e6b0e1061b0159addcbd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.260=
+-8-g9de32cd2fc51/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6048e6b0e1061b0159add=
+cbe
+        failing since 116 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =20
