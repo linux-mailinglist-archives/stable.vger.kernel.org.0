@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF28333E0B
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F07AF333DF1
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233169AbhCJNZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46230 "EHLO mail.kernel.org"
+        id S233248AbhCJNZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233052AbhCJNYt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:49 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05F7964FFB;
-        Wed, 10 Mar 2021 13:24:47 +0000 (UTC)
+        id S232842AbhCJNYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C726764FE0;
+        Wed, 10 Mar 2021 13:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382689;
-        bh=oB/EdU1OznmpPPR6LSv/A1yp+0dkZhMb8HEvWVhuCRk=;
+        s=korg; t=1615382676;
+        bh=0lGay3kbSb0GML60b8oBt3SVJAyqTNKQKZ4XAKAL1kY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFpwZt64WpmzcLV0tu191yEeFisv5VdV+lDh2xDLjRSE/LZD9fvBbKESUaFZMXaFF
-         pFz8KakN/n1jCT1yCZi0gSyS/BxPPPX+NbQukszyrwX4/gtaQ5WBijci/JMbXiPgIX
-         2ZskOAosVxReKjKQ2rKBrvidAn/hUbcw9pTgS/0k=
+        b=L4KOouzAwb+jyc3DjAlXUtisnY5KwpSR9fcjfroyCKqKv+Zwur2F+lL0q9OmWnvXA
+         4MMMFiRtTy43irxh3KFFjKUaKQ2mjMSlYkK84PFkvoGL4zU6hSBYYTaiU6W3m8DK+j
+         XYZxSIb2r0SgcVfYOryISF+0nD9oflZvGiVRm/Xo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chiu@endlessos.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 24/49] ASoC: Intel: bytcr_rt5640: Add quirk for ARCHOS Cesium 140
-Date:   Wed, 10 Mar 2021 14:23:35 +0100
-Message-Id: <20210310132322.715325981@linuxfoundation.org>
+Subject: [PATCH 5.11 23/36] scsi: ufs: ufs-exynos: Use UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE
+Date:   Wed, 10 Mar 2021 14:23:36 +0100
+Message-Id: <20210310132321.235200307@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
-References: <20210310132321.948258062@linuxfoundation.org>
+In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
+References: <20210310132320.510840709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Chris Chiu <chiu@endlessos.org>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit 1bea2256aa96a2d7b1b576eb74e29d79edc9bea8 ]
+[ Upstream commit f1ef9047aaab036edb39261b0a7a6bdcf3010b87 ]
 
-Tha ARCHOS Cesium 140 tablet has problem with the jack-sensing,
-thus the heaset functions are not working.
+Exynos needs scatterlist entries aligned to page size because it isn't
+capable of transferring data contained in one DATA IN operation to seversal
+areas in memory.
 
-Add quirk for this model to select the correct input map, jack-detect
-options and channel map to enable jack sensing and headset microphone.
-This device uses IN1 for its internal MIC and JD2 for jack-detect.
-
-Signed-off-by: Chris Chiu <chiu@endlessos.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20201208060414.27646-1-chiu@endlessos.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/80d7e27d6ec537e650a6bd74897b6c60618efcdc.1611026909.git.kwmad.kim@samsung.com
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/scsi/ufs/ufs-exynos.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 3af4cb87032c..d56db9f34373 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -437,6 +437,18 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ARCHOS"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "ARCHOS 140 CESIUM"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+diff --git a/drivers/scsi/ufs/ufs-exynos.c b/drivers/scsi/ufs/ufs-exynos.c
+index 5ca21d1550df..267943a13a94 100644
+--- a/drivers/scsi/ufs/ufs-exynos.c
++++ b/drivers/scsi/ufs/ufs-exynos.c
+@@ -1242,7 +1242,8 @@ struct exynos_ufs_drv_data exynos_ufs_drvs = {
+ 				  UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR |
+ 				  UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR |
+ 				  UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL |
+-				  UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING,
++				  UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING |
++				  UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE,
+ 	.opts			= EXYNOS_UFS_OPT_HAS_APB_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_AUTO_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_RX_SEL_IDX |
 -- 
 2.30.1
 
