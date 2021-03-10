@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2875333E54
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD82E333E89
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233587AbhCJNZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47332 "EHLO mail.kernel.org"
+        id S232284AbhCJN0T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233259AbhCJNZP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FFD265005;
-        Wed, 10 Mar 2021 13:25:13 +0000 (UTC)
+        id S233433AbhCJNZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45DA1650BA;
+        Wed, 10 Mar 2021 13:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382714;
-        bh=alXxyctQwJyr63kQCuiCallA0rbzKGfcMoDbfGoenso=;
+        s=korg; t=1615382735;
+        bh=P42BTBuOaK6KxmIvSYogVcZ03l62cJNGYZRi0d8y5/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qe0qsiBf3ayjCI3bhchmGmNk8WzGWNnjt/QXhY4iBw1Z5IbU4y9QFLc5bnq5Y/4Zq
-         6ci4kfuG5py2JYW+h/Ne+hnxGmqe0NaMmzYGdYIx773pQVelfPXFbuMJLF7I0Bv/gh
-         HJWbQ/9lJD1Rf4bviP7cRUAx074O2x3Dnqkq800A=
+        b=gJaUzTqaCHf5e3yr4dxVHgP9OJaUMC25mcVxui9frf++rDn8It1ksrdFJ/BkHcwK5
+         HEizTqBWvGmn46iNLV3cHTDA8x8qRp3eYRO8yigtdyEi2kNulu42lpMZAYwI3DS5iz
+         K5lHSGP8jf+2sbhk5QY5uBLhUlGGDrAEcpJ+J5Sc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/24] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
-Date:   Wed, 10 Mar 2021 14:24:32 +0100
-Message-Id: <20210310132321.162185461@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Ryabinin <arbn@yandex-team.com>,
+        Will Deacon <will@kernel.org>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.19 25/39] iommu/amd: Fix sleeping in atomic in increase_address_space()
+Date:   Wed, 10 Mar 2021 14:24:33 +0100
+Message-Id: <20210310132320.508004506@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +41,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: Andrey Ryabinin <arbn@yandex-team.com>
 
-[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
+commit 140456f994195b568ecd7fc2287a34eadffef3ca upstream.
 
-The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
-programmed to some different values on a per-model basis.
-At least, this is what we intend to do here;
+increase_address_space() calls get_zeroed_page(gfp) under spin_lock with
+disabled interrupts. gfp flags passed to increase_address_space() may allow
+sleeping, so it comes to this:
 
-Unfortunately, though, this register is being overwritten with a
-static magic number, right after applying the GPU-specific
-configuration (including the GPU-specific quirks) and that is
-effectively nullifying the efforts.
+ BUG: sleeping function called from invalid context at mm/page_alloc.c:4342
+ in_atomic(): 1, irqs_disabled(): 1, pid: 21555, name: epdcbbf1qnhbsd8
 
-Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
-register in order to retain the wanted configuration for the
-target GPU.
+ Call Trace:
+  dump_stack+0x66/0x8b
+  ___might_sleep+0xec/0x110
+  __alloc_pages_nodemask+0x104/0x300
+  get_zeroed_page+0x15/0x40
+  iommu_map_page+0xdd/0x3e0
+  amd_iommu_map+0x50/0x70
+  iommu_map+0x106/0x220
+  vfio_iommu_type1_ioctl+0x76e/0x950 [vfio_iommu_type1]
+  do_vfs_ioctl+0xa3/0x6f0
+  ksys_ioctl+0x66/0x70
+  __x64_sys_ioctl+0x16/0x20
+  do_syscall_64+0x4e/0x100
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by moving get_zeroed_page() out of spin_lock/unlock section.
+
+Fixes: 754265bcab ("iommu/amd: Fix race in increase_address_space()")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210217143004.19165-1-arbn@yandex-team.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/iommu/amd_iommu.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index c8fb21cc0d6f..f84049119f1c 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -581,8 +581,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
- 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
- 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1348,24 +1348,26 @@ static void increase_address_space(struc
+ 	unsigned long flags;
+ 	u64 *pte;
  
--	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
++	pte = (void *)get_zeroed_page(gfp);
++	if (!pte)
++		return;
++
+ 	spin_lock_irqsave(&domain->lock, flags);
+ 
+ 	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
+ 		/* address space already 64 bit large */
+ 		goto out;
+ 
+-	pte = (void *)get_zeroed_page(gfp);
+-	if (!pte)
+-		goto out;
 -
- 	/* Enable USE_RETENTION_FLOPS */
- 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
+ 	*pte             = PM_LEVEL_PDE(domain->mode,
+ 					iommu_virt_to_phys(domain->pt_root));
+ 	domain->pt_root  = pte;
+ 	domain->mode    += 1;
+ 	domain->updated  = true;
++	pte              = NULL;
  
--- 
-2.30.1
-
+ out:
+ 	spin_unlock_irqrestore(&domain->lock, flags);
++	free_page((unsigned long)pte);
+ 
+ 	return;
+ }
 
 
