@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 708C5333EA2
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 568DA333E7F
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233691AbhCJN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47144 "EHLO mail.kernel.org"
+        id S233824AbhCJN0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233358AbhCJNZ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:27 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EA8964FF7;
-        Wed, 10 Mar 2021 13:25:22 +0000 (UTC)
+        id S233366AbhCJNZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:28 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C20D765015;
+        Wed, 10 Mar 2021 13:25:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382724;
-        bh=cAih5GYfviR8m/d2j0N2R4Rx2Rbe2ATpARlomwBUkBg=;
+        s=korg; t=1615382726;
+        bh=FmHN8MCoMBNyPQv8vIXrMudtKn2O6qqBGE43AJrfrT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ek+YWNn5yPnxk6Lapg2nyRYYpqisXX0JfZHOCRQDyVp+Yc3DiUeq2/qHZWsqcivgP
-         HPY6py2YPqJTuXhWfQ6lAo2CezTotuahJ3MmA608Ui7tY0NAfwRrZAIVZ/lW9QlbhZ
-         NIy7HDKkZlahNcOeMRtIVRLuWkbmYNMYM79xnIKk=
+        b=kekL5jf6MdGPtbCKWWymcv77PPf1mdNPUdRjBJZTDg9SN+ga9fN6NtytH1EII2b7E
+         q/pZMRLPmaG2+gfC8RO5q+z01j1ETJktCyPceIYPp3YP5E01Dlp3jH2pxTE4Y8/6py
+         8N09SD3bZZ4wrNm1lpsv6uJEzpi+Te1UDQhuP+4Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 14/20] platform/x86: acer-wmi: Add new force_caps module parameter
-Date:   Wed, 10 Mar 2021 14:24:51 +0100
-Message-Id: <20210310132320.981686947@linuxfoundation.org>
+Subject: [PATCH 4.14 15/20] platform/x86: acer-wmi: Add ACER_CAP_SET_FUNCTION_MODE capability flag
+Date:   Wed, 10 Mar 2021 14:24:52 +0100
+Message-Id: <20210310132321.011047943@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
 References: <20210310132320.512307035@linuxfoundation.org>
@@ -45,74 +45,53 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 39aa009bb66f9d5fbd1e58ca4aa03d6e6f2c9915 ]
+[ Upstream commit 82cb8a5c395ea5be20e0fe31a8fe84380a502ca5 ]
 
-Add a new force_caps module parameter to allow overriding the drivers
-builtin capability detection mechanism.
+Not all devices supporting WMID_GUID3 support the wmid3_set_function_mode()
+call, leading to errors like these:
 
-This can be used to for example:
--Disable rfkill functionality on devices where there is an AA OEM DMI
- record advertising non functional rfkill switches
--Force loading of the driver on devices with a missing AA OEM DMI record
+[   60.138358] acer_wmi: Enabling RF Button failed: 0x1 - 0xff
+[   60.140036] acer_wmi: Enabling Launch Manager failed: 0x1 - 0xff
 
-Note that force_caps is -1 when unset, this allows forcing the
-capability field to 0, which results in acer-wmi only providing WMI
-hotkey handling while disabling all other (led, rfkill, backlight)
-functionality.
+Add an ACER_CAP_SET_FUNCTION_MODE capability flag, so that these calls
+can be disabled through the new force_caps mechanism.
 
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201019185628.264473-4-hdegoede@redhat.com
+Link: https://lore.kernel.org/r/20201019185628.264473-5-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/acer-wmi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/platform/x86/acer-wmi.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index 445e9c17f4a8..12aa174a865f 100644
+index 12aa174a865f..729d0277e100 100644
 --- a/drivers/platform/x86/acer-wmi.c
 +++ b/drivers/platform/x86/acer-wmi.c
-@@ -245,6 +245,7 @@ static int mailled = -1;
- static int brightness = -1;
- static int threeg = -1;
- static int force_series;
-+static int force_caps = -1;
- static bool ec_raw_mode;
- static bool has_type_aa;
- static u16 commun_func_bitmap;
-@@ -254,11 +255,13 @@ module_param(mailled, int, 0444);
- module_param(brightness, int, 0444);
- module_param(threeg, int, 0444);
- module_param(force_series, int, 0444);
-+module_param(force_caps, int, 0444);
- module_param(ec_raw_mode, bool, 0444);
- MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
- MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness");
- MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
- MODULE_PARM_DESC(force_series, "Force a different laptop series");
-+MODULE_PARM_DESC(force_caps, "Force the capability bitmask to this value");
- MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
+@@ -223,6 +223,7 @@ struct hotkey_function_type_aa {
+ #define ACER_CAP_BLUETOOTH		BIT(2)
+ #define ACER_CAP_BRIGHTNESS		BIT(3)
+ #define ACER_CAP_THREEG			BIT(4)
++#define ACER_CAP_SET_FUNCTION_MODE	BIT(5)
  
- struct acer_data {
-@@ -2230,7 +2233,7 @@ static int __init acer_wmi_init(void)
- 		}
- 		/* WMID always provides brightness methods */
- 		interface->capability |= ACER_CAP_BRIGHTNESS;
--	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa) {
-+	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa && force_caps == -1) {
- 		pr_err("No WMID device detection method found\n");
- 		return -ENODEV;
- 	}
-@@ -2260,6 +2263,9 @@ static int __init acer_wmi_init(void)
+ /*
+  * Interface type flags
+@@ -2263,10 +2264,14 @@ static int __init acer_wmi_init(void)
  	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
  		interface->capability &= ~ACER_CAP_BRIGHTNESS;
  
-+	if (force_caps != -1)
-+		interface->capability = force_caps;
++	if (wmi_has_guid(WMID_GUID3))
++		interface->capability |= ACER_CAP_SET_FUNCTION_MODE;
 +
- 	if (wmi_has_guid(WMID_GUID3)) {
+ 	if (force_caps != -1)
+ 		interface->capability = force_caps;
+ 
+-	if (wmi_has_guid(WMID_GUID3)) {
++	if (wmi_has_guid(WMID_GUID3) &&
++	    (interface->capability & ACER_CAP_SET_FUNCTION_MODE)) {
  		if (ACPI_FAILURE(acer_wmi_enable_rf_button()))
  			pr_warn("Cannot enable RF Button Driver\n");
+ 
 -- 
 2.30.1
 
