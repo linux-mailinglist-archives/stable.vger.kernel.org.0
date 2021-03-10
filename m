@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0D0333E10
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD70E333DFB
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbhCJNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46346 "EHLO mail.kernel.org"
+        id S233251AbhCJNZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233087AbhCJNYx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:53 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8558764FE0;
-        Wed, 10 Mar 2021 13:24:51 +0000 (UTC)
+        id S232861AbhCJNYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:38 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADFAF64FEE;
+        Wed, 10 Mar 2021 13:24:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382693;
-        bh=x/jFaJIgH5S1cJH41HYPrcs/yMdxCs5fCM20YyMtRmc=;
+        s=korg; t=1615382678;
+        bh=t4wbKQkHr8VOj+KN5S17ImvrnH2z89sbylzR7oz7Ua8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1rsd21vH31bQRU7M8JRsYkRkPsAXWu2fpR9IYeG8lZn4Nf5W7ByH4HaF7Sb7wahYf
-         rkSXt9Q8kQt65QvQ6YP9IP402BPBTRY/a3KvXsjhx/o+Odmhqphnin7JrQyGdAjj26
-         CQgVcEw1ws6dPA5sN8910//ajTIOEOx6EqTQMGfg=
+        b=EIsQ7htotejzn2T64ePQ50LVKYdlibbZp/G+FaQf0B4CEfePF063aVkeie6dw/2x4
+         F1pZjGIlvpeFvPNTAAyM+ZI1gRwKItw7uB2zLzNGqcYP/lLEZx24T/SHzCnrdbalKZ
+         3S0SZ6sa5HyAAT4W9e+iU/aywNv5UyZXfZiNQIxs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Li <jun.li@nxp.com>,
-        Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/49] usb: cdns3: host: add xhci_plat_priv quirk XHCI_SKIP_PHY_INIT
+Subject: [PATCH 5.11 24/36] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
 Date:   Wed, 10 Mar 2021 14:23:37 +0100
-Message-Id: <20210310132322.774525608@linuxfoundation.org>
+Message-Id: <20210310132321.263411845@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
-References: <20210310132321.948258062@linuxfoundation.org>
+In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
+References: <20210310132320.510840709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Peter Chen <peter.chen@nxp.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
 
-[ Upstream commit 68ed3f3d8a057bd34254e885a6306fedc0936e50 ]
+[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
 
-cdns3 manages PHY by own DRD driver, so skip the management by
-HCD core.
+The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
+programmed to some different values on a per-model basis.
+At least, this is what we intend to do here;
 
-Reviewed-by: Jun Li <jun.li@nxp.com>
-Reviewed-by: Pawel Laszczak <pawell@cadence.com>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Unfortunately, though, this register is being overwritten with a
+static magic number, right after applying the GPU-specific
+configuration (including the GPU-specific quirks) and that is
+effectively nullifying the efforts.
+
+Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
+register in order to retain the wanted configuration for the
+target GPU.
+
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/host.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/usb/cdns3/host.c b/drivers/usb/cdns3/host.c
-index de8da737fa25..f84739327a16 100644
---- a/drivers/usb/cdns3/host.c
-+++ b/drivers/usb/cdns3/host.c
-@@ -24,6 +24,7 @@
- #define LPM_2_STB_SWITCH_EN	BIT(25)
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index a5af223eaf50..81506d2539b0 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -626,8 +626,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
+ 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
+ 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
  
- static const struct xhci_plat_priv xhci_plat_cdns3_xhci = {
-+	.quirks = XHCI_SKIP_PHY_INIT,
- 	.suspend_quirk = xhci_cdns3_suspend_quirk,
- };
+-	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
+-
+ 	/* Enable USE_RETENTION_FLOPS */
+ 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
  
 -- 
 2.30.1
