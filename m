@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2387D333DAA
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC53333DAB
 	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbhCJNYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
+        id S232916AbhCJNYl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231907AbhCJNYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D56364FD7;
-        Wed, 10 Mar 2021 13:24:08 +0000 (UTC)
+        id S230477AbhCJNYM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:12 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7904264FDA;
+        Wed, 10 Mar 2021 13:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382650;
-        bh=KMb8ucIffYgDmN6VvsdOQ/Oc9zpMgaPIG1XdHkqz0+4=;
+        s=korg; t=1615382652;
+        bh=1ysddjLBcxrlM6JytO6CiDqg1Z4JwWvCFkYzUsce+wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YuU5aHpEpOEnGe1rm8TgWNAaVK1qv6l6ziW4rrpUtCs7A+ym/sjDganpATKR3GiwF
-         2m4XLYYKkAehauLvF+RrGJl1iOncpagCVQm3YWR97R90cWA4+NU7bmar8xnPylLH2b
-         cXIa6Htqp91pRplTZxqaeZTnT5yba7YADJJY2s1M=
+        b=MBGHOrPhyPlK65ZGSG8juGpX1Wq2gDIQHq22lyg+CUjI9b2DMMKekBjvQSP7y70PW
+         Cp01uGovh0gHugvH8ehhe21AKw2aKS09HvGQBp3Bl5OqX0OvK4TDlF+5petlRF84w2
+         voYlucZNbGcKrMqxN2jL6kB/p1eL8Y6Kca3uByZE=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ward <david.ward@ll.mit.edu>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/49] [PATCH v2] ASoC: SOF: Intel: broadwell: fix mutual exclusion with catpt driver
-Date:   Wed, 10 Mar 2021 14:23:13 +0100
-Message-Id: <20210310132322.027740959@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= 
+        <zboszor@gmail.com>, Christoph Hellwig <hch@lst.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.10 03/49] nvme-pci: mark Kingston SKC2000 as not supporting the deepest power state
+Date:   Wed, 10 Mar 2021 14:23:14 +0100
+Message-Id: <20210310132322.065236469@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
 References: <20210310132321.948258062@linuxfoundation.org>
@@ -44,39 +43,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: "Zoltán Böszörményi" <zboszor@gmail.com>
 
-In v5.10, the "haswell" driver was replaced by the "catpt" driver, but
-the mutual exclusion with the SOF driver was not updated. This leads
-to errors with card names and UCM profiles not being loaded by
-PulseAudio.
+commit dc22c1c058b5c4fe967a20589e36f029ee42a706 upstream
 
-This fix should only be applied on v5.10-stable, the mutual exclusion
-was removed in 5.11.
+My 2TB SKC2000 showed the exact same symptoms that were provided
+in 538e4a8c57 ("nvme-pci: avoid the deepest sleep state on
+Kingston A2000 SSDs"), i.e. a complete NVME lockup that needed
+cold boot to get it back.
 
-Reported-by: David Ward <david.ward@ll.mit.edu>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211985
-Fixes: 6cbfa11d2694 ("ASoC: Intel: Select catpt and deprecate haswell")
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Cezary Rojewski <cezary.rojewski@intel.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: Sasha Levin <sashal@kernel.org>
+According to some sources, the A2000 is simply a rebadged
+SKC2000 with a slightly optimized firmware.
+
+Adding the SKC2000 PCI ID to the quirk list with the same workaround
+as the A2000 made my laptop survive a 5 hours long Yocto bootstrap
+buildfest which reliably triggered the SSD lockup previously.
+
+Signed-off-by: ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+[sudip: adjust context]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/intel/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/sof/intel/Kconfig
-+++ b/sound/soc/sof/intel/Kconfig
-@@ -84,7 +84,7 @@ config SND_SOC_SOF_BAYTRAIL
- 
- config SND_SOC_SOF_BROADWELL_SUPPORT
- 	bool "SOF support for Broadwell"
--	depends on SND_SOC_INTEL_HASWELL=n
-+	depends on SND_SOC_INTEL_CATPT=n
- 	help
- 	  This adds support for Sound Open Firmware for Intel(R) platforms
- 	  using the Broadwell processors.
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3264,6 +3264,8 @@ static const struct pci_device_id nvme_i
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x15b7, 0x2001),   /*  Sandisk Skyhawk */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x2262),   /* KINGSTON SKC2000 NVMe SSD */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
 
 
