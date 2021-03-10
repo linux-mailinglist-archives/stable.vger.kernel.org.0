@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4968D333E55
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1CD0333E1F
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbhCJNZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47532 "EHLO mail.kernel.org"
+        id S233383AbhCJNZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233270AbhCJNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:16 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F55C6503E;
-        Wed, 10 Mar 2021 13:25:13 +0000 (UTC)
+        id S233120AbhCJNY4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:56 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22D6B64FF7;
+        Wed, 10 Mar 2021 13:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382715;
-        bh=dtOjaz4fqdVqMM9rDzoAnXqUd3J2Q+VpWaU4hqsOOyI=;
+        s=korg; t=1615382696;
+        bh=kmdz5iAEnrtsvLj+hKc5HQ3LxXB7RPoDFjo2ozU22to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtLnmdt6mlmecQ4fmK4b69riTD6Ss0igBJgh8/YjF60oBw/gCiAYlbkNvORskfX41
-         yTT6S+Bbhnu9j6aTJc0b2sHawnOmC71cvqSW8Fs9P1My53LS3z+SJWxnaIbXyvAK1e
-         X9epBxz5E5bWBE1RDhJbpQwcwd5Xqz7jWdtgeR3I=
+        b=jRLJ71d/vjTR4gRwYisXKOOJGQO553q/V9AZNG7tp58mBkV86Qyd6EhIhXPpzQGrK
+         WAqpHWTKg9jJPPU2Jr/A8uXxLkWTgEwL+OsSgpJT9rURCKYDBcaQzxDD9V36nzEUMr
+         K+7vetBAKhrNVKT8jjAJgkM5C9aCO7lHQrftcBGE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Ed L. Cachin" <ed.cashin@acm.org>,
-        Bart Van Assche <bart.vanassche@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>
-Subject: [PATCH 4.19 13/39] aoe: register default groups with device_add_disk()
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 09/24] platform/x86: acer-wmi: Cleanup accelerometer device handling
 Date:   Wed, 10 Mar 2021 14:24:21 +0100
-Message-Id: <20210310132320.147185819@linuxfoundation.org>
+Message-Id: <20210310132320.834384334@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
+References: <20210310132320.550932445@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +43,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hannes Reinecke <hare@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 95cf7809bf9169fec4e4b7bb24b8069d8f354f96 upstream.
+[ Upstream commit 9feb0763e4985ccfae632de3bb2f029cc8389842 ]
 
-Register default sysfs groups during device_add_disk() to avoid a
-race condition with udev during startup.
+Cleanup accelerometer device handling:
+-Drop acer_wmi_accel_destroy instead directly call input_unregister_device.
+-The information tracked by the CAP_ACCEL flag mirrors acer_wmi_accel_dev
+ being NULL. Drop the CAP flag, this is a preparation change for allowing
+ users to override the capability flags. Dropping the flag stops users
+ from causing a NULL pointer dereference by forcing the capability.
 
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Ed L. Cachin <ed.cashin@acm.org>
-Reviewed-by: Bart Van Assche <bart.vanassche@wdc.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201019185628.264473-3-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/aoe/aoe.h    |    1 -
- drivers/block/aoe/aoeblk.c |   21 +++++++--------------
- drivers/block/aoe/aoedev.c |    1 -
- 3 files changed, 7 insertions(+), 16 deletions(-)
+ drivers/platform/x86/acer-wmi.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
---- a/drivers/block/aoe/aoe.h
-+++ b/drivers/block/aoe/aoe.h
-@@ -201,7 +201,6 @@ int aoeblk_init(void);
- void aoeblk_exit(void);
- void aoeblk_gdalloc(void *);
- void aoedisk_rm_debugfs(struct aoedev *d);
--void aoedisk_rm_sysfs(struct aoedev *d);
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index daf692fe7f77..167d0446f560 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -211,7 +211,6 @@ struct hotkey_function_type_aa {
+ #define ACER_CAP_BLUETOOTH		BIT(2)
+ #define ACER_CAP_BRIGHTNESS		BIT(3)
+ #define ACER_CAP_THREEG			BIT(4)
+-#define ACER_CAP_ACCEL			BIT(5)
  
- int aoechr_init(void);
- void aoechr_exit(void);
---- a/drivers/block/aoe/aoeblk.c
-+++ b/drivers/block/aoe/aoeblk.c
-@@ -177,10 +177,15 @@ static struct attribute *aoe_attrs[] = {
- 	NULL,
- };
+ /*
+  * Interface type flags
+@@ -1516,7 +1515,7 @@ static int acer_gsensor_event(void)
+ 	struct acpi_buffer output;
+ 	union acpi_object out_obj[5];
  
--static const struct attribute_group attr_group = {
-+static const struct attribute_group aoe_attr_group = {
- 	.attrs = aoe_attrs,
- };
+-	if (!has_cap(ACER_CAP_ACCEL))
++	if (!acer_wmi_accel_dev)
+ 		return -1;
  
-+static const struct attribute_group *aoe_attr_groups[] = {
-+	&aoe_attr_group,
-+	NULL,
-+};
-+
- static const struct file_operations aoe_debugfs_fops = {
- 	.open = aoe_debugfs_open,
- 	.read = seq_read,
-@@ -220,17 +225,6 @@ aoedisk_rm_debugfs(struct aoedev *d)
+ 	output.length = sizeof(out_obj);
+@@ -1890,8 +1889,6 @@ static int __init acer_wmi_accel_setup(void)
+ 	gsensor_handle = acpi_device_handle(adev);
+ 	acpi_dev_put(adev);
+ 
+-	interface->capability |= ACER_CAP_ACCEL;
+-
+ 	acer_wmi_accel_dev = input_allocate_device();
+ 	if (!acer_wmi_accel_dev)
+ 		return -ENOMEM;
+@@ -1917,11 +1914,6 @@ err_free_dev:
+ 	return err;
  }
  
- static int
--aoedisk_add_sysfs(struct aoedev *d)
+-static void acer_wmi_accel_destroy(void)
 -{
--	return sysfs_create_group(&disk_to_dev(d->gd)->kobj, &attr_group);
--}
--void
--aoedisk_rm_sysfs(struct aoedev *d)
--{
--	sysfs_remove_group(&disk_to_dev(d->gd)->kobj, &attr_group);
+-	input_unregister_device(acer_wmi_accel_dev);
 -}
 -
--static int
- aoeblk_open(struct block_device *bdev, fmode_t mode)
+ static int __init acer_wmi_input_setup(void)
  {
- 	struct aoedev *d = bdev->bd_disk->private_data;
-@@ -417,8 +411,7 @@ aoeblk_gdalloc(void *vp)
+ 	acpi_status status;
+@@ -2076,7 +2068,7 @@ static int acer_resume(struct device *dev)
+ 	if (has_cap(ACER_CAP_BRIGHTNESS))
+ 		set_u32(data->brightness, ACER_CAP_BRIGHTNESS);
  
- 	spin_unlock_irqrestore(&d->lock, flags);
+-	if (has_cap(ACER_CAP_ACCEL))
++	if (acer_wmi_accel_dev)
+ 		acer_gsensor_init();
  
--	add_disk(gd);
--	aoedisk_add_sysfs(d);
-+	device_add_disk(NULL, gd, aoe_attr_groups);
- 	aoedisk_add_debugfs(d);
+ 	return 0;
+@@ -2266,8 +2258,8 @@ error_device_alloc:
+ error_platform_register:
+ 	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+ 		acer_wmi_input_destroy();
+-	if (has_cap(ACER_CAP_ACCEL))
+-		acer_wmi_accel_destroy();
++	if (acer_wmi_accel_dev)
++		input_unregister_device(acer_wmi_accel_dev);
  
- 	spin_lock_irqsave(&d->lock, flags);
---- a/drivers/block/aoe/aoedev.c
-+++ b/drivers/block/aoe/aoedev.c
-@@ -275,7 +275,6 @@ freedev(struct aoedev *d)
- 	del_timer_sync(&d->timer);
- 	if (d->gd) {
- 		aoedisk_rm_debugfs(d);
--		aoedisk_rm_sysfs(d);
- 		del_gendisk(d->gd);
- 		put_disk(d->gd);
- 		blk_cleanup_queue(d->blkq);
+ 	return err;
+ }
+@@ -2277,8 +2269,8 @@ static void __exit acer_wmi_exit(void)
+ 	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+ 		acer_wmi_input_destroy();
+ 
+-	if (has_cap(ACER_CAP_ACCEL))
+-		acer_wmi_accel_destroy();
++	if (acer_wmi_accel_dev)
++		input_unregister_device(acer_wmi_accel_dev);
+ 
+ 	remove_debugfs();
+ 	platform_device_unregister(acer_platform_device);
+-- 
+2.30.1
+
 
 
