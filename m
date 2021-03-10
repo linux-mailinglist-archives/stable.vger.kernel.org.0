@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFCD2333DC1
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA99A333DC8
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233053AbhCJNYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45668 "EHLO mail.kernel.org"
+        id S233068AbhCJNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232831AbhCJNYb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:31 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC6064FE0;
-        Wed, 10 Mar 2021 13:24:29 +0000 (UTC)
+        id S232833AbhCJNYc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:32 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5001664FD8;
+        Wed, 10 Mar 2021 13:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382670;
-        bh=0ZhR5sqCxzINWr7OlVluAT0KqxeEpRShcU9go6bln0g=;
+        s=korg; t=1615382672;
+        bh=9wcc4n78aKOWTbHWA8sNTGBa5H3IwLzze4odfHEKW6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yaS+iGV/ml/v0y3rSd5A0ZAmP92ZU5chenFasQWH5Q84nWVwLZPXvcWscrdviIVef
-         hOmzgsv+FV47/AgD5cxCn45/ZEDghJkxBhi+RivE/FzEQATt1u/SGKaXBjl9zo/bm+
-         GH0qI4TccflrClNMLmgA5aCUcQaX1UciyjuJqUYY=
+        b=1BO8N/AZTsHG/nlcHpJgUWPWRSuVS1KRAmZSLmZ7NdloJlilohi6p7qWGe6P0eGML
+         EmO7DR/A0o+8HxijgcxdIccEVxOatGQ4a4xp6t19yDcBeVNhrNvUUMwckBSZVj1vGC
+         Lj2UH+06zTzIRF/TDgakGuN36/QO1k8sT49BXYJA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 20/36] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
-Date:   Wed, 10 Mar 2021 14:23:33 +0100
-Message-Id: <20210310132321.145822303@linuxfoundation.org>
+Subject: [PATCH 5.11 21/36] scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
+Date:   Wed, 10 Mar 2021 14:23:34 +0100
+Message-Id: <20210310132321.175120859@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
 References: <20210310132320.510840709@linuxfoundation.org>
@@ -41,89 +42,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
+[ Upstream commit 2b2bfc8aa519f696087475ed8e8c61850c673272 ]
 
-A dummy zero bit is sent preceding the data during a read transfer by the
-Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
-of data during a read. In order to ignore this bit a quirk can be added to
-send an extra zero bit after the read address.
+Some SoCs require a single scatterlist entry for smaller than page size,
+i.e. 4KB. When dispatching commands with more than one scatterlist entry
+under 4KB in size the following behavior is observed:
 
-Add a quirk to ignore the zero bit sent before data by adding a zero bit
-after the read address.
+A command to read a block range is dispatched with two scatterlist entries
+that are named AAA and BBB. After dispatching, the host builds two PRDT
+entries and during transmission, device sends just one DATA IN because
+device doesn't care about host DMA. The host then transfers the combined
+amount of data from start address of the area named AAA. As a consequence,
+the area that follows AAA in memory would be corrupted.
 
-[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
+    |<------------->|
+    +-------+------------         +-------+
+    +  AAA  + (corrupted)   ...   +  BBB  +
+    +-------+------------         +-------+
 
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To avoid this we need to enforce page size alignment for sg entries.
+
+Link: https://lore.kernel.org/r/56dddef94f60bd9466fd77e69f64bbbd657ed2a1.1611026909.git.kwmad.kim@samsung.com
+Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
- include/linux/eeprom_93xx46.h       |  2 ++
- 2 files changed, 17 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 2 ++
+ drivers/scsi/ufs/ufshcd.h | 4 ++++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
-index d92c4d2c521a..6e5f544c9c73 100644
---- a/drivers/misc/eeprom/eeprom_93xx46.c
-+++ b/drivers/misc/eeprom/eeprom_93xx46.c
-@@ -35,6 +35,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
- 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 8ecdd53c9746..428b9e0ac47e 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -4831,6 +4831,8 @@ static int ufshcd_slave_configure(struct scsi_device *sdev)
+ 	struct request_queue *q = sdev->request_queue;
+ 
+ 	blk_queue_update_dma_pad(q, PRDT_DATA_BYTE_COUNT_PAD - 1);
++	if (hba->quirks & UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE)
++		blk_queue_update_dma_alignment(q, PAGE_SIZE - 1);
+ 
+ 	if (ufshcd_is_rpm_autosuspend_allowed(hba))
+ 		sdev->rpm_autosuspend = 1;
+diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
+index 85f9d0fbfbd9..8cb64ae95462 100644
+--- a/drivers/scsi/ufs/ufshcd.h
++++ b/drivers/scsi/ufs/ufshcd.h
+@@ -557,6 +557,10 @@ enum ufshcd_quirks {
+ 	 */
+ 	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
+ 
++	/*
++	 * This quirk allows only sg entries aligned with page size.
++	 */
++	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 13,
  };
  
-+static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
-+	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
-+};
-+
- struct eeprom_93xx46_dev {
- 	struct spi_device *spi;
- 	struct eeprom_93xx46_platform_data *pdata;
-@@ -55,6 +59,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
- 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
- }
- 
-+static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
-+{
-+	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
-+}
-+
- static int eeprom_93xx46_read(void *priv, unsigned int off,
- 			      void *val, size_t count)
- {
-@@ -96,6 +105,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
- 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
- 			cmd_addr, edev->spi->max_speed_hz);
- 
-+		if (has_quirk_extra_read_cycle(edev)) {
-+			cmd_addr <<= 1;
-+			bits += 1;
-+		}
-+
- 		spi_message_init(&m);
- 
- 		t[0].tx_buf = (char *)&cmd_addr;
-@@ -363,6 +377,7 @@ static void select_deassert(void *context)
- static const struct of_device_id eeprom_93xx46_of_table[] = {
- 	{ .compatible = "eeprom-93xx46", },
- 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
-+	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
-diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
-index eec7928ff8fe..99580c22f91a 100644
---- a/include/linux/eeprom_93xx46.h
-+++ b/include/linux/eeprom_93xx46.h
-@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
- #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
- /* Instructions such as EWEN are (addrlen + 2) in length. */
- #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
-+/* Add extra cycle after address during a read */
-+#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
- 
- 	/*
- 	 * optional hooks to control additional logic
+ enum ufshcd_caps {
 -- 
 2.30.1
 
