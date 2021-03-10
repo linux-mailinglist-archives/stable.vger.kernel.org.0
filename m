@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11BA7333EA9
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:37:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 107B6333E3B
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233724AbhCJN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48978 "EHLO mail.kernel.org"
+        id S233291AbhCJNZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233500AbhCJNZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E65164FF6;
-        Wed, 10 Mar 2021 13:25:46 +0000 (UTC)
+        id S233227AbhCJNZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2AD464FD8;
+        Wed, 10 Mar 2021 13:25:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382748;
-        bh=XV2toepE0XOQNU9rHCgbFJbAT0uM8Y+v8Gj+46cyxYg=;
+        s=korg; t=1615382707;
+        bh=8O5WTqJe4DAwwRP33UWo+XAsbxy43DK2gxOzBEpyR74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2L3CXw7FCT4yt/pdnATP9lV6ub6yiKuPuIwi3vguXRkwE+9rmPTGV26WJ3ZHqfDRQ
-         qN7kie0ghgDmrK0yMcytOdlqkG3NJ9YMTb2dN169TuCuNjuyuh8bAW+VspGk7ba30B
-         GVfTCCY65T4v1yZdLwxVj3ArxNI8nVKXLImi3YXw=
+        b=i9g6TfCGBHOTedRMCXcAUNaMO3cyDleht/9wVd+vFKM6d2zsHqhI/8EwKSFOhdfvf
+         9jD8L8XFijkc6BA428enAF5S/8M3qRULyQJDXGqfKZ29uMTyaB3+yZNCRpLAoKnYfM
+         a4Oqg1Ms3b3sou+r4l0jk9GmEnd/A4ixpiCdvyb0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/39] platform/x86: acer-wmi: Add ACER_CAP_KBD_DOCK quirk for the Aspire Switch 10E SW3-016
+        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Elaine Zhang <zhangiqng@rock-chips.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 03/20] PM: runtime: Update device status before letting suppliers suspend
 Date:   Wed, 10 Mar 2021 14:24:40 +0100
-Message-Id: <20210310132320.719934075@linuxfoundation.org>
+Message-Id: <20210310132320.624261268@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
+References: <20210310132320.512307035@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +43,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit bf753400280d1384abb783efc0b42c491d6deec3 ]
+commit 44cc89f764646b2f1f2ea5d1a08b230131707851 upstream.
 
-Add the Acer Aspire Switch 10E SW3-016 to the list of models which use the
-Acer Switch WMI interface for reporting SW_TABLET_MODE.
+Because the PM-runtime status of the device is not updated in
+__rpm_callback(), attempts to suspend the suppliers of the given
+device triggered by rpm_put_suppliers() called by it may fail.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20201123151625.5530-1-hdegoede@redhat.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by making __rpm_callback() update the device's status to
+RPM_SUSPENDED before calling rpm_put_suppliers() if the current
+status of the device is RPM_SUSPENDING and the callback just invoked
+by it has returned 0 (success).
+
+While at it, modify the code in __rpm_callback() to always check
+the device's PM-runtime status under its PM lock.
+
+Link: https://lore.kernel.org/linux-pm/CAPDyKFqm06KDw_p8WXsM4dijDbho4bb6T4k50UqqvR1_COsp8g@mail.gmail.com/
+Fixes: 21d5c57b3726 ("PM / runtime: Use device links")
+Reported-by: Elaine Zhang <zhangqing@rock-chips.com>
+Diagnosed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Elaine Zhang <zhangiqng@rock-chips.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/x86/acer-wmi.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/base/power/runtime.c |   62 +++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
-index b22df329e97b..bd25c8a156d2 100644
---- a/drivers/platform/x86/acer-wmi.c
-+++ b/drivers/platform/x86/acer-wmi.c
-@@ -525,6 +525,15 @@ static const struct dmi_system_id acer_quirks[] __initconst = {
- 		},
- 		.driver_data = &quirk_acer_travelmate_2490,
- 	},
-+	{
-+		.callback = set_force_caps,
-+		.ident = "Acer Aspire Switch 10E SW3-016",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire SW3-016"),
-+		},
-+		.driver_data = (void *)ACER_CAP_KBD_DOCK,
-+	},
- 	{
- 		.callback = set_force_caps,
- 		.ident = "Acer Aspire Switch 10 SW5-012",
--- 
-2.30.1
-
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -306,22 +306,22 @@ static void rpm_put_suppliers(struct dev
+ static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
+ 	__releases(&dev->power.lock) __acquires(&dev->power.lock)
+ {
+-	int retval, idx;
+ 	bool use_links = dev->power.links_count > 0;
++	bool get = false;
++	int retval, idx;
++	bool put;
+ 
+ 	if (dev->power.irq_safe) {
+ 		spin_unlock(&dev->power.lock);
++	} else if (!use_links) {
++		spin_unlock_irq(&dev->power.lock);
+ 	} else {
++		get = dev->power.runtime_status == RPM_RESUMING;
++
+ 		spin_unlock_irq(&dev->power.lock);
+ 
+-		/*
+-		 * Resume suppliers if necessary.
+-		 *
+-		 * The device's runtime PM status cannot change until this
+-		 * routine returns, so it is safe to read the status outside of
+-		 * the lock.
+-		 */
+-		if (use_links && dev->power.runtime_status == RPM_RESUMING) {
++		/* Resume suppliers if necessary. */
++		if (get) {
+ 			idx = device_links_read_lock();
+ 
+ 			retval = rpm_get_suppliers(dev);
+@@ -336,24 +336,36 @@ static int __rpm_callback(int (*cb)(stru
+ 
+ 	if (dev->power.irq_safe) {
+ 		spin_lock(&dev->power.lock);
+-	} else {
+-		/*
+-		 * If the device is suspending and the callback has returned
+-		 * success, drop the usage counters of the suppliers that have
+-		 * been reference counted on its resume.
+-		 *
+-		 * Do that if resume fails too.
+-		 */
+-		if (use_links
+-		    && ((dev->power.runtime_status == RPM_SUSPENDING && !retval)
+-		    || (dev->power.runtime_status == RPM_RESUMING && retval))) {
+-			idx = device_links_read_lock();
++		return retval;
++	}
+ 
+- fail:
+-			rpm_put_suppliers(dev);
++	spin_lock_irq(&dev->power.lock);
+ 
+-			device_links_read_unlock(idx);
+-		}
++	if (!use_links)
++		return retval;
++
++	/*
++	 * If the device is suspending and the callback has returned success,
++	 * drop the usage counters of the suppliers that have been reference
++	 * counted on its resume.
++	 *
++	 * Do that if the resume fails too.
++	 */
++	put = dev->power.runtime_status == RPM_SUSPENDING && !retval;
++	if (put)
++		__update_runtime_status(dev, RPM_SUSPENDED);
++	else
++		put = get && retval;
++
++	if (put) {
++		spin_unlock_irq(&dev->power.lock);
++
++		idx = device_links_read_lock();
++
++fail:
++		rpm_put_suppliers(dev);
++
++		device_links_read_unlock(idx);
+ 
+ 		spin_lock_irq(&dev->power.lock);
+ 	}
 
 
