@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCC6333DFD
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D837F333E2D
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232821AbhCJNZP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
+        id S233455AbhCJNZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232979AbhCJNYo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:44 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C89464FE8;
-        Wed, 10 Mar 2021 13:24:43 +0000 (UTC)
+        id S233185AbhCJNZD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:03 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E89B64FD7;
+        Wed, 10 Mar 2021 13:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382684;
-        bh=Z1ocGTsyiniW7nPzdRciArBgFAHoS1zxuMi7IXgD1dI=;
+        s=korg; t=1615382703;
+        bh=QXZ5S/Acj15AmWdZhhP801cSifJnhspu68hy6BN/oSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmdAG7bXLgQ5yAaciCC0kvGzxrqKkrA2GXkZ42hnjBXvmwvkxjHfzjoKfkD6KFQvM
-         wlrejit5CcE2IShDBl/EWrWgkHtUasjdbwtt5mfeHgTSiLQlWcG42dHA6DzhiPS9uC
-         3gELMmOrAUAyF+aqNqJXAMQtP2gYbcVgXpYzogr8=
+        b=KbPsx6awbEjWSQg01GNIpZ0ydvBqB/dm0G1OXyMZZQ0Ci1ADhG1kSt3nhQmWGuBNO
+         G+PTqHociSwHMoYk+a2NhK0N52+AzbUrQ+Bcwd1v2etJEA/zGsklK9wQOyuQ90iqQE
+         jZ6bEejYpRoBwX6QryHNgPYohmvO4HcnpCjmzmfQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 02/24] dm table: fix iterate_devices based device capability checks
+        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Elaine Zhang <zhangiqng@rock-chips.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 06/39] PM: runtime: Update device status before letting suppliers suspend
 Date:   Wed, 10 Mar 2021 14:24:14 +0100
-Message-Id: <20210310132320.627343619@linuxfoundation.org>
+Message-Id: <20210310132319.932470905@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,206 +43,122 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jeffle Xu <jefflexu@linux.alibaba.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
+commit 44cc89f764646b2f1f2ea5d1a08b230131707851 upstream.
 
-According to the definition of dm_iterate_devices_fn:
- * This function must iterate through each section of device used by the
- * target until it encounters a non-zero return code, which it then returns.
- * Returns zero if no callout returned non-zero.
+Because the PM-runtime status of the device is not updated in
+__rpm_callback(), attempts to suspend the suppliers of the given
+device triggered by rpm_put_suppliers() called by it may fail.
 
-For some target type (e.g. dm-stripe), one call of iterate_devices() may
-iterate multiple underlying devices internally, in which case a non-zero
-return code returned by iterate_devices_callout_fn will stop the iteration
-in advance. No iterate_devices_callout_fn should return non-zero unless
-device iteration should stop.
+Fix this by making __rpm_callback() update the device's status to
+RPM_SUSPENDED before calling rpm_put_suppliers() if the current
+status of the device is RPM_SUSPENDING and the callback just invoked
+by it has returned 0 (success).
 
-Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
-elevate it for reuse to stop iterating (and return non-zero) on the
-first device that causes iterate_devices_callout_fn to return non-zero.
-Use dm_table_any_dev_attr() to properly iterate through devices.
+While at it, modify the code in __rpm_callback() to always check
+the device's PM-runtime status under its PM lock.
 
-Rename device_is_nonrot() to device_is_rotational() and invert logic
-accordingly to fix improper disposition.
-
-Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
-Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lore.kernel.org/linux-pm/CAPDyKFqm06KDw_p8WXsM4dijDbho4bb6T4k50UqqvR1_COsp8g@mail.gmail.com/
+Fixes: 21d5c57b3726 ("PM / runtime: Use device links")
+Reported-by: Elaine Zhang <zhangqing@rock-chips.com>
+Diagnosed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Elaine Zhang <zhangiqng@rock-chips.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: 4.10+ <stable@vger.kernel.org> # 4.10+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-table.c |  103 ++++++++++++++++++++++++++------------------------
- 1 file changed, 54 insertions(+), 49 deletions(-)
+ drivers/base/power/runtime.c |   62 +++++++++++++++++++++++++------------------
+ 1 file changed, 37 insertions(+), 25 deletions(-)
 
---- a/drivers/md/dm-table.c
-+++ b/drivers/md/dm-table.c
-@@ -1376,6 +1376,46 @@ struct dm_target *dm_table_find_target(s
- 	return &t->targets[(KEYS_PER_NODE * n) + k];
- }
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -304,22 +304,22 @@ static void rpm_put_suppliers(struct dev
+ static int __rpm_callback(int (*cb)(struct device *), struct device *dev)
+ 	__releases(&dev->power.lock) __acquires(&dev->power.lock)
+ {
+-	int retval, idx;
+ 	bool use_links = dev->power.links_count > 0;
++	bool get = false;
++	int retval, idx;
++	bool put;
  
-+/*
-+ * type->iterate_devices() should be called when the sanity check needs to
-+ * iterate and check all underlying data devices. iterate_devices() will
-+ * iterate all underlying data devices until it encounters a non-zero return
-+ * code, returned by whether the input iterate_devices_callout_fn, or
-+ * iterate_devices() itself internally.
-+ *
-+ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
-+ * iterate multiple underlying devices internally, in which case a non-zero
-+ * return code returned by iterate_devices_callout_fn will stop the iteration
-+ * in advance.
-+ *
-+ * Cases requiring _any_ underlying device supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_any_dev_attr(), or call
-+ * it directly. @func should handle semantics of positive examples, e.g.
-+ * capable of something.
-+ *
-+ * Cases requiring _all_ underlying devices supporting some kind of attribute,
-+ * should use the iteration structure like dm_table_supports_nowait() or
-+ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
-+ * uses an @anti_func that handle semantics of counter examples, e.g. not
-+ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
-+ */
-+static bool dm_table_any_dev_attr(struct dm_table *t,
-+				  iterate_devices_callout_fn func)
-+{
-+	struct dm_target *ti;
-+	unsigned int i;
+ 	if (dev->power.irq_safe) {
+ 		spin_unlock(&dev->power.lock);
++	} else if (!use_links) {
++		spin_unlock_irq(&dev->power.lock);
+ 	} else {
++		get = dev->power.runtime_status == RPM_RESUMING;
 +
-+	for (i = 0; i < dm_table_get_num_targets(t); i++) {
-+		ti = dm_table_get_target(t, i);
+ 		spin_unlock_irq(&dev->power.lock);
+ 
+-		/*
+-		 * Resume suppliers if necessary.
+-		 *
+-		 * The device's runtime PM status cannot change until this
+-		 * routine returns, so it is safe to read the status outside of
+-		 * the lock.
+-		 */
+-		if (use_links && dev->power.runtime_status == RPM_RESUMING) {
++		/* Resume suppliers if necessary. */
++		if (get) {
+ 			idx = device_links_read_lock();
+ 
+ 			retval = rpm_get_suppliers(dev);
+@@ -334,24 +334,36 @@ static int __rpm_callback(int (*cb)(stru
+ 
+ 	if (dev->power.irq_safe) {
+ 		spin_lock(&dev->power.lock);
+-	} else {
+-		/*
+-		 * If the device is suspending and the callback has returned
+-		 * success, drop the usage counters of the suppliers that have
+-		 * been reference counted on its resume.
+-		 *
+-		 * Do that if resume fails too.
+-		 */
+-		if (use_links
+-		    && ((dev->power.runtime_status == RPM_SUSPENDING && !retval)
+-		    || (dev->power.runtime_status == RPM_RESUMING && retval))) {
+-			idx = device_links_read_lock();
++		return retval;
++	}
+ 
+- fail:
+-			rpm_put_suppliers(dev);
++	spin_lock_irq(&dev->power.lock);
+ 
+-			device_links_read_unlock(idx);
+-		}
++	if (!use_links)
++		return retval;
 +
-+		if (ti->type->iterate_devices &&
-+		    ti->type->iterate_devices(ti, func, NULL))
-+			return true;
-+        }
-+
-+	return false;
-+}
-+
- static int count_device(struct dm_target *ti, struct dm_dev *dev,
- 			sector_t start, sector_t len, void *data)
- {
-@@ -1692,12 +1732,12 @@ static int dm_table_supports_dax_write_c
- 	return false;
- }
- 
--static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
--			    sector_t start, sector_t len, void *data)
-+static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
-+				sector_t start, sector_t len, void *data)
- {
- 	struct request_queue *q = bdev_get_queue(dev->bdev);
- 
--	return q && blk_queue_nonrot(q);
-+	return q && !blk_queue_nonrot(q);
- }
- 
- static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
-@@ -1708,35 +1748,18 @@ static int device_is_not_random(struct d
- 	return q && !blk_queue_add_random(q);
- }
- 
--static bool dm_table_all_devices_attribute(struct dm_table *t,
--					   iterate_devices_callout_fn func)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (!ti->type->iterate_devices ||
--		    !ti->type->iterate_devices(ti, func, NULL))
--			return false;
--	}
--
--	return true;
--}
--
--static int device_no_partial_completion(struct dm_target *ti, struct dm_dev *dev,
-+static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev,
- 					sector_t start, sector_t len, void *data)
- {
- 	char b[BDEVNAME_SIZE];
- 
- 	/* For now, NVMe devices are the only devices of this class */
--	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) == 0);
-+	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) != 0);
- }
- 
- static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
- {
--	return dm_table_all_devices_attribute(t, device_no_partial_completion);
-+	return !dm_table_any_dev_attr(t, device_is_partial_completion);
- }
- 
- static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
-@@ -1863,27 +1886,6 @@ static int device_requires_stable_pages(
- 	return q && bdi_cap_stable_pages_required(q->backing_dev_info);
- }
- 
--/*
-- * If any underlying device requires stable pages, a table must require
-- * them as well.  Only targets that support iterate_devices are considered:
-- * don't want error, zero, etc to require stable pages.
-- */
--static bool dm_table_requires_stable_pages(struct dm_table *t)
--{
--	struct dm_target *ti;
--	unsigned i;
--
--	for (i = 0; i < dm_table_get_num_targets(t); i++) {
--		ti = dm_table_get_target(t, i);
--
--		if (ti->type->iterate_devices &&
--		    ti->type->iterate_devices(ti, device_requires_stable_pages, NULL))
--			return true;
--	}
--
--	return false;
--}
--
- void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
- 			       struct queue_limits *limits)
- {
-@@ -1928,10 +1930,10 @@ void dm_table_set_restrictions(struct dm
- 		dax_write_cache(t->md->dax_dev, true);
- 
- 	/* Ensure that all underlying devices are non-rotational. */
--	if (dm_table_all_devices_attribute(t, device_is_nonrot))
--		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
--	else
-+	if (dm_table_any_dev_attr(t, device_is_rotational))
- 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
++	/*
++	 * If the device is suspending and the callback has returned success,
++	 * drop the usage counters of the suppliers that have been reference
++	 * counted on its resume.
++	 *
++	 * Do that if the resume fails too.
++	 */
++	put = dev->power.runtime_status == RPM_SUSPENDING && !retval;
++	if (put)
++		__update_runtime_status(dev, RPM_SUSPENDED);
 +	else
-+		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
++		put = get && retval;
++
++	if (put) {
++		spin_unlock_irq(&dev->power.lock);
++
++		idx = device_links_read_lock();
++
++fail:
++		rpm_put_suppliers(dev);
++
++		device_links_read_unlock(idx);
  
- 	if (!dm_table_supports_write_same(t))
- 		q->limits.max_write_same_sectors = 0;
-@@ -1943,8 +1945,11 @@ void dm_table_set_restrictions(struct dm
- 	/*
- 	 * Some devices don't use blk_integrity but still want stable pages
- 	 * because they do their own checksumming.
-+	 * If any underlying device requires stable pages, a table must require
-+	 * them as well.  Only targets that support iterate_devices are considered:
-+	 * don't want error, zero, etc to require stable pages.
- 	 */
--	if (dm_table_requires_stable_pages(t))
-+	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
- 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
- 	else
- 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
-@@ -1955,7 +1960,7 @@ void dm_table_set_restrictions(struct dm
- 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
- 	 * have it set.
- 	 */
--	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
-+	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
- 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
- 
- 	/*
+ 		spin_lock_irq(&dev->power.lock);
+ 	}
 
 
