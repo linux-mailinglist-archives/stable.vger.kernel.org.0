@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F138D333E05
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E957333E33
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233294AbhCJNZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46208 "EHLO mail.kernel.org"
+        id S233471AbhCJNZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233030AbhCJNYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:48 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A17E64FF4;
-        Wed, 10 Mar 2021 13:24:46 +0000 (UTC)
+        id S233194AbhCJNZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:04 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A948464FE8;
+        Wed, 10 Mar 2021 13:25:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382688;
-        bh=fnNKBqJvtCuo1EoH7hWQtzDisRIDsOSQwmGY80T3gGA=;
+        s=korg; t=1615382704;
+        bh=vk3mtxnn6aBHlEJmU4lfSAuGWVCWMlvbxpHXIZXGoAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zIkB/TFPTUBK6XkTazSZS07VbKJFcNATD2Dy1sM1Q3/hUieuHBQl9vjsDJbV38frI
-         /lNsnxeXQ5JdQSZnuWKf6hPRH+tkUlYRclxwfTSlsA+ovK3MrPL7dW1TBcmMgYUHAx
-         0jCaxBfP5HPHqBb+NTIEgSxMDALpL/vBI+QEzhy4=
+        b=drVIM00+RGLVKbEmXfro3or1aovG6kefE2VlC/t0HjZShl4h7OHOq6x6mr5w5Tnsa
+         n30u7Xi/aXeGuVDTcE+4iOhCl/n33svvjfjaluyKP0am4uWN8S+qE6HLQEniPv/Oc/
+         3mj5jL5lMdxNYz3ZpBIHBBkVXwCoZDrQwQGmiVGE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadeem Athani <nadeem@cadence.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 30/36] PCI: cadence: Retrain Link to work around Gen2 training defect
+Subject: [PATCH 5.10 32/49] scsi: ufs-mediatek: Enable UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL
 Date:   Wed, 10 Mar 2021 14:23:43 +0100
-Message-Id: <20210310132321.456005224@linuxfoundation.org>
+Message-Id: <20210310132322.955347418@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
-References: <20210310132320.510840709@linuxfoundation.org>
+In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
+References: <20210310132321.948258062@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,200 +43,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nadeem Athani <nadeem@cadence.com>
+From: Stanley Chu <stanley.chu@mediatek.com>
 
-[ Upstream commit 4740b969aaf58adeca6829947a3ad8da423976cf ]
+[ Upstream commit 46ec9592ffd679fa26142dcb9e5119aad7e60b55 ]
 
-Cadence controller will not initiate autonomous speed change if strapped
-as Gen2. The Retrain Link bit is set as quirk to enable this speed change.
+Flush during hibern8 is sufficient on MediaTek platforms, thus enable
+UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL to skip enabling
+fWriteBoosterBufferFlush during WriteBooster initialization.
 
-Link: https://lore.kernel.org/r/20210209144622.26683-3-nadeem@cadence.com
-Signed-off-by: Nadeem Athani <nadeem@cadence.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20201222072928.32328-1-stanley.chu@mediatek.com
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/cadence/pci-j721e.c    |  3 +
- .../controller/cadence/pcie-cadence-host.c    | 81 ++++++++++++++-----
- drivers/pci/controller/cadence/pcie-cadence.h | 11 ++-
- 3 files changed, 76 insertions(+), 19 deletions(-)
+ drivers/scsi/ufs/ufs-mediatek.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index dac1ac8a7615..849f1e416ea5 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -64,6 +64,7 @@ enum j721e_pcie_mode {
+diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
+index 914a827a93ee..934713472ebc 100644
+--- a/drivers/scsi/ufs/ufs-mediatek.c
++++ b/drivers/scsi/ufs/ufs-mediatek.c
+@@ -566,6 +566,7 @@ static int ufs_mtk_init(struct ufs_hba *hba)
  
- struct j721e_pcie_data {
- 	enum j721e_pcie_mode	mode;
-+	bool quirk_retrain_flag;
- };
+ 	/* Enable WriteBooster */
+ 	hba->caps |= UFSHCD_CAP_WB_EN;
++	hba->quirks |= UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL;
+ 	hba->vps->wb_flush_threshold = UFS_WB_BUF_REMAIN_PERCENT(80);
  
- static inline u32 j721e_pcie_user_readl(struct j721e_pcie *pcie, u32 offset)
-@@ -280,6 +281,7 @@ static struct pci_ops cdns_ti_pcie_host_ops = {
- 
- static const struct j721e_pcie_data j721e_pcie_rc_data = {
- 	.mode = PCI_MODE_RC,
-+	.quirk_retrain_flag = true,
- };
- 
- static const struct j721e_pcie_data j721e_pcie_ep_data = {
-@@ -388,6 +390,7 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 
- 		bridge->ops = &cdns_ti_pcie_host_ops;
- 		rc = pci_host_bridge_priv(bridge);
-+		rc->quirk_retrain_flag = data->quirk_retrain_flag;
- 
- 		cdns_pcie = &rc->pcie;
- 		cdns_pcie->dev = dev;
-diff --git a/drivers/pci/controller/cadence/pcie-cadence-host.c b/drivers/pci/controller/cadence/pcie-cadence-host.c
-index 1cb7cfc75d6e..73dcf8cf98fb 100644
---- a/drivers/pci/controller/cadence/pcie-cadence-host.c
-+++ b/drivers/pci/controller/cadence/pcie-cadence-host.c
-@@ -77,6 +77,68 @@ static struct pci_ops cdns_pcie_host_ops = {
- 	.write		= pci_generic_config_write,
- };
- 
-+static int cdns_pcie_host_wait_for_link(struct cdns_pcie *pcie)
-+{
-+	struct device *dev = pcie->dev;
-+	int retries;
-+
-+	/* Check if the link is up or not */
-+	for (retries = 0; retries < LINK_WAIT_MAX_RETRIES; retries++) {
-+		if (cdns_pcie_link_up(pcie)) {
-+			dev_info(dev, "Link up\n");
-+			return 0;
-+		}
-+		usleep_range(LINK_WAIT_USLEEP_MIN, LINK_WAIT_USLEEP_MAX);
-+	}
-+
-+	return -ETIMEDOUT;
-+}
-+
-+static int cdns_pcie_retrain(struct cdns_pcie *pcie)
-+{
-+	u32 lnk_cap_sls, pcie_cap_off = CDNS_PCIE_RP_CAP_OFFSET;
-+	u16 lnk_stat, lnk_ctl;
-+	int ret = 0;
-+
-+	/*
-+	 * Set retrain bit if current speed is 2.5 GB/s,
-+	 * but the PCIe root port support is > 2.5 GB/s.
-+	 */
-+
-+	lnk_cap_sls = cdns_pcie_readl(pcie, (CDNS_PCIE_RP_BASE + pcie_cap_off +
-+					     PCI_EXP_LNKCAP));
-+	if ((lnk_cap_sls & PCI_EXP_LNKCAP_SLS) <= PCI_EXP_LNKCAP_SLS_2_5GB)
-+		return ret;
-+
-+	lnk_stat = cdns_pcie_rp_readw(pcie, pcie_cap_off + PCI_EXP_LNKSTA);
-+	if ((lnk_stat & PCI_EXP_LNKSTA_CLS) == PCI_EXP_LNKSTA_CLS_2_5GB) {
-+		lnk_ctl = cdns_pcie_rp_readw(pcie,
-+					     pcie_cap_off + PCI_EXP_LNKCTL);
-+		lnk_ctl |= PCI_EXP_LNKCTL_RL;
-+		cdns_pcie_rp_writew(pcie, pcie_cap_off + PCI_EXP_LNKCTL,
-+				    lnk_ctl);
-+
-+		ret = cdns_pcie_host_wait_for_link(pcie);
-+	}
-+	return ret;
-+}
-+
-+static int cdns_pcie_host_start_link(struct cdns_pcie_rc *rc)
-+{
-+	struct cdns_pcie *pcie = &rc->pcie;
-+	int ret;
-+
-+	ret = cdns_pcie_host_wait_for_link(pcie);
-+
-+	/*
-+	 * Retrain link for Gen2 training defect
-+	 * if quirk flag is set.
-+	 */
-+	if (!ret && rc->quirk_retrain_flag)
-+		ret = cdns_pcie_retrain(pcie);
-+
-+	return ret;
-+}
- 
- static int cdns_pcie_host_init_root_port(struct cdns_pcie_rc *rc)
- {
-@@ -399,23 +461,6 @@ static int cdns_pcie_host_init(struct device *dev,
- 	return cdns_pcie_host_init_address_translation(rc);
- }
- 
--static int cdns_pcie_host_wait_for_link(struct cdns_pcie *pcie)
--{
--	struct device *dev = pcie->dev;
--	int retries;
--
--	/* Check if the link is up or not */
--	for (retries = 0; retries < LINK_WAIT_MAX_RETRIES; retries++) {
--		if (cdns_pcie_link_up(pcie)) {
--			dev_info(dev, "Link up\n");
--			return 0;
--		}
--		usleep_range(LINK_WAIT_USLEEP_MIN, LINK_WAIT_USLEEP_MAX);
--	}
--
--	return -ETIMEDOUT;
--}
--
- int cdns_pcie_host_setup(struct cdns_pcie_rc *rc)
- {
- 	struct device *dev = rc->pcie.dev;
-@@ -458,7 +503,7 @@ int cdns_pcie_host_setup(struct cdns_pcie_rc *rc)
- 		return ret;
- 	}
- 
--	ret = cdns_pcie_host_wait_for_link(pcie);
-+	ret = cdns_pcie_host_start_link(rc);
- 	if (ret)
- 		dev_dbg(dev, "PCIe link never came up\n");
- 
-diff --git a/drivers/pci/controller/cadence/pcie-cadence.h b/drivers/pci/controller/cadence/pcie-cadence.h
-index 30eba6cafe2c..254d2570f8c9 100644
---- a/drivers/pci/controller/cadence/pcie-cadence.h
-+++ b/drivers/pci/controller/cadence/pcie-cadence.h
-@@ -119,7 +119,7 @@
-  * Root Port Registers (PCI configuration space for the root port function)
-  */
- #define CDNS_PCIE_RP_BASE	0x00200000
--
-+#define CDNS_PCIE_RP_CAP_OFFSET 0xc0
- 
- /*
-  * Address Translation Registers
-@@ -291,6 +291,7 @@ struct cdns_pcie {
-  * @device_id: PCI device ID
-  * @avail_ib_bar: Satus of RP_BAR0, RP_BAR1 and	RP_NO_BAR if it's free or
-  *                available
-+ * @quirk_retrain_flag: Retrain link as quirk for PCIe Gen2
-  */
- struct cdns_pcie_rc {
- 	struct cdns_pcie	pcie;
-@@ -299,6 +300,7 @@ struct cdns_pcie_rc {
- 	u32			vendor_id;
- 	u32			device_id;
- 	bool			avail_ib_bar[CDNS_PCIE_RP_MAX_IB];
-+	bool                    quirk_retrain_flag;
- };
- 
- /**
-@@ -414,6 +416,13 @@ static inline void cdns_pcie_rp_writew(struct cdns_pcie *pcie,
- 	cdns_pcie_write_sz(addr, 0x2, value);
- }
- 
-+static inline u16 cdns_pcie_rp_readw(struct cdns_pcie *pcie, u32 reg)
-+{
-+	void __iomem *addr = pcie->reg_base + CDNS_PCIE_RP_BASE + reg;
-+
-+	return cdns_pcie_read_sz(addr, 0x2);
-+}
-+
- /* Endpoint Function register access */
- static inline void cdns_pcie_ep_fn_writeb(struct cdns_pcie *pcie, u8 fn,
- 					  u32 reg, u8 value)
+ 	/*
 -- 
 2.30.1
 
