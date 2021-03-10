@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084CF333E6B
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A94333E9E
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232587AbhCJN0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
+        id S233655AbhCJN01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233312AbhCJNZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:21 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9417B65030;
-        Wed, 10 Mar 2021 13:25:19 +0000 (UTC)
+        id S233336AbhCJNZY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:24 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AD0965051;
+        Wed, 10 Mar 2021 13:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382720;
-        bh=RTubKmSeI2vbzOr6c61McxKmecNOPSUfeMLlOURJP5g=;
+        s=korg; t=1615382722;
+        bh=VTEamxAco6reFe0kALAhGNy/J9hNYxksSwlGWXS9CvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1swo4yJFtVGxdKzksycB24b2P9qUmcsk4X61du/PAoaMweSYP+1b1WF+A1RlK7/+0
-         G0YyGFYcBEJZW0hgZ2DvaiHGY8r+gg0LQi5QiqjenOyTrnX55Es9PDTzo/AiE55XgZ
-         HXb8jPPS784wbSU6aFN5Psn6rKJ7Ew3gO9EENAXg=
+        b=lr3cWSWGPatjnYZoX97ZqAd0s00rkcPbzJQ3GIfWgxY6/9KRlfFZA+bD5p8CJWCjH
+         VIgT91WD77ZeUYl0cVOXasyN21Q5uslzMTz4XqpSSF1m8CKNEC77Ev550nDY4mestW
+         Gbo95qaVUrvROpaQUqdcTK4kaKko7J2CZ8o/i8EE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antonio Borneo <borneo.antonio@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>
-Subject: [PATCH 4.9 03/11] usbip: tools: fix build error for multiple definition
-Date:   Wed, 10 Mar 2021 14:25:02 +0100
-Message-Id: <20210310132320.498616113@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/11] ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
+Date:   Wed, 10 Mar 2021 14:25:03 +0100
+Message-Id: <20210310132320.530249068@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132320.393957501@linuxfoundation.org>
 References: <20210310132320.393957501@linuxfoundation.org>
@@ -42,36 +41,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Antonio Borneo <borneo.antonio@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit d5efc2e6b98fe661dbd8dd0d5d5bfb961728e57a upstream.
+[ Upstream commit 26a9630c72ebac7c564db305a6aee54a8edde70e ]
 
-With GCC 10, building usbip triggers error for multiple definition
-of 'udev_context', in:
-- libsrc/vhci_driver.c:18 and
-- libsrc/usbip_host_common.c:27.
+Currently the mask operation on variable conf is just 3 bits so
+the switch statement case value of 8 is unreachable dead code.
+The function daio_mgr_dao_init can be passed a 4 bit value,
+function dao_rsc_init calls it with conf set to:
 
-Declare as extern the definition in libsrc/usbip_host_common.c.
+     conf = (desc->msr & 0x7) | (desc->passthru << 3);
 
-Signed-off-by: Antonio Borneo <borneo.antonio@gmail.com>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/20200618000844.1048309-1-borneo.antonio@gmail.com
-Cc: Petr Štetiar <ynezz@true.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+so clearly when desc->passthru is set to 1 then conf can be
+at least 8.
+
+Fix this by changing the mask to 0xf.
+
+Fixes: 8cc72361481f ("ALSA: SB X-Fi driver merge")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210227001527.1077484-1-colin.king@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/usb/usbip/libsrc/usbip_host_common.c |    2 +-
+ sound/pci/ctxfi/cthw20k2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/usb/usbip/libsrc/usbip_host_common.c
-+++ b/tools/usb/usbip/libsrc/usbip_host_common.c
-@@ -35,7 +35,7 @@
- #include "list.h"
- #include "sysfs_utils.h"
+diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
+index 18ee7768b7c4..ae8aa10a4a5d 100644
+--- a/sound/pci/ctxfi/cthw20k2.c
++++ b/sound/pci/ctxfi/cthw20k2.c
+@@ -995,7 +995,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
  
--struct udev *udev_context;
-+extern struct udev *udev_context;
- 
- static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
- {
+ 	if (idx < 4) {
+ 		/* S/PDIF output */
+-		switch ((conf & 0x7)) {
++		switch ((conf & 0xf)) {
+ 		case 1:
+ 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
+ 			break;
+-- 
+2.30.1
+
 
 
