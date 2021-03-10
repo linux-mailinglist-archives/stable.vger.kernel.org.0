@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBE2333E66
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 040A7333E8D
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233682AbhCJN0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47824 "EHLO mail.kernel.org"
+        id S232946AbhCJN0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233302AbhCJNZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:19 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DA9365005;
-        Wed, 10 Mar 2021 13:25:17 +0000 (UTC)
+        id S233464AbhCJNZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:39 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AA3E64FDC;
+        Wed, 10 Mar 2021 13:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382719;
-        bh=HqEV5r+zl3NlOEjC4TRekPRUsF1UMxiw5G1WdwJJdM4=;
+        s=korg; t=1615382739;
+        bh=+/ZzfQ/JXaZpSfUnsydoionsc8T6OlRzeKhHnXytRko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/8jhFxhU5iHcAlW0sNmL1yBh+J3e4zMKxMTHWVKSdVRFWTu2hlGjWGdKtXLDGd59
-         o9wNjobSChQC30Yps8fhEnmXGtNAdEGj/mML+Jvs/nbfHVnmfuYlExaK1djEU+D/ru
-         ON13wu1qt3gRdH1eNUwL1acy7QrBzClFA5Oe+tqE=
+        b=zeKXwE5Eoe/sQ5YedbMlosSTEflqCJbZX368KgfdDj3ycTSxU2cUd1YLVFz1DV9hg
+         leTvdLAHQ1rHdiOYfqXvSUhTIQ3ACKR8WJr0jD5V5kaQBa4IvF5Vmq0cnEZdGaqtw+
+         7RPq2LBI+g+Kh3W0Tf+da5tqAdAj2txiTIYIzuwg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Einwag <jeinwag-nvme@marcapo.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Keith Busch <kbusch@kernel.org>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 23/24] nvme-pci: mark Seagate Nytro XM1440 as QUIRK_NO_NS_DESC_LIST.
+Subject: [PATCH 4.19 27/39] platform/x86: acer-wmi: Cleanup ACER_CAP_FOO defines
 Date:   Wed, 10 Mar 2021 14:24:35 +0100
-Message-Id: <20210310132321.257283951@linuxfoundation.org>
+Message-Id: <20210310132320.567388160@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Julian Einwag <jeinwag-nvme@marcapo.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 5e112d3fb89703a4981ded60561b5647db3693bf ]
+[ Upstream commit 7c936d8d26afbc74deac0651d613dead2f76e81c ]
 
-The kernel fails to fully detect these SSDs, only the character devices
-are present:
+Cleanup the ACER_CAP_FOO defines:
+-Switch to using BIT() macro.
+-The ACER_CAP_RFBTN flag is set, but it is never checked anywhere, drop it.
+-Drop the unused ACER_CAP_ANY define.
 
-[   10.785605] nvme nvme0: pci function 0000:04:00.0
-[   10.876787] nvme nvme1: pci function 0000:81:00.0
-[   13.198614] nvme nvme0: missing or invalid SUBNQN field.
-[   13.198658] nvme nvme1: missing or invalid SUBNQN field.
-[   13.206896] nvme nvme0: Shutdown timeout set to 20 seconds
-[   13.215035] nvme nvme1: Shutdown timeout set to 20 seconds
-[   13.225407] nvme nvme0: 16/0/0 default/read/poll queues
-[   13.233602] nvme nvme1: 16/0/0 default/read/poll queues
-[   13.239627] nvme nvme0: Identify Descriptors failed (8194)
-[   13.246315] nvme nvme1: Identify Descriptors failed (8194)
-
-Adding the NVME_QUIRK_NO_NS_DESC_LIST fixes this problem.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205679
-Signed-off-by: Julian Einwag <jeinwag-nvme@marcapo.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201019185628.264473-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/platform/x86/acer-wmi.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index abc342db3b33..197a5cd253c3 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3164,7 +3164,8 @@ static const struct pci_device_id nvme_id_table[] = {
- 	{ PCI_DEVICE(0x126f, 0x2263),	/* Silicon Motion unidentified */
- 		.driver_data = NVME_QUIRK_NO_NS_DESC_LIST, },
- 	{ PCI_DEVICE(0x1bb1, 0x0100),   /* Seagate Nytro Flash Storage */
--		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
-+		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY |
-+				NVME_QUIRK_NO_NS_DESC_LIST, },
- 	{ PCI_DEVICE(0x1c58, 0x0003),	/* HGST adapter */
- 		.driver_data = NVME_QUIRK_DELAY_BEFORE_CHK_RDY, },
- 	{ PCI_DEVICE(0x1c58, 0x0023),	/* WDC SN200 adapter */
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 92400abe3552..8d06454f5915 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -219,14 +219,12 @@ struct hotkey_function_type_aa {
+ /*
+  * Interface capability flags
+  */
+-#define ACER_CAP_MAILLED		(1<<0)
+-#define ACER_CAP_WIRELESS		(1<<1)
+-#define ACER_CAP_BLUETOOTH		(1<<2)
+-#define ACER_CAP_BRIGHTNESS		(1<<3)
+-#define ACER_CAP_THREEG			(1<<4)
+-#define ACER_CAP_ACCEL			(1<<5)
+-#define ACER_CAP_RFBTN			(1<<6)
+-#define ACER_CAP_ANY			(0xFFFFFFFF)
++#define ACER_CAP_MAILLED		BIT(0)
++#define ACER_CAP_WIRELESS		BIT(1)
++#define ACER_CAP_BLUETOOTH		BIT(2)
++#define ACER_CAP_BRIGHTNESS		BIT(3)
++#define ACER_CAP_THREEG			BIT(4)
++#define ACER_CAP_ACCEL			BIT(5)
+ 
+ /*
+  * Interface type flags
+@@ -1266,10 +1264,8 @@ static void __init type_aa_dmi_decode(const struct dmi_header *header, void *d)
+ 		interface->capability |= ACER_CAP_THREEG;
+ 	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_BLUETOOTH)
+ 		interface->capability |= ACER_CAP_BLUETOOTH;
+-	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN) {
+-		interface->capability |= ACER_CAP_RFBTN;
++	if (type_aa->commun_func_bitmap & ACER_WMID3_GDS_RFBTN)
+ 		commun_func_bitmap &= ~ACER_WMID3_GDS_RFBTN;
+-	}
+ 
+ 	commun_fn_key_number = type_aa->commun_fn_key_number;
+ }
 -- 
 2.30.1
 
