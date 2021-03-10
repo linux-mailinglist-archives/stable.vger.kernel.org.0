@@ -2,57 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9433D333B8B
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A511333B8D
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231517AbhCJLhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 06:37:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50360 "EHLO
+        id S231150AbhCJLhR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 06:37:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232083AbhCJLf3 (ORCPT
+        with ESMTP id S232096AbhCJLf3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 06:35:29 -0500
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 073D3C0613D9
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:01 -0800 (PST)
-Received: by mail-wm1-x32f.google.com with SMTP id l22so6892099wme.1
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:00 -0800 (PST)
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A52C0613DA
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:02 -0800 (PST)
+Received: by mail-wm1-x32d.google.com with SMTP id d139-20020a1c1d910000b029010b895cb6f2so10496223wmd.5
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=e0qX8oRYdOPph/4W4xmNZG5c74khoGvEvzU/QA9qYKA=;
-        b=gapA0ca+Y1SYDDu0q4iL1GSJyQEqoFiBYp+6/trl34fq+fFu8/9572B62oZzyxXoVg
-         ulqgpwsI4wzVbcCf/OxoWDb1KCDr9UznA28t7aRMOb7I8VeERQ2ZYR4aXlGcPiwHTVOa
-         YteYMMD7WSvixOHGOK6m17W7RVA8qVCB51argq7ePWEKIgEbUPzzdalrjhI+gIJdw55t
-         23I1Ilg9oweAwA33jSkCjHGzs3ox7JiY9Wv6Iy4vHQsVvJCm+WJO7Ynns0udL1n4utN/
-         0krx3nusSmntQ2KF+EZhxP+ojvMhWZBAV6ss4vOIr0gQzag5LO+FZS0d9HqmebsjGkxW
-         6gYQ==
+        bh=uhwX/bzbLBSuhppqPht+JJ7EOlUtrPlfFGxS8Mv9Xb8=;
+        b=Je7R3hpGlblCpVthtrNWjvzoeqByoDb3vcTD+qYU1LRrSH6l/7kk3o6i6JMXgz5+lm
+         uIIwFJks1qqL2/RUwZT3B0Dxr/7B5GSKEsVADYW5W2sAgsAMoGzTxobHIBTm3ZO0ZKc1
+         lCx7Yne74cChJZ2miGGZ7fMx4XjHg4S9E0EvamReSurYNhmq8IjIsq4q64ZyH3eU72Tl
+         9CNQEufkmWk4L4ToZ/THoo85kP81Ec1ZZ3Fe9dWvj70iupX8AmgcafvOfRT6Ssaoavr3
+         gqkrlF0FIFLHfU3uihtMW0QOCsrhvwuSsaK8gSo/YmnR+ZAdVLwL/t8rPG95pLy/LN/C
+         Jxfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=e0qX8oRYdOPph/4W4xmNZG5c74khoGvEvzU/QA9qYKA=;
-        b=GV51U82BnsWN7XpUoVCcNhxGKpZPjXIQn//1NJ5fQQC/iZgEJXBIT4AMJFQwmCdkwm
-         ZjpUQsZ+nhQ2B4q/7q1Phdgp6O8KeWBR9SoxlnThH4TAG1nKuZ7wIdEN8ZryJuACmXI9
-         x2LslwnWaITit/e1oYqxQe5uPKzaorwUrqBaVYCALdyukHkbO2K8ZdY8gIYpVNiKlsNh
-         0M+tBXZ58aS6TKaumy4jPFNuBoC44EJ+u++tdOafbAGlXqJXckdscmeDWHkXr+VlAval
-         lDxeSifqciBhU5ou0zByFV2dvwfLosEeq54zBLPtovJQLheXmSua27r3ZjfOseAFf11S
-         eeOw==
-X-Gm-Message-State: AOAM533tkRwBXeNAFAD8Ud4TGoMQVHVACFXVqNxIWAY5FOZ1VE+6jnN5
-        +Zl7xFlKQevB7stTNgVRxraZV6/I9Bxf4A==
-X-Google-Smtp-Source: ABdhPJzs2JetqZRH5lfH9FA7LkbfVfyHhsyLQ2ngSF2AUbKJyuXXPvoZlAqNbBnOTgP8sV0sNgOHcA==
-X-Received: by 2002:a05:600c:35c1:: with SMTP id r1mr2885355wmq.60.1615376099417;
-        Wed, 10 Mar 2021 03:34:59 -0800 (PST)
+        bh=uhwX/bzbLBSuhppqPht+JJ7EOlUtrPlfFGxS8Mv9Xb8=;
+        b=DosnnKILSffwBdNZpuzFvpABYIQMXE2VVxjXEHpnimKzLOFjyU+QYcv18gypSPeX/1
+         giDdECFjvcQAXxDYG7ZyFpqVPUEs36o0hRXww3MvgaUoBIlZjbv6/LSKsXvlx0m1I6hV
+         ujb8sQTD0yRqDs/0ger8F3kv63UUmlogD/xJ+7QOd1xEY2m9eWWy8lFrhrtoyNs2Wrgi
+         sgbAGsagm/uenfaRq91CN/aQjPd1C47RCM2kDQIXvq4cCPOscDJaxZi61/PZGnDtmFdr
+         /5x7OfnpWzxJ1RO1WKpDIenqlhFqj+bnvUNMt4IL2PEZiCOPuVScyvYLG9wHneHV0UU9
+         BGhQ==
+X-Gm-Message-State: AOAM533X4jdusNiqAWUfWTsdWolAen1UrK55KYgZ4d4PEONIyAQmzYT2
+        N0HEIKig2jV/W4w84e8InyP7zVGc+Cyv1w==
+X-Google-Smtp-Source: ABdhPJyZVEGyOHlvQWhomcQ3IUx/lLq2X4uVMsY5eggZOxR6F3mbUdlBaMoTK4ZI93cBssd/stYBRQ==
+X-Received: by 2002:a7b:cb90:: with SMTP id m16mr2915354wmi.162.1615376100568;
+        Wed, 10 Mar 2021 03:35:00 -0800 (PST)
 Received: from localhost.localdomain ([85.255.232.55])
-        by smtp.gmail.com with ESMTPSA id s18sm25179078wrr.27.2021.03.10.03.34.58
+        by smtp.gmail.com with ESMTPSA id s18sm25179078wrr.27.2021.03.10.03.34.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 03:34:59 -0800 (PST)
+        Wed, 10 Mar 2021 03:35:00 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 8/9] io_uring/io-wq: return 2-step work swap scheme
-Date:   Wed, 10 Mar 2021 11:30:44 +0000
-Message-Id: <506ec0ce0b991836bb5132840fd1889126c86c8e.1615375332.git.asml.silence@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>, Abaci <abaci@linux.alibaba.com>,
+        Hao Xu <haoxu@linux.alibaba.com>
+Subject: [PATCH 9/9] io_uring: don't take uring_lock during iowq cancel
+Date:   Wed, 10 Mar 2021 11:30:45 +0000
+Message-Id: <1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <cover.1615375332.git.asml.silence@gmail.com>
 References: <cover.1615375332.git.asml.silence@gmail.com>
@@ -62,145 +63,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 5280f7e530f71ba85baf90169393196976ad0e52 upstream
+commit 792bb6eb862333658bf1bd2260133f0507e2da8d upstream
 
-Saving one lock/unlock for io-wq is not super important, but adds some
-ugliness in the code. More important, atomic decs not turning it to zero
-for some archs won't give the right ordering/barriers so the
-io_steal_work() may pretty easily get subtly and completely broken.
+[   97.866748] a.out/2890 is trying to acquire lock:
+[   97.867829] ffff8881046763e8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+io_wq_submit_work+0x155/0x240
+[   97.869735]
+[   97.869735] but task is already holding lock:
+[   97.871033] ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.873074]
+[   97.873074] other info that might help us debug this:
+[   97.874520]  Possible unsafe locking scenario:
+[   97.874520]
+[   97.875845]        CPU0
+[   97.876440]        ----
+[   97.877048]   lock(&ctx->uring_lock);
+[   97.877961]   lock(&ctx->uring_lock);
+[   97.878881]
+[   97.878881]  *** DEADLOCK ***
+[   97.878881]
+[   97.880341]  May be due to missing lock nesting notation
+[   97.880341]
+[   97.881952] 1 lock held by a.out/2890:
+[   97.882873]  #0: ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
+__x64_sys_io_uring_enter+0x3f0/0x5b0
+[   97.885108]
+[   97.885108] stack backtrace:
+[   97.890457] Call Trace:
+[   97.891121]  dump_stack+0xac/0xe3
+[   97.891972]  __lock_acquire+0xab6/0x13a0
+[   97.892940]  lock_acquire+0x2c3/0x390
+[   97.894894]  __mutex_lock+0xae/0x9f0
+[   97.901101]  io_wq_submit_work+0x155/0x240
+[   97.902112]  io_wq_cancel_cb+0x162/0x490
+[   97.904126]  io_async_find_and_cancel+0x3b/0x140
+[   97.905247]  io_issue_sqe+0x86d/0x13e0
+[   97.909122]  __io_queue_sqe+0x10b/0x550
+[   97.913971]  io_queue_sqe+0x235/0x470
+[   97.914894]  io_submit_sqes+0xcce/0xf10
+[   97.917872]  __x64_sys_io_uring_enter+0x3fb/0x5b0
+[   97.921424]  do_syscall_64+0x2d/0x40
+[   97.922329]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Return back 2-step io-wq work exchange and clean it up.
+While holding uring_lock, e.g. from inline execution, async cancel
+request may attempt cancellations through io_wq_submit_work, which may
+try to grab a lock. Delay it to task_work, so we do it from a clean
+context and don't have to worry about locking.
 
+Cc: <stable@vger.kernel.org> # 5.5+
+Fixes: c07e6719511e ("io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()")
+Reported-by: Abaci <abaci@linux.alibaba.com>
+Reported-by: Hao Xu <haoxu@linux.alibaba.com>
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- fs/io-wq.c    | 16 ++++++----------
- fs/io-wq.h    |  4 ++--
- fs/io_uring.c | 26 ++++----------------------
- 3 files changed, 12 insertions(+), 34 deletions(-)
+ fs/io_uring.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io-wq.c b/fs/io-wq.c
-index 2e2f14f42bf2..63ef195b1acb 100644
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -555,23 +555,21 @@ static void io_worker_handle_work(struct io_worker *worker)
- 
- 		/* handle a whole dependent link */
- 		do {
--			struct io_wq_work *old_work, *next_hashed, *linked;
-+			struct io_wq_work *next_hashed, *linked;
- 			unsigned int hash = io_get_work_hash(work);
- 
- 			next_hashed = wq_next_work(work);
- 			io_impersonate_work(worker, work);
-+			wq->do_work(work);
-+			io_assign_current_work(worker, NULL);
- 
--			old_work = work;
--			linked = wq->do_work(work);
--
-+			linked = wq->free_work(work);
- 			work = next_hashed;
- 			if (!work && linked && !io_wq_is_hashed(linked)) {
- 				work = linked;
- 				linked = NULL;
- 			}
- 			io_assign_current_work(worker, work);
--			wq->free_work(old_work);
--
- 			if (linked)
- 				io_wqe_enqueue(wqe, linked);
- 
-@@ -850,11 +848,9 @@ static void io_run_cancel(struct io_wq_work *work, struct io_wqe *wqe)
- 	struct io_wq *wq = wqe->wq;
- 
- 	do {
--		struct io_wq_work *old_work = work;
--
- 		work->flags |= IO_WQ_WORK_CANCEL;
--		work = wq->do_work(work);
--		wq->free_work(old_work);
-+		wq->do_work(work);
-+		work = wq->free_work(work);
- 	} while (work);
- }
- 
-diff --git a/fs/io-wq.h b/fs/io-wq.h
-index e1ffb80a4a1d..e37a0f217cc8 100644
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -106,8 +106,8 @@ static inline struct io_wq_work *wq_next_work(struct io_wq_work *work)
- 	return container_of(work->list.next, struct io_wq_work, list);
- }
- 
--typedef void (free_work_fn)(struct io_wq_work *);
--typedef struct io_wq_work *(io_wq_work_fn)(struct io_wq_work *);
-+typedef struct io_wq_work *(free_work_fn)(struct io_wq_work *);
-+typedef void (io_wq_work_fn)(struct io_wq_work *);
- 
- struct io_wq_data {
- 	struct user_struct *user;
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5ebc05f41c19..5e9bff1eeaa0 100644
+index 5e9bff1eeaa0..241313278e5a 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -2365,22 +2365,6 @@ static inline void io_put_req_deferred(struct io_kiocb *req, int refs)
- 		io_free_req_deferred(req);
+@@ -2198,7 +2198,9 @@ static void io_req_task_cancel(struct callback_head *cb)
+ 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
++	mutex_lock(&ctx->uring_lock);
+ 	__io_req_task_cancel(req, -ECANCELED);
++	mutex_unlock(&ctx->uring_lock);
+ 	percpu_ref_put(&ctx->refs);
  }
  
--static struct io_wq_work *io_steal_work(struct io_kiocb *req)
--{
--	struct io_kiocb *nxt;
--
--	/*
--	 * A ref is owned by io-wq in which context we're. So, if that's the
--	 * last one, it's safe to steal next work. False negatives are Ok,
--	 * it just will be re-punted async in io_put_work()
--	 */
--	if (refcount_read(&req->refs) != 1)
--		return NULL;
--
--	nxt = io_req_find_next(req);
--	return nxt ? &nxt->work : NULL;
--}
--
- static void io_double_put_req(struct io_kiocb *req)
- {
- 	/* drop both submit and complete references */
-@@ -6378,7 +6362,7 @@ static int io_issue_sqe(struct io_kiocb *req, bool force_nonblock,
- 	return 0;
- }
+@@ -6372,8 +6374,13 @@ static void io_wq_submit_work(struct io_wq_work *work)
+ 	if (timeout)
+ 		io_queue_linked_timeout(timeout);
  
--static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
-+static void io_wq_submit_work(struct io_wq_work *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
- 	struct io_kiocb *timeout;
-@@ -6429,8 +6413,6 @@ static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
- 		if (lock_ctx)
- 			mutex_unlock(&lock_ctx->uring_lock);
- 	}
--
--	return io_steal_work(req);
- }
+-	if (work->flags & IO_WQ_WORK_CANCEL)
+-		ret = -ECANCELED;
++	if (work->flags & IO_WQ_WORK_CANCEL) {
++		/* io-wq is going to take down one */
++		refcount_inc(&req->refs);
++		percpu_ref_get(&req->ctx->refs);
++		io_req_task_work_add_fallback(req, io_req_task_cancel);
++		return;
++	}
  
- static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
-@@ -8062,12 +8044,12 @@ static int io_sqe_files_update(struct io_ring_ctx *ctx, void __user *arg,
- 	return __io_sqe_files_update(ctx, &up, nr_args);
- }
- 
--static void io_free_work(struct io_wq_work *work)
-+static struct io_wq_work *io_free_work(struct io_wq_work *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
- 
--	/* Consider that io_steal_work() relies on this ref */
--	io_put_req(req);
-+	req = io_put_req_find_next(req);
-+	return req ? &req->work : NULL;
- }
- 
- static int io_init_wq_offload(struct io_ring_ctx *ctx,
+ 	if (!ret) {
+ 		do {
 -- 
 2.24.0
 
