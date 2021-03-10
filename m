@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B63AC333DA1
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60EEB333DB9
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232844AbhCJNYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45330 "EHLO mail.kernel.org"
+        id S233005AbhCJNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232278AbhCJNYE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4632A64FE0;
-        Wed, 10 Mar 2021 13:24:03 +0000 (UTC)
+        id S232803AbhCJNYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:21 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C4564FE8;
+        Wed, 10 Mar 2021 13:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382644;
-        bh=ENstH27CUNladLuZnZwsenEwh0rFLoExl2hmXKK0tNY=;
+        s=korg; t=1615382661;
+        bh=vHkRD3IcSSlNaisYv14uViAthdIBBMJoi4Yu3BFA2Wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5yozgFaqkkG3Ndbx77q4tnrOyIFF71zhUfXH5fAJrMyZzt0tPBVtipX6yr26NQkc
-         lJiNs1huTjDwdm+uGxTT15nxjAir/gOO3MszalViRrmMPoGxNq0eRh7Gs5FI/TE0xz
-         N1AmVhQaYE7DDyh0T1iW5mbeKxCHxXnNgrg7dydQ=
+        b=wHDR3ELgnpWrEMzinGSFXLOFr2QCGua32mKKYyqdPFpn/0J57jRPShcI8fsSVQLT6
+         7i/anECfJ8dQzljHFoE/wDqgm/hoA0QC/KsLLRKYpxhghGZ9AvwTHNanfsTvotRpmQ
+         0rqhexs1FleDVEngfJgf/+BKfb6IYTg6iMdaD5ak=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.11 05/36] io_uring: deduplicate failing task_work_add
-Date:   Wed, 10 Mar 2021 14:23:18 +0100
-Message-Id: <20210310132320.691024604@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Ryabinin <arbn@yandex-team.com>,
+        Will Deacon <will@kernel.org>, Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.10 08/49] iommu/amd: Fix sleeping in atomic in increase_address_space()
+Date:   Wed, 10 Mar 2021 14:23:19 +0100
+Message-Id: <20210310132322.222214971@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
-References: <20210310132320.510840709@linuxfoundation.org>
+In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
+References: <20210310132321.948258062@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,103 +41,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Andrey Ryabinin <arbn@yandex-team.com>
 
-commit eab30c4d20dc761d463445e5130421863ff81505 upstream
+commit 140456f994195b568ecd7fc2287a34eadffef3ca upstream.
 
-When io_req_task_work_add() fails, the request will be cancelled by
-enqueueing via task_works of io-wq. Extract a function for that.
+increase_address_space() calls get_zeroed_page(gfp) under spin_lock with
+disabled interrupts. gfp flags passed to increase_address_space() may allow
+sleeping, so it comes to this:
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ BUG: sleeping function called from invalid context at mm/page_alloc.c:4342
+ in_atomic(): 1, irqs_disabled(): 1, pid: 21555, name: epdcbbf1qnhbsd8
+
+ Call Trace:
+  dump_stack+0x66/0x8b
+  ___might_sleep+0xec/0x110
+  __alloc_pages_nodemask+0x104/0x300
+  get_zeroed_page+0x15/0x40
+  iommu_map_page+0xdd/0x3e0
+  amd_iommu_map+0x50/0x70
+  iommu_map+0x106/0x220
+  vfio_iommu_type1_ioctl+0x76e/0x950 [vfio_iommu_type1]
+  do_vfs_ioctl+0xa3/0x6f0
+  ksys_ioctl+0x66/0x70
+  __x64_sys_ioctl+0x16/0x20
+  do_syscall_64+0x4e/0x100
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fix this by moving get_zeroed_page() out of spin_lock/unlock section.
+
+Fixes: 754265bcab ("iommu/amd: Fix race in increase_address_space()")
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+Acked-by: Will Deacon <will@kernel.org>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210217143004.19165-1-arbn@yandex-team.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/io_uring.c |   46 +++++++++++++++++-----------------------------
- 1 file changed, 17 insertions(+), 29 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2172,6 +2172,16 @@ static int io_req_task_work_add(struct i
- 	return ret;
- }
+---
+ drivers/iommu/amd/iommu.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1503,6 +1503,10 @@ static bool increase_address_space(struc
+ 	bool ret = true;
+ 	u64 *pte;
  
-+static void io_req_task_work_add_fallback(struct io_kiocb *req,
-+					  void (*cb)(struct callback_head *))
-+{
-+	struct task_struct *tsk = io_wq_get_task(req->ctx->io_wq);
++	pte = (void *)get_zeroed_page(gfp);
++	if (!pte)
++		return false;
 +
-+	init_task_work(&req->task_work, cb);
-+	task_work_add(tsk, &req->task_work, TWA_NONE);
-+	wake_up_process(tsk);
-+}
-+
- static void __io_req_task_cancel(struct io_kiocb *req, int error)
- {
- 	struct io_ring_ctx *ctx = req->ctx;
-@@ -2229,14 +2239,8 @@ static void io_req_task_queue(struct io_
- 	percpu_ref_get(&req->ctx->refs);
+ 	spin_lock_irqsave(&domain->lock, flags);
  
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
+ 	amd_iommu_domain_get_pgtable(domain, &pgtable);
+@@ -1514,10 +1518,6 @@ static bool increase_address_space(struc
+ 	if (WARN_ON_ONCE(pgtable.mode == PAGE_MODE_6_LEVEL))
+ 		goto out;
+ 
+-	pte = (void *)get_zeroed_page(gfp);
+-	if (!pte)
+-		goto out;
 -
--		init_task_work(&req->task_work, io_req_task_cancel);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
- }
+ 	*pte = PM_LEVEL_PDE(pgtable.mode, iommu_virt_to_phys(pgtable.root));
  
- static inline void io_queue_next(struct io_kiocb *req)
-@@ -2354,13 +2358,8 @@ static void io_free_req_deferred(struct
- 
- 	init_task_work(&req->task_work, io_put_req_deferred_cb);
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_put_req_deferred_cb);
- }
- 
- static inline void io_put_req_deferred(struct io_kiocb *req, int refs)
-@@ -3439,15 +3438,8 @@ static int io_async_buf_func(struct wait
- 	/* submit ref gets dropped, acquire a new one */
- 	refcount_inc(&req->refs);
- 	ret = io_req_task_work_add(req);
--	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
--		/* queue just for cancelation */
--		init_task_work(&req->task_work, io_req_task_cancel);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
--	}
-+	if (unlikely(ret))
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
- 	return 1;
- }
- 
-@@ -5159,12 +5151,8 @@ static int __io_async_wake(struct io_kio
+ 	pgtable.root  = pte;
+@@ -1531,10 +1531,12 @@ static bool increase_address_space(struc
  	 */
- 	ret = io_req_task_work_add(req);
- 	if (unlikely(ret)) {
--		struct task_struct *tsk;
--
- 		WRITE_ONCE(poll->canceled, true);
--		tsk = io_wq_get_task(req->ctx->io_wq);
--		task_work_add(tsk, &req->task_work, TWA_NONE);
--		wake_up_process(tsk);
-+		io_req_task_work_add_fallback(req, func);
- 	}
- 	return 1;
+ 	amd_iommu_domain_set_pgtable(domain, pte, pgtable.mode);
+ 
++	pte = NULL;
+ 	ret = true;
+ 
+ out:
+ 	spin_unlock_irqrestore(&domain->lock, flags);
++	free_page((unsigned long)pte);
+ 
+ 	return ret;
  }
 
 
