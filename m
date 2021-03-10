@@ -2,100 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C584333C18
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 13:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2E9333C1F
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 13:05:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232502AbhCJMDr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 07:03:47 -0500
-Received: from angie.orcam.me.uk ([157.25.102.26]:37596 "EHLO
-        angie.orcam.me.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232772AbhCJMDR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 07:03:17 -0500
-Received: by angie.orcam.me.uk (Postfix, from userid 500)
-        id 3961E92009C; Wed, 10 Mar 2021 13:03:14 +0100 (CET)
-Received: from localhost (localhost [127.0.0.1])
-        by angie.orcam.me.uk (Postfix) with ESMTP id 3371892009B;
-        Wed, 10 Mar 2021 13:03:14 +0100 (CET)
-Date:   Wed, 10 Mar 2021 13:03:14 +0100 (CET)
-From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
-To:     netdev@vger.kernel.org
-cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH net/net-next 2/4] FDDI: defxx: Make MMIO the configuration
- default except for EISA
-In-Reply-To: <alpine.DEB.2.21.2103091713260.33195@angie.orcam.me.uk>
-Message-ID: <alpine.DEB.2.21.2103092045300.33195@angie.orcam.me.uk>
-References: <alpine.DEB.2.21.2103091713260.33195@angie.orcam.me.uk>
-User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
+        id S232941AbhCJMEu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 07:04:50 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49985 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230435AbhCJMEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 07:04:22 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 21D015C014B;
+        Wed, 10 Mar 2021 07:04:21 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Wed, 10 Mar 2021 07:04:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=R80RvrtmzEoidFYOsoeEpHXdolL
+        xYE2/IedsnmGQhZk=; b=M9XgqsssV+O8Foto/+nRRLMvS125G3310bWVa8EADJB
+        L7ORlklqZIIwHsfpTDwoZ0DodwsatgpxySJR9LDpkfTc+Xgop5w+wZfXlr0eYSTM
+        sqlmZiWYjHA6wiZnXc7E5GOhrP1/sjcbj8Ccwrd7Jnm1fJQ+YqXitIIZD1Ix4ljZ
+        +uLbOElcgjJZM7jFLvrdlgcoePobOl0UxvqWL2QE6hfdWZ4x7hSAQ9cJYjkx/Xq+
+        arVBtECVlTlv9EM0xc9XtMfBLNF8Egtt60aJ611H7Kiwpe0UHuI5a0kPmMdEyd+d
+        BXjJYTSsM57/XdunT8C5QoaBWF3dyzwA2c/o8jINrBg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=R80Rvr
+        tmzEoidFYOsoeEpHXdolLxYE2/IedsnmGQhZk=; b=Xtk6Gn3d+RqLxW963EHQVM
+        Hevxbx5adK4iX1OAtWx9qNHd1XqSeAoUsCZOAEg8xxH+LO/32lnQW3FiHQI7Gm/L
+        oau90mo2zGTvdjQ/9TrTUS9vYXqGAe1M6rNjhP0mX9y6F2w2aMtdnN2yDkuryLGT
+        guo0cHFdkOZj4KPQWYEc63sRdzS5zEkSu7vMSYUn4PrrmKoeZD+AmVl/eqaNW/v0
+        ASCCaTzfJ/oB7CQsvkkUk7vLC2vPhuS1F61epviJys5jtFA+BRegJgywsYpNX7Qj
+        TVIbzmsYEDWTEBZNFZZwXcHMJyt055YF1qn0VCrQln/kSNmLzNJ0UZw8Udhut2Qg
+        ==
+X-ME-Sender: <xms:xLVIYITGVduwiq4ilZ3sT4VcZXzmqmfqBupEJSFPlARw4EGi7oTY3g>
+    <xme:xLVIYFw6hjWHZxR3IdN7wQKe2vffzcqdpPRUunUfOyyrxFj81fnepY_DmAl4Ckkgg
+    Oj6TXzdmQA2Xw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddukedgfeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:xLVIYF3Zxe5tO3DH_xzBg1BhIMXIQp9SYFy0Kk2tmrG7WL2CotRduA>
+    <xmx:xLVIYMCGJrgYrxyY5FbzEa1I2Hdgc2W50B85KU9UecrNlanjp2sVYg>
+    <xmx:xLVIYBiku_oJqSIZ1klYrPSW-YG6yd5cR9Cx3enpjBCuB09kemnClg>
+    <xmx:xbVIYBLlP__irhMj0oRMlU1sVwm85X7gZMmCkds1q6DnzwaYHBccnw>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6FDC51080063;
+        Wed, 10 Mar 2021 07:04:20 -0500 (EST)
+Date:   Wed, 10 Mar 2021 13:04:18 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Pavel Begunkov <asml.silence@gmail.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH stable-5.11 0/9] stable-5.11 backports
+Message-ID: <YEi1wsm4UJlKhGOS@kroah.com>
+References: <cover.1615375332.git.asml.silence@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1615375332.git.asml.silence@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Recent versions of the PCI Express specification have deprecated support
-for I/O transactions and actually some PCIe host bridges, such as Power
-Systems Host Bridge 4 (PHB4), do not implement them.
+On Wed, Mar 10, 2021 at 11:30:36AM +0000, Pavel Begunkov wrote:
+> 5-6/9 were forgotten to be marked for-stable. Others are
+> 5 out of 6 failed to apply + dependencies.
+> 
+> Jens Axboe (3):
+>   fs: provide locked helper variant of close_fd_get_file()
+>   io_uring: get rid of intermediate IORING_OP_CLOSE stage
+>   io_uring/io-wq: kill off now unused IO_WQ_WORK_NO_CANCEL
+> 
+> Pavel Begunkov (6):
+>   io_uring: fix inconsistent lock state
+>   io_uring: deduplicate core cancellations sequence
+>   io_uring: unpark SQPOLL thread for cancelation
+>   io_uring: deduplicate failing task_work_add
+>   io_uring/io-wq: return 2-step work swap scheme
+>   io_uring: don't take uring_lock during iowq cancel
 
-The default kernel configuration choice for the defxx driver is the use 
-of I/O ports rather than MMIO for PCI and EISA systems.  It may have 
-made sense as a conservative backwards compatible choice back when MMIO 
-operation support was added to the driver as a part of TURBOchannel bus 
-support.  However nowadays this configuration choice makes the driver 
-unusable with systems that do not implement I/O transactions for PCIe.
+Thanks for these, now queued up.
 
-Make DEFXX_MMIO the configuration default then, except where configured 
-for EISA.  This exception is because an EISA adapter can have its MMIO 
-decoding disabled with ECU (EISA Configuration Utility) and therefore 
-not available with the resource allocation infrastructure we implement, 
-while port I/O is always readily available as it uses slot-specific 
-addressing, directly mapped to the slot an option card has been placed 
-in and handled with our EISA bus support core.  Conversely a kernel that 
-supports modern systems which may not have I/O transactions implemented 
-for PCIe will usually not be expected to handle legacy EISA systems.
-
-The change of the default will make it easier for people, including but 
-not limited to distribution packagers, to make a working choice for the 
-driver.
-
-Update the option description accordingly and while at it replace the 
-potentially ambiguous PIO acronym with IOP for "port I/O" vs "I/O ports" 
-according to our nomenclature used elsewhere.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e89a2cfb7d7b ("[TC] defxx: TURBOchannel support")
-Cc: stable@vger.kernel.org # v2.6.21+
----
- drivers/net/fddi/Kconfig |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
-
-Index: linux-defxx/drivers/net/fddi/Kconfig
-===================================================================
---- linux-defxx.orig/drivers/net/fddi/Kconfig
-+++ linux-defxx/drivers/net/fddi/Kconfig
-@@ -40,17 +40,20 @@ config DEFXX
- 
- config DEFXX_MMIO
- 	bool
--	prompt "Use MMIO instead of PIO" if PCI || EISA
-+	prompt "Use MMIO instead of IOP" if PCI || EISA
- 	depends on DEFXX
--	default n if PCI || EISA
-+	default n if EISA
- 	default y
- 	help
- 	  This instructs the driver to use EISA or PCI memory-mapped I/O
--	  (MMIO) as appropriate instead of programmed I/O ports (PIO).
-+	  (MMIO) as appropriate instead of programmed I/O ports (IOP).
- 	  Enabling this gives an improvement in processing time in parts
--	  of the driver, but it may cause problems with EISA (DEFEA)
--	  adapters.  TURBOchannel does not have the concept of I/O ports,
--	  so MMIO is always used for these (DEFTA) adapters.
-+	  of the driver, but it requires a memory window to be configured
-+	  for EISA (DEFEA) adapters that may not always be available.
-+	  Conversely some PCIe host bridges do not support IOP, so MMIO
-+	  may be required to access PCI (DEFPA) adapters on downstream PCI
-+	  buses with some systems.  TURBOchannel does not have the concept
-+	  of I/O ports, so MMIO is always used for these (DEFTA) adapters.
- 
- 	  If unsure, say N.
- 
+greg k-h
