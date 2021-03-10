@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48DBC333EB9
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:37:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94983333E5C
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232747AbhCJN0w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:26:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233620AbhCJNZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233618AbhCJNZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 10 Mar 2021 08:25:59 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9A864FF7;
-        Wed, 10 Mar 2021 13:25:57 +0000 (UTC)
+Received: from mail.kernel.org ([198.145.29.99]:47566 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233278AbhCJNZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A9FB64FFD;
+        Wed, 10 Mar 2021 13:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382759;
-        bh=w1603NGYE+4tJenpfNc6g2f/nZytrG0mz64X2KDz/ME=;
+        s=korg; t=1615382716;
+        bh=bzIv8TnIEfkpzFtHkU9fFj/0LADJvVXU/TIRsmONQPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=leW80U4IpjQ/gv2IoGeHtPhmilXhYcCNABdM5EWDELM9FDjpn0VHfL6s8uJrV8HFV
-         P9bQLQrCnti1NDoQwYn5gxEho0pWf6IdkOWK/HNDsijJmYduLPTelMTLQEvBiJHb3P
-         ELKhE2SPjRn+E3sVMSA3sSCjsfnNxg49SBKjrmQo=
+        b=eKeVMLT9SADMEpolzhy4pNWMGU/P4JmMynGJdhpgL+soX8s3pMWouajZmBZltGOMn
+         PwoREhLim8/NkQo6PlfO9t5pvhLZhbPTWh4USS+ZXvGwvBFjPmy0EHH+oW3bdW+D8z
+         B6qzgGkhnMOrobFaKXIc+wgdUURamv1d7G18VLO0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/39] drm/msm/a5xx: Remove overwriting A5XX_PC_DBG_ECO_CNTL register
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 09/20] dm table: fix zoned iterate_devices based device capability checks
 Date:   Wed, 10 Mar 2021 14:24:46 +0100
-Message-Id: <20210310132320.896041128@linuxfoundation.org>
+Message-Id: <20210310132320.826074753@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
+References: <20210310132320.512307035@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +41,162 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit 8f03c30cb814213e36032084a01f49a9e604a3e3 ]
+commit 24f6b6036c9eec21191646930ad42808e6180510 upstream.
 
-The PC_DBG_ECO_CNTL register on the Adreno A5xx family gets
-programmed to some different values on a per-model basis.
-At least, this is what we intend to do here;
+Fix dm_table_supports_zoned_model() and invert logic of both
+iterate_devices_callout_fn so that all devices' zoned capabilities are
+properly checked.
 
-Unfortunately, though, this register is being overwritten with a
-static magic number, right after applying the GPU-specific
-configuration (including the GPU-specific quirks) and that is
-effectively nullifying the efforts.
+Add one more parameter to dm_table_any_dev_attr(), which is actually
+used as the @data parameter of iterate_devices_callout_fn, so that
+dm_table_matches_zone_sectors() can be replaced by
+dm_table_any_dev_attr().
 
-Let's remove the redundant and wrong write to the PC_DBG_ECO_CNTL
-register in order to retain the wanted configuration for the
-target GPU.
-
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dd88d313bef02 ("dm table: add zoned block devices validation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[jeffle: also convert no_sg_merge check]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/md/dm-table.c |   50 +++++++++++++++++---------------------------------
+ 1 file changed, 17 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-index d29a58bd2f7a..776bbe9775e9 100644
---- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
-@@ -681,8 +681,6 @@ static int a5xx_hw_init(struct msm_gpu *gpu)
- 	if (adreno_gpu->info->quirks & ADRENO_QUIRK_TWO_PASS_USE_WFI)
- 		gpu_rmw(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0, (1 << 8));
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1372,10 +1372,10 @@ struct dm_target *dm_table_find_target(s
+  * should use the iteration structure like dm_table_supports_nowait() or
+  * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
+  * uses an @anti_func that handle semantics of counter examples, e.g. not
+- * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func, data);
+  */
+ static bool dm_table_any_dev_attr(struct dm_table *t,
+-				  iterate_devices_callout_fn func)
++				  iterate_devices_callout_fn func, void *data)
+ {
+ 	struct dm_target *ti;
+ 	unsigned int i;
+@@ -1384,7 +1384,7 @@ static bool dm_table_any_dev_attr(struct
+ 		ti = dm_table_get_target(t, i);
  
--	gpu_write(gpu, REG_A5XX_PC_DBG_ECO_CNTL, 0xc0200100);
+ 		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti, func, NULL))
++		    ti->type->iterate_devices(ti, func, data))
+ 			return true;
+         }
+ 
+@@ -1427,13 +1427,13 @@ bool dm_table_has_no_data_devices(struct
+ 	return true;
+ }
+ 
+-static int device_is_zoned_model(struct dm_target *ti, struct dm_dev *dev,
+-				 sector_t start, sector_t len, void *data)
++static int device_not_zoned_model(struct dm_target *ti, struct dm_dev *dev,
++				  sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	enum blk_zoned_model *zoned_model = data;
+ 
+-	return q && blk_queue_zoned_model(q) == *zoned_model;
++	return !q || blk_queue_zoned_model(q) != *zoned_model;
+ }
+ 
+ static bool dm_table_supports_zoned_model(struct dm_table *t,
+@@ -1450,37 +1450,20 @@ static bool dm_table_supports_zoned_mode
+ 			return false;
+ 
+ 		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_is_zoned_model, &zoned_model))
++		    ti->type->iterate_devices(ti, device_not_zoned_model, &zoned_model))
+ 			return false;
+ 	}
+ 
+ 	return true;
+ }
+ 
+-static int device_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
+-				       sector_t start, sector_t len, void *data)
++static int device_not_matches_zone_sectors(struct dm_target *ti, struct dm_dev *dev,
++					   sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 	unsigned int *zone_sectors = data;
+ 
+-	return q && blk_queue_zone_sectors(q) == *zone_sectors;
+-}
 -
- 	/* Enable USE_RETENTION_FLOPS */
- 	gpu_write(gpu, REG_A5XX_CP_CHICKEN_DBG, 0x02000000);
+-static bool dm_table_matches_zone_sectors(struct dm_table *t,
+-					  unsigned int zone_sectors)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_matches_zone_sectors, &zone_sectors))
+-			return false;
+-	}
+-
+-	return true;
++	return !q || blk_queue_zone_sectors(q) != *zone_sectors;
+ }
  
--- 
-2.30.1
-
+ static int validate_hardware_zoned_model(struct dm_table *table,
+@@ -1500,7 +1483,7 @@ static int validate_hardware_zoned_model
+ 	if (!zone_sectors || !is_power_of_2(zone_sectors))
+ 		return -EINVAL;
+ 
+-	if (!dm_table_matches_zone_sectors(table, zone_sectors)) {
++	if (dm_table_any_dev_attr(table, device_not_matches_zone_sectors, &zone_sectors)) {
+ 		DMERR("%s: zone sectors is not consistent across all devices",
+ 		      dm_device_name(table->md));
+ 		return -EINVAL;
+@@ -1837,11 +1820,11 @@ void dm_table_set_restrictions(struct dm
+ 	else
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_DAX, q);
+ 
+-	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
++	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled, NULL))
+ 		dax_write_cache(t->md->dax_dev, true);
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_any_dev_attr(t, device_is_rotational))
++	if (dm_table_any_dev_attr(t, device_is_rotational, NULL))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
+ 	else
+ 		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
+@@ -1851,7 +1834,7 @@ void dm_table_set_restrictions(struct dm
+ 	if (!dm_table_supports_write_zeroes(t))
+ 		q->limits.max_write_zeroes_sectors = 0;
+ 
+-	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
++	if (dm_table_any_dev_attr(t, queue_no_sg_merge, NULL))
+ 		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+ 	else
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+@@ -1865,7 +1848,7 @@ void dm_table_set_restrictions(struct dm
+ 	 * them as well.  Only targets that support iterate_devices are considered:
+ 	 * don't want error, zero, etc to require stable pages.
+ 	 */
+-	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
++	if (dm_table_any_dev_attr(t, device_requires_stable_pages, NULL))
+ 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
+ 	else
+ 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
+@@ -1876,7 +1859,8 @@ void dm_table_set_restrictions(struct dm
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
++	if (blk_queue_add_random(q) &&
++	    dm_table_any_dev_attr(t, device_is_not_random, NULL))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
+ 
+ 	/*
 
 
