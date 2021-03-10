@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DC5333E27
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FCC6333DFD
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233436AbhCJNZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46534 "EHLO mail.kernel.org"
+        id S232821AbhCJNZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233170AbhCJNZB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:01 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99E0A64FFC;
-        Wed, 10 Mar 2021 13:24:59 +0000 (UTC)
+        id S232979AbhCJNYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C89464FE8;
+        Wed, 10 Mar 2021 13:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382700;
-        bh=N3XFJuamEXjMY/iQLu9M4RuxbmpB/XKwAGTAVYdB3Hk=;
+        s=korg; t=1615382684;
+        bh=Z1ocGTsyiniW7nPzdRciArBgFAHoS1zxuMi7IXgD1dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9TwrZqooJNceZl8rK/MbpCINoMLBMgxmprPyMBZZRUzANnrLsyFWiAc87IoGGn9Y
-         pRr6AO13D/ty+N/Bis6Tk9AcZ6nk6GdZoJ9BG52Us2r0YiWdHpkLmGe0w9ZH7XGrzo
-         LFRHwXltzk19NidD7Pz2nWrEBPRRQ7Bgy5tG44SI=
+        b=OmdAG7bXLgQ5yAaciCC0kvGzxrqKkrA2GXkZ42hnjBXvmwvkxjHfzjoKfkD6KFQvM
+         wlrejit5CcE2IShDBl/EWrWgkHtUasjdbwtt5mfeHgTSiLQlWcG42dHA6DzhiPS9uC
+         3gELMmOrAUAyF+aqNqJXAMQtP2gYbcVgXpYzogr8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Nikolay Borisov <nborisov@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 05/39] btrfs: unlock extents in btrfs_zero_range in case of quota reservation errors
-Date:   Wed, 10 Mar 2021 14:24:13 +0100
-Message-Id: <20210310132319.897535962@linuxfoundation.org>
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 02/24] dm table: fix iterate_devices based device capability checks
+Date:   Wed, 10 Mar 2021 14:24:14 +0100
+Message-Id: <20210310132320.627343619@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
+References: <20210310132320.550932445@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,206 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nikolay Borisov <nborisov@suse.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-commit 4f6a49de64fd1b1dba5229c02047376da7cf24fd upstream.
+commit a4c8dd9c2d0987cf542a2a0c42684c9c6d78a04e upstream.
 
-If btrfs_qgroup_reserve_data returns an error (i.e quota limit reached)
-the handling logic directly goes to the 'out' label without first
-unlocking the extent range between lockstart, lockend. This results in
-deadlocks as other processes try to lock the same extent.
+According to the definition of dm_iterate_devices_fn:
+ * This function must iterate through each section of device used by the
+ * target until it encounters a non-zero return code, which it then returns.
+ * Returns zero if no callout returned non-zero.
 
-Fixes: a7f8b1c2ac21 ("btrfs: file: reserve qgroup space after the hole punch range is locked")
-CC: stable@vger.kernel.org # 5.10+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+For some target type (e.g. dm-stripe), one call of iterate_devices() may
+iterate multiple underlying devices internally, in which case a non-zero
+return code returned by iterate_devices_callout_fn will stop the iteration
+in advance. No iterate_devices_callout_fn should return non-zero unless
+device iteration should stop.
+
+Rename dm_table_requires_stable_pages() to dm_table_any_dev_attr() and
+elevate it for reuse to stop iterating (and return non-zero) on the
+first device that causes iterate_devices_callout_fn to return non-zero.
+Use dm_table_any_dev_attr() to properly iterate through devices.
+
+Rename device_is_nonrot() to device_is_rotational() and invert logic
+accordingly to fix improper disposition.
+
+Fixes: c3c4555edd10 ("dm table: clear add_random unless all devices have it set")
+Fixes: 4693c9668fdc ("dm table: propagate non rotational flag")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/md/dm-table.c |  103 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 54 insertions(+), 49 deletions(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3016,8 +3016,11 @@ reserve_space:
- 			goto out;
- 		ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
- 						alloc_start, bytes_to_reserve);
--		if (ret)
-+		if (ret) {
-+			unlock_extent_cached(&BTRFS_I(inode)->io_tree, lockstart,
-+					     lockend, &cached_state);
- 			goto out;
-+		}
- 		ret = btrfs_prealloc_file_range(inode, mode, alloc_start,
- 						alloc_end - alloc_start,
- 						i_blocksize(inode),
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -1376,6 +1376,46 @@ struct dm_target *dm_table_find_target(s
+ 	return &t->targets[(KEYS_PER_NODE * n) + k];
+ }
+ 
++/*
++ * type->iterate_devices() should be called when the sanity check needs to
++ * iterate and check all underlying data devices. iterate_devices() will
++ * iterate all underlying data devices until it encounters a non-zero return
++ * code, returned by whether the input iterate_devices_callout_fn, or
++ * iterate_devices() itself internally.
++ *
++ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
++ * iterate multiple underlying devices internally, in which case a non-zero
++ * return code returned by iterate_devices_callout_fn will stop the iteration
++ * in advance.
++ *
++ * Cases requiring _any_ underlying device supporting some kind of attribute,
++ * should use the iteration structure like dm_table_any_dev_attr(), or call
++ * it directly. @func should handle semantics of positive examples, e.g.
++ * capable of something.
++ *
++ * Cases requiring _all_ underlying devices supporting some kind of attribute,
++ * should use the iteration structure like dm_table_supports_nowait() or
++ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
++ * uses an @anti_func that handle semantics of counter examples, e.g. not
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ */
++static bool dm_table_any_dev_attr(struct dm_table *t,
++				  iterate_devices_callout_fn func)
++{
++	struct dm_target *ti;
++	unsigned int i;
++
++	for (i = 0; i < dm_table_get_num_targets(t); i++) {
++		ti = dm_table_get_target(t, i);
++
++		if (ti->type->iterate_devices &&
++		    ti->type->iterate_devices(ti, func, NULL))
++			return true;
++        }
++
++	return false;
++}
++
+ static int count_device(struct dm_target *ti, struct dm_dev *dev,
+ 			sector_t start, sector_t len, void *data)
+ {
+@@ -1692,12 +1732,12 @@ static int dm_table_supports_dax_write_c
+ 	return false;
+ }
+ 
+-static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
+-			    sector_t start, sector_t len, void *data)
++static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
++				sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && blk_queue_nonrot(q);
++	return q && !blk_queue_nonrot(q);
+ }
+ 
+ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+@@ -1708,35 +1748,18 @@ static int device_is_not_random(struct d
+ 	return q && !blk_queue_add_random(q);
+ }
+ 
+-static bool dm_table_all_devices_attribute(struct dm_table *t,
+-					   iterate_devices_callout_fn func)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, func, NULL))
+-			return false;
+-	}
+-
+-	return true;
+-}
+-
+-static int device_no_partial_completion(struct dm_target *ti, struct dm_dev *dev,
++static int device_is_partial_completion(struct dm_target *ti, struct dm_dev *dev,
+ 					sector_t start, sector_t len, void *data)
+ {
+ 	char b[BDEVNAME_SIZE];
+ 
+ 	/* For now, NVMe devices are the only devices of this class */
+-	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) == 0);
++	return (strncmp(bdevname(dev->bdev, b), "nvme", 4) != 0);
+ }
+ 
+ static bool dm_table_does_not_support_partial_completion(struct dm_table *t)
+ {
+-	return dm_table_all_devices_attribute(t, device_no_partial_completion);
++	return !dm_table_any_dev_attr(t, device_is_partial_completion);
+ }
+ 
+ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+@@ -1863,27 +1886,6 @@ static int device_requires_stable_pages(
+ 	return q && bdi_cap_stable_pages_required(q->backing_dev_info);
+ }
+ 
+-/*
+- * If any underlying device requires stable pages, a table must require
+- * them as well.  Only targets that support iterate_devices are considered:
+- * don't want error, zero, etc to require stable pages.
+- */
+-static bool dm_table_requires_stable_pages(struct dm_table *t)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti, device_requires_stable_pages, NULL))
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 			       struct queue_limits *limits)
+ {
+@@ -1928,10 +1930,10 @@ void dm_table_set_restrictions(struct dm
+ 		dax_write_cache(t->md->dax_dev, true);
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_all_devices_attribute(t, device_is_nonrot))
+-		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+-	else
++	if (dm_table_any_dev_attr(t, device_is_rotational))
+ 		blk_queue_flag_clear(QUEUE_FLAG_NONROT, q);
++	else
++		blk_queue_flag_set(QUEUE_FLAG_NONROT, q);
+ 
+ 	if (!dm_table_supports_write_same(t))
+ 		q->limits.max_write_same_sectors = 0;
+@@ -1943,8 +1945,11 @@ void dm_table_set_restrictions(struct dm
+ 	/*
+ 	 * Some devices don't use blk_integrity but still want stable pages
+ 	 * because they do their own checksumming.
++	 * If any underlying device requires stable pages, a table must require
++	 * them as well.  Only targets that support iterate_devices are considered:
++	 * don't want error, zero, etc to require stable pages.
+ 	 */
+-	if (dm_table_requires_stable_pages(t))
++	if (dm_table_any_dev_attr(t, device_requires_stable_pages))
+ 		q->backing_dev_info->capabilities |= BDI_CAP_STABLE_WRITES;
+ 	else
+ 		q->backing_dev_info->capabilities &= ~BDI_CAP_STABLE_WRITES;
+@@ -1955,7 +1960,7 @@ void dm_table_set_restrictions(struct dm
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
++	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
+ 		blk_queue_flag_clear(QUEUE_FLAG_ADD_RANDOM, q);
+ 
+ 	/*
 
 
