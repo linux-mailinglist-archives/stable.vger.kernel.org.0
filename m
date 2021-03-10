@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83F1333DC6
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA104333DAF
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233062AbhCJNYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45680 "EHLO mail.kernel.org"
+        id S232941AbhCJNYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232832AbhCJNYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0369D64FEF;
-        Wed, 10 Mar 2021 13:24:30 +0000 (UTC)
+        id S232786AbhCJNYQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:16 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A939664FEF;
+        Wed, 10 Mar 2021 13:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382672;
-        bh=SrpHNz+9s1NbwOcx1sv9lILKLb86ARnZkK3UFGGccyI=;
+        s=korg; t=1615382656;
+        bh=CHQOddw/0GSWFWKZ0kKaTQHM1P0fVm9W4Y1NyCtzEZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ze2dN8wHr5y9WeVrxl3TCrcEhxoGB4uBTzTFS0G0jGvTs10tD2b9xohnhJ/Se1gfS
-         pekZRWQuLeIasvUy2DNxeePc+X0UMKh9RoCMXFyQTGHv98fafnFyAxXrpyQOqpJxJ4
-         RSqdwgRbvdvlpQTcce9xR/Ln/H2Znl+wbq3S9nWg=
+        b=rSyM8uCyjO5L9WRuI72vz57nOCcRE+Kx1J9ZTLKv1aK1I8XqWipix5Uqej9KaspR4
+         gEw/pLioi5WFgNJcxji7Yj/yFf3Q4gQo4/k9kGilqGAibxh5tYlb/rc/VICryrKJCv
+         Hv60qyAMkL+s1Zx5notgTuWtSPoB+FFK0VSC89UA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/49] net: ipa: ignore CHANNEL_NOT_RUNNING errors
+        stable@vger.kernel.org,
+        =?UTF-8?q?Zolt=C3=A1n=20B=C3=B6sz=C3=B6rm=C3=A9nyi?= 
+        <zboszor@gmail.com>, Christoph Hellwig <hch@lst.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.11 12/36] nvme-pci: mark Kingston SKC2000 as not supporting the deepest power state
 Date:   Wed, 10 Mar 2021 14:23:25 +0100
-Message-Id: <20210310132322.413240905@linuxfoundation.org>
+Message-Id: <20210310132320.907725709@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
-References: <20210310132321.948258062@linuxfoundation.org>
+In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
+References: <20210310132320.510840709@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,71 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alex Elder <elder@linaro.org>
+From: "Zoltán Böszörményi" <zboszor@gmail.com>
 
-[ Upstream commit f849afcc8c3b27d7b50827e95b60557f24184df0 ]
+commit dc22c1c058b5c4fe967a20589e36f029ee42a706 upstream
 
-IPA v4.2 has a hardware quirk that requires the AP to allocate GSI
-channels for the modem to use.  It is recommended that these modem
-channels get stopped (with a HALT generic command) by the AP when
-its IPA driver gets removed.
+My 2TB SKC2000 showed the exact same symptoms that were provided
+in 538e4a8c57 ("nvme-pci: avoid the deepest sleep state on
+Kingston A2000 SSDs"), i.e. a complete NVME lockup that needed
+cold boot to get it back.
 
-The AP has no way of knowing the current state of a modem channel.
-So when the IPA driver issues a HALT command it's possible the
-channel is not running, and in that case we get an error indication.
-This error simply means we didn't need to stop the channel, so we
-can ignore it.
+According to some sources, the A2000 is simply a rebadged
+SKC2000 with a slightly optimized firmware.
 
-This patch adds an explanation for this situation, and arranges for
-this condition to *not* report an error message.
+Adding the SKC2000 PCI ID to the quirk list with the same workaround
+as the A2000 made my laptop survive a 5 hours long Yocto bootstrap
+buildfest which reliably triggered the SSD lockup previously.
 
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: ZoltÃ¡n BÃ¶szÃ¶rmÃ©nyi <zboszor@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/gsi.c | 24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/nvme/host/pci.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
-index 2a65efd3e8da..48ee43b89fec 100644
---- a/drivers/net/ipa/gsi.c
-+++ b/drivers/net/ipa/gsi.c
-@@ -1052,10 +1052,32 @@ static void gsi_isr_gp_int1(struct gsi *gsi)
- 	u32 result;
- 	u32 val;
- 
-+	/* This interrupt is used to handle completions of the two GENERIC
-+	 * GSI commands.  We use these to allocate and halt channels on
-+	 * the modem's behalf due to a hardware quirk on IPA v4.2.  Once
-+	 * allocated, the modem "owns" these channels, and as a result we
-+	 * have no way of knowing the channel's state at any given time.
-+	 *
-+	 * It is recommended that we halt the modem channels we allocated
-+	 * when shutting down, but it's possible the channel isn't running
-+	 * at the time we issue the HALT command.  We'll get an error in
-+	 * that case, but it's harmless (the channel is already halted).
-+	 *
-+	 * For this reason, we silently ignore a CHANNEL_NOT_RUNNING error
-+	 * if we receive it.
-+	 */
- 	val = ioread32(gsi->virt + GSI_CNTXT_SCRATCH_0_OFFSET);
- 	result = u32_get_bits(val, GENERIC_EE_RESULT_FMASK);
--	if (result != GENERIC_EE_SUCCESS_FVAL)
-+
-+	switch (result) {
-+	case GENERIC_EE_SUCCESS_FVAL:
-+	case GENERIC_EE_CHANNEL_NOT_RUNNING_FVAL:
-+		break;
-+
-+	default:
- 		dev_err(gsi->dev, "global INT1 generic result %u\n", result);
-+		break;
-+	}
- 
- 	complete(&gsi->completion);
- }
--- 
-2.30.1
-
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3261,6 +3261,8 @@ static const struct pci_device_id nvme_i
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+ 	{ PCI_DEVICE(0x1d97, 0x2263),   /* SPCC */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
++	{ PCI_DEVICE(0x2646, 0x2262),   /* KINGSTON SKC2000 NVMe SSD */
++		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
 
 
