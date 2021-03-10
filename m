@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA99A333DC8
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7EA6333DED
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:35:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233068AbhCJNYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
+        id S233234AbhCJNZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232833AbhCJNYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5001664FD8;
-        Wed, 10 Mar 2021 13:24:31 +0000 (UTC)
+        id S232841AbhCJNYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:36 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D64764FEF;
+        Wed, 10 Mar 2021 13:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382672;
-        bh=9wcc4n78aKOWTbHWA8sNTGBa5H3IwLzze4odfHEKW6U=;
+        s=korg; t=1615382675;
+        bh=JjlIU+rvSzZPnqj5dEbYj+4logLnkYApVGih9bwwn4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BO8N/AZTsHG/nlcHpJgUWPWRSuVS1KRAmZSLmZ7NdloJlilohi6p7qWGe6P0eGML
-         EmO7DR/A0o+8HxijgcxdIccEVxOatGQ4a4xp6t19yDcBeVNhrNvUUMwckBSZVj1vGC
-         Lj2UH+06zTzIRF/TDgakGuN36/QO1k8sT49BXYJA=
+        b=hzJO8onIS5qskLKn4Qiq1hu2cYiQn419vJH4QlFKt0JgvhvniRjRG45hojso1pAal
+         GB5p3SdVTZz5uzL5hvdaBe3S9VSW3KztoXchIjO5uPwkbf1JyRGkYZe2O4V369l7CU
+         6oSX8c8/W/AwE60ZjHhh3p0iEX86STEjKE4vMKnU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 21/36] scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
-Date:   Wed, 10 Mar 2021 14:23:34 +0100
-Message-Id: <20210310132321.175120859@linuxfoundation.org>
+Subject: [PATCH 5.10 16/49] platform/x86: acer-wmi: Cleanup accelerometer device handling
+Date:   Wed, 10 Mar 2021 14:23:27 +0100
+Message-Id: <20210310132322.477968640@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
-References: <20210310132320.510840709@linuxfoundation.org>
+In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
+References: <20210310132321.948258062@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +43,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kiwoong Kim <kwmad.kim@samsung.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2b2bfc8aa519f696087475ed8e8c61850c673272 ]
+[ Upstream commit 9feb0763e4985ccfae632de3bb2f029cc8389842 ]
 
-Some SoCs require a single scatterlist entry for smaller than page size,
-i.e. 4KB. When dispatching commands with more than one scatterlist entry
-under 4KB in size the following behavior is observed:
+Cleanup accelerometer device handling:
+-Drop acer_wmi_accel_destroy instead directly call input_unregister_device.
+-The information tracked by the CAP_ACCEL flag mirrors acer_wmi_accel_dev
+ being NULL. Drop the CAP flag, this is a preparation change for allowing
+ users to override the capability flags. Dropping the flag stops users
+ from causing a NULL pointer dereference by forcing the capability.
 
-A command to read a block range is dispatched with two scatterlist entries
-that are named AAA and BBB. After dispatching, the host builds two PRDT
-entries and during transmission, device sends just one DATA IN because
-device doesn't care about host DMA. The host then transfers the combined
-amount of data from start address of the area named AAA. As a consequence,
-the area that follows AAA in memory would be corrupted.
-
-    |<------------->|
-    +-------+------------         +-------+
-    +  AAA  + (corrupted)   ...   +  BBB  +
-    +-------+------------         +-------+
-
-To avoid this we need to enforce page size alignment for sg entries.
-
-Link: https://lore.kernel.org/r/56dddef94f60bd9466fd77e69f64bbbd657ed2a1.1611026909.git.kwmad.kim@samsung.com
-Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20201019185628.264473-3-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 ++
- drivers/scsi/ufs/ufshcd.h | 4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/platform/x86/acer-wmi.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 8ecdd53c9746..428b9e0ac47e 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4831,6 +4831,8 @@ static int ufshcd_slave_configure(struct scsi_device *sdev)
- 	struct request_queue *q = sdev->request_queue;
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 75b1f6ceb76e..184ec08d02a4 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -211,7 +211,6 @@ struct hotkey_function_type_aa {
+ #define ACER_CAP_BLUETOOTH		BIT(2)
+ #define ACER_CAP_BRIGHTNESS		BIT(3)
+ #define ACER_CAP_THREEG			BIT(4)
+-#define ACER_CAP_ACCEL			BIT(5)
  
- 	blk_queue_update_dma_pad(q, PRDT_DATA_BYTE_COUNT_PAD - 1);
-+	if (hba->quirks & UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE)
-+		blk_queue_update_dma_alignment(q, PAGE_SIZE - 1);
+ /*
+  * Interface type flags
+@@ -1516,7 +1515,7 @@ static int acer_gsensor_event(void)
+ 	struct acpi_buffer output;
+ 	union acpi_object out_obj[5];
  
- 	if (ufshcd_is_rpm_autosuspend_allowed(hba))
- 		sdev->rpm_autosuspend = 1;
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index 85f9d0fbfbd9..8cb64ae95462 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -557,6 +557,10 @@ enum ufshcd_quirks {
- 	 */
- 	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
+-	if (!has_cap(ACER_CAP_ACCEL))
++	if (!acer_wmi_accel_dev)
+ 		return -1;
  
-+	/*
-+	 * This quirk allows only sg entries aligned with page size.
-+	 */
-+	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 13,
- };
+ 	output.length = sizeof(out_obj);
+@@ -1890,8 +1889,6 @@ static int __init acer_wmi_accel_setup(void)
+ 	gsensor_handle = acpi_device_handle(adev);
+ 	acpi_dev_put(adev);
  
- enum ufshcd_caps {
+-	interface->capability |= ACER_CAP_ACCEL;
+-
+ 	acer_wmi_accel_dev = input_allocate_device();
+ 	if (!acer_wmi_accel_dev)
+ 		return -ENOMEM;
+@@ -1917,11 +1914,6 @@ err_free_dev:
+ 	return err;
+ }
+ 
+-static void acer_wmi_accel_destroy(void)
+-{
+-	input_unregister_device(acer_wmi_accel_dev);
+-}
+-
+ static int __init acer_wmi_input_setup(void)
+ {
+ 	acpi_status status;
+@@ -2076,7 +2068,7 @@ static int acer_resume(struct device *dev)
+ 	if (has_cap(ACER_CAP_BRIGHTNESS))
+ 		set_u32(data->brightness, ACER_CAP_BRIGHTNESS);
+ 
+-	if (has_cap(ACER_CAP_ACCEL))
++	if (acer_wmi_accel_dev)
+ 		acer_gsensor_init();
+ 
+ 	return 0;
+@@ -2266,8 +2258,8 @@ error_device_alloc:
+ error_platform_register:
+ 	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+ 		acer_wmi_input_destroy();
+-	if (has_cap(ACER_CAP_ACCEL))
+-		acer_wmi_accel_destroy();
++	if (acer_wmi_accel_dev)
++		input_unregister_device(acer_wmi_accel_dev);
+ 
+ 	return err;
+ }
+@@ -2277,8 +2269,8 @@ static void __exit acer_wmi_exit(void)
+ 	if (wmi_has_guid(ACERWMID_EVENT_GUID))
+ 		acer_wmi_input_destroy();
+ 
+-	if (has_cap(ACER_CAP_ACCEL))
+-		acer_wmi_accel_destroy();
++	if (acer_wmi_accel_dev)
++		input_unregister_device(acer_wmi_accel_dev);
+ 
+ 	remove_debugfs();
+ 	platform_device_unregister(acer_platform_device);
 -- 
 2.30.1
 
