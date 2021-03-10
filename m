@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D20333DA9
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED69B333DBF
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:25:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232903AbhCJNYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:24:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45420 "EHLO mail.kernel.org"
+        id S232755AbhCJNYs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:24:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232775AbhCJNYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:10 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40DE764FD8;
-        Wed, 10 Mar 2021 13:24:09 +0000 (UTC)
+        id S232821AbhCJNY1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:27 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 795E264FEE;
+        Wed, 10 Mar 2021 13:24:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382650;
-        bh=KHkhqCTHzoARLpsg7NujAfuMlD/XneCIow5T3aalXrY=;
+        s=korg; t=1615382667;
+        bh=6OF5Cb4s34ynUV/lUhOc+ur2A7i97YJUbpP7mTUq0VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BrFluFGyVjzEREjtDjLOGwXWnGUQjxaz26XMYf9pNRx9UwAaIQnlB/CpTV/xzvhRe
-         fIL3y+bNV0xkzkPn5Pj+fwQI4rNVuIWVV0Hxh1qhqD115SQJpkj/wOspQOVPD4/+7m
-         YQa8Ev4JnKAVf0+QBXbL6m2ZIN/br6TlF+jhHy+E=
+        b=YljRtRg5QANIMvRqYjaVFqJM9NYJnJbGVg0nh/WcBIsPNFrGEWjmCD4J6nO+9HwhW
+         e25q+jyjI38cV/duv9DxBgVjlDhmQJXODDPiMb3O8vGNIZcdFWnUkEfXMrY4ZQCege
+         vYS9Wx0gOTaPz7TtwydNyLSSKSPlrxWqGquaGGQ8=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov <asml.silence@gmail.com>
-Subject: [PATCH 5.11 09/36] io_uring/io-wq: return 2-step work swap scheme
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 11/49] mwifiex: pcie: skip cancel_work_sync() on reset failure path
 Date:   Wed, 10 Mar 2021 14:23:22 +0100
-Message-Id: <20210310132320.812008964@linuxfoundation.org>
+Message-Id: <20210310132322.315497219@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
-References: <20210310132320.510840709@linuxfoundation.org>
+In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
+References: <20210310132321.948258062@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,141 +43,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-commit 5280f7e530f71ba85baf90169393196976ad0e52 upstream
+[ Upstream commit 4add4d988f95f47493500a7a19c623827061589b ]
 
-Saving one lock/unlock for io-wq is not super important, but adds some
-ugliness in the code. More important, atomic decs not turning it to zero
-for some archs won't give the right ordering/barriers so the
-io_steal_work() may pretty easily get subtly and completely broken.
+If a reset is performed, but even the reset fails for some reasons (e.g.,
+on Surface devices, the fw reset requires another quirks),
+cancel_work_sync() hangs in mwifiex_cleanup_pcie().
 
-Return back 2-step io-wq work exchange and clean it up.
+    # firmware went into a bad state
+    [...]
+    [ 1608.281690] mwifiex_pcie 0000:03:00.0: info: shutdown mwifiex...
+    [ 1608.282724] mwifiex_pcie 0000:03:00.0: rx_pending=0, tx_pending=1,	cmd_pending=0
+    [ 1608.292400] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
+    [ 1608.292405] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
+    # reset performed after firmware went into a bad state
+    [ 1609.394320] mwifiex_pcie 0000:03:00.0: WLAN FW already running! Skip FW dnld
+    [ 1609.394335] mwifiex_pcie 0000:03:00.0: WLAN FW is active
+    # but even the reset failed
+    [ 1619.499049] mwifiex_pcie 0000:03:00.0: mwifiex_cmd_timeout_func: Timeout cmd id = 0xfa, act = 0xe000
+    [ 1619.499094] mwifiex_pcie 0000:03:00.0: num_data_h2c_failure = 0
+    [ 1619.499103] mwifiex_pcie 0000:03:00.0: num_cmd_h2c_failure = 0
+    [ 1619.499110] mwifiex_pcie 0000:03:00.0: is_cmd_timedout = 1
+    [ 1619.499117] mwifiex_pcie 0000:03:00.0: num_tx_timeout = 0
+    [ 1619.499124] mwifiex_pcie 0000:03:00.0: last_cmd_index = 0
+    [ 1619.499133] mwifiex_pcie 0000:03:00.0: last_cmd_id: fa 00 07 01 07 01 07 01 07 01
+    [ 1619.499140] mwifiex_pcie 0000:03:00.0: last_cmd_act: 00 e0 00 00 00 00 00 00 00 00
+    [ 1619.499147] mwifiex_pcie 0000:03:00.0: last_cmd_resp_index = 3
+    [ 1619.499155] mwifiex_pcie 0000:03:00.0: last_cmd_resp_id: 07 81 07 81 07 81 07 81 07 81
+    [ 1619.499162] mwifiex_pcie 0000:03:00.0: last_event_index = 2
+    [ 1619.499169] mwifiex_pcie 0000:03:00.0: last_event: 58 00 58 00 58 00 58 00 58 00
+    [ 1619.499177] mwifiex_pcie 0000:03:00.0: data_sent=0 cmd_sent=1
+    [ 1619.499185] mwifiex_pcie 0000:03:00.0: ps_mode=0 ps_state=0
+    [ 1619.499215] mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
+    # mwifiex_pcie_work hang happening
+    [ 1823.233923] INFO: task kworker/3:1:44 blocked for more than 122 seconds.
+    [ 1823.233932]       Tainted: G        WC OE     5.10.0-rc1-1-mainline #1
+    [ 1823.233935] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+    [ 1823.233940] task:kworker/3:1     state:D stack:    0 pid:   44 ppid:     2 flags:0x00004000
+    [ 1823.233960] Workqueue: events mwifiex_pcie_work [mwifiex_pcie]
+    [ 1823.233965] Call Trace:
+    [ 1823.233981]  __schedule+0x292/0x820
+    [ 1823.233990]  schedule+0x45/0xe0
+    [ 1823.233995]  schedule_timeout+0x11c/0x160
+    [ 1823.234003]  wait_for_completion+0x9e/0x100
+    [ 1823.234012]  __flush_work.isra.0+0x156/0x210
+    [ 1823.234018]  ? flush_workqueue_prep_pwqs+0x130/0x130
+    [ 1823.234026]  __cancel_work_timer+0x11e/0x1a0
+    [ 1823.234035]  mwifiex_cleanup_pcie+0x28/0xd0 [mwifiex_pcie]
+    [ 1823.234049]  mwifiex_free_adapter+0x24/0xe0 [mwifiex]
+    [ 1823.234060]  _mwifiex_fw_dpc+0x294/0x560 [mwifiex]
+    [ 1823.234074]  mwifiex_reinit_sw+0x15d/0x300 [mwifiex]
+    [ 1823.234080]  mwifiex_pcie_reset_done+0x50/0x80 [mwifiex_pcie]
+    [ 1823.234087]  pci_try_reset_function+0x5c/0x90
+    [ 1823.234094]  process_one_work+0x1d6/0x3a0
+    [ 1823.234100]  worker_thread+0x4d/0x3d0
+    [ 1823.234107]  ? rescuer_thread+0x410/0x410
+    [ 1823.234112]  kthread+0x142/0x160
+    [ 1823.234117]  ? __kthread_bind_mask+0x60/0x60
+    [ 1823.234124]  ret_from_fork+0x22/0x30
+    [...]
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is a deadlock caused by calling cancel_work_sync() in
+mwifiex_cleanup_pcie():
+
+- Device resets are done via mwifiex_pcie_card_reset()
+- which schedules card->work to call mwifiex_pcie_card_reset_work()
+- which calls pci_try_reset_function().
+- This leads to mwifiex_pcie_reset_done() be called on the same workqueue,
+  which in turn calls
+- mwifiex_reinit_sw() and that calls
+- _mwifiex_fw_dpc().
+
+The problem is now that _mwifiex_fw_dpc() calls mwifiex_free_adapter()
+in case firmware initialization fails. That ends up calling
+mwifiex_cleanup_pcie().
+
+Note that all those calls are still running on the workqueue. So when
+mwifiex_cleanup_pcie() now calls cancel_work_sync(), it's really waiting
+on itself to complete, causing a deadlock.
+
+This commit fixes the deadlock by skipping cancel_work_sync() on a reset
+failure path.
+
+After this commit, when reset fails, the following output is
+expected to be shown:
+
+    kernel: mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
+    kernel: mwifiex: Failed to bring up adapter: -5
+    kernel: mwifiex_pcie 0000:03:00.0: reinit failed: -5
+
+To reproduce this issue, for example, try putting the root port of wifi
+into D3 (replace "00:1d.3" with your setup).
+
+    # put into D3 (root port)
+    sudo setpci -v -s 00:1d.3 CAP_PM+4.b=0b
+
+Cc: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201028142346.18355-1-kitakar@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io-wq.c    |   16 ++++++----------
- fs/io-wq.h    |    4 ++--
- fs/io_uring.c |   26 ++++----------------------
- 3 files changed, 12 insertions(+), 34 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 18 +++++++++++++++++-
+ drivers/net/wireless/marvell/mwifiex/pcie.h |  2 ++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/fs/io-wq.c
-+++ b/fs/io-wq.c
-@@ -555,23 +555,21 @@ get_next:
- 
- 		/* handle a whole dependent link */
- 		do {
--			struct io_wq_work *old_work, *next_hashed, *linked;
-+			struct io_wq_work *next_hashed, *linked;
- 			unsigned int hash = io_get_work_hash(work);
- 
- 			next_hashed = wq_next_work(work);
- 			io_impersonate_work(worker, work);
-+			wq->do_work(work);
-+			io_assign_current_work(worker, NULL);
- 
--			old_work = work;
--			linked = wq->do_work(work);
--
-+			linked = wq->free_work(work);
- 			work = next_hashed;
- 			if (!work && linked && !io_wq_is_hashed(linked)) {
- 				work = linked;
- 				linked = NULL;
- 			}
- 			io_assign_current_work(worker, work);
--			wq->free_work(old_work);
--
- 			if (linked)
- 				io_wqe_enqueue(wqe, linked);
- 
-@@ -850,11 +848,9 @@ static void io_run_cancel(struct io_wq_w
- 	struct io_wq *wq = wqe->wq;
- 
- 	do {
--		struct io_wq_work *old_work = work;
--
- 		work->flags |= IO_WQ_WORK_CANCEL;
--		work = wq->do_work(work);
--		wq->free_work(old_work);
-+		wq->do_work(work);
-+		work = wq->free_work(work);
- 	} while (work);
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index 6a10ff0377a2..33cf952cc01d 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -526,6 +526,8 @@ static void mwifiex_pcie_reset_prepare(struct pci_dev *pdev)
+ 	clear_bit(MWIFIEX_IFACE_WORK_DEVICE_DUMP, &card->work_flags);
+ 	clear_bit(MWIFIEX_IFACE_WORK_CARD_RESET, &card->work_flags);
+ 	mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
++
++	card->pci_reset_ongoing = true;
  }
  
---- a/fs/io-wq.h
-+++ b/fs/io-wq.h
-@@ -106,8 +106,8 @@ static inline struct io_wq_work *wq_next
- 	return container_of(work->list.next, struct io_wq_work, list);
+ /*
+@@ -554,6 +556,8 @@ static void mwifiex_pcie_reset_done(struct pci_dev *pdev)
+ 		dev_err(&pdev->dev, "reinit failed: %d\n", ret);
+ 	else
+ 		mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
++
++	card->pci_reset_ongoing = false;
  }
  
--typedef void (free_work_fn)(struct io_wq_work *);
--typedef struct io_wq_work *(io_wq_work_fn)(struct io_wq_work *);
-+typedef struct io_wq_work *(free_work_fn)(struct io_wq_work *);
-+typedef void (io_wq_work_fn)(struct io_wq_work *);
+ static const struct pci_error_handlers mwifiex_pcie_err_handler = {
+@@ -3142,7 +3146,19 @@ static void mwifiex_cleanup_pcie(struct mwifiex_adapter *adapter)
+ 	int ret;
+ 	u32 fw_status;
  
- struct io_wq_data {
- 	struct user_struct *user;
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2365,22 +2365,6 @@ static inline void io_put_req_deferred(s
- 		io_free_req_deferred(req);
- }
+-	cancel_work_sync(&card->work);
++	/* Perform the cancel_work_sync() only when we're not resetting
++	 * the card. It's because that function never returns if we're
++	 * in reset path. If we're here when resetting the card, it means
++	 * that we failed to reset the card (reset failure path).
++	 */
++	if (!card->pci_reset_ongoing) {
++		mwifiex_dbg(adapter, MSG, "performing cancel_work_sync()...\n");
++		cancel_work_sync(&card->work);
++		mwifiex_dbg(adapter, MSG, "cancel_work_sync() done\n");
++	} else {
++		mwifiex_dbg(adapter, MSG,
++			    "skipped cancel_work_sync() because we're in card reset failure path\n");
++	}
  
--static struct io_wq_work *io_steal_work(struct io_kiocb *req)
--{
--	struct io_kiocb *nxt;
--
--	/*
--	 * A ref is owned by io-wq in which context we're. So, if that's the
--	 * last one, it's safe to steal next work. False negatives are Ok,
--	 * it just will be re-punted async in io_put_work()
--	 */
--	if (refcount_read(&req->refs) != 1)
--		return NULL;
--
--	nxt = io_req_find_next(req);
--	return nxt ? &nxt->work : NULL;
--}
--
- static void io_double_put_req(struct io_kiocb *req)
- {
- 	/* drop both submit and complete references */
-@@ -6378,7 +6362,7 @@ static int io_issue_sqe(struct io_kiocb
- 	return 0;
- }
+ 	ret = mwifiex_read_reg(adapter, reg->fw_status, &fw_status);
+ 	if (fw_status == FIRMWARE_READY_PCIE) {
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.h b/drivers/net/wireless/marvell/mwifiex/pcie.h
+index 843d57eda820..5ed613d65709 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.h
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.h
+@@ -242,6 +242,8 @@ struct pcie_service_card {
+ 	struct mwifiex_msix_context share_irq_ctx;
+ 	struct work_struct work;
+ 	unsigned long work_flags;
++
++	bool pci_reset_ongoing;
+ };
  
--static struct io_wq_work *io_wq_submit_work(struct io_wq_work *work)
-+static void io_wq_submit_work(struct io_wq_work *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
- 	struct io_kiocb *timeout;
-@@ -6429,8 +6413,6 @@ static struct io_wq_work *io_wq_submit_w
- 		if (lock_ctx)
- 			mutex_unlock(&lock_ctx->uring_lock);
- 	}
--
--	return io_steal_work(req);
- }
- 
- static inline struct file *io_file_from_index(struct io_ring_ctx *ctx,
-@@ -8062,12 +8044,12 @@ static int io_sqe_files_update(struct io
- 	return __io_sqe_files_update(ctx, &up, nr_args);
- }
- 
--static void io_free_work(struct io_wq_work *work)
-+static struct io_wq_work *io_free_work(struct io_wq_work *work)
- {
- 	struct io_kiocb *req = container_of(work, struct io_kiocb, work);
- 
--	/* Consider that io_steal_work() relies on this ref */
--	io_put_req(req);
-+	req = io_put_req_find_next(req);
-+	return req ? &req->work : NULL;
- }
- 
- static int io_init_wq_offload(struct io_ring_ctx *ctx,
+ static inline int
+-- 
+2.30.1
+
 
 
