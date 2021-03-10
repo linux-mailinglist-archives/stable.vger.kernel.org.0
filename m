@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 930A6333E0D
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CBB333E3E
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233324AbhCJNZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46298 "EHLO mail.kernel.org"
+        id S233373AbhCJNZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233077AbhCJNYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:24:52 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 713ED64FD7;
-        Wed, 10 Mar 2021 13:24:50 +0000 (UTC)
+        id S233226AbhCJNZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:07 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F59C64FF6;
+        Wed, 10 Mar 2021 13:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382691;
-        bh=jnvREqkWOwfPsE+m6wvepIilJ/GqGuTcWPGG1RVnuB4=;
+        s=korg; t=1615382707;
+        bh=0ZhR5sqCxzINWr7OlVluAT0KqxeEpRShcU9go6bln0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrRcncJ96MHrEIptgqgFN27G5w9kf10IB1a5q3CmnEaJZNVzcYRVJ3i4FJQplOGqN
-         Akq+nzpyuLfaa6+D9hWYdvbI8NhA31kGB5qWyn73playI9MX44VXFQAND33/PfN3Py
-         Exnh8dgKXr0ap73w6LUwT/vmXZUZJ1jwCOhA+1Oc=
+        b=kyvZj6SNUmQ6VUoHCFWayeyp0Jz6RIGXzcMiwVVOkUwx+L2f0s9Hp3mWLh8d/xiip
+         eskqFQMdVmHtD82ruYgRy0VxvgYrKZyGYpK1hoBJd6xJQcp2Fgl6yBw9GhsD5l+iT/
+         YYpgyx7eizYOAweQnTiORw59wKbXdPpTVVCWGHZY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 32/36] ASoC: Intel: sof_sdw: add quirk for HP Spectre x360 convertible
+Subject: [PATCH 5.10 34/49] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
 Date:   Wed, 10 Mar 2021 14:23:45 +0100
-Message-Id: <20210310132321.524091477@linuxfoundation.org>
+Message-Id: <20210310132323.018011383@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.510840709@linuxfoundation.org>
-References: <20210310132320.510840709@linuxfoundation.org>
+In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
+References: <20210310132321.948258062@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +41,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit d92e279dee56b4b65c1af21f972413f172a9734a ]
+[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
 
-This set of devices has SoundWire support along with DMICs.
-The DMI information was provided by users for 3 separate skus.
+A dummy zero bit is sent preceding the data during a read transfer by the
+Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
+of data during a read. In order to ignore this bit a quirk can be added to
+send an extra zero bit after the read address.
 
-BugLink: https://github.com/thesofproject/linux/issues/2700
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20210208233336.59449-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Add a quirk to ignore the zero bit sent before data by adding a zero bit
+after the read address.
+
+[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
+
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
+ include/linux/eeprom_93xx46.h       |  2 ++
+ 2 files changed, 17 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index 9e2e8f508ed4..1d7677376e74 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -159,6 +159,22 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
- 					SOF_SDW_PCH_DMIC |
- 					SOF_SDW_FOUR_SPK),
- 	},
-+	{
-+		/*
-+		 * this entry covers multiple HP SKUs. The family name
-+		 * does not seem robust enough, so we use a partial
-+		 * match that ignores the product name suffix
-+		 * (e.g. 15-eb1xxx, 14t-ea000 or 13-aw2xxx)
-+		 */
-+		.callback = sof_sdw_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "HP Spectre x360 Convertible"),
-+		},
-+		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-+					SOF_SDW_PCH_DMIC |
-+					SOF_RT711_JD_SRC_JD2),
-+	},
- 	/* TigerLake-SDCA devices */
- 	{
- 		.callback = sof_sdw_quirk_cb,
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index d92c4d2c521a..6e5f544c9c73 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -35,6 +35,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
+ 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
+ };
+ 
++static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
++	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
++};
++
+ struct eeprom_93xx46_dev {
+ 	struct spi_device *spi;
+ 	struct eeprom_93xx46_platform_data *pdata;
+@@ -55,6 +59,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
+ 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
+ }
+ 
++static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
++{
++	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
++}
++
+ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 			      void *val, size_t count)
+ {
+@@ -96,6 +105,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
+ 			cmd_addr, edev->spi->max_speed_hz);
+ 
++		if (has_quirk_extra_read_cycle(edev)) {
++			cmd_addr <<= 1;
++			bits += 1;
++		}
++
+ 		spi_message_init(&m);
+ 
+ 		t[0].tx_buf = (char *)&cmd_addr;
+@@ -363,6 +377,7 @@ static void select_deassert(void *context)
+ static const struct of_device_id eeprom_93xx46_of_table[] = {
+ 	{ .compatible = "eeprom-93xx46", },
+ 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
++	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
+diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
+index eec7928ff8fe..99580c22f91a 100644
+--- a/include/linux/eeprom_93xx46.h
++++ b/include/linux/eeprom_93xx46.h
+@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
+ #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
+ /* Instructions such as EWEN are (addrlen + 2) in length. */
+ #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
++/* Add extra cycle after address during a read */
++#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
+ 
+ 	/*
+ 	 * optional hooks to control additional logic
 -- 
 2.30.1
 
