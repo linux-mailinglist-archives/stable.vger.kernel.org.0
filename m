@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7098E333E45
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E219333E42
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233518AbhCJNZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46738 "EHLO mail.kernel.org"
+        id S233507AbhCJNZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233236AbhCJNZJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:09 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9365F64FF7;
-        Wed, 10 Mar 2021 13:25:07 +0000 (UTC)
+        id S233245AbhCJNZK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:10 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35DC664FDC;
+        Wed, 10 Mar 2021 13:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382708;
-        bh=kZq5hc93neSL74M+vk8fXw0dLZp9MBr5+vaTLjI4JaE=;
+        s=korg; t=1615382710;
+        bh=Dugr6E9uYwnlsTxXwZsk5KnI/7diVh2WZ/OR5r66Qaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uL+yw9A2uqYWQ9HrloFijGlGc/Aj66xrvMt+ilsEHvXr2icVEllppKor5CsMecw1I
-         L+p/0BCnPGrzBC3pLdwdqMHPtOs/qH/JEDAQELviFIBo/j2tRnX9R10XjYkpa230H0
-         aO3qPQtVnPQcq82ESUdjrv3bWawN9UJXP79X4oD0=
+        b=eCHLeEXBOW1Rg3Gyh30BLksT/Kp5CcBy6BUjeEw/buAqP9/X4A+bsI84BjjfDCAWx
+         D0HwHF1S2jVTG3Nx9QCwlVu+T4zREwCZum58YF8AwGJsH3KPUrSFVG0C7XIRgmIu1+
+         84yRHs/zfytRZ+xQl5pa0oK26QuMti8H08mi9LXE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kiwoong Kim <kwmad.kim@samsung.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 35/49] scsi: ufs: Introduce a quirk to allow only page-aligned sg entries
-Date:   Wed, 10 Mar 2021 14:23:46 +0100
-Message-Id: <20210310132323.055351773@linuxfoundation.org>
+Subject: [PATCH 5.10 36/49] scsi: ufs: ufs-exynos: Apply vendor-specific values for three timeouts
+Date:   Wed, 10 Mar 2021 14:23:47 +0100
+Message-Id: <20210310132323.086731140@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210310132321.948258062@linuxfoundation.org>
 References: <20210310132321.948258062@linuxfoundation.org>
@@ -44,63 +44,50 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Kiwoong Kim <kwmad.kim@samsung.com>
 
-[ Upstream commit 2b2bfc8aa519f696087475ed8e8c61850c673272 ]
+[ Upstream commit a967ddb22d94eb476ccef983b5f2730fa4d184d0 ]
 
-Some SoCs require a single scatterlist entry for smaller than page size,
-i.e. 4KB. When dispatching commands with more than one scatterlist entry
-under 4KB in size the following behavior is observed:
+Set optimized values for the following timeouts:
 
-A command to read a block range is dispatched with two scatterlist entries
-that are named AAA and BBB. After dispatching, the host builds two PRDT
-entries and during transmission, device sends just one DATA IN because
-device doesn't care about host DMA. The host then transfers the combined
-amount of data from start address of the area named AAA. As a consequence,
-the area that follows AAA in memory would be corrupted.
+ - FC0_PROTECTION_TIMER
+ - TC0_REPLAY_TIMER
+ - AFC0_REQUEST_TIMER
 
-    |<------------->|
-    +-------+------------         +-------+
-    +  AAA  + (corrupted)   ...   +  BBB  +
-    +-------+------------         +-------+
+Exynos doesn't yet use traffic class #1.
 
-To avoid this we need to enforce page size alignment for sg entries.
-
-Link: https://lore.kernel.org/r/56dddef94f60bd9466fd77e69f64bbbd657ed2a1.1611026909.git.kwmad.kim@samsung.com
+Link: https://lore.kernel.org/r/a0ff44f665a4f31d2f945fd71de03571204c576c.1608513782.git.kwmad.kim@samsung.com
 Signed-off-by: Kiwoong Kim <kwmad.kim@samsung.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 ++
- drivers/scsi/ufs/ufshcd.h | 4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/scsi/ufs/ufs-exynos.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 379d44d6b9eb..5a7cc2e42ffd 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4748,6 +4748,8 @@ static int ufshcd_slave_configure(struct scsi_device *sdev)
- 	struct request_queue *q = sdev->request_queue;
+diff --git a/drivers/scsi/ufs/ufs-exynos.c b/drivers/scsi/ufs/ufs-exynos.c
+index 5e6b95dbb578..2993ac877a61 100644
+--- a/drivers/scsi/ufs/ufs-exynos.c
++++ b/drivers/scsi/ufs/ufs-exynos.c
+@@ -653,6 +653,11 @@ static int exynos_ufs_pre_pwr_mode(struct ufs_hba *hba,
+ 		}
+ 	}
  
- 	blk_queue_update_dma_pad(q, PRDT_DATA_BYTE_COUNT_PAD - 1);
-+	if (hba->quirks & UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE)
-+		blk_queue_update_dma_alignment(q, PAGE_SIZE - 1);
- 
- 	if (ufshcd_is_rpm_autosuspend_allowed(hba))
- 		sdev->rpm_autosuspend = 1;
-diff --git a/drivers/scsi/ufs/ufshcd.h b/drivers/scsi/ufs/ufshcd.h
-index fcca4e15c8cd..a0bc118f9188 100644
---- a/drivers/scsi/ufs/ufshcd.h
-+++ b/drivers/scsi/ufs/ufshcd.h
-@@ -550,6 +550,10 @@ enum ufshcd_quirks {
- 	 */
- 	UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING = 1 << 13,
- 
-+	/*
-+	 * This quirk allows only sg entries aligned with page size.
-+	 */
-+	UFSHCD_QUIRK_ALIGN_SG_WITH_PAGE_SIZE		= 1 << 13,
- };
- 
- enum ufshcd_caps {
++	/* setting for three timeout values for traffic class #0 */
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA0), 8064);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA1), 28224);
++	ufshcd_dme_set(hba, UIC_ARG_MIB(PA_PWRMODEUSERDATA2), 20160);
++
+ 	return 0;
+ out:
+ 	return ret;
+@@ -1249,7 +1254,8 @@ struct exynos_ufs_drv_data exynos_ufs_drvs = {
+ 				  UFSHCI_QUIRK_BROKEN_HCE |
+ 				  UFSHCI_QUIRK_SKIP_RESET_INTR_AGGR |
+ 				  UFSHCD_QUIRK_BROKEN_OCS_FATAL_ERROR |
+-				  UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL,
++				  UFSHCI_QUIRK_SKIP_MANUAL_WB_FLUSH_CTRL |
++				  UFSHCD_QUIRK_SKIP_DEF_UNIPRO_TIMEOUT_SETTING,
+ 	.opts			= EXYNOS_UFS_OPT_HAS_APB_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_AUTO_CLK_CTRL |
+ 				  EXYNOS_UFS_OPT_BROKEN_RX_SEL_IDX |
 -- 
 2.30.1
 
