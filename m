@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F353E333E49
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0F5333E14
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233529AbhCJNZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46746 "EHLO mail.kernel.org"
+        id S233342AbhCJNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:25:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231922AbhCJNZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:11 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7083D64FFC;
-        Wed, 10 Mar 2021 13:25:09 +0000 (UTC)
+        id S233085AbhCJNYx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:24:53 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5245864FD8;
+        Wed, 10 Mar 2021 13:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382711;
-        bh=7pfWkkUz5j891z67E46CBiSQzxZowggck4KNdcvMdM0=;
+        s=korg; t=1615382692;
+        bh=VMEaCsBDJjUgAOgXATa8bBpcv7LxZ7fYXHpedcFS1to=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZw3RTUNtXNCrp3KGS6VBNmwT6LMJ+fHDNzsonYoErlV74ndFrukKSCBAhJBbMDKZ
-         iwbAy/A1ihKsC3YHI0+dR9Vg8ooSZ3nKMCNNZ+9lZRhXkQLWwfnmrmI75O0WMFW6Qh
-         DiYdA7X4JVxpZwDTnnV6g2e1/gmqoS0Sg8UQkJlo=
+        b=Vi6XxXYu7Y5E1UakExIkNt6rmaxxYoxL5UX2BMRkvuj937INun4F32cm4qeKpjPZ7
+         xEqywcDJkhJ5ps63XXspI5lpkmTzitfhnyMx917b9T16iOucxTCJsWldLFc60cf4kw
+         3h4zqRumePS+QVFIlpeW5zrDrnCxkAzgjR1BT0uY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Wilck <martin.wilck@suse.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>
-Subject: [PATCH 4.19 11/39] block: genhd: add groups argument to device_add_disk
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/24] mwifiex: pcie: skip cancel_work_sync() on reset failure path
 Date:   Wed, 10 Mar 2021 14:24:19 +0100
-Message-Id: <20210310132320.083546154@linuxfoundation.org>
+Message-Id: <20210310132320.772310804@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
-References: <20210310132319.708237392@linuxfoundation.org>
+In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
+References: <20210310132320.550932445@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,424 +43,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hannes Reinecke <hare@suse.de>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-commit fef912bf860e8e7e48a2bfb978a356bba743a8b7 upstream.
+[ Upstream commit 4add4d988f95f47493500a7a19c623827061589b ]
 
-Update device_add_disk() to take an 'groups' argument so that
-individual drivers can register a device with additional sysfs
-attributes.
-This avoids race condition the driver would otherwise have if these
-groups were to be created with sysfs_add_groups().
+If a reset is performed, but even the reset fails for some reasons (e.g.,
+on Surface devices, the fw reset requires another quirks),
+cancel_work_sync() hangs in mwifiex_cleanup_pcie().
 
-Signed-off-by: Martin Wilck <martin.wilck@suse.com>
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    # firmware went into a bad state
+    [...]
+    [ 1608.281690] mwifiex_pcie 0000:03:00.0: info: shutdown mwifiex...
+    [ 1608.282724] mwifiex_pcie 0000:03:00.0: rx_pending=0, tx_pending=1,	cmd_pending=0
+    [ 1608.292400] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
+    [ 1608.292405] mwifiex_pcie 0000:03:00.0: PREP_CMD: card is removed
+    # reset performed after firmware went into a bad state
+    [ 1609.394320] mwifiex_pcie 0000:03:00.0: WLAN FW already running! Skip FW dnld
+    [ 1609.394335] mwifiex_pcie 0000:03:00.0: WLAN FW is active
+    # but even the reset failed
+    [ 1619.499049] mwifiex_pcie 0000:03:00.0: mwifiex_cmd_timeout_func: Timeout cmd id = 0xfa, act = 0xe000
+    [ 1619.499094] mwifiex_pcie 0000:03:00.0: num_data_h2c_failure = 0
+    [ 1619.499103] mwifiex_pcie 0000:03:00.0: num_cmd_h2c_failure = 0
+    [ 1619.499110] mwifiex_pcie 0000:03:00.0: is_cmd_timedout = 1
+    [ 1619.499117] mwifiex_pcie 0000:03:00.0: num_tx_timeout = 0
+    [ 1619.499124] mwifiex_pcie 0000:03:00.0: last_cmd_index = 0
+    [ 1619.499133] mwifiex_pcie 0000:03:00.0: last_cmd_id: fa 00 07 01 07 01 07 01 07 01
+    [ 1619.499140] mwifiex_pcie 0000:03:00.0: last_cmd_act: 00 e0 00 00 00 00 00 00 00 00
+    [ 1619.499147] mwifiex_pcie 0000:03:00.0: last_cmd_resp_index = 3
+    [ 1619.499155] mwifiex_pcie 0000:03:00.0: last_cmd_resp_id: 07 81 07 81 07 81 07 81 07 81
+    [ 1619.499162] mwifiex_pcie 0000:03:00.0: last_event_index = 2
+    [ 1619.499169] mwifiex_pcie 0000:03:00.0: last_event: 58 00 58 00 58 00 58 00 58 00
+    [ 1619.499177] mwifiex_pcie 0000:03:00.0: data_sent=0 cmd_sent=1
+    [ 1619.499185] mwifiex_pcie 0000:03:00.0: ps_mode=0 ps_state=0
+    [ 1619.499215] mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
+    # mwifiex_pcie_work hang happening
+    [ 1823.233923] INFO: task kworker/3:1:44 blocked for more than 122 seconds.
+    [ 1823.233932]       Tainted: G        WC OE     5.10.0-rc1-1-mainline #1
+    [ 1823.233935] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+    [ 1823.233940] task:kworker/3:1     state:D stack:    0 pid:   44 ppid:     2 flags:0x00004000
+    [ 1823.233960] Workqueue: events mwifiex_pcie_work [mwifiex_pcie]
+    [ 1823.233965] Call Trace:
+    [ 1823.233981]  __schedule+0x292/0x820
+    [ 1823.233990]  schedule+0x45/0xe0
+    [ 1823.233995]  schedule_timeout+0x11c/0x160
+    [ 1823.234003]  wait_for_completion+0x9e/0x100
+    [ 1823.234012]  __flush_work.isra.0+0x156/0x210
+    [ 1823.234018]  ? flush_workqueue_prep_pwqs+0x130/0x130
+    [ 1823.234026]  __cancel_work_timer+0x11e/0x1a0
+    [ 1823.234035]  mwifiex_cleanup_pcie+0x28/0xd0 [mwifiex_pcie]
+    [ 1823.234049]  mwifiex_free_adapter+0x24/0xe0 [mwifiex]
+    [ 1823.234060]  _mwifiex_fw_dpc+0x294/0x560 [mwifiex]
+    [ 1823.234074]  mwifiex_reinit_sw+0x15d/0x300 [mwifiex]
+    [ 1823.234080]  mwifiex_pcie_reset_done+0x50/0x80 [mwifiex_pcie]
+    [ 1823.234087]  pci_try_reset_function+0x5c/0x90
+    [ 1823.234094]  process_one_work+0x1d6/0x3a0
+    [ 1823.234100]  worker_thread+0x4d/0x3d0
+    [ 1823.234107]  ? rescuer_thread+0x410/0x410
+    [ 1823.234112]  kthread+0x142/0x160
+    [ 1823.234117]  ? __kthread_bind_mask+0x60/0x60
+    [ 1823.234124]  ret_from_fork+0x22/0x30
+    [...]
+
+This is a deadlock caused by calling cancel_work_sync() in
+mwifiex_cleanup_pcie():
+
+- Device resets are done via mwifiex_pcie_card_reset()
+- which schedules card->work to call mwifiex_pcie_card_reset_work()
+- which calls pci_try_reset_function().
+- This leads to mwifiex_pcie_reset_done() be called on the same workqueue,
+  which in turn calls
+- mwifiex_reinit_sw() and that calls
+- _mwifiex_fw_dpc().
+
+The problem is now that _mwifiex_fw_dpc() calls mwifiex_free_adapter()
+in case firmware initialization fails. That ends up calling
+mwifiex_cleanup_pcie().
+
+Note that all those calls are still running on the workqueue. So when
+mwifiex_cleanup_pcie() now calls cancel_work_sync(), it's really waiting
+on itself to complete, causing a deadlock.
+
+This commit fixes the deadlock by skipping cancel_work_sync() on a reset
+failure path.
+
+After this commit, when reset fails, the following output is
+expected to be shown:
+
+    kernel: mwifiex_pcie 0000:03:00.0: info: _mwifiex_fw_dpc: unregister device
+    kernel: mwifiex: Failed to bring up adapter: -5
+    kernel: mwifiex_pcie 0000:03:00.0: reinit failed: -5
+
+To reproduce this issue, for example, try putting the root port of wifi
+into D3 (replace "00:1d.3" with your setup).
+
+    # put into D3 (root port)
+    sudo setpci -v -s 00:1d.3 CAP_PM+4.b=0b
+
+Cc: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20201028142346.18355-1-kitakar@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/ubd_kern.c          |    2 +-
- block/genhd.c                       |   19 ++++++++++++++-----
- drivers/block/floppy.c              |    2 +-
- drivers/block/mtip32xx/mtip32xx.c   |    2 +-
- drivers/block/ps3disk.c             |    2 +-
- drivers/block/ps3vram.c             |    2 +-
- drivers/block/rsxx/dev.c            |    2 +-
- drivers/block/skd_main.c            |    2 +-
- drivers/block/sunvdc.c              |    2 +-
- drivers/block/virtio_blk.c          |    2 +-
- drivers/block/xen-blkfront.c        |    2 +-
- drivers/ide/ide-cd.c                |    2 +-
- drivers/ide/ide-gd.c                |    2 +-
- drivers/memstick/core/ms_block.c    |    2 +-
- drivers/memstick/core/mspro_block.c |    2 +-
- drivers/mmc/core/block.c            |    2 +-
- drivers/mtd/mtd_blkdevs.c           |    2 +-
- drivers/nvdimm/blk.c                |    2 +-
- drivers/nvdimm/btt.c                |    2 +-
- drivers/nvdimm/pmem.c               |    2 +-
- drivers/nvme/host/core.c            |    2 +-
- drivers/nvme/host/multipath.c       |    2 +-
- drivers/s390/block/dasd_genhd.c     |    2 +-
- drivers/s390/block/dcssblk.c        |    2 +-
- drivers/s390/block/scm_blk.c        |    2 +-
- drivers/scsi/sd.c                   |    2 +-
- drivers/scsi/sr.c                   |    2 +-
- include/linux/genhd.h               |    5 +++--
- 28 files changed, 43 insertions(+), 33 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/pcie.c | 18 +++++++++++++++++-
+ drivers/net/wireless/marvell/mwifiex/pcie.h |  2 ++
+ 2 files changed, 19 insertions(+), 1 deletion(-)
 
---- a/arch/um/drivers/ubd_kern.c
-+++ b/arch/um/drivers/ubd_kern.c
-@@ -891,7 +891,7 @@ static int ubd_disk_register(int major,
- 
- 	disk->private_data = &ubd_devs[unit];
- 	disk->queue = ubd_devs[unit].queue;
--	device_add_disk(parent, disk);
-+	device_add_disk(parent, disk, NULL);
- 
- 	*disk_out = disk;
- 	return 0;
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -582,7 +582,8 @@ static int exact_lock(dev_t devt, void *
- 	return 0;
- }
- 
--static void register_disk(struct device *parent, struct gendisk *disk)
-+static void register_disk(struct device *parent, struct gendisk *disk,
-+			  const struct attribute_group **groups)
- {
- 	struct device *ddev = disk_to_dev(disk);
- 	struct block_device *bdev;
-@@ -597,6 +598,10 @@ static void register_disk(struct device
- 	/* delay uevents, until we scanned partition table */
- 	dev_set_uevent_suppress(ddev, 1);
- 
-+	if (groups) {
-+		WARN_ON(ddev->groups);
-+		ddev->groups = groups;
-+	}
- 	if (device_add(ddev))
- 		return;
- 	if (!sysfs_deprecated) {
-@@ -664,6 +669,7 @@ exit:
-  * __device_add_disk - add disk information to kernel list
-  * @parent: parent device for the disk
-  * @disk: per-device partitioning information
-+ * @groups: Additional per-device sysfs groups
-  * @register_queue: register the queue if set to true
-  *
-  * This function registers the partitioning information in @disk
-@@ -672,6 +678,7 @@ exit:
-  * FIXME: error handling
-  */
- static void __device_add_disk(struct device *parent, struct gendisk *disk,
-+			      const struct attribute_group **groups,
- 			      bool register_queue)
- {
- 	dev_t devt;
-@@ -715,7 +722,7 @@ static void __device_add_disk(struct dev
- 		blk_register_region(disk_devt(disk), disk->minors, NULL,
- 				    exact_match, exact_lock, disk);
- 	}
--	register_disk(parent, disk);
-+	register_disk(parent, disk, groups);
- 	if (register_queue)
- 		blk_register_queue(disk);
- 
-@@ -729,15 +736,17 @@ static void __device_add_disk(struct dev
- 	blk_integrity_add(disk);
- }
- 
--void device_add_disk(struct device *parent, struct gendisk *disk)
-+void device_add_disk(struct device *parent, struct gendisk *disk,
-+		     const struct attribute_group **groups)
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
+index fc1706d0647d..58c9623c3a91 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.c
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
+@@ -377,6 +377,8 @@ static void mwifiex_pcie_reset_prepare(struct pci_dev *pdev)
+ 	clear_bit(MWIFIEX_IFACE_WORK_DEVICE_DUMP, &card->work_flags);
+ 	clear_bit(MWIFIEX_IFACE_WORK_CARD_RESET, &card->work_flags);
+ 	mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
 +
- {
--	__device_add_disk(parent, disk, true);
-+	__device_add_disk(parent, disk, groups, true);
- }
- EXPORT_SYMBOL(device_add_disk);
- 
- void device_add_disk_no_queue_reg(struct device *parent, struct gendisk *disk)
- {
--	__device_add_disk(parent, disk, false);
-+	__device_add_disk(parent, disk, NULL, false);
- }
- EXPORT_SYMBOL(device_add_disk_no_queue_reg);
- 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -4714,7 +4714,7 @@ static int __init do_floppy_init(void)
- 		/* to be cleaned up... */
- 		disks[drive]->private_data = (void *)(long)drive;
- 		disks[drive]->flags |= GENHD_FL_REMOVABLE;
--		device_add_disk(&floppy_device[drive].dev, disks[drive]);
-+		device_add_disk(&floppy_device[drive].dev, disks[drive], NULL);
- 	}
- 
- 	return 0;
---- a/drivers/block/mtip32xx/mtip32xx.c
-+++ b/drivers/block/mtip32xx/mtip32xx.c
-@@ -3861,7 +3861,7 @@ skip_create_disk:
- 	set_capacity(dd->disk, capacity);
- 
- 	/* Enable the block device and add it to /dev */
--	device_add_disk(&dd->pdev->dev, dd->disk);
-+	device_add_disk(&dd->pdev->dev, dd->disk, NULL);
- 
- 	dd->bdev = bdget_disk(dd->disk, 0);
- 	/*
---- a/drivers/block/ps3disk.c
-+++ b/drivers/block/ps3disk.c
-@@ -499,7 +499,7 @@ static int ps3disk_probe(struct ps3_syst
- 		 gendisk->disk_name, priv->model, priv->raw_capacity >> 11,
- 		 get_capacity(gendisk) >> 11);
- 
--	device_add_disk(&dev->sbd.core, gendisk);
-+	device_add_disk(&dev->sbd.core, gendisk, NULL);
- 	return 0;
- 
- fail_cleanup_queue:
---- a/drivers/block/ps3vram.c
-+++ b/drivers/block/ps3vram.c
-@@ -769,7 +769,7 @@ static int ps3vram_probe(struct ps3_syst
- 	dev_info(&dev->core, "%s: Using %lu MiB of GPU memory\n",
- 		 gendisk->disk_name, get_capacity(gendisk) >> 11);
- 
--	device_add_disk(&dev->core, gendisk);
-+	device_add_disk(&dev->core, gendisk, NULL);
- 	return 0;
- 
- fail_cleanup_queue:
---- a/drivers/block/rsxx/dev.c
-+++ b/drivers/block/rsxx/dev.c
-@@ -226,7 +226,7 @@ int rsxx_attach_dev(struct rsxx_cardinfo
- 			set_capacity(card->gendisk, card->size8 >> 9);
- 		else
- 			set_capacity(card->gendisk, 0);
--		device_add_disk(CARD_TO_DEV(card), card->gendisk);
-+		device_add_disk(CARD_TO_DEV(card), card->gendisk, NULL);
- 		card->bdev_attached = 1;
- 	}
- 
---- a/drivers/block/skd_main.c
-+++ b/drivers/block/skd_main.c
-@@ -3104,7 +3104,7 @@ static int skd_bdev_getgeo(struct block_
- static int skd_bdev_attach(struct device *parent, struct skd_device *skdev)
- {
- 	dev_dbg(&skdev->pdev->dev, "add_disk\n");
--	device_add_disk(parent, skdev->disk);
-+	device_add_disk(parent, skdev->disk, NULL);
- 	return 0;
++	card->pci_reset_ongoing = true;
  }
  
---- a/drivers/block/sunvdc.c
-+++ b/drivers/block/sunvdc.c
-@@ -862,7 +862,7 @@ static int probe_disk(struct vdc_port *p
- 	       port->vdisk_size, (port->vdisk_size >> (20 - 9)),
- 	       port->vio.ver.major, port->vio.ver.minor);
- 
--	device_add_disk(&port->vio.vdev->dev, g);
-+	device_add_disk(&port->vio.vdev->dev, g, NULL);
- 
- 	return 0;
+ /*
+@@ -405,6 +407,8 @@ static void mwifiex_pcie_reset_done(struct pci_dev *pdev)
+ 		dev_err(&pdev->dev, "reinit failed: %d\n", ret);
+ 	else
+ 		mwifiex_dbg(adapter, INFO, "%s, successful\n", __func__);
++
++	card->pci_reset_ongoing = false;
  }
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -858,7 +858,7 @@ static int virtblk_probe(struct virtio_d
- 	virtblk_update_capacity(vblk, false);
- 	virtio_device_ready(vdev);
  
--	device_add_disk(&vdev->dev, vblk->disk);
-+	device_add_disk(&vdev->dev, vblk->disk, NULL);
- 	err = device_create_file(disk_to_dev(vblk->disk), &dev_attr_serial);
- 	if (err)
- 		goto out_del_disk;
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -2422,7 +2422,7 @@ static void blkfront_connect(struct blkf
- 	for (i = 0; i < info->nr_rings; i++)
- 		kick_pending_request_queues(&info->rinfo[i]);
- 
--	device_add_disk(&info->xbdev->dev, info->gd);
-+	device_add_disk(&info->xbdev->dev, info->gd, NULL);
- 
- 	info->is_ready = 1;
- 	return;
---- a/drivers/ide/ide-cd.c
-+++ b/drivers/ide/ide-cd.c
-@@ -1784,7 +1784,7 @@ static int ide_cd_probe(ide_drive_t *dri
- 	ide_cd_read_toc(drive);
- 	g->fops = &idecd_ops;
- 	g->flags |= GENHD_FL_REMOVABLE | GENHD_FL_BLOCK_EVENTS_ON_EXCL_WRITE;
--	device_add_disk(&drive->gendev, g);
-+	device_add_disk(&drive->gendev, g, NULL);
- 	return 0;
- 
- out_free_disk:
---- a/drivers/ide/ide-gd.c
-+++ b/drivers/ide/ide-gd.c
-@@ -416,7 +416,7 @@ static int ide_gd_probe(ide_drive_t *dri
- 	if (drive->dev_flags & IDE_DFLAG_REMOVABLE)
- 		g->flags = GENHD_FL_REMOVABLE;
- 	g->fops = &ide_gd_ops;
--	device_add_disk(&drive->gendev, g);
-+	device_add_disk(&drive->gendev, g, NULL);
- 	return 0;
- 
- out_free_disk:
---- a/drivers/memstick/core/ms_block.c
-+++ b/drivers/memstick/core/ms_block.c
-@@ -2146,7 +2146,7 @@ static int msb_init_disk(struct memstick
- 		set_disk_ro(msb->disk, 1);
- 
- 	msb_start(card);
--	device_add_disk(&card->dev, msb->disk);
-+	device_add_disk(&card->dev, msb->disk, NULL);
- 	dbg("Disk added");
- 	return 0;
- 
---- a/drivers/memstick/core/mspro_block.c
-+++ b/drivers/memstick/core/mspro_block.c
-@@ -1236,7 +1236,7 @@ static int mspro_block_init_disk(struct
- 	set_capacity(msb->disk, capacity);
- 	dev_dbg(&card->dev, "capacity set %ld\n", capacity);
- 
--	device_add_disk(&card->dev, msb->disk);
-+	device_add_disk(&card->dev, msb->disk, NULL);
- 	msb->active = 1;
- 	return 0;
- 
---- a/drivers/mmc/core/block.c
-+++ b/drivers/mmc/core/block.c
-@@ -2671,7 +2671,7 @@ static int mmc_add_disk(struct mmc_blk_d
+ static const struct pci_error_handlers mwifiex_pcie_err_handler = {
+@@ -2995,7 +2999,19 @@ static void mwifiex_cleanup_pcie(struct mwifiex_adapter *adapter)
  	int ret;
- 	struct mmc_card *card = md->queue.card;
+ 	u32 fw_status;
  
--	device_add_disk(md->parent, md->disk);
-+	device_add_disk(md->parent, md->disk, NULL);
- 	md->force_ro.show = force_ro_show;
- 	md->force_ro.store = force_ro_store;
- 	sysfs_attr_init(&md->force_ro.attr);
---- a/drivers/mtd/mtd_blkdevs.c
-+++ b/drivers/mtd/mtd_blkdevs.c
-@@ -447,7 +447,7 @@ int add_mtd_blktrans_dev(struct mtd_blkt
- 	if (new->readonly)
- 		set_disk_ro(gd, 1);
+-	cancel_work_sync(&card->work);
++	/* Perform the cancel_work_sync() only when we're not resetting
++	 * the card. It's because that function never returns if we're
++	 * in reset path. If we're here when resetting the card, it means
++	 * that we failed to reset the card (reset failure path).
++	 */
++	if (!card->pci_reset_ongoing) {
++		mwifiex_dbg(adapter, MSG, "performing cancel_work_sync()...\n");
++		cancel_work_sync(&card->work);
++		mwifiex_dbg(adapter, MSG, "cancel_work_sync() done\n");
++	} else {
++		mwifiex_dbg(adapter, MSG,
++			    "skipped cancel_work_sync() because we're in card reset failure path\n");
++	}
  
--	device_add_disk(&new->mtd->dev, gd);
-+	device_add_disk(&new->mtd->dev, gd, NULL);
+ 	ret = mwifiex_read_reg(adapter, reg->fw_status, &fw_status);
+ 	if (fw_status == FIRMWARE_READY_PCIE) {
+diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.h b/drivers/net/wireless/marvell/mwifiex/pcie.h
+index f7ce9b6db6b4..72d0c01ff359 100644
+--- a/drivers/net/wireless/marvell/mwifiex/pcie.h
++++ b/drivers/net/wireless/marvell/mwifiex/pcie.h
+@@ -391,6 +391,8 @@ struct pcie_service_card {
+ 	struct mwifiex_msix_context share_irq_ctx;
+ 	struct work_struct work;
+ 	unsigned long work_flags;
++
++	bool pci_reset_ongoing;
+ };
  
- 	if (new->disk_attributes) {
- 		ret = sysfs_create_group(&disk_to_dev(gd)->kobj,
---- a/drivers/nvdimm/blk.c
-+++ b/drivers/nvdimm/blk.c
-@@ -290,7 +290,7 @@ static int nsblk_attach_disk(struct nd_n
- 	}
- 
- 	set_capacity(disk, available_disk_size >> SECTOR_SHIFT);
--	device_add_disk(dev, disk);
-+	device_add_disk(dev, disk, NULL);
- 	revalidate_disk(disk);
- 	return 0;
- }
---- a/drivers/nvdimm/btt.c
-+++ b/drivers/nvdimm/btt.c
-@@ -1565,7 +1565,7 @@ static int btt_blk_init(struct btt *btt)
- 		}
- 	}
- 	set_capacity(btt->btt_disk, btt->nlba * btt->sector_size >> 9);
--	device_add_disk(&btt->nd_btt->dev, btt->btt_disk);
-+	device_add_disk(&btt->nd_btt->dev, btt->btt_disk, NULL);
- 	btt->nd_btt->size = btt->nlba * (u64)btt->sector_size;
- 	revalidate_disk(btt->btt_disk);
- 
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -479,7 +479,7 @@ static int pmem_attach_disk(struct devic
- 	gendev = disk_to_dev(disk);
- 	gendev->groups = pmem_attribute_groups;
- 
--	device_add_disk(dev, disk);
-+	device_add_disk(dev, disk, NULL);
- 	if (devm_add_action_or_reset(dev, pmem_release_disk, pmem))
- 		return -ENOMEM;
- 
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3211,7 +3211,7 @@ static void nvme_alloc_ns(struct nvme_ct
- 
- 	nvme_get_ctrl(ctrl);
- 
--	device_add_disk(ctrl->device, ns->disk);
-+	device_add_disk(ctrl->device, ns->disk, NULL);
- 	if (sysfs_create_group(&disk_to_dev(ns->disk)->kobj,
- 					&nvme_ns_id_attr_group))
- 		pr_warn("%s: failed to create sysfs group for identification\n",
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -314,7 +314,7 @@ static void nvme_mpath_set_live(struct n
- 		return;
- 
- 	if (!(head->disk->flags & GENHD_FL_UP)) {
--		device_add_disk(&head->subsys->dev, head->disk);
-+		device_add_disk(&head->subsys->dev, head->disk, NULL);
- 		if (sysfs_create_group(&disk_to_dev(head->disk)->kobj,
- 				&nvme_ns_id_attr_group))
- 			dev_warn(&head->subsys->dev,
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -76,7 +76,7 @@ int dasd_gendisk_alloc(struct dasd_block
- 	gdp->queue = block->request_queue;
- 	block->gdp = gdp;
- 	set_capacity(block->gdp, 0);
--	device_add_disk(&base->cdev->dev, block->gdp);
-+	device_add_disk(&base->cdev->dev, block->gdp, NULL);
- 	return 0;
- }
- 
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -685,7 +685,7 @@ dcssblk_add_store(struct device *dev, st
- 	}
- 
- 	get_device(&dev_info->dev);
--	device_add_disk(&dev_info->dev, dev_info->gd);
-+	device_add_disk(&dev_info->dev, dev_info->gd, NULL);
- 
- 	switch (dev_info->segment_type) {
- 		case SEG_TYPE_SR:
---- a/drivers/s390/block/scm_blk.c
-+++ b/drivers/s390/block/scm_blk.c
-@@ -500,7 +500,7 @@ int scm_blk_dev_setup(struct scm_blk_dev
- 
- 	/* 512 byte sectors */
- 	set_capacity(bdev->gendisk, scmdev->size >> 9);
--	device_add_disk(&scmdev->dev, bdev->gendisk);
-+	device_add_disk(&scmdev->dev, bdev->gendisk, NULL);
- 	return 0;
- 
- out_queue:
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -3348,7 +3348,7 @@ static void sd_probe_async(void *data, a
- 	}
- 
- 	blk_pm_runtime_init(sdp->request_queue, dev);
--	device_add_disk(dev, gd);
-+	device_add_disk(dev, gd, NULL);
- 	if (sdkp->capacity)
- 		sd_dif_config_host(sdkp);
- 
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -758,7 +758,7 @@ static int sr_probe(struct device *dev)
- 
- 	dev_set_drvdata(dev, cd);
- 	disk->flags |= GENHD_FL_REMOVABLE;
--	device_add_disk(&sdev->sdev_gendev, disk);
-+	device_add_disk(&sdev->sdev_gendev, disk, NULL);
- 
- 	sdev_printk(KERN_DEBUG, sdev,
- 		    "Attached scsi CD-ROM %s\n", cd->cdi.name);
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -402,10 +402,11 @@ static inline void free_part_info(struct
- extern void part_round_stats(struct request_queue *q, int cpu, struct hd_struct *part);
- 
- /* block/genhd.c */
--extern void device_add_disk(struct device *parent, struct gendisk *disk);
-+extern void device_add_disk(struct device *parent, struct gendisk *disk,
-+			    const struct attribute_group **groups);
- static inline void add_disk(struct gendisk *disk)
- {
--	device_add_disk(NULL, disk);
-+	device_add_disk(NULL, disk, NULL);
- }
- extern void device_add_disk_no_queue_reg(struct device *parent, struct gendisk *disk);
- static inline void add_disk_no_queue_reg(struct gendisk *disk)
+ static inline int
+-- 
+2.30.1
+
 
 
