@@ -2,140 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 118EB3339C9
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 11:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30713333ACE
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 11:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229660AbhCJKQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 05:16:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33148 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231228AbhCJKQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 05:16:43 -0500
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E378DC061761
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 02:16:42 -0800 (PST)
-Received: by mail-io1-xd2d.google.com with SMTP id n132so17334208iod.0
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 02:16:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YnjTlCzPSM64YPwZtIYFy5lAVDG5f9v4P0vMMvdQJ4g=;
-        b=d0SaJGU+8Urml23wTMTDfhpGRRTwD+zpckGUZVMl+sVOy1WZYmEJ452QYDEt+HEMPH
-         IgYQZsfm5TUykrsjmeIEmLfHZGFzcwLIgOiDgolB3dDU+UugpwZSaiyTCDiqkBCrQWWh
-         l7f5WKbbFlEUefe7S8uASrebDK0rSAdB2PHd0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YnjTlCzPSM64YPwZtIYFy5lAVDG5f9v4P0vMMvdQJ4g=;
-        b=B5G00sbMNzZ6qZLIR+Yq43uhQWdlLOmw2f9ZVop7IPx3kLcUSUy/jPRf5NzUFOni8p
-         kN1yfq3Qg8PnJIohRI7ww4Mp4w+74P4f/Gx49g2OvltPAf6yCcr6mChy9j8iRybZK6z1
-         baMIuhToA6H9PABu6a9MyeJ9JOxQaKoO2sleZnL7IutPm0HZAJxLjvpgz4gZqM3OFCuI
-         ywQeEkm67WTX9+95+V8SHyvGpeRo2zd00m2nzwVzemB6w21hPkHvbV69vA09sZfUcPDu
-         r6qzYyA9JrTUXPSFzQX2y5YxrlcTK7wOibvnehu+SkYt/ISgJsetARH6a3v846kd7aee
-         tNhg==
-X-Gm-Message-State: AOAM533Md/zIHPYtkt5bFk/ob9lTXcZi74u+lH+mf0XPqXI1Yh1cSJQY
-        9LFDvQbnOO/whf8rD1nRAyd9L78gx7cfb+7R
-X-Google-Smtp-Source: ABdhPJxi7n1jyO+1mtpXAjT+Cy2PNKnj2Tm/Orn6hDZOrQjtHKKQnhob8XAwS/p+azBh5qiJuv1xPA==
-X-Received: by 2002:a05:6638:58f:: with SMTP id a15mr2205132jar.35.1615371402081;
-        Wed, 10 Mar 2021 02:16:42 -0800 (PST)
-Received: from mail-il1-f180.google.com (mail-il1-f180.google.com. [209.85.166.180])
-        by smtp.gmail.com with ESMTPSA id i3sm8679877ioq.13.2021.03.10.02.16.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Mar 2021 02:16:41 -0800 (PST)
-Received: by mail-il1-f180.google.com with SMTP id b5so15018898ilq.10
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 02:16:41 -0800 (PST)
-X-Received: by 2002:a05:6e02:194e:: with SMTP id x14mr2059514ilu.218.1615371400880;
- Wed, 10 Mar 2021 02:16:40 -0800 (PST)
+        id S232408AbhCJK4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 05:56:51 -0500
+Received: from lb1-smtp-cloud7.xs4all.net ([194.109.24.24]:34397 "EHLO
+        lb1-smtp-cloud7.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231228AbhCJK4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 05:56:49 -0500
+X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Wed, 10 Mar 2021 05:56:48 EST
+Received: from cust-b5b5937f ([IPv6:fc0c:c16d:66b8:757f:c639:739b:9d66:799d])
+        by smtp-cloud7.xs4all.net with ESMTPA
+        id JwPKlFOT6OruFJwPOlWery; Wed, 10 Mar 2021 11:49:42 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=xs4all.nl; s=s2;
+        t=1615373382; bh=JzMZuBVOJIFHgl51ejoY/59xqgVlozR7BBcPc5ehtpM=;
+        h=To:From:Subject:Message-ID:Date:MIME-Version:Content-Type:From:
+         Subject;
+        b=blxbO/bX2E8VejjHIDpjiwrCR8mrq+GOc2O6juPtcXxG/+bl7/6QqyM7UKYOCXrAR
+         wI6cvAx+gobm75r/2SWglvxC0CMgHHZn/wXus1JlKHhBBRYXd50v9a8Y48d5tSiYDy
+         Q7oWgcgwobJhuFHMBZP67N9jbl+SaUbeXv35YPAEIk4afS/hOYNRs+tFa2YFL7VJCD
+         hAB13Te/2fRK6OB9+ncspUwltskUo3igK0MfBwSxQb9cM8gD9G/pqDUJUQ7OnP9je4
+         Yf9Mlqe0sT4o0KzDEmfXtoOAiYcYTr8klkV14d4andrxBQm963I3fDmybU94I04MAV
+         b/9M/NR9kL1fA==
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>,
+        =?UTF-8?Q?Jernej_=c5=a0krabec?= <jernej.skrabec@siol.net>,
+        Nicolas Dufresne <nicolas@ndufresne.ca>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+From:   Hans Verkuil <hverkuil@xs4all.nl>
+Subject: [PATCH FOR stable v5.11] media: cedrus: Remove checking for required
+ controls
+Message-ID: <f938a1ba-d9ae-3b39-a066-60504a9e6c12@xs4all.nl>
+Date:   Wed, 10 Mar 2021 11:49:38 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.7.1
 MIME-Version: 1.0
-References: <20210309234317.1021588-1-ribalda@chromium.org>
- <YEh6AIQPa75MzP+8@pendragon.ideasonboard.com> <CANiDSCuz76q0Ukq5UfrgeRH_JFWKQ9hCpMqZTHUtiwHxpEd4oQ@mail.gmail.com>
- <YEh/ZsfC34+aGI0Q@pendragon.ideasonboard.com>
-In-Reply-To: <YEh/ZsfC34+aGI0Q@pendragon.ideasonboard.com>
-From:   Ricardo Ribalda <ribalda@chromium.org>
-Date:   Wed, 10 Mar 2021 11:16:30 +0100
-X-Gmail-Original-Message-ID: <CANiDSCv7q1iY=QrtG2ssC_Y1Z1EiiWegfXmd=ha-=2vmngW_dQ@mail.gmail.com>
-Message-ID: <CANiDSCv7q1iY=QrtG2ssC_Y1Z1EiiWegfXmd=ha-=2vmngW_dQ@mail.gmail.com>
-Subject: Re: [PATCH] media: videobuf2: Fix integer overrun in allocation
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     Tomasz Figa <tfiga@chromium.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Linux Media Mailing List <linux-media@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfEjY2nROBGfLEa1tqFCDSriCvK4OU2xYNodaEis3mzzTNtjc9ozmTNqi8VcDBMK8ifdPNEDgB3wYcm4PDD9zw71V0RBrUQX6xLQkOGHlNPRgWtqKU4ZY
+ avk6BujaHM9iWRkcrm/Nnz+zU+1ckbFLYCuF69W2ktc6Z0ckiQCS7hiRmUAYySmAw1IiNsP7mwLenETZIjcVxv/QeKQcGq0ddsyhmRZhrJ1EjKsaB1XDb4YJ
+ dR7WaMfYXWBr9EPK3+CjkYkiRoW4R1+p/0K3xZlbAFfnKkKvJt8d7tbHwFsOl4jMMQEsrVcGu8l9DTi+sAraWNkvIiVYPBKiTIHMWOTnBPc=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Laurent
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-On Wed, Mar 10, 2021 at 9:12 AM Laurent Pinchart
-<laurent.pinchart@ideasonboard.com> wrote:
->
-> Hi Ricardo,
->
-> On Wed, Mar 10, 2021 at 08:58:39AM +0100, Ricardo Ribalda wrote:
-> > On Wed, Mar 10, 2021 at 8:49 AM Laurent Pinchart wrote:
-> > > On Wed, Mar 10, 2021 at 12:43:17AM +0100, Ricardo Ribalda wrote:
-> > > > The plane_length is an unsigned integer. So, if we have a size of
-> > > > 0xffffffff bytes we incorrectly allocate 0 bytes instead of 1 << 32.
-> > > >
-> > > > Cc: stable@vger.kernel.org
-> > > > Fixes: 7f8414594e47 ("[media] media: videobuf2: fix the length check for mmap")
-> > > > Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-> > > > ---
-> > > >  drivers/media/common/videobuf2/videobuf2-core.c | 4 +++-
-> > > >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/media/common/videobuf2/videobuf2-core.c b/drivers/media/common/videobuf2/videobuf2-core.c
-> > > > index 02281d13505f..543da515c761 100644
-> > > > --- a/drivers/media/common/videobuf2/videobuf2-core.c
-> > > > +++ b/drivers/media/common/videobuf2/videobuf2-core.c
-> > > > @@ -223,8 +223,10 @@ static int __vb2_buf_mem_alloc(struct vb2_buffer *vb)
-> > > >        * NOTE: mmapped areas should be page aligned
-> > > >        */
-> > > >       for (plane = 0; plane < vb->num_planes; ++plane) {
-> > > > +             unsigned long size = vb->planes[plane].length;
-> > >
-> > > unsigned long is still 32-bit on 32-bit platforms.
-> > >
-> > > > +
-> > > >               /* Memops alloc requires size to be page aligned. */
-> > > > -             unsigned long size = PAGE_ALIGN(vb->planes[plane].length);
-> > > > +             size = PAGE_ALIGN(size);
-> > > >
-> > > >               /* Did it wrap around? */
-> > > >               if (size < vb->planes[plane].length)
-> > >
-> > > Doesn't this address the issue already ?
-> >
-> > Yes and no. If you need to allocate 0xffffffff you are still affected
-> > by the underrun. The core will return an error instead of doing the
-> > allocation.
-> >
-> > (yes, I know it is a lot of memory for a buffer)
->
-> That's my point, I don't think there's a need for this :-) Especially
-> with v4l2_buffer.m.offset being a __u32, we are limited to 4GB for *all*
-> buffers.
+[ Upstream commit 7072db89572135f28cad65f15877bf7e67cf2ff8 ]
 
-I guess I will convert this patch into a documentation patch, so we
-explicitly know the limit of the API
-(1<<32 - PAGE_SIZE).
+According to v4l2 request api specifications, it's allowed to skip
+control if its content isn't changed for performance reasons. Cedrus
+driver predates that, so it has implemented mechanism to check if all
+required controls are included in one request.
 
-Thanks!
+Conform to specifications with removing that mechanism.
 
->
-> --
-> Regards,
->
-> Laurent Pinchart
+Note that this mechanism with static required flag isn't very good
+anyway because need for control is usually signaled in other controls.
 
+Fixes: 50e761516f2b ("media: platform: Add Cedrus VPU decoder driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+---
+Without this patch the H264 cedrus support is non-compliant, and since 5.11
+was the first kernel with a stable H264 stateless codec ABI it would be
+good to have this merged for 5.11 so the cedrus driver can be used with
+H264.
+---
+ drivers/staging/media/sunxi/cedrus/cedrus.c | 49 ---------------------
+ drivers/staging/media/sunxi/cedrus/cedrus.h |  1 -
+ 2 files changed, 50 deletions(-)
 
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.c b/drivers/staging/media/sunxi/cedrus/cedrus.c
+index ddad5d274ee8..7bd9291c8d5f 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus.c
+@@ -34,56 +34,48 @@ static const struct cedrus_control cedrus_controls[] = {
+ 			.id	= V4L2_CID_MPEG_VIDEO_MPEG2_SLICE_PARAMS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_MPEG2,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_MPEG_VIDEO_MPEG2_QUANTIZATION,
+ 		},
+ 		.codec		= CEDRUS_CODEC_MPEG2,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_DECODE_PARAMS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_SLICE_PARAMS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_SPS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_PPS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_SCALING_MATRIX,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_STATELESS_H264_PRED_WEIGHTS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+@@ -92,7 +84,6 @@ static const struct cedrus_control cedrus_controls[] = {
+ 			.def	= V4L2_STATELESS_H264_DECODE_MODE_SLICE_BASED,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+@@ -101,7 +92,6 @@ static const struct cedrus_control cedrus_controls[] = {
+ 			.def	= V4L2_STATELESS_H264_START_CODE_NONE,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= false,
+ 	},
+ 	/*
+ 	 * We only expose supported profiles information,
+@@ -120,28 +110,24 @@ static const struct cedrus_control cedrus_controls[] = {
+ 				BIT(V4L2_MPEG_VIDEO_H264_PROFILE_EXTENDED),
+ 		},
+ 		.codec		= CEDRUS_CODEC_H264,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_MPEG_VIDEO_HEVC_SPS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H265,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_MPEG_VIDEO_HEVC_PPS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H265,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id	= V4L2_CID_MPEG_VIDEO_HEVC_SLICE_PARAMS,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H265,
+-		.required	= true,
+ 	},
+ 	{
+ 		.cfg = {
+@@ -150,7 +136,6 @@ static const struct cedrus_control cedrus_controls[] = {
+ 			.def	= V4L2_MPEG_VIDEO_HEVC_DECODE_MODE_SLICE_BASED,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H265,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+@@ -159,14 +144,12 @@ static const struct cedrus_control cedrus_controls[] = {
+ 			.def	= V4L2_MPEG_VIDEO_HEVC_START_CODE_NONE,
+ 		},
+ 		.codec		= CEDRUS_CODEC_H265,
+-		.required	= false,
+ 	},
+ 	{
+ 		.cfg = {
+ 			.id		= V4L2_CID_MPEG_VIDEO_VP8_FRAME_HEADER,
+ 		},
+ 		.codec		= CEDRUS_CODEC_VP8,
+-		.required	= true,
+ 	},
+ };
 
+@@ -227,12 +210,8 @@ static int cedrus_init_ctrls(struct cedrus_dev *dev, struct cedrus_ctx *ctx)
+ static int cedrus_request_validate(struct media_request *req)
+ {
+ 	struct media_request_object *obj;
+-	struct v4l2_ctrl_handler *parent_hdl, *hdl;
+ 	struct cedrus_ctx *ctx = NULL;
+-	struct v4l2_ctrl *ctrl_test;
+ 	unsigned int count;
+-	unsigned int i;
+-	int ret = 0;
+
+ 	list_for_each_entry(obj, &req->objects, list) {
+ 		struct vb2_buffer *vb;
+@@ -259,34 +238,6 @@ static int cedrus_request_validate(struct media_request *req)
+ 		return -EINVAL;
+ 	}
+
+-	parent_hdl = &ctx->hdl;
+-
+-	hdl = v4l2_ctrl_request_hdl_find(req, parent_hdl);
+-	if (!hdl) {
+-		v4l2_info(&ctx->dev->v4l2_dev, "Missing codec control(s)\n");
+-		return -ENOENT;
+-	}
+-
+-	for (i = 0; i < CEDRUS_CONTROLS_COUNT; i++) {
+-		if (cedrus_controls[i].codec != ctx->current_codec ||
+-		    !cedrus_controls[i].required)
+-			continue;
+-
+-		ctrl_test = v4l2_ctrl_request_hdl_ctrl_find(hdl,
+-							    cedrus_controls[i].cfg.id);
+-		if (!ctrl_test) {
+-			v4l2_info(&ctx->dev->v4l2_dev,
+-				  "Missing required codec control\n");
+-			ret = -ENOENT;
+-			break;
+-		}
+-	}
+-
+-	v4l2_ctrl_request_hdl_put(hdl);
+-
+-	if (ret)
+-		return ret;
+-
+ 	return vb2_request_validate(req);
+ }
+
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.h b/drivers/staging/media/sunxi/cedrus/cedrus.h
+index c96077aaef49..251a6a660351 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus.h
++++ b/drivers/staging/media/sunxi/cedrus/cedrus.h
+@@ -56,7 +56,6 @@ enum cedrus_h264_pic_type {
+ struct cedrus_control {
+ 	struct v4l2_ctrl_config cfg;
+ 	enum cedrus_codec	codec;
+-	unsigned char		required:1;
+ };
+
+ struct cedrus_h264_run {
 -- 
-Ricardo Ribalda
+2.30.1
+
