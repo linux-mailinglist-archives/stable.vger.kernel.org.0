@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6700E334B24
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 23:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3047334B54
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 23:17:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbhCJWId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 17:08:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51528 "EHLO mail.kernel.org"
+        id S231410AbhCJWRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 17:17:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233493AbhCJWIM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 17:08:12 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5636964E27;
-        Wed, 10 Mar 2021 22:08:11 +0000 (UTC)
+        id S232181AbhCJWRF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 17:17:05 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F52664FB9;
+        Wed, 10 Mar 2021 22:17:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615414091;
-        bh=7DgS4RMA6sw3/cVUzknsVlM4gDfY7Ai2f4HejB8VsOU=;
+        s=k20201202; t=1615414625;
+        bh=uvxATqmALoLwZ5xgJ3XvB9q+ryBa5IKMCmWm/PrqUS8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eCRD/Pu/fzPu7c54D8GC3G8AfxKorBs43jwNo7LYLzovcCoxjNgdsbbSF6xqjGHIf
-         2kZ8AuOGzmPrQ6qZJr2lnLNCifIoCFvMOSOGp0HQGotg57ggsnLyF0dTNLmlOTHsBr
-         KzOy2zl4xfxrrXZS9bUQDTEp5d0eT4+69oMC3HWYwc4EZVhF3F/Piu6NjDoIWRZKnd
-         EJ7Tb6j05EfQVT9MCjfbtSdvXkm8L4kjlb9wkyB4Zk1vPI/Ec9tdjGCu48/UiR7AeB
-         /Mj2VF4dKSyghotVTEN2vgOuCsYDCIaVE/mtKyAc+hqR754sWbnXjP6GsIOJKSbw0Y
-         4KIOvP6hAP+WA==
-Date:   Wed, 10 Mar 2021 23:08:09 +0100
+        b=ahAt+j+pAV7DmD0Z1B3oguj1fYJjKbXXGMMJmOlnqSK2gsaTPeH71RUDM7a+DpC6F
+         s6DZmBWqsvjcT7v85GFi4DiNnLYWR5LbRn6SwxzykW8hnyzU5jXYacUPxVIPdtFaVT
+         ZOh8FMZY4bhcIYyBLxCgHRts7Bv9J6+9A1cqwzlbe9FcvWmtMlKbe5gnSJo/mOeVxL
+         6FLmXK2Q6e/7DmHfvS0GMTpJseA3yuxjc/qeaCnLMwif11ImkpPvDEDH5log0Dwb40
+         zOES27c+I/2rDwh3p4bx0VoVlof6X/OqLpFNBP6kbB87AxwxyRnE6wxdUBkuDRAyB3
+         HbAn0992iqtBw==
+Date:   Wed, 10 Mar 2021 23:17:02 +0100
 From:   Frederic Weisbecker <frederic@kernel.org>
 To:     "Paul E. McKenney" <paulmck@kernel.org>
 Cc:     LKML <linux-kernel@vger.kernel.org>,
@@ -34,23 +34,24 @@ Cc:     LKML <linux-kernel@vger.kernel.org>,
         Josh Triplett <josh@joshtriplett.org>,
         Stable <stable@vger.kernel.org>,
         Joel Fernandes <joel@joelfernandes.org>
-Subject: Re: [PATCH 11/13] rcu/nocb: Only cancel nocb timer if not polling
-Message-ID: <20210310220809.GB2949@lothringen>
+Subject: Re: [PATCH 10/13] rcu/nocb: Delete bypass_timer upon nocb_gp wakeup
+Message-ID: <20210310221702.GC2949@lothringen>
 References: <20210223001011.127063-1-frederic@kernel.org>
- <20210223001011.127063-12-frederic@kernel.org>
- <20210303012229.GB20917@paulmck-ThinkPad-P72>
+ <20210223001011.127063-11-frederic@kernel.org>
+ <20210303012456.GC20917@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210303012229.GB20917@paulmck-ThinkPad-P72>
+In-Reply-To: <20210303012456.GC20917@paulmck-ThinkPad-P72>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 02, 2021 at 05:22:29PM -0800, Paul E. McKenney wrote:
-> On Tue, Feb 23, 2021 at 01:10:09AM +0100, Frederic Weisbecker wrote:
-> > No need to disarm the nocb_timer if rcu_nocb is polling because it
-> > shouldn't be armed either.
+On Tue, Mar 02, 2021 at 05:24:56PM -0800, Paul E. McKenney wrote:
+> On Tue, Feb 23, 2021 at 01:10:08AM +0100, Frederic Weisbecker wrote:
+> > A NOCB-gp wake up can safely delete the nocb_bypass_timer. nocb_gp_wait()
+> > is going to check again the bypass state and rearm the bypass timer if
+> > necessary.
 > > 
 > > Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 > > Cc: Josh Triplett <josh@joshtriplett.org>
@@ -59,10 +60,39 @@ On Tue, Mar 02, 2021 at 05:22:29PM -0800, Paul E. McKenney wrote:
 > > Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
 > > Cc: Boqun Feng <boqun.feng@gmail.com>
 > 
-> OK, so it does make sense to move that del_timer() under the following
-> "if" statement, then.  ;-)
+> Give that you delete this code a couple of patches later in this series,
+> why not just leave it out entirely?  ;-)
 
-Right, probably I should have handled that in the beginning of the patchset
-instead of the end but heh, my mind is never that clear.
+It's not exactly deleted later, it's rather merged within the
+"del_timer(&rdp_gp->nocb_timer)".
+
+The purpose of that patch is to make it clear that we explicitly cancel
+the nocb_bypass_timer here before we do it implicitly later with the
+merge of nocb_bypass_timer into nocb_timer.
+
+We could drop that patch, the resulting code in the end of the patchset
+will be the same of course but the behaviour detail described here might
+slip out of the reviewers attention :-)
+
+> 
+> 							Thanx, Paul
+> 
+> > ---
+> >  kernel/rcu/tree_plugin.h | 2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+> > index b62ad79bbda5..9da67b0d3997 100644
+> > --- a/kernel/rcu/tree_plugin.h
+> > +++ b/kernel/rcu/tree_plugin.h
+> > @@ -1711,6 +1711,8 @@ static bool __wake_nocb_gp(struct rcu_data *rdp_gp,
+> >  		del_timer(&rdp_gp->nocb_timer);
+> >  	}
+> >  
+> > +	del_timer(&rdp_gp->nocb_bypass_timer);
+> > +
+> >  	if (force || READ_ONCE(rdp_gp->nocb_gp_sleep)) {
+> >  		WRITE_ONCE(rdp_gp->nocb_gp_sleep, false);
+> >  		needwake = true;
 
 Thanks.
