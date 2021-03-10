@@ -2,155 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A511333B8D
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:37:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C17C333BB8
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 12:46:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231150AbhCJLhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 06:37:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50362 "EHLO
+        id S230517AbhCJLpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 06:45:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbhCJLf3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 06:35:29 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A52C0613DA
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:02 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id d139-20020a1c1d910000b029010b895cb6f2so10496223wmd.5
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:35:02 -0800 (PST)
+        with ESMTP id S229706AbhCJLpH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 06:45:07 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21D70C06174A
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:45:06 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id w11so22967621wrr.10
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 03:45:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=uhwX/bzbLBSuhppqPht+JJ7EOlUtrPlfFGxS8Mv9Xb8=;
-        b=Je7R3hpGlblCpVthtrNWjvzoeqByoDb3vcTD+qYU1LRrSH6l/7kk3o6i6JMXgz5+lm
-         uIIwFJks1qqL2/RUwZT3B0Dxr/7B5GSKEsVADYW5W2sAgsAMoGzTxobHIBTm3ZO0ZKc1
-         lCx7Yne74cChJZ2miGGZ7fMx4XjHg4S9E0EvamReSurYNhmq8IjIsq4q64ZyH3eU72Tl
-         9CNQEufkmWk4L4ToZ/THoo85kP81Ec1ZZ3Fe9dWvj70iupX8AmgcafvOfRT6Ssaoavr3
-         gqkrlF0FIFLHfU3uihtMW0QOCsrhvwuSsaK8gSo/YmnR+ZAdVLwL/t8rPG95pLy/LN/C
-         Jxfg==
+        h=from:to:cc:references:autocrypt:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=Cz0fXzwF58CaOrKZvbHUO6/X5/2Fu4uV61B8MXvz4ls=;
+        b=oZrRxwpXnGDG+9kxxe2vfRBVwklj73g0nypLMuVlQIkPnHi2QdAfnmbxKoPy241JE2
+         DNb+6SY1v32gA83eFfUz2BKs4ShFGV+E2ya4dYBpzUj7MXN66+Q3PYBpqLhzaK5IYttX
+         BoGHnZTU5ssxdjtY5OmGVnSIL+p2FSYcsWmukQP7I/fk4j8O7ESiL3AQLmTyqFKn1HDb
+         bSEMq0n8iq6m50PVH+2dLpV24BzeTgkV0Zu+Okpd5iaR+6SHBNPYfzP6hqle6IOd3Iur
+         /RQ+dZaa1vGla6gYOkKfUPSmVAyNyUkFUCkkmhZCWl/Q52hjKEWGVZ1NpwROmcDQ5bfc
+         hCFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=uhwX/bzbLBSuhppqPht+JJ7EOlUtrPlfFGxS8Mv9Xb8=;
-        b=DosnnKILSffwBdNZpuzFvpABYIQMXE2VVxjXEHpnimKzLOFjyU+QYcv18gypSPeX/1
-         giDdECFjvcQAXxDYG7ZyFpqVPUEs36o0hRXww3MvgaUoBIlZjbv6/LSKsXvlx0m1I6hV
-         ujb8sQTD0yRqDs/0ger8F3kv63UUmlogD/xJ+7QOd1xEY2m9eWWy8lFrhrtoyNs2Wrgi
-         sgbAGsagm/uenfaRq91CN/aQjPd1C47RCM2kDQIXvq4cCPOscDJaxZi61/PZGnDtmFdr
-         /5x7OfnpWzxJ1RO1WKpDIenqlhFqj+bnvUNMt4IL2PEZiCOPuVScyvYLG9wHneHV0UU9
-         BGhQ==
-X-Gm-Message-State: AOAM533X4jdusNiqAWUfWTsdWolAen1UrK55KYgZ4d4PEONIyAQmzYT2
-        N0HEIKig2jV/W4w84e8InyP7zVGc+Cyv1w==
-X-Google-Smtp-Source: ABdhPJyZVEGyOHlvQWhomcQ3IUx/lLq2X4uVMsY5eggZOxR6F3mbUdlBaMoTK4ZI93cBssd/stYBRQ==
-X-Received: by 2002:a7b:cb90:: with SMTP id m16mr2915354wmi.162.1615376100568;
-        Wed, 10 Mar 2021 03:35:00 -0800 (PST)
-Received: from localhost.localdomain ([85.255.232.55])
-        by smtp.gmail.com with ESMTPSA id s18sm25179078wrr.27.2021.03.10.03.34.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 03:35:00 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:references:autocrypt:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=Cz0fXzwF58CaOrKZvbHUO6/X5/2Fu4uV61B8MXvz4ls=;
+        b=SeY4FHdDw2PvX4EUXFZFisCL9m/CXom+7KbwnxgTUxgglVggUeLsYsCLm/4k5ACXlB
+         T+mqICPl7pX7osth8uJ+MrlvfAZCHhIhSFFNxiLR4P3gRIFwWxdwTmWyOon3sCrtpZk0
+         m45t1VshIDdcCOy1RsXF8ZfhFCLGFYLEXfLQ33kuRHb2TScICv3AI4ULllg7obg4BFpU
+         JMbmyq52nFzI+o0nl3eh82G+5sae517kb+OYqiUngc8li/hCKPQBdD9UWUdrtRIAIpYI
+         NNAH6qDnXRxQGZlqGk45gTDmEr/pCbaFFep+sxnAnQoIlj4uugyEAzpIDldQS7M3LY+I
+         9O1g==
+X-Gm-Message-State: AOAM5325zHAWi3tUvb08KEhtTIBeALMG1wFuEagXuYMz0rqsC7Q3YQ41
+        XgXVEStz0GF6SVyFKAo8dWg=
+X-Google-Smtp-Source: ABdhPJz9djmrbz3UTjZ8ZhctfR2wyCNrFe2aViNRa4NmrpTVa5/F9G7T0s0uMw5J8g3sIXSmbiC8Wg==
+X-Received: by 2002:adf:a18a:: with SMTP id u10mr3106560wru.197.1615376704838;
+        Wed, 10 Mar 2021 03:45:04 -0800 (PST)
+Received: from [192.168.8.123] ([85.255.232.55])
+        by smtp.gmail.com with ESMTPSA id l15sm8716494wme.43.2021.03.10.03.45.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Mar 2021 03:45:04 -0800 (PST)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Abaci <abaci@linux.alibaba.com>,
-        Hao Xu <haoxu@linux.alibaba.com>
-Subject: [PATCH 9/9] io_uring: don't take uring_lock during iowq cancel
-Date:   Wed, 10 Mar 2021 11:30:45 +0000
-Message-Id: <1839646480a26a2461eccc38a75e98998d2d6e11.1615375332.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <cover.1615375332.git.asml.silence@gmail.com>
+Cc:     Jens Axboe <axboe@kernel.dk>
 References: <cover.1615375332.git.asml.silence@gmail.com>
+Autocrypt: addr=asml.silence@gmail.com; prefer-encrypt=mutual; keydata=
+ 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 bA==
+Subject: Re: [PATCH stable-5.11 0/9] stable-5.11 backports
+Message-ID: <984359b4-051f-9724-d099-48fbc6c863bf@gmail.com>
+Date:   Wed, 10 Mar 2021 11:41:09 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
+In-Reply-To: <cover.1615375332.git.asml.silence@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 792bb6eb862333658bf1bd2260133f0507e2da8d upstream
+On 10/03/2021 11:30, Pavel Begunkov wrote:
+> 5-6/9 were forgotten to be marked for-stable. Others are
 
-[   97.866748] a.out/2890 is trying to acquire lock:
-[   97.867829] ffff8881046763e8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-io_wq_submit_work+0x155/0x240
-[   97.869735]
-[   97.869735] but task is already holding lock:
-[   97.871033] ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-__x64_sys_io_uring_enter+0x3f0/0x5b0
-[   97.873074]
-[   97.873074] other info that might help us debug this:
-[   97.874520]  Possible unsafe locking scenario:
-[   97.874520]
-[   97.875845]        CPU0
-[   97.876440]        ----
-[   97.877048]   lock(&ctx->uring_lock);
-[   97.877961]   lock(&ctx->uring_lock);
-[   97.878881]
-[   97.878881]  *** DEADLOCK ***
-[   97.878881]
-[   97.880341]  May be due to missing lock nesting notation
-[   97.880341]
-[   97.881952] 1 lock held by a.out/2890:
-[   97.882873]  #0: ffff88810dfe0be8 (&ctx->uring_lock){+.+.}-{3:3}, at:
-__x64_sys_io_uring_enter+0x3f0/0x5b0
-[   97.885108]
-[   97.885108] stack backtrace:
-[   97.890457] Call Trace:
-[   97.891121]  dump_stack+0xac/0xe3
-[   97.891972]  __lock_acquire+0xab6/0x13a0
-[   97.892940]  lock_acquire+0x2c3/0x390
-[   97.894894]  __mutex_lock+0xae/0x9f0
-[   97.901101]  io_wq_submit_work+0x155/0x240
-[   97.902112]  io_wq_cancel_cb+0x162/0x490
-[   97.904126]  io_async_find_and_cancel+0x3b/0x140
-[   97.905247]  io_issue_sqe+0x86d/0x13e0
-[   97.909122]  __io_queue_sqe+0x10b/0x550
-[   97.913971]  io_queue_sqe+0x235/0x470
-[   97.914894]  io_submit_sqes+0xcce/0xf10
-[   97.917872]  __x64_sys_io_uring_enter+0x3fb/0x5b0
-[   97.921424]  do_syscall_64+0x2d/0x40
-[   97.922329]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> 5 out of 6 failed to apply + dependencies.
 
-While holding uring_lock, e.g. from inline execution, async cancel
-request may attempt cancellations through io_wq_submit_work, which may
-try to grab a lock. Delay it to task_work, so we do it from a clean
-context and don't have to worry about locking.
+edit: 3 out of 4 that came on March 1st, and the 4th was reverted
+upstream so isn't needed. Doesn't matter though
 
-Cc: <stable@vger.kernel.org> # 5.5+
-Fixes: c07e6719511e ("io_uring: hold uring_lock while completing failed polled io in io_wq_submit_work()")
-Reported-by: Abaci <abaci@linux.alibaba.com>
-Reported-by: Hao Xu <haoxu@linux.alibaba.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- fs/io_uring.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+> 
+> Jens Axboe (3):
+>   fs: provide locked helper variant of close_fd_get_file()
+>   io_uring: get rid of intermediate IORING_OP_CLOSE stage
+>   io_uring/io-wq: kill off now unused IO_WQ_WORK_NO_CANCEL
+> 
+> Pavel Begunkov (6):
+>   io_uring: fix inconsistent lock state
+>   io_uring: deduplicate core cancellations sequence
+>   io_uring: unpark SQPOLL thread for cancelation
+>   io_uring: deduplicate failing task_work_add
+>   io_uring/io-wq: return 2-step work swap scheme
+>   io_uring: don't take uring_lock during iowq cancel
+> 
+>  fs/file.c     |  36 +++++---
+>  fs/internal.h |   1 +
+>  fs/io-wq.c    |  17 ++--
+>  fs/io-wq.h    |   5 +-
+>  fs/io_uring.c | 241 +++++++++++++++++++++++---------------------------
+>  5 files changed, 145 insertions(+), 155 deletions(-)
+> 
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 5e9bff1eeaa0..241313278e5a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2198,7 +2198,9 @@ static void io_req_task_cancel(struct callback_head *cb)
- 	struct io_kiocb *req = container_of(cb, struct io_kiocb, task_work);
- 	struct io_ring_ctx *ctx = req->ctx;
- 
-+	mutex_lock(&ctx->uring_lock);
- 	__io_req_task_cancel(req, -ECANCELED);
-+	mutex_unlock(&ctx->uring_lock);
- 	percpu_ref_put(&ctx->refs);
- }
- 
-@@ -6372,8 +6374,13 @@ static void io_wq_submit_work(struct io_wq_work *work)
- 	if (timeout)
- 		io_queue_linked_timeout(timeout);
- 
--	if (work->flags & IO_WQ_WORK_CANCEL)
--		ret = -ECANCELED;
-+	if (work->flags & IO_WQ_WORK_CANCEL) {
-+		/* io-wq is going to take down one */
-+		refcount_inc(&req->refs);
-+		percpu_ref_get(&req->ctx->refs);
-+		io_req_task_work_add_fallback(req, io_req_task_cancel);
-+		return;
-+	}
- 
- 	if (!ret) {
- 		do {
 -- 
-2.24.0
-
+Pavel Begunkov
