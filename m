@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C4F333E4C
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 878A3333E7D
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 14:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233542AbhCJNZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 08:25:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47144 "EHLO mail.kernel.org"
+        id S233807AbhCJN0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 08:26:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233016AbhCJNZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 08:25:13 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D20AD65018;
-        Wed, 10 Mar 2021 13:25:11 +0000 (UTC)
+        id S233417AbhCJNZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 08:25:35 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4652B64FD8;
+        Wed, 10 Mar 2021 13:25:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615382712;
-        bh=rm6DqlWdxExheEFrTIm7HKdHfRwI34gv2u13oCfVEQc=;
+        s=korg; t=1615382732;
+        bh=2iw24BEOWyyZtefbU2bj3t8duAtEonYWegb9qJCp4wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkGnqtcjX3OwK03sDeR08+S2H8d3ShGs90n4Y69281qdtDWvWQY5nTv1D4mJ9her2
-         Z/6Sh14ktZMVjjFyTURn5tpd0pxOZG6Vt7e+dGRKeQlDtCury9cWz6O3zWpwdPb3r0
-         GNtoW0G/LQtLUiiNshaTEf7B5E6Jk3wycgmJXHgM=
+        b=aKSSsNIEmrY8uQpTEnMKRjefYkIRPdg1tT1z4Jng0pf4hHfb9YsHKxk7Ux/V3iDaX
+         ppODvRRUHVjs917jgp+2R+9ufGCwnL/Sbehesw3+0GSZlVlqFnJ+HgXFaAeXhJYEn7
+         baGQlEATanKc/eVFk1pHG5Zboy2rxnjoqpxWrdWg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/24] misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
+        stable@vger.kernel.org, Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 23/39] dm table: fix DAX iterate_devices based device capability checks
 Date:   Wed, 10 Mar 2021 14:24:31 +0100
-Message-Id: <20210310132321.131967802@linuxfoundation.org>
+Message-Id: <20210310132320.449328244@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-References: <20210310132320.550932445@linuxfoundation.org>
+In-Reply-To: <20210310132319.708237392@linuxfoundation.org>
+References: <20210310132319.708237392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,91 +41,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit f6f1f8e6e3eea25f539105d48166e91f0ab46dd1 ]
+commit 5b0fab508992c2e120971da658ce80027acbc405 upstream.
 
-A dummy zero bit is sent preceding the data during a read transfer by the
-Microchip 93LC46B eeprom (section 2.7 of[1]). This results in right shift
-of data during a read. In order to ignore this bit a quirk can be added to
-send an extra zero bit after the read address.
+Fix dm_table_supports_dax() and invert logic of both
+iterate_devices_callout_fn so that all devices' DAX capabilities are
+properly checked.
 
-Add a quirk to ignore the zero bit sent before data by adding a zero bit
-after the read address.
-
-[1] - https://www.mouser.com/datasheet/2/268/20001749K-277859.pdf
-
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Link: https://lore.kernel.org/r/20210105105817.17644-3-a-govindraju@ti.com
+Fixes: 545ed20e6df6 ("dm: add infrastructure for DAX support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[jeffle: no dax synchronous]
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/eeprom_93xx46.c | 15 +++++++++++++++
- include/linux/eeprom_93xx46.h       |  2 ++
- 2 files changed, 17 insertions(+)
+ drivers/md/dm-table.c |   25 ++++---------------------
+ 1 file changed, 4 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
-index 414dcbd3c3c2..8b355fc0607b 100644
---- a/drivers/misc/eeprom/eeprom_93xx46.c
-+++ b/drivers/misc/eeprom/eeprom_93xx46.c
-@@ -35,6 +35,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
- 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
- };
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -891,10 +891,10 @@ void dm_table_set_type(struct dm_table *
+ }
+ EXPORT_SYMBOL_GPL(dm_table_set_type);
  
-+static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
-+	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
-+};
-+
- struct eeprom_93xx46_dev {
- 	struct spi_device *spi;
- 	struct eeprom_93xx46_platform_data *pdata;
-@@ -55,6 +59,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
- 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
+-static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
++static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
+ 			       sector_t start, sector_t len, void *data)
+ {
+-	return bdev_dax_supported(dev->bdev, PAGE_SIZE);
++	return !bdev_dax_supported(dev->bdev, PAGE_SIZE);
  }
  
-+static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
-+{
-+	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
-+}
-+
- static int eeprom_93xx46_read(void *priv, unsigned int off,
- 			      void *val, size_t count)
+ static bool dm_table_supports_dax(struct dm_table *t)
+@@ -910,7 +910,7 @@ static bool dm_table_supports_dax(struct
+ 			return false;
+ 
+ 		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_supports_dax, NULL))
++		    ti->type->iterate_devices(ti, device_not_dax_capable, NULL))
+ 			return false;
+ 	}
+ 
+@@ -1731,23 +1731,6 @@ static int device_dax_write_cache_enable
+ 	return false;
+ }
+ 
+-static int dm_table_supports_dax_write_cache(struct dm_table *t)
+-{
+-	struct dm_target *ti;
+-	unsigned i;
+-
+-	for (i = 0; i < dm_table_get_num_targets(t); i++) {
+-		ti = dm_table_get_target(t, i);
+-
+-		if (ti->type->iterate_devices &&
+-		    ti->type->iterate_devices(ti,
+-				device_dax_write_cache_enabled, NULL))
+-			return true;
+-	}
+-
+-	return false;
+-}
+-
+ static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
+ 				sector_t start, sector_t len, void *data)
  {
-@@ -96,6 +105,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
- 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
- 			cmd_addr, edev->spi->max_speed_hz);
+@@ -1946,7 +1929,7 @@ void dm_table_set_restrictions(struct dm
+ 	else
+ 		blk_queue_flag_clear(QUEUE_FLAG_DAX, q);
  
-+		if (has_quirk_extra_read_cycle(edev)) {
-+			cmd_addr <<= 1;
-+			bits += 1;
-+		}
-+
- 		spi_message_init(&m);
+-	if (dm_table_supports_dax_write_cache(t))
++	if (dm_table_any_dev_attr(t, device_dax_write_cache_enabled))
+ 		dax_write_cache(t->md->dax_dev, true);
  
- 		t[0].tx_buf = (char *)&cmd_addr;
-@@ -363,6 +377,7 @@ static void select_deassert(void *context)
- static const struct of_device_id eeprom_93xx46_of_table[] = {
- 	{ .compatible = "eeprom-93xx46", },
- 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
-+	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
-diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
-index eec7928ff8fe..99580c22f91a 100644
---- a/include/linux/eeprom_93xx46.h
-+++ b/include/linux/eeprom_93xx46.h
-@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
- #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
- /* Instructions such as EWEN are (addrlen + 2) in length. */
- #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
-+/* Add extra cycle after address during a read */
-+#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
- 
- 	/*
- 	 * optional hooks to control additional logic
--- 
-2.30.1
-
+ 	/* Ensure that all underlying devices are non-rotational. */
 
 
