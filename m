@@ -2,70 +2,217 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D51DE333C06
-	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 13:04:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6277333C0C
+	for <lists+stable@lfdr.de>; Wed, 10 Mar 2021 13:04:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232598AbhCJMCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 07:02:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58702 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232650AbhCJMCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 07:02:18 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD80F64FD7;
-        Wed, 10 Mar 2021 12:02:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615377737;
-        bh=/eEinG3KxIZMrWrXYSrji41H6Uu/4J7UuAOlOdWiTj0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cLgPQkud3EZJAvUe8zTGtf9xZy75Cp1zn83QLkvBV1FE4dLkX1gt9C37RBEjyt/7X
-         r/oiUJHp50bjwh3fChkvKQ+OH2E18j3d2DWsLtfJTPDVmAxMkUQRrgL/tDbpebk4fF
-         on4e+Ug7qQTiNR6ytW+d0cJR7xRRfpMzSogQO8gA=
-Date:   Wed, 10 Mar 2021 13:02:14 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Toke =?iso-8859-1?Q?H=F8iland-J=F8rgensen?= <toke@redhat.com>
-Cc:     David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: public_key: check that pkey_algo is non-NULL
- before passing it to strcmp()
-Message-ID: <YEi1RgPgwfT7qHQM@kroah.com>
-References: <875z419ihk.fsf@toke.dk>
- <20210112161044.3101-1-toke@redhat.com>
- <2648795.1610536273@warthog.procyon.org.uk>
- <2656681.1610542679@warthog.procyon.org.uk>
- <87sg6yqich.fsf@toke.dk>
+        id S232766AbhCJMDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 07:03:14 -0500
+Received: from angie.orcam.me.uk ([157.25.102.26]:37592 "EHLO
+        angie.orcam.me.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232795AbhCJMDL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 07:03:11 -0500
+Received: by angie.orcam.me.uk (Postfix, from userid 500)
+        id D73FE92009C; Wed, 10 Mar 2021 13:03:09 +0100 (CET)
+Received: from localhost (localhost [127.0.0.1])
+        by angie.orcam.me.uk (Postfix) with ESMTP id D12E592009B;
+        Wed, 10 Mar 2021 13:03:09 +0100 (CET)
+Date:   Wed, 10 Mar 2021 13:03:09 +0100 (CET)
+From:   "Maciej W. Rozycki" <macro@orcam.me.uk>
+To:     netdev@vger.kernel.org
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH net/net-next 1/4] FDDI: defxx: Bail out gracefully with
+ unassigned PCI resource for CSR
+In-Reply-To: <alpine.DEB.2.21.2103091713260.33195@angie.orcam.me.uk>
+Message-ID: <alpine.DEB.2.21.2103091958350.33195@angie.orcam.me.uk>
+References: <alpine.DEB.2.21.2103091713260.33195@angie.orcam.me.uk>
+User-Agent: Alpine 2.21 (DEB 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87sg6yqich.fsf@toke.dk>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 18, 2021 at 06:13:02PM +0100, Toke Høiland-Jørgensen wrote:
-> David Howells <dhowells@redhat.com> writes:
-> 
-> > Toke Høiland-Jørgensen <toke@redhat.com> wrote:
-> >
-> >> Reviewed-by: Toke Høiland-Jørgensen <toke@redhat.com>
-> >> 
-> >> and also, if you like:
-> >> 
-> >> Tested-by: Toke Høiland-Jørgensen <toke@redhat.com>
-> >
-> > Thanks!
-> 
-> Any chance of that patch getting into -stable anytime soon? Would be
-> nice to have working WiFi without having to compile my own kernels ;)
+Recent versions of the PCI Express specification have deprecated support 
+for I/O transactions and actually some PCIe host bridges, such as Power 
+Systems Host Bridge 4 (PHB4), do not implement them.
 
-What ever happened to this patch?  I can't seem to find it in Linus's
-tree anywhere :(
+For those systems the PCI BARs that request a mapping in the I/O space 
+have the length recorded in the corresponding PCI resource set to zero, 
+which makes it unassigned:
 
-thanks,
+# lspci -s 0031:02:04.0 -v
+0031:02:04.0 FDDI network controller: Digital Equipment Corporation PCI-to-PDQ Interface Chip [PFI] FDDI (DEFPA) (rev 02)
+	Subsystem: Digital Equipment Corporation FDDIcontroller/PCI (DEFPA)
+	Flags: bus master, medium devsel, latency 136, IRQ 57, NUMA node 8
+	Memory at 620c080020000 (32-bit, non-prefetchable) [size=128]
+	I/O ports at <unassigned> [disabled]
+	Memory at 620c080030000 (32-bit, non-prefetchable) [size=64K]
+	Capabilities: [50] Power Management version 2
+	Kernel driver in use: defxx
+	Kernel modules: defxx
 
-greg k-h
+# 
+
+Regardless the driver goes ahead and requests it (here observed with a 
+Raptor Talos II POWER9 system), resulting in an odd /proc/ioport entry:
+
+# cat /proc/ioports
+00000000-ffffffffffffffff : 0031:02:04.0
+# 
+
+Furthermore, the system gets confused as the driver actually continues 
+and pokes at those locations, causing a flood of messages being output 
+to the system console by the underlying system firmware, like:
+
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+defxx 0031:02:04.0: enabling device (0140 -> 0142)
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010000
+IPMI: dropping non severe PEL event
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
+IPMI: dropping non severe PEL event
+LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
+IPMI: dropping non severe PEL event
+
+and so on and so on (possibly intermixed actually, as there's no locking 
+between the kernel and the firmware in console port access with this 
+particular system, but cleaned up above for clarity), and once some 10k 
+of such pairs of the latter two messages have been produced an interace 
+eventually shows up in a useless state:
+
+0031:02:04.0: DEFPA at I/O addr = 0x0, IRQ = 57, Hardware addr = 00-00-00-00-00-00
+
+This was not expected to happen as resource handling was added to the 
+driver a while ago, because it was not known at that time that a PCI 
+system would be possible that cannot assign port I/O resources, and 
+oddly enough `request_region' does not fail, which would have caught it.
+
+Correct the problem then by checking for the length of zero for the CSR 
+resource and bail out gracefully refusing to register an interface if 
+that turns out to be the case, producing messages like:
+
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+0031:02:04.0: Cannot use I/O, no address set, aborting
+0031:02:04.0: Recompile driver with "CONFIG_DEFXX_MMIO=y"
+
+Keep the original check for the EISA MMIO resource as implemented, 
+because in that case the length is hardwired to 0x400 as a consequence 
+of how the compare/mask address decoding works in the ESIC chip and it 
+is only the base address that is set to zero if MMIO has been disabled 
+for the adapter in EISA configuration, which in turn could be a valid 
+bus address in a legacy-free system implementing PCI, especially for 
+port I/O.
+
+Where the EISA MMIO resource has been disabled for the adapter in EISA 
+configuration this arrangement keeps producing messages like:
+
+eisa 00:05: EISA: slot 5: DEC3002 detected
+defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
+00:05: Cannot use MMIO, no address set, aborting
+00:05: Recompile driver with "CONFIG_DEFXX_MMIO=n"
+00:05: Or run ECU and set adapter's MMIO location
+
+with the last two lines now swapped for easier handling in the driver.
+
+There is no need to check for and catch the case of a port I/O resource 
+not having been assigned for EISA as the adapter uses the slot-specific 
+I/O space, which gets assigned by how EISA has been specified and maps 
+directly to the particular slot an option card has been placed in.  And 
+the EISA variant of the adapter has additional registers that are only 
+accessible via the port I/O space anyway.
+
+While at it factor out the error message calls into helpers and fix an 
+argument order bug with the `pr_err' call now in `dfx_register_res_err'.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4d0438e56a8f ("defxx: Clean up DEFEA resource management")
+Cc: stable@vger.kernel.org # v3.19+
+---
+ drivers/net/fddi/defxx.c |   47 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 17 deletions(-)
+
+Index: linux-defxx/drivers/net/fddi/defxx.c
+===================================================================
+--- linux-defxx.orig/drivers/net/fddi/defxx.c
++++ linux-defxx/drivers/net/fddi/defxx.c
+@@ -495,6 +495,25 @@ static const struct net_device_ops dfx_n
+ 	.ndo_set_mac_address	= dfx_ctl_set_mac_address,
+ };
+ 
++static void dfx_register_res_alloc_err(const char *print_name, bool mmio,
++				       bool eisa)
++{
++	pr_err("%s: Cannot use %s, no address set, aborting\n",
++	       print_name, mmio ? "MMIO" : "I/O");
++	pr_err("%s: Recompile driver with \"CONFIG_DEFXX_MMIO=%c\"\n",
++	       print_name, mmio ? 'n' : 'y');
++	if (eisa && mmio)
++		pr_err("%s: Or run ECU and set adapter's MMIO location\n",
++		       print_name);
++}
++
++static void dfx_register_res_err(const char *print_name, bool mmio,
++				 unsigned long start, unsigned long len)
++{
++	pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, aborting\n",
++	       print_name, mmio ? "MMIO" : "I/O", len, start);
++}
++
+ /*
+  * ================
+  * = dfx_register =
+@@ -568,15 +587,12 @@ static int dfx_register(struct device *b
+ 	dev_set_drvdata(bdev, dev);
+ 
+ 	dfx_get_bars(bdev, bar_start, bar_len);
+-	if (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0) {
+-		pr_err("%s: Cannot use MMIO, no address set, aborting\n",
+-		       print_name);
+-		pr_err("%s: Run ECU and set adapter's MMIO location\n",
+-		       print_name);
+-		pr_err("%s: Or recompile driver with \"CONFIG_DEFXX_MMIO=n\""
+-		       "\n", print_name);
++	if (bar_len[0] == 0 ||
++	    (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0)) {
++		dfx_register_res_alloc_err(print_name, dfx_use_mmio,
++					   dfx_bus_eisa);
+ 		err = -ENXIO;
+-		goto err_out;
++		goto err_out_disable;
+ 	}
+ 
+ 	if (dfx_use_mmio)
+@@ -585,18 +601,16 @@ static int dfx_register(struct device *b
+ 	else
+ 		region = request_region(bar_start[0], bar_len[0], print_name);
+ 	if (!region) {
+-		pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, "
+-		       "aborting\n", dfx_use_mmio ? "MMIO" : "I/O", print_name,
+-		       (long)bar_len[0], (long)bar_start[0]);
++		dfx_register_res_err(print_name, dfx_use_mmio,
++				     bar_start[0], bar_len[0]);
+ 		err = -EBUSY;
+ 		goto err_out_disable;
+ 	}
+ 	if (bar_start[1] != 0) {
+ 		region = request_region(bar_start[1], bar_len[1], print_name);
+ 		if (!region) {
+-			pr_err("%s: Cannot reserve I/O resource "
+-			       "0x%lx @ 0x%lx, aborting\n", print_name,
+-			       (long)bar_len[1], (long)bar_start[1]);
++			dfx_register_res_err(print_name, 0,
++					     bar_start[1], bar_len[1]);
+ 			err = -EBUSY;
+ 			goto err_out_csr_region;
+ 		}
+@@ -604,9 +618,8 @@ static int dfx_register(struct device *b
+ 	if (bar_start[2] != 0) {
+ 		region = request_region(bar_start[2], bar_len[2], print_name);
+ 		if (!region) {
+-			pr_err("%s: Cannot reserve I/O resource "
+-			       "0x%lx @ 0x%lx, aborting\n", print_name,
+-			       (long)bar_len[2], (long)bar_start[2]);
++			dfx_register_res_err(print_name, 0,
++					     bar_start[2], bar_len[2]);
+ 			err = -EBUSY;
+ 			goto err_out_bh_region;
+ 		}
