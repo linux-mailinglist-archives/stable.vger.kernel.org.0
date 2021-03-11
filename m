@@ -2,96 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 959FD336AE9
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 04:49:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 293ED336AEC
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 04:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbhCKDtD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 22:49:03 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13500 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbhCKDtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 22:49:00 -0500
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.60])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Dwvyk52MpzrTlR;
-        Thu, 11 Mar 2021 11:47:10 +0800 (CST)
-Received: from [10.67.110.218] (10.67.110.218) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 11 Mar 2021 11:48:52 +0800
-Subject: Re: [PATCH 4.4 0/3] Backport patch series to update Futex from 4.9
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <lee.jones@linaro.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <tglx@linutronix.de>,
-        <cj.chengjian@huawei.com>, <judy.chenhui@huawei.com>,
-        <zhangjinhao2@huawei.com>, <nixiaoming@huawei.com>
-References: <20210309030605.3295183-1-zhengyejian1@huawei.com>
- <YEdQz4AxVRoabTW4@kroah.com>
-From:   "Zhengyejian (Zetta)" <zhengyejian1@huawei.com>
-Message-ID: <d44ebf43-1fe8-6588-b84f-dcfea9eca0a4@huawei.com>
-Date:   Thu, 11 Mar 2021 11:48:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+        id S230052AbhCKD6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 22:58:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36996 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230231AbhCKD6Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 22:58:25 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D034C061574
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 19:58:25 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so8407978pjc.2
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 19:58:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=k4ivZtuhtp9YOvfLDrsu0JOzn/x8L/0/HUFJrK/sJE8=;
+        b=X/vdfP5Mt+miDd8YBjhD31G2GQLeQURjb4qa6moeQNUgOo+WpX9SDvf/fKCJ14WfpJ
+         5Y2zMRqxmnlH41IkifTELinzU/ZrtQLJkEM0tLfJb2RU9ZqBUtEZooYTo/3HHd1q+t2W
+         snkbDz1jDGJyNQ9dTFC436wBHX12KkvAWUclZcV/lqcY9LmjB5pkri2P+7+uAvc2oby/
+         /1cxx1GQRcoiKNbYSjmvjbeAQEz1xhOcaN34WtWPvQWdQYkOumcFeIEiVNVI6Zv1uH2L
+         Dd480MuPMBv9qycXdCKgbgpZ/LLokeIojZDrlFXHMd+k9IHZ+Lq5/aMB7y9+PbQ/iny7
+         pjSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=k4ivZtuhtp9YOvfLDrsu0JOzn/x8L/0/HUFJrK/sJE8=;
+        b=OTV3VrHRfsu8Ovon9ataVTFpjoF2qUNuLr4FFrl7ix6fwAroNBFhBpOHBsqHuDyZ9O
+         ImZsjiNVhDyRQxoxMLuHZoYGTueHLDeBT8a6mLGzfMOqlQ+BYmyIprK2jMqcbERJodwB
+         lJJ1IFJ23dJ5514YSVAzP6NdwLW92EcrjNGSpZF9ZX5K4HXrKyn7jIJ/1PvEHo/EZSrq
+         C1S89lY8CeBh/Zn5emsjSCtv1hyefbC2frTa7VS+X20hSazG5PE7lQN2m1IG8WT0tPCO
+         QovI2UfRkNGEbauYosdiwRnYfx2lW77q4qG4V5bPxAkAnoOJNX2lWd2c5p7muu/86PFU
+         y8lg==
+X-Gm-Message-State: AOAM531BhoFdYjtockt9FKnibSth6ZWRCyPDbog0ngrNpLZv5mmE4FxR
+        p7AVhsAlnI6FdO+RZZpUjQpb0jD9COWeqNV0
+X-Google-Smtp-Source: ABdhPJyM6UAA0SUxnplEUHSZdnvCGCFDEmlykG0BqgN+Ly7v7hdTXf+yQZg9lziJcWR2oCikD8lzvg==
+X-Received: by 2002:a17:90b:4b0e:: with SMTP id lx14mr6763404pjb.147.1615435104258;
+        Wed, 10 Mar 2021 19:58:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q25sm848581pfh.34.2021.03.10.19.58.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Mar 2021 19:58:23 -0800 (PST)
+Message-ID: <6049955f.1c69fb81.2eb64.372d@mx.google.com>
+Date:   Wed, 10 Mar 2021 19:58:23 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <YEdQz4AxVRoabTW4@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.218]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.22-47-gf4bf7bd9b1cb7
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 116 runs,
+ 2 regressions (v5.10.22-47-gf4bf7bd9b1cb7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 116 runs, 2 regressions (v5.10.22-47-gf4bf7b=
+d9b1cb7)
+
+Regressions Summary
+-------------------
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
+ig | 1          =
+
+imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
+   | 1          =
 
 
-On 2021/3/9 18:41, Greg KH wrote:
-> On Tue, Mar 09, 2021 at 11:06:02AM +0800, Zheng Yejian wrote:
->> Lee sent a patchset to update Futex for 4.9, see https://www.spinics.net/lists/stable/msg443081.html,
->> Then Xiaoming sent a follow-up patch for it, see https://lore.kernel.org/lkml/20210225093120.GD641347@dell/.
->>
->> These patchsets may also resolve following issues in 4.4.260 which have been reported in 4.9,
->> see https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/?h=linux-4.4.y&id=319f66f08de1083c1fe271261665c209009dd65a
->>        > /*
->>        >  * The task is on the way out. When the futex state is
->>        >  * FUTEX_STATE_DEAD, we know that the task has finished
->>        >  * the cleanup:
->>        >  */
->>        > int ret = (p->futex_state = FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
->>
->>      Here may be:
->>        int ret = (p->futex_state == FUTEX_STATE_DEAD) ? -ESRCH : -EAGAIN;
->>
->>        > raw_spin_unlock_irq(&p->pi_lock);
->>        > /*
->>        >  * If the owner task is between FUTEX_STATE_EXITING and
->>        >  * FUTEX_STATE_DEAD then store the task pointer and keep
->>        >  * the reference on the task struct. The calling code will
->>        >  * drop all locks, wait for the task to reach
->>        >  * FUTEX_STATE_DEAD and then drop the refcount. This is
->>        >  * required to prevent a live lock when the current task
->>        >  * preempted the exiting task between the two states.
->>        >  */
->>        > if (ret == -EBUSY)
->>
->>      And here, the variable "ret" may only be "-ESRCH" or "-EAGAIN", but not "-EBUSY".
->>
->>        > 	*exiting = p;
->>        > else
->>        > 	put_task_struct(p);
->>
->> Since 074e7d515783 ("futex: Ensure the correct return value from futex_lock_pi()") has
->> been merged in 4.4.260, I send the remain 3 patches.
-> 
-> There already are 2 futex patches in the 4.4.y stable queue, do those
-> not resolve these issues for you?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.22-47-gf4bf7bd9b1cb7/plan/baseline/
 
-I think that 2 futex patches in 4.4 stable queue are fixing other issues:
-     futex-fix-irq-self-deadlock-and-satisfy-assertion.patch
-     futex-fix-spin_lock-spin_unlock_irq-imbalance.patch
-But I am not very sure if there are any lock conflicts between that 2 
-patches and this 3 patches.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.22-47-gf4bf7bd9b1cb7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f4bf7bd9b1cb7d9111363587c17523ef0f82c28c =
 
-> 
-> If not, please resend this series with the needed git commit ids added to
-> them.
 
-I have add that information and sent a "v2" patchset.
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
+ig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6049624215daabe986addcca
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
+47-gf4bf7bd9b1cb7/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
+47-gf4bf7bd9b1cb7/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
+x6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6049624215daabe986add=
+ccb
+        failing since 0 day (last pass: v5.10.22-1-g3a720b3b47d5e, first fa=
+il: v5.10.22-49-gf5829772d607) =
+
+ =
+
+
+
+platform           | arch  | lab             | compiler | defconfig        =
+   | regressions
+-------------------+-------+-----------------+----------+------------------=
+---+------------
+imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
+   | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604966101c2a76319eaddcb1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
+47-gf4bf7bd9b1cb7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
+47-gf4bf7bd9b1cb7/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604966101c2a76319eadd=
+cb2
+        new failure (last pass: v5.10.22-1-g3a720b3b47d5e) =
+
+ =20
