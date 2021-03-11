@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5466E337B24
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:42:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A57337B2B
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbhCKRl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 12:41:57 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:35093 "EHLO
+        id S229711AbhCKRm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 12:42:29 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:47361 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229686AbhCKRlw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:41:52 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1168C1940EA5;
-        Thu, 11 Mar 2021 12:41:52 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Thu, 11 Mar 2021 12:41:52 -0500
+        by vger.kernel.org with ESMTP id S229470AbhCKRl5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:41:57 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0311D1940FEE;
+        Thu, 11 Mar 2021 12:41:57 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Thu, 11 Mar 2021 12:41:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=oKMRQS
-        tvFCGQXPPxWmG2DfQuwg3xI78tRWweOd68/Rw=; b=arobDZkufmDIO1Nj0fpOlI
-        oNid9AHk/LgKWUOsWzqMC+hc42ljqXkSW6bFmJmgsi8TCYZoB9jwf1PUcd7MeiND
-        4fYTpQU1CMP0heMLozNJ4i4PTbNbwcu0qQunCdDZWZtkp56Akd63RZSvRRLsd2Qm
-        8ZIgrNaTiHYmvqZ1TaQKP3PFS4GVFbV8ZTxZYbenpTqDd1vbT712NC5aXkcMFJ0w
-        n8xGkeJiPDl6f6+fqlSP4aQ3+JwV0UJ0nOJNSt/NBmwkH2ZQdFreysyqchBrXfsx
-        zb+nPzsKTkpLhBIq0QMATrpKCsM0ClLqhCMv7Xtm+dfbJbkhBKahN38KX2MjOVnQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zlRncg
+        uTo80EUp4f9yhPd0R7Ve1+j/XSbf2iUFvaQK8=; b=sDWtL3jE8mq9cBAyYsgp/g
+        GdluTu3y7xeVNzrNVKWgf6iCNOL/mxExS6RQ8/c4HQoTZ9//dp1sLGu9z/9hqX5g
+        hxknXS0Q2wdPBg8/H1flPLp+YeidXJbOraYPJa9FulrbUWo8bW/2xLt6rt0TkPZx
+        GZ0wJz0dIv61ilJiBKv+Riync1aT4KBh+7W7BxGbvn7butxrHteCltLKCpBYq/HS
+        m1IZ+AP/VmNODYd0SMeCvU5z6z8nP41eg0yBqL0DMpXJeU+i2INj8xDBtWA7S9eO
+        y3nTvdSeuw//QqZaZNIdq9+GLreOebT6XrawfMIlzNtNOZMq2cj+UPEScO8wPltQ
         ==
-X-ME-Sender: <xms:X1ZKYAVpRbAhKo2NcBX02lIfM8-xeRHBb2tvDCc0WhW8Su3B7g_khQ>
-    <xme:X1ZKYBcKohfkwdx7wJBCZLfKD2BZhXx6xoqXheK53pUYNWK_MbNw0xeIb2KqKybHZ
-    JP0mey6esB98Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddguddtgecutefuodetggdotefrod
+X-ME-Sender: <xms:ZFZKYIWZ0bkmE9akPP7-X5u2qmEOY4cEPB6pH4L5FShqzn9BNLEfPQ>
+    <xme:ZFZKYMn3vZLp5YZpkOmfuTXD7HBj1YD0uVj4Wvh2nUzUClHLj4J1UONhcNF6iZktz
+    UKw3BPBzsvL9Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddguddtfecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
     duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:X1ZKYEKrz_GeEXVJdaKfMWlmxRJ6HCh9YR5xtMQcou9gWCLUd65NFg>
-    <xmx:X1ZKYOxmoSc00RKTxapAUrhNc7Q1zXCR8rbqiViQlzLHBkFUGhcFGw>
-    <xmx:X1ZKYKuQYn2j-1kbZTrlITeGt_qYJBDwth3l1svunsRoBjHPfRED6g>
-    <xmx:YFZKYBHjhXGfiFgDNHOx8EfTTKjTy2sHlFVna77_0Pz9l2agQ9gs7w>
+X-ME-Proxy: <xmx:ZFZKYMZuLdpEIAkq-k7NgArp8BmluBR1RbvUrggWexPZySs2GG_ulQ>
+    <xmx:ZFZKYHV6Sc5maC9d2MEHTHAfUhEeC8npiVc9Ksvhprt-RltW0ZDk6g>
+    <xmx:ZFZKYCkGbm-jBeb2gjdLSKzAFDJCtJUU2IJrtE6pH15gVO2ZNNvJRw>
+    <xmx:ZVZKYGt_x7PlQhVVW8ywwAKckFqzmpPYW7_gIqBH4Ux_0rr73lvkFQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 682B1108005F;
-        Thu, 11 Mar 2021 12:41:51 -0500 (EST)
-Subject: FAILED: patch "[PATCH] gpio: fix gpio-device list corruption" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 999A324005A;
+        Thu, 11 Mar 2021 12:41:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] gpio: fix gpio-device list corruption" failed to apply to 5.11-stable tree
 To:     johan@kernel.org, bgolaszewski@baylibre.com, saravanak@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 11 Mar 2021 18:41:40 +0100
-Message-ID: <161548450011383@kroah.com>
+Date:   Thu, 11 Mar 2021 18:41:41 +0100
+Message-ID: <16154845012114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
