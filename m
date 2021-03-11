@@ -2,129 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4AB337C36
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C44F2337C32
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbhCKSNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229965AbhCKSNL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Mar 2021 13:13:11 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:49575 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229904AbhCKSNI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:13:08 -0500
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id EB9511B71;
-        Thu, 11 Mar 2021 13:13:07 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Thu, 11 Mar 2021 13:13:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/XjKps
-        RsOe3dSR2TLLmB+yyiD+SYvKYy0pQTDf/ynIA=; b=XH1B5C5l0Cv6044r0/Dueb
-        4puBQzMVi9KGE2gk41yYMbPNHkCm2mPTvcE3D7FdM2+tiRN7CNFsdhXuPx4BMSnd
-        rcry6Pu+Le3BKperttLyeeuwAIst4LaXJok4zqJDkjnyX6c15k2naXgPO/xwY3KS
-        ZSnxWWtsUkYqK7Dft3uyug785nkKUuirr7fGpH3irbEt4mpgBqQx36JXAiFztgcW
-        ZrOoTWraIUOc1OUmchgH4aPbe3y3gWRmBMdtKN4JilVtIB+W8us/kmr9WgMZNPMx
-        Y/arGWDh1N5hZRy4CdvWANz1ib7fhtVwAUOj9Ayk4ypaoQVh8/5hR4Eoa77GdGtw
-        ==
-X-ME-Sender: <xms:s11KYLhRmYHGuW9vZuaEaYHnf2uDXCADx8gL18qC3oqg2-ujCq5OIA>
-    <xme:s11KYIA3SRvBGoVy9-Bb-f6ljOODIF4JBUF0NvEhyCs5zRsnaFCmQcX0vQi9P2Clv
-    EGppyOvQRJugg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddguddutdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
-    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
-    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
-    drtghomh
-X-ME-Proxy: <xmx:s11KYLH5aYcYNrKZR_jsd-Rws83xTBx3C8gAMLGXcrUcuGgf95U8mg>
-    <xmx:s11KYITCg9BfH74-ww2BLvQjJc64MEav7zajEBFK7gTD_hQbWx37Wg>
-    <xmx:s11KYIwu0C7xxziU6bgbubAMunCEgiJEdvaHgFMSI3phZW0Bj-D4yg>
-    <xmx:s11KYFoaN-tjTHcQDiXLLbKr-ducwFH_51ZfGM6fv4UNT7cZ9PvFTYZM-Xk>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 23DE4240065;
-        Thu, 11 Mar 2021 13:13:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] gpiolib: acpi: Add ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER quirk" failed to apply to 5.10-stable tree
-To:     andriy.shevchenko@linux.intel.com, linus.walleij@linaro.org,
-        mika.westerberg@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 11 Mar 2021 19:12:55 +0100
-Message-ID: <161548637597119@kroah.com>
+Received: from mga04.intel.com ([192.55.52.120]:10827 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229821AbhCKSNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 13:13:01 -0500
+IronPort-SDR: OpiFBjhQoLX+JGsPmI7sn8Vd4nzPG9jin6RCfVwD9gg4odyDk/7Dw9I4Mmrh6sVAWOPCQN8gBm
+ m+uIYLmwgSKA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9920"; a="186337918"
+X-IronPort-AV: E=Sophos;i="5.81,241,1610438400"; 
+   d="scan'208";a="186337918"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 10:13:00 -0800
+IronPort-SDR: 6w8YfludFvMAiU+tUMs+3QLK8/xbc9BefDU0SHtDqUhiVEkjV4Wjk7EMZ1ps9AVkLFsoyAj55u
+ EeikkH9+vQ1w==
+X-IronPort-AV: E=Sophos;i="5.81,241,1610438400"; 
+   d="scan'208";a="603628357"
+Received: from prcarril-mobl2.amr.corp.intel.com (HELO [10.213.187.142]) ([10.213.187.142])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 10:13:00 -0800
+Subject: Re: [PATCH 1/2] ASoC: intel: atom: Stop advertising non working S24LE
+ support
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Jie Yang <yang.jie@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
+References: <20210309105520.9185-1-hdegoede@redhat.com>
+ <e1af1b57-d384-0dce-6362-c39197cf2063@linux.intel.com>
+ <1c6f6608-5da3-1d57-1673-97ea22930ff9@redhat.com>
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Message-ID: <d1a1a110-dc41-17e3-5b53-6c8921bf49a3@linux.intel.com>
+Date:   Thu, 11 Mar 2021 12:12:59 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1c6f6608-5da3-1d57-1673-97ea22930ff9@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
 
-thanks,
+On 3/11/21 10:44 AM, Hans de Goede wrote:
+> Hi,
+> 
+> On 3/9/21 4:42 PM, Pierre-Louis Bossart wrote:
+>>
+>>
+>> On 3/9/21 4:55 AM, Hans de Goede wrote:
+>>> The SST firmware's media and deep-buffer inputs are hardcoded to
+>>> S16LE, the corresponding DAIs don't have a hw_params callback and
+>>> their prepare callback also does not take the format into account.
+>>>
+>>> So far the advertising of non working S24LE support has not caused
+>>> issues because pulseaudio defaults to S16LE, but changing pulse-audio's
+>>> config to use S24LE will result in broken sound.
+>>>
+>>> Pipewire is replacing pulse now and pipewire prefers S24LE over S16LE
+>>> when available, causing the problem of the broken S24LE support to
+>>> come to the surface now.
+>>>
+>>> Cc: stable@vger.kernel.org
+>>> BugLink: https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/866
+>>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>>
+>> Humm, that is strange.
+>> I can't recall such limitations in the firmware, and the SSP support does make use of 24 bits.
+>> Please give me a couple of days to double-check what's missing.
+> 
+> Note this is not about the format between the DSP (the DSP's SSP) and the codec,
+> this is the format between userspace and the DSP.
+> 
+> As is mentioned by the reporter of this issue:
+> https://github.com/thesofproject/sof/issues/3868#issuecomment-796809535
+> Both in that issue but also here:
+> https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/530#note_791736
+> 
+> And independently reproduced by my here:
+> https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/866#note_830336
+> 
+> The S24LE format ATM does not work when passed from userspace, this is
+> supposed to take 24 bits sampled packed into 32 bits ints (so padded
+> with 1 0 byte to make 32 bits per sample), but to actually get working
+> playback with the SST driver, the following commands are necessary:
+> 
+> ffmpeg -i /usr/share/sounds/alsa/Side_Left.wav -ar 96000 -f s32le -ac 2 test.raw
+> aplay --dump-hw-params -D"hw:1,0" -r48000 -c2 -fS24_LE test.raw
+> 
+> Note how the ffmpeg command to generate a working set of raw samples
+> is set to convert to full 32 bit samples, rather then 0 padded 24 bit
+> samples. Generating a .raw file with the same -f s32le argument to
+> ffmpeg and then playing it with aplay -fS24_LE while using the SOF
+> driver results in static. Where as with the SST driver it results
+> in working sound. This shows that the 2 clearly interpret the format
+> differently and it looks like the SST driver is interpreting it wrong.
+> 
+> Maybe the SST driver should advertise S32_LE support instead, SOF
+> advertised both S24_LE and S32_LE and the S32_LE format is the
+> one which works with .raw files generated with ffmpeg's -f s32le
+> option when using the SOF drv.
+> 
+> Note the format is not the only issue though, to get normal speed / pitch
+> playback, the file needs to be converted to a sample rate of 96KHz
+> and then played back at 48 KHz, hence the "-ar 96000" argument to
+> ffmpeg to get normal playback when using aplay -fS24_LE with the SST driver.
+> 
+> Because of both these fmt and playback speed issues I decided to just
+> drop the SNDRV_PCM_FMTBIT_S24_LE support in my patch. I guess we could
+> try to fix it, but since the plan is the phase out the SST support for
+> these devices this year I believe that we should not spend too much
+> time on trying to fix the SST driver here.  Dropping the SNDRV_PCM_FMTBIT_S24_LE
+> is a simple workaround to bridge the time until we complete drop the
+> SST support.
 
-greg k-h
+ok, I agree. I added this capability back in 2015 in the upstream code 
+based on the Android versions, and I *think* it was tested, but since 
+there's overwhelming evidence of multiple issues let's revert this.
 
------------------- original commit in Linus's tree ------------------
+Fixes: 098c2cd281409 ("ASoC  ASoC: Intel: Atom: add 24-bit support for 
+media playback and capture")
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-From 62d5247d239d4b48762192a251c647d7c997616a Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Thu, 25 Feb 2021 18:33:18 +0200
-Subject: [PATCH] gpiolib: acpi: Add ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER quirk
 
-On some systems the ACPI tables has wrong pin number and instead of
-having a relative one it provides an absolute one in the global GPIO
-number space.
-
-Add ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER quirk to cope with such cases.
-
-Fixes: ba8c90c61847 ("gpio: pca953x: Override IRQ for one of the expanders on Galileo Gen 2")
-Depends-on: 0ea683931adb ("gpio: dwapb: Convert driver to using the GPIO-lib-based IRQ-chip")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 86efa2d9bf7f..0fa0127d50ec 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -677,6 +677,7 @@ static int acpi_populate_gpio_lookup(struct acpi_resource *ares, void *data)
- 	if (!lookup->desc) {
- 		const struct acpi_resource_gpio *agpio = &ares->data.gpio;
- 		bool gpioint = agpio->connection_type == ACPI_RESOURCE_GPIO_TYPE_INT;
-+		struct gpio_desc *desc;
- 		u16 pin_index;
- 
- 		if (lookup->info.quirks & ACPI_GPIO_QUIRK_ONLY_GPIOIO && gpioint)
-@@ -689,8 +690,12 @@ static int acpi_populate_gpio_lookup(struct acpi_resource *ares, void *data)
- 		if (pin_index >= agpio->pin_table_length)
- 			return 1;
- 
--		lookup->desc = acpi_get_gpiod(agpio->resource_source.string_ptr,
-+		if (lookup->info.quirks & ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER)
-+			desc = gpio_to_desc(agpio->pin_table[pin_index]);
-+		else
-+			desc = acpi_get_gpiod(agpio->resource_source.string_ptr,
- 					      agpio->pin_table[pin_index]);
-+		lookup->desc = desc;
- 		lookup->info.pin_config = agpio->pin_config;
- 		lookup->info.debounce = agpio->debounce_timeout;
- 		lookup->info.gpioint = gpioint;
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index ef49307611d2..c73b25bc9213 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -674,6 +674,8 @@ struct acpi_gpio_mapping {
-  * get GpioIo type explicitly, this quirk may be used.
-  */
- #define ACPI_GPIO_QUIRK_ONLY_GPIOIO		BIT(1)
-+/* Use given pin as an absolute GPIO number in the system */
-+#define ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER		BIT(2)
- 
- 	unsigned int quirks;
- };
 
