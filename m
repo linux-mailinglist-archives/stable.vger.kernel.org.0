@@ -2,257 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8419B336C75
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 07:51:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2177D336C8A
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 07:54:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230418AbhCKGu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 01:50:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230458AbhCKGuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 01:50:14 -0500
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A63C061760
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 22:50:13 -0800 (PST)
-Received: by mail-ej1-x633.google.com with SMTP id p8so43860395ejb.10
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 22:50:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=ptIec5/l5SJwE7zBjHGtTGVSGpXx725GHbS1ui0XQQg=;
-        b=RNbhLnDslwV1ZAmXU6qw951y1ouK1GsjKcKS/AC4LnmMQfukacYrNpv7+yzSy3PM/8
-         yEON5p/EwJ47U/JjaojqfZajlNfmoufc4ZyQo28U9uBh+YyGVHA7wrcnKEkOM9f05ZRP
-         K0z9q06lIVknGwyCOCie/6WvGTwZAy34ZjL2THQYFAMC8PuZKDQD9Ftq3CnZ0gTgYrl/
-         8n5MJ3NoGk0Gz/aTosOQn7pHe4t3HzAT+79wY5GAu9PhJ/SDj3RvdymY7ryzcyCkdWsp
-         hV0k83Pm9PMYqnDOq/i8vtglu5Wjj73CSZzTYnvHocwdawptNfe4f5vEcX5o5GpnucZa
-         kGUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=ptIec5/l5SJwE7zBjHGtTGVSGpXx725GHbS1ui0XQQg=;
-        b=Qkz3HOkFCYiuwNxWzTtuBcDC8MKIjmFKg7rD/Wgq2o/eg/pwxOOHNgXzGOIASRCT/V
-         R2bghWLweR5ECSbPCDo+41K4zcQyK7ZOXZnzhxGneBTKbkaKcW6h47y8vUT9Bw+l9GkQ
-         sRrYQEvccci4dmPTpO0hgpPmum1HUJBM2Gye5vLtzcF0Z8BVG4BUWUs+amuZRzeYHh/t
-         Nw7FXBuK7DjRsE0obt5vx1nu7I0jOZ6u6ZSybZ45bUiL94oHF9me2cjpzWjDvyZrj9Xl
-         67tk9FrOl39OQk8+JCwqOU1lH6jzh+Daofcu1bUi1VazBeO6hRmpvfgKf+ZTy/fjLLom
-         IWwg==
-X-Gm-Message-State: AOAM533iI5Qa3CrjqAsEzF2lODRhWqUgm6//uxqKxGdibfOcuj+0McdS
-        eESyg4LyjaMfSwY/7lVnIn+Sxnh1vfqJk6fqSqXYAQ==
-X-Google-Smtp-Source: ABdhPJyszQ4KDwubpi0ogfG8RcflSl3DvQgx74jQEdqhNOhFicG4X86jAIg4rh886sWeArU+nVHdy6GuDXOjawOqMJY=
-X-Received: by 2002:a17:906:b2c3:: with SMTP id cf3mr1539444ejb.133.1615445412274;
- Wed, 10 Mar 2021 22:50:12 -0800 (PST)
+        id S230196AbhCKGyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 01:54:13 -0500
+Received: from mailgw02.mediatek.com ([210.61.82.184]:51427 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230435AbhCKGyB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 01:54:01 -0500
+X-UUID: 18f687241c5745ffae71f379279041dc-20210311
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:In-Reply-To:Date:CC:To:From:Subject:Message-ID; bh=HXvdSSzvJwcQp7ImGoV9GE6S8/ULPWjlIYaMv49d5ww=;
+        b=mwWehAuu50llSWl9rhY4UGPEw/phO7v9eV+XYfWvje1f1tZN84LEkMxc8L0ERbvUaPy5YksIfNhIjdyxWXio4EwKj8XrYWXrGPqCXaUxcmFOfVQMchHrEFxelb+OXRjTp7NZhKGM9TMteO3kWcs7pmDCCkpu86uRsAnNoLt5fDg=;
+X-UUID: 18f687241c5745ffae71f379279041dc-20210311
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw02.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 734091626; Thu, 11 Mar 2021 14:53:55 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 11 Mar 2021 14:53:52 +0800
+Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 11 Mar 2021 14:53:52 +0800
+Message-ID: <1615445632.13420.2.camel@mtkswgap22>
+Subject: Re: [PATCH v4] usb: gadget: configfs: Fix KASAN use-after-free
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Jim Lin <jilin@nvidia.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+CC:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        Ainge Hsu <ainge.hsu@mediatek.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Kuohong Wang <kuohong.wang@mediatek.com>,
+        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>, <stable@vger.kernel.org>
+Date:   Thu, 11 Mar 2021 14:53:52 +0800
+In-Reply-To: <1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com>
+References: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
+         <1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
 MIME-Version: 1.0
-References: <20210310182834.696191666@linuxfoundation.org>
-In-Reply-To: <20210310182834.696191666@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 11 Mar 2021 12:20:01 +0530
-Message-ID: <CA+G9fYuVoNR9SN+1gY9TrsxPdpyJ=x0yNyBwKOsj1q-m0uoRDg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/47] 5.10.23-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-TM-SNTS-SMTP: 1AFDD4A18497C1AB79C36991DF15FA0620D45CD5E2DE115D246BC0D32C71F9902000:8
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Mar 2021 at 23:59, <gregkh@linuxfoundation.org> wrote:
->
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> This is the start of the stable review cycle for the 5.10.23 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 12 Mar 2021 18:28:23 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.23-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+T24gVGh1LCAyMDIxLTAzLTExIGF0IDE0OjQyICswODAwLCBNYWNwYXVsIExpbiB3cm90ZToNCj4g
+RnJvbTogSmltIExpbiA8amlsaW5AbnZpZGlhLmNvbT4NCj4gDQo+IFdoZW4gZ2FkZ2V0IGlzIGRp
+c2Nvbm5lY3RlZCwgcnVubmluZyBzZXF1ZW5jZSBpcyBsaWtlIHRoaXMuDQo+IC4gY29tcG9zaXRl
+X2Rpc2Nvbm5lY3QNCj4gLiBDYWxsIHRyYWNlOg0KPiAgIHVzYl9zdHJpbmdfY29weSsweGQwLzB4
+MTI4DQo+ICAgZ2FkZ2V0X2NvbmZpZ19uYW1lX2NvbmZpZ3VyYXRpb25fc3RvcmUrMHg0DQo+ICAg
+Z2FkZ2V0X2NvbmZpZ19uYW1lX2F0dHJfc3RvcmUrMHg0MC8weDUwDQo+ICAgY29uZmlnZnNfd3Jp
+dGVfZmlsZSsweDE5OC8weDFmNA0KPiAgIHZmc193cml0ZSsweDEwMC8weDIyMA0KPiAgIFN5U193
+cml0ZSsweDU4LzB4YTgNCj4gLiBjb25maWdmc19jb21wb3NpdGVfdW5iaW5kDQo+IC4gY29uZmln
+ZnNfY29tcG9zaXRlX2JpbmQNCj4gDQo+IEluIGNvbmZpZ2ZzX2NvbXBvc2l0ZV9iaW5kLCBpdCBo
+YXMNCj4gImNuLT5zdHJpbmdzLnMgPSBjbi0+Y29uZmlndXJhdGlvbjsiDQo+IA0KPiBXaGVuIHVz
+Yl9zdHJpbmdfY29weSBpcyBpbnZva2VkLiBpdCB3b3VsZA0KPiBhbGxvY2F0ZSBtZW1vcnksIGNv
+cHkgaW5wdXQgc3RyaW5nLCByZWxlYXNlIHByZXZpb3VzIHBvaW50ZWQgbWVtb3J5IHNwYWNlLA0K
+PiBhbmQgdXNlIG5ldyBhbGxvY2F0ZWQgbWVtb3J5Lg0KPiANCj4gV2hlbiBnYWRnZXQgaXMgY29u
+bmVjdGVkLCBob3N0IHNlbmRzIGRvd24gcmVxdWVzdCB0byBnZXQgaW5mb3JtYXRpb24uDQo+IENh
+bGwgdHJhY2U6DQo+ICAgdXNiX2dhZGdldF9nZXRfc3RyaW5nKzB4ZWMvMHgxNjgNCj4gICBsb29r
+dXBfc3RyaW5nKzB4NjQvMHg5OA0KPiAgIGNvbXBvc2l0ZV9zZXR1cCsweGEzNC8weDFlZTgNCj4g
+DQo+IElmIGdhZGdldCBpcyBkaXNjb25uZWN0ZWQgYW5kIGNvbm5lY3RlZCBxdWlja2x5LCBpbiB0
+aGUgZmFpbGVkIGNhc2UsDQo+IGNuLT5jb25maWd1cmF0aW9uIG1lbW9yeSBoYXMgYmVlbiByZWxl
+YXNlZCBieSB1c2Jfc3RyaW5nX2NvcHkga2ZyZWUgYnV0DQo+IGNvbmZpZ2ZzX2NvbXBvc2l0ZV9i
+aW5kIGhhc24ndCBiZWVuIHJ1biBpbiB0aW1lIHRvIGFzc2lnbiBuZXcgYWxsb2NhdGVkDQo+ICJj
+bi0+Y29uZmlndXJhdGlvbiIgcG9pbnRlciB0byAiY24tPnN0cmluZ3MucyIuDQo+IA0KPiBXaGVu
+ICJzdHJsZW4ocy0+cykgb2YgdXNiX2dhZGdldF9nZXRfc3RyaW5nIGlzIGJlaW5nIGV4ZWN1dGVk
+LCB0aGUgZGFuZ2xpbmcNCj4gbWVtb3J5IGlzIGFjY2Vzc2VkLCAiQlVHOiBLQVNBTjogdXNlLWFm
+dGVyLWZyZWUiIGVycm9yIG9jY3Vycy4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IEppbSBMaW4gPGpp
+bGluQG52aWRpYS5jb20+DQo+IFNpZ25lZC1vZmYtYnk6IE1hY3BhdWwgTGluIDxtYWNwYXVsLmxp
+bkBtZWRpYXRlay5jb20+DQo+IENjOiBzdGFibGVAdmdlci5rZXJuZWwub3JnDQo+IC0tLQ0KPiBD
+aGFuZ2VzIGluIHYyOg0KPiBDaGFuZ2VzIGluIHYzOg0KPiAgLSBDaGFuZ2UgY29tbWl0IGRlc2Ny
+aXB0aW9uDQo+IENoYW5nZXMgaW4gdjQ6DQo+ICAtIEZpeCBidWlsZCBlcnJvciBhbmQgYWRhcHQg
+cGF0Y2ggdG8ga2VybmVsLTUuMTItcmMxLg0KPiAgICBSZXBsYWNlIGRlZmluaXRpb24gIk1BWF9V
+U0JfU1RSSU5HX1dJVEhfTlVMTF9MRU4iIHdpdGgNCj4gICAgIlVTQl9NQVhfU1RSSU5HX1dJVEhf
+TlVMTF9MRU4iLg0KPiAgLSBOb3RlOiBUaGUgcGF0Y2ggdjIgYW5kIHYzIGhhcyBiZWVuIHZlcmlm
+aWVkIGJ5DQo+ICAgIFRoYWRldSBMaW1hIGRlIFNvdXphIENhc2NhcmRvIDxjYXNjYXJkb0BjYW5v
+bmljYWwuY29tPg0KPiAgICBodHRwOi8vc3Bpbmljcy5uZXQvbGlzdHMva2VybmVsL21zZzM4NDA3
+OTIuaHRtbA0KDQpEZWFyIENhc2NhcmRvLA0KDQpXb3VsZCB5b3UgcGxlYXNlIGhlbHAgdG8gY29u
+ZmlybSBpZiB5b3UndmUgdGVzdGVkIGl0IG9uIExpbnV4IFBDLA0KQ2hyb21lIE9TLCBvciBhbiBB
+bmRyb2lkIE9TPw0KDQpUaGFua3MhDQpNYWNwYXVsIExpbg0KDQo+ICAgIGFuZA0KPiAgICBNYWNw
+YXVsIExpbiA8bWFjcGF1bC5saW5AbWVkaWF0ZWsuY29tPiBvbiBBbmRyb2lkIGtlcm5lbHMuDQo+
+ICAgIGh0dHA6Ly9sa21sLm9yZy9sa21sLzIwMjAvNi8xMS84DQo+ICAtIFRoZSBwYXRjaCBpcyBz
+dWdnZXN0ZWQgdG8gYmUgYXBwbGllZCB0byBMVFMgdmVyc2lvbnMuDQo+IA0KPiAgZHJpdmVycy91
+c2IvZ2FkZ2V0L2NvbmZpZ2ZzLmMgfCAgIDE0ICsrKysrKysrKystLS0tDQo+ICAxIGZpbGUgY2hh
+bmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3VzYi9nYWRnZXQvY29uZmlnZnMuYyBiL2RyaXZlcnMvdXNiL2dhZGdldC9jb25m
+aWdmcy5jDQo+IGluZGV4IDBkNTZmMzMuLjE1YTYwN2MgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMv
+dXNiL2dhZGdldC9jb25maWdmcy5jDQo+ICsrKyBiL2RyaXZlcnMvdXNiL2dhZGdldC9jb25maWdm
+cy5jDQo+IEBAIC05Nyw2ICs5Nyw4IEBAIHN0cnVjdCBnYWRnZXRfY29uZmlnX25hbWUgew0KPiAg
+CXN0cnVjdCBsaXN0X2hlYWQgbGlzdDsNCj4gIH07DQo+ICANCj4gKyNkZWZpbmUgVVNCX01BWF9T
+VFJJTkdfV0lUSF9OVUxMX0xFTgkoVVNCX01BWF9TVFJJTkdfTEVOKzEpDQo+ICsNCj4gIHN0YXRp
+YyBpbnQgdXNiX3N0cmluZ19jb3B5KGNvbnN0IGNoYXIgKnMsIGNoYXIgKipzX2NvcHkpDQo+ICB7
+DQo+ICAJaW50IHJldDsNCj4gQEAgLTEwNiwxMiArMTA4LDE2IEBAIHN0YXRpYyBpbnQgdXNiX3N0
+cmluZ19jb3B5KGNvbnN0IGNoYXIgKnMsIGNoYXIgKipzX2NvcHkpDQo+ICAJaWYgKHJldCA+IFVT
+Ql9NQVhfU1RSSU5HX0xFTikNCj4gIAkJcmV0dXJuIC1FT1ZFUkZMT1c7DQo+ICANCj4gLQlzdHIg
+PSBrc3RyZHVwKHMsIEdGUF9LRVJORUwpOw0KPiAtCWlmICghc3RyKQ0KPiAtCQlyZXR1cm4gLUVO
+T01FTTsNCj4gKwlpZiAoY29weSkgew0KPiArCQlzdHIgPSBjb3B5Ow0KPiArCX0gZWxzZSB7DQo+
+ICsJCXN0ciA9IGttYWxsb2MoVVNCX01BWF9TVFJJTkdfV0lUSF9OVUxMX0xFTiwgR0ZQX0tFUk5F
+TCk7DQo+ICsJCWlmICghc3RyKQ0KPiArCQkJcmV0dXJuIC1FTk9NRU07DQo+ICsJfQ0KPiArCXN0
+cmNweShzdHIsIHMpOw0KPiAgCWlmIChzdHJbcmV0IC0gMV0gPT0gJ1xuJykNCj4gIAkJc3RyW3Jl
+dCAtIDFdID0gJ1wwJzsNCj4gLQlrZnJlZShjb3B5KTsNCj4gIAkqc19jb3B5ID0gc3RyOw0KPiAg
+CXJldHVybiAwOw0KPiAgfQ0KDQo=
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.10.23-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.10.y
-git commit: 93276f11b3afe08c3f213a3648483b1a8789673b
-git describe: v5.10.22-48-g93276f11b3af
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
-.y/build/v5.10.22-48-g93276f11b3af
-
-No regressions (compared to build v5.10.22)
-
-
-No fixes (compared to build v5.10.22)
-
-
-Ran 56156 total tests in the following environments and test suites.
-
-Environments
---------------
-- arc
-- arm
-- arm64
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- parisc
-- powerpc
-- qemu-arm-clang
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-i386-clang
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu-x86_64-kcsan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- riscv
-- s390
-- sh
-- sparc
-- x15
-- x86
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kselftest-bpf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-livepatch
-* kselftest-ptrace
-* libhugetlbfs
-* ltp-containers-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* v4l2-compliance
-* fwts
-* kselftest-kvm
-* kselftest-lib
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-math-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* kselftest-
-* kselftest-android
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-kexec
-* kselftest-lkdtm
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-vm
-* kselftest-x86
-* ltp-controllers-tests
-* ltp-open-posix-tests
-* kvm-unit-tests
-* kunit
-* rcutorture
-* ssuite
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
