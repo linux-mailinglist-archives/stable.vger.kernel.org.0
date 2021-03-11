@@ -2,114 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32B13337ADA
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:31:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22230337AE6
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:34:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbhCKRbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 12:31:13 -0500
-Received: from condef-08.nifty.com ([202.248.20.73]:39413 "EHLO
-        condef-08.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229578AbhCKRaq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:30:46 -0500
-Received: from conssluserg-06.nifty.com ([10.126.8.85])by condef-08.nifty.com with ESMTP id 12BHPjCR002831;
-        Fri, 12 Mar 2021 02:25:45 +0900
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51]) (authenticated)
-        by conssluserg-06.nifty.com with ESMTP id 12BHPUIR024578;
-        Fri, 12 Mar 2021 02:25:31 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-06.nifty.com 12BHPUIR024578
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1615483531;
-        bh=PXJt6D8qnKY8szVqGBkNLxIg6+eK0InYeixeUSx4Lhs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Qb4NHPOdreQxZNopchu3iYo/9GCNDjinFt5dgXgg7/NB9pUl5M32rRvqbInAxN9Ec
-         8RVARmmJ8RCOCDfV+DCPa8VFdntwzEDh2mJ3SicXe1F3Xiu3DUOTbhqLUb1B/H0SK+
-         fGNb7CiPQtjZ6n+NCbBDBpadYu+LBbGz/MB5pG67+F8JaWY9LC7Z9U4QX2w+QrMemP
-         XqPtWbxM96G/FK5zFVCqGSe4eeey81GfS/sSKIAeuNwOuBX8qIPCM+zyiq+vfORO0A
-         VNKcYJGkmxwnb7nKeQFsKmBV+bNlsAOahEwri2PtUf6YBmkq3jfdIsOP1JSEJ61uxn
-         diVOHH2nZw5/Q==
-X-Nifty-SrcIP: [209.85.216.51]
-Received: by mail-pj1-f51.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so9413076pjc.2;
-        Thu, 11 Mar 2021 09:25:31 -0800 (PST)
-X-Gm-Message-State: AOAM532FnJM5d+t3pXEVYwsEglymDgs2Y+moFP1qSHMePAgNC8zPJNLn
-        XwKJfuoXyluJ6tx4girlgO9pUi7B7fnptwvrYvU=
-X-Google-Smtp-Source: ABdhPJxPcnVso4Em3gdaU2xvNMRrfF43T4ctrqiyqNN0sGobXOGU9+yOVbhG2axf6IP41vq7Mu+axhdDnGBjOdY7abI=
-X-Received: by 2002:a17:90a:3b0e:: with SMTP id d14mr10135971pjc.198.1615483530413;
- Thu, 11 Mar 2021 09:25:30 -0800 (PST)
-MIME-Version: 1.0
-References: <a1a749e7-48be-d0ab-8fb5-914daf512ae9@web.de> <YEpEuoRGh0KoWoGa@lunn.ch>
-In-Reply-To: <YEpEuoRGh0KoWoGa@lunn.ch>
-From:   Masahiro Yamada <masahiroy@kernel.org>
-Date:   Fri, 12 Mar 2021 02:24:52 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASPRUdvy8go5Cn6C+8j2O5AGJje1h-uKiTCFyVOmZwcUw@mail.gmail.com>
-Message-ID: <CAK7LNASPRUdvy8go5Cn6C+8j2O5AGJje1h-uKiTCFyVOmZwcUw@mail.gmail.com>
-Subject: Re: of_mdio: Checking build dependencies
-To:     Andrew Lunn <andrew@lunn.ch>
-Cc:     Markus Elfring <Markus.Elfring@web.de>,
-        stable <stable@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        Calvin Johnson <calvin.johnson@oss.nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Russell King <linux@armlinux.org.uk>,
-        LKML <linux-kernel@vger.kernel.org>,
-        kernel-janitors@vger.kernel.org
+        id S229459AbhCKRdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 12:33:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52466 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229632AbhCKRdo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:33:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615484024;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=XqfVvgDEaeVZgfA4fm07c5tH+yOQh34HrNoi9gVsjLg=;
+        b=K9Je8dfKljRYgr1AhAFTZVOVMX04J1uDSVP5GTQOQtk8kbFHSm2uAUA/T57GMPPwRLthbh
+        Oh+GGgEZ+4wI5SoEX+sCWzuxeY6DuAEpi3iIfgIOyPjhuvrbvD4yuUg9X2N8w9gmMEtqMb
+        RcWYIx8GIEmOzFzNpGKPs6KRQL4Blwo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-23-3xkXpRKgPoKAF7_Cud4tBg-1; Thu, 11 Mar 2021 12:33:41 -0500
+X-MC-Unique: 3xkXpRKgPoKAF7_Cud4tBg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 479A81074659;
+        Thu, 11 Mar 2021 17:33:40 +0000 (UTC)
+Received: from ovpn-113-87.phx2.redhat.com (ovpn-113-87.phx2.redhat.com [10.3.113.87])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C2E2C60C03;
+        Thu, 11 Mar 2021 17:33:39 +0000 (UTC)
+Message-ID: <f9bdd225112d79cfc3854cfc52bfea441b547b95.camel@redhat.com>
+Subject: Re: [PATCH v2] nvme-fc: fix racing controller reset and create
+ association
+From:   "Ewan D. Milne" <emilne@redhat.com>
+To:     James Smart <jsmart2021@gmail.com>, linux-nvme@lists.infradead.org
+Cc:     stable@vger.kernel.org, Nigel Kirkland <nkirkland2304@gmail.com>
+Date:   Thu, 11 Mar 2021 12:33:39 -0500
+In-Reply-To: <20210309005126.58460-1-jsmart2021@gmail.com>
+References: <20210309005126.58460-1-jsmart2021@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 12, 2021 at 1:26 AM Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Wed, Mar 10, 2021 at 09:31:07PM +0100, Markus Elfring wrote:
-> > Hello,
-> >
-> > I would like to build the Linux version =E2=80=9C5.11.5=E2=80=9D for my=
- needs.
-> > But I stumbled on the following information.
-> >
-> > =E2=80=A6
-> >   AR      drivers/built-in.a
-> >   LD [M]  drivers/visorbus/visorbus.o
-> >   GEN     .version
-> >   CHK     include/generated/compile.h
-> > error: the following would cause module name conflict:
-> >   drivers/net/mdio/of_mdio.ko
-> >   drivers/of/of_mdio.ko
->
-> Hi Markus
->
-> Something wrong here. There should not be any of_mdio.ko in
-> drivers/of. That was the whole point of the patch you referenced, it
-> moved this file to drivers/net/mdio/. Please check where your
-> drivers/of/of_mdio.ko comes from. Has there been a bad merge conflict
-> resolution? Or is it left over from an older build?
->
->    Andrew
+On Mon, 2021-03-08 at 16:51 -0800, James Smart wrote:
+> Recent patch to prevent calling __nvme_fc_abort_outstanding_ios in
+> interrupt context results in a possible race condition. A controller
+> reset results in errored io completions, which schedules error
+> work. The change of error work to a work element allows it to fire
+> after the ctrl state transition to NVME_CTRL_CONNECTING, causing
+> any outstanding io (used to initialize the controller) to fail and
+> cause problems for connect_work.
+> 
+> Add a state check to only schedule error work if not in the RESETTING
+> state.
+> 
+> Fixes: 19fce0470f05 ("nvme-fc: avoid calling
+> _nvme_fc_abort_outstanding_ios from interrupt context")
+> Cc: <stable@vger.kernel.org> # v5.10+
+> 
+> Signed-off-by: Nigel Kirkland <nkirkland2304@gmail.com>
+> Signed-off-by: James Smart <jsmart2021@gmail.com>
+> 
+> ---
+> v2: clean up typo in commit header
+> ---
+>  drivers/nvme/host/fc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+> index 20dadd86e981..0f92bd12123e 100644
+> --- a/drivers/nvme/host/fc.c
+> +++ b/drivers/nvme/host/fc.c
+> @@ -2055,7 +2055,7 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
+>  		nvme_fc_complete_rq(rq);
+>  
+>  check_error:
+> -	if (terminate_assoc)
+> +	if (terminate_assoc && ctrl->ctrl.state != NVME_CTRL_RESETTING)
+>  		queue_work(nvme_reset_wq, &ctrl->ioerr_work);
+>  }
+>  
+
+This fix resolves the frequent -EBUSY / -ENETRESET errors I saw when
+resetting the controller via sysfs, as well as the eventual hang with
+the controller stuck in the _CONNECTING state, thanks.  Looks good.
+
+-Ewan
 
 
-modules.order may include both
-drivers/of/of_mdio.ko  and
-drivers/net/mdio/of_mdio.c
-
-But, I do not know how this could happen.
-
-I checked out 14b26b127c098bba^,
-and built modules with CONFIG_OF_MDIO=3Dm.
-Then, I checked out 14b26b127c098bba
-and rebuilt.
-
-I did not see such an error.
-
-I also checked the Kbuild code,
-and it looks good too.
-
-Please let me know if you find steps
-to reproduce it.
-
---
-Best Regards
-Masahiro Yamada
