@@ -2,84 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FAE13368AA
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 01:31:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 155C33368C5
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 01:36:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbhCKAau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 19:30:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48782 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229789AbhCKAa3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 19:30:29 -0500
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DCBCC061574
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 16:30:28 -0800 (PST)
-Received: by mail-qt1-x82e.google.com with SMTP id o1so56064qta.13
-        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 16:30:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Mmc0RuUOlCFvulxidW/k2Ie5WhinDkDwZmLnUv3DwVg=;
-        b=K0TTKTAUf0dPXP7nNJPS8qIcDoLTv9HQdRbLC+7/Z+r2605f+QGmAlJn2t2I8oopeX
-         OtiBwgihuy2tjV3b/2DIBXC1x2SygPnjSJXMAWUl8yDCJMXpZwv21X1KcsKplLRkalKF
-         +ioL1l1XxeQvA7ntGR/s0XSTA2XdQQjXnaOChWHNZWYRU94RW6c+ze8qDOjTp4D5+u96
-         Kblc1Aonn001vYVB8/11jA2OGx7n99poT2/P0iQZmENXZ1IvGZUt61y9MJY6atQxWY1Y
-         kMye4b4xWX9qfFf+pFW4vgokxZKm3MrFzdRkFu5E+MdBepzIHVakZ4GAsfB0jfkkSSqF
-         wavw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Mmc0RuUOlCFvulxidW/k2Ie5WhinDkDwZmLnUv3DwVg=;
-        b=PBjwT5tylkfHmAxMG54eh709stqehUaWKg1TdGI9tMDcYtLpMtlW2hu7/dj2IO37pq
-         9OghpBrz3mz6CE7t/xLlxXjjbRot5KxhbRZlv3cJwXssB9U4++rNYrx1YGDTXygzl8ih
-         cgsyuiJAbgxnZtXadLRZur5nA/yvKZUkLcxjE2V7X9tXUKohZ9UEmy9CdZaE9/oExRQZ
-         RvukkZEckojifRz6s0+2HYn9ovGoG4nbD1TmV+bymhiuBfFKhJUyWkeaGY2PWvzgO1fr
-         AYhgNRdDfZQavLSDpQ+tI3shDCUZ2MDdoGwvNGhsvUa3g2fohjrmMZSqk5GqQ80mK1eT
-         8Lcw==
-X-Gm-Message-State: AOAM533w3ZYcmULY9dd4cWTlKEpg/ogs7plSCShYJtkUoyYHwtE0Jbt/
-        1YE5iqOhvgKZSCMvsTV3GGm9lQ==
-X-Google-Smtp-Source: ABdhPJy/HscA2IVpxWWAjD5lhf70Ts/MUuwJKSD65SIfCEGU3adAV+25h6xuHbsrx6TTpui9/qcQxA==
-X-Received: by 2002:ac8:5a15:: with SMTP id n21mr5278107qta.85.1615422627496;
-        Wed, 10 Mar 2021 16:30:27 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-162-115-133.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.115.133])
-        by smtp.gmail.com with ESMTPSA id j2sm707607qkk.96.2021.03.10.16.30.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Mar 2021 16:30:27 -0800 (PST)
-Received: from jgg by mlx with local (Exim 4.94)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1lK9De-00Ayzo-Kd; Wed, 10 Mar 2021 20:30:26 -0400
-Date:   Wed, 10 Mar 2021 20:30:26 -0400
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     akpm@linux-foundation.org
-Cc:     aarcange@redhat.com, bgardon@google.com, dimitri.sivanich@hpe.com,
-        hannes@cmpxchg.org, jglisse@redhat.com, mhocko@suse.com,
-        mm-commits@vger.kernel.org, rientjes@google.com, seanjc@google.com,
+        id S229623AbhCKAfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 19:35:37 -0500
+Received: from mga06.intel.com ([134.134.136.31]:62399 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229641AbhCKAf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 10 Mar 2021 19:35:26 -0500
+IronPort-SDR: i/Y1sUu9ttCH9AfXZ574PPLykQDv0nXcPbcC7itQDTcNr+IVGoYOQnn/96tMsjzcA2yrXZLXa7
+ DPHl9kweU1Ew==
+X-IronPort-AV: E=McAfee;i="6000,8403,9919"; a="249957221"
+X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
+   d="scan'208";a="249957221"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2021 16:35:25 -0800
+IronPort-SDR: sYLPrL7yZckuxKhDQANKqVHa4zpwtNKVbsbtKwHrNkQUQGsUVNn5zqdHYGKqFtg9lSMLX1E+qc
+ yZAqzUD+z0tw==
+X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
+   d="scan'208";a="520919936"
+Received: from theer-mobl2.amr.corp.intel.com (HELO pbossart-mobl3.intel.com) ([10.212.101.109])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2021 16:35:24 -0800
+From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+To:     alsa-devel@alsa-project.org
+Cc:     tiwai@suse.de, broonie@kernel.org,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         stable@vger.kernel.org
-Subject: Re: +
- mm-oom_kill-ensure-mmu-notifier-range_end-is-paired-with-range_start.patch
- added to -mm tree
-Message-ID: <20210311003026.GR444867@ziepe.ca>
-References: <20210311000616.GIEHU6C1Q%akpm@linux-foundation.org>
+Subject: [PATCH v3 1/2] ASoC: samsung: tm2_wm5110: check of of_parse return value
+Date:   Wed, 10 Mar 2021 18:35:15 -0600
+Message-Id: <20210311003516.120003-2-pierre-louis.bossart@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210311003516.120003-1-pierre-louis.bossart@linux.intel.com>
+References: <20210311003516.120003-1-pierre-louis.bossart@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210311000616.GIEHU6C1Q%akpm@linux-foundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+cppcheck warning:
 
-On Wed, Mar 10, 2021 at 04:06:16PM -0800, akpm@linux-foundation.org wrote:
-> 
-> The patch titled
->      Subject: mm/oom_kill: ensure MMU notifier range_end() is paired with range_start()
-> has been added to the -mm tree.  Its filename is
->      mm-oom_kill-ensure-mmu-notifier-range_end-is-paired-with-range_start.patch
+sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
+reassigned a value before the old one has been
+used. [redundantAssignment]
+ ret = devm_snd_soc_register_component(dev, &tm2_component,
+     ^
+sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
+  ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
+      ^
+sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
+ ret = devm_snd_soc_register_component(dev, &tm2_component,
+     ^
 
-Let's please wait till the discussion settles, to my mind this patch is not
-an improvement.
+The args is a stack variable, so it could have junk (uninitialized)
+therefore args.np could have a non-NULL and random value even though
+property was missing. Later could trigger invalid pointer dereference.
 
-Thanks,
-Jason
+There's no need to check for args.np because args.np won't be
+initialized on errors.
+
+Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2board")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+---
+ sound/soc/samsung/tm2_wm5110.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/soc/samsung/tm2_wm5110.c b/sound/soc/samsung/tm2_wm5110.c
+index 9300fef9bf26..125e07f65d2b 100644
+--- a/sound/soc/samsung/tm2_wm5110.c
++++ b/sound/soc/samsung/tm2_wm5110.c
+@@ -553,7 +553,7 @@ static int tm2_probe(struct platform_device *pdev)
+ 
+ 		ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
+ 						 cells_name, i, &args);
+-		if (!args.np) {
++		if (ret) {
+ 			dev_err(dev, "i2s-controller property parse error: %d\n", i);
+ 			ret = -EINVAL;
+ 			goto dai_node_put;
+-- 
+2.25.1
+
