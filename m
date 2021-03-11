@@ -2,97 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22230337AE6
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2100E337B06
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229459AbhCKRdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 12:33:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52466 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229632AbhCKRdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:33:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615484024;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XqfVvgDEaeVZgfA4fm07c5tH+yOQh34HrNoi9gVsjLg=;
-        b=K9Je8dfKljRYgr1AhAFTZVOVMX04J1uDSVP5GTQOQtk8kbFHSm2uAUA/T57GMPPwRLthbh
-        Oh+GGgEZ+4wI5SoEX+sCWzuxeY6DuAEpi3iIfgIOyPjhuvrbvD4yuUg9X2N8w9gmMEtqMb
-        RcWYIx8GIEmOzFzNpGKPs6KRQL4Blwo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-23-3xkXpRKgPoKAF7_Cud4tBg-1; Thu, 11 Mar 2021 12:33:41 -0500
-X-MC-Unique: 3xkXpRKgPoKAF7_Cud4tBg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 479A81074659;
-        Thu, 11 Mar 2021 17:33:40 +0000 (UTC)
-Received: from ovpn-113-87.phx2.redhat.com (ovpn-113-87.phx2.redhat.com [10.3.113.87])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C2E2C60C03;
-        Thu, 11 Mar 2021 17:33:39 +0000 (UTC)
-Message-ID: <f9bdd225112d79cfc3854cfc52bfea441b547b95.camel@redhat.com>
-Subject: Re: [PATCH v2] nvme-fc: fix racing controller reset and create
- association
-From:   "Ewan D. Milne" <emilne@redhat.com>
-To:     James Smart <jsmart2021@gmail.com>, linux-nvme@lists.infradead.org
-Cc:     stable@vger.kernel.org, Nigel Kirkland <nkirkland2304@gmail.com>
-Date:   Thu, 11 Mar 2021 12:33:39 -0500
-In-Reply-To: <20210309005126.58460-1-jsmart2021@gmail.com>
-References: <20210309005126.58460-1-jsmart2021@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+        id S229756AbhCKRiM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 12:38:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45186 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229639AbhCKRhn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 12:37:43 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97F5964F90;
+        Thu, 11 Mar 2021 17:37:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615484263;
+        bh=Kh/T3Uo5cupmNF0P2Z6a90ABkS0eST1P9UrSZ6cD7ps=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GmFiklZXORziwfjcYRJ38TS9A3MKNLg0KkyKxpbPR6KzW37bIlVIPPsynq4hNF3yu
+         bCxcayX4FIeNkYnF0tg5VH9tUjBHK+13uAA/C+jIAHtRcwcSGMyr8znMxlmP2dLsMD
+         3Jq+ukn10/baOg7OoyNrZrfuiYsZGLqHG0JlldgM=
+Date:   Thu, 11 Mar 2021 18:37:40 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Shuah Khan <skhan@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.11 00/36] 5.11.6-rc1 review
+Message-ID: <YEpVZLxCWGp9bhXk@kroah.com>
+References: <20210310132320.510840709@linuxfoundation.org>
+ <14801dd7-0adb-fdc3-babe-f3f6cbb64b58@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <14801dd7-0adb-fdc3-babe-f3f6cbb64b58@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2021-03-08 at 16:51 -0800, James Smart wrote:
-> Recent patch to prevent calling __nvme_fc_abort_outstanding_ios in
-> interrupt context results in a possible race condition. A controller
-> reset results in errored io completions, which schedules error
-> work. The change of error work to a work element allows it to fire
-> after the ctrl state transition to NVME_CTRL_CONNECTING, causing
-> any outstanding io (used to initialize the controller) to fail and
-> cause problems for connect_work.
+On Wed, Mar 10, 2021 at 02:59:43PM -0700, Shuah Khan wrote:
+> On 3/10/21 6:23 AM, gregkh@linuxfoundation.org wrote:
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > This is the start of the stable review cycle for the 5.11.6 release.
+> > There are 36 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.6-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> Add a state check to only schedule error work if not in the RESETTING
-> state.
+> Compiled and booted on my test system. No dmesg regressions.
 > 
-> Fixes: 19fce0470f05 ("nvme-fc: avoid calling
-> _nvme_fc_abort_outstanding_ios from interrupt context")
-> Cc: <stable@vger.kernel.org> # v5.10+
-> 
-> Signed-off-by: Nigel Kirkland <nkirkland2304@gmail.com>
-> Signed-off-by: James Smart <jsmart2021@gmail.com>
-> 
-> ---
-> v2: clean up typo in commit header
-> ---
->  drivers/nvme/host/fc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-> index 20dadd86e981..0f92bd12123e 100644
-> --- a/drivers/nvme/host/fc.c
-> +++ b/drivers/nvme/host/fc.c
-> @@ -2055,7 +2055,7 @@ nvme_fc_fcpio_done(struct nvmefc_fcp_req *req)
->  		nvme_fc_complete_rq(rq);
->  
->  check_error:
-> -	if (terminate_assoc)
-> +	if (terminate_assoc && ctrl->ctrl.state != NVME_CTRL_RESETTING)
->  		queue_work(nvme_reset_wq, &ctrl->ioerr_work);
->  }
->  
+> Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-This fix resolves the frequent -EBUSY / -ENETRESET errors I saw when
-resetting the controller via sysfs, as well as the eventual hang with
-the controller stuck in the _CONNECTING state, thanks.  Looks good.
+Thanks for testing all of these and letting me know.
 
--Ewan
-
-
+greg k-h
