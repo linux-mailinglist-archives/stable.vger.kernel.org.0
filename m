@@ -2,105 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBF13381A6
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 00:44:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A4B3381C4
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 00:49:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbhCKXn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 18:43:59 -0500
-Received: from perceval.ideasonboard.com ([213.167.242.64]:43348 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbhCKXn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 18:43:56 -0500
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 1397F88F;
-        Fri, 12 Mar 2021 00:43:55 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1615506235;
-        bh=ozdy96rbUlmL2Ihxn0PG6hwkkYtEpwgXYdHM9705AMI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kVQLcod2wwgzihfDu3o5vUGu6gn0/3sCSaNcyAcCmgmfFY0+rouz6/G7HTqWOYIr0
-         VmA9lwbqzET6HfcT2riGjIS00piDzthtvdNtVC0IcSn4oaJmiSomz8+wSi6+oLaq0L
-         M+lgzsaleod/Bo+cVELPh3XptqDJT89ecKYuncBo=
-Date:   Fri, 12 Mar 2021 01:43:21 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Ricardo Ribalda <ribalda@chromium.org>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Tomasz Figa <tfiga@chromium.org>, linux-media@vger.kernel.org,
-        linux-kernel@vger.kernel.org, senozhatsky@chromium.org,
-        Hans Verkuil <hverkuil@xs4all.nl>, stable@vger.kernel.org,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Subject: Re: [PATCH v2 1/6] media: v4l2-ioctl: Fix check_ext_ctrls
-Message-ID: <YEqrGQXEARuyUBUI@pendragon.ideasonboard.com>
-References: <20210311221946.1319924-1-ribalda@chromium.org>
- <20210311221946.1319924-2-ribalda@chromium.org>
+        id S231284AbhCKXs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 18:48:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38866 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229574AbhCKXs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 18:48:26 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2EF7C061574
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 15:48:25 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id 18so623926pfo.6
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 15:48:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Ds6urH+FkcMYKl3455LbIU0uqAf+CxDMzF1hgY3KXZw=;
+        b=SvS2kfx6W7LhazXPwPu5vuQs5o2w/mm3jcTbwkT2MymgqldE5X7xyoZgJQsObDFAi+
+         FBw1VChyvm0a0S7W6gf43xgToVqShzip0u+OUiq5PqXFpgweupcoZ690JIjsiHAQqegP
+         4WhTj/QobHuI4xoTn+q44QQqrKU7BK/zIZb08Y11e4a/olxaTsy0qUNOFWDHL2FZHhXO
+         GopinTOYuIWcYLFKrHFhbBdw2c7h6XJIQC5n/sLSAdqQur5rLngEAIifueoclc9kr/xa
+         WGDpuwukKCx6gKQ+WHWtGLEbO4Ct8x7h6Qk1HND3JBVvW6KJHPpMuANw135MlhKFG7Jq
+         7nUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Ds6urH+FkcMYKl3455LbIU0uqAf+CxDMzF1hgY3KXZw=;
+        b=AE8b+435BaXAdIXwP5OSakKIzGQnPRJpS7ZcrttC7qtc0zyVwLRq4m/POBvvRJ6j6t
+         FFDgWreuNvMcVYqhLCX7Wu9wheVCmlSlmTta4WVlM9MgiTch4KGcb4hwmmV4kboKKwfu
+         B1YXmex16BXu/Jf6OJnj2OmAAKBG6u4nhZOVKDvc7z2tv9VATVEpeiYmksppPhNcLwUB
+         y9WPYfgXXcEWa1ZWryNRrRfle8uMV/YrbSJxq9TB62ZU+Fxi5q+bB+R/CtzXGSKnJzHI
+         YgbtX3ThevsSCoUxPOLuqc2A6TjYrmXv8vpzta8CqHaoV3FWNpGtDmgbT0e7g/Qi67bY
+         cMUQ==
+X-Gm-Message-State: AOAM5327Waax4xYW7KQNjZguQ3TBiuQm7NwtJQD/figVpExpcFAcWPGt
+        5A8yIL3TBg/QN/Rl1ZMAWgqGnDQb8ZrVs7ro
+X-Google-Smtp-Source: ABdhPJwn+BaGSYUvvtANiociFPK3UFaCFDZuK9IJeXP17kXOlsMmqKUiq0PbGVfI6fSDKZ3K13B0cw==
+X-Received: by 2002:a63:fa05:: with SMTP id y5mr9106358pgh.154.1615506504956;
+        Thu, 11 Mar 2021 15:48:24 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 25sm3426809pfh.199.2021.03.11.15.48.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Mar 2021 15:48:24 -0800 (PST)
+Message-ID: <604aac48.1c69fb81.2318.9f2d@mx.google.com>
+Date:   Thu, 11 Mar 2021 15:48:24 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210311221946.1319924-2-ribalda@chromium.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v4.19.180-13-gcf7e1fa20d452
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+Subject: stable-rc/linux-4.19.y baseline: 67 runs,
+ 3 regressions (v4.19.180-13-gcf7e1fa20d452)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ricardo,
+stable-rc/linux-4.19.y baseline: 67 runs, 3 regressions (v4.19.180-13-gcf7e=
+1fa20d452)
 
-Thank you for the patch.
+Regressions Summary
+-------------------
 
-On Thu, Mar 11, 2021 at 11:19:41PM +0100, Ricardo Ribalda wrote:
-> Drivers that do not use the ctrl-framework use this function instead.
-> 
-> - Return error when handling of REQUEST_VAL.
-> - Do not check for multiple classes when getting the DEF_VAL.
-> 
-> Fixes v4l2-compliance:
-> Control ioctls (Input 0):
-> 		fail: v4l2-test-controls.cpp(813): doioctl(node, VIDIOC_G_EXT_CTRLS, &ctrls)
-> 	test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-> Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-> ---
->  drivers/media/v4l2-core/v4l2-ioctl.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-> index 31d1342e61e8..6f6b310e2802 100644
-> --- a/drivers/media/v4l2-core/v4l2-ioctl.c
-> +++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-> @@ -924,8 +924,10 @@ static int check_ext_ctrls(struct v4l2_ext_controls *c, int allow_priv)
->  	 */
->  	if (!allow_priv && c->which == V4L2_CID_PRIVATE_BASE)
->  		return 0;
-> -	if (!c->which)
-> +	if (!c->which || c->which == V4L2_CTRL_WHICH_DEF_VAL)
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
 
-How about
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
 
-	if (c->which == V4L2_CTRL_WHICH_CUR_VAL ||
-	    c->which == V4L2_CTRL_WHICH_DEF_VAL)
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
 
->  		return 1;
-> +	if (c->which == V4L2_CTRL_WHICH_REQUEST_VAL)
-> +		return 0;
 
-Or possibly
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
+nel/v4.19.180-13-gcf7e1fa20d452/plan/baseline/
 
-	switch (c->which) {
-	case V4L2_CTRL_WHICH_CUR_VAL:
-	case V4L2_CTRL_WHICH_DEF_VAL:
-		return 1;
-	case V4L2_CTRL_WHICH_REQUEST_VAL:
-		return 0;
-	}
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.19.y
+  Describe: v4.19.180-13-gcf7e1fa20d452
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cf7e1fa20d45200b0dad0a561975f501373581bd =
 
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
->  	/* Check that all controls are from the same control class. */
->  	for (i = 0; i < c->count; i++) {
->  		if (V4L2_CTRL_ID2WHICH(c->controls[i].id) != c->which) {
 
--- 
-Regards,
+Test Regressions
+---------------- =
 
-Laurent Pinchart
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604a760c98bfc1a697addcdb
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604a760c98bfc1a697add=
+cdc
+        failing since 113 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604a76232fe189845eaddcc6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
+m-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
+m-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604a76232fe189845eadd=
+cc7
+        failing since 113 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =
+
+
+
+platform             | arch | lab           | compiler | defconfig         =
+  | regressions
+---------------------+------+---------------+----------+-------------------=
+--+------------
+qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/604a757e94e8998258addcc0
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
+80-13-gcf7e1fa20d452/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/604a757e94e8998258add=
+cc1
+        failing since 113 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
+t fail: v4.19.157-102-g1d674327c1b7) =
+
+ =20
