@@ -2,124 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB3B336B55
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 06:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04634336C64
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 07:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbhCKFSD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 00:18:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36252 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229524AbhCKFRc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 00:17:32 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EA0064FB2;
-        Thu, 11 Mar 2021 05:17:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1615439852;
-        bh=i2wnZn+TLN66XaB+Hfofd6iulLmtZbVkNv7cU+k4qA8=;
-        h=Date:From:To:Subject:From;
-        b=MUj6x55iGAqEdGhuCAzi7FYw4i/ffVYIBzjfNdOxTKCUZw9vQL9BVyUVqMrsRIIY6
-         yJWIdmuP6A6U8yXJHjRCIam1kUzBdRULCpq0JxWcRALD3D8ilaA8jQZuiL0gzmqFdT
-         wd845dzgxF8TYofh5qgCEQemdG3cO8NCMAi51K0E=
-Date:   Wed, 10 Mar 2021 21:17:31 -0800
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, bgardon@google.com, dimitri.sivanich@hpe.com,
-        hannes@cmpxchg.org, jgg@ziepe.ca, jglisse@redhat.com,
-        mhocko@suse.com, mm-commits@vger.kernel.org, rientjes@google.com,
-        seanjc@google.com, stable@vger.kernel.org
-Subject:  [to-be-updated]
- mm-oom_kill-ensure-mmu-notifier-range_end-is-paired-with-range_start.patch
- removed from -mm tree
-Message-ID: <20210311051731.mjKIcbvQp%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S231157AbhCKGn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 01:43:28 -0500
+Received: from mailgw01.mediatek.com ([210.61.82.183]:54241 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230290AbhCKGnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 01:43:05 -0500
+X-UUID: 9775fa7397f5439dbf3453bf1e23d5cb-20210311
+X-UUID: 9775fa7397f5439dbf3453bf1e23d5cb-20210311
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 543715440; Thu, 11 Mar 2021 14:42:53 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 11 Mar 2021 14:42:51 +0800
+Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 11 Mar 2021 14:42:51 +0800
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Jim Lin <jilin@nvidia.com>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Felipe Balbi <balbi@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>
+CC:     Ainge Hsu <ainge.hsu@mediatek.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Kuohong Wang <kuohong.wang@mediatek.com>,
+        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Macpaul Lin <macpaul@gmail.com>, <stable@vger.kernel.org>
+Subject: [PATCH v4] usb: gadget: configfs: Fix KASAN use-after-free
+Date:   Thu, 11 Mar 2021 14:42:41 +0800
+Message-ID: <1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com>
+X-Mailer: git-send-email 1.7.9.5
+In-Reply-To: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
+References: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-MTK:  N
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jim Lin <jilin@nvidia.com>
 
-The patch titled
-     Subject: mm/oom_kill: ensure MMU notifier range_end() is paired with r=
-ange_start()
-has been removed from the -mm tree.  Its filename was
-     mm-oom_kill-ensure-mmu-notifier-range_end-is-paired-with-range_start.p=
-atch
+When gadget is disconnected, running sequence is like this.
+. composite_disconnect
+. Call trace:
+  usb_string_copy+0xd0/0x128
+  gadget_config_name_configuration_store+0x4
+  gadget_config_name_attr_store+0x40/0x50
+  configfs_write_file+0x198/0x1f4
+  vfs_write+0x100/0x220
+  SyS_write+0x58/0xa8
+. configfs_composite_unbind
+. configfs_composite_bind
 
-This patch was dropped because an updated version will be merged
+In configfs_composite_bind, it has
+"cn->strings.s = cn->configuration;"
 
-------------------------------------------------------
-=46rom: Sean Christopherson <seanjc@google.com>
-Subject: mm/oom_kill: ensure MMU notifier range_end() is paired with range_=
-start()
+When usb_string_copy is invoked. it would
+allocate memory, copy input string, release previous pointed memory space,
+and use new allocated memory.
 
-Invoke the MMU notifier's .invalidate_range_end() callbacks even if one of
-the .invalidate_range_start() callbacks failed.  If there are multiple
-notifiers, the notifier that did not fail may have performed actions in
-its ...start() that it expects to unwind via ...end().  Per the
-mmu_notifier_ops documentation, ...start() and ...end() must be paired.
+When gadget is connected, host sends down request to get information.
+Call trace:
+  usb_gadget_get_string+0xec/0x168
+  lookup_string+0x64/0x98
+  composite_setup+0xa34/0x1ee8
 
-The only in-kernel usage that is fatally broken is the SGI UV GRU driver,
-which effectively blocks and sleeps fault handlers during ...start(), and
-unblocks/wakes the handlers during ...end().  But, the only users that can
-fail ...start() are the i915 and Nouveau drivers, which are unlikely to
-collide with the SGI driver.
+If gadget is disconnected and connected quickly, in the failed case,
+cn->configuration memory has been released by usb_string_copy kfree but
+configfs_composite_bind hasn't been run in time to assign new allocated
+"cn->configuration" pointer to "cn->strings.s".
 
-KVM is the only other user of ...end(), and while KVM also blocks fault
-handlers in ...start(), the fault handlers do not sleep and originate in
-killable ioctl() calls.  So while it's possible for the i915 and Nouveau
-drivers to collide with KVM, the bug is benign for KVM since the process
-is dying and KVM's guest is about to be terminated.
+When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
+memory is accessed, "BUG: KASAN: use-after-free" error occurs.
 
-So, as of today, the bug is likely benign.  But, that may not always be
-true, e.g.  there is a potential use case for blocking memslot updates in
-KVM while an invalidation is in-progress, and failure to unblock would
-result in said updates being blocked indefinitely and hanging.
-
-Found by inspection.  Verified by adding a second notifier in KVM that
-periodically returns -EAGAIN on non-blockable ranges, triggering OOM, and
-observing that KVM exits with an elevated notifier count.
-
-Link: https://lkml.kernel.org/r/20210310213117.1444147-1-seanjc@google.com
-Fixes: 93065ac753e4 ("mm, oom: distinguish blockable mode for mmu notifiers=
-")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Ben Gardon <bgardon@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: "J=C3=A9r=C3=B4me Glisse" <jglisse@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Jim Lin <jilin@nvidia.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Cc: stable@vger.kernel.org
 ---
+Changes in v2:
+Changes in v3:
+ - Change commit description
+Changes in v4:
+ - Fix build error and adapt patch to kernel-5.12-rc1.
+   Replace definition "MAX_USB_STRING_WITH_NULL_LEN" with
+   "USB_MAX_STRING_WITH_NULL_LEN".
+ - Note: The patch v2 and v3 has been verified by
+   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+   http://spinics.net/lists/kernel/msg3840792.html
+   and
+   Macpaul Lin <macpaul.lin@mediatek.com> on Android kernels.
+   http://lkml.org/lkml/2020/6/11/8
+ - The patch is suggested to be applied to LTS versions.
 
- mm/oom_kill.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/configfs.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/mm/oom_kill.c~mm-oom_kill-ensure-mmu-notifier-range_end-is-paired-wit=
-h-range_start
-+++ a/mm/oom_kill.c
-@@ -546,12 +546,10 @@ bool __oom_reap_task_mm(struct mm_struct
- 						vma, mm, vma->vm_start,
- 						vma->vm_end);
- 			tlb_gather_mmu(&tlb, mm);
--			if (mmu_notifier_invalidate_range_start_nonblock(&range)) {
--				tlb_finish_mmu(&tlb);
-+			if (!mmu_notifier_invalidate_range_start_nonblock(&range))
-+				unmap_page_range(&tlb, vma, range.start, range.end, NULL);
-+			else
- 				ret =3D false;
--				continue;
--			}
--			unmap_page_range(&tlb, vma, range.start, range.end, NULL);
- 			mmu_notifier_invalidate_range_end(&range);
- 			tlb_finish_mmu(&tlb);
- 		}
-_
-
-Patches currently in -mm which might be from seanjc@google.com are
-
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index 0d56f33..15a607c 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -97,6 +97,8 @@ struct gadget_config_name {
+ 	struct list_head list;
+ };
+ 
++#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
++
+ static int usb_string_copy(const char *s, char **s_copy)
+ {
+ 	int ret;
+@@ -106,12 +108,16 @@ static int usb_string_copy(const char *s, char **s_copy)
+ 	if (ret > USB_MAX_STRING_LEN)
+ 		return -EOVERFLOW;
+ 
+-	str = kstrdup(s, GFP_KERNEL);
+-	if (!str)
+-		return -ENOMEM;
++	if (copy) {
++		str = copy;
++	} else {
++		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
++		if (!str)
++			return -ENOMEM;
++	}
++	strcpy(str, s);
+ 	if (str[ret - 1] == '\n')
+ 		str[ret - 1] = '\0';
+-	kfree(copy);
+ 	*s_copy = str;
+ 	return 0;
+ }
+-- 
+1.7.9.5
 
