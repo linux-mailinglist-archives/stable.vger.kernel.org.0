@@ -2,59 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48368337095
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 11:54:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9543370CF
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 12:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232484AbhCKKxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 05:53:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232476AbhCKKxX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 05:53:23 -0500
-Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDBBC061574
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 02:53:22 -0800 (PST)
-Received: by mail-vs1-xe2a.google.com with SMTP id m18so10462030vsa.1
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 02:53:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=CXY5RNGycwH9v0qa4wtJSmJE42Rt6XrZ8QX6Tzpfz2w=;
-        b=DEJjJHhH2jTf5yClzsII1bcMP/sZPW8moUBocEe8p7UpWsYZqtKbPmf0z/YHHVGT2I
-         6PcARP2fZ6n6fe3PWfxqBDDrTNNXf25CPfHLl3jhx1CSGaPbcQzpi8xgRT0qzk/PC2Rr
-         wgWWfMWB6YENfU/Rw1qaUVrWwaKoKa23EDXKpMfilLs2dV95OP3F7bZYIoMspfC+GIKP
-         SrYhCNVnWTygxz48lkmA3SpETG/+8kbBr1WyEkpVrK+FiD61agxv0ZC1FzrJWzZ6zO87
-         Ybulbu1K5QhVu7rMSbWqNv93Sp9BVM5c7fUjambuY7+3ZrHIpYxGo3Ka7BcUiwoar87R
-         DVwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=CXY5RNGycwH9v0qa4wtJSmJE42Rt6XrZ8QX6Tzpfz2w=;
-        b=lmdoCKQaaGb9IJrCjQRhs2k8PaYeL9fHy1wuttMRUkQSiXwg3Ip2dTqcXVe4RDkwhE
-         lzYCi3Zf7yOPbjsbh+e9teZBhv0u3+oMXR6w4WVIh9gOYpZ12jBetNtOKaEFAlDL/QVk
-         7Tv7stQEzhN9biWTYrb3UXWlv5d34Z1rzVuvT0mNS1k+LGA52xxwa5f6ezMVW5XT3mwA
-         ToGBkhluisXQD+0TPdQzmdaJUer3mjOnR/f/vmuXaW6sU5+aPGHWiSycKLh+hQ9YYm3Y
-         WK44CvbsnGjn+rIP1Lj6/UpWICGqPkrx0V70cHRNwu3QTIoVMRSaTgfkuyYcZ2UN3NQh
-         x86w==
-X-Gm-Message-State: AOAM533jSWaMJ/rc6HBv9UItrx8HufjoS1hfiOL6/5pAu5FrCFKlRHkx
-        2xIWco6VUVn3Ufx/WHawuRx8Ijn5Ecz49DHr+xI=
-X-Google-Smtp-Source: ABdhPJyBHw+C2A0kfGBJwbX5+S3xvlwB+UmZDZLLpEIfvANb8ukao7DrP/N19vealRQnATAX0DwCCCxRdkTace7KpBU=
-X-Received: by 2002:a67:1946:: with SMTP id 67mr4198093vsz.60.1615460002053;
- Thu, 11 Mar 2021 02:53:22 -0800 (PST)
+        id S232471AbhCKLGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 06:06:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40818 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232461AbhCKLGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 06:06:02 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88C7864F2D;
+        Thu, 11 Mar 2021 11:06:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615460762;
+        bh=cyhRmiXv5k47ECRCfIL5lHCW87E4NQGgeaFIfdFjPyk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=vmCVT/wWfijArX9Q0V5zen6LvPlmGHTn8eDIJYOTn10Ave/cdZuYQU2MZ8C1CmlcP
+         vufVPg+fMKOBXG8n03GNKg5/63p/xsMDrLHJvd/u2mgDAT4xPoHVNust4PuhLQXvJd
+         4wcJI35+WnoyWZAmBM9XZF7nAdxXlXw1/gXbEOKM=
+From:   gregkh@linuxfoundation.org
+To:     Christoph Hellwig <hch@lst.de>, Joel Becker <jlbec@evilplan.org>
+Cc:     linux-kernel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Daniel Rosenberg <drosen@google.com>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH] configfs: Fix config_item refcnt error in __configfs_open_file()
+Date:   Thu, 11 Mar 2021 12:05:50 +0100
+Message-Id: <20210311110550.981100-1-gregkh@linuxfoundation.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Received: by 2002:a67:2601:0:0:0:0:0 with HTTP; Thu, 11 Mar 2021 02:53:21
- -0800 (PST)
-Reply-To: markcarissa7@gmail.com
-From:   Mark Carissa <hammangoni@gmail.com>
-Date:   Thu, 11 Mar 2021 10:53:21 +0000
-Message-ID: <CAB2dg0hk02TzXKHSLM9pSQCTkGVWYotts0chE30xueS4-qKMCw@mail.gmail.com>
-Subject: re.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings, why haven't you replied to me? I sent you an email a few
-days ago but you haven't responded.
+From: Daniel Rosenberg <drosen@google.com>
+
+__configfs_open_file() used to use configfs_get_config_item, but changed
+in commit b0841eefd969 ("configfs: provide exclusion between IO and
+removals") to just call to_item. The error path still tries to clean up
+the reference, incorrectly decrementing the ref count.
+
+Signed-off-by: Daniel Rosenberg <drosen@google.com>
+Cc: stable@vger.kernel.org
+Fixes: b0841eefd969 ("configfs: provide exclusion between IO and removals")
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ fs/configfs/file.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/fs/configfs/file.c b/fs/configfs/file.c
+index 1f0270229d7b..8b7c8a8a09f3 100644
+--- a/fs/configfs/file.c
++++ b/fs/configfs/file.c
+@@ -378,7 +378,7 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
+ 
+ 	attr = to_attr(dentry);
+ 	if (!attr)
+-		goto out_put_item;
++		goto out_put_module;
+ 
+ 	if (type & CONFIGFS_ITEM_BIN_ATTR) {
+ 		buffer->bin_attr = to_bin_attr(dentry);
+@@ -391,7 +391,7 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
+ 	/* Grab the module reference for this attribute if we have one */
+ 	error = -ENODEV;
+ 	if (!try_module_get(buffer->owner))
+-		goto out_put_item;
++		goto out_put_module;
+ 
+ 	error = -EACCES;
+ 	if (!buffer->item->ci_type)
+@@ -435,8 +435,6 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
+ 
+ out_put_module:
+ 	module_put(buffer->owner);
+-out_put_item:
+-	config_item_put(buffer->item);
+ out_free_buffer:
+ 	up_read(&frag->frag_sem);
+ 	kfree(buffer);
+-- 
+2.30.2
+
