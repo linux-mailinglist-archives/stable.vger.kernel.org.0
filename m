@@ -2,153 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB003371CD
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 12:53:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A923371EF
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 13:04:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232842AbhCKLwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 06:52:40 -0500
-Received: from mga07.intel.com ([134.134.136.100]:40662 "EHLO mga07.intel.com"
+        id S232868AbhCKMDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 07:03:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232785AbhCKLwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 06:52:34 -0500
-IronPort-SDR: IwRHDjTs/w55ttQAst6aLD+RmjbRHcQoY8a3oWdToCGE3kwCMYDYuWfBDgFp/drA5gNc/pJVFG
- kvdpTlxPOjKg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9919"; a="252671308"
-X-IronPort-AV: E=Sophos;i="5.81,240,1610438400"; 
-   d="scan'208";a="252671308"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 03:52:33 -0800
-IronPort-SDR: j8l4qiryyenj/QQUQoLd+AXl6f4PVdT1Fvf8Pu1AQo8ZZhoMy79Hkf50YE4aoaCnLypaJ1NTzt
- bFl+Q0cUvVUg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,240,1610438400"; 
-   d="scan'208";a="409463991"
-Received: from mattu-haswell.fi.intel.com ([10.237.72.170])
-  by orsmga007.jf.intel.com with ESMTP; 11 Mar 2021 03:52:32 -0800
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-To:     <gregkh@linuxfoundation.org>
-Cc:     <linux-usb@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4/4] xhci: Fix repeated xhci wake after suspend due to uncleared internal wake state
-Date:   Thu, 11 Mar 2021 13:53:53 +0200
-Message-Id: <20210311115353.2137560-5-mathias.nyman@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210311115353.2137560-1-mathias.nyman@linux.intel.com>
-References: <20210311115353.2137560-1-mathias.nyman@linux.intel.com>
+        id S232881AbhCKMDo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 07:03:44 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4E4164DCC;
+        Thu, 11 Mar 2021 12:03:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615464223;
+        bh=kJ6bp7WUucVH9ltkS3sP3CHLh0ehB/KSRdNVfIdf1sc=;
+        h=Subject:To:From:Date:From;
+        b=n0fIPNPzAly7BLlshgs4UYeJHKY0gFtKRCjOARqcvshmR2xKNRqRRhkeMULbfhGob
+         fJGvsdkFd62wXdiwSbAH1NQKKoZXgKL1jHeVPjfkmczo5KUm+NFCcR/v3KuZXzTJR3
+         fL0U8wh6ls+p3g1FFNUTfg39C1iTH23JNJWsf0cU=
+Subject: patch "usb: xhci: do not perform Soft Retry for some xHCI hosts" added to usb-linus
+To:     stf_xl@wp.pl, bernhard.gebetsberger@gmx.at,
+        gregkh@linuxfoundation.org, mathias.nyman@linux.intel.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Mar 2021 13:03:39 +0100
+Message-ID: <161546421942168@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If port terminations are detected in suspend, but link never reaches U0
-then xHCI may have an internal uncleared wake state that will cause an
-immediate wake after suspend.
 
-This wake state is normally cleared when driver clears the PORT_CSC bit,
-which is set after a device is enabled and in U0.
+This is a note to let you know that I've just added the patch titled
 
-Write 1 to clear PORT_CSC for ports that don't have anything connected
-when suspending. This makes sure any pending internal wake states in
-xHCI are cleared.
+    usb: xhci: do not perform Soft Retry for some xHCI hosts
 
-Cc: stable@vger.kernel.org
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From a4a251f8c23518899d2078c320cf9ce2fa459c9f Mon Sep 17 00:00:00 2001
+From: Stanislaw Gruszka <stf_xl@wp.pl>
+Date: Thu, 11 Mar 2021 13:53:50 +0200
+Subject: usb: xhci: do not perform Soft Retry for some xHCI hosts
+
+On some systems rt2800usb and mt7601u devices are unable to operate since
+commit f8f80be501aa ("xhci: Use soft retry to recover faster from
+transaction errors")
+
+Seems that some xHCI controllers can not perform Soft Retry correctly,
+affecting those devices.
+
+To avoid the problem add xhci->quirks flag that restore pre soft retry
+xhci behaviour for affected xHCI controllers. Currently those are
+AMD_PROMONTORYA_4 and AMD_PROMONTORYA_2, since it was confirmed
+by the users: on those xHCI hosts issue happen and is gone after
+disabling Soft Retry.
+
+[minor commit message rewording for checkpatch -Mathias]
+
+Fixes: f8f80be501aa ("xhci: Use soft retry to recover faster from transaction errors")
+Cc: <stable@vger.kernel.org> # 4.20+
+Reported-by: Bernhard <bernhard.gebetsberger@gmx.at>
+Tested-by: Bernhard <bernhard.gebetsberger@gmx.at>
+Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202541
+Link: https://lore.kernel.org/r/20210311115353.2137560-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c | 62 ++++++++++++++++++++---------------------
- 1 file changed, 30 insertions(+), 32 deletions(-)
+ drivers/usb/host/xhci-pci.c  | 5 +++++
+ drivers/usb/host/xhci-ring.c | 3 ++-
+ drivers/usb/host/xhci.h      | 1 +
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 48a68fcf2b36..1975016f46bf 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -883,44 +883,42 @@ static void xhci_clear_command_ring(struct xhci_hcd *xhci)
- 	xhci_set_cmd_ring_deq(xhci);
- }
+diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+index 84da8406d5b4..1f989a49c8c6 100644
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -295,6 +295,11 @@ static void xhci_pci_quirks(struct device *dev, struct xhci_hcd *xhci)
+ 	     pdev->device == 0x9026)
+ 		xhci->quirks |= XHCI_RESET_PLL_ON_DISCONNECT;
  
--static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
-+/*
-+ * Disable port wake bits if do_wakeup is not set.
-+ *
-+ * Also clear a possible internal port wake state left hanging for ports that
-+ * detected termination but never successfully enumerated (trained to 0U).
-+ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
-+ * at enumeration clears this wake, force one here as well for unconnected ports
-+ */
++	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
++	    (pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_2 ||
++	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
++		xhci->quirks |= XHCI_NO_SOFT_RETRY;
 +
-+static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
-+				       struct xhci_hub *rhub,
-+				       bool do_wakeup)
- {
--	struct xhci_port **ports;
--	int port_index;
- 	unsigned long flags;
- 	u32 t1, t2, portsc;
-+	int i;
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+ 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
+ 				"QUIRK: Resetting on resume");
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 5e548a1c93ab..ce38076901e2 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2484,7 +2484,8 @@ static int process_bulk_intr_td(struct xhci_hcd *xhci, struct xhci_td *td,
+ 		remaining	= 0;
+ 		break;
+ 	case COMP_USB_TRANSACTION_ERROR:
+-		if ((ep_ring->err_count++ > MAX_SOFT_RETRY) ||
++		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
++		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
+ 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+ 			break;
  
- 	spin_lock_irqsave(&xhci->lock, flags);
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index d41de5dc0452..ca822ad3b65b 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1891,6 +1891,7 @@ struct xhci_hcd {
+ #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
+ #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
++#define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
  
--	/* disable usb3 ports Wake bits */
--	port_index = xhci->usb3_rhub.num_ports;
--	ports = xhci->usb3_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
--		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb3_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
--		}
--	}
-+	for (i = 0; i < rhub->num_ports; i++) {
-+		portsc = readl(rhub->ports[i]->addr);
-+		t1 = xhci_port_state_to_neutral(portsc);
-+		t2 = t1;
-+
-+		/* clear wake bits if do_wake is not set */
-+		if (!do_wakeup)
-+			t2 &= ~PORT_WAKE_BITS;
-+
-+		/* Don't touch csc bit if connected or connect change is set */
-+		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
-+			t2 |= PORT_CSC;
- 
--	/* disable usb2 ports Wake bits */
--	port_index = xhci->usb2_rhub.num_ports;
--	ports = xhci->usb2_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
- 		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb2_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
-+			writel(t2, rhub->ports[i]->addr);
-+			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
-+				 rhub->hcd->self.busnum, i + 1, portsc, t2);
- 		}
- 	}
- 	spin_unlock_irqrestore(&xhci->lock, flags);
-@@ -983,8 +981,8 @@ int xhci_suspend(struct xhci_hcd *xhci, bool do_wakeup)
- 		return -EINVAL;
- 
- 	/* Clear root port wake on bits if wakeup not allowed. */
--	if (!do_wakeup)
--		xhci_disable_port_wake_on_bits(xhci);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
- 
- 	if (!HCD_HW_ACCESSIBLE(hcd))
- 		return 0;
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
 -- 
-2.25.1
+2.30.2
+
 
