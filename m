@@ -2,90 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 155C33368C5
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 01:36:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC6B033695F
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 02:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229623AbhCKAfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 10 Mar 2021 19:35:37 -0500
-Received: from mga06.intel.com ([134.134.136.31]:62399 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229641AbhCKAf0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 10 Mar 2021 19:35:26 -0500
-IronPort-SDR: i/Y1sUu9ttCH9AfXZ574PPLykQDv0nXcPbcC7itQDTcNr+IVGoYOQnn/96tMsjzcA2yrXZLXa7
- DPHl9kweU1Ew==
-X-IronPort-AV: E=McAfee;i="6000,8403,9919"; a="249957221"
-X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
-   d="scan'208";a="249957221"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2021 16:35:25 -0800
-IronPort-SDR: sYLPrL7yZckuxKhDQANKqVHa4zpwtNKVbsbtKwHrNkQUQGsUVNn5zqdHYGKqFtg9lSMLX1E+qc
- yZAqzUD+z0tw==
-X-IronPort-AV: E=Sophos;i="5.81,238,1610438400"; 
-   d="scan'208";a="520919936"
-Received: from theer-mobl2.amr.corp.intel.com (HELO pbossart-mobl3.intel.com) ([10.212.101.109])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Mar 2021 16:35:24 -0800
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-To:     alsa-devel@alsa-project.org
-Cc:     tiwai@suse.de, broonie@kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v3 1/2] ASoC: samsung: tm2_wm5110: check of of_parse return value
-Date:   Wed, 10 Mar 2021 18:35:15 -0600
-Message-Id: <20210311003516.120003-2-pierre-louis.bossart@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210311003516.120003-1-pierre-louis.bossart@linux.intel.com>
-References: <20210311003516.120003-1-pierre-louis.bossart@linux.intel.com>
+        id S229490AbhCKBCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 10 Mar 2021 20:02:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55592 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229483AbhCKBCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 10 Mar 2021 20:02:10 -0500
+Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A61C061574
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 17:02:10 -0800 (PST)
+Received: by mail-lj1-x233.google.com with SMTP id 2so199343ljr.5
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 17:02:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=c8MWUEPcWRqlNN6HV0ALExHUT0G/wuf/0Gpk6qlo1WE=;
+        b=UhMP6tzOupn8Kgm9qYDbMvA5SCQImG9o3THb5a8Ek4/IxA6Ws6YGQoiQaHOUEBSRcc
+         /ZpjF/pAJubmqTu9r/jwd7HBBwpIAp/E+cSIIircb7aU6kwwbRJuxr7BN5dvmMGw01io
+         5pVLAWKHtIxUn/RKgjkjffI+X8LpF5V88y1/uaJ9Ku/hMV1zyg+KDMDkBrczbFUCzhGs
+         S4hOB6Km+eAAvrBcseYvd3NlDzvkQTg6zzCq3AqRuJ06/FT5I8IqtJbek2KTykNN+zRz
+         s3z1LKVDczv1nd/6qnTe63ho1j/gNgmQLCSc3V4M1KuFMY7f99od7XGzD+aT+hY2pOVY
+         96xA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=c8MWUEPcWRqlNN6HV0ALExHUT0G/wuf/0Gpk6qlo1WE=;
+        b=EtMULKpOseZBu0g+c2+B5dTHrSAHqkzUPXyEFypuW+3T54SuDuxnI4OKjKyMMqdxG2
+         1hOzHdzpcbe6MhpNI/aO0jbX+zCpY9R4j9codaTw1L5jg7PmtYVbFK5v5GhlJBwyhlyk
+         rSPyylPmEuMAIw8ZaBXAmG9cjfg4aE5c6xun5okNJpZu09te+QJVJy7FLCYGohLBRiZk
+         I/y8JEkxhEr9IvberJsCluC9QJogd8/V8rveA5YtVwJ0mftAeEge1Yfb/ZTq+HlO/i5r
+         h+ox4y1BsXqJCTi7sZ6XPf+pYQxPu9KKb/N/gKM7SHyF7Wa2igGUg9garzYegYdTEwuy
+         oyHQ==
+X-Gm-Message-State: AOAM531EWAFOS/+V76AyzWHV9ooPrBgCnp8YN7jfjvsYo6EY2QyJDsNb
+        gPMJXsrAWrI8gnpOBrbbufxRm3qypIZJjNUhqa+wrw==
+X-Google-Smtp-Source: ABdhPJzkcZbjChLiKr2QTj6cupQ7Gt4EKlXJ9kqPzoWN9882YNqqEJKPD3YGlEuuS/DQkce8boJ9ojboDa+oHD5ilFI=
+X-Received: by 2002:a2e:1649:: with SMTP id 9mr3492915ljw.74.1615424528892;
+ Wed, 10 Mar 2021 17:02:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210310152900.149380-1-ulf.hansson@linaro.org>
+In-Reply-To: <20210310152900.149380-1-ulf.hansson@linaro.org>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Thu, 11 Mar 2021 02:01:57 +0100
+Message-ID: <CACRpkdayGkuJE9z+QT41ZVoJJN4sBx4e28c5OLzC9obvE94gBw@mail.gmail.com>
+Subject: Re: [PATCH] mmc: core: Fix hanging on I/O during system suspend for
+ removable cards
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     linux-mmc <linux-mmc@vger.kernel.org>,
+        "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Kiwoong Kim <kwmad.kim@samsung.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linux PM list <linux-pm@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cppcheck warning:
+On Wed, Mar 10, 2021 at 4:29 PM Ulf Hansson <ulf.hansson@linaro.org> wrote:
 
-sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
-reassigned a value before the old one has been
-used. [redundantAssignment]
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
-sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
-  ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
-      ^
-sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
+> The mmc core uses a PM notifier to temporarily during system suspend, turn
+> off the card detection mechanism for removal/insertion of (e)MMC/SD/SDIO
+> cards. Additionally, the notifier may be used to remove an SDIO card
+> entirely, if a corresponding SDIO functional driver don't have the system
+> suspend/resume callbacks assigned. This behaviour has been around for a
+> very long time.
+>
+> However, a recent bug report tells us there are problems with this
+> approach. More precisely, when receiving the PM_SUSPEND_PREPARE
+> notification, we may end up hanging on I/O to be completed, thus also
+> preventing the system from getting suspended.
+>
+> In the end what happens, is that the cancel_delayed_work_sync() in
+> mmc_pm_notify() ends up waiting for mmc_rescan() to complete - and since
+> mmc_rescan() wants to claim the host, it needs to wait for the I/O to be
+> completed first.
+>
+> Typically, this problem is triggered in Android, if there is ongoing I/O
+> while the user decides to suspend, resume and then suspend the system
+> again. This due to that after the resume, an mmc_rescan() work gets punted
+> to the workqueue, which job is to verify that the card remains inserted
+> after the system has resumed.
+>
+> To fix this problem, userspace needs to become frozen to suspend the I/O,
+> prior to turning off the card detection mechanism. Therefore, let's drop
+> the PM notifiers for mmc subsystem altogether and rely on the card
+> detection to be turned off/on as a part of the system_freezable_wq, that we
+> are already using.
+>
+> Moreover, to allow and SDIO card to be removed during system suspend, let's
+> manage this from a ->prepare() callback, assigned at the mmc_host_class
+> level. In this way, we can use the parent device (the mmc_host_class
+> device), to remove the card device that is the child, in the
+> device_prepare() phase.
+>
+> Reported-by: Kiwoong Kim <kwmad.kim@samsung.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 
-The args is a stack variable, so it could have junk (uninitialized)
-therefore args.np could have a non-NULL and random value even though
-property was missing. Later could trigger invalid pointer dereference.
+This makes sense to me.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-There's no need to check for args.np because args.np won't be
-initialized on errors.
-
-Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2board")
-Cc: <stable@vger.kernel.org>
-Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
----
- sound/soc/samsung/tm2_wm5110.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/sound/soc/samsung/tm2_wm5110.c b/sound/soc/samsung/tm2_wm5110.c
-index 9300fef9bf26..125e07f65d2b 100644
---- a/sound/soc/samsung/tm2_wm5110.c
-+++ b/sound/soc/samsung/tm2_wm5110.c
-@@ -553,7 +553,7 @@ static int tm2_probe(struct platform_device *pdev)
- 
- 		ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
- 						 cells_name, i, &args);
--		if (!args.np) {
-+		if (ret) {
- 			dev_err(dev, "i2s-controller property parse error: %d\n", i);
- 			ret = -EINVAL;
- 			goto dai_node_put;
--- 
-2.25.1
-
+Yours,
+Linus Walleij
