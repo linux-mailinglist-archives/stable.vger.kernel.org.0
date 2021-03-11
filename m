@@ -2,311 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FD35336DF0
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 09:39:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EE36336E00
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 09:41:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbhCKIjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 03:39:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40578 "EHLO
+        id S231253AbhCKIlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 03:41:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230009AbhCKIjN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 03:39:13 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0D8C061574
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 00:39:12 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id bx7so1485301edb.12
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 00:39:12 -0800 (PST)
+        with ESMTP id S231422AbhCKIk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 03:40:59 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01E8C061574;
+        Thu, 11 Mar 2021 00:40:58 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id t18so3104951pjs.3;
+        Thu, 11 Mar 2021 00:40:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=TGOFJXs5ttYJbh2qbl9PCocPOfFdqA3yKC8zVQhcGxU=;
-        b=prDMXNaydyrGw8bqd0fvNq25wElCMZTN7GsDi7kDU2BVApKNCxSnyHTvgCm8/RwG/l
-         tEQLsVa+RtKDdzdWP3njllCJzVqD+zT5N/wG4/NJRBa0xoXdPc44fTH0If4xcREJG5LD
-         mrLk8J3mzcjC6WngrrEg3t1g3k28PYLcJPs5JSVO5VZVm36OaX7BsjuCdoWefdk03rfB
-         FaWfekOWxlLMy6nKDPW8o2loc5jaDoFanDSIEj4eoHHl3ixgIVqpcLZukTX/XYxY+PYY
-         5GOGUNf6GUyXJkuTnvagu8pP6PQnF9XacHHJ1MpVEkHp+RBo9sYisqGv3tzGjxcJBz2p
-         BvdA==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6mHyVtaVWSP9V2QIq3wJeCIuCzZt3/lvF8Edv6hD61g=;
+        b=XUFa0Cyiyni1CphJwyUp0Crd/UMZTGN3WylVXXa4xmaDwP10UFqZfeG5689oOZVrOf
+         mW49lwUUDzlnW7tcQVdgBVCZ/VXBcEmDKl56xXILMvA+bQzpcXe11r8vkxIB3yxssoRD
+         7tYxjZG+FwMLZK9pUlHlkZobkpjChRmCLWhAMn5pmHLysa4sHRShfDA+HMOnQS0uvZM6
+         okkyuExtxOQxWzgbdHqqkesdTibJTSdepuwAa3gL3uR4vXdsLmD3r6L6GstybvEN7hJl
+         c9u+ncRpgBjrKsAfNi5MS4eunDUghMFBrIkhtinH/keuIiRfeP5h0330KHTcoFRloE3a
+         Y9VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TGOFJXs5ttYJbh2qbl9PCocPOfFdqA3yKC8zVQhcGxU=;
-        b=q5Jfoz+RrDcpSC0HVSC1Ogk+B6mDSdSmQuK13zXkGOW4rycLFDwOiZr2woXwqN8+au
-         gcfwyFhaNvc24HNCuRF3vl3amH0g7kq+cNfcOSHrap2sRBs9ZNTC2FLkVh14JcYSD2Z6
-         edrY+WdeIVtmtxEZNJkMd5FaP3rjeI9dLcq2t5tOL5g5fR+I1uTQHHjaVUeRpf3vGs69
-         kWQPtC5C8zc7xsVJU7lOjoS/vWepIei9uLvar6TlFux4jUl6UtmildXP8XgiwsMg9FQV
-         3B2RJspHtidDxKmj6I1qnt5F4SA6cn8Ql3ZpB2c8WHCCsz/phTDYXqHWHP8UN0L8gCzP
-         D1Nw==
-X-Gm-Message-State: AOAM533/Za8b6GrpKDXqGVIbWb4tqd7YD1ZTckoK3GgiPKfl7ThXmJ2W
-        l4vQMXZ4IrBw1/uIz8XawwbBsDYksmK7LMTGy2oCWQ==
-X-Google-Smtp-Source: ABdhPJymSPeN6UBqT56voe0FfMH/udSk1NzayynpcFenxBzNk6KoQFzmihDVfixKRf24QN40x8s9/MbWQrbxyXxxX4o=
-X-Received: by 2002:a05:6402:13ce:: with SMTP id a14mr7449847edx.365.1615451951256;
- Thu, 11 Mar 2021 00:39:11 -0800 (PST)
-MIME-Version: 1.0
-References: <20210310132319.155338551@linuxfoundation.org>
-In-Reply-To: <20210310132319.155338551@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 11 Mar 2021 14:08:58 +0530
-Message-ID: <CA+G9fYtoYbSLWW10qXFrv1k7qzwuo+SttUm=Cng-7UpoQbB0zQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4 0/7] 4.4.261-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6mHyVtaVWSP9V2QIq3wJeCIuCzZt3/lvF8Edv6hD61g=;
+        b=nwiE4utoOuCv0sPoP6AIqkA4fWBWby5LMPXFnkW7TyQNMgXzQvKNg+jdJdyKzROXLi
+         tpjKla7LLAU69YCF315k85Xg4DldpzNhAsVqUgO7Z8/4k8R4l1p2HoW6KK3JGGvoTM93
+         qhphrIpNxl0z6d/LexKKQv/sKnldpA4Ou8mp5skYhzP0yaOEO8l7NCUBwCQt2DpDdfsl
+         w99zxLummOM6KEjFMAllzIEyUawyODgQxIpI0hD9ZvVhelPj8S1Dg0sXCpxfCc+FieBN
+         8iD9MqN2PFjo7WQeggz7OxLZI+HJseS5aORLdnLvc0Le9BDCrGF8h43AaXNqboWGhVkg
+         4uEQ==
+X-Gm-Message-State: AOAM53160441SZK4ZsaS3rADWctUv36jfB57YJtMVxv5XJiSbdumH7X4
+        UgIqYdTPuq4Okm0Brr2uny5ajIloS3ba3fWj
+X-Google-Smtp-Source: ABdhPJzzCTl16BWQXDUd6QiXp8eVV/DD2BBXrJK0gAHjOLjNFOoI8dgw2RxRLnu5lmLZqEaFYGJimA==
+X-Received: by 2002:a17:90a:bb91:: with SMTP id v17mr7602440pjr.24.1615452057971;
+        Thu, 11 Mar 2021 00:40:57 -0800 (PST)
+Received: from glados.. ([2601:647:6000:3e5b::a27])
+        by smtp.gmail.com with ESMTPSA id c22sm1585829pfl.169.2021.03.11.00.40.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Mar 2021 00:40:57 -0800 (PST)
+From:   Thomas Hebb <tommyhebb@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Thomas Hebb <tommyhebb@gmail.com>, stable@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Vitaly Wool <vitaly.wool@konsulko.com>, linux-mm@kvack.org
+Subject: [PATCH] z3fold: prevent reclaim/free race for headless pages
+Date:   Thu, 11 Mar 2021 00:40:54 -0800
+Message-Id: <c8106dbe6d8390b290cd1d7f873a2942e805349e.1615452048.git.tommyhebb@gmail.com>
+X-Mailer: git-send-email 2.30.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 10 Mar 2021 at 18:57, <gregkh@linuxfoundation.org> wrote:
->
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> This is the start of the stable review cycle for the 4.4.261 release.
-> There are 7 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.261-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+commit ca0246bb97c2 ("z3fold: fix possible reclaim races") introduced
+the PAGE_CLAIMED flag "to avoid racing on a z3fold 'headless' page
+release." By atomically testing and setting the bit in each of
+z3fold_free() and z3fold_reclaim_page(), a double-free was avoided.
 
+However, commit dcf5aedb24f8 ("z3fold: stricter locking and more careful
+reclaim") appears to have unintentionally broken this behavior by moving
+the PAGE_CLAIMED check in z3fold_reclaim_page() to after the page lock
+gets taken, which only happens for non-headless pages. For headless
+pages, the check is now skipped entirely and races can occur again.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I have observed such a race on my system:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+    page:00000000ffbd76b7 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x165316
+    flags: 0x2ffff0000000000()
+    raw: 02ffff0000000000 ffffea0004535f48 ffff8881d553a170 0000000000000000
+    raw: 0000000000000000 0000000000000011 00000000ffffffff 0000000000000000
+    page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) == 0)
+    ------------[ cut here ]------------
+    kernel BUG at include/linux/mm.h:707!
+    invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+    CPU: 2 PID: 291928 Comm: kworker/2:0 Tainted: G    B             5.10.7-arch1-1-kasan #1
+    Hardware name: Gigabyte Technology Co., Ltd. H97N-WIFI/H97N-WIFI, BIOS F9b 03/03/2016
+    Workqueue: zswap-shrink shrink_worker
+    RIP: 0010:__free_pages+0x10a/0x130
+    Code: c1 e7 06 48 01 ef 45 85 e4 74 d1 44 89 e6 31 d2 41 83 ec 01 e8 e7 b0 ff ff eb da 48 c7 c6 e0 32 91 88 48 89 ef e8 a6 89 f8 ff <0f> 0b 4c 89 e7 e8 fc 79 07 00 e9 33 ff ff ff 48 89 ef e8 ff 79 07
+    RSP: 0000:ffff88819a2ffb98 EFLAGS: 00010296
+    RAX: 0000000000000000 RBX: ffffea000594c5a8 RCX: 0000000000000000
+    RDX: 1ffffd4000b298b7 RSI: 0000000000000000 RDI: ffffea000594c5b8
+    RBP: ffffea000594c580 R08: 000000000000003e R09: ffff8881d5520bbb
+    R10: ffffed103aaa4177 R11: 0000000000000001 R12: ffffea000594c5b4
+    R13: 0000000000000000 R14: ffff888165316000 R15: ffffea000594c588
+    FS:  0000000000000000(0000) GS:ffff8881d5500000(0000) knlGS:0000000000000000
+    CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+    CR2: 00007f7c8c3654d8 CR3: 0000000103f42004 CR4: 00000000001706e0
+    Call Trace:
+     z3fold_zpool_shrink+0x9b6/0x1240
+     ? sugov_update_single+0x357/0x990
+     ? sched_clock+0x5/0x10
+     ? sched_clock_cpu+0x18/0x180
+     ? z3fold_zpool_map+0x490/0x490
+     ? _raw_spin_lock_irq+0x88/0xe0
+     shrink_worker+0x35/0x90
+     process_one_work+0x70c/0x1210
+     ? pwq_dec_nr_in_flight+0x15b/0x2a0
+     worker_thread+0x539/0x1200
+     ? __kthread_parkme+0x73/0x120
+     ? rescuer_thread+0x1000/0x1000
+     kthread+0x330/0x400
+     ? __kthread_bind_mask+0x90/0x90
+     ret_from_fork+0x22/0x30
+    Modules linked in: rfcomm ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter ccm algif_aead des_generic libdes ecb algif_skcipher cmac bnep md4 algif_hash af_alg vfat fat intel_rapl_msr intel_rapl_common x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel iwlmvm hid_logitech_hidpp kvm at24 mac80211 snd_hda_codec_realtek iTCO_wdt snd_hda_codec_generic intel_pmc_bxt snd_hda_codec_hdmi ledtrig_audio iTCO_vendor_support mei_wdt mei_hdcp snd_hda_intel snd_intel_dspcfg libarc4 soundwire_intel irqbypass iwlwifi soundwire_generic_allocation rapl soundwire_cadence intel_cstate snd_hda_codec intel_uncore btusb joydev mousedev snd_usb_audio pcspkr btrtl uvcvideo nouveau btbcm i2c_i801 btintel snd_hda_core videobuf2_vmalloc i2c_smbus snd_usbmidi_lib videobuf2_memops bluetooth snd_hwdep soundwire_bus snd_soc_rt5640 videobuf2_v4l2 cfg80211 snd_soc_rl6231 videobuf2_common snd_rawmidi lpc_ich alx videodev mdio snd_seq_device snd_soc_core mc ecdh_generic mxm_wmi mei_me
+     hid_logitech_dj wmi snd_compress e1000e ac97_bus mei ttm rfkill snd_pcm_dmaengine ecc snd_pcm snd_timer snd soundcore mac_hid acpi_pad pkcs8_key_parser it87 hwmon_vid crypto_user fuse ip_tables x_tables ext4 crc32c_generic crc16 mbcache jbd2 dm_crypt cbc encrypted_keys trusted tpm rng_core usbhid dm_mod crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel aesni_intel crypto_simd cryptd glue_helper xhci_pci xhci_pci_renesas i915 video intel_gtt i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgblt fb_sys_fops cec drm agpgart
+    ---[ end trace 126d646fc3dc0ad8 ]---
 
-Summary
-------------------------------------------------------------------------
+To fix the issue, re-add the earlier test and set in the case where we
+have a headless page.
 
-kernel: 4.4.261-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 9de32cd2fc5194157c9c116eec56a219048dc511
-git describe: v4.4.260-8-g9de32cd2fc51
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
-y/build/v4.4.260-8-g9de32cd2fc51
+Fixes: dcf5aedb24f8 ("z3fold: stricter locking and more careful reclaim")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+---
 
-No regressions (compared to build v4.4.260)
+ mm/z3fold.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-No fixes (compared to build v4.4.260)
+diff --git a/mm/z3fold.c b/mm/z3fold.c
+index 0152ad9931a8..8ae944eeb8e2 100644
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -1350,8 +1350,22 @@ static int z3fold_reclaim_page(struct z3fold_pool *pool, unsigned int retries)
+ 			page = list_entry(pos, struct page, lru);
+ 
+ 			zhdr = page_address(page);
+-			if (test_bit(PAGE_HEADLESS, &page->private))
++			if (test_bit(PAGE_HEADLESS, &page->private)) {
++				/*
++				 * For non-headless pages, we wait to do this
++				 * until we have the page lock to avoid racing
++				 * with __z3fold_alloc(). Headless pages don't
++				 * have a lock (and __z3fold_alloc() will never
++				 * see them), but we still need to test and set
++				 * PAGE_CLAIMED to avoid racing with
++				 * z3fold_free(), so just do it now before
++				 * leaving the loop.
++				 */
++				if (test_and_set_bit(PAGE_CLAIMED, &page->private))
++					continue;
++
+ 				break;
++			}
+ 
+ 			if (kref_get_unless_zero(&zhdr->refcount) == 0) {
+ 				zhdr = NULL;
+-- 
+2.30.0
 
-
-Ran 26428 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- i386
-- juno-64k_page_size
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* libhugetlbfs
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-math-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-securebits-tests
-* ltp-tracing-tests
-* network-basic-tests
-* ltp-cap_bounds-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-mm-tests
-* ltp-sched-tests
-* ltp-syscalls-tests
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* kvm-unit-tests
-* ltp-open-posix-tests
-* perf
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* kselftest-kvm
-* kselftest-vm
-* fwts
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.261-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.261-rc1-hikey-20210310-953
-git commit: bf1bdacd039d70403f1ce3196f223cae689ca15f
-git describe: 4.4.261-rc1-hikey-20210310-953
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.261-rc1-hikey-20210310-953
-
-No regressions (compared to build 4.4.261-rc1-hikey-20210308-951)
-
-
-No fixes (compared to build 4.4.261-rc1-hikey-20210308-951)
-
-Ran 1965 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
