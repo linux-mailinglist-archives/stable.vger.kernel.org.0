@@ -2,194 +2,186 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA150337C73
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:24:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2867C337C77
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbhCKSXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 13:23:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53706 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbhCKSXL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:23:11 -0500
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B16DC061574
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 10:23:11 -0800 (PST)
-Received: by mail-pl1-x62e.google.com with SMTP id z5so10633458plg.3
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 10:23:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dTm2l/h+j8QquBZ7R0yrBA+ke6tLvSgfaDEb2O77b1Q=;
-        b=vGGIBM++dM6oH7E4T1Gae37cs5oIrm5I8A9WsgB6NrFJY/AY+KA+egwxoIBNUT99q+
-         z5OvwcOQHPoU4673gZsW/hu6Y+88lqPdsu+HEzOAtEkbTPyKLSngJW72DQ65g+7jJy/k
-         oRrQbriq2RJun1Le2usG+HkP70CPLQeYlpmYDyyLlg0XMsdrgVfUaQKCOxzYnHfZArZj
-         ueop9MKXwKGPTmjmPry1EV8dAbsNpxCSK9scFxNyWoJ5gKaYKjS0XFEAVDoU5vaQlz0B
-         ISVxlYBDGFeBJXY6leCAEcMdbc15Fhwfc1Sj1PZ4Dl9n6Q6EmfTTCijh6NgYsfVuuKl2
-         jRdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dTm2l/h+j8QquBZ7R0yrBA+ke6tLvSgfaDEb2O77b1Q=;
-        b=oWdM596u6hmZ9hWYIH7U8JNmbgfDFvVeBUN+9nBAdNfHftuVa0SyJ/VSVO3OPR9j6H
-         240iBNZw5cfm7fbr9GW8g1bmmgvKN0LTxG9aIyyg6xT8gQZjR+syo0o+odzDrhkDaNXs
-         2MRLqqFx6rGwnhjm5FyH22o540fVexh1325igUiKyyGrIrAxeU76SmVimqFj/v9I1JA6
-         vNRAnF4OehZvS1Efz0ptsXOeeDZ3KgboDIUVTZW/1/Aky3pTZx7h9hE5mzC7Co2oC3pd
-         G6ncj31OR+EIV8CpaYAVdZtifAqSvVGOVputYzgepmiiuQn8M3uxku1X3OKAsfIPn5c8
-         uxVA==
-X-Gm-Message-State: AOAM5324XIVw7wE7yMPUiE92LbXpw+6psLIaL0BteEV3grCow4VGTkse
-        3MWNJylETO9vdPGjTta9N/l3we+6jRcXps7A
-X-Google-Smtp-Source: ABdhPJzq6Q8KpeZXWMOtuxtpAai+2p7tJa55lMQuPY7Q9wNJryK26CedYucb5oq9g56w/M1ha1AuUA==
-X-Received: by 2002:a17:90a:de06:: with SMTP id m6mr9755197pjv.184.1615486990480;
-        Thu, 11 Mar 2021 10:23:10 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b10sm2939992pgm.76.2021.03.11.10.23.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Mar 2021 10:23:10 -0800 (PST)
-Message-ID: <604a600e.1c69fb81.7be2f.7c75@mx.google.com>
-Date:   Thu, 11 Mar 2021 10:23:10 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S230051AbhCKSYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 13:24:07 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:36551 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230085AbhCKSXq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:23:46 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id DE6971BE6;
+        Thu, 11 Mar 2021 13:23:45 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Thu, 11 Mar 2021 13:23:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+1o87U
+        3M9+JYFSv/cgD/+KmOy2/hbSus26k50PtbfUk=; b=sqzMulRYw/a2I2odPW5qnr
+        kT6y7mQCdpfdA2p2X/pUNJ8vS0XUYn3W+CVIBNPhzhUiO2cEWdu2HdzWeT7eoWFF
+        K4jnikL9JGxZcORj2MGvMQLidRa+HEXnNKiQgJ79AxIiHpdw9xVEbV9y/IJt9zh4
+        8W65p75Rr/3tJB8dqgbwy5BDg9MQYhw4HCXrv73P2MeFdW2KSKU+NqbcYxTJeRgu
+        +x+5dhz0Pet9VTb+d5u9M2xismb0+QdRaTtkRGGFSdkSjOQPU6i5T9Zbdyqjf6jD
+        bDoiR2zXZbr6pewkaQoqVfyuYCx4DolYgkZI+AN138WUYD3ZCfSXSN1fJCrhpT5Q
+        ==
+X-ME-Sender: <xms:MGBKYDNoFjOJeqAiRW7vNiE7PPafYT5koikwezV32nXtJOwN-D4BXw>
+    <xme:MGBKYN9LInPN7ZiahFVSt6umFpgov8RJXYkxz2kw9yzSzYg1q_GGm4e1uN5O6iVXi
+    PpURrltM7qUeQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddgudduvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpedvjeetgfegtdfhheehteetudeuudegvdduheffhf
+    evvdekiedtudfhieektdevheenucffohhmrghinhepnhgvthhfihhlthgvrhdrohhrghen
+    ucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:MGBKYCQAuSA4yNMiQQzXKXJdjnp1-5bh0FiN8yaWPSVCcbTT_caNFA>
+    <xmx:MGBKYHvT-MIY_NoBcsT2gu_mBeZ9W541cVh3CnA8h-kx89ySIjeFbw>
+    <xmx:MGBKYLdRmm1leGBz-BO8NFJN78uku-bYkFH_jQZiYuvg3SSBerciCA>
+    <xmx:MWBKYLl9cKj5O-K2s5wIyrmCL_VNUlkH1Wz4jCyk4w8T5q-C_vHTVFwS8qE>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8D67E24005A;
+        Thu, 11 Mar 2021 13:23:44 -0500 (EST)
+Subject: FAILED: patch "[PATCH] netfilter: nf_nat: undo erroneous tcp edemux lookup" failed to apply to 4.19-stable tree
+To:     fw@strlen.de, pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Mar 2021 19:23:42 +0100
+Message-ID: <1615487022126190@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.225
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 72 runs, 3 regressions (v4.14.225)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 72 runs, 3 regressions (v4.14.225)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+------------------ original commit in Linus's tree ------------------
 
+From 03a3ca37e4c6478e3a84f04c8429dd5889e107fd Mon Sep 17 00:00:00 2001
+From: Florian Westphal <fw@strlen.de>
+Date: Wed, 24 Feb 2021 17:23:19 +0100
+Subject: [PATCH] netfilter: nf_nat: undo erroneous tcp edemux lookup
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.225/plan/baseline/
+Under extremely rare conditions TCP early demux will retrieve the wrong
+socket.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.225
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      c7150cd2fa8c831c8a2ddd27bce3ac2a3372c93d =
+1. local machine establishes a connection to a remote server, S, on port
+   p.
 
+   This gives:
+   laddr:lport -> S:p
+   ... both in tcp and conntrack.
 
+2. local machine establishes a connection to host H, on port p2.
+   2a. TCP stack choses same laddr:lport, so we have
+   laddr:lport -> H:p2 from TCP point of view.
+   2b). There is a destination NAT rewrite in place, translating
+        H:p2 to S:p.  This results in following conntrack entries:
 
-Test Regressions
----------------- =
+   I)  laddr:lport -> S:p  (origin)  S:p -> laddr:lport (reply)
+   II) laddr:lport -> H:p2 (origin)  S:p -> laddr:lport2 (reply)
 
+   NAT engine has rewritten laddr:lport to laddr:lport2 to map
+   the reply packet to the correct origin.
 
+   When server sends SYN/ACK to laddr:lport2, the PREROUTING hook
+   will undo-the SNAT transformation, rewriting IP header to
+   S:p -> laddr:lport
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+   This causes TCP early demux to associate the skb with the TCP socket
+   of the first connection.
 
+   The INPUT hook will then reverse the DNAT transformation, rewriting
+   the IP header to H:p2 -> laddr:lport.
 
-  Details:     https://kernelci.org/test/plan/id/604a2a9e230419006faddcbb
+Because packet ends up with the wrong socket, the new connection
+never completes: originator stays in SYN_SENT and conntrack entry
+remains in SYN_RECV until timeout, and responder retransmits SYN/ACK
+until it gives up.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
+To resolve this, orphan the skb after the input rewrite:
+Because the source IP address changed, the socket must be incorrect.
+We can't move the DNAT undo to prerouting due to backwards
+compatibility, doing so will make iptables/nftables rules to no longer
+match the way they did.
 
+After orphan, the packet will be handed to the next protocol layer
+(tcp, udp, ...) and that will repeat the socket lookup just like as if
+early demux was disabled.
 
+Fixes: 41063e9dd1195 ("ipv4: Early TCP socket demux.")
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1427
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 
-  * baseline.login: https://kernelci.org/test/case/id/604a2a9e230419006fadd=
-cbc
-        failing since 112 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
+diff --git a/net/netfilter/nf_nat_proto.c b/net/netfilter/nf_nat_proto.c
+index e87b6bd6b3cd..4731d21fc3ad 100644
+--- a/net/netfilter/nf_nat_proto.c
++++ b/net/netfilter/nf_nat_proto.c
+@@ -646,8 +646,8 @@ nf_nat_ipv4_fn(void *priv, struct sk_buff *skb,
+ }
+ 
+ static unsigned int
+-nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
+-	       const struct nf_hook_state *state)
++nf_nat_ipv4_pre_routing(void *priv, struct sk_buff *skb,
++			const struct nf_hook_state *state)
+ {
+ 	unsigned int ret;
+ 	__be32 daddr = ip_hdr(skb)->daddr;
+@@ -659,6 +659,23 @@ nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
+ 	return ret;
+ }
+ 
++static unsigned int
++nf_nat_ipv4_local_in(void *priv, struct sk_buff *skb,
++		     const struct nf_hook_state *state)
++{
++	__be32 saddr = ip_hdr(skb)->saddr;
++	struct sock *sk = skb->sk;
++	unsigned int ret;
++
++	ret = nf_nat_ipv4_fn(priv, skb, state);
++
++	if (ret == NF_ACCEPT && sk && saddr != ip_hdr(skb)->saddr &&
++	    !inet_sk_transparent(sk))
++		skb_orphan(skb); /* TCP edemux obtained wrong socket */
++
++	return ret;
++}
++
+ static unsigned int
+ nf_nat_ipv4_out(void *priv, struct sk_buff *skb,
+ 		const struct nf_hook_state *state)
+@@ -736,7 +753,7 @@ nf_nat_ipv4_local_fn(void *priv, struct sk_buff *skb,
+ static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
+ 	/* Before packet filtering, change destination */
+ 	{
+-		.hook		= nf_nat_ipv4_in,
++		.hook		= nf_nat_ipv4_pre_routing,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_PRE_ROUTING,
+ 		.priority	= NF_IP_PRI_NAT_DST,
+@@ -757,7 +774,7 @@ static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
+ 	},
+ 	/* After packet filtering, change source */
+ 	{
+-		.hook		= nf_nat_ipv4_fn,
++		.hook		= nf_nat_ipv4_local_in,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_LOCAL_IN,
+ 		.priority	= NF_IP_PRI_NAT_SRC,
 
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a2a6fb0c1abe52aaddcb1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a2a6fb0c1abe52aadd=
-cb2
-        failing since 112 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a2a1861e23f56d8addcd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.225/=
-arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a2a1861e23f56d8add=
-cd5
-        failing since 112 days (last pass: v4.14.206, first fail: v4.14.207=
-) =
-
- =20
