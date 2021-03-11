@@ -2,120 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27443337E33
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 20:30:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1811B337E36
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 20:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbhCKTaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 14:30:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39816 "EHLO
+        id S229607AbhCKTbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 14:31:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230000AbhCKT3r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 14:29:47 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36410C061574
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 11:29:47 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id c16so10742497ply.0
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 11:29:47 -0800 (PST)
+        with ESMTP id S229774AbhCKTa4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 14:30:56 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E8EC061574;
+        Thu, 11 Mar 2021 11:30:55 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id kk2-20020a17090b4a02b02900c777aa746fso9850339pjb.3;
+        Thu, 11 Mar 2021 11:30:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rhZ6uPJJA/iLaIVEC/XDpklAvNgoZ8G8Etl3dH7BGhg=;
-        b=bie03EXsrWLfwY2rr8Rhlc+LViIcaG3ziK1aYCjFXn+GMKQzHJAj4tlTjL/jdKYAwh
-         i+JIn//XNv5U+L2IHmO/rdpzVKug9trEPZzCBVMT+uJMDt2v9NK+vSYL0yiiJU8bWP7Z
-         m/1wUXSOXofXcVJFugzZeyBpkhimKHxPbjP9d8AcQKXnCIjL8cbOt9gPJXTmUKojdw2Q
-         vbDguLiblbt3T43KEYhbMu0c0Aex+5RZpswZIkVV3yW5WKhHS22cWs5U4v4Qtq9zMp2M
-         aO1qwsnMKuMVQx2fhY9It6ERj7CK3oTcWQPz7soYWXkL90FAOmfUw7JK9rtCT342E/mB
-         g+og==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=WTyvjgP+/OReF3DM4qtKAuAfj8VF6/RyxnNhlngUYSM=;
+        b=QMpxd3SKCfYJwKIgSO6m+mG+nU1QbTtt0KEORM3QxOqsCViqxn7iwGE+bCtb/V9Pgt
+         HyNuxOZmGx20RtgqT0KVxWLxbnh31SHyr3gOcXbCSWUmyLva69FB5naNkjJmyP1w/U0o
+         vvzw00FJdFc6nmTFqil8G+XrF82WXM5da/z5MGUxKSH7aIQirrkGYLp3q3b1pPDtdIq/
+         DkAMsq/FvR/OY+z2ux6N0SgiWP+lpMN9rbj+PbtYq483HZPdHwdg6mK3ItOkYvkXWzBj
+         q10/ZW4Hj8DnqKO6v9/CNYVpxbcYO2mxvca+CQYPobgDG7hRitCRvE5D9rjj+PoFoi6+
+         9rrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rhZ6uPJJA/iLaIVEC/XDpklAvNgoZ8G8Etl3dH7BGhg=;
-        b=pn5T9tQSXgvIzSM4ND9/aWcxNDU4Nq4xejIcfs+ue8INwqnFtNKl9SNpRA0P80hzyo
-         M4a327BcEVJa4xhF4WpxSVFBEzmMmgNhoflJHkxf4Xui5ZDgitW4VrwwYij+LfklOSLd
-         e6PurzBEyRLlXvb3s1luo3Kr2z1en+x6M3vlEk9cjyPonYFNVPlHOKN3cHUUNHE8OGJ/
-         ZM96xeaxe9Hi/u80Ko1ONJecV0OvtdzpYc5N0XsTkmsSpNRKbzB2KSfJMXy0tfL4VGoa
-         T5smrHKdI15Us4Hq/qtbYCIxp3GcQMuwzHzrM7ESf5oLznmj6/M5Ap+fKHzwUTfDQVAE
-         hZTg==
-X-Gm-Message-State: AOAM530/wKBroFkLgr9IvRq8TGnl5eAz/KOKnDyOBc5nwVZ5R5ZzF2ae
-        VoT8TqG/wyHS9QxVN4g8uze9OKAPj8DZ7Pi7
-X-Google-Smtp-Source: ABdhPJz4d/wylMqx5SassHetp4qMB+jiTEDMYPAF52xP02de9EQs3s0zgxp9WZRwmSyHHHVdc2oKfw==
-X-Received: by 2002:a17:90a:bb91:: with SMTP id v17mr10020989pjr.24.1615490986555;
-        Thu, 11 Mar 2021 11:29:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q15sm3385366pje.28.2021.03.11.11.29.46
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=WTyvjgP+/OReF3DM4qtKAuAfj8VF6/RyxnNhlngUYSM=;
+        b=PkDmr155UYkLbbQg2wLYw1u5kIZvWzzn9N8kjKrz6PCvpLaBg3EAmJB5jLGPsoTr+w
+         /+7bo+38DOgK03vjjxIT7mU3kiEB5R1VPii7uKO43bBXAdvT89CUXUB6VGVTsNRQ8Uxz
+         ezpii+Yaa2+nkMtGoxrAx+m3MZAtUc3uLJXRIlik7rC5ywkoUyJ3K2nHQUkdgzM+DBh2
+         +60prsg1I4gj4lJssIxKRz+gUco0lHWR7d5bse9AiRG2e3vqIOtF32tqJABccoobJ27V
+         slhQyZMMC2gm2N8sUqgL+KaZH8EuVwEgaDH5lAqA+a3kToVrFZIjOahFbJ1lhmR+6CDk
+         gbQQ==
+X-Gm-Message-State: AOAM531o1Sv3HyynHrd6i7oNDhIsFoR5O1PsaanP8QA+mhe9IltIkJRS
+        j+BFpsXyDXh+eCAMb8YCFSvrPqBIBOXrGA==
+X-Google-Smtp-Source: ABdhPJwpu05j6sHb/+79qGOjYvAGMZl6wcuxcfZdvKVaGhih2FeRwymyr2puJ4VH3m0ac5Rg3b4I0w==
+X-Received: by 2002:a17:90a:7104:: with SMTP id h4mr10070061pjk.189.1615491054726;
+        Thu, 11 Mar 2021 11:30:54 -0800 (PST)
+Received: from localhost.localdomain ([2601:1c2:4f03:fea0:c4aa:9f76:499c:65e7])
+        by smtp.gmail.com with ESMTPSA id w5sm3161587pfn.51.2021.03.11.11.30.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Mar 2021 11:29:46 -0800 (PST)
-Message-ID: <604a6faa.1c69fb81.c5acd.93a7@mx.google.com>
-Date:   Thu, 11 Mar 2021 11:29:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.22-47-g51b40d4c8a7f
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 88 runs,
- 1 regressions (v5.10.22-47-g51b40d4c8a7f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        Thu, 11 Mar 2021 11:30:54 -0800 (PST)
+From:   Ping Cheng <pinglinux@gmail.com>
+X-Google-Original-From: Ping Cheng <ping.cheng@wacom.com>
+To:     linux-input@vger.kernel.org
+Cc:     jkosina@suse.cz, Juan.Garrido@wacom.com, Jason.Gerecke@wacom.com,
+        Ping Cheng <ping.cheng@wacom.com>, stable@vger.kernel.org
+Subject: [PATCH] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC type of devices
+Date:   Thu, 11 Mar 2021 11:30:09 -0800
+Message-Id: <20210311193009.12692-1-ping.cheng@wacom.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 88 runs, 1 regressions (v5.10.22-47-g51b40d4=
-c8a7f)
+Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
+When *_input_capabilities are reached, those devices should already have
+their proper EV_* set. EV_KEY and EV_ABS only need to be set for
+non-HID_GENERIC type of devices in *_input_capabilities.
 
-Regressions Summary
--------------------
+Devices that don't support HID descitoprs will pass back to hid-input for
+registration without being accidentally rejected by the introduction of
+patch: "Input: refuse to register absolute devices without absinfo"
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
+Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
+CC: stable@vger.kernel.org
+---
+ drivers/hid/wacom_wac.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 5e6e4db..8906b79 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -3578,8 +3578,6 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ {
+ 	struct wacom_features *features = &wacom_wac->features;
+ 
+-	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+-
+ 	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
+ 		return -ENODEV;
+ 
+@@ -3594,6 +3592,7 @@ int wacom_setup_pen_input_capabilities(struct input_dev *input_dev,
+ 		return 0;
+ 	}
+ 
++	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 	__set_bit(ABS_MISC, input_dev->absbit);
+ 
+@@ -3746,8 +3745,6 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ {
+ 	struct wacom_features *features = &wacom_wac->features;
+ 
+-	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+-
+ 	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+ 		return -ENODEV;
+ 
+@@ -3760,6 +3757,7 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+ 		/* setup has already been done */
+ 		return 0;
+ 
++	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+ 	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 
+ 	if (features->touch_max == 1) {
+-- 
+2.17.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.22-47-g51b40d4c8a7f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.22-47-g51b40d4c8a7f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      51b40d4c8a7f0abeb7f14ae69243668d4a1fa22f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a408ee62a44147caddcc0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
-47-g51b40d4c8a7f/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.22-=
-47-g51b40d4c8a7f/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a408fe62a44147cadd=
-cc1
-        failing since 0 day (last pass: v5.10.22-1-g3a720b3b47d5e, first fa=
-il: v5.10.22-47-gf4bf7bd9b1cb7) =
-
- =20
