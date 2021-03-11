@@ -2,93 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 774FA336F10
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 10:43:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 658E5336F75
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 11:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231882AbhCKJnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 04:43:17 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:13521 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232093AbhCKJmw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 04:42:52 -0500
-Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Dx3pN4GJ7zNl0L;
-        Thu, 11 Mar 2021 17:40:28 +0800 (CST)
-Received: from [10.174.178.100] (10.174.178.100) by
- DGGEMS412-HUB.china.huawei.com (10.3.19.212) with Microsoft SMTP Server id
- 14.3.498.0; Thu, 11 Mar 2021 17:42:42 +0800
-Subject: Re: [PATCH 5.4 00/24] 5.4.105-rc1 review
-To:     <gregkh@linuxfoundation.org>, <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210310132320.550932445@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <1e283f99-ef4c-9f80-0d72-03ad0b9a1cd0@huawei.com>
-Date:   Thu, 11 Mar 2021 17:42:41 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232123AbhCKKA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 05:00:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56292 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232108AbhCKKA1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 05:00:27 -0500
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E76E164E28;
+        Thu, 11 Mar 2021 10:00:26 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94)
+        (envelope-from <maz@kernel.org>)
+        id 1lKI7F-000xb0-2f; Thu, 11 Mar 2021 10:00:25 +0000
+From:   Marc Zyngier <maz@kernel.org>
+To:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kvm@vger.kernel.org
+Cc:     James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Andrew Jones <drjones@redhat.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: [PATCH v3 1/2] KVM: arm64: Reject VM creation when the default IPA size is unsupported
+Date:   Thu, 11 Mar 2021 10:00:15 +0000
+Message-Id: <20210311100016.3830038-2-maz@kernel.org>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20210311100016.3830038-1-maz@kernel.org>
+References: <20210311100016.3830038-1-maz@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210310132320.550932445@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.100]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, will@kernel.org, drjones@redhat.com, eric.auger@redhat.com, alexandru.elisei@arm.com, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+KVM/arm64 has forever used a 40bit default IPA space, partially
+due to its 32bit heritage (where the only choice is 40bit).
 
+However, there are implementations in the wild that have a *cough*
+much smaller *cough* IPA space, which leads to a misprogramming of
+VTCR_EL2, and a guest that is stuck on its first memory access
+if userspace dares to ask for the default IPA setting (which most
+VMMs do).
 
-On 2021/3/10 21:24, gregkh@linuxfoundation.org wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> This is the start of the stable review cycle for the 5.4.105 release.
-> There are 24 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.105-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Instead, blundly reject the creation of such VM, as we can't
+satisfy the requirements from userspace (with a one-off warning).
+Also clarify the boot warning, and document that the VM creation
+will fail when an unsupported IPA size is probided.
 
-Tested on arm64 and x86 for 5.4.105-rc1,
+Although this is an ABI change, it doesn't really change much
+for userspace:
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.105-rc1+
-Commit: 62f8f08c9d2fbc6c5692d90f64dd70e3a8edd986
-Compiler: gcc version 7.3.0 (GCC)
+- the guest couldn't run before this change, but no error was
+  returned. At least userspace knows what is happening.
 
+- a memory slot that was accepted because it did fit the default
+  IPA space now doesn't even get a chance to be registered.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total_num: 4703
-succeed_num: 4703
-failed_num: 0
-timeout_num: 0
+The other thing that is left doing is to convince userspace to
+actually use the IPA space setting instead of relying on the
+antiquated default.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total_num: 4703
-succeed_num: 4703
-failed_num: 0
-timeout_num: 0
+Fixes: 233a7cb23531 ("kvm: arm64: Allow tuning the physical address size for VM")
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ Documentation/virt/kvm/api.rst |  3 +++
+ arch/arm64/kvm/reset.c         | 12 ++++++++----
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 1a2b5210cdbf..38e327d4b479 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -182,6 +182,9 @@ is dependent on the CPU capability and the kernel configuration. The limit can
+ be retrieved using KVM_CAP_ARM_VM_IPA_SIZE of the KVM_CHECK_EXTENSION
+ ioctl() at run-time.
+ 
++Creation of the VM will fail if the requested IPA size (whether it is
++implicit or explicit) is unsupported on the host.
++
+ Please note that configuring the IPA size does not affect the capability
+ exposed by the guest CPUs in ID_AA64MMFR0_EL1[PARange]. It only affects
+ size of the address translated by the stage2 level (guest physical to
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index 47f3f035f3ea..9d3d09a89894 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -324,10 +324,9 @@ int kvm_set_ipa_limit(void)
+ 	}
+ 
+ 	kvm_ipa_limit = id_aa64mmfr0_parange_to_phys_shift(parange);
+-	WARN(kvm_ipa_limit < KVM_PHYS_SHIFT,
+-	     "KVM IPA Size Limit (%d bits) is smaller than default size\n",
+-	     kvm_ipa_limit);
+-	kvm_info("IPA Size Limit: %d bits\n", kvm_ipa_limit);
++	kvm_info("IPA Size Limit: %d bits%s\n", kvm_ipa_limit,
++		 ((kvm_ipa_limit < KVM_PHYS_SHIFT) ?
++		  " (Reduced IPA size, limited VM/VMM compatibility)" : ""));
+ 
+ 	return 0;
+ }
+@@ -356,6 +355,11 @@ int kvm_arm_setup_stage2(struct kvm *kvm, unsigned long type)
+ 			return -EINVAL;
+ 	} else {
+ 		phys_shift = KVM_PHYS_SHIFT;
++		if (phys_shift > kvm_ipa_limit) {
++			pr_warn_once("%s using unsupported default IPA limit, upgrade your VMM\n",
++				     current->comm);
++			return -EINVAL;
++		}
+ 	}
+ 
+ 	mmfr0 = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
+-- 
+2.29.2
+
