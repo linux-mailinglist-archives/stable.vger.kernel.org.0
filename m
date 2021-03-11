@@ -2,78 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF0B1337B19
+	by mail.lfdr.de (Postfix) with ESMTP id C79E5337B18
 	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:40:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229796AbhCKRjr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229879AbhCKRjr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Mar 2021 12:39:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45752 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230011AbhCKRjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 12:39:25 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9AD64F97;
-        Thu, 11 Mar 2021 17:39:24 +0000 (UTC)
+        id S230027AbhCKRjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 12:39:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 228C264F97;
+        Thu, 11 Mar 2021 17:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615484365;
-        bh=TlKLoocWrAf+mcnp9qsVWdY3TBaeUf9aJbaJ39+J6z8=;
+        s=korg; t=1615484381;
+        bh=0jYjJ0cCaYA8YhHBEuwTaRi10Wab+szfGOSTf27fuhc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mtH/zbCkOKstf4XiUOC85HEJkKRDX6YejxRrZSNq9il9X1VFovULtGaLExKeP+L1Q
-         xl3pX62quqoDjFYEgaM7TNRJzweMU3Lz74CsGb1GR4Epy4h9isUiv2ayjTznSfAKWP
-         tAsgItz03r5S5bb50H5xbEfI4hVJu0P4ANCE55Gc=
-Date:   Thu, 11 Mar 2021 18:39:22 +0100
+        b=lJvEdw4l7x+MIC+cVABeDa5RqxLEX6i+eGgGG6YwZT2LqdGRLo9i1BDykc9Z+A3A+
+         z8ZXctF4lKZUVsQc8SFh5+Bguz9Flv2ovPp5HkoAbJ3sHXzxbsv+HNU6PsCsndNtZl
+         laxrlKdX7Mk/t5Vb1nznOUMHvIc1XzHr6vbhNxlE=
+Date:   Thu, 11 Mar 2021 18:39:39 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, f.fainelli@gmail.com,
-        stable@vger.kernel.org, linux-tegra@vger.kernel.org
-Subject: Re: [PATCH 5.11 00/36] 5.11.6-rc1 review
-Message-ID: <YEpVysdRAC1P4GC1@kroah.com>
-References: <20210310132320.510840709@linuxfoundation.org>
- <8b96ff67bd3d4e5ea9ea3d695eb5ba2d@HQMAIL107.nvidia.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/47] 5.10.23-rc2 review
+Message-ID: <YEpV2yOv9gfes24a@kroah.com>
+References: <20210310182834.696191666@linuxfoundation.org>
+ <20210310202419.GC13374@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8b96ff67bd3d4e5ea9ea3d695eb5ba2d@HQMAIL107.nvidia.com>
+In-Reply-To: <20210310202419.GC13374@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 11, 2021 at 07:59:56AM +0000, Jon Hunter wrote:
-> On Wed, 10 Mar 2021 14:23:13 +0100, gregkh@linuxfoundation.org wrote:
+On Wed, Mar 10, 2021 at 09:24:19PM +0100, Pavel Machek wrote:
+> Hi!
+> 
 > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > > 
-> > This is the start of the stable review cycle for the 5.11.6 release.
-> > There are 36 patches in this series, all will be posted as a response
+> > This is the start of the stable review cycle for the 5.10.23 release.
+> > There are 47 patches in this series, all will be posted as a response
 > > to this one.  If anyone has any issues with these being applied, please
 > > let me know.
-> > 
-> > Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.6-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
 > 
-> All tests passing for Tegra ...
+> CIP testing did not find any kernel problems here: (Renesas boards
+> are still unavailable)
 > 
-> Test results for stable-v5.11:
->     12 builds:	12 pass, 0 fail
->     26 boots:	26 pass, 0 fail
->     65 tests:	65 pass, 0 fail
+> https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-5.10.y
 > 
-> Linux version:	5.11.6-rc1-g4107fbb88ee5
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra210-p3450-0000,
->                 tegra30-cardhu-a04
-> 
-> Tested-by: Jon Hunter <jonathanh@nvidia.com>
+> Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-thanks for testing them all.
+Thanks for testing some of these.
