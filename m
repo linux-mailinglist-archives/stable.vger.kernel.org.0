@@ -2,134 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C44F2337C32
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9103A337C4C
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229965AbhCKSNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 13:13:11 -0500
-Received: from mga04.intel.com ([192.55.52.120]:10827 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229821AbhCKSNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 13:13:01 -0500
-IronPort-SDR: OpiFBjhQoLX+JGsPmI7sn8Vd4nzPG9jin6RCfVwD9gg4odyDk/7Dw9I4Mmrh6sVAWOPCQN8gBm
- m+uIYLmwgSKA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9920"; a="186337918"
-X-IronPort-AV: E=Sophos;i="5.81,241,1610438400"; 
-   d="scan'208";a="186337918"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 10:13:00 -0800
-IronPort-SDR: 6w8YfludFvMAiU+tUMs+3QLK8/xbc9BefDU0SHtDqUhiVEkjV4Wjk7EMZ1ps9AVkLFsoyAj55u
- EeikkH9+vQ1w==
-X-IronPort-AV: E=Sophos;i="5.81,241,1610438400"; 
-   d="scan'208";a="603628357"
-Received: from prcarril-mobl2.amr.corp.intel.com (HELO [10.213.187.142]) ([10.213.187.142])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 10:13:00 -0800
-Subject: Re: [PATCH 1/2] ASoC: intel: atom: Stop advertising non working S24LE
- support
-To:     Hans de Goede <hdegoede@redhat.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Jie Yang <yang.jie@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-References: <20210309105520.9185-1-hdegoede@redhat.com>
- <e1af1b57-d384-0dce-6362-c39197cf2063@linux.intel.com>
- <1c6f6608-5da3-1d57-1673-97ea22930ff9@redhat.com>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <d1a1a110-dc41-17e3-5b53-6c8921bf49a3@linux.intel.com>
-Date:   Thu, 11 Mar 2021 12:12:59 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S229721AbhCKSR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 13:17:27 -0500
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:38413 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229705AbhCKSRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:17:00 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 955191C02;
+        Thu, 11 Mar 2021 13:16:59 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 11 Mar 2021 13:16:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zlRncg
+        uTo80EUp4f9yhPd0R7Ve1+j/XSbf2iUFvaQK8=; b=OQg8FJymkLO2OjTyFr9MCE
+        lqc8eTKKmPfHjpGwpytxtWPKSmHMDZyfDVavv5PoWprXBRii8lCl6CNczsqR3I4G
+        r+KqCIjbw6OBqZgQLBedE5MHAMzK9RrTRjMQo1RvPJW3SlPHLW9gPTrdd10TSPDT
+        o8CZVWDNTuzdmw35YtIHIy07F/fztZxIhE3Yj19zv9mJaMVUbxNY0HoEaQ8Y60tM
+        CZZ0uf2JAVJraH6r4uoUkz0UZ4JQAenBAKDXwZj1DjXpbAAahi3sj1YDYhGhBSx9
+        QuFjuwQ9YWHFEkjvGi7Xcsox0+jAvEDZ1G16PpPemV6JlztBVtLMnYQCvJRokdXw
+        ==
+X-ME-Sender: <xms:mV5KYBKoABgCIlC0rXRGjx8AC3GAMPUeGjM-8066gWXcId0qR_X4wg>
+    <xme:mV5KYNLX1aMuZzfWjB0tICMAgornFMFjuBt8zzJ8nd37T_QDpmsXifZazdYCNZr1O
+    oQGb7n3qPcLSw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddguddutdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehje
+    duteevueevledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushht
+    vghrufhiiigvpedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    drtghomh
+X-ME-Proxy: <xmx:ml5KYJvo6-ra7iuJhVotyljczOIDRerrMJGibqxlqjTRGxHKE5C45w>
+    <xmx:ml5KYCa4NBeHznqzfFHBaxA_GN8fGfJkutrG0xHQk7q7MOMVtZDd1A>
+    <xmx:ml5KYIZQMDI3kxiJmxvFY9-4rM_BPJI-OuS-al0C1YI4ZwakUcl38Q>
+    <xmx:m15KYDxiAA9al2tEwVHg740W4iKq55VP2TCEZ39ZiPugFG3DnPyCktmAI1M>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 906C7108005C;
+        Thu, 11 Mar 2021 13:16:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] gpio: fix gpio-device list corruption" failed to apply to 5.11-stable tree
+To:     johan@kernel.org, bgolaszewski@baylibre.com, saravanak@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Mar 2021 19:16:55 +0100
+Message-ID: <161548661510059@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <1c6f6608-5da3-1d57-1673-97ea22930ff9@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch below does not apply to the 5.11-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On 3/11/21 10:44 AM, Hans de Goede wrote:
-> Hi,
-> 
-> On 3/9/21 4:42 PM, Pierre-Louis Bossart wrote:
->>
->>
->> On 3/9/21 4:55 AM, Hans de Goede wrote:
->>> The SST firmware's media and deep-buffer inputs are hardcoded to
->>> S16LE, the corresponding DAIs don't have a hw_params callback and
->>> their prepare callback also does not take the format into account.
->>>
->>> So far the advertising of non working S24LE support has not caused
->>> issues because pulseaudio defaults to S16LE, but changing pulse-audio's
->>> config to use S24LE will result in broken sound.
->>>
->>> Pipewire is replacing pulse now and pipewire prefers S24LE over S16LE
->>> when available, causing the problem of the broken S24LE support to
->>> come to the surface now.
->>>
->>> Cc: stable@vger.kernel.org
->>> BugLink: https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/866
->>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->>
->> Humm, that is strange.
->> I can't recall such limitations in the firmware, and the SSP support does make use of 24 bits.
->> Please give me a couple of days to double-check what's missing.
-> 
-> Note this is not about the format between the DSP (the DSP's SSP) and the codec,
-> this is the format between userspace and the DSP.
-> 
-> As is mentioned by the reporter of this issue:
-> https://github.com/thesofproject/sof/issues/3868#issuecomment-796809535
-> Both in that issue but also here:
-> https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/530#note_791736
-> 
-> And independently reproduced by my here:
-> https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/866#note_830336
-> 
-> The S24LE format ATM does not work when passed from userspace, this is
-> supposed to take 24 bits sampled packed into 32 bits ints (so padded
-> with 1 0 byte to make 32 bits per sample), but to actually get working
-> playback with the SST driver, the following commands are necessary:
-> 
-> ffmpeg -i /usr/share/sounds/alsa/Side_Left.wav -ar 96000 -f s32le -ac 2 test.raw
-> aplay --dump-hw-params -D"hw:1,0" -r48000 -c2 -fS24_LE test.raw
-> 
-> Note how the ffmpeg command to generate a working set of raw samples
-> is set to convert to full 32 bit samples, rather then 0 padded 24 bit
-> samples. Generating a .raw file with the same -f s32le argument to
-> ffmpeg and then playing it with aplay -fS24_LE while using the SOF
-> driver results in static. Where as with the SST driver it results
-> in working sound. This shows that the 2 clearly interpret the format
-> differently and it looks like the SST driver is interpreting it wrong.
-> 
-> Maybe the SST driver should advertise S32_LE support instead, SOF
-> advertised both S24_LE and S32_LE and the S32_LE format is the
-> one which works with .raw files generated with ffmpeg's -f s32le
-> option when using the SOF drv.
-> 
-> Note the format is not the only issue though, to get normal speed / pitch
-> playback, the file needs to be converted to a sample rate of 96KHz
-> and then played back at 48 KHz, hence the "-ar 96000" argument to
-> ffmpeg to get normal playback when using aplay -fS24_LE with the SST driver.
-> 
-> Because of both these fmt and playback speed issues I decided to just
-> drop the SNDRV_PCM_FMTBIT_S24_LE support in my patch. I guess we could
-> try to fix it, but since the plan is the phase out the SST support for
-> these devices this year I believe that we should not spend too much
-> time on trying to fix the SST driver here.  Dropping the SNDRV_PCM_FMTBIT_S24_LE
-> is a simple workaround to bridge the time until we complete drop the
-> SST support.
+thanks,
 
-ok, I agree. I added this capability back in 2015 in the upstream code 
-based on the Android versions, and I *think* it was tested, but since 
-there's overwhelming evidence of multiple issues let's revert this.
+greg k-h
 
-Fixes: 098c2cd281409 ("ASoC  ASoC: Intel: Atom: add 24-bit support for 
-media playback and capture")
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+------------------ original commit in Linus's tree ------------------
 
+From cf25ef6b631c6fc6c0435fc91eba8734cca20511 Mon Sep 17 00:00:00 2001
+From: Johan Hovold <johan@kernel.org>
+Date: Mon, 1 Mar 2021 10:05:19 +0100
+Subject: [PATCH] gpio: fix gpio-device list corruption
 
+Make sure to hold the gpio_lock when removing the gpio device from the
+gpio_devices list (when dropping the last reference) to avoid corrupting
+the list when there are concurrent accesses.
+
+Fixes: ff2b13592299 ("gpio: make the gpiochip a real device")
+Cc: stable@vger.kernel.org      # 4.6
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 6e0572515d02..4253837f870b 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -475,8 +475,12 @@ EXPORT_SYMBOL_GPL(gpiochip_line_is_valid);
+ static void gpiodevice_release(struct device *dev)
+ {
+ 	struct gpio_device *gdev = container_of(dev, struct gpio_device, dev);
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&gpio_lock, flags);
+ 	list_del(&gdev->list);
++	spin_unlock_irqrestore(&gpio_lock, flags);
++
+ 	ida_free(&gpio_ida, gdev->id);
+ 	kfree_const(gdev->label);
+ 	kfree(gdev->descs);
 
