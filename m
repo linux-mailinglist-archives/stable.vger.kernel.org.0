@@ -2,104 +2,228 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BF6336DD2
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 09:28:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B9D336DD7
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 09:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231278AbhCKI1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 03:27:53 -0500
-Received: from mga02.intel.com ([134.134.136.20]:50994 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231394AbhCKI1c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 03:27:32 -0500
-IronPort-SDR: nsN+Jwgzo9vKGf/76IbnYy/VGzjLyTdQyVk0OXYFMI67YQUEVFEMVpDjYGCfhVAcFxQHZKf7CT
- IDUETTq4vEWQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9919"; a="175744168"
-X-IronPort-AV: E=Sophos;i="5.81,239,1610438400"; 
-   d="scan'208";a="175744168"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Mar 2021 00:27:31 -0800
-IronPort-SDR: pJTjStgHCnmv5a1kWffP+57JbDpIvmrdwDCAF6kvP/wMpFTNU3qOkaI8NObhjmdaZAjYTGEE8y
- xnriS9luJGow==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,239,1610438400"; 
-   d="scan'208";a="509955082"
-Received: from kuha.fi.intel.com ([10.237.72.162])
-  by fmsmga001.fm.intel.com with SMTP; 11 Mar 2021 00:27:28 -0800
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Thu, 11 Mar 2021 10:27:27 +0200
-Date:   Thu, 11 Mar 2021 10:27:27 +0200
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Badhri Jagan Sridharan <badhri@google.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1] usb: typec: tcpci: Refactor tcpc_presenting_cc1_rd
- macro
-Message-ID: <YEnUb/hBh63Bql76@kuha.fi.intel.com>
-References: <20210310223536.3471243-1-badhri@google.com>
+        id S230526AbhCKIbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 03:31:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230363AbhCKIa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 03:30:59 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA7FC061574
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 00:30:59 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id i61so1442553edd.7
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 00:30:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=NBSPLtUn2dyF0yPANjmhingDcHQoPHZlxpbtzfl/OHQ=;
+        b=Su8QgkGF4OChLXB8mHx8QBQ72TwgAEAT/BregRE5v38WlY87JDijmoq+L/6jPcKvBo
+         Lhj8bSS6CsdkoJ0O2JcUEn/ucOB+BEFtgx49FIEXzbSxmFk+mfRNQUWBrM6hN2JTj2hs
+         zznpF2E8tSTiBaVJm2qsGA7+S4JHr098mBbNGhGwvODoaKQ1IpQ+dWBoqpHcfwQ3ktoy
+         YNdsmgcmxdXIknjxSxZYRPBD66+G0bWuM+Va4zI6jT7f1NutyNLe+kcU09zpTwqFghnJ
+         k0/h+A0UDoO4fhYIfwIfqjIYx0xm/hISi2b0LlPAf/4RmiSThOXuV8l4zMAu5vXsmAsT
+         IyXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=NBSPLtUn2dyF0yPANjmhingDcHQoPHZlxpbtzfl/OHQ=;
+        b=JmhY3j/brBCloPklC55x18iDgDz7JIA0JL2t0m024Yty/hW7L5tomTOokUBx5itnss
+         fBb9onCvwOv6v9kI0krrJ2iav0cHaofABHZ90EoGwnMfx/ragT8JMXYxXZX2qcL2045K
+         SRUdbfchPfAluCvQI4jKajIYITwATJpMdfs1gMynTqrbAi964rFTvYJYXGgyN0iGanoJ
+         fQHTk3O+VW55oA8klmonkaTiYI6JXypJmx2y6WwIuo8e8/xaygPJrY1YWiBrz3mdUc03
+         Gq3axm8stYyeiHsMhM6uUDgEk+jqzS77gQ2vyi5/FahQSMIiabBa26fkCdz+3musOWAE
+         oFrA==
+X-Gm-Message-State: AOAM5307NQZbcSZikKiapfDcFIU6541kknGW5n+ihl5WGTO18md/wRSB
+        kGPuvFvKbf7kWM8Qxnr6JUCViRjUKs758BnhEAcF2g==
+X-Google-Smtp-Source: ABdhPJyWL3On2xd1gMOWCTPAgc4EiVm1wt1A1LbH8eeYJCXUxHhMWshh7rWXy27Wrpsg/C/JcHbqAycQ4tEuPXe+m74=
+X-Received: by 2002:a05:6402:5113:: with SMTP id m19mr7506432edd.78.1615451457609;
+ Thu, 11 Mar 2021 00:30:57 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210310223536.3471243-1-badhri@google.com>
+References: <20210310132320.512307035@linuxfoundation.org>
+In-Reply-To: <20210310132320.512307035@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 11 Mar 2021 14:00:46 +0530
+Message-ID: <CA+G9fYsGu0NVJK59cJuECo1meKWn=+RWGCsEGvUGwd-5APqUOw@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/20] 4.14.225-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 10, 2021 at 02:35:36PM -0800, Badhri Jagan Sridharan wrote:
-> Defining one macro instead of two for tcpc_presenting_*_rd.
-> This is a follow up of the comment left by Heikki Krogerus.
-> 
-> https://patchwork.kernel.org/project/linux-usb/patch/
-> 20210304070931.1947316-1-badhri@google.com/
-> 
-> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+On Wed, 10 Mar 2021 at 18:56, <gregkh@linuxfoundation.org> wrote:
+>
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+> This is the start of the stable review cycle for the 4.14.225 release.
+> There are 20 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.225-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> ---
->  drivers/usb/typec/tcpm/tcpci.c | 14 +++++---------
->  1 file changed, 5 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-> index 027afd7dfdce..25b480752266 100644
-> --- a/drivers/usb/typec/tcpm/tcpci.c
-> +++ b/drivers/usb/typec/tcpm/tcpci.c
-> @@ -24,14 +24,10 @@
->  #define	AUTO_DISCHARGE_PD_HEADROOM_MV		850
->  #define	AUTO_DISCHARGE_PPS_HEADROOM_MV		1250
->  
-> -#define tcpc_presenting_cc1_rd(reg) \
-> +#define tcpc_presenting_rd(reg, cc) \
->  	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
-> -	 (((reg) & (TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT)) == \
-> -	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC1_SHIFT)))
-> -#define tcpc_presenting_cc2_rd(reg) \
-> -	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
-> -	 (((reg) & (TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT)) == \
-> -	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC2_SHIFT)))
-> +	 (((reg) & (TCPC_ROLE_CTRL_## cc ##_MASK << TCPC_ROLE_CTRL_## cc ##_SHIFT)) == \
-> +	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_## cc ##_SHIFT)))
->  
->  struct tcpci {
->  	struct device *dev;
-> @@ -201,11 +197,11 @@ static int tcpci_get_cc(struct tcpc_dev *tcpc,
->  	*cc1 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC1_SHIFT) &
->  				 TCPC_CC_STATUS_CC1_MASK,
->  				 reg & TCPC_CC_STATUS_TERM ||
-> -				 tcpc_presenting_cc1_rd(role_control));
-> +				 tcpc_presenting_rd(role_control, CC1));
->  	*cc2 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC2_SHIFT) &
->  				 TCPC_CC_STATUS_CC2_MASK,
->  				 reg & TCPC_CC_STATUS_TERM ||
-> -				 tcpc_presenting_cc2_rd(role_control));
-> +				 tcpc_presenting_rd(role_control, CC2));
->  
->  	return 0;
->  }
-> -- 
-> 2.31.0.rc1.246.gcd05c9c855-goog
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-thanks,
+Summary
+------------------------------------------------------------------------
 
--- 
-heikki
+kernel: 4.14.225-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-4.14.y
+git commit: 878d7bf8fdf6e16616c200ff20d091126f795542
+git describe: v4.14.224-21-g878d7bf8fdf6
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14=
+.y/build/v4.14.224-21-g878d7bf8fdf6
+
+No regressions (compared to build v4.14.224)
+
+No fixes (compared to build v4.14.224)
+
+Ran 42230 total tests in the following environments and test suites.
+
+Environments
+--------------
+- arm
+- arm64
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
+- i386
+- juno-64k_page_size
+- juno-r2 - arm64
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- qemu-arm64-kasan
+- qemu-x86_64-kasan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- sparc
+- x15 - arm
+- x86_64
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kvm
+* kselftest-lib
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* ltp-commands-tests
+* ltp-controllers-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* perf
+* v4l2-compliance
+* fwts
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-fs-tests
+* ltp-tracing-tests
+* network-basic-tests
+* kselftest-android
+* kselftest-bpf
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpufreq
+* kselftest-intel_pstate
+* kselftest-kexec
+* kselftest-livepatch
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-ptrace
+* kselftest-tc-testing
+* kselftest-vm
+* kselftest-x86
+* ltp-containers-tests
+* ltp-open-posix-tests
+* kselftest-cpu-hotplug
+* kvm-unit-tests
+* rcutorture
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
