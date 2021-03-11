@@ -2,152 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9710337084
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 11:53:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48368337095
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 11:54:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232471AbhCKKwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 05:52:49 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:54171 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232518AbhCKKwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 05:52:24 -0500
-Received: from [179.93.213.27] (helo=mussarela)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <cascardo@canonical.com>)
-        id 1lKIvR-0008VO-Pm; Thu, 11 Mar 2021 10:52:18 +0000
-Date:   Thu, 11 Mar 2021 07:52:10 -0300
-From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-To:     Macpaul Lin <macpaul.lin@mediatek.com>
-Cc:     Jim Lin <jilin@nvidia.com>, Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org,
-        Ainge Hsu <ainge.hsu@mediatek.com>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Kuohong Wang <kuohong.wang@mediatek.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v4] usb: gadget: configfs: Fix KASAN use-after-free
-Message-ID: <20210311105210.GS10958@mussarela>
-References: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
- <1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com>
- <1615445632.13420.2.camel@mtkswgap22>
+        id S232484AbhCKKxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 05:53:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232476AbhCKKxX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 05:53:23 -0500
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBDBBC061574
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 02:53:22 -0800 (PST)
+Received: by mail-vs1-xe2a.google.com with SMTP id m18so10462030vsa.1
+        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 02:53:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=CXY5RNGycwH9v0qa4wtJSmJE42Rt6XrZ8QX6Tzpfz2w=;
+        b=DEJjJHhH2jTf5yClzsII1bcMP/sZPW8moUBocEe8p7UpWsYZqtKbPmf0z/YHHVGT2I
+         6PcARP2fZ6n6fe3PWfxqBDDrTNNXf25CPfHLl3jhx1CSGaPbcQzpi8xgRT0qzk/PC2Rr
+         wgWWfMWB6YENfU/Rw1qaUVrWwaKoKa23EDXKpMfilLs2dV95OP3F7bZYIoMspfC+GIKP
+         SrYhCNVnWTygxz48lkmA3SpETG/+8kbBr1WyEkpVrK+FiD61agxv0ZC1FzrJWzZ6zO87
+         Ybulbu1K5QhVu7rMSbWqNv93Sp9BVM5c7fUjambuY7+3ZrHIpYxGo3Ka7BcUiwoar87R
+         DVwQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=CXY5RNGycwH9v0qa4wtJSmJE42Rt6XrZ8QX6Tzpfz2w=;
+        b=lmdoCKQaaGb9IJrCjQRhs2k8PaYeL9fHy1wuttMRUkQSiXwg3Ip2dTqcXVe4RDkwhE
+         lzYCi3Zf7yOPbjsbh+e9teZBhv0u3+oMXR6w4WVIh9gOYpZ12jBetNtOKaEFAlDL/QVk
+         7Tv7stQEzhN9biWTYrb3UXWlv5d34Z1rzVuvT0mNS1k+LGA52xxwa5f6ezMVW5XT3mwA
+         ToGBkhluisXQD+0TPdQzmdaJUer3mjOnR/f/vmuXaW6sU5+aPGHWiSycKLh+hQ9YYm3Y
+         WK44CvbsnGjn+rIP1Lj6/UpWICGqPkrx0V70cHRNwu3QTIoVMRSaTgfkuyYcZ2UN3NQh
+         x86w==
+X-Gm-Message-State: AOAM533jSWaMJ/rc6HBv9UItrx8HufjoS1hfiOL6/5pAu5FrCFKlRHkx
+        2xIWco6VUVn3Ufx/WHawuRx8Ijn5Ecz49DHr+xI=
+X-Google-Smtp-Source: ABdhPJyBHw+C2A0kfGBJwbX5+S3xvlwB+UmZDZLLpEIfvANb8ukao7DrP/N19vealRQnATAX0DwCCCxRdkTace7KpBU=
+X-Received: by 2002:a67:1946:: with SMTP id 67mr4198093vsz.60.1615460002053;
+ Thu, 11 Mar 2021 02:53:22 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1615445632.13420.2.camel@mtkswgap22>
+Received: by 2002:a67:2601:0:0:0:0:0 with HTTP; Thu, 11 Mar 2021 02:53:21
+ -0800 (PST)
+Reply-To: markcarissa7@gmail.com
+From:   Mark Carissa <hammangoni@gmail.com>
+Date:   Thu, 11 Mar 2021 10:53:21 +0000
+Message-ID: <CAB2dg0hk02TzXKHSLM9pSQCTkGVWYotts0chE30xueS4-qKMCw@mail.gmail.com>
+Subject: re.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 11, 2021 at 02:53:52PM +0800, Macpaul Lin wrote:
-> On Thu, 2021-03-11 at 14:42 +0800, Macpaul Lin wrote:
-> > From: Jim Lin <jilin@nvidia.com>
-> > 
-> > When gadget is disconnected, running sequence is like this.
-> > . composite_disconnect
-> > . Call trace:
-> >   usb_string_copy+0xd0/0x128
-> >   gadget_config_name_configuration_store+0x4
-> >   gadget_config_name_attr_store+0x40/0x50
-> >   configfs_write_file+0x198/0x1f4
-> >   vfs_write+0x100/0x220
-> >   SyS_write+0x58/0xa8
-> > . configfs_composite_unbind
-> > . configfs_composite_bind
-> > 
-> > In configfs_composite_bind, it has
-> > "cn->strings.s = cn->configuration;"
-> > 
-> > When usb_string_copy is invoked. it would
-> > allocate memory, copy input string, release previous pointed memory space,
-> > and use new allocated memory.
-> > 
-> > When gadget is connected, host sends down request to get information.
-> > Call trace:
-> >   usb_gadget_get_string+0xec/0x168
-> >   lookup_string+0x64/0x98
-> >   composite_setup+0xa34/0x1ee8
-> > 
-> > If gadget is disconnected and connected quickly, in the failed case,
-> > cn->configuration memory has been released by usb_string_copy kfree but
-> > configfs_composite_bind hasn't been run in time to assign new allocated
-> > "cn->configuration" pointer to "cn->strings.s".
-> > 
-> > When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
-> > memory is accessed, "BUG: KASAN: use-after-free" error occurs.
-> > 
-> > Signed-off-by: Jim Lin <jilin@nvidia.com>
-> > Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> > Changes in v2:
-> > Changes in v3:
-> >  - Change commit description
-> > Changes in v4:
-> >  - Fix build error and adapt patch to kernel-5.12-rc1.
-> >    Replace definition "MAX_USB_STRING_WITH_NULL_LEN" with
-> >    "USB_MAX_STRING_WITH_NULL_LEN".
-> >  - Note: The patch v2 and v3 has been verified by
-> >    Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-> >    http://spinics.net/lists/kernel/msg3840792.html
-> 
-> Dear Cascardo,
-> 
-> Would you please help to confirm if you've tested it on Linux PC,
-> Chrome OS, or an Android OS?
-
-I tested v3 on Ubuntu GNU/Linux. I will test v4.
-
-Cascardo.
-
-> 
-> Thanks!
-> Macpaul Lin
-> 
-> >    and
-> >    Macpaul Lin <macpaul.lin@mediatek.com> on Android kernels.
-> >    http://lkml.org/lkml/2020/6/11/8
-> >  - The patch is suggested to be applied to LTS versions.
-> > 
-> >  drivers/usb/gadget/configfs.c |   14 ++++++++++----
-> >  1 file changed, 10 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
-> > index 0d56f33..15a607c 100644
-> > --- a/drivers/usb/gadget/configfs.c
-> > +++ b/drivers/usb/gadget/configfs.c
-> > @@ -97,6 +97,8 @@ struct gadget_config_name {
-> >  	struct list_head list;
-> >  };
-> >  
-> > +#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-> > +
-> >  static int usb_string_copy(const char *s, char **s_copy)
-> >  {
-> >  	int ret;
-> > @@ -106,12 +108,16 @@ static int usb_string_copy(const char *s, char **s_copy)
-> >  	if (ret > USB_MAX_STRING_LEN)
-> >  		return -EOVERFLOW;
-> >  
-> > -	str = kstrdup(s, GFP_KERNEL);
-> > -	if (!str)
-> > -		return -ENOMEM;
-> > +	if (copy) {
-> > +		str = copy;
-> > +	} else {
-> > +		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-> > +		if (!str)
-> > +			return -ENOMEM;
-> > +	}
-> > +	strcpy(str, s);
-> >  	if (str[ret - 1] == '\n')
-> >  		str[ret - 1] = '\0';
-> > -	kfree(copy);
-> >  	*s_copy = str;
-> >  	return 0;
-> >  }
-> 
+Greetings, why haven't you replied to me? I sent you an email a few
+days ago but you haven't responded.
