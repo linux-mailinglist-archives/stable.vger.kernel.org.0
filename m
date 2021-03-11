@@ -2,146 +2,257 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04634336C64
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 07:44:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8419B336C75
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 07:51:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbhCKGn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 01:43:28 -0500
-Received: from mailgw01.mediatek.com ([210.61.82.183]:54241 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S230290AbhCKGnF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 01:43:05 -0500
-X-UUID: 9775fa7397f5439dbf3453bf1e23d5cb-20210311
-X-UUID: 9775fa7397f5439dbf3453bf1e23d5cb-20210311
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Cellopoint E-mail Firewall v4.1.14 Build 0819 with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 543715440; Thu, 11 Mar 2021 14:42:53 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs06n1.mediatek.inc (172.21.101.129) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 11 Mar 2021 14:42:51 +0800
-Received: from mtkswgap22.mediatek.inc (172.21.77.33) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 11 Mar 2021 14:42:51 +0800
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Jim Lin <jilin@nvidia.com>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>
-CC:     Ainge Hsu <ainge.hsu@mediatek.com>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Kuohong Wang <kuohong.wang@mediatek.com>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Macpaul Lin <macpaul@gmail.com>, <stable@vger.kernel.org>
-Subject: [PATCH v4] usb: gadget: configfs: Fix KASAN use-after-free
-Date:   Thu, 11 Mar 2021 14:42:41 +0800
-Message-ID: <1615444961-13376-1-git-send-email-macpaul.lin@mediatek.com>
-X-Mailer: git-send-email 1.7.9.5
-In-Reply-To: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
-References: <1484647168-30135-1-git-send-email-jilin@nvidia.com>
+        id S230418AbhCKGu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 01:50:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230458AbhCKGuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 01:50:14 -0500
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7A63C061760
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 22:50:13 -0800 (PST)
+Received: by mail-ej1-x633.google.com with SMTP id p8so43860395ejb.10
+        for <stable@vger.kernel.org>; Wed, 10 Mar 2021 22:50:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ptIec5/l5SJwE7zBjHGtTGVSGpXx725GHbS1ui0XQQg=;
+        b=RNbhLnDslwV1ZAmXU6qw951y1ouK1GsjKcKS/AC4LnmMQfukacYrNpv7+yzSy3PM/8
+         yEON5p/EwJ47U/JjaojqfZajlNfmoufc4ZyQo28U9uBh+YyGVHA7wrcnKEkOM9f05ZRP
+         K0z9q06lIVknGwyCOCie/6WvGTwZAy34ZjL2THQYFAMC8PuZKDQD9Ftq3CnZ0gTgYrl/
+         8n5MJ3NoGk0Gz/aTosOQn7pHe4t3HzAT+79wY5GAu9PhJ/SDj3RvdymY7ryzcyCkdWsp
+         hV0k83Pm9PMYqnDOq/i8vtglu5Wjj73CSZzTYnvHocwdawptNfe4f5vEcX5o5GpnucZa
+         kGUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ptIec5/l5SJwE7zBjHGtTGVSGpXx725GHbS1ui0XQQg=;
+        b=Qkz3HOkFCYiuwNxWzTtuBcDC8MKIjmFKg7rD/Wgq2o/eg/pwxOOHNgXzGOIASRCT/V
+         R2bghWLweR5ECSbPCDo+41K4zcQyK7ZOXZnzhxGneBTKbkaKcW6h47y8vUT9Bw+l9GkQ
+         sRrYQEvccci4dmPTpO0hgpPmum1HUJBM2Gye5vLtzcF0Z8BVG4BUWUs+amuZRzeYHh/t
+         Nw7FXBuK7DjRsE0obt5vx1nu7I0jOZ6u6ZSybZ45bUiL94oHF9me2cjpzWjDvyZrj9Xl
+         67tk9FrOl39OQk8+JCwqOU1lH6jzh+Daofcu1bUi1VazBeO6hRmpvfgKf+ZTy/fjLLom
+         IWwg==
+X-Gm-Message-State: AOAM533iI5Qa3CrjqAsEzF2lODRhWqUgm6//uxqKxGdibfOcuj+0McdS
+        eESyg4LyjaMfSwY/7lVnIn+Sxnh1vfqJk6fqSqXYAQ==
+X-Google-Smtp-Source: ABdhPJyszQ4KDwubpi0ogfG8RcflSl3DvQgx74jQEdqhNOhFicG4X86jAIg4rh886sWeArU+nVHdy6GuDXOjawOqMJY=
+X-Received: by 2002:a17:906:b2c3:: with SMTP id cf3mr1539444ejb.133.1615445412274;
+ Wed, 10 Mar 2021 22:50:12 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
+References: <20210310182834.696191666@linuxfoundation.org>
+In-Reply-To: <20210310182834.696191666@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 11 Mar 2021 12:20:01 +0530
+Message-ID: <CA+G9fYuVoNR9SN+1gY9TrsxPdpyJ=x0yNyBwKOsj1q-m0uoRDg@mail.gmail.com>
+Subject: Re: [PATCH 5.10 00/47] 5.10.23-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Lin <jilin@nvidia.com>
+On Wed, 10 Mar 2021 at 23:59, <gregkh@linuxfoundation.org> wrote:
+>
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+> This is the start of the stable review cycle for the 5.10.23 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 12 Mar 2021 18:28:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.23-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-When gadget is disconnected, running sequence is like this.
-. composite_disconnect
-. Call trace:
-  usb_string_copy+0xd0/0x128
-  gadget_config_name_configuration_store+0x4
-  gadget_config_name_attr_store+0x40/0x50
-  configfs_write_file+0x198/0x1f4
-  vfs_write+0x100/0x220
-  SyS_write+0x58/0xa8
-. configfs_composite_unbind
-. configfs_composite_bind
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-In configfs_composite_bind, it has
-"cn->strings.s = cn->configuration;"
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-When usb_string_copy is invoked. it would
-allocate memory, copy input string, release previous pointed memory space,
-and use new allocated memory.
+Summary
+------------------------------------------------------------------------
 
-When gadget is connected, host sends down request to get information.
-Call trace:
-  usb_gadget_get_string+0xec/0x168
-  lookup_string+0x64/0x98
-  composite_setup+0xa34/0x1ee8
+kernel: 5.10.23-rc2
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.10.y
+git commit: 93276f11b3afe08c3f213a3648483b1a8789673b
+git describe: v5.10.22-48-g93276f11b3af
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10=
+.y/build/v5.10.22-48-g93276f11b3af
 
-If gadget is disconnected and connected quickly, in the failed case,
-cn->configuration memory has been released by usb_string_copy kfree but
-configfs_composite_bind hasn't been run in time to assign new allocated
-"cn->configuration" pointer to "cn->strings.s".
+No regressions (compared to build v5.10.22)
 
-When "strlen(s->s) of usb_gadget_get_string is being executed, the dangling
-memory is accessed, "BUG: KASAN: use-after-free" error occurs.
 
-Signed-off-by: Jim Lin <jilin@nvidia.com>
-Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Cc: stable@vger.kernel.org
----
-Changes in v2:
-Changes in v3:
- - Change commit description
-Changes in v4:
- - Fix build error and adapt patch to kernel-5.12-rc1.
-   Replace definition "MAX_USB_STRING_WITH_NULL_LEN" with
-   "USB_MAX_STRING_WITH_NULL_LEN".
- - Note: The patch v2 and v3 has been verified by
-   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-   http://spinics.net/lists/kernel/msg3840792.html
-   and
-   Macpaul Lin <macpaul.lin@mediatek.com> on Android kernels.
-   http://lkml.org/lkml/2020/6/11/8
- - The patch is suggested to be applied to LTS versions.
+No fixes (compared to build v5.10.22)
 
- drivers/usb/gadget/configfs.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
-index 0d56f33..15a607c 100644
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -97,6 +97,8 @@ struct gadget_config_name {
- 	struct list_head list;
- };
- 
-+#define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
-+
- static int usb_string_copy(const char *s, char **s_copy)
- {
- 	int ret;
-@@ -106,12 +108,16 @@ static int usb_string_copy(const char *s, char **s_copy)
- 	if (ret > USB_MAX_STRING_LEN)
- 		return -EOVERFLOW;
- 
--	str = kstrdup(s, GFP_KERNEL);
--	if (!str)
--		return -ENOMEM;
-+	if (copy) {
-+		str = copy;
-+	} else {
-+		str = kmalloc(USB_MAX_STRING_WITH_NULL_LEN, GFP_KERNEL);
-+		if (!str)
-+			return -ENOMEM;
-+	}
-+	strcpy(str, s);
- 	if (str[ret - 1] == '\n')
- 		str[ret - 1] = '\0';
--	kfree(copy);
- 	*s_copy = str;
- 	return 0;
- }
--- 
-1.7.9.5
+Ran 56156 total tests in the following environments and test suites.
 
+Environments
+--------------
+- arc
+- arm
+- arm64
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- juno-r2-compat
+- juno-r2-kasan
+- mips
+- nxp-ls2088
+- nxp-ls2088-64k_page_size
+- parisc
+- powerpc
+- qemu-arm-clang
+- qemu-arm64-clang
+- qemu-arm64-kasan
+- qemu-i386-clang
+- qemu-x86_64-clang
+- qemu-x86_64-kasan
+- qemu-x86_64-kcsan
+- qemu_arm
+- qemu_arm64
+- qemu_arm64-compat
+- qemu_i386
+- qemu_x86_64
+- qemu_x86_64-compat
+- riscv
+- s390
+- sh
+- sparc
+- x15
+- x86
+- x86-kasan
+- x86_64
+
+Test Suites
+-----------
+* build
+* linux-log-parser
+* install-android-platform-tools-r2600
+* kselftest-bpf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-livepatch
+* kselftest-ptrace
+* libhugetlbfs
+* ltp-containers-tests
+* ltp-hugetlb-tests
+* ltp-ipc-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* v4l2-compliance
+* fwts
+* kselftest-kvm
+* kselftest-lib
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-zram
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-io-tests
+* ltp-math-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* perf
+* kselftest-
+* kselftest-android
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-kexec
+* kselftest-lkdtm
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-vm
+* kselftest-x86
+* ltp-controllers-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kunit
+* rcutorture
+* ssuite
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
