@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E483373A9
+	by mail.lfdr.de (Postfix) with ESMTP id 740053373A8
 	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 14:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233482AbhCKNW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 08:22:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38536 "EHLO mail.kernel.org"
+        id S233192AbhCKNW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 08:22:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233468AbhCKNWE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 11 Mar 2021 08:22:04 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20C8B64E68;
-        Thu, 11 Mar 2021 13:22:01 +0000 (UTC)
+        id S233469AbhCKNWG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 11 Mar 2021 08:22:06 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B0A864ECB;
+        Thu, 11 Mar 2021 13:22:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615468923;
-        bh=FD6ZMiswDzIWbkmUuou6+tMWEeEbwlKRh6st/DxFgpQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=M1YFNrOgzXeUCUwuwLdWPocWxnGQVlnttJHiGB357Qb0q66gvQYyHISWrA360izFY
-         9WyL/P85ydByKxg+fM31DV4Hj+LZpr2hTwUfOlch2aAMbSK4VOa8fPXEs3m4sw8aiW
-         mB+oiU8xt5+RRup188UshuHOWK62T2Mro6y0FOIU=
+        s=korg; t=1615468926;
+        bh=SN9DXdiBZxI1Qcc0C2i2iu+NH6v8leHQjsIqxrYlF9M=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DbSprTIPI7PyE+NTQIwPtJ8Bnm3nsS97rWd2igDK6eACyowgnJrmAHRG4ZM1LJ8Cd
+         Bx/ApGqaj93SmfAr++Rulkz2vH/V0L69j7fPzQUeDzKovbbbEPjFl7Gz+XKRi+Iylg
+         jGytUF/r5ygKRTZcXY0xXaYTUp+CrA2KPAHpLZgw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.9.261
-Date:   Thu, 11 Mar 2021 14:21:58 +0100
-Message-Id: <1615468918183237@kroah.com>
+Subject: Re: Linux 4.9.261
+Date:   Thu, 11 Mar 2021 14:21:59 +0100
+Message-Id: <1615468918159122@kroah.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <1615468918183237@kroah.com>
+References: <1615468918183237@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -37,65 +39,512 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-I'm announcing the release of the 4.9.261 kernel.
-
-All users of the 4.9 kernel series must upgrade.
-
-The updated 4.9.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                   |    2 
- drivers/block/rsxx/core.c                  |    8 +-
- drivers/iommu/amd_iommu.c                  |   10 +--
- drivers/md/dm-table.c                      |   91 ++++++++++++++++++-----------
- drivers/misc/eeprom/eeprom_93xx46.c        |   15 ++++
- drivers/pci/quirks.c                       |    3 
- drivers/platform/x86/acer-wmi.c            |    8 ++
- fs/btrfs/raid56.c                          |   58 +++++++-----------
- include/linux/eeprom_93xx46.h              |    2 
- sound/pci/ctxfi/cthw20k2.c                 |    2 
- tools/usb/usbip/libsrc/usbip_host_common.c |    2 
- 11 files changed, 123 insertions(+), 78 deletions(-)
-
-Andrey Ryabinin (1):
-      iommu/amd: Fix sleeping in atomic in increase_address_space()
-
-Antonio Borneo (1):
-      usbip: tools: fix build error for multiple definition
-
-Aswath Govindraju (1):
-      misc: eeprom_93xx46: Add quirk to support Microchip 93LC46B eeprom
-
-Bjorn Helgaas (1):
-      PCI: Add function 1 DMA alias quirk for Marvell 9215 SATA controller
-
-Colin Ian King (1):
-      ALSA: ctxfi: cthw20k2: fix mask on conf to allow 4 bits
-
-Dan Carpenter (1):
-      rsxx: Return -EFAULT if copy_to_user() fails
-
-David Sterba (1):
-      btrfs: raid56: simplify tracking of Q stripe presence
-
-Greg Kroah-Hartman (1):
-      Linux 4.9.261
-
-Hans de Goede (1):
-      platform/x86: acer-wmi: Add new force_caps module parameter
-
-Ira Weiny (1):
-      btrfs: fix raid6 qstripe kmap
-
-Jeffle Xu (2):
-      dm table: fix iterate_devices based device capability checks
-      dm table: fix DAX iterate_devices based device capability checks
-
+diff --git a/Makefile b/Makefile
+index 7a29676e2b2f..7a233c641906 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 9
+-SUBLEVEL = 260
++SUBLEVEL = 261
+ EXTRAVERSION =
+ NAME = Roaring Lionus
+ 
+diff --git a/drivers/block/rsxx/core.c b/drivers/block/rsxx/core.c
+index 6beafaa335c7..97b678c0ea13 100644
+--- a/drivers/block/rsxx/core.c
++++ b/drivers/block/rsxx/core.c
+@@ -180,15 +180,17 @@ static ssize_t rsxx_cram_read(struct file *fp, char __user *ubuf,
+ {
+ 	struct rsxx_cardinfo *card = file_inode(fp)->i_private;
+ 	char *buf;
+-	ssize_t st;
++	int st;
+ 
+ 	buf = kzalloc(cnt, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+ 	st = rsxx_creg_read(card, CREG_ADD_CRAM + (u32)*ppos, cnt, buf, 1);
+-	if (!st)
+-		st = copy_to_user(ubuf, buf, cnt);
++	if (!st) {
++		if (copy_to_user(ubuf, buf, cnt))
++			st = -EFAULT;
++	}
+ 	kfree(buf);
+ 	if (st)
+ 		return st;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index f4a15d9f2bbb..8377bd388d67 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -1331,24 +1331,26 @@ static void increase_address_space(struct protection_domain *domain,
+ 	unsigned long flags;
+ 	u64 *pte;
+ 
++	pte = (void *)get_zeroed_page(gfp);
++	if (!pte)
++		goto out;
++
+ 	spin_lock_irqsave(&domain->lock, flags);
+ 
+ 	if (WARN_ON_ONCE(domain->mode == PAGE_MODE_6_LEVEL))
+ 		/* address space already 64 bit large */
+ 		goto out;
+ 
+-	pte = (void *)get_zeroed_page(gfp);
+-	if (!pte)
+-		goto out;
+-
+ 	*pte             = PM_LEVEL_PDE(domain->mode,
+ 					virt_to_phys(domain->pt_root));
+ 	domain->pt_root  = pte;
+ 	domain->mode    += 1;
+ 	domain->updated  = true;
++	pte              = NULL;
+ 
+ out:
+ 	spin_unlock_irqrestore(&domain->lock, flags);
++	free_page((unsigned long)pte);
+ 
+ 	return;
+ }
+diff --git a/drivers/md/dm-table.c b/drivers/md/dm-table.c
+index 5d120c3cee57..4fc68c00c231 100644
+--- a/drivers/md/dm-table.c
++++ b/drivers/md/dm-table.c
+@@ -848,12 +848,12 @@ void dm_table_set_type(struct dm_table *t, unsigned type)
+ }
+ EXPORT_SYMBOL_GPL(dm_table_set_type);
+ 
+-static int device_supports_dax(struct dm_target *ti, struct dm_dev *dev,
+-			       sector_t start, sector_t len, void *data)
++static int device_not_dax_capable(struct dm_target *ti, struct dm_dev *dev,
++				  sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && blk_queue_dax(q);
++	return q && !blk_queue_dax(q);
+ }
+ 
+ static bool dm_table_supports_dax(struct dm_table *t)
+@@ -869,7 +869,7 @@ static bool dm_table_supports_dax(struct dm_table *t)
+ 			return false;
+ 
+ 		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, device_supports_dax, NULL))
++		    ti->type->iterate_devices(ti, device_not_dax_capable, NULL))
+ 			return false;
+ 	}
+ 
+@@ -1306,6 +1306,46 @@ struct dm_target *dm_table_find_target(struct dm_table *t, sector_t sector)
+ 	return &t->targets[(KEYS_PER_NODE * n) + k];
+ }
+ 
++/*
++ * type->iterate_devices() should be called when the sanity check needs to
++ * iterate and check all underlying data devices. iterate_devices() will
++ * iterate all underlying data devices until it encounters a non-zero return
++ * code, returned by whether the input iterate_devices_callout_fn, or
++ * iterate_devices() itself internally.
++ *
++ * For some target type (e.g. dm-stripe), one call of iterate_devices() may
++ * iterate multiple underlying devices internally, in which case a non-zero
++ * return code returned by iterate_devices_callout_fn will stop the iteration
++ * in advance.
++ *
++ * Cases requiring _any_ underlying device supporting some kind of attribute,
++ * should use the iteration structure like dm_table_any_dev_attr(), or call
++ * it directly. @func should handle semantics of positive examples, e.g.
++ * capable of something.
++ *
++ * Cases requiring _all_ underlying devices supporting some kind of attribute,
++ * should use the iteration structure like dm_table_supports_nowait() or
++ * dm_table_supports_discards(). Or introduce dm_table_all_devs_attr() that
++ * uses an @anti_func that handle semantics of counter examples, e.g. not
++ * capable of something. So: return !dm_table_any_dev_attr(t, anti_func);
++ */
++static bool dm_table_any_dev_attr(struct dm_table *t,
++				  iterate_devices_callout_fn func)
++{
++	struct dm_target *ti;
++	unsigned int i;
++
++	for (i = 0; i < dm_table_get_num_targets(t); i++) {
++		ti = dm_table_get_target(t, i);
++
++		if (ti->type->iterate_devices &&
++		    ti->type->iterate_devices(ti, func, NULL))
++			return true;
++        }
++
++	return false;
++}
++
+ static int count_device(struct dm_target *ti, struct dm_dev *dev,
+ 			sector_t start, sector_t len, void *data)
+ {
+@@ -1476,12 +1516,12 @@ static bool dm_table_discard_zeroes_data(struct dm_table *t)
+ 	return true;
+ }
+ 
+-static int device_is_nonrot(struct dm_target *ti, struct dm_dev *dev,
+-			    sector_t start, sector_t len, void *data)
++static int device_is_rotational(struct dm_target *ti, struct dm_dev *dev,
++				sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && blk_queue_nonrot(q);
++	return q && !blk_queue_nonrot(q);
+ }
+ 
+ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+@@ -1492,29 +1532,12 @@ static int device_is_not_random(struct dm_target *ti, struct dm_dev *dev,
+ 	return q && !blk_queue_add_random(q);
+ }
+ 
+-static int queue_supports_sg_merge(struct dm_target *ti, struct dm_dev *dev,
+-				   sector_t start, sector_t len, void *data)
++static int queue_no_sg_merge(struct dm_target *ti, struct dm_dev *dev,
++			     sector_t start, sector_t len, void *data)
+ {
+ 	struct request_queue *q = bdev_get_queue(dev->bdev);
+ 
+-	return q && !test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+-}
+-
+-static bool dm_table_all_devices_attribute(struct dm_table *t,
+-					   iterate_devices_callout_fn func)
+-{
+-	struct dm_target *ti;
+-	unsigned i = 0;
+-
+-	while (i < dm_table_get_num_targets(t)) {
+-		ti = dm_table_get_target(t, i++);
+-
+-		if (!ti->type->iterate_devices ||
+-		    !ti->type->iterate_devices(ti, func, NULL))
+-			return false;
+-	}
+-
+-	return true;
++	return q && test_bit(QUEUE_FLAG_NO_SG_MERGE, &q->queue_flags);
+ }
+ 
+ static int device_not_write_same_capable(struct dm_target *ti, struct dm_dev *dev,
+@@ -1607,18 +1630,18 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 		q->limits.discard_zeroes_data = 0;
+ 
+ 	/* Ensure that all underlying devices are non-rotational. */
+-	if (dm_table_all_devices_attribute(t, device_is_nonrot))
+-		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
+-	else
++	if (dm_table_any_dev_attr(t, device_is_rotational))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_NONROT, q);
++	else
++		queue_flag_set_unlocked(QUEUE_FLAG_NONROT, q);
+ 
+ 	if (!dm_table_supports_write_same(t))
+ 		q->limits.max_write_same_sectors = 0;
+ 
+-	if (dm_table_all_devices_attribute(t, queue_supports_sg_merge))
+-		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+-	else
++	if (dm_table_any_dev_attr(t, queue_no_sg_merge))
+ 		queue_flag_set_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
++	else
++		queue_flag_clear_unlocked(QUEUE_FLAG_NO_SG_MERGE, q);
+ 
+ 	dm_table_verify_integrity(t);
+ 
+@@ -1628,7 +1651,7 @@ void dm_table_set_restrictions(struct dm_table *t, struct request_queue *q,
+ 	 * Clear QUEUE_FLAG_ADD_RANDOM if any underlying device does not
+ 	 * have it set.
+ 	 */
+-	if (blk_queue_add_random(q) && dm_table_all_devices_attribute(t, device_is_not_random))
++	if (blk_queue_add_random(q) && dm_table_any_dev_attr(t, device_is_not_random))
+ 		queue_flag_clear_unlocked(QUEUE_FLAG_ADD_RANDOM, q);
+ 
+ 	/*
+diff --git a/drivers/misc/eeprom/eeprom_93xx46.c b/drivers/misc/eeprom/eeprom_93xx46.c
+index d30deee1effd..30b490329f55 100644
+--- a/drivers/misc/eeprom/eeprom_93xx46.c
++++ b/drivers/misc/eeprom/eeprom_93xx46.c
+@@ -38,6 +38,10 @@ static const struct eeprom_93xx46_devtype_data atmel_at93c46d_data = {
+ 		  EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH,
+ };
+ 
++static const struct eeprom_93xx46_devtype_data microchip_93lc46b_data = {
++	.quirks = EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE,
++};
++
+ struct eeprom_93xx46_dev {
+ 	struct spi_device *spi;
+ 	struct eeprom_93xx46_platform_data *pdata;
+@@ -58,6 +62,11 @@ static inline bool has_quirk_instruction_length(struct eeprom_93xx46_dev *edev)
+ 	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH;
+ }
+ 
++static inline bool has_quirk_extra_read_cycle(struct eeprom_93xx46_dev *edev)
++{
++	return edev->pdata->quirks & EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE;
++}
++
+ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 			      void *val, size_t count)
+ {
+@@ -99,6 +108,11 @@ static int eeprom_93xx46_read(void *priv, unsigned int off,
+ 		dev_dbg(&edev->spi->dev, "read cmd 0x%x, %d Hz\n",
+ 			cmd_addr, edev->spi->max_speed_hz);
+ 
++		if (has_quirk_extra_read_cycle(edev)) {
++			cmd_addr <<= 1;
++			bits += 1;
++		}
++
+ 		spi_message_init(&m);
+ 
+ 		t[0].tx_buf = (char *)&cmd_addr;
+@@ -366,6 +380,7 @@ static void select_deassert(void *context)
+ static const struct of_device_id eeprom_93xx46_of_table[] = {
+ 	{ .compatible = "eeprom-93xx46", },
+ 	{ .compatible = "atmel,at93c46d", .data = &atmel_at93c46d_data, },
++	{ .compatible = "microchip,93lc46b", .data = &microchip_93lc46b_data, },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, eeprom_93xx46_of_table);
+diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+index 1fdb1ef5eaae..0ebf7500e171 100644
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3911,6 +3911,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9182,
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c46 */
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x91a0,
+ 			 quirk_dma_func1_alias);
++/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c135 */
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9215,
++			 quirk_dma_func1_alias);
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c127 */
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9220,
+ 			 quirk_dma_func1_alias);
+diff --git a/drivers/platform/x86/acer-wmi.c b/drivers/platform/x86/acer-wmi.c
+index 90015e2cce9b..ec3cbb7844bc 100644
+--- a/drivers/platform/x86/acer-wmi.c
++++ b/drivers/platform/x86/acer-wmi.c
+@@ -229,6 +229,7 @@ static int mailled = -1;
+ static int brightness = -1;
+ static int threeg = -1;
+ static int force_series;
++static int force_caps = -1;
+ static bool ec_raw_mode;
+ static bool has_type_aa;
+ static u16 commun_func_bitmap;
+@@ -238,11 +239,13 @@ module_param(mailled, int, 0444);
+ module_param(brightness, int, 0444);
+ module_param(threeg, int, 0444);
+ module_param(force_series, int, 0444);
++module_param(force_caps, int, 0444);
+ module_param(ec_raw_mode, bool, 0444);
+ MODULE_PARM_DESC(mailled, "Set initial state of Mail LED");
+ MODULE_PARM_DESC(brightness, "Set initial LCD backlight brightness");
+ MODULE_PARM_DESC(threeg, "Set initial state of 3G hardware");
+ MODULE_PARM_DESC(force_series, "Force a different laptop series");
++MODULE_PARM_DESC(force_caps, "Force the capability bitmask to this value");
+ MODULE_PARM_DESC(ec_raw_mode, "Enable EC raw mode");
+ 
+ struct acer_data {
+@@ -2198,7 +2201,7 @@ static int __init acer_wmi_init(void)
+ 		}
+ 		/* WMID always provides brightness methods */
+ 		interface->capability |= ACER_CAP_BRIGHTNESS;
+-	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa) {
++	} else if (!wmi_has_guid(WMID_GUID2) && interface && !has_type_aa && force_caps == -1) {
+ 		pr_err("No WMID device detection method found\n");
+ 		return -ENODEV;
+ 	}
+@@ -2228,6 +2231,9 @@ static int __init acer_wmi_init(void)
+ 	if (acpi_video_get_backlight_type() != acpi_backlight_vendor)
+ 		interface->capability &= ~ACER_CAP_BRIGHTNESS;
+ 
++	if (force_caps != -1)
++		interface->capability = force_caps;
++
+ 	if (wmi_has_guid(WMID_GUID3)) {
+ 		if (ec_raw_mode) {
+ 			if (ACPI_FAILURE(acer_wmi_enable_ec_raw())) {
+diff --git a/fs/btrfs/raid56.c b/fs/btrfs/raid56.c
+index 5aa07de5750e..4b5d806e8fc6 100644
+--- a/fs/btrfs/raid56.c
++++ b/fs/btrfs/raid56.c
+@@ -1179,22 +1179,19 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct bio_list bio_list;
+ 	struct bio *bio;
+ 	int ret;
+ 
+ 	bio_list_init(&bio_list);
+ 
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
+ 
+ 	/* at this point we either have a full stripe,
+ 	 * or we've read the full stripe from the drive.
+@@ -1238,7 +1235,7 @@ static noinline void finish_rmw(struct btrfs_raid_bio *rbio)
+ 		SetPageUptodate(p);
+ 		pointers[stripe++] = kmap(p);
+ 
+-		if (q_stripe != -1) {
++		if (has_qstripe) {
+ 
+ 			/*
+ 			 * raid6, add the qstripe and call the
+@@ -2306,8 +2303,7 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
+ 	int nr_data = rbio->nr_data;
+ 	int stripe;
+ 	int pagenr;
+-	int p_stripe = -1;
+-	int q_stripe = -1;
++	bool has_qstripe;
+ 	struct page *p_page = NULL;
+ 	struct page *q_page = NULL;
+ 	struct bio_list bio_list;
+@@ -2317,14 +2313,12 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
+ 
+ 	bio_list_init(&bio_list);
+ 
+-	if (rbio->real_stripes - rbio->nr_data == 1) {
+-		p_stripe = rbio->real_stripes - 1;
+-	} else if (rbio->real_stripes - rbio->nr_data == 2) {
+-		p_stripe = rbio->real_stripes - 2;
+-		q_stripe = rbio->real_stripes - 1;
+-	} else {
++	if (rbio->real_stripes - rbio->nr_data == 1)
++		has_qstripe = false;
++	else if (rbio->real_stripes - rbio->nr_data == 2)
++		has_qstripe = true;
++	else
+ 		BUG();
+-	}
+ 
+ 	if (bbio->num_tgtdevs && bbio->tgtdev_map[rbio->scrubp]) {
+ 		is_replace = 1;
+@@ -2346,17 +2340,22 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
+ 		goto cleanup;
+ 	SetPageUptodate(p_page);
+ 
+-	if (q_stripe != -1) {
++	if (has_qstripe) {
++		/* RAID6, allocate and map temp space for the Q stripe */
+ 		q_page = alloc_page(GFP_NOFS | __GFP_HIGHMEM);
+ 		if (!q_page) {
+ 			__free_page(p_page);
+ 			goto cleanup;
+ 		}
+ 		SetPageUptodate(q_page);
++		pointers[rbio->real_stripes - 1] = kmap(q_page);
+ 	}
+ 
+ 	atomic_set(&rbio->error, 0);
+ 
++	/* Map the parity stripe just once */
++	pointers[nr_data] = kmap(p_page);
++
+ 	for_each_set_bit(pagenr, rbio->dbitmap, rbio->stripe_npages) {
+ 		struct page *p;
+ 		void *parity;
+@@ -2366,17 +2365,8 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
+ 			pointers[stripe] = kmap(p);
+ 		}
+ 
+-		/* then add the parity stripe */
+-		pointers[stripe++] = kmap(p_page);
+-
+-		if (q_stripe != -1) {
+-
+-			/*
+-			 * raid6, add the qstripe and call the
+-			 * library function to fill in our p/q
+-			 */
+-			pointers[stripe++] = kmap(q_page);
+-
++		if (has_qstripe) {
++			/* RAID6, call the library function to fill in our P/Q */
+ 			raid6_call.gen_syndrome(rbio->real_stripes, PAGE_SIZE,
+ 						pointers);
+ 		} else {
+@@ -2397,12 +2387,14 @@ static noinline void finish_parity_scrub(struct btrfs_raid_bio *rbio,
+ 
+ 		for (stripe = 0; stripe < nr_data; stripe++)
+ 			kunmap(page_in_rbio(rbio, stripe, pagenr, 0));
+-		kunmap(p_page);
+ 	}
+ 
++	kunmap(p_page);
+ 	__free_page(p_page);
+-	if (q_page)
++	if (q_page) {
++		kunmap(q_page);
+ 		__free_page(q_page);
++	}
+ 
+ writeback:
+ 	/*
+diff --git a/include/linux/eeprom_93xx46.h b/include/linux/eeprom_93xx46.h
+index 885f587a3555..affe4d1d7d4a 100644
+--- a/include/linux/eeprom_93xx46.h
++++ b/include/linux/eeprom_93xx46.h
+@@ -16,6 +16,8 @@ struct eeprom_93xx46_platform_data {
+ #define EEPROM_93XX46_QUIRK_SINGLE_WORD_READ		(1 << 0)
+ /* Instructions such as EWEN are (addrlen + 2) in length. */
+ #define EEPROM_93XX46_QUIRK_INSTRUCTION_LENGTH		(1 << 1)
++/* Add extra cycle after address during a read */
++#define EEPROM_93XX46_QUIRK_EXTRA_READ_CYCLE		BIT(2)
+ 
+ 	/*
+ 	 * optional hooks to control additional logic
+diff --git a/sound/pci/ctxfi/cthw20k2.c b/sound/pci/ctxfi/cthw20k2.c
+index 18ee7768b7c4..ae8aa10a4a5d 100644
+--- a/sound/pci/ctxfi/cthw20k2.c
++++ b/sound/pci/ctxfi/cthw20k2.c
+@@ -995,7 +995,7 @@ static int daio_mgr_dao_init(void *blk, unsigned int idx, unsigned int conf)
+ 
+ 	if (idx < 4) {
+ 		/* S/PDIF output */
+-		switch ((conf & 0x7)) {
++		switch ((conf & 0xf)) {
+ 		case 1:
+ 			set_field(&ctl->txctl[idx], ATXCTL_NUC, 0);
+ 			break;
+diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
+index 4bb905925b0e..99c26a175beb 100644
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -35,7 +35,7 @@
+ #include "list.h"
+ #include "sysfs_utils.h"
+ 
+-struct udev *udev_context;
++extern struct udev *udev_context;
+ 
+ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ {
