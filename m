@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1104337C6D
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8998337C6F
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 19:23:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229928AbhCKSXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229796AbhCKSXE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 11 Mar 2021 13:23:04 -0500
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:45497 "EHLO
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:59321 "EHLO
         wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229796AbhCKSWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:22:52 -0500
+        by vger.kernel.org with ESMTP id S229809AbhCKSW6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 13:22:58 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 13C7F1B7B;
-        Thu, 11 Mar 2021 13:22:51 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Thu, 11 Mar 2021 13:22:51 -0500
+        by mailforward.west.internal (Postfix) with ESMTP id 90C5A1C00;
+        Thu, 11 Mar 2021 13:22:57 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Thu, 11 Mar 2021 13:22:58 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=U3r86M
-        7K/kvzHjQQzWsGr3MKS+mUWKihgcwiRYu7SY4=; b=gkQdNOl5atVbj4FkG66ouO
-        h29/D+4e6+ybjqBcKOjvxDz5mSxisQRmQPaGt0meIcS52S0qu6/dS3DZuZCCigZR
-        GabOa6NZHnbUi0yOYaygdjKtQnqZA5LEli+TA9sSKp7FAASXpC2FCtSvGt2Az7/f
-        7E6fn/xOlB3TG8pmF7jGO5CPpHsgf5AeUVtP5wjhrsQPOfnYabcZnoZEBtqh+aBP
-        FUvTBXLVD/doedArnezIqJB1VOeXU72VSjLORlzXY4HmnnG2bYgwjz7NAY9C750O
-        Z1RXZh/Qx+I4owh/cZdz5QCGxamCkZOSFlGGtYlPqIqDyug5B/2CV5FTR3FYPAnA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hfoct4
+        vI6PdI9NU3z+Y761FKeacY+v9pc4LXN29EI6s=; b=Ie90X22G2xbvk3ohNi/D8t
+        UeOKC0ExEA9GAt66xeyIfsQRxxiqMV26IuRP/3yu9TxaIzT1stZkzqkn+CeqjE5e
+        voKowiy2ZD4gMJnC8hyqT+QtxQLxIGISyd30bAqzfVpHL2O/2P0NG1ELXrK/kE7f
+        0/BxAVuPS/v4FtCMX66EqhfhCF9acbf+UfZUVv1Ay+4CqvXzIS3hMANhJYJRoEre
+        SAL7w8gANrO29Z+ouCfnBHsDrc0cHKUtDBoqgQl4/co6kJuQIRuwqUatVkI9vxcW
+        coUeOfOjC23U2j6NPPmGAACeFjr7uQVFFVBOaF7wx5tFjY2Is2Dvs9A3/kg/gx2g
         ==
-X-ME-Sender: <xms:-V9KYChVtWNPxM6hg3IGph8CiXjUtyBeZPE8gFBgyvwjLZegWEJ0_w>
-    <xme:-V9KYDBOjddhCPAai_tCk6WmJMNXVRWyMpZSg40JcZBQ6J0hrfrz2Jt_mGOpuNBmm
-    k4cIlylhi0P_A>
+X-ME-Sender: <xms:AWBKYJeGo3zy94vccrWAf9vERJzquPg1QVNuH_WY4HK_DQi9QNZHWg>
+    <xme:AWBKYHMUtkmYFmoEUOTl7da9Ak3EyF3yvlx4y3m192yWKCofCDKPDGIU7ej00y8fh
+    0lVDBE1xuu9bg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddgudduvdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeeitdffteffuddvgfekvefgtdeikeeuudffhefffe
     dtgedvjeeuvddugeduledtieenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:-V9KYKHCCWfh-DdB2IgbAZbDCXv-a7t4leSsHGFpZNMOf6OrLh9pZQ>
-    <xmx:-V9KYLTwU_Obk0B5EorsvKC73RVqNXfM74f1oKHTFn6oJBpla4vv4w>
-    <xmx:-V9KYPz4Mj_MQKtuioTdETflJpvqbq2Jx5a15hR_FJ3GICbJpQPu4Q>
-    <xmx:-l9KYBuAO0o8TTx5_R-9KY5feSbEydWhzBzQVgORzyMBv-HW-2LA6wf_ES8>
+X-ME-Proxy: <xmx:AWBKYChfSoT3aiE5C_rjNEbJwNHun1zC7nqByEZFF5K00N7jRcw8QQ>
+    <xmx:AWBKYC_g69ISPjTte3XRQAkjiX08IOP0tj6eK_AKzr8vzH9FygC5Ow>
+    <xmx:AWBKYFtycGPXmegtKAGdlYdWQ3F9d0lMhs1kI-q4msq1MzqIbPU-2A>
+    <xmx:AWBKYPIlTyine7R8bL-4oczXQGD5LTJpG9EKlRiPc11y9NinhRoYs7I4yuY>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8D198108005C;
-        Thu, 11 Mar 2021 13:22:49 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mptcp: reset last_snd on subflow close" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id C0BDB240054;
+        Thu, 11 Mar 2021 13:22:56 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mptcp: reset last_snd on subflow close" failed to apply to 5.11-stable tree
 To:     fw@strlen.de, cpaasch@apple.com, davem@davemloft.net,
         mathew.j.martineau@linux.intel.com, matthieu.baerts@tessares.net,
         pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 11 Mar 2021 19:22:48 +0100
-Message-ID: <16154869687150@kroah.com>
+Message-ID: <1615486968151191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
