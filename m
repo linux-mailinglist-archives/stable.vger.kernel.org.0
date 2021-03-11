@@ -2,224 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3DB337B2D
-	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18164337B2E
+	for <lists+stable@lfdr.de>; Thu, 11 Mar 2021 18:44:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229546AbhCKRnA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 11 Mar 2021 12:43:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbhCKRm5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:42:57 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F144C061574
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 09:42:57 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id a24so10551287plm.11
-        for <stable@vger.kernel.org>; Thu, 11 Mar 2021 09:42:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=p59HxFqZ0BgTT9YIy8HZIaX4VVnSfnOCkHCNJY3TgDY=;
-        b=jU0Eum7JNr1g9OyNxSu/8l3OC8zozDn2ZKRUyGjx3ur2xlhkwmVSAl5b9raqL7gfVt
-         q+tTXSMDW7a0r7jo3w0UHJdhG49AbdDiLWC56plsHa6py5Amue0zczxJUMM3OgVy2IHq
-         srH5d3OZsU9hSmUFsjKqBipNZNEGX1HeTrjKsF6BHtZqIXgjLA4ujejx849lXNa9p5s2
-         oiN0/4QnVZCzSB0eMv9nzJIit5NiCbkThJInPPSVP3faMTaCUG/CNZMKznb6PuJ7rcKz
-         jORgiItVFi88iqCp+RU3eOpb+5Z39C0Q/0Iod51HOznE+9faMMsNIY735puhq2f9xdPk
-         SVsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=p59HxFqZ0BgTT9YIy8HZIaX4VVnSfnOCkHCNJY3TgDY=;
-        b=YTWPl59pXiM8SZD1qURNRkSNF0U86tBMntYYGRJGV2GBGkCevSBnaayRmuvcryiKfF
-         ee2OdKSIPygQBtr5zEXVXsRdmoE4nVGIy1Y0I+98HmXkjVLKhuwcT3oO3YseEVuqyemE
-         jA/hM2aMAIAR0C2BcnqftfoURRMFOJ9Jr2J+KETwpFFiiv/L3CY159QXBfKTLrwBo6gp
-         MQukqgRWcTpMZ7xTa6d7XRwVDwYUuSjkBo8QB80Neg1mwJ2yFUW30QpGKOo8xY9WkqZE
-         Zh1p35mMHqRm0EN6IRkSeI1lR8aY5wnLdAURmm+XrZMSrwGstHM3jibYPXigKayqTzjv
-         9vfg==
-X-Gm-Message-State: AOAM530iaheVh3vkKOsFSr0/N3YwkuiFnmQ0VCwFwCy9luhg3ek8seI4
-        bC51904iuFSIk9bpUiRZvUlY0Usd/5ZUib5A
-X-Google-Smtp-Source: ABdhPJwwDlpv9xQib4Z1+dra9RZ7aYE/55IiLn/aRgMuczy5jW89UhQPT3Zqotvn/Ik52+K97K+ASw==
-X-Received: by 2002:a17:90a:9b18:: with SMTP id f24mr9621188pjp.96.1615484576706;
-        Thu, 11 Mar 2021 09:42:56 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s3sm3009740pfs.185.2021.03.11.09.42.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Mar 2021 09:42:56 -0800 (PST)
-Message-ID: <604a56a0.1c69fb81.658d8.82a9@mx.google.com>
-Date:   Thu, 11 Mar 2021 09:42:56 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229578AbhCKRnd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 11 Mar 2021 12:43:33 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:34669 "EHLO
+        forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229490AbhCKRnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 11 Mar 2021 12:43:05 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D93E61940F5B;
+        Thu, 11 Mar 2021 12:43:04 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Thu, 11 Mar 2021 12:43:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=YauLvK
+        BkuN9B8uVNrvHf77rsKzUXWykUnz8oVPIEC+I=; b=qMgL1DU2VNDFbcepsplYLc
+        1tlzeS0h0sVddfXfk6JfnqOnjCu1fmXsUKMDwijR/2MZ63aZ3jAR/mFQYamHXEJ0
+        i2PMfb1iz4b90DsMy+iyNvdFpjoXTG65jNjmI3WGqwzpJqWVewGZUXgnxm7E20C4
+        ofAJfA+vorQZOghBEpACNFsUamYgd8GjEN1K16SJtGKNNtc/s+LRpcVWvGlU4n3V
+        w+FYJNsg7nAQQolLrAW4IH/Ylpu47JrJaBURUPdqMRwxFoGN99JJZ29hrmDJJZT/
+        fHAUNlwwoUXbU9hV2LXyD4qNXfhT9GWjY69+L+CJ8eg5gP1gnxgHtP78e1ytZHXw
+        ==
+X-ME-Sender: <xms:p1ZKYOCtnDuz7Ps1VaXu-wFfKbQowYhLH_d2-nNSa8yCg51XwjTX1A>
+    <xme:p1ZKYCL7AYxNt9hKlIv8xJDqSEhgF_gNt-tQaMDxn0v41zGhdgjzQM9KasB7-ScKI
+    IOzFD-Y3YiHXA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvtddguddtgecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucggtffrrghtthgvrhhnpeelveelhfdtuedvtedvhefhtdekhfelveeiueeiff
+    dthedtteevveetffeuvdffgeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdefvddr
+    shgsnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:p1ZKYBlxohUirz2bi_Rz_LZd8trz-RKvz4TOUUpYp1GdxdgAZSDSGg>
+    <xmx:p1ZKYAGmUE2qVYi2PA2y4iXsFQfZLCr63FMnst5ufszXaP2uwCsE8w>
+    <xmx:p1ZKYBEYMjD0cCQ0Uf7_BZHtOdjunDaGzgwP0cRgN-f0iBlvTaA0-w>
+    <xmx:qFZKYITW_bpw3-Q0n00e-Blg0xdHjE-r8K7bLBGE7zSr7J7_3xFfew>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 684CB108005F;
+        Thu, 11 Mar 2021 12:43:03 -0500 (EST)
+Subject: FAILED: patch "[PATCH] powerpc/603: Fix protection of user pages mapped with" failed to apply to 5.10-stable tree
+To:     christophe.leroy@csgroup.eu, christoph.plattner@thalesgroup.com,
+        mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 11 Mar 2021 18:43:01 +0100
+Message-ID: <1615484581199173@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.105
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable/linux-5.4.y baseline: 93 runs, 4 regressions (v5.4.105)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.4.y baseline: 93 runs, 4 regressions (v5.4.105)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+------------------ original commit in Linus's tree ------------------
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+From c119565a15a628efdfa51352f9f6c5186e506a1c Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Mon, 1 Feb 2021 06:29:50 +0000
+Subject: [PATCH] powerpc/603: Fix protection of user pages mapped with
+ PROT_NONE
 
+On book3s/32, page protection is defined by the PP bits in the PTE
+which provide the following protection depending on the access
+keys defined in the matching segment register:
+- PP 00 means RW with key 0 and N/A with key 1.
+- PP 01 means RW with key 0 and RO with key 1.
+- PP 10 means RW with both key 0 and key 1.
+- PP 11 means RO with both key 0 and key 1.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.4.y/kernel/=
-v5.4.105/plan/baseline/
+Since the implementation of kernel userspace access protection,
+PP bits have been set as follows:
+- PP00 for pages without _PAGE_USER
+- PP01 for pages with _PAGE_USER and _PAGE_RW
+- PP11 for pages with _PAGE_USER and without _PAGE_RW
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.4.y
-  Describe: v5.4.105
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      ce615a08404c821bcb3c6f358b8f34307bfe30c9 =
+For kernelspace segments, kernel accesses are performed with key 0
+and user accesses are performed with key 1. As PP00 is used for
+non _PAGE_USER pages, user can't access kernel pages not flagged
+_PAGE_USER while kernel can.
 
+For userspace segments, both kernel and user accesses are performed
+with key 0, therefore pages not flagged _PAGE_USER are still
+accessible to the user.
 
+This shouldn't be an issue, because userspace is expected to be
+accessible to the user. But unlike most other architectures, powerpc
+implements PROT_NONE protection by removing _PAGE_USER flag instead of
+flagging the page as not valid. This means that pages in userspace
+that are not flagged _PAGE_USER shall remain inaccessible.
 
-Test Regressions
----------------- =
+To get the expected behaviour, just mimic other architectures in the
+TLB miss handler by checking _PAGE_USER permission on userspace
+accesses as if it was the _PAGE_PRESENT bit.
 
+Note that this problem only is only for 603 cores. The 604+ have
+an hash table, and hash_page() function already implement the
+verification of _PAGE_USER permission on userspace pages.
 
+Fixes: f342adca3afc ("powerpc/32s: Prepare Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Christoph Plattner <christoph.plattner@thalesgroup.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/4a0c6e3bb8f0c162457bf54d9bc6fd8d7b55129f.1612160907.git.christophe.leroy@csgroup.eu
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+diff --git a/arch/powerpc/kernel/head_book3s_32.S b/arch/powerpc/kernel/head_book3s_32.S
+index 727fdab557c9..565e84e20a72 100644
+--- a/arch/powerpc/kernel/head_book3s_32.S
++++ b/arch/powerpc/kernel/head_book3s_32.S
+@@ -457,11 +457,12 @@ InstructionTLBMiss:
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
++	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ #ifdef CONFIG_MODULES
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ #endif
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+@@ -520,10 +521,11 @@ DataLoadTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
++	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+ 	lwz	r2,0(r2)		/* get pmd entry */
+@@ -597,10 +599,11 @@ DataStoreTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
++	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+ 	lwz	r2,0(r2)		/* get pmd entry */
 
-
-  Details:     https://kernelci.org/test/plan/id/604a2185cf6d23d38aaddcbc
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a2185cf6d23d38aadd=
-cbd
-        failing since 112 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a218f4eb68c585baddcbb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a218f4eb68c585badd=
-cbc
-        failing since 112 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a212ff4379b4319addcba
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a212ff4379b4319add=
-cbb
-        failing since 112 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604a213bf4379b4319addd0d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.4.y/v5.4.105/ar=
-m/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604a213bf4379b4319add=
-d0e
-        failing since 112 days (last pass: v5.4.77, first fail: v5.4.78) =
-
- =20
