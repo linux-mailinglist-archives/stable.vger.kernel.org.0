@@ -2,79 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1F03393B3
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 17:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C22B3393E4
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 17:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232324AbhCLQj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 11:39:57 -0500
-Received: from mga17.intel.com ([192.55.52.151]:29283 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232398AbhCLQjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 11:39:35 -0500
-IronPort-SDR: X7b2PPo+ZzlWmiD5JyAHGyisWUQxDFqoaKLjLhoUj+gWjllznpbu6ABg2EWJanJHc3VLi9CNXf
- yIdWyi3qKSzw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9921"; a="168770863"
-X-IronPort-AV: E=Sophos;i="5.81,244,1610438400"; 
-   d="scan'208";a="168770863"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 08:39:35 -0800
-IronPort-SDR: da3MCXd1zGFGz+LIGK+EQ4coy9OkP5kZP8mIIk2jDYCcT4TxrFa4tukb8shD7i4m6dUq51/o35
- eyMciPl8WWqg==
-X-IronPort-AV: E=Sophos;i="5.81,244,1610438400"; 
-   d="scan'208";a="411059361"
-Received: from akharche-mobl2.ccr.corp.intel.com (HELO [10.212.135.254]) ([10.212.135.254])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 08:39:34 -0800
-Subject: Re: [PATCH v3 1/2] ASoC: samsung: tm2_wm5110: check of of_parse
- return value
-To:     Mark Brown <broonie@kernel.org>
-Cc:     tiwai@suse.de, alsa-devel@alsa-project.org,
-        Krzysztof Kozlowski <krzk@kernel.org>, stable@vger.kernel.org
-References: <20210311003516.120003-1-pierre-louis.bossart@linux.intel.com>
- <20210311003516.120003-2-pierre-louis.bossart@linux.intel.com>
- <20210312142812.GA17802@sirena.org.uk>
- <a9caf1c6-d9d0-7e05-31f2-6a8d9026e509@linux.intel.com>
- <20210312163124.GK5348@sirena.org.uk>
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Message-ID: <22662857-46ca-1f3a-2a55-445384a5de07@linux.intel.com>
-Date:   Fri, 12 Mar 2021 10:39:33 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S232398AbhCLQvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 11:51:47 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:47309 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232217AbhCLQvb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 11:51:31 -0500
+Received: from mail-wr1-f72.google.com ([209.85.221.72])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <krzysztof.kozlowski@canonical.com>)
+        id 1lKl0c-00072O-Hf
+        for stable@vger.kernel.org; Fri, 12 Mar 2021 16:51:30 +0000
+Received: by mail-wr1-f72.google.com with SMTP id r12so11425117wro.15
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 08:51:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qgJMb7e0L6iDhfG/tUpP60sFt9NuH2lLSYHHRGtBpt0=;
+        b=LX7Ehd7mDom2rKe4CZPozC/JLbzd7GFvthKZ/2/1myFY1ZXrNGWejKo+kVxzZFvVaR
+         x6ZdeTHR6jdC5dxRvPNJU8+YsNe6/LwGHJVMLhT/gjUHBCgSfx+jrZYtxgiI/e4RxkHT
+         jEzvW+5yB2/TP/YaJvtDKOwK0uiRCwY3NQgBRe1gR3bueZY7EdXUEbnJ7cF5CN1vSYmg
+         rkX+KafcvLszUySkwBcxZZ3QZGt45zyuBYGrMaJW1/cmhrf3lw0DNR/URo0fcYtAEcu8
+         /xY/R07fMeSZqgPRWNjJXtk1cZx/Zyh32YW0I+aBwGL/RVBDD1iSJAGyGoLh/QCz/aho
+         B3JA==
+X-Gm-Message-State: AOAM532z89qGjP38AmoAxlYAr5QslJTKoNBcJ1HrrPY7rRK/4C0XgJjA
+        r0aoGZmPVGOEDfEP3qzB9OdQ/wqGiHpuimNJEK8BWoyNpYpX39PTG17cS84OTBj4CUyaIkpZW/m
+        EeO/RykZ5IGg6p3kTeyJO3akrBClv43nHNQ==
+X-Received: by 2002:a1c:e18b:: with SMTP id y133mr14029159wmg.22.1615567889909;
+        Fri, 12 Mar 2021 08:51:29 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy0xo7+brGvBMfxf2ETyST8ZUezgEXTGJe7n3RK3PPXPD5K7bv6HFjQz4ArpGmlZfLkvRjbbA==
+X-Received: by 2002:a1c:e18b:: with SMTP id y133mr14029148wmg.22.1615567889762;
+        Fri, 12 Mar 2021 08:51:29 -0800 (PST)
+Received: from localhost.localdomain (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
+        by smtp.gmail.com with ESMTPSA id 9sm2618721wmf.13.2021.03.12.08.51.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Mar 2021 08:51:29 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Allen Pais <allen.pais@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH stable v4.4] libertas: fix a potential NULL pointer dereference
+Date:   Fri, 12 Mar 2021 17:51:17 +0100
+Message-Id: <20210312165117.15870-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20210312163124.GK5348@sirena.org.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Allen Pais <allen.pais@oracle.com>
 
+commit 7da413a18583baaf35dd4a8eb414fa410367d7f2 upstream.
 
-On 3/12/21 10:31 AM, Mark Brown wrote:
-> On Fri, Mar 12, 2021 at 10:30:32AM -0600, Pierre-Louis Bossart wrote:
->> On 3/12/21 8:28 AM, Mark Brown wrote:
-> 
->>> Commit: 11bc3bb24003 ("ASoC: samsung: tm2_wm5110: check of of_parse return value")
->>> 	Fixes tag: Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2board")
->>> 	Has these problem(s):
->>> 		- Subject does not match target commit subject
->>> 		  Just use
->>> 			git log -1 --format='Fixes: %h ("%s")'
-> 
->> Sorry, I don't know what to make of this. I don't see this commit
->> 11bc3bb24003
-> 
->> Something odd happened, there was an initial merge and it seems to have
->> disappeared, it's no longer in the for-next branch?
-> 
-> That commit is your patch being applied, which I've dropped because of
-> the error reported.
+alloc_workqueue is not checked for errors and as a result,
+a potential NULL dereference could occur.
 
-ack, not sure why there's a missing space.
+Signed-off-by: Allen Pais <allen.pais@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[krzk: backport applied to different path - without marvell subdir]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ drivers/net/wireless/libertas/if_sdio.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-git log -1 --format='Fixes: %h ("%s")' 8d1513cef51a
-Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2 
-board")
-
-
+diff --git a/drivers/net/wireless/libertas/if_sdio.c b/drivers/net/wireless/libertas/if_sdio.c
+index 33ceda296c9c..45d68ee682f6 100644
+--- a/drivers/net/wireless/libertas/if_sdio.c
++++ b/drivers/net/wireless/libertas/if_sdio.c
+@@ -1229,6 +1229,10 @@ static int if_sdio_probe(struct sdio_func *func,
+ 
+ 	spin_lock_init(&card->lock);
+ 	card->workqueue = create_workqueue("libertas_sdio");
++	if (unlikely(!card->workqueue)) {
++		ret = -ENOMEM;
++		goto err_queue;
++	}
+ 	INIT_WORK(&card->packet_worker, if_sdio_host_to_card_worker);
+ 	init_waitqueue_head(&card->pwron_waitq);
+ 
+@@ -1282,6 +1286,7 @@ err_activate_card:
+ 	lbs_remove_card(priv);
+ free:
+ 	destroy_workqueue(card->workqueue);
++err_queue:
+ 	while (card->packets) {
+ 		packet = card->packets;
+ 		card->packets = card->packets->next;
+-- 
+2.25.1
 
