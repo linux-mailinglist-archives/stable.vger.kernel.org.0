@@ -2,57 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 339F2338E18
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A63338E1D
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:01:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229908AbhCLNA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 08:00:57 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:60397 "EHLO
+        id S229567AbhCLNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 08:01:27 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45803 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231488AbhCLNAo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 08:00:44 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 235441942BD6;
-        Fri, 12 Mar 2021 08:00:44 -0500 (EST)
+        by vger.kernel.org with ESMTP id S231278AbhCLNBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 08:01:04 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 786291942B13;
+        Fri, 12 Mar 2021 08:01:03 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Fri, 12 Mar 2021 08:00:44 -0500
+  by compute1.internal (MEProxy); Fri, 12 Mar 2021 08:01:03 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JnTQ48
-        7Ki4+x9DolCm7NANSv5qQhX4sdcHvvDSdbh7M=; b=ns3oHqt8kogIV1HJk4AoGz
-        8dkK3acqz5Wtm6fMuH478SOOu+sN8xWg59Ox0kbW99ozS2qyAmnq5PlygidZ8KWC
-        36WeMgl+yTi/eqdE1KbLnAwlkeAidhbu5i+1DWgBpb2QEMsnOqRkwSVYnmvfs8yJ
-        mR+fn7cwvvQWN6n4IOU0SJdgX1Xag4e28pj08z3DPiB41DfeoKqWXgBzSbiO5rqJ
-        2ZVeKi3o9ntaSxSbw2fgn1Hkl1L0Q/JwfdMQEbwaOWhdjcE6vm86b27or1syrwWR
-        eiMKGPpMvE62wG8jRg1IK68taqAlLw3FP6rgI2WAMRf6GE3yTtiFrnqyoEYzxyDw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xZlOE2
+        teAatQFkLdcGNG5TGIhMrZ8E/QFLlIGYJXhFQ=; b=iW6r3mtubIoEf2sz02r4/J
+        CK3jp04HY0YDv4xOihdgIv0MToM3Kpeq6VkhatJr5Uq3ZCMX+HroU/legr11s/gT
+        omlKVLHEXwK78TWoOQGaKEQztv4QmzGVUr/mFeHb1smVIck8SUP00sGgaJWBeLyo
+        reWTsKohKAzRibFwAh6x+We3GhKNG2+QgUhrodJQH6iqMXXXfXkG6WHPTeUhjRx1
+        qCFoWb9QCee0xRJ6vI2DEZvK03m720C6TWTAX037kNdfAgEXhESAWvjJf4yPiRgQ
+        ZO/STSWi26saE39yaCK3lx5FeYU8DXdrQ2BuDaOyDa38A6jDLahd9PGwM7pQ8p8w
         ==
-X-ME-Sender: <xms:_GVLYOyd2LhNZgW7ajRtjpoWq1X86vgXavSDGr-Nd_hCmt6LJclRhw>
-    <xme:_GVLYGHlczwTpL2FnMD9UcuwM9gyvBYq6dTn6nrgTlsJr7Giiv5yJ2qW4LKee_wfL
-    gtJqJ9jNxk4Jg>
+X-ME-Sender: <xms:DmZLYIei_a-uAnAYGoCOSlLwuAJENMefYaBWE2wpEIto_u3CB6Xf9Q>
+    <xme:DmZLYKL-7B0Pt0F5P3TwAohRjxa2OPkq4AMrEXNZKNhiUuKWKwNT2WU98Q13ReUvd
+    yDzkxP3ekq60w>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddggeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:_GVLYGz0QIzjv3UoE_1M3SmaN4WN_iXRhvX_uaIOA57apyaUSZkgMQ>
-    <xmx:_GVLYBMf_KJYxfrotz2BakJ6PF7OaMtx7s9C8VttzRfB_pnAfwj2sw>
-    <xmx:_GVLYEbAcjyYKV2Jf2n4tv7euGOM53Bbbd6XauK_u3KE49a7CIxFWw>
-    <xmx:_GVLYMuZNKYT-iYOG-ngptBPVrQkteo_aXaLU4ynUSecAtV9Iws21A>
+X-ME-Proxy: <xmx:DmZLYGbsKoWLP14-3fgr8gch7P3Wrd2heCKL1DLKakpKB6SS2l-Vyg>
+    <xmx:DmZLYFs4XWfOvF6P5WeSqGH6Jnp0bd1bPDeVQlwfgnXGdo-AgKMOdQ>
+    <xmx:DmZLYDvKNbAH1iexze5Kof4xqrUxGtPmBvXKXcwo1_LnQkZ2Za3RdQ>
+    <xmx:D2ZLYHb602rRjoII0S7Fph1Jd4QZ7B6SBP7-WUMhvJG22SCqtJuHdg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BF9011080066;
-        Fri, 12 Mar 2021 08:00:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] MIPS: kernel: Reserve exception base early to prevent" failed to apply to 4.4-stable tree
-To:     tsbogend@alpha.franken.de, Sergey.Semin@baikalelectronics.ru,
-        f.fainelli@gmail.com, fancer.lancer@gmail.com,
-        kdasu.kdev@gmail.com, rppt@linux.ibm.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 502611080068;
+        Fri, 12 Mar 2021 08:01:02 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net: hns3: fix error mask definition of flow director" failed to apply to 5.10-stable tree
+To:     shenjian15@huawei.com, kuba@kernel.org, tanhuazhong@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Mar 2021 14:00:35 +0100
-Message-ID: <1615554035170130@kroah.com>
+Date:   Fri, 12 Mar 2021 14:01:01 +0100
+Message-ID: <161555406124523@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -72,156 +70,44 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bd67b711bfaa02cf19e88aa2d9edae5c1c1d2739 Mon Sep 17 00:00:00 2001
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Date: Mon, 8 Mar 2021 10:24:47 +0100
-Subject: [PATCH] MIPS: kernel: Reserve exception base early to prevent
- corruption
+From ae85ddda0f1b341b2d25f5a5e0eff1d42b6ef3df Mon Sep 17 00:00:00 2001
+From: Jian Shen <shenjian15@huawei.com>
+Date: Sat, 27 Feb 2021 15:24:51 +0800
+Subject: [PATCH] net: hns3: fix error mask definition of flow director
 
-BMIPS is one of the few platforms that do change the exception base.
-After commit 2dcb39645441 ("memblock: do not start bottom-up allocations
-with kernel_end") we started seeing BMIPS boards fail to boot with the
-built-in FDT being corrupted.
+Currently, some bit filed definitions of flow director TCAM
+configuration command are incorrect. Since the wrong MSB is
+always 0, and these fields are assgined in order, so it still works.
 
-Before the cited commit, early allocations would be in the [kernel_end,
-RAM_END] range, but after commit they would be within [RAM_START +
-PAGE_SIZE, RAM_END].
+Fix it by redefine them.
 
-The custom exception base handler that is installed by
-bmips_ebase_setup() done for BMIPS5000 CPUs ends-up trampling on the
-memory region allocated by unflatten_and_copy_device_tree() thus
-corrupting the FDT used by the kernel.
+Fixes: 117328680288 ("net: hns3: Add input key and action config support for flow director")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-To fix this, we need to perform an early reservation of the custom
-exception space. Additional we reserve the first 4k (1k for R3k) for
-either normal exception vector space (legacy CPUs) or special vectors
-like cache exceptions.
-
-Huge thanks to Serge for analysing and proposing a solution to this
-issue.
-
-Fixes: 2dcb39645441 ("memblock: do not start bottom-up allocations with kernel_end")
-Reported-by: Kamal Dasu <kdasu.kdev@gmail.com>
-Debugged-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-
-diff --git a/arch/mips/include/asm/traps.h b/arch/mips/include/asm/traps.h
-index 6aa8f126a43d..b710e76c9c65 100644
---- a/arch/mips/include/asm/traps.h
-+++ b/arch/mips/include/asm/traps.h
-@@ -24,8 +24,11 @@ extern void (*board_ebase_setup)(void);
- extern void (*board_cache_error_setup)(void);
- 
- extern int register_nmi_notifier(struct notifier_block *nb);
-+extern void reserve_exception_space(phys_addr_t addr, unsigned long size);
- extern char except_vec_nmi[];
- 
-+#define VECTORSPACING 0x100	/* for EI/VI mode */
-+
- #define nmi_notifier(fn, pri)						\
- ({									\
- 	static struct notifier_block fn##_nb = {			\
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index 9a89637b4ecf..b71892064f27 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -26,6 +26,7 @@
- #include <asm/elf.h>
- #include <asm/pgtable-bits.h>
- #include <asm/spram.h>
-+#include <asm/traps.h>
- #include <linux/uaccess.h>
- 
- #include "fpu-probe.h"
-@@ -1628,6 +1629,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
- 		c->cputype = CPU_BMIPS3300;
- 		__cpu_name[cpu] = "Broadcom BMIPS3300";
- 		set_elf_platform(cpu, "bmips3300");
-+		reserve_exception_space(0x400, VECTORSPACING * 64);
- 		break;
- 	case PRID_IMP_BMIPS43XX: {
- 		int rev = c->processor_id & PRID_REV_MASK;
-@@ -1638,6 +1640,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
- 			__cpu_name[cpu] = "Broadcom BMIPS4380";
- 			set_elf_platform(cpu, "bmips4380");
- 			c->options |= MIPS_CPU_RIXI;
-+			reserve_exception_space(0x400, VECTORSPACING * 64);
- 		} else {
- 			c->cputype = CPU_BMIPS4350;
- 			__cpu_name[cpu] = "Broadcom BMIPS4350";
-@@ -1654,6 +1657,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
- 			__cpu_name[cpu] = "Broadcom BMIPS5000";
- 		set_elf_platform(cpu, "bmips5000");
- 		c->options |= MIPS_CPU_ULRI | MIPS_CPU_RIXI;
-+		reserve_exception_space(0x1000, VECTORSPACING * 64);
- 		break;
- 	}
- }
-@@ -2133,6 +2137,8 @@ void cpu_probe(void)
- 	if (cpu == 0)
- 		__ua_limit = ~((1ull << cpu_vmbits) - 1);
- #endif
-+
-+	reserve_exception_space(0, 0x1000);
- }
- 
- void cpu_report(void)
-diff --git a/arch/mips/kernel/cpu-r3k-probe.c b/arch/mips/kernel/cpu-r3k-probe.c
-index abdbbe8c5a43..af654771918c 100644
---- a/arch/mips/kernel/cpu-r3k-probe.c
-+++ b/arch/mips/kernel/cpu-r3k-probe.c
-@@ -21,6 +21,7 @@
- #include <asm/fpu.h>
- #include <asm/mipsregs.h>
- #include <asm/elf.h>
-+#include <asm/traps.h>
- 
- #include "fpu-probe.h"
- 
-@@ -158,6 +159,8 @@ void cpu_probe(void)
- 		cpu_set_fpu_opts(c);
- 	else
- 		cpu_set_nofpu_opts(c);
-+
-+	reserve_exception_space(0, 0x400);
- }
- 
- void cpu_report(void)
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index e0352958e2f7..808b8b61ded1 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -2009,13 +2009,16 @@ void __noreturn nmi_exception_handler(struct pt_regs *regs)
- 	nmi_exit();
- }
- 
--#define VECTORSPACING 0x100	/* for EI/VI mode */
--
- unsigned long ebase;
- EXPORT_SYMBOL_GPL(ebase);
- unsigned long exception_handlers[32];
- unsigned long vi_handlers[64];
- 
-+void reserve_exception_space(phys_addr_t addr, unsigned long size)
-+{
-+	memblock_reserve(addr, size);
-+}
-+
- void __init *set_except_vector(int n, void *addr)
- {
- 	unsigned long handler = (unsigned long) addr;
-@@ -2367,10 +2370,7 @@ void __init trap_init(void)
- 
- 	if (!cpu_has_mips_r2_r6) {
- 		ebase = CAC_BASE;
--		ebase_pa = virt_to_phys((void *)ebase);
- 		vec_size = 0x400;
--
--		memblock_reserve(ebase_pa, vec_size);
- 	} else {
- 		if (cpu_has_veic || cpu_has_vint)
- 			vec_size = 0x200 + VECTORSPACING*64;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index ff52a65b4cff..057dda735492 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1053,16 +1053,16 @@ struct hclge_fd_tcam_config_3_cmd {
+ #define HCLGE_FD_AD_DROP_B		0
+ #define HCLGE_FD_AD_DIRECT_QID_B	1
+ #define HCLGE_FD_AD_QID_S		2
+-#define HCLGE_FD_AD_QID_M		GENMASK(12, 2)
++#define HCLGE_FD_AD_QID_M		GENMASK(11, 2)
+ #define HCLGE_FD_AD_USE_COUNTER_B	12
+ #define HCLGE_FD_AD_COUNTER_NUM_S	13
+ #define HCLGE_FD_AD_COUNTER_NUM_M	GENMASK(20, 13)
+ #define HCLGE_FD_AD_NXT_STEP_B		20
+ #define HCLGE_FD_AD_NXT_KEY_S		21
+-#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(26, 21)
++#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(25, 21)
+ #define HCLGE_FD_AD_WR_RULE_ID_B	0
+ #define HCLGE_FD_AD_RULE_ID_S		1
+-#define HCLGE_FD_AD_RULE_ID_M		GENMASK(13, 1)
++#define HCLGE_FD_AD_RULE_ID_M		GENMASK(12, 1)
+ #define HCLGE_FD_AD_TC_OVRD_B		16
+ #define HCLGE_FD_AD_TC_SIZE_S		17
+ #define HCLGE_FD_AD_TC_SIZE_M		GENMASK(20, 17)
 
