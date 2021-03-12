@@ -2,95 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E74783389AB
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 11:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A833389C9
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 11:14:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232884AbhCLKJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 05:09:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56018 "EHLO mail.kernel.org"
+        id S233096AbhCLKOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 05:14:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232686AbhCLKIl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 05:08:41 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F4664FC9;
-        Fri, 12 Mar 2021 10:01:52 +0000 (UTC)
+        id S233241AbhCLKNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Mar 2021 05:13:42 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97A3764FE0;
+        Fri, 12 Mar 2021 10:03:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615543313;
-        bh=TrQ/nr092C/08eF2A1PSzm4it2w6iaOOQ9OvM2kfVig=;
+        s=korg; t=1615543392;
+        bh=CXYKx7axsfKXw2XBYeApFSKwoY/rOIiGq6qs42H2XdI=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZGXpmavMz6QFHJegyBLGvuWF8eO19EliKkqGQO0fwETPDYRoV+xcqvbLRGQOptlGb
-         fbCAufDWSlazBCx7eBguxytVMl3aUc3ADWO5IaRcFYIEUODxDnNwG1JpHh2ZV0LmvM
-         TWfMWd70gzGdZUNjOEHBWq7+FiNLBY3B1UPbeg1Q=
-Date:   Fri, 12 Mar 2021 11:01:47 +0100
+        b=vnnGNkrII1WysOM8poKSTCBYj60kbz3yq1rn7CYyUxeK/lkqEKf5YcdyGLwKSDp0G
+         bj05gpqdtZkRK4eOkQws3TCQHG0n7Nb8E7t0BPSaPuYwVmow7zyJNp5fu0jh13bRz/
+         d/lAqUBbjuLMFORpWAcJ4qQolA8SgR2kPSLSIVog=
+Date:   Fri, 12 Mar 2021 11:03:09 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     bgolaszewski@baylibre.com, saravanak@google.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] gpio: fix gpio-device list corruption"
- failed to apply to 5.11-stable tree
-Message-ID: <YEs8C0E6nM4QVBol@kroah.com>
-References: <16154845012114@kroah.com>
- <YEsqnDY7nGWuh9h5@hovoldconsulting.com>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH] [backport for 5.10] powerpc/603: Fix protection of user
+ pages mapped with PROT_NONE
+Message-ID: <YEs8XbJwrkZzc1eJ@kroah.com>
+References: <656520fecf792b8842dc54beec2da3bc29d0133c.1615486986.git.christophe.leroy@csgroup.eu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YEsqnDY7nGWuh9h5@hovoldconsulting.com>
+In-Reply-To: <656520fecf792b8842dc54beec2da3bc29d0133c.1615486986.git.christophe.leroy@csgroup.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 12, 2021 at 09:47:24AM +0100, Johan Hovold wrote:
-> On Thu, Mar 11, 2021 at 06:41:41PM +0100, Greg Kroah-Hartman wrote:
-> > 
-> > The patch below does not apply to the 5.11-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+On Thu, Mar 11, 2021 at 06:24:30PM +0000, Christophe Leroy wrote:
+> (cherry picked from commit c119565a15a628efdfa51352f9f6c5186e506a1c)
 > 
-> > ------------------ original commit in Linus's tree ------------------
-> > 
-> > From cf25ef6b631c6fc6c0435fc91eba8734cca20511 Mon Sep 17 00:00:00 2001
-> > From: Johan Hovold <johan@kernel.org>
-> > Date: Mon, 1 Mar 2021 10:05:19 +0100
-> > Subject: [PATCH] gpio: fix gpio-device list corruption
-> > 
-> > Make sure to hold the gpio_lock when removing the gpio device from the
-> > gpio_devices list (when dropping the last reference) to avoid corrupting
-> > the list when there are concurrent accesses.
-> > 
-> > Fixes: ff2b13592299 ("gpio: make the gpiochip a real device")
-> > Cc: stable@vger.kernel.org      # 4.6
-> > Reviewed-by: Saravana Kannan <saravanak@google.com>
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > 
-> > diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-> > index 6e0572515d02..4253837f870b 100644
-> > --- a/drivers/gpio/gpiolib.c
-> > +++ b/drivers/gpio/gpiolib.c
-> > @@ -475,8 +475,12 @@ EXPORT_SYMBOL_GPL(gpiochip_line_is_valid);
-> >  static void gpiodevice_release(struct device *dev)
-> >  {
-> >  	struct gpio_device *gdev = container_of(dev, struct gpio_device, dev);
-> > +	unsigned long flags;
-> >  
-> > +	spin_lock_irqsave(&gpio_lock, flags);
-> >  	list_del(&gdev->list);
-> > +	spin_unlock_irqrestore(&gpio_lock, flags);
-> > +
-> >  	ida_free(&gpio_ida, gdev->id);
-> >  	kfree_const(gdev->label);
-> >  	kfree(gdev->descs);
-> > 
+> On book3s/32, page protection is defined by the PP bits in the PTE
+> which provide the following protection depending on the access
+> keys defined in the matching segment register:
+> - PP 00 means RW with key 0 and N/A with key 1.
+> - PP 01 means RW with key 0 and RO with key 1.
+> - PP 10 means RW with both key 0 and key 1.
+> - PP 11 means RO with both key 0 and key 1.
 > 
-> Bah, that's because of a6112998ee45 ("gpio: fix
-> NULL-deref-on-deregistration regression") which is strictly only needed
-> in 5.12 even if it could be backported (the commit message might be a
-> bit confusing though).
+> Since the implementation of kernel userspace access protection,
+> PP bits have been set as follows:
+> - PP00 for pages without _PAGE_USER
+> - PP01 for pages with _PAGE_USER and _PAGE_RW
+> - PP11 for pages with _PAGE_USER and without _PAGE_RW
 > 
-> I should have reversed the order of these two.
+> For kernelspace segments, kernel accesses are performed with key 0
+> and user accesses are performed with key 1. As PP00 is used for
+> non _PAGE_USER pages, user can't access kernel pages not flagged
+> _PAGE_USER while kernel can.
 > 
-> Below is a backport to 5.11.
+> For userspace segments, both kernel and user accesses are performed
+> with key 0, therefore pages not flagged _PAGE_USER are still
+> accessible to the user.
+> 
+> This shouldn't be an issue, because userspace is expected to be
+> accessible to the user. But unlike most other architectures, powerpc
+> implements PROT_NONE protection by removing _PAGE_USER flag instead of
+> flagging the page as not valid. This means that pages in userspace
+> that are not flagged _PAGE_USER shall remain inaccessible.
+> 
+> To get the expected behaviour, just mimic other architectures in the
+> TLB miss handler by checking _PAGE_USER permission on userspace
+> accesses as if it was the _PAGE_PRESENT bit.
+> 
+> Note that this problem only is only for 603 cores. The 604+ have
+> an hash table, and hash_page() function already implement the
+> verification of _PAGE_USER permission on userspace pages.
+> 
+> Fixes: f342adca3afc ("powerpc/32s: Prepare Kernel Userspace Access Protection")
+> Change-Id: I68bc5e5ff4542bdfcdcd12923fa96a5811707475
+> Cc: stable@vger.kernel.org # v5.2+
+> Reported-by: Christoph Plattner <christoph.plattner@thalesgroup.com>
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/4a0c6e3bb8f0c162457bf54d9bc6fd8d7b55129f.1612160907.git.christophe.leroy@csgroup.eu
+> ---
+>  arch/powerpc/kernel/head_book3s_32.S | 9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
 
-Thanks for the backport, also added to 5.10.y
+Both backports applied, thanks.
 
 greg k-h
