@@ -2,27 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 068E3338E70
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:13:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4BD338E77
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:14:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231657AbhCLNMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 08:12:43 -0500
-Received: from mx2.suse.de ([195.135.220.15]:33964 "EHLO mx2.suse.de"
+        id S229568AbhCLNNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 08:13:48 -0500
+Received: from mx2.suse.de ([195.135.220.15]:34218 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231186AbhCLNMl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 08:12:41 -0500
+        id S231772AbhCLNN1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Mar 2021 08:13:27 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id EF475B01F;
-        Fri, 12 Mar 2021 13:12:39 +0000 (UTC)
-Date:   Fri, 12 Mar 2021 14:12:39 +0100
-Message-ID: <s5hh7lgtt14.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id B3835B0D7;
+        Fri, 12 Mar 2021 13:13:26 +0000 (UTC)
+Date:   Fri, 12 Mar 2021 14:13:25 +0100
+Message-ID: <s5hft10tszu.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
-To:     Hui Wang <hui.wang@canonical.com>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda: generic: Fix the micmute led init state
-In-Reply-To: <20210312041408.3776-1-hui.wang@canonical.com>
-References: <20210312041408.3776-1-hui.wang@canonical.com>
+To:     Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Cc:     perex@perex.cz, clemens@ladisch.de, alsa-devel@alsa-project.org,
+        ffado-devel@lists.sourceforge.net, stable@vger.kernel.org
+Subject: Re: [PATCH] ALSA: dice: fix null pointer dereference when node is disconnected
+In-Reply-To: <20210312093407.23437-1-o-takashi@sakamocchi.jp>
+References: <20210312093407.23437-1-o-takashi@sakamocchi.jp>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -32,30 +33,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 12 Mar 2021 05:14:08 +0100,
-Hui Wang wrote:
+On Fri, 12 Mar 2021 10:34:07 +0100,
+Takashi Sakamoto wrote:
 > 
-> Recently we found the micmute led init state is not correct after
-> freshly installing the ubuntu linux on a Lenovo AIO machine. The
-> internal mic is not muted, but the micmute led is on and led mode is
-> 'follow mute'. If we mute internal mic, the led is keeping on, then
-> unmute the internal mic, the led is off. And from then on, the
-> micmute led will work correctly.
+> When node is removed from IEEE 1394 bus, any transaction fails to the node.
+> In the case, ALSA dice driver doesn't stop isochronous contexts even if
+> they are running. As a result, null pointer dereference occurs in callback
+> from the running context.
 > 
-> So the micmute led init state is not correct. The led is controlled
-> by codec gpio (ALC233_FIXUP_LENOVO_LINE2_MIC_HOTKEY), in the
-> patch_realtek, the gpio data is set to 0x4 initially and the led is
-> on with this data. In the hda_generic, the led_value is set to
-> 0 initially, suppose users set the 'capture switch' to on from
-> user space and the micmute led should change to be off with this
-> operation, but the check "if (val == spec->micmute_led.led_value)" in
-> the call_micmute_led_update() will skip the led setting.
+> This commit fixes the bug to release isochronous contexts always.
 > 
-> To guarantee the led state will be set by the 1st time of changing
-> "Capture Switch", set -1 to the init led_value.
-> 
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Hui Wang <hui.wang@canonical.com>
+> Cc: <stable@vger.kernel.org> # v5.4 or later
+> Fixes: e9f21129b8d8 ("ALSA: dice: support AMDTP domain")
+> Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
 Applied, thanks.
 
