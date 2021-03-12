@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A528338995
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 11:04:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1BC933899B
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 11:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbhCLKEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 05:04:09 -0500
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:48249 "EHLO
+        id S232971AbhCLKFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 05:05:14 -0500
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:43219 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233039AbhCLKEG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 05:04:06 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id D524A1940C27;
-        Fri, 12 Mar 2021 05:04:05 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Fri, 12 Mar 2021 05:04:05 -0500
+        by vger.kernel.org with ESMTP id S232902AbhCLKFI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 05:05:08 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id F08041942D89;
+        Fri, 12 Mar 2021 05:05:07 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Fri, 12 Mar 2021 05:05:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B3tzJp
-        8zhmWvWJAzbpAAd+OFBWp7RqDu5O0i/6LvlpY=; b=tXZIZdCU0vs0s8/JgUSsQW
-        QqeMNiytHU1138Ybr6dFV59yJ1ec1ijHbre/1JqHGNjPaBUHOCkUnbXY+OYJdJNu
-        dpoF0Xx+IApHrtFvNNRlTwzWi3fpeYgGfsUqb0xTCrQr5XYvtNU1eSLVLSd94AAz
-        Db4dq69zv90QXgJRuwn+lnx6d/3UQgd5q5SenIIuFDyah0pjb+7pGzL54xOHWIR9
-        4zxtwvzyat4kfd5OX2Kp5GvKPIA7/Ez/ivxeBe6BcZ3A3C/nNmAhyzc26FUNM4QO
-        qAMhKIKvK4W/+P4reuDXNJ39hFh9pTjGo6Z/FxMzT2SKxVJaS02Pu+3WMwCwvLyg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1GjNZZ
+        t8rhM5k87JHW6vvHaIhszHPHN13ptXdacwFXk=; b=t7cZyLOJGe4sKbtBpGfgp3
+        PcsoOU9K5S+f1f01XZTxTw/u5AJMm+UtHdC+JkXCeGhE1f05yYj6kL9Q/+07Wcv4
+        Ym9VJew/TBiqDvbN/CFtT67Lg5MRf2+niwZs+RVc+8zhfzYgzdRyIx+aitJ20uXr
+        5cI5QiQOMmjAAM6X9CYM73u2SjCnl9pa7+iBF2A5PBay38JvJlUqwmo640JPmdRT
+        3/Ehs+ZfPjagrKEtZk4ufJo0cdSiI7rKZn28dPvYLfJkZfhu/G6IfBWw+o8BDLEv
+        fZk8Mxj2sgdg+SmJewtQJqjWbDFUE9GaU0I7MAaNjDeI/BsnglIyZ+E7HHi9YLnQ
         ==
-X-ME-Sender: <xms:lTxLYPUCG65AqBv2OdrFScV3Biq54S4SdVVSs9pKOD0xX8p6vbE0rg>
-    <xme:lTxLYK1ogspuktbjP0J5RFwyvW0K6bSmrTAntUG2Uo9w_ws163sq4PJPYN9RhJhCi
-    e_YHys3JsePtg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgudduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:0zxLYMzi9P6R5zDzyeV5iBW7e07eKxych26sF_HnFGiatOLiHgh5nA>
+    <xme:0zxLYGRQGmfxoXabzqW9K3bhahXI4wONZ-IBIcz-ot3_bVO2duiaz-iFDnidGxgqh
+    GunHXjYcyphGQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddguddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
+    euudefveegffeuvdetleeunecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:lTxLYE2D2NHaknooFX0KdzWts3ZSKNtQYh2L4JH3joshSu_a2jD0Hw>
-    <xmx:lTxLYF-RhBos4aRrvzRy4GiY_svWJpJnQ6N6PrfpM1cvNkM74V6tkw>
-    <xmx:lTxLYJ3AMtVkoS7JBW--lMB7TSReKTQ55Hc8wK5CLkwq1rURuVX0CQ>
-    <xmx:lTxLYKFPa0wBlT2-qrP01UwwdWDnRtiJDalD-gQ72nJUTK7qpEB3mg>
+X-ME-Proxy: <xmx:0zxLYJJ7XvKHN5ZYH9Lw6AJ5mn3aGhhM4wGQcKsIn_LcGWMXmfoFtQ>
+    <xmx:0zxLYNXZSV67ZkJbx01oTYSj59ikutAMUmz09hN94DwToEpdRutXXw>
+    <xmx:0zxLYNTf_Y49jEw5IlMlgngHji1RkMQWZrAEzeAws4H4cWl2YlGtsw>
+    <xmx:0zxLYH9EVYD3dLWV80o9DxIJSp9Zs3aqmamBR5Rv1GRhXO3ygfjT2Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4337424005C;
-        Fri, 12 Mar 2021 05:04:05 -0500 (EST)
-Subject: FAILED: patch "[PATCH] cifs: fix credit accounting for extra channel" failed to apply to 5.10-stable tree
-To:     aaptel@suse.com, sprasad@microsoft.com, stable@vger.kernel.org,
-        stfrench@microsoft.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id E39131080064;
+        Fri, 12 Mar 2021 05:05:06 -0500 (EST)
+Subject: FAILED: patch "[PATCH] cifs: do not send close in compound create+close requests" failed to apply to 5.11-stable tree
+To:     pc@cjr.nz, aaptel@suse.com, lsahlber@redhat.com,
+        stable@vger.kernel.org, stfrench@microsoft.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Mar 2021 11:04:02 +0100
-Message-ID: <161554344221530@kroah.com>
+Date:   Fri, 12 Mar 2021 11:05:04 +0100
+Message-ID: <161554350424551@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,63 +71,194 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a249cc8bc2e2fed680047d326eb9a50756724198 Mon Sep 17 00:00:00 2001
-From: Aurelien Aptel <aaptel@suse.com>
-Date: Thu, 4 Mar 2021 17:42:21 +0000
-Subject: [PATCH] cifs: fix credit accounting for extra channel
+From 04ad69c342fc4de5bd23be9ef15ea7574fb1a87e Mon Sep 17 00:00:00 2001
+From: Paulo Alcantara <pc@cjr.nz>
+Date: Mon, 8 Mar 2021 12:00:50 -0300
+Subject: [PATCH] cifs: do not send close in compound create+close requests
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-With multichannel, operations like the queries
-from "ls -lR" can cause all credits to be used and
-errors to be returned since max_credits was not
-being set correctly on the secondary channels and
-thus the client was requesting 0 credits incorrectly
-in some cases (which can lead to not having
-enough credits to perform any operation on that
-channel).
+In case of interrupted syscalls, prevent sending CLOSE commands for
+compound CREATE+CLOSE requests by introducing an
+CIFS_CP_CREATE_CLOSE_OP flag to indicate lower layers that it should
+not send a CLOSE command to the MIDs corresponding the compound
+CREATE+CLOSE request.
 
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-CC: <stable@vger.kernel.org> # v5.8+
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+A simple reproducer:
+
+    #!/bin/bash
+
+    mount //server/share /mnt -o username=foo,password=***
+    tc qdisc add dev eth0 root netem delay 450ms
+    stat -f /mnt &>/dev/null & pid=$!
+    sleep 0.01
+    kill $pid
+    tc qdisc del dev eth0 root
+    umount /mnt
+
+Before patch:
+
+    ...
+    6 0.256893470 192.168.122.2 → 192.168.122.15 SMB2 402 Create Request File: ;GetInfo Request FS_INFO/FileFsFullSizeInformation;Close Request
+    7 0.257144491 192.168.122.15 → 192.168.122.2 SMB2 498 Create Response File: ;GetInfo Response;Close Response
+    9 0.260798209 192.168.122.2 → 192.168.122.15 SMB2 146 Close Request File:
+   10 0.260841089 192.168.122.15 → 192.168.122.2 SMB2 130 Close Response, Error: STATUS_FILE_CLOSED
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+CC: <stable@vger.kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 112692300fb6..68642e3d4270 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1429,6 +1429,11 @@ cifs_get_tcp_session(struct smb3_fs_context *ctx)
- 	tcp_ses->min_offload = ctx->min_offload;
- 	tcp_ses->tcpStatus = CifsNeedNegotiate;
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 3de3c5908a72..31fc8695abd6 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -257,7 +257,7 @@ struct smb_version_operations {
+ 	/* verify the message */
+ 	int (*check_message)(char *, unsigned int, struct TCP_Server_Info *);
+ 	bool (*is_oplock_break)(char *, struct TCP_Server_Info *);
+-	int (*handle_cancelled_mid)(char *, struct TCP_Server_Info *);
++	int (*handle_cancelled_mid)(struct mid_q_entry *, struct TCP_Server_Info *);
+ 	void (*downgrade_oplock)(struct TCP_Server_Info *server,
+ 				 struct cifsInodeInfo *cinode, __u32 oplock,
+ 				 unsigned int epoch, bool *purge_cache);
+@@ -1705,16 +1705,17 @@ static inline bool is_retryable_error(int error)
+ #define   CIFS_NO_RSP_BUF   0x040    /* no response buffer required */
  
-+	if ((ctx->max_credits < 20) || (ctx->max_credits > 60000))
-+		tcp_ses->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
-+	else
-+		tcp_ses->max_credits = ctx->max_credits;
-+
- 	tcp_ses->nr_targets = 1;
- 	tcp_ses->ignore_signature = ctx->ignore_signature;
- 	/* thread spawned, put it on the list */
-@@ -2832,11 +2837,6 @@ static int mount_get_conns(struct smb3_fs_context *ctx, struct cifs_sb_info *cif
+ /* Type of request operation */
+-#define   CIFS_ECHO_OP      0x080    /* echo request */
+-#define   CIFS_OBREAK_OP   0x0100    /* oplock break request */
+-#define   CIFS_NEG_OP      0x0200    /* negotiate request */
++#define   CIFS_ECHO_OP            0x080  /* echo request */
++#define   CIFS_OBREAK_OP          0x0100 /* oplock break request */
++#define   CIFS_NEG_OP             0x0200 /* negotiate request */
++#define   CIFS_CP_CREATE_CLOSE_OP 0x0400 /* compound create+close request */
+ /* Lower bitmask values are reserved by others below. */
+-#define   CIFS_SESS_OP     0x2000    /* session setup request */
+-#define   CIFS_OP_MASK     0x2380    /* mask request type */
++#define   CIFS_SESS_OP            0x2000 /* session setup request */
++#define   CIFS_OP_MASK            0x2780 /* mask request type */
  
- 	*nserver = server;
+-#define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
+-#define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
+-#define   CIFS_NO_SRV_RSP    0x1000    /* there is no server response */
++#define   CIFS_HAS_CREDITS        0x0400 /* already has credits */
++#define   CIFS_TRANSFORM_REQ      0x0800 /* transform request before sending */
++#define   CIFS_NO_SRV_RSP         0x1000 /* there is no server response */
  
--	if ((ctx->max_credits < 20) || (ctx->max_credits > 60000))
--		server->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
--	else
--		server->max_credits = ctx->max_credits;
--
- 	/* get a reference to a SMB session */
- 	ses = cifs_get_smb_ses(server, ctx);
- 	if (IS_ERR(ses)) {
-diff --git a/fs/cifs/sess.c b/fs/cifs/sess.c
-index 183a3a868d7b..63d517b9f2ff 100644
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -230,6 +230,7 @@ cifs_ses_add_channel(struct cifs_sb_info *cifs_sb, struct cifs_ses *ses,
- 	ctx.noautotune = ses->server->noautotune;
- 	ctx.sockopt_tcp_nodelay = ses->server->tcp_nodelay;
- 	ctx.echo_interval = ses->server->echo_interval / HZ;
-+	ctx.max_credits = ses->server->max_credits;
+ /* Security Flags: indicate type of session setup needed */
+ #define   CIFSSEC_MAY_SIGN	0x00001
+diff --git a/fs/cifs/smb2inode.c b/fs/cifs/smb2inode.c
+index 1f900b81c34a..a718dc77e604 100644
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -358,6 +358,7 @@ smb2_compound_op(const unsigned int xid, struct cifs_tcon *tcon,
+ 	if (cfile)
+ 		goto after_close;
+ 	/* Close */
++	flags |= CIFS_CP_CREATE_CLOSE_OP;
+ 	rqst[num_rqst].rq_iov = &vars->close_iov[0];
+ 	rqst[num_rqst].rq_nvec = 1;
+ 	rc = SMB2_close_init(tcon, server,
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index 6e0ea19e710b..b50164e2c88d 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -844,14 +844,14 @@ smb2_handle_cancelled_close(struct cifs_tcon *tcon, __u64 persistent_fid,
+ }
  
- 	/*
- 	 * This will be used for encoding/decoding user/domain/pw
+ int
+-smb2_handle_cancelled_mid(char *buffer, struct TCP_Server_Info *server)
++smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_Server_Info *server)
+ {
+-	struct smb2_sync_hdr *sync_hdr = (struct smb2_sync_hdr *)buffer;
+-	struct smb2_create_rsp *rsp = (struct smb2_create_rsp *)buffer;
++	struct smb2_sync_hdr *sync_hdr = mid->resp_buf;
++	struct smb2_create_rsp *rsp = mid->resp_buf;
+ 	struct cifs_tcon *tcon;
+ 	int rc;
+ 
+-	if (sync_hdr->Command != SMB2_CREATE ||
++	if ((mid->optype & CIFS_CP_CREATE_CLOSE_OP) || sync_hdr->Command != SMB2_CREATE ||
+ 	    sync_hdr->Status != STATUS_SUCCESS)
+ 		return 0;
+ 
+diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
+index f5087295424c..9bae7e8deb09 100644
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1195,7 +1195,7 @@ smb2_set_ea(const unsigned int xid, struct cifs_tcon *tcon,
+ 	struct TCP_Server_Info *server = cifs_pick_channel(ses);
+ 	__le16 *utf16_path = NULL;
+ 	int ea_name_len = strlen(ea_name);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	int len;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+@@ -1573,7 +1573,7 @@ smb2_ioctl_query_info(const unsigned int xid,
+ 	struct smb_query_info qi;
+ 	struct smb_query_info __user *pqi;
+ 	int rc = 0;
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb2_query_info_rsp *qi_rsp = NULL;
+ 	struct smb2_ioctl_rsp *io_rsp = NULL;
+ 	void *buffer = NULL;
+@@ -2577,7 +2577,7 @@ smb2_query_info_compound(const unsigned int xid, struct cifs_tcon *tcon,
+ {
+ 	struct cifs_ses *ses = tcon->ses;
+ 	struct TCP_Server_Info *server = cifs_pick_channel(ses);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -2975,7 +2975,7 @@ smb2_query_symlink(const unsigned int xid, struct cifs_tcon *tcon,
+ 	unsigned int sub_offset;
+ 	unsigned int print_len;
+ 	unsigned int print_offset;
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -3157,7 +3157,7 @@ smb2_query_reparse_tag(const unsigned int xid, struct cifs_tcon *tcon,
+ 	struct cifs_open_parms oparms;
+ 	struct cifs_fid fid;
+ 	struct TCP_Server_Info *server = cifs_pick_channel(tcon->ses);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+diff --git a/fs/cifs/smb2proto.h b/fs/cifs/smb2proto.h
+index 9565e27681a5..a2eb34a8d9c9 100644
+--- a/fs/cifs/smb2proto.h
++++ b/fs/cifs/smb2proto.h
+@@ -246,8 +246,7 @@ extern int SMB2_oplock_break(const unsigned int xid, struct cifs_tcon *tcon,
+ extern int smb2_handle_cancelled_close(struct cifs_tcon *tcon,
+ 				       __u64 persistent_fid,
+ 				       __u64 volatile_fid);
+-extern int smb2_handle_cancelled_mid(char *buffer,
+-					struct TCP_Server_Info *server);
++extern int smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_Server_Info *server);
+ void smb2_cancelled_close_fid(struct work_struct *work);
+ extern int SMB2_QFS_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 			 u64 persistent_file_id, u64 volatile_file_id,
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index 15b72d2e8713..007d99437c77 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -101,7 +101,7 @@ static void _cifs_mid_q_entry_release(struct kref *refcount)
+ 	if (midEntry->resp_buf && (midEntry->mid_flags & MID_WAIT_CANCELLED) &&
+ 	    midEntry->mid_state == MID_RESPONSE_RECEIVED &&
+ 	    server->ops->handle_cancelled_mid)
+-		server->ops->handle_cancelled_mid(midEntry->resp_buf, server);
++		server->ops->handle_cancelled_mid(midEntry, server);
+ 
+ 	midEntry->mid_state = MID_FREE;
+ 	atomic_dec(&midCount);
 
