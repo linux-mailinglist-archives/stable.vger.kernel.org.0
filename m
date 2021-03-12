@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC426338C7A
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 13:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A445338C7B
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 13:15:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbhCLMPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 07:15:22 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:44607 "EHLO
+        id S229799AbhCLMPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 07:15:23 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:50847 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229799AbhCLMO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 07:14:59 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 7C95C1942C67;
-        Fri, 12 Mar 2021 07:14:58 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Fri, 12 Mar 2021 07:14:58 -0500
+        by vger.kernel.org with ESMTP id S230398AbhCLMPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 07:15:07 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 98A901942C96;
+        Fri, 12 Mar 2021 07:15:06 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Fri, 12 Mar 2021 07:15:06 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CyWs50
-        o+cmdOC3UWKN4JLvFsm32hvRIPpHEMPRs9VjI=; b=DUcC6HYuuGIv6ds+NzIl0v
-        FbcRCbnQrP5XEdUUx7A7T5POYfh0Aw2BpHkK6fzelpelFuw/vUmxSM3E7lIna661
-        JuRx1u4630iR3cGx2oGlkX4b43ku+M5//tMVcUGSUQFlnwu2WW6TFOE0z/sc8dRU
-        yctlHCY8AKytUHSJuX1aHNtL7XpMsa/CP5V8kDeNvjLdnmcH3LhxNay9Fm/64tf6
-        +jRph/kcfbSpwOEApm4zNRcZpkSj4lVudbl+/+iYp70xFr7snXiA30tJKE/xDYzm
-        gLyF8leO9PglroBX94UpJ+6hVX16p3zUyIvQhmbghzzkx1fynFqQ1lz4aHdqBCRA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TQ0753
+        elvstePirKYU6em1Wc0oNysK9dgl4vF7M6cPA=; b=V6EWkWePZunCC1JlCrT1Wt
+        B+Si6BiwrNG0XF4vzm/tAfQXGo6c8Pdg/MBfAo9iLhwhGzH5Yq0av0YLnbwkFKRQ
+        n61FUDI1L8HMb85//uclzXrgvL6/vmYJ38o7NErUEtZXPThMErls/eUCmNCNuZft
+        4ONnYnNav8ODMacvUD84wpt73F8vUbCPdF9jmBa1ebYYNpDf0PpsDtQF2w4ZfVqI
+        TvhwVQWYcYCv0uHfQrsbG5161Fpi69Rp272/D/A0FcEmp4rpTAH+lLIzqAsFfnKu
+        kVF5mMZWg24Ygz0j2Hy4k+x8EQZyvdDtWU00d8qdIeO91xmxbj/0QW6FhjN5DoLA
         ==
-X-ME-Sender: <xms:QVtLYN01vyfTUW8YKFwUKsA61isRpiJAJHN1dJJhT3KG0B7-fNHqDQ>
-    <xme:QVtLYED-_2xciJGp7PpPaJL4ApYa4mVcwj1t27fMKf7UzR_at70owCcZ1Wo9nIMXW
-    Mmn7hwCz5QkYQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgfeekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:SltLYPSgwzmTSfw6TQrY7a4fATBM8HYN2Xo4rVQoRHuwhjKW8_Xlbw>
+    <xme:SltLYAzczJuhuc8ZgEiV0wtzR9dYQORqrcKX6veHElKynoiuPoPpH-P6voWsYWyfw
+    qutsy8FvnKM9w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgfeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdljedmnecujfgurhepuffvhf
     ffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhho
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgfeekucetufdoteggod
     eiieehheefleevveehjeduteevueevledujeejgfetheenucfkphepkeefrdekiedrjeeg
     rdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
     hgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:QVtLYKy2kesadJWkKjLB3bzQ_nPEPKQCgIuyx47bD2of3iUUTnrR-g>
-    <xmx:QVtLYCk8ZIf5q40ah4fyzRea-o5ksMVg9jHHTw1AB9XoyNZRF-01WA>
-    <xmx:QVtLYPF8hcZJMV7cNHnIpwA6k1K276srWBaB4I_IgzvawisNKe_ROQ>
-    <xmx:QltLYBDEIJswIavvxcw8DMu1pLWvRzNuk87s9OcvpgkV7J8LJP3obA>
+X-ME-Proxy: <xmx:SltLYE3RXJ5n-CWh69SOAHMdkEVxQ4dtuTKDU74606FbnMhBSPgg1w>
+    <xmx:SltLYPC3b88-XTzRB0xdtXkvsZepdMoioudpncuUt2k6cVK5lV9htw>
+    <xmx:SltLYIi1Vp-wxl78EUUmQdqjsWQ3JWF3PdruAaDulpy0A6jjgeanvg>
+    <xmx:SltLYLvrX9ZW0kRKNXn2-YUarTy0n5UQsI_wp9oL2i_j2yXIs5kfWg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 336C324005A;
-        Fri, 12 Mar 2021 07:14:57 -0500 (EST)
-Subject: FAILED: patch "[PATCH] net: enetc: initialize RFS/RSS memories for unused ports too" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 124291080066;
+        Fri, 12 Mar 2021 07:15:05 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net: enetc: initialize RFS/RSS memories for unused ports too" failed to apply to 5.10-stable tree
 To:     vladimir.oltean@nxp.com, davem@davemloft.net,
         jesse.brandeburg@intel.com, michael@walle.cc
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 12 Mar 2021 13:14:54 +0100
-Message-ID: <161555129492228@kroah.com>
+Date:   Fri, 12 Mar 2021 13:14:56 +0100
+Message-ID: <16155512967616@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
