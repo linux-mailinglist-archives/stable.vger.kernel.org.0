@@ -2,89 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C137C339983
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 23:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F45339996
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 23:18:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235506AbhCLWN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 17:13:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51196 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235515AbhCLWNP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 17:13:15 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15E7964F29;
-        Fri, 12 Mar 2021 22:13:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615587195;
-        bh=Nvw3iIumAKVNU+iGCXI9SbvQkjQr0AFRAf4higcMOEw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UVT0V14xkHdol443H9g22gFldOK0zPvS37wYHYZ1Hh+0aAQHGjJe/UwAJ1PUpTu4m
-         JufMuT9outYElg7HBo46A1EhRuCvvlo+d+LW6Zr5e540Ax/92ueFqkAFeVqJBMNtwk
-         t/I2x88L7wcx4pmieEPVFSpI+1Yw8AqoV+GBq0B2SX1//sZ47G4JMByZ+fatna0mIa
-         rmO5V9zVwoDDr/XLgppLRdYCjqpQkP+y/gXck9vuLudh6YS6nTQCyBYv/+k0gzTbuR
-         4XVV0//CghhrcqWTaDNiWDQsSFINXsnreryJ6qiAQM9GRKLiCVoeC1IeRpyKLA8ViM
-         vPypirL48ifpQ==
-Date:   Fri, 12 Mar 2021 17:13:14 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Andreas Larsson <andreas@gaisler.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        sparclinux@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.14 06/13] sparc32: Limit memblock allocation to
- low memory
-Message-ID: <YEvnenzIKNE1a0FL@sashalap>
-References: <20210302115903.63458-1-sashal@kernel.org>
- <20210302115903.63458-6-sashal@kernel.org>
- <ad613de2-6fd4-f7a3-25b1-61f3a093c811@gaisler.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <ad613de2-6fd4-f7a3-25b1-61f3a093c811@gaisler.com>
+        id S235483AbhCLWSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 17:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235532AbhCLWRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 17:17:55 -0500
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280E3C061574
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 14:17:55 -0800 (PST)
+Received: by mail-qk1-x749.google.com with SMTP id k188so1012745qkb.5
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 14:17:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=9d5EzMi2Qyza7j5RoXoFBY5ffCk5Fa8WDGdaqKQXcLg=;
+        b=uBeZyQlaaTWgEI/g5YQbNNghQJizjeHBNqt9ISLQjhxH3pcnZSI7KwRPvJ0il+dFZS
+         PL4ylk+gAQKc5z/54IhR8kXL+BoK7Ph7fnbzBr7ac6q0JCC425MC52xK1csA+c9bvza6
+         FGyu3D+N+B4/zLohpiD9AgtF5hGqlDW1tMMfvwRbxoG5OccFDLpE1150Rv3A4Jz9gBxB
+         DmcpV8qbRy2Cym1+XCB8l3yecvSMgVwgrf+kim3DXb82Xoz2CmD9TVFgOmk7jUigw+LI
+         5ihfJVfHwS03VMSrrknQly6Cp6TgrTLR7MGXl5LfaVeYgHmFHcGbG+7qYwAdzSS+FHHA
+         gkgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=9d5EzMi2Qyza7j5RoXoFBY5ffCk5Fa8WDGdaqKQXcLg=;
+        b=qL7VK+qOJ1UnGOnRe6ARq2TBBiQIgeXb7bRgXC1FGK4Y2LTV376SoGzQuzQFi5SNbt
+         FwJlnfX0OaBrjovIv2+RW32T6YIrHcJsQwo9RBjmLR2qdmjKtqY3X6T+rAfl74W2PQhJ
+         VacL7oc56PaSvyzTCxyzhULjITxVzF1UtUyHu6SJEzmtJnelKOfbbgJTPQ0XpUb8gW7E
+         e6+Qqd+oceeSq2muUzWtvug3zWCelnJmc4+/VCPPQemgbfUgyipT8AGh0TqnZLT7lDaN
+         8YxszuDpx/MInkAtR8MKqJRZtyL5UFHuPRIDqW4UFKNnGpu1kQ5GqpHeugErbn0ctidb
+         a+pA==
+X-Gm-Message-State: AOAM533C3Kvv/i7Pb7BZvIOgzAm6VTHx1GhS7zjttTrNi0u3Muu1fGlz
+        3+XamDaFFpNWXBsSvxBBRVoVSo7avS5utq5H/U9G2s2BNxduIWDGCtXo2O3q44Zw4aU3oxmunlL
+        xC/erYLGzhzryPS1QiM+3/Yx7Jrt5vhvDkboSqfbSvWy7aZZ/6aFJYtJ14DV9tMF2L7DkXM6X
+X-Google-Smtp-Source: ABdhPJweH8CkpdLxQ93OgIV7lQU84jwr1AvkKpaFtNiQ6ACynxumkbhemflPxVvimzu04fIn4iycbe9mm6H0eavi
+X-Received: from manoj.svl.corp.google.com ([2620:15c:2ce:0:3159:c5f3:85f4:e811])
+ (user=manojgupta job=sendgmr) by 2002:a0c:c489:: with SMTP id
+ u9mr353843qvi.47.1615587474347; Fri, 12 Mar 2021 14:17:54 -0800 (PST)
+Date:   Fri, 12 Mar 2021 14:17:49 -0800
+In-Reply-To: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
+Message-Id: <20210312221749.1248947-1-manojgupta@google.com>
+Mime-Version: 1.0
+References: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH v2] scripts/recordmcount.{c,pl}: support -ffunction-sections
+ .text.* section names
+From:   Manoj Gupta <manojgupta@google.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        clang-built-linux@googlegroups.com, ndesaulniers@google.com,
+        jiancai@google.com, dianders@google.com, llozano@google.com,
+        manojgupta@google.com, Joe Lawrence <joe.lawrence@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 03, 2021 at 09:19:38AM +0100, Andreas Larsson wrote:
->On 2021-03-02 12:58, Sasha Levin wrote:
->>From: Andreas Larsson <andreas@gaisler.com>
->>
->>[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
->>
->>Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
->>memblocks instead of bootmem, but also made high memory available via
->>memblock allocation which does not work together with e.g. phys_to_virt
->>and can lead to kernel panic.
->>
->>This changes back to only low memory being allocatable in the early
->>stages, now using memblock allocation.
->>
->>Signed-off-by: Andreas Larsson <andreas@gaisler.com>
->>Acked-by: Mike Rapoport <rppt@linux.ibm.com>
->>Signed-off-by: David S. Miller <davem@davemloft.net>
->>Signed-off-by: Sasha Levin <sashal@kernel.org>
->>---
->>  arch/sparc/mm/init_32.c | 3 +++
->>  1 file changed, 3 insertions(+)
->>
->>diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
->>index 95fe4f081ba3..372a4f08ddf8 100644
->>--- a/arch/sparc/mm/init_32.c
->>+++ b/arch/sparc/mm/init_32.c
->>@@ -230,6 +230,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
->>  	reserve_bootmem((bootmap_pfn << PAGE_SHIFT), size, BOOTMEM_DEFAULT);
->>  	*pages_avail -= PAGE_ALIGN(size) >> PAGE_SHIFT;
->>+	/* Only allow low memory to be allocated via memblock allocation */
->>+	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
->>+
->>  	return max_pfn;
->>  }
->>
->
->This is not needed for 4.14, and will not compile, as the problem it
->fixes was introduced in 4.19.
+From: Joe Lawrence <joe.lawrence@redhat.com>
 
-I'll drop it, thanks!
+commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
 
+When building with -ffunction-sections, the compiler will place each
+function into its own ELF section, prefixed with ".text".  For example,
+a simple test module with functions test_module_do_work() and
+test_module_wq_func():
+
+  % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
+  .text
+  .text.test_module_do_work
+  .text.test_module_wq_func
+  .init.text
+  .exit.text
+
+Adjust the recordmcount scripts to look for ".text" as a section name
+prefix.  This will ensure that those functions will be included in the
+__mcount_loc relocations:
+
+  % objdump --reloc --section __mcount_loc test_module.o
+  OFFSET           TYPE              VALUE
+  0000000000000000 R_X86_64_64       .text.test_module_do_work
+  0000000000000008 R_X86_64_64       .text.test_module_wq_func
+  0000000000000010 R_X86_64_64       .init.text
+
+Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
+
+Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+[Manoj: Resolve conflict on 4.4.y/4.9.y because of missing 42c269c88dc1]
+Signed-off-by: Manoj Gupta <manojgupta@google.com>
+---
+
+Changes v1 -> v2:
+  Change "nc" to "Manoj"
+
+ scripts/recordmcount.c  |  2 +-
+ scripts/recordmcount.pl | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+index 7250fb38350c..8cba4c44da4c 100644
+--- a/scripts/recordmcount.c
++++ b/scripts/recordmcount.c
+@@ -362,7 +362,7 @@ static uint32_t (*w2)(uint16_t);
+ static int
+ is_mcounted_section_name(char const *const txtname)
+ {
+-	return strcmp(".text",           txtname) == 0 ||
++	return strncmp(".text",          txtname, 5) == 0 ||
+ 		strcmp(".ref.text",      txtname) == 0 ||
+ 		strcmp(".sched.text",    txtname) == 0 ||
+ 		strcmp(".spinlock.text", txtname) == 0 ||
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index ccd6614ea218..5ca4ec297019 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -138,6 +138,11 @@ my %text_sections = (
+      ".text.unlikely" => 1,
+ );
+ 
++# Acceptable section-prefixes to record.
++my %text_section_prefixes = (
++     ".text." => 1,
++);
++
+ # Note: we are nice to C-programmers here, thus we skip the '||='-idiom.
+ $objdump = 'objdump' if (!$objdump);
+ $objcopy = 'objcopy' if (!$objcopy);
+@@ -503,6 +508,14 @@ while (<IN>) {
+ 
+ 	# Only record text sections that we know are safe
+ 	$read_function = defined($text_sections{$1});
++	if (!$read_function) {
++	    foreach my $prefix (keys %text_section_prefixes) {
++	        if (substr($1, 0, length $prefix) eq $prefix) {
++	            $read_function = 1;
++	            last;
++	        }
++	    }
++	}
+ 	# print out any recorded offsets
+ 	update_funcs();
+ 
 -- 
-Thanks,
-Sasha
+2.31.0.rc2.261.g7f71774620-goog
+
