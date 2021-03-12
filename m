@@ -2,59 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7A133988E
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 21:43:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97C0F3398B3
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 21:53:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235007AbhCLUmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 15:42:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55342 "EHLO
+        id S235010AbhCLUxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 15:53:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234969AbhCLUm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 15:42:28 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5595C061574
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:42:27 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id m20-20020a7bcb940000b029010cab7e5a9fso16555806wmi.3
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:42:27 -0800 (PST)
+        with ESMTP id S235048AbhCLUxI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 15:53:08 -0500
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6D44C061574
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:53:07 -0800 (PST)
+Received: by mail-lj1-x230.google.com with SMTP id 16so8966593ljc.11
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:53:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=82KaU8rRGbC4SRlavZEO/o0WBgI/8cKjqwRh6gM9xL4=;
-        b=dPeOC/QYJlD6XedfIvkkf+QCtOknF8ll9DimFepj143F7qWUpD6N/VDXLsIbu95aeq
-         S/1n3chzJqdtSfkCHJcpGwUMRjvBNJUQ6mGkPCpHbhBwUDGHqEy6y8nJ9DxNA8YoKmO6
-         jWXkHeIdoql4KtkUzLVp09ztjUrAncodbp871Du7xuBwApstpwXuSPxipCj3zXxg1pZf
-         odXzeneSa3o4ccgehOsYA8FJCFGt/+pIz1sdAkgQQA55B2LwnwHdwwYXpYAHkr7dFNTG
-         zjPC/tcJPtXjuaqk09Kzyde4V7hXaQlPPS+XaeIgpmUnptc3mJfqF+4RP5O2fqoWKVXB
-         AtOg==
+        bh=S8dK+kdR+Ia9D858+IkNK4cy01vXdBXb8r7JBQS6iTM=;
+        b=JPAqdux6FP/jSvJzpI+QGKWoqHD7US0IJJG90OSDr/8PS9mMT8me4nkgsXR6naZsQn
+         GIDRlHHZlxV+JPsfgNHXNz0lqk2c9No65Tb+YFjDlMKFmnIw6/Acru6SQYCB/ZE6TzMq
+         On5w6GwrNAMlxRmGd1QiSgG2jK7Mos/dl2gPamwO2dvJWmT9eU4sNpD326rPndMKwpKD
+         OTK+OMX84hxiElgpiOw78Z6QyKP3qhrSj/02qxbYcsIS/DfhmX9W7trbLPHol+USFfR9
+         VR/5PnhRzB6B4NCwGseK9eLFgtoWLxvoLozdt4Ga52PybdCtYR6Ax9xJpbpjJoMjTL5Z
+         t/PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=82KaU8rRGbC4SRlavZEO/o0WBgI/8cKjqwRh6gM9xL4=;
-        b=VH8+8jo8TFKO5f5mCOuAGwe4fDBXdP+HkTUWX8p7ryOGXIHEpx0qkHea2F/JVm4T30
-         gaspJ+aBqPPddcyFZ0VQui5G3Fxqc8gC5gNzXmNQaHMpYKEArTi+3KUQx6UIAfuqT+ir
-         iV7rjk2a3SHq/I1Awj/5Xlr48vHWECTsf+7wRfECrHooOajmXODgEsH7uAp+9Lvf8Z/k
-         XQnzQpnWm35PxHKmYOVjQsaTBQqBLOq3hQGyOy0gvA6U3Fhu60WNC+TO9DxRPSbuLELp
-         S6ZA03NZ9HeJbydV7uv4WzVZxwaZZrvD9VB3ZjUZ5l7k71hhWf9EJ/IjKJ6FhRRBy0wA
-         me8w==
-X-Gm-Message-State: AOAM532OvsxmThIdNzkSFxBOMV7ym79QCWVWr0BgPC7zA4Uw/mO8WVuJ
-        9eNXHdgA/M4OEDEITHN3ZJqpTZecd+DzaP7YWV2tXQ==
-X-Google-Smtp-Source: ABdhPJwIrk4f3Yw+bbOTwbomuktKVdekQAmAYAf/Iuglm5QA+EZ/RkR214KQPx0BR1M5kOXgDk/f7OaFxclanyQNRMU=
-X-Received: by 2002:a1c:5416:: with SMTP id i22mr14764626wmb.146.1615581746480;
- Fri, 12 Mar 2021 12:42:26 -0800 (PST)
+        bh=S8dK+kdR+Ia9D858+IkNK4cy01vXdBXb8r7JBQS6iTM=;
+        b=ExkLv5jgHMdv3MM7svBsWIQia9maeUn30XpAzxC+L3mwKGIR2vYRvtEq2Tvqb9Fx7a
+         a5z+QGbO6uEBZQ5DbeavtAkoUWazfdxfPys5i4ZKKZFJyP9U9jMMPrOWebST5Qs0642X
+         gquE7xDnvMXwPsUj9jurs4xh2yzp8r1capUIPpp+E7stLlWAcv+yJsyPkPgio9YctNdB
+         9x+jI6uS9h6pps52QnbP1RqT5Sj3km96HWucy3e7KDovOYWp+MnCWoK2WuR/HO4NVikp
+         bwyf+NN4ABLa0DH1mxUAlEe60wx8YaUEQaNl23IqtRoPym0+pG9UJO4HuOZ1kTRvI+Uk
+         zKng==
+X-Gm-Message-State: AOAM531ArtXAmeNuQk/kgprXJ+nRUEgBr9gROnUI2BEgOtC3iLumeNa4
+        Q6Ufg5EH+xfY51N2Jelyc+RvkFbsRKwXphhcwTyXuw==
+X-Google-Smtp-Source: ABdhPJzPkuUsJhAduz7cNChe9mPxjyxr/evKcHvnC+dVRmxVMzWKna6d6VTOOB+8JSYLpGD3+Vw3GVdnN/5pjClm+2A=
+X-Received: by 2002:a2e:b88b:: with SMTP id r11mr3405610ljp.495.1615582385619;
+ Fri, 12 Mar 2021 12:53:05 -0800 (PST)
 MIME-Version: 1.0
 References: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
  <20210312203900.1012048-1-manojgupta@google.com>
 In-Reply-To: <20210312203900.1012048-1-manojgupta@google.com>
-From:   Manoj Gupta <manojgupta@google.com>
-Date:   Fri, 12 Mar 2021 12:42:15 -0800
-Message-ID: <CAH=QcsjRO26U_Y12B9LWJakvrFa+hyT4V5dmKjmYGRLNO5b=9A@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Fri, 12 Mar 2021 12:52:54 -0800
+Message-ID: <CAKwvOdnD90DTS+3zMidxNiapeKoC_vUW62rdn1h7M9i__ieA3Q@mail.gmail.com>
 Subject: Re: [PATCH] scripts/recordmcount.{c,pl}: support -ffunction-sections
  .text.* section names
-To:     gregkh@linuxfoundation.org, sashal@kernel.org
-Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Nick Desaulniers <ndesaulniers@google.com>,
+To:     Manoj Gupta <manojgupta@google.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
         Jian Cai <jiancai@google.com>,
         Doug Anderson <dianders@google.com>,
         Luis Lozano <llozano@google.com>,
@@ -99,6 +101,12 @@ On Fri, Mar 12, 2021 at 12:39 PM Manoj Gupta <manojgupta@google.com> wrote:
 > Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 >
 > [nc: Resolve conflict because of missing 42c269c88dc146982a54a8267f71abc99f12852a]
+
+^ Isn't `nc:` here supposed to be your initials, ie. `mg:`, or do I
+have that wrong?
+https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+doesn't clarify.
+
 > Signed-off-by: Manoj Gupta <manojgupta@google.com>
 > ---
 >  scripts/recordmcount.c  |  2 +-
@@ -153,7 +161,7 @@ On Fri, Mar 12, 2021 at 12:39 PM Manoj Gupta <manojgupta@google.com> wrote:
 > 2.31.0.rc2.261.g7f71774620-goog
 >
 
-This patch should apply cleanly to 4.4.y and 4.9.y branches.
 
+-- 
 Thanks,
-Manoj
+~Nick Desaulniers
