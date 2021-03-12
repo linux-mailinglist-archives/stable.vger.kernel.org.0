@@ -2,151 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 394C7339877
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 21:31:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14ED233987F
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 21:39:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbhCLUaU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 15:30:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52646 "EHLO
+        id S234744AbhCLUjY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 15:39:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234673AbhCLU3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 15:29:52 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F358C061574
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:29:52 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id lr10-20020a17090b4b8ab02900dd61b95c5eso9030783pjb.4
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:29:52 -0800 (PST)
+        with ESMTP id S234985AbhCLUjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 15:39:05 -0500
+Received: from mail-qt1-x84a.google.com (mail-qt1-x84a.google.com [IPv6:2607:f8b0:4864:20::84a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F40BC061574
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:39:05 -0800 (PST)
+Received: by mail-qt1-x84a.google.com with SMTP id m35so8967008qtd.11
+        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 12:39:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oie7InIHRa24BifmF4f/Unqy2tpkox70tntre2kM2qE=;
-        b=DpRQjEUDu4vmzxEJjZ/VXYER85yeCchUPj+Yr1hHmTpOJyW8OR8J953i8Vsg3ksz6B
-         dmFbbWqYDFnf4UsdkngvqnrX9a5gGouhVTRj5OBTxO4rJMS+TVeuEwq/5p84p2wzp/mK
-         yqok/06BmlNX7JIYIGp/va+hJEyGwhdp7UfIdL0nitX8OvTffN7TSG1JTtw5guJEe5eh
-         y4uglI50LKSHbwvc2TVIoHzUKWXCdytQL9HYKAFMc5dNzQ4plwmSscDCCocfeQsMzK6d
-         DfHvtnIeERLkdU3Uaf5ziFX2q+iTStePVJ7wRU7yMf3riWYl6M8mOfj6NS2YT737beUQ
-         TNzA==
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=GJXRaUWw3GBsddoEbFCqXHWGWiuZM+NGHFtwL8hqbbo=;
+        b=kiTbp/TBB4IW9seEuwaJF0z8jkRasfyGhYC5/6jewN7cyc4AA4s4JEWIihCcjWIdju
+         DNWBg//MF1iK3U3NKGXf2LUEQMdsCUP8PNDwrWdBoqNHoP4zLw59ETth/mG2f+6w82PV
+         Ypl4/1UBuH1egBYEywHA15buJB0oPxcbdMZSg0XX4nyfzQoCR0iL8KPNkZ+eR1kj5Yet
+         i4NIpGGLeG+NwGNkFgy6iSDceKJuMvSmn3groKwK4cFuNtvITOML1sh4DD9rfEFekQlG
+         M1SEM/A6IRsMRpzIFsS7GPZZd9UtoEXoULEerEr9ajylBwQ3dbYx4vx+yyZbTkkymIfr
+         X7cw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oie7InIHRa24BifmF4f/Unqy2tpkox70tntre2kM2qE=;
-        b=fGB4GL8YtWKC0Mk6Z5z5xiwgTEbo89zGo6rWMinwOPl6OINLK0ubFIzyg+AIzN60hR
-         5djw6cu8nm1anntX+WJmVAuJVjQRWclRlpQ9N9BDXVuGu8NNLwlB7qyakEqIIDC5es00
-         5yvIWSp8swiwxA4C6GbUej3QAErnwVSaRWEDAdUL5mFOPj+LEkiQ8eMSV/WMhkrLQE92
-         QMOoz1aet9caKMQs6YZy5t4Y/so8X9e2JnA0905j+UKrrSTO0ZShsfh2ndFdu/qEi3GH
-         fr3qVEpMMfYp41WyzAKlhpv7Ld+4hOlSrZvlpacOK+cb/x7a8BWc1sNVIjPYmmGrdXth
-         hMog==
-X-Gm-Message-State: AOAM531e2W3rkBFahW559wWoUJVbd3xzIlVNXblMolGNS4BJRVsmebOM
-        RlYp+fAIfD5n9jEGSOapADGTjxwJXh+kKw==
-X-Google-Smtp-Source: ABdhPJz/IdTsysNDe4f+AJhCFDXdLEualZkotTM5nxmLC8z+L04+mbji2HGZ38SPJdy6Yi5mciyr4Q==
-X-Received: by 2002:a17:903:31ca:b029:e6:65f:ca87 with SMTP id v10-20020a17090331cab02900e6065fca87mr234247ple.85.1615580991630;
-        Fri, 12 Mar 2021 12:29:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id g12sm2933759pjd.57.2021.03.12.12.29.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Mar 2021 12:29:51 -0800 (PST)
-Message-ID: <604bcf3f.1c69fb81.7913a.7664@mx.google.com>
-Date:   Fri, 12 Mar 2021 12:29:51 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.23-108-g78b73fb5a5f43
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 164 runs,
- 2 regressions (v5.10.23-108-g78b73fb5a5f43)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=GJXRaUWw3GBsddoEbFCqXHWGWiuZM+NGHFtwL8hqbbo=;
+        b=dkL7WR7oVg+rxvKM/Y8ty5DIh0hoqM3twIKL2Uc7ChX5h5YqXWqB1rEExiWtx5lN+Y
+         Tb/L91uwChI0M3t1SF279KimmH+2I01Tl0yPwjuptp+qaly5LE6zHG0vQL9etiKbxLJK
+         h84Wj9nNsxWjfRy3HV30erLMF3y2TW5gwNNXKWKRMsFjzWX564gP7t1h6p/ZhcaLcXSe
+         9ZN0LRlCqRuf/LngYlB1xrD6VHu4ynErvlwEYRqeyIHgJh7zCNsvBldilfA29a8kROH1
+         gigy4DofQCr/aM2xWfdvQVc4D0MCn4JTssYX21kk/0WuzC3L4SDqOKhxsMY+37Xbn5cw
+         +eIw==
+X-Gm-Message-State: AOAM530shn1F/jX6S+YV86lvdoo03FpCnuZRlSWdtDsNdSsvPDinUMEK
+        K3dNTynL7sPsxEQxBVl/t6PpkbMm2iGlwOxC
+X-Google-Smtp-Source: ABdhPJwKXfQYYRE/6tQhMAyalL6PB8nwkUV9aQ/1dpXbUtzsfas/muG272/tFIMAl0/jVEroK9gXjx5q45vYET41
+X-Received: from manoj.svl.corp.google.com ([2620:15c:2ce:0:3159:c5f3:85f4:e811])
+ (user=manojgupta job=sendgmr) by 2002:a05:6214:8c4:: with SMTP id
+ da4mr109925qvb.17.1615581544242; Fri, 12 Mar 2021 12:39:04 -0800 (PST)
+Date:   Fri, 12 Mar 2021 12:39:00 -0800
+In-Reply-To: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
+Message-Id: <20210312203900.1012048-1-manojgupta@google.com>
+Mime-Version: 1.0
+References: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH] scripts/recordmcount.{c,pl}: support -ffunction-sections
+ .text.* section names
+From:   Manoj Gupta <manojgupta@google.com>
+To:     gregkh@linuxfoundation.org, sashal@kernel.org
+Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
+        ndesaulniers@google.com, jiancai@google.com, dianders@google.com,
+        llozano@google.com, manojgupta@google.com,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 164 runs, 2 regressions (v5.10.23-108-g78b73=
-fb5a5f43)
+From: Joe Lawrence <joe.lawrence@redhat.com>
 
-Regressions Summary
--------------------
+commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
 
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
+When building with -ffunction-sections, the compiler will place each
+function into its own ELF section, prefixed with ".text".  For example,
+a simple test module with functions test_module_do_work() and
+test_module_wq_func():
 
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
+  % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
+  .text
+  .text.test_module_do_work
+  .text.test_module_wq_func
+  .init.text
+  .exit.text
 
+Adjust the recordmcount scripts to look for ".text" as a section name
+prefix.  This will ensure that those functions will be included in the
+__mcount_loc relocations:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.23-108-g78b73fb5a5f43/plan/baseline/
+  % objdump --reloc --section __mcount_loc test_module.o
+  OFFSET           TYPE              VALUE
+  0000000000000000 R_X86_64_64       .text.test_module_do_work
+  0000000000000008 R_X86_64_64       .text.test_module_wq_func
+  0000000000000010 R_X86_64_64       .init.text
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.23-108-g78b73fb5a5f43
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      78b73fb5a5f438e0eb0f31046ed064b741d3fab3 =
+Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
 
+Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
+[nc: Resolve conflict because of missing 42c269c88dc146982a54a8267f71abc99f12852a]
+Signed-off-by: Manoj Gupta <manojgupta@google.com>
+---
+ scripts/recordmcount.c  |  2 +-
+ scripts/recordmcount.pl | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-Test Regressions
----------------- =
+diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
+index 7250fb38350c..8cba4c44da4c 100644
+--- a/scripts/recordmcount.c
++++ b/scripts/recordmcount.c
+@@ -362,7 +362,7 @@ static uint32_t (*w2)(uint16_t);
+ static int
+ is_mcounted_section_name(char const *const txtname)
+ {
+-	return strcmp(".text",           txtname) == 0 ||
++	return strncmp(".text",          txtname, 5) == 0 ||
+ 		strcmp(".ref.text",      txtname) == 0 ||
+ 		strcmp(".sched.text",    txtname) == 0 ||
+ 		strcmp(".spinlock.text", txtname) == 0 ||
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index ccd6614ea218..5ca4ec297019 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -138,6 +138,11 @@ my %text_sections = (
+      ".text.unlikely" => 1,
+ );
+ 
++# Acceptable section-prefixes to record.
++my %text_section_prefixes = (
++     ".text." => 1,
++);
++
+ # Note: we are nice to C-programmers here, thus we skip the '||='-idiom.
+ $objdump = 'objdump' if (!$objdump);
+ $objcopy = 'objcopy' if (!$objcopy);
+@@ -503,6 +508,14 @@ while (<IN>) {
+ 
+ 	# Only record text sections that we know are safe
+ 	$read_function = defined($text_sections{$1});
++	if (!$read_function) {
++	    foreach my $prefix (keys %text_section_prefixes) {
++	        if (substr($1, 0, length $prefix) eq $prefix) {
++	            $read_function = 1;
++	            last;
++	        }
++	    }
++	}
+ 	# print out any recorded offsets
+ 	update_funcs();
+ 
+-- 
+2.31.0.rc2.261.g7f71774620-goog
 
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-hip07-d05  | arm64 | lab-collabora | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604ba29deec8dbe060addcde
-
-  Results:     2 PASS, 3 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.23-=
-108-g78b73fb5a5f43/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.23-=
-108-g78b73fb5a5f43/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604ba29deec8dbe060add=
-cdf
-        new failure (last pass: v5.10.23-37-ge21780881c24f) =
-
- =
-
-
-
-platform   | arch  | lab           | compiler | defconfig | regressions
------------+-------+---------------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp       | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604b9f4ee1a97cac0eaddce0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.23-=
-108-g78b73fb5a5f43/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.23-=
-108-g78b73fb5a5f43/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604b9f4ee1a97cac0eadd=
-ce1
-        failing since 0 day (last pass: v5.10.23-31-g559d8defe7bb8, first f=
-ail: v5.10.23-37-ge21780881c24f) =
-
- =20
