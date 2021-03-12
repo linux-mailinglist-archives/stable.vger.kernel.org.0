@@ -2,195 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 104E73388AF
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 10:30:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2F73388C3
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 10:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232323AbhCLJaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 04:30:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232878AbhCLJaF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 04:30:05 -0500
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4A06C061574
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 01:30:04 -0800 (PST)
-Received: by mail-lj1-x231.google.com with SMTP id u4so5885616ljo.6
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 01:30:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=APw/AIDrKzT7XeF6qSF0iCc81Xp0GnB50nk1NJmAvMg=;
-        b=NUB5R87GpT8Ge/ghJ+rP04eFDkdXOCvq3mi2FFPyt38CsXBxeV4K+Kj+/I0Dx1+Jup
-         +XTn/203TIDdlXcw3i4h40Ihd+HlZXd0LNoZFIZgf0FTtB/wkUJhirgHJ8XjUodDPOPD
-         K15egk95mnKobCl3hQDc9uJ08N0R7FleEXCoo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=APw/AIDrKzT7XeF6qSF0iCc81Xp0GnB50nk1NJmAvMg=;
-        b=ZJXZ8LHpJUvtxghjecbcuo1/XJ6Fu7c+85P5oDxJE/e8FgN2/eyCc/IZNFiC3UeiF2
-         jGa/qEM7nC7SEJ6K7i0pvyC1FgFTrB+b+zu3iuQI8+133SWqMgNK2VogrSYBBOgZJNqJ
-         +laYE40Y9qlf12VoihW+uEtS8e25CGEpZ2Y2/vcbc4v0kc1JpC49oNDIaiSt1rO+5ehe
-         i6XOtntSTmSfLtg22tC3wfI+fKB2llfP1Np9BuAdDJAzQX/bG1o3KU0Q+3+OfplzO7ap
-         9ZdEzrVBvxWaMonK3ub3Va+XNc56EkjPeanMrjMheGeNNmk7wyq1t5XkbMmF9wkwQts0
-         Sjvg==
-X-Gm-Message-State: AOAM53358h7ONHD+GzBXWgcDlzSTL00hgGV3bdkhmL5owHl3rEBxl6Xp
-        Ad0Tp+pvKHcQ4tvjR3glIwX9w+iZI052DImOkS7Wnw==
-X-Google-Smtp-Source: ABdhPJw+FfQpJ2epQaMocbx6qJdbkvwffgldWe582oJu0q3ueBSobLefQNgI5yjmaBdqCvs551gqPwD8X6mat4WEOMg=
-X-Received: by 2002:a2e:a17c:: with SMTP id u28mr1784677ljl.22.1615541403440;
- Fri, 12 Mar 2021 01:30:03 -0800 (PST)
+        id S232790AbhCLJee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 04:34:34 -0500
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:48599 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232781AbhCLJeP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 04:34:15 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id BA55118AD;
+        Fri, 12 Mar 2021 04:34:14 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Fri, 12 Mar 2021 04:34:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=vwRKwAmpvTdtGnmYiNdeCL/mi0
+        xGimvcUnHRyBB0y2c=; b=u501xOcENHpDqt8YcEEA48mlyqns2cuGVwjR3hSVLl
+        4DgSmAZC9PxtzA/AjU9bEom1vFD0p3hpaYq6FVrnv44uOo6nbP5YBxVf4fzzKO36
+        zH8w0P3eg2fEDpaEsckNvcKOvEkw+cbZhBHJK0twZB8se6bRscn7ZwF4Y+FcaOgm
+        sUzWY+BW084nlc20IsLivNhllzdBrese/i5N1VqQOBUp4En+/9ABB1kpOLiN5dnB
+        XYDFch0cxUKnSvX3lbyA76IIFilDwrau/45RgR/2S5+MM0/w8d/a93IWxLKC9gfM
+        bVrqaU8CK13cNFgXHhzBBjeQxfnPZFWFny3O1grDVnbQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vwRKwAmpvTdtGnmYi
+        NdeCL/mi0xGimvcUnHRyBB0y2c=; b=XetWkQi1AgTVBxsIdm0KcBpUBBl0cZwQL
+        31r1rfDxFgOjE4Lf5nmxX5UTXWZbPqdWFEwUya+ho87A7T1oyvu2uJlzyhHPUlrV
+        26++ko6mLXOEk561laELyLEAgyyEpKIq8kMcerKvvbvUFVZCjs7YgjoMsHr521Dh
+        Lx3sSOd/FgVXFw/ISSzLU8pMCmxzRFotDkF7eL4TCUHQIsLJN5pUgwkz3spdAOpU
+        4h1NH4FPdAW8RlrWli4+EFGCpLXm0EVxgGLfoRwuaEUniTvBeHFCRnEtgTIZH9xt
+        65YuAeuNc80hI4PPhzQO30y7Rl+aL0d0m7ArwDgo/LYfUviMQHW7w==
+X-ME-Sender: <xms:lDVLYFw9Jk_GV2O7pLbI8-7JI75mv6hsBVrh6pmBU69w4AEPvfHvSw>
+    <xme:lDVLYFNJrs_IeSF5eOSrMwWtXfayK0IF8pciDqC-mXCYzccYOw8Q2h0njt2fcYgG8
+    clFnBTizFnBKbbGBYs>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgtdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
+    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
+    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecukfhppedugedrfedr
+    ieehrddujeehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrh
+    homhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjph
+X-ME-Proxy: <xmx:lDVLYMO_vjbagHdJTgFVPagUUvIKvSOlT4gtfxqyEWfgBYOeOK7FxA>
+    <xmx:lDVLYPTE71LBmzvK3DJ9Hek8L-gnBAoyqnu-YUi7cvL2KeHW8GIr2A>
+    <xmx:lDVLYGAd-fLAxB1xQedCtS9lQfi3N9iMAsOKZxuj7fqNnW8CpMVyuw>
+    <xmx:ljVLYBctKBmUf_xg0a-S5BNsMJWO8jqTsG8bmf6ci76ChQ8DLFt7fw>
+Received: from workstation.flets-east.jp (ae065175.dynamic.ppp.asahi-net.or.jp [14.3.65.175])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7520C24005C;
+        Fri, 12 Mar 2021 04:34:11 -0500 (EST)
+From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To:     tiwai@suse.de, perex@perex.cz
+Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        ffado-devel@lists.sourceforge.net, stable@vger.kernel.org
+Subject: [PATCH] ALSA: dice: fix null pointer dereference when node is disconnected
+Date:   Fri, 12 Mar 2021 18:34:07 +0900
+Message-Id: <20210312093407.23437-1-o-takashi@sakamocchi.jp>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <c8106dbe6d8390b290cd1d7f873a2942e805349e.1615452048.git.tommyhebb@gmail.com>
-In-Reply-To: <c8106dbe6d8390b290cd1d7f873a2942e805349e.1615452048.git.tommyhebb@gmail.com>
-From:   Vitaly Wool <vitaly.wool@konsulko.com>
-Date:   Fri, 12 Mar 2021 10:29:52 +0100
-Message-ID: <CAM4kBBJw=55KWvL-ccdeLSahaMKA8eiors49PrJQgjy=ksY6Rg@mail.gmail.com>
-Subject: Re: [PATCH] z3fold: prevent reclaim/free race for headless pages
-To:     Thomas Hebb <tommyhebb@gmail.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 11, 2021 at 9:40 AM Thomas Hebb <tommyhebb@gmail.com> wrote:
->
-> commit ca0246bb97c2 ("z3fold: fix possible reclaim races") introduced
-> the PAGE_CLAIMED flag "to avoid racing on a z3fold 'headless' page
-> release." By atomically testing and setting the bit in each of
-> z3fold_free() and z3fold_reclaim_page(), a double-free was avoided.
->
-> However, commit dcf5aedb24f8 ("z3fold: stricter locking and more careful
-> reclaim") appears to have unintentionally broken this behavior by moving
-> the PAGE_CLAIMED check in z3fold_reclaim_page() to after the page lock
-> gets taken, which only happens for non-headless pages. For headless
-> pages, the check is now skipped entirely and races can occur again.
->
-> I have observed such a race on my system:
->
->     page:00000000ffbd76b7 refcount:0 mapcount:0 mapping:0000000000000000 =
-index:0x0 pfn:0x165316
->     flags: 0x2ffff0000000000()
->     raw: 02ffff0000000000 ffffea0004535f48 ffff8881d553a170 0000000000000=
-000
->     raw: 0000000000000000 0000000000000011 00000000ffffffff 0000000000000=
-000
->     page dumped because: VM_BUG_ON_PAGE(page_ref_count(page) =3D=3D 0)
->     ------------[ cut here ]------------
->     kernel BUG at include/linux/mm.h:707!
->     invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
->     CPU: 2 PID: 291928 Comm: kworker/2:0 Tainted: G    B             5.10=
-.7-arch1-1-kasan #1
->     Hardware name: Gigabyte Technology Co., Ltd. H97N-WIFI/H97N-WIFI, BIO=
-S F9b 03/03/2016
->     Workqueue: zswap-shrink shrink_worker
->     RIP: 0010:__free_pages+0x10a/0x130
->     Code: c1 e7 06 48 01 ef 45 85 e4 74 d1 44 89 e6 31 d2 41 83 ec 01 e8 =
-e7 b0 ff ff eb da 48 c7 c6 e0 32 91 88 48 89 ef e8 a6 89 f8 ff <0f> 0b 4c 8=
-9 e7 e8 fc 79 07 00 e9 33 ff ff ff 48 89 ef e8 ff 79 07
->     RSP: 0000:ffff88819a2ffb98 EFLAGS: 00010296
->     RAX: 0000000000000000 RBX: ffffea000594c5a8 RCX: 0000000000000000
->     RDX: 1ffffd4000b298b7 RSI: 0000000000000000 RDI: ffffea000594c5b8
->     RBP: ffffea000594c580 R08: 000000000000003e R09: ffff8881d5520bbb
->     R10: ffffed103aaa4177 R11: 0000000000000001 R12: ffffea000594c5b4
->     R13: 0000000000000000 R14: ffff888165316000 R15: ffffea000594c588
->     FS:  0000000000000000(0000) GS:ffff8881d5500000(0000) knlGS:000000000=
-0000000
->     CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->     CR2: 00007f7c8c3654d8 CR3: 0000000103f42004 CR4: 00000000001706e0
->     Call Trace:
->      z3fold_zpool_shrink+0x9b6/0x1240
->      ? sugov_update_single+0x357/0x990
->      ? sched_clock+0x5/0x10
->      ? sched_clock_cpu+0x18/0x180
->      ? z3fold_zpool_map+0x490/0x490
->      ? _raw_spin_lock_irq+0x88/0xe0
->      shrink_worker+0x35/0x90
->      process_one_work+0x70c/0x1210
->      ? pwq_dec_nr_in_flight+0x15b/0x2a0
->      worker_thread+0x539/0x1200
->      ? __kthread_parkme+0x73/0x120
->      ? rescuer_thread+0x1000/0x1000
->      kthread+0x330/0x400
->      ? __kthread_bind_mask+0x90/0x90
->      ret_from_fork+0x22/0x30
->     Modules linked in: rfcomm ebtable_filter ebtables ip6table_filter ip6=
-_tables iptable_filter ccm algif_aead des_generic libdes ecb algif_skcipher=
- cmac bnep md4 algif_hash af_alg vfat fat intel_rapl_msr intel_rapl_common =
-x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel iwlmvm hid_logitec=
-h_hidpp kvm at24 mac80211 snd_hda_codec_realtek iTCO_wdt snd_hda_codec_gene=
-ric intel_pmc_bxt snd_hda_codec_hdmi ledtrig_audio iTCO_vendor_support mei_=
-wdt mei_hdcp snd_hda_intel snd_intel_dspcfg libarc4 soundwire_intel irqbypa=
-ss iwlwifi soundwire_generic_allocation rapl soundwire_cadence intel_cstate=
- snd_hda_codec intel_uncore btusb joydev mousedev snd_usb_audio pcspkr btrt=
-l uvcvideo nouveau btbcm i2c_i801 btintel snd_hda_core videobuf2_vmalloc i2=
-c_smbus snd_usbmidi_lib videobuf2_memops bluetooth snd_hwdep soundwire_bus =
-snd_soc_rt5640 videobuf2_v4l2 cfg80211 snd_soc_rl6231 videobuf2_common snd_=
-rawmidi lpc_ich alx videodev mdio snd_seq_device snd_soc_core mc ecdh_gener=
-ic mxm_wmi mei_me
->      hid_logitech_dj wmi snd_compress e1000e ac97_bus mei ttm rfkill snd_=
-pcm_dmaengine ecc snd_pcm snd_timer snd soundcore mac_hid acpi_pad pkcs8_ke=
-y_parser it87 hwmon_vid crypto_user fuse ip_tables x_tables ext4 crc32c_gen=
-eric crc16 mbcache jbd2 dm_crypt cbc encrypted_keys trusted tpm rng_core us=
-bhid dm_mod crct10dif_pclmul crc32_pclmul crc32c_intel ghash_clmulni_intel =
-aesni_intel crypto_simd cryptd glue_helper xhci_pci xhci_pci_renesas i915 v=
-ideo intel_gtt i2c_algo_bit drm_kms_helper syscopyarea sysfillrect sysimgbl=
-t fb_sys_fops cec drm agpgart
->     ---[ end trace 126d646fc3dc0ad8 ]---
->
-> To fix the issue, re-add the earlier test and set in the case where we
-> have a headless page.
->
-> Fixes: dcf5aedb24f8 ("z3fold: stricter locking and more careful reclaim")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Reviewed-by: Vitaly Wool <vitaly.wool@konsulko.com>
-> ---
->
->  mm/z3fold.c | 16 +++++++++++++++-
->  1 file changed, 15 insertions(+), 1 deletion(-)
->
-> diff --git a/mm/z3fold.c b/mm/z3fold.c
-> index 0152ad9931a8..8ae944eeb8e2 100644
-> --- a/mm/z3fold.c
-> +++ b/mm/z3fold.c
-> @@ -1350,8 +1350,22 @@ static int z3fold_reclaim_page(struct z3fold_pool =
-*pool, unsigned int retries)
->                         page =3D list_entry(pos, struct page, lru);
->
->                         zhdr =3D page_address(page);
-> -                       if (test_bit(PAGE_HEADLESS, &page->private))
-> +                       if (test_bit(PAGE_HEADLESS, &page->private)) {
-> +                               /*
-> +                                * For non-headless pages, we wait to do =
-this
-> +                                * until we have the page lock to avoid r=
-acing
-> +                                * with __z3fold_alloc(). Headless pages =
-don't
-> +                                * have a lock (and __z3fold_alloc() will=
- never
-> +                                * see them), but we still need to test a=
-nd set
-> +                                * PAGE_CLAIMED to avoid racing with
-> +                                * z3fold_free(), so just do it now befor=
-e
-> +                                * leaving the loop.
-> +                                */
-> +                               if (test_and_set_bit(PAGE_CLAIMED, &page-=
->private))
-> +                                       continue;
-> +
->                                 break;
-> +                       }
->
->                         if (kref_get_unless_zero(&zhdr->refcount) =3D=3D =
-0) {
->                                 zhdr =3D NULL;
-> --
-> 2.30.0
->
+When node is removed from IEEE 1394 bus, any transaction fails to the node.
+In the case, ALSA dice driver doesn't stop isochronous contexts even if
+they are running. As a result, null pointer dereference occurs in callback
+from the running context.
+
+This commit fixes the bug to release isochronous contexts always.
+
+Cc: <stable@vger.kernel.org> # v5.4 or later
+Fixes: e9f21129b8d8 ("ALSA: dice: support AMDTP domain")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+---
+ sound/firewire/dice/dice-stream.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/sound/firewire/dice/dice-stream.c b/sound/firewire/dice/dice-stream.c
+index 8e0c0380b4c4..1a14c083e8ce 100644
+--- a/sound/firewire/dice/dice-stream.c
++++ b/sound/firewire/dice/dice-stream.c
+@@ -493,11 +493,10 @@ void snd_dice_stream_stop_duplex(struct snd_dice *dice)
+ 	struct reg_params tx_params, rx_params;
+ 
+ 	if (dice->substreams_counter == 0) {
+-		if (get_register_params(dice, &tx_params, &rx_params) >= 0) {
+-			amdtp_domain_stop(&dice->domain);
++		if (get_register_params(dice, &tx_params, &rx_params) >= 0)
+ 			finish_session(dice, &tx_params, &rx_params);
+-		}
+ 
++		amdtp_domain_stop(&dice->domain);
+ 		release_resources(dice);
+ 	}
+ }
+-- 
+2.27.0
+
