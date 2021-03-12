@@ -2,92 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 226E33395C8
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 19:03:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA0CF339627
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 19:20:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231392AbhCLSCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 13:02:42 -0500
-Received: from mga05.intel.com ([192.55.52.43]:47441 "EHLO mga05.intel.com"
+        id S232389AbhCLSUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 13:20:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232105AbhCLSCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 13:02:40 -0500
-IronPort-SDR: 0XgZVTuy8t7KxZ4LUeg+EBQvDlgkAlWZXM2i9rWBrrZpLSeC3ltR4gQKYbeYWCkc27YFay8+nF
- 4NHIN1kx4zCw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9921"; a="273911898"
-X-IronPort-AV: E=Sophos;i="5.81,244,1610438400"; 
-   d="scan'208";a="273911898"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 10:02:40 -0800
-IronPort-SDR: OiXv5ZeTOiKA9vimqofbOBnd/Oqxez1AsaLM818KATNUwxz0Y2Dj3+xo5un3kdLMI3am0jBrhb
- vZ1Q04kC5Jlw==
-X-IronPort-AV: E=Sophos;i="5.81,244,1610438400"; 
-   d="scan'208";a="432013362"
-Received: from amiteshs-mobl.amr.corp.intel.com (HELO pbossart-mobl3.intel.com) ([10.212.37.30])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 10:02:39 -0800
-From:   Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-To:     alsa-devel@alsa-project.org
-Cc:     tiwai@suse.de, broonie@kernel.org,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH v4 1/2] ASoC: samsung: tm2_wm5110: check of of_parse return value
-Date:   Fri, 12 Mar 2021 12:02:30 -0600
-Message-Id: <20210312180231.2741-2-pierre-louis.bossart@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210312180231.2741-1-pierre-louis.bossart@linux.intel.com>
-References: <20210312180231.2741-1-pierre-louis.bossart@linux.intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S233062AbhCLSTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Mar 2021 13:19:47 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F1364F50;
+        Fri, 12 Mar 2021 18:19:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1615573187;
+        bh=Mu2QXZw/IUt0vZST8Y6WsQtqP6lFH4zwRSftj/m4ZGg=;
+        h=Date:From:To:Subject:From;
+        b=Y1OWyEPqDG3qsyVsxCU+RfO+5SBTWYpENly0zgn3pSUu1iMBgpgrt0shLrX6Ohpwf
+         Fm3rsPu+v63VeHaNSoy+meOf/kRPgtf67imSEXZS509hNXyTh7irKrhFVY1wrQUcz7
+         OmHzDyB3tun/EnfDO3CNVGgYhsR8XzlPK5d1npC8=
+Date:   Fri, 12 Mar 2021 10:19:46 -0800
+From:   akpm@linux-foundation.org
+To:     colin.king@canonical.com, joaodias@google.com, minchan@kernel.org,
+        mm-commits@vger.kernel.org, sergey.senozhatsky@gmail.com,
+        stable@vger.kernel.org
+Subject:  + zram-fix-return-value-on-writeback_store.patch added to
+ -mm tree
+Message-ID: <20210312181946.Q9ab9GicR%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-cppcheck warning:
 
-sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
-reassigned a value before the old one has been
-used. [redundantAssignment]
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
-sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
-  ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
-      ^
-sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
- ret = devm_snd_soc_register_component(dev, &tm2_component,
-     ^
+The patch titled
+     Subject: zram: fix return value on writeback_store
+has been added to the -mm tree.  Its filename is
+     zram-fix-return-value-on-writeback_store.patch
 
-The args is a stack variable, so it could have junk (uninitialized)
-therefore args.np could have a non-NULL and random value even though
-property was missing. Later could trigger invalid pointer dereference.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/zram-fix-return-value-on-writeback_store.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/zram-fix-return-value-on-writeback_store.patch
 
-There's no need to check for args.np because args.np won't be
-initialized on errors.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2 board")
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Minchan Kim <minchan@kernel.org>
+Subject: zram: fix return value on writeback_store
+
+writeback_store's return value is overwritten by submit_bio_wait's return
+value.  Thus, writeback_store will return zero since there was no IO
+error.  In the end, write syscall from userspace will see the zero as
+return value, which could make the process stall to keep trying the write
+until it will succeed.
+
+Link: https://lkml.kernel.org/r/20210312173949.2197662-1-minchan@kernel.org
+Fixes: 3b82a051c101("drivers/block/zram/zram_drv.c: fix error return codes not being returned in writeback_store")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: John Dias <joaodias@google.com>
 Cc: <stable@vger.kernel.org>
-Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- sound/soc/samsung/tm2_wm5110.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/samsung/tm2_wm5110.c b/sound/soc/samsung/tm2_wm5110.c
-index 9300fef9bf26..125e07f65d2b 100644
---- a/sound/soc/samsung/tm2_wm5110.c
-+++ b/sound/soc/samsung/tm2_wm5110.c
-@@ -553,7 +553,7 @@ static int tm2_probe(struct platform_device *pdev)
+ drivers/block/zram/zram_drv.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+--- a/drivers/block/zram/zram_drv.c~zram-fix-return-value-on-writeback_store
++++ a/drivers/block/zram/zram_drv.c
+@@ -627,7 +627,7 @@ static ssize_t writeback_store(struct de
+ 	struct bio_vec bio_vec;
+ 	struct page *page;
+ 	ssize_t ret = len;
+-	int mode;
++	int mode, err;
+ 	unsigned long blk_idx = 0;
  
- 		ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
- 						 cells_name, i, &args);
--		if (!args.np) {
-+		if (ret) {
- 			dev_err(dev, "i2s-controller property parse error: %d\n", i);
- 			ret = -EINVAL;
- 			goto dai_node_put;
--- 
-2.25.1
+ 	if (sysfs_streq(buf, "idle"))
+@@ -728,12 +728,17 @@ static ssize_t writeback_store(struct de
+ 		 * XXX: A single page IO would be inefficient for write
+ 		 * but it would be not bad as starter.
+ 		 */
+-		ret = submit_bio_wait(&bio);
+-		if (ret) {
++		err = submit_bio_wait(&bio);
++		if (err) {
+ 			zram_slot_lock(zram, index);
+ 			zram_clear_flag(zram, index, ZRAM_UNDER_WB);
+ 			zram_clear_flag(zram, index, ZRAM_IDLE);
+ 			zram_slot_unlock(zram, index);
++			/*
++			 * Return last IO error unless every IO were
++			 * not suceeded.
++			 */
++			ret = err;
+ 			continue;
+ 		}
+ 
+_
+
+Patches currently in -mm which might be from minchan@kernel.org are
+
+zram-fix-return-value-on-writeback_store.patch
+zram-fix-broken-page-writeback.patch
+mm-remove-lru_add_drain_all-in-alloc_contig_range.patch
+mm-page_alloc-dump-migrate-failed-pages.patch
+mm-vmstat-add-cma-statistics.patch
+mm-cma-support-sysfs.patch
 
