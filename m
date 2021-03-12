@@ -2,200 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC2A3390ED
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 16:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C71233390FC
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 16:18:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231636AbhCLPNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 10:13:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230443AbhCLPNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 10:13:32 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872C6C061574
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 07:13:32 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id s21so2079978pfm.1
-        for <stable@vger.kernel.org>; Fri, 12 Mar 2021 07:13:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=dHM/+iLtNRbHZaDfprBlejJv1J5Yo35rQF+jHLFkdQQ=;
-        b=IZ9UENh7m9sJo4TOa+WUJAhdvyGMWSKxwXvOQlMQ2gty5eW8Iarn91cgKIwSVYUFFz
-         Xhv1VVi5HxkbEAL/+guER3i+1nojtFR0TSLY/t7FpaRPqAiWm460vnuxibI9tRffMcIt
-         l2mCJ/qHN9fYKMDV3i65Q9g+UK0hWVqkXxH6IaJ7BcpiOBEVECXZN5CEWe3v8DaN+E7C
-         D3KxTPEqqm4Ii9YnuBtWxdQEeWEQQB858zv2Fpn7hVJwTrVk2zViEmX0Ew22rAtc4O5+
-         3IATjyho542ny7w+qegmsd0kw7yc0iOP5FCNlgxAkj7jNWbPvRHaCEx/AZGdvpIwWnK3
-         /69Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=dHM/+iLtNRbHZaDfprBlejJv1J5Yo35rQF+jHLFkdQQ=;
-        b=Ve5qvvFy1UtKptsLT6OM4RRAhEL6HoseL7ynGyyaTFVopZhzLQdWQCnKpESxDtotcM
-         A2WM46N7x34vnZ6CvMLkSzXwJCaM+jIPBykITyFPpp2KjLznA9EkeKCWpfR362TV5QKX
-         0iC7DI8AMlpxKNX+EX+4i5xeQcmL1rTQKNj3KO5hNnqX+lPAz17b/XbfWlVeyyh0Zp6R
-         Qd5EqpsTa2y9bolD/6Vg1fAK4tUstUdpkY5cgvZTGY99rMtZ+bxFYim9FEUq3oQc60/W
-         vvUT5zRVY+bWOreLgEl8jbDFAwl59RaTetwur49hcJRCAg+uhI3CvCAcfDB1ZeYQVin7
-         EewQ==
-X-Gm-Message-State: AOAM530xQzM9XAe9QJkNRWx92Fe1fzdeQNustbKxVWf3BAPsCgoPM+P3
-        R5xS7j231zY7096RWNCRVq04fw3JoOWJpw==
-X-Google-Smtp-Source: ABdhPJywZKrTHROfH4c82SUX4Lu0joeA4V3ArkxTuTIRW0ahzQOWkjiovoCDI25JGDA0YfvGh6lH1w==
-X-Received: by 2002:aa7:93af:0:b029:1ef:1bb9:b1a1 with SMTP id x15-20020aa793af0000b02901ef1bb9b1a1mr12890397pff.49.1615562011886;
-        Fri, 12 Mar 2021 07:13:31 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h19sm5962281pfc.172.2021.03.12.07.13.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Mar 2021 07:13:31 -0800 (PST)
-Message-ID: <604b851b.1c69fb81.4a472.fb9a@mx.google.com>
-Date:   Fri, 12 Mar 2021 07:13:31 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229487AbhCLPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 10:17:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46778 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230388AbhCLPRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Mar 2021 10:17:08 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E727464FCE;
+        Fri, 12 Mar 2021 15:17:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615562228;
+        bh=teWZH5IRebQbacXOyacm0Vpj0YMmVKRVQuQG4BAku70=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DdG006f34lXoAhj+kle8myJouN4B/Mp6GIsf5SWMRHQAijeAH8qQ1ZQAZKaToEReO
+         5zz9sIIf+bX/KL7865OEL1LBZB+xhPvOPVTMXC9a7p1V47iL9/DUK9m/KFhBrKqocl
+         AvofOOZTmW0EyUQnPy0owuvfSXD124VGbV7sI2IQEqCRZ55ItVAX/3CmRrzrvJ7YsL
+         snALUtWJSO2c3V5QRnPI0O1lBWRXPMKmF4Ml/Lt5rdtBmzfWKafy5pDWuK3VRHggr0
+         PMAyfP0VWM2DI7YuabDq9QAwvroqq8VVsU+g6nBYVsZNV4OdaK3eHZ2qHmEVlr0YbM
+         FFEWbfANhqj6w==
+Date:   Fri, 12 Mar 2021 16:17:04 +0100
+From:   Marek =?UTF-8?B?QmVow7pu?= <kabel@kernel.org>
+To:     Andrew Lunn <andrew@lunn.ch>
+Cc:     Gregory CLEMENT <gregory.clement@bootlin.com>,
+        linux-arm-kernel@lists.infradead.org, pali@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH mvebu + mvebu/dt64 4/4] arm64: dts: marvell:
+ armada-37xx: move firmware node to generic dtsi file
+Message-ID: <20210312161704.5e575906@kernel.org>
+In-Reply-To: <YEt/Ll08M1cwgGR/@lunn.ch>
+References: <20210308153703.23097-1-kabel@kernel.org>
+        <20210308153703.23097-4-kabel@kernel.org>
+        <87czw4kath.fsf@BL-laptop>
+        <20210312101027.1997ec75@kernel.org>
+        <YEt/Ll08M1cwgGR/@lunn.ch>
+X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.9.261-11-gcae1f9fdb54e
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 76 runs,
- 3 regressions (v4.9.261-11-gcae1f9fdb54e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 76 runs, 3 regressions (v4.9.261-11-gcae1f9fd=
-b54e)
+On Fri, 12 Mar 2021 15:48:14 +0100
+Andrew Lunn <andrew@lunn.ch> wrote:
 
-Regressions Summary
--------------------
+> On Fri, Mar 12, 2021 at 10:10:27AM +0100, Marek Beh=C3=BAn wrote:
+> > On Fri, 12 Mar 2021 09:58:34 +0100
+> > Gregory CLEMENT <gregory.clement@bootlin.com> wrote:
+> >  =20
+> > > Hello Marek,
+> > >  =20
+> > > > From: Pali Roh=C3=A1r <pali@kernel.org>
+> > > >
+> > > > Move the turris-mox-rwtm firmware node from Turris MOX' device tree=
+ into
+> > > > the generic armada-37xx.dtsi file.   =20
+> > >=20
+> > > I disagree with this patch. This firmware is specific to Turris MOX so
+> > > it is not something that should be exposed to all the Armada 3700 bas=
+ed
+> > > boards.
+> > >=20
+> > > If you want you still can create an dtsi for this and include it when
+> > > needed.
+> > >=20
+> > > Gregory =20
+> >=20
+> > Gregory, we are planning to send pull-request for TF-A documentation,
+> > adding information that people can compile the firmware with CZ.NIC's
+> > firmware.
+> >=20
+> > Since this firmware exposes HW random number generator, it is
+> > possible that people will start using it for espressobin.
+> >=20
+> > In that case this won't be specific for Turris MOX anymore. =20
+>=20
+> Part of the problem is that it looks specific to the Turris MOX.
+>=20
+> But please help me understand the big picture first.  How is the
+> firmware distributed? Is the binary part of linux-firmware? How does
+> it get loaded? Does the firmware contain anything which is specific to
+> the Turris MOX? Could the hardware number generator part be split out
+> into a more generic sounding name blob?
+>=20
+>      Andrew
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
+Hello Andrew,
 
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
+The WTMI firmware is loaded before kernel. This firmware is loaded by
+BootROM, and it is this firmware that does DDR training before loading
+TF-A + U-Boot.
 
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
+For example for ESPRESSObin you have several repositories you need to
+create a final flash-image.bin containing this WTMI firmware + TF-A +
+U-Boot. These repositories are:
+  trusted-firmware-a (contains documentation how to build all this)
+  A3700-utils-marvell
+  u-boot
+  mv-ddr-marvell
+=46rom these sources you are able to create a final flash-image.bin that
+you can flash onto the SPI-NOR (or eMMC or other devices which A3720
+can boot from).
 
+The A3700-utils-marvell repository contains the code of the WTMI
+firmware.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.261-11-gcae1f9fdb54e/plan/baseline/
+On Turris MOX this is a little bit different, because
+- we have implemented the WTMI firmware differently (more mailbox
+  commands, HW crypto, ...)
+- it supports retrieving MOX board information (MAC addresses, serial
+  number) stored in eFuses (this information is stored in a specific
+  way that in only true for MOX)
+- the firmware binary must be signed by our private key in order to
+  boot on MOX.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.261-11-gcae1f9fdb54e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      cae1f9fdb54e5abcb713a22a253080a0169025f3 =
+  This is because the secure firmware has access to an ECDSA engine
+  with a private key storage in eFuses (each MOX has its own private
+  key generated and stored into the eFuses when manufactured)
+  In order to disallow hackers to somehow extract the private key,
+  the firmware must be signed so that they cannot load arbitrary
+  firmware into the secure processor.
 
+BUT
+- since this firmware is able to provide HWRNG, we wanted to make it
+  available for other Armada 3720 boards
+- we updated the code so that users can build it for non-MOX devices
+- it does not have to be signed for other devices
+- it does not contain MOX specific stuff for non-MOX devices
 
+So currently when users build the flash-image.bin binary containing
+WTMI firmware, they are using code from A3700-utils-marvell. This code
+is split into 2 parts:
+- sys_init - does HW and DDR initialization and execution of an "app"
+- efuse - default "app" which is loaded by sys_init
+The way it is written is that user can select a different "app" when
+building, and we have updated Turris MOX firmware code to be loadable
+as this "app" for sys_init. (And we have renamed it from "Turris MOX
+secure firmware" to "CZ.NIC's Armada 3720 secure firmware").
 
-Test Regressions
----------------- =
+> Could the hardware number generator part be split out into a more
+> generic sounding name blob?
 
+It basically is. As I have written above, when users build the
+flash-image.bin with CZ.NIC's firmware, the prompt does not say
+anything about Turris MOX. Instead it says something like
+  CZ.NIC's Armada 3720 Secure Firmware version build date
+  Running on ESPRESSObin
+and currently provides only the random number generator command.
 
+So theoretically the turris-mox-rwtm driver can be renamed into
+something else and we can add a different compatible in order not to
+sound so turris-mox specific.
 
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604b51dbcfdb63064daddcce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
--versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604b51dbcfdb63064dadd=
-ccf
-        failing since 118 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604b51d7cfdb63064daddcc9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
-satilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604b51d7cfdb63064dadd=
-cca
-        failing since 118 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/604b517e90bc60f362addcce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.261-1=
-1-gcae1f9fdb54e/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604b517e90bc60f362add=
-ccf
-        failing since 118 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+Marek
