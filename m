@@ -2,50 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 051D5338F7B
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 15:10:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93930338F90
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 15:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231786AbhCLOJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 09:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229728AbhCLOJk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 09:09:40 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE47B64FC9;
-        Fri, 12 Mar 2021 14:09:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615558180;
-        bh=myLkcxSDdu/BJyHXxoTxu1VFaqACYp7h/QmxGHOePOo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=T0leCHNuUAnrrvpnGCan0fgmjgmAAeiGWV2bnZYzPxRKCaNVTWWAY936vbkezhBYU
-         8GtagtSKMqcgpWQUckhdqS9NDE00NIIF3Wsp5eSrpUBHrZNI4JPBXXT+k0OZKWDipk
-         D22A9cfGx7Qa3xl1T7H5Rw5jj+HKXHIaglaESz08=
-Date:   Fri, 12 Mar 2021 15:09:37 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     =?iso-8859-1?Q?Aur=E9lien?= Aptel <aaptel@suse.com>
-Cc:     sprasad@microsoft.com, stable@vger.kernel.org,
-        stfrench@microsoft.com
-Subject: Re: FAILED: patch "[PATCH] cifs: fix credit accounting for extra
- channel" failed to apply to 5.10-stable tree
-Message-ID: <YEt2IWyvasHOR0tM@kroah.com>
-References: <161554344221530@kroah.com>
- <87y2essc4w.fsf@suse.com>
+        id S230463AbhCLOM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 09:12:59 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:13505 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229748AbhCLOMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 09:12:45 -0500
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
+        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Dxnlg4dV5zjVGt;
+        Fri, 12 Mar 2021 22:10:39 +0800 (CST)
+Received: from [127.0.0.1] (10.175.101.122) by DGGEMS406-HUB.china.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server id 14.3.498.0; Fri, 12 Mar 2021
+ 22:12:18 +0800
+Content-Type: multipart/alternative;
+        boundary="===============4156396629855668056=="
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <87y2essc4w.fsf@suse.com>
+Date:   Fri, 12 Mar 2021 22:12:18 +0800
+From:   <hulkrobot@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_linux-5=2E4=2Ey/arm64?=
+Message-ID: <524e0299-5e50-4e1f-aa8b-01ca117aaf4f@DGGEMS406-HUB.china.huawei.com>
+X-Originating-IP: [10.175.101.122]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 12, 2021 at 03:02:55PM +0100, Aurélien Aptel wrote:
-> Hi Greg,
-> 
-> I've attached the backport for
-> 
->  a249cc8bc2e2fed680047 ("cifs: fix credit accounting for extra channel")
+--===============4156396629855668056==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
-Thanks, now queued up.
+S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
+Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNS40LnkKQXJjaDog
+YXJtNjQKVmVyc2lvbjogNS40LjEwNi1yYzErDQpDb21taXQ6IGRkYzZjNjRlMWRiMWFhMzgzZmU4
+ZTIzMTdkYzA0ZTQ2OTk0Y2MxYTcNCkNvbXBpbGVyOiBnY2MgdmVyc2lvbiA3LjMuMCAoR0NDKQot
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLQpBbGwgdGVzdGNhc2VzIFBBU1NFRC4KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KVGVzdGNhc2UgUmVz
+dWx0IFN1bW1hcnk6CnRvdGFsX251bTogNDY5MwpzdWNjZWVkX251bTogNDY5MwpmYWlsZWRfbnVt
+OiAwCnRpbWVvdXRfbnVtOiAwCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tClRlc3RlZC1ieTogSHVsayBSb2JvdCA8aHVs
+a3JvYm90QGh1YXdlaS5jb20+
 
-greg k-h
+--===============4156396629855668056==--
