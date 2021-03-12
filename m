@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A63338E1D
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:01:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 573C0338E1E
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 14:02:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbhCLNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 08:01:27 -0500
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45803 "EHLO
+        id S231181AbhCLNB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 08:01:29 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:40565 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231278AbhCLNBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 08:01:04 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 786291942B13;
-        Fri, 12 Mar 2021 08:01:03 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Fri, 12 Mar 2021 08:01:03 -0500
+        by vger.kernel.org with ESMTP id S231519AbhCLNBM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 08:01:12 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9118B19402F6;
+        Fri, 12 Mar 2021 08:01:11 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Fri, 12 Mar 2021 08:01:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xZlOE2
-        teAatQFkLdcGNG5TGIhMrZ8E/QFLlIGYJXhFQ=; b=iW6r3mtubIoEf2sz02r4/J
-        CK3jp04HY0YDv4xOihdgIv0MToM3Kpeq6VkhatJr5Uq3ZCMX+HroU/legr11s/gT
-        omlKVLHEXwK78TWoOQGaKEQztv4QmzGVUr/mFeHb1smVIck8SUP00sGgaJWBeLyo
-        reWTsKohKAzRibFwAh6x+We3GhKNG2+QgUhrodJQH6iqMXXXfXkG6WHPTeUhjRx1
-        qCFoWb9QCee0xRJ6vI2DEZvK03m720C6TWTAX037kNdfAgEXhESAWvjJf4yPiRgQ
-        ZO/STSWi26saE39yaCK3lx5FeYU8DXdrQ2BuDaOyDa38A6jDLahd9PGwM7pQ8p8w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zQDOWl
+        0ZI7KmjxeVAMaO49tu+yxSUW1d32B2mryULbo=; b=TJtZvGc6cKS6cyf56wfN13
+        G2mwQvpGcfpiFqjsUZPAgiTDcz5UzeFgnlxjJsFUJUULUuC8p1UH7AMZzxiJpz0v
+        RekGj978QDmAFNVrgO9ljcxaba3U29PfLFPeZ9Qr88A2DejVxmfYbfv3pDzaoDpO
+        ZhfOIvkw/UO4dHmvTgFyEGhgJ3q/oI2mdJQYC5MLKmmqdo7NeQb/zJDD88Ehpceo
+        pUab69YPU+avwVJC6WfQ2buNL4ofAWqMfX3+0bWxCN7n3ktgzKFEliaYIyHRy+v6
+        JFDEXXMRpIU/pA+4akBms6/4D9RM8YvZpKTjjegpzFa0NZnH8Bx4ezfrRMgsRPkQ
         ==
-X-ME-Sender: <xms:DmZLYIei_a-uAnAYGoCOSlLwuAJENMefYaBWE2wpEIto_u3CB6Xf9Q>
-    <xme:DmZLYKL-7B0Pt0F5P3TwAohRjxa2OPkq4AMrEXNZKNhiUuKWKwNT2WU98Q13ReUvd
-    yDzkxP3ekq60w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddggeejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:F2ZLYA_-Dtp7Y6xygHr3lB_7jXmmgLcajZjmXJry6S24SLpHKPnPCg>
+    <xme:F2ZLYGSCu3O5A17ZaQsvDTD8q29IlqWChAQhP5i9rUb1_RONtg4XPMMLF1PG2d4oV
+    7AtlEfqIZA3Sw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddggeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:DmZLYGbsKoWLP14-3fgr8gch7P3Wrd2heCKL1DLKakpKB6SS2l-Vyg>
-    <xmx:DmZLYFs4XWfOvF6P5WeSqGH6Jnp0bd1bPDeVQlwfgnXGdo-AgKMOdQ>
-    <xmx:DmZLYDvKNbAH1iexze5Kof4xqrUxGtPmBvXKXcwo1_LnQkZ2Za3RdQ>
-    <xmx:D2ZLYHb602rRjoII0S7Fph1Jd4QZ7B6SBP7-WUMhvJG22SCqtJuHdg>
+X-ME-Proxy: <xmx:F2ZLYMfK2zi1rsjGq2hCLp3VmTItXg1v9rVSJZzeqFm9Oh21Sx2pJQ>
+    <xmx:F2ZLYCD17HZLEzk9G4tUbhUGO6_3jF3SOBBxaLZVn-vm0bTcGLjUrg>
+    <xmx:F2ZLYGl-7JL_d895GJo_QEOLqLa4hwSgO_heFn_UupQyzn_nwCqyPw>
+    <xmx:F2ZLYDKeEmVOF23DZ9g6zhXKIU4Eepe383e7NZLFfsI4D7ObD_rmGA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 502611080068;
-        Fri, 12 Mar 2021 08:01:02 -0500 (EST)
-Subject: FAILED: patch "[PATCH] net: hns3: fix error mask definition of flow director" failed to apply to 5.10-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BB13324006B;
+        Fri, 12 Mar 2021 08:01:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net: hns3: fix error mask definition of flow director" failed to apply to 5.4-stable tree
 To:     shenjian15@huawei.com, kuba@kernel.org, tanhuazhong@huawei.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 12 Mar 2021 14:01:01 +0100
-Message-ID: <161555406124523@kroah.com>
+Message-ID: <1615554061134255@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
