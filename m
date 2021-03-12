@@ -2,426 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3523399D2
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 23:57:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A05E339A1D
+	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 00:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235626AbhCLW4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 17:56:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235616AbhCLWzx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 17:55:53 -0500
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFD8DC061574;
-        Fri, 12 Mar 2021 14:55:52 -0800 (PST)
-Received: by mail-pf1-x435.google.com with SMTP id 18so2856679pfo.6;
-        Fri, 12 Mar 2021 14:55:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=gVfp0GOuW021y83dSXyR6/vXbFIF0G87idBXHsJFAgk=;
-        b=HARRK5vDhE5auQNJlGhd4n08JFzTy0FyKErYWbU/FjszI0H19UWOySGoi/HvQvWYfZ
-         cID1W7mHIOnuayfagpz8xFSjP1Zun67YhNJ2nNalBeN48+N0DirXS6iKyNDSMXZejH3g
-         jFvYpwMHVIZWZkKTKIXGAi/qzgOL2FQqLqiAMJd0hIe9Bqp3yQ2i2o8tsf7frOd26UqQ
-         Jv4gN6048lqa4SxF2crVPiiuJMPAPjD3UciB0YbgvQZa+cjLWzBatdv2ofoVY9wzAluf
-         PXjJ7yq4JegOidSlX4xt8jB4b4NSGtuabyp9Us1k2656qvUYOW6Apr8wtr4uXHstJs7f
-         RUFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=gVfp0GOuW021y83dSXyR6/vXbFIF0G87idBXHsJFAgk=;
-        b=WV6wuvRqNN1rYVukWGv95tdbe8lIpfWDfAjaVyoYA9k/OBbK2QSrhDyXwfi4oBzPAS
-         nylAg9UxlcyTelIuJFZJ8xKcneoozgpgUOkRRWQyGimfKEbCmYwWSVZJAgA63P1x/ixH
-         imz3hbY8UW4O/3c8AZfqz8h3FoC6c/6Wvsi0paQMgE2UyOE9oWMTtt1DVIKpbXCBB8cY
-         RFfpCWKaF1oOMnV2HRrErYOxpqEi6vNRhfWnYQ6n1NZHfffPOpeV1bWWx1plQ1CugsRJ
-         NZiBbLCSxKC+BzL7F9sWEwzYsdFZEh6/bNlRs9GTg7poOO6LzSJAvivujscqiMpwTWmK
-         d0DQ==
-X-Gm-Message-State: AOAM5332Ewvm6q+4Pjf0j6RBgmn8hpUGKGo3c0zCrbAdXI5xzSkZF/Xx
-        jmdxqIqRvjoJGIJbbIrd8YyJ5+EQaYw=
-X-Google-Smtp-Source: ABdhPJwiIIcnWcUsd4BRk55SF5jIvdCcxEeCZGhzHYJ5YH/olc6LTnh5le58Qjflm1iwLLfYFfwWiw==
-X-Received: by 2002:a62:ee09:0:b029:1c0:ba8c:fcea with SMTP id e9-20020a62ee090000b02901c0ba8cfceamr385980pfi.7.1615589751600;
-        Fri, 12 Mar 2021 14:55:51 -0800 (PST)
-Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id x11sm12515643pjh.0.2021.03.12.14.55.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Mar 2021 14:55:50 -0800 (PST)
-Subject: Re: [PATCH 5.4 00/24] 5.4.105-rc1 review
-From:   Florian Fainelli <f.fainelli@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, Alexander Lobakin <alobakin@pm.me>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210310132320.550932445@linuxfoundation.org>
- <29dcd801-7f1e-ae09-9b88-ce17cb096f60@gmail.com> <YEoWT85kGVYbBnKY@kroah.com>
- <61cef8f0-c40a-c4e4-5322-9939ed21bff7@gmail.com> <YEpV/FZ8mLivt0hy@kroah.com>
- <40f06036-c6de-706b-30a0-e20de0c6ff57@gmail.com>
-Message-ID: <72fd4a3f-1548-96eb-16f6-55907019afbf@gmail.com>
-Date:   Fri, 12 Mar 2021 14:55:49 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S235698AbhCLXoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 18:44:06 -0500
+Received: from mx.cjr.nz ([51.158.111.142]:43630 "EHLO mx.cjr.nz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235865AbhCLXoA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 12 Mar 2021 18:44:00 -0500
+X-Greylist: delayed 480 seconds by postgrey-1.27 at vger.kernel.org; Fri, 12 Mar 2021 18:44:00 EST
+Received: from authenticated-user (mx.cjr.nz [51.158.111.142])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: pc)
+        by mx.cjr.nz (Postfix) with ESMTPSA id 009D57FF6A;
+        Fri, 12 Mar 2021 23:35:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cjr.nz; s=dkim;
+        t=1615592158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jnLgcySkCRSyxT0PomI84XiXznoy+UbogkcoWN2gZ7c=;
+        b=dRRMQGt8UOuRnJNbFORsblT9DTsvJlijjKnB45/1PSHB2b0RZPhflTjySpl9uigltL7qrT
+        QNEexZ/g2J7Egtuojs8p+qZ3eZVZc6CSaykwI3VemF6f/6tMEZe5HHJbZI6kQwjiIMmwgx
+        N7IrGUJLlox8YWva6O6NAbNGqvlWB66AWvYHQZMyNPqJRjqQy0guOiGmCOaYUzedtHw6xb
+        IQWmZm9a/a6azZVcacQ1SYSGJ3KJJjR1G+bC8+EQmgqUi/dHYIDDWFiJvcKVuRs/XkUuVC
+        Y6ywhproTALF71ca+60uDWbD5QzCIetb4RmPXgzloiE3PUOLzQlnaQOV38kmzg==
+From:   Paulo Alcantara <pc@cjr.nz>
+To:     gregkh@linuxfoundation.org, aaptel@suse.com, lsahlber@redhat.com,
+        stable@vger.kernel.org, stfrench@microsoft.com
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] cifs: do not send close in compound
+ create+close requests" failed to apply to 5.10-stable tree
+In-Reply-To: <1615543505112255@kroah.com>
+References: <1615543505112255@kroah.com>
+Date:   Fri, 12 Mar 2021 20:35:52 -0300
+Message-ID: <87tupglzc7.fsf@cjr.nz>
 MIME-Version: 1.0
-In-Reply-To: <40f06036-c6de-706b-30a0-e20de0c6ff57@gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-=-="
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/11/21 9:41 AM, Florian Fainelli wrote:
-> On 3/11/21 9:40 AM, Greg KH wrote:
->> On Thu, Mar 11, 2021 at 09:23:56AM -0800, Florian Fainelli wrote:
->>> On 3/11/21 5:08 AM, Greg KH wrote:
->>>> On Wed, Mar 10, 2021 at 08:19:45PM -0800, Florian Fainelli wrote:
->>>>> +Alex,
->>>>>
->>>>> On 3/10/2021 5:24 AM, gregkh@linuxfoundation.org wrote:
->>>>>> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>>>>
->>>>>> This is the start of the stable review cycle for the 5.4.105 release.
->>>>>> There are 24 patches in this series, all will be posted as a response
->>>>>> to this one.  If anyone has any issues with these being applied, please
->>>>>> let me know.
->>>>>>
->>>>>> Responses should be made by Fri, 12 Mar 2021 13:23:09 +0000.
->>>>>> Anything received after that time might be too late.
->>>>>>
->>>>>> The whole patch series can be found in one patch at:
->>>>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.105-rc1.gz
->>>>>> or in the git tree and branch at:
->>>>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
->>>>>> and the diffstat can be found below.
->>>>>>
->>>>>> thanks,
->>>>>>
->>>>>> greg k-h
->>>>>
->>>>> I believe you need to drop "net: dsa: add GRO support via gro_cells" as
->>>>> it causes the following kernel panic on a DSA-enabled platform:
->>>>>
->>>>> Configuring rgmii_2 interface
->>>>> [   10.170527] brcm-sf2 f0b00000.ethernet_switch rgmii_2: configuring
->>>>> for fixed/rgmii-txid link mode
->>>>> [   10.179597] 8021q: adding VLAN 0 to HW filter on device rgmii_2
->>>>> [   10.185608] brcm-sf2 f0b00000.ethernet_switch rgmii_2: Link is Up -
->>>>> 1Gbps/Full - flow control off
->>>>> [   10.198631] IPv6: ADDRCONF(NETDEV_CHANGE): rgmii_2: link becomes ready
->>>>> Configuring sit0 interface
->>>>> [   10.254346] 8<--- cut here ---
->>>>> [   10.257438] Unable to handle kernel paging request at virtual address
->>>>> d6df6190
->>>>> [   10.264685] pgd = (ptrval)
->>>>> [   10.267411] [d6df6190] *pgd=80000000007003, *pmd=00000000
->>>>> [   10.272846] Internal error: Oops: 206 [#1] SMP ARM
->>>>> [   10.277661] Modules linked in:
->>>>> [   10.280739] CPU: 0 PID: 1886 Comm: sed Not tainted
->>>>> 5.4.105-1.0pre-geff642e2af2b #4
->>>>> [   10.288337] Hardware name: Broadcom STB (Flattened Device Tree)
->>>>> [   10.294292] PC is at gro_cells_receive+0x90/0x11c
->>>>> [   10.299020] LR is at dsa_switch_rcv+0x120/0x1d4
->>>>> [   10.303562] pc : [<c0a57a28>]    lr : [<c0b4a65c>]    psr: 600f0113
->>>>> [   10.309841] sp : c1d33cd0  ip : 000003e8  fp : c1d33ce4
->>>>> [   10.315078] r10: c8901000  r9 : c8901000  r8 : c0b4a53c
->>>>> [   10.320314] r7 : c2208920  r6 : 00000000  r5 : 00000000  r4 : 00004000
->>>>> [   10.326855] r3 : d6df6188  r2 : c4927000  r1 : c8adc300  r0 : c22069dc
->>>>> [   10.333398] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM
->>>>> Segment user
->>>>> [   10.340547] Control: 30c5387d  Table: 04ac4c80  DAC: fffffffd
->>>>> [   10.346307] Process sed (pid: 1886, stack limit = 0x(ptrval))
->>>>> [   10.352066] Stack: (0xc1d33cd0 to 0xc1d34000)
->>>>> [   10.356434] 3cc0:                                     c8adc300
->>>>> c4927000 c1d33d04 c1d33ce8
->>>>> [   10.364631] 3ce0: c0b4a65c c0a579a4 c1d33d24 c2208920 c1d33d24
->>>>> 00000000 c1d33d5c c1d33d08
->>>>> [   10.372827] 3d00: c0a0b38c c0b4a548 c021e070 c2204cc8 00000000
->>>>> c89015c0 04b87700 c89015c0
->>>>> [   10.381023] 3d20: c2208920 c1d33d24 c1d33d24 00976ec2 04b87700
->>>>> c8adc300 c89015c0 00000000
->>>>> [   10.389218] 3d40: c1d33d74 c1d32000 00000000 c230742c c1d33dac
->>>>> c1d33d60 c0a0b5c0 c0a0b180
->>>>> [   10.397414] 3d60: 00000000 c2204cc8 00000000 c1d33d6c c1d33d6c
->>>>> c1d33d80 c029daf8 00976ec2
->>>>> [   10.405610] 3d80: 00000800 c8901540 c89015c0 c8901540 00000000
->>>>> 00000001 0000016c 00000162
->>>>> [   10.413805] 3da0: c1d33dc4 c1d33db0 c0a0b7fc c0a0b3b8 00000000
->>>>> c8adc300 c1d33dfc c1d33dc8
->>>>> [   10.422001] 3dc0: c0a0c660 c0a0b7e4 c8901540 c8adc300 c1d33dfc
->>>>> c1d33de0 c8901540 c8adc300
->>>>> [   10.430196] 3de0: 0000015e c8901000 00000001 0000016c c1d33e74
->>>>> c1d33e00 c083df00 c0a0c4fc
->>>>> [   10.438391] 3e00: 0000012c c22b0f14 c1d33e4c c1d33e18 c0fbd9b8
->>>>> c0fbd9cc c0fbd9e0 c0fbd98c
->>>>> [   10.446586] 3e20: 00000001 00000040 c8901500 00000001 00000000
->>>>> 00000000 00000000 00000000
->>>>> [   10.454780] 3e40: 00000000 00000000 c02f65a0 c8901540 00000001
->>>>> 00000040 c22b07e4 0000012c
->>>>> [   10.462975] 3e60: d1003000 fffb942f c1d33edc c1d33e78 c0a0c94c
->>>>> c083dafc d051ad80 c2204cc8
->>>>> [   10.471170] 3e80: c2204cf0 c1d32000 c22b40b0 0e4a4000 c2076d80
->>>>> c2203d00 c022bc70 c1d33e9c
->>>>> [   10.479365] 3ea0: c1d33e9c c1d33ea4 c1d33ea4 00976ec2 c02f65a0
->>>>> c220308c 00000003 c1d32000
->>>>> [   10.487561] 3ec0: c22b07e4 00000100 d1003000 00000008 c1d33f44
->>>>> c1d33ee0 c020238c c0a0c6cc
->>>>> [   10.495755] 3ee0: c1d33f14 c1d33ef0 00000001 00400000 c2203d00
->>>>> fffb942f c206b2e4 c2076040
->>>>> [   10.503950] 3f00: c2076040 0000000a c2203080 c206b358 c1d33ee0
->>>>> 00000004 c90c9500 ffffe000
->>>>> [   10.512145] 3f20: 00000000 00000000 00000001 c9019000 d1003000
->>>>> 00000000 c1d33f5c c1d33f48
->>>>> [   10.520339] 3f40: c022bc70 c0202264 c2075fbc 00000000 c1d33f84
->>>>> c1d33f60 c027feb4 c022bb88
->>>>> [   10.528535] 3f60: c226d668 c220565c d100200c c1d33fb0 d1002000
->>>>> d1003000 c1d33fac c1d33f88
->>>>> [   10.536730] 3f80: c0202214 c027fe50 b6f1e0b6 000f0030 ffffffff
->>>>> 30c5387d 30c5387d 00000000
->>>>> [   10.544924] 3fa0: 00000000 c1d33fb0 c0201d8c c02021c4 b6ec1778
->>>>> b6f32094 62632e73 62740000
->>>>> [   10.553120] 3fc0: 00172e73 00001700 b6f3293c 00000001 00000001
->>>>> 00000000 00000000 00000006
->>>>> [   10.561316] 3fe0: ffffffff bef37ac8 b6f18151 b6f1e0b6 000f0030
->>>>> ffffffff 00000000 00000000
->>>>> [   10.569508] Backtrace:
->>>>> [   10.571970] [<c0a57998>] (gro_cells_receive) from [<c0b4a65c>]
->>>>> (dsa_switch_rcv+0x120/0x1d4)
->>>>> [   10.580338]  r5:c4927000 r4:c8adc300
->>>>> [   10.583929] [<c0b4a53c>] (dsa_switch_rcv) from [<c0a0b38c>]
->>>>> (__netif_receive_skb_list_core+0x218/0x238)
->>>>> [   10.593343]  r7:00000000 r6:c1d33d24 r5:c2208920 r4:c1d33d24
->>>>> [   10.599017] [<c0a0b174>] (__netif_receive_skb_list_core) from
->>>>> [<c0a0b5c0>] (netif_receive_skb_list_internal+0x214/0x2dc)
->>>>> [   10.609909]  r10:c230742c r9:00000000 r8:c1d32000 r7:c1d33d74
->>>>> r6:00000000 r5:c89015c0
->>>>> [   10.617755]  r4:c8adc300
->>>>> [   10.620300] [<c0a0b3ac>] (netif_receive_skb_list_internal) from
->>>>> [<c0a0b7fc>] (gro_normal_list.part.42+0x24/0x38)
->>>>> [   10.630496]  r10:00000162 r9:0000016c r8:00000001 r7:00000000
->>>>> r6:c8901540 r5:c89015c0
->>>>> [   10.638342]  r4:c8901540
->>>>> [   10.640885] [<c0a0b7d8>] (gro_normal_list.part.42) from [<c0a0c660>]
->>>>> (napi_complete_done+0x170/0x1d0)
->>>>> [   10.650123]  r5:c8adc300 r4:00000000
->>>>> [   10.653712] [<c0a0c4f0>] (napi_complete_done) from [<c083df00>]
->>>>> (bcm_sysport_poll+0x410/0x4b4)
->>>>> [   10.662343]  r9:0000016c r8:00000001 r7:c8901000 r6:0000015e
->>>>> r5:c8adc300 r4:c8901540
->>>>> [   10.670104] [<c083daf0>] (bcm_sysport_poll) from [<c0a0c94c>]
->>>>> (net_rx_action+0x28c/0x44c)
->>>>> [   10.678301]  r10:fffb942f r9:d1003000 r8:0000012c r7:c22b07e4
->>>>> r6:00000040 r5:00000001
->>>>> [   10.686146]  r4:c8901540
->>>>> [   10.688693] [<c0a0c6c0>] (net_rx_action) from [<c020238c>]
->>>>> (__do_softirq+0x134/0x414)
->>>>> [   10.696542]  r10:00000008 r9:d1003000 r8:00000100 r7:c22b07e4
->>>>> r6:c1d32000 r5:00000003
->>>>> [   10.704387]  r4:c220308c
->>>>> [   10.706931] [<c0202258>] (__do_softirq) from [<c022bc70>]
->>>>> (irq_exit+0xf4/0x100)
->>>>> [   10.714257]  r10:00000000 r9:d1003000 r8:c9019000 r7:00000001
->>>>> r6:00000000 r5:00000000
->>>>> [   10.722104]  r4:ffffe000
->>>>> [   10.724650] [<c022bb7c>] (irq_exit) from [<c027feb4>]
->>>>> (__handle_domain_irq+0x70/0xc4)
->>>>> [   10.732497]  r5:00000000 r4:c2075fbc
->>>>> [   10.736083] [<c027fe44>] (__handle_domain_irq) from [<c0202214>]
->>>>> (gic_handle_irq+0x5c/0xa0)
->>>>> [   10.744453]  r9:d1003000 r8:d1002000 r7:c1d33fb0 r6:d100200c
->>>>> r5:c220565c r4:c226d668
->>>>> [   10.752215] [<c02021b8>] (gic_handle_irq) from [<c0201d8c>]
->>>>> (__irq_usr+0x4c/0x60)
->>>>> [   10.759713] Exception stack(0xc1d33fb0 to 0xc1d33ff8)
->>>>> [   10.764776] 3fa0:                                     b6ec1778
->>>>> b6f32094 62632e73 62740000
->>>>> [   10.772973] 3fc0: 00172e73 00001700 b6f3293c 00000001 00000001
->>>>> 00000000 00000000 00000006
->>>>> [   10.781167] 3fe0: ffffffff bef37ac8 b6f18151 b6f1e0b6 000f0030 ffffffff
->>>>> [   10.787797]  r9:00000000 r8:30c5387d r7:30c5387d r6:ffffffff
->>>>> r5:000f0030 r4:b6f1e0b6
->>>>> [   10.795559] Code: e30609dc e34c0220 e083300c e590c000 (e5930008)
->>>>> [   10.801670] ---[ end trace 97c3942fa73eff4c ]---
->>>>> [   10.806300] Kernel panic - not syncing: Fatal exception in interrupt
->>>>> [   10.812678] CPU2: stopping
->>>>> [   10.815403] CPU: 2 PID: 0 Comm: swapper/2 Tainted: G      D
->>>>>  5.4.105-1.0pre-geff642e2af2b #4
->>>>> [   10.824641] Hardware name: Broadcom STB (Flattened Device Tree)
->>>>> [   10.830573] Backtrace:
->>>>> [   10.833036] [<c020dd30>] (dump_backtrace) from [<c020e04c>]
->>>>> (show_stack+0x20/0x24)
->>>>> [   10.840624]  r7:c22a86d0 r6:00000000 r5:600c0193 r4:c22a86d0
->>>>> [   10.846302] [<c020e02c>] (show_stack) from [<c0c09924>]
->>>>> (dump_stack+0xb8/0xe4)
->>>>> [   10.853546] [<c0c0986c>] (dump_stack) from [<c0212160>]
->>>>> (handle_IPI+0x344/0x3cc)
->>>>> [   10.860960]  r10:00000000 r9:c2205400 r8:00000000 r7:00000002
->>>>> r6:c22b0744 r5:00000004
->>>>> [   10.868807]  r4:c22ce308 r3:00976ec2
->>>>> [   10.872395] [<c0211e1c>] (handle_IPI) from [<c0202254>]
->>>>> (gic_handle_irq+0x9c/0xa0)
->>>>> [   10.879983]  r10:00000000 r9:d1003000 r8:d1002000 r7:c9131f18
->>>>> r6:d100200c r5:c220565c
->>>>> [   10.887829]  r4:c226d668
->>>>> [   10.890373] [<c02021b8>] (gic_handle_irq) from [<c0201a3c>]
->>>>> (__irq_svc+0x5c/0x7c)
->>>>> [   10.897871] Exception stack(0xc9131f18 to 0xc9131f60)
->>>>> [   10.902934] 1f00:
->>>>>    c020a47c 00000000
->>>>> [   10.911131] 1f20: 0e4ca000 600c0093 c9130000 c2204cf0 c2204d34
->>>>> 00000004 00000000 c20757b0
->>>>> [   10.919327] 1f40: 00000000 c9131f74 c9130000 c9131f68 00000000
->>>>> c020a480 600c0013 ffffffff
->>>>> [   10.927523]  r9:c9130000 r8:00000000 r7:c9131f4c r6:ffffffff
->>>>> r5:600c0013 r4:c020a480
->>>>> [   10.935291] [<c020a44c>] (arch_cpu_idle) from [<c0c1316c>]
->>>>> (default_idle_call+0x34/0x48)
->>>>> [   10.943403] [<c0c13138>] (default_idle_call) from [<c02580c0>]
->>>>> (do_idle+0x1d4/0x2c0)
->>>>> [   10.951164] [<c0257eec>] (do_idle) from [<c0258494>]
->>>>> (cpu_startup_entry+0x28/0x2c)
->>>>> [   10.958752]  r10:00000000 r9:420f00f3 r8:00007000 r7:c22ce318
->>>>> r6:30c0387d r5:00000002
->>>>> [   10.966598]  r4:0000008a
->>>>> [   10.969142] [<c025846c>] (cpu_startup_entry) from [<c0211644>]
->>>>> (secondary_start_kernel+0x17c/0x1a0)
->>>>> [   10.978210] [<c02114c8>] (secondary_start_kernel) from [<0020270c>]
->>>>> (0x20270c)
->>>>> [   10.985447]  r5:00000000 r4:090eaa40
->>>>> [   10.989032] CPU3: stopping
->>>>> [   10.991754] CPU: 3 PID: 0 Comm: swapper/3 Tainted: G      D
->>>>>  5.4.105-1.0pre-geff642e2af2b #4
->>>>> [   11.000992] Hardware name: Broadcom STB (Flattened Device Tree)
->>>>> [   11.006924] Backtrace:
->>>>> [   11.009384] [<c020dd30>] (dump_backtrace) from [<c020e04c>]
->>>>> (show_stack+0x20/0x24)
->>>>> [   11.016972]  r7:c22a86d0 r6:00000000 r5:600f0193 r4:c22a86d0
->>>>> [   11.022649] [<c020e02c>] (show_stack) from [<c0c09924>]
->>>>> (dump_stack+0xb8/0xe4)
->>>>> [   11.029892] [<c0c0986c>] (dump_stack) from [<c0212160>]
->>>>> (handle_IPI+0x344/0x3cc)
->>>>> [   11.037307]  r10:00000000 r9:c2205400 r8:00000000 r7:00000003
->>>>> r6:c22b0744 r5:00000004
->>>>> [   11.045154]  r4:c22ce308 r3:00976ec2
->>>>> [   11.048741] [<c0211e1c>] (handle_IPI) from [<c0202254>]
->>>>> (gic_handle_irq+0x9c/0xa0)
->>>>> [   11.056329]  r10:00000000 r9:d1003000 r8:d1002000 r7:c9133f18
->>>>> r6:d100200c r5:c220565c
->>>>> [   11.064176]  r4:c226d668
->>>>> [   11.066719] [<c02021b8>] (gic_handle_irq) from [<c0201a3c>]
->>>>> (__irq_svc+0x5c/0x7c)
->>>>> [   11.074216] Exception stack(0xc9133f18 to 0xc9133f60)
->>>>> [   11.079280] 3f00:
->>>>>    c020a47c 00000000
->>>>> [   11.087476] 3f20: 0e4dd000 600f0093 c9132000 c2204cf0 c2204d34
->>>>> 00000008 00000000 c20757b0
->>>>> [   11.095671] 3f40: 00000000 c9133f74 c9132000 c9133f68 00000000
->>>>> c020a480 600f0013 ffffffff
->>>>> [   11.103867]  r9:c9132000 r8:00000000 r7:c9133f4c r6:ffffffff
->>>>> r5:600f0013 r4:c020a480
->>>>> [   11.111633] [<c020a44c>] (arch_cpu_idle) from [<c0c1316c>]
->>>>> (default_idle_call+0x34/0x48)
->>>>> [   11.119744] [<c0c13138>] (default_idle_call) from [<c02580c0>]
->>>>> (do_idle+0x1d4/0x2c0)
->>>>> [   11.127506] [<c0257eec>] (do_idle) from [<c0258494>]
->>>>> (cpu_startup_entry+0x28/0x2c)
->>>>> [   11.135093]  r10:00000000 r9:420f00f3 r8:00007000 r7:c22ce318
->>>>> r6:30c0387d r5:00000003
->>>>> [   11.142939]  r4:0000008a
->>>>> [   11.145484] [<c025846c>] (cpu_startup_entry) from [<c0211644>]
->>>>> (secondary_start_kernel+0x17c/0x1a0)
->>>>> [   11.154550] [<c02114c8>] (secondary_start_kernel) from [<0020270c>]
->>>>> (0x20270c)
->>>>> [   11.161788]  r5:00000000 r4:090eaa40
->>>>> [   11.165372] CPU1: stopping
->>>>> [   11.168094] CPU: 1 PID: 0 Comm: swapper/1 Tainted: G      D
->>>>>  5.4.105-1.0pre-geff642e2af2b #4
->>>>> [   11.177332] Hardware name: Broadcom STB (Flattened Device Tree)
->>>>> [   11.183264] Backtrace:
->>>>> [   11.185723] [<c020dd30>] (dump_backtrace) from [<c020e04c>]
->>>>> (show_stack+0x20/0x24)
->>>>> [   11.193311]  r7:c22a86d0 r6:00000000 r5:600c0193 r4:c22a86d0
->>>>> [   11.198988] [<c020e02c>] (show_stack) from [<c0c09924>]
->>>>> (dump_stack+0xb8/0xe4)
->>>>> [   11.206230] [<c0c0986c>] (dump_stack) from [<c0212160>]
->>>>> (handle_IPI+0x344/0x3cc)
->>>>> [   11.213644]  r10:00000000 r9:c2205400 r8:00000000 r7:00000001
->>>>> r6:c22b0744 r5:00000004
->>>>> [   11.221491]  r4:c22ce308 r3:00976ec2
->>>>> [   11.225078] [<c0211e1c>] (handle_IPI) from [<c0202254>]
->>>>> (gic_handle_irq+0x9c/0xa0)
->>>>> [   11.232666]  r10:00000000 r9:d1003000 r8:d1002000 r7:c912ff18
->>>>> r6:d100200c r5:c220565c
->>>>> [   11.240512]  r4:c226d668
->>>>> [   11.243054] [<c02021b8>] (gic_handle_irq) from [<c0201a3c>]
->>>>> (__irq_svc+0x5c/0x7c)
->>>>> [   11.250553] Exception stack(0xc912ff18 to 0xc912ff60)
->>>>> [   11.255617] ff00:
->>>>>    c020a47c 00000000
->>>>> [   11.263814] ff20: 0e4b7000 600c0093 c912e000 c2204cf0 c2204d34
->>>>> 00000002 00000000 c20757b0
->>>>> [   11.272010] ff40: 00000000 c912ff74 c912e000 c912ff68 00000000
->>>>> c020a480 600c0013 ffffffff
->>>>> [   11.280206]  r9:c912e000 r8:00000000 r7:c912ff4c r6:ffffffff
->>>>> r5:600c0013 r4:c020a480
->>>>> [   11.287970] [<c020a44c>] (arch_cpu_idle) from [<c0c1316c>]
->>>>> (default_idle_call+0x34/0x48)
->>>>> [   11.296081] [<c0c13138>] (default_idle_call) from [<c02580c0>]
->>>>> (do_idle+0x1d4/0x2c0)
->>>>> [   11.303842] [<c0257eec>] (do_idle) from [<c0258494>]
->>>>> (cpu_startup_entry+0x28/0x2c)
->>>>> [   11.311430]  r10:00000000 r9:420f00f3 r8:00007000 r7:c22ce318
->>>>> r6:30c0387d r5:00000001
->>>>> [   11.319275]  r4:0000008a
->>>>> [   11.321819] [<c025846c>] (cpu_startup_entry) from [<c0211644>]
->>>>> (secondary_start_kernel+0x17c/0x1a0)
->>>>> [   11.330886] [<c02114c8>] (secondary_start_kernel) from [<0020270c>]
->>>>> (0x20270c)
->>>>> [   11.338124]  r5:00000000 r4:090eaa40
->>>>> [   11.341729] ---[ end Kernel panic - not syncing: Fatal exception in
->>>>> interrupt ]---
->>>>>
->>>>> it is not marked as fixing anything so I wonder how it landed in stable?
->>>>
->>>> It was requested to be merged.
->>>
->>> OK.
->>>
->>>> Do you have the same crash on newer kernels with this commit in it (like Linus's tree?)
->>>
->>> There are no crashes with 5.10 or upstream otherwise it would have been
->>> noticed earlier, I have not kept track of which additional changes/fixes
->>> we may need but I would suggest we drop this one for now.
->>>
->>> Alexander, do you want me to test additional patches if your change
->>> somehow must be included in an upcoming 5.4? I thought the platform you
->>> are working is still not upstream, so who is going to benefit from this
->>> performance improvement?
->>
->> Is 4.19 also failing for you now?
-> 
-> I cannot easily test 4.19 without applying some additional patches
-> bringing in various ARM SCMI changes, I would suspect the same to
-> happen. Give me a few hours and I will see if I can give you a better
-> answer with an actual test.
+--=-=-=
+Content-Type: text/plain
 
-I have not been able to reproduce this failure since merging the
-official v5.4.105 tag (more on that below), and 4.19 did not seem to
-trigger the problem either after applying the necessary patches to bring
-up the Ethernet PHY, switch and controller's clocks.
+Hi Greg,
 
-So maybe this was just a fluke, I know our CPU frequency scaling driver
-may be too aggressive and the boards may suffer from power distribution
-problems leading to crashes, although I have never seen anything like
-that before, and the call trace was pretty obvious as to what had
-changed compared to v5.4.104 which had no such issues.
+<gregkh@linuxfoundation.org> writes:
 
-So I guess we are good, until we are not. It concerns me however that
-this (latent at the time) issue was reported at Wed, 10 Mar 2021
-20:19:48 -0800 which is well before the deadline of Fri, 12 Mar 2021
-13:23:09 +0000, and yet, the v5.4.105 was announced on Thu, 11 Mar 2021
-05:33:31 -0800 (PST) and it went through with that patch nonetheless.
--- 
-Florian
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+
+I've attached the backport of
+
+        04ad69c342fc ("cifs: do not send close in compound create+close requests")
+
+for 5.10+ stable trees.
+
+--=-=-=
+Content-Type: text/x-patch; charset=utf-8
+Content-Disposition: inline;
+ filename=0001-cifs-do-not-send-close-in-compound-create-close-requ.patch
+Content-Transfer-Encoding: quoted-printable
+
+From 04ad69c342fc4de5bd23be9ef15ea7574fb1a87e Mon Sep 17 00:00:00 2001
+From: Paulo Alcantara <pc@cjr.nz>
+Date: Mon, 8 Mar 2021 12:00:50 -0300
+Subject: [PATCH] cifs: do not send close in compound create+close requests
+
+In case of interrupted syscalls, prevent sending CLOSE commands for
+compound CREATE+CLOSE requests by introducing an
+CIFS_CP_CREATE_CLOSE_OP flag to indicate lower layers that it should
+not send a CLOSE command to the MIDs corresponding the compound
+CREATE+CLOSE request.
+
+A simple reproducer:
+
+    #!/bin/bash
+
+    mount //server/share /mnt -o username=3Dfoo,password=3D***
+    tc qdisc add dev eth0 root netem delay 450ms
+    stat -f /mnt &>/dev/null & pid=3D$!
+    sleep 0.01
+    kill $pid
+    tc qdisc del dev eth0 root
+    umount /mnt
+
+Before patch:
+
+    ...
+    6 0.256893470 192.168.122.2 =E2=86=92 192.168.122.15 SMB2 402 Create Re=
+quest File: ;GetInfo Request FS_INFO/FileFsFullSizeInformation;Close Request
+    7 0.257144491 192.168.122.15 =E2=86=92 192.168.122.2 SMB2 498 Create Re=
+sponse File: ;GetInfo Response;Close Response
+    9 0.260798209 192.168.122.2 =E2=86=92 192.168.122.15 SMB2 146 Close Req=
+uest File:
+   10 0.260841089 192.168.122.15 =E2=86=92 192.168.122.2 SMB2 130 Close Res=
+ponse, Error: STATUS_FILE_CLOSED
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+---
+ fs/cifs/cifsglob.h  |   11 ++++++-----
+ fs/cifs/smb2inode.c |    1 +
+ fs/cifs/smb2misc.c  |    8 ++++----
+ fs/cifs/smb2ops.c   |   10 +++++-----
+ fs/cifs/smb2proto.h |    3 +--
+ fs/cifs/transport.c |    2 +-
+ 6 files changed, 18 insertions(+), 17 deletions(-)
+
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -256,7 +256,7 @@ struct smb_version_operations {
+ 	/* verify the message */
+ 	int (*check_message)(char *, unsigned int, struct TCP_Server_Info *);
+ 	bool (*is_oplock_break)(char *, struct TCP_Server_Info *);
+-	int (*handle_cancelled_mid)(char *, struct TCP_Server_Info *);
++	int (*handle_cancelled_mid)(struct mid_q_entry *, struct TCP_Server_Info =
+*);
+ 	void (*downgrade_oplock)(struct TCP_Server_Info *server,
+ 				 struct cifsInodeInfo *cinode, __u32 oplock,
+ 				 unsigned int epoch, bool *purge_cache);
+@@ -1701,10 +1701,11 @@ static inline bool is_retryable_error(in
+ #define   CIFS_NO_RSP_BUF   0x040    /* no response buffer required */
+=20
+ /* Type of request operation */
+-#define   CIFS_ECHO_OP      0x080    /* echo request */
+-#define   CIFS_OBREAK_OP   0x0100    /* oplock break request */
+-#define   CIFS_NEG_OP      0x0200    /* negotiate request */
+-#define   CIFS_OP_MASK     0x0380    /* mask request type */
++#define   CIFS_ECHO_OP            0x080  /* echo request */
++#define   CIFS_OBREAK_OP          0x0100 /* oplock break request */
++#define   CIFS_NEG_OP             0x0200 /* negotiate request */
++#define   CIFS_CP_CREATE_CLOSE_OP 0x0400 /* compound create+close request =
+*/
++#define   CIFS_OP_MASK            0x0780 /* mask request type */
+=20
+ #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
+ #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending=
+ */
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -358,6 +358,7 @@ smb2_compound_op(const unsigned int xid,
+ 	if (cfile)
+ 		goto after_close;
+ 	/* Close */
++	flags |=3D CIFS_CP_CREATE_CLOSE_OP;
+ 	rqst[num_rqst].rq_iov =3D &vars->close_iov[0];
+ 	rqst[num_rqst].rq_nvec =3D 1;
+ 	rc =3D SMB2_close_init(tcon, server,
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -844,14 +844,14 @@ smb2_handle_cancelled_close(struct cifs_
+ }
+=20
+ int
+-smb2_handle_cancelled_mid(char *buffer, struct TCP_Server_Info *server)
++smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_Server_Info =
+*server)
+ {
+-	struct smb2_sync_hdr *sync_hdr =3D (struct smb2_sync_hdr *)buffer;
+-	struct smb2_create_rsp *rsp =3D (struct smb2_create_rsp *)buffer;
++	struct smb2_sync_hdr *sync_hdr =3D mid->resp_buf;
++	struct smb2_create_rsp *rsp =3D mid->resp_buf;
+ 	struct cifs_tcon *tcon;
+ 	int rc;
+=20
+-	if (sync_hdr->Command !=3D SMB2_CREATE ||
++	if ((mid->optype & CIFS_CP_CREATE_CLOSE_OP) || sync_hdr->Command !=3D SMB=
+2_CREATE ||
+ 	    sync_hdr->Status !=3D STATUS_SUCCESS)
+ 		return 0;
+=20
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1164,7 +1164,7 @@ smb2_set_ea(const unsigned int xid, stru
+ 	struct TCP_Server_Info *server =3D cifs_pick_channel(ses);
+ 	__le16 *utf16_path =3D NULL;
+ 	int ea_name_len =3D strlen(ea_name);
+-	int flags =3D 0;
++	int flags =3D CIFS_CP_CREATE_CLOSE_OP;
+ 	int len;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+@@ -1542,7 +1542,7 @@ smb2_ioctl_query_info(const unsigned int
+ 	struct smb_query_info qi;
+ 	struct smb_query_info __user *pqi;
+ 	int rc =3D 0;
+-	int flags =3D 0;
++	int flags =3D CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb2_query_info_rsp *qi_rsp =3D NULL;
+ 	struct smb2_ioctl_rsp *io_rsp =3D NULL;
+ 	void *buffer =3D NULL;
+@@ -2516,7 +2516,7 @@ smb2_query_info_compound(const unsigned
+ {
+ 	struct cifs_ses *ses =3D tcon->ses;
+ 	struct TCP_Server_Info *server =3D cifs_pick_channel(ses);
+-	int flags =3D 0;
++	int flags =3D CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -2914,7 +2914,7 @@ smb2_query_symlink(const unsigned int xi
+ 	unsigned int sub_offset;
+ 	unsigned int print_len;
+ 	unsigned int print_offset;
+-	int flags =3D 0;
++	int flags =3D CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -3096,7 +3096,7 @@ smb2_query_reparse_tag(const unsigned in
+ 	struct cifs_open_parms oparms;
+ 	struct cifs_fid fid;
+ 	struct TCP_Server_Info *server =3D cifs_pick_channel(tcon->ses);
+-	int flags =3D 0;
++	int flags =3D CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+--- a/fs/cifs/smb2proto.h
++++ b/fs/cifs/smb2proto.h
+@@ -246,8 +246,7 @@ extern int SMB2_oplock_break(const unsig
+ extern int smb2_handle_cancelled_close(struct cifs_tcon *tcon,
+ 				       __u64 persistent_fid,
+ 				       __u64 volatile_fid);
+-extern int smb2_handle_cancelled_mid(char *buffer,
+-					struct TCP_Server_Info *server);
++extern int smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_S=
+erver_Info *server);
+ void smb2_cancelled_close_fid(struct work_struct *work);
+ extern int SMB2_QFS_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 			 u64 persistent_file_id, u64 volatile_file_id,
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -101,7 +101,7 @@ static void _cifs_mid_q_entry_release(st
+ 	if (midEntry->resp_buf && (midEntry->mid_flags & MID_WAIT_CANCELLED) &&
+ 	    midEntry->mid_state =3D=3D MID_RESPONSE_RECEIVED &&
+ 	    server->ops->handle_cancelled_mid)
+-		server->ops->handle_cancelled_mid(midEntry->resp_buf, server);
++		server->ops->handle_cancelled_mid(midEntry, server);
+=20
+ 	midEntry->mid_state =3D MID_FREE;
+ 	atomic_dec(&midCount);
+
+--=-=-=--
