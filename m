@@ -2,195 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E08338C76
-	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 13:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC426338C7A
+	for <lists+stable@lfdr.de>; Fri, 12 Mar 2021 13:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbhCLMNq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 12 Mar 2021 07:13:46 -0500
-Received: from mga07.intel.com ([134.134.136.100]:40630 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229587AbhCLMNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 12 Mar 2021 07:13:16 -0500
-IronPort-SDR: VWytZ2uPNNA+frpgbWDdanrfEQQaKJDfic7vFV8tHMHONMuBNWk5CNb8PJsRukuMVGoZXF6346
- qFH4j37vlYpQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9920"; a="252839172"
-X-IronPort-AV: E=Sophos;i="5.81,243,1610438400"; 
-   d="scan'208";a="252839172"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 04:13:16 -0800
-IronPort-SDR: fMXmGWDBo03364/pqBx/I45clYaW/5ClTjqJRgJRF+vhKW49sRZldgfT/B59+Mz2dqgRR0qiAZ
- C5MWBsChknbg==
-X-IronPort-AV: E=Sophos;i="5.81,243,1610438400"; 
-   d="scan'208";a="370883459"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2021 04:13:14 -0800
-Received: from andy by smile with local (Exim 4.94)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1lKgfI-00BqTO-98; Fri, 12 Mar 2021 14:13:12 +0200
-Date:   Fri, 12 Mar 2021 14:13:12 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     gregkh@linuxfoundation.org
-Cc:     linus.walleij@linaro.org, mika.westerberg@linux.intel.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] gpio: pca953x: Set IRQ type when handle
- Intel Galileo Gen 2" failed to apply to 5.10-stable tree
-Message-ID: <YEta2IUohT5m28Oi@smile.fi.intel.com>
-References: <161548729112453@kroah.com>
+        id S229587AbhCLMPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 12 Mar 2021 07:15:22 -0500
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:44607 "EHLO
+        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229799AbhCLMO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 12 Mar 2021 07:14:59 -0500
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 7C95C1942C67;
+        Fri, 12 Mar 2021 07:14:58 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Fri, 12 Mar 2021 07:14:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=CyWs50
+        o+cmdOC3UWKN4JLvFsm32hvRIPpHEMPRs9VjI=; b=DUcC6HYuuGIv6ds+NzIl0v
+        FbcRCbnQrP5XEdUUx7A7T5POYfh0Aw2BpHkK6fzelpelFuw/vUmxSM3E7lIna661
+        JuRx1u4630iR3cGx2oGlkX4b43ku+M5//tMVcUGSUQFlnwu2WW6TFOE0z/sc8dRU
+        yctlHCY8AKytUHSJuX1aHNtL7XpMsa/CP5V8kDeNvjLdnmcH3LhxNay9Fm/64tf6
+        +jRph/kcfbSpwOEApm4zNRcZpkSj4lVudbl+/+iYp70xFr7snXiA30tJKE/xDYzm
+        gLyF8leO9PglroBX94UpJ+6hVX16p3zUyIvQhmbghzzkx1fynFqQ1lz4aHdqBCRA
+        ==
+X-ME-Sender: <xms:QVtLYN01vyfTUW8YKFwUKsA61isRpiJAJHN1dJJhT3KG0B7-fNHqDQ>
+    <xme:QVtLYED-_2xciJGp7PpPaJL4ApYa4mVcwj1t27fMKf7UzR_at70owCcZ1Wo9nIMXW
+    Mmn7hwCz5QkYQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvvddgfeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucgfrhhlucfvnfffucdljedmnecujfgurhepuffvhf
+    ffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhho
+    uhhnuggrthhiohhnrdhorhhgqeenucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvd
+    eiieehheefleevveehjeduteevueevledujeejgfetheenucfkphepkeefrdekiedrjeeg
+    rdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:QVtLYKy2kesadJWkKjLB3bzQ_nPEPKQCgIuyx47bD2of3iUUTnrR-g>
+    <xmx:QVtLYCk8ZIf5q40ah4fyzRea-o5ksMVg9jHHTw1AB9XoyNZRF-01WA>
+    <xmx:QVtLYPF8hcZJMV7cNHnIpwA6k1K276srWBaB4I_IgzvawisNKe_ROQ>
+    <xmx:QltLYBDEIJswIavvxcw8DMu1pLWvRzNuk87s9OcvpgkV7J8LJP3obA>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 336C324005A;
+        Fri, 12 Mar 2021 07:14:57 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net: enetc: initialize RFS/RSS memories for unused ports too" failed to apply to 5.4-stable tree
+To:     vladimir.oltean@nxp.com, davem@davemloft.net,
+        jesse.brandeburg@intel.com, michael@walle.cc
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 12 Mar 2021 13:14:54 +0100
+Message-ID: <161555129492228@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <161548729112453@kroah.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Mar 11, 2021 at 07:28:11PM +0100, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 5.10-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
 
-This is strange. I have just cherry-picked it clean on top of v5.10.23.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> ------------------ original commit in Linus's tree ------------------
-> 
-> From eb441337c7147514ab45036cadf09c3a71e4ce31 Mon Sep 17 00:00:00 2001
-> From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Date: Thu, 25 Feb 2021 18:33:20 +0200
-> Subject: [PATCH] gpio: pca953x: Set IRQ type when handle Intel Galileo Gen 2
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> 
-> The commit 0ea683931adb ("gpio: dwapb: Convert driver to using the
-> GPIO-lib-based IRQ-chip") indeliberately made a regression on how
-> IRQ line from GPIO I²C expander is handled. I.e. it reveals that
-> the quirk for Intel Galileo Gen 2 misses the part of setting IRQ type
-> which previously was predefined by gpio-dwapb driver. Now, we have to
-> reorganize the approach to call necessary parts, which can be done via
-> ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER quirk.
-> 
-> Without this fix and with above mentioned change the kernel hangs
-> on the first IRQ event with:
-> 
->     gpio gpiochip3: Persistence not supported for GPIO 1
->     irq 32, desc: 62f8fb50, depth: 0, count: 0, unhandled: 0
->     ->handle_irq():  41c7b0ab, handle_bad_irq+0x0/0x40
->     ->irq_data.chip(): e03f1e72, 0xc2539218
->     ->action(): 0ecc7e6f
->     ->action->handler(): 8a3db21e, irq_default_primary_handler+0x0/0x10
->        IRQ_NOPROBE set
->     unexpected IRQ trap at vector 20
-> 
-> Fixes: ba8c90c61847 ("gpio: pca953x: Override IRQ for one of the expanders on Galileo Gen 2")
-> Depends-on: 0ea683931adb ("gpio: dwapb: Convert driver to using the GPIO-lib-based IRQ-chip")
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> 
-> diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-> index 5ea09fd01544..c91d05651596 100644
-> --- a/drivers/gpio/gpio-pca953x.c
-> +++ b/drivers/gpio/gpio-pca953x.c
-> @@ -113,8 +113,29 @@ MODULE_DEVICE_TABLE(i2c, pca953x_id);
->  #ifdef CONFIG_GPIO_PCA953X_IRQ
->  
->  #include <linux/dmi.h>
-> -#include <linux/gpio.h>
-> -#include <linux/list.h>
-> +
-> +static const struct acpi_gpio_params pca953x_irq_gpios = { 0, 0, true };
-> +
-> +static const struct acpi_gpio_mapping pca953x_acpi_irq_gpios[] = {
-> +	{ "irq-gpios", &pca953x_irq_gpios, 1, ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER },
-> +	{ }
-> +};
-> +
-> +static int pca953x_acpi_get_irq(struct device *dev)
-> +{
-> +	int ret;
-> +
-> +	ret = devm_acpi_dev_add_driver_gpios(dev, pca953x_acpi_irq_gpios);
-> +	if (ret)
-> +		dev_warn(dev, "can't add GPIO ACPI mapping\n");
-> +
-> +	ret = acpi_dev_gpio_irq_get_by(ACPI_COMPANION(dev), "irq-gpios", 0);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	dev_info(dev, "ACPI interrupt quirk (IRQ %d)\n", ret);
-> +	return ret;
-> +}
->  
->  static const struct dmi_system_id pca953x_dmi_acpi_irq_info[] = {
->  	{
-> @@ -133,59 +154,6 @@ static const struct dmi_system_id pca953x_dmi_acpi_irq_info[] = {
->  	},
->  	{}
->  };
-> -
-> -#ifdef CONFIG_ACPI
-> -static int pca953x_acpi_get_pin(struct acpi_resource *ares, void *data)
-> -{
-> -	struct acpi_resource_gpio *agpio;
-> -	int *pin = data;
-> -
-> -	if (acpi_gpio_get_irq_resource(ares, &agpio))
-> -		*pin = agpio->pin_table[0];
-> -	return 1;
-> -}
-> -
-> -static int pca953x_acpi_find_pin(struct device *dev)
-> -{
-> -	struct acpi_device *adev = ACPI_COMPANION(dev);
-> -	int pin = -ENOENT, ret;
-> -	LIST_HEAD(r);
-> -
-> -	ret = acpi_dev_get_resources(adev, &r, pca953x_acpi_get_pin, &pin);
-> -	acpi_dev_free_resource_list(&r);
-> -	if (ret < 0)
-> -		return ret;
-> -
-> -	return pin;
-> -}
-> -#else
-> -static inline int pca953x_acpi_find_pin(struct device *dev) { return -ENXIO; }
-> -#endif
-> -
-> -static int pca953x_acpi_get_irq(struct device *dev)
-> -{
-> -	int pin, ret;
-> -
-> -	pin = pca953x_acpi_find_pin(dev);
-> -	if (pin < 0)
-> -		return pin;
-> -
-> -	dev_info(dev, "Applying ACPI interrupt quirk (GPIO %d)\n", pin);
-> -
-> -	if (!gpio_is_valid(pin))
-> -		return -EINVAL;
-> -
-> -	ret = gpio_request(pin, "pca953x interrupt");
-> -	if (ret)
-> -		return ret;
-> -
-> -	ret = gpio_to_irq(pin);
-> -
-> -	/* When pin is used as an IRQ, no need to keep it requested */
-> -	gpio_free(pin);
-> -
-> -	return ret;
-> -}
->  #endif
->  
->  static const struct acpi_device_id pca953x_acpi_ids[] = {
-> 
+thanks,
 
--- 
-With Best Regards,
-Andy Shevchenko
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
+
+From 3222b5b613db558e9a494bbf53f3c984d90f71ea Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Mon, 1 Mar 2021 13:18:12 +0200
+Subject: [PATCH] net: enetc: initialize RFS/RSS memories for unused ports too
+
+Michael reports that since linux-next-20210211, the AER messages for ECC
+errors have started reappearing, and this time they can be reliably
+reproduced with the first ping on one of his LS1028A boards.
+
+$ ping 1[   33.258069] pcieport 0000:00:1f.0: AER: Multiple Corrected error received: 0000:00:00.0
+72.16.0.1
+PING [   33.267050] pcieport 0000:00:1f.0: AER: can't find device of ID0000
+172.16.0.1 (172.16.0.1): 56 data bytes
+64 bytes from 172.16.0.1: seq=0 ttl=64 time=17.124 ms
+64 bytes from 172.16.0.1: seq=1 ttl=64 time=0.273 ms
+
+$ devmem 0x1f8010e10 32
+0xC0000006
+
+It isn't clear why this is necessary, but it seems that for the errors
+to go away, we must clear the entire RFS and RSS memory, not just for
+the ports in use.
+
+Sadly the code is structured in such a way that we can't have unified
+logic for the used and unused ports. For the minimal initialization of
+an unused port, we need just to enable and ioremap the PF memory space,
+and a control buffer descriptor ring. Unused ports must then free the
+CBDR because the driver will exit, but used ports can not pick up from
+where that code path left, since the CBDR API does not reinitialize a
+ring when setting it up, so its producer and consumer indices are out of
+sync between the software and hardware state. So a separate
+enetc_init_unused_port function was created, and it gets called right
+after the PF memory space is enabled.
+
+Fixes: 07bf34a50e32 ("net: enetc: initialize the RFS and RSS memories")
+Reported-by: Michael Walle <michael@walle.cc>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Michael Walle <michael@walle.cc>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index fdb6b9e8da78..eb45830a1667 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -984,7 +984,7 @@ static void enetc_free_rxtx_rings(struct enetc_ndev_priv *priv)
+ 		enetc_free_tx_ring(priv->tx_ring[i]);
+ }
+ 
+-static int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
++int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ {
+ 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
+ 
+@@ -1005,7 +1005,7 @@ static int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ 	return 0;
+ }
+ 
+-static void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
++void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ {
+ 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
+ 
+@@ -1013,7 +1013,7 @@ static void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ 	cbdr->bd_base = NULL;
+ }
+ 
+-static void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
++void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
+ {
+ 	/* set CBDR cache attributes */
+ 	enetc_wr(hw, ENETC_SICAR2,
+@@ -1033,7 +1033,7 @@ static void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
+ 	cbdr->cir = hw->reg + ENETC_SICBDRCIR;
+ }
+ 
+-static void enetc_clear_cbdr(struct enetc_hw *hw)
++void enetc_clear_cbdr(struct enetc_hw *hw)
+ {
+ 	enetc_wr(hw, ENETC_SICBDRMR, 0);
+ }
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
+index f8275cef3b5c..8b380fc13314 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc.h
+@@ -310,6 +310,10 @@ int enetc_setup_tc(struct net_device *ndev, enum tc_setup_type type,
+ void enetc_set_ethtool_ops(struct net_device *ndev);
+ 
+ /* control buffer descriptor ring (CBDR) */
++int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
++void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
++void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr);
++void enetc_clear_cbdr(struct enetc_hw *hw);
+ int enetc_set_mac_flt_entry(struct enetc_si *si, int index,
+ 			    char *mac_addr, int si_map);
+ int enetc_clear_mac_flt_entry(struct enetc_si *si, int index);
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
+index d02ecb2e46ae..62ba4bf56f0d 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
+@@ -1041,6 +1041,26 @@ static int enetc_init_port_rss_memory(struct enetc_si *si)
+ 	return err;
+ }
+ 
++static void enetc_init_unused_port(struct enetc_si *si)
++{
++	struct device *dev = &si->pdev->dev;
++	struct enetc_hw *hw = &si->hw;
++	int err;
++
++	si->cbd_ring.bd_count = ENETC_CBDR_DEFAULT_SIZE;
++	err = enetc_alloc_cbdr(dev, &si->cbd_ring);
++	if (err)
++		return;
++
++	enetc_setup_cbdr(hw, &si->cbd_ring);
++
++	enetc_init_port_rfs_memory(si);
++	enetc_init_port_rss_memory(si);
++
++	enetc_clear_cbdr(hw);
++	enetc_free_cbdr(dev, &si->cbd_ring);
++}
++
+ static int enetc_pf_probe(struct pci_dev *pdev,
+ 			  const struct pci_device_id *ent)
+ {
+@@ -1051,11 +1071,6 @@ static int enetc_pf_probe(struct pci_dev *pdev,
+ 	struct enetc_pf *pf;
+ 	int err;
+ 
+-	if (node && !of_device_is_available(node)) {
+-		dev_info(&pdev->dev, "device is disabled, skipping\n");
+-		return -ENODEV;
+-	}
+-
+ 	err = enetc_pci_probe(pdev, KBUILD_MODNAME, sizeof(*pf));
+ 	if (err) {
+ 		dev_err(&pdev->dev, "PCI probing failed\n");
+@@ -1069,6 +1084,13 @@ static int enetc_pf_probe(struct pci_dev *pdev,
+ 		goto err_map_pf_space;
+ 	}
+ 
++	if (node && !of_device_is_available(node)) {
++		enetc_init_unused_port(si);
++		dev_info(&pdev->dev, "device is disabled, skipping\n");
++		err = -ENODEV;
++		goto err_device_disabled;
++	}
++
+ 	pf = enetc_si_priv(si);
+ 	pf->si = si;
+ 	pf->total_vfs = pci_sriov_get_totalvfs(pdev);
+@@ -1151,6 +1173,7 @@ static int enetc_pf_probe(struct pci_dev *pdev,
+ 	si->ndev = NULL;
+ 	free_netdev(ndev);
+ err_alloc_netdev:
++err_device_disabled:
+ err_map_pf_space:
+ 	enetc_pci_remove(pdev);
+ 
 
