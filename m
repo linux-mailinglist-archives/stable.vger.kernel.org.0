@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 573E9339E34
-	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E659339E3B
+	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232999AbhCMNZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 08:25:32 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:44023 "EHLO
+        id S231497AbhCMN3O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 08:29:14 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55959 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233188AbhCMNZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:25:19 -0500
+        by vger.kernel.org with ESMTP id S232904AbhCMN2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:28:52 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BA1B31941DB7;
-        Sat, 13 Mar 2021 08:25:18 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:25:18 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id CC7411941DAD;
+        Sat, 13 Mar 2021 08:28:51 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:28:51 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=o5R3V+
-        4/VypcOzEjwhyPhY0FpAvqLb5mcNcUrfY1z5A=; b=PUhA+Uvm9izxJGeL2zLdGI
-        GjxnE5TdpXiaoDMtJlZeg888DgobzArwnjAIg6ed+JZA0Ip3+Vzd0bb3JEGUxxN5
-        nZ9FhYQFZetM/XdwBHiG0uKtzNKsxOKZMhChq569NtrBDirRwDdh7AAJkUNHpsTd
-        HlnBRT0h/MlbvHtR26HMbJ3RQQl1yH9HBii12PW0+CI+0eYLF7x6Kiwp0EDmyT1a
-        XqiUe2LdqBAZgPD+za+ewwSyNxjrOqn9GEmhpnrJyAN3FKpPmzEAb61E+56pzFXB
-        rPep7o1YEo9x4tm9zarmOyebYgUj1noEpUbTbZWaJzSYH75dzDu6FqDE58zVoiSg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+1CcMT
+        3nGyguAYRqZPL13xknY3YKXqNFJZ5QKig5xbw=; b=hHNRBYCakUF06t2E8bNsWq
+        El2Se3Z2xv8Xizs6l4IUsFU6464bmzkI34DfpMpGF0F/e8nFaaUT5dg+pFrocykH
+        YOoQqLmbp82EiaL7sDog8OV09sJ7XHBe4id+m9Foajb9mKPYBQYlQ3+Rfv+jyrA7
+        4ci5PcqmGvRYlPJYSDdDcWL0GD1FhWA7363+Aq/UPwa8NZWSWIpVfbKDcH0BWHTF
+        CNgAoyb3w9AKml5l56f7XMQsp0RMVJwqGnRJcHSKQZt124xpiPJ7OIX59BqfvFvr
+        ITgXpHRiuvY5K6fF6cjwJLkIA3X81kroPBi/CETL+nsjJXhTygbY8snb5fZ1DE+A
         ==
-X-ME-Sender: <xms:Pr1MYADD_HVzO3AIN3GKAfxa05_5aCGBGzQvC6jsYE3dT59w7rBSYQ>
-    <xme:Pr1MYCgjx19ML6JcSscWHU6Kjc88Glvl1cN8wLb2Sn_EX-Dmxa4zajRRvg6OCZCMB
-    E1rqbsNiU4HEA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedghedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:E75MYNi_sBalqVrghcfGZbJiZB84p4tj8k8D4nYCrJOQCupJqorwQA>
+    <xme:E75MYCDbs-hZTvAA7bOZD_t6dAWYErWBO3yzKtg6yqwGDf9zSlJrQOMGTt_BiXIvG
+    Np4RNgTeVU9qA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedgheduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Pr1MYDlAoMGkKTv0tB8uwQoE0Hsot2nFxePVZ6wYcohT86x3ScaVfw>
-    <xmx:Pr1MYGz6XVKGh_gWTScq8WH6FaCAuJCZHg7C_5ysEs7E-ninTyiTqQ>
-    <xmx:Pr1MYFRs1EC_jZFGDYHPyuFkO2VySxvxfRQnddCdgbGG-TYcVbKMZg>
-    <xmx:Pr1MYAcwmduwLrX4hKBZFmx85fu3V2J4_jK7lJTVqFH5et1WoG8gPA>
+X-ME-Proxy: <xmx:E75MYNFkU2Swb31sxVCHJ3DrpUI1jDu37HdwQHf06u_LzOpMVn89CQ>
+    <xmx:E75MYCQfpRezu20BDt9oKOjOfFP-G2ACg28Yl-a1IVmmdMurE7fLtg>
+    <xmx:E75MYKxevJTDGJaIGCcLV0FddrAcSJ8G8yPrtZCPU6naAHEsiL5kXA>
+    <xmx:E75MYO9825F4tj0IdrrkClGUp8XZn_bo_ASs5NxC0WYyIBqIxVl1dQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 64B4424005A;
-        Sat, 13 Mar 2021 08:25:18 -0500 (EST)
-Subject: FAILED: patch "[PATCH] block: Discard page cache of zone reset target range" failed to apply to 4.14-stable tree
-To:     shinichiro.kawasaki@wdc.com, axboe@kernel.dk, hch@lst.de,
-        johannes.thumshirn@wdc.com, stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 765111080057;
+        Sat, 13 Mar 2021 08:28:51 -0500 (EST)
+Subject: FAILED: patch "[PATCH] xen/events: don't unmask an event channel when an eoi is" failed to apply to 4.9-stable tree
+To:     jgross@suse.com, boris.ostrovsky@oracle.com, jgrall@amazon.com,
+        julien@xen.org, ross.lagerwall@citrix.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Mar 2021 14:25:07 +0100
-Message-ID: <1615641907171138@kroah.com>
+Date:   Sat, 13 Mar 2021 14:28:47 +0100
+Message-ID: <1615642127857@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,99 +71,331 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e5113505904ea1c1c0e1f92c1cfa91fbf4da1694 Mon Sep 17 00:00:00 2001
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Date: Thu, 11 Mar 2021 16:25:46 +0900
-Subject: [PATCH] block: Discard page cache of zone reset target range
+From 25da4618af240fbec6112401498301a6f2bc9702 Mon Sep 17 00:00:00 2001
+From: Juergen Gross <jgross@suse.com>
+Date: Sat, 6 Mar 2021 17:18:32 +0100
+Subject: [PATCH] xen/events: don't unmask an event channel when an eoi is
+ pending
 
-When zone reset ioctl and data read race for a same zone on zoned block
-devices, the data read leaves stale page cache even though the zone
-reset ioctl zero clears all the zone data on the device. To avoid
-non-zero data read from the stale page cache after zone reset, discard
-page cache of reset target zones in blkdev_zone_mgmt_ioctl(). Introduce
-the helper function blkdev_truncate_zone_range() to discard the page
-cache. Ensure the page cache discarded by calling the helper function
-before and after zone reset in same manner as fallocate does.
+An event channel should be kept masked when an eoi is pending for it.
+When being migrated to another cpu it might be unmasked, though.
 
-This patch can be applied back to the stable kernel version v5.10.y.
-Rework is needed for older stable kernels.
+In order to avoid this keep three different flags for each event channel
+to be able to distinguish "normal" masking/unmasking from eoi related
+masking/unmasking and temporary masking. The event channel should only
+be able to generate an interrupt if all flags are cleared.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
-Cc: <stable@vger.kernel.org> # 5.10+
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20210311072546.678999-1-shinichiro.kawasaki@wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Fixes: 54c9de89895e ("xen/events: add a new "late EOI" evtchn framework")
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Tested-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-3-jgross@suse.com
 
-diff --git a/block/blk-zoned.c b/block/blk-zoned.c
-index 8b9f3fc5a690..c0276b42d9fb 100644
---- a/block/blk-zoned.c
-+++ b/block/blk-zoned.c
-@@ -318,6 +318,22 @@ int blkdev_report_zones_ioctl(struct block_device *bdev, fmode_t mode,
- 	return 0;
+[boris -- corrected Fixed tag format]
+
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+
+diff --git a/drivers/xen/events/events_2l.c b/drivers/xen/events/events_2l.c
+index a7f413c5c190..b8f2f971c2f0 100644
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -77,12 +77,6 @@ static bool evtchn_2l_is_pending(evtchn_port_t port)
+ 	return sync_test_bit(port, BM(&s->evtchn_pending[0]));
  }
  
-+static int blkdev_truncate_zone_range(struct block_device *bdev, fmode_t mode,
-+				      const struct blk_zone_range *zrange)
+-static bool evtchn_2l_test_and_set_mask(evtchn_port_t port)
+-{
+-	struct shared_info *s = HYPERVISOR_shared_info;
+-	return sync_test_and_set_bit(port, BM(&s->evtchn_mask[0]));
+-}
+-
+ static void evtchn_2l_mask(evtchn_port_t port)
+ {
+ 	struct shared_info *s = HYPERVISOR_shared_info;
+@@ -376,7 +370,6 @@ static const struct evtchn_ops evtchn_ops_2l = {
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+ 	.is_pending        = evtchn_2l_is_pending,
+-	.test_and_set_mask = evtchn_2l_test_and_set_mask,
+ 	.mask              = evtchn_2l_mask,
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index 7e23808892a7..b27c012c86b5 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -98,13 +98,18 @@ struct irq_info {
+ 	short refcnt;
+ 	u8 spurious_cnt;
+ 	u8 is_accounted;
+-	enum xen_irq_type type; /* type */
++	short type;		/* type: IRQT_* */
++	u8 mask_reason;		/* Why is event channel masked */
++#define EVT_MASK_REASON_EXPLICIT	0x01
++#define EVT_MASK_REASON_TEMPORARY	0x02
++#define EVT_MASK_REASON_EOI_PENDING	0x04
+ 	unsigned irq;
+ 	evtchn_port_t evtchn;   /* event channel */
+ 	unsigned short cpu;     /* cpu bound */
+ 	unsigned short eoi_cpu; /* EOI must happen on this cpu-1 */
+ 	unsigned int irq_epoch; /* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;           /* Time in jiffies when to EOI. */
++	spinlock_t lock;
+ 
+ 	union {
+ 		unsigned short virq;
+@@ -154,6 +159,7 @@ static DEFINE_RWLOCK(evtchn_rwlock);
+  *   evtchn_rwlock
+  *     IRQ-desc lock
+  *       percpu eoi_list_lock
++ *         irq_info->lock
+  */
+ 
+ static LIST_HEAD(xen_irq_list_head);
+@@ -304,6 +310,8 @@ static int xen_irq_info_common_setup(struct irq_info *info,
+ 	info->irq = irq;
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
++	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
++	spin_lock_init(&info->lock);
+ 
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -459,6 +467,34 @@ unsigned int cpu_from_evtchn(evtchn_port_t evtchn)
+ 	return ret;
+ }
+ 
++static void do_mask(struct irq_info *info, u8 reason)
 +{
-+	loff_t start, end;
++	unsigned long flags;
 +
-+	if (zrange->sector + zrange->nr_sectors <= zrange->sector ||
-+	    zrange->sector + zrange->nr_sectors > get_capacity(bdev->bd_disk))
-+		/* Out of range */
-+		return -EINVAL;
++	spin_lock_irqsave(&info->lock, flags);
 +
-+	start = zrange->sector << SECTOR_SHIFT;
-+	end = ((zrange->sector + zrange->nr_sectors) << SECTOR_SHIFT) - 1;
++	if (!info->mask_reason)
++		mask_evtchn(info->evtchn);
 +
-+	return truncate_bdev_range(bdev, mode, start, end);
++	info->mask_reason |= reason;
++
++	spin_unlock_irqrestore(&info->lock, flags);
 +}
 +
- /*
-  * BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE and BLKFINISHZONE ioctl processing.
-  * Called from blkdev_ioctl.
-@@ -329,6 +345,7 @@ int blkdev_zone_mgmt_ioctl(struct block_device *bdev, fmode_t mode,
- 	struct request_queue *q;
- 	struct blk_zone_range zrange;
- 	enum req_opf op;
-+	int ret;
- 
- 	if (!argp)
- 		return -EINVAL;
-@@ -352,6 +369,11 @@ int blkdev_zone_mgmt_ioctl(struct block_device *bdev, fmode_t mode,
- 	switch (cmd) {
- 	case BLKRESETZONE:
- 		op = REQ_OP_ZONE_RESET;
++static void do_unmask(struct irq_info *info, u8 reason)
++{
++	unsigned long flags;
 +
-+		/* Invalidate the page cache, including dirty pages. */
-+		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
-+		if (ret)
-+			return ret;
- 		break;
- 	case BLKOPENZONE:
- 		op = REQ_OP_ZONE_OPEN;
-@@ -366,8 +388,20 @@ int blkdev_zone_mgmt_ioctl(struct block_device *bdev, fmode_t mode,
- 		return -ENOTTY;
++	spin_lock_irqsave(&info->lock, flags);
++
++	info->mask_reason &= ~reason;
++
++	if (!info->mask_reason)
++		unmask_evtchn(info->evtchn);
++
++	spin_unlock_irqrestore(&info->lock, flags);
++}
++
+ #ifdef CONFIG_X86
+ static bool pirq_check_eoi_map(unsigned irq)
+ {
+@@ -605,7 +641,7 @@ static void xen_irq_lateeoi_locked(struct irq_info *info, bool spurious)
  	}
  
--	return blkdev_zone_mgmt(bdev, op, zrange.sector, zrange.nr_sectors,
--				GFP_KERNEL);
-+	ret = blkdev_zone_mgmt(bdev, op, zrange.sector, zrange.nr_sectors,
-+			       GFP_KERNEL);
-+
-+	/*
-+	 * Invalidate the page cache again for zone reset: writes can only be
-+	 * direct for zoned devices so concurrent writes would not add any page
-+	 * to the page cache after/during reset. The page cache may be filled
-+	 * again due to concurrent reads though and dropping the pages for
-+	 * these is fine.
-+	 */
-+	if (!ret && cmd == BLKRESETZONE)
-+		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
-+
-+	return ret;
+ 	info->eoi_time = 0;
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
  }
  
- static inline unsigned long *blk_alloc_zone_bitmap(int node,
+ static void xen_irq_lateeoi_worker(struct work_struct *work)
+@@ -850,7 +886,8 @@ static unsigned int __startup_pirq(unsigned int irq)
+ 		goto err;
+ 
+ out:
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EXPLICIT);
++
+ 	eoi_pirq(irq_get_irq_data(irq));
+ 
+ 	return 0;
+@@ -877,7 +914,7 @@ static void shutdown_pirq(struct irq_data *data)
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return;
+ 
+-	mask_evtchn(evtchn);
++	do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ 	xen_evtchn_close(evtchn);
+ 	xen_irq_info_cleanup(info);
+ }
+@@ -1721,10 +1758,10 @@ void rebind_evtchn_irq(evtchn_port_t evtchn, int irq)
+ }
+ 
+ /* Rebind an evtchn so that it gets delivered to a specific cpu */
+-static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
++static int xen_rebind_evtchn_to_cpu(struct irq_info *info, unsigned int tcpu)
+ {
+ 	struct evtchn_bind_vcpu bind_vcpu;
+-	int masked;
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return -1;
+@@ -1740,7 +1777,7 @@ static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
+ 	 * Mask the event while changing the VCPU binding to prevent
+ 	 * it being delivered on an unexpected VCPU.
+ 	 */
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	/*
+ 	 * If this fails, it usually just indicates that we're dealing with a
+@@ -1750,8 +1787,7 @@ static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
+ 	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
+ 		bind_evtchn_to_cpu(evtchn, tcpu, false);
+ 
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 0;
+ }
+@@ -1790,7 +1826,7 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 	unsigned int tcpu = select_target_cpu(dest);
+ 	int ret;
+ 
+-	ret = xen_rebind_evtchn_to_cpu(evtchn_from_irq(data->irq), tcpu);
++	ret = xen_rebind_evtchn_to_cpu(info_for_irq(data->irq), tcpu);
+ 	if (!ret)
+ 		irq_data_update_effective_affinity(data, cpumask_of(tcpu));
+ 
+@@ -1799,18 +1835,20 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 
+ static void enable_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void disable_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		mask_evtchn(evtchn);
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void ack_dynirq(struct irq_data *data)
+@@ -1829,18 +1867,39 @@ static void mask_ack_dynirq(struct irq_data *data)
+ 	ack_dynirq(data);
+ }
+ 
++static void lateeoi_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++		clear_evtchn(evtchn);
++	}
++}
++
++static void lateeoi_mask_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
++		clear_evtchn(evtchn);
++	}
++}
++
+ static int retrigger_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
+-	int masked;
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return 0;
+ 
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 	set_evtchn(evtchn);
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 1;
+ }
+@@ -2054,8 +2113,8 @@ static struct irq_chip xen_lateeoi_chip __read_mostly = {
+ 	.irq_mask		= disable_dynirq,
+ 	.irq_unmask		= enable_dynirq,
+ 
+-	.irq_ack		= mask_ack_dynirq,
+-	.irq_mask_ack		= mask_ack_dynirq,
++	.irq_ack		= lateeoi_ack_dynirq,
++	.irq_mask_ack		= lateeoi_mask_ack_dynirq,
+ 
+ 	.irq_set_affinity	= set_affinity_irq,
+ 	.irq_retrigger		= retrigger_dynirq,
+diff --git a/drivers/xen/events/events_fifo.c b/drivers/xen/events/events_fifo.c
+index b234f1766810..ad9fe51d3fb3 100644
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -209,12 +209,6 @@ static bool evtchn_fifo_is_pending(evtchn_port_t port)
+ 	return sync_test_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
+ }
+ 
+-static bool evtchn_fifo_test_and_set_mask(evtchn_port_t port)
+-{
+-	event_word_t *word = event_word_from_port(port);
+-	return sync_test_and_set_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
+-}
+-
+ static void evtchn_fifo_mask(evtchn_port_t port)
+ {
+ 	event_word_t *word = event_word_from_port(port);
+@@ -423,7 +417,6 @@ static const struct evtchn_ops evtchn_ops_fifo = {
+ 	.clear_pending     = evtchn_fifo_clear_pending,
+ 	.set_pending       = evtchn_fifo_set_pending,
+ 	.is_pending        = evtchn_fifo_is_pending,
+-	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
+ 	.mask              = evtchn_fifo_mask,
+ 	.unmask            = evtchn_fifo_unmask,
+ 	.handle_events     = evtchn_fifo_handle_events,
+diff --git a/drivers/xen/events/events_internal.h b/drivers/xen/events/events_internal.h
+index 18a4090d0709..4d3398eff9cd 100644
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -21,7 +21,6 @@ struct evtchn_ops {
+ 	void (*clear_pending)(evtchn_port_t port);
+ 	void (*set_pending)(evtchn_port_t port);
+ 	bool (*is_pending)(evtchn_port_t port);
+-	bool (*test_and_set_mask)(evtchn_port_t port);
+ 	void (*mask)(evtchn_port_t port);
+ 	void (*unmask)(evtchn_port_t port);
+ 
+@@ -84,11 +83,6 @@ static inline bool test_evtchn(evtchn_port_t port)
+ 	return evtchn_ops->is_pending(port);
+ }
+ 
+-static inline bool test_and_set_mask(evtchn_port_t port)
+-{
+-	return evtchn_ops->test_and_set_mask(port);
+-}
+-
+ static inline void mask_evtchn(evtchn_port_t port)
+ {
+ 	return evtchn_ops->mask(port);
 
