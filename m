@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD24339E3F
-	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:29:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD97339E3E
+	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233530AbhCMN3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 08:29:15 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:56147 "EHLO
+        id S233594AbhCMN3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 08:29:16 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:33871 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233594AbhCMN3K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:29:10 -0500
+        by vger.kernel.org with ESMTP id S233605AbhCMN3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:29:12 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 1F7CD1941E36;
-        Sat, 13 Mar 2021 08:29:10 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:29:10 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1760C1941DF3;
+        Sat, 13 Mar 2021 08:29:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:29:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=XD45sO
-        tSt6r0VBVFwLCHCuKmn3lqjxydzyLJCwyQ7mI=; b=QKndHJym5mAyxbCysHX5PC
-        sVFX9mjHH+cZz9P8IIKxG+08VN+7MMXcLSWRaYgLTXbvGDlgJ6tuXDxVEcBP8t70
-        knpIErL/6+l8dHgtwQUJwzgMYm37yockcomh1Vcjb4ecRPcBydtYCrKCrV8cixtB
-        9qA/a0n6qZMt1yIDoslvsHmJ1nMCjiX/Q3NDxhx37ASuSgmVEDAuCak03q6B+JDU
-        WbmRzCFil1WRTYymbmTlms+qbzF+BaezcU171br97qimDPq1xjBD5rGe6DucDRBG
-        rOq9t9r91gdHQOnWcqQTBIDPT5KVFLvYdTNMGgFUAgfRiNYVc9QsKTQq5Amp9j1g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kcQIlD
+        PlouAn2wVSyQ3sx6GhSfDSVgp9fIBoGAQCjC4=; b=M0cxLMqZwJqUTauA9u1mct
+        3sldtG7VS4E5TN/yAHvYeTIwi2H25qzELAZi3OkvWgFnEd6R7jCasn8BTt9603/+
+        T249o3dchRwGSUlPCtgmWQqdTRtRwYldUsWiYjfHgpa9bQtcoc2c/aHw4Noa84E6
+        W03QFEC95GGG8z03fCjCviJpY136vLLt8J5jwQpTEdJ7z1CZ62jZBTFW+xnCFccS
+        Ek20rg+bffn/k6lj9ZfGqzk5K9C+LR86OPnqhh1CNaURvCc+pVPdEQoPbfNLiQMy
+        QN8/sbIArhQmO6u2mbsrCcuGoa4LixGpKMYRnYAK9VU2mHBIifErZB0mFG/09bHg
         ==
-X-ME-Sender: <xms:Jr5MYH3owCuPwlvAh-mzidQyFihQYbeMetNvaqvdCHtLkmJ4iec5DQ>
-    <xme:Jr5MYGFnNfMIHI9VEAIk6rqXVbQT2XtT3nMdeJsGtwq1BKURLrOIUJyyfeMrCkUIF
-    2UhZuZN0GrkoA>
+X-ME-Sender: <xms:J75MYPqOfDaO_M3BSpHgve4gjCJmzWlvtpgSva_X_DDGEKnzv51BaA>
+    <xme:J75MYJqY6_3xiXH-6Yv4TGAu1H9IoItwBeX7PZeKhgZvLWU3jNyZh-9H5yYbviGQ7
+    ieMdjTrd_qSVA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedgheduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedgheduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeehnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:Jr5MYH6CauuPCmJbGjDwnE4M1F7EHz8sk0UMftN5ArQcnQ-3e1XYkg>
-    <xmx:Jr5MYM0vosKvrvaMhkPRjamdymsDDyZbO4-UwBFbA9uT-Rtpl1L1Xw>
-    <xmx:Jr5MYKFMQKkJakK9p0Fsttk83CLASfY-iiU7nyOChs8-yqo6jzSmsg>
-    <xmx:Jr5MYPTs8Y9qH3Ofhj_Y-PAeXPlSw5UGw17eQaiH150xJ0ViFaHNlQ>
+X-ME-Proxy: <xmx:J75MYMOtwvlNEwkgyYzBgo8LcttfCVsrPNQIXZ0HEfURqosb6HMyKQ>
+    <xmx:J75MYC6aqM4o6msr9u5WGZl77AE88wtlMEszU-bd8weI3NERW58MGg>
+    <xmx:J75MYO69-rrXY5Ankhihdg8OxCoAEwcSNYuR9H44SlpxstUVeRQFvg>
+    <xmx:KL5MYOFaeth06VsXM5upQGw4TWuySUMAPw3rB6BCXfiA19gU6e521A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C1996240057;
-        Sat, 13 Mar 2021 08:29:09 -0500 (EST)
-Subject: FAILED: patch "[PATCH] xen/events: avoid handling the same event on two cpus at the" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9D8E01080057;
+        Sat, 13 Mar 2021 08:29:11 -0500 (EST)
+Subject: FAILED: patch "[PATCH] xen/events: avoid handling the same event on two cpus at the" failed to apply to 4.9-stable tree
 To:     jgross@suse.com, boris.ostrovsky@oracle.com, jgrall@amazon.com,
         julien@xen.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 13 Mar 2021 14:29:08 +0100
-Message-ID: <1615642148182206@kroah.com>
+Message-ID: <161564214859235@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
