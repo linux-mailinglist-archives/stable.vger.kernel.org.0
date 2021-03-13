@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1478339E2B
-	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:24:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 669A2339E2D
+	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:25:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbhCMNXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 08:23:42 -0500
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:45041 "EHLO
+        id S233590AbhCMNYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 08:24:50 -0500
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55457 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233645AbhCMNXc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:23:32 -0500
+        by vger.kernel.org with ESMTP id S230441AbhCMNYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:24:25 -0500
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id DDD3A1941D0F;
-        Sat, 13 Mar 2021 08:23:31 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:23:31 -0500
+        by mailforward.nyi.internal (Postfix) with ESMTP id 4ACC31941D31;
+        Sat, 13 Mar 2021 08:24:24 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:24:24 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=L0MwYV
-        jgtpRkyl9Yx7Iyp5FIp53mYOxzIerjtjxolbE=; b=VNQu1TQInV7RKqDgi4q6D4
-        SDRlaBGqOJXJ3riAiex9Y4vC3i6r1/OElaPqrZOfJSHbbnSgz6/J0vsH1SLo6nDH
-        i3jUW0tiJHypjScHWm0yTZZbvZqw4sEztWh3BIloZ/TV37v8bJVNESVfbwzKjemg
-        DaRPbUbcs+oTNrA672q8O5C4WmlNOqKYW/3/u4rPwzARBu9leJHsdnL9QzKook00
-        9iBhpdxSuTo16b8/dQEZBpOUnWYuayQmeC1kaOcQs9kO5//yzP+qUAOFOf5v91jO
-        xumf8aRdEV6kTZ/TOu0076olyuBGxNEH88I3eKPTzeBbbiQLPW2k7vVOChphlkUQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=243q77
+        udbfzixhf0RT5lSZ61An6zcCAC2QWDPup1E7k=; b=ddu59u0lnob4n2MEGCBP2D
+        gif3U/2rFTf6E47whhP9Uad1k32CvspDqf/tcY7tLEfO41wU8g2i8TmLAuiUyoeb
+        q707TNHvb5CzsTRIDNGsz6imokJmRifn2M8GBuaB24pJhnlw4Xz8JYKlotltA8ZH
+        sFNHrN6dex/xY6iSEa3mUDZkN/F4WUijRKjvz4wBMa5DP/1hof2Tq+IjW/bBFFbo
+        v6usvrrrFz0xlu/K2PKfcxtG/2LTvOgnTCVa6SgZmNt9Of211ZDecRf/vQB0t0hx
+        Moq5AmS+CArNXutvqx7WeBqwzai42azqPu3eMBRZ/JUdQJiQfFPq/eigghrDl/Zw
         ==
-X-ME-Sender: <xms:07xMYEpvc6a8ow7KdP86uy4HrBQ1msQusVhnW7SG4j4La43n3Lgsqg>
-    <xme:07xMYKr6UKHD_ZiKlAe_psU9zlzCZK4IaGij6LDMPC8muW3WE7-Y0ytRyDGXRo7DG
-    gjUBtCW1zmMZA>
+X-ME-Sender: <xms:B71MYANM6ZlCqz-1sNTjlOSvkLvM3_ySETS-GZruH8_b2CyuQodXIw>
+    <xme:B71MYG8rWhfIwjgvueN4bqxefIYaCQAB3-HuNh7WmRILq-cxvCvbozJTz3cPCyqJF
+    H9mUmX8ps-9HQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedghedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepkeekuddtveevheejgefghfdvgfekgfegfeduudevtd
-    fggfdvvdethfekffdvveevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdplhhishht
-    rdhnvgigthenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpe
-    dunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:07xMYJPOx-g7hGGQ5vlGczuGrN0HwC-6w_KMPvr0GdRlN1NTzBt8WA>
-    <xmx:07xMYL5yEs9n3AQxCi0rmiwEpJ2c2Btdp2fk4jbS9GLbcuVXjU_A7g>
-    <xmx:07xMYD5TXYVytXXPh0PMggUZF4fr9WF5K3vq_-hErQaU3t2F--QxGQ>
-    <xmx:07xMYDFKfG7E07X7Pvssjgs2Z-Nfci3nQsbO-5s98-ozRhelPckDxg>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:B71MYHSQHjieniv6kepOCflgXAboBLANbWNk-j2dNM1E7wZIWJThWw>
+    <xmx:B71MYIsln2KHcIoelsyR8IugNM5UDgVmxSNyy9UkNSgld_0gbDDjxQ>
+    <xmx:B71MYIei5VvicYZvfSjQ0OBfN_PF5RJJWsu-oJUF284BC8Zba_DaZQ>
+    <xmx:CL1MYAnIuUyzFALY09QdatUNnS4DgzKq6MUeko9WTyzo7Q2lK6SjRQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8B8041080057;
-        Sat, 13 Mar 2021 08:23:31 -0500 (EST)
-Subject: FAILED: patch "[PATCH] io_uring: Convert personality_idr to XArray" failed to apply to 5.10-stable tree
-To:     willy@infradead.org, asml.silence@gmail.com, axboe@kernel.dk,
-        yangerkun@huawei.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 911CD24005A;
+        Sat, 13 Mar 2021 08:24:23 -0500 (EST)
+Subject: FAILED: patch "[PATCH] regulator: pca9450: Clear PRESET_EN bit to fix BUCK1/2/3" failed to apply to 5.11-stable tree
+To:     frieder.schrempf@kontron.de, broonie@kernel.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 13 Mar 2021 14:23:21 +0100
-Message-ID: <1615641801225144@kroah.com>
+Date:   Sat, 13 Mar 2021 14:24:22 +0100
+Message-ID: <1615641862226189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.11-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,157 +71,56 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 61cf93700fe6359552848ed5e3becba6cd760efa Mon Sep 17 00:00:00 2001
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Date: Mon, 8 Mar 2021 14:16:16 +0000
-Subject: [PATCH] io_uring: Convert personality_idr to XArray
+From 98b94b6e38ca0c4eeb29949c656f6a315000c23e Mon Sep 17 00:00:00 2001
+From: Frieder Schrempf <frieder.schrempf@kontron.de>
+Date: Mon, 22 Feb 2021 12:52:20 +0100
+Subject: [PATCH] regulator: pca9450: Clear PRESET_EN bit to fix BUCK1/2/3
+ voltage setting
 
-You can't call idr_remove() from within a idr_for_each() callback,
-but you can call xa_erase() from an xa_for_each() loop, so switch the
-entire personality_idr from the IDR to the XArray.  This manifests as a
-use-after-free as idr_for_each() attempts to walk the rest of the node
-after removing the last entry from it.
+The driver uses the DVS registers PCA9450_REG_BUCKxOUT_DVS0 to set the
+voltage for the buck regulators 1, 2 and 3. This has no effect as the
+PRESET_EN bit is set by default and therefore the preset values are used
+instead, which are set to 850 mV.
 
-Fixes: 071698e13ac6 ("io_uring: allow registering credentials")
-Cc: stable@vger.kernel.org # 5.6+
-Reported-by: yangerkun <yangerkun@huawei.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-[Pavel: rebased (creds load was moved into io_init_req())]
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/7ccff36e1375f2b0ebf73d957f037b43becc0dde.1615212806.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix this we clear the PRESET_EN bit at time of initialization.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3f6db813d670..84eb499368a4 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -406,7 +406,8 @@ struct io_ring_ctx {
- 
- 	struct idr		io_buffer_idr;
- 
--	struct idr		personality_idr;
-+	struct xarray		personalities;
-+	u32			pers_next;
- 
- 	struct {
- 		unsigned		cached_cq_tail;
-@@ -1137,7 +1138,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	init_completion(&ctx->ref_comp);
- 	init_completion(&ctx->sq_thread_comp);
- 	idr_init(&ctx->io_buffer_idr);
--	idr_init(&ctx->personality_idr);
-+	xa_init_flags(&ctx->personalities, XA_FLAGS_ALLOC1);
- 	mutex_init(&ctx->uring_lock);
- 	init_waitqueue_head(&ctx->wait);
- 	spin_lock_init(&ctx->completion_lock);
-@@ -6337,7 +6338,7 @@ static int io_init_req(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	req->work.list.next = NULL;
- 	personality = READ_ONCE(sqe->personality);
- 	if (personality) {
--		req->work.creds = idr_find(&ctx->personality_idr, personality);
-+		req->work.creds = xa_load(&ctx->personalities, personality);
- 		if (!req->work.creds)
- 			return -EINVAL;
- 		get_cred(req->work.creds);
-@@ -8355,7 +8356,6 @@ static void io_ring_ctx_free(struct io_ring_ctx *ctx)
- 	mutex_unlock(&ctx->uring_lock);
- 	io_eventfd_unregister(ctx);
- 	io_destroy_buffers(ctx);
--	idr_destroy(&ctx->personality_idr);
- 
- #if defined(CONFIG_UNIX)
- 	if (ctx->ring_sock) {
-@@ -8420,7 +8420,7 @@ static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
- {
- 	const struct cred *creds;
- 
--	creds = idr_remove(&ctx->personality_idr, id);
-+	creds = xa_erase(&ctx->personalities, id);
- 	if (creds) {
- 		put_cred(creds);
- 		return 0;
-@@ -8429,14 +8429,6 @@ static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
- 	return -EINVAL;
- }
- 
--static int io_remove_personalities(int id, void *p, void *data)
--{
--	struct io_ring_ctx *ctx = data;
--
--	io_unregister_personality(ctx, id);
--	return 0;
--}
--
- static bool io_run_ctx_fallback(struct io_ring_ctx *ctx)
- {
- 	struct callback_head *work, *next;
-@@ -8526,13 +8518,17 @@ static void io_ring_exit_work(struct work_struct *work)
- 
- static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- {
-+	unsigned long index;
-+	struct creds *creds;
-+
- 	mutex_lock(&ctx->uring_lock);
- 	percpu_ref_kill(&ctx->refs);
- 	/* if force is set, the ring is going away. always drop after that */
- 	ctx->cq_overflow_flushed = 1;
- 	if (ctx->rings)
- 		__io_cqring_overflow_flush(ctx, true, NULL, NULL);
--	idr_for_each(&ctx->personality_idr, io_remove_personalities, ctx);
-+	xa_for_each(&ctx->personalities, index, creds)
-+		io_unregister_personality(ctx, index);
- 	mutex_unlock(&ctx->uring_lock);
- 
- 	io_kill_timeouts(ctx, NULL, NULL);
-@@ -9162,10 +9158,9 @@ SYSCALL_DEFINE6(io_uring_enter, unsigned int, fd, u32, to_submit,
- }
- 
- #ifdef CONFIG_PROC_FS
--static int io_uring_show_cred(int id, void *p, void *data)
-+static int io_uring_show_cred(struct seq_file *m, unsigned int id,
-+		const struct cred *cred)
- {
--	const struct cred *cred = p;
--	struct seq_file *m = data;
- 	struct user_namespace *uns = seq_user_ns(m);
- 	struct group_info *gi;
- 	kernel_cap_t cap;
-@@ -9233,9 +9228,13 @@ static void __io_uring_show_fdinfo(struct io_ring_ctx *ctx, struct seq_file *m)
- 		seq_printf(m, "%5u: 0x%llx/%u\n", i, buf->ubuf,
- 						(unsigned int) buf->len);
+Fixes: 0935ff5f1f0a ("regulator: pca9450: add pca9450 pmic driver")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Link: https://lore.kernel.org/r/20210222115229.166620-1-frieder.schrempf@kontron.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+
+diff --git a/drivers/regulator/pca9450-regulator.c b/drivers/regulator/pca9450-regulator.c
+index 89b806be399f..2f7ee212cb8c 100644
+--- a/drivers/regulator/pca9450-regulator.c
++++ b/drivers/regulator/pca9450-regulator.c
+@@ -797,6 +797,14 @@ static int pca9450_i2c_probe(struct i2c_client *i2c,
+ 		return ret;
  	}
--	if (has_lock && !idr_is_empty(&ctx->personality_idr)) {
-+	if (has_lock && !xa_empty(&ctx->personalities)) {
-+		unsigned long index;
-+		const struct cred *cred;
+ 
++	/* Clear PRESET_EN bit in BUCK123_DVS to use DVS registers */
++	ret = regmap_clear_bits(pca9450->regmap, PCA9450_REG_BUCK123_DVS,
++				BUCK123_PRESET_EN);
++	if (ret) {
++		dev_err(&i2c->dev, "Failed to clear PRESET_EN bit: %d\n", ret);
++		return ret;
++	}
 +
- 		seq_printf(m, "Personalities:\n");
--		idr_for_each(&ctx->personality_idr, io_uring_show_cred, m);
-+		xa_for_each(&ctx->personalities, index, cred)
-+			io_uring_show_cred(m, index, cred);
- 	}
- 	seq_printf(m, "PollList:\n");
- 	spin_lock_irq(&ctx->completion_lock);
-@@ -9564,14 +9563,16 @@ static int io_probe(struct io_ring_ctx *ctx, void __user *arg, unsigned nr_args)
- static int io_register_personality(struct io_ring_ctx *ctx)
- {
- 	const struct cred *creds;
-+	u32 id;
- 	int ret;
+ 	/* Set reset behavior on assertion of WDOG_B signal */
+ 	ret = regmap_update_bits(pca9450->regmap, PCA9450_REG_RESET_CTRL,
+ 				WDOG_B_CFG_MASK, WDOG_B_CFG_COLD_LDO12);
+diff --git a/include/linux/regulator/pca9450.h b/include/linux/regulator/pca9450.h
+index ccdb5320a240..71902f41c919 100644
+--- a/include/linux/regulator/pca9450.h
++++ b/include/linux/regulator/pca9450.h
+@@ -147,6 +147,9 @@ enum {
+ #define BUCK6_FPWM			0x04
+ #define BUCK6_ENMODE_MASK		0x03
  
- 	creds = get_current_cred();
- 
--	ret = idr_alloc_cyclic(&ctx->personality_idr, (void *) creds, 1,
--				USHRT_MAX, GFP_KERNEL);
--	if (ret < 0)
--		put_cred(creds);
-+	ret = xa_alloc_cyclic(&ctx->personalities, &id, (void *)creds,
-+			XA_LIMIT(0, USHRT_MAX), &ctx->pers_next, GFP_KERNEL);
-+	if (!ret)
-+		return id;
-+	put_cred(creds);
- 	return ret;
- }
- 
++/* PCA9450_REG_BUCK123_PRESET_EN bit */
++#define BUCK123_PRESET_EN		0x80
++
+ /* PCA9450_BUCK1OUT_DVS0 bits */
+ #define BUCK1OUT_DVS0_MASK		0x7F
+ #define BUCK1OUT_DVS0_DEFAULT		0x14
 
