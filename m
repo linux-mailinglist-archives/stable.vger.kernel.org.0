@@ -2,84 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5670C339E4F
-	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:33:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 194D2339E51
+	for <lists+stable@lfdr.de>; Sat, 13 Mar 2021 14:37:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229615AbhCMNdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 08:33:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55974 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233581AbhCMNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 13 Mar 2021 08:32:29 -0500
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4416C64EF6;
-        Sat, 13 Mar 2021 13:32:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615642348;
-        bh=BfoIJX46zNdUXpRN4acNSjSTni43ysY3KsIeFa45XQw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o6KG9lgKj3BTmDZbPBZKmVgbtVz4ImuHHkZTloBYfNLfl03seE7sMfmiTUpQr7Lba
-         q+YymWf7S4J32wIM3a1B3S5DEsTTvUlmQpoXimh191joCZ/fDixZsG+P+ESHjEzszq
-         TK8ad4re3Gb3zhBYxYWllJD3p3GOiyUw/S+o4Zps=
-Date:   Sat, 13 Mar 2021 14:32:26 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Manoj Gupta <manojgupta@google.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        clang-built-linux@googlegroups.com, ndesaulniers@google.com,
-        jiancai@google.com, dianders@google.com, llozano@google.com,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH v2] scripts/recordmcount.{c,pl}: support
- -ffunction-sections .text.* section names
-Message-ID: <YEy+6nDgy+ARup/y@kroah.com>
-References: <CAH=QcsjHmWdLU6u-imNYWU2v=9ieP8bOk22FLERUd+rVUeqZNw@mail.gmail.com>
- <20210312221749.1248947-1-manojgupta@google.com>
+        id S231497AbhCMNhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 08:37:04 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:49433 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230309AbhCMNgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 08:36:37 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 263A45C007D;
+        Sat, 13 Mar 2021 08:36:37 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Sat, 13 Mar 2021 08:36:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=VMnf5am6yd9LBVhW85kPkWQpEjs
+        0Fz4nhL9CLJa5A2o=; b=BET5N3p4cl9R/1Tggojp7kr9ZvbnxBQdVvCVQRajA1s
+        d17r9urveWzocADIk0Pntt67rIes62YFbkyVXXvdcda/rfaa20yzq3MWHTwqqrPa
+        YQJA40/2inTXK4A1YcM55deptzBPHtbh92gteaaIwULx3EnI5O3KxabLZyEt3VPi
+        2iS3Y9xnnH/MQ/E+ls3Z8/CNFzMc3J0hHnUjWwKMXjX+peGD2wnyizhR+dOo5P3R
+        eiRBYftvmFovcbDNC7Ok8feBXIfncjFE71aSZhWtmBN3KYT3vRnZSbXmrs8URQVM
+        oJvebJ5l4LmZWWXGHnbvZ1IbujEG0dBAgjmGBNk1KLw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=VMnf5a
+        m6yd9LBVhW85kPkWQpEjs0Fz4nhL9CLJa5A2o=; b=cCzdCVIPnCuXgDEN9A4rUy
+        /AN/NeUOMtMUcOsyb2sYUWr2ufp5IvasX4xN/VHb3yeSGRuKNF97ROxcLuTeWTHg
+        Gs9BLXJKSVkhm+FJozx+UiKNuH6mH98vft7Y8Fg9LDT2rolKcjuv5JMWWmMODL29
+        LhHSmZttqxX8oy6zE40QfIW2Fv6f7VkLzJyqV8FgoXMWhe233Y96GzEP4hvLm16l
+        S9v0NyfqGJBuCmgcABrWzI9BBo4DGJdmGmxY1b1XeFwMsciok2jvotKEyY3J9qIO
+        27xtYUtbXnLJRO+3s2eXyyCBDKRtDh3KDZT1AO5/WIAvrBb7x8QbCWQ/7qcwj69A
+        ==
+X-ME-Sender: <xms:5L9MYINw2ngmDzCoD0tqEa2vlcwmkS7BfrS48M9hjSNDregDh8cDNA>
+    <xme:5L9MYO-10VCQwB3W9Bk6fUEllFOsdsKNDbELFjO8JgyMXEGKA4tTfXG4rdw2uAorR
+    wQFjRfgkSg_Xw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvgedghedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:5L9MYPSIc8RN6OfLA9KqgCKU0_bGUN0UdL1zgO-Nlqe4J7wpu7FaYA>
+    <xmx:5L9MYAv0D5Cxdw4gcx97zhfEyvwsS55Sbsi54KjPyosfhYkplSbfrA>
+    <xmx:5L9MYAePdGxxlbEpvMnLbjg50VSfU6a0iRr9jHNCpWc8tLOKz776-A>
+    <xmx:5b9MYMFVj7CKjT5-b1zd0VFjaTuOLVHsNUHs2-YoqGbrDW5yWqaLzQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6C0ED24005A;
+        Sat, 13 Mar 2021 08:36:36 -0500 (EST)
+Date:   Sat, 13 Mar 2021 14:36:34 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     stable@vger.kernel.org, Allen Pais <allen.pais@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: Re: [PATCH stable v4.4] libertas: fix a potential NULL pointer
+ dereference
+Message-ID: <YEy/4jYcjQWCRdiV@kroah.com>
+References: <20210312165117.15870-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210312221749.1248947-1-manojgupta@google.com>
+In-Reply-To: <20210312165117.15870-1-krzysztof.kozlowski@canonical.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Mar 12, 2021 at 02:17:49PM -0800, Manoj Gupta wrote:
-> From: Joe Lawrence <joe.lawrence@redhat.com>
+On Fri, Mar 12, 2021 at 05:51:17PM +0100, Krzysztof Kozlowski wrote:
+> From: Allen Pais <allen.pais@oracle.com>
 > 
-> commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
+> commit 7da413a18583baaf35dd4a8eb414fa410367d7f2 upstream.
 > 
-> When building with -ffunction-sections, the compiler will place each
-> function into its own ELF section, prefixed with ".text".  For example,
-> a simple test module with functions test_module_do_work() and
-> test_module_wq_func():
+> alloc_workqueue is not checked for errors and as a result,
+> a potential NULL dereference could occur.
 > 
->   % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
->   .text
->   .text.test_module_do_work
->   .text.test_module_wq_func
->   .init.text
->   .exit.text
-> 
-> Adjust the recordmcount scripts to look for ".text" as a section name
-> prefix.  This will ensure that those functions will be included in the
-> __mcount_loc relocations:
-> 
->   % objdump --reloc --section __mcount_loc test_module.o
->   OFFSET           TYPE              VALUE
->   0000000000000000 R_X86_64_64       .text.test_module_do_work
->   0000000000000008 R_X86_64_64       .text.test_module_wq_func
->   0000000000000010 R_X86_64_64       .init.text
-> 
-> Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
-> 
-> Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-> 
-> [Manoj: Resolve conflict on 4.4.y/4.9.y because of missing 42c269c88dc1]
-> Signed-off-by: Manoj Gupta <manojgupta@google.com>
+> Signed-off-by: Allen Pais <allen.pais@oracle.com>
+> Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+> [krzk: backport applied to different path - without marvell subdir]
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 > ---
-> 
-> Changes v1 -> v2:
->   Change "nc" to "Manoj"
+>  drivers/net/wireless/libertas/if_sdio.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 
-Now queued up, thanks.
+Now queued up.
 
-greg k-h
+greg k-
