@@ -2,55 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1527F33A279
-	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 04:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A236D33A28C
+	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 05:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231756AbhCNDU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 22:20:28 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:14333 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230097AbhCNDT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 22:19:59 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
-        by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Dyl9q4H2mz8xm3;
-        Sun, 14 Mar 2021 11:18:07 +0800 (CST)
-Received: from [127.0.0.1] (10.175.101.122) by DGGEMS401-HUB.china.huawei.com
- (10.3.19.201) with Microsoft SMTP Server id 14.3.498.0; Sun, 14 Mar 2021
- 11:19:51 +0800
-Content-Type: multipart/alternative;
-        boundary="===============1515566338636345185=="
+        id S234659AbhCNEBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 23:01:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229870AbhCNEBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 23:01:07 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98812C061574
+        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:01:06 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id n11-20020a05600c4f8bb029010e5cf86347so847650wmq.1
+        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:01:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=lightbitslabs-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version;
+        bh=EpILVDXp9NhWahyeBKpbgI985goX7Y3lUfkwXN3aO40=;
+        b=HJ+paIf9/XKnFQdR72mLEGwH8gfGe4oJfjp85tSm9NErlx8MnVCfnPd9CortQGtJ2t
+         79yz09ikG4WvwAescIuOXVGLFdlqS7nW/R/GYEdX4ILP2zQaEifQ1zl5EipDvf6Av4LG
+         4BrThlC/CI3UC0PSGYVZ2i7DUXnJmTiW7W1PK/2GwxBkN4+aw1lXb9FooNP7flA7UI8l
+         atxFXFB4c/gnsM1K59BhpRJFLr3gyziIlwKczOhXkEgcLQQq0MEqIET/qFvz0TUxLykp
+         WGukNUokz3Fug7Men+nyX3k6isT5Qt7taDsB2gi8Z53T7maYOoL//4yx7Ko86IjOXRLB
+         gpmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version;
+        bh=EpILVDXp9NhWahyeBKpbgI985goX7Y3lUfkwXN3aO40=;
+        b=aFDdyjMJwHsF4cPB/lIivhz2Knn/g7qU/lRc/gnswnprpuRr/ydFW9eOJ3LRG7Rh+v
+         pqbIAmsmIo80ZpgyHfYsUL6mMt+WXLi7r6HAiVG6sML/FSFHja1fPBt20wGGHxGbuWN5
+         mewsRnrFmN07S6YEAwRRfFC6Dnwv3runQbuhWfhAn7QoveP1C9Jet91oQM/EAYyMH+F+
+         UiTY8JS2DicnUH8HhpVcd4pM/FnPa0yMISCOcagDsFa7z2xG965QMV7ZKm3v2qStrHq4
+         LtiihAzVeS5gcwjT0CYCmhche3NqwFuUUzdQWq/9S2XWn0g3++2sChtdCkXYWwve8xF9
+         vTrQ==
+X-Gm-Message-State: AOAM531x9KWR4hud6P3wCp0iyvK9LS+PI0pjYTjsK4FSQPrL9VkZrP1i
+        PyAdZ3BPOwSxM8DYPkUjgu3Y8MTTMEyh61ugLsurchBvKtTO/DmYD29gMfZ2U3PxP3DojsZSouy
+        NU0DyNFQhylHYMrsuow==
+X-Google-Smtp-Source: ABdhPJx7BUfLY1q3Weo/9azhJHa4JSV3BhKA0FpO5WpqPnmbWCJbiwVjkrISDDqQmQI32yIXDxJpcQ==
+X-Received: by 2002:a1c:e389:: with SMTP id a131mr20225380wmh.78.1615694464877;
+        Sat, 13 Mar 2021 20:01:04 -0800 (PST)
+Received: from anton-latitude..lbits ([98.42.3.175])
+        by smtp.googlemail.com with ESMTPSA id f16sm14027552wrt.21.2021.03.13.20.01.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 13 Mar 2021 20:01:04 -0800 (PST)
+From:   Anton Eidelman <anton@lightbitslabs.com>
+To:     stable@vger.kernel.org
+Cc:     kbusch@kernel.org, sagi@grimberg.me, hch@lst.de
+Subject: nvme: ns_head vs namespace mismatch fixes
+Date:   Sat, 13 Mar 2021 20:00:33 -0800
+Message-Id: <20210314040035.1357617-1-anton@lightbitslabs.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Date:   Sun, 14 Mar 2021 11:19:51 +0800
-From:   <hulkrobot@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_5=2E10=2E24-rc1=0D=0A/x86?=
-Message-ID: <366687f4-d8f0-47e4-ad20-bb68af897ad4@DGGEMS401-HUB.china.huawei.com>
-X-Originating-IP: [10.175.101.122]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset="US-ASCII"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---===============1515566338636345185==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Please, apply the following two upstream commits (attached)
+(in this order):
+    d567572906d9 nvme: unlink head after removing last namespace
+    ac262508daa8 nvme: release namespace head reference on error
 
-S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
-Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNS4xMC55CkFyY2g6
-IHg4NgpWZXJzaW9uOiA1LjEwLjI0LXJjMQ0KQ29tbWl0OiA3NDk2ZGJkMDJiMjczMTYyNzVlMDk3
-YTRlNTJjZWJjZDJjYTVhNWMwDQpDb21waWxlcjogZ2NjIHZlcnNpb24gNy4zLjAgKEdDQykKLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0KQWxsIHRlc3RjYXNlcyBQQVNTRUQuCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tClRlc3RjYXNlIFJlc3Vs
-dCBTdW1tYXJ5Ogp0b3RhbF9udW06IDQ2OTMKc3VjY2VlZF9udW06IDQ2OTMKZmFpbGVkX251bTog
-MAp0aW1lb3V0X251bTogMAotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpUZXN0ZWQtYnk6IEh1bGsgUm9ib3QgPGh1bGty
-b2JvdEBodWF3ZWkuY29tPg==
+TO: v5.4, v5.5, v5.6, v5.7
+These commits are present in v5.8 and apply cleanly to the above.
 
---===============1515566338636345185==--
+Reason:
+These fix a potential crash or malfunction
+when an nvme namespace is deleted
+and then a new namespace with the same nsid is created
+before the old ns_head for this nsid is gone.
+
+The first commit prevents the new namespace
+from being matched by nvme_init_ns_head()
+with the old ns_head causing ID mismatch
+and consequently a failure to initialize the new namespace.
+
+The second commit prevents ns_head refcount imbalance
+in case nvme_init_ns_head() detects an ID mismatch,
+and consequently a potential crash later.
+
+
+
+-- 
+
+
+*Lightbits Labs**
+*Lead the cloud-native data center
+transformation by 
+delivering *scalable *and *efficient *software
+defined storage that is 
+*easy *to consume.
+
+
+
+*This message is sent in confidence for the addressee 
+only.  It
+may contain legally privileged information. The contents are not 
+to be
+disclosed to anyone other than the addressee. Unauthorized recipients 
+are
+requested to preserve this confidentiality, advise the sender 
+immediately of
+any error in transmission and delete the email from their 
+systems.*
+
