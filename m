@@ -2,224 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4F833A4C0
-	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 13:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2752C33A50B
+	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 14:45:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235434AbhCNMX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Mar 2021 08:23:58 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:54047 "EHLO
-        forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235445AbhCNMXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 14 Mar 2021 08:23:43 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 4FACB19409A2;
-        Sun, 14 Mar 2021 08:23:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Sun, 14 Mar 2021 08:23:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IS4X+3
-        Xqz01mBY2vCTrngFdy62wW5xJrVs17sSZVwoQ=; b=fpasGtAY6+Og1iFafAl+ro
-        Jp9qmGQQw+Z9Wd/tg8FmxjESN9YAAx2im7EAbUbDnT8KM6rPJ3fWDXTTFzsgUtF2
-        pQ75oua3rwBFzil6l+TABiso3naU2tM9Kg+W0jsAhQ4Ii9QaGqGo2UhiaJ51nqvi
-        D7xV7yOxw4UeKXtasF6PWUyJxshSwRA9EElZSfpC/+hNnfDeZ1sg/6dLA9m4fEft
-        MM10v1qlYymQkpvAj82s+OUgpcmajTAaHsXWI5HG1HGxwqbXTNjNcKRB8AWb8DTS
-        c8eqGSxttMB2pPdX6suMZlUmwjAzJabSBz4yIrTw+GH9uOXwoi/ILA9j1SbO4JtQ
-        ==
-X-ME-Sender: <xms:TgBOYMwfBXQX1BZ349A46_DS2BFBJb8xxtK9iMfJjAXEd2jnq7pzAA>
-    <xme:TgBOYATuxYCFNEIBTMI8raM7LpBB35RXqC2KQpfwECIP1st3pV8wxM6FSbLD3z1Mw
-    ZYYh-wrRYV-8Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvjedgudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:TgBOYOVHLoMKALcse5Snk_NLL6XKseSU6CscO70o6jixDoi-ldq-Aw>
-    <xmx:TgBOYKjGS5Houpt-UdMRQMrFx1CZ7EJDBEMD60eTfrJ_LQ1Gp7TPbg>
-    <xmx:TgBOYOBJ4gC9TMGZ5U3O8de343WBZogHHbZm95SUqGfH5ath46Fppg>
-    <xmx:TgBOYB9CYGDxaLCSJ98p7DvVXV7ZoeSMenDL8KcN3h-MAqX2G7uMYw>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F1A09240054;
-        Sun, 14 Mar 2021 08:23:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usbip: fix vudc usbip_sockfd_store races leading to gpf" failed to apply to 4.4-stable tree
-To:     skhan@linuxfoundation.org, gregkh@linuxfoundation.org,
-        penguin-kernel@I-love.SAKURA.ne.jp,
-        syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com,
-        syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com,
-        syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 14 Mar 2021 13:23:38 +0100
-Message-ID: <161572461815230@kroah.com>
+        id S232341AbhCNNob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Mar 2021 09:44:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233509AbhCNNoN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 14 Mar 2021 09:44:13 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04FA4C061574
+        for <stable@vger.kernel.org>; Sun, 14 Mar 2021 06:44:12 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id o11so30732255iob.1
+        for <stable@vger.kernel.org>; Sun, 14 Mar 2021 06:44:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=rf85IIrYDoX56EbvJwzXLS38sc5yj7QH4axMImYh7js=;
+        b=crJ952er5WUhNH7LsJaUEvoPA0kUvovi0HwftQR+h392MDJ673lvjyyNA8zHgPUeit
+         jbwQrYkVigUznlGORrudWqTZtDx140y5xQ2yqyOYsO+q24uu4BAjhyYYNWz7g6ZXBIRk
+         sUOjG3KqWLxLuYIyIby9f7OXNF0zNAnWetB3a1FyCsJqOYAZU9RdXAKE2AZn8vmjV0V/
+         4NAjtsoUWC2c5gjF0iNQ7prL3DL+UkJ8PmEzzJoa7BwSLfHiKgG9gnekHR5iKBv3LoJE
+         sQW9/2Du95Hkil5p1F7GjMIPbVH3ujnjMmXC9x7hHLxZkyHNNb8cI1dJXTEpF809mtxu
+         lbKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=rf85IIrYDoX56EbvJwzXLS38sc5yj7QH4axMImYh7js=;
+        b=Or3k4bMTlM67BYuPLEnjZSXeXwtRDi/3RCf6Aew96VcDEsuV2pgKxupXDjpWFboL2t
+         Nn9CXH187Jf8xHGChQcSf9/lyy4670D26nqFlORIW3RiJX4sicQVM/W9n6qvsowfbx9o
+         cWDYl+F+3idJtVCtZGAxxIUR9wb5a5QNiUEvNCyrhnfEgIvZHeQYxYBxFZq4859wQlLJ
+         +36cT11+naKUoSj9cMys08IAGoeBVpSp/v+0ghupsYJtHezWccxpFeqcbC6r6COBpHCh
+         Qz/aDmJPSyUlDu+YE/O0zhVqs/0KTlzKtJAWG0W9fcZc06o3YSpk4FkBxK8krrCBEIxI
+         X+hQ==
+X-Gm-Message-State: AOAM533jcmH48jys0upjF0sTgl2b3/yBkzKuQYTqCsUUnRaRmKC8jtpW
+        wVNYYDWfSAgSyUvlHWYP3H0jHi02Q4fF17cIYEE=
+X-Google-Smtp-Source: ABdhPJw8oyzr/uglNuigUZWX0VP6ms7kFKkDa3lbDBreBKAV0LMVLKnvandfxqJQrwszr7+0g9ov9o0anN7bugxPHyU=
+X-Received: by 2002:a5d:9693:: with SMTP id m19mr4436561ion.46.1615729452251;
+ Sun, 14 Mar 2021 06:44:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a05:6602:1d5:0:0:0:0 with HTTP; Sun, 14 Mar 2021 06:44:11
+ -0700 (PDT)
+Reply-To: mr.sawadogomichel1@gmail.com
+From:   "Mr.Sawadogo Michel" <mr.michaelmadada@gmail.com>
+Date:   Sun, 14 Mar 2021 06:44:11 -0700
+Message-ID: <CAOHp2QLmPUv-cNr2N8y3J7Ma7Oe7tv+jcMeC3i5JkcKfqabzVA@mail.gmail.com>
+Subject: Hello Dear Friend
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Dear Friend,
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+My name is Mr.Sawadogo Michel. I have decided to seek a confidential
+co-operation  with you in the execution of the deal described
+here-under for our both  mutual benefit and I hope you will keep it a
+top secret because of the nature  of the transaction, During the
+course of our bank year auditing, I discovered  an unclaimed/abandoned
+fund, sum total of {US$19.3 Million United State  Dollars} in the bank
+account that belongs to a Saudi Arabia businessman Who unfortunately
+lost his life and entire family in a Motor Accident.
 
-thanks,
+Now our bank has been waiting for any of the relatives to come-up for
+the claim but nobody has done that. I personally has been unsuccessful
+in locating any of the relatives, now, I sincerely seek your consent
+to present you as the next of kin / Will Beneficiary to the deceased
+so that the proceeds of this account valued at {US$19.3 Million United
+State Dollars} can be paid to you, which we will share in these
+percentages ratio, 60% to me and 40% to you. All I request is your
+utmost sincere co-operation; trust and maximum confidentiality to
+achieve this project successfully. I have carefully mapped out the
+moralities for execution of this transaction under a legitimate
+arrangement to protect you from any breach of the law both in your
+country and here in Burkina Faso when the fund is being transferred to
+your bank account.
 
-greg k-h
+I will have to provide all the relevant document that will be
+requested to indicate that you are the rightful beneficiary of this
+legacy and our bank will release the fund to you without any further
+delay, upon your consideration and acceptance of this offer, please
+send me the following information as stated below so we can proceed
+and get this fund transferred to your designated bank account
+immediately.
 
------------------- original commit in Linus's tree ------------------
+-Your Full Name:
+-Your Contact Address:
+-Your direct Mobile telephone Number:
+-Your Date of Birth:
+-Your occupation:
 
-From 46613c9dfa964c0c60b5385dbdf5aaa18be52a9c Mon Sep 17 00:00:00 2001
-From: Shuah Khan <skhan@linuxfoundation.org>
-Date: Sun, 7 Mar 2021 20:53:31 -0700
-Subject: [PATCH] usbip: fix vudc usbip_sockfd_store races leading to gpf
+I await your swift response and re-assurance.
 
-usbip_sockfd_store() is invoked when user requests attach (import)
-detach (unimport) usb gadget device from usbip host. vhci_hcd sends
-import request and usbip_sockfd_store() exports the device if it is
-free for export.
-
-Export and unexport are governed by local state and shared state
-- Shared state (usbip device status, sockfd) - sockfd and Device
-  status are used to determine if stub should be brought up or shut
-  down. Device status is shared between host and client.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- While the device is exported, device status is marked used and socket,
-  sockfd, and thread pointers are valid.
-
-Export sequence (stub-up) includes validating the socket and creating
-receive (rx) and transmit (tx) threads to talk to the client to provide
-access to the exported device. rx and tx threads depends on local and
-shared state to be correct and in sync.
-
-Unexport (stub-down) sequence shuts the socket down and stops the rx and
-tx threads. Stub-down sequence relies on local and shared states to be
-in sync.
-
-There are races in updating the local and shared status in the current
-stub-up sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
-
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to SDEV_ST_USED. This opens up a
-   race condition between the threads and usbip_sockfd_store() stub up
-   and down handling.
-
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold usbip_device lock to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to SDEV_ST_USED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
-
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is a
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the stub-up sequence.
-
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/b1c08b983ffa185449c9f0f7d1021dc8c8454b60.1615171203.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/usbip/vudc_sysfs.c b/drivers/usb/usbip/vudc_sysfs.c
-index 83a0c59a3de8..a3ec39fc6177 100644
---- a/drivers/usb/usbip/vudc_sysfs.c
-+++ b/drivers/usb/usbip/vudc_sysfs.c
-@@ -90,8 +90,9 @@ static ssize_t dev_desc_read(struct file *file, struct kobject *kobj,
- }
- static BIN_ATTR_RO(dev_desc, sizeof(struct usb_device_descriptor));
- 
--static ssize_t usbip_sockfd_store(struct device *dev, struct device_attribute *attr,
--		     const char *in, size_t count)
-+static ssize_t usbip_sockfd_store(struct device *dev,
-+				  struct device_attribute *attr,
-+				  const char *in, size_t count)
- {
- 	struct vudc *udc = (struct vudc *) dev_get_drvdata(dev);
- 	int rv;
-@@ -100,6 +101,8 @@ static ssize_t usbip_sockfd_store(struct device *dev, struct device_attribute *a
- 	struct socket *socket;
- 	unsigned long flags;
- 	int ret;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
- 
- 	rv = kstrtoint(in, 0, &sockfd);
- 	if (rv != 0)
-@@ -145,24 +148,47 @@ static ssize_t usbip_sockfd_store(struct device *dev, struct device_attribute *a
- 			goto sock_err;
- 		}
- 
--		udc->ud.tcp_socket = socket;
--
-+		/* unlock and create threads and get tasks */
- 		spin_unlock_irq(&udc->ud.lock);
- 		spin_unlock_irqrestore(&udc->lock, flags);
- 
--		udc->ud.tcp_rx = kthread_get_run(&v_rx_loop,
--						    &udc->ud, "vudc_rx");
--		udc->ud.tcp_tx = kthread_get_run(&v_tx_loop,
--						    &udc->ud, "vudc_tx");
-+		tcp_rx = kthread_create(&v_rx_loop, &udc->ud, "vudc_rx");
-+		if (IS_ERR(tcp_rx)) {
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+		tcp_tx = kthread_create(&v_tx_loop, &udc->ud, "vudc_tx");
-+		if (IS_ERR(tcp_tx)) {
-+			kthread_stop(tcp_rx);
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+
-+		/* get task structs now */
-+		get_task_struct(tcp_rx);
-+		get_task_struct(tcp_tx);
- 
-+		/* lock and update udc->ud state */
- 		spin_lock_irqsave(&udc->lock, flags);
- 		spin_lock_irq(&udc->ud.lock);
-+
-+		udc->ud.tcp_socket = socket;
-+		udc->ud.tcp_rx = tcp_rx;
-+		udc->ud.tcp_rx = tcp_tx;
- 		udc->ud.status = SDEV_ST_USED;
-+
- 		spin_unlock_irq(&udc->ud.lock);
- 
- 		ktime_get_ts64(&udc->start_time);
- 		v_start_timer(udc);
- 		udc->connected = 1;
-+
-+		spin_unlock_irqrestore(&udc->lock, flags);
-+
-+		wake_up_process(udc->ud.tcp_rx);
-+		wake_up_process(udc->ud.tcp_tx);
-+		return count;
-+
- 	} else {
- 		if (!udc->connected) {
- 			dev_err(dev, "Device not connected");
-
+Best regards,
+Mr.Sawadogo Michel.
