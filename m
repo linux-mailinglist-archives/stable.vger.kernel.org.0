@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A236D33A28C
-	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 05:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 628C533A291
+	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 05:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234659AbhCNEBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 13 Mar 2021 23:01:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60982 "EHLO
+        id S234846AbhCNEHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 13 Mar 2021 23:07:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbhCNEBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 23:01:07 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98812C061574
-        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:01:06 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id n11-20020a05600c4f8bb029010e5cf86347so847650wmq.1
-        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:01:06 -0800 (PST)
+        with ESMTP id S234820AbhCNEHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 13 Mar 2021 23:07:54 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24B92C061574
+        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:07:54 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id 12so1076006wmf.5
+        for <stable@vger.kernel.org>; Sat, 13 Mar 2021 20:07:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=lightbitslabs-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:mime-version;
-        bh=EpILVDXp9NhWahyeBKpbgI985goX7Y3lUfkwXN3aO40=;
-        b=HJ+paIf9/XKnFQdR72mLEGwH8gfGe4oJfjp85tSm9NErlx8MnVCfnPd9CortQGtJ2t
-         79yz09ikG4WvwAescIuOXVGLFdlqS7nW/R/GYEdX4ILP2zQaEifQ1zl5EipDvf6Av4LG
-         4BrThlC/CI3UC0PSGYVZ2i7DUXnJmTiW7W1PK/2GwxBkN4+aw1lXb9FooNP7flA7UI8l
-         atxFXFB4c/gnsM1K59BhpRJFLr3gyziIlwKczOhXkEgcLQQq0MEqIET/qFvz0TUxLykp
-         WGukNUokz3Fug7Men+nyX3k6isT5Qt7taDsB2gi8Z53T7maYOoL//4yx7Ko86IjOXRLB
-         gpmA==
+        bh=UDlj4/23/i4glcl15X6jS0Xc5V7K2kYqhUfsnXtlOSU=;
+        b=l1qsia39ZAHM+aTuhEWP412zmZ1yqx4d7XXw2wwf25DfTk1tuTSZY0U7yM1cnVO89U
+         XYWr3mXPf3/3nrle5p3bTHiigQAQPEPRwtOjgkY5G7Ma/Sg2IAn8cm1+hhoLo4s+UlOo
+         J+6Q0uJygDtXPEYcpzaYSmvUWf8b4p8dQV4TRhpno2Nx7cmiCXTNzl3+K3UojOH7IJXj
+         a9/WTUkay85FkT6IkECeUoArb8VZXaXz3Vhu4oJExguspTOMagsj74zrXLuaLu0p+Gw/
+         +VYaCMo/SV1VJQTyJxZOIAO7iI2lRqRusjynvQ7dmqbrw6UtabFNGtIQ0hTvedEiVmFl
+         uHsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version;
-        bh=EpILVDXp9NhWahyeBKpbgI985goX7Y3lUfkwXN3aO40=;
-        b=aFDdyjMJwHsF4cPB/lIivhz2Knn/g7qU/lRc/gnswnprpuRr/ydFW9eOJ3LRG7Rh+v
-         pqbIAmsmIo80ZpgyHfYsUL6mMt+WXLi7r6HAiVG6sML/FSFHja1fPBt20wGGHxGbuWN5
-         mewsRnrFmN07S6YEAwRRfFC6Dnwv3runQbuhWfhAn7QoveP1C9Jet91oQM/EAYyMH+F+
-         UiTY8JS2DicnUH8HhpVcd4pM/FnPa0yMISCOcagDsFa7z2xG965QMV7ZKm3v2qStrHq4
-         LtiihAzVeS5gcwjT0CYCmhche3NqwFuUUzdQWq/9S2XWn0g3++2sChtdCkXYWwve8xF9
-         vTrQ==
-X-Gm-Message-State: AOAM531x9KWR4hud6P3wCp0iyvK9LS+PI0pjYTjsK4FSQPrL9VkZrP1i
-        PyAdZ3BPOwSxM8DYPkUjgu3Y8MTTMEyh61ugLsurchBvKtTO/DmYD29gMfZ2U3PxP3DojsZSouy
-        NU0DyNFQhylHYMrsuow==
-X-Google-Smtp-Source: ABdhPJx7BUfLY1q3Weo/9azhJHa4JSV3BhKA0FpO5WpqPnmbWCJbiwVjkrISDDqQmQI32yIXDxJpcQ==
-X-Received: by 2002:a1c:e389:: with SMTP id a131mr20225380wmh.78.1615694464877;
-        Sat, 13 Mar 2021 20:01:04 -0800 (PST)
+        bh=UDlj4/23/i4glcl15X6jS0Xc5V7K2kYqhUfsnXtlOSU=;
+        b=LI3+7mG56eb2V7581F9fiEUf1A3e7TxS3ellCpVMLOUWOjPyuRf2uZR/TL3ZPEO8oh
+         iKEHRbppKvJqnA5L1qHtcsNWxcVsWCkFv0OUlNF8/ScWdIiIhAyTHQnDAATsWP3f2pL0
+         +j4t9fcXmThvPSO8nC93LymKnhWY6khZTY+eYgss2ymmwcgDt5LsHKi9BqnLSdXjnq+D
+         II0bI2vLORLqAKNHNe7mIA2CecwpCCA9DpT2mo4kY6sXmk116nLOsaN0b4IwWPLJpHO0
+         Te5XN2evvwbvycZVikcr6j/VYNzqadGjDdC1BuVZ1NqP9zg6ezYPp1LulOK8lTHeUMPO
+         +ksA==
+X-Gm-Message-State: AOAM533q/OMZc5owvnGqlPr5cNouKm4Txc8NergZ0AR8uri/2oOyE+av
+        SQ40FjCERx5Awg7kgCv9J1cP0Iw2yk93HN3OvqueH9GN0vdS0I989mrlZuxAL/gk4Gn+7lrJoJ8
+        mDZQR1SK4fbdKuWhZGA==
+X-Google-Smtp-Source: ABdhPJz1e2jDMsovpddzD2OsH253c2RfX/P9ubBXUJPoZbbFJZJtECq0FC23OdotoLu81vpNLZF5HQ==
+X-Received: by 2002:a05:600c:49aa:: with SMTP id h42mr20660291wmp.49.1615694872587;
+        Sat, 13 Mar 2021 20:07:52 -0800 (PST)
 Received: from anton-latitude..lbits ([98.42.3.175])
-        by smtp.googlemail.com with ESMTPSA id f16sm14027552wrt.21.2021.03.13.20.01.02
+        by smtp.googlemail.com with ESMTPSA id l15sm14148746wru.38.2021.03.13.20.07.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 13 Mar 2021 20:01:04 -0800 (PST)
+        Sat, 13 Mar 2021 20:07:52 -0800 (PST)
 From:   Anton Eidelman <anton@lightbitslabs.com>
 To:     stable@vger.kernel.org
 Cc:     kbusch@kernel.org, sagi@grimberg.me, hch@lst.de
 Subject: nvme: ns_head vs namespace mismatch fixes
-Date:   Sat, 13 Mar 2021 20:00:33 -0800
-Message-Id: <20210314040035.1357617-1-anton@lightbitslabs.com>
+Date:   Sat, 13 Mar 2021 20:07:03 -0800
+Message-Id: <20210314040705.1357858-1-anton@lightbitslabs.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
@@ -65,7 +65,8 @@ Please, apply the following two upstream commits (attached)
     ac262508daa8 nvme: release namespace head reference on error
 
 TO: v5.4, v5.5, v5.6, v5.7
-These commits are present in v5.8 and apply cleanly to the above.
+These commits are present in v5.8
+and apply cleanly to the above.
 
 Reason:
 These fix a potential crash or malfunction
@@ -79,10 +80,8 @@ with the old ns_head causing ID mismatch
 and consequently a failure to initialize the new namespace.
 
 The second commit prevents ns_head refcount imbalance
-in case nvme_init_ns_head() detects an ID mismatch,
-and consequently a potential crash later.
-
-
+in case nvme_init_ns_head() detects ID mismatch,
+and consequently a crash later.
 
 -- 
 
