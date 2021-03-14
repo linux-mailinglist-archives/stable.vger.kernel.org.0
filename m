@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6E2833A385
-	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 09:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E7833A387
+	for <lists+stable@lfdr.de>; Sun, 14 Mar 2021 09:27:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbhCNIZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 14 Mar 2021 04:25:39 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49312 "EHLO mx2.suse.de"
+        id S234964AbhCNI1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 14 Mar 2021 04:27:15 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49436 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233626AbhCNIZa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 14 Mar 2021 04:25:30 -0400
+        id S230482AbhCNI0n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 14 Mar 2021 04:26:43 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 59D7FABD7;
-        Sun, 14 Mar 2021 08:25:27 +0000 (UTC)
-Date:   Sun, 14 Mar 2021 09:25:26 +0100
-Message-ID: <s5hblbmrvk9.wl-tiwai@suse.de>
+        by mx2.suse.de (Postfix) with ESMTP id 1B2B0AB8C;
+        Sun, 14 Mar 2021 08:26:42 +0000 (UTC)
+Date:   Sun, 14 Mar 2021 09:26:42 +0100
+Message-ID: <s5ha6r6rvi5.wl-tiwai@suse.de>
 From:   Takashi Iwai <tiwai@suse.de>
 To:     Xiaoliang Yu <yxl_22@outlook.com>
 Cc:     perex@perex.cz, tiwai@suse.com, kailang@realtek.com,
         stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: hda/realtek: Apply headset-mic quirks for Xiaomi Redmibook Air
-In-Reply-To: <TYBP286MB02856DC016849DEA0F9B6A37EE6F9@TYBP286MB0285.JPNP286.PROD.OUTLOOK.COM>
-References: <TYBP286MB02856DC016849DEA0F9B6A37EE6F9@TYBP286MB0285.JPNP286.PROD.OUTLOOK.COM>
+Subject: Re: [PATCH] ALSA: hda/realtek: apply pin quirk for XiaomiNotebook Pro
+In-Reply-To: <TYBP286MB028596D29A8D863165884D9DEE6E9@TYBP286MB0285.JPNP286.PROD.OUTLOOK.COM>
+References: <TYBP286MB028596D29A8D863165884D9DEE6E9@TYBP286MB0285.JPNP286.PROD.OUTLOOK.COM>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
  (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -33,15 +33,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 13 Mar 2021 00:54:53 +0100,
+On Sat, 13 Mar 2021 01:40:51 +0100,
 Xiaoliang Yu wrote:
 > 
-> There is another fix for headset-mic problem on Redmibook (1d72:1602),
-> it also works on Redmibook Air (1d72:1947), which has the same issue.
+> Built-in microphone and combojack on Xiaomi Notebook Pro (1d72:1701) needs
+> to be fixed, the existing quirk for Dell works well on that machine.
 > 
 > Signed-off-by: Xiaoliang Yu <yxl_22@outlook.com>
 
-Thanks, applied.
+This can't be applied after your previous patch for Redmibook Air.
+Please rebase and resubmit.
 
+
+thanks,
 
 Takashi
