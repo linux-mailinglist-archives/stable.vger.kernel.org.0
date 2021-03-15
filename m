@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D96733B530
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CDD533B65B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbhCONxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55712 "EHLO mail.kernel.org"
+        id S231706AbhCON5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230078AbhCONxL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0FFD64EED;
-        Mon, 15 Mar 2021 13:53:08 +0000 (UTC)
+        id S231553AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F72064EED;
+        Mon, 15 Mar 2021 13:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816390;
-        bh=iLmPXNG76G6u/naED2bfEhxm8XyFLQIPdZKWYuVdl9c=;
+        s=korg; t=1615816633;
+        bh=Y90632oKp6pme6AICtcjNYorJnRMU5a7uKrSrXxBsIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QV8rK+X9S5LPiOSQpVFM7p1dmuv7vs6TShRRKEIHbpSdQJ7MVTrkszbm34foVD9ga
-         b1cVe4sVUq5cHBc4XaWiZSVC+Yfw6HxFFTriPYcaXyp+LO2gHi8xITzFpvtzwfL5SZ
-         0m3EIsPLBxWuPbFhSs2OePp079wdzlwebyMPmIj4=
+        b=sR4uHxg7ddNi1Ig8Xd9AachhFuLnT/3VhbUP5aSQoENjjARD3xSXi4nvap7B8L2uN
+         cvU1S/5xMyB7z+4x8GlFm7KzXO9hA7dwMv1eN5aOQFKpN/cXV0ay6otVI3VwPEdJ5E
+         gKM+4iYro1OMFiFDqU2iKLvp6ofq3DfjM8teSxt8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kevin(Yudong) Yang" <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 12/78] net/mlx4_en: update moderation when config reset
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>
+Subject: [PATCH 5.11 032/306] samples, bpf: Add missing munmap in xdpsock
 Date:   Mon, 15 Mar 2021 14:51:35 +0100
-Message-Id: <20210315135212.466263867@linuxfoundation.org>
+Message-Id: <20210315135508.714503227@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kevin(Yudong) Yang <yyd@google.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-commit 00ff801bb8ce6711e919af4530b6ffa14a22390a upstream.
+commit 6bc6699881012b5bd5d49fa861a69a37fc01b49c upstream.
 
-This patch fixes a bug that the moderation config will not be
-applied when calling mlx4_en_reset_config. For example, when
-turning on rx timestamping, mlx4_en_reset_config() will be called,
-causing the NIC to forget previous moderation config.
+We mmap the umem region, but we never munmap it.
+Add the missing call at the end of the cleanup.
 
-This fix is in phase with a previous fix:
-commit 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss
-after set_ringparam is called")
-
-Tested: Before this patch, on a host with NIC using mlx4, run
-netserver and stream TCP to the host at full utilization.
-$ sar -I SUM 1
-                 INTR    intr/s
-14:03:56          sum  48758.00
-
-After rx hwtstamp is enabled:
-$ sar -I SUM 1
-14:10:38          sum 317771.00
-We see the moderation is not working properly and issued 7x more
-interrupts.
-
-After the patch, and turned on rx hwtstamp, the rate of interrupts
-is as expected:
-$ sar -I SUM 1
-14:52:11          sum  49332.00
-
-Fixes: 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss after set_ringparam is called")
-Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Neal Cardwell <ncardwell@google.com>
-CC: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3945b37a975d ("samples/bpf: use hugepages in xdpsock app")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20210303185636.18070-3-maciej.fijalkowski@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    2 +-
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c  |    2 ++
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h    |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ samples/bpf/xdpsock_user.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -47,7 +47,7 @@
- #define EN_ETHTOOL_SHORT_MASK cpu_to_be16(0xffff)
- #define EN_ETHTOOL_WORD_MASK  cpu_to_be32(0xffffffff)
+--- a/samples/bpf/xdpsock_user.c
++++ b/samples/bpf/xdpsock_user.c
+@@ -1699,5 +1699,7 @@ int main(int argc, char **argv)
  
--static int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
- {
- 	int i;
- 	int err = 0;
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -3459,6 +3459,8 @@ int mlx4_en_reset_config(struct net_devi
- 			en_err(priv, "Failed starting port\n");
- 	}
+ 	xdpsock_cleanup();
  
-+	if (!err)
-+		err = mlx4_en_moderation_update(priv);
- out:
- 	mutex_unlock(&mdev->state_lock);
- 	kfree(tmp);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -773,6 +773,7 @@ void mlx4_en_ptp_overflow_check(struct m
- #define DEV_FEATURE_CHANGED(dev, new_features, feature) \
- 	((dev->features & feature) ^ (new_features & feature))
- 
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv);
- int mlx4_en_reset_config(struct net_device *dev,
- 			 struct hwtstamp_config ts_config,
- 			 netdev_features_t new_features);
++	munmap(bufs, NUM_FRAMES * opt_xsk_frame_size);
++
+ 	return 0;
+ }
 
 
