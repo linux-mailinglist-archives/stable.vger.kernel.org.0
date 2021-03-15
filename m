@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D1733B913
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D91A533B988
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230502AbhCOOFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S234578AbhCOOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233216AbhCOOBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 663E164F2E;
-        Mon, 15 Mar 2021 14:00:43 +0000 (UTC)
+        id S233408AbhCOOBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAC4664E4D;
+        Mon, 15 Mar 2021 14:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816844;
-        bh=7AU0H5/2jDc9x1n8Lgnc8XeCwv7//fVKNGekwzwCito=;
+        s=korg; t=1615816874;
+        bh=/Ddd2zPl42t0KPISs+Dxeg/qgBi4KA8gGxKbfY4SnUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOkHXPrE50/+8TIRbgsrfsLicaHqVbvn9/zOzby/NDIh+GQc+vQQewVv9UXUjbTE5
-         w6PBoNJwfIiEg7euHfYCUXEfiZA4vYwM2fFMkDHtkyKC6QzO5RAergULEEOv9gDehC
-         XFVhExOM0uQv8v07bVLLBE/WYfYzqkOmJxze4KDs=
+        b=qGR8Q++AJpaR5qaqdBApDgqF1xdqnpbGcgzC3/XIdr+5+C8VIs7xJhbk/Kv7npEkK
+         QbWpNaam60Y4ZvDdpE8Wrs1PH/AamD6zlC/MFgt5On1zIzXIQTonAz6jLfjEvj8DSt
+         3sGWSoGaNVMDkmL9PNxryOdQE5HTFiCITKqsQUJw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 147/290] clk: qcom: gdsc: Implement NO_RET_PERIPH flag
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.11 177/306] Revert 95ebabde382c ("capabilities: Dont allow writing ambiguous v3 file capabilities")
 Date:   Mon, 15 Mar 2021 14:54:00 +0100
-Message-Id: <20210315135546.879001642@linuxfoundation.org>
+Message-Id: <20210315135513.599831367@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +40,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 785c02eb35009a4be6dbc68f4f7d916e90b7177d ]
+commit 3b0c2d3eaa83da259d7726192cf55a137769012f upstream.
 
-In some rare occasions, we want to only set the RETAIN_MEM bit, but
-not the RETAIN_PERIPH one: this is seen on at least SDM630/636/660's
-GPU-GX GDSC, where unsetting and setting back the RETAIN_PERIPH bit
-will generate chaos and panics during GPU suspend time (mainly, the
-chaos is unaligned access).
+It turns out that there are in fact userspace implementations that
+care and this recent change caused a regression.
 
-For this reason, introduce a new NO_RET_PERIPH flag to the GDSC
-driver to address this corner case.
+https://github.com/containers/buildah/issues/3071
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Link: https://lore.kernel.org/r/20210113183817.447866-8-angelogioacchino.delregno@somainline.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+As the motivation for the original change was future development,
+and the impact is existing real world code just revert this change
+and allow the ambiguity in v3 file caps.
+
+Cc: stable@vger.kernel.org
+Fixes: 95ebabde382c ("capabilities: Don't allow writing ambiguous v3 file capabilities")
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/qcom/gdsc.c | 10 ++++++++--
- drivers/clk/qcom/gdsc.h |  3 ++-
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ security/commoncap.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/clk/qcom/gdsc.c b/drivers/clk/qcom/gdsc.c
-index af26e0695b86..51ed640e527b 100644
---- a/drivers/clk/qcom/gdsc.c
-+++ b/drivers/clk/qcom/gdsc.c
-@@ -183,7 +183,10 @@ static inline int gdsc_assert_reset(struct gdsc *sc)
- static inline void gdsc_force_mem_on(struct gdsc *sc)
- {
- 	int i;
--	u32 mask = RETAIN_MEM | RETAIN_PERIPH;
-+	u32 mask = RETAIN_MEM;
-+
-+	if (!(sc->flags & NO_RET_PERIPH))
-+		mask |= RETAIN_PERIPH;
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -500,8 +500,7 @@ int cap_convert_nscap(struct dentry *den
+ 	__u32 magic, nsmagic;
+ 	struct inode *inode = d_backing_inode(dentry);
+ 	struct user_namespace *task_ns = current_user_ns(),
+-		*fs_ns = inode->i_sb->s_user_ns,
+-		*ancestor;
++		*fs_ns = inode->i_sb->s_user_ns;
+ 	kuid_t rootid;
+ 	size_t newsize;
  
- 	for (i = 0; i < sc->cxc_count; i++)
- 		regmap_update_bits(sc->regmap, sc->cxcs[i], mask, mask);
-@@ -192,7 +195,10 @@ static inline void gdsc_force_mem_on(struct gdsc *sc)
- static inline void gdsc_clear_mem_on(struct gdsc *sc)
- {
- 	int i;
--	u32 mask = RETAIN_MEM | RETAIN_PERIPH;
-+	u32 mask = RETAIN_MEM;
-+
-+	if (!(sc->flags & NO_RET_PERIPH))
-+		mask |= RETAIN_PERIPH;
+@@ -524,15 +523,6 @@ int cap_convert_nscap(struct dentry *den
+ 	if (nsrootid == -1)
+ 		return -EINVAL;
  
- 	for (i = 0; i < sc->cxc_count; i++)
- 		regmap_update_bits(sc->regmap, sc->cxcs[i], mask, 0);
-diff --git a/drivers/clk/qcom/gdsc.h b/drivers/clk/qcom/gdsc.h
-index bd537438c793..5bb396b344d1 100644
---- a/drivers/clk/qcom/gdsc.h
-+++ b/drivers/clk/qcom/gdsc.h
-@@ -42,7 +42,7 @@ struct gdsc {
- #define PWRSTS_ON		BIT(2)
- #define PWRSTS_OFF_ON		(PWRSTS_OFF | PWRSTS_ON)
- #define PWRSTS_RET_ON		(PWRSTS_RET | PWRSTS_ON)
--	const u8			flags;
-+	const u16			flags;
- #define VOTABLE		BIT(0)
- #define CLAMP_IO	BIT(1)
- #define HW_CTRL		BIT(2)
-@@ -51,6 +51,7 @@ struct gdsc {
- #define POLL_CFG_GDSCR	BIT(5)
- #define ALWAYS_ON	BIT(6)
- #define RETAIN_FF_ENABLE	BIT(7)
-+#define NO_RET_PERIPH	BIT(8)
- 	struct reset_controller_dev	*rcdev;
- 	unsigned int			*resets;
- 	unsigned int			reset_count;
--- 
-2.30.1
-
+-	/*
+-	 * Do not allow allow adding a v3 filesystem capability xattr
+-	 * if the rootid field is ambiguous.
+-	 */
+-	for (ancestor = task_ns->parent; ancestor; ancestor = ancestor->parent) {
+-		if (from_kuid(ancestor, rootid) == 0)
+-			return -EINVAL;
+-	}
+-
+ 	newsize = sizeof(struct vfs_ns_cap_data);
+ 	nscap = kmalloc(newsize, GFP_ATOMIC);
+ 	if (!nscap)
 
 
