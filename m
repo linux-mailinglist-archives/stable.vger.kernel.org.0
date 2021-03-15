@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0FE433B721
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9005733B6FD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231855AbhCON7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S232624AbhCON7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232324AbhCON6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1376A64EF8;
-        Mon, 15 Mar 2021 13:58:11 +0000 (UTC)
+        id S231607AbhCON6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB8C64EEA;
+        Mon, 15 Mar 2021 13:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816693;
-        bh=3cWWKdetzTELxSKkWdCy7Oe8CV16NjJnVcx8Zur5Y+M=;
+        s=korg; t=1615816694;
+        bh=Xk9+kiKIVX/VLiSUJjoMtHK/Y9B9QpbPvXQS2I+efpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZvoJf7J94099NKAPtDKbwvSnuJz8VjDwV2YXuN/RYuwWoYLKdwZY9dDouycoUelJ
-         dPgiHbYsJOxyu6lr9+ooZL6D9HJY3yIKKQzK1PPYm7iHNuGPvI4wSgP4LFWg2HJPtA
-         vZhKYeFbmH3/EcmQZb1OevCs0h/FXJBmVOvxOFh4=
+        b=vj8PxwQnmkViV0ncNZQuJuo79ZfzFb8gqpsX8myi2IFf5D0PvIRyzA+ZNdo6ZM34O
+         gxroYs9jwJT/LdiLYwTzDHJ23j4kD3psnCFZVKSAOJr0X4U6fK10VVfH3Mb8ktHmR2
+         f21yC37f6q6Yq1naJu3SzC/XnZ1NgSh4Ls1Z6kZ4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 02/95] ethernet: alx: fix order of calls on resume
-Date:   Mon, 15 Mar 2021 14:56:32 +0100
-Message-Id: <20210315135740.332073111@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Kennedy <hurricos@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 03/95] ath9k: fix transmitting to stations in dynamic SMPS mode
+Date:   Mon, 15 Mar 2021 14:56:33 +0100
+Message-Id: <20210315135740.369326267@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
 References: <20210315135740.245494252@linuxfoundation.org>
@@ -42,68 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
+commit 3b9ea7206d7e1fdd7419cbd10badd3b2c80d04b4 upstream.
 
-netif_device_attach() will unpause the queues so we can't call
-it before __alx_open(). This went undetected until
-commit b0999223f224 ("alx: add ability to allocate and free
-alx_napi structures") but now if stack tries to xmit immediately
-on resume before __alx_open() we'll crash on the NAPI being null:
+When transmitting to a receiver in dynamic SMPS mode, all transmissions that
+use multiple spatial streams need to be sent using CTS-to-self or RTS/CTS to
+give the receiver's extra chains some time to wake up.
+This fixes the tx rate getting stuck at <= MCS7 for some clients, especially
+Intel ones, which make aggressive use of SMPS.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000198
- CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
- Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
- RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
- Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
-0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
- RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
- RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
- RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
- RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
- R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
- R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
- FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
- i915 0000:00:02.0: vblank wait timed out on crtc 0
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
- Call Trace:
-  dev_hard_start_xmit+0xc7/0x1e0
-  sch_direct_xmit+0x10f/0x310
-
-Cc: <stable@vger.kernel.org> # 4.9+
-Fixes: bc2bebe8de8e ("alx: remove WoL support")
-Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Reported-by: Martin Kennedy <hurricos@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210214184911.96702-1-nbd@nbd.name
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/ath9k.h |    3 ++-
+ drivers/net/wireless/ath/ath9k/xmit.c  |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -1904,13 +1904,16 @@ static int alx_resume(struct device *dev
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -179,7 +179,8 @@ struct ath_frame_info {
+ 	s8 txq;
+ 	u8 keyix;
+ 	u8 rtscts_rate;
+-	u8 retries : 7;
++	u8 retries : 6;
++	u8 dyn_smps : 1;
+ 	u8 baw_tracked : 1;
+ 	u8 tx_power;
+ 	enum ath9k_key_type keytype:2;
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1314,6 +1314,11 @@ static void ath_buf_set_rate(struct ath_
+ 				 is_40, is_sgi, is_sp);
+ 			if (rix < 8 && (tx_info->flags & IEEE80211_TX_CTL_STBC))
+ 				info->rates[i].RateFlags |= ATH9K_RATESERIES_STBC;
++			if (rix >= 8 && fi->dyn_smps) {
++				info->rates[i].RateFlags |=
++					ATH9K_RATESERIES_RTS_CTS;
++				info->flags |= ATH9K_TXDESC_CTSENA;
++			}
  
- 	if (!netif_running(alx->dev))
- 		return 0;
--	netif_device_attach(alx->dev);
- 
- 	rtnl_lock();
- 	err = __alx_open(alx, true);
- 	rtnl_unlock();
-+	if (err)
-+		return err;
-+
-+	netif_device_attach(alx->dev);
- 
--	return err;
-+	return 0;
- }
- 
- static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
+ 			info->txpower[i] = ath_get_rate_txpower(sc, bf, rix,
+ 								is_40, false);
+@@ -2178,6 +2183,7 @@ static void setup_frame_info(struct ieee
+ 		fi->keyix = an->ps_key;
+ 	else
+ 		fi->keyix = ATH9K_TXKEYIX_INVALID;
++	fi->dyn_smps = sta && sta->smps_mode == IEEE80211_SMPS_DYNAMIC;
+ 	fi->keytype = keytype;
+ 	fi->framelen = framelen;
+ 	fi->tx_power = txpower;
 
 
