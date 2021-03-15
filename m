@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E886433BA6E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E630633B967
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235660AbhCOOJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49974 "EHLO mail.kernel.org"
+        id S233884AbhCOOCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231356AbhCOODg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC68264EF1;
-        Mon, 15 Mar 2021 14:03:33 +0000 (UTC)
+        id S232887AbhCOOAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A4164F69;
+        Mon, 15 Mar 2021 13:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817015;
-        bh=OsN9fP/3Q8x/uk2NpP+b5JvtzITPXV9VGc9C/iPEXmA=;
+        s=korg; t=1615816788;
+        bh=I5/Ju2sqpmZF9GUUl8cG9iEELjgWoaYlwhzX40Zzz+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fd/9gMAanGlnPqJmvpSzOsb5salbpoj99oPxa7dRvf9JJ5q9iKI5+ObqUqQXLzglN
-         y9m0w5XUwDT7SXiYGELLMqtgCwIsaqfhdCOcM+8oyC+BDhf6xOlPoB4f0bmmBspo5a
-         etEbWywEzhRkPj5WpFWHTQY50VnLkAcptXTYOhxw=
+        b=xmHgCTdvvEXa509HzwRzsKcpsliJh6Mz9R8ltjy9IAjXdSphkhfYw25B7+sY5rTWk
+         pxWDL0Rcqf5AGK49eR3FiSeVJGeL410+tUvSLdBYSOt04aXZYGbHWNoS8b2L9ZwUZ2
+         AzFF0uydqQxpKnfQvmJNIp69U/8iENmKlQPF14WE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 248/290] NFSv4.2: fix return value of _nfs4_get_security_label()
-Date:   Mon, 15 Mar 2021 14:55:41 +0100
-Message-Id: <20210315135550.399707805@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.4 110/168] usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other EPNUM
+Date:   Mon, 15 Mar 2021 14:55:42 +0100
+Message-Id: <20210315135553.976127888@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 53cb245454df5b13d7063162afd7a785aed6ebf2 ]
+commit b1d25e6ee57c2605845595b6c61340d734253eb3 upstream.
 
-An xattr 'get' handler is expected to return the length of the value on
-success, yet _nfs4_get_security_label() (and consequently also
-nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
-just 0 on success.
+According to the datasheet, this controller has a restriction
+which "set an endpoint number so that combinations of the DIR bit and
+the EPNUM bits do not overlap.". However, since the udc core driver is
+possible to assign a bulk pipe as an interrupt endpoint, an endpoint
+number may not match the pipe number. After that, when user rebinds
+another gadget driver, this driver broke the restriction because
+the driver didn't clear any configuration in usb_ep_disable().
 
-Fix this by returning label.len instead, which contains the length of
-the result.
+Example:
+ # modprobe g_ncm
+ Then, EP3 = pipe 3, EP4 = pipe 4, EP5 = pipe 6
+ # rmmod g_ncm
+ # modprobe g_hid
+ Then, EP3 = pipe 6, EP4 = pipe 7.
+ So, pipe 3 and pipe 6 are set as EP3.
 
-Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So, clear PIPECFG register in usbhs_pipe_free().
+
+Fixes: dfb87b8bfe09 ("usb: renesas_usbhs: gadget: fix re-enabling pipe without re-connecting")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1615168538-26101-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/renesas_usbhs/pipe.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index a811d42ffbd1..ba2dfba4854b 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -5967,7 +5967,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
- 		return ret;
- 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
- 		return -ENOENT;
--	return 0;
-+	return label.len;
+--- a/drivers/usb/renesas_usbhs/pipe.c
++++ b/drivers/usb/renesas_usbhs/pipe.c
+@@ -746,6 +746,8 @@ struct usbhs_pipe *usbhs_pipe_malloc(str
+ 
+ void usbhs_pipe_free(struct usbhs_pipe *pipe)
+ {
++	usbhsp_pipe_select(pipe);
++	usbhsp_pipe_cfg_set(pipe, 0xFFFF, 0);
+ 	usbhsp_put_pipe(pipe);
  }
  
- static int nfs4_get_security_label(struct inode *inode, void *buf,
--- 
-2.30.1
-
 
 
