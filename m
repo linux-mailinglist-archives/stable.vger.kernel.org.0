@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4794833BA19
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 511ED33B9EA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbhCOOH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:07:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48998 "EHLO mail.kernel.org"
+        id S235041AbhCOOHB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233713AbhCOOCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 339A864EED;
-        Mon, 15 Mar 2021 14:02:19 +0000 (UTC)
+        id S233522AbhCOOBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9A3664EF3;
+        Mon, 15 Mar 2021 14:01:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816940;
-        bh=Fhgwe28ATRz/2WBldTQblfj5onW69dG5dekJ9gMPgiE=;
+        s=korg; t=1615816915;
+        bh=yARp1X1kXSt6bnt386wN7Re33IMYNmu2wEiiRyuu6bM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDDSJxFB1Hh5/+7LVA/e4h0PS3ORvIYey+X8Q2z5UM6251dQgV1xnrwaILcjmYpR3
-         3kheVdxkqfrIZtRXzgOWOYjArELYrCgcDiXCxrO7Rri7qiSTGbAkTAM4P2DtEcJ50C
-         tfoVHW8W5eNXGoTphmh1/ra3yiGPwoBMyseNyzIM=
+        b=fKjkNUKIitgZfKM6+Ce09EisoolIXPvGqLR4EGpLa+qRYkLyj7lHYzs0xBw58Ffc7
+         tqnA8I8Fu4I+3/DYLUatCbPGaLSNeKq2nOnGRJshJZFaMbIrsy8IK37xGAT4xkCGTT
+         aZQienWYk8e8soL5+Xdi1RAwsTUbRUkhtvdbuick=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.11 216/306] usbip: fix vhci_hcd attach_store() races leading to gpf
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 186/290] arm64: kasan: fix page_alloc tagging with DEBUG_VIRTUAL
 Date:   Mon, 15 Mar 2021 14:54:39 +0100
-Message-Id: <20210315135514.923437739@linuxfoundation.org>
+Message-Id: <20210315135548.201063108@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,142 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-commit 718ad9693e3656120064b715fe931f43a6201e67 upstream.
+commit 86c83365ab76e4b43cedd3ce07a07d32a4dc79ba upstream.
 
-attach_store() is invoked when user requests import (attach) a device
-from usbip host.
+When CONFIG_DEBUG_VIRTUAL is enabled, the default page_to_virt() macro
+implementation from include/linux/mm.h is used. That definition doesn't
+account for KASAN tags, which leads to no tags on page_alloc allocations.
 
-Attach and detach are governed by local state and shared state
-- Shared state (usbip device status) - Device status is used to manage
-  the attach and detach operations on import-able devices.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- Device has to be in the right state to be attached and detached.
+Provide an arm64-specific definition for page_to_virt() when
+CONFIG_DEBUG_VIRTUAL is enabled that takes care of KASAN tags.
 
-Attach sequence includes validating the socket and creating receive (rx)
-and transmit (tx) threads to talk to the host to get access to the
-imported device. rx and tx threads depends on local and shared state to
-be correct and in sync.
-
-Detach sequence shuts the socket down and stops the rx and tx threads.
-Detach sequence relies on local and shared states to be in sync.
-
-There are races in updating the local and shared status in the current
-attach sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
-
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to VDEV_ST_NOTASSIGNED. This opens
-   up a race condition between the threads, port connect, and detach
-   handling.
-
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold vhci and usbip_device locks to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to VDEV_ST_NOTASSIGNED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
-
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the attach sequence.
-- Update usbip_device tcp_rx and tcp_tx pointers holding vhci and
-  usbip_device locks.
-
-Tested with syzbot reproducer:
-- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
-
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/bb434bd5d7a64fbec38b5ecfb838a6baef6eb12b.1615171203.git.skhan@linuxfoundation.org
+Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/4b55b35202706223d3118230701c6a59749d9b72.1615219501.git.andreyknvl@google.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vhci_sysfs.c |   29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/memory.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -312,6 +312,8 @@ static ssize_t attach_store(struct devic
- 	struct vhci *vhci;
- 	int err;
- 	unsigned long flags;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -306,6 +306,11 @@ static inline void *phys_to_virt(phys_ad
+ #define ARCH_PFN_OFFSET		((unsigned long)PHYS_PFN_OFFSET)
  
- 	/*
- 	 * @rhport: port number of vhci_hcd
-@@ -360,9 +362,24 @@ static ssize_t attach_store(struct devic
- 		return -EINVAL;
- 	}
- 
--	/* now need lock until setting vdev status as used */
-+	/* create threads before locking */
-+	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
-+	if (IS_ERR(tcp_rx)) {
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
-+	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
-+	if (IS_ERR(tcp_tx)) {
-+		kthread_stop(tcp_rx);
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
-+
-+	/* get task structs now */
-+	get_task_struct(tcp_rx);
-+	get_task_struct(tcp_tx);
- 
--	/* begin a lock */
-+	/* now begin lock until setting vdev status set */
- 	spin_lock_irqsave(&vhci->lock, flags);
- 	spin_lock(&vdev->ud.lock);
- 
-@@ -372,6 +389,8 @@ static ssize_t attach_store(struct devic
- 		spin_unlock_irqrestore(&vhci->lock, flags);
- 
- 		sockfd_put(socket);
-+		kthread_stop_put(tcp_rx);
-+		kthread_stop_put(tcp_tx);
- 
- 		dev_err(dev, "port %d already used\n", rhport);
- 		/*
-@@ -390,14 +409,16 @@ static ssize_t attach_store(struct devic
- 	vdev->speed         = speed;
- 	vdev->ud.sockfd     = sockfd;
- 	vdev->ud.tcp_socket = socket;
-+	vdev->ud.tcp_rx     = tcp_rx;
-+	vdev->ud.tcp_tx     = tcp_tx;
- 	vdev->ud.status     = VDEV_ST_NOTASSIGNED;
- 
- 	spin_unlock(&vdev->ud.lock);
- 	spin_unlock_irqrestore(&vhci->lock, flags);
- 	/* end the lock */
- 
--	vdev->ud.tcp_rx = kthread_get_run(vhci_rx_loop, &vdev->ud, "vhci_rx");
--	vdev->ud.tcp_tx = kthread_get_run(vhci_tx_loop, &vdev->ud, "vhci_tx");
-+	wake_up_process(vdev->ud.tcp_rx);
-+	wake_up_process(vdev->ud.tcp_tx);
- 
- 	rh_port_connect(vdev, speed);
- 
+ #if !defined(CONFIG_SPARSEMEM_VMEMMAP) || defined(CONFIG_DEBUG_VIRTUAL)
++#define page_to_virt(x)	({						\
++	__typeof__(x) __page = x;					\
++	void *__addr = __va(page_to_phys(__page));			\
++	(void *)__tag_set((const void *)__addr, page_kasan_tag(__page));\
++})
+ #define virt_to_page(x)		pfn_to_page(virt_to_pfn(x))
+ #else
+ #define page_to_virt(x)	({						\
 
 
