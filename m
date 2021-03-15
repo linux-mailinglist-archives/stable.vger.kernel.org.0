@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F08B733BC4F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:35:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A145633BC51
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:35:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233923AbhCOOYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:24:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45728 "EHLO mail.kernel.org"
+        id S233941AbhCOOYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:24:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238450AbhCOOXP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:23:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2063864F3D;
-        Mon, 15 Mar 2021 14:23:12 +0000 (UTC)
+        id S238448AbhCOOXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:23:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34CDA64F4F;
+        Mon, 15 Mar 2021 14:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615818194;
-        bh=pL8oEeOkVhCTQuvZfaQ9UdTHZ6z+z8pKjV23RvvcqTs=;
+        s=korg; t=1615818196;
+        bh=Mfsk9xHSj2fZ0ODSAngoMCjKk3eFvyRGtizLQ1ab/J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOcTpps1wTOuzXtNxPbF3VyYgKm+8BQdTxLqLgfDYk2cMvdIB/JfEoMWinjIKBwLQ
-         a3u87hGtOyt7ihvp1dyYNflq8DROx8EA20yoF9EO1fFrNXUBoRPcqeF/KCfhmTiU88
-         xFQgaTl4vbKJwDWP6tgjGA7Jiww3U/cr15/ydE8w=
+        b=B8yFMnNvAAzPUMcTXx5wUUMUE3JOH7AKclIc/o+fcU+msJB8Eo9ZUKJugXJcjT4+n
+         4E6gi7rWZcN+NcoIEr2G6mVs0tyoWlfPxdEU6ao36ntlCOfyVwds6GEgpteFU2LFp5
+         oHp/bDlLCcfnXE9vAl0HWvgLPPD9zZBkS5agHsE8=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, kvmarm@lists.cs.columbia.edu
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.10 288/290] xen/events: avoid handling the same event on two cpus at the same time
-Date:   Mon, 15 Mar 2021 15:22:38 +0100
-Message-Id: <20210315135551.780250805@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.10 289/290] KVM: arm64: Fix nVHE hyp panic host context restore
+Date:   Mon, 15 Mar 2021 15:22:39 +0100
+Message-Id: <20210315135551.812754429@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135551.391322899@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -44,123 +42,106 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Andrew Scull <ascull@google.com>
 
-commit b6622798bc50b625a1e62f82c7190df40c1f5b21 upstream.
+Commit c4b000c3928d4f20acef79dccf3a65ae3795e0b0 upstream.
 
-When changing the cpu affinity of an event it can happen today that
-(with some unlucky timing) the same event will be handled on the old
-and the new cpu at the same time.
+When panicking from the nVHE hyp and restoring the host context, x29 is
+expected to hold a pointer to the host context. This wasn't being done
+so fix it to make sure there's a valid pointer the host context being
+used.
 
-Avoid that by adding an "event active" flag to the per-event data and
-call the handler only if this flag isn't set.
+Rather than passing a boolean indicating whether or not the host context
+should be restored, instead pass the pointer to the host context. NULL
+is passed to indicate that no context should be restored.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-4-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: a2e102e20fd6 ("KVM: arm64: nVHE: Handle hyp panics")
+Cc: stable@vger.kernel.org # 5.10.y only
+Signed-off-by: Andrew Scull <ascull@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210219122406.1337626-1-ascull@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c |   26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+ arch/arm64/include/asm/kvm_hyp.h |    3 ++-
+ arch/arm64/kvm/hyp/nvhe/host.S   |   20 ++++++++++----------
+ arch/arm64/kvm/hyp/nvhe/switch.c |    3 +--
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -101,6 +101,7 @@ struct irq_info {
- #define EVT_MASK_REASON_EXPLICIT	0x01
- #define EVT_MASK_REASON_TEMPORARY	0x02
- #define EVT_MASK_REASON_EOI_PENDING	0x04
-+	u8 is_active;		/* Is event just being handled? */
- 	unsigned irq;
- 	evtchn_port_t evtchn;   /* event channel */
- 	unsigned short cpu;     /* cpu bound */
-@@ -751,6 +752,12 @@ static void xen_evtchn_close(evtchn_port
- 		BUG();
- }
+--- a/arch/arm64/include/asm/kvm_hyp.h
++++ b/arch/arm64/include/asm/kvm_hyp.h
+@@ -99,7 +99,8 @@ u64 __guest_enter(struct kvm_vcpu *vcpu)
  
-+static void event_handler_exit(struct irq_info *info)
-+{
-+	smp_store_release(&info->is_active, 0);
-+	clear_evtchn(info->evtchn);
-+}
+ void __noreturn hyp_panic(void);
+ #ifdef __KVM_NVHE_HYPERVISOR__
+-void __noreturn __hyp_do_panic(bool restore_host, u64 spsr, u64 elr, u64 par);
++void __noreturn __hyp_do_panic(struct kvm_cpu_context *host_ctxt, u64 spsr,
++			       u64 elr, u64 par);
+ #endif
+ 
+ #endif /* __ARM64_KVM_HYP_H__ */
+--- a/arch/arm64/kvm/hyp/nvhe/host.S
++++ b/arch/arm64/kvm/hyp/nvhe/host.S
+@@ -64,10 +64,15 @@ __host_enter_without_restoring:
+ SYM_FUNC_END(__host_exit)
+ 
+ /*
+- * void __noreturn __hyp_do_panic(bool restore_host, u64 spsr, u64 elr, u64 par);
++ * void __noreturn __hyp_do_panic(struct kvm_cpu_context *host_ctxt, u64 spsr,
++ * 				  u64 elr, u64 par);
+  */
+ SYM_FUNC_START(__hyp_do_panic)
+-	/* Load the format arguments into x1-7 */
++	mov	x29, x0
 +
- static void pirq_query_unmask(int irq)
- {
- 	struct physdev_irq_status_query irq_status;
-@@ -781,13 +788,13 @@ static void eoi_pirq(struct irq_data *da
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
++	/* Load the format string into x0 and arguments into x1-7 */
++	ldr	x0, =__hyp_panic_string
++
+ 	mov	x6, x3
+ 	get_vcpu_ptr x7, x3
  
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
+@@ -82,13 +87,8 @@ SYM_FUNC_START(__hyp_do_panic)
+ 	ldr	lr, =panic
+ 	msr	elr_el2, lr
  
- 		irq_move_masked_irq(data);
+-	/*
+-	 * Set the panic format string and enter the host, conditionally
+-	 * restoring the host context.
+-	 */
+-	cmp	x0, xzr
+-	ldr	x0, =__hyp_panic_string
+-	b.eq	__host_enter_without_restoring
++	/* Enter the host, conditionally restoring the host context. */
++	cbz	x29, __host_enter_without_restoring
+ 	b	__host_enter_for_panic
+ SYM_FUNC_END(__hyp_do_panic)
  
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
+@@ -144,7 +144,7 @@ SYM_FUNC_END(__hyp_do_panic)
  
- 	if (pirq_needs_eoi(data->irq)) {
- 		rc = HYPERVISOR_physdev_op(PHYSDEVOP_eoi, &eoi);
-@@ -1603,6 +1610,8 @@ void handle_irq_for_port(evtchn_port_t p
+ .macro invalid_host_el1_vect
+ 	.align 7
+-	mov	x0, xzr		/* restore_host = false */
++	mov	x0, xzr		/* host_ctxt = NULL */
+ 	mrs	x1, spsr_el2
+ 	mrs	x2, elr_el2
+ 	mrs	x3, par_el1
+--- a/arch/arm64/kvm/hyp/nvhe/switch.c
++++ b/arch/arm64/kvm/hyp/nvhe/switch.c
+@@ -260,7 +260,6 @@ void __noreturn hyp_panic(void)
+ 	u64 spsr = read_sysreg_el2(SYS_SPSR);
+ 	u64 elr = read_sysreg_el2(SYS_ELR);
+ 	u64 par = read_sysreg_par();
+-	bool restore_host = true;
+ 	struct kvm_cpu_context *host_ctxt;
+ 	struct kvm_vcpu *vcpu;
+ 
+@@ -274,7 +273,7 @@ void __noreturn hyp_panic(void)
+ 		__sysreg_restore_state_nvhe(host_ctxt);
  	}
  
- 	info = info_for_irq(irq);
-+	if (xchg_acquire(&info->is_active, 1))
-+		return;
- 
- 	if (ctrl->defer_eoi) {
- 		info->eoi_cpu = smp_processor_id();
-@@ -1778,13 +1787,13 @@ static void ack_dynirq(struct irq_data *
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
- 
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
+-	__hyp_do_panic(restore_host, spsr, elr, par);
++	__hyp_do_panic(host_ctxt, spsr, elr, par);
+ 	unreachable();
  }
  
- static void mask_ack_dynirq(struct irq_data *data)
-@@ -1800,7 +1809,7 @@ static void lateeoi_ack_dynirq(struct ir
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1811,7 +1820,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1922,10 +1931,11 @@ static void restore_cpu_ipis(unsigned in
- /* Clear an irq's pending state, in preparation for polling on it */
- void xen_clear_irq_pending(int irq)
- {
--	evtchn_port_t evtchn = evtchn_from_irq(irq);
-+	struct irq_info *info = info_for_irq(irq);
-+	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
- 	if (VALID_EVTCHN(evtchn))
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- EXPORT_SYMBOL(xen_clear_irq_pending);
- void xen_set_irq_pending(int irq)
 
 
