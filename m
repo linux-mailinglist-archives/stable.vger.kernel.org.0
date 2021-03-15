@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A13133B65C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E8133B56F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbhCON5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
+        id S231416AbhCONyY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231781AbhCON5M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A1F64F44;
-        Mon, 15 Mar 2021 13:57:10 +0000 (UTC)
+        id S231194AbhCONxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BF3B64EF0;
+        Mon, 15 Mar 2021 13:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816631;
-        bh=jSKspWM7EfzKqcDjD2f4ifI8H3zPgj3EYllVYCjybuA=;
+        s=korg; t=1615816435;
+        bh=+v8QAgvYgNIpdStiRG1288yKy4WwdsJSEJKqh8j7Gdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K9fO/iQqvEWiUxT7WRF3zjovtpqTJM4kONamUMjCZu2V7s246NLGmS0tLQuUFNv4S
-         SeYCzPftNaFc4uO+C2JSMNTLxUXxHvM5VOWGKKia9iwa06ndDrpVY7tEqSH6gDVWbG
-         +O2/6wd3Bc9LGxFER0jkZttfcChHVSbRG8ZD/9gw=
+        b=YOJ+Hmg3+KEGIemiA6ArxqMxnGqIpJ2JUrmBLB4jReWmzC8umHQh6onEqMKEWwOHz
+         XS7ZbsN8RNcNfz75f0MPI+pjVto5UYVN8zcovi7GVczBfv4RXqSLigaCkrMsESdnh5
+         mdfuLaC8UyGGlsKxm5ErzQBUgZle5N2X6cfoK7Lc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        William Tu <u9012063@gmail.com>
-Subject: [PATCH 5.10 023/290] selftests/bpf: No need to drop the packet when there is no geneve opt
+        stable@vger.kernel.org,
+        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
+        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
+        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.4 42/75] usbip: fix stub_dev usbip_sockfd_store() races leading to gpf
 Date:   Mon, 15 Mar 2021 14:51:56 +0100
-Message-Id: <20210315135542.714939400@linuxfoundation.org>
+Message-Id: <20210315135209.630408255@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +45,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 557c223b643a35effec9654958d8edc62fd2603a upstream.
+commit 9380afd6df70e24eacbdbde33afc6a3950965d22 upstream.
 
-In bpf geneve tunnel test we set geneve option on tx side. On rx side we
-only call bpf_skb_get_tunnel_opt(). Since commit 9c2e14b48119 ("ip_tunnels:
-Set tunnel option flag when tunnel metadata is present") geneve_rx() will
-not add TUNNEL_GENEVE_OPT flag if there is no geneve option, which cause
-bpf_skb_get_tunnel_opt() return ENOENT and _geneve_get_tunnel() in
-test_tunnel_kern.c drop the packet.
+usbip_sockfd_store() is invoked when user requests attach (import)
+detach (unimport) usb device from usbip host. vhci_hcd sends import
+request and usbip_sockfd_store() exports the device if it is free
+for export.
 
-As it should be valid that bpf_skb_get_tunnel_opt() return error when
-there is not tunnel option, there is no need to drop the packet and
-break all geneve rx traffic. Just set opt_class to 0 in this test and
-keep returning TC_ACT_OK.
+Export and unexport are governed by local state and shared state
+- Shared state (usbip device status, sockfd) - sockfd and Device
+  status are used to determine if stub should be brought up or shut
+  down.
+- Local state (tcp_socket, rx and tx thread task_struct ptrs)
+  A valid tcp_socket controls rx and tx thread operations while the
+  device is in exported state.
+- While the device is exported, device status is marked used and socket,
+  sockfd, and thread pointers are valid.
 
-Fixes: 933a741e3b82 ("selftests/bpf: bpf tunnel test.")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: William Tu <u9012063@gmail.com>
-Link: https://lore.kernel.org/bpf/20210224081403.1425474-1-liuhangbin@gmail.com
+Export sequence (stub-up) includes validating the socket and creating
+receive (rx) and transmit (tx) threads to talk to the client to provide
+access to the exported device. rx and tx threads depends on local and
+shared state to be correct and in sync.
+
+Unexport (stub-down) sequence shuts the socket down and stops the rx and
+tx threads. Stub-down sequence relies on local and shared states to be
+in sync.
+
+There are races in updating the local and shared status in the current
+stub-up sequence resulting in crashes. These stem from starting rx and
+tx threads before local and global state is updated correctly to be in
+sync.
+
+1. Doesn't handle kthread_create() error and saves invalid ptr in local
+   state that drives rx and tx threads.
+2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
+   before updating usbip_device status to SDEV_ST_USED. This opens up a
+   race condition between the threads and usbip_sockfd_store() stub up
+   and down handling.
+
+Fix the above problems:
+- Stop using kthread_get_run() macro to create/start threads.
+- Create threads and get task struct reference.
+- Add kthread_create() failure handling and bail out.
+- Hold usbip_device lock to update local and shared states after
+  creating rx and tx threads.
+- Update usbip_device status to SDEV_ST_USED.
+- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
+- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
+  and status) is complete.
+
+Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
+kthread_get_run() improper error handling problem and others. This is a
+hard problem to find and debug since the races aren't seen in a normal
+case. Fuzzing forces the race window to be small enough for the
+kthread_get_run() error path bug and starting threads before updating the
+local and shared state bug in the stub-up sequence.
+
+Tested with syzbot reproducer:
+- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
+
+Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/268a0668144d5ff36ec7d87fdfa90faf583b7ccc.1615171203.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_tunnel_kern.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/usbip/stub_dev.c |   32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
---- a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-+++ b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-@@ -446,10 +446,8 @@ int _geneve_get_tunnel(struct __sk_buff
- 	}
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -60,6 +60,8 @@ static ssize_t store_sockfd(struct devic
+ 	int sockfd = 0;
+ 	struct socket *socket;
+ 	int rv;
++	struct task_struct *tcp_rx = NULL;
++	struct task_struct *tcp_tx = NULL;
  
- 	ret = bpf_skb_get_tunnel_opt(skb, &gopt, sizeof(gopt));
--	if (ret < 0) {
--		ERROR(ret);
--		return TC_ACT_SHOT;
--	}
-+	if (ret < 0)
-+		gopt.opt_class = 0;
+ 	if (!sdev) {
+ 		dev_err(dev, "sdev is null\n");
+@@ -94,20 +96,36 @@ static ssize_t store_sockfd(struct devic
+ 			goto sock_err;
+ 		}
  
- 	bpf_trace_printk(fmt, sizeof(fmt),
- 			key.tunnel_id, key.remote_ipv4, gopt.opt_class);
+-		sdev->ud.tcp_socket = socket;
+-		sdev->ud.sockfd = sockfd;
+-
++		/* unlock and create threads and get tasks */
+ 		spin_unlock_irq(&sdev->ud.lock);
++		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
++		if (IS_ERR(tcp_rx)) {
++			sockfd_put(socket);
++			return -EINVAL;
++		}
++		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
++		if (IS_ERR(tcp_tx)) {
++			kthread_stop(tcp_rx);
++			sockfd_put(socket);
++			return -EINVAL;
++		}
+ 
+-		sdev->ud.tcp_rx = kthread_get_run(stub_rx_loop, &sdev->ud,
+-						  "stub_rx");
+-		sdev->ud.tcp_tx = kthread_get_run(stub_tx_loop, &sdev->ud,
+-						  "stub_tx");
++		/* get task structs now */
++		get_task_struct(tcp_rx);
++		get_task_struct(tcp_tx);
+ 
++		/* lock and update sdev->ud state */
+ 		spin_lock_irq(&sdev->ud.lock);
++		sdev->ud.tcp_socket = socket;
++		sdev->ud.sockfd = sockfd;
++		sdev->ud.tcp_rx = tcp_rx;
++		sdev->ud.tcp_tx = tcp_tx;
+ 		sdev->ud.status = SDEV_ST_USED;
+ 		spin_unlock_irq(&sdev->ud.lock);
+ 
++		wake_up_process(sdev->ud.tcp_rx);
++		wake_up_process(sdev->ud.tcp_tx);
++
+ 	} else {
+ 		dev_info(dev, "stub down\n");
+ 
 
 
