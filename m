@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8835533B948
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3581633B750
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233572AbhCOOFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S232871AbhCOOAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233272AbhCOOBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB3AE64F6E;
-        Mon, 15 Mar 2021 14:00:54 +0000 (UTC)
+        id S232590AbhCON7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 052C164F27;
+        Mon, 15 Mar 2021 13:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816856;
-        bh=l3sIDKaoBXfVT2r26H/MhkciIgEcgQWWz+VuS4H84v0=;
+        s=korg; t=1615816735;
+        bh=hepS+Tc5vHcHzMEc+y9tZCTW8rVIiunFcbg1cP8+axI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ysBAxdd7rnfj2B4Yt02RNNTOLdNCvhAnxE7Wj83pVqZ5Gt0O4EAuZ7N5e/tMj+QUr
-         atEzx3N5pDvLXdG4cWchU5zMHjkS3/NWRR8zFvq8uXMhzlS6ylw83Ee3AfcOXW17DM
-         rLXhJ6zFu4XR3eluTyEpr3DzdRspd6xP0M6xK6Fc=
+        b=fy7n8MNfpI/y+ZKOoNeBFwlcc1A8zJ6hVc7R8YDfJDibred1qFB1qJPcyB7zNGcQM
+         gadq2DPkGb9MP083QoFJGJc3y8VBnVFLXzuOOxlqRgTcXKPKIUCy1UF1gGbCtlkdfm
+         K77QnpRXyyfATgN9/55aWWZ2gG+DFlbgx9Oy3u9g=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/168] include/linux/sched/mm.h: use rcu_dereference in in_vfork()
+        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 4.19 035/120] drm: meson_drv add shutdown function
 Date:   Mon, 15 Mar 2021 14:56:26 +0100
-Message-Id: <20210315135555.410453379@linuxfoundation.org>
+Message-Id: <20210315135721.139245136@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +44,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Artem Lapkin <art@khadas.com>
 
-[ Upstream commit 149fc787353f65b7e72e05e7b75d34863266c3e2 ]
+commit fa0c16caf3d73ab4d2e5d6fa2ef2394dbec91791 upstream.
 
-Fix a sparse warning by using rcu_dereference().  Technically this is a
-bug and a sufficiently aggressive compiler could reload the `real_parent'
-pointer outside the protection of the rcu lock (and access freed memory),
-but I think it's pretty unlikely to happen.
+Problem: random stucks on reboot stage about 1/20 stuck/reboots
+// debug kernel log
+[    4.496660] reboot: kernel restart prepare CMD:(null)
+[    4.498114] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown begin
+[    4.503949] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown domain 0:VPU...
+...STUCK...
 
-Link: https://lkml.kernel.org/r/20210221194207.1351703-1-willy@infradead.org
-Fixes: b18dc5f291c0 ("mm, oom: skip vforked tasks from being selected")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Solution: add shutdown function to meson_drm driver
+// debug kernel log
+[    5.231896] reboot: kernel restart prepare CMD:(null)
+[    5.246135] [drm:meson_drv_shutdown]
+...
+[    5.259271] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown begin
+[    5.274688] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown domain 0:VPU...
+[    5.338331] reboot: Restarting system
+[    5.358293] psci: PSCI_0_2_FN_SYSTEM_RESET reboot_mode:0 cmd:(null)
+bl31 reboot reason: 0xd
+bl31 reboot reason: 0x0
+system cmd  1.
+...REBOOT...
+
+Tested: on VIM1 VIM2 VIM3 VIM3L khadas sbcs - 1000+ successful reboots
+and Odroid boards, WeTek Play2 (GXBB)
+
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Artem Lapkin <art@khadas.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210302042202.3728113-1-art@khadas.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched/mm.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/meson/meson_drv.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
-index a132d875d351..3a1d899019af 100644
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -167,7 +167,8 @@ static inline bool in_vfork(struct task_struct *tsk)
- 	 * another oom-unkillable task does this it should blame itself.
- 	 */
- 	rcu_read_lock();
--	ret = tsk->vfork_done && tsk->real_parent->mm == tsk->mm;
-+	ret = tsk->vfork_done &&
-+			rcu_dereference(tsk->real_parent)->mm == tsk->mm;
- 	rcu_read_unlock();
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -384,6 +384,16 @@ static int meson_probe_remote(struct pla
+ 	return count;
+ }
  
- 	return ret;
--- 
-2.30.1
-
++static void meson_drv_shutdown(struct platform_device *pdev)
++{
++	struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
++	struct drm_device *drm = priv->drm;
++
++	DRM_DEBUG_DRIVER("\n");
++	drm_kms_helper_poll_fini(drm);
++	drm_atomic_helper_shutdown(drm);
++}
++
+ static int meson_drv_probe(struct platform_device *pdev)
+ {
+ 	struct component_match *match = NULL;
+@@ -428,6 +438,7 @@ MODULE_DEVICE_TABLE(of, dt_match);
+ 
+ static struct platform_driver meson_drm_platform_driver = {
+ 	.probe      = meson_drv_probe,
++	.shutdown   = meson_drv_shutdown,
+ 	.driver     = {
+ 		.name	= "meson-drm",
+ 		.of_match_table = dt_match,
 
 
