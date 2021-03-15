@@ -2,37 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D629A33B893
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E80E33B92D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232990AbhCOODz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S234680AbhCOOFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233028AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B8AE64F4B;
-        Mon, 15 Mar 2021 14:00:12 +0000 (UTC)
+        id S233224AbhCOOBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EAD264F2C;
+        Mon, 15 Mar 2021 14:00:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816813;
-        bh=cVqynOJDFRJZW692g2gKwamZGseGvNVXmtaIOGX8ERg=;
+        s=korg; t=1615816845;
+        bh=2nfIUCNxLafC23yIpON74DLn4U5M1gY0E//vdyOTZf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjWiQBbKje6iITl5ZEwuywf46tlBQaZPi241V/YFGQLYZVTngOA6fo/AExhYJ95U7
-         89knkxM9fTW32/xhxjDc6l6SzNvyqqHaHycodm/yqtUOzlUaj0tP0i83+eE7DY9hBa
-         aNfxoTKhqxfOYirCersu0q9BLM/VSctA+rMqiLCs=
+        b=gpepgdDs9NT/ds64j2WqdMa50IZxhdNbdTjWHn6iBIAho6akCS93WM3diYi0gyim0
+         R+yt/bagjibqv3itibvDHFMGWPcECAFGhbdW1RFqLgw0faGiHPzRMIGMwtbj/W1hZo
+         8SCx8113dMFU6YAnfmZabmujigoR0k2XQ1UxRP00=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Singh <ritesi@codeaurora.org>,
-        Maharaja Kennadyrajan <mkenna@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
+        Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Tom Rix <trix@redhat.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 128/290] ath11k: peer delete synchronization with firmware
+Subject: [PATCH 5.11 158/306] drivers/base/memory: dont store phys_device in memory blocks
 Date:   Mon, 15 Mar 2021 14:53:41 +0100
-Message-Id: <20210315135546.236777857@linuxfoundation.org>
+Message-Id: <20210315135512.967826369@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,210 +54,181 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ritesh Singh <ritesi@codeaurora.org>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 690ace20ff790f443c3cbaf12e1769e4eb0072db ]
+[ Upstream commit e9a2e48e8704c9d20a625c6f2357147d03ea7b97 ]
 
-Peer creation in firmware fails, if last peer deletion
-is still in progress.
-Hence, add wait for the event after deleting every peer
-from host driver to synchronize with firmware.
+No need to store the value for each and every memory block, as we can
+easily query the value at runtime.  Reshuffle the members to optimize the
+memory layout.  Also, let's clarify what the interface once was used for
+and why it's legacy nowadays.
 
-Signed-off-by: Ritesh Singh <ritesi@codeaurora.org>
-Signed-off-by: Maharaja Kennadyrajan <mkenna@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1605514143-17652-3-git-send-email-mkenna@codeaurora.org
+"phys_device" was used on s390x in older versions of lsmem[2]/chmem[3],
+back when they were still part of s390x-tools.  They were later replaced
+by the variants in linux-utils.  For example, RHEL6 and RHEL7 contain
+lsmem/chmem from s390-utils.  RHEL8 switched to versions from util-linux
+on s390x [4].
+
+"phys_device" was added with sysfs support for memory hotplug in commit
+3947be1969a9 ("[PATCH] memory hotplug: sysfs and add/remove functions") in
+2005.  It always returned 0.
+
+s390x started returning something != 0 on some setups (if sclp.rzm is set
+by HW) in 2010 via commit 57b552ba0b2f ("memory hotplug/s390: set
+phys_device").
+
+For s390x, it allowed for identifying which memory block devices belong to
+the same storage increment (RZM).  Only if all memory block devices
+comprising a single storage increment were offline, the memory could
+actually be removed in the hypervisor.
+
+Since commit e5d709bb5fb7 ("s390/memory hotplug: provide
+memory_block_size_bytes() function") in 2013 a memory block device spans
+at least one storage increment - which is why the interface isn't really
+helpful/used anymore (except by old lsmem/chmem tools).
+
+There were once RFC patches to make use of "phys_device" in ACPI context;
+however, the underlying problem could be solved using different interfaces
+[1].
+
+[1] https://patchwork.kernel.org/patch/2163871/
+[2] https://github.com/ibm-s390-tools/s390-tools/blob/v2.1.0/zconf/lsmem
+[3] https://github.com/ibm-s390-tools/s390-tools/blob/v2.1.0/zconf/chmem
+[4] https://bugzilla.redhat.com/show_bug.cgi?id=1504134
+
+Link: https://lkml.kernel.org/r/20210201181347.13262-2-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Ilya Dryomov <idryomov@gmail.com>
+Cc: Vaibhav Jain <vaibhav@linux.ibm.com>
+Cc: Tom Rix <trix@redhat.com>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/core.c |  1 +
- drivers/net/wireless/ath/ath11k/core.h |  1 +
- drivers/net/wireless/ath/ath11k/mac.c  | 17 +++++++++-
- drivers/net/wireless/ath/ath11k/peer.c | 44 ++++++++++++++++++++++++--
- drivers/net/wireless/ath/ath11k/peer.h |  2 ++
- drivers/net/wireless/ath/ath11k/wmi.c  | 17 ++++++++--
- 6 files changed, 75 insertions(+), 7 deletions(-)
+ .../ABI/testing/sysfs-devices-memory          |  5 ++--
+ .../admin-guide/mm/memory-hotplug.rst         |  4 +--
+ drivers/base/memory.c                         | 25 +++++++------------
+ include/linux/memory.h                        |  3 +--
+ 4 files changed, 15 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index ebd6886a8c18..a68fe3a45a74 100644
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -774,6 +774,7 @@ static void ath11k_core_restart(struct work_struct *work)
- 		complete(&ar->scan.started);
- 		complete(&ar->scan.completed);
- 		complete(&ar->peer_assoc_done);
-+		complete(&ar->peer_delete_done);
- 		complete(&ar->install_key_done);
- 		complete(&ar->vdev_setup_done);
- 		complete(&ar->bss_survey_done);
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index 5a7915f75e1e..c8e36251068c 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -502,6 +502,7 @@ struct ath11k {
- 	u8 lmac_id;
+diff --git a/Documentation/ABI/testing/sysfs-devices-memory b/Documentation/ABI/testing/sysfs-devices-memory
+index 246a45b96d22..58dbc592bc57 100644
+--- a/Documentation/ABI/testing/sysfs-devices-memory
++++ b/Documentation/ABI/testing/sysfs-devices-memory
+@@ -26,8 +26,9 @@ Date:		September 2008
+ Contact:	Badari Pulavarty <pbadari@us.ibm.com>
+ Description:
+ 		The file /sys/devices/system/memory/memoryX/phys_device
+-		is read-only and is designed to show the name of physical
+-		memory device.  Implementation is currently incomplete.
++		is read-only;  it is a legacy interface only ever used on s390x
++		to expose the covered storage increment.
++Users:		Legacy s390-tools lsmem/chmem
  
- 	struct completion peer_assoc_done;
-+	struct completion peer_delete_done;
+ What:		/sys/devices/system/memory/memoryX/phys_index
+ Date:		September 2008
+diff --git a/Documentation/admin-guide/mm/memory-hotplug.rst b/Documentation/admin-guide/mm/memory-hotplug.rst
+index 5c4432c96c4b..245739f55ac7 100644
+--- a/Documentation/admin-guide/mm/memory-hotplug.rst
++++ b/Documentation/admin-guide/mm/memory-hotplug.rst
+@@ -160,8 +160,8 @@ Under each memory block, you can see 5 files:
  
- 	int install_key_status;
- 	struct completion install_key_done;
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index b5bd9b06da89..c8f1b786e746 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -4589,8 +4589,22 @@ static int ath11k_mac_op_add_interface(struct ieee80211_hw *hw,
- 
- err_peer_del:
- 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
-+		reinit_completion(&ar->peer_delete_done);
-+
-+		ret = ath11k_wmi_send_peer_delete_cmd(ar, vif->addr,
-+						      arvif->vdev_id);
-+		if (ret) {
-+			ath11k_warn(ar->ab, "failed to delete peer vdev_id %d addr %pM\n",
-+				    arvif->vdev_id, vif->addr);
-+			return ret;
-+		}
-+
-+		ret = ath11k_wait_for_peer_delete_done(ar, arvif->vdev_id,
-+						       vif->addr);
-+		if (ret)
-+			return ret;
-+
- 		ar->num_peers--;
--		ath11k_wmi_send_peer_delete_cmd(ar, vif->addr, arvif->vdev_id);
- 	}
- 
- err_vdev_del:
-@@ -6413,6 +6427,7 @@ int ath11k_mac_allocate(struct ath11k_base *ab)
- 		mutex_init(&ar->conf_mutex);
- 		init_completion(&ar->vdev_setup_done);
- 		init_completion(&ar->peer_assoc_done);
-+		init_completion(&ar->peer_delete_done);
- 		init_completion(&ar->install_key_done);
- 		init_completion(&ar->bss_survey_done);
- 		init_completion(&ar->scan.started);
-diff --git a/drivers/net/wireless/ath/ath11k/peer.c b/drivers/net/wireless/ath/ath11k/peer.c
-index 61ad9300eafb..1866d82678fa 100644
---- a/drivers/net/wireless/ath/ath11k/peer.c
-+++ b/drivers/net/wireless/ath/ath11k/peer.c
-@@ -177,12 +177,36 @@ static int ath11k_wait_for_peer_deleted(struct ath11k *ar, int vdev_id, const u8
- 	return ath11k_wait_for_peer_common(ar->ab, vdev_id, addr, false);
+                     "online_movable", "online", "offline" command
+                     which will be performed on all sections in the block.
+-``phys_device``     read-only: designed to show the name of physical memory
+-                    device.  This is not well implemented now.
++``phys_device``	    read-only: legacy interface only ever used on s390x to
++		    expose the covered storage increment.
+ ``removable``       read-only: contains an integer value indicating
+                     whether the memory block is removable or not
+                     removable.  A value of 1 indicates that the memory
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index eef4ffb6122c..de058d15b33e 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -290,20 +290,20 @@ static ssize_t state_store(struct device *dev, struct device_attribute *attr,
  }
  
-+int ath11k_wait_for_peer_delete_done(struct ath11k *ar, u32 vdev_id,
-+				     const u8 *addr)
-+{
-+	int ret;
-+	unsigned long time_left;
-+
-+	ret = ath11k_wait_for_peer_deleted(ar, vdev_id, addr);
-+	if (ret) {
-+		ath11k_warn(ar->ab, "failed wait for peer deleted");
-+		return ret;
-+	}
-+
-+	time_left = wait_for_completion_timeout(&ar->peer_delete_done,
-+						3 * HZ);
-+	if (time_left == 0) {
-+		ath11k_warn(ar->ab, "Timeout in receiving peer delete response\n");
-+		return -ETIMEDOUT;
-+	}
-+
-+	return 0;
-+}
-+
- int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr)
+ /*
+- * phys_device is a bad name for this.  What I really want
+- * is a way to differentiate between memory ranges that
+- * are part of physical devices that constitute
+- * a complete removable unit or fru.
+- * i.e. do these ranges belong to the same physical device,
+- * s.t. if I offline all of these sections I can then
+- * remove the physical device?
++ * Legacy interface that we cannot remove: s390x exposes the storage increment
++ * covered by a memory block, allowing for identifying which memory blocks
++ * comprise a storage increment. Since a memory block spans complete
++ * storage increments nowadays, this interface is basically unused. Other
++ * archs never exposed != 0.
+  */
+ static ssize_t phys_device_show(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
  {
- 	int ret;
+ 	struct memory_block *mem = to_memory_block(dev);
++	unsigned long start_pfn = section_nr_to_pfn(mem->start_section_nr);
  
- 	lockdep_assert_held(&ar->conf_mutex);
- 
-+	reinit_completion(&ar->peer_delete_done);
-+
- 	ret = ath11k_wmi_send_peer_delete_cmd(ar, addr, vdev_id);
- 	if (ret) {
- 		ath11k_warn(ar->ab,
-@@ -191,7 +215,7 @@ int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr)
- 		return ret;
- 	}
- 
--	ret = ath11k_wait_for_peer_deleted(ar, vdev_id, addr);
-+	ret = ath11k_wait_for_peer_delete_done(ar, vdev_id, addr);
- 	if (ret)
- 		return ret;
- 
-@@ -247,8 +271,22 @@ int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
- 		spin_unlock_bh(&ar->ab->base_lock);
- 		ath11k_warn(ar->ab, "failed to find peer %pM on vdev %i after creation\n",
- 			    param->peer_addr, param->vdev_id);
--		ath11k_wmi_send_peer_delete_cmd(ar, param->peer_addr,
--						param->vdev_id);
-+
-+		reinit_completion(&ar->peer_delete_done);
-+
-+		ret = ath11k_wmi_send_peer_delete_cmd(ar, param->peer_addr,
-+						      param->vdev_id);
-+		if (ret) {
-+			ath11k_warn(ar->ab, "failed to delete peer vdev_id %d addr %pM\n",
-+				    param->vdev_id, param->peer_addr);
-+			return ret;
-+		}
-+
-+		ret = ath11k_wait_for_peer_delete_done(ar, param->vdev_id,
-+						       param->peer_addr);
-+		if (ret)
-+			return ret;
-+
- 		return -ENOENT;
- 	}
- 
-diff --git a/drivers/net/wireless/ath/ath11k/peer.h b/drivers/net/wireless/ath/ath11k/peer.h
-index 5d125ce8984e..bba2e00b6944 100644
---- a/drivers/net/wireless/ath/ath11k/peer.h
-+++ b/drivers/net/wireless/ath/ath11k/peer.h
-@@ -41,5 +41,7 @@ void ath11k_peer_cleanup(struct ath11k *ar, u32 vdev_id);
- int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr);
- int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
- 		       struct ieee80211_sta *sta, struct peer_create_params *param);
-+int ath11k_wait_for_peer_delete_done(struct ath11k *ar, u32 vdev_id,
-+				     const u8 *addr);
- 
- #endif /* _PEER_H_ */
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 04b8b002edfe..173ab6ceed1f 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -5532,15 +5532,26 @@ static int ath11k_ready_event(struct ath11k_base *ab, struct sk_buff *skb)
- static void ath11k_peer_delete_resp_event(struct ath11k_base *ab, struct sk_buff *skb)
- {
- 	struct wmi_peer_delete_resp_event peer_del_resp;
-+	struct ath11k *ar;
- 
- 	if (ath11k_pull_peer_del_resp_ev(ab, skb, &peer_del_resp) != 0) {
- 		ath11k_warn(ab, "failed to extract peer delete resp");
- 		return;
- 	}
- 
--	/* TODO: Do we need to validate whether ath11k_peer_find() return NULL
--	 *	 Why this is needed when there is HTT event for peer delete
--	 */
-+	rcu_read_lock();
-+	ar = ath11k_mac_get_ar_by_vdev_id(ab, peer_del_resp.vdev_id);
-+	if (!ar) {
-+		ath11k_warn(ab, "invalid vdev id in peer delete resp ev %d",
-+			    peer_del_resp.vdev_id);
-+		rcu_read_unlock();
-+		return;
-+	}
-+
-+	complete(&ar->peer_delete_done);
-+	rcu_read_unlock();
-+	ath11k_dbg(ab, ATH11K_DBG_WMI, "peer delete resp for vdev id %d addr %pM\n",
-+		   peer_del_resp.vdev_id, peer_del_resp.peer_macaddr.addr);
+-	return sysfs_emit(buf, "%d\n", mem->phys_device);
++	return sysfs_emit(buf, "%d\n",
++			  arch_get_memory_phys_device(start_pfn));
  }
  
- static inline const char *ath11k_wmi_vdev_resp_print(u32 vdev_resp_status)
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+@@ -488,11 +488,7 @@ static DEVICE_ATTR_WO(soft_offline_page);
+ static DEVICE_ATTR_WO(hard_offline_page);
+ #endif
+ 
+-/*
+- * Note that phys_device is optional.  It is here to allow for
+- * differentiation between which *physical* devices each
+- * section belongs to...
+- */
++/* See phys_device_show(). */
+ int __weak arch_get_memory_phys_device(unsigned long start_pfn)
+ {
+ 	return 0;
+@@ -574,7 +570,6 @@ int register_memory(struct memory_block *memory)
+ static int init_memory_block(unsigned long block_id, unsigned long state)
+ {
+ 	struct memory_block *mem;
+-	unsigned long start_pfn;
+ 	int ret = 0;
+ 
+ 	mem = find_memory_block_by_id(block_id);
+@@ -588,8 +583,6 @@ static int init_memory_block(unsigned long block_id, unsigned long state)
+ 
+ 	mem->start_section_nr = block_id * sections_per_block;
+ 	mem->state = state;
+-	start_pfn = section_nr_to_pfn(mem->start_section_nr);
+-	mem->phys_device = arch_get_memory_phys_device(start_pfn);
+ 	mem->nid = NUMA_NO_NODE;
+ 
+ 	ret = register_memory(mem);
+diff --git a/include/linux/memory.h b/include/linux/memory.h
+index 439a89e758d8..4da95e684e20 100644
+--- a/include/linux/memory.h
++++ b/include/linux/memory.h
+@@ -27,9 +27,8 @@ struct memory_block {
+ 	unsigned long start_section_nr;
+ 	unsigned long state;		/* serialized by the dev->lock */
+ 	int online_type;		/* for passing data to online routine */
+-	int phys_device;		/* to which fru does this belong? */
+-	struct device dev;
+ 	int nid;			/* NID for this memory block */
++	struct device dev;
+ };
+ 
+ int arch_get_memory_phys_device(unsigned long start_pfn);
 -- 
 2.30.1
 
