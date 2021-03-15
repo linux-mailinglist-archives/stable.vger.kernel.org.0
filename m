@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A368433B66C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C0B33B64F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232168AbhCON5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+        id S232043AbhCON5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231921AbhCON5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 503CA64EF9;
-        Mon, 15 Mar 2021 13:57:04 +0000 (UTC)
+        id S231329AbhCON5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E073F64EEC;
+        Mon, 15 Mar 2021 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816625;
-        bh=GHWPrKkjs+Ig7xn4jmmEy1KgITn56omBYTry/y42Vqs=;
+        s=korg; t=1615816626;
+        bh=sujTiFdD43xDCjXbqoWEtCzs6XmK5ywQFXvpQXWecoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6zY2EYrKWlRAEFySGZ3ge9H8NErWEfRQSn3VcqOCSDwbprZUGab7KPDlBXww9EiU
-         K1uEpGSul/DTBODp9LV9iIQzUL9ZAQxH6us30p2PIp+kKU4a7IxfMNMP5OcRRn8J6L
-         zNt9lNouyyVW+bSULPMHE2V6257pC+ufzCQTRH8Q=
+        b=sYTxbDui7/pqlhXu4B9ITe0Q/L8wZ93cFpCsbiot9hKKDKBMOR2AE6hY1Drvk8QBH
+         6hWTr80NJW0ddIZ3ai069qb9fi8dr9wZcAZhABdVnfwma8xxy0BEJAhYH1V5Dw1qXj
+         rbofJ1G1v7eGfWDPkPgVZYR1UMYwK36p9l97AsbA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 011/168] can: flexcan: enable RX FIFO after FRZ/HALT valid
-Date:   Mon, 15 Mar 2021 14:54:03 +0100
-Message-Id: <20210315135550.713280166@linuxfoundation.org>
+Subject: [PATCH 5.4 012/168] can: flexcan: invoke flexcan_chip_freeze() to enter freeze mode
+Date:   Mon, 15 Mar 2021 14:54:04 +0100
+Message-Id: <20210315135550.744268606@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,51 +43,49 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit ec15e27cc8904605846a354bb1f808ea1432f853 upstream.
+commit c63820045e2000f05657467a08715c18c9f490d9 upstream.
 
-RX FIFO enable failed could happen when do system reboot stress test:
-
-[    0.303958] flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
-[    0.304281] flexcan 5a8d0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.314640] flexcan 5a8d0000.can: registering netdev failed
-[    0.320728] flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
-[    0.320991] flexcan 5a8e0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.331360] flexcan 5a8e0000.can: registering netdev failed
-[    0.337444] flexcan 5a8f0000.can: 5a8f0000.can supply xceiver not found, using dummy regulator
-[    0.337716] flexcan 5a8f0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.348117] flexcan 5a8f0000.can: registering netdev failed
-
-RX FIFO should be enabled after the FRZ/HALT are valid. But the current
-code enable RX FIFO and FRZ/HALT at the same time.
+Invoke flexcan_chip_freeze() to enter freeze mode, since need poll
+freeze mode acknowledge.
 
 Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
-Link: https://lore.kernel.org/r/20210218110037.16591-3-qiangqing.zhang@nxp.com
+Link: https://lore.kernel.org/r/20210218110037.16591-4-qiangqing.zhang@nxp.com
 Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/flexcan.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/can/flexcan.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
 --- a/drivers/net/can/flexcan.c
 +++ b/drivers/net/can/flexcan.c
-@@ -1432,10 +1432,14 @@ static int register_flexcandev(struct ne
- 	if (err)
- 		goto out_chip_disable;
+@@ -1057,10 +1057,13 @@ static int flexcan_chip_start(struct net
  
--	/* set freeze, halt and activate FIFO, restrict register access */
+ 	flexcan_set_bittiming(dev);
+ 
 +	/* set freeze, halt */
 +	err = flexcan_chip_freeze(priv);
 +	if (err)
 +		goto out_chip_disable;
 +
-+	/* activate FIFO, restrict register access */
- 	reg = priv->read(&regs->mcr);
--	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT |
--		FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
-+	reg |=  FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
- 	priv->write(reg, &regs->mcr);
+ 	/* MCR
+ 	 *
+-	 * enable freeze
+-	 * halt now
+ 	 * only supervisor access
+ 	 * enable warning int
+ 	 * enable individual RX masking
+@@ -1069,9 +1072,8 @@ static int flexcan_chip_start(struct net
+ 	 */
+ 	reg_mcr = priv->read(&regs->mcr);
+ 	reg_mcr &= ~FLEXCAN_MCR_MAXMB(0xff);
+-	reg_mcr |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT | FLEXCAN_MCR_SUPV |
+-		FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ | FLEXCAN_MCR_IDAM_C |
+-		FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
++	reg_mcr |= FLEXCAN_MCR_SUPV | FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ |
++		FLEXCAN_MCR_IDAM_C | FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
  
- 	/* Currently we only support newer versions of this core
+ 	/* MCR
+ 	 *
 
 
