@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7ED933B8AA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5C133B8B6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231817AbhCOOEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S232210AbhCOOEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233088AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85AA364F5C;
-        Mon, 15 Mar 2021 14:00:23 +0000 (UTC)
+        id S233099AbhCOOAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA9A764F8C;
+        Mon, 15 Mar 2021 14:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816824;
-        bh=ZGHqpYg9bmFhxcT4Y1kLePiSwzu/r6PtAwOwk3qAU0U=;
+        s=korg; t=1615816825;
+        bh=V7viz8xu8N8sJYEkw/htq8X3o9dPilKEp2U4S6NTMI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlRSVeMOr6h7+ggEXUNAz7XM2GHseuPEHPEvi4aJAM3/mDXVnfOLAVg2pjH/qAo38
-         N628BCklI8aIQXaUH5aAU8tuFshmLc9ySdFckTYUFVhIsHJH9ZRoparPX2CKyjAhYj
-         UeLMbMItQg9FGcgKEkKJtYCWfBy3JEfSZHYjHZtQ=
+        b=hqQME57thoK1jMIv5Quble2EJWBRGIotC5xU9VYVso5pfm75xYMn/is4OEcAfiOSG
+         CpUbOzKZnQ5xMruY8wY1U7T8gxmv9Z3NLxnO1bANxb58TXxNjfpUU2Q3qF9VOawsY4
+         8/80WFHp3GiMwVV8m0IUUHGNnXG6YIWjw4UJTNAk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.4 135/168] staging: comedi: addi_apci_1500: Fix endian problem for command sample
-Date:   Mon, 15 Mar 2021 14:56:07 +0100
-Message-Id: <20210315135554.777851035@linuxfoundation.org>
+Subject: [PATCH 5.4 136/168] staging: comedi: adv_pci1710: Fix endian problem for AI command data
+Date:   Mon, 15 Mar 2021 14:56:08 +0100
+Message-Id: <20210315135554.810219910@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,58 +42,70 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Ian Abbott <abbotti@mev.co.uk>
 
-commit ac0bbf55ed3be75fde1f8907e91ecd2fd589bde3 upstream.
+commit b2e78630f733a76508b53ba680528ca39c890e82 upstream.
 
-The digital input subdevice supports Comedi asynchronous commands that
-read interrupt status information.  This uses 16-bit Comedi samples (of
-which only the bottom 8 bits contain status information).  However, the
-interrupt handler is calling `comedi_buf_write_samples()` with the
-address of a 32-bit variable `unsigned int status`.  On a bigendian
-machine, this will copy 2 bytes from the wrong end of the variable.  Fix
-it by changing the type of the variable to `unsigned short`.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the calls to
+`comedi_buf_write_samples()` are passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variables
+holding the sample value to `unsigned short`.  The type of the `val`
+parameter of `pci1710_ai_read_sample()` is changed to `unsigned short *`
+accordingly.  The type of the `val` variable in `pci1710_ai_insn_read()`
+is also changed to `unsigned short` since its address is passed to
+`pci1710_ai_read_sample()`.
 
-Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
-Cc: <stable@vger.kernel.org> #4.0+
+Fixes: a9c3a015c12f ("staging: comedi: adv_pci1710: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 4.0+
 Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
+Link: https://lore.kernel.org/r/20210223143055.257402-4-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1500.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/staging/comedi/drivers/adv_pci1710.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1500.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
-@@ -208,7 +208,7 @@ static irqreturn_t apci1500_interrupt(in
- 	struct comedi_device *dev = d;
- 	struct apci1500_private *devpriv = dev->private;
- 	struct comedi_subdevice *s = dev->read_subdev;
--	unsigned int status = 0;
-+	unsigned short status = 0;
- 	unsigned int val;
+--- a/drivers/staging/comedi/drivers/adv_pci1710.c
++++ b/drivers/staging/comedi/drivers/adv_pci1710.c
+@@ -300,11 +300,11 @@ static int pci1710_ai_eoc(struct comedi_
+ static int pci1710_ai_read_sample(struct comedi_device *dev,
+ 				  struct comedi_subdevice *s,
+ 				  unsigned int cur_chan,
+-				  unsigned int *val)
++				  unsigned short *val)
+ {
+ 	const struct boardtype *board = dev->board_ptr;
+ 	struct pci1710_private *devpriv = dev->private;
+-	unsigned int sample;
++	unsigned short sample;
+ 	unsigned int chan;
  
- 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
-@@ -238,14 +238,14 @@ static irqreturn_t apci1500_interrupt(in
- 	 *
- 	 *    Mask     Meaning
- 	 * ----------  ------------------------------------------
--	 * 0x00000001  Event 1 has occurred
--	 * 0x00000010  Event 2 has occurred
--	 * 0x00000100  Counter/timer 1 has run down (not implemented)
--	 * 0x00001000  Counter/timer 2 has run down (not implemented)
--	 * 0x00010000  Counter 3 has run down (not implemented)
--	 * 0x00100000  Watchdog has run down (not implemented)
--	 * 0x01000000  Voltage error
--	 * 0x10000000  Short-circuit error
-+	 * 0b00000001  Event 1 has occurred
-+	 * 0b00000010  Event 2 has occurred
-+	 * 0b00000100  Counter/timer 1 has run down (not implemented)
-+	 * 0b00001000  Counter/timer 2 has run down (not implemented)
-+	 * 0b00010000  Counter 3 has run down (not implemented)
-+	 * 0b00100000  Watchdog has run down (not implemented)
-+	 * 0b01000000  Voltage error
-+	 * 0b10000000  Short-circuit error
- 	 */
- 	comedi_buf_write_samples(s, &status, 1);
- 	comedi_handle_events(dev, s);
+ 	sample = inw(dev->iobase + PCI171X_AD_DATA_REG);
+@@ -345,7 +345,7 @@ static int pci1710_ai_insn_read(struct c
+ 	pci1710_ai_setup_chanlist(dev, s, &insn->chanspec, 1, 1);
+ 
+ 	for (i = 0; i < insn->n; i++) {
+-		unsigned int val;
++		unsigned short val;
+ 
+ 		/* start conversion */
+ 		outw(0, dev->iobase + PCI171X_SOFTTRG_REG);
+@@ -395,7 +395,7 @@ static void pci1710_handle_every_sample(
+ {
+ 	struct comedi_cmd *cmd = &s->async->cmd;
+ 	unsigned int status;
+-	unsigned int val;
++	unsigned short val;
+ 	int ret;
+ 
+ 	status = inw(dev->iobase + PCI171X_STATUS_REG);
+@@ -455,7 +455,7 @@ static void pci1710_handle_fifo(struct c
+ 	}
+ 
+ 	for (i = 0; i < devpriv->max_samples; i++) {
+-		unsigned int val;
++		unsigned short val;
+ 		int ret;
+ 
+ 		ret = pci1710_ai_read_sample(dev, s, s->async->cur_chan, &val);
 
 
