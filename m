@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E75B33B985
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6741533B7DD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234056AbhCOOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
+        id S233355AbhCOOBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233422AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A93B864EF0;
-        Mon, 15 Mar 2021 14:01:16 +0000 (UTC)
+        id S229870AbhCON7t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B1964F7B;
+        Mon, 15 Mar 2021 13:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816878;
-        bh=n3FtlREOVVzRH53tiaO0kZzH93lD160lJblRxHLW9bE=;
+        s=korg; t=1615816756;
+        bh=BZd8ZWTBHXjORfUMwuiP28uoGML+8uvn3smCDSKYvXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfE2YPox2LPlnoK/8n0oenYlyiTJr8GzZGryWFIhJfvMK4iRLqUQNu7EdYNkXb5mO
-         H2O/3nAGaPahw28Dhr5IB2AaSzyBkBMEkD57E25+Msd17v3gB5tj18g6dYFY0BimzD
-         N7BLt6pA9FWLJnarrUcyWgohDrCkmvFL8F6Mbr1A=
+        b=sHK28rt/J3yKD4PlFngVR1BEQpl+4Fw7CFYxjI5fnkWUh/ZEjEL4t1F/9hdbFSU0C
+         JSoK8eeFXMbD5fMRieSvWoCSvb+8B1+e0VZ0XtnQtGVZFOeYeRpXxIhMfVw6Mk0j+p
+         +7t3eADaqUFDgBxQFi3VatGEKspSbJ08GvW8naTs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.4 166/168] xen/events: reset affinity of 2-level event when tearing it down
-Date:   Mon, 15 Mar 2021 14:56:38 +0100
-Message-Id: <20210315135555.819614796@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 048/120] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
+Date:   Mon, 15 Mar 2021 14:56:39 +0100
+Message-Id: <20210315135721.560237991@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +42,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
+[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
 
-When creating a new event channel with 2-level events the affinity
-needs to be reset initially in order to avoid using an old affinity
-from earlier usage of the event channel port. So when tearing an event
-channel down reset all affinity bits.
+While sampling for marked events, currently we record the sample only
+if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
+set. SIAR_VALID bit is used for fetching the instruction address from
+Sampled Instruction Address Register(SIAR). But there are some
+usecases, where the user is interested only in the PMU stats at each
+counter overflow and the exact IP of the overflow event is not
+required. Dropping SIAR invalid samples will fail to record some of
+the counter overflows in such cases.
 
-The same applies to the affinity when onlining a vcpu: all old
-affinity settings for this vcpu must be reset. As percpu events get
-initialized before the percpu event channel hook is called,
-resetting of the affinities happens after offlining a vcpu (this is
-working, as initial percpu memory is zeroed out).
+Example of such usecase is dumping the PMU stats (event counts) after
+some regular amount of instructions/events from the userspace (ex: via
+ptrace). Here counter overflow is indicated to userspace via signal
+handler, and captured by monitoring and enabling I/O signaling on the
+event file descriptor. In these cases, we expect to get
+sample/overflow indication after each specified sample_period.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Perf event attribute will not have PERF_SAMPLE_IP set in the
+sample_type if exact IP of the overflow event is not requested. So
+while profiling if SAMPLE_IP is not set, just record the counter
+overflow irrespective of SIAR_VALID check.
+
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+[mpe: Reflow comment and if formatting]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_2l.c       |   15 +++++++++++++++
- drivers/xen/events/events_base.c     |    1 +
- drivers/xen/events/events_internal.h |    8 ++++++++
- 3 files changed, 24 insertions(+)
+ arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/drivers/xen/events/events_2l.c
-+++ b/drivers/xen/events/events_2l.c
-@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
- 	return EVTCHN_2L_NR_CHANNELS;
- }
- 
-+static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
-+{
-+	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
-+}
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index 70de13822828..091bdeaf02a3 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2046,7 +2046,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+ 			left += period;
+ 			if (left <= 0)
+ 				left = period;
+-			record = siar_valid(regs);
 +
- static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
- {
- 	clear_bit(info->evtchn, BM(per_cpu(cpu_evtchn_mask, info->cpu)));
-@@ -354,9 +359,18 @@ static void evtchn_2l_resume(void)
- 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
- }
- 
-+static int evtchn_2l_percpu_deinit(unsigned int cpu)
-+{
-+	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
-+			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
++			/*
++			 * If address is not requested in the sample via
++			 * PERF_SAMPLE_IP, just record that sample irrespective
++			 * of SIAR valid check.
++			 */
++			if (event->attr.sample_type & PERF_SAMPLE_IP)
++				record = siar_valid(regs);
++			else
++				record = 1;
 +
-+	return 0;
-+}
-+
- static const struct evtchn_ops evtchn_ops_2l = {
- 	.max_channels      = evtchn_2l_max_channels,
- 	.nr_channels       = evtchn_2l_max_channels,
-+	.remove            = evtchn_2l_remove,
- 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
- 	.clear_pending     = evtchn_2l_clear_pending,
- 	.set_pending       = evtchn_2l_set_pending,
-@@ -366,6 +380,7 @@ static const struct evtchn_ops evtchn_op
- 	.unmask            = evtchn_2l_unmask,
- 	.handle_events     = evtchn_2l_handle_events,
- 	.resume	           = evtchn_2l_resume,
-+	.percpu_deinit     = evtchn_2l_percpu_deinit,
- };
+ 			event->hw.last_period = event->hw.sample_period;
+ 		}
+ 		if (left < 0x80000000LL)
+@@ -2064,9 +2074,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+ 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
+ 	 * these cases.
+ 	 */
+-	if (event->attr.exclude_kernel && record)
+-		if (is_kernel_addr(mfspr(SPRN_SIAR)))
+-			record = 0;
++	if (event->attr.exclude_kernel &&
++	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
++	    is_kernel_addr(mfspr(SPRN_SIAR)))
++		record = 0;
  
- void __init xen_evtchn_2l_init(void)
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -286,6 +286,7 @@ static int xen_irq_info_pirq_setup(unsig
- static void xen_irq_info_cleanup(struct irq_info *info)
- {
- 	set_evtchn_to_irq(info->evtchn, -1);
-+	xen_evtchn_port_remove(info->evtchn, info->cpu);
- 	info->evtchn = 0;
- }
- 
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -65,6 +65,7 @@ struct evtchn_ops {
- 	unsigned (*nr_channels)(void);
- 
- 	int (*setup)(struct irq_info *info);
-+	void (*remove)(evtchn_port_t port, unsigned int cpu);
- 	void (*bind_to_cpu)(struct irq_info *info, unsigned cpu);
- 
- 	void (*clear_pending)(unsigned port);
-@@ -107,6 +108,13 @@ static inline int xen_evtchn_port_setup(
- 	return 0;
- }
- 
-+static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
-+					  unsigned int cpu)
-+{
-+	if (evtchn_ops->remove)
-+		evtchn_ops->remove(evtchn, cpu);
-+}
-+
- static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
- 					       unsigned cpu)
- {
+ 	/*
+ 	 * Finally record data if requested.
+-- 
+2.30.1
+
 
 
