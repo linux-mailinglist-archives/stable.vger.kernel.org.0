@@ -2,163 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD5633AD4A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E4E733AD4D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230150AbhCOIXz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 04:23:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56816 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230171AbhCOIXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:23:35 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C960C061574
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 01:23:35 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id x7-20020a17090a2b07b02900c0ea793940so13938457pjc.2
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 01:23:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=495APLW4OpnjAJIkmtn0FODNkuDemJetvyBLhyNlif4=;
-        b=K/ZzPqa0yxN4d5DT8ACBvPCVbCFqRthGSuDd4AZCR/4N/BypfuL71GBrbdalQDGxu8
-         qQWep82oxaSrmpztC36187PgEBgoYQcioFX+y9GbRBBttd3XF/2e4VBFsMNRPFMG6CJh
-         LIY2QMwN06zh46B3vKeVqgQf/VVxedaEOwT33m1lHKGw8SbAtlZzpPYTPI7KfROrGHu3
-         x1XM5ndFSmh7iiAy8oAjtanhYxcbeBw3O/LQUzhRIJxJFshWNzO3iUOmS2/fTipFZD7s
-         TkA0Sg6kJw4eN8J+MYrYwoDxv4Jv8jC3GvygTkYnJiZ1XjlL042mq0zKpahOp8Rv6K4w
-         5wwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=495APLW4OpnjAJIkmtn0FODNkuDemJetvyBLhyNlif4=;
-        b=dHBEixnZR3MXIT87aOiQLEeynP5sHFsBAjHnv+9RRmjpKKpuV+p7yu1T8wVX4FpylN
-         VmS5hLshLzXJJtqZVNAf0jJV8aE7oq3vyeQK9i5HFf49MyCoSOtT9SVjtVOgDZoyH5GA
-         1E4C6yIdoTb/rRBHGLSwCAIfV5LpTVMWUsLAYQwU7KmGiZ8YtqfY0UPZcTOBMRgsGw2h
-         9IEnao4SH85OlwPpSXlrpRa8NxAzXOMZ/uiBATA/sAswVsSKbjYiulL/fBi32JyD7Ixv
-         uTKa8p2NCKcKBmWm2GKihb7pSV6omr50f2yY52q+UtMuvABXNPHPTrpO6SfIySF0vHgt
-         frfA==
-X-Gm-Message-State: AOAM530d+JidixOpyLkArjjq4ji7CCNVHd5CaoUP3ZGuyuYJpfD7So0r
-        Qf7pZXDDBfPRYuhQFbogy0/ge3RcEq1Vhg==
-X-Google-Smtp-Source: ABdhPJzdxmJ+SsOvqkXqEshGFDh47NQ7LR2W4njbn3eFxjz6hLi9uzucE3kmPW8O6tncmofJhOmxbg==
-X-Received: by 2002:a17:90a:86c9:: with SMTP id y9mr11601301pjv.205.1615796614617;
-        Mon, 15 Mar 2021 01:23:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id co20sm10283155pjb.32.2021.03.15.01.23.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Mar 2021 01:23:34 -0700 (PDT)
-Message-ID: <604f1986.1c69fb81.a5e0c.895c@mx.google.com>
-Date:   Mon, 15 Mar 2021 01:23:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230035AbhCOIY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 04:24:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230183AbhCOIY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 04:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E65A164E33;
+        Mon, 15 Mar 2021 08:24:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615796697;
+        bh=wCh3f3N+dMK+Vsniwym7H4XOnEnUFXpggsAXHQ2dxzg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=vi+XkDIMj54Fv9YyTyT3TLd6Mo7Iab4tskJajDwlcxHsdAD8Q3z9TGkdjX+fjyafq
+         Y5geS72I7zuEzNXigb0wk89TwM2g/KScZ2dvSGEAsA4V9ax7GPIPZa6jKeUQ1K0ttT
+         dA8hTbN4XuflasI2y01UyQi3OVkDTF14g3fLU19I=
+Date:   Mon, 15 Mar 2021 09:24:55 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     stable <stable@vger.kernel.org>, linux-alpha@vger.kernel.org,
+        Richard Henderson <rth@twiddle.net>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Matt Turner <mattst88@gmail.com>
+Subject: Re: alpha patches for v4.4.y / v4.9.y
+Message-ID: <YE8Z1wFiRo2SOY33@kroah.com>
+References: <44a392c3-418d-3503-7c46-0d283134d980@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.4.105-172-g0f971576906c
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 172 runs,
- 2 regressions (v5.4.105-172-g0f971576906c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44a392c3-418d-3503-7c46-0d283134d980@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 172 runs, 2 regressions (v5.4.105-172-g0f9715=
-76906c)
+On Sun, Mar 14, 2021 at 11:33:08AM -0700, Guenter Roeck wrote:
+> Hi,
+> 
+> I recently started to add basic networking tests to my qemu test environment.
+> When adding the necessary build options to Alpha kernels, I noticed that v4.4.y
+> and v4.9.y no longer build due to relocation errors such as
+> 
+> net/built-in.o: In function `__copy_tofrom_user_nocheck':
+> arch/alpha/include/asm/uaccess.h:364:(.text+0xff444):
+> 		relocation truncated to fit: BRSGP against symbol `__copy_user'
+> 
+> The following patches fix the problem.
+> 
+> v4.9.y:
+> 
+> 5ed78e5523fd alpha: add $(src)/ rather than $(obj)/ to make source file path
+> e19a4e3f1bff alpha: merge build rules of division routines
+> 3eec0291830e alpha: make short build log available for division routines
+> 4758ce82e667 alpha: Package string routines together
+> 
+> 8525023121de alpha: switch __copy_user() and __do_clean_user() to normal calling conventions
+> 
+> v4.4.y:
+> 
+> 5ed78e5523fd alpha: add $(src)/ rather than $(obj)/ to make source file path
+> e19a4e3f1bff alpha: merge build rules of division routines
+> 3eec0291830e alpha: make short build log available for division routines
+> 4758ce82e667 alpha: Package string routines together
+> 
+> 00fc0e0dda62 alpha: move exports to actual definitions
+> 085354f90796 alpha: get rid of tail-zeroing in __copy_user()
+> 8525023121de alpha: switch __copy_user() and __do_clean_user() to normal calling conventions
+> 
+> Only the last patch of each group is really needed; I pulled the other
+> patches in to avoid conflicts.
+> 
+> Please consider adding those patches to the respective kernels.
 
-Regressions Summary
--------------------
+All now queued up, thanks.
 
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
-
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.105-172-g0f971576906c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.105-172-g0f971576906c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0f971576906c39d912ceeb04bebf76c591af12c0 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/604ee2fe9e78a24c80addce2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.105-1=
-72-g0f971576906c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleash=
-ed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.105-1=
-72-g0f971576906c/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleash=
-ed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604ee2fe9e78a24c80add=
-ce3
-        failing since 114 days (last pass: v5.4.78-5-g843222460ebea, first =
-fail: v5.4.78-13-g81acf0f7c6ec) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig | regres=
-sions
----------------------+-------+--------------+----------+-----------+-------=
------
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/604ee5d24bdc9c48b1addcb5
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.105-1=
-72-g0f971576906c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.105-1=
-72-g0f971576906c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/604ee5d24bdc9c48b1add=
-cb6
-        new failure (last pass: v5.4.105-60-ge07ad67f9cf4) =
-
- =20
+greg k-h
