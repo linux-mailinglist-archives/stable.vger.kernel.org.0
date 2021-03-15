@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD6133B5CB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D42A933B6C9
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231590AbhCONzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59244 "EHLO mail.kernel.org"
+        id S232285AbhCON6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229890AbhCONyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42EB864EF3;
-        Mon, 15 Mar 2021 13:54:52 +0000 (UTC)
+        id S231602AbhCON6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AEA264EF8;
+        Mon, 15 Mar 2021 13:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816494;
-        bh=kzmMHZ5Z933/Hw33Bm7Q+MY+eEHB4nsxqkxTZKthyZc=;
+        s=korg; t=1615816688;
+        bh=MYT5fajR3Hw2J9wLkjq1CiCcmSKoOGtNHViFqyTJo78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzGcS+unFR81A2EXy8qRO1dopezjZwmqMGXIay4kp/8ktO9BCJszyxihvk7OgiZfy
-         shhPBBD7MAmTeQThgHiEFj04f/A1eB5iubFFqmTiHnqOCbZIvG3fLhEynFRIQeIEeV
-         YHhnp6/WyEMck9geVNvmDK877DWCIfREyU40t17I=
+        b=u4vqY1h+94DRd5rUbyb4IFoW4NGcR973QWtyw2b7chIgNP5cm9TYTxMFgepeoD9+g
+         vxUYGMhCddWpVJt5ZAaK3nWmYB/uqDpDUGYo0mmfRRN6aN3AckpjnaRbzf5IhDG/34
+         SrZjCwa0DSXvf4BDQkDd265BTr9JCXFzOZ3XtCrU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.4 75/75] xen/events: avoid handling the same event on two cpus at the same time
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 056/290] net: lapbether: Remove netif_start_queue / netif_stop_queue
 Date:   Mon, 15 Mar 2021 14:52:29 +0100
-Message-Id: <20210315135210.707598097@linuxfoundation.org>
+Message-Id: <20210315135543.826235082@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit b6622798bc50b625a1e62f82c7190df40c1f5b21 upstream.
+commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
 
-When changing the cpu affinity of an event it can happen today that
-(with some unlucky timing) the same event will be handled on the old
-and the new cpu at the same time.
+For the devices in this driver, the default qdisc is "noqueue",
+because their "tx_queue_len" is 0.
 
-Avoid that by adding an "event active" flag to the per-event data and
-call the handler only if this flag isn't set.
+In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
+"noqueue" qdisc are specially handled. Packets are transmitted without
+being queued after a "dev->flags & IFF_UP" check. However, it's possible
+that even if this check succeeds, "ops->ndo_stop" may still have already
+been called. This is because in "__dev_close_many", "ops->ndo_stop" is
+called before clearing the "IFF_UP" flag.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-4-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
+"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
+checks "netif_xmit_stopped" and finds that the queue is already stopped.
+In this case, it will complain that:
+"Virtual device ... asks to queue packet!"
+
+To prevent "__dev_queue_xmit" from generating this complaint, we should
+not call "netif_stop_queue" in "ops->ndo_stop".
+
+We also don't need to call "netif_start_queue" in "ops->ndo_open",
+because after a netdev is allocated and registered, the
+"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
+to call "netif_start_queue" to clear it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c     |   25 +++++++++++++++++--------
- drivers/xen/events/events_internal.h |    1 +
- 2 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/net/wan/lapbether.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -702,6 +702,12 @@ static void xen_evtchn_close(unsigned in
- 		BUG();
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -283,7 +283,6 @@ static int lapbeth_open(struct net_devic
+ 		return -ENODEV;
+ 	}
+ 
+-	netif_start_queue(dev);
+ 	return 0;
  }
  
-+static void event_handler_exit(struct irq_info *info)
-+{
-+	smp_store_release(&info->is_active, 0);
-+	clear_evtchn(info->evtchn);
-+}
-+
- static void pirq_query_unmask(int irq)
+@@ -291,8 +290,6 @@ static int lapbeth_close(struct net_devi
  {
- 	struct physdev_irq_status_query irq_status;
-@@ -732,13 +738,13 @@ static void eoi_pirq(struct irq_data *da
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 	int err;
  
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
+-	netif_stop_queue(dev);
+-
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
  
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 	if (pirq_needs_eoi(data->irq)) {
- 		rc = HYPERVISOR_physdev_op(PHYSDEVOP_eoi, &eoi);
-@@ -1573,6 +1579,8 @@ void handle_irq_for_port(evtchn_port_t p
- 	}
- 
- 	info = info_for_irq(irq);
-+	if (xchg_acquire(&info->is_active, 1))
-+		return;
- 
- 	if (ctrl->defer_eoi) {
- 		info->eoi_cpu = smp_processor_id();
-@@ -1749,13 +1757,13 @@ static void ack_dynirq(struct irq_data *
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
- 
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- 
- static void mask_ack_dynirq(struct irq_data *data)
-@@ -1771,7 +1779,7 @@ static void lateeoi_ack_dynirq(struct ir
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1782,7 +1790,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1891,10 +1899,11 @@ static void restore_cpu_ipis(unsigned in
- /* Clear an irq's pending state, in preparation for polling on it */
- void xen_clear_irq_pending(int irq)
- {
--	int evtchn = evtchn_from_irq(irq);
-+	struct irq_info *info = info_for_irq(irq);
-+	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
- 	if (VALID_EVTCHN(evtchn))
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- EXPORT_SYMBOL(xen_clear_irq_pending);
- void xen_set_irq_pending(int irq)
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -40,6 +40,7 @@ struct irq_info {
- #define EVT_MASK_REASON_EXPLICIT	0x01
- #define EVT_MASK_REASON_TEMPORARY	0x02
- #define EVT_MASK_REASON_EOI_PENDING	0x04
-+	u8 is_active;		/* Is event just being handled? */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
- 	unsigned short cpu;	/* cpu bound */
 
 
