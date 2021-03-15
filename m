@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3CD33BA99
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DED1B33BA97
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235198AbhCOOJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51972 "EHLO mail.kernel.org"
+        id S235087AbhCOOJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234546AbhCOOER (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9004564F38;
-        Mon, 15 Mar 2021 14:04:15 +0000 (UTC)
+        id S234549AbhCOOET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24884600EF;
+        Mon, 15 Mar 2021 14:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817056;
-        bh=Rb98AK30FXTm91FB/fPYfEtlEV6qY9o2F3vFXCJscBM=;
+        s=korg; t=1615817058;
+        bh=t6RUt6HUzB0MgaDyS9B4bHBo4NehUJSKVH0UAGG2iL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FxrpORJtvXa76yzrr48QNJg/cPOzYguewzN//g/YI67bzp9Eum4AtHRhVGv9aY++i
-         Qf7tGCxmEodJLsVGlbWxtdsvegMV18KGTxRlTr/fXpKcfK30EXb1FBwy7ucigPJVXo
-         8t8z13uY/VAgovjAKU6nJb0Ka38jW624JE3luVc8=
+        b=ZKxo5B/F5K3/SzSq8/w6sguyzgHibHV3EAPjaf0CzfW6hjICxtBM9dEhoGPLHG67h
+         GFnFbFPWsKxHjtSCT2ReABpNOhYoGTtASKQDIOLZn4+omiUb459jeUspb16Vttspis
+         L98dmdYcA1SafiBpKSM23/C/ATSXvN8ppWBiPtgU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 266/290] powerpc: Fix inverted SET_FULL_REGS bitop
-Date:   Mon, 15 Mar 2021 14:55:59 +0100
-Message-Id: <20210315135551.011066306@linuxfoundation.org>
+Subject: [PATCH 5.10 267/290] powerpc: Fix missing declaration of [en/dis]able_kernel_vsx()
+Date:   Mon, 15 Mar 2021 14:56:00 +0100
+Message-Id: <20210315135551.044220754@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -41,45 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit 73ac79881804eed2e9d76ecdd1018037f8510cb1 upstream.
+commit bd73758803c2eedc037c2268b65a19542a832594 upstream.
 
-This bit operation was inverted and set the low bit rather than
-cleared it, breaking the ability to ptrace non-volatile GPRs after
-exec. Fix.
+Add stub instances of enable_kernel_vsx() and disable_kernel_vsx()
+when CONFIG_VSX is not set, to avoid following build failure.
 
-Only affects 64e and 32-bit.
+  CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o
+  In file included from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services_types.h:29,
+                   from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services.h:37,
+                   from drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:27:
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c: In function 'dcn_bw_apply_registry_override':
+  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:64:3: error: implicit declaration of function 'enable_kernel_vsx'; did you mean 'enable_kernel_fp'? [-Werror=implicit-function-declaration]
+     64 |   enable_kernel_vsx(); \
+        |   ^~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:640:2: note: in expansion of macro 'DC_FP_START'
+    640 |  DC_FP_START();
+        |  ^~~~~~~~~~~
+  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:75:3: error: implicit declaration of function 'disable_kernel_vsx'; did you mean 'disable_kernel_fp'? [-Werror=implicit-function-declaration]
+     75 |   disable_kernel_vsx(); \
+        |   ^~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:676:2: note: in expansion of macro 'DC_FP_END'
+    676 |  DC_FP_END();
+        |  ^~~~~~~~~
+  cc1: some warnings being treated as errors
+  make[5]: *** [drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o] Error 1
 
-Fixes: feb9df3462e6 ("powerpc/64s: Always has full regs, so remove remnant checks")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+This works because the caller is checking if VSX is available using
+cpu_has_feature():
+
+  #define DC_FP_START() { \
+  	if (cpu_has_feature(CPU_FTR_VSX_COMP)) { \
+  		preempt_disable(); \
+  		enable_kernel_vsx(); \
+  	} else if (cpu_has_feature(CPU_FTR_ALTIVEC_COMP)) { \
+  		preempt_disable(); \
+  		enable_kernel_altivec(); \
+  	} else if (!cpu_has_feature(CPU_FTR_FPU_UNAVAILABLE)) { \
+  		preempt_disable(); \
+  		enable_kernel_fp(); \
+  	} \
+
+When CONFIG_VSX is not selected, cpu_has_feature(CPU_FTR_VSX_COMP)
+constant folds to 'false' so the call to enable_kernel_vsx() is
+discarded and the build succeeds.
+
+Fixes: 16a9dea110a6 ("amdgpu: Enable initial DCN support on POWER")
+Cc: stable@vger.kernel.org # v5.6+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Incorporate some discussion comments into the change log]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210308085530.3191843-1-npiggin@gmail.com
+Link: https://lore.kernel.org/r/8d7d285a027e9d21f5ff7f850fa71a2655b0c4af.1615279170.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/ptrace.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/switch_to.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/arch/powerpc/include/asm/ptrace.h
-+++ b/arch/powerpc/include/asm/ptrace.h
-@@ -193,7 +193,7 @@ extern int ptrace_put_reg(struct task_st
- #define TRAP_FLAGS_MASK		0x11
- #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
- #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
--#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
-+#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
+--- a/arch/powerpc/include/asm/switch_to.h
++++ b/arch/powerpc/include/asm/switch_to.h
+@@ -71,6 +71,16 @@ static inline void disable_kernel_vsx(vo
+ {
+ 	msr_check_and_clear(MSR_FP|MSR_VEC|MSR_VSX);
+ }
++#else
++static inline void enable_kernel_vsx(void)
++{
++	BUILD_BUG();
++}
++
++static inline void disable_kernel_vsx(void)
++{
++	BUILD_BUG();
++}
  #endif
- #define CHECK_FULL_REGS(regs)	BUG_ON(!FULL_REGS(regs))
- #define NV_REG_POISON		0xdeadbeefdeadbeefUL
-@@ -208,7 +208,7 @@ extern int ptrace_put_reg(struct task_st
- #define TRAP_FLAGS_MASK		0x1F
- #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
- #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
--#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
-+#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
- #define IS_CRITICAL_EXC(regs)	(((regs)->trap & 2) != 0)
- #define IS_MCHECK_EXC(regs)	(((regs)->trap & 4) != 0)
- #define IS_DEBUG_EXC(regs)	(((regs)->trap & 8) != 0)
+ 
+ #ifdef CONFIG_SPE
 
 
