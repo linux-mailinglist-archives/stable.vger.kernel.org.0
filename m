@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D593E33B745
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D81E433B7E5
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232806AbhCON75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S233397AbhCOOBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232474AbhCON66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 174A464F2D;
-        Mon, 15 Mar 2021 13:58:37 +0000 (UTC)
+        id S232446AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F80764EEE;
+        Mon, 15 Mar 2021 13:59:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816719;
-        bh=mRisczX7i3MjtkYIK4Mw88BqES+z3THjadjcbswPhFw=;
+        s=korg; t=1615816770;
+        bh=bBN+CPspmMuksUYtrracu+FpsI3QkIuvzYT1qHxWRuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ein9ldZo2qcqupf4DkVrDK7vkXS2yrhsRzJltYS9qWuZIR8h6+KCDUQ3JuIkJpRB3
-         gb/RKp3quyhysdxMeugeVnuk1gjc7Aqvp+PtX2T9oSaUueLXvBaB5d6yGfBtQKOaRM
-         2bSM1G9ZEcOLf52Zn2g+slxvqxs4y8VGFoP+p7RE=
+        b=tHkiMwjDE3uZVglLfe/0DL9KKVDF7f+2LPgRfuJmJiOFFNP7tfduiUDKKbZscHfYJ
+         PtrB+1BkUUh5SmbdWFOwwaY/67y/GYrioY/3NvZnoSaz2dURv5M1o5ujc6ViXprUk9
+         RSWjam3WPBsWomQpSFtvVxEuIBkqO0zPWnXjWqio=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Ramesh Babu B <ramesh.babu.b@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 17/95] net: stmmac: fix incorrect DMA channel intr enable setting of EQoS v4.10
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 056/120] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
 Date:   Mon, 15 Mar 2021 14:56:47 +0100
-Message-Id: <20210315135740.834147567@linuxfoundation.org>
+Message-Id: <20210315135721.825139153@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +43,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-commit 879c348c35bb5fb758dd881d8a97409c1862dae8 upstream.
+[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
 
-We introduce dwmac410_dma_init_channel() here for both EQoS v4.10 and
-above which use different DMA_CH(n)_Interrupt_Enable bit definitions for
-NIE and AIE.
+If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
+but we leave it partially setup. We don't have functions that can undo the
+pdu and init task setup. We only have cleanup_task which can clean up both
+parts. So this has us just fail the cmd and go through the standard cleanup
+routine and then have the SCSI midlayer retry it like is done when it fails
+in the queuecommand path.
 
-Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Ramesh Babu B <ramesh.babu.b@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/scsi/libiscsi.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-@@ -115,6 +115,23 @@ static void dwmac4_dma_init_channel(void
- 	       ioaddr + DMA_CHAN_INTR_ENA(chan));
- }
- 
-+static void dwmac410_dma_init_channel(void __iomem *ioaddr,
-+				      struct stmmac_dma_cfg *dma_cfg, u32 chan)
-+{
-+	u32 value;
-+
-+	/* common channel control register config */
-+	value = readl(ioaddr + DMA_CHAN_CONTROL(chan));
-+	if (dma_cfg->pblx8)
-+		value = value | DMA_BUS_MODE_PBL;
-+
-+	writel(value, ioaddr + DMA_CHAN_CONTROL(chan));
-+
-+	/* Mask interrupts by writing to CSR7 */
-+	writel(DMA_CHAN_INTR_DEFAULT_MASK_4_10,
-+	       ioaddr + DMA_CHAN_INTR_ENA(chan));
-+}
-+
- static void dwmac4_dma_init(void __iomem *ioaddr,
- 			    struct stmmac_dma_cfg *dma_cfg,
- 			    u32 dma_tx, u32 dma_rx, int atds)
-@@ -416,7 +433,7 @@ const struct stmmac_dma_ops dwmac4_dma_o
- const struct stmmac_dma_ops dwmac410_dma_ops = {
- 	.reset = dwmac4_dma_reset,
- 	.init = dwmac4_dma_init,
--	.init_chan = dwmac4_dma_init_channel,
-+	.init_chan = dwmac410_dma_init_channel,
- 	.init_rx_chan = dwmac4_dma_init_rx_chan,
- 	.init_tx_chan = dwmac4_dma_init_tx_chan,
- 	.axi = dwmac4_dma_axi,
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 2e40fd78e7b3..81471c304991 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1569,14 +1569,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
+ 		}
+ 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
+ 		if (rc) {
+-			if (rc == -ENOMEM || rc == -EACCES) {
+-				spin_lock_bh(&conn->taskqueuelock);
+-				list_add_tail(&conn->task->running,
+-					      &conn->cmdqueue);
+-				conn->task = NULL;
+-				spin_unlock_bh(&conn->taskqueuelock);
+-				goto done;
+-			} else
++			if (rc == -ENOMEM || rc == -EACCES)
++				fail_scsi_task(conn->task, DID_IMM_RETRY);
++			else
+ 				fail_scsi_task(conn->task, DID_ABORT);
+ 			spin_lock_bh(&conn->taskqueuelock);
+ 			continue;
+-- 
+2.30.1
+
 
 
