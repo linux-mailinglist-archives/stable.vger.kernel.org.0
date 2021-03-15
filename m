@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2061733B833
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E3833B8BF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233751AbhCOOCY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
+        id S234562AbhCOOEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232919AbhCOOAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3075764F37;
-        Mon, 15 Mar 2021 13:59:55 +0000 (UTC)
+        id S233109AbhCOOAl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D85C64F3F;
+        Mon, 15 Mar 2021 14:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816796;
-        bh=nv8CHzVD7f2ZaIXac4duHpgpItPYqcxNlTfWIkDoVNU=;
+        s=korg; t=1615816828;
+        bh=ensQVPdp1x56j3abJKC2wDhARCAQg4MNTzAYhAOB52o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PdkalrzG5BYvRGmyhqR6pgJrbT97J7mt7SrWHwt9aUB4rwS0G85Ffm2fewM5C3ZjF
-         Gm7yIeF5CTiYo8xOI3c+31a/IkSG8zKuvClv/ku4GSfhiswT18g59BumaUa4xfo4vn
-         CXK7QpiHEUKBFLoB2P73WzFV1PVrmwsAj4ZCuzpA=
+        b=iFlIoJ8MDvx9gH6tIDIVvXkm/ZaWuRUNDnWlOaeaTiaHvJp5XkvIEH1Z4KjjLvgeQ
+         bzvLXNXzEMI3itgKL/AlhsZWAO6ddK+NqcJbC+HbevX0lqe/CAn6R7mfQg1x88LkgH
+         JvQNeSyk7Qok6kXprxLYlTpGYcvWTjA0DQgSvf0E=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 119/290] net: dsa: tag_lan9303: let DSA core deal with TX reallocation
+Subject: [PATCH 5.11 149/306] drivers/base: build kunit tests without structleak plugin
 Date:   Mon, 15 Mar 2021 14:53:32 +0100
-Message-Id: <20210315135545.943540785@linuxfoundation.org>
+Message-Id: <20210315135512.681329712@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +41,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6ed94135f58372cdec34cafb60f7596893b0b371 ]
+[ Upstream commit 38009c766725a9877ea8866fc813a5460011817f ]
 
-Now that we have a central TX reallocation procedure that accounts for
-the tagger's needed headroom in a generic way, we can remove the
-skb_cow_head call.
+The structleak plugin causes the stack frame size to grow immensely:
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+drivers/base/test/property-entry-test.c: In function 'pe_test_reference':
+drivers/base/test/property-entry-test.c:481:1: error: the frame size of 2640 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+  481 | }
+      | ^
+drivers/base/test/property-entry-test.c: In function 'pe_test_uints':
+drivers/base/test/property-entry-test.c:99:1: error: the frame size of 2592 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+
+Turn it off in this file.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210125124533.101339-3-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/tag_lan9303.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/base/test/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/dsa/tag_lan9303.c b/net/dsa/tag_lan9303.c
-index ccfb6f641bbf..aa1318dccaf0 100644
---- a/net/dsa/tag_lan9303.c
-+++ b/net/dsa/tag_lan9303.c
-@@ -58,15 +58,6 @@ static struct sk_buff *lan9303_xmit(struct sk_buff *skb, struct net_device *dev)
- 	__be16 *lan9303_tag;
- 	u16 tag;
+diff --git a/drivers/base/test/Makefile b/drivers/base/test/Makefile
+index 3ca56367c84b..2f15fae8625f 100644
+--- a/drivers/base/test/Makefile
++++ b/drivers/base/test/Makefile
+@@ -2,3 +2,4 @@
+ obj-$(CONFIG_TEST_ASYNC_DRIVER_PROBE)	+= test_async_driver_probe.o
  
--	/* insert a special VLAN tag between the MAC addresses
--	 * and the current ethertype field.
--	 */
--	if (skb_cow_head(skb, LAN9303_TAG_LEN) < 0) {
--		dev_dbg(&dev->dev,
--			"Cannot make room for the special tag. Dropping packet\n");
--		return NULL;
--	}
--
- 	/* provide 'LAN9303_TAG_LEN' bytes additional space */
- 	skb_push(skb, LAN9303_TAG_LEN);
- 
+ obj-$(CONFIG_KUNIT_DRIVER_PE_TEST) += property-entry-test.o
++CFLAGS_REMOVE_property-entry-test.o += -fplugin-arg-structleak_plugin-byref -fplugin-arg-structleak_plugin-byref-all
 -- 
 2.30.1
 
