@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA12633B981
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A0CF33B9C5
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234897AbhCOOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S234446AbhCOOGm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233368AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231126AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D4C264FA7;
-        Mon, 15 Mar 2021 14:01:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9361F64FB5;
+        Mon, 15 Mar 2021 14:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816865;
-        bh=yaN49XIIDgAtP4qqR6/x5ODNu04vC1NLjRJL9m/gwnM=;
+        s=korg; t=1615816867;
+        bh=o73itd1zUjaSpSdY2Efr+YYx1gLbqrvl8+N8rmO06BM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtHl7DYYbnh71s1leLAxF8ia7g7Es9I3Bdc3zRNWGRkfSmuO2B9kj7dwAQvFkLxG2
-         UD8vyT4GZortSmB4rByIvOVfRGq2kIxfyTEh4gDvmb3uR7y8W/M6W/ac21n2TVBiBm
-         Z2ayulp2N+oRP5jCR3j5ZSD6H5cM0vypfUVpTLPQ=
+        b=2plRCRAZyU9ORGg15FFI5eL22norG7JzF0RflAREaHTIjLDIdE2p/3CdY6yFCTKfq
+         R59jEaT7lJl0JXhrPC2wVWCW7WxVI3c92IUIVf7PfKz3e3Bxi5OeGisAFWGTWQ7bs6
+         cQfRg7bxeJu0H52jvYmumo1WOlHzh0BnJcEtr2eU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Ribak <liorribak@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 159/168] binfmt_misc: fix possible deadlock in bm_register_write
-Date:   Mon, 15 Mar 2021 14:56:31 +0100
-Message-Id: <20210315135555.582411495@linuxfoundation.org>
+        stable@vger.kernel.org, Ivan Babrou <ivan@cloudflare.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>, stable@kernel.org
+Subject: [PATCH 5.4 160/168] x86/unwind/orc: Disable KASAN checking in the ORC unwinder, part 2
+Date:   Mon, 15 Mar 2021 14:56:32 +0100
+Message-Id: <20210315135555.620291135@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -44,118 +44,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lior Ribak <liorribak@gmail.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit e7850f4d844e0acfac7e570af611d89deade3146 upstream.
+commit e504e74cc3a2c092b05577ce3e8e013fae7d94e6 upstream.
 
-There is a deadlock in bm_register_write:
+KASAN reserves "redzone" areas between stack frames in order to detect
+stack overruns.  A read or write to such an area triggers a KASAN
+"stack-out-of-bounds" BUG.
 
-First, in the begining of the function, a lock is taken on the binfmt_misc
-root inode with inode_lock(d_inode(root)).
+Normally, the ORC unwinder stays in-bounds and doesn't access the
+redzone.  But sometimes it can't find ORC metadata for a given
+instruction.  This can happen for code which is missing ORC metadata, or
+for generated code.  In such cases, the unwinder attempts to fall back
+to frame pointers, as a best-effort type thing.
 
-Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
-open_exec on the user-provided interpreter.
+This fallback often works, but when it doesn't, the unwinder can get
+confused and go off into the weeds into the KASAN redzone, triggering
+the aforementioned KASAN BUG.
 
-open_exec will call a path lookup, and if the path lookup process includes
-the root of binfmt_misc, it will try to take a shared lock on its inode
-again, but it is already locked, and the code will get stuck in a deadlock
+But in this case, the unwinder's confusion is actually harmless and
+working as designed.  It already has checks in place to prevent
+off-stack accesses, but those checks get short-circuited by the KASAN
+BUG.  And a BUG is a lot more disruptive than a harmless unwinder
+warning.
 
-To reproduce the bug:
-$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
+Disable the KASAN checks by using READ_ONCE_NOCHECK() for all stack
+accesses.  This finishes the job started by commit 881125bfe65b
+("x86/unwind: Disable KASAN checking in the ORC unwinder"), which only
+partially fixed the issue.
 
-backtrace of where the lock occurs (#5):
-0  schedule () at ./arch/x86/include/asm/current.h:15
-1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
-2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
-3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
-4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
-5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
-6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
-7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
-8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
-9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
-10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
-11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
-12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
-", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
-13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
-", count=19) at fs/read_write.c:658
-14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
-15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
-
-To solve the issue, the open_exec call is moved to before the write
-lock is taken by bm_register_write
-
-Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
-Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
-Signed-off-by: Lior Ribak <liorribak@gmail.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
+Reported-by: Ivan Babrou <ivan@cloudflare.com>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Tested-by: Ivan Babrou <ivan@cloudflare.com>
+Cc: stable@kernel.org
+Link: https://lkml.kernel.org/r/9583327904ebbbeda399eca9c56d6c7085ac20fe.1612534649.git.jpoimboe@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/binfmt_misc.c |   29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ arch/x86/kernel/unwind_orc.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/fs/binfmt_misc.c
-+++ b/fs/binfmt_misc.c
-@@ -696,12 +696,24 @@ static ssize_t bm_register_write(struct
- 	struct super_block *sb = file_inode(file)->i_sb;
- 	struct dentry *root = sb->s_root, *dentry;
- 	int err = 0;
-+	struct file *f = NULL;
+--- a/arch/x86/kernel/unwind_orc.c
++++ b/arch/x86/kernel/unwind_orc.c
+@@ -357,8 +357,8 @@ static bool deref_stack_regs(struct unwi
+ 	if (!stack_access_ok(state, addr, sizeof(struct pt_regs)))
+ 		return false;
  
- 	e = create_entry(buffer, count);
+-	*ip = regs->ip;
+-	*sp = regs->sp;
++	*ip = READ_ONCE_NOCHECK(regs->ip);
++	*sp = READ_ONCE_NOCHECK(regs->sp);
+ 	return true;
+ }
  
- 	if (IS_ERR(e))
- 		return PTR_ERR(e);
+@@ -370,8 +370,8 @@ static bool deref_stack_iret_regs(struct
+ 	if (!stack_access_ok(state, addr, IRET_FRAME_SIZE))
+ 		return false;
  
-+	if (e->flags & MISC_FMT_OPEN_FILE) {
-+		f = open_exec(e->interpreter);
-+		if (IS_ERR(f)) {
-+			pr_notice("register: failed to install interpreter file %s\n",
-+				 e->interpreter);
-+			kfree(e);
-+			return PTR_ERR(f);
-+		}
-+		e->interp_file = f;
-+	}
-+
- 	inode_lock(d_inode(root));
- 	dentry = lookup_one_len(e->name, root, strlen(e->name));
- 	err = PTR_ERR(dentry);
-@@ -725,21 +737,6 @@ static ssize_t bm_register_write(struct
- 		goto out2;
+-	*ip = regs->ip;
+-	*sp = regs->sp;
++	*ip = READ_ONCE_NOCHECK(regs->ip);
++	*sp = READ_ONCE_NOCHECK(regs->sp);
+ 	return true;
+ }
+ 
+@@ -392,12 +392,12 @@ static bool get_reg(struct unwind_state
+ 		return false;
+ 
+ 	if (state->full_regs) {
+-		*val = ((unsigned long *)state->regs)[reg];
++		*val = READ_ONCE_NOCHECK(((unsigned long *)state->regs)[reg]);
+ 		return true;
  	}
  
--	if (e->flags & MISC_FMT_OPEN_FILE) {
--		struct file *f;
--
--		f = open_exec(e->interpreter);
--		if (IS_ERR(f)) {
--			err = PTR_ERR(f);
--			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
--			simple_release_fs(&bm_mnt, &entry_count);
--			iput(inode);
--			inode = NULL;
--			goto out2;
--		}
--		e->interp_file = f;
--	}
--
- 	e->dentry = dget(dentry);
- 	inode->i_private = e;
- 	inode->i_fop = &bm_entry_operations;
-@@ -756,6 +753,8 @@ out:
- 	inode_unlock(d_inode(root));
- 
- 	if (err) {
-+		if (f)
-+			filp_close(f, NULL);
- 		kfree(e);
- 		return err;
+ 	if (state->prev_regs) {
+-		*val = ((unsigned long *)state->prev_regs)[reg];
++		*val = READ_ONCE_NOCHECK(((unsigned long *)state->prev_regs)[reg]);
+ 		return true;
  	}
+ 
 
 
