@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 765F133C4EB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDEA133C4CA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:49:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230325AbhCOR4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 13:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
+        id S231837AbhCORtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 13:49:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235176AbhCORsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 13:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6602264F35;
-        Mon, 15 Mar 2021 17:48:11 +0000 (UTC)
+        id S235612AbhCORsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 13:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E48A64F2F;
+        Mon, 15 Mar 2021 17:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1615830491;
-        bh=Za5FJrC5XJjx1EhsNVNwN2gc896tka38APOU8lSAYuc=;
+        s=korg; t=1615830493;
+        bh=vhPAhW0x7mGVQ83LazsE9LXinn6+EdNYgfTVcwbp1ko=;
         h=Date:From:To:Subject:From;
-        b=HSBt49FNaodh10Y0luXDJW4cC/QCU3AC7Nl/SqnI6EFOgM8jgAiiXxO5xN6cfa9c2
-         CNmfGYXxdhraBqJnFNEN/BIyiMZ+sdpkxMphnz2H7ktiTyXODlbt/zyKrTaWv8eiVU
-         i9mQtIQb8bpi5yJaPk3Fgp6EjyBZnkbIGBwSmDwc=
-Date:   Mon, 15 Mar 2021 10:48:11 -0700
+        b=MQLqKWSMsoZP/5fi5fg0kpdx9MLx1VT/8eHcRonoWAfxm4LggSGMATNw515nVWs66
+         bsd+C12CvLq17vN6SpVkVRH12rrS3hxFtM6lWMSOdW1ihZaSG6hiXClhqxKlsJOjCk
+         69c7dedVuU7R171K+PzbTUfzFpfqjLCbeVRHPtdk=
+Date:   Mon, 15 Mar 2021 10:48:13 -0700
 From:   akpm@linux-foundation.org
-To:     hirofumi@mail.parknet.co.jp, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  [merged] fix-zero_user_segments-with-start-end.patch
- removed from -mm tree
-Message-ID: <20210315174811.0ZPS0UJYN%akpm@linux-foundation.org>
+To:     deller@gmx.de, liorribak@gmail.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk
+Subject:  [merged]
+ binfmt_misc-fix-possible-deadlock-in-bm_register_write.patch removed from
+ -mm tree
+Message-ID: <20210315174813.ieDvNISHG%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -34,85 +35,126 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/highmem.c: fix zero_user_segments() with start > end
+     Subject: binfmt_misc: fix possible deadlock in bm_register_write
 has been removed from the -mm tree.  Its filename was
-     fix-zero_user_segments-with-start-end.patch
+     binfmt_misc-fix-possible-deadlock-in-bm_register_write.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: mm/highmem.c: fix zero_user_segments() with start > end
+From: Lior Ribak <liorribak@gmail.com>
+Subject: binfmt_misc: fix possible deadlock in bm_register_write
 
-zero_user_segments() is used from __block_write_begin_int(), for example
-like the following
+There is a deadlock in bm_register_write:
 
-	zero_user_segments(page, 4096, 1024, 512, 918)
+First, in the begining of the function, a lock is taken on the binfmt_misc
+root inode with inode_lock(d_inode(root)).
 
-But new the zero_user_segments() implementation for for HIGHMEM +
-TRANSPARENT_HUGEPAGE doesn't handle "start > end" case correctly, and hits
-BUG_ON().  (we can fix __block_write_begin_int() instead though, it is the
-old and multiple usage)
+Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
+open_exec on the user-provided interpreter.
 
-Also it calls kmap_atomic() unnecessarily while start == end == 0.
+open_exec will call a path lookup, and if the path lookup process includes
+the root of binfmt_misc, it will try to take a shared lock on its inode
+again, but it is already locked, and the code will get stuck in a deadlock
 
-Link: https://lkml.kernel.org/r/87v9ab60r4.fsf@mail.parknet.co.jp
-Fixes: 0060ef3b4e6d ("mm: support THPs in zero_user_segments")
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Matthew Wilcox <willy@infradead.org>
+To reproduce the bug:
+$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
+
+backtrace of where the lock occurs (#5):
+0  schedule () at ./arch/x86/include/asm/current.h:15
+1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
+2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
+3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
+4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
+5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
+6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
+7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
+8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
+9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
+10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
+11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
+12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
+", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
+13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
+", count=19) at fs/read_write.c:658
+14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
+15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
+
+To solve the issue, the open_exec call is moved to before the write
+lock is taken by bm_register_write
+
+Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
+Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
+Signed-off-by: Lior Ribak <liorribak@gmail.com>
+Acked-by: Helge Deller <deller@gmx.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/highmem.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ fs/binfmt_misc.c |   29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
---- a/mm/highmem.c~fix-zero_user_segments-with-start-end
-+++ a/mm/highmem.c
-@@ -368,20 +368,24 @@ void zero_user_segments(struct page *pag
+--- a/fs/binfmt_misc.c~binfmt_misc-fix-possible-deadlock-in-bm_register_write
++++ a/fs/binfmt_misc.c
+@@ -649,12 +649,24 @@ static ssize_t bm_register_write(struct
+ 	struct super_block *sb = file_inode(file)->i_sb;
+ 	struct dentry *root = sb->s_root, *dentry;
+ 	int err = 0;
++	struct file *f = NULL;
  
- 	BUG_ON(end1 > page_size(page) || end2 > page_size(page));
+ 	e = create_entry(buffer, count);
  
-+	if (start1 >= end1)
-+		start1 = end1 = 0;
-+	if (start2 >= end2)
-+		start2 = end2 = 0;
+ 	if (IS_ERR(e))
+ 		return PTR_ERR(e);
+ 
++	if (e->flags & MISC_FMT_OPEN_FILE) {
++		f = open_exec(e->interpreter);
++		if (IS_ERR(f)) {
++			pr_notice("register: failed to install interpreter file %s\n",
++				 e->interpreter);
++			kfree(e);
++			return PTR_ERR(f);
++		}
++		e->interp_file = f;
++	}
 +
- 	for (i = 0; i < compound_nr(page); i++) {
- 		void *kaddr = NULL;
+ 	inode_lock(d_inode(root));
+ 	dentry = lookup_one_len(e->name, root, strlen(e->name));
+ 	err = PTR_ERR(dentry);
+@@ -678,21 +690,6 @@ static ssize_t bm_register_write(struct
+ 		goto out2;
+ 	}
  
--		if (start1 < PAGE_SIZE || start2 < PAGE_SIZE)
--			kaddr = kmap_atomic(page + i);
+-	if (e->flags & MISC_FMT_OPEN_FILE) {
+-		struct file *f;
 -
- 		if (start1 >= PAGE_SIZE) {
- 			start1 -= PAGE_SIZE;
- 			end1 -= PAGE_SIZE;
- 		} else {
- 			unsigned this_end = min_t(unsigned, end1, PAGE_SIZE);
+-		f = open_exec(e->interpreter);
+-		if (IS_ERR(f)) {
+-			err = PTR_ERR(f);
+-			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
+-			simple_release_fs(&bm_mnt, &entry_count);
+-			iput(inode);
+-			inode = NULL;
+-			goto out2;
+-		}
+-		e->interp_file = f;
+-	}
+-
+ 	e->dentry = dget(dentry);
+ 	inode->i_private = e;
+ 	inode->i_fop = &bm_entry_operations;
+@@ -709,6 +706,8 @@ out:
+ 	inode_unlock(d_inode(root));
  
--			if (end1 > start1)
-+			if (end1 > start1) {
-+				kaddr = kmap_atomic(page + i);
- 				memset(kaddr + start1, 0, this_end - start1);
-+			}
- 			end1 -= this_end;
- 			start1 = 0;
- 		}
-@@ -392,8 +396,11 @@ void zero_user_segments(struct page *pag
- 		} else {
- 			unsigned this_end = min_t(unsigned, end2, PAGE_SIZE);
- 
--			if (end2 > start2)
-+			if (end2 > start2) {
-+				if (!kaddr)
-+					kaddr = kmap_atomic(page + i);
- 				memset(kaddr + start2, 0, this_end - start2);
-+			}
- 			end2 -= this_end;
- 			start2 = 0;
- 		}
+ 	if (err) {
++		if (f)
++			filp_close(f, NULL);
+ 		kfree(e);
+ 		return err;
+ 	}
 _
 
-Patches currently in -mm which might be from hirofumi@mail.parknet.co.jp are
+Patches currently in -mm which might be from liorribak@gmail.com are
 
 
