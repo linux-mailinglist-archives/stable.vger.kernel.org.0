@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E48E33B73F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7AB433BAB5
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbhCON7y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S232088AbhCOOKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232465AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC6F764F3F;
-        Mon, 15 Mar 2021 13:58:32 +0000 (UTC)
+        id S231630AbhCON6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE69764F04;
+        Mon, 15 Mar 2021 13:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816714;
-        bh=kIE7+JWYHo6gcimnVLboVMJ0lGJorM7c6yvFGIdYEUU=;
+        s=korg; t=1615816688;
+        bh=RmiTjGr/R0DfF63LCOp6JPHByS43EkqYkA875oYey3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTmQqT2ztL1SO5C0+Cq/KXPZiTOsl6max8/6JAzWSWmZyYtUyGDIELDe/au+oAa3y
-         u1BAZRWmqV1M3LR0qZG6SMr1r2ZP41hiegDzRevG4Zv/nsMN42OC+xFPsugNJscV4R
-         SHtao8JfWzBfu40J/301Ivog3KpaSkslQ7u5thRU=
+        b=bnnz3dVUGzySUo28RTb13B/2kI4p3/vVWuyOiq/QRhig5FqNtqEeRWLUMdZZX5wFz
+         SEINzrq7puZGpndzBctfehTlLDZP2g03AIwfDEDurfkMUlfwd/8mW5Tw5eIOIwaEOk
+         bRY+RZLbJId+UYvjNhCYY4t+XFLXPXxa0hZG9Jvo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Jann Horn <jannh@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Christoph Lameter <cl@linux.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 14/95] Revert "mm, slub: consider rest of partial list if acquire_slab() fails"
-Date:   Mon, 15 Mar 2021 14:56:44 +0100
-Message-Id: <20210315135740.737668913@linuxfoundation.org>
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 065/306] net: stmmac: Fix VLAN filter delete timeout issue in Intel mGBE SGMII
+Date:   Mon, 15 Mar 2021 14:52:08 +0100
+Message-Id: <20210315135509.841157981@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +41,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-commit 9b1ea29bc0d7b94d420f96a0f4121403efc3dd85 upstream.
+commit 9a7b3950c7e15968e23d83be215e95ccc7c92a53 upstream.
 
-This reverts commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf.
+For Intel mGbE controller, MAC VLAN filter delete operation will time-out
+if serdes power-down sequence happened first during driver remove() with
+below message.
 
-The kernel test robot reports a huge performance regression due to the
-commit, and the reason seems fairly straightforward: when there is
-contention on the page list (which is what causes acquire_slab() to
-fail), we do _not_ want to just loop and try again, because that will
-transfer the contention to the 'n->list_lock' spinlock we hold, and
-just make things even worse.
+[82294.764958] intel-eth-pci 0000:00:1e.4 eth2: stmmac_dvr_remove: removing driver
+[82294.778677] intel-eth-pci 0000:00:1e.4 eth2: Timeout accessing MAC_VLAN_Tag_Filter
+[82294.779997] intel-eth-pci 0000:00:1e.4 eth2: failed to kill vid 0081/0
+[82294.947053] intel-eth-pci 0000:00:1d.2 eth1: stmmac_dvr_remove: removing driver
+[82295.002091] intel-eth-pci 0000:00:1d.1 eth0: stmmac_dvr_remove: removing driver
 
-This is admittedly likely a problem only on big machines - the kernel
-test robot report comes from a 96-thread dual socket Intel Xeon Gold
-6252 setup, but the regression there really is quite noticeable:
+Therefore, we delay the serdes power-down to be after unregister_netdev()
+which triggers the VLAN filter delete.
 
-   -47.9% regression of stress-ng.rawpkt.ops_per_sec
-
-and the commit that was marked as being fixed (7ced37197196: "slub:
-Acquire_slab() avoid loop") actually did the loop exit early very
-intentionally (the hint being that "avoid loop" part of that commit
-message), exactly to avoid this issue.
-
-The correct thing to do may be to pick some kind of reasonable middle
-ground: instead of breaking out of the loop on the very first sign of
-contention, or trying over and over and over again, the right thing may
-be to re-try _once_, and then give up on the second failure (or pick
-your favorite value for "once"..).
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/lkml/20210301080404.GF12822@xsang-OptiPlex-9020/
-Cc: Jann Horn <jannh@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: b9663b7ca6ff ("net: stmmac: Enable SERDES power up/down sequence")
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1846,7 +1846,7 @@ static void *get_partial_node(struct kme
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -5144,13 +5144,16 @@ int stmmac_dvr_remove(struct device *dev
+ 	netdev_info(priv->dev, "%s: removing driver", __func__);
  
- 		t = acquire_slab(s, n, page, object == NULL, &objects);
- 		if (!t)
--			continue; /* cmpxchg raced */
-+			break;
+ 	stmmac_stop_all_dma(priv);
++	stmmac_mac_set(priv, priv->ioaddr, false);
++	netif_carrier_off(ndev);
++	unregister_netdev(ndev);
  
- 		available += objects;
- 		if (!object) {
++	/* Serdes power down needs to happen after VLAN filter
++	 * is deleted that is triggered by unregister_netdev().
++	 */
+ 	if (priv->plat->serdes_powerdown)
+ 		priv->plat->serdes_powerdown(ndev, priv->plat->bsp_priv);
+ 
+-	stmmac_mac_set(priv, priv->ioaddr, false);
+-	netif_carrier_off(ndev);
+-	unregister_netdev(ndev);
+ #ifdef CONFIG_DEBUG_FS
+ 	stmmac_exit_fs(ndev);
+ #endif
 
 
