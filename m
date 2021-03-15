@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A6D133B8C4
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C95F133B8BB
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234586AbhCOOE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S234561AbhCOOEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233076AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233084AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:00:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C0E64F58;
-        Mon, 15 Mar 2021 14:00:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B57664EFC;
+        Mon, 15 Mar 2021 14:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816821;
-        bh=S1BbKy6q2HCjd0Xn0FIRamlpdFxiUnCa3lPMMw2415k=;
+        s=korg; t=1615816823;
+        bh=G54vohvt+g5VieYybML1LGzxlSiZ1Tb+gpNzAx1aXvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdqTdNZ5s6vAGeky+0RJ/r2YSdVAIoChHaZ5fug43HxbWxDA0pJ8rkowuGG3n3Yh3
-         800Sm0/40zRBM50+pO/Mf7vWlrOtvhsH3uFObGlGxQslc9tF95nXW9488+A1lblQEl
-         JCft+6ndKRDHIIE2eWwigdPUC/FwUHRauFimWdA0=
+        b=uUPehyKPCaVSvoHh3GMUFO7sWT2JHXbp5mmKJw0dvrHS+wO/Ygdri7aPVJjXP/CvD
+         0726FOmLqPkxE6iW7Larwg00SCBjWweDtxV0fTNAdw9b/k/cdkp+iNl/k8CSsJgncA
+         7lGrPIROMVhTcqGsxT9tUkDC6t52u1l4TeOsaJa0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/290] scsi: ufs: WB is only available on LUN #0 to #7
-Date:   Mon, 15 Mar 2021 14:53:46 +0100
-Message-Id: <20210315135546.397380613@linuxfoundation.org>
+        stable@vger.kernel.org, "Steven J. Magnani" <magnani@ieee.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 134/290] udf: fix silent AED tagLocation corruption
+Date:   Mon, 15 Mar 2021 14:53:47 +0100
+Message-Id: <20210315135546.437045564@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -43,96 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Steven J. Magnani <magnani@ieee.org>
 
-[ Upstream commit a2fca52ee640a04112ed9d9a137c940ea6ad288e ]
+[ Upstream commit 63c9e47a1642fc817654a1bc18a6ec4bbcc0f056 ]
 
-Kernel stack violation when getting unit_descriptor/wb_buf_alloc_units from
-rpmb LUN. The reason is that the unit descriptor length is different per
-LU.
+When extending a file, udf_do_extend_file() may enter following empty
+indirect extent. At the end of udf_do_extend_file() we revert prev_epos
+to point to the last written extent. However if we end up not adding any
+further extent in udf_do_extend_file(), the reverting points prev_epos
+into the header area of the AED and following updates of the extents
+(in udf_update_extents()) will corrupt the header.
 
-The length of Normal LU is 45 while the one of rpmb LU is 35.
+Make sure that we do not follow indirect extent if we are not going to
+add any more extents so that returning back to the last written extent
+works correctly.
 
-int ufshcd_read_desc_param(struct ufs_hba *hba, ...)
-{
-	param_offset=41;
-	param_size=4;
-	buff_len=45;
-	...
-	buff_len=35 by rpmb LU;
-
-	if (is_kmalloc) {
-		/* Make sure we don't copy more data than available */
-		if (param_offset + param_size > buff_len)
-			param_size = buff_len - param_offset;
-			--> param_size = 250;
-		memcpy(param_read_buf, &desc_buf[param_offset], param_size);
-		--> memcpy(param_read_buf, desc_buf+41, 250);
-
-[  141.868974][ T9174] Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: wb_buf_alloc_units_show+0x11c/0x11c
-	}
-}
-
-Link: https://lore.kernel.org/r/20210111095927.1830311-1-jaegeuk@kernel.org
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20210107234116.6190-2-magnani@ieee.org
+Signed-off-by: Steven J. Magnani <magnani@ieee.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-sysfs.c | 3 ++-
- drivers/scsi/ufs/ufs.h       | 6 ++++--
- drivers/scsi/ufs/ufshcd.c    | 2 +-
- 3 files changed, 7 insertions(+), 4 deletions(-)
+ fs/udf/inode.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-sysfs.c b/drivers/scsi/ufs/ufs-sysfs.c
-index bdcd27faa054..34b424ad96a2 100644
---- a/drivers/scsi/ufs/ufs-sysfs.c
-+++ b/drivers/scsi/ufs/ufs-sysfs.c
-@@ -785,7 +785,8 @@ static ssize_t _pname##_show(struct device *dev,			\
- 	struct scsi_device *sdev = to_scsi_device(dev);			\
- 	struct ufs_hba *hba = shost_priv(sdev->host);			\
- 	u8 lun = ufshcd_scsi_to_upiu_lun(sdev->lun);			\
--	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun))		\
-+	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun,		\
-+				_duname##_DESC_PARAM##_puname))		\
- 		return -EINVAL;						\
- 	return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_##_duname,	\
- 		lun, _duname##_DESC_PARAM##_puname, buf, _size);	\
-diff --git a/drivers/scsi/ufs/ufs.h b/drivers/scsi/ufs/ufs.h
-index f8ab16f30fdc..07ca39008b84 100644
---- a/drivers/scsi/ufs/ufs.h
-+++ b/drivers/scsi/ufs/ufs.h
-@@ -551,13 +551,15 @@ struct ufs_dev_info {
-  * @return: true if the lun has a matching unit descriptor, false otherwise
-  */
- static inline bool ufs_is_valid_unit_desc_lun(struct ufs_dev_info *dev_info,
--		u8 lun)
-+		u8 lun, u8 param_offset)
- {
- 	if (!dev_info || !dev_info->max_lu_supported) {
- 		pr_err("Max General LU supported by UFS isn't initialized\n");
- 		return false;
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index bb89c3e43212..0dd2f93ac048 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -544,11 +544,14 @@ static int udf_do_extend_file(struct inode *inode,
+ 
+ 		udf_write_aext(inode, last_pos, &last_ext->extLocation,
+ 				last_ext->extLength, 1);
++
+ 		/*
+-		 * We've rewritten the last extent but there may be empty
+-		 * indirect extent after it - enter it.
++		 * We've rewritten the last extent. If we are going to add
++		 * more extents, we may need to enter possible following
++		 * empty indirect extent.
+ 		 */
+-		udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
++		if (new_block_bytes || prealloc_len)
++			udf_next_aext(inode, last_pos, &tmploc, &tmplen, 0);
  	}
--
-+	/* WB is available only for the logical unit from 0 to 7 */
-+	if (param_offset == UNIT_DESC_PARAM_WB_BUF_ALLOC_UNITS)
-+		return lun < UFS_UPIU_MAX_WB_LUN_ID;
- 	return lun == UFS_UPIU_RPMB_WLUN || (lun < dev_info->max_lu_supported);
- }
  
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 5a7cc2e42ffd..97d9d5d99adc 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -3378,7 +3378,7 @@ static inline int ufshcd_read_unit_desc_param(struct ufs_hba *hba,
- 	 * Unit descriptors are only available for general purpose LUs (LUN id
- 	 * from 0 to 7) and RPMB Well known LU.
- 	 */
--	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun))
-+	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun, param_offset))
- 		return -EOPNOTSUPP;
- 
- 	return ufshcd_read_desc_param(hba, QUERY_DESC_IDN_UNIT, lun,
+ 	/* Managed to do everything necessary? */
 -- 
 2.30.1
 
