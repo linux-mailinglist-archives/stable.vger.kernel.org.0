@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E2233BABD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6017333B7ED
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235686AbhCOOKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S232640AbhCOOBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233104AbhCOOAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D4B364F25;
-        Mon, 15 Mar 2021 14:00:07 +0000 (UTC)
+        id S232685AbhCON7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0F5164F1A;
+        Mon, 15 Mar 2021 13:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816808;
-        bh=GTeUtwzfq/978IFxOmeHTwhMilYuUVY1oe7gQEu1PeU=;
+        s=korg; t=1615816774;
+        bh=5EHHy+RI8mq93sT8v8wO7Z8g+xB42XGaRZ8h7umuZbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qMr/0ECDpoT3/pXCX501Ho9dkVT3G2k5FW0AH50l0AgAcZ71rDw+xzi0V0zy07JeI
-         aqrX7wIyFI20USY7WuCo5M8Am/pSVbekWlEz2kOszwvDrxJhYDv2GYI+Zg/uyhbmAI
-         ZLOjiHXrIRo/sY6/lEXiOprzQ2OLVjPeJS8OeVvc=
+        b=f8MiS2zsLGQZ4E7kd4VuBAxUxv05LoZBDThBI/Oi/ectpgwj5sqkBlN8dkFw5iOdr
+         vT54vWzjOJ3AJ0Sd3Pa1TaNJhmIiKdsF3td/ATZaKbJN5DJSs4LXu58qWtOT1SbbkI
+         j0Fj1558Mol/fzs0wgf1D257P9ANNerVl96IzH6g=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 137/306] spi: stm32: make spurious and overrun interrupts visible
+        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 107/290] cifs: fix credit accounting for extra channel
 Date:   Mon, 15 Mar 2021 14:53:20 +0100
-Message-Id: <20210315135512.278014099@linuxfoundation.org>
+Message-Id: <20210315135545.522200360@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +42,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Aurelien Aptel <aaptel@suse.com>
 
-[ Upstream commit c64e7efe46b7de21937ef4b3594d9b1fc74f07df ]
+commit a249cc8bc2e2fed680047d326eb9a50756724198 upstream.
 
-We do not expect to receive spurious interrupts so rise a warning
-if it happens.
+With multichannel, operations like the queries
+from "ls -lR" can cause all credits to be used and
+errors to be returned since max_credits was not
+being set correctly on the secondary channels and
+thus the client was requesting 0 credits incorrectly
+in some cases (which can lead to not having
+enough credits to perform any operation on that
+channel).
 
-RX overrun is an error condition that signals a corrupted RX
-stream both in dma and in irq modes. Report the error and
-abort the transfer in either cases.
-
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1612551572-495-9-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Aurelien Aptel <aaptel@suse.com>
+CC: <stable@vger.kernel.org> # v5.8+
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-stm32.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ fs/cifs/connect.c |   10 +++++-----
+ fs/cifs/sess.c    |    1 +
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 6eeb39669a86..53c4311cc6ab 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -928,8 +928,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 		mask |= STM32H7_SPI_SR_RXP;
+--- a/fs/cifs/connect.c
++++ b/fs/cifs/connect.c
+@@ -2629,6 +2629,11 @@ smbd_connected:
+ 	tcp_ses->min_offload = volume_info->min_offload;
+ 	tcp_ses->tcpStatus = CifsNeedNegotiate;
  
- 	if (!(sr & mask)) {
--		dev_dbg(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
--			sr, ier);
-+		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
-+			 sr, ier);
- 		spin_unlock_irqrestore(&spi->lock, flags);
- 		return IRQ_NONE;
- 	}
-@@ -956,15 +956,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 	}
++	if ((volume_info->max_credits < 20) || (volume_info->max_credits > 60000))
++		tcp_ses->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
++	else
++		tcp_ses->max_credits = volume_info->max_credits;
++
+ 	tcp_ses->nr_targets = 1;
+ 	tcp_ses->ignore_signature = volume_info->ignore_signature;
+ 	/* thread spawned, put it on the list */
+@@ -4077,11 +4082,6 @@ static int mount_get_conns(struct smb_vo
  
- 	if (sr & STM32H7_SPI_SR_OVR) {
--		dev_warn(spi->dev, "Overrun: received value discarded\n");
--		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
--			stm32h7_spi_read_rxfifo(spi, false);
--		/*
--		 * If overrun is detected while using DMA, it means that
--		 * something went wrong, so stop the current transfer
--		 */
--		if (spi->cur_usedma)
--			end = true;
-+		dev_err(spi->dev, "Overrun: RX data lost\n");
-+		end = true;
- 	}
+ 	*nserver = server;
  
- 	if (sr & STM32H7_SPI_SR_EOT) {
--- 
-2.30.1
-
+-	if ((vol->max_credits < 20) || (vol->max_credits > 60000))
+-		server->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
+-	else
+-		server->max_credits = vol->max_credits;
+-
+ 	/* get a reference to a SMB session */
+ 	ses = cifs_get_smb_ses(server, vol);
+ 	if (IS_ERR(ses)) {
+--- a/fs/cifs/sess.c
++++ b/fs/cifs/sess.c
+@@ -224,6 +224,7 @@ cifs_ses_add_channel(struct cifs_ses *se
+ 	vol.noautotune = ses->server->noautotune;
+ 	vol.sockopt_tcp_nodelay = ses->server->tcp_nodelay;
+ 	vol.echo_interval = ses->server->echo_interval / HZ;
++	vol.max_credits = ses->server->max_credits;
+ 
+ 	/*
+ 	 * This will be used for encoding/decoding user/domain/pw
 
 
