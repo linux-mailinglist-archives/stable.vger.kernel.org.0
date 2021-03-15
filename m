@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC32D33B7FB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5BE33B851
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232655AbhCOOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S233956AbhCOOCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231909AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71A7764F84;
-        Mon, 15 Mar 2021 13:59:25 +0000 (UTC)
+        id S232844AbhCOOAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DAC664F21;
+        Mon, 15 Mar 2021 13:59:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816767;
-        bh=iHA1Hi3XfyjD2d5Ym7LqwH1pN8rtpdsYwg+EqhSgnC8=;
+        s=korg; t=1615816768;
+        bh=02ckzVMLLa7/mqcJCbiSz5NJ52Ls+EyxHla1v14UTX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufaYyQ2813AB1DSiucuOKwIhio2l6gsMbcHfNv9kv0UEA5nLrIkCF69uec6QiqRZy
-         dOCRK91ehxUnDFr62znXqCcJDYbxc+HIeeHfbnyLyqYY6WKp9FMQCXZEtFYO70XTsP
-         aNxShJfzsGGUzbBEbw7JDHpmMdF3GZpDaZqD8hsg=
+        b=Vd9jLNLA6d+f6dhob3+5Wfvxb7dPtPMGoZqvP0Y84afrdz0npBCZpNWfPbNpwqHTK
+         Pq0gqB5j9uXwGL1D20AUXxQyqzBYZjn023CSWgeF8LGel7wtUqzt8kxv84U8Dfe3Yu
+         d4z29ul3C7KR8RnIL1GiLU4OQTUyEjX+d5ommp7M=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/120] i40e: Fix memory leak in i40e_probe
-Date:   Mon, 15 Mar 2021 14:56:45 +0100
-Message-Id: <20210315135721.754166431@linuxfoundation.org>
+Subject: [PATCH 4.19 055/120] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
+Date:   Mon, 15 Mar 2021 14:56:46 +0100
+Message-Id: <20210315135721.787469574@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -44,37 +42,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 58cab46c622d6324e47bd1c533693c94498e4172 ]
+[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
 
-Struct i40e_veb is allocated in function i40e_setup_pf_switch, and
-stored to an array field veb inside struct i40e_pf. However when
-i40e_setup_misc_vector fails, this memory leaks.
+Avoid a potentially large stack frame and overflow by making
+"cpumask_t avail" a static variable. There is no concurrent
+access due to the existing locking.
 
-Fix this by calling exit and teardown functions.
-
-Signed-off-by: Keita Suzuki <keitasuzuki.park@sslab.ics.keio.ac.jp>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index fe9da568ee19..1591f81d8ae3 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -13956,6 +13956,8 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		if (err) {
- 			dev_info(&pdev->dev,
- 				 "setup of misc vector failed: %d\n", err);
-+			i40e_cloud_filter_exit(pf);
-+			i40e_fdir_teardown(pf);
- 			goto err_vsis;
- 		}
- 	}
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index c47bd581a08a..bce678c7179c 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -751,7 +751,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
+ static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
+ {
+ 	struct sclp_core_entry *core;
+-	cpumask_t avail;
++	static cpumask_t avail;
+ 	bool configured;
+ 	u16 core_id;
+ 	int nr, i;
 -- 
 2.30.1
 
