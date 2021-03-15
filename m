@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BD133B751
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1714333BADD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232868AbhCOOAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S232291AbhCOOKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231944AbhCON7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5367064F58;
-        Mon, 15 Mar 2021 13:58:53 +0000 (UTC)
+        id S234220AbhCOODF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F32464EF1;
+        Mon, 15 Mar 2021 14:03:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816734;
-        bh=HvHHH5Zj0fb3ehs4nPp0IyMb5jy/2HIN72EjIA9uBqk=;
+        s=korg; t=1615816985;
+        bh=yMcuxH9/NSD6zVo+lbmUfvAi3ZKHcoLQEMsqd003JX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHujX+ElqTXgQMwu+21ihB5+/abKF1Rs8/KTNNP7RrTJFTZQ+W8zDmqtaop+xzQma
-         3hm/lr6fZyqaQ07m1ZGksX7aX13oBO070DuL2iiStSQx6uZ0K8uaccTFFtVzj2v7k0
-         8SwiZTJaD6QxrV96D55PpkZu09b+cRiiLbWapcwM=
+        b=EmqHMP3N3/Z7KziBkhLzJeEDfrQropMwm8+NBq/faUDk0wL41Eau/3F3wJD7sem/y
+         xtezp4EiCkdPnE3X6xw5F21MgwrtAkUYABjG0+1VFkID4GP5Uhfnszt4eQSI9NVo6c
+         K5OflLYdv4+j+Q9KAaNpFfKN/VK+mlv9QUwrvPP4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        David Hildenbrand <david@redhat.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 075/168] sparc32: Limit memblock allocation to low memory
+Subject: [PATCH 5.11 244/306] arm64/mm: Fix pfn_valid() for ZONE_DEVICE based memory
 Date:   Mon, 15 Mar 2021 14:55:07 +0100
-Message-Id: <20210315135552.854662541@linuxfoundation.org>
+Message-Id: <20210315135515.886869493@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +47,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
+[ Upstream commit eeb0753ba27b26f609e61f9950b14f1b934fe429 ]
 
-Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
-memblocks instead of bootmem, but also made high memory available via
-memblock allocation which does not work together with e.g. phys_to_virt
-and can lead to kernel panic.
+pfn_valid() validates a pfn but basically it checks for a valid struct page
+backing for that pfn. It should always return positive for memory ranges
+backed with struct page mapping. But currently pfn_valid() fails for all
+ZONE_DEVICE based memory types even though they have struct page mapping.
 
-This changes back to only low memory being allocatable in the early
-stages, now using memblock allocation.
+pfn_valid() asserts that there is a memblock entry for a given pfn without
+MEMBLOCK_NOMAP flag being set. The problem with ZONE_DEVICE based memory is
+that they do not have memblock entries. Hence memblock_is_map_memory() will
+invariably fail via memblock_search() for a ZONE_DEVICE based address. This
+eventually fails pfn_valid() which is wrong. memblock_is_map_memory() needs
+to be skipped for such memory ranges. As ZONE_DEVICE memory gets hotplugged
+into the system via memremap_pages() called from a driver, their respective
+memory sections will not have SECTION_IS_EARLY set.
 
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Normal hotplug memory will never have MEMBLOCK_NOMAP set in their memblock
+regions. Because the flag MEMBLOCK_NOMAP was specifically designed and set
+for firmware reserved memory regions. memblock_is_map_memory() can just be
+skipped as its always going to be positive and that will be an optimization
+for the normal hotplug memory. Like ZONE_DEVICE based memory, all normal
+hotplugged memory too will not have SECTION_IS_EARLY set for their sections
+
+Skipping memblock_is_map_memory() for all non early memory sections would
+fix pfn_valid() problem for ZONE_DEVICE based memory and also improve its
+performance for normal hotplug memory as well.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: David Hildenbrand <david@redhat.com>
+Fixes: 73b20c84d42d ("arm64: mm: implement pte_devmap support")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/1614921898-4099-2-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/mm/init_32.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/mm/init.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-index 906eda1158b4..40dd6cb4a413 100644
---- a/arch/sparc/mm/init_32.c
-+++ b/arch/sparc/mm/init_32.c
-@@ -197,6 +197,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
- 	size = memblock_phys_mem_size() - memblock_reserved_size();
- 	*pages_avail = (size >> PAGE_SHIFT) - high_pages;
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 709d98fea90c..1141075e4d53 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -230,6 +230,18 @@ int pfn_valid(unsigned long pfn)
  
-+	/* Only allow low memory to be allocated via memblock allocation */
-+	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
+ 	if (!valid_section(__pfn_to_section(pfn)))
+ 		return 0;
 +
- 	return max_pfn;
++	/*
++	 * ZONE_DEVICE memory does not have the memblock entries.
++	 * memblock_is_map_memory() check for ZONE_DEVICE based
++	 * addresses will always fail. Even the normal hotplugged
++	 * memory will never have MEMBLOCK_NOMAP flag set in their
++	 * memblock entries. Skip memblock search for all non early
++	 * memory sections covering all of hotplug memory including
++	 * both normal and ZONE_DEVICE based.
++	 */
++	if (!early_section(__pfn_to_section(pfn)))
++		return pfn_section_valid(__pfn_to_section(pfn), pfn);
+ #endif
+ 	return memblock_is_map_memory(addr);
  }
- 
 -- 
 2.30.1
 
