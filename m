@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A2233B6F4
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCF6033B72B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231340AbhCON7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S230430AbhCON7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232287AbhCON6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 053B364F16;
-        Mon, 15 Mar 2021 13:58:15 +0000 (UTC)
+        id S231829AbhCON6c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C28E664EF0;
+        Mon, 15 Mar 2021 13:58:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816697;
-        bh=cWYpPuK4cVYNfdhQeETw55m2OhHl72Tn093ipU2PKkM=;
+        s=korg; t=1615816699;
+        bh=eJsdkowwYLL6j/ragKxfU9ATzJo5TwYd2qfCfxOueJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JyRrKysMOC5WE9Mq+HN2YyQO/JuCvIzy7ULBxW9HEtGKLFWzhMohJiATYx9y5IzJK
-         ke/0w1GRN3d7ppr2G46tdIIvyiRp8srYw0M7hZ7SCD04/TZX1dQ6AetqfnRzNOGT+B
-         1/5vv4kxSLzToEstGBHUcb8GdPOu4m3L4rWJMGZg=
+        b=y2jRCv/f7K0vASFY166ruQqqubkFkTSmOuRfHU633ksqEEoMP7tvbiM8KrUMfzk8G
+         xxlE5j8WqXFkhvMemO3ced2utTrpdBI4fcVeNXpVzv4lfjHKaMcZUVwB4G1fDWetEq
+         bLABu4udCtR7vi7CUJNyE5I5q421J7u2SUgfZxhk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Qingyu Li <ieatmuttonchuan@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 013/120] tcp: add sanity tests to TCP_QUEUE_SEQ
-Date:   Mon, 15 Mar 2021 14:56:04 +0100
-Message-Id: <20210315135720.451315222@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.19 014/120] cifs: return proper error code in statfs(2)
+Date:   Mon, 15 Mar 2021 14:56:05 +0100
+Message-Id: <20210315135720.484556544@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -43,79 +43,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d ]
+commit 14302ee3301b3a77b331cc14efb95bf7184c73cc upstream.
 
-Qingyu Li reported a syzkaller bug where the repro
-changes RCV SEQ _after_ restoring data in the receive queue.
+In cifs_statfs(), if server->ops->queryfs is not NULL, then we should
+use its return value rather than always returning 0.  Instead, use rc
+variable as it is properly set to 0 in case there is no
+server->ops->queryfs.
 
-mprotect(0x4aa000, 12288, PROT_READ)    = 0
-mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
-mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
-mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
-socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
-setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
-connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
-setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
-sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
-setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
-setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
-recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
-
-syslog shows:
-[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
-[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
-
-This should not be allowed. TCP_QUEUE_SEQ should only be used
-when queues are empty.
-
-This patch fixes this case, and the tx path as well.
-
-Fixes: ee9952831cfd ("tcp: Initial repair mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
-Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ fs/cifs/cifsfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2886,16 +2886,23 @@ static int do_tcp_setsockopt(struct sock
- 		break;
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -229,7 +229,7 @@ cifs_statfs(struct dentry *dentry, struc
+ 		rc = server->ops->queryfs(xid, tcon, buf);
  
- 	case TCP_QUEUE_SEQ:
--		if (sk->sk_state != TCP_CLOSE)
-+		if (sk->sk_state != TCP_CLOSE) {
- 			err = -EPERM;
--		else if (tp->repair_queue == TCP_SEND_QUEUE)
--			WRITE_ONCE(tp->write_seq, val);
--		else if (tp->repair_queue == TCP_RECV_QUEUE) {
--			WRITE_ONCE(tp->rcv_nxt, val);
--			WRITE_ONCE(tp->copied_seq, val);
--		}
--		else
-+		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
-+			if (!tcp_rtx_queue_empty(sk))
-+				err = -EPERM;
-+			else
-+				WRITE_ONCE(tp->write_seq, val);
-+		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
-+			if (tp->rcv_nxt != tp->copied_seq) {
-+				err = -EPERM;
-+			} else {
-+				WRITE_ONCE(tp->rcv_nxt, val);
-+				WRITE_ONCE(tp->copied_seq, val);
-+			}
-+		} else {
- 			err = -EINVAL;
-+		}
- 		break;
+ 	free_xid(xid);
+-	return 0;
++	return rc;
+ }
  
- 	case TCP_REPAIR_OPTIONS:
+ static long cifs_fallocate(struct file *file, int mode, loff_t off, loff_t len)
 
 
