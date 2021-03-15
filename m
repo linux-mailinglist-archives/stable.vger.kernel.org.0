@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F8C033B642
+	by mail.lfdr.de (Postfix) with ESMTP id BF06533B643
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231386AbhCON5b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231502AbhCON5b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 09:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230408AbhCON5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07A4E64F06;
-        Mon, 15 Mar 2021 13:56:58 +0000 (UTC)
+        id S230142AbhCON5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA2064DAD;
+        Mon, 15 Mar 2021 13:57:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816620;
-        bh=aNzp2xKT799H7IKI2qMUXVMtBu16NwzyqW3yODr+Cro=;
+        s=korg; t=1615816622;
+        bh=XaLBq42/E+mlwlGI2vk6zUz1rdgx0t7/XCw3YyfywR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ao7E8gBrUiM/1pP46PcLd99CubXuo2+q60a6br5P+S0kuk7jyyIpaY9lOiHm5ezeJ
-         dMe6MTKkGIxrNSh2PX9TjlyqEiPQjGn3jpmizM7W8h4ma/6om+W78azSVGzUygujgU
-         j9cqlmI8aHh1poIJs2mCbRcGwe3dEDtWK0czGtMo=
+        b=04AVRmD+4gClfEcOGbzG4i2AikK8jqdHxX6nN1ZPeM1Q7k4k25yYed9eeVaZlo6aL
+         Wb+6mDi1ofimx3AW3qEUMNiT3D7JBLrvou/EtAkBFO+f0WmU8mBk3JWP39h6wMH9B1
+         Ad9gkxT9w4T2/pv4tBWFDlQz027cBemw4AM0LsKk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 008/168] sh_eth: fix TRSCER mask for SH771x
-Date:   Mon, 15 Mar 2021 14:54:00 +0100
-Message-Id: <20210315135550.616881194@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Andre Naujoks <nautsch2@gmail.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.4 009/168] can: skb: can_skb_set_owner(): fix ref counting if socket was closed before setting skb ownership
+Date:   Mon, 15 Mar 2021 14:54:01 +0100
+Message-Id: <20210315135550.653222790@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -41,36 +44,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit 8c91bc3d44dfef8284af384877fbe61117e8b7d1 upstream.
+commit e940e0895a82c6fbaa259f2615eb52b57ee91a7e upstream.
 
-According  to  the SH7710, SH7712, SH7713 Group User's Manual: Hardware,
-Rev. 3.00, the TRSCER register actually has only bit 7 valid (and named
-differently), with all the other bits reserved. Apparently, this was not
-the case with some early revisions of the manual as we have the other
-bits declared (and set) in the original driver.  Follow the suit and add
-the explicit sh_eth_cpu_data::trscer_err_mask initializer for SH771x...
+There are two ref count variables controlling the free()ing of a socket:
+- struct sock::sk_refcnt - which is changed by sock_hold()/sock_put()
+- struct sock::sk_wmem_alloc - which accounts the memory allocated by
+  the skbs in the send path.
 
-Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+In case there are still TX skbs on the fly and the socket() is closed,
+the struct sock::sk_refcnt reaches 0. In the TX-path the CAN stack
+clones an "echo" skb, calls sock_hold() on the original socket and
+references it. This produces the following back trace:
+
+| WARNING: CPU: 0 PID: 280 at lib/refcount.c:25 refcount_warn_saturate+0x114/0x134
+| refcount_t: addition on 0; use-after-free.
+| Modules linked in: coda_vpu(E) v4l2_jpeg(E) videobuf2_vmalloc(E) imx_vdoa(E)
+| CPU: 0 PID: 280 Comm: test_can.sh Tainted: G            E     5.11.0-04577-gf8ff6603c617 #203
+| Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+| Backtrace:
+| [<80bafea4>] (dump_backtrace) from [<80bb0280>] (show_stack+0x20/0x24) r7:00000000 r6:600f0113 r5:00000000 r4:81441220
+| [<80bb0260>] (show_stack) from [<80bb593c>] (dump_stack+0xa0/0xc8)
+| [<80bb589c>] (dump_stack) from [<8012b268>] (__warn+0xd4/0x114) r9:00000019 r8:80f4a8c2 r7:83e4150c r6:00000000 r5:00000009 r4:80528f90
+| [<8012b194>] (__warn) from [<80bb09c4>] (warn_slowpath_fmt+0x88/0xc8) r9:83f26400 r8:80f4a8d1 r7:00000009 r6:80528f90 r5:00000019 r4:80f4a8c2
+| [<80bb0940>] (warn_slowpath_fmt) from [<80528f90>] (refcount_warn_saturate+0x114/0x134) r8:00000000 r7:00000000 r6:82b44000 r5:834e5600 r4:83f4d540
+| [<80528e7c>] (refcount_warn_saturate) from [<8079a4c8>] (__refcount_add.constprop.0+0x4c/0x50)
+| [<8079a47c>] (__refcount_add.constprop.0) from [<8079a57c>] (can_put_echo_skb+0xb0/0x13c)
+| [<8079a4cc>] (can_put_echo_skb) from [<8079ba98>] (flexcan_start_xmit+0x1c4/0x230) r9:00000010 r8:83f48610 r7:0fdc0000 r6:0c080000 r5:82b44000 r4:834e5600
+| [<8079b8d4>] (flexcan_start_xmit) from [<80969078>] (netdev_start_xmit+0x44/0x70) r9:814c0ba0 r8:80c8790c r7:00000000 r6:834e5600 r5:82b44000 r4:82ab1f00
+| [<80969034>] (netdev_start_xmit) from [<809725a4>] (dev_hard_start_xmit+0x19c/0x318) r9:814c0ba0 r8:00000000 r7:82ab1f00 r6:82b44000 r5:00000000 r4:834e5600
+| [<80972408>] (dev_hard_start_xmit) from [<809c6584>] (sch_direct_xmit+0xcc/0x264) r10:834e5600 r9:00000000 r8:00000000 r7:82b44000 r6:82ab1f00 r5:834e5600 r4:83f27400
+| [<809c64b8>] (sch_direct_xmit) from [<809c6c0c>] (__qdisc_run+0x4f0/0x534)
+
+To fix this problem, only set skb ownership to sockets which have still
+a ref count > 0.
+
+Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Andre Naujoks <nautsch2@gmail.com>
+Link: https://lore.kernel.org/r/20210226092456.27126-1-o.rempel@pengutronix.de
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/can/skb.h |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -1131,6 +1131,9 @@ static struct sh_eth_cpu_data sh771x_dat
- 			  EESIPR_CEEFIP | EESIPR_CELFIP |
- 			  EESIPR_RRFIP | EESIPR_RTLFIP | EESIPR_RTSFIP |
- 			  EESIPR_PREIP | EESIPR_CERFIP,
-+
-+	.trscer_err_mask = DESC_I_RINT8,
-+
- 	.tsu		= 1,
- 	.dual_port	= 1,
- };
+--- a/include/linux/can/skb.h
++++ b/include/linux/can/skb.h
+@@ -49,8 +49,12 @@ static inline void can_skb_reserve(struc
+ 
+ static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
+ {
+-	if (sk) {
+-		sock_hold(sk);
++	/* If the socket has already been closed by user space, the
++	 * refcount may already be 0 (and the socket will be freed
++	 * after the last TX skb has been freed). So only increase
++	 * socket refcount if the refcount is > 0.
++	 */
++	if (sk && refcount_inc_not_zero(&sk->sk_refcnt)) {
+ 		skb->destructor = sock_efree;
+ 		skb->sk = sk;
+ 	}
 
 
