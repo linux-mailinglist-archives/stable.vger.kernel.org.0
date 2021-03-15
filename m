@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C3133B5CC
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D959633B701
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231624AbhCONzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59160 "EHLO mail.kernel.org"
+        id S231643AbhCON7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230373AbhCONyx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 098B264F04;
-        Mon, 15 Mar 2021 13:54:50 +0000 (UTC)
+        id S232201AbhCON6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E5F064F46;
+        Mon, 15 Mar 2021 13:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816492;
-        bh=lSNMJ+BgW6p1BGcFGRrZo0sOPdSgjdqEpvetgnJ9qGU=;
+        s=korg; t=1615816694;
+        bh=XU+v2L1wVNBSdOB3bGSv6EpvnmCmIUCV7MkuJoLY/zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wREna++uzJWMqx7aj3ciREvuyg/Ez0wFDMKhRwLl/iGqk9cdzPRlXPbZs8uto83qS
-         itYePKtJPq+JPU4b7WB4Np4xbwaC35rU6mtOMhNtIe9D/8Avbo0uHC/+5mVuQzod24
-         Zwm5yXaPZ106T8/u+NONK2N6yKSkB5KvB+l6lKQc=
+        b=Fgj8L6zvBWdJrOknd7ML4q3cHxValdzPjCz3R/7/D1/DWyp+xGdnqUQ98Lqlirsh7
+         SlHtgCOH1E6n0aMOOlzdD+C+jp5sXxbRHSuKl2lEQn4XVny7oYO/RiJoZwRjo4t0VI
+         AVOlwvjKYIcj+g1yjsXu5KRJshQDk0OfzSSVv6Uk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 70/78] powerpc/64s: Fix instruction encoding for lis in ppc_function_entry()
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 060/290] net: qrtr: fix error return code of qrtr_sendmsg()
 Date:   Mon, 15 Mar 2021 14:52:33 +0100
-Message-Id: <20210315135214.361168874@linuxfoundation.org>
+Message-Id: <20210315135543.949798821@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-commit cea15316ceee2d4a51dfdecd79e08a438135416c upstream.
+commit 179d0ba0c454057a65929c46af0d6ad986754781 upstream.
 
-'lis r2,N' is 'addis r2,0,N' and the instruction encoding in the macro
-LIS_R2 is incorrect (it currently maps to 'addis r0,r2,N'). Fix the
-same.
+When sock_alloc_send_skb() returns NULL to skb, no error return code of
+qrtr_sendmsg() is assigned.
+To fix this bug, rc is assigned with -ENOMEM in this case.
 
-Fixes: c71b7eff426f ("powerpc: Add ABIv2 support to ppc_function_entry")
-Cc: stable@vger.kernel.org # v3.16+
-Reported-by: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Acked-by: Segher Boessenkool <segher@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210304020411.16796-1-naveen.n.rao@linux.vnet.ibm.com
+Fixes: 194ccc88297a ("net: qrtr: Support decoding incoming v2 packets")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/code-patching.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/qrtr/qrtr.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/include/asm/code-patching.h
-+++ b/arch/powerpc/include/asm/code-patching.h
-@@ -46,7 +46,7 @@ void __patch_exception(int exc, unsigned
- #endif
+--- a/net/qrtr/qrtr.c
++++ b/net/qrtr/qrtr.c
+@@ -935,8 +935,10 @@ static int qrtr_sendmsg(struct socket *s
+ 	plen = (len + 3) & ~3;
+ 	skb = sock_alloc_send_skb(sk, plen + QRTR_HDR_MAX_SIZE,
+ 				  msg->msg_flags & MSG_DONTWAIT, &rc);
+-	if (!skb)
++	if (!skb) {
++		rc = -ENOMEM;
+ 		goto out_node;
++	}
  
- #define OP_RT_RA_MASK	0xffff0000UL
--#define LIS_R2		0x3c020000UL
-+#define LIS_R2		0x3c400000UL
- #define ADDIS_R2_R12	0x3c4c0000UL
- #define ADDI_R2_R2	0x38420000UL
+ 	skb_reserve(skb, QRTR_HDR_MAX_SIZE);
  
 
 
