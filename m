@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F409433BA9E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD81E33B830
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235305AbhCOOJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52480 "EHLO mail.kernel.org"
+        id S233775AbhCOOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234590AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1218364F0A;
-        Mon, 15 Mar 2021 14:04:20 +0000 (UTC)
+        id S232912AbhCOOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C532264F47;
+        Mon, 15 Mar 2021 13:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817062;
-        bh=t6RUt6HUzB0MgaDyS9B4bHBo4NehUJSKVH0UAGG2iL0=;
+        s=korg; t=1615816793;
+        bh=UnvoTaee++uQmgZBcbDloBQf3a1K2DhIcoEylFd3FLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irN83YvP4IeyYc8IV7OhdY/gcPSsiheo7SCVRHc7yV2eajuu+a00XAa4rBQtQRWG3
-         AfllZd/yys2koJ/vnMHIcMSWjBJR7XupI7oUOZuED3C5Qq2kSM55HoUkYFCB0O2TyV
-         s8c2ZoqCKbsmJA2/ArvNVrtG/4ABxZjsaNn4CPJI=
+        b=gftBEHfcJ/o1fYGJJKucJWNC9rTDeRYFRG7c9q32janp25toTp2Ui8DbHjoEiy2Iq
+         ZfjAtnDJDuC5bWiNtJXTOolfketMstSwU84jBURctXxXQYDP4zqA+X+GC+is7ELLzP
+         /BFb9o57vrbhz9jjJpPtnFqL6kk/cA3EdpqSEy4I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.11 282/306] powerpc: Fix missing declaration of [en/dis]able_kernel_vsx()
-Date:   Mon, 15 Mar 2021 14:55:45 +0100
-Message-Id: <20210315135517.220340775@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 114/168] xhci: Fix repeated xhci wake after suspend due to uncleared internal wake state
+Date:   Mon, 15 Mar 2021 14:55:46 +0100
+Message-Id: <20210315135554.109970675@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,83 +42,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit bd73758803c2eedc037c2268b65a19542a832594 upstream.
+commit d26c00e7276fc92b18c253d69e872f6b03832bad upstream.
 
-Add stub instances of enable_kernel_vsx() and disable_kernel_vsx()
-when CONFIG_VSX is not set, to avoid following build failure.
+If port terminations are detected in suspend, but link never reaches U0
+then xHCI may have an internal uncleared wake state that will cause an
+immediate wake after suspend.
 
-  CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o
-  In file included from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services_types.h:29,
-                   from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services.h:37,
-                   from drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:27:
-  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c: In function 'dcn_bw_apply_registry_override':
-  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:64:3: error: implicit declaration of function 'enable_kernel_vsx'; did you mean 'enable_kernel_fp'? [-Werror=implicit-function-declaration]
-     64 |   enable_kernel_vsx(); \
-        |   ^~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:640:2: note: in expansion of macro 'DC_FP_START'
-    640 |  DC_FP_START();
-        |  ^~~~~~~~~~~
-  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:75:3: error: implicit declaration of function 'disable_kernel_vsx'; did you mean 'disable_kernel_fp'? [-Werror=implicit-function-declaration]
-     75 |   disable_kernel_vsx(); \
-        |   ^~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:676:2: note: in expansion of macro 'DC_FP_END'
-    676 |  DC_FP_END();
-        |  ^~~~~~~~~
-  cc1: some warnings being treated as errors
-  make[5]: *** [drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o] Error 1
+This wake state is normally cleared when driver clears the PORT_CSC bit,
+which is set after a device is enabled and in U0.
 
-This works because the caller is checking if VSX is available using
-cpu_has_feature():
+Write 1 to clear PORT_CSC for ports that don't have anything connected
+when suspending. This makes sure any pending internal wake states in
+xHCI are cleared.
 
-  #define DC_FP_START() { \
-  	if (cpu_has_feature(CPU_FTR_VSX_COMP)) { \
-  		preempt_disable(); \
-  		enable_kernel_vsx(); \
-  	} else if (cpu_has_feature(CPU_FTR_ALTIVEC_COMP)) { \
-  		preempt_disable(); \
-  		enable_kernel_altivec(); \
-  	} else if (!cpu_has_feature(CPU_FTR_FPU_UNAVAILABLE)) { \
-  		preempt_disable(); \
-  		enable_kernel_fp(); \
-  	} \
-
-When CONFIG_VSX is not selected, cpu_has_feature(CPU_FTR_VSX_COMP)
-constant folds to 'false' so the call to enable_kernel_vsx() is
-discarded and the build succeeds.
-
-Fixes: 16a9dea110a6 ("amdgpu: Enable initial DCN support on POWER")
-Cc: stable@vger.kernel.org # v5.6+
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[mpe: Incorporate some discussion comments into the change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/8d7d285a027e9d21f5ff7f850fa71a2655b0c4af.1615279170.git.christophe.leroy@csgroup.eu
+Cc: stable@vger.kernel.org
+Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/switch_to.h |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/usb/host/xhci.c |   62 +++++++++++++++++++++++-------------------------
+ 1 file changed, 30 insertions(+), 32 deletions(-)
 
---- a/arch/powerpc/include/asm/switch_to.h
-+++ b/arch/powerpc/include/asm/switch_to.h
-@@ -71,6 +71,16 @@ static inline void disable_kernel_vsx(vo
- {
- 	msr_check_and_clear(MSR_FP|MSR_VEC|MSR_VSX);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -883,44 +883,42 @@ static void xhci_clear_command_ring(stru
+ 	xhci_set_cmd_ring_deq(xhci);
  }
-+#else
-+static inline void enable_kernel_vsx(void)
-+{
-+	BUILD_BUG();
-+}
-+
-+static inline void disable_kernel_vsx(void)
-+{
-+	BUILD_BUG();
-+}
- #endif
  
- #ifdef CONFIG_SPE
+-static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
++/*
++ * Disable port wake bits if do_wakeup is not set.
++ *
++ * Also clear a possible internal port wake state left hanging for ports that
++ * detected termination but never successfully enumerated (trained to 0U).
++ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
++ * at enumeration clears this wake, force one here as well for unconnected ports
++ */
++
++static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
++				       struct xhci_hub *rhub,
++				       bool do_wakeup)
+ {
+-	struct xhci_port **ports;
+-	int port_index;
+ 	unsigned long flags;
+ 	u32 t1, t2, portsc;
++	int i;
+ 
+ 	spin_lock_irqsave(&xhci->lock, flags);
+ 
+-	/* disable usb3 ports Wake bits */
+-	port_index = xhci->usb3_rhub.num_ports;
+-	ports = xhci->usb3_rhub.ports;
+-	while (port_index--) {
+-		t1 = readl(ports[port_index]->addr);
+-		portsc = t1;
+-		t1 = xhci_port_state_to_neutral(t1);
+-		t2 = t1 & ~PORT_WAKE_BITS;
+-		if (t1 != t2) {
+-			writel(t2, ports[port_index]->addr);
+-			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
+-				 xhci->usb3_rhub.hcd->self.busnum,
+-				 port_index + 1, portsc, t2);
+-		}
+-	}
++	for (i = 0; i < rhub->num_ports; i++) {
++		portsc = readl(rhub->ports[i]->addr);
++		t1 = xhci_port_state_to_neutral(portsc);
++		t2 = t1;
++
++		/* clear wake bits if do_wake is not set */
++		if (!do_wakeup)
++			t2 &= ~PORT_WAKE_BITS;
++
++		/* Don't touch csc bit if connected or connect change is set */
++		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
++			t2 |= PORT_CSC;
+ 
+-	/* disable usb2 ports Wake bits */
+-	port_index = xhci->usb2_rhub.num_ports;
+-	ports = xhci->usb2_rhub.ports;
+-	while (port_index--) {
+-		t1 = readl(ports[port_index]->addr);
+-		portsc = t1;
+-		t1 = xhci_port_state_to_neutral(t1);
+-		t2 = t1 & ~PORT_WAKE_BITS;
+ 		if (t1 != t2) {
+-			writel(t2, ports[port_index]->addr);
+-			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
+-				 xhci->usb2_rhub.hcd->self.busnum,
+-				 port_index + 1, portsc, t2);
++			writel(t2, rhub->ports[i]->addr);
++			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
++				 rhub->hcd->self.busnum, i + 1, portsc, t2);
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+@@ -983,8 +981,8 @@ int xhci_suspend(struct xhci_hcd *xhci,
+ 		return -EINVAL;
+ 
+ 	/* Clear root port wake on bits if wakeup not allowed. */
+-	if (!do_wakeup)
+-		xhci_disable_port_wake_on_bits(xhci);
++	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
++	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
+ 
+ 	if (!HCD_HW_ACCESSIBLE(hcd))
+ 		return 0;
 
 
