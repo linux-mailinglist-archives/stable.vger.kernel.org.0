@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D150D33B675
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE38833B673
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232208AbhCON54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34488 "EHLO mail.kernel.org"
+        id S232203AbhCON5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230513AbhCON5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBA1264F12;
-        Mon, 15 Mar 2021 13:57:08 +0000 (UTC)
+        id S231953AbhCON5W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB47364DAD;
+        Mon, 15 Mar 2021 13:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816630;
-        bh=yYdzIwPB7Xib0g7TLUPduIN9M2ypvKfrm3eiX0R9cbg=;
+        s=korg; t=1615816631;
+        bh=Ux5Nui7i5uAA02jA+/Fd1375riJrUm2Q5kXkTqXaIOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vU6TgWuMkZ7XwZMstSEuCcAO+l/5MEWghmn6PAVzACvGAMIKlmNl2mP+wuO82arLr
-         7Fg1heGQiC/L7f2cXmfTj9BGPtG9NkTTn8T85ZNt2Dk+CfDzKwxDq9Y6FiAtaIY4a3
-         6IBX89WPyn2V1cWRXAEo4LCDnqgyxwaZdl4SySMY=
+        b=czwgpDvIHiQ5/pYTphECD6jiuP/Ux2hLzS/5GXPwprlpYr2SJE2PqADmaKeCQWNhR
+         zURAC3a6dXjxKsLF5VdGdXzZCD3V1CMTGboMvlokwtXv55rBK56ndSsLwK1pebxg2D
+         f4TRIXE6523UFso/fsYou9gNuIBCPFHJkDQpZuRA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Qingyu Li <ieatmuttonchuan@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 014/168] tcp: add sanity tests to TCP_QUEUE_SEQ
-Date:   Mon, 15 Mar 2021 14:54:06 +0100
-Message-Id: <20210315135550.809435421@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.4 015/168] netfilter: nf_nat: undo erroneous tcp edemux lookup
+Date:   Mon, 15 Mar 2021 14:54:07 +0100
+Message-Id: <20210315135550.840152163@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,79 +41,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric Dumazet <edumazet@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d upstream.
+commit 03a3ca37e4c6478e3a84f04c8429dd5889e107fd upstream.
 
-Qingyu Li reported a syzkaller bug where the repro
-changes RCV SEQ _after_ restoring data in the receive queue.
+Under extremely rare conditions TCP early demux will retrieve the wrong
+socket.
 
-mprotect(0x4aa000, 12288, PROT_READ)    = 0
-mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
-mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
-mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
-socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
-setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
-connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
-setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
-sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
-setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
-setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
-recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
+1. local machine establishes a connection to a remote server, S, on port
+   p.
 
-syslog shows:
-[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
-[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
+   This gives:
+   laddr:lport -> S:p
+   ... both in tcp and conntrack.
 
-This should not be allowed. TCP_QUEUE_SEQ should only be used
-when queues are empty.
+2. local machine establishes a connection to host H, on port p2.
+   2a. TCP stack choses same laddr:lport, so we have
+   laddr:lport -> H:p2 from TCP point of view.
+   2b). There is a destination NAT rewrite in place, translating
+        H:p2 to S:p.  This results in following conntrack entries:
 
-This patch fixes this case, and the tx path as well.
+   I)  laddr:lport -> S:p  (origin)  S:p -> laddr:lport (reply)
+   II) laddr:lport -> H:p2 (origin)  S:p -> laddr:lport2 (reply)
 
-Fixes: ee9952831cfd ("tcp: Initial repair mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
-Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   NAT engine has rewritten laddr:lport to laddr:lport2 to map
+   the reply packet to the correct origin.
+
+   When server sends SYN/ACK to laddr:lport2, the PREROUTING hook
+   will undo-the SNAT transformation, rewriting IP header to
+   S:p -> laddr:lport
+
+   This causes TCP early demux to associate the skb with the TCP socket
+   of the first connection.
+
+   The INPUT hook will then reverse the DNAT transformation, rewriting
+   the IP header to H:p2 -> laddr:lport.
+
+Because packet ends up with the wrong socket, the new connection
+never completes: originator stays in SYN_SENT and conntrack entry
+remains in SYN_RECV until timeout, and responder retransmits SYN/ACK
+until it gives up.
+
+To resolve this, orphan the skb after the input rewrite:
+Because the source IP address changed, the socket must be incorrect.
+We can't move the DNAT undo to prerouting due to backwards
+compatibility, doing so will make iptables/nftables rules to no longer
+match the way they did.
+
+After orphan, the packet will be handed to the next protocol layer
+(tcp, udp, ...) and that will repeat the socket lookup just like as if
+early demux was disabled.
+
+Fixes: 41063e9dd1195 ("ipv4: Early TCP socket demux.")
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1427
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ net/netfilter/nf_nat_proto.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -2957,16 +2957,23 @@ static int do_tcp_setsockopt(struct sock
- 		break;
+--- a/net/netfilter/nf_nat_proto.c
++++ b/net/netfilter/nf_nat_proto.c
+@@ -646,8 +646,8 @@ nf_nat_ipv4_fn(void *priv, struct sk_buf
+ }
  
- 	case TCP_QUEUE_SEQ:
--		if (sk->sk_state != TCP_CLOSE)
-+		if (sk->sk_state != TCP_CLOSE) {
- 			err = -EPERM;
--		else if (tp->repair_queue == TCP_SEND_QUEUE)
--			WRITE_ONCE(tp->write_seq, val);
--		else if (tp->repair_queue == TCP_RECV_QUEUE) {
--			WRITE_ONCE(tp->rcv_nxt, val);
--			WRITE_ONCE(tp->copied_seq, val);
--		}
--		else
-+		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
-+			if (!tcp_rtx_queue_empty(sk))
-+				err = -EPERM;
-+			else
-+				WRITE_ONCE(tp->write_seq, val);
-+		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
-+			if (tp->rcv_nxt != tp->copied_seq) {
-+				err = -EPERM;
-+			} else {
-+				WRITE_ONCE(tp->rcv_nxt, val);
-+				WRITE_ONCE(tp->copied_seq, val);
-+			}
-+		} else {
- 			err = -EINVAL;
-+		}
- 		break;
+ static unsigned int
+-nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
+-	       const struct nf_hook_state *state)
++nf_nat_ipv4_pre_routing(void *priv, struct sk_buff *skb,
++			const struct nf_hook_state *state)
+ {
+ 	unsigned int ret;
+ 	__be32 daddr = ip_hdr(skb)->daddr;
+@@ -660,6 +660,23 @@ nf_nat_ipv4_in(void *priv, struct sk_buf
+ }
  
- 	case TCP_REPAIR_OPTIONS:
+ static unsigned int
++nf_nat_ipv4_local_in(void *priv, struct sk_buff *skb,
++		     const struct nf_hook_state *state)
++{
++	__be32 saddr = ip_hdr(skb)->saddr;
++	struct sock *sk = skb->sk;
++	unsigned int ret;
++
++	ret = nf_nat_ipv4_fn(priv, skb, state);
++
++	if (ret == NF_ACCEPT && sk && saddr != ip_hdr(skb)->saddr &&
++	    !inet_sk_transparent(sk))
++		skb_orphan(skb); /* TCP edemux obtained wrong socket */
++
++	return ret;
++}
++
++static unsigned int
+ nf_nat_ipv4_out(void *priv, struct sk_buff *skb,
+ 		const struct nf_hook_state *state)
+ {
+@@ -736,7 +753,7 @@ nf_nat_ipv4_local_fn(void *priv, struct
+ static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
+ 	/* Before packet filtering, change destination */
+ 	{
+-		.hook		= nf_nat_ipv4_in,
++		.hook		= nf_nat_ipv4_pre_routing,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_PRE_ROUTING,
+ 		.priority	= NF_IP_PRI_NAT_DST,
+@@ -757,7 +774,7 @@ static const struct nf_hook_ops nf_nat_i
+ 	},
+ 	/* After packet filtering, change source */
+ 	{
+-		.hook		= nf_nat_ipv4_fn,
++		.hook		= nf_nat_ipv4_local_in,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_LOCAL_IN,
+ 		.priority	= NF_IP_PRI_NAT_SRC,
 
 
