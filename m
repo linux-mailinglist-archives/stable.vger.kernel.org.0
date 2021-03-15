@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DAE33BA48
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F66433BA63
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235634AbhCOOIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49470 "EHLO mail.kernel.org"
+        id S231680AbhCOOJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234198AbhCOODD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7C9C64EEE;
-        Mon, 15 Mar 2021 14:03:01 +0000 (UTC)
+        id S230217AbhCOOD2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EC4264EF9;
+        Mon, 15 Mar 2021 14:03:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816982;
-        bh=y936yeVlW7Axkpod6hrD2yfHxzmIRGBM0q+s8LL4oas=;
+        s=korg; t=1615817008;
+        bh=pTG3Z6rK5ZitXlHEQVGe3NxxqXCpy4yN/VknZ6bwVPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H4DSw0WcDbhJuDWobkN80p5dXaGqCAIASFC4OBoXmAynN8OXGcDuo460j5+7e/zmH
-         opIU+BpR24AP9LjXOp1LG7VN7hcvcsH1QtU3Czg02wUJFpFzo14XQQXrDfZj/Geb3m
-         1oh0rMR94TCgGkSXrqAZp0qieZGEsGwnm977L/R0=
+        b=XEYoWASxjvcMpO+CbDt2qPJD17WaWKpJSV0ryrFeSerdgV8olONqmVlwwkI73lKyg
+         +a+bW4Dx8tHip6t8NRRtCQAXCBZ45kgDnYK8EeHxHn7jjYN61vgbKhpGYrEBDLGgXU
+         NlNx7CN+v5sv+lX1cFE3ABrd120+MP9ORoR1I1qE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 227/290] staging: rtl8712: unterminated string leads to read overflow
+        stable@vger.kernel.org, Kris Karas <bugs-a17@moonlit-rail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 257/306] net: expand textsearch ts_state to fit skb_seq_state
 Date:   Mon, 15 Mar 2021 14:55:20 +0100
-Message-Id: <20210315135549.650901835@linuxfoundation.org>
+Message-Id: <20210315135516.336444112@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +43,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Willem de Bruijn <willemb@google.com>
 
-commit d660f4f42ccea50262c6ee90c8e7ad19a69fb225 upstream.
+[ Upstream commit b228c9b058760500fda5edb3134527f629fc2dc3 ]
 
-The memdup_user() function does not necessarily return a NUL terminated
-string so this can lead to a read overflow.  Switch from memdup_user()
-to strndup_user() to fix this bug.
+The referenced commit expands the skb_seq_state used by
+skb_find_text with a 4B frag_off field, growing it to 48B.
 
-Fixes: c6dc001f2add ("staging: r8712u: Merging Realtek's latest (v2.6.6). Various fixes.")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YDYSR+1rj26NRhvb@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This exceeds container ts_state->cb, causing a stack corruption:
+
+[   73.238353] Kernel panic - not syncing: stack-protector: Kernel stack
+is corrupted in: skb_find_text+0xc5/0xd0
+[   73.247384] CPU: 1 PID: 376 Comm: nping Not tainted 5.11.0+ #4
+[   73.252613] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS 1.14.0-2 04/01/2014
+[   73.260078] Call Trace:
+[   73.264677]  dump_stack+0x57/0x6a
+[   73.267866]  panic+0xf6/0x2b7
+[   73.270578]  ? skb_find_text+0xc5/0xd0
+[   73.273964]  __stack_chk_fail+0x10/0x10
+[   73.277491]  skb_find_text+0xc5/0xd0
+[   73.280727]  string_mt+0x1f/0x30
+[   73.283639]  ipt_do_table+0x214/0x410
+
+The struct is passed between skb_find_text and its callbacks
+skb_prepare_seq_read, skb_seq_read and skb_abort_seq read through
+the textsearch interface using TS_SKB_CB.
+
+I assumed that this mapped to skb->cb like other .._SKB_CB wrappers.
+skb->cb is 48B. But it maps to ts_state->cb, which is only 40B.
+
+skb->cb was increased from 40B to 48B after ts_state was introduced,
+in commit 3e3850e989c5 ("[NETFILTER]: Fix xfrm lookup in
+ip_route_me_harder/ip6_route_me_harder").
+
+Increase ts_state.cb[] to 48 to fit the struct.
+
+Also add a BUILD_BUG_ON to avoid a repeat.
+
+The alternative is to directly add a dependency from textsearch onto
+linux/skbuff.h, but I think the intent is textsearch to have no such
+dependencies on its callers.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=211911
+Fixes: 97550f6fa592 ("net: compound page support in skb_seq_read")
+Reported-by: Kris Karas <bugs-a17@moonlit-rail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl871x_ioctl_linux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/textsearch.h | 2 +-
+ net/core/skbuff.c          | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-+++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-@@ -924,7 +924,7 @@ static int r871x_wx_set_priv(struct net_
- 	struct iw_point *dwrq = (struct iw_point *)awrq;
+diff --git a/include/linux/textsearch.h b/include/linux/textsearch.h
+index 13770cfe33ad..6673e4d4ac2e 100644
+--- a/include/linux/textsearch.h
++++ b/include/linux/textsearch.h
+@@ -23,7 +23,7 @@ struct ts_config;
+ struct ts_state
+ {
+ 	unsigned int		offset;
+-	char			cb[40];
++	char			cb[48];
+ };
  
- 	len = dwrq->length;
--	ext = memdup_user(dwrq->pointer, len);
-+	ext = strndup_user(dwrq->pointer, len);
- 	if (IS_ERR(ext))
- 		return PTR_ERR(ext);
+ /**
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index 28b8242f18d7..2b784d62a9fe 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3622,6 +3622,8 @@ unsigned int skb_find_text(struct sk_buff *skb, unsigned int from,
+ 	struct ts_state state;
+ 	unsigned int ret;
  
++	BUILD_BUG_ON(sizeof(struct skb_seq_state) > sizeof(state.cb));
++
+ 	config->get_next_block = skb_ts_get_next_block;
+ 	config->finish = skb_ts_finish;
+ 
+-- 
+2.30.1
+
 
 
