@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D27A733BA4B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59F0733BA6B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235642AbhCOOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49510 "EHLO mail.kernel.org"
+        id S235465AbhCOOJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49843 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234227AbhCOODF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7284064E89;
-        Mon, 15 Mar 2021 14:03:04 +0000 (UTC)
+        id S231366AbhCOODc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2169B64F00;
+        Mon, 15 Mar 2021 14:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816985;
-        bh=IFfqQ8qPfWnqGiSXAud+IN7dXAdtEKUe1+FwHMdPJCE=;
+        s=korg; t=1615817011;
+        bh=gWOLsGhfyb5ShdkRj7VqK2QTyUraBbnd89GJnpCGgD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SL+LMEMa7awdCXZLCNWXjqJk2dFZTZ7s/pTBa2I3kFD1FVeYXeNU1A/D/MGBciXXp
-         K/vSG8Jtt2/4vSyDxUDp5Z3SUeTt6zKOI1KHrhhVyIVYRGLYlpCq6UlAJYEf3lEJlz
-         KklQRavRCsMDZPFcD9otFXAz9mxhc8AtECay3qKk=
+        b=0NLveqHvnQf/MliVyc5nXUBfdKU2bfbX6g01p77zCWP7mobtucrYiU1SB/K41PXmx
+         hkSDVmddW3whAif955RXOdKQXX8yuEEDAzlJX7VSojHjC9Zx3SjNSw1et7Pl84GFfA
+         XsWBk15eWyRNV0Lk2tSgDvxPpxDjuTQOTYoebBsc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.10 229/290] staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
+        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 259/306] mptcp: fix memory accounting on allocation error
 Date:   Mon, 15 Mar 2021 14:55:22 +0100
-Message-Id: <20210315135549.723615245@linuxfoundation.org>
+Message-Id: <20210315135516.401701542@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +44,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit e163b9823a0b08c3bb8dc4f5b4b5c221c24ec3e5 upstream.
+[ Upstream commit eaeef1ce55ec9161e0c44ff27017777b1644b421 ]
 
-The user can specify a "req->essid_len" of up to 255 but if it's
-over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
+In case of memory pressure the MPTCP xmit path keeps
+at most a single skb in the tx cache, eventually freeing
+additional ones.
 
-Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The associated counter for forward memory is not update
+accordingly, and that causes the following splat:
+
+WARNING: CPU: 0 PID: 12 at net/core/stream.c:208 sk_stream_kill_queues+0x3ca/0x530 net/core/stream.c:208
+Modules linked in:
+CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.11.0-rc2 #59
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Workqueue: events mptcp_worker
+RIP: 0010:sk_stream_kill_queues+0x3ca/0x530 net/core/stream.c:208
+Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e 63 01 00 00 8b ab 00 01 00 00 e9 60 ff ff ff e8 2f 24 d3 fe 0f 0b eb 97 e8 26 24 d3 fe <0f> 0b eb a0 e8 1d 24 d3 fe 0f 0b e9 a5 fe ff ff 4c 89 e7 e8 0e d0
+RSP: 0018:ffffc900000c7bc8 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88810030ac40 RSI: ffffffff8262ca4a RDI: 0000000000000003
+RBP: 0000000000000d00 R08: 0000000000000000 R09: ffffffff85095aa7
+R10: ffffffff8262c9ea R11: 0000000000000001 R12: ffff888108908100
+R13: ffffffff85095aa0 R14: ffffc900000c7c48 R15: 1ffff92000018f85
+FS:  0000000000000000(0000) GS:ffff88811b200000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa7444baef8 CR3: 0000000035ee9005 CR4: 0000000000170ef0
+Call Trace:
+ __mptcp_destroy_sock+0x4a7/0x6c0 net/mptcp/protocol.c:2547
+ mptcp_worker+0x7dd/0x1610 net/mptcp/protocol.c:2272
+ process_one_work+0x896/0x1170 kernel/workqueue.c:2275
+ worker_thread+0x605/0x1350 kernel/workqueue.c:2421
+ kthread+0x344/0x410 kernel/kthread.c:292
+ ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:296
+
+At close time, as reported by syzkaller/Christoph.
+
+This change address the issue properly updating the fwd
+allocated memory counter in the error path.
+
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/136
+Fixes: 724cfd2ee8aa ("mptcp: allocate TX skbs in msk context")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/ks7010/ks_wlan_net.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/mptcp/protocol.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/ks7010/ks_wlan_net.c
-+++ b/drivers/staging/ks7010/ks_wlan_net.c
-@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_d
- {
- 	struct ks_wlan_private *priv = netdev_priv(dev);
- 	struct iw_scan_req *req = NULL;
-+	int len;
- 
- 	if (priv->sleep_mode == SLP_SLEEP)
- 		return -EPERM;
-@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_d
- 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
- 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
- 		req = (struct iw_scan_req *)extra;
--		priv->scan_ssid_len = req->essid_len;
--		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
-+		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+		priv->scan_ssid_len = len;
-+		memcpy(priv->scan_ssid, req->essid, len);
- 	} else {
- 		priv->scan_ssid_len = 0;
- 	}
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index de89824a2a36..056846eb2e5b 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -1176,6 +1176,7 @@ static bool mptcp_tx_cache_refill(struct sock *sk, int size,
+ 			 */
+ 			while (skbs->qlen > 1) {
+ 				skb = __skb_dequeue_tail(skbs);
++				*total_ts -= skb->truesize;
+ 				__kfree_skb(skb);
+ 			}
+ 			return skbs->qlen > 0;
+-- 
+2.30.1
+
 
 
