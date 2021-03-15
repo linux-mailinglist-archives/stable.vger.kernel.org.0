@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8812433BAA5
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA3B33B89A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234671AbhCOOJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
+        id S233511AbhCOOEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234592AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3608464EE3;
-        Mon, 15 Mar 2021 14:04:23 +0000 (UTC)
+        id S233055AbhCOOAf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87E4F64F37;
+        Mon, 15 Mar 2021 14:00:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817064;
-        bh=zkW3X2cjuHyAapqmSQFKgFaH8zGEnwvw4p/lYgJa3kc=;
+        s=korg; t=1615816819;
+        bh=IFfqQ8qPfWnqGiSXAud+IN7dXAdtEKUe1+FwHMdPJCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THUTm2s1yR9EIbYBUm1nJhq++S58lossXtcdChNqkZ5nZKbMCmkjfGCfbwCk5uh8o
-         uNKwR53GU9Qo3wMeH7DoJomlbr/zc1nO+Dsn9DgiU2CnsMg0/v6DanepvlXV1FAXUl
-         IkfkpP98abxEIR7EuMDI8DeqxUUhZGQJBCpRylQo=
+        b=HbVX3OnX3sqAyqlXpsHAX1sIE4s7XdH1jlbY2zVAMoBLXf994y4M/AYTW/dBSvumS
+         Mf8pwgFs6beUTwgcHleDspzwAefjK5jJ6OkxEcgnmWiyiwwqD+tdQoCJRv367ldHC4
+         rgRQ6j3pzN8al8Vku3tpSHk8/HD47G6S1tkEM3IU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 270/290] x86/sev-es: Introduce ip_within_syscall_gap() helper
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 131/168] staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
 Date:   Mon, 15 Mar 2021 14:56:03 +0100
-Message-Id: <20210315135551.141688745@linuxfoundation.org>
+Message-Id: <20210315135554.647688271@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 78a81d88f60ba773cbe890205e1ee67f00502948 upstream.
+commit e163b9823a0b08c3bb8dc4f5b4b5c221c24ec3e5 upstream.
 
-Introduce a helper to check whether an exception came from the syscall
-gap and use it in the SEV-ES code. Extend the check to also cover the
-compatibility SYSCALL entry path.
+The user can specify a "req->essid_len" of up to 255 but if it's
+over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
 
-Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org # 5.10+
-Link: https://lkml.kernel.org/r/20210303141716.29223-2-joro@8bytes.org
+Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/entry_64_compat.S |    2 ++
- arch/x86/include/asm/proto.h     |    1 +
- arch/x86/include/asm/ptrace.h    |   15 +++++++++++++++
- arch/x86/kernel/traps.c          |    3 +--
- 4 files changed, 19 insertions(+), 2 deletions(-)
+ drivers/staging/ks7010/ks_wlan_net.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/entry/entry_64_compat.S
-+++ b/arch/x86/entry/entry_64_compat.S
-@@ -210,6 +210,8 @@ SYM_CODE_START(entry_SYSCALL_compat)
- 	/* Switch to the kernel stack */
- 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+--- a/drivers/staging/ks7010/ks_wlan_net.c
++++ b/drivers/staging/ks7010/ks_wlan_net.c
+@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_d
+ {
+ 	struct ks_wlan_private *priv = netdev_priv(dev);
+ 	struct iw_scan_req *req = NULL;
++	int len;
  
-+SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
-+
- 	/* Construct struct pt_regs on stack */
- 	pushq	$__USER32_DS		/* pt_regs->ss */
- 	pushq	%r8			/* pt_regs->sp */
---- a/arch/x86/include/asm/proto.h
-+++ b/arch/x86/include/asm/proto.h
-@@ -25,6 +25,7 @@ void __end_SYSENTER_singlestep_region(vo
- void entry_SYSENTER_compat(void);
- void __end_entry_SYSENTER_compat(void);
- void entry_SYSCALL_compat(void);
-+void entry_SYSCALL_compat_safe_stack(void);
- void entry_INT80_compat(void);
- #ifdef CONFIG_XEN_PV
- void xen_entry_INT80_compat(void);
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -94,6 +94,8 @@ struct pt_regs {
- #include <asm/paravirt_types.h>
- #endif
- 
-+#include <asm/proto.h>
-+
- struct cpuinfo_x86;
- struct task_struct;
- 
-@@ -175,6 +177,19 @@ static inline bool any_64bit_mode(struct
- #ifdef CONFIG_X86_64
- #define current_user_stack_pointer()	current_pt_regs()->sp
- #define compat_user_stack_pointer()	current_pt_regs()->sp
-+
-+static inline bool ip_within_syscall_gap(struct pt_regs *regs)
-+{
-+	bool ret = (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
-+		    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
-+
-+#ifdef CONFIG_IA32_EMULATION
-+	ret = ret || (regs->ip >= (unsigned long)entry_SYSCALL_compat &&
-+		      regs->ip <  (unsigned long)entry_SYSCALL_compat_safe_stack);
-+#endif
-+
-+	return ret;
-+}
- #endif
- 
- static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -686,8 +686,7 @@ asmlinkage __visible noinstr struct pt_r
- 	 * In the SYSCALL entry path the RSP value comes from user-space - don't
- 	 * trust it and switch to the current kernel stack
- 	 */
--	if (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
--	    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
-+	if (ip_within_syscall_gap(regs)) {
- 		sp = this_cpu_read(cpu_current_top_of_stack);
- 		goto sync;
+ 	if (priv->sleep_mode == SLP_SLEEP)
+ 		return -EPERM;
+@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_d
+ 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
+ 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
+ 		req = (struct iw_scan_req *)extra;
+-		priv->scan_ssid_len = req->essid_len;
+-		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
++		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
++		priv->scan_ssid_len = len;
++		memcpy(priv->scan_ssid, req->essid, len);
+ 	} else {
+ 		priv->scan_ssid_len = 0;
  	}
 
 
