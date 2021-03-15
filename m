@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 104D833BABE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B996B33BAD4
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235683AbhCOOKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S235722AbhCOOKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230493AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9920F64F26;
-        Mon, 15 Mar 2021 13:58:48 +0000 (UTC)
+        id S233943AbhCOOCi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 264EE64EEE;
+        Mon, 15 Mar 2021 14:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816729;
-        bh=XFxMRO3ByBIar4l5dByYkLZmVRksAJ4SHtt1s/yJ/0I=;
+        s=korg; t=1615816958;
+        bh=dsjSFKzKR3YF5jmpTtzlvZTNpdzIkImLzudkGKV3LFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=go/IZsQxJ4ktUQ4tjd70IEu/EJET4y4v6E+eKvsDhKRmdQ3QKFpqsYYSGEwgp41Mj
-         0n5j5rKFt08/+7F8FI2ohWQQIped1P2hwT+qqZdQ3/qhzpjEmy0B77hPHRmvi16MSK
-         hfkiTIlI/OzSsjPvCE8jS5NoIwJg0i7HvVyqyWRQ=
+        b=xqvhL3btktP8ASgdJgo87hFf33vY2jlpZueJt/s+OUKh+inV4dj2pYKP5Gnz+O1Il
+         m6hOh1sry2R3ZAy9cFLZUORjYbIsfX0KQ1hiyvw+ojPTh/ZF5xi15wEZvZDofgOVx+
+         TM67V1PGBSRRd4axpKxA1uvsGVCkK3Oh5oNXCnrc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/168] HID: logitech-dj: add support for the new lightspeed connection iteration
-Date:   Mon, 15 Mar 2021 14:55:04 +0100
-Message-Id: <20210315135552.741586286@linuxfoundation.org>
+        syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 212/290] USB: serial: io_edgeport: fix memory leak in edge_startup
+Date:   Mon, 15 Mar 2021 14:55:05 +0100
+Message-Id: <20210315135549.116883739@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Filipe Laíns <lains@riseup.net>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fab3a95654eea01d6b0204995be8b7492a00d001 ]
+commit cfdc67acc785e01a8719eeb7012709d245564701 upstream.
 
-This new connection type is the new iteration of the Lightspeed
-connection and will probably be used in some of the newer gaming
-devices. It is currently use in the G Pro X Superlight.
+sysbot found memory leak in edge_startup().
+The problem was that when an error was received from the usb_submit_urb(),
+nothing was cleaned up.
 
-This patch should be backported to older versions, as currently the
-driver will panic when seing the unsupported connection. This isn't
-an issue when using the receiver that came with the device, as Logitech
-has been using different PIDs when they change the connection type, but
-is an issue when using a generic receiver (well, generic Lightspeed
-receiver), which is the case of the one in the Powerplay mat. Currently,
-the only generic Ligthspeed receiver we support, and the only one that
-exists AFAIK, is ther Powerplay.
-
-As it stands, the driver will panic when seeing a G Pro X Superlight
-connected to the Powerplay receiver and won't send any input events to
-userspace! The kernel will warn about this so the issue should be easy
-to identify, but it is still very worrying how hard it will fail :(
-
-[915977.398471] logitech-djreceiver 0003:046D:C53A.0107: unusable device of type UNKNOWN (0x0f) connected on slot 1
-
-Signed-off-by: Filipe Laíns <lains@riseup.net>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
+Cc: stable@vger.kernel.org	# 2.6.21: c5c0c55598ce
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-logitech-dj.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/usb/serial/io_edgeport.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 86001cfbdb6f..b499ac37dc7b 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -995,7 +995,12 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
- 	case 0x0d:
--		device_type = "eQUAD Lightspeed 1_1";
-+		device_type = "eQUAD Lightspeed 1.1";
-+		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
-+		workitem.reports_supported |= STD_KEYBOARD;
-+		break;
-+	case 0x0f:
-+		device_type = "eQUAD Lightspeed 1.2";
- 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
--- 
-2.30.1
-
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -3003,26 +3003,32 @@ static int edge_startup(struct usb_seria
+ 				response = -ENODEV;
+ 			}
+ 
+-			usb_free_urb(edge_serial->interrupt_read_urb);
+-			kfree(edge_serial->interrupt_in_buffer);
+-
+-			usb_free_urb(edge_serial->read_urb);
+-			kfree(edge_serial->bulk_in_buffer);
+-
+-			kfree(edge_serial);
+-
+-			return response;
++			goto error;
+ 		}
+ 
+ 		/* start interrupt read for this edgeport this interrupt will
+ 		 * continue as long as the edgeport is connected */
+ 		response = usb_submit_urb(edge_serial->interrupt_read_urb,
+ 								GFP_KERNEL);
+-		if (response)
++		if (response) {
+ 			dev_err(ddev, "%s - Error %d submitting control urb\n",
+ 				__func__, response);
++
++			goto error;
++		}
+ 	}
+ 	return response;
++
++error:
++	usb_free_urb(edge_serial->interrupt_read_urb);
++	kfree(edge_serial->interrupt_in_buffer);
++
++	usb_free_urb(edge_serial->read_urb);
++	kfree(edge_serial->bulk_in_buffer);
++
++	kfree(edge_serial);
++
++	return response;
+ }
+ 
+ 
 
 
