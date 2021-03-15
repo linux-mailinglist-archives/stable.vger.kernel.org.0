@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F0733BA6B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B38033BA4C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235465AbhCOOJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49843 "EHLO mail.kernel.org"
+        id S234716AbhCOOIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231366AbhCOODc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2169B64F00;
-        Mon, 15 Mar 2021 14:03:29 +0000 (UTC)
+        id S234244AbhCOODG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C76AE64EED;
+        Mon, 15 Mar 2021 14:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817011;
-        bh=gWOLsGhfyb5ShdkRj7VqK2QTyUraBbnd89GJnpCGgD0=;
+        s=korg; t=1615816986;
+        bh=9XsMaaOiAspY5eNbUTF64jnvZ7fk4hGIKdA/MsveCG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0NLveqHvnQf/MliVyc5nXUBfdKU2bfbX6g01p77zCWP7mobtucrYiU1SB/K41PXmx
-         hkSDVmddW3whAif955RXOdKQXX8yuEEDAzlJX7VSojHjC9Zx3SjNSw1et7Pl84GFfA
-         XsWBk15eWyRNV0Lk2tSgDvxPpxDjuTQOTYoebBsc=
+        b=RAANTUtH6BBjpVeX+Zp6/R/tATw7apkwBciZtE/IxFK1uWRrggs+1zC3XwnSVwBM8
+         bdzN+JnPMZs56+GkAzcYhJtSWs0dT9aLpy4lHVojJfQQI5c25PAJuW24qh6N3LC2gt
+         l2ZgcuGPTO6gKdOTf0ar33mYL3MeEtywNBK2cs94=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 259/306] mptcp: fix memory accounting on allocation error
-Date:   Mon, 15 Mar 2021 14:55:22 +0100
-Message-Id: <20210315135516.401701542@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Gibson <leegib@gmail.com>
+Subject: [PATCH 5.10 230/290] staging: rtl8712: Fix possible buffer overflow in r8712_sitesurvey_cmd
+Date:   Mon, 15 Mar 2021 14:55:23 +0100
+Message-Id: <20210315135549.754227637@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Lee Gibson <leegib@gmail.com>
 
-[ Upstream commit eaeef1ce55ec9161e0c44ff27017777b1644b421 ]
+commit b93c1e3981af19527beee1c10a2bef67a228c48c upstream.
 
-In case of memory pressure the MPTCP xmit path keeps
-at most a single skb in the tx cache, eventually freeing
-additional ones.
+Function r8712_sitesurvey_cmd calls memcpy without checking the length.
+A user could control that length and trigger a buffer overflow.
+Fix by checking the length is within the maximum allowed size.
 
-The associated counter for forward memory is not update
-accordingly, and that causes the following splat:
-
-WARNING: CPU: 0 PID: 12 at net/core/stream.c:208 sk_stream_kill_queues+0x3ca/0x530 net/core/stream.c:208
-Modules linked in:
-CPU: 0 PID: 12 Comm: kworker/0:1 Not tainted 5.11.0-rc2 #59
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Workqueue: events mptcp_worker
-RIP: 0010:sk_stream_kill_queues+0x3ca/0x530 net/core/stream.c:208
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e 63 01 00 00 8b ab 00 01 00 00 e9 60 ff ff ff e8 2f 24 d3 fe 0f 0b eb 97 e8 26 24 d3 fe <0f> 0b eb a0 e8 1d 24 d3 fe 0f 0b e9 a5 fe ff ff 4c 89 e7 e8 0e d0
-RSP: 0018:ffffc900000c7bc8 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88810030ac40 RSI: ffffffff8262ca4a RDI: 0000000000000003
-RBP: 0000000000000d00 R08: 0000000000000000 R09: ffffffff85095aa7
-R10: ffffffff8262c9ea R11: 0000000000000001 R12: ffff888108908100
-R13: ffffffff85095aa0 R14: ffffc900000c7c48 R15: 1ffff92000018f85
-FS:  0000000000000000(0000) GS:ffff88811b200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa7444baef8 CR3: 0000000035ee9005 CR4: 0000000000170ef0
-Call Trace:
- __mptcp_destroy_sock+0x4a7/0x6c0 net/mptcp/protocol.c:2547
- mptcp_worker+0x7dd/0x1610 net/mptcp/protocol.c:2272
- process_one_work+0x896/0x1170 kernel/workqueue.c:2275
- worker_thread+0x605/0x1350 kernel/workqueue.c:2421
- kthread+0x344/0x410 kernel/kthread.c:292
- ret_from_fork+0x22/0x30 arch/x86/entry/entry_64.S:296
-
-At close time, as reported by syzkaller/Christoph.
-
-This change address the issue properly updating the fwd
-allocated memory counter in the error path.
-
-Reported-by: Christoph Paasch <cpaasch@apple.com>
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/136
-Fixes: 724cfd2ee8aa ("mptcp: allocate TX skbs in msk context")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Lee Gibson <leegib@gmail.com>
+Link: https://lore.kernel.org/r/20210301132648.420296-1-leegib@gmail.com
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/protocol.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/rtl8712/rtl871x_cmd.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index de89824a2a36..056846eb2e5b 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -1176,6 +1176,7 @@ static bool mptcp_tx_cache_refill(struct sock *sk, int size,
- 			 */
- 			while (skbs->qlen > 1) {
- 				skb = __skb_dequeue_tail(skbs);
-+				*total_ts -= skb->truesize;
- 				__kfree_skb(skb);
- 			}
- 			return skbs->qlen > 0;
--- 
-2.30.1
-
+--- a/drivers/staging/rtl8712/rtl871x_cmd.c
++++ b/drivers/staging/rtl8712/rtl871x_cmd.c
+@@ -192,8 +192,10 @@ u8 r8712_sitesurvey_cmd(struct _adapter
+ 	psurveyPara->ss_ssidlen = 0;
+ 	memset(psurveyPara->ss_ssid, 0, IW_ESSID_MAX_SIZE + 1);
+ 	if (pssid && pssid->SsidLength) {
+-		memcpy(psurveyPara->ss_ssid, pssid->Ssid, pssid->SsidLength);
+-		psurveyPara->ss_ssidlen = cpu_to_le32(pssid->SsidLength);
++		int len = min_t(int, pssid->SsidLength, IW_ESSID_MAX_SIZE);
++
++		memcpy(psurveyPara->ss_ssid, pssid->Ssid, len);
++		psurveyPara->ss_ssidlen = cpu_to_le32(len);
+ 	}
+ 	set_fwstate(pmlmepriv, _FW_UNDER_SURVEY);
+ 	r8712_enqueue_cmd(pcmdpriv, ph2c);
 
 
