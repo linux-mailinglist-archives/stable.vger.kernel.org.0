@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E8F33B8AE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2061733B833
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234533AbhCOOEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S233751AbhCOOCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233105AbhCOOAk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8520864F83;
-        Mon, 15 Mar 2021 14:00:25 +0000 (UTC)
+        id S232919AbhCOOAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3075764F37;
+        Mon, 15 Mar 2021 13:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816826;
-        bh=crG9gWp9IMJ+prHgTgVtp2fwvPLbxGDd4h4QNbdJBMY=;
+        s=korg; t=1615816796;
+        bh=nv8CHzVD7f2ZaIXac4duHpgpItPYqcxNlTfWIkDoVNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wdt3zQpUXfFgDX4v8JzqugoZvn8DnX8KRQlkEqyXyNzc2xlZH41a3V1Ubarelbwd0
-         NH0UsfkJKg9WfBGmHPWNadGxHqVtxWvKK3DsH3fKLg7lxxhkhv8fb3Fgs+h+4BRN6P
-         UsYtC91spsSzIeiR9cMcdXVFgynnjbrlwd/CUKP8=
+        b=PdkalrzG5BYvRGmyhqR6pgJrbT97J7mt7SrWHwt9aUB4rwS0G85Ffm2fewM5C3ZjF
+         Gm7yIeF5CTiYo8xOI3c+31a/IkSG8zKuvClv/ku4GSfhiswT18g59BumaUa4xfo4vn
+         CXK7QpiHEUKBFLoB2P73WzFV1PVrmwsAj4ZCuzpA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 148/306] PCI: mediatek: Add missing of_node_put() to fix reference leak
-Date:   Mon, 15 Mar 2021 14:53:31 +0100
-Message-Id: <20210315135512.646600334@linuxfoundation.org>
+Subject: [PATCH 5.10 119/290] net: dsa: tag_lan9303: let DSA core deal with TX reallocation
+Date:   Mon, 15 Mar 2021 14:53:32 +0100
+Message-Id: <20210315135545.943540785@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,61 +43,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 42814c438aac79746d310f413a27d5b0b959c5de ]
+[ Upstream commit 6ed94135f58372cdec34cafb60f7596893b0b371 ]
 
-The for_each_available_child_of_node helper internally makes use of the
-of_get_next_available_child() which performs an of_node_get() on each
-iteration when searching for next available child node.
+Now that we have a central TX reallocation procedure that accounts for
+the tagger's needed headroom in a generic way, we can remove the
+skb_cow_head call.
 
-Should an available child node be found, then it would return a device
-node pointer with reference count incremented, thus early return from
-the middle of the loop requires an explicit of_node_put() to prevent
-reference count leak.
-
-To stop the reference leak, explicitly call of_node_put() before
-returning after an error occurred.
-
-Link: https://lore.kernel.org/r/20210120184810.3068794-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/dsa/tag_lan9303.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index cf4c18f0c25a..23548b517e4b 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -1035,14 +1035,14 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		err = of_pci_get_devfn(child);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse devfn: %d\n", err);
--			return err;
-+			goto error_put_node;
- 		}
+diff --git a/net/dsa/tag_lan9303.c b/net/dsa/tag_lan9303.c
+index ccfb6f641bbf..aa1318dccaf0 100644
+--- a/net/dsa/tag_lan9303.c
++++ b/net/dsa/tag_lan9303.c
+@@ -58,15 +58,6 @@ static struct sk_buff *lan9303_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	__be16 *lan9303_tag;
+ 	u16 tag;
  
- 		slot = PCI_SLOT(err);
+-	/* insert a special VLAN tag between the MAC addresses
+-	 * and the current ethertype field.
+-	 */
+-	if (skb_cow_head(skb, LAN9303_TAG_LEN) < 0) {
+-		dev_dbg(&dev->dev,
+-			"Cannot make room for the special tag. Dropping packet\n");
+-		return NULL;
+-	}
+-
+ 	/* provide 'LAN9303_TAG_LEN' bytes additional space */
+ 	skb_push(skb, LAN9303_TAG_LEN);
  
- 		err = mtk_pcie_parse_port(pcie, child, slot);
- 		if (err)
--			return err;
-+			goto error_put_node;
- 	}
- 
- 	err = mtk_pcie_subsys_powerup(pcie);
-@@ -1058,6 +1058,9 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		mtk_pcie_subsys_powerdown(pcie);
- 
- 	return 0;
-+error_put_node:
-+	of_node_put(child);
-+	return err;
- }
- 
- static int mtk_pcie_probe(struct platform_device *pdev)
 -- 
 2.30.1
 
