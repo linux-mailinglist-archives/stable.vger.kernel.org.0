@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EDCC33B9A8
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7751933BAC1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234923AbhCOOG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S235694AbhCOOKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232529AbhCOOBo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F25BE64DAD;
-        Mon, 15 Mar 2021 14:01:41 +0000 (UTC)
+        id S233668AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A789164F23;
+        Mon, 15 Mar 2021 14:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816903;
-        bh=9wyKlr/EQljsHgyaIzwI0soeNwiz4UREscQBXHwO4z8=;
+        s=korg; t=1615816929;
+        bh=CS12a3USvFmXpMRngpc4W4VRWePXxRDT41MvuHo5LXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXX/KYAt262IhdyXhgeazOk71vYSsXNzz3aCfnYl+dl9JgHAqUO8QBj8aiqnRIwX+
-         0F/867HZX0udNxavwrDMcntzoI9vlp6JitLG+im934KTvqcULfOeUn80Gj4foGFcaL
-         X1rIuZNYoEW567WDsLu1aU0HbmGfdOJBM58Hxtaw=
+        b=VWM/yTZrCoumjpJEK/q5X3zEZYkH4qo8irdyN1F+6V7y/xp2cutoIo5YE8+IH80DD
+         Ib9AHNNDia0kFCUTyJqOYQTK7Znl61WSXKokPJHJVinMqNqY7+MaLxuUi2Qgwq3aYt
+         Zb6AymwPkRfdGCd5pTnbkWdZM6E5W4F23hGeGqD8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 179/290] ALSA: usb-audio: Apply the control quirk to Plantronics headsets
+        stable@vger.kernel.org, Niv Sardi <xaiki@evilgiggle.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.11 209/306] USB: serial: ch341: add new Product ID
 Date:   Mon, 15 Mar 2021 14:54:32 +0100
-Message-Id: <20210315135547.958798922@linuxfoundation.org>
+Message-Id: <20210315135514.694610027@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Niv Sardi <xaiki@evilgiggle.com>
 
-commit 06abcb18b3a021ba1a3f2020cbefb3ed04e59e72 upstream.
+commit 5563b3b6420362c8a1f468ca04afe6d5f0a8d0a3 upstream.
 
-Other Plantronics headset models seem requiring the same workaround as
-C320-M to add the 20ms delay for the control messages, too.  Apply the
-workaround generically for devices with the vendor ID 0x047f.
+Add PID for CH340 that's found on cheap programmers.
 
-Note that the problem didn't surface before 5.11 just with luck.
-Since 5.11 got a big code rewrite about the stream handling, the
-parameter setup procedure has changed, and this seemed triggering the
-problem more often.
+The driver works flawlessly as soon as the new PID (0x9986) is added to it.
+These look like ANU232MI but ship with a ch341 inside. They have no special
+identifiers (mine only has the string "DB9D20130716" printed on the PCB and
+nothing identifiable on the packaging. The merchant i bought it from
+doesn't sell these anymore).
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182552
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210304085009.4770-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+the lsusb -v output is:
+Bus 001 Device 009: ID 9986:7523
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x9986
+  idProduct          0x7523
+  bcdDevice            2.54
+  iManufacturer           0
+  iProduct                0
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0027
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower               96mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      1
+      bInterfaceProtocol      2
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
+
+Signed-off-by: Niv Sardi <xaiki@evilgiggle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1674,10 +1674,10 @@ void snd_usb_ctl_msg_quirk(struct usb_de
- 		msleep(20);
- 
- 	/*
--	 * Plantronics C320-M needs a delay to avoid random
--	 * microhpone failures.
-+	 * Plantronics headsets (C320, C320-M, etc) need a delay to avoid
-+	 * random microhpone failures.
- 	 */
--	if (chip->usb_id == USB_ID(0x047f, 0xc025)  &&
-+	if (USB_ID_VENDOR(chip->usb_id) == 0x047f &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		msleep(20);
- 
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -86,6 +86,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
++	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 
 
