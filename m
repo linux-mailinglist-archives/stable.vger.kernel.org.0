@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E000533B772
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DEFA33BA27
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbhCOOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S235020AbhCOOIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231848AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 506F664F17;
-        Mon, 15 Mar 2021 13:58:45 +0000 (UTC)
+        id S233878AbhCOOCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD8DF64E89;
+        Mon, 15 Mar 2021 14:02:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816726;
-        bh=8HhfHqUUURTJVwaees13/7FQhZEVv5SjzV+S9H2thyM=;
+        s=korg; t=1615816953;
+        bh=j/cRpuSaTG/ikfUPjVyiZeucg2SiJvxu/HB5bNElkEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b8nv9JGlP6raZprlKckkVcTG/x9fnfR3wz+Pqpl9Ti3SZQ0GLEKOPmfqMSId26ZHA
-         kprYf4d97DqP41C5ec5m2ABp4cAI8tlH0ryFI6Dz82sBM0ief5EZ8ICrdoglwBSp5J
-         JvGQpSXETkgLPTq0Q7CGjMiilDwwP+CInz7LOav4=
+        b=akeVpd0SMcBNQnNJ2yYGwQ27w2DXtvmaiM9JvqOidHd30tUeeL1XVgpeBnTubmi/w
+         dDjQ7ez24BFH1fNiG/3IQhqOUg7Bo5J+Yo8B/6C3gpXBeIzwqszK93FLK84Oc5+XLD
+         rNTqc3dBsCHN1p/PYHDFMpvEwdclP3JGXNN6usOQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/168] powerpc: improve handling of unrecoverable system reset
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 209/290] xhci: Improve detection of device initiated wake signal.
 Date:   Mon, 15 Mar 2021 14:55:02 +0100
-Message-Id: <20210315135552.671229512@linuxfoundation.org>
+Message-Id: <20210315135549.001303809@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
+commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
 
-If an unrecoverable system reset hits in process context, the system
-does not have to panic. Similar to machine check, call nmi_exit()
-before die().
+A xHC USB 3 port might miss the first wake signal from a USB 3 device
+if the port LFPS reveiver isn't enabled fast enough after xHC resume.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+xHC host will anyway be resumed by a PME# signal, but will go back to
+suspend if no port activity is seen.
+The device resends the U3 LFPS wake signal after a 100ms delay, but
+by then host is already suspended, starting all over from the
+beginning of this issue.
+
+USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
+needs to delay 100ms before resending the wake.
+
+Don't suspend immediately if port activity isn't detected in resume.
+Instead add a retry. If there is no port activity then delay for 120ms,
+and re-check for port activity.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/traps.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 206032c9b545..ecfa460f66d1 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -513,8 +513,11 @@ void system_reset_exception(struct pt_regs *regs)
- 		die("Unrecoverable nested System Reset", regs, SIGABRT);
- #endif
- 	/* Must die if the interrupt is not recoverable */
--	if (!(regs->msr & MSR_RI))
-+	if (!(regs->msr & MSR_RI)) {
-+		/* For the reason explained in die_mce, nmi_exit before die */
-+		nmi_exit();
- 		die("Unrecoverable System Reset", regs, SIGABRT);
-+	}
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1088,6 +1088,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 	struct usb_hcd		*secondary_hcd;
+ 	int			retval = 0;
+ 	bool			comp_timer_running = false;
++	bool			pending_portevent = false;
  
- 	if (saved_hsrrs) {
- 		mtspr(SPRN_HSRR0, hsrr0);
--- 
-2.30.1
-
+ 	if (!hcd->state)
+ 		return 0;
+@@ -1226,13 +1227,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 
+  done:
+ 	if (retval == 0) {
+-		/* Resume root hubs only when have pending events. */
+-		if (xhci_pending_portevent(xhci)) {
++		/*
++		 * Resume roothubs only if there are pending events.
++		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
++		 * the first wake signalling failed, give it that chance.
++		 */
++		pending_portevent = xhci_pending_portevent(xhci);
++		if (!pending_portevent) {
++			msleep(120);
++			pending_portevent = xhci_pending_portevent(xhci);
++		}
++
++		if (pending_portevent) {
+ 			usb_hcd_resume_root_hub(xhci->shared_hcd);
+ 			usb_hcd_resume_root_hub(hcd);
+ 		}
+ 	}
+-
+ 	/*
+ 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
+ 	 * be re-initialized Always after a system resume. Ports are subject
 
 
