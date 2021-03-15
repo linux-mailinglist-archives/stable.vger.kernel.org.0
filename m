@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 521BE33B757
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A16733B77A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbhCOOAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S232233AbhCOOAb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232564AbhCON7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7EAC64F5C;
-        Mon, 15 Mar 2021 13:58:35 +0000 (UTC)
+        id S232470AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EF3F64F83;
+        Mon, 15 Mar 2021 13:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816716;
-        bh=JtBJTvl/hSd6qVgLfM+wPeaj8TIgm/5wvFxCOPJBIDY=;
+        s=korg; t=1615816718;
+        bh=Vr0sgJqWyvNZnVFR/n03t2Gv7d6qsk5EVb5smonF9Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/tzyd5yEioxwFYUpLBKW6A0q7MUAUrGjOffT74bwhNPPRpXfhctcpwRUO9LV3yny
-         JjqUGVhpWlt2iyQOwSqltEN/6W/ARlaLdcrMQ92sUfCk1hq/4yrej4ouUScO+j/uTM
-         5lIbmBnKv3fLgV6ZkNyDKVqfZSf04GP4Iw1vd4eg=
+        b=b+6t7cPCopqaMcOLPPwUPtkcdjGxzdae5NyFr0PRMfkSQVO5Y+iVNMPBFDLs8rFma
+         oqv5n4+WXFBL4ffClO7UVICr0HIai4xl8N9Bys7heztiocGwqE9HYsDsp3eMnOkp7H
+         pksq9LbxMiB0XxVsEyNuuH6Dk8f2P6al933ZuCdM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        Louis Peens <louis.peens@netronome.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 082/306] net: stmmac: fix wrongly set buffer2 valid when sph unsupport
-Date:   Mon, 15 Mar 2021 14:52:25 +0100
-Message-Id: <20210315135510.422397107@linuxfoundation.org>
+Subject: [PATCH 5.11 083/306] ethtool: fix the check logic of at least one channel for RX/TX
+Date:   Mon, 15 Mar 2021 14:52:26 +0100
+Message-Id: <20210315135510.455944368@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -41,93 +43,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Yinjun Zhang <yinjun.zhang@corigine.com>
 
-commit 396e13e11577b614db77db0bbb6fca935b94eb1b upstream.
+commit a4fc088ad4ff4a99d01978aa41065132b574b4b2 upstream.
 
-In current driver, buffer2 available only when hardware supports split
-header. Wrongly set buffer2 valid in stmmac_rx_refill when refill buffer
-address. You can see that desc3 is 0x81000000 after initialization, but
-turn out to be 0x83000000 after refill.
+The command "ethtool -L <intf> combined 0" may clean the RX/TX channel
+count and skip the error path, since the attrs
+tb[ETHTOOL_A_CHANNELS_RX_COUNT] and tb[ETHTOOL_A_CHANNELS_TX_COUNT]
+are NULL in this case when recent ethtool is used.
 
-Fixes: 67afd6d1cfdf ("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Tested using ethtool v5.10.
+
+Fixes: 7be92514b99c ("ethtool: check if there is at least one channel for TX/RX in the core")
+Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: Louis Peens <louis.peens@netronome.com>
+Link: https://lore.kernel.org/r/20210225125102.23989-1-simon.horman@netronome.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c   |    9 +++++++--
- drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c |    2 +-
- drivers/net/ethernet/stmicro/stmmac/hwif.h           |    2 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c    |    8 ++++++--
- 4 files changed, 15 insertions(+), 6 deletions(-)
+ net/ethtool/channels.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_descs.c
-@@ -499,10 +499,15 @@ static void dwmac4_get_rx_header_len(str
- 	*len = le32_to_cpu(p->des2) & RDES2_HL;
- }
+--- a/net/ethtool/channels.c
++++ b/net/ethtool/channels.c
+@@ -116,10 +116,9 @@ int ethnl_set_channels(struct sk_buff *s
+ 	struct ethtool_channels channels = {};
+ 	struct ethnl_req_info req_info = {};
+ 	struct nlattr **tb = info->attrs;
+-	const struct nlattr *err_attr;
++	u32 err_attr, max_rx_in_use = 0;
+ 	const struct ethtool_ops *ops;
+ 	struct net_device *dev;
+-	u32 max_rx_in_use = 0;
+ 	int ret;
  
--static void dwmac4_set_sec_addr(struct dma_desc *p, dma_addr_t addr)
-+static void dwmac4_set_sec_addr(struct dma_desc *p, dma_addr_t addr, bool buf2_valid)
- {
- 	p->des2 = cpu_to_le32(lower_32_bits(addr));
--	p->des3 = cpu_to_le32(upper_32_bits(addr) | RDES3_BUFFER2_VALID_ADDR);
-+	p->des3 = cpu_to_le32(upper_32_bits(addr));
-+
-+	if (buf2_valid)
-+		p->des3 |= cpu_to_le32(RDES3_BUFFER2_VALID_ADDR);
-+	else
-+		p->des3 &= cpu_to_le32(~RDES3_BUFFER2_VALID_ADDR);
- }
+ 	ret = ethnl_parse_header_dev_get(&req_info,
+@@ -157,34 +156,35 @@ int ethnl_set_channels(struct sk_buff *s
  
- static void dwmac4_set_tbs(struct dma_edesc *p, u32 sec, u32 nsec)
---- a/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwxgmac2_descs.c
-@@ -292,7 +292,7 @@ static void dwxgmac2_get_rx_header_len(s
- 		*len = le32_to_cpu(p->des2) & XGMAC_RDES2_HL;
- }
- 
--static void dwxgmac2_set_sec_addr(struct dma_desc *p, dma_addr_t addr)
-+static void dwxgmac2_set_sec_addr(struct dma_desc *p, dma_addr_t addr, bool is_valid)
- {
- 	p->des2 = cpu_to_le32(lower_32_bits(addr));
- 	p->des3 = cpu_to_le32(upper_32_bits(addr));
---- a/drivers/net/ethernet/stmicro/stmmac/hwif.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/hwif.h
-@@ -91,7 +91,7 @@ struct stmmac_desc_ops {
- 	int (*get_rx_hash)(struct dma_desc *p, u32 *hash,
- 			   enum pkt_hash_types *type);
- 	void (*get_rx_header_len)(struct dma_desc *p, unsigned int *len);
--	void (*set_sec_addr)(struct dma_desc *p, dma_addr_t addr);
-+	void (*set_sec_addr)(struct dma_desc *p, dma_addr_t addr, bool buf2_valid);
- 	void (*set_sarc)(struct dma_desc *p, u32 sarc_type);
- 	void (*set_vlan_tag)(struct dma_desc *p, u16 tag, u16 inner_tag,
- 			     u32 inner_type);
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1303,9 +1303,10 @@ static int stmmac_init_rx_buffers(struct
- 			return -ENOMEM;
- 
- 		buf->sec_addr = page_pool_get_dma_addr(buf->sec_page);
--		stmmac_set_desc_sec_addr(priv, p, buf->sec_addr);
-+		stmmac_set_desc_sec_addr(priv, p, buf->sec_addr, true);
- 	} else {
- 		buf->sec_page = NULL;
-+		stmmac_set_desc_sec_addr(priv, p, buf->sec_addr, false);
+ 	/* ensure new channel counts are within limits */
+ 	if (channels.rx_count > channels.max_rx)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
+ 	else if (channels.tx_count > channels.max_tx)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
+ 	else if (channels.other_count > channels.max_other)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_OTHER_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_OTHER_COUNT;
+ 	else if (channels.combined_count > channels.max_combined)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
+ 	else
+-		err_attr = NULL;
++		err_attr = 0;
+ 	if (err_attr) {
+ 		ret = -EINVAL;
+-		NL_SET_ERR_MSG_ATTR(info->extack, err_attr,
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
+ 				    "requested channel count exceeds maximum");
+ 		goto out_ops;
  	}
  
- 	buf->addr = page_pool_get_dma_addr(buf->page);
-@@ -3648,7 +3649,10 @@ static inline void stmmac_rx_refill(stru
- 					   DMA_FROM_DEVICE);
+ 	/* ensure there is at least one RX and one TX channel */
+ 	if (!channels.combined_count && !channels.rx_count)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
+ 	else if (!channels.combined_count && !channels.tx_count)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
+ 	else
+-		err_attr = NULL;
++		err_attr = 0;
+ 	if (err_attr) {
+ 		if (mod_combined)
+-			err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
++			err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
+ 		ret = -EINVAL;
+-		NL_SET_ERR_MSG_ATTR(info->extack, err_attr, "requested channel counts would result in no RX or TX channel being configured");
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
++				    "requested channel counts would result in no RX or TX channel being configured");
+ 		goto out_ops;
+ 	}
  
- 		stmmac_set_desc_addr(priv, p, buf->addr);
--		stmmac_set_desc_sec_addr(priv, p, buf->sec_addr);
-+		if (priv->sph)
-+			stmmac_set_desc_sec_addr(priv, p, buf->sec_addr, true);
-+		else
-+			stmmac_set_desc_sec_addr(priv, p, buf->sec_addr, false);
- 		stmmac_refill_desc3(priv, rx_q, p);
- 
- 		rx_q->rx_count_frames++;
 
 
