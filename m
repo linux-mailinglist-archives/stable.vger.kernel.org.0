@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C55133B968
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17D8833B7A3
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233890AbhCOOCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S233166AbhCOOA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232055AbhCOOAP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C8A64F07;
-        Mon, 15 Mar 2021 13:59:45 +0000 (UTC)
+        id S232719AbhCON7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E64664F69;
+        Mon, 15 Mar 2021 13:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816786;
-        bh=3dHF4xPZBkdJCHhLjFFJ+oVg5bdDf4otkPiATNSJy9g=;
+        s=korg; t=1615816755;
+        bh=zsm7c2CocJClkWFlhV/LJUeWDesaPLDHC3t5mDlzhEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGQfnsbN7jXWzzPQolcSArXTTC4gh2hGE/+mtrO124dGWAYRHAullA7yj9fkVayjc
-         WtAxSi2t2ESdwXl+K9dXyra8DB9FfhlYbKxBvakY2ioG21QYOIb5Tz37bKHdLeNCDV
-         SocqM3ysmUnw1W1bqurjwefD9OD/YJVpOVC5BumE=
+        b=KqJSWU6j9cxC4vJwjWpJcbkQ+5lgIgFEhkOKjtNVSrLWx4i2cfP7i90zh7Gbwfn2w
+         Kt7/fKMBFX1bjxa2X19mJd/uKDQ4yTRhIUyv0MKAgYUV1lk+RDvKqvOaupz08GIPh7
+         brIe3UMIdcAPzIJsjx+hYSj+9J1Nlf5YGhU4iy/c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 124/306] i2c: rcar: faster irq code to minimize HW race condition
-Date:   Mon, 15 Mar 2021 14:53:07 +0100
-Message-Id: <20210315135511.861679238@linuxfoundation.org>
+        stable@vger.kernel.org, Artem Lapkin <art@khadas.com>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 5.10 095/290] drm: meson_drv add shutdown function
+Date:   Mon, 15 Mar 2021 14:53:08 +0100
+Message-Id: <20210315135545.132503808@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Artem Lapkin <art@khadas.com>
 
-[ Upstream commit c7b514ec979e23a08c411f3d8ed39c7922751422 ]
+commit fa0c16caf3d73ab4d2e5d6fa2ef2394dbec91791 upstream.
 
-To avoid the HW race condition on R-Car Gen2 and earlier, we need to
-write to ICMCR as soon as possible in the interrupt handler. We can
-improve this by writing a static value instead of masking out bits.
+Problem: random stucks on reboot stage about 1/20 stuck/reboots
+// debug kernel log
+[    4.496660] reboot: kernel restart prepare CMD:(null)
+[    4.498114] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown begin
+[    4.503949] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown domain 0:VPU...
+...STUCK...
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Solution: add shutdown function to meson_drm driver
+// debug kernel log
+[    5.231896] reboot: kernel restart prepare CMD:(null)
+[    5.246135] [drm:meson_drv_shutdown]
+...
+[    5.259271] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown begin
+[    5.274688] meson_ee_pwrc c883c000.system-controller:power-controller: shutdown domain 0:VPU...
+[    5.338331] reboot: Restarting system
+[    5.358293] psci: PSCI_0_2_FN_SYSTEM_RESET reboot_mode:0 cmd:(null)
+bl31 reboot reason: 0xd
+bl31 reboot reason: 0x0
+system cmd  1.
+...REBOOT...
+
+Tested: on VIM1 VIM2 VIM3 VIM3L khadas sbcs - 1000+ successful reboots
+and Odroid boards, WeTek Play2 (GXBB)
+
+Fixes: bbbe775ec5b5 ("drm: Add support for Amlogic Meson Graphic Controller")
+Signed-off-by: Artem Lapkin <art@khadas.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210302042202.3728113-1-art@khadas.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/meson/meson_drv.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 217def2d7cb4..824586d7ee56 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -91,7 +91,6 @@
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -482,6 +482,16 @@ static int meson_probe_remote(struct pla
+ 	return count;
+ }
  
- #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
- #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
--#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
- #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
- 
- #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
-@@ -621,7 +620,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- /*
-  * This driver has a lock-free design because there are IP cores (at least
-  * R-Car Gen2) which have an inherent race condition in their hardware design.
-- * There, we need to clear RCAR_BUS_MASK_DATA bits as soon as possible after
-+ * There, we need to switch to RCAR_BUS_PHASE_DATA as soon as possible after
-  * the interrupt was generated, otherwise an unwanted repeated message gets
-  * generated. It turned out that taking a spinlock at the beginning of the ISR
-  * was already causing repeated messages. Thus, this driver was converted to
-@@ -630,13 +629,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
++static void meson_drv_shutdown(struct platform_device *pdev)
++{
++	struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
++	struct drm_device *drm = priv->drm;
++
++	DRM_DEBUG_DRIVER("\n");
++	drm_kms_helper_poll_fini(drm);
++	drm_atomic_helper_shutdown(drm);
++}
++
+ static int meson_drv_probe(struct platform_device *pdev)
  {
- 	struct rcar_i2c_priv *priv = ptr;
--	u32 msr, val;
-+	u32 msr;
+ 	struct component_match *match = NULL;
+@@ -553,6 +563,7 @@ static const struct dev_pm_ops meson_drv
  
- 	/* Clear START or STOP immediately, except for REPSTART after read */
--	if (likely(!(priv->flags & ID_P_REP_AFTER_RD))) {
--		val = rcar_i2c_read(priv, ICMCR);
--		rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
--	}
-+	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
--- 
-2.30.1
-
+ static struct platform_driver meson_drm_platform_driver = {
+ 	.probe      = meson_drv_probe,
++	.shutdown   = meson_drv_shutdown,
+ 	.driver     = {
+ 		.name	= "meson-drm",
+ 		.of_match_table = dt_match,
 
 
