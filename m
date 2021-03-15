@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB02033B8C8
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4618533B7E6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234603AbhCOOE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S233418AbhCOOBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233074AbhCOOAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7648F64EF2;
-        Mon, 15 Mar 2021 14:00:19 +0000 (UTC)
+        id S232496AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D2C264F60;
+        Mon, 15 Mar 2021 13:59:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816820;
-        bh=rmXW1BrrexEFnDJF9MaWbYvftiMtUytwwrL7bvFJhVo=;
+        s=korg; t=1615816771;
+        bh=f/SalJyee8+GeT1xcSqOnFDZYd4raLachmV8vPv0UtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bjYAQaLkfH6NbJ7e86+g5cUaA3BhWyvWlbrvVbzmgvn08ba7MAmU1tebLUeY7ppBq
-         GDvVvCdUf4OajuWkSeQo3vhaaK3RBZBDYcmN8V6SoUeWwVONRpP+RuLBzeZTaSZt+k
-         BXP/mRoKkOCocjJ4NrwaNeZCTpgZuaYfTY8jKoNY=
+        b=SmXqu9Thkp81FwbZ6le0Zw8I+RQ974ABVCluArFm/AqKPYOvTSf9P5+UJ+cfKRsXm
+         8WFEXX2APHbEzJkcGyqCuREtiE1yFJKbkVZY74ulUwIGyThOgHYA7JVkdoZlEE3QKa
+         OaOtJ+YoIDH4WZrshFLpDwSbDOux1eL99gUfTtcg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 089/120] staging: rtl8192u: fix ->ssid overflow in r8192_wx_set_scan()
+        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.14 50/95] USB: gadget: u_ether: Fix a configfs return code
 Date:   Mon, 15 Mar 2021 14:57:20 +0100
-Message-Id: <20210315135722.883689101@linuxfoundation.org>
+Message-Id: <20210315135741.919624690@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +43,36 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 87107518d7a93fec6cdb2559588862afeee800fb upstream.
+commit 650bf52208d804ad5ee449c58102f8dc43175573 upstream.
 
-We need to cap len at IW_ESSID_MAX_SIZE (32) to avoid memory corruption.
-This can be controlled by the user via the ioctl.
+If the string is invalid, this should return -EINVAL instead of 0.
 
-Fixes: 5f53d8ca3d5d ("Staging: add rtl8192SU wireless usb driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 73517cf49bd4 ("usb: gadget: add RNDIS configfs options for class/subclass/protocol")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YEHoAWMOSZBUw91F@mwanda
+Acked-by: Lorenzo Colitti <lorenzo@google.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YCqZ3P53yyIg5cn7@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192u/r8192U_wx.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/u_ether_configfs.h |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/rtl8192u/r8192U_wx.c
-+++ b/drivers/staging/rtl8192u/r8192U_wx.c
-@@ -333,8 +333,10 @@ static int r8192_wx_set_scan(struct net_
- 		struct iw_scan_req *req = (struct iw_scan_req *)b;
- 
- 		if (req->essid_len) {
--			ieee->current_network.ssid_len = req->essid_len;
--			memcpy(ieee->current_network.ssid, req->essid, req->essid_len);
-+			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+
-+			ieee->current_network.ssid_len = len;
-+			memcpy(ieee->current_network.ssid, req->essid, len);
- 		}
- 	}
- 
+--- a/drivers/usb/gadget/function/u_ether_configfs.h
++++ b/drivers/usb/gadget/function/u_ether_configfs.h
+@@ -172,12 +172,11 @@ out:									\
+ 						size_t len)		\
+ 	{								\
+ 		struct f_##_f_##_opts *opts = to_f_##_f_##_opts(item);	\
+-		int ret;						\
++		int ret = -EINVAL;					\
+ 		u8 val;							\
+ 									\
+ 		mutex_lock(&opts->lock);				\
+-		ret = sscanf(page, "%02hhx", &val);			\
+-		if (ret > 0) {						\
++		if (sscanf(page, "%02hhx", &val) > 0) {			\
+ 			opts->_n_ = val;				\
+ 			ret = len;					\
+ 		}							\
 
 
