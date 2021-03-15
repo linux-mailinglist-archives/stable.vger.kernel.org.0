@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C0233BABF
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F6C33B80A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235681AbhCOOKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S233524AbhCOOB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232531AbhCON7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E29C64EF1;
-        Mon, 15 Mar 2021 13:58:44 +0000 (UTC)
+        id S232798AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 979B064F12;
+        Mon, 15 Mar 2021 13:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816725;
-        bh=/8R6R06lhlNFIZDBwF3ujdYr58JUCq8f0opCZTPs2JY=;
+        s=korg; t=1615816778;
+        bh=Cx7Z6Teu877+PcieRFJ0pOYWFpG8cXlCbz19Qlmfev0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzuDKTWCg9G2aBFip8BkReSnUpEaXQpGuPVvzarlv4vjJovYz5an9Yog+WMsifOze
-         QRWoVmHwQoxFDi+VzFUgB840yDunuUbcvQ2ztlj2hmz37cHm3L6GdQ6SbLnrTbxGIH
-         4XyaL3ocw9ezxFE9QnVYusXEiqdtX8ME3HYB1ZYI=
+        b=Bv4NxLYgDGJ87ttc2Iz8HWW32FnwG66joAKQEOpecE61QcH8LV5VWI4pByhbCtzy8
+         szY0cEMAaAGP76+FXqBQionbEOzoMi9yvAOEohjEHVOTZZIunTpWKa35T8g1Rnjkez
+         zNdVwjPDfJbj+K+xVyyDtjprSCCerXVXyvpz1rWo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 21/95] net: lapbether: Remove netif_start_queue / netif_stop_queue
-Date:   Mon, 15 Mar 2021 14:56:51 +0100
-Message-Id: <20210315135740.975849857@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 061/120] ALSA: hda: Drop the BATCH workaround for AMD controllers
+Date:   Mon, 15 Mar 2021 14:56:52 +0100
+Message-Id: <20210315135721.977471732@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +40,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
+commit 28e96c1693ec1cdc963807611f8b5ad400431e82 upstream.
 
-For the devices in this driver, the default qdisc is "noqueue",
-because their "tx_queue_len" is 0.
+The commit c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on
+AMD controller (1022:1457)") introduced a few workarounds for the
+recent AMD HD-audio controller, and one of them is the forced BATCH
+PCM mode so that PulseAudio avoids the timer-based scheduling.  This
+was thought to cover for some badly working applications, but this
+actually worsens for more others.  In total, this wasn't a good idea
+to enforce it.
 
-In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
-"noqueue" qdisc are specially handled. Packets are transmitted without
-being queued after a "dev->flags & IFF_UP" check. However, it's possible
-that even if this check succeeds, "ops->ndo_stop" may still have already
-been called. This is because in "__dev_close_many", "ops->ndo_stop" is
-called before clearing the "IFF_UP" flag.
+This is a partial revert of the commit above for dropping the PCM
+BATCH enforcement part to recover from the regression again.
 
-If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
-"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
-checks "netif_xmit_stopped" and finds that the queue is already stopped.
-In this case, it will complain that:
-"Virtual device ... asks to queue packet!"
-
-To prevent "__dev_queue_xmit" from generating this complaint, we should
-not call "netif_stop_queue" in "ops->ndo_stop".
-
-We also don't need to call "netif_start_queue" in "ops->ndo_open",
-because after a netdev is allocated and registered, the
-"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
-to call "netif_start_queue" to clear it.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on AMD controller (1022:1457)")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195303
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210308160726.22930-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wan/lapbether.c |    3 ---
- 1 file changed, 3 deletions(-)
+ sound/pci/hda/hda_controller.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -286,7 +286,6 @@ static int lapbeth_open(struct net_devic
- 		return -ENODEV;
- 	}
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -624,13 +624,6 @@ static int azx_pcm_open(struct snd_pcm_s
+ 				     20,
+ 				     178000000);
  
--	netif_start_queue(dev);
- 	return 0;
- }
- 
-@@ -294,8 +293,6 @@ static int lapbeth_close(struct net_devi
- {
- 	int err;
- 
--	netif_stop_queue(dev);
+-	/* by some reason, the playback stream stalls on PulseAudio with
+-	 * tsched=1 when a capture stream triggers.  Until we figure out the
+-	 * real cause, disable tsched mode by telling the PCM info flag.
+-	 */
+-	if (chip->driver_caps & AZX_DCAPS_AMD_WORKAROUND)
+-		runtime->hw.info |= SNDRV_PCM_INFO_BATCH;
 -
- 	if ((err = lapb_unregister(dev)) != LAPB_OK)
- 		pr_err("lapb_unregister error: %d\n", err);
- 
+ 	if (chip->align_buffer_size)
+ 		/* constrain buffer sizes to be multiple of 128
+ 		   bytes. This is more efficient in terms of memory
 
 
