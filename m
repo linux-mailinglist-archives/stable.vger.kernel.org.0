@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3676433BAA4
+	by mail.lfdr.de (Postfix) with ESMTP id 8812433BAA5
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234843AbhCOOJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234671AbhCOOJx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 10:09:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52482 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234593AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234592AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F9D64F19;
-        Mon, 15 Mar 2021 14:04:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3608464EE3;
+        Mon, 15 Mar 2021 14:04:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817062;
-        bh=PfnVeY2t2Sio7VEsOHhFYgCN4N3QZ/B7btLz1CFDubw=;
+        s=korg; t=1615817064;
+        bh=zkW3X2cjuHyAapqmSQFKgFaH8zGEnwvw4p/lYgJa3kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SdcFem8KLun58QauXruFu4aWnhvg8j6owSlML1TcmI4o1hlhgvMI1LCHPbXARScSw
-         vwDv7YJ3xdY8UFV5oPNcGvDDZLeyNeCAJlW+tMK2j+h7gxIB3lCoN4iL9Xn9C8jEhP
-         cMojwTG6EpqfxX3QSzjntb0fMzxvBk5s5iJNWRYs=
+        b=THUTm2s1yR9EIbYBUm1nJhq++S58lossXtcdChNqkZ5nZKbMCmkjfGCfbwCk5uh8o
+         uNKwR53GU9Qo3wMeH7DoJomlbr/zc1nO+Dsn9DgiU2CnsMg0/v6DanepvlXV1FAXUl
+         IkfkpP98abxEIR7EuMDI8DeqxUUhZGQJBCpRylQo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Babrou <ivan@cloudflare.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>, stable@kernel.org
-Subject: [PATCH 5.10 269/290] x86/unwind/orc: Disable KASAN checking in the ORC unwinder, part 2
-Date:   Mon, 15 Mar 2021 14:56:02 +0100
-Message-Id: <20210315135551.107131583@linuxfoundation.org>
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 270/290] x86/sev-es: Introduce ip_within_syscall_gap() helper
+Date:   Mon, 15 Mar 2021 14:56:03 +0100
+Message-Id: <20210315135551.141688745@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -44,87 +41,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit e504e74cc3a2c092b05577ce3e8e013fae7d94e6 upstream.
+commit 78a81d88f60ba773cbe890205e1ee67f00502948 upstream.
 
-KASAN reserves "redzone" areas between stack frames in order to detect
-stack overruns.  A read or write to such an area triggers a KASAN
-"stack-out-of-bounds" BUG.
+Introduce a helper to check whether an exception came from the syscall
+gap and use it in the SEV-ES code. Extend the check to also cover the
+compatibility SYSCALL entry path.
 
-Normally, the ORC unwinder stays in-bounds and doesn't access the
-redzone.  But sometimes it can't find ORC metadata for a given
-instruction.  This can happen for code which is missing ORC metadata, or
-for generated code.  In such cases, the unwinder attempts to fall back
-to frame pointers, as a best-effort type thing.
-
-This fallback often works, but when it doesn't, the unwinder can get
-confused and go off into the weeds into the KASAN redzone, triggering
-the aforementioned KASAN BUG.
-
-But in this case, the unwinder's confusion is actually harmless and
-working as designed.  It already has checks in place to prevent
-off-stack accesses, but those checks get short-circuited by the KASAN
-BUG.  And a BUG is a lot more disruptive than a harmless unwinder
-warning.
-
-Disable the KASAN checks by using READ_ONCE_NOCHECK() for all stack
-accesses.  This finishes the job started by commit 881125bfe65b
-("x86/unwind: Disable KASAN checking in the ORC unwinder"), which only
-partially fixed the issue.
-
-Fixes: ee9f8fce9964 ("x86/unwind: Add the ORC unwinder")
-Reported-by: Ivan Babrou <ivan@cloudflare.com>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Tested-by: Ivan Babrou <ivan@cloudflare.com>
-Cc: stable@kernel.org
-Link: https://lkml.kernel.org/r/9583327904ebbbeda399eca9c56d6c7085ac20fe.1612534649.git.jpoimboe@redhat.com
+Cc: stable@vger.kernel.org # 5.10+
+Link: https://lkml.kernel.org/r/20210303141716.29223-2-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/unwind_orc.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/entry/entry_64_compat.S |    2 ++
+ arch/x86/include/asm/proto.h     |    1 +
+ arch/x86/include/asm/ptrace.h    |   15 +++++++++++++++
+ arch/x86/kernel/traps.c          |    3 +--
+ 4 files changed, 19 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/unwind_orc.c
-+++ b/arch/x86/kernel/unwind_orc.c
-@@ -367,8 +367,8 @@ static bool deref_stack_regs(struct unwi
- 	if (!stack_access_ok(state, addr, sizeof(struct pt_regs)))
- 		return false;
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -210,6 +210,8 @@ SYM_CODE_START(entry_SYSCALL_compat)
+ 	/* Switch to the kernel stack */
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
  
--	*ip = regs->ip;
--	*sp = regs->sp;
-+	*ip = READ_ONCE_NOCHECK(regs->ip);
-+	*sp = READ_ONCE_NOCHECK(regs->sp);
- 	return true;
- }
++SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
++
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER32_DS		/* pt_regs->ss */
+ 	pushq	%r8			/* pt_regs->sp */
+--- a/arch/x86/include/asm/proto.h
++++ b/arch/x86/include/asm/proto.h
+@@ -25,6 +25,7 @@ void __end_SYSENTER_singlestep_region(vo
+ void entry_SYSENTER_compat(void);
+ void __end_entry_SYSENTER_compat(void);
+ void entry_SYSCALL_compat(void);
++void entry_SYSCALL_compat_safe_stack(void);
+ void entry_INT80_compat(void);
+ #ifdef CONFIG_XEN_PV
+ void xen_entry_INT80_compat(void);
+--- a/arch/x86/include/asm/ptrace.h
++++ b/arch/x86/include/asm/ptrace.h
+@@ -94,6 +94,8 @@ struct pt_regs {
+ #include <asm/paravirt_types.h>
+ #endif
  
-@@ -380,8 +380,8 @@ static bool deref_stack_iret_regs(struct
- 	if (!stack_access_ok(state, addr, IRET_FRAME_SIZE))
- 		return false;
++#include <asm/proto.h>
++
+ struct cpuinfo_x86;
+ struct task_struct;
  
--	*ip = regs->ip;
--	*sp = regs->sp;
-+	*ip = READ_ONCE_NOCHECK(regs->ip);
-+	*sp = READ_ONCE_NOCHECK(regs->sp);
- 	return true;
- }
+@@ -175,6 +177,19 @@ static inline bool any_64bit_mode(struct
+ #ifdef CONFIG_X86_64
+ #define current_user_stack_pointer()	current_pt_regs()->sp
+ #define compat_user_stack_pointer()	current_pt_regs()->sp
++
++static inline bool ip_within_syscall_gap(struct pt_regs *regs)
++{
++	bool ret = (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
++		    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
++
++#ifdef CONFIG_IA32_EMULATION
++	ret = ret || (regs->ip >= (unsigned long)entry_SYSCALL_compat &&
++		      regs->ip <  (unsigned long)entry_SYSCALL_compat_safe_stack);
++#endif
++
++	return ret;
++}
+ #endif
  
-@@ -402,12 +402,12 @@ static bool get_reg(struct unwind_state
- 		return false;
- 
- 	if (state->full_regs) {
--		*val = ((unsigned long *)state->regs)[reg];
-+		*val = READ_ONCE_NOCHECK(((unsigned long *)state->regs)[reg]);
- 		return true;
+ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -686,8 +686,7 @@ asmlinkage __visible noinstr struct pt_r
+ 	 * In the SYSCALL entry path the RSP value comes from user-space - don't
+ 	 * trust it and switch to the current kernel stack
+ 	 */
+-	if (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
+-	    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
++	if (ip_within_syscall_gap(regs)) {
+ 		sp = this_cpu_read(cpu_current_top_of_stack);
+ 		goto sync;
  	}
- 
- 	if (state->prev_regs) {
--		*val = ((unsigned long *)state->prev_regs)[reg];
-+		*val = READ_ONCE_NOCHECK(((unsigned long *)state->prev_regs)[reg]);
- 		return true;
- 	}
- 
 
 
