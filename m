@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E57E733B50C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F077333B52D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229774AbhCONxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55536 "EHLO mail.kernel.org"
+        id S230443AbhCONxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229926AbhCONxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6466F61606;
-        Mon, 15 Mar 2021 13:52:59 +0000 (UTC)
+        id S230085AbhCONxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8ACC64EF5;
+        Mon, 15 Mar 2021 13:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816380;
-        bh=ScW4rOd4ghsjUf6uCweiEe9J55HiT107vre18lkL57E=;
+        s=korg; t=1615816390;
+        bh=E9xxVFU9WM2Haqe5DA3QX8Z94AogIAoi8bwnBjQ/Xqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsH/nHJfNBvIajbhWhQ9wTFjR0op/wyUOAi2Q/JZZjhayfbkQxt6xssyaum58aQ+9
-         rQsHBNDDlxIcb02/Jw7xGGSkdcqzzrAUYTZB0T7E9E0OCdZ3/Osn7NIR6Exq6oN4uZ
-         fa8Yz5BvjsrB+tCR5VXt+1NU6g7bK9lTLE+fz9HI=
+        b=bA1oPFHZQXQ0sAs0YPNC/3BiF8VI+RdO/d2Qv75p5c7FkFgJ5HEyfv1Lf/u9nV7Nm
+         74f106tZSLbIYegVltaxe2jxqZK1Ov3XI9lHHaUG/w6rkWwqIo60XNMhBPsSwsnhqG
+         QsSR+2H5oC/MyS4CpvGZZWmy9WMd7CPxxPX+6eJM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 07/78] can: flexcan: assert FRZ bit in flexcan_chip_freeze()
-Date:   Mon, 15 Mar 2021 14:51:30 +0100
-Message-Id: <20210315135212.310537030@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 17/75] net: davicom: Fix regulator not turned off on driver removal
+Date:   Mon, 15 Mar 2021 14:51:31 +0100
+Message-Id: <20210315135208.819184944@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 449052cfebf624b670faa040245d3feed770d22f upstream.
+commit cf9e60aa69ae6c40d3e3e4c94dd6c8de31674e9b upstream.
 
-Assert HALT bit to enter freeze mode, there is a premise that FRZ bit is
-asserted. This patch asserts FRZ bit in flexcan_chip_freeze, although
-the reset value is 1b'1. This is a prepare patch, later patch will
-invoke flexcan_chip_freeze() to enter freeze mode, which polling freeze
-mode acknowledge.
+We must disable the regulator that was enabled in the probe function.
 
-Fixes: b1aa1c7a2165b ("can: flexcan: fix transition from and to freeze mode in chip_{,un}freeze")
-Link: https://lore.kernel.org/r/20210218110037.16591-2-qiangqing.zhang@nxp.com
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/davicom/dm9000.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -383,7 +383,7 @@ static int flexcan_chip_freeze(struct fl
- 	u32 reg;
+--- a/drivers/net/ethernet/davicom/dm9000.c
++++ b/drivers/net/ethernet/davicom/dm9000.c
+@@ -144,6 +144,8 @@ struct board_info {
+ 	u32		wake_state;
  
- 	reg = flexcan_read(&regs->mcr);
--	reg |= FLEXCAN_MCR_HALT;
-+	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
- 	flexcan_write(reg, &regs->mcr);
+ 	int		ip_summed;
++
++	struct regulator *power_supply;
+ };
  
- 	while (timeout-- && !(flexcan_read(&regs->mcr) & FLEXCAN_MCR_FRZ_ACK))
+ /* debug code */
+@@ -1494,6 +1496,8 @@ dm9000_probe(struct platform_device *pde
+ 
+ 	db->dev = &pdev->dev;
+ 	db->ndev = ndev;
++	if (!IS_ERR(power))
++		db->power_supply = power;
+ 
+ 	spin_lock_init(&db->lock);
+ 	mutex_init(&db->addr_lock);
+@@ -1775,10 +1779,13 @@ static int
+ dm9000_drv_remove(struct platform_device *pdev)
+ {
+ 	struct net_device *ndev = platform_get_drvdata(pdev);
++	struct board_info *dm = to_dm9000_board(ndev);
+ 
+ 	unregister_netdev(ndev);
+-	dm9000_release_board(pdev, netdev_priv(ndev));
++	dm9000_release_board(pdev, dm);
+ 	free_netdev(ndev);		/* free device structure */
++	if (dm->power_supply)
++		regulator_disable(dm->power_supply);
+ 
+ 	dev_dbg(&pdev->dev, "released and freed device\n");
+ 	return 0;
 
 
