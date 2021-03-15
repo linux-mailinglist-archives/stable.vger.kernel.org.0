@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B1A33B743
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4753733B916
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232815AbhCON75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S230484AbhCOOFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231331AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B65764F47;
-        Mon, 15 Mar 2021 13:58:37 +0000 (UTC)
+        id S229743AbhCOOBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 906E164F0C;
+        Mon, 15 Mar 2021 14:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816718;
-        bh=/8R6R06lhlNFIZDBwF3ujdYr58JUCq8f0opCZTPs2JY=;
+        s=korg; t=1615816838;
+        bh=fg8Q1EYWAk3JgG7ZOKsNwOrprZ0nqJY0OgF5mVDigTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/3PofNB1tA9DLtpB+Yuw7Rw0UJT8Tu0egTvEaURnf8u0YGUBB+cayoX2T+MgqLrh
-         kHQEb9vOM7uyj/BBN0TrUvsRRneZc2NS3vx5FjAWJ904G31h53H+CbQ/8zZfoz5r4C
-         Bp3xnd/5wQpsThbgWFA7ZKuTpT7aT7PtBg5E5L3Q=
+        b=IfD6YL/Xdyo/HbNZyZ9gp0v6RPetwkqDH3FDB5OI1LIOvjxY3u7zRQ1sotEK+ZSEu
+         oYCJF6bdIBVxPc79mkXI/cafNDLnujavBzSXpPW1NGDiiqqwMzZckBJF58yipDpo0K
+         vnAAgXiaT3i25edOnfHYrdiiYrUmq8gJWGY7qrTo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
-        Martin Schiller <ms@dev.tdt.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 025/120] net: lapbether: Remove netif_start_queue / netif_stop_queue
-Date:   Mon, 15 Mar 2021 14:56:16 +0100
-Message-Id: <20210315135720.818663923@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 145/168] SUNRPC: Set memalloc_nofs_save() for sync tasks
+Date:   Mon, 15 Mar 2021 14:56:17 +0100
+Message-Id: <20210315135555.106561418@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Xie He <xie.he.0141@gmail.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
+[ Upstream commit f0940f4b3284a00f38a5d42e6067c2aaa20e1f2e ]
 
-For the devices in this driver, the default qdisc is "noqueue",
-because their "tx_queue_len" is 0.
+We could recurse into NFS doing memory reclaim while sending a sync task,
+which might result in a deadlock.  Set memalloc_nofs_save for sync task
+execution.
 
-In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
-"noqueue" qdisc are specially handled. Packets are transmitted without
-being queued after a "dev->flags & IFF_UP" check. However, it's possible
-that even if this check succeeds, "ops->ndo_stop" may still have already
-been called. This is because in "__dev_close_many", "ops->ndo_stop" is
-called before clearing the "IFF_UP" flag.
-
-If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
-"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
-checks "netif_xmit_stopped" and finds that the queue is already stopped.
-In this case, it will complain that:
-"Virtual device ... asks to queue packet!"
-
-To prevent "__dev_queue_xmit" from generating this complaint, we should
-not call "netif_stop_queue" in "ops->ndo_stop".
-
-We also don't need to call "netif_start_queue" in "ops->ndo_open",
-because after a netdev is allocated and registered, the
-"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
-to call "netif_start_queue" to clear it.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Xie He <xie.he.0141@gmail.com>
-Acked-by: Martin Schiller <ms@dev.tdt.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a1231fda7e94 ("SUNRPC: Set memalloc_nofs_save() on all rpciod/xprtiod jobs")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wan/lapbether.c |    3 ---
- 1 file changed, 3 deletions(-)
+ net/sunrpc/sched.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wan/lapbether.c
-+++ b/drivers/net/wan/lapbether.c
-@@ -286,7 +286,6 @@ static int lapbeth_open(struct net_devic
- 		return -ENODEV;
- 	}
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index 7afbf15bcbd9..4beb6d2957c3 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -990,8 +990,11 @@ void rpc_execute(struct rpc_task *task)
  
--	netif_start_queue(dev);
- 	return 0;
+ 	rpc_set_active(task);
+ 	rpc_make_runnable(rpciod_workqueue, task);
+-	if (!is_async)
++	if (!is_async) {
++		unsigned int pflags = memalloc_nofs_save();
+ 		__rpc_execute(task);
++		memalloc_nofs_restore(pflags);
++	}
  }
  
-@@ -294,8 +293,6 @@ static int lapbeth_close(struct net_devi
- {
- 	int err;
- 
--	netif_stop_queue(dev);
--
- 	if ((err = lapb_unregister(dev)) != LAPB_OK)
- 		pr_err("lapb_unregister error: %d\n", err);
- 
+ static void rpc_async_schedule(struct work_struct *work)
+-- 
+2.30.1
+
 
 
