@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1714333BADD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7181033BADB
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232291AbhCOOKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49494 "EHLO mail.kernel.org"
+        id S235739AbhCOOKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234220AbhCOODF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F32464EF1;
-        Mon, 15 Mar 2021 14:03:03 +0000 (UTC)
+        id S233971AbhCOOCm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A4B64E83;
+        Mon, 15 Mar 2021 14:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816985;
-        bh=yMcuxH9/NSD6zVo+lbmUfvAi3ZKHcoLQEMsqd003JX4=;
+        s=korg; t=1615816961;
+        bh=ca9is0KLqZQ0AXDogzM4vcSMEYL0KYPeNKI74cKrKiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmqHMP3N3/Z7KziBkhLzJeEDfrQropMwm8+NBq/faUDk0wL41Eau/3F3wJD7sem/y
-         xtezp4EiCkdPnE3X6xw5F21MgwrtAkUYABjG0+1VFkID4GP5Uhfnszt4eQSI9NVo6c
-         K5OflLYdv4+j+Q9KAaNpFfKN/VK+mlv9QUwrvPP4=
+        b=Nrs7WLgdDcgA8W3Xi441vAWOmZ1QAVDF6IK4dZ4aLq3uCYw7McUMgnxxKgyl1ArK6
+         OYH6R28g+N6PrJfzSRA+xywJh0GzoWWFe5+C6lqtnWya57dFVzcfjQPOo1o/+KdVpO
+         yDW9ZA0DBOYPdhDJxANYALXvYVgN+7Txl2BbFcZI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        David Hildenbrand <david@redhat.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 244/306] arm64/mm: Fix pfn_valid() for ZONE_DEVICE based memory
+        stable@vger.kernel.org,
+        Karan Singhal <karan.singhal@acuitybrands.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 214/290] USB: serial: cp210x: add ID for Acuity Brands nLight Air Adapter
 Date:   Mon, 15 Mar 2021 14:55:07 +0100
-Message-Id: <20210315135515.886869493@linuxfoundation.org>
+Message-Id: <20210315135549.200256261@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Karan Singhal <karan.singhal@acuitybrands.com>
 
-[ Upstream commit eeb0753ba27b26f609e61f9950b14f1b934fe429 ]
+commit ca667a33207daeaf9c62b106815728718def60ec upstream.
 
-pfn_valid() validates a pfn but basically it checks for a valid struct page
-backing for that pfn. It should always return positive for memory ranges
-backed with struct page mapping. But currently pfn_valid() fails for all
-ZONE_DEVICE based memory types even though they have struct page mapping.
+IDs of nLight Air Adapter, Acuity Brands, Inc.:
+vid: 10c4
+pid: 88d8
 
-pfn_valid() asserts that there is a memblock entry for a given pfn without
-MEMBLOCK_NOMAP flag being set. The problem with ZONE_DEVICE based memory is
-that they do not have memblock entries. Hence memblock_is_map_memory() will
-invariably fail via memblock_search() for a ZONE_DEVICE based address. This
-eventually fails pfn_valid() which is wrong. memblock_is_map_memory() needs
-to be skipped for such memory ranges. As ZONE_DEVICE memory gets hotplugged
-into the system via memremap_pages() called from a driver, their respective
-memory sections will not have SECTION_IS_EARLY set.
-
-Normal hotplug memory will never have MEMBLOCK_NOMAP set in their memblock
-regions. Because the flag MEMBLOCK_NOMAP was specifically designed and set
-for firmware reserved memory regions. memblock_is_map_memory() can just be
-skipped as its always going to be positive and that will be an optimization
-for the normal hotplug memory. Like ZONE_DEVICE based memory, all normal
-hotplugged memory too will not have SECTION_IS_EARLY set for their sections
-
-Skipping memblock_is_map_memory() for all non early memory sections would
-fix pfn_valid() problem for ZONE_DEVICE based memory and also improve its
-performance for normal hotplug memory as well.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Acked-by: David Hildenbrand <david@redhat.com>
-Fixes: 73b20c84d42d ("arm64: mm: implement pte_devmap support")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/1614921898-4099-2-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Karan Singhal <karan.singhal@acuitybrands.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/init.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 709d98fea90c..1141075e4d53 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -230,6 +230,18 @@ int pfn_valid(unsigned long pfn)
- 
- 	if (!valid_section(__pfn_to_section(pfn)))
- 		return 0;
-+
-+	/*
-+	 * ZONE_DEVICE memory does not have the memblock entries.
-+	 * memblock_is_map_memory() check for ZONE_DEVICE based
-+	 * addresses will always fail. Even the normal hotplugged
-+	 * memory will never have MEMBLOCK_NOMAP flag set in their
-+	 * memblock entries. Skip memblock search for all non early
-+	 * memory sections covering all of hotplug memory including
-+	 * both normal and ZONE_DEVICE based.
-+	 */
-+	if (!early_section(__pfn_to_section(pfn)))
-+		return pfn_section_valid(__pfn_to_section(pfn), pfn);
- #endif
- 	return memblock_is_map_memory(addr);
- }
--- 
-2.30.1
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -149,6 +149,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x8857) },	/* CEL EM357 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x88A4) }, /* MMB Networks ZigBee USB Device */
+ 	{ USB_DEVICE(0x10C4, 0x88A5) }, /* Planet Innovation Ingeni ZigBee USB Device */
++	{ USB_DEVICE(0x10C4, 0x88D8) }, /* Acuity Brands nLight Air Adapter */
+ 	{ USB_DEVICE(0x10C4, 0x88FB) }, /* CESINEL MEDCAL STII Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8938) }, /* CESINEL MEDCAL S II Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8946) }, /* Ketra N1 Wireless Interface */
 
 
