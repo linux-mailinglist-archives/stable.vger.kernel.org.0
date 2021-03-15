@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF1333B552
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 851BA33B69C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231173AbhCONyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56000 "EHLO mail.kernel.org"
+        id S232302AbhCON6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230416AbhCONxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E3EB64EEA;
-        Mon, 15 Mar 2021 13:53:33 +0000 (UTC)
+        id S232036AbhCON5i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1ED364EEE;
+        Mon, 15 Mar 2021 13:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816414;
-        bh=Vx3I8LSzDXzlH2JhsiVSzfHWNqzprT/dkBeet/ZNhTs=;
+        s=korg; t=1615816658;
+        bh=ob/5UBIdqefGaH8gWQxFUNVoOaqfG+WizVmhBsqMYtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nZ04w7mVLZvQADONE0N3OxrtZDD7Y93T1fiEkc6nBFmexHUCkIknHy4YeJpTe27I/
-         KyrF8SbnlvL0uahWGYGugPCmg+/D3PeKKpCNWNJXZAzPnWKHbo8v6FM7DMM4VnvfHJ
-         29yw5XMkJSoKXaBJRlimAU5s//hfORwjIHNDdVOE=
+        b=VigCAVSXd7jBR2bb9JE96BToLOWT5KvrnpC/oj/Q8bcBoAKAdiyfrl+IhNxwz2nbU
+         HAgDR5WgsaIzpm4JgjJxxJ+l6Y8m1HcOdG33JEKjf8LjBPR9DCgUBDLLjJ26CLn6Lr
+         asrJe/qcJYUvONHCagbzEFt6C3eNonQmRAxyPbQI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Abhishek Sahu <abhsahu@nvidia.com>
-Subject: [PATCH 4.9 25/78] ALSA: hda/hdmi: Cancel pending works before suspend
-Date:   Mon, 15 Mar 2021 14:51:48 +0100
-Message-Id: <20210315135212.885665069@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 046/306] net: enetc: dont overwrite the RSS indirection table when initializing
+Date:   Mon, 15 Mar 2021 14:51:49 +0100
+Message-Id: <20210315135509.204811334@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +43,145 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit eea46a0879bcca23e15071f9968c0f6e6596e470 upstream.
+commit c646d10dda2dcde82c6ce5a474522621ab2b8b19 upstream.
 
-The per_pin->work might be still floating at the suspend, and this may
-hit the access to the hardware at an unexpected timing.  Cancel the
-work properly at the suspend callback for avoiding the buggy access.
+After the blamed patch, all RX traffic gets hashed to CPU 0 because the
+hashing indirection table set up in:
 
-Note that the bug doesn't trigger easily in the recent kernels since
-the work is queued only when the repoll count is set, and usually it's
-only at the resume callback, but it's still possible to hit in
-theory.
+enetc_pf_probe
+-> enetc_alloc_si_resources
+   -> enetc_configure_si
+      -> enetc_setup_default_rss_table
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
-Reported-and-tested-by: Abhishek Sahu <abhsahu@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210310112809.9215-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+is overwritten later in:
+
+enetc_pf_probe
+-> enetc_init_port_rss_memory
+
+which zero-initializes the entire port RSS table in order to avoid ECC errors.
+
+The trouble really is that enetc_init_port_rss_memory really neads
+enetc_alloc_si_resources to be called, because it depends upon
+enetc_alloc_cbdr and enetc_setup_cbdr. But that whole enetc_configure_si
+thing could have been better thought out, it has nothing to do in a
+function called "alloc_si_resources", especially since its counterpart,
+"free_si_resources", does nothing to unwind the configuration of the SI.
+
+The point is, we need to pull out enetc_configure_si out of
+enetc_alloc_resources, and move it after enetc_init_port_rss_memory.
+This allows us to set up the default RSS indirection table after
+initializing the memory.
+
+Fixes: 07bf34a50e32 ("net: enetc: initialize the RFS and RSS memories")
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/freescale/enetc/enetc.c    |   11 +++--------
+ drivers/net/ethernet/freescale/enetc/enetc.h    |    1 +
+ drivers/net/ethernet/freescale/enetc/enetc_pf.c |    7 +++++++
+ drivers/net/ethernet/freescale/enetc/enetc_vf.c |    7 +++++++
+ 4 files changed, 18 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2156,6 +2156,18 @@ static void generic_hdmi_free(struct hda
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1058,13 +1058,12 @@ static int enetc_setup_default_rss_table
+ 	return 0;
  }
  
- #ifdef CONFIG_PM
-+static int generic_hdmi_suspend(struct hda_codec *codec)
-+{
-+	struct hdmi_spec *spec = codec->spec;
-+	int pin_idx;
-+
-+	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
-+		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+		cancel_delayed_work_sync(&per_pin->work);
-+	}
-+	return 0;
-+}
-+
- static int generic_hdmi_resume(struct hda_codec *codec)
+-static int enetc_configure_si(struct enetc_ndev_priv *priv)
++int enetc_configure_si(struct enetc_ndev_priv *priv)
  {
- 	struct hdmi_spec *spec = codec->spec;
-@@ -2179,6 +2191,7 @@ static const struct hda_codec_ops generi
- 	.build_controls		= generic_hdmi_build_controls,
- 	.unsol_event		= hdmi_unsol_event,
- #ifdef CONFIG_PM
-+	.suspend		= generic_hdmi_suspend,
- 	.resume			= generic_hdmi_resume,
- #endif
- };
+ 	struct enetc_si *si = priv->si;
+ 	struct enetc_hw *hw = &si->hw;
+ 	int err;
+ 
+-	enetc_setup_cbdr(hw, &si->cbd_ring);
+ 	/* set SI cache attributes */
+ 	enetc_wr(hw, ENETC_SICAR0,
+ 		 ENETC_SICAR_RD_COHERENT | ENETC_SICAR_WR_COHERENT);
+@@ -1112,6 +1111,8 @@ int enetc_alloc_si_resources(struct enet
+ 	if (err)
+ 		return err;
+ 
++	enetc_setup_cbdr(&si->hw, &si->cbd_ring);
++
+ 	priv->cls_rules = kcalloc(si->num_fs_entries, sizeof(*priv->cls_rules),
+ 				  GFP_KERNEL);
+ 	if (!priv->cls_rules) {
+@@ -1119,14 +1120,8 @@ int enetc_alloc_si_resources(struct enet
+ 		goto err_alloc_cls;
+ 	}
+ 
+-	err = enetc_configure_si(priv);
+-	if (err)
+-		goto err_config_si;
+-
+ 	return 0;
+ 
+-err_config_si:
+-	kfree(priv->cls_rules);
+ err_alloc_cls:
+ 	enetc_clear_cbdr(&si->hw);
+ 	enetc_free_cbdr(priv->dev, &si->cbd_ring);
+--- a/drivers/net/ethernet/freescale/enetc/enetc.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc.h
+@@ -292,6 +292,7 @@ void enetc_get_si_caps(struct enetc_si *
+ void enetc_init_si_rings_params(struct enetc_ndev_priv *priv);
+ int enetc_alloc_si_resources(struct enetc_ndev_priv *priv);
+ void enetc_free_si_resources(struct enetc_ndev_priv *priv);
++int enetc_configure_si(struct enetc_ndev_priv *priv);
+ 
+ int enetc_open(struct net_device *ndev);
+ int enetc_close(struct net_device *ndev);
+--- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
+@@ -1108,6 +1108,12 @@ static int enetc_pf_probe(struct pci_dev
+ 		goto err_init_port_rss;
+ 	}
+ 
++	err = enetc_configure_si(priv);
++	if (err) {
++		dev_err(&pdev->dev, "Failed to configure SI\n");
++		goto err_config_si;
++	}
++
+ 	err = enetc_alloc_msix(priv);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "MSIX alloc failed\n");
+@@ -1136,6 +1142,7 @@ err_phylink_create:
+ 	enetc_mdiobus_destroy(pf);
+ err_mdiobus_create:
+ 	enetc_free_msix(priv);
++err_config_si:
+ err_init_port_rss:
+ err_init_port_rfs:
+ err_alloc_msix:
+--- a/drivers/net/ethernet/freescale/enetc/enetc_vf.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_vf.c
+@@ -171,6 +171,12 @@ static int enetc_vf_probe(struct pci_dev
+ 		goto err_alloc_si_res;
+ 	}
+ 
++	err = enetc_configure_si(priv);
++	if (err) {
++		dev_err(&pdev->dev, "Failed to configure SI\n");
++		goto err_config_si;
++	}
++
+ 	err = enetc_alloc_msix(priv);
+ 	if (err) {
+ 		dev_err(&pdev->dev, "MSIX alloc failed\n");
+@@ -187,6 +193,7 @@ static int enetc_vf_probe(struct pci_dev
+ 
+ err_reg_netdev:
+ 	enetc_free_msix(priv);
++err_config_si:
+ err_alloc_msix:
+ 	enetc_free_si_resources(priv);
+ err_alloc_si_res:
 
 
