@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B9F33BA82
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC4533B96B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234381AbhCOOJb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50658 "EHLO mail.kernel.org"
+        id S233985AbhCOOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232810AbhCOODx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9529600EF;
-        Mon, 15 Mar 2021 14:03:51 +0000 (UTC)
+        id S232848AbhCOOAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8431C64F0B;
+        Mon, 15 Mar 2021 13:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817033;
-        bh=kS+ZPXV7JrwZH1yID6qLLiZfV2jBJJqvvHJx4T01hpw=;
+        s=korg; t=1615816772;
+        bh=lGNL/JT7lIjRPxO0TIltZb7Yz1P6YQBKW48n2PCB4J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHRAwjtUaUmeh9p+jMqLy6V/pXJE7RpRMlQou0TWNK+krt+dDwZrXTUO1hLKGHZu/
-         Nff2iUuMV4n+WXMorvTTpVN/qTHLOcFW9N6bbHheYrsJQKGdhBTao9+RQeWIypAB91
-         jrJ4IlZO/MMynGXEmHykOygFp6l2t5OWZ+Iju9uc=
+        b=i41FctDkY5lBdapQzi4KdgU5wSsINCBrARZgVCATW8r7B97JGI7etIkHB8KtD5cou
+         BpoN0FLrqPYTT0YJnp5dO1cSpnZt/M45+X4ojiQwuArM9qJeQ68N9/ZMbTZm/IBx9/
+         LoxaM9S/qC8YlHA6qU8CR6Q0HFRjHvk/2ocb62Fk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 268/306] prctl: fix PR_SET_MM_AUXV kernel stack leak
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Bjoern Walk <bwalk@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 099/168] s390/dasd: fix hanging IO request during DASD driver unbind
 Date:   Mon, 15 Mar 2021 14:55:31 +0100
-Message-Id: <20210315135516.707577306@linuxfoundation.org>
+Message-Id: <20210315135553.623696674@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alexey Dobriyan <adobriyan@gmail.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit c995f12ad8842dbf5cfed113fb52cdd083f5afd1 ]
+commit 66f669a272898feb1c69b770e1504aa2ec7723d1 upstream.
 
-Doing a
+Prevent that an IO request is build during device shutdown initiated by
+a driver unbind. This request will never be able to be processed or
+canceled and will hang forever. This will lead also to a hanging unbind.
 
-	prctl(PR_SET_MM, PR_SET_MM_AUXV, addr, 1);
+Fix by checking not only if the device is in READY state but also check
+that there is no device offline initiated before building a new IO request.
 
-will copy 1 byte from userspace to (quite big) on-stack array
-and then stash everything to mm->saved_auxv.
-AT_NULL terminator will be inserted at the very end.
+Fixes: e443343e509a ("s390/dasd: blk-mq conversion")
 
-/proc/*/auxv handler will find that AT_NULL terminator
-and copy original stack contents to userspace.
-
-This devious scheme requires CAP_SYS_RESOURCE.
-
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 51f00fe20e4d..7cf21c947649 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -2080,7 +2080,7 @@ static int prctl_set_auxv(struct mm_struct *mm, unsigned long addr,
- 	 * up to the caller to provide sane values here, otherwise userspace
- 	 * tools which use this vector might be unhappy.
- 	 */
--	unsigned long user_auxv[AT_VECTOR_SIZE];
-+	unsigned long user_auxv[AT_VECTOR_SIZE] = {};
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -3087,7 +3087,8 @@ static blk_status_t do_dasd_request(stru
  
- 	if (len > sizeof(user_auxv))
- 		return -EINVAL;
--- 
-2.30.1
-
+ 	basedev = block->base;
+ 	spin_lock_irq(&dq->lock);
+-	if (basedev->state < DASD_STATE_READY) {
++	if (basedev->state < DASD_STATE_READY ||
++	    test_bit(DASD_FLAG_OFFLINE, &basedev->flags)) {
+ 		DBF_DEV_EVENT(DBF_ERR, basedev,
+ 			      "device not ready for request %p", req);
+ 		rc = BLK_STS_IOERR;
 
 
