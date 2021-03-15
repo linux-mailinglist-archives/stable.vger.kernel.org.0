@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E054D33B578
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 813D933B582
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231437AbhCONy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57176 "EHLO mail.kernel.org"
+        id S231316AbhCONyk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230078AbhCONyE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F7A264DAD;
-        Mon, 15 Mar 2021 13:54:01 +0000 (UTC)
+        id S231228AbhCONx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C43561606;
+        Mon, 15 Mar 2021 13:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816443;
-        bh=UX9f+NV9wDx9Q7CmnQqT1xrjNeuvz9LnWyiBmFrWdwE=;
+        s=korg; t=1615816436;
+        bh=qZO2JAly925agLONcpsFi8OGk/10Ow5eu9EZjLdMrw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjOGPC6FNzrXtLMxmlU1iKcoeSbF042417ZERrnCh21G5aU5twUxpILdhA9sA7302
-         J75+YD0BgdY+ehpvPh9E46eRb/fHnqyyT/5aoRr0mD9lJgwe+y/t2o+3L0f9gKqPoh
-         drAfdyb6xRe5bpGmsCVfRRie2nUenpLUxdDbwAts=
+        b=NnjN85oIfmK6LeaeNt52hP9Wi/W/S+fIyOEvoFmVI/6h96Su03HFX+o1qBgyAbBm9
+         mqI8pBr+3i5NJSPv/qwXgaRCmLU8U1ZDeeV+bsOg2wWMRDGeT6W7IpxmYa7xjVH0iD
+         aoAOqJVMobDT4EFfYF0OZlBnfeyCCbZosvfZYz3M=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Gibson <leegib@gmail.com>
-Subject: [PATCH 4.4 47/75] staging: rtl8712: Fix possible buffer overflow in r8712_sitesurvey_cmd
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 38/78] USB: serial: cp210x: add some more GE USB IDs
 Date:   Mon, 15 Mar 2021 14:52:01 +0100
-Message-Id: <20210315135209.786821694@linuxfoundation.org>
+Message-Id: <20210315135213.324157510@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lee Gibson <leegib@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-commit b93c1e3981af19527beee1c10a2bef67a228c48c upstream.
+commit 42213a0190b535093a604945db05a4225bf43885 upstream.
 
-Function r8712_sitesurvey_cmd calls memcpy without checking the length.
-A user could control that length and trigger a buffer overflow.
-Fix by checking the length is within the maximum allowed size.
+GE CS1000 has some more custom USB IDs for CP2102N; add them
+to the driver to have working auto-probing.
 
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Link: https://lore.kernel.org/r/20210301132648.420296-1-leegib@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl871x_cmd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/staging/rtl8712/rtl871x_cmd.c
-+++ b/drivers/staging/rtl8712/rtl871x_cmd.c
-@@ -242,8 +242,10 @@ u8 r8712_sitesurvey_cmd(struct _adapter
- 	psurveyPara->ss_ssidlen = 0;
- 	memset(psurveyPara->ss_ssid, 0, IW_ESSID_MAX_SIZE + 1);
- 	if ((pssid != NULL) && (pssid->SsidLength)) {
--		memcpy(psurveyPara->ss_ssid, pssid->Ssid, pssid->SsidLength);
--		psurveyPara->ss_ssidlen = cpu_to_le32(pssid->SsidLength);
-+		int len = min_t(int, pssid->SsidLength, IW_ESSID_MAX_SIZE);
-+
-+		memcpy(psurveyPara->ss_ssid, pssid->Ssid, len);
-+		psurveyPara->ss_ssidlen = cpu_to_le32(len);
- 	}
- 	set_fwstate(pmlmepriv, _FW_UNDER_SURVEY);
- 	r8712_enqueue_cmd(pcmdpriv, ph2c);
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -200,6 +200,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
++	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
++	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
+ 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
 
 
