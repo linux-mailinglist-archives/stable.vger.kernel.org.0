@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73A1033B98C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0173C33B9EC
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbhCOOGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S235055AbhCOOHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233452AbhCOOBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B3E64F1E;
-        Mon, 15 Mar 2021 14:01:31 +0000 (UTC)
+        id S233556AbhCOOCB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB22264F17;
+        Mon, 15 Mar 2021 14:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816892;
-        bh=Wv3ykn6IIN7P5T4fDdFyXgqnYKZoGNVkgDy3kpC6dBQ=;
+        s=korg; t=1615816920;
+        bh=WdSA0u9QNjoXc1vg2BJB76lxbzJAX+Hz+pf+MzpjaqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDRl0JEsoUH0a/NTD3RNoIhhJe057VAl4feg5J6OYmvGeIjYsQxrsdGEEZyUKTRNi
-         wilYSBgTKDY2hlPgPhW65GczMHeqc2fHLRFi7F5MNxsedv8fUVSkDF+Pi/IGm3tiqi
-         iOQB50ejkEmRT4SSVss3bx0uxnhB9g13rH9jorYI=
+        b=N9+JW4SBBga7vVBIgfpHontEjougyBlqhMYk+OZujXNh1ngVAqiGcPbH6rtPnkNBZ
+         zmUGOhbiPoYDEN5cjHaxjfOXpn5nh0mHo7flR5NtRx5llcLJAv3DMxs7a5aRHzJFnH
+         pxGL6Eqw3svzxYB+57xstxlfudzaFImDW8EK87aM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Abhishek Sahu <abhsahu@nvidia.com>
-Subject: [PATCH 5.10 172/290] ALSA: hda/hdmi: Cancel pending works before suspend
+        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        Pete Zaitcev <zaitcev@redhat.com>
+Subject: [PATCH 5.11 202/306] USB: usblp: fix a hang in poll() if disconnected
 Date:   Mon, 15 Mar 2021 14:54:25 +0100
-Message-Id: <20210315135547.711876844@linuxfoundation.org>
+Message-Id: <20210315135514.466896343@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +41,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pete Zaitcev <zaitcev@redhat.com>
 
-commit eea46a0879bcca23e15071f9968c0f6e6596e470 upstream.
+commit 9de2c43acf37a17dc4c69ff78bb099b80fb74325 upstream.
 
-The per_pin->work might be still floating at the suspend, and this may
-hit the access to the hardware at an unexpected timing.  Cancel the
-work properly at the suspend callback for avoiding the buggy access.
+Apparently an application that opens a device and calls select()
+on it, will hang if the decice is disconnected. It's a little
+surprising that we had this bug for 15 years, but apparently
+nobody ever uses select() with a printer: only write() and read(),
+and those work fine. Well, you can also select() with a timeout.
 
-Note that the bug doesn't trigger easily in the recent kernels since
-the work is queued only when the repoll count is set, and usually it's
-only at the resume callback, but it's still possible to hit in
-theory.
+The fix is modeled after devio.c. A few other drivers check the
+condition first, then do not add the wait queue in case the
+device is disconnected. We doubt that's completely race-free.
+So, this patch adds the process first, then locks properly
+and checks for the disconnect.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
-Reported-and-tested-by: Abhishek Sahu <abhsahu@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210310112809.9215-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reviewed-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210303221053.1cf3313e@suzdal.zaitcev.lan
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/usb/class/usblp.c |   16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2475,6 +2475,18 @@ static void generic_hdmi_free(struct hda
- }
- 
- #ifdef CONFIG_PM
-+static int generic_hdmi_suspend(struct hda_codec *codec)
-+{
-+	struct hdmi_spec *spec = codec->spec;
-+	int pin_idx;
-+
-+	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
-+		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+		cancel_delayed_work_sync(&per_pin->work);
-+	}
-+	return 0;
-+}
-+
- static int generic_hdmi_resume(struct hda_codec *codec)
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -494,16 +494,24 @@ static int usblp_release(struct inode *i
+ /* No kernel lock - fine */
+ static __poll_t usblp_poll(struct file *file, struct poll_table_struct *wait)
  {
- 	struct hdmi_spec *spec = codec->spec;
-@@ -2498,6 +2510,7 @@ static const struct hda_codec_ops generi
- 	.build_controls		= generic_hdmi_build_controls,
- 	.unsol_event		= hdmi_unsol_event,
- #ifdef CONFIG_PM
-+	.suspend		= generic_hdmi_suspend,
- 	.resume			= generic_hdmi_resume,
- #endif
- };
+-	__poll_t ret;
++	struct usblp *usblp = file->private_data;
++	__poll_t ret = 0;
+ 	unsigned long flags;
+ 
+-	struct usblp *usblp = file->private_data;
+ 	/* Should we check file->f_mode & FMODE_WRITE before poll_wait()? */
+ 	poll_wait(file, &usblp->rwait, wait);
+ 	poll_wait(file, &usblp->wwait, wait);
++
++	mutex_lock(&usblp->mut);
++	if (!usblp->present)
++		ret |= EPOLLHUP;
++	mutex_unlock(&usblp->mut);
++
+ 	spin_lock_irqsave(&usblp->lock, flags);
+-	ret = ((usblp->bidir && usblp->rcomplete) ? EPOLLIN  | EPOLLRDNORM : 0) |
+-	   ((usblp->no_paper || usblp->wcomplete) ? EPOLLOUT | EPOLLWRNORM : 0);
++	if (usblp->bidir && usblp->rcomplete)
++		ret |= EPOLLIN  | EPOLLRDNORM;
++	if (usblp->no_paper || usblp->wcomplete)
++		ret |= EPOLLOUT | EPOLLWRNORM;
+ 	spin_unlock_irqrestore(&usblp->lock, flags);
+ 	return ret;
+ }
 
 
