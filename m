@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D012733B835
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6066A33B7DA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233780AbhCOOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S232519AbhCOOB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232934AbhCOOAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E2A64EEC;
-        Mon, 15 Mar 2021 13:59:57 +0000 (UTC)
+        id S232648AbhCON7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D5164F80;
+        Mon, 15 Mar 2021 13:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816798;
-        bh=YWVb5gUVrbifFAYA4t0MTol9HiYX7gH91R/aJyElmFM=;
+        s=korg; t=1615816764;
+        bh=ZZ+YeAks4pW1cWLAxWfu5jU4iiFdjFcSyOTYi8m24OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0vuQsdwbOXnmHVNdl0ARxK0PiIIshiDdverVOOJvZvXjjDwFNQ5zAGexdI4uY/V1
-         JXx10ZhCgYBg9hhE3o3MMFTeKrf4qrPMk4QHhKuL0YR/kzuVzUx/ObDP+g3UWhlTEm
-         c1ieMpqRUO35Ty2iHPd4G95Huml/22BVNPylCzDE=
+        b=MbhTPsMnO8W4Vq64AtzM8uJp7hqstWLxYUjOK4Rp4fRpe/M/2G/ZA4tkOYeXs0Neq
+         XIVl5ACeJIGY7/mvEnnO2PG9F3thRZLHw0WN2fXZVgEu65+u/GZ5p0XOZ4j83zrJZc
+         gW/M8KuI4/xjvLZbKHgLZgSGxVdHUlxL9LBXWQmM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 131/306] mmc: mxs-mmc: Fix a resource leak in an error handling path in mxs_mmc_probe()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 101/290] sh_eth: fix TRSCER mask for R7S9210
 Date:   Mon, 15 Mar 2021 14:53:14 +0100
-Message-Id: <20210315135512.079891456@linuxfoundation.org>
+Message-Id: <20210315135545.329133422@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 0bb7e560f821c7770973a94e346654c4bdccd42c ]
+commit 165bc5a4f30eee4735845aa7dbd6b738643f2603 upstream.
 
-If 'mmc_of_parse()' fails, we must undo the previous 'dma_request_chan()'
-call.
+According  to the RZ/A2M Group User's Manual: Hardware, Rev. 2.00,
+the TRSCER register has bit 9 reserved, hence we can't use the driver's
+default TRSCER mask.  Add the explicit initializer for sh_eth_cpu_data::
+trscer_err_mask for R7S9210.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/20201208203527.49262-1-christophe.jaillet@wanadoo.fr
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6e0bb04d0e4f ("sh_eth: Add R7S9210 support")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mxs-mmc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/sh_eth.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
-index 56bbc6cd9c84..947581de7860 100644
---- a/drivers/mmc/host/mxs-mmc.c
-+++ b/drivers/mmc/host/mxs-mmc.c
-@@ -628,7 +628,7 @@ static int mxs_mmc_probe(struct platform_device *pdev)
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -780,6 +780,8 @@ static struct sh_eth_cpu_data r7s9210_da
  
- 	ret = mmc_of_parse(mmc);
- 	if (ret)
--		goto out_clk_disable;
-+		goto out_free_dma;
+ 	.fdr_value	= 0x0000070f,
  
- 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
- 
--- 
-2.30.1
-
++	.trscer_err_mask = DESC_I_RINT8 | DESC_I_RINT5,
++
+ 	.apr		= 1,
+ 	.mpr		= 1,
+ 	.tpauser	= 1,
 
 
