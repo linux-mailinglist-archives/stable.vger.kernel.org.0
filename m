@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5D7333B96A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7610A33B76D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233937AbhCOOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232875AbhCOOAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232882AbhCOOAE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 10:00:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DD3B61477;
-        Mon, 15 Mar 2021 13:59:43 +0000 (UTC)
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232597AbhCON7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6710664F25;
+        Mon, 15 Mar 2021 13:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816785;
-        bh=ls/Kw0AxmQ04kBfbKoNboAsuPICaRMnN/G4moFqOlBY=;
+        s=korg; t=1615816735;
+        bh=Bmx3KOJBYYoPNczQQuo7vTa/SwT5fCvIwJqqd6fl1Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zoLD86b2E55SjGp4pXwJhQw1vhFkiMZ5eynf/rDuRvDl0raakLorIsmjtxNo83c51
-         zQ4tGtA3DdoSzLcNU67j1pNJ0Bvv4vUT+sZdh6ysamEjQOHzWqPCwNLy+30dXYyaaX
-         qHqVmY86WLW7yzmymMsbwxJG5J2Hg+snk1QZm/tQ=
+        b=NvVzSgj/Epvks/HCZOonCLnmFabQSDroWVseVM/cbdAxsoxlCGCLyrp1nQ6Ac/YEa
+         /ZREVqSUC5B7t4RybfcMNTGFXK1jduaPFEYcRt1Emdf6VZ4EHliGn1J4P8KrwlJSn1
+         bJ8D0ZY135PuLLEGZhAYu5c29wu6h+GznCoc42l0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Bjoern Walk <bwalk@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 066/120] s390/dasd: fix hanging DASD driver unbind
+        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+        syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 4.14 27/95] drm/compat: Clear bounce structures
 Date:   Mon, 15 Mar 2021 14:56:57 +0100
-Message-Id: <20210315135722.132681825@linuxfoundation.org>
+Message-Id: <20210315135741.165872302@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 7d365bd0bff3c0310c39ebaffc9a8458e036d666 upstream.
+commit de066e116306baf3a6a62691ac63cfc0b1dabddb upstream.
 
-In case of an unbind of the DASD device driver the function
-dasd_generic_remove() is called which shuts down the device.
-Among others this functions removes the int_handler from the cdev.
-During shutdown the device cancels all outstanding IO requests and waits
-for completion of the clear request.
-Unfortunately the clear interrupt will never be received when there is no
-interrupt handler connected.
+Some of them have gaps, or fields we don't clear. Native ioctl code
+does full copies plus zero-extends on size mismatch, so nothing can
+leak. But compat is more hand-rolled so need to be careful.
 
-Fix by moving the int_handler removal after the call to the state machine
-where no request or interrupt is outstanding.
+None of these matter for performance, so just memset.
 
+Also I didn't fix up the CONFIG_DRM_LEGACY or CONFIG_DRM_AGP ioctl, those
+are security holes anyway.
+
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Reported-by: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com # vblank ioctl
+Cc: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210222100643.400935-1-daniel.vetter@ffwll.ch
+(cherry picked from commit e926c474ebee404441c838d18224cd6f246a71b7)
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/drm_ioc32.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3426,8 +3426,6 @@ void dasd_generic_remove(struct ccw_devi
- 	struct dasd_device *device;
- 	struct dasd_block *block;
+--- a/drivers/gpu/drm/drm_ioc32.c
++++ b/drivers/gpu/drm/drm_ioc32.c
+@@ -96,6 +96,8 @@ static int compat_drm_version(struct fil
+ 	if (copy_from_user(&v32, (void __user *)arg, sizeof(v32)))
+ 		return -EFAULT;
  
--	cdev->handler = NULL;
--
- 	device = dasd_device_from_cdev(cdev);
- 	if (IS_ERR(device)) {
- 		dasd_remove_sysfs_files(cdev);
-@@ -3446,6 +3444,7 @@ void dasd_generic_remove(struct ccw_devi
- 	 * no quite down yet.
- 	 */
- 	dasd_set_target_state(device, DASD_STATE_NEW);
-+	cdev->handler = NULL;
- 	/* dasd_delete_device destroys the device reference. */
- 	block = device->block;
- 	dasd_delete_device(device);
++	memset(&v, 0, sizeof(v));
++
+ 	v = (struct drm_version) {
+ 		.name_len = v32.name_len,
+ 		.name = compat_ptr(v32.name),
+@@ -134,6 +136,9 @@ static int compat_drm_getunique(struct f
+ 
+ 	if (copy_from_user(&uq32, (void __user *)arg, sizeof(uq32)))
+ 		return -EFAULT;
++
++	memset(&uq, 0, sizeof(uq));
++
+ 	uq = (struct drm_unique){
+ 		.unique_len = uq32.unique_len,
+ 		.unique = compat_ptr(uq32.unique),
+@@ -260,6 +265,8 @@ static int compat_drm_getclient(struct f
+ 	if (copy_from_user(&c32, argp, sizeof(c32)))
+ 		return -EFAULT;
+ 
++	memset(&client, 0, sizeof(client));
++
+ 	client.idx = c32.idx;
+ 
+ 	err = drm_ioctl_kernel(file, drm_getclient, &client, DRM_UNLOCKED);
+@@ -842,6 +849,8 @@ static int compat_drm_wait_vblank(struct
+ 	if (copy_from_user(&req32, argp, sizeof(req32)))
+ 		return -EFAULT;
+ 
++	memset(&req, 0, sizeof(req));
++
+ 	req.request.type = req32.request.type;
+ 	req.request.sequence = req32.request.sequence;
+ 	req.request.signal = req32.request.signal;
+@@ -879,6 +888,8 @@ static int compat_drm_mode_addfb2(struct
+ 	struct drm_mode_fb_cmd2 req64;
+ 	int err;
+ 
++	memset(&req64, 0, sizeof(req64));
++
+ 	if (copy_from_user(&req64, argp,
+ 			   offsetof(drm_mode_fb_cmd232_t, modifier)))
+ 		return -EFAULT;
 
 
