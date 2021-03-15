@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A26B733B9EB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F9D833B99D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235064AbhCOOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:07:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
+        id S234385AbhCOOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233563AbhCOOCC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC8664E83;
-        Mon, 15 Mar 2021 14:02:00 +0000 (UTC)
+        id S233455AbhCOOBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB44764F2A;
+        Mon, 15 Mar 2021 14:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816921;
-        bh=I5/Ju2sqpmZF9GUUl8cG9iEELjgWoaYlwhzX40Zzz+w=;
+        s=korg; t=1615816893;
+        bh=Y7KqdrFoVQtcaYQsWHhBptJOg9bSZb1WGzExBGJQKww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AtbVm58qlo5v4PGxRQZYAsJxAJUDTrX96PIcvb9zHmk+H8Mxh8MkCUPWDymllmpMy
-         1ANeCHYvaah4nubPxIMMWqc7FYTU2mfdMUFrvzr20lOepwt776oWtf6CmMjTw0V8fk
-         4RCp6+HJ44nNJ+fK6d4jDbYbUJMHmfEKost1lVSk=
+        b=er9LZtau4286/8jpQqQAEcdGDHH7irgpe2eHX2h943GeiWxWqWdTGwr9o2meKQorr
+         GeLumPe+inmG48coFMCwvC9lP7abJaO8IghrgcdY0sJM0chh+54MHshyUCxqdqQ7UD
+         VgVrn1lVU44pjH+JyGUOFoKbw/IjkLtOxBQQBxVs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.11 203/306] usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other EPNUM
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 173/290] ALSA: hda/conexant: Add quirk for mute LED control on HP ZBook G5
 Date:   Mon, 15 Mar 2021 14:54:26 +0100
-Message-Id: <20210315135514.497948719@linuxfoundation.org>
+Message-Id: <20210315135547.743714954@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,147 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b1d25e6ee57c2605845595b6c61340d734253eb3 upstream.
+commit 56b26497bb4b7ff970612dc25a8a008c34463f7b upstream.
 
-According to the datasheet, this controller has a restriction
-which "set an endpoint number so that combinations of the DIR bit and
-the EPNUM bits do not overlap.". However, since the udc core driver is
-possible to assign a bulk pipe as an interrupt endpoint, an endpoint
-number may not match the pipe number. After that, when user rebinds
-another gadget driver, this driver broke the restriction because
-the driver didn't clear any configuration in usb_ep_disable().
+The mute and mic-mute LEDs on HP ZBook Studio G5 are controlled via
+GPIO bits 0x10 and 0x20, respectively, and we need the extra setup for
+those.
 
-Example:
- # modprobe g_ncm
- Then, EP3 = pipe 3, EP4 = pipe 4, EP5 = pipe 6
- # rmmod g_ncm
- # modprobe g_hid
- Then, EP3 = pipe 6, EP4 = pipe 7.
- So, pipe 3 and pipe 6 are set as EP3.
+As the similar code is already present for other HP models but with
+different GPIO pins, this patch factors out the common helper code and
+applies those GPIO values for each model.
 
-So, clear PIPECFG register in usbhs_pipe_free().
-
-Fixes: dfb87b8bfe09 ("usb: renesas_usbhs: gadget: fix re-enabling pipe without re-connecting")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1615168538-26101-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211893
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210306095018.11746-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/renesas_usbhs/pipe.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_conexant.c |   62 +++++++++++++++++++++++++++++------------
+ 1 file changed, 45 insertions(+), 17 deletions(-)
 
---- a/drivers/usb/renesas_usbhs/pipe.c
-+++ b/drivers/usb/renesas_usbhs/pipe.c
-@@ -746,6 +746,8 @@ struct usbhs_pipe *usbhs_pipe_malloc(str
- 
- void usbhs_pipe_free(struct usbhs_pipe *pipe)
- {
-+	usbhsp_pipe_select(pipe);
-+	usbhsp_pipe_cfg_set(pipe, 0xFFFF, 0);
- 	usbhsp_put_pipe(pipe);
+--- a/sound/pci/hda/patch_conexant.c
++++ b/sound/pci/hda/patch_conexant.c
+@@ -149,6 +149,21 @@ static int cx_auto_vmaster_mute_led(stru
+ 	return 0;
  }
  
++static void cxt_init_gpio_led(struct hda_codec *codec)
++{
++	struct conexant_spec *spec = codec->spec;
++	unsigned int mask = spec->gpio_mute_led_mask | spec->gpio_mic_led_mask;
++
++	if (mask) {
++		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_MASK,
++				    mask);
++		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DIRECTION,
++				    mask);
++		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DATA,
++				    spec->gpio_led);
++	}
++}
++
+ static int cx_auto_init(struct hda_codec *codec)
+ {
+ 	struct conexant_spec *spec = codec->spec;
+@@ -156,6 +171,7 @@ static int cx_auto_init(struct hda_codec
+ 	if (!spec->dynamic_eapd)
+ 		cx_auto_turn_eapd(codec, spec->num_eapds, spec->eapds, true);
+ 
++	cxt_init_gpio_led(codec);
+ 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_INIT);
+ 
+ 	return 0;
+@@ -215,6 +231,7 @@ enum {
+ 	CXT_FIXUP_HP_SPECTRE,
+ 	CXT_FIXUP_HP_GATE_MIC,
+ 	CXT_FIXUP_MUTE_LED_GPIO,
++	CXT_FIXUP_HP_ZBOOK_MUTE_LED,
+ 	CXT_FIXUP_HEADSET_MIC,
+ 	CXT_FIXUP_HP_MIC_NO_PRESENCE,
+ };
+@@ -654,31 +671,36 @@ static int cxt_gpio_micmute_update(struc
+ 	return 0;
+ }
+ 
+-
+-static void cxt_fixup_mute_led_gpio(struct hda_codec *codec,
+-				const struct hda_fixup *fix, int action)
++static void cxt_setup_mute_led(struct hda_codec *codec,
++			       unsigned int mute, unsigned int mic_mute)
+ {
+ 	struct conexant_spec *spec = codec->spec;
+-	static const struct hda_verb gpio_init[] = {
+-		{ 0x01, AC_VERB_SET_GPIO_MASK, 0x03 },
+-		{ 0x01, AC_VERB_SET_GPIO_DIRECTION, 0x03 },
+-		{}
+-	};
+ 
+-	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
++	spec->gpio_led = 0;
++	spec->mute_led_polarity = 0;
++	if (mute) {
+ 		snd_hda_gen_add_mute_led_cdev(codec, cxt_gpio_mute_update);
+-		spec->gpio_led = 0;
+-		spec->mute_led_polarity = 0;
+-		spec->gpio_mute_led_mask = 0x01;
+-		spec->gpio_mic_led_mask = 0x02;
++		spec->gpio_mute_led_mask = mute;
++	}
++	if (mic_mute) {
+ 		snd_hda_gen_add_micmute_led_cdev(codec, cxt_gpio_micmute_update);
++		spec->gpio_mic_led_mask = mic_mute;
+ 	}
+-	snd_hda_add_verbs(codec, gpio_init);
+-	if (spec->gpio_led)
+-		snd_hda_codec_write(codec, 0x01, 0, AC_VERB_SET_GPIO_DATA,
+-				    spec->gpio_led);
+ }
+ 
++static void cxt_fixup_mute_led_gpio(struct hda_codec *codec,
++				const struct hda_fixup *fix, int action)
++{
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		cxt_setup_mute_led(codec, 0x01, 0x02);
++}
++
++static void cxt_fixup_hp_zbook_mute_led(struct hda_codec *codec,
++					const struct hda_fixup *fix, int action)
++{
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		cxt_setup_mute_led(codec, 0x10, 0x20);
++}
+ 
+ /* ThinkPad X200 & co with cxt5051 */
+ static const struct hda_pintbl cxt_pincfg_lenovo_x200[] = {
+@@ -839,6 +861,10 @@ static const struct hda_fixup cxt_fixups
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cxt_fixup_mute_led_gpio,
+ 	},
++	[CXT_FIXUP_HP_ZBOOK_MUTE_LED] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = cxt_fixup_hp_zbook_mute_led,
++	},
+ 	[CXT_FIXUP_HEADSET_MIC] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cxt_fixup_headset_mic,
+@@ -917,6 +943,7 @@ static const struct snd_pci_quirk cxt506
+ 	SND_PCI_QUIRK(0x103c, 0x8299, "HP 800 G3 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x829a, "HP 800 G3 DM", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x8402, "HP ProBook 645 G4", CXT_FIXUP_MUTE_LED_GPIO),
++	SND_PCI_QUIRK(0x103c, 0x8427, "HP ZBook Studio G5", CXT_FIXUP_HP_ZBOOK_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8455, "HP Z2 G4", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x8456, "HP Z2 G4 SFF", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x8457, "HP Z2 G4 mini", CXT_FIXUP_HP_MIC_NO_PRESENCE),
+@@ -956,6 +983,7 @@ static const struct hda_model_fixup cxt5
+ 	{ .id = CXT_FIXUP_MUTE_LED_EAPD, .name = "mute-led-eapd" },
+ 	{ .id = CXT_FIXUP_HP_DOCK, .name = "hp-dock" },
+ 	{ .id = CXT_FIXUP_MUTE_LED_GPIO, .name = "mute-led-gpio" },
++	{ .id = CXT_FIXUP_HP_ZBOOK_MUTE_LED, .name = "hp-zbook-mute-led" },
+ 	{ .id = CXT_FIXUP_HP_MIC_NO_PRESENCE, .name = "hp-mic-fix" },
+ 	{}
+ };
 
 
