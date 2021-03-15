@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B260F33BC46
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:34:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB8F33BC47
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:34:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231714AbhCOOYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:24:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45480 "EHLO mail.kernel.org"
+        id S232912AbhCOOYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:24:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238154AbhCOOWs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:22:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA64A64F39;
-        Mon, 15 Mar 2021 14:22:45 +0000 (UTC)
+        id S238165AbhCOOWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:22:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FB8664F3D;
+        Mon, 15 Mar 2021 14:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615818167;
-        bh=jybnSoroDpQIksoHUrxyeI85+0ptC0keTTMH2Tab5to=;
+        s=korg; t=1615818170;
+        bh=R0A7ux4q9rI+P//xXJuvW1EVSmliCrIjELO0X67Qu+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAl/tuR01DiLcr55L8ZC4oL/b5hnLJAOV9PKCtM382gotr+iQ3ZuDvg6q1WAfqQ+0
-         9oB271ttZXdQaFHfFrwEbThDnUNrBVHpU+UbOZWWI33t16C/soJwOhqSUmKeSVaYLB
-         dJMKKBK426WTMzykavqMgJ+qdtg4P8nifVZciMas=
+        b=Pt6fUFeQgU6zPDMaiEOwZ3VTQy7bMMu3t4/CYY4qqoDlo5kD4mTkQzss7583P4Gl3
+         8Ml41TEEJ9GBxNcc0QTJfoj56z4Kt7Bm/DjPn6CLkfByhyUy0q9xb2SV4UghF3M14d
+         t0MvHyO/kFtZt+9/0+FxpXxLr0NECwM1TVGd/3fU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Howard Zhang <Howard.Zhang@arm.com>,
-        Will Deacon <will@kernel.org>, Jia He <justin.he@arm.com>,
-        Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Andrew Scull <ascull@google.com>,
+        Quentin Perret <qperret@google.com>,
+        Will Deacon <will@kernel.org>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 278/290] KVM: arm64: Fix range alignment when walking page tables
-Date:   Mon, 15 Mar 2021 15:22:28 +0100
-Message-Id: <20210315135551.421409997@linuxfoundation.org>
+Subject: [PATCH 5.10 279/290] KVM: arm64: Avoid corrupting vCPU context register in guest exit
+Date:   Mon, 15 Mar 2021 15:22:29 +0100
+Message-Id: <20210315135551.461936430@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135551.391322899@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -44,44 +45,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jia He <justin.he@arm.com>
+From: Will Deacon <will@kernel.org>
 
-commit 357ad203d45c0f9d76a8feadbd5a1c5d460c638b upstream.
+commit 31948332d5fa392ad933f4a6a10026850649ed76 upstream.
 
-When walking the page tables at a given level, and if the start
-address for the range isn't aligned for that level, we propagate
-the misalignment on each iteration at that level.
+Commit 7db21530479f ("KVM: arm64: Restore hyp when panicking in guest
+context") tracks the currently running vCPU, clearing the pointer to
+NULL on exit from a guest.
 
-This results in the walker ignoring a number of entries (depending
-on the original misalignment) on each subsequent iteration.
+Unfortunately, the use of 'set_loaded_vcpu' clobbers x1 to point at the
+kvm_hyp_ctxt instead of the vCPU context, causing the subsequent RAS
+code to go off into the weeds when it saves the DISR assuming that the
+CPU context is embedded in a struct vCPU.
 
-Properly aligning the address before the next iteration addresses
-this issue.
+Leave x1 alone and use x3 as a temporary register instead when clearing
+the vCPU on the guest exit path.
 
-Cc: stable@vger.kernel.org
-Reported-by: Howard Zhang <Howard.Zhang@arm.com>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Jia He <justin.he@arm.com>
-Fixes: b1e57de62cfb ("KVM: arm64: Add stand-alone page-table walker infrastructure")
-[maz: rewrite commit message]
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Andrew Scull <ascull@google.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 7db21530479f ("KVM: arm64: Restore hyp when panicking in guest context")
+Suggested-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210303024225.2591-1-justin.he@arm.com
-Message-Id: <20210305185254.3730990-9-maz@kernel.org>
+Link: https://lore.kernel.org/r/20210226181211.14542-1-will@kernel.org
+Message-Id: <20210305185254.3730990-3-maz@kernel.org>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/hyp/pgtable.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/kvm/hyp/entry.S |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/hyp/pgtable.c
-+++ b/arch/arm64/kvm/hyp/pgtable.c
-@@ -225,6 +225,7 @@ static inline int __kvm_pgtable_visit(st
- 		goto out;
+--- a/arch/arm64/kvm/hyp/entry.S
++++ b/arch/arm64/kvm/hyp/entry.S
+@@ -146,7 +146,7 @@ SYM_INNER_LABEL(__guest_exit, SYM_L_GLOB
+ 	// Now restore the hyp regs
+ 	restore_callee_saved_regs x2
  
- 	if (!table) {
-+		data->addr = ALIGN_DOWN(data->addr, kvm_granule_size(level));
- 		data->addr += kvm_granule_size(level);
- 		goto out;
- 	}
+-	set_loaded_vcpu xzr, x1, x2
++	set_loaded_vcpu xzr, x2, x3
+ 
+ alternative_if ARM64_HAS_RAS_EXTN
+ 	// If we have the RAS extensions we can consume a pending error
 
 
