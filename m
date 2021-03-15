@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBC9233BACC
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E000533B772
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235708AbhCOOKU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49128 "EHLO mail.kernel.org"
+        id S232977AbhCOOA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233863AbhCOOCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FA364DAD;
-        Mon, 15 Mar 2021 14:02:31 +0000 (UTC)
+        id S231848AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 506F664F17;
+        Mon, 15 Mar 2021 13:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816952;
-        bh=xKgkFWzxlPRIvHIuGIVg8npd7F6MBl11aaKZJp0K8E0=;
+        s=korg; t=1615816726;
+        bh=8HhfHqUUURTJVwaees13/7FQhZEVv5SjzV+S9H2thyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=frAYc2E4nXyAYMU1upd7beMHApai5WKgveQ2u2s721CnepkbqL8JRoldJSAFfbWAo
-         cugefwDHnJmbpvjWT7QgLslaJWYePaQlwORakOCkQiae9dQiA9XQH6/rdhD33CCEGi
-         nhH8+qhXc5+uNYjJM16Y0dupvDNtJg8z3PEZLtBc=
+        b=b8nv9JGlP6raZprlKckkVcTG/x9fnfR3wz+Pqpl9Ti3SZQ0GLEKOPmfqMSId26ZHA
+         kprYf4d97DqP41C5ec5m2ABp4cAI8tlH0ryFI6Dz82sBM0ief5EZ8ICrdoglwBSp5J
+         JvGQpSXETkgLPTq0Q7CGjMiilDwwP+CInz7LOav4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernhard <bernhard.gebetsberger@gmx.at>,
-        Stanislaw Gruszka <stf_xl@wp.pl>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 208/290] usb: xhci: do not perform Soft Retry for some xHCI hosts
-Date:   Mon, 15 Mar 2021 14:55:01 +0100
-Message-Id: <20210315135548.961675918@linuxfoundation.org>
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 070/168] powerpc: improve handling of unrecoverable system reset
+Date:   Mon, 15 Mar 2021 14:55:02 +0100
+Message-Id: <20210315135552.671229512@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Stanislaw Gruszka <stf_xl@wp.pl>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit a4a251f8c23518899d2078c320cf9ce2fa459c9f upstream.
+[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
 
-On some systems rt2800usb and mt7601u devices are unable to operate since
-commit f8f80be501aa ("xhci: Use soft retry to recover faster from
-transaction errors")
+If an unrecoverable system reset hits in process context, the system
+does not have to panic. Similar to machine check, call nmi_exit()
+before die().
 
-Seems that some xHCI controllers can not perform Soft Retry correctly,
-affecting those devices.
-
-To avoid the problem add xhci->quirks flag that restore pre soft retry
-xhci behaviour for affected xHCI controllers. Currently those are
-AMD_PROMONTORYA_4 and AMD_PROMONTORYA_2, since it was confirmed
-by the users: on those xHCI hosts issue happen and is gone after
-disabling Soft Retry.
-
-[minor commit message rewording for checkpatch -Mathias]
-
-Fixes: f8f80be501aa ("xhci: Use soft retry to recover faster from transaction errors")
-Cc: <stable@vger.kernel.org> # 4.20+
-Reported-by: Bernhard <bernhard.gebetsberger@gmx.at>
-Tested-by: Bernhard <bernhard.gebetsberger@gmx.at>
-Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202541
-Link: https://lore.kernel.org/r/20210311115353.2137560-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c  |    5 +++++
- drivers/usb/host/xhci-ring.c |    3 ++-
- drivers/usb/host/xhci.h      |    1 +
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/traps.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -295,6 +295,11 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == 0x9026)
- 		xhci->quirks |= XHCI_RESET_PLL_ON_DISCONNECT;
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 206032c9b545..ecfa460f66d1 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -513,8 +513,11 @@ void system_reset_exception(struct pt_regs *regs)
+ 		die("Unrecoverable nested System Reset", regs, SIGABRT);
+ #endif
+ 	/* Must die if the interrupt is not recoverable */
+-	if (!(regs->msr & MSR_RI))
++	if (!(regs->msr & MSR_RI)) {
++		/* For the reason explained in die_mce, nmi_exit before die */
++		nmi_exit();
+ 		die("Unrecoverable System Reset", regs, SIGABRT);
++	}
  
-+	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
-+	    (pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_2 ||
-+	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
-+		xhci->quirks |= XHCI_NO_SOFT_RETRY;
-+
- 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
- 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
- 				"QUIRK: Resetting on resume");
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2307,7 +2307,8 @@ static int process_bulk_intr_td(struct x
- 		remaining	= 0;
- 		break;
- 	case COMP_USB_TRANSACTION_ERROR:
--		if ((ep_ring->err_count++ > MAX_SOFT_RETRY) ||
-+		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
-+		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
- 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
- 			break;
- 		*status = 0;
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1879,6 +1879,7 @@ struct xhci_hcd {
- #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
- #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
- #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
-+#define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
- 
- 	unsigned int		num_active_eps;
- 	unsigned int		limit_active_eps;
+ 	if (saved_hsrrs) {
+ 		mtspr(SPRN_HSRR0, hsrr0);
+-- 
+2.30.1
+
 
 
