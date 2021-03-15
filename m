@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D60B933B9AD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5FE33BA17
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234942AbhCOOGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
+        id S231289AbhCOOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233488AbhCOOBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E307464EF0;
-        Mon, 15 Mar 2021 14:01:44 +0000 (UTC)
+        id S233671AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 778E764F2E;
+        Mon, 15 Mar 2021 14:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816906;
-        bh=nYYfGvw9M3nnKskYW4kUBBeFG0i2to+aKSbS+MN64gk=;
+        s=korg; t=1615816932;
+        bh=IRd2fbfWB7PxKr72oQAlufixyevhTRLq+lbOG35j/Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omNq/IC0MzCbXPG+X1yKZ/6Ud6TDUguaTqWuQs52rBZAO9OjhrdpKQVQN2/VuaCd1
-         MkpthDYugYMl8uOh1UHrxgT32SQ6WlpG51JtEaZX3fwAocQtRz5VzrGUPWTnEK24j9
-         JSVk7VDbwmcZbsKBWqfIuYdRtEav/kkH32g1NP6I=
+        b=fNxUBgnU/6PH8riaEhkhOaVlM0ebMs4Rr+7wieFmATG+frPy1yki7PpPcrefOKVvv
+         RYz7vRxQ0PeUEAr4TksbUGtr0dMqV+zR13cdK6tYyx7ITShr46HnYumk0v40bfzaja
+         W211p4X5u4OLnMlA8ANllTHhCDoK3v61wQ9n5s3g=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+719da9b149a931f5143f@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 181/290] ALSA: usb-audio: fix NULL ptr dereference in usb_audio_probe
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.11 211/306] USB: serial: cp210x: add some more GE USB IDs
 Date:   Mon, 15 Mar 2021 14:54:34 +0100
-Message-Id: <20210315135548.036672620@linuxfoundation.org>
+Message-Id: <20210315135514.759909335@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-commit 30dea07180de3aa0ad613af88431ef4e34b5ef68 upstream.
+commit 42213a0190b535093a604945db05a4225bf43885 upstream.
 
-syzbot reported null pointer dereference in usb_audio_probe.
-The problem was in case, when quirk == NULL. It's not an
-error condition, so quirk must be checked before dereferencing.
+GE CS1000 has some more custom USB IDs for CP2102N; add them
+to the driver to have working auto-probing.
 
-Call Trace:
- usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
- really_probe+0x291/0xe60 drivers/base/dd.c:554
- driver_probe_device+0x26b/0x3d0 drivers/base/dd.c:740
- __device_attach_driver+0x1d1/0x290 drivers/base/dd.c:846
- bus_for_each_drv+0x15f/0x1e0 drivers/base/bus.c:431
- __device_attach+0x228/0x4a0 drivers/base/dd.c:914
- bus_probe_device+0x1e4/0x290 drivers/base/bus.c:491
- device_add+0xbdb/0x1db0 drivers/base/core.c:3242
- usb_set_configuration+0x113f/0x1910 drivers/usb/core/message.c:2164
- usb_generic_driver_probe+0xba/0x100 drivers/usb/core/generic.c:238
- usb_probe_device+0xd9/0x2c0 drivers/usb/core/driver.c:293
- really_probe+0x291/0xe60 drivers/base/dd.c:554
- driver_probe_device+0x26b/0x3d0 drivers/base/dd.c:740
- __device_attach_driver+0x1d1/0x290 drivers/base/dd.c:846
- bus_for_each_drv+0x15f/0x1e0 drivers/base/bus.c:431
- __device_attach+0x228/0x4a0 drivers/base/dd.c:914
- bus_probe_device+0x1e4/0x290 drivers/base/bus.c:491
- device_add+0xbdb/0x1db0 drivers/base/core.c:3242
- usb_new_device.cold+0x721/0x1058 drivers/usb/core/hub.c:2555
- hub_port_connect drivers/usb/core/hub.c:5223 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
- port_event drivers/usb/core/hub.c:5509 [inline]
- hub_event+0x2357/0x4320 drivers/usb/core/hub.c:5591
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
- kthread+0x3b1/0x4a0 kernel/kthread.c:292
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Reported-by: syzbot+719da9b149a931f5143f@syzkaller.appspotmail.com
-Fixes: 9799110825db ("ALSA: usb-audio: Disable USB autosuspend properly in setup_disable_autosuspend()")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/f1ebad6e721412843bd1b12584444c0a63c6b2fb.1615242183.git.paskripkin@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/card.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -830,7 +830,8 @@ static int usb_audio_probe(struct usb_in
- 		snd_media_device_create(chip, intf);
- 	}
- 
--	chip->quirk_type = quirk->type;
-+	if (quirk)
-+		chip->quirk_type = quirk->type;
- 
- 	usb_chip[chip->index] = chip;
- 	chip->intf[chip->num_interfaces] = intf;
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -203,6 +203,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
++	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
++	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
+ 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
 
 
