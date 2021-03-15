@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A983833BA3A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5339033B79F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233806AbhCOOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
+        id S233156AbhCOOAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234055AbhCOOCw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B15464EEE;
-        Mon, 15 Mar 2021 14:02:49 +0000 (UTC)
+        id S232670AbhCON72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34D7064E4D;
+        Mon, 15 Mar 2021 13:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816971;
-        bh=Fhgwe28ATRz/2WBldTQblfj5onW69dG5dekJ9gMPgiE=;
+        s=korg; t=1615816744;
+        bh=FXVQsqJafbUykDjJX4VgLotGsy67ToI7cKyI2urj75E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDH9fAEtu+lscKC1dOnKyE6HVIUwtfLdO2sMidR6JIM/90IdU9HQWurref+55CDSw
-         G0Kl7IiqwqhJZrUWnFjajuX05emTUl4prOBSqLgJFT7lMMp9DzT7lulTG4QTHbWqRE
-         hDPg+eDc/NLWRZbWM9/5wbq8kqYyRkmzzx/RVNTw=
+        b=Wfbt43iMeBJCfaDlzcYjBRhn8FMs60YWlQdpKJQ4UHh49dZDb4aRBO6JfDBaMl+YC
+         T3YyRssMhuufPCeJfAuFuTFlMK/lwyAhxV5NzqFOsxMGVjFLlOziZFc+BlGM5wNe4N
+         QURG0IpKGDo0dghD1pkZLbuadpUpyLC4XoOreu2k=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.10 220/290] usbip: fix vhci_hcd attach_store() races leading to gpf
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 081/168] PCI: Fix pci_register_io_range() memory leak
 Date:   Mon, 15 Mar 2021 14:55:13 +0100
-Message-Id: <20210315135549.402933956@linuxfoundation.org>
+Message-Id: <20210315135553.050380477@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,142 +43,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 718ad9693e3656120064b715fe931f43a6201e67 upstream.
+[ Upstream commit f6bda644fa3a7070621c3bf12cd657f69a42f170 ]
 
-attach_store() is invoked when user requests import (attach) a device
-from usbip host.
+Kmemleak reports:
 
-Attach and detach are governed by local state and shared state
-- Shared state (usbip device status) - Device status is used to manage
-  the attach and detach operations on import-able devices.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- Device has to be in the right state to be attached and detached.
+  unreferenced object 0xc328de40 (size 64):
+    comm "kworker/1:1", pid 21, jiffies 4294938212 (age 1484.670s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 e0 d8 fc eb 00 00 00 00  ................
+      00 00 10 fe 00 00 00 00 00 00 00 00 00 00 00 00  ................
 
-Attach sequence includes validating the socket and creating receive (rx)
-and transmit (tx) threads to talk to the host to get access to the
-imported device. rx and tx threads depends on local and shared state to
-be correct and in sync.
+  backtrace:
+    [<ad758d10>] pci_register_io_range+0x3c/0x80
+    [<2c7f139e>] of_pci_range_to_resource+0x48/0xc0
+    [<f079ecc8>] devm_of_pci_get_host_bridge_resources.constprop.0+0x2ac/0x3ac
+    [<e999753b>] devm_of_pci_bridge_init+0x60/0x1b8
+    [<a895b229>] devm_pci_alloc_host_bridge+0x54/0x64
+    [<e451ddb0>] rcar_pcie_probe+0x2c/0x644
 
-Detach sequence shuts the socket down and stops the rx and tx threads.
-Detach sequence relies on local and shared states to be in sync.
+In case a PCI host driver's probe is deferred, the same I/O range may be
+allocated again, and be ignored, causing a memory leak.
 
-There are races in updating the local and shared status in the current
-attach sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
+Fix this by (a) letting logic_pio_register_range() return -EEXIST if the
+passed range already exists, so pci_register_io_range() will free it, and
+by (b) making pci_register_io_range() not consider -EEXIST an error
+condition.
 
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to VDEV_ST_NOTASSIGNED. This opens
-   up a race condition between the threads, port connect, and detach
-   handling.
-
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold vhci and usbip_device locks to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to VDEV_ST_NOTASSIGNED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
-
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the attach sequence.
-- Update usbip_device tcp_rx and tcp_tx pointers holding vhci and
-  usbip_device locks.
-
-Tested with syzbot reproducer:
-- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
-
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/bb434bd5d7a64fbec38b5ecfb838a6baef6eb12b.1615171203.git.skhan@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210202100332.829047-1-geert+renesas@glider.be
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/usbip/vhci_sysfs.c |   29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ drivers/pci/pci.c | 4 ++++
+ lib/logic_pio.c   | 3 +++
+ 2 files changed, 7 insertions(+)
 
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -312,6 +312,8 @@ static ssize_t attach_store(struct devic
- 	struct vhci *vhci;
- 	int err;
- 	unsigned long flags;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
- 
- 	/*
- 	 * @rhport: port number of vhci_hcd
-@@ -360,9 +362,24 @@ static ssize_t attach_store(struct devic
- 		return -EINVAL;
- 	}
- 
--	/* now need lock until setting vdev status as used */
-+	/* create threads before locking */
-+	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
-+	if (IS_ERR(tcp_rx)) {
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
-+	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
-+	if (IS_ERR(tcp_tx)) {
-+		kthread_stop(tcp_rx);
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 9add26438be5..3c3bc9f58498 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3903,6 +3903,10 @@ int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
+ 	ret = logic_pio_register_range(range);
+ 	if (ret)
+ 		kfree(range);
 +
-+	/* get task structs now */
-+	get_task_struct(tcp_rx);
-+	get_task_struct(tcp_tx);
++	/* Ignore duplicates due to deferred probing */
++	if (ret == -EEXIST)
++		ret = 0;
+ #endif
  
--	/* begin a lock */
-+	/* now begin lock until setting vdev status set */
- 	spin_lock_irqsave(&vhci->lock, flags);
- 	spin_lock(&vdev->ud.lock);
- 
-@@ -372,6 +389,8 @@ static ssize_t attach_store(struct devic
- 		spin_unlock_irqrestore(&vhci->lock, flags);
- 
- 		sockfd_put(socket);
-+		kthread_stop_put(tcp_rx);
-+		kthread_stop_put(tcp_tx);
- 
- 		dev_err(dev, "port %d already used\n", rhport);
- 		/*
-@@ -390,14 +409,16 @@ static ssize_t attach_store(struct devic
- 	vdev->speed         = speed;
- 	vdev->ud.sockfd     = sockfd;
- 	vdev->ud.tcp_socket = socket;
-+	vdev->ud.tcp_rx     = tcp_rx;
-+	vdev->ud.tcp_tx     = tcp_tx;
- 	vdev->ud.status     = VDEV_ST_NOTASSIGNED;
- 
- 	spin_unlock(&vdev->ud.lock);
- 	spin_unlock_irqrestore(&vhci->lock, flags);
- 	/* end the lock */
- 
--	vdev->ud.tcp_rx = kthread_get_run(vhci_rx_loop, &vdev->ud, "vhci_rx");
--	vdev->ud.tcp_tx = kthread_get_run(vhci_tx_loop, &vdev->ud, "vhci_tx");
-+	wake_up_process(vdev->ud.tcp_rx);
-+	wake_up_process(vdev->ud.tcp_tx);
- 
- 	rh_port_connect(vdev, speed);
- 
+ 	return ret;
+diff --git a/lib/logic_pio.c b/lib/logic_pio.c
+index 905027574e5d..774bb02fff10 100644
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -27,6 +27,8 @@ static DEFINE_MUTEX(io_range_mutex);
+  * @new_range: pointer to the IO range to be registered.
+  *
+  * Returns 0 on success, the error code in case of failure.
++ * If the range already exists, -EEXIST will be returned, which should be
++ * considered a success.
+  *
+  * Register a new IO range node in the IO range list.
+  */
+@@ -49,6 +51,7 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
+ 	list_for_each_entry(range, &io_range_list, list) {
+ 		if (range->fwnode == new_range->fwnode) {
+ 			/* range already there */
++			ret = -EEXIST;
+ 			goto end_register;
+ 		}
+ 		if (range->flags == LOGIC_PIO_CPU_MMIO &&
+-- 
+2.30.1
+
 
 
