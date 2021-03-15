@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D72C533B847
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6690F33BAE9
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233901AbhCOOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
+        id S235768AbhCOOKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232766AbhCOOAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D1BE64F5C;
-        Mon, 15 Mar 2021 13:59:51 +0000 (UTC)
+        id S234481AbhCOODp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1746B64EF1;
+        Mon, 15 Mar 2021 14:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816792;
-        bh=31kDPtM0zHYIOc9UVzxVZTWXEYvH7Rx6TGQp70apgAE=;
+        s=korg; t=1615817024;
+        bh=WtmMRBEZ6HyeP+mdN5x/IA7nqV4P4wPW+6UIcR7l5l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qF8gfT11rWMiILF2JJWLpi4JfVTzHDSRrdLSSpHijuCvVH87bgD6sCESF6sMTQKS+
-         tiM4cS/KaNpV/UQaAZlyu8DjHbJ7aYNUIbzKkWdNPOiOWJsRXZw/2TJaj9bnJCq3jA
-         qkwVPtM9nMHPrWxPu5YgDRqv5gSC5QNHm9R0aaKU=
+        b=lkfdOJxx6ZKa9B+EQe92wda+ULiKdzTdrqkzKd3mb7Lr8PhTtsPBSWw77vKE6Y0RT
+         D+QnIWay3Y4uXmvP8CD5RvlGVkvaqAN1+Hx5UlTvWHNKDOHiWhM+wPny0+vlqtjXNg
+         Kio9Ej1oWIf2Z29eQHBWpPXTMMboEwO3fP6WD0Yw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 113/168] usb: xhci: Fix ASMedia ASM1042A and ASM3242 DMA addressing
+        stable@vger.kernel.org, Mark Salter <msalter@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 252/290] arm64: mm: use a 48-bit ID map when possible on 52-bit VA builds
 Date:   Mon, 15 Mar 2021 14:55:45 +0100
-Message-Id: <20210315135554.071525001@linuxfoundation.org>
+Message-Id: <20210315135550.534088596@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +42,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Forest Crossman <cyrozap@gmail.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit b71c669ad8390dd1c866298319ff89fe68b45653 upstream.
+[ Upstream commit 7ba8f2b2d652cd8d8a2ab61f4be66973e70f9f88 ]
 
-I've confirmed that both the ASMedia ASM1042A and ASM3242 have the same
-problem as the ASM1142 and ASM2142/ASM3142, where they lose some of the
-upper bits of 64-bit DMA addresses. As with the other chips, this can
-cause problems on systems where the upper bits matter, and adding the
-XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
+52-bit VA kernels can run on hardware that is only 48-bit capable, but
+configure the ID map as 52-bit by default. This was not a problem until
+recently, because the special T0SZ value for a 52-bit VA space was never
+programmed into the TCR register anwyay, and because a 52-bit ID map
+happens to use the same number of translation levels as a 48-bit one.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This behavior was changed by commit 1401bef703a4 ("arm64: mm: Always update
+TCR_EL1 from __cpu_set_tcr_t0sz()"), which causes the unsupported T0SZ
+value for a 52-bit VA to be programmed into TCR_EL1. While some hardware
+simply ignores this, Mark reports that Amberwing systems choke on this,
+resulting in a broken boot. But even before that commit, the unsupported
+idmap_t0sz value was exposed to KVM and used to program TCR_EL2 incorrectly
+as well.
+
+Given that we already have to deal with address spaces being either 48-bit
+or 52-bit in size, the cleanest approach seems to be to simply default to
+a 48-bit VA ID map, and only switch to a 52-bit one if the placement of the
+kernel in DRAM requires it. This is guaranteed not to happen unless the
+system is actually 52-bit VA capable.
+
+Fixes: 90ec95cda91a ("arm64: mm: Introduce VA_BITS_MIN")
+Reported-by: Mark Salter <msalter@redhat.com>
+Link: http://lore.kernel.org/r/20210310003216.410037-1-msalter@redhat.com
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/r/20210310171515.416643-2-ardb@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/mmu_context.h | 5 +----
+ arch/arm64/kernel/head.S             | 2 +-
+ arch/arm64/mm/mmu.c                  | 2 +-
+ 3 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -62,6 +62,7 @@
- #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
- #define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
- #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
-+#define PCI_DEVICE_ID_ASMEDIA_3242_XHCI			0x3242
+diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
+index 0672236e1aea..4e2ba9477845 100644
+--- a/arch/arm64/include/asm/mmu_context.h
++++ b/arch/arm64/include/asm/mmu_context.h
+@@ -65,10 +65,7 @@ extern u64 idmap_ptrs_per_pgd;
  
- static const char hcd_name[] = "xhci_hcd";
+ static inline bool __cpu_uses_extended_idmap(void)
+ {
+-	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52))
+-		return false;
+-
+-	return unlikely(idmap_t0sz != TCR_T0SZ(VA_BITS));
++	return unlikely(idmap_t0sz != TCR_T0SZ(vabits_actual));
+ }
  
-@@ -258,11 +259,14 @@ static void xhci_pci_quirks(struct devic
- 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
- 		xhci->quirks |= XHCI_BROKEN_STREAMS;
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
--		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
-+		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
- 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
-+		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
-+	}
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
- 	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_ASMEDIA_3242_XHCI))
- 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+ /*
+diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
+index e7550a5289fe..78cdd6b24172 100644
+--- a/arch/arm64/kernel/head.S
++++ b/arch/arm64/kernel/head.S
+@@ -334,7 +334,7 @@ SYM_FUNC_START_LOCAL(__create_page_tables)
+ 	 */
+ 	adrp	x5, __idmap_text_end
+ 	clz	x5, x5
+-	cmp	x5, TCR_T0SZ(VA_BITS)	// default T0SZ small enough?
++	cmp	x5, TCR_T0SZ(VA_BITS_MIN) // default T0SZ small enough?
+ 	b.ge	1f			// .. then skip VA range extension
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 	adr_l	x6, idmap_t0sz
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index f0125bb09fa3..6aabf1eced31 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -40,7 +40,7 @@
+ #define NO_BLOCK_MAPPINGS	BIT(0)
+ #define NO_CONT_MAPPINGS	BIT(1)
+ 
+-u64 idmap_t0sz = TCR_T0SZ(VA_BITS);
++u64 idmap_t0sz = TCR_T0SZ(VA_BITS_MIN);
+ u64 idmap_ptrs_per_pgd = PTRS_PER_PGD;
+ 
+ u64 __section(".mmuoff.data.write") vabits_actual;
+-- 
+2.30.1
+
 
 
