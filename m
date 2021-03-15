@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF1CF33B610
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88FB533B612
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230482AbhCON5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33142 "EHLO mail.kernel.org"
+        id S230076AbhCON5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230171AbhCON42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2998F64EEC;
-        Mon, 15 Mar 2021 13:56:27 +0000 (UTC)
+        id S231939AbhCON4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 058F564EF0;
+        Mon, 15 Mar 2021 13:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816588;
-        bh=l+hG+PDxI5oUmeycNqyLAqFnhVmuZGA9y8eqVYh3WT0=;
+        s=korg; t=1615816590;
+        bh=YgK7z5OuoTYfHFxczuQxZsrqwMpzCQi6HapODk0JIQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UK/5JUvK2L79lmP+8SxyF9F6iCgAMWzBz+Y2Hr+X6gOW0npC84REu4qBNvFWLddXZ
-         bKrH5V1NH2UOku9K82YEGG8g79nbE9ev+mm8Cr2nLBEf+n68nBN1VVHZrFf7pqDZVp
-         LPaUFmSz1t/HAwV9GUKVqKijkjrSRzUU/WDafaYc=
+        b=fNFcuLOE5PJW1vo2wAQIWXZ0OrAww25MTD6pLf8NnIT3ydU9Fj3Un0S+2HhcJR6W8
+         TB8MpZgBl9odqCFOtnxYKXUhlU1xRBv2THTk5dSMV6QG/0S3AhTjSuM8b3P2eouraX
+         YEbZaHBTFq2fFARaDfAFR+W3PRiU1lc1nhL/jxxg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Geliang Tang <geliangtang@gmail.com>
-Subject: [PATCH 5.11 007/306] mptcp: fix length of ADD_ADDR with port sub-option
-Date:   Mon, 15 Mar 2021 14:51:10 +0100
-Message-Id: <20210315135507.868324590@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Kennedy <hurricos@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.11 008/306] ath9k: fix transmitting to stations in dynamic SMPS mode
+Date:   Mon, 15 Mar 2021 14:51:11 +0100
+Message-Id: <20210315135507.902352415@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -44,73 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 27ab92d9996e4e003a726d22c56d780a1655d6b4 upstream.
+commit 3b9ea7206d7e1fdd7419cbd10badd3b2c80d04b4 upstream.
 
-in current Linux, MPTCP peers advertising endpoints with port numbers use
-a sub-option length that wrongly accounts for the trailing TCP NOP. Also,
-receivers will only process incoming ADD_ADDR with port having such wrong
-sub-option length. Fix this, making ADD_ADDR compliant to RFC8684 §3.4.1.
+When transmitting to a receiver in dynamic SMPS mode, all transmissions that
+use multiple spatial streams need to be sent using CTS-to-self or RTS/CTS to
+give the receiver's extra chains some time to wake up.
+This fixes the tx rate getting stuck at <= MCS7 for some clients, especially
+Intel ones, which make aggressive use of SMPS.
 
-this can be verified running tcpdump on the kselftests artifacts:
-
- unpatched kernel:
- [root@bottarga mptcp]# tcpdump -tnnr unpatched.pcap | grep add-addr
- reading from file unpatched.pcap, link-type LINUX_SLL (Linux cooked v1), snapshot length 65535
- IP 10.0.1.1.10000 > 10.0.1.2.53078: Flags [.], ack 101, win 509, options [nop,nop,TS val 214459678 ecr 521312851,mptcp add-addr v1 id 1 a00:201:2774:2d88:7436:85c3:17fd:101], length 0
- IP 10.0.1.2.53078 > 10.0.1.1.10000: Flags [.], ack 101, win 502, options [nop,nop,TS val 521312852 ecr 214459678,mptcp add-addr[bad opt]]
-
- patched kernel:
- [root@bottarga mptcp]# tcpdump -tnnr patched.pcap | grep add-addr
- reading from file patched.pcap, link-type LINUX_SLL (Linux cooked v1), snapshot length 65535
- IP 10.0.1.1.10000 > 10.0.1.2.38178: Flags [.], ack 101, win 509, options [nop,nop,TS val 3728873902 ecr 2732713192,mptcp add-addr v1 id 1 10.0.2.1:10100 hmac 0xbccdfcbe59292a1f,nop,nop], length 0
- IP 10.0.1.2.38178 > 10.0.1.1.10000: Flags [.], ack 101, win 502, options [nop,nop,TS val 2732713195 ecr 3728873902,mptcp add-addr v1-echo id 1 10.0.2.1:10100,nop,nop], length 0
-
-Fixes: 22fb85ffaefb ("mptcp: add port support for ADD_ADDR suboption writing")
-CC: stable@vger.kernel.org # 5.11+
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Acked-and-tested-by: Geliang Tang <geliangtang@gmail.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Reported-by: Martin Kennedy <hurricos@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210214184911.96702-1-nbd@nbd.name
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/protocol.h |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath9k/ath9k.h |    3 ++-
+ drivers/net/wireless/ath/ath9k/xmit.c  |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -50,14 +50,15 @@
- #define TCPOLEN_MPTCP_DSS_MAP64		14
- #define TCPOLEN_MPTCP_DSS_CHECKSUM	2
- #define TCPOLEN_MPTCP_ADD_ADDR		16
--#define TCPOLEN_MPTCP_ADD_ADDR_PORT	20
-+#define TCPOLEN_MPTCP_ADD_ADDR_PORT	18
- #define TCPOLEN_MPTCP_ADD_ADDR_BASE	8
--#define TCPOLEN_MPTCP_ADD_ADDR_BASE_PORT	12
-+#define TCPOLEN_MPTCP_ADD_ADDR_BASE_PORT	10
- #define TCPOLEN_MPTCP_ADD_ADDR6		28
--#define TCPOLEN_MPTCP_ADD_ADDR6_PORT	32
-+#define TCPOLEN_MPTCP_ADD_ADDR6_PORT	30
- #define TCPOLEN_MPTCP_ADD_ADDR6_BASE	20
--#define TCPOLEN_MPTCP_ADD_ADDR6_BASE_PORT	24
--#define TCPOLEN_MPTCP_PORT_LEN		4
-+#define TCPOLEN_MPTCP_ADD_ADDR6_BASE_PORT	22
-+#define TCPOLEN_MPTCP_PORT_LEN		2
-+#define TCPOLEN_MPTCP_PORT_ALIGN	2
- #define TCPOLEN_MPTCP_RM_ADDR_BASE	4
- #define TCPOLEN_MPTCP_FASTCLOSE		12
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -177,7 +177,8 @@ struct ath_frame_info {
+ 	s8 txq;
+ 	u8 keyix;
+ 	u8 rtscts_rate;
+-	u8 retries : 7;
++	u8 retries : 6;
++	u8 dyn_smps : 1;
+ 	u8 baw_tracked : 1;
+ 	u8 tx_power;
+ 	enum ath9k_key_type keytype:2;
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1271,6 +1271,11 @@ static void ath_buf_set_rate(struct ath_
+ 				 is_40, is_sgi, is_sp);
+ 			if (rix < 8 && (tx_info->flags & IEEE80211_TX_CTL_STBC))
+ 				info->rates[i].RateFlags |= ATH9K_RATESERIES_STBC;
++			if (rix >= 8 && fi->dyn_smps) {
++				info->rates[i].RateFlags |=
++					ATH9K_RATESERIES_RTS_CTS;
++				info->flags |= ATH9K_TXDESC_CTSENA;
++			}
  
-@@ -587,8 +588,9 @@ static inline unsigned int mptcp_add_add
- 		len = TCPOLEN_MPTCP_ADD_ADDR6_BASE;
- 	if (!echo)
- 		len += MPTCPOPT_THMAC_LEN;
-+	/* account for 2 trailing 'nop' options */
- 	if (port)
--		len += TCPOLEN_MPTCP_PORT_LEN;
-+		len += TCPOLEN_MPTCP_PORT_LEN + TCPOLEN_MPTCP_PORT_ALIGN;
- 
- 	return len;
- }
+ 			info->txpower[i] = ath_get_rate_txpower(sc, bf, rix,
+ 								is_40, false);
+@@ -2114,6 +2119,7 @@ static void setup_frame_info(struct ieee
+ 		fi->keyix = an->ps_key;
+ 	else
+ 		fi->keyix = ATH9K_TXKEYIX_INVALID;
++	fi->dyn_smps = sta && sta->smps_mode == IEEE80211_SMPS_DYNAMIC;
+ 	fi->keytype = keytype;
+ 	fi->framelen = framelen;
+ 	fi->tx_power = txpower;
 
 
