@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95E1233B800
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB6233B87A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbhCOOBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S231838AbhCOODh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232788AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5820F64F06;
-        Mon, 15 Mar 2021 13:59:36 +0000 (UTC)
+        id S231739AbhCON72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E49D764EEA;
+        Mon, 15 Mar 2021 13:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816777;
-        bh=crdHReBj3aMqOM/98vwY7tguD+5UrMxdp/QNat72IUk=;
+        s=korg; t=1615816746;
+        bh=Qc1qnxsPecgDnHXryVntma+vkYzw7H5JXJVE6H9tgVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hm+JDQDMuBdDaHDjdCLrBJeOSg4VhZTJhfz/Ng3HWs8Q0LJzmD27FDo2HSbZFKJvW
-         IxCrK/1XcHth6LScbKgo7hDtc3Xvi/G9SpU+3VznTZa1ybLeFDqVf7qfR70ci9fSBm
-         FJaiCxvtZMJ0eRZYRD9T9jynPdmb0ZjpkhhKEccI=
+        b=vRxi0eSi+314MNLKXv6C6Bv3cSNmwgyeWlq7tdRrTfAzOQ/E5TKCwI57RD6d+r5Xg
+         gww2EWt7iarLvniR2n8Pg3AiogbyzijzP+6NerCoDi2AGJHyYzn/YjcBbHdYimuX3u
+         gcIGfq/Tyvbwv2zPdb32gSVD5wh9es3N/vmQNcOA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.11 119/306] media: v4l: vsp1: Fix bru null pointer access
-Date:   Mon, 15 Mar 2021 14:53:02 +0100
-Message-Id: <20210315135511.682464855@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 090/290] drm/amdgpu/display: dont assert in set backlight function
+Date:   Mon, 15 Mar 2021 14:53:03 +0100
+Message-Id: <20210315135544.956684536@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +42,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit ac8d82f586c8692b501cb974604a71ef0e22a04c upstream.
+commit dfd8b7fbd985ec1cf76fe10f2875a50b10833740 upstream.
 
-RZ/G2L SoC has only BRS. This patch fixes null pointer access,when only
-BRS is enabled.
+It just spams the logs.
 
-Fixes: cbb7fa49c7466("media: v4l: vsp1: Rename BRU to BRx")
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/vsp1/vsp1_drm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/media/platform/vsp1/vsp1_drm.c
-+++ b/drivers/media/platform/vsp1/vsp1_drm.c
-@@ -245,7 +245,7 @@ static int vsp1_du_pipeline_setup_brx(st
- 		brx = &vsp1->bru->entity;
- 	else if (pipe->brx && !drm_pipe->force_brx_release)
- 		brx = pipe->brx;
--	else if (!vsp1->bru->entity.pipe)
-+	else if (vsp1_feature(vsp1, VSP1_HAS_BRU) && !vsp1->bru->entity.pipe)
- 		brx = &vsp1->bru->entity;
- 	else
- 		brx = &vsp1->brs->entity;
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2555,7 +2555,6 @@ bool dc_link_set_backlight_level(const s
+ 			if (pipe_ctx->plane_state == NULL)
+ 				frame_ramp = 0;
+ 		} else {
+-			ASSERT(false);
+ 			return false;
+ 		}
+ 
 
 
