@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 808ED33B7CD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A93C733BA56
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233305AbhCOOBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S235438AbhCOOI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232760AbhCON7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77C2864F87;
-        Mon, 15 Mar 2021 13:59:25 +0000 (UTC)
+        id S234318AbhCOODM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 169B064DAD;
+        Mon, 15 Mar 2021 14:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816766;
-        bh=aub/wW0L/r+PGDezeTTgN6pqKalUmmN9zQjC8nJQYcM=;
+        s=korg; t=1615816992;
+        bh=V7viz8xu8N8sJYEkw/htq8X3o9dPilKEp2U4S6NTMI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WnUYN7Q/s3SVSjoqUpJEHNa36QvNZ3gEMogx7vJdGw8TTv1IaGl3UUQcHzFKeFlzn
-         cYKCa0cwatYRwyuIFsDP3TJsLt5R3Tnjis/QzFbP14Bhpb8dBgzwQTDuDZaps+pkX9
-         TU5ElnaaP2yCLqHhAaexLLgWPpGx7jwlfLlDiKEc=
+        b=sq3OpH8mX7mNXkyX8bUg4UT734sepzJ1xfg/0XnyxPEmcKmZNqS3iglX8f8xUq2A/
+         ufAGjhU/GrMkLghrEARr2fEh+IJxtSDBE7S/KW7d9eF7xrUiGEPpMdojPspgbRdmDr
+         XxlNvipSWq1v6Em6VBh8TjiYlCow/x5LLgB2E4yE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 095/168] ALSA: usb-audio: Apply the control quirk to Plantronics headsets
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.10 234/290] staging: comedi: adv_pci1710: Fix endian problem for AI command data
 Date:   Mon, 15 Mar 2021 14:55:27 +0100
-Message-Id: <20210315135553.496783438@linuxfoundation.org>
+Message-Id: <20210315135549.892348450@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 06abcb18b3a021ba1a3f2020cbefb3ed04e59e72 upstream.
+commit b2e78630f733a76508b53ba680528ca39c890e82 upstream.
 
-Other Plantronics headset models seem requiring the same workaround as
-C320-M to add the 20ms delay for the control messages, too.  Apply the
-workaround generically for devices with the vendor ID 0x047f.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the calls to
+`comedi_buf_write_samples()` are passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variables
+holding the sample value to `unsigned short`.  The type of the `val`
+parameter of `pci1710_ai_read_sample()` is changed to `unsigned short *`
+accordingly.  The type of the `val` variable in `pci1710_ai_insn_read()`
+is also changed to `unsigned short` since its address is passed to
+`pci1710_ai_read_sample()`.
 
-Note that the problem didn't surface before 5.11 just with luck.
-Since 5.11 got a big code rewrite about the stream handling, the
-parameter setup procedure has changed, and this seemed triggering the
-problem more often.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182552
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210304085009.4770-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: a9c3a015c12f ("staging: comedi: adv_pci1710: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 4.0+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-4-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/comedi/drivers/adv_pci1710.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1606,10 +1606,10 @@ void snd_usb_ctl_msg_quirk(struct usb_de
- 		msleep(20);
+--- a/drivers/staging/comedi/drivers/adv_pci1710.c
++++ b/drivers/staging/comedi/drivers/adv_pci1710.c
+@@ -300,11 +300,11 @@ static int pci1710_ai_eoc(struct comedi_
+ static int pci1710_ai_read_sample(struct comedi_device *dev,
+ 				  struct comedi_subdevice *s,
+ 				  unsigned int cur_chan,
+-				  unsigned int *val)
++				  unsigned short *val)
+ {
+ 	const struct boardtype *board = dev->board_ptr;
+ 	struct pci1710_private *devpriv = dev->private;
+-	unsigned int sample;
++	unsigned short sample;
+ 	unsigned int chan;
  
- 	/*
--	 * Plantronics C320-M needs a delay to avoid random
--	 * microhpone failures.
-+	 * Plantronics headsets (C320, C320-M, etc) need a delay to avoid
-+	 * random microhpone failures.
- 	 */
--	if (chip->usb_id == USB_ID(0x047f, 0xc025)  &&
-+	if (USB_ID_VENDOR(chip->usb_id) == 0x047f &&
- 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
- 		msleep(20);
+ 	sample = inw(dev->iobase + PCI171X_AD_DATA_REG);
+@@ -345,7 +345,7 @@ static int pci1710_ai_insn_read(struct c
+ 	pci1710_ai_setup_chanlist(dev, s, &insn->chanspec, 1, 1);
  
+ 	for (i = 0; i < insn->n; i++) {
+-		unsigned int val;
++		unsigned short val;
+ 
+ 		/* start conversion */
+ 		outw(0, dev->iobase + PCI171X_SOFTTRG_REG);
+@@ -395,7 +395,7 @@ static void pci1710_handle_every_sample(
+ {
+ 	struct comedi_cmd *cmd = &s->async->cmd;
+ 	unsigned int status;
+-	unsigned int val;
++	unsigned short val;
+ 	int ret;
+ 
+ 	status = inw(dev->iobase + PCI171X_STATUS_REG);
+@@ -455,7 +455,7 @@ static void pci1710_handle_fifo(struct c
+ 	}
+ 
+ 	for (i = 0; i < devpriv->max_samples; i++) {
+-		unsigned int val;
++		unsigned short val;
+ 		int ret;
+ 
+ 		ret = pci1710_ai_read_sample(dev, s, s->async->cur_chan, &val);
 
 
