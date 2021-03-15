@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF3633B83E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 079B333B852
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233841AbhCOOCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S233933AbhCOOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229683AbhCOOAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 249D764F34;
-        Mon, 15 Mar 2021 13:59:59 +0000 (UTC)
+        id S232735AbhCOOAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6210364EEA;
+        Mon, 15 Mar 2021 14:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816801;
-        bh=JenUZER30KxouxqsM2Q3lyzzCgK0ZOPHs2FtCukF018=;
+        s=korg; t=1615816802;
+        bh=XlqWqZdMo0szd/He4PcWUcQJerYiwbYteG1qsO7llho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JhiFYlyZ0R39RRSd4olTcDkq+aSuj1O0vLBLbr83wquLN4f2NwOg/Lp2YVNW1BZow
-         br40gK4/HkYXuW2j+LQjmlZun0KOwh2p2u8nq4ceYykwQjLOf2Imz++K6Upug6AQ1K
-         UGHJ6IQ8p3MWfTVIhJs99ZOTvtHWF70/AoZ9Gf98=
+        b=A36lzJ2AFNJFkgqrUqJg2StEgqnrwkEwCu87n2AkDeo3x0O2zNIq3jOEkeQA3UPxW
+         IuX8X52n9yuq/NEpFi6QR+xXtO87Te9sM8Zg1REptJUDF90ayMvUb/O5IA36HslRgp
+         1lwXDLzKyKlRXrtPjGuV+EF9dm05Pi92j5+acdCA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 077/120] xhci: Improve detection of device initiated wake signal.
-Date:   Mon, 15 Mar 2021 14:57:08 +0100
-Message-Id: <20210315135722.493529122@linuxfoundation.org>
+Subject: [PATCH 4.19 078/120] usb: xhci: Fix ASMedia ASM1042A and ASM3242 DMA addressing
+Date:   Mon, 15 Mar 2021 14:57:09 +0100
+Message-Id: <20210315135722.524547726@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -41,69 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Forest Crossman <cyrozap@gmail.com>
 
-commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
+commit b71c669ad8390dd1c866298319ff89fe68b45653 upstream.
 
-A xHC USB 3 port might miss the first wake signal from a USB 3 device
-if the port LFPS reveiver isn't enabled fast enough after xHC resume.
+I've confirmed that both the ASMedia ASM1042A and ASM3242 have the same
+problem as the ASM1142 and ASM2142/ASM3142, where they lose some of the
+upper bits of 64-bit DMA addresses. As with the other chips, this can
+cause problems on systems where the upper bits matter, and adding the
+XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
 
-xHC host will anyway be resumed by a PME# signal, but will go back to
-suspend if no port activity is seen.
-The device resends the U3 LFPS wake signal after a 100ms delay, but
-by then host is already suspended, starting all over from the
-beginning of this issue.
-
-USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
-needs to delay 100ms before resending the wake.
-
-Don't suspend immediately if port activity isn't detected in resume.
-Instead add a retry. If there is no port activity then delay for 120ms,
-and re-check for port activity.
-
-Cc: <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20210311115353.2137560-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-pci.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1078,6 +1078,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 	struct usb_hcd		*secondary_hcd;
- 	int			retval = 0;
- 	bool			comp_timer_running = false;
-+	bool			pending_portevent = false;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -53,6 +53,7 @@
+ #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
+ #define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
+ #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
++#define PCI_DEVICE_ID_ASMEDIA_3242_XHCI			0x3242
  
- 	if (!hcd->state)
- 		return 0;
-@@ -1216,13 +1217,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ static const char hcd_name[] = "xhci_hcd";
  
-  done:
- 	if (retval == 0) {
--		/* Resume root hubs only when have pending events. */
--		if (xhci_pending_portevent(xhci)) {
-+		/*
-+		 * Resume roothubs only if there are pending events.
-+		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
-+		 * the first wake signalling failed, give it that chance.
-+		 */
-+		pending_portevent = xhci_pending_portevent(xhci);
-+		if (!pending_portevent) {
-+			msleep(120);
-+			pending_portevent = xhci_pending_portevent(xhci);
-+		}
-+
-+		if (pending_portevent) {
- 			usb_hcd_resume_root_hub(xhci->shared_hcd);
- 			usb_hcd_resume_root_hub(hcd);
- 		}
- 	}
--
- 	/*
- 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
- 	 * be re-initialized Always after a system resume. Ports are subject
+@@ -237,11 +238,14 @@ static void xhci_pci_quirks(struct devic
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+-		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
++		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
++	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_3242_XHCI))
+ 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
 
 
