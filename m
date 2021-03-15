@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD7733B88E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 957E133B7D1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbhCOODv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S233317AbhCOOBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233013AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88E6864F16;
-        Mon, 15 Mar 2021 14:00:10 +0000 (UTC)
+        id S232588AbhCON7k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB8EC64F1E;
+        Mon, 15 Mar 2021 13:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816811;
-        bh=F54PcwDAnn2FMWaao0DWhknqEzjDpPH545XJu/fYX0Q=;
+        s=korg; t=1615816763;
+        bh=pfIAXWKZmuag7c469syRF6DCSzceqdP9NHUCv7Jq1hU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhmUj1NuBejK6oV+G4Mkesx+t27KGd7bIG7S2cz50L8rPtnQWjFd7UjiIYzhmeMo/
-         4enMsAVe5gNaofFJkPixwoX0FVGF7ESvwG9r3nlZ2n7LkJ2ey/mzE2xMjxSytb/TUU
-         pck0IlJMiVeD5Dwsp46PDz9F5/stFtLRjlAOSMMw=
+        b=mzAWz6pK4QBXnBQTAQ3H4W+CGCHdyQ6isr5vMPhKVGGrqjttsIovEUxk2ewg910kG
+         QLZKeV22HoafjaGeWh4F5gwDGXHEwl7f0wKvDD1N6nbYZt4GNWLQOcJNrU0wjr/0Ql
+         dMgDXJNIwETFPw8bwXg9oNYoqH35v6l+N0rvYrbU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.19 084/120] usbip: fix vhci_hcd to check for stream socket
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 4.14 45/95] Revert 95ebabde382c ("capabilities: Dont allow writing ambiguous v3 file capabilities")
 Date:   Mon, 15 Mar 2021 14:57:15 +0100
-Message-Id: <20210315135722.714558186@linuxfoundation.org>
+Message-Id: <20210315135741.754216761@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-commit f55a0571690c4aae03180e001522538c0927432f upstream.
+commit 3b0c2d3eaa83da259d7726192cf55a137769012f upstream.
 
-Fix attach_store() to validate the passed in file descriptor is a
-stream socket. If the file descriptor passed was a SOCK_DGRAM socket,
-sock_recvmsg() can't detect end of stream.
+It turns out that there are in fact userspace implementations that
+care and this recent change caused a regression.
+
+https://github.com/containers/buildah/issues/3071
+
+As the motivation for the original change was future development,
+and the impact is existing real world code just revert this change
+and allow the ambiguity in v3 file caps.
 
 Cc: stable@vger.kernel.org
-Suggested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/52712aa308915bda02cece1589e04ee8b401d1f3.1615171203.git.skhan@linuxfoundation.org
+Fixes: 95ebabde382c ("capabilities: Don't allow writing ambiguous v3 file capabilities")
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vhci_sysfs.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ security/commoncap.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -349,8 +349,16 @@ static ssize_t attach_store(struct devic
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -507,8 +507,7 @@ int cap_convert_nscap(struct dentry *den
+ 	__u32 magic, nsmagic;
+ 	struct inode *inode = d_backing_inode(dentry);
+ 	struct user_namespace *task_ns = current_user_ns(),
+-		*fs_ns = inode->i_sb->s_user_ns,
+-		*ancestor;
++		*fs_ns = inode->i_sb->s_user_ns;
+ 	kuid_t rootid;
+ 	size_t newsize;
  
- 	/* Extract socket from fd. */
- 	socket = sockfd_lookup(sockfd, &err);
--	if (!socket)
-+	if (!socket) {
-+		dev_err(dev, "failed to lookup sock");
+@@ -531,15 +530,6 @@ int cap_convert_nscap(struct dentry *den
+ 	if (nsrootid == -1)
  		return -EINVAL;
-+	}
-+	if (socket->type != SOCK_STREAM) {
-+		dev_err(dev, "Expecting SOCK_STREAM - found %d",
-+			socket->type);
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
  
- 	/* now need lock until setting vdev status as used */
- 
+-	/*
+-	 * Do not allow allow adding a v3 filesystem capability xattr
+-	 * if the rootid field is ambiguous.
+-	 */
+-	for (ancestor = task_ns->parent; ancestor; ancestor = ancestor->parent) {
+-		if (from_kuid(ancestor, rootid) == 0)
+-			return -EINVAL;
+-	}
+-
+ 	newsize = sizeof(struct vfs_ns_cap_data);
+ 	nscap = kmalloc(newsize, GFP_ATOMIC);
+ 	if (!nscap)
 
 
