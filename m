@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 527A733B9AE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11EE533B9DD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232070AbhCOOGa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S234998AbhCOOGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233437AbhCOOBl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABB0964EF1;
-        Mon, 15 Mar 2021 14:01:21 +0000 (UTC)
+        id S233497AbhCOOBw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2729B64F16;
+        Mon, 15 Mar 2021 14:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816883;
-        bh=t2kXVhCygr/Irc8LjJKIfjkulQLJyD61VWf/iS374OQ=;
+        s=korg; t=1615816912;
+        bh=198ZG1tjpE0eJK8e0iIWR6GPw4Ku9YEGd3F79jUu4mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=irE2G8pq1tucTngCACEU17q5NrJG4t4Sp/GMUPqpHV7Rjd08o141Q8d+yVoRmcfNj
-         5IuJ3TQwdCpzSw+sB1ZxZEhFft6oELMH4rZbMZasU6vki1dLhNIWk6ul4Rf7xK3Kq+
-         Y0hkcTTVAfs2HbvSG1YMYhPmPV98YNprrkIjJxFw=
+        b=JKDaEXorHU5gTrGUaRqf84Cpjr+YkT6w/ssoB1o5hBhgWkkJx6c1jawCGYWM8gwpd
+         RBSxAVn/z+NplSmPtWpXJChHx36GOugaNMQNpVRu17Qlo8qLYI6jnsRG1uzcaqwGo7
+         KPGcgRIA0RZ42KPMwUEdN0CUggxjZUIBulwdIQK4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 167/290] mmc: sdhci: Update firmware interface API
+        stable@vger.kernel.org, Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Subject: [PATCH 5.11 197/306] usb: gadget: f_uac1: stop playback on function disable
 Date:   Mon, 15 Mar 2021 14:54:20 +0100
-Message-Id: <20210315135547.545767872@linuxfoundation.org>
+Message-Id: <20210315135514.284526721@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit c5b1c6dc13daec60405ecd31eaa5379a9f798fa8 ]
+commit cc2ac63d4cf72104e0e7f58bb846121f0f51bb19 upstream.
 
-The device_* calls were added a few years ago to abstract
-DT/ACPI/fwnode firmware interfaces. Lets convert the two
-sdhci caps fields to use the generic calls rather than the OF
-specific ones. This has the side effect of allowing
-ACPI based devices to quirk themselves when the caps field
-is broken.
+There is missing playback stop/cleanup in case of
+gadget's ->disable callback that happens on
+events like USB host resetting or gadget disconnection
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Link: https://lore.kernel.org/r/20201120233831.447365-1-jeremy.linton@arm.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
+Cc: <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-3-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/gadget/function/f_uac1.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/sdhci.c b/drivers/mmc/host/sdhci.c
-index 3561ae8a481a..6edf9fffd934 100644
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -3994,10 +3994,10 @@ void __sdhci_read_caps(struct sdhci_host *host, const u16 *ver,
- 	if (host->v4_mode)
- 		sdhci_do_enable_v4_mode(host);
+--- a/drivers/usb/gadget/function/f_uac1.c
++++ b/drivers/usb/gadget/function/f_uac1.c
+@@ -499,6 +499,7 @@ static void f_audio_disable(struct usb_f
+ 	uac1->as_out_alt = 0;
+ 	uac1->as_in_alt = 0;
  
--	of_property_read_u64(mmc_dev(host->mmc)->of_node,
--			     "sdhci-caps-mask", &dt_caps_mask);
--	of_property_read_u64(mmc_dev(host->mmc)->of_node,
--			     "sdhci-caps", &dt_caps);
-+	device_property_read_u64_array(mmc_dev(host->mmc),
-+				       "sdhci-caps-mask", &dt_caps_mask, 1);
-+	device_property_read_u64_array(mmc_dev(host->mmc),
-+				       "sdhci-caps", &dt_caps, 1);
++	u_audio_stop_playback(&uac1->g_audio);
+ 	u_audio_stop_capture(&uac1->g_audio);
+ }
  
- 	v = ver ? *ver : sdhci_readw(host, SDHCI_HOST_VERSION);
- 	host->version = (v & SDHCI_SPEC_VER_MASK) >> SDHCI_SPEC_VER_SHIFT;
--- 
-2.30.1
-
 
 
