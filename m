@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A94A33B889
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A81BA33B932
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbhCOODs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
+        id S232010AbhCOOFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232424AbhCON6z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B414964EF5;
-        Mon, 15 Mar 2021 13:58:32 +0000 (UTC)
+        id S233157AbhCOOAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C0FC64F18;
+        Mon, 15 Mar 2021 14:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816713;
-        bh=c70IG+VB8ncOdGxuRJ1obj0Jia9KWRQxTT5aMZpEW70=;
+        s=korg; t=1615816832;
+        bh=P2QOQYIZikTPjf1XFpcVc68IDWfLnmcVV5erqVDP8Jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvLfSvOUkRRXXnCMw/5lES0aq7OXNyKCajhfoghc4DsMGS386V21D7/JlIKZsjywG
-         vIKERyeS+6GqsbDpWK7bvllbSLu+//fEFSmvOAEK0RKggZaTYwGgwrbKnxZ7NkMzGN
-         Ktv9eC0FomuNqlHTxEfngB3jab4Yv/r1M7JOcfd0=
+        b=vQ+N5EsGybrS7wqyL8swN/GiRuBCbzPXi7nJcYCex097a+0ZxuHKDpyJQs5MDabIU
+         cUFd6mBHCeUolCpTzVGZE0kH8wg/nGZJr5+nchY/PBUBD50ssTsdG2Ozt8P5UTAUiF
+         GL1SN65r9vidqaf03FXrp3h0f50a9ek6A8oCaPXc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 022/120] net: sched: avoid duplicates in classes dump
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.4 141/168] staging: comedi: pcl711: Fix endian problem for AI command data
 Date:   Mon, 15 Mar 2021 14:56:13 +0100
-Message-Id: <20210315135720.725983786@linuxfoundation.org>
+Message-Id: <20210315135554.974399373@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maximilian Heyne <mheyne@amazon.de>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit bfc2560563586372212b0a8aeca7428975fa91fe upstream.
+commit a084303a645896e834883f2c5170d044410dfdb3 upstream.
 
-This is a follow up of commit ea3274695353 ("net: sched: avoid
-duplicates in qdisc dump") which has fixed the issue only for the qdisc
-dump.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the call to
+`comedi_buf_write_samples()` is passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variable
+holding the sample value to `unsigned short`.
 
-The duplicate printing also occurs when dumping the classes via
-  tc class show dev eth0
-
-Fixes: 59cc1f61f09c ("net: sched: convert qdisc linked list to hashtable")
-Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1f44c034de2e ("staging: comedi: pcl711: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-9-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_api.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/staging/comedi/drivers/pcl711.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -2048,7 +2048,7 @@ static int tc_dump_tclass_qdisc(struct Q
+--- a/drivers/staging/comedi/drivers/pcl711.c
++++ b/drivers/staging/comedi/drivers/pcl711.c
+@@ -184,7 +184,7 @@ static irqreturn_t pcl711_interrupt(int
+ 	struct comedi_device *dev = d;
+ 	struct comedi_subdevice *s = dev->read_subdev;
+ 	struct comedi_cmd *cmd = &s->async->cmd;
+-	unsigned int data;
++	unsigned short data;
  
- static int tc_dump_tclass_root(struct Qdisc *root, struct sk_buff *skb,
- 			       struct tcmsg *tcm, struct netlink_callback *cb,
--			       int *t_p, int s_t)
-+			       int *t_p, int s_t, bool recur)
- {
- 	struct Qdisc *q;
- 	int b;
-@@ -2059,7 +2059,7 @@ static int tc_dump_tclass_root(struct Qd
- 	if (tc_dump_tclass_qdisc(root, skb, tcm, cb, t_p, s_t) < 0)
- 		return -1;
- 
--	if (!qdisc_dev(root))
-+	if (!qdisc_dev(root) || !recur)
- 		return 0;
- 
- 	if (tcm->tcm_parent) {
-@@ -2094,13 +2094,13 @@ static int tc_dump_tclass(struct sk_buff
- 	s_t = cb->args[0];
- 	t = 0;
- 
--	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t) < 0)
-+	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
- 		goto done;
- 
- 	dev_queue = dev_ingress_queue(dev);
- 	if (dev_queue &&
- 	    tc_dump_tclass_root(dev_queue->qdisc_sleeping, skb, tcm, cb,
--				&t, s_t) < 0)
-+				&t, s_t, false) < 0)
- 		goto done;
- 
- done:
+ 	if (!dev->attached) {
+ 		dev_err(dev->class_dev, "spurious interrupt\n");
 
 
