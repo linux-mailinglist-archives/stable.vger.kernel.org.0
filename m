@@ -2,47 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A7433B93A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CD833B83C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231904AbhCOOFm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:42 -0400
+        id S233817AbhCOOC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:29 -0400
 Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233249AbhCOOBN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1546264F21;
-        Mon, 15 Mar 2021 14:00:48 +0000 (UTC)
+        id S232939AbhCOOAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7649764F09;
+        Mon, 15 Mar 2021 13:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816851;
-        bh=F7ooJGIPfcpYwlEUhOQ2t4Gu4YpBSugLrYGOn/zF/y4=;
+        s=korg; t=1615816800;
+        bh=qGJDHKHscL4c0vYzroDgIRcH/wbB5wiswAGnbwBhUBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hsVYpUF/r4s5iyUNf3E4ygKXs/yjtrTm1OVI08CsYq3STOWSNEI30dVsZr+V4sucM
-         I1rtasTdlVWcVxdUeSzfYg/18BwP3wYKC0195pD2cTS3t6ZfRT97XxXmRnD9j0Sb4y
-         2+SLO2l7PKH8dUSppjxcqjUpKJMq+f1z6Tqv11ug=
+        b=U3k1tbbJZpKHnU5Zdv6yoDrf7NYNQbNWyTFpneRzXSen9dAhCOE98M6nOSxNg4RIN
+         NUWVPBGgtasRWTugdZkAd7zkkha/ht7+ULgv7Sbs/XUosLa0VhqNZf4WyV3mLSuglq
+         c0wfiRjbg0ip7M//kYCjrnWxRXTA8u42bIy/VVhU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 110/120] stop_machine: mark helpers __always_inline
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lee Gibson <leegib@gmail.com>
+Subject: [PATCH 4.14 71/95] staging: rtl8192e: Fix possible buffer overflow in _rtl92e_wx_set_scan
 Date:   Mon, 15 Mar 2021 14:57:41 +0100
-Message-Id: <20210315135723.585169706@linuxfoundation.org>
+Message-Id: <20210315135742.600469303@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +41,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Lee Gibson <leegib@gmail.com>
 
-[ Upstream commit cbf78d85079cee662c45749ef4f744d41be85d48 ]
+commit 8687bf9ef9551bcf93897e33364d121667b1aadf upstream.
 
-With clang-13, some functions only get partially inlined, with a
-specialized version referring to a global variable.  This triggers a
-harmless build-time check for the intel-rng driver:
+Function _rtl92e_wx_set_scan calls memcpy without checking the length.
+A user could control that length and trigger a buffer overflow.
+Fix by checking the length is within the maximum allowed size.
 
-WARNING: modpost: drivers/char/hw_random/intel-rng.o(.text+0xe): Section mismatch in reference from the function stop_machine() to the function .init.text:intel_rng_hw_init()
-The function stop_machine() references
-the function __init intel_rng_hw_init().
-This is often because stop_machine lacks a __init
-annotation or the annotation of intel_rng_hw_init is wrong.
-
-In this instance, an easy workaround is to force the stop_machine()
-function to be inline, along with related interfaces that did not show the
-same behavior at the moment, but theoretically could.
-
-The combination of the two patches listed below triggers the behavior in
-clang-13, but individually these commits are correct.
-
-Link: https://lkml.kernel.org/r/20210225130153.1956990-1-arnd@kernel.org
-Fixes: fe5595c07400 ("stop_machine: Provide stop_machine_cpuslocked()")
-Fixes: ee527cd3a20c ("Use stop_machine_run in the Intel RNG driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lee Gibson <leegib@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210226145157.424065-1-leegib@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/stop_machine.h | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/staging/rtl8192e/rtl8192e/rtl_wx.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/stop_machine.h b/include/linux/stop_machine.h
-index 6d3635c86dbe..ccdaa8fd5657 100644
---- a/include/linux/stop_machine.h
-+++ b/include/linux/stop_machine.h
-@@ -138,7 +138,7 @@ int stop_machine_from_inactive_cpu(cpu_stop_fn_t fn, void *data,
- 				   const struct cpumask *cpus);
- #else	/* CONFIG_SMP || CONFIG_HOTPLUG_CPU */
+--- a/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
++++ b/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
+@@ -419,9 +419,10 @@ static int _rtl92e_wx_set_scan(struct ne
+ 		struct iw_scan_req *req = (struct iw_scan_req *)b;
  
--static inline int stop_machine_cpuslocked(cpu_stop_fn_t fn, void *data,
-+static __always_inline int stop_machine_cpuslocked(cpu_stop_fn_t fn, void *data,
- 					  const struct cpumask *cpus)
- {
- 	unsigned long flags;
-@@ -149,14 +149,15 @@ static inline int stop_machine_cpuslocked(cpu_stop_fn_t fn, void *data,
- 	return ret;
- }
+ 		if (req->essid_len) {
+-			ieee->current_network.ssid_len = req->essid_len;
+-			memcpy(ieee->current_network.ssid, req->essid,
+-			       req->essid_len);
++			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
++
++			ieee->current_network.ssid_len = len;
++			memcpy(ieee->current_network.ssid, req->essid, len);
+ 		}
+ 	}
  
--static inline int stop_machine(cpu_stop_fn_t fn, void *data,
--			       const struct cpumask *cpus)
-+static __always_inline int
-+stop_machine(cpu_stop_fn_t fn, void *data, const struct cpumask *cpus)
- {
- 	return stop_machine_cpuslocked(fn, data, cpus);
- }
- 
--static inline int stop_machine_from_inactive_cpu(cpu_stop_fn_t fn, void *data,
--						 const struct cpumask *cpus)
-+static __always_inline int
-+stop_machine_from_inactive_cpu(cpu_stop_fn_t fn, void *data,
-+			       const struct cpumask *cpus)
- {
- 	return stop_machine(fn, data, cpus);
- }
--- 
-2.30.1
-
 
 
