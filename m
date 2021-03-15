@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4176233B71D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 064BC33B566
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhCON7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35644 "EHLO mail.kernel.org"
+        id S231301AbhCONyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232084AbhCON5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2368064F19;
-        Mon, 15 Mar 2021 13:57:42 +0000 (UTC)
+        id S231126AbhCONxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA05E64EEC;
+        Mon, 15 Mar 2021 13:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816664;
-        bh=KyhRkJu76SQjITrL0Y+C/w9/g1Uj7Z66XJy9r1h2G1c=;
+        s=korg; t=1615816430;
+        bh=HCJa9TYHWg0WZQI2llOpeLP5sN/gHL88pDnxAHrsfk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZ2ZlV4jatvHRMlt9zjELVbjYxgPzrr00k9XrQUDpMhKa/JHDSIsyQ45d7zS3Um7E
-         2dQOi03Z6zj3yof/uHI42SVzZ48i1OV6RJx9Nwt0iRZL3T8EExXK1oyfuSKbkMj6Fr
-         2dhxHEfv76Q3ZgQgTLvSMhpUVSU3Ugpzzb92rvIU=
+        b=qKXFX5/htOoD6Rv5/tLMAXzXf2qIlyltSRLm6rUKKwJ+bfFOGNKoCxfSKCEOCrve+
+         SVF0JUjJ06oRuG0vdaGwH3WkZFSiLO2rh98unK5nqae5IT9wCks25isD4MnkMcybOp
+         DMguwaKkvtD4US0nhyJZl67Bs+0zt2oCCHv9nDOM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Markus=20Bl=C3=B6chl?= <Markus.Bloechl@ipetronik.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 050/306] net: enetc: dont disable VLAN filtering in IFF_PROMISC mode
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 39/75] USB: serial: cp210x: add some more GE USB IDs
 Date:   Mon, 15 Mar 2021 14:51:53 +0100
-Message-Id: <20210315135509.342682516@linuxfoundation.org>
+Message-Id: <20210315135209.528655032@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-commit a74dbce9d4541888fe0d39afe69a3a95004669b4 upstream.
+commit 42213a0190b535093a604945db05a4225bf43885 upstream.
 
-Quoting from the blamed commit:
+GE CS1000 has some more custom USB IDs for CP2102N; add them
+to the driver to have working auto-probing.
 
-    In promiscuous mode, it is more intuitive that all traffic is received,
-    including VLAN tagged traffic. It appears that it is necessary to set
-    the flag in PSIPVMR for that to be the case, so VLAN promiscuous mode is
-    also temporarily enabled. On exit from promiscuous mode, the setting
-    made by ethtool is restored.
-
-Intuitive or not, there isn't any definition issued by a standards body
-which says that promiscuity has anything to do with VLAN filtering - it
-only has to do with accepting packets regardless of destination MAC address.
-
-In fact people are already trying to use this misunderstanding/bug of
-the enetc driver as a justification to transform promiscuity into
-something it never was about: accepting every packet (maybe that would
-be the "rx-all" netdev feature?):
-https://lore.kernel.org/netdev/20201110153958.ci5ekor3o2ekg3ky@ipetronik.com/
-
-This is relevant because there are use cases in the kernel (such as
-tc-flower rules with the protocol 802.1Q and a vlan_id key) which do not
-(yet) use the vlan_vid_add API to be compatible with VLAN-filtering NICs
-such as enetc, so for those, disabling rx-vlan-filter is currently the
-only right solution to make these setups work:
-https://lore.kernel.org/netdev/CA+h21hoxwRdhq4y+w8Kwgm74d4cA0xLeiHTrmT-VpSaM7obhkg@mail.gmail.com/
-The blamed patch has unintentionally introduced one more way for this to
-work, which is to enable IFF_PROMISC, however this is non-portable
-because port promiscuity is not meant to disable VLAN filtering.
-Therefore, it could invite people to write broken scripts for enetc, and
-then wonder why they are broken when migrating to other drivers that
-don't handle promiscuity in the same way.
-
-Fixes: 7070eea5e95a ("enetc: permit configuration of rx-vlan-filter with ethtool")
-Cc: Markus Blöchl <Markus.Bloechl@ipetronik.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_pf.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -190,7 +190,6 @@ static void enetc_pf_set_rx_mode(struct
- {
- 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
- 	struct enetc_pf *pf = enetc_si_priv(priv->si);
--	char vlan_promisc_simap = pf->vlan_promisc_simap;
- 	struct enetc_hw *hw = &priv->si->hw;
- 	bool uprom = false, mprom = false;
- 	struct enetc_mac_filter *filter;
-@@ -203,16 +202,12 @@ static void enetc_pf_set_rx_mode(struct
- 		psipmr = ENETC_PSIPMR_SET_UP(0) | ENETC_PSIPMR_SET_MP(0);
- 		uprom = true;
- 		mprom = true;
--		/* Enable VLAN promiscuous mode for SI0 (PF) */
--		vlan_promisc_simap |= BIT(0);
- 	} else if (ndev->flags & IFF_ALLMULTI) {
- 		/* enable multi cast promisc mode for SI0 (PF) */
- 		psipmr = ENETC_PSIPMR_SET_MP(0);
- 		mprom = true;
- 	}
- 
--	enetc_set_vlan_promisc(&pf->si->hw, vlan_promisc_simap);
--
- 	/* first 2 filter entries belong to PF */
- 	if (!uprom) {
- 		/* Update unicast filters */
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -199,6 +199,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
++	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
++	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
+ 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
 
 
