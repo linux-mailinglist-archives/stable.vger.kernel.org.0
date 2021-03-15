@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F22A33B7C5
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17EFD33B74A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232418AbhCOOBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S232832AbhCOOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231673AbhCON7k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01FF164F07;
-        Mon, 15 Mar 2021 13:59:21 +0000 (UTC)
+        id S232559AbhCON7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6224F64EEF;
+        Mon, 15 Mar 2021 13:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816763;
-        bh=+6XnFK6k1kgA4CbStrWf4Fa4e0eBbvtL+qYw5ciU/Ts=;
+        s=korg; t=1615816730;
+        bh=ARJ3dRydyS1Ffdu3I1F0lWkWNccCt51wguNDYPItEfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NagDYlMUm4j0050NBeN0eXe+fQxQOKeDqyp1mScfC10pFCAEUpRA6GRT5OJdLx3oj
-         QBDou6/VKVqkCWPIdB3SFjtFz+YPQRQ1raEH0DXVK1e5qxD6w1fw11fMreaPAVOV5Y
-         kLNmsBqcYi7eb4ee5NNuavFC0bB7EgcsueduzEjw=
+        b=rhHlTOJ+jS+o3E1gBfFBUWChNrWMDDkpcIATCmH+B1I3fWyltP2MAKKDWIHfDtCcw
+         SPfky+EFgW6r+sSWAIf/6qXWWvCUghKOcs8To1RibYTA3qWzGCZkqmMhQ83pBwKuQg
+         oDDUdUi9359ny5HtiIpt7Yw6EQIocYBugDX30zzE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.11 110/306] drm/shmem-helpers: vunmap: Dont put pages for dma-buf
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 080/290] gpiolib: acpi: Allow to find GpioInt() resource by name and index
 Date:   Mon, 15 Mar 2021 14:52:53 +0100
-Message-Id: <20210315135511.364599516@linuxfoundation.org>
+Message-Id: <20210315135544.620625395@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Noralf Trønnes <noralf@tronnes.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 64e194e278673bceb68fb2dde7dbc3d812bfceb3 upstream.
+commit 809390219fb9c2421239afe5c9eb862d73978ba0 upstream.
 
-dma-buf importing was reworked in commit 7d2cd72a9aa3
-("drm/shmem-helpers: Simplify dma-buf importing"). Before that commit
-drm_gem_shmem_prime_import_sg_table() did set ->pages_use_count=1 and
-drm_gem_shmem_vunmap_locked() could call drm_gem_shmem_put_pages()
-unconditionally. Now without the use count set, put pages is called also
-on dma-bufs. Fix this by only putting pages if it's not imported.
+Currently only search by index is supported. However, in some cases
+we might need to pass the quirks to the acpi_dev_gpio_irq_get().
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Fixes: 7d2cd72a9aa3 ("drm/shmem-helpers: Simplify dma-buf importing")
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210219122203.51130-1-noralf@tronnes.org
-(cherry picked from commit cdea72518a2b38207146e92e1c9e2fac15975679)
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+For this, split out acpi_dev_gpio_irq_get_by() and replace
+acpi_dev_gpio_irq_get() by calling above with NULL for name parameter.
+
+Fixes: ba8c90c61847 ("gpio: pca953x: Override IRQ for one of the expanders on Galileo Gen 2")
+Depends-on: 0ea683931adb ("gpio: dwapb: Convert driver to using the GPIO-lib-based IRQ-chip")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpio/gpiolib-acpi.c |   12 ++++++++----
+ include/linux/acpi.h        |   10 ++++++++--
+ 2 files changed, 16 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -357,13 +357,14 @@ static void drm_gem_shmem_vunmap_locked(
- 	if (--shmem->vmap_use_count > 0)
- 		return;
- 
--	if (obj->import_attach)
-+	if (obj->import_attach) {
- 		dma_buf_vunmap(obj->import_attach->dmabuf, map);
--	else
-+	} else {
- 		vunmap(shmem->vaddr);
-+		drm_gem_shmem_put_pages(shmem);
-+	}
- 
- 	shmem->vaddr = NULL;
--	drm_gem_shmem_put_pages(shmem);
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -916,8 +916,9 @@ struct gpio_desc *acpi_node_get_gpiod(st
  }
  
- /*
+ /**
+- * acpi_dev_gpio_irq_get() - Find GpioInt and translate it to Linux IRQ number
++ * acpi_dev_gpio_irq_get_by() - Find GpioInt and translate it to Linux IRQ number
+  * @adev: pointer to a ACPI device to get IRQ from
++ * @name: optional name of GpioInt resource
+  * @index: index of GpioInt resource (starting from %0)
+  *
+  * If the device has one or more GpioInt resources, this function can be
+@@ -927,9 +928,12 @@ struct gpio_desc *acpi_node_get_gpiod(st
+  * The function is idempotent, though each time it runs it will configure GPIO
+  * pin direction according to the flags in GpioInt resource.
+  *
++ * The function takes optional @name parameter. If the resource has a property
++ * name, then only those will be taken into account.
++ *
+  * Return: Linux IRQ number (> %0) on success, negative errno on failure.
+  */
+-int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
++int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index)
+ {
+ 	int idx, i;
+ 	unsigned int irq_flags;
+@@ -939,7 +943,7 @@ int acpi_dev_gpio_irq_get(struct acpi_de
+ 		struct acpi_gpio_info info;
+ 		struct gpio_desc *desc;
+ 
+-		desc = acpi_get_gpiod_by_index(adev, NULL, i, &info);
++		desc = acpi_get_gpiod_by_index(adev, name, i, &info);
+ 
+ 		/* Ignore -EPROBE_DEFER, it only matters if idx matches */
+ 		if (IS_ERR(desc) && PTR_ERR(desc) != -EPROBE_DEFER)
+@@ -976,7 +980,7 @@ int acpi_dev_gpio_irq_get(struct acpi_de
+ 	}
+ 	return -ENOENT;
+ }
+-EXPORT_SYMBOL_GPL(acpi_dev_gpio_irq_get);
++EXPORT_SYMBOL_GPL(acpi_dev_gpio_irq_get_by);
+ 
+ static acpi_status
+ acpi_gpio_adr_space_handler(u32 function, acpi_physical_address address,
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -1072,19 +1072,25 @@ void __acpi_handle_debug(struct _ddebug
+ #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
+ bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+ 				struct acpi_resource_gpio **agpio);
+-int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index);
++int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index);
+ #else
+ static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
+ 					      struct acpi_resource_gpio **agpio)
+ {
+ 	return false;
+ }
+-static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
++static inline int acpi_dev_gpio_irq_get_by(struct acpi_device *adev,
++					   const char *name, int index)
+ {
+ 	return -ENXIO;
+ }
+ #endif
+ 
++static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
++{
++	return acpi_dev_gpio_irq_get_by(adev, NULL, index);
++}
++
+ /* Device properties */
+ 
+ #ifdef CONFIG_ACPI
 
 
