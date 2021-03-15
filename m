@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 899BB33B55B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBDB033B6A6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231240AbhCONyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S232340AbhCON6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230440AbhCONxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE26864EFB;
-        Mon, 15 Mar 2021 13:53:38 +0000 (UTC)
+        id S229741AbhCON5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27DC664DAD;
+        Mon, 15 Mar 2021 13:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816420;
-        bh=eIQ1Dx6r4nTfUikTFLl1a1FCC6RAXUFnnPDny7KbnQQ=;
+        s=korg; t=1615816654;
+        bh=rzT91xFi5CSgXz3amxkHUuCpim2XmCzSMYdvJbcna9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uk2SMWcG2QuJMbAuQiX+o1BSHpVqni058AWy/siFKpb+EVnihEyHl0Llt8YzJWppl
-         iixPErKUmoFnmF1aZwwp+WsXr+8cNN3Wb801MeR6mP63OzKK/qd7NFdGdk0WHp1zEc
-         XhQLH1QXGiq5LmU9qFJXDtYiL2p64PzxxsrqZ0Ho=
+        b=oz4Tr9zGLazBR/5oNmUUyYs2kcKxDEaLU5vkIM7n1Tk9ZOVl9HAvH8q90BXBmgazU
+         ObbXih7N3vbB/oyfqO+RQ2VoZletW+yvO2ckUuFOBC4VdEocpp7ueXprn+qUCILVQR
+         8n9vhyb4JQBybc3R9MGsDwIXwqr1Flg2dxML1qyw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@freescale.com>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Subject: [PATCH 4.4 33/75] usb: gadget: f_uac2: always increase endpoint max_packet_size by one audio slot
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 044/306] net: dsa: tag_rtl4_a: fix egress tags
 Date:   Mon, 15 Mar 2021 14:51:47 +0100
-Message-Id: <20210315135209.336312188@linuxfoundation.org>
+Message-Id: <20210315135509.134352719@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +43,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit 789ea77310f0200c84002884ffd628e2baf3ad8a upstream.
+commit 9eb8bc593a5eed167dac2029abef343854c5ba75 upstream.
 
-As per UAC2 Audio Data Formats spec (2.3.1.1 USB Packets),
-if the sampling rate is a constant, the allowable variation
-of number of audio slots per virtual frame is +/- 1 audio slot.
+Commit 86dd9868b878 has several issues, but was accepted too soon
+before anyone could take a look.
 
-It means that endpoint should be able to accept/send +1 audio
-slot.
+- Double free. dsa_slave_xmit() will free the skb if the xmit function
+  returns NULL, but the skb is already freed by eth_skb_pad(). Use
+  __skb_put_padto() to avoid that.
+- Unnecessary allocation. It has been done by DSA core since commit
+  a3b0b6479700.
+- A u16 pointer points to skb data. It should be __be16 for network
+  byte order.
+- Typo in comments. "numer" -> "number".
 
-Previous endpoint max_packet_size calculation code
-was adding sometimes +1 audio slot due to DIV_ROUND_UP
-behaviour which was rounding up to closest integer.
-However this doesn't work if the numbers are divisible.
-
-It had no any impact with Linux hosts which ignore
-this issue, but in case of more strict Windows it
-caused rejected enumeration
-
-Thus always add +1 audio slot to endpoint's max packet size
-
-Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
-Cc: Peter Chen <peter.chen@freescale.com>
-Cc: <stable@vger.kernel.org> #v4.3+
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1614599375-8803-2-git-send-email-ruslan.bilovol@gmail.com
+Fixes: 86dd9868b878 ("net: dsa: tag_rtl4_a: Support also egress tags")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/dsa/tag_rtl4_a.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -997,7 +997,7 @@ static int set_ep_max_packet_size(const
- 	}
+--- a/net/dsa/tag_rtl4_a.c
++++ b/net/dsa/tag_rtl4_a.c
+@@ -35,14 +35,12 @@ static struct sk_buff *rtl4a_tag_xmit(st
+ 				      struct net_device *dev)
+ {
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
++	__be16 *p;
+ 	u8 *tag;
+-	u16 *p;
+ 	u16 out;
  
- 	max_size_bw = num_channels(chmask) * ssize *
--		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
-+		((srate / (factor / (1 << (ep_desc->bInterval - 1)))) + 1);
- 	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
- 						    max_size_ep));
+ 	/* Pad out to at least 60 bytes */
+-	if (unlikely(eth_skb_pad(skb)))
+-		return NULL;
+-	if (skb_cow_head(skb, RTL4_A_HDR_LEN) < 0)
++	if (unlikely(__skb_put_padto(skb, ETH_ZLEN, false)))
+ 		return NULL;
  
+ 	netdev_dbg(dev, "add realtek tag to package to port %d\n",
+@@ -53,13 +51,13 @@ static struct sk_buff *rtl4a_tag_xmit(st
+ 	tag = skb->data + 2 * ETH_ALEN;
+ 
+ 	/* Set Ethertype */
+-	p = (u16 *)tag;
++	p = (__be16 *)tag;
+ 	*p = htons(RTL4_A_ETHERTYPE);
+ 
+ 	out = (RTL4_A_PROTOCOL_RTL8366RB << 12) | (2 << 8);
+-	/* The lower bits is the port numer */
++	/* The lower bits is the port number */
+ 	out |= (u8)dp->index;
+-	p = (u16 *)(tag + 2);
++	p = (__be16 *)(tag + 2);
+ 	*p = htons(out);
+ 
+ 	return skb;
 
 
