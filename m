@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B344833B71E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76D3D33B5B7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232701AbhCON7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35586 "EHLO mail.kernel.org"
+        id S231503AbhCONzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232078AbhCON5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA61264F00;
-        Mon, 15 Mar 2021 13:57:41 +0000 (UTC)
+        id S231398AbhCONyX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8850864EF3;
+        Mon, 15 Mar 2021 13:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816663;
-        bh=4Nkiujrb4DTKuM4K+DB/6rrb2FhW7Y8VQGEnIoBHqy8=;
+        s=korg; t=1615816460;
+        bh=SjQzFgZNl0ceigZk74ClIsEtdipV2riX7BXRcPhYQa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fObfanAkLuYnsHrVRvfCAp2tVUcGqywl90MK5xPCu2X1JOqfQO/BJWEbdASK0tbEc
-         //L99e+7sNj5L9vDdgdJ28DRn3hEn1lNfF7bqYL0BjodrOzKNHck48q5x5vQMnVzYi
-         uAFcXDAv1ZjV5cCVdOLLBppik8xoT31km5TH9AqY=
+        b=f8MMfg74Bz3oK/VCuqZGr5gDwnV4HN6P4movutyKM8Fakl6bJ+5BUhNyvO0znwVdT
+         q3jBsmvUf8RTBj4IZcnhdoA/49WkuzU8C18Z5ETazfl6OGGQa+wsuM1xKMoslmtN4F
+         k/eXJN2dN6DJu1kE58PgMmO9wJ58EGIb9Z9Ohmvs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 041/290] net: enetc: force the RGMII speed and duplex instead of operating in inband mode
-Date:   Mon, 15 Mar 2021 14:52:14 +0100
-Message-Id: <20210315135543.317947345@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.9 52/78] staging: comedi: addi_apci_1500: Fix endian problem for command sample
+Date:   Mon, 15 Mar 2021 14:52:15 +0100
+Message-Id: <20210315135213.787357076@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,150 +40,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit c76a97218dcbb2cb7cec1404ace43ef96c87d874 upstream.
+commit ac0bbf55ed3be75fde1f8907e91ecd2fd589bde3 upstream.
 
-The ENETC port 0 MAC supports in-band status signaling coming from a PHY
-when operating in RGMII mode, and this feature is enabled by default.
+The digital input subdevice supports Comedi asynchronous commands that
+read interrupt status information.  This uses 16-bit Comedi samples (of
+which only the bottom 8 bits contain status information).  However, the
+interrupt handler is calling `comedi_buf_write_samples()` with the
+address of a 32-bit variable `unsigned int status`.  On a bigendian
+machine, this will copy 2 bytes from the wrong end of the variable.  Fix
+it by changing the type of the variable to `unsigned short`.
 
-It has been reported that RGMII is broken in fixed-link, and that is not
-surprising considering the fact that no PHY is attached to the MAC in
-that case, but a switch.
-
-This brings us to the topic of the patch: the enetc driver should have
-not enabled the optional in-band status signaling for RGMII unconditionally,
-but should have forced the speed and duplex to what was resolved by
-phylink.
-
-Note that phylink does not accept the RGMII modes as valid for in-band
-signaling, and these operate a bit differently than 1000base-x and SGMII
-(notably there is no clause 37 state machine so no ACK required from the
-MAC, instead the PHY sends extra code words on RXD[3:0] whenever it is
-not transmitting something else, so it should be safe to leave a PHY
-with this option unconditionally enabled even if we ignore it). The spec
-talks about this here:
-https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/138/RGMIIv1_5F00_3.pdf
-
-Fixes: 71b77a7a27a3 ("enetc: Migrate to PHYLINK and PCS_LYNX")
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_hw.h |   13 ++++-
- drivers/net/ethernet/freescale/enetc/enetc_pf.c |   53 ++++++++++++++++++++----
- 2 files changed, 56 insertions(+), 10 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -238,10 +238,17 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PM_IMDIO_BASE	0x8030
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -217,7 +217,7 @@ static irqreturn_t apci1500_interrupt(in
+ 	struct comedi_device *dev = d;
+ 	struct apci1500_private *devpriv = dev->private;
+ 	struct comedi_subdevice *s = dev->read_subdev;
+-	unsigned int status = 0;
++	unsigned short status = 0;
+ 	unsigned int val;
  
- #define ENETC_PM0_IF_MODE	0x8300
--#define ENETC_PMO_IFM_RG	BIT(2)
-+#define ENETC_PM0_IFM_RG	BIT(2)
- #define ENETC_PM0_IFM_RLP	(BIT(5) | BIT(11))
--#define ENETC_PM0_IFM_RGAUTO	(BIT(15) | ENETC_PMO_IFM_RG | BIT(1))
--#define ENETC_PM0_IFM_XGMII	BIT(12)
-+#define ENETC_PM0_IFM_EN_AUTO	BIT(15)
-+#define ENETC_PM0_IFM_SSP_MASK	GENMASK(14, 13)
-+#define ENETC_PM0_IFM_SSP_1000	(2 << 13)
-+#define ENETC_PM0_IFM_SSP_100	(0 << 13)
-+#define ENETC_PM0_IFM_SSP_10	(1 << 13)
-+#define ENETC_PM0_IFM_FULL_DPX	BIT(12)
-+#define ENETC_PM0_IFM_IFMODE_MASK GENMASK(1, 0)
-+#define ENETC_PM0_IFM_IFMODE_XGMII 0
-+#define ENETC_PM0_IFM_IFMODE_GMII 2
- #define ENETC_PSIDCAPR		0x1b08
- #define ENETC_PSIDCAPR_MSK	GENMASK(15, 0)
- #define ENETC_PSFCAPR		0x1b18
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -315,7 +315,7 @@ static void enetc_set_loopback(struct ne
- 	u32 reg;
- 
- 	reg = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
--	if (reg & ENETC_PMO_IFM_RG) {
-+	if (reg & ENETC_PM0_IFM_RG) {
- 		/* RGMII mode */
- 		reg = (reg & ~ENETC_PM0_IFM_RLP) |
- 		      (en ? ENETC_PM0_IFM_RLP : 0);
-@@ -494,13 +494,20 @@ static void enetc_configure_port_mac(str
- 
- static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mode)
- {
--	/* set auto-speed for RGMII */
--	if (enetc_port_rd(hw, ENETC_PM0_IF_MODE) & ENETC_PMO_IFM_RG ||
--	    phy_interface_mode_is_rgmii(phy_mode))
--		enetc_port_wr(hw, ENETC_PM0_IF_MODE, ENETC_PM0_IFM_RGAUTO);
-+	u32 val;
-+
-+	if (phy_interface_mode_is_rgmii(phy_mode)) {
-+		val = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
-+		val &= ~ENETC_PM0_IFM_EN_AUTO;
-+		val &= ENETC_PM0_IFM_IFMODE_MASK;
-+		val |= ENETC_PM0_IFM_IFMODE_GMII | ENETC_PM0_IFM_RG;
-+		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+	}
- 
--	if (phy_mode == PHY_INTERFACE_MODE_USXGMII)
--		enetc_port_wr(hw, ENETC_PM0_IF_MODE, ENETC_PM0_IFM_XGMII);
-+	if (phy_mode == PHY_INTERFACE_MODE_USXGMII) {
-+		val = ENETC_PM0_IFM_FULL_DPX | ENETC_PM0_IFM_IFMODE_XGMII;
-+		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+	}
- }
- 
- static void enetc_mac_enable(struct enetc_hw *hw, bool en)
-@@ -939,6 +946,34 @@ static void enetc_pl_mac_config(struct p
- 		phylink_set_pcs(priv->phylink, &pf->pcs->pcs);
- }
- 
-+static void enetc_force_rgmii_mac(struct enetc_hw *hw, int speed, int duplex)
-+{
-+	u32 old_val, val;
-+
-+	old_val = val = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
-+
-+	if (speed == SPEED_1000) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_1000;
-+	} else if (speed == SPEED_100) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_100;
-+	} else if (speed == SPEED_10) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_10;
-+	}
-+
-+	if (duplex == DUPLEX_FULL)
-+		val |= ENETC_PM0_IFM_FULL_DPX;
-+	else
-+		val &= ~ENETC_PM0_IFM_FULL_DPX;
-+
-+	if (val == old_val)
-+		return;
-+
-+	enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+}
-+
- static void enetc_pl_mac_link_up(struct phylink_config *config,
- 				 struct phy_device *phy, unsigned int mode,
- 				 phy_interface_t interface, int speed,
-@@ -951,6 +986,10 @@ static void enetc_pl_mac_link_up(struct
- 	if (priv->active_offloads & ENETC_F_QBV)
- 		enetc_sched_speed_set(priv, speed);
- 
-+	if (!phylink_autoneg_inband(mode) &&
-+	    phy_interface_mode_is_rgmii(interface))
-+		enetc_force_rgmii_mac(&pf->si->hw, speed, duplex);
-+
- 	enetc_mac_enable(&pf->si->hw, true);
- }
- 
+ 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
+@@ -247,14 +247,14 @@ static irqreturn_t apci1500_interrupt(in
+ 	 *
+ 	 *    Mask     Meaning
+ 	 * ----------  ------------------------------------------
+-	 * 0x00000001  Event 1 has occurred
+-	 * 0x00000010  Event 2 has occurred
+-	 * 0x00000100  Counter/timer 1 has run down (not implemented)
+-	 * 0x00001000  Counter/timer 2 has run down (not implemented)
+-	 * 0x00010000  Counter 3 has run down (not implemented)
+-	 * 0x00100000  Watchdog has run down (not implemented)
+-	 * 0x01000000  Voltage error
+-	 * 0x10000000  Short-circuit error
++	 * 0b00000001  Event 1 has occurred
++	 * 0b00000010  Event 2 has occurred
++	 * 0b00000100  Counter/timer 1 has run down (not implemented)
++	 * 0b00001000  Counter/timer 2 has run down (not implemented)
++	 * 0b00010000  Counter 3 has run down (not implemented)
++	 * 0b00100000  Watchdog has run down (not implemented)
++	 * 0b01000000  Voltage error
++	 * 0b10000000  Short-circuit error
+ 	 */
+ 	comedi_buf_write_samples(s, &status, 1);
+ 	comedi_handle_events(dev, s);
 
 
