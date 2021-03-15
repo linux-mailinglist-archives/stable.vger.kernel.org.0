@@ -2,52 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE8A133BA85
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DE533B80D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235669AbhCOOJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51130 "EHLO mail.kernel.org"
+        id S233541AbhCOOB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233560AbhCOOEC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E7164EF1;
-        Mon, 15 Mar 2021 14:03:58 +0000 (UTC)
+        id S232790AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 598C464F0C;
+        Mon, 15 Mar 2021 13:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817042;
-        bh=tTJVqx+rVDBWCwqr4gWuVNJmGyEQKTlZp9sbHeogfm8=;
+        s=korg; t=1615816777;
+        bh=pzoWsmL7VIyHDrq2fn/nkEgzivR3lET1aNWpEzDK7mY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOq7kh1OaKlGrD6KX8+U8Etl1SVNJ9LmgIjORGjzGgN32P84s1oZbV18hL38b7c98
-         pzfiU3pKYKVxVRSzfAglwH6cis/5/0vp3ciwl3+X0Qc7zonANjMRkeSHmRb0IEHCq2
-         LDA6lMwK7F9NshPTc4BU2vU42xaeds2RUDmmGTFk=
+        b=H9LFueYVXGEIz53SEUmuelu7aAc+tJm7PQR+2gGqKncuI3fM0h+4IgShpl8t6CrTz
+         A0Occ7jONzVwMIOpndzrpTTrTe/HGhhqcN2GoC0HaUmBfSLPJvL62e0s4X/mm+sGok
+         QZBhnKZ3GfVDGyfA/ln4u+Gf+JE4DPL9PYiGOQD0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nick Hu <nickhu@andestech.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Vincent Chen <deanbo422@gmail.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Marco Elver <elver@google.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 271/306] linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*
+        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 102/168] mmc: cqhci: Fix random crash when remove mmc module/card
 Date:   Mon, 15 Mar 2021 14:55:34 +0100
-Message-Id: <20210315135516.826234184@linuxfoundation.org>
+Message-Id: <20210315135553.724688511@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,80 +42,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Frank Li <lznuaa@gmail.com>
 
-commit 97e4910232fa1f81e806aa60c25a0450276d99a2 upstream.
+commit f06391c45e83f9a731045deb23df7cc3814fd795 upstream.
 
-Separating compiler-clang.h from compiler-gcc.h inadventently dropped the
-definitions of the three HAVE_BUILTIN_BSWAP macros, which requires falling
-back to the open-coded version and hoping that the compiler detects it.
+[ 6684.493350] Unable to handle kernel paging request at virtual address ffff800011c5b0f0
+[ 6684.498531] mmc0: card 0001 removed
+[ 6684.501556] Mem abort info:
+[ 6684.509681]   ESR = 0x96000047
+[ 6684.512786]   EC = 0x25: DABT (current EL), IL = 32 bits
+[ 6684.518394]   SET = 0, FnV = 0
+[ 6684.521707]   EA = 0, S1PTW = 0
+[ 6684.524998] Data abort info:
+[ 6684.528236]   ISV = 0, ISS = 0x00000047
+[ 6684.532986]   CM = 0, WnR = 1
+[ 6684.536129] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081b22000
+[ 6684.543923] [ffff800011c5b0f0] pgd=00000000bffff003, p4d=00000000bffff003, pud=00000000bfffe003, pmd=00000000900e1003, pte=0000000000000000
+[ 6684.557915] Internal error: Oops: 96000047 [#1] PREEMPT SMP
+[ 6684.564240] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core fsl_jr_uio caam_jr caamkeyblob_desc caamhash_desc caamalg_desc crypto_engine rng_core authenc libdes crct10dif_ce flexcan can_dev caam error [last unloaded: mmc_core]
+[ 6684.587281] CPU: 0 PID: 79138 Comm: kworker/0:3H Not tainted 5.10.9-01410-g3ba33182767b-dirty #10
+[ 6684.596160] Hardware name: Freescale i.MX8DXL EVK (DT)
+[ 6684.601320] Workqueue: kblockd blk_mq_run_work_fn
 
-Since all versions of clang support the __builtin_bswap interfaces, add
-back the flags and have the headers pick these up automatically.
+[ 6684.606094] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
+[ 6684.612286] pc : cqhci_request+0x148/0x4e8 [cqhci]
+^GMessage from syslogd@  at Thu Jan  1 01:51:24 1970 ...[ 6684.617085] lr : cqhci_request+0x314/0x4e8 [cqhci]
+[ 6684.626734] sp : ffff80001243b9f0
+[ 6684.630049] x29: ffff80001243b9f0 x28: ffff00002c3dd000
+[ 6684.635367] x27: 0000000000000001 x26: 0000000000000001
+[ 6684.640690] x25: ffff00002c451000 x24: 000000000000000f
+[ 6684.646007] x23: ffff000017e71c80 x22: ffff00002c451000
+[ 6684.651326] x21: ffff00002c0f3550 x20: ffff00002c0f3550
+[ 6684.656651] x19: ffff000017d46880 x18: ffff00002cea1500
+[ 6684.661977] x17: 0000000000000000 x16: 0000000000000000
+[ 6684.667294] x15: 000001ee628e3ed1 x14: 0000000000000278
+[ 6684.672610] x13: 0000000000000001 x12: 0000000000000001
+[ 6684.677927] x11: 0000000000000000 x10: 0000000000000000
+[ 6684.683243] x9 : 000000000000002b x8 : 0000000000001000
+[ 6684.688560] x7 : 0000000000000010 x6 : ffff00002c0f3678
+[ 6684.693886] x5 : 000000000000000f x4 : ffff800011c5b000
+[ 6684.699211] x3 : 000000000002d988 x2 : 0000000000000008
+[ 6684.704537] x1 : 00000000000000f0 x0 : 0002d9880008102f
+[ 6684.709854] Call trace:
+[ 6684.712313]  cqhci_request+0x148/0x4e8 [cqhci]
+[ 6684.716803]  mmc_cqe_start_req+0x58/0x68 [mmc_core]
+[ 6684.721698]  mmc_blk_mq_issue_rq+0x460/0x810 [mmc_block]
+[ 6684.727018]  mmc_mq_queue_rq+0x118/0x2b0 [mmc_block]
 
-This results in a 4% improvement of compilation speed for arm defconfig.
+The problem occurs when cqhci_request() get called after cqhci_disable() as
+it leads to access of allocated memory that has already been freed. Let's
+fix the problem by calling cqhci_disable() a bit later in the remove path.
 
-Note: it might also be worth revisiting which architectures set
-CONFIG_ARCH_USE_BUILTIN_BSWAP for one compiler or the other, today this is
-set on six architectures (arm32, csky, mips, powerpc, s390, x86), while
-another ten architectures define custom helpers (alpha, arc, ia64, m68k,
-mips, nios2, parisc, sh, sparc, xtensa), and the rest (arm64, h8300,
-hexagon, microblaze, nds32, openrisc, riscv) just get the unoptimized
-version and rely on the compiler to detect it.
-
-A long time ago, the compiler builtins were architecture specific, but
-nowadays, all compilers that are able to build the kernel have correct
-implementations of them, though some may not be as optimized as the inline
-asm versions.
-
-The patch that dropped the optimization landed in v4.19, so as discussed
-it would be fairly safe to backport this revert to stable kernels to the
-4.19/5.4/5.10 stable kernels, but there is a remaining risk for
-regressions, and it has no known side-effects besides compile speed.
-
-Link: https://lkml.kernel.org/r/20210226161151.2629097-1-arnd@kernel.org
-Link: https://lore.kernel.org/lkml/20210225164513.3667778-1-arnd@kernel.org/
-Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Miguel Ojeda <ojeda@kernel.org>
-Acked-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Nick Hu <nickhu@andestech.com>
-Cc: Greentime Hu <green.hu@gmail.com>
-Cc: Vincent Chen <deanbo422@gmail.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Albert Ou <aou@eecs.berkeley.edu>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Diagnosed-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210303174248.542175-1-Frank.Li@nxp.com
+Fixes: f690f4409ddd ("mmc: mmc: Enable CQE's")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/compiler-clang.h |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/core/bus.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/include/linux/compiler-clang.h
-+++ b/include/linux/compiler-clang.h
-@@ -41,6 +41,12 @@
- #define __no_sanitize_thread
+--- a/drivers/mmc/core/bus.c
++++ b/drivers/mmc/core/bus.c
+@@ -373,11 +373,6 @@ void mmc_remove_card(struct mmc_card *ca
+ 	mmc_remove_card_debugfs(card);
  #endif
  
-+#if defined(CONFIG_ARCH_USE_BUILTIN_BSWAP)
-+#define __HAVE_BUILTIN_BSWAP32__
-+#define __HAVE_BUILTIN_BSWAP64__
-+#define __HAVE_BUILTIN_BSWAP16__
-+#endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
+-	if (host->cqe_enabled) {
+-		host->cqe_ops->cqe_disable(host);
+-		host->cqe_enabled = false;
+-	}
+-
+ 	if (mmc_card_present(card)) {
+ 		if (mmc_host_is_spi(card->host)) {
+ 			pr_info("%s: SPI card removed\n",
+@@ -390,6 +385,10 @@ void mmc_remove_card(struct mmc_card *ca
+ 		of_node_put(card->dev.of_node);
+ 	}
+ 
++	if (host->cqe_enabled) {
++		host->cqe_ops->cqe_disable(host);
++		host->cqe_enabled = false;
++	}
 +
- #if __has_feature(undefined_behavior_sanitizer)
- /* GCC does not have __SANITIZE_UNDEFINED__ */
- #define __no_sanitize_undefined \
+ 	put_device(&card->dev);
+ }
+-
 
 
