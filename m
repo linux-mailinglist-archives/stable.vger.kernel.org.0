@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A39B033B504
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D708A33B664
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229973AbhCONxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55434 "EHLO mail.kernel.org"
+        id S231402AbhCON5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229921AbhCONww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:52:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2827F64EF0;
-        Mon, 15 Mar 2021 13:52:51 +0000 (UTC)
+        id S231807AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7799964F05;
+        Mon, 15 Mar 2021 13:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816372;
-        bh=0sT4d9BSyem9AsgEkZVpJuZYeysTVbVInfe6VPlxUoI=;
+        s=korg; t=1615816619;
+        bh=/+tUiVkxhsq5nvMtpV03ucQMrUlxNoCwFo1NCUVR0HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjVjiTK3mc0qrbjrXltnGUyVwlkZS+Uilwq9INodvewqPrVemgLMJ/8gtVbHc/GT3
-         W/A+isZEV8pCiIvEiiexgG0MbWRlHglFaoAXTsccEAnxKaVACf0naTktwG6VXlUUuH
-         cujSVulrSrWsTvPQ67hY1HTzYPjiY/ielcN5D3Nw=
+        b=RE2Zg5X//lmBZ0TZ/EdysH24qOBImVCtperUFB5l0LghtA+/In7iYWpmS3NTILX5r
+         0yGIhMSsUtKa9vm+STESWFNuUOJmXOj2VbEI68myyMFBI3FijxO/U+MVrLc4mCiSXv
+         678y3oRHEzboihCqI5uzPVAIjsjFcbBGL7KV71d8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Kennedy <hurricos@gmail.com>,
-        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 03/78] ath9k: fix transmitting to stations in dynamic SMPS mode
-Date:   Mon, 15 Mar 2021 14:51:26 +0100
-Message-Id: <20210315135212.180795544@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Pavel Emelyanov <xemul@parallels.com>,
+        Qingyu Li <ieatmuttonchuan@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 024/306] tcp: add sanity tests to TCP_QUEUE_SEQ
+Date:   Mon, 15 Mar 2021 14:51:27 +0100
+Message-Id: <20210315135508.445397367@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +43,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 3b9ea7206d7e1fdd7419cbd10badd3b2c80d04b4 upstream.
+commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d upstream.
 
-When transmitting to a receiver in dynamic SMPS mode, all transmissions that
-use multiple spatial streams need to be sent using CTS-to-self or RTS/CTS to
-give the receiver's extra chains some time to wake up.
-This fixes the tx rate getting stuck at <= MCS7 for some clients, especially
-Intel ones, which make aggressive use of SMPS.
+Qingyu Li reported a syzkaller bug where the repro
+changes RCV SEQ _after_ restoring data in the receive queue.
 
-Cc: stable@vger.kernel.org
-Reported-by: Martin Kennedy <hurricos@gmail.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210214184911.96702-1-nbd@nbd.name
+mprotect(0x4aa000, 12288, PROT_READ)    = 0
+mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
+mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
+mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
+socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
+setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
+connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
+sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
+setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
+setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
+recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
+
+syslog shows:
+[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
+[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
+
+This should not be allowed. TCP_QUEUE_SEQ should only be used
+when queues are empty.
+
+This patch fixes this case, and the tx path as well.
+
+Fixes: ee9952831cfd ("tcp: Initial repair mode")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
+Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath9k/ath9k.h |    3 ++-
- drivers/net/wireless/ath/ath9k/xmit.c  |    6 ++++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ net/ipv4/tcp.c |   23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/net/wireless/ath/ath9k/ath9k.h
-+++ b/drivers/net/wireless/ath/ath9k/ath9k.h
-@@ -179,7 +179,8 @@ struct ath_frame_info {
- 	s8 txq;
- 	u8 keyix;
- 	u8 rtscts_rate;
--	u8 retries : 7;
-+	u8 retries : 6;
-+	u8 dyn_smps : 1;
- 	u8 baw_tracked : 1;
- 	u8 tx_power;
- 	enum ath9k_key_type keytype:2;
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -1255,6 +1255,11 @@ static void ath_buf_set_rate(struct ath_
- 				 is_40, is_sgi, is_sp);
- 			if (rix < 8 && (tx_info->flags & IEEE80211_TX_CTL_STBC))
- 				info->rates[i].RateFlags |= ATH9K_RATESERIES_STBC;
-+			if (rix >= 8 && fi->dyn_smps) {
-+				info->rates[i].RateFlags |=
-+					ATH9K_RATESERIES_RTS_CTS;
-+				info->flags |= ATH9K_TXDESC_CTSENA;
-+			}
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3431,16 +3431,23 @@ static int do_tcp_setsockopt(struct sock
+ 		break;
  
- 			info->txpower[i] = ath_get_rate_txpower(sc, bf, rix,
- 								is_40, false);
-@@ -2158,6 +2163,7 @@ static void setup_frame_info(struct ieee
- 		fi->keyix = an->ps_key;
- 	else
- 		fi->keyix = ATH9K_TXKEYIX_INVALID;
-+	fi->dyn_smps = sta && sta->smps_mode == IEEE80211_SMPS_DYNAMIC;
- 	fi->keytype = keytype;
- 	fi->framelen = framelen;
- 	fi->tx_power = txpower;
+ 	case TCP_QUEUE_SEQ:
+-		if (sk->sk_state != TCP_CLOSE)
++		if (sk->sk_state != TCP_CLOSE) {
+ 			err = -EPERM;
+-		else if (tp->repair_queue == TCP_SEND_QUEUE)
+-			WRITE_ONCE(tp->write_seq, val);
+-		else if (tp->repair_queue == TCP_RECV_QUEUE) {
+-			WRITE_ONCE(tp->rcv_nxt, val);
+-			WRITE_ONCE(tp->copied_seq, val);
+-		}
+-		else
++		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
++			if (!tcp_rtx_queue_empty(sk))
++				err = -EPERM;
++			else
++				WRITE_ONCE(tp->write_seq, val);
++		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
++			if (tp->rcv_nxt != tp->copied_seq) {
++				err = -EPERM;
++			} else {
++				WRITE_ONCE(tp->rcv_nxt, val);
++				WRITE_ONCE(tp->copied_seq, val);
++			}
++		} else {
+ 			err = -EINVAL;
++		}
+ 		break;
+ 
+ 	case TCP_REPAIR_OPTIONS:
 
 
