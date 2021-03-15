@@ -2,70 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B75A033B0C1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 12:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E611B33B0CF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 12:17:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229510AbhCOLOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 07:14:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
+        id S229811AbhCOLRP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 07:17:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229524AbhCOLNd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 07:13:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD17B64E10;
-        Mon, 15 Mar 2021 11:13:32 +0000 (UTC)
+        id S229956AbhCOLQq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 07:16:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31B8864E61;
+        Mon, 15 Mar 2021 11:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615806813;
-        bh=AKWEmaPrXELQ9DKAd3z+F/HAa98wqlzzQo22o8VET5M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WH1N3ebsm/ySCkEuFvZxrL/3DmCubqqojHr9iDI7dhIVMy+u0gqmc0K0JHVfTud/f
-         pGm+wZ+kGT7lIdxoMMDKx23w9nJVlJxAsYhGh66Fl2yi1eOgWvQxD6r1cbZUuLOxM1
-         wBPs63P5428VmaZ1rD4c7yqsILTc/S0Ze7RxAwZY=
-Date:   Mon, 15 Mar 2021 12:13:30 +0100
+        s=korg; t=1615807005;
+        bh=PVePHmoVGgm67KqUanl5H3W7nskv25xsO2QLvC7MVy8=;
+        h=Date:From:To:Subject:References:In-Reply-To:From;
+        b=I+oabP4Hd6b6kCLCD6brJJ6olTQXeYUs4Psur8riB2zU03j1DBmszxjkHzRUjL1pe
+         ve9OWmDvN0IbKWivkOSbNOa9KILcrKQkip19CQo1WVI/1oPbdu+lpwULRR1fccdrXW
+         5MoZNTgD7gkvbEKIv0rwbC/ObAdQfi5uzahm/78s=
+Date:   Mon, 15 Mar 2021 12:16:43 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     hulkrobot@huawei.com
-Cc:     stable@vger.kernel.org
-Subject: Re: [linux-stable-rc CI] Test report for 5.10.24-rc1/x86
-Message-ID: <YE9BWj6w9MMazBY+@kroah.com>
-References: <c2371fc0-2f0f-4fd0-b4a3-c3a04a09a25a@DGGEMS405-HUB.china.huawei.com>
- <YE9AmC1IccBTomxo@kroah.com>
+To:     surenb@google.com, akpm@linux-foundation.org, fweimer@redhat.com,
+        jannh@google.com, jeffv@google.com, jmorris@namei.org,
+        keescook@chromium.org, mhocko@suse.com, minchan@kernel.org,
+        oleg@redhat.com, rientjes@google.com, shakeelb@google.com,
+        stable@vger.kernel.org, timmurray@google.com,
+        torvalds@linux-foundation.org
+Subject: Re: FAILED: patch "[PATCH] mm/madvise: replace ptrace attach
+ requirement for" failed to apply to 5.10-stable tree
+Message-ID: <YE9CG2S+ufk7YsmG@kroah.com>
+References: <1615806428159123@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YE9AmC1IccBTomxo@kroah.com>
+In-Reply-To: <1615806428159123@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 12:10:16PM +0100, Greg KH wrote:
-> On Mon, Mar 15, 2021 at 06:44:43PM +0800, hulkrobot@huawei.com wrote:
-> > Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> > Branch: linux-5.10.y
-> > Arch: x86
-> > Version: 5.10.24-rc1
-> > Commit: 5b0ddd114df102f34c83b8cd4ce4a03397ab7aa9
-> > Compiler: gcc version 7.3.0 (GCC)
-> > --------------------------------------------------------------------
-> > Kernel build failed, error log:
-> > arch/x86/kernel/sev-es.c:1275:14: error: implicit declaration of function ‘irqentry_nmi_enter’; did you mean ‘irqentry_enter’? [-Werror=implicit-function-declaration]
-> >   irq_state = irqentry_nmi_enter(regs);
-> >               ^~~~~~~~~~~~~~~~~~
-> >               irqentry_enter
-> > arch/x86/kernel/sev-es.c:1275:12: error: incompatible types when assigning to type ‘irqentry_state_t {aka struct irqentry_state}’ from type ‘int’
-> >   irq_state = irqentry_nmi_enter(regs);
-> >             ^
-> > arch/x86/kernel/sev-es.c:1339:2: error: implicit declaration of function ‘irqentry_nmi_exit’; did you mean ‘irqentry_exit’? [-Werror=implicit-function-declaration]
-> >   irqentry_nmi_exit(regs, irq_state);
-> >   ^~~~~~~~~~~~~~~~~
-> >   irqentry_exit
-> > cc1: some warnings being treated as errors
-> > make[2]: *** [scripts/Makefile.build:279: arch/x86/kernel/sev-es.o] Error 1
-> > make[2]: *** Waiting for unfinished jobs....
+On Mon, Mar 15, 2021 at 12:07:08PM +0100, gregkh@linuxfoundation.org wrote:
 > 
-> I do not see irqentry_nmi_enter() in this tree at all, where did that
-> come from?
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> >From 96cfe2c0fd23ea7c2368d14f769d287e7ae1082e Mon Sep 17 00:00:00 2001
+> From: Suren Baghdasaryan <surenb@google.com>
+> Date: Fri, 12 Mar 2021 21:08:06 -0800
+> Subject: [PATCH] mm/madvise: replace ptrace attach requirement for
+>  process_madvise
 
-Ah, nevermind, I was looking at the 5.4.y queue/tree, this is now
-showing up in my builds as well, will go fix it up, thanks...
+No, sorry, wrong commit, this one works fine in 5.10-stable, my fault...
 
 greg k-h
