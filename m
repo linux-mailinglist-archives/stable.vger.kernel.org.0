@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7296433B5C1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE62633B6C6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbhCONzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58662 "EHLO mail.kernel.org"
+        id S232384AbhCON6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230317AbhCONyo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B0AC64F06;
-        Mon, 15 Mar 2021 13:54:42 +0000 (UTC)
+        id S232252AbhCON6H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41AB364F36;
+        Mon, 15 Mar 2021 13:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816483;
-        bh=KA5lgiQDxsghnz5TVajIikeYslzRNzr57tlHqw7sVAk=;
+        s=korg; t=1615816686;
+        bh=HHA26jaEx0TVIHhjA6y4M+tOOuCMpp/jBGSy2ZKii+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ywr55/uAEh062zc9ewYwX81IaO41dObRiZvawgdEkIFLdEtQIktnZBhK9M5UVzHu2
-         KY1VKQPs2pXseOLFlf6nrCl0VydT/zUkZzAFh2YdOXeKinaOZTQpCFQnoOvsfp6zqp
-         CXKbgWoabaQ4htZZ22/YGxQDPhwyvdp1PgIrEx3M=
+        b=0j9jTEUrlvZTx84esilYoEtlswEjkxvTZ373m9Ggmo6jE4QK7MXtMx3toJ0dYhszG
+         nhf/WtKxZRv2bEgb/chdMZwJzFP7MZFoNkGLo9QN8CZNSwl3ayLobT8GLS376tRAfn
+         CPZsr0L9Re9PiNwcIz/CeyNqUtoD3e38AsWuM7dc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.9 65/78] alpha: add $(src)/ rather than $(obj)/ to make source file path
+        stable@vger.kernel.org, Wong Vee Khee <vee.khee.wong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 055/290] stmmac: intel: Fixes clock registration error seen for multiple interfaces
 Date:   Mon, 15 Mar 2021 14:52:28 +0100
-Message-Id: <20210315135214.193274645@linuxfoundation.org>
+Message-Id: <20210315135543.794433623@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +43,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Wong Vee Khee <vee.khee.wong@intel.com>
 
-commit 5ed78e5523fd9ba77b8444d380d54da1f88c53fc upstream.
+commit 8eb37ab7cc045ec6305a6a1a9c32374695a1a977 upstream.
 
-$(ev6-y)divide.S is a source file, not a build-time generated file.
-So, it should be prefixed with $(src)/ rather than $(obj)/.
+Issue seen when enumerating multiple Intel mGbE interfaces in EHL.
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Guenter Roeck <linux@roeck-us.net>
+[    6.898141] intel-eth-pci 0000:00:1d.2: enabling device (0000 -> 0002)
+[    6.900971] intel-eth-pci 0000:00:1d.2: Fail to register stmmac-clk
+[    6.906434] intel-eth-pci 0000:00:1d.2: User ID: 0x51, Synopsys ID: 0x52
+
+We fix it by making the clock name to be unique following the format
+of stmmac-pci_name(pci_dev) so that we can differentiate the clock for
+these Intel mGbE interfaces in EHL platform as follow:
+
+  /sys/kernel/debug/clk/stmmac-0000:00:1d.1
+  /sys/kernel/debug/clk/stmmac-0000:00:1d.2
+  /sys/kernel/debug/clk/stmmac-0000:00:1e.4
+
+Fixes: 58da0cfa6cf1 ("net: stmmac: create dwmac-intel.c to contain all Intel platform")
+Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
+Signed-off-by: Voon Weifeng <weifeng.voon@intel.com>
+Co-developed-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/lib/Makefile |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/alpha/lib/Makefile
-+++ b/arch/alpha/lib/Makefile
-@@ -46,11 +46,11 @@ AFLAGS___remqu.o =       -DREM
- AFLAGS___divlu.o = -DDIV       -DINTSIZE
- AFLAGS___remlu.o =       -DREM -DINTSIZE
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -233,6 +233,7 @@ static void common_default_data(struct p
+ static int intel_mgbe_common_data(struct pci_dev *pdev,
+ 				  struct plat_stmmacenet_data *plat)
+ {
++	char clk_name[20];
+ 	int ret;
+ 	int i;
  
--$(obj)/__divqu.o: $(obj)/$(ev6-y)divide.S
-+$(obj)/__divqu.o: $(src)/$(ev6-y)divide.S
- 	$(cmd_as_o_S)
--$(obj)/__remqu.o: $(obj)/$(ev6-y)divide.S
-+$(obj)/__remqu.o: $(src)/$(ev6-y)divide.S
- 	$(cmd_as_o_S)
--$(obj)/__divlu.o: $(obj)/$(ev6-y)divide.S
-+$(obj)/__divlu.o: $(src)/$(ev6-y)divide.S
- 	$(cmd_as_o_S)
--$(obj)/__remlu.o: $(obj)/$(ev6-y)divide.S
-+$(obj)/__remlu.o: $(src)/$(ev6-y)divide.S
- 	$(cmd_as_o_S)
+@@ -300,8 +301,10 @@ static int intel_mgbe_common_data(struct
+ 	plat->eee_usecs_rate = plat->clk_ptp_rate;
+ 
+ 	/* Set system clock */
++	sprintf(clk_name, "%s-%s", "stmmac", pci_name(pdev));
++
+ 	plat->stmmac_clk = clk_register_fixed_rate(&pdev->dev,
+-						   "stmmac-clk", NULL, 0,
++						   clk_name, NULL, 0,
+ 						   plat->clk_ptp_rate);
+ 
+ 	if (IS_ERR(plat->stmmac_clk)) {
 
 
