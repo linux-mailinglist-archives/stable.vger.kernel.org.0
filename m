@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992EF33BAA0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D72C533B847
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235233AbhCOOJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52486 "EHLO mail.kernel.org"
+        id S233901AbhCOOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234589AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F04364EF9;
-        Mon, 15 Mar 2021 14:04:19 +0000 (UTC)
+        id S232766AbhCOOAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D1BE64F5C;
+        Mon, 15 Mar 2021 13:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817060;
-        bh=Wv/L7dQYYmEgnEQy5a6/j0Hm8/20q6x4KkXVE12LBk0=;
+        s=korg; t=1615816792;
+        bh=31kDPtM0zHYIOc9UVzxVZTWXEYvH7Rx6TGQp70apgAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAEwH1gY3f6HECDKCsFLgswKZeixgDKABwPMzm89Q+HDaHRl2N3vSBYH8PgPzFZ1l
-         F4zHRXZR7365tUfILqPeaiMeg0QkkGgmZ/wNdMwD2JLk+NIbqlJoGrg+oCrYcF2adN
-         WGK0cs96NKfdkGjgR0uBZom5hu5lnyaTAkhtLQ9E=
+        b=qF8gfT11rWMiILF2JJWLpi4JfVTzHDSRrdLSSpHijuCvVH87bgD6sCESF6sMTQKS+
+         tiM4cS/KaNpV/UQaAZlyu8DjHbJ7aYNUIbzKkWdNPOiOWJsRXZw/2TJaj9bnJCq3jA
+         qkwVPtM9nMHPrWxPu5YgDRqv5gSC5QNHm9R0aaKU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.11 281/306] powerpc: Fix inverted SET_FULL_REGS bitop
-Date:   Mon, 15 Mar 2021 14:55:44 +0100
-Message-Id: <20210315135517.178753846@linuxfoundation.org>
+        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 113/168] usb: xhci: Fix ASMedia ASM1042A and ASM3242 DMA addressing
+Date:   Mon, 15 Mar 2021 14:55:45 +0100
+Message-Id: <20210315135554.071525001@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Forest Crossman <cyrozap@gmail.com>
 
-commit 73ac79881804eed2e9d76ecdd1018037f8510cb1 upstream.
+commit b71c669ad8390dd1c866298319ff89fe68b45653 upstream.
 
-This bit operation was inverted and set the low bit rather than
-cleared it, breaking the ability to ptrace non-volatile GPRs after
-exec. Fix.
+I've confirmed that both the ASMedia ASM1042A and ASM3242 have the same
+problem as the ASM1142 and ASM2142/ASM3142, where they lose some of the
+upper bits of 64-bit DMA addresses. As with the other chips, this can
+cause problems on systems where the upper bits matter, and adding the
+XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
 
-Only affects 64e and 32-bit.
-
-Fixes: feb9df3462e6 ("powerpc/64s: Always has full regs, so remove remnant checks")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210308085530.3191843-1-npiggin@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/ptrace.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/include/asm/ptrace.h
-+++ b/arch/powerpc/include/asm/ptrace.h
-@@ -195,7 +195,7 @@ static inline void regs_set_return_value
- #define TRAP_FLAGS_MASK		0x11
- #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
- #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
--#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
-+#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
- #endif
- #define CHECK_FULL_REGS(regs)	BUG_ON(!FULL_REGS(regs))
- #define NV_REG_POISON		0xdeadbeefdeadbeefUL
-@@ -210,7 +210,7 @@ static inline void regs_set_return_value
- #define TRAP_FLAGS_MASK		0x1F
- #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
- #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
--#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
-+#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
- #define IS_CRITICAL_EXC(regs)	(((regs)->trap & 2) != 0)
- #define IS_MCHECK_EXC(regs)	(((regs)->trap & 4) != 0)
- #define IS_DEBUG_EXC(regs)	(((regs)->trap & 8) != 0)
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -62,6 +62,7 @@
+ #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
+ #define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
+ #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
++#define PCI_DEVICE_ID_ASMEDIA_3242_XHCI			0x3242
+ 
+ static const char hcd_name[] = "xhci_hcd";
+ 
+@@ -258,11 +259,14 @@ static void xhci_pci_quirks(struct devic
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+-		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
++		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
++	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_3242_XHCI))
+ 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
 
 
