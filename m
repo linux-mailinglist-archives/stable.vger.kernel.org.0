@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8040933B96D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F07233BA8F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233976AbhCOOCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S233936AbhCOOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232850AbhCOOAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4350D64F25;
-        Mon, 15 Mar 2021 13:59:43 +0000 (UTC)
+        id S234532AbhCOOEM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA0DB64E83;
+        Mon, 15 Mar 2021 14:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816784;
-        bh=/yY8seZufJSCs5Os++rrO3sLbgFG6e57CZGe626Fo9Y=;
+        s=korg; t=1615817052;
+        bh=WPjeWVA1ttw7p/Rkyh3FafAywGgPmhm9Sf7XLwNoQCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jD1ic5Sn3UtMkZ2px4nXdutM6uT1roJBCffoIsgkO6//ohxllNUb1FDwqwIIeIBYH
-         I28eZWKo5nWTTj+ZNT/xPe1nob1LTJxrcD7xplbNUzVmakv00h39jlP2ojxUfcquWf
-         lHeFpW2Afxv4xr7uJf/hngjmkMVqlUPNxQ5ucKQw=
+        b=Po3S2V0zf3Al2m16NlaF5ngr9RpO/kaaVXJDecGojJ0LBKai1YW8j2tL4OEBx5xlp
+         6iYktc/HdJeSrgjpNMNjNS/QMzb7w9uAKcBQR7m07aninMF261WL2PWMkabWPq8WYf
+         iK75YkBdflbYHwHOTfusSuO9mH+brEE1pdPbFMOQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Subject: [PATCH 5.4 107/168] usb: dwc3: qcom: Add missing DWC3 OF node refcount decrement
+        stable@vger.kernel.org, stable@kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Valentin Schneider <valentin.schneider@arm.com>
+Subject: [PATCH 5.11 276/306] sched: Optimize migration_cpu_stop()
 Date:   Mon, 15 Mar 2021 14:55:39 +0100
-Message-Id: <20210315135553.881721785@linuxfoundation.org>
+Message-Id: <20210315135516.995722029@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +43,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1cffb1c66499a9db9a735473778abf8427d16287 upstream.
+commit 3f1bc119cd7fc987c8ed25ffb717f99403bb308c upstream.
 
-of_get_child_by_name() increments the reference counter of the OF node it
-managed to find. So after the code is done using the device node, the
-refcount must be decremented. Add missing of_node_put() invocation then
-to the dwc3_qcom_of_register_core() method, since DWC3 OF node is being
-used only there.
+When the purpose of migration_cpu_stop() is to migrate the task to
+'any' valid CPU, don't migrate the task when it's already running on a
+valid CPU.
 
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
-Link: https://lore.kernel.org/r/20210212205521.14280-1-Sergey.Semin@baikalelectronics.ru
-Cc: stable <stable@vger.kernel.org>
+Fixes: 6d337eab041d ("sched: Fix migrate_disable() vs set_cpus_allowed_ptr()")
+Cc: stable@kernel.org
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20210224131355.569238629@infradead.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/sched/core.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -528,16 +528,19 @@ static int dwc3_qcom_of_register_core(st
- 	ret = of_platform_populate(np, NULL, NULL, dev);
- 	if (ret) {
- 		dev_err(dev, "failed to register dwc3 core - %d\n", ret);
--		return ret;
-+		goto node_put;
- 	}
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1936,14 +1936,25 @@ static int migration_cpu_stop(void *data
+ 			complete = true;
+ 		}
  
- 	qcom->dwc3 = of_find_device_by_node(dwc3_np);
- 	if (!qcom->dwc3) {
-+		ret = -ENODEV;
- 		dev_err(dev, "failed to get dwc3 platform device\n");
--		return -ENODEV;
- 	}
- 
--	return 0;
-+node_put:
-+	of_node_put(dwc3_np);
+-		if (dest_cpu < 0)
++		if (dest_cpu < 0) {
++			if (cpumask_test_cpu(task_cpu(p), &p->cpus_mask))
++				goto out;
 +
-+	return ret;
- }
+ 			dest_cpu = cpumask_any_distribute(&p->cpus_mask);
++		}
  
- static const struct dwc3_acpi_pdata sdm845_acpi_pdata = {
+ 		if (task_on_rq_queued(p))
+ 			rq = __migrate_task(rq, &rf, p, dest_cpu);
+ 		else
+ 			p->wake_cpu = dest_cpu;
+ 
++		/*
++		 * XXX __migrate_task() can fail, at which point we might end
++		 * up running on a dodgy CPU, AFAICT this can only happen
++		 * during CPU hotplug, at which point we'll get pushed out
++		 * anyway, so it's probably not a big deal.
++		 */
++
+ 	} else if (pending) {
+ 		/*
+ 		 * This happens when we get migrated between migrate_enable()'s
 
 
