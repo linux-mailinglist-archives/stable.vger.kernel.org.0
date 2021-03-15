@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F66433BA63
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D15D833B7AE
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231680AbhCOOJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49782 "EHLO mail.kernel.org"
+        id S233193AbhCOOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230217AbhCOOD2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EC4264EF9;
-        Mon, 15 Mar 2021 14:03:26 +0000 (UTC)
+        id S232731AbhCON7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0B5964F31;
+        Mon, 15 Mar 2021 13:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817008;
-        bh=pTG3Z6rK5ZitXlHEQVGe3NxxqXCpy4yN/VknZ6bwVPc=;
+        s=korg; t=1615816757;
+        bh=ll99MXgdV4WftplZUy3c+s/6/3++75ApUZzSaIB72cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEYoWASxjvcMpO+CbDt2qPJD17WaWKpJSV0ryrFeSerdgV8olONqmVlwwkI73lKyg
-         +a+bW4Dx8tHip6t8NRRtCQAXCBZ45kgDnYK8EeHxHn7jjYN61vgbKhpGYrEBDLGgXU
-         NlNx7CN+v5sv+lX1cFE3ABrd120+MP9ORoR1I1qE=
+        b=GrAO4HXnX743Hr5I1c5uOvACDA1Aq3khZHe14imr8uTSwNR6Wq4Qz8fEf/MwdCnQf
+         Qk8Dhh3kbzPcVC9wSuMx0+u5V+KEZ6WrEIj4U3q2Fo1Rt1p2T+wkOkf2DOJ9JPVlI7
+         vUBZnqfx6yuwXXw8v8U5Q5B0DMjcmvmCUCi9/xjU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kris Karas <bugs-a17@moonlit-rail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 257/306] net: expand textsearch ts_state to fit skb_seq_state
+        stable@vger.kernel.org, Andreas Kempe <kempe@lysator.liu.se>,
+        John Ernberg <john.ernberg@actia.se>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 088/168] ALSA: usb: Add Plantronics C320-M USB ctrl msg delay quirk
 Date:   Mon, 15 Mar 2021 14:55:20 +0100
-Message-Id: <20210315135516.336444112@linuxfoundation.org>
+Message-Id: <20210315135553.271012993@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +42,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Willem de Bruijn <willemb@google.com>
+From: John Ernberg <john.ernberg@actia.se>
 
-[ Upstream commit b228c9b058760500fda5edb3134527f629fc2dc3 ]
+commit fc7c5c208eb7bc2df3a9f4234f14eca250001cb6 upstream.
 
-The referenced commit expands the skb_seq_state used by
-skb_find_text with a 4B frag_off field, growing it to 48B.
+The microphone in the Plantronics C320-M headset will randomly
+fail to initialize properly, at least when using Microsoft Teams.
+Introducing a 20ms delay on the control messages appears to
+resolve the issue.
 
-This exceeds container ts_state->cb, causing a stack corruption:
-
-[   73.238353] Kernel panic - not syncing: stack-protector: Kernel stack
-is corrupted in: skb_find_text+0xc5/0xd0
-[   73.247384] CPU: 1 PID: 376 Comm: nping Not tainted 5.11.0+ #4
-[   73.252613] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.14.0-2 04/01/2014
-[   73.260078] Call Trace:
-[   73.264677]  dump_stack+0x57/0x6a
-[   73.267866]  panic+0xf6/0x2b7
-[   73.270578]  ? skb_find_text+0xc5/0xd0
-[   73.273964]  __stack_chk_fail+0x10/0x10
-[   73.277491]  skb_find_text+0xc5/0xd0
-[   73.280727]  string_mt+0x1f/0x30
-[   73.283639]  ipt_do_table+0x214/0x410
-
-The struct is passed between skb_find_text and its callbacks
-skb_prepare_seq_read, skb_seq_read and skb_abort_seq read through
-the textsearch interface using TS_SKB_CB.
-
-I assumed that this mapped to skb->cb like other .._SKB_CB wrappers.
-skb->cb is 48B. But it maps to ts_state->cb, which is only 40B.
-
-skb->cb was increased from 40B to 48B after ts_state was introduced,
-in commit 3e3850e989c5 ("[NETFILTER]: Fix xfrm lookup in
-ip_route_me_harder/ip6_route_me_harder").
-
-Increase ts_state.cb[] to 48 to fit the struct.
-
-Also add a BUILD_BUG_ON to avoid a repeat.
-
-The alternative is to directly add a dependency from textsearch onto
-linux/skbuff.h, but I think the intent is textsearch to have no such
-dependencies on its callers.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=211911
-Fixes: 97550f6fa592 ("net: compound page support in skb_seq_read")
-Reported-by: Kris Karas <bugs-a17@moonlit-rail.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://gitlab.freedesktop.org/pulseaudio/pulseaudio/-/issues/1065
+Tested-by: Andreas Kempe <kempe@lysator.liu.se>
+Signed-off-by: John Ernberg <john.ernberg@actia.se>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210303181405.39835-1-john.ernberg@actia.se
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/textsearch.h | 2 +-
- net/core/skbuff.c          | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/quirks.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/textsearch.h b/include/linux/textsearch.h
-index 13770cfe33ad..6673e4d4ac2e 100644
---- a/include/linux/textsearch.h
-+++ b/include/linux/textsearch.h
-@@ -23,7 +23,7 @@ struct ts_config;
- struct ts_state
- {
- 	unsigned int		offset;
--	char			cb[40];
-+	char			cb[48];
- };
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1604,6 +1604,14 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 	    && (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
  
- /**
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 28b8242f18d7..2b784d62a9fe 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -3622,6 +3622,8 @@ unsigned int skb_find_text(struct sk_buff *skb, unsigned int from,
- 	struct ts_state state;
- 	unsigned int ret;
- 
-+	BUILD_BUG_ON(sizeof(struct skb_seq_state) > sizeof(state.cb));
++	/*
++	 * Plantronics C320-M needs a delay to avoid random
++	 * microhpone failures.
++	 */
++	if (chip->usb_id == USB_ID(0x047f, 0xc025)  &&
++	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
++		msleep(20);
 +
- 	config->get_next_block = skb_ts_get_next_block;
- 	config->finish = skb_ts_finish;
- 
--- 
-2.30.1
-
+ 	/* Zoom R16/24, many Logitech(at least H650e/H570e/BCC950),
+ 	 * Jabra 550a, Kingston HyperX needs a tiny delay here,
+ 	 * otherwise requests like get/set frequency return
 
 
