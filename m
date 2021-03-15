@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1989833B799
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 821AE33B787
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233064AbhCOOAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
+        id S233079AbhCOOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232431AbhCON7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04AF564F64;
-        Mon, 15 Mar 2021 13:58:54 +0000 (UTC)
+        id S232616AbhCON7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 054E364F10;
+        Mon, 15 Mar 2021 13:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816736;
-        bh=kqGk0XuYjjRsOWNK4lG836j9SdgxgTuwrNWE5f5K6Ik=;
+        s=korg; t=1615816738;
+        bh=469Xir/4E/U2p2kB09zd1A62Y/DTMLcGAJ15ROkZejY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/vhvx3obdRSrTgaCTr6ewk46R16fL1Fwj5sRP9wzPHcmhc9jymFcotLm+qgKAwLC
-         ulGZQpqwpig/otUSYjslM7JrK22vnnNu0+nxk8RvaS/PRXv+q+xPRYJZe23NjsMZ4G
-         z5jno6lVty2+NmLYyjVCUW+vHRITNJJSLYylak6E=
+        b=I2Qx8Btd74zJXw6Fl4RFq8mxbPxWoi7aJ5K61WAjrVDoUkMG459B/VTMsda7FomTw
+         wamxhYBlXMQL/SlFBtqcS7meG3QRTtOZ5a0PbiIZcoTJjBBjz5cTl77AhcLBfS0S1/
+         dUFXeL+8mbO7fobERSE3KaoHttSqShGBarF2qHAE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Khalid Aziz <khalid.aziz@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/168] sparc64: Use arch_validate_flags() to validate ADI flag
-Date:   Mon, 15 Mar 2021 14:55:08 +0100
-Message-Id: <20210315135552.886580091@linuxfoundation.org>
+Subject: [PATCH 5.4 077/168] Input: applespi - dont wait for responses to commands indefinitely.
+Date:   Mon, 15 Mar 2021 14:55:09 +0100
+Message-Id: <20210315135552.922343791@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -45,105 +43,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Khalid Aziz <khalid.aziz@oracle.com>
+From: Ronald Tschalär <ronald@innovation.ch>
 
-[ Upstream commit 147d8622f2a26ef34beacc60e1ed8b66c2fa457f ]
+[ Upstream commit 0ce1ac23149c6da939a5926c098c270c58c317a0 ]
 
-When userspace calls mprotect() to enable ADI on an address range,
-do_mprotect_pkey() calls arch_validate_prot() to validate new
-protection flags. arch_validate_prot() for sparc looks at the first
-VMA associated with address range to verify if ADI can indeed be
-enabled on this address range. This has two issues - (1) Address
-range might cover multiple VMAs while arch_validate_prot() looks at
-only the first VMA, (2) arch_validate_prot() peeks at VMA without
-holding mmap lock which can result in race condition.
+The response to a command may never arrive or it may be corrupted (and
+hence dropped) for some reason. While exceedingly rare, when it did
+happen it blocked all further commands. One way to fix this was to
+do a suspend/resume. However, recovering automatically seems like a
+nicer option. Hence this puts a time limit (1 sec) on how long we're
+willing to wait for a response, after which we assume it got lost.
 
-arch_validate_flags() from commit c462ac288f2c ("mm: Introduce
-arch_validate_flags()") allows for VMA flags to be validated for all
-VMAs that cover the address range given by user while holding mmap
-lock. This patch updates sparc code to move the VMA check from
-arch_validate_prot() to arch_validate_flags() to fix above two
-issues.
-
-Suggested-by: Jann Horn <jannh@google.com>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Khalid Aziz <khalid.aziz@oracle.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+Link: https://lore.kernel.org/r/20210217190718.11035-1-ronald@innovation.ch
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/include/asm/mman.h | 54 +++++++++++++++++++----------------
- 1 file changed, 29 insertions(+), 25 deletions(-)
+ drivers/input/keyboard/applespi.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/arch/sparc/include/asm/mman.h b/arch/sparc/include/asm/mman.h
-index f94532f25db1..274217e7ed70 100644
---- a/arch/sparc/include/asm/mman.h
-+++ b/arch/sparc/include/asm/mman.h
-@@ -57,35 +57,39 @@ static inline int sparc_validate_prot(unsigned long prot, unsigned long addr)
- {
- 	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM | PROT_ADI))
- 		return 0;
--	if (prot & PROT_ADI) {
--		if (!adi_capable())
--			return 0;
-+	return 1;
-+}
+diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+index d38398526965..a4b7422de534 100644
+--- a/drivers/input/keyboard/applespi.c
++++ b/drivers/input/keyboard/applespi.c
+@@ -48,6 +48,7 @@
+ #include <linux/efi.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/ktime.h>
+ #include <linux/leds.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
+@@ -400,7 +401,7 @@ struct applespi_data {
+ 	unsigned int			cmd_msg_cntr;
+ 	/* lock to protect the above parameters and flags below */
+ 	spinlock_t			cmd_msg_lock;
+-	bool				cmd_msg_queued;
++	ktime_t				cmd_msg_queued;
+ 	enum applespi_evt_type		cmd_evt_type;
  
--		if (addr) {
--			struct vm_area_struct *vma;
-+#define arch_validate_flags(vm_flags) arch_validate_flags(vm_flags)
-+/* arch_validate_flags() - Ensure combination of flags is valid for a
-+ *	VMA.
-+ */
-+static inline bool arch_validate_flags(unsigned long vm_flags)
-+{
-+	/* If ADI is being enabled on this VMA, check for ADI
-+	 * capability on the platform and ensure VMA is suitable
-+	 * for ADI
-+	 */
-+	if (vm_flags & VM_SPARC_ADI) {
-+		if (!adi_capable())
-+			return false;
+ 	struct led_classdev		backlight_info;
+@@ -716,7 +717,7 @@ static void applespi_msg_complete(struct applespi_data *applespi,
+ 		wake_up_all(&applespi->drain_complete);
  
--			vma = find_vma(current->mm, addr);
--			if (vma) {
--				/* ADI can not be enabled on PFN
--				 * mapped pages
--				 */
--				if (vma->vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
--					return 0;
-+		/* ADI can not be enabled on PFN mapped pages */
-+		if (vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
-+			return false;
- 
--				/* Mergeable pages can become unmergeable
--				 * if ADI is enabled on them even if they
--				 * have identical data on them. This can be
--				 * because ADI enabled pages with identical
--				 * data may still not have identical ADI
--				 * tags on them. Disallow ADI on mergeable
--				 * pages.
--				 */
--				if (vma->vm_flags & VM_MERGEABLE)
--					return 0;
--			}
--		}
-+		/* Mergeable pages can become unmergeable
-+		 * if ADI is enabled on them even if they
-+		 * have identical data on them. This can be
-+		 * because ADI enabled pages with identical
-+		 * data may still not have identical ADI
-+		 * tags on them. Disallow ADI on mergeable
-+		 * pages.
-+		 */
-+		if (vm_flags & VM_MERGEABLE)
-+			return false;
+ 	if (is_write_msg) {
+-		applespi->cmd_msg_queued = false;
++		applespi->cmd_msg_queued = 0;
+ 		applespi_send_cmd_msg(applespi);
  	}
--	return 1;
-+	return true;
- }
- #endif /* CONFIG_SPARC64 */
+ 
+@@ -758,8 +759,16 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return 0;
+ 
+ 	/* check whether send is in progress */
+-	if (applespi->cmd_msg_queued)
+-		return 0;
++	if (applespi->cmd_msg_queued) {
++		if (ktime_ms_delta(ktime_get(), applespi->cmd_msg_queued) < 1000)
++			return 0;
++
++		dev_warn(&applespi->spi->dev, "Command %d timed out\n",
++			 applespi->cmd_evt_type);
++
++		applespi->cmd_msg_queued = 0;
++		applespi->write_active = false;
++	}
+ 
+ 	/* set up packet */
+ 	memset(packet, 0, APPLESPI_PACKET_SIZE);
+@@ -856,7 +865,7 @@ static int applespi_send_cmd_msg(struct applespi_data *applespi)
+ 		return sts;
+ 	}
+ 
+-	applespi->cmd_msg_queued = true;
++	applespi->cmd_msg_queued = ktime_get_coarse();
+ 	applespi->write_active = true;
+ 
+ 	return 0;
+@@ -1908,7 +1917,7 @@ static int __maybe_unused applespi_resume(struct device *dev)
+ 	applespi->drain = false;
+ 	applespi->have_cl_led_on = false;
+ 	applespi->have_bl_level = 0;
+-	applespi->cmd_msg_queued = false;
++	applespi->cmd_msg_queued = 0;
+ 	applespi->read_active = false;
+ 	applespi->write_active = false;
  
 -- 
 2.30.1
