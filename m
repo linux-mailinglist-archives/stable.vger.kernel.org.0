@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1C5D33B98D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A3B33B7CA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbhCOOGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S233283AbhCOOBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233414AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FE8C64F2F;
-        Mon, 15 Mar 2021 14:01:14 +0000 (UTC)
+        id S232709AbhCON7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5B2D64EF8;
+        Mon, 15 Mar 2021 13:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816876;
-        bh=cEGCOtMDGpg659riwCNFXJ4O5WLv1yj7SL9t6GPLMIU=;
+        s=korg; t=1615816753;
+        bh=kol0b5+/ojhi/yo0EFUta2fsH/+c12bzCTFGnWEiiQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Opf26JjcpjOnHZE7v46CYhy3+RPWAo+4p8hquFNOEzec2sZoAzpYg8hcQZd5IzpSx
-         5uTHiAhJ51oSyGOKfRJtDrHl+r/S/UqKRl4nHc6wYETD6zzWwPXnd3L3K9CsG6cDlp
-         up22/CLQJ7431Rts8A5pSIARA9pJD7F24IaCUFoQ=
+        b=kmyfbzV7g7EQmCnHFbQoDvLrVBIp8q/yaDRmYTNQK4cebRqj4F6mbuhzFetZ4G9dl
+         /Z/gZxrfERNMbn9l5M3Mt278IL7brqyEDzKa2p4exldINFGDhJ07ypo0B6Ca9i4PYc
+         giRKf7ixHON6qcMseubd5OC71PL3/K0HaM5YMfm4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
-        Andrew Jones <drjones@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>
-Subject: [PATCH 5.4 165/168] KVM: arm64: Reject VM creation when the default IPA size is unsupported
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 046/120] powerpc/pci: Add ppc_md.discover_phbs()
 Date:   Mon, 15 Mar 2021 14:56:37 +0100
-Message-Id: <20210315135555.785710226@linuxfoundation.org>
+Message-Id: <20210315135721.500089603@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,88 +43,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Marc Zyngier <maz@kernel.org>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-Commit 7d717558dd5ef10d28866750d5c24ff892ea3778 upstream.
+[ Upstream commit 5537fcb319d016ce387f818dd774179bc03217f5 ]
 
-KVM/arm64 has forever used a 40bit default IPA space, partially
-due to its 32bit heritage (where the only choice is 40bit).
+On many powerpc platforms the discovery and initalisation of
+pci_controllers (PHBs) happens inside of setup_arch(). This is very early
+in boot (pre-initcalls) and means that we're initialising the PHB long
+before many basic kernel services (slab allocator, debugfs, a real ioremap)
+are available.
 
-However, there are implementations in the wild that have a *cough*
-much smaller *cough* IPA space, which leads to a misprogramming of
-VTCR_EL2, and a guest that is stuck on its first memory access
-if userspace dares to ask for the default IPA setting (which most
-VMMs do).
+On PowerNV this causes an additional problem since we map the PHB registers
+with ioremap(). As of commit d538aadc2718 ("powerpc/ioremap: warn on early
+use of ioremap()") a warning is printed because we're using the "incorrect"
+API to setup and MMIO mapping in searly boot. The kernel does provide
+early_ioremap(), but that is not intended to create long-lived MMIO
+mappings and a seperate warning is printed by generic code if
+early_ioremap() mappings are "leaked."
 
-Instead, blundly reject the creation of such VM, as we can't
-satisfy the requirements from userspace (with a one-off warning).
-Also clarify the boot warning, and document that the VM creation
-will fail when an unsupported IPA size is provided.
+This is all fixable with dumb hacks like using early_ioremap() to setup
+the initial mapping then replacing it with a real ioremap later on in
+boot, but it does raise the question: Why the hell are we setting up the
+PHB's this early in boot?
 
-Although this is an ABI change, it doesn't really change much
-for userspace:
+The old and wise claim it's due to "hysterical rasins." Aside from amused
+grapes there doesn't appear to be any real reason to maintain the current
+behaviour. Already most of the newer embedded platforms perform PHB
+discovery in an arch_initcall and between the end of setup_arch() and the
+start of initcalls none of the generic kernel code does anything PCI
+related. On powerpc scanning PHBs occurs in a subsys_initcall so it should
+be possible to move the PHB discovery to a core, postcore or arch initcall.
 
-- the guest couldn't run before this change, but no error was
-  returned. At least userspace knows what is happening.
+This patch adds the ppc_md.discover_phbs hook and a core_initcall stub that
+calls it. The core_initcalls are the earliest to be called so this will
+any possibly issues with dependency between initcalls. This isn't just an
+academic issue either since on pseries and PowerNV EEH init occurs in an
+arch_initcall and depends on the pci_controllers being available, similarly
+the creation of pci_dns occurs at core_initcall_sync (i.e. between core and
+postcore initcalls). These problems need to be addressed seperately.
 
-- a memory slot that was accepted because it did fit the default
-  IPA space now doesn't even get a chance to be registered.
-
-The other thing that is left doing is to convince userspace to
-actually use the IPA space setting instead of relying on the
-antiquated default.
-
-Fixes: 233a7cb23531 ("kvm: arm64: Allow tuning the physical address size for VM")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Link: https://lore.kernel.org/r/20210311100016.3830038-2-maz@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+[mpe: Make discover_phbs() static]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201103043523.916109-1-oohall@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/virt/kvm/api.txt |    3 +++
- arch/arm64/kvm/reset.c         |   11 ++++++++---
- 2 files changed, 11 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/machdep.h |  3 +++
+ arch/powerpc/kernel/pci-common.c   | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
 
---- a/Documentation/virt/kvm/api.txt
-+++ b/Documentation/virt/kvm/api.txt
-@@ -172,6 +172,9 @@ is dependent on the CPU capability and t
- be retrieved using KVM_CAP_ARM_VM_IPA_SIZE of the KVM_CHECK_EXTENSION
- ioctl() at run-time.
+diff --git a/arch/powerpc/include/asm/machdep.h b/arch/powerpc/include/asm/machdep.h
+index a47de82fb8e2..bda87cbf106d 100644
+--- a/arch/powerpc/include/asm/machdep.h
++++ b/arch/powerpc/include/asm/machdep.h
+@@ -71,6 +71,9 @@ struct machdep_calls {
+ 	int		(*pcibios_root_bridge_prepare)(struct pci_host_bridge
+ 				*bridge);
  
-+Creation of the VM will fail if the requested IPA size (whether it is
-+implicit or explicit) is unsupported on the host.
++	/* finds all the pci_controllers present at boot */
++	void 		(*discover_phbs)(void);
 +
- Please note that configuring the IPA size does not affect the capability
- exposed by the guest CPUs in ID_AA64MMFR0_EL1[PARange]. It only affects
- size of the address translated by the stage2 level (guest physical to
---- a/arch/arm64/kvm/reset.c
-+++ b/arch/arm64/kvm/reset.c
-@@ -378,10 +378,10 @@ void kvm_set_ipa_limit(void)
- 		pr_info("kvm: Limiting the IPA size due to kernel %s Address limit\n",
- 			(va_max < pa_max) ? "Virtual" : "Physical");
+ 	/* To setup PHBs when using automatic OF platform driver for PCI */
+ 	int		(*pci_setup_phb)(struct pci_controller *host);
  
--	WARN(ipa_max < KVM_PHYS_SHIFT,
--	     "KVM IPA limit (%d bit) is smaller than default size\n", ipa_max);
- 	kvm_ipa_limit = ipa_max;
--	kvm_info("IPA Size Limit: %dbits\n", kvm_ipa_limit);
-+	kvm_info("IPA Size Limit: %d bits%s\n", kvm_ipa_limit,
-+		 ((kvm_ipa_limit < KVM_PHYS_SHIFT) ?
-+		  " (Reduced IPA size, limited VM/VMM compatibility)" : ""));
+diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
+index 88e4f69a09e5..74628aca2bf1 100644
+--- a/arch/powerpc/kernel/pci-common.c
++++ b/arch/powerpc/kernel/pci-common.c
+@@ -1671,3 +1671,13 @@ static void fixup_hide_host_resource_fsl(struct pci_dev *dev)
  }
- 
- /*
-@@ -408,6 +408,11 @@ int kvm_arm_setup_stage2(struct kvm *kvm
- 			return -EINVAL;
- 	} else {
- 		phys_shift = KVM_PHYS_SHIFT;
-+		if (phys_shift > kvm_ipa_limit) {
-+			pr_warn_once("%s using unsupported default IPA limit, upgrade your VMM\n",
-+				     current->comm);
-+			return -EINVAL;
-+		}
- 	}
- 
- 	parange = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1) & 7;
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MOTOROLA, PCI_ANY_ID, fixup_hide_host_resource_fsl);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_FREESCALE, PCI_ANY_ID, fixup_hide_host_resource_fsl);
++
++
++static int __init discover_phbs(void)
++{
++	if (ppc_md.discover_phbs)
++		ppc_md.discover_phbs();
++
++	return 0;
++}
++core_initcall(discover_phbs);
+-- 
+2.30.1
+
 
 
