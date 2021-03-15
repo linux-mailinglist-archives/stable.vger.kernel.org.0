@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB6733B660
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C91933B52C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232106AbhCON5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
+        id S230431AbhCONxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231777AbhCON5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A608464F38;
-        Mon, 15 Mar 2021 13:57:10 +0000 (UTC)
+        id S230027AbhCONxJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D3C964EEE;
+        Mon, 15 Mar 2021 13:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816631;
-        bh=brXWXpnYW6YQL0ESqPRMZqTazFW2xCed+nZ3A+nBLeU=;
+        s=korg; t=1615816388;
+        bh=evTCwKnb3R5yY60YRWT6NmwzJ7cyicuutJgWGsoFtyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGjUdVZM7lcQqPhSPZ3xZ/1sAs8Rk+ClJouWMDEwTaiOutVLkrEQHYVgtcLGn5Z2S
-         lffk3+Inw58NEvBDiGtCaf7LclRdba3fuxsPFWXJ4BuhN6dQ/z05CmazLqRACdWjk9
-         mJ0FT7eoZ/if9wnkMg18qCEL5zaUDkooMJ/8lqrA=
+        b=c0BGu2k2TeX2tOmmrG/HayaN6o7VBDheZSVu1N6kVh5MYzRj4UT3ayeNSm0usNQ+/
+         wi7thRHzRScIQqr3wY1TctbzLg9tXMWiZ5lMSfjrJHwzb/ANTMjmDpNc0Wu0MKjwaS
+         qjVPPrzIhqdiCwcVNPJsIuwrmPPcJLTvLpDz6+S8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.11 031/306] selftests/bpf: Mask bpf_csum_diff() return value to 16 bits in test_verifier
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Jann Horn <jannh@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Christoph Lameter <cl@linux.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 11/78] Revert "mm, slub: consider rest of partial list if acquire_slab() fails"
 Date:   Mon, 15 Mar 2021 14:51:34 +0100
-Message-Id: <20210315135508.675532522@linuxfoundation.org>
+Message-Id: <20210315135212.435215008@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +45,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 6185266c5a853bb0f2a459e3ff594546f277609b upstream.
+commit 9b1ea29bc0d7b94d420f96a0f4121403efc3dd85 upstream.
 
-The verifier test labelled "valid read map access into a read-only array
-2" calls the bpf_csum_diff() helper and checks its return value. However,
-architecture implementations of csum_partial() (which is what the helper
-uses) differ in whether they fold the return value to 16 bit or not. For
-example, x86 version has ...
+This reverts commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf.
 
-	if (unlikely(odd)) {
-		result = from32to16(result);
-		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
-	}
+The kernel test robot reports a huge performance regression due to the
+commit, and the reason seems fairly straightforward: when there is
+contention on the page list (which is what causes acquire_slab() to
+fail), we do _not_ want to just loop and try again, because that will
+transfer the contention to the 'n->list_lock' spinlock we hold, and
+just make things even worse.
 
-... while generic lib/checksum.c does:
+This is admittedly likely a problem only on big machines - the kernel
+test robot report comes from a 96-thread dual socket Intel Xeon Gold
+6252 setup, but the regression there really is quite noticeable:
 
-	result = from32to16(result);
-	if (odd)
-		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
+   -47.9% regression of stress-ng.rawpkt.ops_per_sec
 
-This makes the helper return different values on different architectures,
-breaking the test on non-x86. To fix this, add an additional instruction
-to always mask the return value to 16 bits, and update the expected return
-value accordingly.
+and the commit that was marked as being fixed (7ced37197196: "slub:
+Acquire_slab() avoid loop") actually did the loop exit early very
+intentionally (the hint being that "avoid loop" part of that commit
+message), exactly to avoid this issue.
 
-Fixes: fb2abb73e575 ("bpf, selftest: test {rd, wr}only flags and direct value access")
-Signed-off-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210228103017.320240-1-yauheni.kaliuta@redhat.com
+The correct thing to do may be to pick some kind of reasonable middle
+ground: instead of breaking out of the loop on the very first sign of
+contention, or trying over and over and over again, the right thing may
+be to re-try _once_, and then give up on the second failure (or pick
+your favorite value for "once"..).
+
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/lkml/20210301080404.GF12822@xsang-OptiPlex-9020/
+Cc: Jann Horn <jannh@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Acked-by: Christoph Lameter <cl@linux.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/array_access.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/slub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/verifier/array_access.c
-+++ b/tools/testing/selftests/bpf/verifier/array_access.c
-@@ -250,12 +250,13 @@
- 	BPF_MOV64_IMM(BPF_REG_5, 0),
- 	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 		     BPF_FUNC_csum_diff),
-+	BPF_ALU64_IMM(BPF_AND, BPF_REG_0, 0xffff),
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
- 	.fixup_map_array_ro = { 3 },
- 	.result = ACCEPT,
--	.retval = -29,
-+	.retval = 65507,
- },
- {
- 	"invalid write map access into a read-only array 1",
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -1833,7 +1833,7 @@ static void *get_partial_node(struct kme
+ 
+ 		t = acquire_slab(s, n, page, object == NULL, &objects);
+ 		if (!t)
+-			continue; /* cmpxchg raced */
++			break;
+ 
+ 		available += objects;
+ 		if (!object) {
 
 
