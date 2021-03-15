@@ -2,182 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0227633ADBB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:41:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A98A933ADBA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229494AbhCOIkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 04:40:31 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:54001 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229641AbhCOIkY (ORCPT
+        id S229512AbhCOIka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 04:40:30 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:58147 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229644AbhCOIkY (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:40:24 -0400
-Received: from mail-wr1-f70.google.com ([209.85.221.70])
-        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1lLilz-0003sS-5F
-        for stable@vger.kernel.org; Mon, 15 Mar 2021 08:40:23 +0000
-Received: by mail-wr1-f70.google.com with SMTP id i5so14770466wrp.8
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 01:40:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xf8bhCsRM0V1EuSql+vGuq0de4RoNFAV+Vhdeoi39yI=;
-        b=netXNGQsdVnzeAg90ao30By2BSvsDYxdK/5/k26xiuFR99q1IXQ7+rTfR2ivOOPEy8
-         tNghhqf4roeDXmSsVcUHolOMsfVRUmWhUl1guUkmuK20uvJFXhs+0ByWtnY48X6ymfgl
-         gCHOQobqz8ZwvQFhx2V+Na3vKVX0XngzFrKNm6Vlga6n5jmKAP5hcggOy6Lqm8l1QyLo
-         Pbf95eKI5ikeCojbWtmYizslL/V8qN/19IVJYL8TN1PlG7qaoOBSWcXRjC2GQhRw4tAl
-         /lQX3xpU7wSqAywjZNJ4LudF7EOfJCgzmd93qbVSWGah8HJL5LC4CoBH0PNlQ+BxmLw7
-         iTKg==
-X-Gm-Message-State: AOAM533PcV37+VIdqHEsT5YGHwtWwN8lXOBzbWasaJSnd3oByHaz5zKU
-        FeMrreZ19IZpmIU6r4SDEUtQYPFgPj31EtYCuPQ05y334AXgvqEsTN/daWMOtETwGa8AD7g8aqX
-        9SUr/RWoiPlT/B5WOB07AC0NqyDLrpwJr7w==
-X-Received: by 2002:a5d:6d06:: with SMTP id e6mr26461691wrq.425.1615797622546;
-        Mon, 15 Mar 2021 01:40:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxkdtTdcU97VvWlDIUEc3ApWmCU/C8ym3hsaVFlnK0HX0ing+kBF7eFoc0TzbqgQavlEHOYAw==
-X-Received: by 2002:a5d:6d06:: with SMTP id e6mr26461684wrq.425.1615797622416;
-        Mon, 15 Mar 2021 01:40:22 -0700 (PDT)
-Received: from localhost.localdomain (adsl-84-226-167-205.adslplus.ch. [84.226.167.205])
-        by smtp.gmail.com with ESMTPSA id r11sm18122324wrm.26.2021.03.15.01.40.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Mar 2021 01:40:22 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     stable@vger.kernel.org
-Cc:     Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH stable v4.4] media: hdpvr: Fix an error handling path in hdpvr_probe()
-Date:   Mon, 15 Mar 2021 09:39:43 +0100
-Message-Id: <20210315083943.11685-1-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.25.1
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E7CB919408EA;
+        Mon, 15 Mar 2021 04:40:23 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 15 Mar 2021 04:40:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=od7ugO
+        AYc66bIFBlYQc+3tMqf/1g+Y2LiX0mZWPRdmg=; b=dQ4w4bpxu5DYHv7GyQJPll
+        31qhzdLRm01htw2x1D2QiuwAdU57BR/jFFabm3DY7lDEZD46q27kRE0CND4VIedA
+        RX+Hj0wuhSrHhYRbb1CdOir2AjI5KYIAje5QiWFy/oqyFd2dNnN5uyjW68wQYm33
+        Q9j8wVcWIce03SIu3zp2oLc1d9SqVAXv8hcJfxHvHn7bXTBukr4zzsWpDV82wbnY
+        D3jruM5hkHejvQf9lpaD/LvBhPsSKZGffrB/Da7wEimD10VIB0imq1palxI6fQZO
+        f0U4a6xE7ttFYdpDNw0CgMk6IUm6JrFTpaq+g2+fF3ivK9JZE9VItwL5fyRBPiIw
+        ==
+X-ME-Sender: <xms:dh1PYNBuqjI4o-7U3AruFoFgIZhgmszcyc0iLFbJE0qpGG5KAHt8ew>
+    <xme:dh1PYLgq1oGVSeZaOW6zUhDobHtZvjya-HXsyDH_-3i0jU0Dm3xsDmxasIOR_GRXm
+    3pq2Df9IIjvlg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvkedguddvfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecuogfuohhrthgvugftvggtihhpvdculdegtddmne
+    cujfgurhepuffvhfffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhh
+    sehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeenucggtffrrghtthgvrhhnpeelle
+    elvdegfeelledtteegudegfffghfduffduudekgeefleegieegkeejhfelveenucffohhm
+    rghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluh
+    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
+    rghhrdgtohhm
+X-ME-Proxy: <xmx:dh1PYInYkZubrq_sxfag7fisrOHGbRHinpAS4P9aTjnhtGnzWQP74g>
+    <xmx:dh1PYHy00_b-Suja_jG25gmSTjT3vEaHuI_dSog7cJVQXYM6M53fuA>
+    <xmx:dh1PYCQF33KvQ57N_taEFJZCekTz7d2z-rCiR_HNAFV6GMWU60ZuQQ>
+    <xmx:dx1PYDL241iXRipo_N_8KsyLfTpFb2GYDJXVEebInFZ7GUEajoxrPzohsc4>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1906424005A;
+        Mon, 15 Mar 2021 04:40:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*" failed to apply to 5.4-stable tree
+To:     arnd@arndb.de, akpm@linux-foundation.org, aou@eecs.berkeley.edu,
+        deanbo422@gmail.com, elver@google.com, green.hu@gmail.com,
+        guoren@kernel.org, keescook@chromium.org,
+        luc.vanoostenryck@gmail.com, masahiroy@kernel.org,
+        nathan@kernel.org, ndesaulniers@google.com, nickhu@andestech.com,
+        nivedita@alum.mit.edu, ojeda@kernel.org, palmer@dabbelt.com,
+        paul.walmsley@sifive.com, rdunlap@infradead.org,
+        samitolvanen@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Mar 2021 09:40:20 +0100
+Message-ID: <1615797620203184@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
-commit c0f71bbb810237a38734607ca4599632f7f5d47f upstream.
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Here, hdpvr_register_videodev() is responsible for setup and
-register a video device. Also defining and initializing a worker.
-hdpvr_register_videodev() is calling by hdpvr_probe at last.
-So no need to flush any work here.
-Unregister v4l2, free buffers and memory. If hdpvr_probe() will fail.
+thanks,
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Reported-by: Andrey Konovalov <andreyknvl@google.com>
-Tested-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-[krzk: backport to v4.4, still using single thread workqueue which
-       is drained/destroyed now in proper step so it cannot be NULL]
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+greg k-h
 
----
+------------------ original commit in Linus's tree ------------------
 
-Backport needed for v4.4. v4.9 has it already.
----
- drivers/media/usb/hdpvr/hdpvr-core.c | 33 ++++++++++++++++------------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+From 97e4910232fa1f81e806aa60c25a0450276d99a2 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 12 Mar 2021 21:07:47 -0800
+Subject: [PATCH] linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*
 
-diff --git a/drivers/media/usb/hdpvr/hdpvr-core.c b/drivers/media/usb/hdpvr/hdpvr-core.c
-index 7b5c493f02b0..9f95b048123d 100644
---- a/drivers/media/usb/hdpvr/hdpvr-core.c
-+++ b/drivers/media/usb/hdpvr/hdpvr-core.c
-@@ -297,7 +297,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	/* register v4l2_device early so it can be used for printks */
- 	if (v4l2_device_register(&interface->dev, &dev->v4l2_dev)) {
- 		dev_err(&interface->dev, "v4l2_device_register failed\n");
--		goto error;
-+		goto error_free_dev;
- 	}
- 
- 	mutex_init(&dev->io_mutex);
-@@ -306,7 +306,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	dev->usbc_buf = kmalloc(64, GFP_KERNEL);
- 	if (!dev->usbc_buf) {
- 		v4l2_err(&dev->v4l2_dev, "Out of memory\n");
--		goto error;
-+		goto error_v4l2_unregister;
- 	}
- 
- 	init_waitqueue_head(&dev->wait_buffer);
-@@ -314,7 +314,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- 
- 	dev->workqueue = create_singlethread_workqueue("hdpvr_buffer");
- 	if (!dev->workqueue)
--		goto error;
-+		goto err_free_usbc;
- 
- 	dev->options = hdpvr_default_options;
- 
-@@ -348,13 +348,13 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	}
- 	if (!dev->bulk_in_endpointAddr) {
- 		v4l2_err(&dev->v4l2_dev, "Could not find bulk-in endpoint\n");
--		goto error;
-+		goto error_put_usb;
- 	}
- 
- 	/* init the device */
- 	if (hdpvr_device_init(dev)) {
- 		v4l2_err(&dev->v4l2_dev, "device init failed\n");
--		goto error;
-+		goto error_put_usb;
- 	}
- 
- 	mutex_lock(&dev->io_mutex);
-@@ -362,7 +362,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- 		mutex_unlock(&dev->io_mutex);
- 		v4l2_err(&dev->v4l2_dev,
- 			 "allocating transfer buffers failed\n");
--		goto error;
-+		goto error_put_usb;
- 	}
- 	mutex_unlock(&dev->io_mutex);
- 
-@@ -370,7 +370,7 @@ static int hdpvr_probe(struct usb_interface *interface,
- 	retval = hdpvr_register_i2c_adapter(dev);
- 	if (retval < 0) {
- 		v4l2_err(&dev->v4l2_dev, "i2c adapter register failed\n");
--		goto error;
-+		goto error_free_buffers;
- 	}
- 
- 	client = hdpvr_register_ir_rx_i2c(dev);
-@@ -412,15 +412,20 @@ static int hdpvr_probe(struct usb_interface *interface,
- reg_fail:
- #if IS_ENABLED(CONFIG_I2C)
- 	i2c_del_adapter(&dev->i2c_adapter);
-+error_free_buffers:
+Separating compiler-clang.h from compiler-gcc.h inadventently dropped the
+definitions of the three HAVE_BUILTIN_BSWAP macros, which requires falling
+back to the open-coded version and hoping that the compiler detects it.
+
+Since all versions of clang support the __builtin_bswap interfaces, add
+back the flags and have the headers pick these up automatically.
+
+This results in a 4% improvement of compilation speed for arm defconfig.
+
+Note: it might also be worth revisiting which architectures set
+CONFIG_ARCH_USE_BUILTIN_BSWAP for one compiler or the other, today this is
+set on six architectures (arm32, csky, mips, powerpc, s390, x86), while
+another ten architectures define custom helpers (alpha, arc, ia64, m68k,
+mips, nios2, parisc, sh, sparc, xtensa), and the rest (arm64, h8300,
+hexagon, microblaze, nds32, openrisc, riscv) just get the unoptimized
+version and rely on the compiler to detect it.
+
+A long time ago, the compiler builtins were architecture specific, but
+nowadays, all compilers that are able to build the kernel have correct
+implementations of them, though some may not be as optimized as the inline
+asm versions.
+
+The patch that dropped the optimization landed in v4.19, so as discussed
+it would be fairly safe to backport this revert to stable kernels to the
+4.19/5.4/5.10 stable kernels, but there is a remaining risk for
+regressions, and it has no known side-effects besides compile speed.
+
+Link: https://lkml.kernel.org/r/20210226161151.2629097-1-arnd@kernel.org
+Link: https://lore.kernel.org/lkml/20210225164513.3667778-1-arnd@kernel.org/
+Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Miguel Ojeda <ojeda@kernel.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
+index 04c0a5a717f7..d217c382b02d 100644
+--- a/include/linux/compiler-clang.h
++++ b/include/linux/compiler-clang.h
+@@ -31,6 +31,12 @@
+ #define __no_sanitize_thread
  #endif
-+	hdpvr_free_buffers(dev);
-+error_put_usb:
-+	usb_put_dev(dev->udev);
-+	/* Destroy single thread */
-+	destroy_workqueue(dev->workqueue);
-+err_free_usbc:
-+	kfree(dev->usbc_buf);
-+error_v4l2_unregister:
-+	v4l2_device_unregister(&dev->v4l2_dev);
-+error_free_dev:
-+	kfree(dev);
- error:
--	if (dev) {
--		/* Destroy single thread */
--		if (dev->workqueue)
--			destroy_workqueue(dev->workqueue);
--		/* this frees allocated memory */
--		hdpvr_delete(dev);
--	}
- 	return retval;
- }
  
--- 
-2.25.1
++#if defined(CONFIG_ARCH_USE_BUILTIN_BSWAP)
++#define __HAVE_BUILTIN_BSWAP32__
++#define __HAVE_BUILTIN_BSWAP64__
++#define __HAVE_BUILTIN_BSWAP16__
++#endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
++
+ #if __has_feature(undefined_behavior_sanitizer)
+ /* GCC does not have __SANITIZE_UNDEFINED__ */
+ #define __no_sanitize_undefined \
 
