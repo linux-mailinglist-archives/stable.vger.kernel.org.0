@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208C933B81E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDBA133B78E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233642AbhCOOCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S232317AbhCOOAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232897AbhCOOAG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB36B64F2B;
-        Mon, 15 Mar 2021 13:59:50 +0000 (UTC)
+        id S232656AbhCON70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9BF364F2C;
+        Mon, 15 Mar 2021 13:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816791;
-        bh=A4y2DAvk4lp+gOnqxDJEAlRf/d/XyJVYKwHFG9clOgg=;
+        s=korg; t=1615816742;
+        bh=pnnK+ogZuhIWO3syW7uP2Eq5Y7MJ0oSBwWXQ0Ds3x3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T56KSzh6DiVdPN81zH0jn5VvnmKJrzxC4X57NoMmth8mrzcKUGNmYqdTscry70ZOU
-         2tdefmo1PzrZg4OZRlQa41KfdSJGuvsEM+hD6AWuFoXqELHOgM5SgiADuiXHsfFOUB
-         CL5DXBppOBZ0mQEF1kqjdaMBZDYkNXPV1X2Adl5w=
+        b=wfDAa8zXywArDad997mXt2vKlWTh6s/ux63h4fr8jLK/L1DFPlp28PeNjDz8BHG1M
+         13KTksSPwP3owfl+oPbzSEDf50d5QR0t1BmZfawzD0R4UDGxmV2tlzSX8hbLUX+21v
+         h1b3LAR7bu1Sd5JJdFbD0MQN9U1paM3pvQwj7N4Y=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yorick de Wid <ydewid@gmail.com>
-Subject: [PATCH 4.19 070/120] Goodix Fingerprint device is not a modem
+        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 31/95] net: phy: fix save wrong speed and duplex problem if autoneg is on
 Date:   Mon, 15 Mar 2021 14:57:01 +0100
-Message-Id: <20210315135722.267621306@linuxfoundation.org>
+Message-Id: <20210315135741.300557722@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +43,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yorick de Wid <ydewid@gmail.com>
+From: Guangbin Huang <huangguangbin2@huawei.com>
 
-commit 4d8654e81db7346f915eca9f1aff18f385cab621 upstream.
+[ Upstream commit d9032dba5a2b2bbf0fdce67c8795300ec9923b43 ]
 
-The CDC ACM driver is false matching the Goodix Fingerprint device
-against the USB_CDC_ACM_PROTO_AT_V25TER.
+If phy uses generic driver and autoneg is on, enter command
+"ethtool -s eth0 speed 50" will not change phy speed actually, but
+command "ethtool eth0" shows speed is 50Mb/s because phydev->speed
+has been set to 50 and no update later.
 
-The Goodix Fingerprint device is a biometrics sensor that should be
-handled in user-space. libfprint has some support for Goodix
-fingerprint sensors, although not for this particular one. It is
-possible that the vendor allocates a PID per OEM (Lenovo, Dell etc).
-If this happens to be the case then more devices from the same vendor
-could potentially match the ACM modem module table.
+And duplex setting has same problem too.
 
-Signed-off-by: Yorick de Wid <ydewid@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210213144901.53199-1-ydewid@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, if autoneg is on, phy only changes speed and duplex according to
+phydev->advertising, but not phydev->speed and phydev->duplex. So in this
+case, phydev->speed and phydev->duplex don't need to be set in function
+phy_ethtool_ksettings_set() if autoneg is on.
+
+Fixes: 51e2a3846eab ("PHY: Avoid unnecessary aneg restarts")
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/phy/phy.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1973,6 +1973,11 @@ static const struct usb_device_id acm_id
- 	.driver_info = SEND_ZERO_PACKET,
- 	},
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index 7989ae4b8387..e5b86f07f8fc 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -335,7 +335,10 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
  
-+	/* Exclude Goodix Fingerprint Reader */
-+	{ USB_DEVICE(0x27c6, 0x5395),
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+
- 	/* control interfaces without any protocol set */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
- 		USB_CDC_PROTO_NONE) },
+ 	phydev->autoneg = autoneg;
+ 
+-	phydev->speed = speed;
++	if (autoneg == AUTONEG_DISABLE) {
++		phydev->speed = speed;
++		phydev->duplex = duplex;
++	}
+ 
+ 	phydev->advertising = advertising;
+ 
+@@ -344,8 +347,6 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
+ 	else
+ 		phydev->advertising &= ~ADVERTISED_Autoneg;
+ 
+-	phydev->duplex = duplex;
+-
+ 	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
+ 
+ 	/* Restart the PHY */
+-- 
+2.30.1
+
 
 
