@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A5333B840
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5F933B936
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233857AbhCOOCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S234760AbhCOOFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229942AbhCOOAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC5664F0C;
-        Mon, 15 Mar 2021 14:00:00 +0000 (UTC)
+        id S233256AbhCOOBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5127364F6A;
+        Mon, 15 Mar 2021 14:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816801;
-        bh=Jxe9prs1CF4dxDsqTe6EZaGsQXBFlpoScv7ixbKpeVM=;
+        s=korg; t=1615816853;
+        bh=S5ehvWn0HYDPK8sR9NnUSrF0Bdz7/l2F8kFmFfSL5nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMWLaOPY2lPedDvUySH2okmILKkJKvgx/lByQgcDuZc2rvDfHxtJWZeUcPSeyUq6h
-         shkCTy09TnuUVkf6M0QdCMXnha5LRfjl3lm30hYT/quvp2YMK2PxHg4UeAF/uWA3FY
-         4WyEW+dDO9OK4kLWJ9CqXOB+WorpThLTrcTlXEWc=
+        b=FzgLbtEzq0hsSF6Rs2RDMg9xzxk4OPh7vZpQib/B4zK9PjA2FbFfF4mMY4XHdL+lO
+         sAqIa3/8eZGiMJNjerkATsg3jDiVeotzj0vUzhm/WU8tC40VD7vOqqalm8zVQAbnQO
+         KvRaTxVez3gZqHJD36gnNYU7vrSxdE7f9Y44X60g=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 72/95] staging: comedi: addi_apci_1032: Fix endian problem for COS sample
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 111/120] include/linux/sched/mm.h: use rcu_dereference in in_vfork()
 Date:   Mon, 15 Mar 2021 14:57:42 +0100
-Message-Id: <20210315135742.638486629@linuxfoundation.org>
+Message-Id: <20210315135723.623968305@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +46,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 25317f428a78fde71b2bf3f24d05850f08a73a52 upstream.
+[ Upstream commit 149fc787353f65b7e72e05e7b75d34863266c3e2 ]
 
-The Change-Of-State (COS) subdevice supports Comedi asynchronous
-commands to read 16-bit change-of-state values.  However, the interrupt
-handler is calling `comedi_buf_write_samples()` with the address of a
-32-bit integer `&s->state`.  On bigendian architectures, it will copy 2
-bytes from the wrong end of the 32-bit integer.  Fix it by transferring
-the value via a 16-bit integer.
+Fix a sparse warning by using rcu_dereference().  Technically this is a
+bug and a sufficiently aggressive compiler could reload the `real_parent'
+pointer outside the protection of the rcu lock (and access freed memory),
+but I think it's pretty unlikely to happen.
 
-Fixes: 6bb45f2b0c86 ("staging: comedi: addi_apci_1032: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-2-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210221194207.1351703-1-willy@infradead.org
+Fixes: b18dc5f291c0 ("mm, oom: skip vforked tasks from being selected")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/linux/sched/mm.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -269,6 +269,7 @@ static irqreturn_t apci1032_interrupt(in
- 	struct apci1032_private *devpriv = dev->private;
- 	struct comedi_subdevice *s = dev->read_subdev;
- 	unsigned int ctrl;
-+	unsigned short val;
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 8d3b7e731b74..ef54f4b3f1e4 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -167,7 +167,8 @@ static inline bool in_vfork(struct task_struct *tsk)
+ 	 * another oom-unkillable task does this it should blame itself.
+ 	 */
+ 	rcu_read_lock();
+-	ret = tsk->vfork_done && tsk->real_parent->mm == tsk->mm;
++	ret = tsk->vfork_done &&
++			rcu_dereference(tsk->real_parent)->mm == tsk->mm;
+ 	rcu_read_unlock();
  
- 	/* check interrupt is from this device */
- 	if ((inl(devpriv->amcc_iobase + AMCC_OP_REG_INTCSR) &
-@@ -284,7 +285,8 @@ static irqreturn_t apci1032_interrupt(in
- 	outl(ctrl & ~APCI1032_CTRL_INT_ENA, dev->iobase + APCI1032_CTRL_REG);
- 
- 	s->state = inl(dev->iobase + APCI1032_STATUS_REG) & 0xffff;
--	comedi_buf_write_samples(s, &s->state, 1);
-+	val = s->state;
-+	comedi_buf_write_samples(s, &val, 1);
- 	comedi_handle_events(dev, s);
- 
- 	/* enable the interrupt */
+ 	return ret;
+-- 
+2.30.1
+
 
 
