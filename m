@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF0733BA2A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B66F33BA42
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235626AbhCOOIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49180 "EHLO mail.kernel.org"
+        id S235623AbhCOOIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233908AbhCOOCh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A04CA64E83;
-        Mon, 15 Mar 2021 14:02:35 +0000 (UTC)
+        id S234126AbhCOOC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0A7464EED;
+        Mon, 15 Mar 2021 14:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816956;
-        bh=UnvoTaee++uQmgZBcbDloBQf3a1K2DhIcoEylFd3FLI=;
+        s=korg; t=1615816978;
+        bh=kcnnK6WDFQU8lLJFM3dyQCYTMLsnTb223hTde03XaC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QD75g8Xpux1j7MjKJG1R6Y604kCiYQU939qNnUxnbVBpp2ads8iU+KFXFj6x9BXE1
-         st1c5xlaa0eU9T/oZjszZRHfDo5Dl7qd2pE7PaHo4fxfIhr7opiE5JoyT+w/rb7S6o
-         crL1hcAG1gwPQKrwN64gdbm3lf2kXyfiHAG4nPgg=
+        b=1FDt35jmrvu4tYt7MM22ATHQhjB0mAHkm9ROsDhfDa8T+0WkI6VLl4bptzori0mwf
+         /VmpHDGEeUo4IEIY9ZO8aaLojJLyAngy58WRk8WRA9C/GcHC1uCDPNcOMux3KENaWd
+         WwA2qE4BCsr+ERXhqioSD44Lu7meIZSjeLrUhbLc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 211/290] xhci: Fix repeated xhci wake after suspend due to uncleared internal wake state
+        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 241/306] net: macb: Add default usrio config to default gem config
 Date:   Mon, 15 Mar 2021 14:55:04 +0100
-Message-Id: <20210315135549.072829721@linuxfoundation.org>
+Message-Id: <20210315135515.793306491@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +43,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Atish Patra <atish.patra@wdc.com>
 
-commit d26c00e7276fc92b18c253d69e872f6b03832bad upstream.
+[ Upstream commit b12422362ce947098ac420ac3c975fc006af4c02 ]
 
-If port terminations are detected in suspend, but link never reaches U0
-then xHCI may have an internal uncleared wake state that will cause an
-immediate wake after suspend.
+There is no usrio config defined for default gem config leading to
+a kernel panic devices that don't define a data. This issue can be
+reprdouced with microchip polar fire soc where compatible string
+is defined as "cdns,macb".
 
-This wake state is normally cleared when driver clears the PORT_CSC bit,
-which is set after a device is enabled and in U0.
+Fixes: edac63861db7 ("add userio bits as platform configuration")
 
-Write 1 to clear PORT_CSC for ports that don't have anything connected
-when suspending. This makes sure any pending internal wake states in
-xHCI are cleared.
-
-Cc: stable@vger.kernel.org
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-5-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Atish Patra <atish.patra@wdc.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c |   62 +++++++++++++++++++++++-------------------------
- 1 file changed, 30 insertions(+), 32 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -883,44 +883,42 @@ static void xhci_clear_command_ring(stru
- 	xhci_set_cmd_ring_deq(xhci);
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 814a5b10141d..07cdb38e7d11 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -3950,6 +3950,13 @@ static int macb_init(struct platform_device *pdev)
+ 	return 0;
  }
  
--static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
-+/*
-+ * Disable port wake bits if do_wakeup is not set.
-+ *
-+ * Also clear a possible internal port wake state left hanging for ports that
-+ * detected termination but never successfully enumerated (trained to 0U).
-+ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
-+ * at enumeration clears this wake, force one here as well for unconnected ports
-+ */
++static const struct macb_usrio_config macb_default_usrio = {
++	.mii = MACB_BIT(MII),
++	.rmii = MACB_BIT(RMII),
++	.rgmii = GEM_BIT(RGMII),
++	.refclk = MACB_BIT(CLKEN),
++};
 +
-+static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
-+				       struct xhci_hub *rhub,
-+				       bool do_wakeup)
- {
--	struct xhci_port **ports;
--	int port_index;
- 	unsigned long flags;
- 	u32 t1, t2, portsc;
-+	int i;
+ #if defined(CONFIG_OF)
+ /* 1518 rounded up */
+ #define AT91ETHER_MAX_RBUFF_SZ	0x600
+@@ -4435,13 +4442,6 @@ static int fu540_c000_init(struct platform_device *pdev)
+ 	return macb_init(pdev);
+ }
  
- 	spin_lock_irqsave(&xhci->lock, flags);
+-static const struct macb_usrio_config macb_default_usrio = {
+-	.mii = MACB_BIT(MII),
+-	.rmii = MACB_BIT(RMII),
+-	.rgmii = GEM_BIT(RGMII),
+-	.refclk = MACB_BIT(CLKEN),
+-};
+-
+ static const struct macb_usrio_config sama7g5_usrio = {
+ 	.mii = 0,
+ 	.rmii = 1,
+@@ -4590,6 +4590,7 @@ static const struct macb_config default_gem_config = {
+ 	.dma_burst_length = 16,
+ 	.clk_init = macb_clk_init,
+ 	.init = macb_init,
++	.usrio = &macb_default_usrio,
+ 	.jumbo_max_len = 10240,
+ };
  
--	/* disable usb3 ports Wake bits */
--	port_index = xhci->usb3_rhub.num_ports;
--	ports = xhci->usb3_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
--		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb3_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
--		}
--	}
-+	for (i = 0; i < rhub->num_ports; i++) {
-+		portsc = readl(rhub->ports[i]->addr);
-+		t1 = xhci_port_state_to_neutral(portsc);
-+		t2 = t1;
-+
-+		/* clear wake bits if do_wake is not set */
-+		if (!do_wakeup)
-+			t2 &= ~PORT_WAKE_BITS;
-+
-+		/* Don't touch csc bit if connected or connect change is set */
-+		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
-+			t2 |= PORT_CSC;
- 
--	/* disable usb2 ports Wake bits */
--	port_index = xhci->usb2_rhub.num_ports;
--	ports = xhci->usb2_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
- 		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb2_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
-+			writel(t2, rhub->ports[i]->addr);
-+			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
-+				 rhub->hcd->self.busnum, i + 1, portsc, t2);
- 		}
- 	}
- 	spin_unlock_irqrestore(&xhci->lock, flags);
-@@ -983,8 +981,8 @@ int xhci_suspend(struct xhci_hcd *xhci,
- 		return -EINVAL;
- 
- 	/* Clear root port wake on bits if wakeup not allowed. */
--	if (!do_wakeup)
--		xhci_disable_port_wake_on_bits(xhci);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
- 
- 	if (!HCD_HW_ACCESSIBLE(hcd))
- 		return 0;
+-- 
+2.30.1
+
 
 
