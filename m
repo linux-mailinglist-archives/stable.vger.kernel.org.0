@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E24C833B710
+	by mail.lfdr.de (Postfix) with ESMTP id 46CB333B70E
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232671AbhCON72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S232663AbhCON71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232312AbhCON6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9095C64F34;
-        Mon, 15 Mar 2021 13:58:21 +0000 (UTC)
+        id S232122AbhCON5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2EEC64F3D;
+        Mon, 15 Mar 2021 13:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816702;
-        bh=FYEib7Qc+zd8XyDPJDqStoS8FTLRRMIFWhsDCCF4Tas=;
+        s=korg; t=1615816667;
+        bh=61hwE0aosy0oCTorMejB+6tfBdUSKc8uckX85DtWClM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k55v7vSQGyc8oRYahDCJxa4zAmHmjaVMFSIdsQVUWolx+Wnjfwak2WHXcQr289uK5
-         9ZhBclTQNNvyMi+ENJ7NnIJL9pEiXcMdlV2T69Q++csVxlZ3iRvNAbw7B0xsudc6lY
-         NkKMABdlBRKkaRMCL57m9FLmS9dqZmHyyXlIYwIU=
+        b=cMewzX6U842sT/jSRM1KRnIynCZnSZ2WJYLVc+T9TMOshEvSH9adCeTzIhPoLHvI/
+         xlbCPmMgEaoGC6IwUpDI0woELNrKjaueRp61xmJ8AHHtF2TaiMEhZUGa7yl7felUXK
+         6YX1oyFUzt1pVAQVQFbVyiOveDA4upAzm3LKwMIQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 074/306] s390/qeth: schedule TX NAPI on QAOB completion
+Subject: [PATCH 5.10 044/290] net: ethernet: mtk-star-emac: fix wrong unmap in RX handling
 Date:   Mon, 15 Mar 2021 14:52:17 +0100
-Message-Id: <20210315135510.147889280@linuxfoundation.org>
+Message-Id: <20210315135543.414029009@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,94 +41,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Biao Huang <biao.huang@mediatek.com>
 
-commit 3e83d467a08e25b27c44c885f511624a71c84f7c upstream.
+commit 95b39f07a17faef3a9b225248ba449b976e529c8 upstream.
 
-When a QAOB notifies us that a pending TX buffer has been delivered, the
-actual TX completion processing by qeth_tx_complete_pending_bufs()
-is done within the context of a TX NAPI instance. We shouldn't rely on
-this instance being scheduled by some other TX event, but just do it
-ourselves.
+mtk_star_dma_unmap_rx() should unmap the dma_addr of old skb rather than
+that of new skb.
+Assign new_dma_addr to desc_data.dma_addr after all handling of old skb
+ends to avoid unexpected receive side error.
 
-qeth_qdio_handle_aob() is called from qeth_poll(), ie. our main NAPI
-instance. To avoid touching the TX queue's NAPI instance
-before/after it is (un-)registered, reorder the code in qeth_open()
-and qeth_stop() accordingly.
-
-Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fixes: f96e9641e92b ("net: ethernet: mtk-star-emac: fix error path in RX handling")
+Signed-off-by: Biao Huang <biao.huang@mediatek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/net/qeth_core_main.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_star_emac.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -470,6 +470,7 @@ static void qeth_qdio_handle_aob(struct
- 	struct qaob *aob;
- 	struct qeth_qdio_out_buffer *buffer;
- 	enum iucv_tx_notify notification;
-+	struct qeth_qdio_out_q *queue;
- 	unsigned int i;
- 
- 	aob = (struct qaob *) phys_to_virt(phys_aob_addr);
-@@ -512,7 +513,9 @@ static void qeth_qdio_handle_aob(struct
- 			buffer->is_header[i] = 0;
- 		}
- 
-+		queue = buffer->q;
- 		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
-+		napi_schedule(&queue->napi);
- 		break;
- 	default:
- 		WARN_ON_ONCE(1);
-@@ -7225,9 +7228,7 @@ int qeth_open(struct net_device *dev)
- 	card->data.state = CH_STATE_UP;
- 	netif_tx_start_all_queues(dev);
- 
--	napi_enable(&card->napi);
- 	local_bh_disable();
--	napi_schedule(&card->napi);
- 	if (IS_IQD(card)) {
- 		struct qeth_qdio_out_q *queue;
- 		unsigned int i;
-@@ -7239,8 +7240,12 @@ int qeth_open(struct net_device *dev)
- 			napi_schedule(&queue->napi);
- 		}
- 	}
-+
-+	napi_enable(&card->napi);
-+	napi_schedule(&card->napi);
- 	/* kick-start the NAPI softirq: */
- 	local_bh_enable();
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(qeth_open);
-@@ -7250,6 +7255,11 @@ int qeth_stop(struct net_device *dev)
- 	struct qeth_card *card = dev->ml_priv;
- 
- 	QETH_CARD_TEXT(card, 4, "qethstop");
-+
-+	napi_disable(&card->napi);
-+	cancel_delayed_work_sync(&card->buffer_reclaim_work);
-+	qdio_stop_irq(CARD_DDEV(card));
-+
- 	if (IS_IQD(card)) {
- 		struct qeth_qdio_out_q *queue;
- 		unsigned int i;
-@@ -7270,10 +7280,6 @@ int qeth_stop(struct net_device *dev)
- 		netif_tx_disable(dev);
+--- a/drivers/net/ethernet/mediatek/mtk_star_emac.c
++++ b/drivers/net/ethernet/mediatek/mtk_star_emac.c
+@@ -1225,8 +1225,6 @@ static int mtk_star_receive_packet(struc
+ 		goto push_new_skb;
  	}
  
--	napi_disable(&card->napi);
--	cancel_delayed_work_sync(&card->buffer_reclaim_work);
--	qdio_stop_irq(CARD_DDEV(card));
+-	desc_data.dma_addr = new_dma_addr;
 -
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(qeth_stop);
+ 	/* We can't fail anymore at this point: it's safe to unmap the skb. */
+ 	mtk_star_dma_unmap_rx(priv, &desc_data);
+ 
+@@ -1236,6 +1234,9 @@ static int mtk_star_receive_packet(struc
+ 	desc_data.skb->dev = ndev;
+ 	netif_receive_skb(desc_data.skb);
+ 
++	/* update dma_addr for new skb */
++	desc_data.dma_addr = new_dma_addr;
++
+ push_new_skb:
+ 	desc_data.len = skb_tailroom(new_skb);
+ 	desc_data.skb = new_skb;
 
 
