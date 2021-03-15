@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E7833B957
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C761033B9A0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234874AbhCOOF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S234910AbhCOOGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233279AbhCOOBV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 572FC64F5D;
-        Mon, 15 Mar 2021 14:00:56 +0000 (UTC)
+        id S231638AbhCOOBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9413464F13;
+        Mon, 15 Mar 2021 14:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816857;
-        bh=l9t/jy+7hTt25NJiy8W2DlxlKVv9HV05Irxdw8Kn1YI=;
+        s=korg; t=1615816892;
+        bh=RARTWRmMCeWFgmqKMl0uq7OGgRtFjymUTajyhit0Rk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyyip4fKh6x1vjHbjqEgzCs/mDp1cyZ9y5SnH+5JqZOZPS36ufI6xNlhN0XodbaTr
-         n0CVjoWoTHTtyM+s/bNomZT9gGAY/keJm1V16nocVBRvNu8R9kq5yPFFiui867lna2
-         atV3rSKTWqzT2wn+pOMtgOARV+Q+BgSru2BRdd24=
+        b=QRzPWLbIzYRQ10DpoT/YCV/JY0fytTuascrelkYu1cVgcQEHd4BRwnEYTRGoeDY2M
+         wbsErgFxKCZ5JOwpyszpkId9DfpvEMZoxDu3JVmIqObc4bn/U/yUWW24WZWC4EWUk3
+         zm7q06+9qDLlLYAyu92RfjEwxlaMMpeNyxaDcJ/c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Murphy Zhou <jencce.kernel@gmail.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 155/290] ext4: dont try to processed freed blocks until mballoc is initialized
-Date:   Mon, 15 Mar 2021 14:54:08 +0100
-Message-Id: <20210315135547.155524013@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.11 186/306] xen/events: reset affinity of 2-level event when tearing it down
+Date:   Mon, 15 Mar 2021 14:54:09 +0100
+Message-Id: <20210315135513.901188003@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +43,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 027f14f5357279655c3ebc6d14daff8368d4f53f ]
+commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
 
-If we try to make any changes via the journal between when the journal
-is initialized, but before the multi-block allocated is initialized,
-we will end up deferencing a NULL pointer when the journal commit
-callback function calls ext4_process_freed_data().
+When creating a new event channel with 2-level events the affinity
+needs to be reset initially in order to avoid using an old affinity
+from earlier usage of the event channel port. So when tearing an event
+channel down reset all affinity bits.
 
-The proximate cause of this failure was commit 2d01ddc86606 ("ext4:
-save error info to sb through journal if available") since file system
-corruption problems detected before the call to ext4_mb_init() would
-result in a journal commit before we aborted the mount of the file
-system.... and we would then trigger the NULL pointer deref.
+The same applies to the affinity when onlining a vcpu: all old
+affinity settings for this vcpu must be reset. As percpu events get
+initialized before the percpu event channel hook is called,
+resetting of the affinities happens after offlining a vcpu (this is
+working, as initial percpu memory is zeroed out).
 
-Link: https://lore.kernel.org/r/YAm8qH/0oo2ofSMR@mit.edu
-Reported-by: Murphy Zhou <jencce.kernel@gmail.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/xen/events/events_2l.c       |   15 +++++++++++++++
+ drivers/xen/events/events_base.c     |    1 +
+ drivers/xen/events/events_internal.h |    8 ++++++++
+ 3 files changed, 24 insertions(+)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index ea5aefa23a20..e30bf8f342c2 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4876,7 +4876,6 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
+ 	return EVTCHN_2L_NR_CHANNELS;
+ }
  
- 	set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
- 
--	sbi->s_journal->j_commit_callback = ext4_journal_commit_callback;
- 	sbi->s_journal->j_submit_inode_data_buffers =
- 		ext4_journal_submit_inode_data_buffers;
- 	sbi->s_journal->j_finish_inode_data_buffers =
-@@ -4993,6 +4992,14 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		goto failed_mount5;
- 	}
- 
-+	/*
-+	 * We can only set up the journal commit callback once
-+	 * mballoc is initialized
-+	 */
-+	if (sbi->s_journal)
-+		sbi->s_journal->j_commit_callback =
-+			ext4_journal_commit_callback;
++static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
++{
++	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
++}
 +
- 	block = ext4_count_free_clusters(sb);
- 	ext4_free_blocks_count_set(sbi->s_es, 
- 				   EXT4_C2B(sbi, block));
--- 
-2.30.1
-
+ static void evtchn_2l_bind_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
+ 				  unsigned int old_cpu)
+ {
+@@ -355,9 +360,18 @@ static void evtchn_2l_resume(void)
+ 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
+ }
+ 
++static int evtchn_2l_percpu_deinit(unsigned int cpu)
++{
++	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
++			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
++
++	return 0;
++}
++
+ static const struct evtchn_ops evtchn_ops_2l = {
+ 	.max_channels      = evtchn_2l_max_channels,
+ 	.nr_channels       = evtchn_2l_max_channels,
++	.remove            = evtchn_2l_remove,
+ 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+@@ -367,6 +381,7 @@ static const struct evtchn_ops evtchn_op
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+ 	.resume	           = evtchn_2l_resume,
++	.percpu_deinit     = evtchn_2l_percpu_deinit,
+ };
+ 
+ void __init xen_evtchn_2l_init(void)
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -368,6 +368,7 @@ static int xen_irq_info_pirq_setup(unsig
+ static void xen_irq_info_cleanup(struct irq_info *info)
+ {
+ 	set_evtchn_to_irq(info->evtchn, -1);
++	xen_evtchn_port_remove(info->evtchn, info->cpu);
+ 	info->evtchn = 0;
+ 	channels_on_cpu_dec(info);
+ }
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -14,6 +14,7 @@ struct evtchn_ops {
+ 	unsigned (*nr_channels)(void);
+ 
+ 	int (*setup)(evtchn_port_t port);
++	void (*remove)(evtchn_port_t port, unsigned int cpu);
+ 	void (*bind_to_cpu)(evtchn_port_t evtchn, unsigned int cpu,
+ 			    unsigned int old_cpu);
+ 
+@@ -54,6 +55,13 @@ static inline int xen_evtchn_port_setup(
+ 	return 0;
+ }
+ 
++static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
++					  unsigned int cpu)
++{
++	if (evtchn_ops->remove)
++		evtchn_ops->remove(evtchn, cpu);
++}
++
+ static inline void xen_evtchn_port_bind_to_cpu(evtchn_port_t evtchn,
+ 					       unsigned int cpu,
+ 					       unsigned int old_cpu)
 
 
