@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A11EF33B55E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0233933B65F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbhCONyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56750 "EHLO mail.kernel.org"
+        id S232111AbhCON5r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230458AbhCONxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF9B064EF0;
-        Mon, 15 Mar 2021 13:53:41 +0000 (UTC)
+        id S231760AbhCON5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06C2E64F01;
+        Mon, 15 Mar 2021 13:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816423;
-        bh=kSqBe/A4bqMgkGYMNTqU0l0cCvmalAM90/thRxHwqzU=;
+        s=korg; t=1615816618;
+        bh=i5kk/hM9hB1ybFBjKO9kXNeWoWRQ6eg16y6EqfJXVAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wGij01MzqGcQjuZao30fsMpysypIeZWpXU/xq+AncM/nexjczHhuOWf9vbVxNem4O
-         0PWSPVr3nEWdEcU5Qe9vP6cYLIf/vH9PCKMOCCAQzksJON5qxW3uHET7xGt31k3LV/
-         8OxvCt28NruRI4Nt+8RiaGifNSK0BsQU6IpSuJX0=
+        b=UnM+xPIiAhx2QllT9zRpxBi09JZ1P471G4mcuYqHWhgco8YyNfe2VpfMTIXCoVIAw
+         BNZczvDyKwdp5dfHXeaqoUGuDQXckdpMhB5BTM+tru8SD6xJ9MGw3X6UjXy7xoY4K8
+         YawB1DX5SOA/Aucg1NKt5KwPhbsmSpvyZ4dae0yE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.4 35/75] xhci: Improve detection of device initiated wake signal.
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Arjun Roy <arjunroy@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 016/290] tcp: Fix sign comparison bug in getsockopt(TCP_ZEROCOPY_RECEIVE)
 Date:   Mon, 15 Mar 2021 14:51:49 +0100
-Message-Id: <20210315135209.395589774@linuxfoundation.org>
+Message-Id: <20210315135542.489803245@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +43,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Arjun Roy <arjunroy@google.com>
 
-commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
+commit 2107d45f17bedd7dbf4178462da0ac223835a2a7 upstream.
 
-A xHC USB 3 port might miss the first wake signal from a USB 3 device
-if the port LFPS reveiver isn't enabled fast enough after xHC resume.
+getsockopt(TCP_ZEROCOPY_RECEIVE) has a bug where we read a
+user-provided "len" field of type signed int, and then compare the
+value to the result of an "offsetofend" operation, which is unsigned.
 
-xHC host will anyway be resumed by a PME# signal, but will go back to
-suspend if no port activity is seen.
-The device resends the U3 LFPS wake signal after a 100ms delay, but
-by then host is already suspended, starting all over from the
-beginning of this issue.
+Negative values provided by the user will be promoted to large
+positive numbers; thus checking that len < offsetofend() will return
+false when the intention was that it return true.
 
-USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
-needs to delay 100ms before resending the wake.
+Note that while len is originally checked for negative values earlier
+on in do_tcp_getsockopt(), subsequent calls to get_user() re-read the
+value from userspace which may have changed in the meantime.
 
-Don't suspend immediately if port activity isn't detected in resume.
-Instead add a retry. If there is no port activity then delay for 120ms,
-and re-check for port activity.
+Therefore, re-add the check for negative values after the call to
+get_user in the handler code for TCP_ZEROCOPY_RECEIVE.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
+Fixes: c8856c051454 ("tcp-zerocopy: Return inq along with tcp receive zerocopy.")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Arjun Roy <arjunroy@google.com>
+Link: https://lore.kernel.org/r/20210225232628.4033281-1-arjunroy.kdev@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ net/ipv4/tcp.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1018,6 +1018,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 	struct usb_hcd		*secondary_hcd;
- 	int			retval = 0;
- 	bool			comp_timer_running = false;
-+	bool			pending_portevent = false;
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3829,7 +3829,8 @@ static int do_tcp_getsockopt(struct sock
  
- 	if (!hcd->state)
- 		return 0;
-@@ -1151,13 +1152,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 
-  done:
- 	if (retval == 0) {
--		/* Resume root hubs only when have pending events. */
--		if (xhci_pending_portevent(xhci)) {
-+		/*
-+		 * Resume roothubs only if there are pending events.
-+		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
-+		 * the first wake signalling failed, give it that chance.
-+		 */
-+		pending_portevent = xhci_pending_portevent(xhci);
-+		if (!pending_portevent) {
-+			msleep(120);
-+			pending_portevent = xhci_pending_portevent(xhci);
-+		}
-+
-+		if (pending_portevent) {
- 			usb_hcd_resume_root_hub(xhci->shared_hcd);
- 			usb_hcd_resume_root_hub(hcd);
- 		}
- 	}
--
- 	/*
- 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
- 	 * be re-initialized Always after a system resume. Ports are subject
+ 		if (get_user(len, optlen))
+ 			return -EFAULT;
+-		if (len < offsetofend(struct tcp_zerocopy_receive, length))
++		if (len < 0 ||
++		    len < offsetofend(struct tcp_zerocopy_receive, length))
+ 			return -EINVAL;
+ 		if (len > sizeof(zc)) {
+ 			len = sizeof(zc);
 
 
