@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FDEF33B6AB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6A333B576
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232358AbhCON62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35462 "EHLO mail.kernel.org"
+        id S231430AbhCONy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232206AbhCON5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5343764EF3;
-        Mon, 15 Mar 2021 13:57:54 +0000 (UTC)
+        id S231287AbhCONyB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 760BD64EF0;
+        Mon, 15 Mar 2021 13:54:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816675;
-        bh=ywmH/FuJgV0z5wgRWqx9jwCb0RCD3L65oqObmzsVKOw=;
+        s=korg; t=1615816441;
+        bh=ilDVjpFpcGed4O/VAph3Y64HOjSdPgGV/4bbeQtf+DM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/186hsFnnJ8Id+Bq1eMxPvzmfiOV4YGS9866NECSJwM+pq/cAEDJ+PNzPkCbHexO
-         PYB3ikPzJUmz8ALLLp79Ke7QMGcCZLl/H0d/31WlM/azW2uMeS5r7B/yfrkw4dvJwj
-         fTOAmOotOL1a1LX/QtggosVTVs54WYGAJ6h2GBII=
+        b=P22bq+xcR3DW4qlhgN+a8AYCtxO4OkIndYNmsVc6OiLUdJuCMY/i1E5ohY+6ENRYZ
+         AHPLhYGBWjWnchm24kGzQPEfnwuWiZT8VBzwAQCNY9Gn9htNMKTk9W+eT+qIFfpCaH
+         jbFbvqaGlUCIjlUamAC3UoQxeHPod0Cmbf7ZS86Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Ramesh Babu B <ramesh.babu.b@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 057/306] net: stmmac: fix incorrect DMA channel intr enable setting of EQoS v4.10
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.4 46/75] staging: rtl8188eu: fix potential memory corruption in rtw_check_beacon_data()
 Date:   Mon, 15 Mar 2021 14:52:00 +0100
-Message-Id: <20210315135509.577263897@linuxfoundation.org>
+Message-Id: <20210315135209.753491210@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +40,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 879c348c35bb5fb758dd881d8a97409c1862dae8 upstream.
+commit d4ac640322b06095128a5c45ba4a1e80929fe7f3 upstream.
 
-We introduce dwmac410_dma_init_channel() here for both EQoS v4.10 and
-above which use different DMA_CH(n)_Interrupt_Enable bit definitions for
-NIE and AIE.
+The "ie_len" is a value in the 1-255 range that comes from the user.  We
+have to cap it to ensure that it's not too large or it could lead to
+memory corruption.
 
-Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Ramesh Babu B <ramesh.babu.b@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9a7fe54ddc3a ("staging: r8188eu: Add source files for new driver - part 1")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YEHyQCrFZKTXyT7J@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/core/rtw_ap.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-@@ -124,6 +124,23 @@ static void dwmac4_dma_init_channel(void
- 	       ioaddr + DMA_CHAN_INTR_ENA(chan));
- }
+--- a/drivers/staging/rtl8188eu/core/rtw_ap.c
++++ b/drivers/staging/rtl8188eu/core/rtw_ap.c
+@@ -921,6 +921,7 @@ int rtw_check_beacon_data(struct adapter
+ 	/* SSID */
+ 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _SSID_IE_, &ie_len, (pbss_network->IELength - _BEACON_IE_OFFSET_));
+ 	if (p && ie_len > 0) {
++		ie_len = min_t(int, ie_len, sizeof(pbss_network->Ssid.Ssid));
+ 		memset(&pbss_network->Ssid, 0, sizeof(struct ndis_802_11_ssid));
+ 		memcpy(pbss_network->Ssid.Ssid, (p + 2), ie_len);
+ 		pbss_network->Ssid.SsidLength = ie_len;
+@@ -939,6 +940,7 @@ int rtw_check_beacon_data(struct adapter
+ 	/*  get supported rates */
+ 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _SUPPORTEDRATES_IE_, &ie_len, (pbss_network->IELength - _BEACON_IE_OFFSET_));
+ 	if (p !=  NULL) {
++		ie_len = min_t(int, ie_len, NDIS_802_11_LENGTH_RATES_EX);
+ 		memcpy(supportRate, p+2, ie_len);
+ 		supportRateNum = ie_len;
+ 	}
+@@ -946,6 +948,8 @@ int rtw_check_beacon_data(struct adapter
+ 	/* get ext_supported rates */
+ 	p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _EXT_SUPPORTEDRATES_IE_, &ie_len, pbss_network->IELength - _BEACON_IE_OFFSET_);
+ 	if (p !=  NULL) {
++		ie_len = min_t(int, ie_len,
++			       NDIS_802_11_LENGTH_RATES_EX - supportRateNum);
+ 		memcpy(supportRate+supportRateNum, p+2, ie_len);
+ 		supportRateNum += ie_len;
+ 	}
+@@ -1061,6 +1065,7 @@ int rtw_check_beacon_data(struct adapter
+ 			pht_cap->supp_mcs_set[0] = 0xff;
+ 			pht_cap->supp_mcs_set[1] = 0x0;
+ 		}
++		ie_len = min_t(int, ie_len, sizeof(pmlmepriv->htpriv.ht_cap));
+ 		memcpy(&pmlmepriv->htpriv.ht_cap, p+2, ie_len);
+ 	}
  
-+static void dwmac410_dma_init_channel(void __iomem *ioaddr,
-+				      struct stmmac_dma_cfg *dma_cfg, u32 chan)
-+{
-+	u32 value;
-+
-+	/* common channel control register config */
-+	value = readl(ioaddr + DMA_CHAN_CONTROL(chan));
-+	if (dma_cfg->pblx8)
-+		value = value | DMA_BUS_MODE_PBL;
-+
-+	writel(value, ioaddr + DMA_CHAN_CONTROL(chan));
-+
-+	/* Mask interrupts by writing to CSR7 */
-+	writel(DMA_CHAN_INTR_DEFAULT_MASK_4_10,
-+	       ioaddr + DMA_CHAN_INTR_ENA(chan));
-+}
-+
- static void dwmac4_dma_init(void __iomem *ioaddr,
- 			    struct stmmac_dma_cfg *dma_cfg, int atds)
- {
-@@ -523,7 +540,7 @@ const struct stmmac_dma_ops dwmac4_dma_o
- const struct stmmac_dma_ops dwmac410_dma_ops = {
- 	.reset = dwmac4_dma_reset,
- 	.init = dwmac4_dma_init,
--	.init_chan = dwmac4_dma_init_channel,
-+	.init_chan = dwmac410_dma_init_channel,
- 	.init_rx_chan = dwmac4_dma_init_rx_chan,
- 	.init_tx_chan = dwmac4_dma_init_tx_chan,
- 	.axi = dwmac4_dma_axi,
 
 
