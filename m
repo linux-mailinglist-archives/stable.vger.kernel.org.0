@@ -2,31 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4392733B870
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D7333B96A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231329AbhCOODc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S233937AbhCOOCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232836AbhCOOAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2E3164F26;
-        Mon, 15 Mar 2021 13:59:42 +0000 (UTC)
+        id S232875AbhCOOAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DD3B61477;
+        Mon, 15 Mar 2021 13:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816783;
-        bh=vLurVrrrwyChHe5fVfuDmI4OBPbtMESKyA6XtpQN/5U=;
+        s=korg; t=1615816785;
+        bh=ls/Kw0AxmQ04kBfbKoNboAsuPICaRMnN/G4moFqOlBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKcW1fgpM6aLneQBcCN1/LTfLXIQHNmq3HGC0BwG3LeWURyjc7XN9tJzRqLJZHph4
-         54LI+WNyV7lYDcKY1yCEhfZKFUwJuEk6IxLI9Z4j1FRAY3e7Et0sqLUnOFD6wf2aRi
-         cQouM1vSz9qN+BUHgIWsAetGF4j9fDPTBLikU9/w=
+        b=zoLD86b2E55SjGp4pXwJhQw1vhFkiMZ5eynf/rDuRvDl0raakLorIsmjtxNo83c51
+         zQ4tGtA3DdoSzLcNU67j1pNJ0Bvv4vUT+sZdh6ysamEjQOHzWqPCwNLy+30dXYyaaX
+         qHqVmY86WLW7yzmymMsbwxJG5J2Hg+snk1QZm/tQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 4.19 065/120] Revert 95ebabde382c ("capabilities: Dont allow writing ambiguous v3 file capabilities")
-Date:   Mon, 15 Mar 2021 14:56:56 +0100
-Message-Id: <20210315135722.100875537@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Bjoern Walk <bwalk@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 066/120] s390/dasd: fix hanging DASD driver unbind
+Date:   Mon, 15 Mar 2021 14:56:57 +0100
+Message-Id: <20210315135722.132681825@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -40,54 +43,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 3b0c2d3eaa83da259d7726192cf55a137769012f upstream.
+commit 7d365bd0bff3c0310c39ebaffc9a8458e036d666 upstream.
 
-It turns out that there are in fact userspace implementations that
-care and this recent change caused a regression.
+In case of an unbind of the DASD device driver the function
+dasd_generic_remove() is called which shuts down the device.
+Among others this functions removes the int_handler from the cdev.
+During shutdown the device cancels all outstanding IO requests and waits
+for completion of the clear request.
+Unfortunately the clear interrupt will never be received when there is no
+interrupt handler connected.
 
-https://github.com/containers/buildah/issues/3071
-
-As the motivation for the original change was future development,
-and the impact is existing real world code just revert this change
-and allow the ambiguity in v3 file caps.
+Fix by moving the int_handler removal after the call to the state machine
+where no request or interrupt is outstanding.
 
 Cc: stable@vger.kernel.org
-Fixes: 95ebabde382c ("capabilities: Don't allow writing ambiguous v3 file capabilities")
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/commoncap.c |   12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/s390/block/dasd.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -506,8 +506,7 @@ int cap_convert_nscap(struct dentry *den
- 	__u32 magic, nsmagic;
- 	struct inode *inode = d_backing_inode(dentry);
- 	struct user_namespace *task_ns = current_user_ns(),
--		*fs_ns = inode->i_sb->s_user_ns,
--		*ancestor;
-+		*fs_ns = inode->i_sb->s_user_ns;
- 	kuid_t rootid;
- 	size_t newsize;
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -3426,8 +3426,6 @@ void dasd_generic_remove(struct ccw_devi
+ 	struct dasd_device *device;
+ 	struct dasd_block *block;
  
-@@ -530,15 +529,6 @@ int cap_convert_nscap(struct dentry *den
- 	if (nsrootid == -1)
- 		return -EINVAL;
- 
--	/*
--	 * Do not allow allow adding a v3 filesystem capability xattr
--	 * if the rootid field is ambiguous.
--	 */
--	for (ancestor = task_ns->parent; ancestor; ancestor = ancestor->parent) {
--		if (from_kuid(ancestor, rootid) == 0)
--			return -EINVAL;
--	}
+-	cdev->handler = NULL;
 -
- 	newsize = sizeof(struct vfs_ns_cap_data);
- 	nscap = kmalloc(newsize, GFP_ATOMIC);
- 	if (!nscap)
+ 	device = dasd_device_from_cdev(cdev);
+ 	if (IS_ERR(device)) {
+ 		dasd_remove_sysfs_files(cdev);
+@@ -3446,6 +3444,7 @@ void dasd_generic_remove(struct ccw_devi
+ 	 * no quite down yet.
+ 	 */
+ 	dasd_set_target_state(device, DASD_STATE_NEW);
++	cdev->handler = NULL;
+ 	/* dasd_delete_device destroys the device reference. */
+ 	block = device->block;
+ 	dasd_delete_device(device);
 
 
