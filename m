@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CED0933B931
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89BB333B90B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234739AbhCOOFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S234751AbhCOOFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233161AbhCOOAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91FE864F9B;
-        Mon, 15 Mar 2021 14:00:32 +0000 (UTC)
+        id S233197AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C94AA64EF8;
+        Mon, 15 Mar 2021 14:00:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816833;
-        bh=Q7fOIOhYYEgWEapd03u/hAGSKrUrhyVrhseD34/Bq5s=;
+        s=korg; t=1615816834;
+        bh=yKxm+gGEX77Yzcc03ZKJ+sTiaF0sQsPtK8F1W46HQwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucG3A0Ooi9k/b9AUzDvDWPNVHpdW46dQkfI9tyq7vSydq9d8yK+0EevyL9NdGGidq
-         +z7RGrYg2pupVhbxAOSO27mltXvt1H/GDhUCsoo9s0vy9rNw4wHrqcbnNelaJgirtY
-         xr+2EbQGlaYz9pGVMJvB+CwtHtg4eKbV1E42eujk=
+        b=dxMuJgQdFECdrUVXN2Y4f3mXw/THNCmaigB1wN+5YhELdvt0M+u5Ejv6YvVnu6o38
+         6q8cCSqFMIapKLprBMOA8jejRgN7Cv2LqiLkcl1NzvqbXuljhenrlBbwdmXoZ8cKNQ
+         e2/ifLEJzjRyy0j/f6uZxxbIIa5c09bjo9fNqI2I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.4 142/168] staging: comedi: pcl818: Fix endian problem for AI command data
-Date:   Mon, 15 Mar 2021 14:56:14 +0100
-Message-Id: <20210315135555.006019466@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 143/168] sh_eth: fix TRSCER mask for R7S72100
+Date:   Mon, 15 Mar 2021 14:56:15 +0100
+Message-Id: <20210315135555.035960416@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -40,41 +42,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit 148e34fd33d53740642db523724226de14ee5281 upstream.
+[ Upstream commit 75be7fb7f978202c4c3a1a713af4485afb2ff5f6 ]
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the call to
-`comedi_buf_write_samples()` is passing the address of a 32-bit integer
-parameter.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the parameter
-holding the sample value to `unsigned short`.
+According  to  the RZ/A1H Group, RZ/A1M Group User's Manual: Hardware,
+Rev. 4.00, the TRSCER register has bit 9 reserved, hence we can't use
+the driver's default TRSCER mask.  Add the explicit initializer for
+sh_eth_cpu_data::trscer_err_mask for R7S72100.
 
-[Note: the bug was introduced in commit edf4537bcbf5 ("staging: comedi:
-pcl818: use comedi_buf_write_samples()") but the patch applies better to
-commit d615416de615 ("staging: comedi: pcl818: introduce
-pcl818_ai_write_sample()").]
-
-Fixes: d615416de615 ("staging: comedi: pcl818: introduce pcl818_ai_write_sample()")
-Cc: <stable@vger.kernel.org> # 4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-10-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: db893473d313 ("sh_eth: Add support for r7s72100")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/pcl818.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/sh_eth.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/staging/comedi/drivers/pcl818.c
-+++ b/drivers/staging/comedi/drivers/pcl818.c
-@@ -423,7 +423,7 @@ static int pcl818_ai_eoc(struct comedi_d
+diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
+index 91d234b18195..a042f4607b0d 100644
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -610,6 +610,8 @@ static struct sh_eth_cpu_data r7s72100_data = {
+ 			  EESR_TDE,
+ 	.fdr_value	= 0x0000070f,
  
- static bool pcl818_ai_write_sample(struct comedi_device *dev,
- 				   struct comedi_subdevice *s,
--				   unsigned int chan, unsigned int val)
-+				   unsigned int chan, unsigned short val)
- {
- 	struct pcl818_private *devpriv = dev->private;
- 	struct comedi_cmd *cmd = &s->async->cmd;
++	.trscer_err_mask = DESC_I_RINT8 | DESC_I_RINT5,
++
+ 	.no_psr		= 1,
+ 	.apr		= 1,
+ 	.mpr		= 1,
+-- 
+2.30.1
+
 
 
