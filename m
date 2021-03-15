@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7610A33B76D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 274CF33B819
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232882AbhCOOAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S233615AbhCOOCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232597AbhCON7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6710664F25;
-        Mon, 15 Mar 2021 13:58:54 +0000 (UTC)
+        id S232884AbhCOOAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D00BB64F5E;
+        Mon, 15 Mar 2021 13:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816735;
-        bh=Bmx3KOJBYYoPNczQQuo7vTa/SwT5fCvIwJqqd6fl1Pw=;
+        s=korg; t=1615816787;
+        bh=foAQqbn99H8ZvIr8aDDOBpEBQF6iFeotkCTkcixB7k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvVzSgj/Epvks/HCZOonCLnmFabQSDroWVseVM/cbdAxsoxlCGCLyrp1nQ6Ac/YEa
-         /ZREVqSUC5B7t4RybfcMNTGFXK1jduaPFEYcRt1Emdf6VZ4EHliGn1J4P8KrwlJSn1
-         bJ8D0ZY135PuLLEGZhAYu5c29wu6h+GznCoc42l0=
+        b=R+SG06ti3KkmiRYGkHLoXnhgQm7bEgYFM3EBzjKNsI55WViF3ObiBTn5PTmR/PE6i
+         wZb0REiZ1H2nxt01TpioZfE9sdg3C0lkKKiHuHgfS2SYcLWc4PMWkIBwvtYSCqNdai
+         3JGYUcKPKdXIPVzoj9Lm1g2vY1loFmnuRlMGBc6M=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 4.14 27/95] drm/compat: Clear bounce structures
-Date:   Mon, 15 Mar 2021 14:56:57 +0100
-Message-Id: <20210315135741.165872302@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Bjoern Walk <bwalk@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 067/120] s390/dasd: fix hanging IO request during DASD driver unbind
+Date:   Mon, 15 Mar 2021 14:56:58 +0100
+Message-Id: <20210315135722.167047466@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit de066e116306baf3a6a62691ac63cfc0b1dabddb upstream.
+commit 66f669a272898feb1c69b770e1504aa2ec7723d1 upstream.
 
-Some of them have gaps, or fields we don't clear. Native ioctl code
-does full copies plus zero-extends on size mismatch, so nothing can
-leak. But compat is more hand-rolled so need to be careful.
+Prevent that an IO request is build during device shutdown initiated by
+a driver unbind. This request will never be able to be processed or
+canceled and will hang forever. This will lead also to a hanging unbind.
 
-None of these matter for performance, so just memset.
+Fix by checking not only if the device is in READY state but also check
+that there is no device offline initiated before building a new IO request.
 
-Also I didn't fix up the CONFIG_DRM_LEGACY or CONFIG_DRM_AGP ioctl, those
-are security holes anyway.
+Fixes: e443343e509a ("s390/dasd: blk-mq conversion")
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reported-by: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com # vblank ioctl
-Cc: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210222100643.400935-1-daniel.vetter@ffwll.ch
-(cherry picked from commit e926c474ebee404441c838d18224cd6f246a71b7)
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v4.14+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_ioc32.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/s390/block/dasd.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_ioc32.c
-+++ b/drivers/gpu/drm/drm_ioc32.c
-@@ -96,6 +96,8 @@ static int compat_drm_version(struct fil
- 	if (copy_from_user(&v32, (void __user *)arg, sizeof(v32)))
- 		return -EFAULT;
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2940,7 +2940,8 @@ static blk_status_t do_dasd_request(stru
  
-+	memset(&v, 0, sizeof(v));
-+
- 	v = (struct drm_version) {
- 		.name_len = v32.name_len,
- 		.name = compat_ptr(v32.name),
-@@ -134,6 +136,9 @@ static int compat_drm_getunique(struct f
- 
- 	if (copy_from_user(&uq32, (void __user *)arg, sizeof(uq32)))
- 		return -EFAULT;
-+
-+	memset(&uq, 0, sizeof(uq));
-+
- 	uq = (struct drm_unique){
- 		.unique_len = uq32.unique_len,
- 		.unique = compat_ptr(uq32.unique),
-@@ -260,6 +265,8 @@ static int compat_drm_getclient(struct f
- 	if (copy_from_user(&c32, argp, sizeof(c32)))
- 		return -EFAULT;
- 
-+	memset(&client, 0, sizeof(client));
-+
- 	client.idx = c32.idx;
- 
- 	err = drm_ioctl_kernel(file, drm_getclient, &client, DRM_UNLOCKED);
-@@ -842,6 +849,8 @@ static int compat_drm_wait_vblank(struct
- 	if (copy_from_user(&req32, argp, sizeof(req32)))
- 		return -EFAULT;
- 
-+	memset(&req, 0, sizeof(req));
-+
- 	req.request.type = req32.request.type;
- 	req.request.sequence = req32.request.sequence;
- 	req.request.signal = req32.request.signal;
-@@ -879,6 +888,8 @@ static int compat_drm_mode_addfb2(struct
- 	struct drm_mode_fb_cmd2 req64;
- 	int err;
- 
-+	memset(&req64, 0, sizeof(req64));
-+
- 	if (copy_from_user(&req64, argp,
- 			   offsetof(drm_mode_fb_cmd232_t, modifier)))
- 		return -EFAULT;
+ 	basedev = block->base;
+ 	spin_lock_irq(&dq->lock);
+-	if (basedev->state < DASD_STATE_READY) {
++	if (basedev->state < DASD_STATE_READY ||
++	    test_bit(DASD_FLAG_OFFLINE, &basedev->flags)) {
+ 		DBF_DEV_EVENT(DBF_ERR, basedev,
+ 			      "device not ready for request %p", req);
+ 		rc = BLK_STS_IOERR;
 
 
