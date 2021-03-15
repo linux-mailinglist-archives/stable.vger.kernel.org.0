@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A16733B77A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 616D033B77D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232233AbhCOOAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S231741AbhCOOAc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232470AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EF3F64F83;
-        Mon, 15 Mar 2021 13:58:36 +0000 (UTC)
+        id S232475AbhCON66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD21F64F46;
+        Mon, 15 Mar 2021 13:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816718;
-        bh=Vr0sgJqWyvNZnVFR/n03t2Gv7d6qsk5EVb5smonF9Oo=;
+        s=korg; t=1615816719;
+        bh=+ptmoKpV4hlB21msSzO9E3KSI8JK5/TGAUnVA56A/VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b+6t7cPCopqaMcOLPPwUPtkcdjGxzdae5NyFr0PRMfkSQVO5Y+iVNMPBFDLs8rFma
-         oqv5n4+WXFBL4ffClO7UVICr0HIai4xl8N9Bys7heztiocGwqE9HYsDsp3eMnOkp7H
-         pksq9LbxMiB0XxVsEyNuuH6Dk8f2P6al933ZuCdM=
+        b=maB2mYVaf17f2k8Otaqxnfr4GBAimshdWxTjNuWRKNPuManisIw6lZp7N3FTV2p0i
+         6UgKhP5iW2p8trCa7Q0HA8CTaJEfSAt198lFmNloNnYua82CcOchqh6MELim+e68FF
+         LztDi+OCDQF8kZC704oOvcCxF0H0AurR6GAQ/M98=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        Louis Peens <louis.peens@netronome.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 083/306] ethtool: fix the check logic of at least one channel for RX/TX
-Date:   Mon, 15 Mar 2021 14:52:26 +0100
-Message-Id: <20210315135510.455944368@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.11 084/306] net: phy: make mdio_bus_phy_suspend/resume as __maybe_unused
+Date:   Mon, 15 Mar 2021 14:52:27 +0100
+Message-Id: <20210315135510.491807314@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -43,88 +41,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yinjun Zhang <yinjun.zhang@corigine.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a4fc088ad4ff4a99d01978aa41065132b574b4b2 upstream.
+commit 7f654157f0aefba04cd7f6297351c87b76b47b89 upstream.
 
-The command "ethtool -L <intf> combined 0" may clean the RX/TX channel
-count and skip the error path, since the attrs
-tb[ETHTOOL_A_CHANNELS_RX_COUNT] and tb[ETHTOOL_A_CHANNELS_TX_COUNT]
-are NULL in this case when recent ethtool is used.
+When CONFIG_PM_SLEEP is disabled, the compiler warns about unused
+functions:
 
-Tested using ethtool v5.10.
+drivers/net/phy/phy_device.c:273:12: error: unused function 'mdio_bus_phy_suspend' [-Werror,-Wunused-function]
+static int mdio_bus_phy_suspend(struct device *dev)
+drivers/net/phy/phy_device.c:293:12: error: unused function 'mdio_bus_phy_resume' [-Werror,-Wunused-function]
+static int mdio_bus_phy_resume(struct device *dev)
 
-Fixes: 7be92514b99c ("ethtool: check if there is at least one channel for TX/RX in the core")
-Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
-Signed-off-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: Louis Peens <louis.peens@netronome.com>
-Link: https://lore.kernel.org/r/20210225125102.23989-1-simon.horman@netronome.com
+The logic is intentional, so just mark these two as __maybe_unused
+and remove the incorrect #ifdef.
+
+Fixes: 4c0d2e96ba05 ("net: phy: consider that suspend2ram may cut off PHY power")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20210225145748.404410-1-arnd@kernel.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ethtool/channels.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/net/phy/phy_device.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/ethtool/channels.c
-+++ b/net/ethtool/channels.c
-@@ -116,10 +116,9 @@ int ethnl_set_channels(struct sk_buff *s
- 	struct ethtool_channels channels = {};
- 	struct ethnl_req_info req_info = {};
- 	struct nlattr **tb = info->attrs;
--	const struct nlattr *err_attr;
-+	u32 err_attr, max_rx_in_use = 0;
- 	const struct ethtool_ops *ops;
- 	struct net_device *dev;
--	u32 max_rx_in_use = 0;
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -230,7 +230,6 @@ static struct phy_driver genphy_driver;
+ static LIST_HEAD(phy_fixup_list);
+ static DEFINE_MUTEX(phy_fixup_lock);
+ 
+-#ifdef CONFIG_PM
+ static bool mdio_bus_phy_may_suspend(struct phy_device *phydev)
+ {
+ 	struct device_driver *drv = phydev->mdio.dev.driver;
+@@ -270,7 +269,7 @@ out:
+ 	return !phydev->suspended;
+ }
+ 
+-static int mdio_bus_phy_suspend(struct device *dev)
++static __maybe_unused int mdio_bus_phy_suspend(struct device *dev)
+ {
+ 	struct phy_device *phydev = to_phy_device(dev);
+ 
+@@ -290,7 +289,7 @@ static int mdio_bus_phy_suspend(struct d
+ 	return phy_suspend(phydev);
+ }
+ 
+-static int mdio_bus_phy_resume(struct device *dev)
++static __maybe_unused int mdio_bus_phy_resume(struct device *dev)
+ {
+ 	struct phy_device *phydev = to_phy_device(dev);
  	int ret;
+@@ -316,7 +315,6 @@ no_resume:
  
- 	ret = ethnl_parse_header_dev_get(&req_info,
-@@ -157,34 +156,35 @@ int ethnl_set_channels(struct sk_buff *s
+ static SIMPLE_DEV_PM_OPS(mdio_bus_phy_pm_ops, mdio_bus_phy_suspend,
+ 			 mdio_bus_phy_resume);
+-#endif /* CONFIG_PM */
  
- 	/* ensure new channel counts are within limits */
- 	if (channels.rx_count > channels.max_rx)
--		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
- 	else if (channels.tx_count > channels.max_tx)
--		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
- 	else if (channels.other_count > channels.max_other)
--		err_attr = tb[ETHTOOL_A_CHANNELS_OTHER_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_OTHER_COUNT;
- 	else if (channels.combined_count > channels.max_combined)
--		err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
- 	else
--		err_attr = NULL;
-+		err_attr = 0;
- 	if (err_attr) {
- 		ret = -EINVAL;
--		NL_SET_ERR_MSG_ATTR(info->extack, err_attr,
-+		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
- 				    "requested channel count exceeds maximum");
- 		goto out_ops;
- 	}
- 
- 	/* ensure there is at least one RX and one TX channel */
- 	if (!channels.combined_count && !channels.rx_count)
--		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
- 	else if (!channels.combined_count && !channels.tx_count)
--		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
-+		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
- 	else
--		err_attr = NULL;
-+		err_attr = 0;
- 	if (err_attr) {
- 		if (mod_combined)
--			err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
-+			err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
- 		ret = -EINVAL;
--		NL_SET_ERR_MSG_ATTR(info->extack, err_attr, "requested channel counts would result in no RX or TX channel being configured");
-+		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
-+				    "requested channel counts would result in no RX or TX channel being configured");
- 		goto out_ops;
- 	}
- 
+ /**
+  * phy_register_fixup - creates a new phy_fixup and adds it to the list
 
 
