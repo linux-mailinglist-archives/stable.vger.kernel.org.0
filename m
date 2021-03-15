@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E4C33C007
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:36:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB2F733C003
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:35:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237439AbhCOPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 11:35:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60252 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233310AbhCOPf1 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        id S231877AbhCOPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 11:35:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A06E964E64;
-        Mon, 15 Mar 2021 15:35:26 +0000 (UTC)
+Received: from mail.kernel.org ([198.145.29.99]:60234 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233306AbhCOPfY (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 11:35:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F3A864E22;
+        Mon, 15 Mar 2021 15:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615822527;
-        bh=XYrivjzV5+x6p8BFIzAUw0s25QbwOWcT4L2G3G7OOr8=;
+        s=korg; t=1615822524;
+        bh=ptPHRzaWvWWH6PZ5DiyJLJCK0bkiFD5iPOPD7Z+RMiI=;
         h=Subject:To:From:Date:From;
-        b=emCfOT1CUm0QqFGef2q913AyIwUhOQBa4NZyVpwM/XowS6HxVlNPrjVn8df/nYu0j
-         ePPHEjf+U0GAjeVfsPnqMNOZb+kWsRB8FNO/juJZXrwosT6aag0KclKMi534G50rv2
-         qq0BBbtbqfUx0+YUXUgfV3BKKXu8t+xhQ58hIbQs=
-Subject: patch "iio: hid-sensor-prox: Fix scale not correct issue" added to staging-linus
-To:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=1G2W1A2PnykFCLCNzYE5OrWLLGJZMUwLVosHUoSWeyR0NgpG6hYREQiwGEHdaZjoi
+         R7j7MJWCHPtO3rAvPPtnHtOwuHUFQheHrJCvOqy30xhfZfdbousZsh10Lm8Wd6uGKG
+         MRuFxTnww0wfWyDXtt/JPVegIU0X3WlcCfa44ZTo=
+Subject: patch "iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel" added to staging-linus
+To:     jonathan.albrieux@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, bjorn.andersson@linaro.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Mar 2021 16:35:21 +0100
-Message-ID: <1615822521205178@kroah.com>
+Message-ID: <1615822521519@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: hid-sensor-prox: Fix scale not correct issue
+    iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,63 +51,51 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d68c592e02f6f49a88e705f13dfc1883432cf300 Mon Sep 17 00:00:00 2001
-From: Ye Xiang <xiang.ye@intel.com>
-Date: Sat, 30 Jan 2021 18:25:30 +0800
-Subject: iio: hid-sensor-prox: Fix scale not correct issue
+From 7d200b283aa049fcda0d43dd6e03e9e783d2799c Mon Sep 17 00:00:00 2001
+From: Jonathan Albrieux <jonathan.albrieux@gmail.com>
+Date: Wed, 13 Jan 2021 16:18:07 +0100
+Subject: iio:adc:qcom-spmi-vadc: add default scale to LR_MUX2_BAT_ID channel
 
-Currently, the proxy sensor scale is zero because it just return the
-exponent directly. To fix this issue, this patch use
-hid_sensor_format_scale to process the scale first then return the
-output.
+Checking at both msm8909-pm8916.dtsi and msm8916.dtsi from downstream
+it is indicated that "batt_id" channel has to be scaled with the default
+function:
 
-Fixes: 39a3a0138f61 ("iio: hid-sensors: Added Proximity Sensor Driver")
-Signed-off-by: Ye Xiang <xiang.ye@intel.com>
-Link: https://lore.kernel.org/r/20210130102530.31064-1-xiang.ye@intel.com
+	chan@31 {
+		label = "batt_id";
+		reg = <0x31>;
+		qcom,decimation = <0>;
+		qcom,pre-div-channel-scaling = <0>;
+		qcom,calibration-type = "ratiometric";
+		qcom,scale-function = <0>;
+		qcom,hw-settle-time = <0xb>;
+		qcom,fast-avg-setup = <0>;
+	};
+
+Change LR_MUX2_BAT_ID scaling accordingly.
+
+Signed-off-by: Jonathan Albrieux <jonathan.albrieux@gmail.com>
+Acked-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 7c271eea7b8a ("iio: adc: spmi-vadc: Changes to support different scaling")
+Link: https://lore.kernel.org/r/20210113151808.4628-2-jonathan.albrieux@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/light/hid-sensor-prox.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/iio/adc/qcom-spmi-vadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 330cf359e0b8..e9e00ce0c6d4 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -23,6 +23,9 @@ struct prox_state {
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info prox_attr;
- 	u32 human_presence;
-+	int scale_pre_decml;
-+	int scale_post_decml;
-+	int scale_precision;
- };
+diff --git a/drivers/iio/adc/qcom-spmi-vadc.c b/drivers/iio/adc/qcom-spmi-vadc.c
+index b0388f8a69f4..7e7d408452ec 100644
+--- a/drivers/iio/adc/qcom-spmi-vadc.c
++++ b/drivers/iio/adc/qcom-spmi-vadc.c
+@@ -598,7 +598,7 @@ static const struct vadc_channels vadc_chans[] = {
+ 	VADC_CHAN_NO_SCALE(P_MUX16_1_3, 1)
  
- /* Channel definitions */
-@@ -93,8 +96,9 @@ static int prox_read_raw(struct iio_dev *indio_dev,
- 		ret_type = IIO_VAL_INT;
- 		break;
- 	case IIO_CHAN_INFO_SCALE:
--		*val = prox_state->prox_attr.units;
--		ret_type = IIO_VAL_INT;
-+		*val = prox_state->scale_pre_decml;
-+		*val2 = prox_state->scale_post_decml;
-+		ret_type = prox_state->scale_precision;
- 		break;
- 	case IIO_CHAN_INFO_OFFSET:
- 		*val = hid_sensor_convert_exponent(
-@@ -234,6 +238,11 @@ static int prox_parse_report(struct platform_device *pdev,
- 			HID_USAGE_SENSOR_HUMAN_PRESENCE,
- 			&st->common_attributes.sensitivity);
- 
-+	st->scale_precision = hid_sensor_format_scale(
-+				hsdev->usage,
-+				&st->prox_attr,
-+				&st->scale_pre_decml, &st->scale_post_decml);
-+
- 	return ret;
- }
- 
+ 	VADC_CHAN_NO_SCALE(LR_MUX1_BAT_THERM, 0)
+-	VADC_CHAN_NO_SCALE(LR_MUX2_BAT_ID, 0)
++	VADC_CHAN_VOLT(LR_MUX2_BAT_ID, 0, SCALE_DEFAULT)
+ 	VADC_CHAN_NO_SCALE(LR_MUX3_XO_THERM, 0)
+ 	VADC_CHAN_NO_SCALE(LR_MUX4_AMUX_THM1, 0)
+ 	VADC_CHAN_NO_SCALE(LR_MUX5_AMUX_THM2, 0)
 -- 
 2.30.2
 
