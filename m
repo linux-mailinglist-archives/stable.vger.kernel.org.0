@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5361233BA6F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 808ED33B7CD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234183AbhCOOJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49843 "EHLO mail.kernel.org"
+        id S233305AbhCOOBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232820AbhCOODl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F5464E83;
-        Mon, 15 Mar 2021 14:03:38 +0000 (UTC)
+        id S232760AbhCON7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77C2864F87;
+        Mon, 15 Mar 2021 13:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817020;
-        bh=lp7t4PAGlGJxwaLGTr21In+LijphDBOdYAJ98nN3adY=;
+        s=korg; t=1615816766;
+        bh=aub/wW0L/r+PGDezeTTgN6pqKalUmmN9zQjC8nJQYcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qsp+/YR0gC3xNLCIdiPs4Tsf5r9VVreaYMXJY6e5M5Pzjn/8+dCfcs7PKOTHaVXhe
-         xfz8PVLFLJtJ4sxQZSDm8t8IY5PJAB1vCdyLoye7PC+Dcpp6RemcXI+ttuTq8NGuDO
-         IyGhx2XL/90lIzW5km6EYCrWHb9hdM9t9m/zxHOg=
+        b=WnUYN7Q/s3SVSjoqUpJEHNa36QvNZ3gEMogx7vJdGw8TTv1IaGl3UUQcHzFKeFlzn
+         cYKCa0cwatYRwyuIFsDP3TJsLt5R3Tnjis/QzFbP14Bhpb8dBgzwQTDuDZaps+pkX9
+         TU5ElnaaP2yCLqHhAaexLLgWPpGx7jwlfLlDiKEc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 263/306] powerpc/64s/exception: Clean up a missed SRR specifier
-Date:   Mon, 15 Mar 2021 14:55:26 +0100
-Message-Id: <20210315135516.533659446@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 095/168] ALSA: usb-audio: Apply the control quirk to Plantronics headsets
+Date:   Mon, 15 Mar 2021 14:55:27 +0100
+Message-Id: <20210315135553.496783438@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Daniel Axtens <dja@axtens.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c080a173301ffc62cb6c76308c803c7fee05517a ]
+commit 06abcb18b3a021ba1a3f2020cbefb3ed04e59e72 upstream.
 
-Nick's patch cleaning up the SRR specifiers in exception-64s.S missed
-a single instance of EXC_HV_OR_STD. Clean that up.
+Other Plantronics headset models seem requiring the same workaround as
+C320-M to add the 20ms delay for the control messages, too.  Apply the
+workaround generically for devices with the vendor ID 0x047f.
 
-Caught by clang's integrated assembler.
+Note that the problem didn't surface before 5.11 just with luck.
+Since 5.11 got a big code rewrite about the stream handling, the
+parameter setup procedure has changed, and this seemed triggering the
+problem more often.
 
-Fixes: 3f7fbd97d07d ("powerpc/64s/exception: Clean up SRR specifiers")
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210225031006.1204774-2-dja@axtens.net
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182552
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210304085009.4770-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/exceptions-64s.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
-index 6e53f7638737..de988770a7e4 100644
---- a/arch/powerpc/kernel/exceptions-64s.S
-+++ b/arch/powerpc/kernel/exceptions-64s.S
-@@ -470,7 +470,7 @@ DEFINE_FIXED_SYMBOL(\name\()_common_real)
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1606,10 +1606,10 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 		msleep(20);
  
- 	ld	r10,PACAKMSR(r13)	/* get MSR value for kernel */
- 	/* MSR[RI] is clear iff using SRR regs */
--	.if IHSRR == EXC_HV_OR_STD
-+	.if IHSRR_IF_HVMODE
- 	BEGIN_FTR_SECTION
- 	xori	r10,r10,MSR_RI
- 	END_FTR_SECTION_IFCLR(CPU_FTR_HVMODE)
--- 
-2.30.1
-
+ 	/*
+-	 * Plantronics C320-M needs a delay to avoid random
+-	 * microhpone failures.
++	 * Plantronics headsets (C320, C320-M, etc) need a delay to avoid
++	 * random microhpone failures.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x047f, 0xc025)  &&
++	if (USB_ID_VENDOR(chip->usb_id) == 0x047f &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
+ 
 
 
