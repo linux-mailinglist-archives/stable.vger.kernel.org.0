@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB40733B7AA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098AE33B8E0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233183AbhCOOBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S234678AbhCOOEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232726AbhCON7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4264364F41;
-        Mon, 15 Mar 2021 13:59:15 +0000 (UTC)
+        id S232984AbhCOOAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C227364F0F;
+        Mon, 15 Mar 2021 14:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816756;
-        bh=h9uepS0IuP/s0KWqGb2pQv8XGPCsQvzxjE0h1JXIjD0=;
+        s=korg; t=1615816804;
+        bh=2wt3srBQLujzsopo+9BlZr8r/Wje3pwwVlb9R6il4z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJ+rSNKmp28cUofSXBYb5sXZI6fnjLGpNnf/eIZSMOjJC1V7gkUcIPIbvDxvrGcRJ
-         TUsR52aR7WOoImX3Rqr++o4Is7AQt65fmSl/z8WJl69Ngfz2DcHAeprPYOFu7EbxQh
-         qMq2Liy6vj5h+EroaO/2QCtUPZkqXDQN8YiqAPPI=
+        b=YCcEubJHRQTQjqt/CuErkWDpLhrLW0AvmpC/Mvjzap0NZzHOr40b7nm2PvxJ789Yy
+         F7a/cVaWawCix8XZPUWdn3wC2My3v9RENq5OckSlFa4Y/LKxuLSt2syDABNNaPzlE1
+         6YSFmScPhOMAegBg1PwD9A1ebT4F+puDbcfCML6Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/95] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
+        stable@vger.kernel.org,
+        syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 079/120] USB: serial: io_edgeport: fix memory leak in edge_startup
 Date:   Mon, 15 Mar 2021 14:57:10 +0100
-Message-Id: <20210315135741.589419079@linuxfoundation.org>
+Message-Id: <20210315135722.554240725@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
+commit cfdc67acc785e01a8719eeb7012709d245564701 upstream.
 
-If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
-but we leave it partially setup. We don't have functions that can undo the
-pdu and init task setup. We only have cleanup_task which can clean up both
-parts. So this has us just fail the cmd and go through the standard cleanup
-routine and then have the SCSI midlayer retry it like is done when it fails
-in the queuecommand path.
+sysbot found memory leak in edge_startup().
+The problem was that when an error was received from the usb_submit_urb(),
+nothing was cleaned up.
 
-Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
+Cc: stable@vger.kernel.org	# 2.6.21: c5c0c55598ce
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libiscsi.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/usb/serial/io_edgeport.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index f180d1b4553c..21efe27ebfcc 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1569,14 +1569,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -3021,26 +3021,32 @@ static int edge_startup(struct usb_seria
+ 				response = -ENODEV;
+ 			}
+ 
+-			usb_free_urb(edge_serial->interrupt_read_urb);
+-			kfree(edge_serial->interrupt_in_buffer);
+-
+-			usb_free_urb(edge_serial->read_urb);
+-			kfree(edge_serial->bulk_in_buffer);
+-
+-			kfree(edge_serial);
+-
+-			return response;
++			goto error;
  		}
- 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
- 		if (rc) {
--			if (rc == -ENOMEM || rc == -EACCES) {
--				spin_lock_bh(&conn->taskqueuelock);
--				list_add_tail(&conn->task->running,
--					      &conn->cmdqueue);
--				conn->task = NULL;
--				spin_unlock_bh(&conn->taskqueuelock);
--				goto done;
--			} else
-+			if (rc == -ENOMEM || rc == -EACCES)
-+				fail_scsi_task(conn->task, DID_IMM_RETRY);
-+			else
- 				fail_scsi_task(conn->task, DID_ABORT);
- 			spin_lock_bh(&conn->taskqueuelock);
- 			continue;
--- 
-2.30.1
-
+ 
+ 		/* start interrupt read for this edgeport this interrupt will
+ 		 * continue as long as the edgeport is connected */
+ 		response = usb_submit_urb(edge_serial->interrupt_read_urb,
+ 								GFP_KERNEL);
+-		if (response)
++		if (response) {
+ 			dev_err(ddev, "%s - Error %d submitting control urb\n",
+ 				__func__, response);
++
++			goto error;
++		}
+ 	}
+ 	return response;
++
++error:
++	usb_free_urb(edge_serial->interrupt_read_urb);
++	kfree(edge_serial->interrupt_in_buffer);
++
++	usb_free_urb(edge_serial->read_urb);
++	kfree(edge_serial->bulk_in_buffer);
++
++	kfree(edge_serial);
++
++	return response;
+ }
+ 
+ 
 
 
