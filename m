@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C9A33B786
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F03333B822
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233086AbhCOOAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S233670AbhCOOCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232633AbhCON7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53C8864F1A;
-        Mon, 15 Mar 2021 13:58:59 +0000 (UTC)
+        id S231701AbhCOOAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A20964F72;
+        Mon, 15 Mar 2021 13:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816740;
-        bh=5BBDTjHWatf4P1FaExInXz9MyqJaqKVSj1Ui7+f3W54=;
+        s=korg; t=1615816790;
+        bh=HIP0kVB6XTJ9YLvpV/tqOOuYwW3vQoTO8MqPM6KL5C0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTJjzrKsVmgtYEg0rWXtZL3jETT+3gR+zvkMC0sP2FAsN1F3uofOBi5k9atHRJRkr
-         uYe8jAxQqmhVptUs325muFXVthCQoF0u+o8kHAU2uLwhE2baFZXtnJuDG+ksuDA2HD
-         fY2pBCBuWoIXSCz9Fg5EfaA/thvEGCHyZPGoiyWo=
+        b=d35BFcnw9z/hMh/Vrh86RAv//fmlkW9sBVWOjmBA/no2zusZqA+Gvd+HDuZswh39m
+         GKtF3YsDo3s7EC/lF61+opU6jXoyF1gZqroPuveJ1NrvBnGRRcw4qohZ+AalttzXjL
+         cklbiC/ud9umU+zLH6QsP0Uy0/kT8cBWm9OIgegA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 30/95] media: usbtv: Fix deadlock on suspend
+        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 069/120] mmc: cqhci: Fix random crash when remove mmc module/card
 Date:   Mon, 15 Mar 2021 14:57:00 +0100
-Message-Id: <20210315135741.270433967@linuxfoundation.org>
+Message-Id: <20210315135722.236902589@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +42,94 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: Frank Li <lznuaa@gmail.com>
 
-commit 8a7e27fd5cd696ba564a3f62cedef7269cfd0723 upstream.
+commit f06391c45e83f9a731045deb23df7cc3814fd795 upstream.
 
-usbtv doesn't support power management, so on system suspend the
-.disconnect callback of the driver is called. The teardown sequence
-includes a call to snd_card_free. Its implementation waits until the
-refcount of the sound card device drops to zero, however, if its file is
-open, snd_card_file_add takes a reference, which can't be dropped during
-the suspend, because the userspace processes are already frozen at this
-point. snd_card_free waits for completion forever, leading to a hang on
-suspend.
+[ 6684.493350] Unable to handle kernel paging request at virtual address ffff800011c5b0f0
+[ 6684.498531] mmc0: card 0001 removed
+[ 6684.501556] Mem abort info:
+[ 6684.509681]   ESR = 0x96000047
+[ 6684.512786]   EC = 0x25: DABT (current EL), IL = 32 bits
+[ 6684.518394]   SET = 0, FnV = 0
+[ 6684.521707]   EA = 0, S1PTW = 0
+[ 6684.524998] Data abort info:
+[ 6684.528236]   ISV = 0, ISS = 0x00000047
+[ 6684.532986]   CM = 0, WnR = 1
+[ 6684.536129] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081b22000
+[ 6684.543923] [ffff800011c5b0f0] pgd=00000000bffff003, p4d=00000000bffff003, pud=00000000bfffe003, pmd=00000000900e1003, pte=0000000000000000
+[ 6684.557915] Internal error: Oops: 96000047 [#1] PREEMPT SMP
+[ 6684.564240] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core fsl_jr_uio caam_jr caamkeyblob_desc caamhash_desc caamalg_desc crypto_engine rng_core authenc libdes crct10dif_ce flexcan can_dev caam error [last unloaded: mmc_core]
+[ 6684.587281] CPU: 0 PID: 79138 Comm: kworker/0:3H Not tainted 5.10.9-01410-g3ba33182767b-dirty #10
+[ 6684.596160] Hardware name: Freescale i.MX8DXL EVK (DT)
+[ 6684.601320] Workqueue: kblockd blk_mq_run_work_fn
 
-This commit fixes this deadlock condition by replacing snd_card_free
-with snd_card_free_when_closed, that doesn't wait until all references
-are released, allowing suspend to progress.
+[ 6684.606094] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
+[ 6684.612286] pc : cqhci_request+0x148/0x4e8 [cqhci]
+^GMessage from syslogd@  at Thu Jan  1 01:51:24 1970 ...[ 6684.617085] lr : cqhci_request+0x314/0x4e8 [cqhci]
+[ 6684.626734] sp : ffff80001243b9f0
+[ 6684.630049] x29: ffff80001243b9f0 x28: ffff00002c3dd000
+[ 6684.635367] x27: 0000000000000001 x26: 0000000000000001
+[ 6684.640690] x25: ffff00002c451000 x24: 000000000000000f
+[ 6684.646007] x23: ffff000017e71c80 x22: ffff00002c451000
+[ 6684.651326] x21: ffff00002c0f3550 x20: ffff00002c0f3550
+[ 6684.656651] x19: ffff000017d46880 x18: ffff00002cea1500
+[ 6684.661977] x17: 0000000000000000 x16: 0000000000000000
+[ 6684.667294] x15: 000001ee628e3ed1 x14: 0000000000000278
+[ 6684.672610] x13: 0000000000000001 x12: 0000000000000001
+[ 6684.677927] x11: 0000000000000000 x10: 0000000000000000
+[ 6684.683243] x9 : 000000000000002b x8 : 0000000000001000
+[ 6684.688560] x7 : 0000000000000010 x6 : ffff00002c0f3678
+[ 6684.693886] x5 : 000000000000000f x4 : ffff800011c5b000
+[ 6684.699211] x3 : 000000000002d988 x2 : 0000000000000008
+[ 6684.704537] x1 : 00000000000000f0 x0 : 0002d9880008102f
+[ 6684.709854] Call trace:
+[ 6684.712313]  cqhci_request+0x148/0x4e8 [cqhci]
+[ 6684.716803]  mmc_cqe_start_req+0x58/0x68 [mmc_core]
+[ 6684.721698]  mmc_blk_mq_issue_rq+0x460/0x810 [mmc_block]
+[ 6684.727018]  mmc_mq_queue_rq+0x118/0x2b0 [mmc_block]
 
-Fixes: 63ddf68de52e ("[media] usbtv: add audio support")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The problem occurs when cqhci_request() get called after cqhci_disable() as
+it leads to access of allocated memory that has already been freed. Let's
+fix the problem by calling cqhci_disable() a bit later in the remove path.
+
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Diagnosed-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/20210303174248.542175-1-Frank.Li@nxp.com
+Fixes: f690f4409ddd ("mmc: mmc: Enable CQE's")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/usbtv/usbtv-audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/core/bus.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/media/usb/usbtv/usbtv-audio.c
-+++ b/drivers/media/usb/usbtv/usbtv-audio.c
-@@ -398,7 +398,7 @@ void usbtv_audio_free(struct usbtv *usbt
- 	cancel_work_sync(&usbtv->snd_trigger);
+--- a/drivers/mmc/core/bus.c
++++ b/drivers/mmc/core/bus.c
+@@ -376,11 +376,6 @@ void mmc_remove_card(struct mmc_card *ca
+ 	mmc_remove_card_debugfs(card);
+ #endif
  
- 	if (usbtv->snd && usbtv->udev) {
--		snd_card_free(usbtv->snd);
-+		snd_card_free_when_closed(usbtv->snd);
- 		usbtv->snd = NULL;
+-	if (host->cqe_enabled) {
+-		host->cqe_ops->cqe_disable(host);
+-		host->cqe_enabled = false;
+-	}
+-
+ 	if (mmc_card_present(card)) {
+ 		if (mmc_host_is_spi(card->host)) {
+ 			pr_info("%s: SPI card removed\n",
+@@ -393,6 +388,10 @@ void mmc_remove_card(struct mmc_card *ca
+ 		of_node_put(card->dev.of_node);
  	}
+ 
++	if (host->cqe_enabled) {
++		host->cqe_ops->cqe_disable(host);
++		host->cqe_enabled = false;
++	}
++
+ 	put_device(&card->dev);
  }
+-
 
 
