@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D81E433B7E5
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B5F33B774
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233397AbhCOOBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S232214AbhCOOA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232446AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F80764EEE;
-        Mon, 15 Mar 2021 13:59:28 +0000 (UTC)
+        id S232484AbhCON66 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FD6D64F31;
+        Mon, 15 Mar 2021 13:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816770;
-        bh=bBN+CPspmMuksUYtrracu+FpsI3QkIuvzYT1qHxWRuQ=;
+        s=korg; t=1615816720;
+        bh=isn/jI6FiJCVEyyEAaDBCVK9Fen1E70NJFQ//bYwls8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHkiMwjDE3uZVglLfe/0DL9KKVDF7f+2LPgRfuJmJiOFFNP7tfduiUDKKbZscHfYJ
-         PtrB+1BkUUh5SmbdWFOwwaY/67y/GYrioY/3NvZnoSaz2dURv5M1o5ujc6ViXprUk9
-         RSWjam3WPBsWomQpSFtvVxEuIBkqO0zPWnXjWqio=
+        b=nE9X3tluWqC6BAZ2jORqv29BuzMlLwUORpPoPPKSr8rBukzrRlp6zCQKtRH0vMIOu
+         /hxvgydPOiW3mM6VUVd70keYm14NKsLWJbN1/kUlOW6+dSTckx2JDfrPkxnfp6sBqK
+         rMXOW1TZAmHZA09yf52+r22H+udfSn+ZstxXCm4I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/120] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
-Date:   Mon, 15 Mar 2021 14:56:47 +0100
-Message-Id: <20210315135721.825139153@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 18/95] net: sched: avoid duplicates in classes dump
+Date:   Mon, 15 Mar 2021 14:56:48 +0100
+Message-Id: <20210315135740.865357290@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
+commit bfc2560563586372212b0a8aeca7428975fa91fe upstream.
 
-If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
-but we leave it partially setup. We don't have functions that can undo the
-pdu and init task setup. We only have cleanup_task which can clean up both
-parts. So this has us just fail the cmd and go through the standard cleanup
-routine and then have the SCSI midlayer retry it like is done when it fails
-in the queuecommand path.
+This is a follow up of commit ea3274695353 ("net: sched: avoid
+duplicates in qdisc dump") which has fixed the issue only for the qdisc
+dump.
 
-Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The duplicate printing also occurs when dumping the classes via
+  tc class show dev eth0
+
+Fixes: 59cc1f61f09c ("net: sched: convert qdisc linked list to hashtable")
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libiscsi.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ net/sched/sch_api.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 2e40fd78e7b3..81471c304991 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1569,14 +1569,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
- 		}
- 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
- 		if (rc) {
--			if (rc == -ENOMEM || rc == -EACCES) {
--				spin_lock_bh(&conn->taskqueuelock);
--				list_add_tail(&conn->task->running,
--					      &conn->cmdqueue);
--				conn->task = NULL;
--				spin_unlock_bh(&conn->taskqueuelock);
--				goto done;
--			} else
-+			if (rc == -ENOMEM || rc == -EACCES)
-+				fail_scsi_task(conn->task, DID_IMM_RETRY);
-+			else
- 				fail_scsi_task(conn->task, DID_ABORT);
- 			spin_lock_bh(&conn->taskqueuelock);
- 			continue;
--- 
-2.30.1
-
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1904,7 +1904,7 @@ static int tc_dump_tclass_qdisc(struct Q
+ 
+ static int tc_dump_tclass_root(struct Qdisc *root, struct sk_buff *skb,
+ 			       struct tcmsg *tcm, struct netlink_callback *cb,
+-			       int *t_p, int s_t)
++			       int *t_p, int s_t, bool recur)
+ {
+ 	struct Qdisc *q;
+ 	int b;
+@@ -1915,7 +1915,7 @@ static int tc_dump_tclass_root(struct Qd
+ 	if (tc_dump_tclass_qdisc(root, skb, tcm, cb, t_p, s_t) < 0)
+ 		return -1;
+ 
+-	if (!qdisc_dev(root))
++	if (!qdisc_dev(root) || !recur)
+ 		return 0;
+ 
+ 	if (tcm->tcm_parent) {
+@@ -1950,13 +1950,13 @@ static int tc_dump_tclass(struct sk_buff
+ 	s_t = cb->args[0];
+ 	t = 0;
+ 
+-	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t) < 0)
++	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
+ 		goto done;
+ 
+ 	dev_queue = dev_ingress_queue(dev);
+ 	if (dev_queue &&
+ 	    tc_dump_tclass_root(dev_queue->qdisc_sleeping, skb, tcm, cb,
+-				&t, s_t) < 0)
++				&t, s_t, false) < 0)
+ 		goto done;
+ 
+ done:
 
 
