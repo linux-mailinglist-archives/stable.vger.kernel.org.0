@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 813D933B582
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44A5233B67E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbhCONyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
+        id S231452AbhCON57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231228AbhCONx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C43561606;
-        Mon, 15 Mar 2021 13:53:55 +0000 (UTC)
+        id S231951AbhCON5V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9625664F0D;
+        Mon, 15 Mar 2021 13:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816436;
-        bh=qZO2JAly925agLONcpsFi8OGk/10Ow5eu9EZjLdMrw0=;
+        s=korg; t=1615816640;
+        bh=yFrUd4M8Ct0ssDMz1aodWSzI9Tlsi1PvYBtepJWLp7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnjN85oIfmK6LeaeNt52hP9Wi/W/S+fIyOEvoFmVI/6h96Su03HFX+o1qBgyAbBm9
-         mqI8pBr+3i5NJSPv/qwXgaRCmLU8U1ZDeeV+bsOg2wWMRDGeT6W7IpxmYa7xjVH0iD
-         aoAOqJVMobDT4EFfYF0OZlBnfeyCCbZosvfZYz3M=
+        b=A054Ia0NtV+7y+t3mJTStKwp0JfkAoj+sXTtRuUv1T0udMEwjIOzYO19Y0WwHhaTw
+         H/8vuXN3DG4LSxynswHChCWv/dBaumb3NuJgjYPKABKxVlRIPpSXI1CAbJ81qY+5e6
+         j2UuMhlDrmNDpqe3I05hE0II+PXoszAIRoU+FCAo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 38/78] USB: serial: cp210x: add some more GE USB IDs
+        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 028/290] ibmvnic: always store valid MAC address
 Date:   Mon, 15 Mar 2021 14:52:01 +0100
-Message-Id: <20210315135213.324157510@linuxfoundation.org>
+Message-Id: <20210315135542.877598524@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +41,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-commit 42213a0190b535093a604945db05a4225bf43885 upstream.
+commit 67eb211487f0c993d9f402d1c196ef159fd6a3b5 upstream.
 
-GE CS1000 has some more custom USB IDs for CP2102N; add them
-to the driver to have working auto-probing.
+The last change to ibmvnic_set_mac(), 8fc3672a8ad3, meant to prevent
+users from setting an invalid MAC address on an ibmvnic interface
+that has not been brought up yet. The change also prevented the
+requested MAC address from being stored by the adapter object for an
+ibmvnic interface when the state of the ibmvnic interface is
+VNIC_PROBED - that is after probing has finished but before the
+ibmvnic interface is brought up. The MAC address stored by the
+adapter object is used and sent to the hypervisor for checking when
+an ibmvnic interface is brought up.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+The ibmvnic driver ignoring the requested MAC address when in
+VNIC_PROBED state caused LACP bonds (bonds in 802.3ad mode) with more
+than one slave to malfunction. The bonding code must be able to
+change the MAC address of its slaves before they are brought up
+during enslaving. The inability of kernels with 8fc3672a8ad3 to set
+the MAC addresses of bonding slaves is observable in the output of
+"ip address show". The MAC addresses of the slaves are the same as
+the MAC address of the bond on a working system whereas the slaves
+retain their original MAC addresses on a system with a malfunctioning
+LACP bond.
+
+Fixes: 8fc3672a8ad3 ("ibmvnic: fix ibmvnic_set_mac")
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/ibm/ibmvnic.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -200,6 +200,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
-+	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
- 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1832,10 +1832,9 @@ static int ibmvnic_set_mac(struct net_de
+ 	if (!is_valid_ether_addr(addr->sa_data))
+ 		return -EADDRNOTAVAIL;
+ 
+-	if (adapter->state != VNIC_PROBED) {
+-		ether_addr_copy(adapter->mac_addr, addr->sa_data);
++	ether_addr_copy(adapter->mac_addr, addr->sa_data);
++	if (adapter->state != VNIC_PROBED)
+ 		rc = __ibmvnic_set_mac(netdev, addr->sa_data);
+-	}
+ 
+ 	return rc;
+ }
 
 
