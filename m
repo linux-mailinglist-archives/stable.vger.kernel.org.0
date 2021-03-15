@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4414C33B8E9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8BD33B7C0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhCOOEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S232389AbhCOOBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232401AbhCON6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B02464F2C;
-        Mon, 15 Mar 2021 13:58:27 +0000 (UTC)
+        id S229862AbhCON7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACCDD64FA5;
+        Mon, 15 Mar 2021 13:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816708;
-        bh=wRjtOo7RtCLe2xweT+NOx05HdQS3cFEjbuunly/VAbI=;
+        s=korg; t=1615816760;
+        bh=kqGk0XuYjjRsOWNK4lG836j9SdgxgTuwrNWE5f5K6Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9GsJ5U41aEtlHh8LBnSpqI5mYtKShp/SQWJihwLeDwsZZqBs0CExRTadBKtgPr5r
-         27y2rkmhs8iDhiXCdZ6DgXMNhwDsKvGDYvTqHYZS8/KvMYYLr5obrTOMDlwNFrGewQ
-         d2TjUWJ5QIgoQ/14JzbsZvo2ya8RkQE/MGjr5EeQ=
+        b=bG/JT3TG3BNLKgPQlB/q7ghTt0ZCqSgjgC4AgtTFwefZxSzeoHUMiQ6bP6PSN9oBh
+         Bab2ufUSDY9MV0ji28YUAcQGi/ZujdKDw9eEaFGp73rudNP51SFuKbmSJdOeg4cLeu
+         epHwB7chrOYR1dl9bBYtErpfIrXXTG4yEUhCm0xk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.14 11/95] netfilter: x_tables: gpf inside xt_find_revision()
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Khalid Aziz <khalid.aziz@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 050/120] sparc64: Use arch_validate_flags() to validate ADI flag
 Date:   Mon, 15 Mar 2021 14:56:41 +0100
-Message-Id: <20210315135740.637276218@linuxfoundation.org>
+Message-Id: <20210315135721.627067532@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +45,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Khalid Aziz <khalid.aziz@oracle.com>
 
-commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
+[ Upstream commit 147d8622f2a26ef34beacc60e1ed8b66c2fa457f ]
 
-nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
-without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
-and cause host to crash:
+When userspace calls mprotect() to enable ADI on an address range,
+do_mprotect_pkey() calls arch_validate_prot() to validate new
+protection flags. arch_validate_prot() for sparc looks at the first
+VMA associated with address range to verify if ADI can indeed be
+enabled on this address range. This has two issues - (1) Address
+range might cover multiple VMAs while arch_validate_prot() looks at
+only the first VMA, (2) arch_validate_prot() peeks at VMA without
+holding mmap lock which can result in race condition.
 
-general protection fault: 0000 [#1]
-Modules linked in: ... [last unloaded: xt_cluster]
-CPU: 0 PID: 542455 Comm: iptables
-RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
-RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
-R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
-(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
-xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
-Call Trace:
- [<ffffffff902ccf44>] match_revfn+0x54/0xc0
- [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
- [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
- [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
- [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
- [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
- [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
- [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
- [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
- [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
+arch_validate_flags() from commit c462ac288f2c ("mm: Introduce
+arch_validate_flags()") allows for VMA flags to be validated for all
+VMAs that cover the address range given by user while holding mmap
+lock. This patch updates sparc code to move the VMA check from
+arch_validate_prot() to arch_validate_flags() to fix above two
+issues.
 
-Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Khalid Aziz <khalid.aziz@oracle.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/x_tables.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/sparc/include/asm/mman.h | 54 +++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
 
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -329,6 +329,7 @@ static int match_revfn(u8 af, const char
- 	const struct xt_match *m;
- 	int have_rev = 0;
- 
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(m, &xt[af].match, list) {
- 		if (strcmp(m->name, name) == 0) {
- 			if (m->revision > *bestp)
-@@ -337,6 +338,7 @@ static int match_revfn(u8 af, const char
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -349,6 +351,7 @@ static int target_revfn(u8 af, const cha
- 	const struct xt_target *t;
- 	int have_rev = 0;
- 
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(t, &xt[af].target, list) {
- 		if (strcmp(t->name, name) == 0) {
- 			if (t->revision > *bestp)
-@@ -357,6 +360,7 @@ static int target_revfn(u8 af, const cha
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -370,12 +374,10 @@ int xt_find_revision(u8 af, const char *
+diff --git a/arch/sparc/include/asm/mman.h b/arch/sparc/include/asm/mman.h
+index f94532f25db1..274217e7ed70 100644
+--- a/arch/sparc/include/asm/mman.h
++++ b/arch/sparc/include/asm/mman.h
+@@ -57,35 +57,39 @@ static inline int sparc_validate_prot(unsigned long prot, unsigned long addr)
  {
- 	int have_rev, best = -1;
+ 	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM | PROT_ADI))
+ 		return 0;
+-	if (prot & PROT_ADI) {
+-		if (!adi_capable())
+-			return 0;
++	return 1;
++}
  
--	mutex_lock(&xt[af].mutex);
- 	if (target == 1)
- 		have_rev = target_revfn(af, name, revision, &best);
- 	else
- 		have_rev = match_revfn(af, name, revision, &best);
--	mutex_unlock(&xt[af].mutex);
+-		if (addr) {
+-			struct vm_area_struct *vma;
++#define arch_validate_flags(vm_flags) arch_validate_flags(vm_flags)
++/* arch_validate_flags() - Ensure combination of flags is valid for a
++ *	VMA.
++ */
++static inline bool arch_validate_flags(unsigned long vm_flags)
++{
++	/* If ADI is being enabled on this VMA, check for ADI
++	 * capability on the platform and ensure VMA is suitable
++	 * for ADI
++	 */
++	if (vm_flags & VM_SPARC_ADI) {
++		if (!adi_capable())
++			return false;
  
- 	/* Nothing at all?  Return 0 to try loading module. */
- 	if (best == -1) {
+-			vma = find_vma(current->mm, addr);
+-			if (vma) {
+-				/* ADI can not be enabled on PFN
+-				 * mapped pages
+-				 */
+-				if (vma->vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
+-					return 0;
++		/* ADI can not be enabled on PFN mapped pages */
++		if (vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
++			return false;
+ 
+-				/* Mergeable pages can become unmergeable
+-				 * if ADI is enabled on them even if they
+-				 * have identical data on them. This can be
+-				 * because ADI enabled pages with identical
+-				 * data may still not have identical ADI
+-				 * tags on them. Disallow ADI on mergeable
+-				 * pages.
+-				 */
+-				if (vma->vm_flags & VM_MERGEABLE)
+-					return 0;
+-			}
+-		}
++		/* Mergeable pages can become unmergeable
++		 * if ADI is enabled on them even if they
++		 * have identical data on them. This can be
++		 * because ADI enabled pages with identical
++		 * data may still not have identical ADI
++		 * tags on them. Disallow ADI on mergeable
++		 * pages.
++		 */
++		if (vm_flags & VM_MERGEABLE)
++			return false;
+ 	}
+-	return 1;
++	return true;
+ }
+ #endif /* CONFIG_SPARC64 */
+ 
+-- 
+2.30.1
+
 
 
