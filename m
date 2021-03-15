@@ -2,167 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E077F33B9DA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 988C533BB6A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:20:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235004AbhCOOGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233298AbhCOOBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 053EE64E89;
-        Mon, 15 Mar 2021 14:00:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816840;
-        bh=HxQmE0RP0LzC8UMxFs5pgAUqlRaAFNSF8+QAirZSGeo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0rVM9leCwbZdtNlChMTwNe+OBXWWWMTLTbNiPNRnyyyEO0XS+s8aLhULhBqVdIPEm
-         8Pd923PijMDh/wtS9alVOJEOceP9ckZNHIHCN80NVE6C0o+XaoqY4iruRyNQexkPdM
-         8DElCtdyhk5Pm1ecapNw3ITUY7RQAcnhK9X1z56c=
-From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.14 95/95] xen/events: avoid handling the same event on two cpus at the same time
-Date:   Mon, 15 Mar 2021 14:58:05 +0100
-Message-Id: <20210315135743.403598567@linuxfoundation.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S231214AbhCOOQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:16:33 -0400
+Received: from mail-vk1-f177.google.com ([209.85.221.177]:37786 "EHLO
+        mail-vk1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236822AbhCOOPp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 10:15:45 -0400
+Received: by mail-vk1-f177.google.com with SMTP id s136so1545727vks.4;
+        Mon, 15 Mar 2021 07:15:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3aKLCBuGZMniFg5moYt9Hm8gsNSTP/txooq0ahWmluQ=;
+        b=EKKnPOjl1EHqg6BY6lpKz8lOYXYImv2r7l2tiHrtHqK85MMHzDDZkRkK44ja7sMaed
+         g+gKycPYm7v5/LV9x/QnME9GKrV3tcOcv34pQqEN1yCedzMy2rdokK5qch63kCX7gvXe
+         7NBs7jFHSJEcIfNPIWGikpI6j/2ALJk2p2ImI9SYWkaSqA2gkrkSGx1J2qaR4wbeAiT9
+         PKH/LQhdqGh7fgUeEw8BRdaeTovxIUXCrPcYoWL00Xyko67QPDFVC7Su3ZsIU5TDPM7W
+         5gh+zv36w4u0sGJXZWYbEuL5FKPS7AVpzzrAKeBQ1Hmv8JjCabiDZbKT2eSwkQ9Xhbqj
+         Le7g==
+X-Gm-Message-State: AOAM530krQE2yE6RXlKP/q+wcI3oIuPnTg7fu4bXpeIIl9pgKHkpTTIM
+        J4/hYUF+l8LtHrPm+j8jqBKLW6FNkpeD1XReBYY=
+X-Google-Smtp-Source: ABdhPJx9KtGyjUnLEGxws7UagErvyUZVKtNEH1dNMlk/6f03LGwnZwXFco4kvfj8C6eDlYRNBm9qIrW9CelDBckxh2I=
+X-Received: by 2002:a1f:2502:: with SMTP id l2mr4822067vkl.5.1615817744231;
+ Mon, 15 Mar 2021 07:15:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20210315135541.921894249@linuxfoundation.org> <20210315135551.044220754@linuxfoundation.org>
+In-Reply-To: <20210315135551.044220754@linuxfoundation.org>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 15 Mar 2021 15:15:32 +0100
+Message-ID: <CAMuHMdUqDX8NSGNsw4R=-pEk+nNRsBPBhXD91bq4qy-v1ybcJQ@mail.gmail.com>
+Subject: Re: [PATCH 5.10 267/290] powerpc: Fix missing declaration of [en/dis]able_kernel_vsx()
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Mon, Mar 15, 2021 at 3:04 PM <gregkh@linuxfoundation.org> wrote:
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+> From: Christophe Leroy <christophe.leroy@csgroup.eu>
+>
+> commit bd73758803c2eedc037c2268b65a19542a832594 upstream.
+>
+> Add stub instances of enable_kernel_vsx() and disable_kernel_vsx()
+> when CONFIG_VSX is not set, to avoid following build failure.
 
-From: Juergen Gross <jgross@suse.com>
+Please note that this is not sufficient, and will just turn the build error
+in another, different build error.
+Waiting for the subsequent fix to enter v5.12-rc4...
+https://lore.kernel.org/lkml/2c123f94-ceae-80c0-90e2-21909795eb76@csgroup.eu/
 
-commit b6622798bc50b625a1e62f82c7190df40c1f5b21 upstream.
+>
+>   CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o
+>   In file included from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services_types.h:29,
+>                    from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services.h:37,
+>                    from drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:27:
+>   drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c: In function 'dcn_bw_apply_registry_override':
+>   ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:64:3: error: implicit declaration of function 'enable_kernel_vsx'; did you mean 'enable_kernel_fp'? [-Werror=implicit-function-declaration]
+>      64 |   enable_kernel_vsx(); \
+>         |   ^~~~~~~~~~~~~~~~~
+>   drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:640:2: note: in expansion of macro 'DC_FP_START'
+>     640 |  DC_FP_START();
+>         |  ^~~~~~~~~~~
+>   ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:75:3: error: implicit declaration of function 'disable_kernel_vsx'; did you mean 'disable_kernel_fp'? [-Werror=implicit-function-declaration]
+>      75 |   disable_kernel_vsx(); \
+>         |   ^~~~~~~~~~~~~~~~~~
+>   drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:676:2: note: in expansion of macro 'DC_FP_END'
+>     676 |  DC_FP_END();
+>         |  ^~~~~~~~~
+>   cc1: some warnings being treated as errors
+>   make[5]: *** [drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o] Error 1
+>
+> This works because the caller is checking if VSX is available using
+> cpu_has_feature():
+>
+>   #define DC_FP_START() { \
+>         if (cpu_has_feature(CPU_FTR_VSX_COMP)) { \
+>                 preempt_disable(); \
+>                 enable_kernel_vsx(); \
+>         } else if (cpu_has_feature(CPU_FTR_ALTIVEC_COMP)) { \
+>                 preempt_disable(); \
+>                 enable_kernel_altivec(); \
+>         } else if (!cpu_has_feature(CPU_FTR_FPU_UNAVAILABLE)) { \
+>                 preempt_disable(); \
+>                 enable_kernel_fp(); \
+>         } \
+>
+> When CONFIG_VSX is not selected, cpu_has_feature(CPU_FTR_VSX_COMP)
+> constant folds to 'false' so the call to enable_kernel_vsx() is
+> discarded and the build succeeds.
+>
+> Fixes: 16a9dea110a6 ("amdgpu: Enable initial DCN support on POWER")
+> Cc: stable@vger.kernel.org # v5.6+
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+> [mpe: Incorporate some discussion comments into the change log]
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/8d7d285a027e9d21f5ff7f850fa71a2655b0c4af.1615279170.git.christophe.leroy@csgroup.eu
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  arch/powerpc/include/asm/switch_to.h |   10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>
+> --- a/arch/powerpc/include/asm/switch_to.h
+> +++ b/arch/powerpc/include/asm/switch_to.h
+> @@ -71,6 +71,16 @@ static inline void disable_kernel_vsx(vo
+>  {
+>         msr_check_and_clear(MSR_FP|MSR_VEC|MSR_VSX);
+>  }
+> +#else
+> +static inline void enable_kernel_vsx(void)
+> +{
+> +       BUILD_BUG();
+> +}
+> +
+> +static inline void disable_kernel_vsx(void)
+> +{
+> +       BUILD_BUG();
+> +}
+>  #endif
+>
+>  #ifdef CONFIG_SPE
 
-When changing the cpu affinity of an event it can happen today that
-(with some unlucky timing) the same event will be handled on the old
-and the new cpu at the same time.
+Gr{oetje,eeting}s,
 
-Avoid that by adding an "event active" flag to the per-event data and
-call the handler only if this flag isn't set.
+                        Geert
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-4-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/xen/events/events_base.c     |   25 +++++++++++++++++--------
- drivers/xen/events/events_internal.h |    1 +
- 2 files changed, 18 insertions(+), 8 deletions(-)
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -693,6 +693,12 @@ static void xen_evtchn_close(unsigned in
- 		BUG();
- }
- 
-+static void event_handler_exit(struct irq_info *info)
-+{
-+	smp_store_release(&info->is_active, 0);
-+	clear_evtchn(info->evtchn);
-+}
-+
- static void pirq_query_unmask(int irq)
- {
- 	struct physdev_irq_status_query irq_status;
-@@ -723,13 +729,13 @@ static void eoi_pirq(struct irq_data *da
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
- 
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 	if (pirq_needs_eoi(data->irq)) {
- 		rc = HYPERVISOR_physdev_op(PHYSDEVOP_eoi, &eoi);
-@@ -1565,6 +1571,8 @@ void handle_irq_for_port(evtchn_port_t p
- 	}
- 
- 	info = info_for_irq(irq);
-+	if (xchg_acquire(&info->is_active, 1))
-+		return;
- 
- 	if (ctrl->defer_eoi) {
- 		info->eoi_cpu = smp_processor_id();
-@@ -1752,13 +1760,13 @@ static void ack_dynirq(struct irq_data *
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
- 
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- 
- static void mask_ack_dynirq(struct irq_data *data)
-@@ -1774,7 +1782,7 @@ static void lateeoi_ack_dynirq(struct ir
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1785,7 +1793,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1894,10 +1902,11 @@ static void restore_cpu_ipis(unsigned in
- /* Clear an irq's pending state, in preparation for polling on it */
- void xen_clear_irq_pending(int irq)
- {
--	int evtchn = evtchn_from_irq(irq);
-+	struct irq_info *info = info_for_irq(irq);
-+	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
- 	if (VALID_EVTCHN(evtchn))
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- EXPORT_SYMBOL(xen_clear_irq_pending);
- void xen_set_irq_pending(int irq)
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -40,6 +40,7 @@ struct irq_info {
- #define EVT_MASK_REASON_EXPLICIT	0x01
- #define EVT_MASK_REASON_TEMPORARY	0x02
- #define EVT_MASK_REASON_EOI_PENDING	0x04
-+	u8 is_active;		/* Is event just being handled? */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
- 	unsigned short cpu;	/* cpu bound */
-
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
