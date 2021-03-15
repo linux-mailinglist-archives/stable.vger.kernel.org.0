@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 851BA33B69C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A11EF33B55E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232302AbhCON6W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
+        id S231256AbhCONyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232036AbhCON5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1ED364EEE;
-        Mon, 15 Mar 2021 13:57:36 +0000 (UTC)
+        id S230458AbhCONxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF9B064EF0;
+        Mon, 15 Mar 2021 13:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816658;
-        bh=ob/5UBIdqefGaH8gWQxFUNVoOaqfG+WizVmhBsqMYtI=;
+        s=korg; t=1615816423;
+        bh=kSqBe/A4bqMgkGYMNTqU0l0cCvmalAM90/thRxHwqzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VigCAVSXd7jBR2bb9JE96BToLOWT5KvrnpC/oj/Q8bcBoAKAdiyfrl+IhNxwz2nbU
-         HAgDR5WgsaIzpm4JgjJxxJ+l6Y8m1HcOdG33JEKjf8LjBPR9DCgUBDLLjJ26CLn6Lr
-         asrJe/qcJYUvONHCagbzEFt6C3eNonQmRAxyPbQI=
+        b=wGij01MzqGcQjuZao30fsMpysypIeZWpXU/xq+AncM/nexjczHhuOWf9vbVxNem4O
+         0PWSPVr3nEWdEcU5Qe9vP6cYLIf/vH9PCKMOCCAQzksJON5qxW3uHET7xGt31k3LV/
+         8OxvCt28NruRI4Nt+8RiaGifNSK0BsQU6IpSuJX0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 046/306] net: enetc: dont overwrite the RSS indirection table when initializing
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 35/75] xhci: Improve detection of device initiated wake signal.
 Date:   Mon, 15 Mar 2021 14:51:49 +0100
-Message-Id: <20210315135509.204811334@linuxfoundation.org>
+Message-Id: <20210315135209.395589774@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,145 +41,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c646d10dda2dcde82c6ce5a474522621ab2b8b19 upstream.
+commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
 
-After the blamed patch, all RX traffic gets hashed to CPU 0 because the
-hashing indirection table set up in:
+A xHC USB 3 port might miss the first wake signal from a USB 3 device
+if the port LFPS reveiver isn't enabled fast enough after xHC resume.
 
-enetc_pf_probe
--> enetc_alloc_si_resources
-   -> enetc_configure_si
-      -> enetc_setup_default_rss_table
+xHC host will anyway be resumed by a PME# signal, but will go back to
+suspend if no port activity is seen.
+The device resends the U3 LFPS wake signal after a 100ms delay, but
+by then host is already suspended, starting all over from the
+beginning of this issue.
 
-is overwritten later in:
+USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
+needs to delay 100ms before resending the wake.
 
-enetc_pf_probe
--> enetc_init_port_rss_memory
+Don't suspend immediately if port activity isn't detected in resume.
+Instead add a retry. If there is no port activity then delay for 120ms,
+and re-check for port activity.
 
-which zero-initializes the entire port RSS table in order to avoid ECC errors.
-
-The trouble really is that enetc_init_port_rss_memory really neads
-enetc_alloc_si_resources to be called, because it depends upon
-enetc_alloc_cbdr and enetc_setup_cbdr. But that whole enetc_configure_si
-thing could have been better thought out, it has nothing to do in a
-function called "alloc_si_resources", especially since its counterpart,
-"free_si_resources", does nothing to unwind the configuration of the SI.
-
-The point is, we need to pull out enetc_configure_si out of
-enetc_alloc_resources, and move it after enetc_init_port_rss_memory.
-This allows us to set up the default RSS indirection table after
-initializing the memory.
-
-Fixes: 07bf34a50e32 ("net: enetc: initialize the RFS and RSS memories")
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c    |   11 +++--------
- drivers/net/ethernet/freescale/enetc/enetc.h    |    1 +
- drivers/net/ethernet/freescale/enetc/enetc_pf.c |    7 +++++++
- drivers/net/ethernet/freescale/enetc/enetc_vf.c |    7 +++++++
- 4 files changed, 18 insertions(+), 8 deletions(-)
+ drivers/usb/host/xhci.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -1058,13 +1058,12 @@ static int enetc_setup_default_rss_table
- 	return 0;
- }
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1018,6 +1018,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 	struct usb_hcd		*secondary_hcd;
+ 	int			retval = 0;
+ 	bool			comp_timer_running = false;
++	bool			pending_portevent = false;
  
--static int enetc_configure_si(struct enetc_ndev_priv *priv)
-+int enetc_configure_si(struct enetc_ndev_priv *priv)
- {
- 	struct enetc_si *si = priv->si;
- 	struct enetc_hw *hw = &si->hw;
- 	int err;
+ 	if (!hcd->state)
+ 		return 0;
+@@ -1151,13 +1152,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
  
--	enetc_setup_cbdr(hw, &si->cbd_ring);
- 	/* set SI cache attributes */
- 	enetc_wr(hw, ENETC_SICAR0,
- 		 ENETC_SICAR_RD_COHERENT | ENETC_SICAR_WR_COHERENT);
-@@ -1112,6 +1111,8 @@ int enetc_alloc_si_resources(struct enet
- 	if (err)
- 		return err;
- 
-+	enetc_setup_cbdr(&si->hw, &si->cbd_ring);
+  done:
+ 	if (retval == 0) {
+-		/* Resume root hubs only when have pending events. */
+-		if (xhci_pending_portevent(xhci)) {
++		/*
++		 * Resume roothubs only if there are pending events.
++		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
++		 * the first wake signalling failed, give it that chance.
++		 */
++		pending_portevent = xhci_pending_portevent(xhci);
++		if (!pending_portevent) {
++			msleep(120);
++			pending_portevent = xhci_pending_portevent(xhci);
++		}
 +
- 	priv->cls_rules = kcalloc(si->num_fs_entries, sizeof(*priv->cls_rules),
- 				  GFP_KERNEL);
- 	if (!priv->cls_rules) {
-@@ -1119,14 +1120,8 @@ int enetc_alloc_si_resources(struct enet
- 		goto err_alloc_cls;
++		if (pending_portevent) {
+ 			usb_hcd_resume_root_hub(xhci->shared_hcd);
+ 			usb_hcd_resume_root_hub(hcd);
+ 		}
  	}
- 
--	err = enetc_configure_si(priv);
--	if (err)
--		goto err_config_si;
 -
- 	return 0;
- 
--err_config_si:
--	kfree(priv->cls_rules);
- err_alloc_cls:
- 	enetc_clear_cbdr(&si->hw);
- 	enetc_free_cbdr(priv->dev, &si->cbd_ring);
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -292,6 +292,7 @@ void enetc_get_si_caps(struct enetc_si *
- void enetc_init_si_rings_params(struct enetc_ndev_priv *priv);
- int enetc_alloc_si_resources(struct enetc_ndev_priv *priv);
- void enetc_free_si_resources(struct enetc_ndev_priv *priv);
-+int enetc_configure_si(struct enetc_ndev_priv *priv);
- 
- int enetc_open(struct net_device *ndev);
- int enetc_close(struct net_device *ndev);
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -1108,6 +1108,12 @@ static int enetc_pf_probe(struct pci_dev
- 		goto err_init_port_rss;
- 	}
- 
-+	err = enetc_configure_si(priv);
-+	if (err) {
-+		dev_err(&pdev->dev, "Failed to configure SI\n");
-+		goto err_config_si;
-+	}
-+
- 	err = enetc_alloc_msix(priv);
- 	if (err) {
- 		dev_err(&pdev->dev, "MSIX alloc failed\n");
-@@ -1136,6 +1142,7 @@ err_phylink_create:
- 	enetc_mdiobus_destroy(pf);
- err_mdiobus_create:
- 	enetc_free_msix(priv);
-+err_config_si:
- err_init_port_rss:
- err_init_port_rfs:
- err_alloc_msix:
---- a/drivers/net/ethernet/freescale/enetc/enetc_vf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_vf.c
-@@ -171,6 +171,12 @@ static int enetc_vf_probe(struct pci_dev
- 		goto err_alloc_si_res;
- 	}
- 
-+	err = enetc_configure_si(priv);
-+	if (err) {
-+		dev_err(&pdev->dev, "Failed to configure SI\n");
-+		goto err_config_si;
-+	}
-+
- 	err = enetc_alloc_msix(priv);
- 	if (err) {
- 		dev_err(&pdev->dev, "MSIX alloc failed\n");
-@@ -187,6 +193,7 @@ static int enetc_vf_probe(struct pci_dev
- 
- err_reg_netdev:
- 	enetc_free_msix(priv);
-+err_config_si:
- err_alloc_msix:
- 	enetc_free_si_resources(priv);
- err_alloc_si_res:
+ 	/*
+ 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
+ 	 * be re-initialized Always after a system resume. Ports are subject
 
 
