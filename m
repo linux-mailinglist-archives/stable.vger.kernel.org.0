@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D78A33B581
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69AA133B668
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230288AbhCONyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S232148AbhCON5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231245AbhCONx6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B19601FD;
-        Mon, 15 Mar 2021 13:53:57 +0000 (UTC)
+        id S230440AbhCON5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D5B9164EFD;
+        Mon, 15 Mar 2021 13:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816438;
-        bh=jiypcFdW/AECP+n2d7mM7oZedDBxy9gTEWuoT3if2lY=;
+        s=korg; t=1615816635;
+        bh=evrf6oqzd8CNxRcF1PGp1PXD0H2LYHfWSV6wHhLQ3DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ba7ax8v+3cJ4yVg+NEYGdy8TA3iUf7jQeqPIfaFxBEV44GHRe48idcP1FqnJhzEy+
-         3pkw8rHEpLoFCvGwq8vOm3mEzu24JCZshzZnE2NMFO5b3hxe8gTsaBL4IEiHiDS3ys
-         ONXUznfNxDbCJSeMuL2fYVgkeK+QgxhXbDnPHwLk=
+        b=ufva10Trf5Qx1b9Qn1LjY0L7oqBDX+w9P1VXxfwWiLHoD6VkImdkmc0DlLOBZdQkw
+         srYuMw480X/6mrvtczQTKKwH/lsHuRsNUKx2MTP2dzleS6UWEnsxd1fpvh+BewdeFb
+         IeDGoA5w/sgAkHO2MKBXFekITNAjNR/2afvpCM6Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.4 44/75] staging: rtl8188eu: prevent ->ssid overflow in rtw_wx_set_scan()
+        stable@vger.kernel.org,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>
+Subject: [PATCH 5.10 025/290] samples, bpf: Add missing munmap in xdpsock
 Date:   Mon, 15 Mar 2021 14:51:58 +0100
-Message-Id: <20210315135209.692571540@linuxfoundation.org>
+Message-Id: <20210315135542.785343842@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-commit 74b6b20df8cfe90ada777d621b54c32e69e27cd7 upstream.
+commit 6bc6699881012b5bd5d49fa861a69a37fc01b49c upstream.
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->ssid[] array.
+We mmap the umem region, but we never munmap it.
+Add the missing call at the end of the cleanup.
 
-Fixes: a2c60d42d97c ("staging: r8188eu: Add files for new driver - part 16")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YEHymwsnHewzoam7@mwanda
+Fixes: 3945b37a975d ("samples/bpf: use hugepages in xdpsock app")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20210303185636.18070-3-maciej.fijalkowski@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8188eu/os_dep/ioctl_linux.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ samples/bpf/xdpsock_user.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-@@ -1174,9 +1174,11 @@ static int rtw_wx_set_scan(struct net_de
- 						break;
- 					}
- 					sec_len = *(pos++); len -= 1;
--					if (sec_len > 0 && sec_len <= len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						ssid_index++;
- 					}
- 					pos += sec_len;
+--- a/samples/bpf/xdpsock_user.c
++++ b/samples/bpf/xdpsock_user.c
+@@ -1543,5 +1543,7 @@ int main(int argc, char **argv)
+ 
+ 	xdpsock_cleanup();
+ 
++	munmap(bufs, NUM_FRAMES * opt_xsk_frame_size);
++
+ 	return 0;
+ }
 
 
