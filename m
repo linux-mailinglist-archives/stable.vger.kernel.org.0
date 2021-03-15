@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC3933AE82
+	by mail.lfdr.de (Postfix) with ESMTP id CF30433AE83
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 10:20:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbhCOJT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229518AbhCOJT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 05:19:57 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:39709 "EHLO
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:58613 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229518AbhCOJTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 05:19:39 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6CEC51941865;
-        Mon, 15 Mar 2021 05:19:38 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 15 Mar 2021 05:19:38 -0400
+        by vger.kernel.org with ESMTP id S229519AbhCOJTk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 05:19:40 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 75E14194189D;
+        Mon, 15 Mar 2021 05:19:39 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 15 Mar 2021 05:19:39 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JnTQ48
-        7Ki4+x9DolCm7NANSv5qQhX4sdcHvvDSdbh7M=; b=aQchEy+pfA2SCS3jZUc3ti
-        GLBb2bA4CNhRhjb9ldhoOz1ajDXd8JVW935vshSiJjMgMo8GJyfuLnpvNspXYNPO
-        dKJQTA8GotdVnQnaL0ejqWfCnu2XlhSVO12Yyo5sC+6vgpjlcP9W6ZkjCLIan1Qf
-        nsVmmqpjp09a9yvOkTa6/ayScUqBeZCTt+xX9rz7H4QOaGf2etOkhO+xcMS6xaDR
-        JHQ9snYcdWCyVbPko8VoNyq8O3ODs7QRb5karHjmycARsj/DtLad6sgHDyJCT76A
-        QSQaYSByHwEo8WCzfm91ZLKESqbSTwtZWvXvzcNWsX7uAeX7VBqX+t1BVeVWRPgg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NWjyRR
+        2asYVcDJmZ6GJDJ0FUN3CpMMAf+3IA9anVYeA=; b=RjxV5waaVpFokvHWJqeIt9
+        iyD3PYDwBqtp33mG4CPPNH188nlqTLtVOq3kSJYJUu9exHN6n5VhFsEDLiHIGME5
+        PL5mwU1NgNO712Ofw8GsyxPykV2ywzoLbo4r9Deo6Ar51XhmJ2bYjAkSHnDCqfPl
+        XX1jRVlUMD1NhCJ3ylykFgMfrRC4eQNvZIJt4oCNg/SqNEP7EYDQcYoF7ZH39Ayc
+        lWo+iRCsPon9iFJrrXjBHXx0Ok3ZU+cDiTKqNw/pVPNkinjJyAdmdB0dnLP+nDy+
+        D90Heak8xEp1ijqoxK9n3qbGCRBY1DyYOqnNfjg8SuveD5P9+wWtCH1JAdZKGmiA
         ==
-X-ME-Sender: <xms:qSZPYAZ50D1wXMo1cnkynJCxpxX3RihucxY3Wb9UYyGQGM5MQ3SN3Q>
-    <xme:qSZPYNZWKeAtPGzIMlvVUd4UWBR-viF3fhcNSLQDfOezHMLiTHhgZZLE_yDmjvmsq
-    lAFPVqzplOhZA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvledgtdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:qSZPYEW-W582jd3wisL6d2EMpncgJu9wTbWFbTC3CmQs4WxdgH1tuw>
-    <xmx:qSZPYM32wiXVixrTCxMSvgIRSK6suj6muHl603CWg5rKHxRgh4RO-g>
-    <xmx:qSZPYDYwZkpRhS0vy5l2UUBE3UXbMD8M2XG-ASmmcyvuTfVobFrHuQ>
-    <xmx:qiZPYGkvUE06BNvi5KoifMVjGn8c-jFTxZIAhlQo0iyhWn6-J7F02w>
+X-ME-Sender: <xms:qyZPYO_iRW6ZJ5bJKEfoBDsEYj1-6Ll92WhOkS8FlQtdHX3Sf6HH9g>
+    <xme:qyZPYOt17nu6cEd_0wzU6_ZsX2SUBBzxlSRcGQEcn4UZcbtkAMCKJOKAH8AKlUfVQ
+    a5luyQhFKz7KQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvlecutefuodetggdotefrodftvfcurf
+    hrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertddttdflne
+    cuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgqeen
+    ucggtffrrghtthgvrhhnpeeiteevheeuvdfhtdfgvdeiieehheefleevveehjeduteevue
+    evledujeejgfetheenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhi
+    iigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:qyZPYECvfXiOfTG2WaVCxAxNJ0O547JzAzTTMbvvlNX0HnzZqrf0HQ>
+    <xmx:qyZPYGeK2ozn16hSMb0NB6W2_X-csjTtl76YbiA_AHuBuuHn0SbdqQ>
+    <xmx:qyZPYDM8nXbImxm6b3-c2YtuxTcqjzcpLPltV7rrHPOFyHuwVJ8J7w>
+    <xmx:qyZPYIr6dFzdyLfQhdGXlHjRIsnG__tnwGdhFvbyugFZFUEbZuVDOQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B3197108005F;
-        Mon, 15 Mar 2021 05:19:36 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] MIPS: kernel: Reserve exception base early to prevent" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id E8E9624005C;
+        Mon, 15 Mar 2021 05:19:38 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] MIPS: kernel: Reserve exception base early to prevent" failed to apply to 4.9-stable tree
 To:     tsbogend@alpha.franken.de, Sergey.Semin@baikalelectronics.ru,
         f.fainelli@gmail.com, fancer.lancer@gmail.com,
         kdasu.kdev@gmail.com, rppt@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Mar 2021 10:19:35 +0100
-Message-ID: <161579997523144@kroah.com>
+Message-ID: <1615799975230197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
