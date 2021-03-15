@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65DAD33B874
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFFB633B941
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbhCOODe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
+        id S234828AbhCOOFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231490AbhCOOAR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 143B464F12;
-        Mon, 15 Mar 2021 14:00:01 +0000 (UTC)
+        id S232404AbhCOOBU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ED4D64F52;
+        Mon, 15 Mar 2021 14:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816802;
-        bh=SjQzFgZNl0ceigZk74ClIsEtdipV2riX7BXRcPhYQa4=;
+        s=korg; t=1615816855;
+        bh=heoRBBbg4wXrFA16wBhi5rGQpliksVgEIuFQeZHud0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcP+PUU6lq/LDkLxF62ysHpzIGsrf6HE7npGe/kaqL1YRaO7XlwyIf78Mnh6ms6mu
-         +zyrDtxAiTqpgUfGPVgJeP/bjbE7G/xRuoTgiROvlLFnA3R7sL1J/rqjnCcGWAJklU
-         /emCwmnXbUx7uHXS5prMr4zX4kgTOrNiiqHJBVqM=
+        b=dClgpOlXQ1Ss12Bzlq8Sl9Tx8n/NCV0ZZUlGdd/t2urT9JPsLZflayO8hPy+A0mKb
+         mqPENmwil4a7U5YDfp0B3382zcJDi+RG14BeSkKz0/FB/RrIuF0NFmb3dDIY3L8ktl
+         iqZDH21uF3D0Bi8VRVEIeCTsd5oa7QwMtLmlyToA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.14 73/95] staging: comedi: addi_apci_1500: Fix endian problem for command sample
+        stable@vger.kernel.org, Alexey Dobriyan <adobriyan@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 112/120] prctl: fix PR_SET_MM_AUXV kernel stack leak
 Date:   Mon, 15 Mar 2021 14:57:43 +0100
-Message-Id: <20210315135742.670035850@linuxfoundation.org>
+Message-Id: <20210315135723.655143908@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +42,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-commit ac0bbf55ed3be75fde1f8907e91ecd2fd589bde3 upstream.
+[ Upstream commit c995f12ad8842dbf5cfed113fb52cdd083f5afd1 ]
 
-The digital input subdevice supports Comedi asynchronous commands that
-read interrupt status information.  This uses 16-bit Comedi samples (of
-which only the bottom 8 bits contain status information).  However, the
-interrupt handler is calling `comedi_buf_write_samples()` with the
-address of a 32-bit variable `unsigned int status`.  On a bigendian
-machine, this will copy 2 bytes from the wrong end of the variable.  Fix
-it by changing the type of the variable to `unsigned short`.
+Doing a
 
-Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
-Cc: <stable@vger.kernel.org> #4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	prctl(PR_SET_MM, PR_SET_MM_AUXV, addr, 1);
+
+will copy 1 byte from userspace to (quite big) on-stack array
+and then stash everything to mm->saved_auxv.
+AT_NULL terminator will be inserted at the very end.
+
+/proc/*/auxv handler will find that AT_NULL terminator
+and copy original stack contents to userspace.
+
+This devious scheme requires CAP_SYS_RESOURCE.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1500.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ kernel/sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1500.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
-@@ -217,7 +217,7 @@ static irqreturn_t apci1500_interrupt(in
- 	struct comedi_device *dev = d;
- 	struct apci1500_private *devpriv = dev->private;
- 	struct comedi_subdevice *s = dev->read_subdev;
--	unsigned int status = 0;
-+	unsigned short status = 0;
- 	unsigned int val;
- 
- 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
-@@ -247,14 +247,14 @@ static irqreturn_t apci1500_interrupt(in
- 	 *
- 	 *    Mask     Meaning
- 	 * ----------  ------------------------------------------
--	 * 0x00000001  Event 1 has occurred
--	 * 0x00000010  Event 2 has occurred
--	 * 0x00000100  Counter/timer 1 has run down (not implemented)
--	 * 0x00001000  Counter/timer 2 has run down (not implemented)
--	 * 0x00010000  Counter 3 has run down (not implemented)
--	 * 0x00100000  Watchdog has run down (not implemented)
--	 * 0x01000000  Voltage error
--	 * 0x10000000  Short-circuit error
-+	 * 0b00000001  Event 1 has occurred
-+	 * 0b00000010  Event 2 has occurred
-+	 * 0b00000100  Counter/timer 1 has run down (not implemented)
-+	 * 0b00001000  Counter/timer 2 has run down (not implemented)
-+	 * 0b00010000  Counter 3 has run down (not implemented)
-+	 * 0b00100000  Watchdog has run down (not implemented)
-+	 * 0b01000000  Voltage error
-+	 * 0b10000000  Short-circuit error
+diff --git a/kernel/sys.c b/kernel/sys.c
+index baf60a3aa34b..81ed6023d01b 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -2069,7 +2069,7 @@ static int prctl_set_auxv(struct mm_struct *mm, unsigned long addr,
+ 	 * up to the caller to provide sane values here, otherwise userspace
+ 	 * tools which use this vector might be unhappy.
  	 */
- 	comedi_buf_write_samples(s, &status, 1);
- 	comedi_handle_events(dev, s);
+-	unsigned long user_auxv[AT_VECTOR_SIZE];
++	unsigned long user_auxv[AT_VECTOR_SIZE] = {};
+ 
+ 	if (len > sizeof(user_auxv))
+ 		return -EINVAL;
+-- 
+2.30.1
+
 
 
