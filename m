@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 762D333B67C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F24B233B542
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229713AbhCON56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
+        id S231127AbhCONxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231983AbhCON51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7365264DAD;
-        Mon, 15 Mar 2021 13:57:26 +0000 (UTC)
+        id S229925AbhCONxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B07A661606;
+        Mon, 15 Mar 2021 13:53:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816647;
-        bh=hkkl8bLmIp1Yh4LBayoLD0RW3RsbGjJ000u/KnO1o8M=;
+        s=korg; t=1615816405;
+        bh=Irzxljc8tTnuiB0txvQE1fyG3ETTHEas1beSpfYJajg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJF/2ysirqp7/e5secQyrJZauuyxcqckIhxYE9HjOAuvAKqnSR6Hd/uKkPCC2Hg+3
-         Tu4f9F/wu1z4CcYQvIiSFMZvjT6xgbSUl+JrvwIQ/oJReBlB6MVGS2OVk/gNsBQ9Kf
-         qRvmipccxnkuyJCkYmAJaKqVJFGGnKe4QznpZ+lw=
+        b=I04pm10/gpoEanoZFYvN/JEwhbwgVLfbiFh3EjTNsQAehpvEdek2+x7qMcULpqkUy
+         FXDFiZfE4uGScBMRVLvrChBzTlVYwrd40raXa8neykJyhJ5LTubTcJMw/cKZvjgQ74
+         ntJjJrFS72KMFG0LJsyjs7HTdWxt8axtn/yCNh7o=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.11 040/306] cifs: fix credit accounting for extra channel
+        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 20/78] mmc: mediatek: fix race condition between msdc_request_timeout and irq
 Date:   Mon, 15 Mar 2021 14:51:43 +0100
-Message-Id: <20210315135508.996723064@linuxfoundation.org>
+Message-Id: <20210315135212.725857085@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +42,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Aurelien Aptel <aaptel@suse.com>
+From: Chaotian Jing <chaotian.jing@mediatek.com>
 
-commit a249cc8bc2e2fed680047d326eb9a50756724198 upstream.
+[ Upstream commit 0354ca6edd464a2cf332f390581977b8699ed081 ]
 
-With multichannel, operations like the queries
-from "ls -lR" can cause all credits to be used and
-errors to be returned since max_credits was not
-being set correctly on the secondary channels and
-thus the client was requesting 0 credits incorrectly
-in some cases (which can lead to not having
-enough credits to perform any operation on that
-channel).
+when get request SW timeout, if CMD/DAT xfer done irq coming right now,
+then there is race between the msdc_request_timeout work and irq handler,
+and the host->cmd and host->data may set to NULL in irq handler. also,
+current flow ensure that only one path can go to msdc_request_done(), so
+no need check the return value of cancel_delayed_work().
 
-Signed-off-by: Aurelien Aptel <aaptel@suse.com>
-CC: <stable@vger.kernel.org> # v5.8+
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
+Link: https://lore.kernel.org/r/20201218071611.12276-1-chaotian.jing@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c |   10 +++++-----
- fs/cifs/sess.c    |    1 +
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/mmc/host/mtk-sd.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1405,6 +1405,11 @@ smbd_connected:
- 	tcp_ses->min_offload = ctx->min_offload;
- 	tcp_ses->tcpStatus = CifsNeedNegotiate;
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index 7fc6ce381142..125c06a10455 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -741,13 +741,13 @@ static void msdc_track_cmd_data(struct msdc_host *host,
+ static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
+ {
+ 	unsigned long flags;
+-	bool ret;
  
-+	if ((ctx->max_credits < 20) || (ctx->max_credits > 60000))
-+		tcp_ses->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
-+	else
-+		tcp_ses->max_credits = ctx->max_credits;
+-	ret = cancel_delayed_work(&host->req_timeout);
+-	if (!ret) {
+-		/* delay work already running */
+-		return;
+-	}
++	/*
++	 * No need check the return value of cancel_delayed_work, as only ONE
++	 * path will go here!
++	 */
++	cancel_delayed_work(&host->req_timeout);
 +
- 	tcp_ses->nr_targets = 1;
- 	tcp_ses->ignore_signature = ctx->ignore_signature;
- 	/* thread spawned, put it on the list */
-@@ -2806,11 +2811,6 @@ static int mount_get_conns(struct smb3_f
+ 	spin_lock_irqsave(&host->lock, flags);
+ 	host->mrq = NULL;
+ 	spin_unlock_irqrestore(&host->lock, flags);
+@@ -765,7 +765,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
+ 	bool done = false;
+ 	bool sbc_error;
+ 	unsigned long flags;
+-	u32 *rsp = cmd->resp;
++	u32 *rsp;
  
- 	*nserver = server;
+ 	if (mrq->sbc && cmd == mrq->cmd &&
+ 	    (events & (MSDC_INT_ACMDRDY | MSDC_INT_ACMDCRCERR
+@@ -786,6 +786,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
  
--	if ((ctx->max_credits < 20) || (ctx->max_credits > 60000))
--		server->max_credits = SMB2_MAX_CREDITS_AVAILABLE;
--	else
--		server->max_credits = ctx->max_credits;
--
- 	/* get a reference to a SMB session */
- 	ses = cifs_get_smb_ses(server, ctx);
- 	if (IS_ERR(ses)) {
---- a/fs/cifs/sess.c
-+++ b/fs/cifs/sess.c
-@@ -230,6 +230,7 @@ cifs_ses_add_channel(struct cifs_sb_info
- 	ctx.noautotune = ses->server->noautotune;
- 	ctx.sockopt_tcp_nodelay = ses->server->tcp_nodelay;
- 	ctx.echo_interval = ses->server->echo_interval / HZ;
-+	ctx.max_credits = ses->server->max_credits;
+ 	if (done)
+ 		return true;
++	rsp = cmd->resp;
  
- 	/*
- 	 * This will be used for encoding/decoding user/domain/pw
+ 	sdr_clr_bits(host->base + MSDC_INTEN, cmd_ints_mask);
+ 
+@@ -968,7 +969,7 @@ static void msdc_data_xfer_next(struct msdc_host *host,
+ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 				struct mmc_request *mrq, struct mmc_data *data)
+ {
+-	struct mmc_command *stop = data->stop;
++	struct mmc_command *stop;
+ 	unsigned long flags;
+ 	bool done;
+ 	unsigned int check_data = events &
+@@ -984,6 +985,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 
+ 	if (done)
+ 		return true;
++	stop = data->stop;
+ 
+ 	if (check_data || (stop && stop->error)) {
+ 		dev_dbg(host->dev, "DMA status: 0x%8X\n",
+-- 
+2.30.1
+
 
 
