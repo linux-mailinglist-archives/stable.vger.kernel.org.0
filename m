@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A2033B871
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B5733BA66
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231228AbhCOODb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S235219AbhCOOJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231688AbhCOOAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A96D64DAD;
-        Mon, 15 Mar 2021 13:59:41 +0000 (UTC)
+        id S231151AbhCOODa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAB8D64EF1;
+        Mon, 15 Mar 2021 14:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816782;
-        bh=198ZG1tjpE0eJK8e0iIWR6GPw4Ku9YEGd3F79jUu4mA=;
+        s=korg; t=1615817009;
+        bh=qWN0tpeZyplYUIYgezzOy80IpLdTww9WSjmeKYer3P4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVfeuiLLPuNhFTjFZzNZjjkgVwiUQfKWY87nLA1rNWRENYnUDWoOrlu+B+VWstdkZ
-         MOqFRkEB5Z6hykk4b4NGGx/WAJgK/RAaZo6kToCvFbswy9SF9D0DAxufL2wEgvOFMQ
-         qm455MIYO3lNalaTvh2ivTV6P2/YNlwWmHWft0Dc=
+        b=d8duqTxA+fEG0GjASinM1QQtBEuAUoVcasti+AKj9kLwLghWZeaZxk97PNlRB8p4D
+         TD2IVK19fiWwQmpx02POWa2tWBhm7fzHRzI93mDIzOFI1lc+Vddd0q8kjfkxXj3M7m
+         t4P5aFA5B47/iXeu391JBoRYFjeZcIBSn5w+saT4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Subject: [PATCH 5.4 106/168] usb: gadget: f_uac1: stop playback on function disable
+        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 245/290] SUNRPC: Set memalloc_nofs_save() for sync tasks
 Date:   Mon, 15 Mar 2021 14:55:38 +0100
-Message-Id: <20210315135553.848590368@linuxfoundation.org>
+Message-Id: <20210315135550.298265584@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Benjamin Coddington <bcodding@redhat.com>
 
-commit cc2ac63d4cf72104e0e7f58bb846121f0f51bb19 upstream.
+[ Upstream commit f0940f4b3284a00f38a5d42e6067c2aaa20e1f2e ]
 
-There is missing playback stop/cleanup in case of
-gadget's ->disable callback that happens on
-events like USB host resetting or gadget disconnection
+We could recurse into NFS doing memory reclaim while sending a sync task,
+which might result in a deadlock.  Set memalloc_nofs_save for sync task
+execution.
 
-Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
-Cc: <stable@vger.kernel.org> # 4.13+
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1614599375-8803-3-git-send-email-ruslan.bilovol@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a1231fda7e94 ("SUNRPC: Set memalloc_nofs_save() on all rpciod/xprtiod jobs")
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_uac1.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sunrpc/sched.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_uac1.c
-+++ b/drivers/usb/gadget/function/f_uac1.c
-@@ -499,6 +499,7 @@ static void f_audio_disable(struct usb_f
- 	uac1->as_out_alt = 0;
- 	uac1->as_in_alt = 0;
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index cf702a5f7fe5..39ed0e0afe6d 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -963,8 +963,11 @@ void rpc_execute(struct rpc_task *task)
  
-+	u_audio_stop_playback(&uac1->g_audio);
- 	u_audio_stop_capture(&uac1->g_audio);
+ 	rpc_set_active(task);
+ 	rpc_make_runnable(rpciod_workqueue, task);
+-	if (!is_async)
++	if (!is_async) {
++		unsigned int pflags = memalloc_nofs_save();
+ 		__rpc_execute(task);
++		memalloc_nofs_restore(pflags);
++	}
  }
  
+ static void rpc_async_schedule(struct work_struct *work)
+-- 
+2.30.1
+
 
 
