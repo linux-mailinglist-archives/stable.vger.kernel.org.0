@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11EE533B6E2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 622D733B5BC
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232514AbhCON7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36730 "EHLO mail.kernel.org"
+        id S231390AbhCONzP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232033AbhCON6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C98664F00;
-        Mon, 15 Mar 2021 13:58:02 +0000 (UTC)
+        id S231331AbhCONyk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAE5F64F21;
+        Mon, 15 Mar 2021 13:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816683;
-        bh=d4rfcoWz0mdYhPVDiWZkY387rotkC6Hrp5EMs2A8oZ0=;
+        s=korg; t=1615816480;
+        bh=QdCw84hPgcw0WVLc6bYbLFZMIWuHmGmfHkjtBqcwwdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnV+UMcDBOmK7isv27CqPdjgTCEsjhR6BGvp5DvTpay0IqcUtbJoZAtxuzIjLic8k
-         kQjdiSe8z1dv9+O2JSrI5ldQERNERew54ado8VAnVszLLfcGPyEA/kOntjIdNGWjNV
-         5FriD7Gco2Zd0zljlV3hnio+H2rb8y7E/k0uKWQc=
+        b=BZycmTlpany1Sd4xthBTh/wdeRQwJvgFl/byPZOwAeZsqmEe+Q5GnhzhNHSnbad8F
+         8Vaw3yhX/EKCtAujrbsa4PThnt49Dpzbn6RgM/Pq+o2bY00g0uf4gWlVIl3lEVLRoh
+         32H7WYtO+bmz7keZO4nQoAGmwVCHft6vaVy6Ae10=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 053/290] cipso,calipso: resolve a number of problems with the DOI refcounts
+        stable@vger.kernel.org, Daiyue Zhang <zhangdaiyue1@huawei.com>,
+        Yi Chen <chenyi77@huawei.com>, Ge Qiu <qiuge@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 63/78] configfs: fix a use-after-free in __configfs_open_file
 Date:   Mon, 15 Mar 2021 14:52:26 +0100
-Message-Id: <20210315135543.718996862@linuxfoundation.org>
+Message-Id: <20210315135214.131689882@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,134 +44,132 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Paul Moore <paul@paul-moore.com>
+From: Daiyue Zhang <zhangdaiyue1@huawei.com>
 
-commit ad5d07f4a9cd671233ae20983848874731102c08 upstream.
+[ Upstream commit 14fbbc8297728e880070f7b077b3301a8c698ef9 ]
 
-The current CIPSO and CALIPSO refcounting scheme for the DOI
-definitions is a bit flawed in that we:
+Commit b0841eefd969 ("configfs: provide exclusion between IO and removals")
+uses ->frag_dead to mark the fragment state, thus no bothering with extra
+refcount on config_item when opening a file. The configfs_get_config_item
+was removed in __configfs_open_file, but not with config_item_put. So the
+refcount on config_item will lost its balance, causing use-after-free
+issues in some occasions like this:
 
-1. Don't correctly match gets/puts in netlbl_cipsov4_list().
-2. Decrement the refcount on each attempt to remove the DOI from the
-   DOI list, only removing it from the list once the refcount drops
-   to zero.
+Test:
+1. Mount configfs on /config with read-only items:
+drwxrwx--- 289 root   root            0 2021-04-01 11:55 /config
+drwxr-xr-x   2 root   root            0 2021-04-01 11:54 /config/a
+--w--w--w-   1 root   root         4096 2021-04-01 11:53 /config/a/1.txt
+......
 
-This patch fixes these problems by adding the missing "puts" to
-netlbl_cipsov4_list() and introduces a more conventional, i.e.
-not-buggy, refcounting mechanism to the DOI definitions.  Upon the
-addition of a DOI to the DOI list, it is initialized with a refcount
-of one, removing a DOI from the list removes it from the list and
-drops the refcount by one; "gets" and "puts" behave as expected with
-respect to refcounts, increasing and decreasing the DOI's refcount by
-one.
+2. Then run:
+for file in /config
+do
+echo $file
+grep -R 'key' $file
+done
 
-Fixes: b1edeb102397 ("netlabel: Replace protocol/NetLabel linking with refrerence counts")
-Fixes: d7cce01504a0 ("netlabel: Add support for removing a CALIPSO DOI.")
-Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+3. __configfs_open_file will be called in parallel, the first one
+got called will do:
+if (file->f_mode & FMODE_READ) {
+	if (!(inode->i_mode & S_IRUGO))
+		goto out_put_module;
+			config_item_put(buffer->item);
+				kref_put()
+					package_details_release()
+						kfree()
+
+the other one will run into use-after-free issues like this:
+BUG: KASAN: use-after-free in __configfs_open_file+0x1bc/0x3b0
+Read of size 8 at addr fffffff155f02480 by task grep/13096
+CPU: 0 PID: 13096 Comm: grep VIP: 00 Tainted: G        W       4.14.116-kasan #1
+TGID: 13096 Comm: grep
+Call trace:
+dump_stack+0x118/0x160
+kasan_report+0x22c/0x294
+__asan_load8+0x80/0x88
+__configfs_open_file+0x1bc/0x3b0
+configfs_open_file+0x28/0x34
+do_dentry_open+0x2cc/0x5c0
+vfs_open+0x80/0xe0
+path_openat+0xd8c/0x2988
+do_filp_open+0x1c4/0x2fc
+do_sys_open+0x23c/0x404
+SyS_openat+0x38/0x48
+
+Allocated by task 2138:
+kasan_kmalloc+0xe0/0x1ac
+kmem_cache_alloc_trace+0x334/0x394
+packages_make_item+0x4c/0x180
+configfs_mkdir+0x358/0x740
+vfs_mkdir2+0x1bc/0x2e8
+SyS_mkdirat+0x154/0x23c
+el0_svc_naked+0x34/0x38
+
+Freed by task 13096:
+kasan_slab_free+0xb8/0x194
+kfree+0x13c/0x910
+package_details_release+0x524/0x56c
+kref_put+0xc4/0x104
+config_item_put+0x24/0x34
+__configfs_open_file+0x35c/0x3b0
+configfs_open_file+0x28/0x34
+do_dentry_open+0x2cc/0x5c0
+vfs_open+0x80/0xe0
+path_openat+0xd8c/0x2988
+do_filp_open+0x1c4/0x2fc
+do_sys_open+0x23c/0x404
+SyS_openat+0x38/0x48
+el0_svc_naked+0x34/0x38
+
+To fix this issue, remove the config_item_put in
+__configfs_open_file to balance the refcount of config_item.
+
+Fixes: b0841eefd969 ("configfs: provide exclusion between IO and removals")
+Signed-off-by: Daiyue Zhang <zhangdaiyue1@huawei.com>
+Signed-off-by: Yi Chen <chenyi77@huawei.com>
+Signed-off-by: Ge Qiu <qiuge@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Acked-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/cipso_ipv4.c            |   11 +----------
- net/ipv6/calipso.c               |   14 +++++---------
- net/netlabel/netlabel_cipso_v4.c |    3 +++
- 3 files changed, 9 insertions(+), 19 deletions(-)
+ fs/configfs/file.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -519,16 +519,10 @@ int cipso_v4_doi_remove(u32 doi, struct
- 		ret_val = -ENOENT;
- 		goto doi_remove_return;
- 	}
--	if (!refcount_dec_and_test(&doi_def->refcount)) {
--		spin_unlock(&cipso_v4_doi_list_lock);
--		ret_val = -EBUSY;
--		goto doi_remove_return;
--	}
- 	list_del_rcu(&doi_def->list);
- 	spin_unlock(&cipso_v4_doi_list_lock);
+diff --git a/fs/configfs/file.c b/fs/configfs/file.c
+index 7285440bc62e..896e90dc9193 100644
+--- a/fs/configfs/file.c
++++ b/fs/configfs/file.c
+@@ -392,7 +392,7 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
  
--	cipso_v4_cache_invalidate();
--	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
-+	cipso_v4_doi_putdef(doi_def);
- 	ret_val = 0;
+ 	attr = to_attr(dentry);
+ 	if (!attr)
+-		goto out_put_item;
++		goto out_free_buffer;
  
- doi_remove_return:
-@@ -585,9 +579,6 @@ void cipso_v4_doi_putdef(struct cipso_v4
+ 	if (type & CONFIGFS_ITEM_BIN_ATTR) {
+ 		buffer->bin_attr = to_bin_attr(dentry);
+@@ -405,7 +405,7 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
+ 	/* Grab the module reference for this attribute if we have one */
+ 	error = -ENODEV;
+ 	if (!try_module_get(buffer->owner))
+-		goto out_put_item;
++		goto out_free_buffer;
  
- 	if (!refcount_dec_and_test(&doi_def->refcount))
- 		return;
--	spin_lock(&cipso_v4_doi_list_lock);
--	list_del_rcu(&doi_def->list);
--	spin_unlock(&cipso_v4_doi_list_lock);
+ 	error = -EACCES;
+ 	if (!buffer->item->ci_type)
+@@ -449,8 +449,6 @@ static int __configfs_open_file(struct inode *inode, struct file *file, int type
  
- 	cipso_v4_cache_invalidate();
- 	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
---- a/net/ipv6/calipso.c
-+++ b/net/ipv6/calipso.c
-@@ -83,6 +83,9 @@ struct calipso_map_cache_entry {
- 
- static struct calipso_map_cache_bkt *calipso_cache;
- 
-+static void calipso_cache_invalidate(void);
-+static void calipso_doi_putdef(struct calipso_doi *doi_def);
-+
- /* Label Mapping Cache Functions
-  */
- 
-@@ -444,15 +447,10 @@ static int calipso_doi_remove(u32 doi, s
- 		ret_val = -ENOENT;
- 		goto doi_remove_return;
- 	}
--	if (!refcount_dec_and_test(&doi_def->refcount)) {
--		spin_unlock(&calipso_doi_list_lock);
--		ret_val = -EBUSY;
--		goto doi_remove_return;
--	}
- 	list_del_rcu(&doi_def->list);
- 	spin_unlock(&calipso_doi_list_lock);
- 
--	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
-+	calipso_doi_putdef(doi_def);
- 	ret_val = 0;
- 
- doi_remove_return:
-@@ -508,10 +506,8 @@ static void calipso_doi_putdef(struct ca
- 
- 	if (!refcount_dec_and_test(&doi_def->refcount))
- 		return;
--	spin_lock(&calipso_doi_list_lock);
--	list_del_rcu(&doi_def->list);
--	spin_unlock(&calipso_doi_list_lock);
- 
-+	calipso_cache_invalidate();
- 	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
- }
- 
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -575,6 +575,7 @@ list_start:
- 
- 		break;
- 	}
-+	cipso_v4_doi_putdef(doi_def);
- 	rcu_read_unlock();
- 
- 	genlmsg_end(ans_skb, data);
-@@ -583,12 +584,14 @@ list_start:
- list_retry:
- 	/* XXX - this limit is a guesstimate */
- 	if (nlsze_mult < 4) {
-+		cipso_v4_doi_putdef(doi_def);
- 		rcu_read_unlock();
- 		kfree_skb(ans_skb);
- 		nlsze_mult *= 2;
- 		goto list_start;
- 	}
- list_failure_lock:
-+	cipso_v4_doi_putdef(doi_def);
- 	rcu_read_unlock();
- list_failure:
- 	kfree_skb(ans_skb);
+ out_put_module:
+ 	module_put(buffer->owner);
+-out_put_item:
+-	config_item_put(buffer->item);
+ out_free_buffer:
+ 	up_read(&frag->frag_sem);
+ 	kfree(buffer);
+-- 
+2.30.1
+
 
 
