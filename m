@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B4133B658
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A13133B65C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbhCON5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34136 "EHLO mail.kernel.org"
+        id S231679AbhCON5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231420AbhCON5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8FC64F37;
-        Mon, 15 Mar 2021 13:57:08 +0000 (UTC)
+        id S231781AbhCON5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88A1F64F44;
+        Mon, 15 Mar 2021 13:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816630;
-        bh=MRxnbr6GCvzlsTlzldQEnZM3HHwrm9aBD+N7NzrjEOA=;
+        s=korg; t=1615816631;
+        bh=jSKspWM7EfzKqcDjD2f4ifI8H3zPgj3EYllVYCjybuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UH8+oT/417j+79JKnzbHPJjUAWul7+P03xtN9nLUYgXUxXFSiMoP5M2Ix4HJmimnk
-         ZO/q8bWmYaSiXT0x2p9WAvk3XB5slF3Jf/vQkwRKh5ATm8gp4US5XMleUkXvOzQB0k
-         M16KceMg9uAtW6ts22HEPU9W1sJ+LKnp8+jM6sL4=
+        b=K9fO/iQqvEWiUxT7WRF3zjovtpqTJM4kONamUMjCZu2V7s246NLGmS0tLQuUFNv4S
+         SeYCzPftNaFc4uO+C2JSMNTLxUXxHvM5VOWGKKia9iwa06ndDrpVY7tEqSH6gDVWbG
+         +O2/6wd3Bc9LGxFER0jkZttfcChHVSbRG8ZD/9gw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
         Daniel Borkmann <daniel@iogearbox.net>,
-        Heiko Carstens <hca@linux.ibm.com>, Yonghong Song <yhs@fb.com>
-Subject: [PATCH 5.10 022/290] selftests/bpf: Use the last page in test_snprintf_btf on s390
-Date:   Mon, 15 Mar 2021 14:51:55 +0100
-Message-Id: <20210315135542.681110861@linuxfoundation.org>
+        William Tu <u9012063@gmail.com>
+Subject: [PATCH 5.10 023/290] selftests/bpf: No need to drop the packet when there is no geneve opt
+Date:   Mon, 15 Mar 2021 14:51:56 +0100
+Message-Id: <20210315135542.714939400@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -42,58 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 42a382a466a967dc053c73b969cd2ac2fec502cf upstream.
+commit 557c223b643a35effec9654958d8edc62fd2603a upstream.
 
-test_snprintf_btf fails on s390, because NULL points to a readable
-struct lowcore there. Fix by using the last page instead.
+In bpf geneve tunnel test we set geneve option on tx side. On rx side we
+only call bpf_skb_get_tunnel_opt(). Since commit 9c2e14b48119 ("ip_tunnels:
+Set tunnel option flag when tunnel metadata is present") geneve_rx() will
+not add TUNNEL_GENEVE_OPT flag if there is no geneve option, which cause
+bpf_skb_get_tunnel_opt() return ENOENT and _geneve_get_tunnel() in
+test_tunnel_kern.c drop the packet.
 
-Error message example:
+As it should be valid that bpf_skb_get_tunnel_opt() return error when
+there is not tunnel option, there is no need to drop the packet and
+break all geneve rx traffic. Just set opt_class to 0 in this test and
+keep returning TC_ACT_OK.
 
-    printing fffffffffffff000 should generate error, got (361)
-
-Fixes: 076a95f5aff2 ("selftests/bpf: Add bpf_snprintf_btf helper tests")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Fixes: 933a741e3b82 ("selftests/bpf: bpf tunnel test.")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210227051726.121256-1-iii@linux.ibm.com
+Acked-by: William Tu <u9012063@gmail.com>
+Link: https://lore.kernel.org/bpf/20210224081403.1425474-1-liuhangbin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/netif_receive_skb.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ tools/testing/selftests/bpf/progs/test_tunnel_kern.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/bpf/progs/netif_receive_skb.c
-+++ b/tools/testing/selftests/bpf/progs/netif_receive_skb.c
-@@ -16,6 +16,13 @@ bool skip = false;
- #define STRSIZE			2048
- #define EXPECTED_STRSIZE	256
- 
-+#if defined(bpf_target_s390)
-+/* NULL points to a readable struct lowcore on s390, so take the last page */
-+#define BADPTR			((void *)0xFFFFFFFFFFFFF000ULL)
-+#else
-+#define BADPTR			0
-+#endif
-+
- #ifndef ARRAY_SIZE
- #define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
- #endif
-@@ -113,11 +120,11 @@ int BPF_PROG(trace_netif_receive_skb, st
+--- a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
++++ b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
+@@ -446,10 +446,8 @@ int _geneve_get_tunnel(struct __sk_buff
  	}
  
- 	/* Check invalid ptr value */
--	p.ptr = 0;
-+	p.ptr = BADPTR;
- 	__ret = bpf_snprintf_btf(str, STRSIZE, &p, sizeof(p), 0);
- 	if (__ret >= 0) {
--		bpf_printk("printing NULL should generate error, got (%d)",
--			   __ret);
-+		bpf_printk("printing %llx should generate error, got (%d)",
-+			   (unsigned long long)BADPTR, __ret);
- 		ret = -ERANGE;
- 	}
+ 	ret = bpf_skb_get_tunnel_opt(skb, &gopt, sizeof(gopt));
+-	if (ret < 0) {
+-		ERROR(ret);
+-		return TC_ACT_SHOT;
+-	}
++	if (ret < 0)
++		gopt.opt_class = 0;
  
+ 	bpf_trace_printk(fmt, sizeof(fmt),
+ 			key.tunnel_id, key.remote_ipv4, gopt.opt_class);
 
 
