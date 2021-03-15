@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C48E333B568
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC64F33B56D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbhCONyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56918 "EHLO mail.kernel.org"
+        id S231404AbhCONyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231145AbhCONxv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 725DB64F07;
-        Mon, 15 Mar 2021 13:53:50 +0000 (UTC)
+        id S231162AbhCONxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2227164F02;
+        Mon, 15 Mar 2021 13:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816431;
-        bh=FaW9x8HhE6as/IO5W+lcpoDoipNfhCCAyi0HIq0I0cY=;
+        s=korg; t=1615816433;
+        bh=i5atjL/3NbkstyTcDLDklYerNdPa7lqpf+umxYwjipY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nH0xGVCdK8EQwY/xrwv54s5PKJE6j80ETIiv5ayV/ANPvodLukretkdEc2ZDcLeqj
-         NsFffjR1kNIHrrUMvYuffD9I4dUBMFLCI/9SQdrBy79DCjZRuKadTg4kwi11N7f7b8
-         rXvO9vXsKDObUwd8eXs3p30qiWfEDXxtRCWBex9k=
+        b=o3Y9yOZXUbbymhpkyayI2x8x6MpaMjRBvYA9lJAGwW103Y0jZszzC64z5B/cyZyKX
+         K33YFvPfyefSL1T/KRm507ZeLPG3zTYaNU61QG/6dVpfoOSqjSAFAgRce4RNaQezzC
+         aH4IpaOaiS/L1FOQF1mC2wBh9Xf+aN0mNk5n7qxA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Niv Sardi <xaiki@evilgiggle.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 35/78] USB: serial: io_edgeport: fix memory leak in edge_startup
-Date:   Mon, 15 Mar 2021 14:51:58 +0100
-Message-Id: <20210315135213.222503765@linuxfoundation.org>
+Subject: [PATCH 4.9 36/78] USB: serial: ch341: add new Product ID
+Date:   Mon, 15 Mar 2021 14:51:59 +0100
+Message-Id: <20210315135213.254819389@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
 References: <20210315135212.060847074@linuxfoundation.org>
@@ -43,68 +41,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Niv Sardi <xaiki@evilgiggle.com>
 
-commit cfdc67acc785e01a8719eeb7012709d245564701 upstream.
+commit 5563b3b6420362c8a1f468ca04afe6d5f0a8d0a3 upstream.
 
-sysbot found memory leak in edge_startup().
-The problem was that when an error was received from the usb_submit_urb(),
-nothing was cleaned up.
+Add PID for CH340 that's found on cheap programmers.
 
-Reported-by: syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
-Cc: stable@vger.kernel.org	# 2.6.21: c5c0c55598ce
+The driver works flawlessly as soon as the new PID (0x9986) is added to it.
+These look like ANU232MI but ship with a ch341 inside. They have no special
+identifiers (mine only has the string "DB9D20130716" printed on the PCB and
+nothing identifiable on the packaging. The merchant i bought it from
+doesn't sell these anymore).
+
+the lsusb -v output is:
+Bus 001 Device 009: ID 9986:7523
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x9986
+  idProduct          0x7523
+  bcdDevice            2.54
+  iManufacturer           0
+  iProduct                0
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0027
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower               96mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      1
+      bInterfaceProtocol      2
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
+
+Signed-off-by: Niv Sardi <xaiki@evilgiggle.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/io_edgeport.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -2959,26 +2959,32 @@ static int edge_startup(struct usb_seria
- 				response = -ENODEV;
- 			}
- 
--			usb_free_urb(edge_serial->interrupt_read_urb);
--			kfree(edge_serial->interrupt_in_buffer);
--
--			usb_free_urb(edge_serial->read_urb);
--			kfree(edge_serial->bulk_in_buffer);
--
--			kfree(edge_serial);
--
--			return response;
-+			goto error;
- 		}
- 
- 		/* start interrupt read for this edgeport this interrupt will
- 		 * continue as long as the edgeport is connected */
- 		response = usb_submit_urb(edge_serial->interrupt_read_urb,
- 								GFP_KERNEL);
--		if (response)
-+		if (response) {
- 			dev_err(ddev, "%s - Error %d submitting control urb\n",
- 				__func__, response);
-+
-+			goto error;
-+		}
- 	}
- 	return response;
-+
-+error:
-+	usb_free_urb(edge_serial->interrupt_read_urb);
-+	kfree(edge_serial->interrupt_in_buffer);
-+
-+	usb_free_urb(edge_serial->read_urb);
-+	kfree(edge_serial->bulk_in_buffer);
-+
-+	kfree(edge_serial);
-+
-+	return response;
- }
- 
- 
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -75,6 +75,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
++	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 
 
