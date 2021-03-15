@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B8F33B9DE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB1033B9B3
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235010AbhCOOG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S232068AbhCOOGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233299AbhCOOBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC62064EF3;
-        Mon, 15 Mar 2021 14:00:38 +0000 (UTC)
+        id S233394AbhCOOBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF54764FC9;
+        Mon, 15 Mar 2021 14:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816839;
-        bh=w4QaNXjUDjaiped9JuQNsCoByJ8C/CItVMR5fDiL4kw=;
+        s=korg; t=1615816870;
+        bh=Hc2RNgYQ9816tG0LFu3KtMs6m4KsiJybRjF36L5Dmm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jFTFgKeTqYkLIe3Gh9h+OJnTv6zShfSBjJi6noCCqsdRmAm1rN/XxpjuEJZiUK8Jw
-         qScuke+OJlTnGH275VVnAvWxXvbG8WYC/Tfg6ZA2zMswHSB2XajPUgok2H4aPq3NtL
-         slOJWSElXcMEHEjEXI//FHzZEVMkuBbCD3vxpzLk=
+        b=B7E+wgaAQo6DP1PPpL/gML9t5O6jMpBb2R+ojXZxv/gyaEzTgXso2fgRMaqRlwuta
+         Ruu59LmyeYUdGn2lUOT1zIKVJai7drTT8h7lnpxRE+ibHWWJJh0J9wshf+n9aLtnIF
+         Dr3dJRB7sDkvak5iITM52ElDjPxY3aQ/Ffipr16s=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 144/290] HID: logitech-dj: add support for the new lightspeed connection iteration
+        syzbot+719da9b149a931f5143f@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 174/306] ALSA: usb-audio: fix NULL ptr dereference in usb_audio_probe
 Date:   Mon, 15 Mar 2021 14:53:57 +0100
-Message-Id: <20210315135546.778815639@linuxfoundation.org>
+Message-Id: <20210315135513.500495383@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +43,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Filipe Laíns <lains@riseup.net>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit fab3a95654eea01d6b0204995be8b7492a00d001 ]
+commit 30dea07180de3aa0ad613af88431ef4e34b5ef68 upstream.
 
-This new connection type is the new iteration of the Lightspeed
-connection and will probably be used in some of the newer gaming
-devices. It is currently use in the G Pro X Superlight.
+syzbot reported null pointer dereference in usb_audio_probe.
+The problem was in case, when quirk == NULL. It's not an
+error condition, so quirk must be checked before dereferencing.
 
-This patch should be backported to older versions, as currently the
-driver will panic when seing the unsupported connection. This isn't
-an issue when using the receiver that came with the device, as Logitech
-has been using different PIDs when they change the connection type, but
-is an issue when using a generic receiver (well, generic Lightspeed
-receiver), which is the case of the one in the Powerplay mat. Currently,
-the only generic Ligthspeed receiver we support, and the only one that
-exists AFAIK, is ther Powerplay.
+Call Trace:
+ usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
+ really_probe+0x291/0xe60 drivers/base/dd.c:554
+ driver_probe_device+0x26b/0x3d0 drivers/base/dd.c:740
+ __device_attach_driver+0x1d1/0x290 drivers/base/dd.c:846
+ bus_for_each_drv+0x15f/0x1e0 drivers/base/bus.c:431
+ __device_attach+0x228/0x4a0 drivers/base/dd.c:914
+ bus_probe_device+0x1e4/0x290 drivers/base/bus.c:491
+ device_add+0xbdb/0x1db0 drivers/base/core.c:3242
+ usb_set_configuration+0x113f/0x1910 drivers/usb/core/message.c:2164
+ usb_generic_driver_probe+0xba/0x100 drivers/usb/core/generic.c:238
+ usb_probe_device+0xd9/0x2c0 drivers/usb/core/driver.c:293
+ really_probe+0x291/0xe60 drivers/base/dd.c:554
+ driver_probe_device+0x26b/0x3d0 drivers/base/dd.c:740
+ __device_attach_driver+0x1d1/0x290 drivers/base/dd.c:846
+ bus_for_each_drv+0x15f/0x1e0 drivers/base/bus.c:431
+ __device_attach+0x228/0x4a0 drivers/base/dd.c:914
+ bus_probe_device+0x1e4/0x290 drivers/base/bus.c:491
+ device_add+0xbdb/0x1db0 drivers/base/core.c:3242
+ usb_new_device.cold+0x721/0x1058 drivers/usb/core/hub.c:2555
+ hub_port_connect drivers/usb/core/hub.c:5223 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
+ port_event drivers/usb/core/hub.c:5509 [inline]
+ hub_event+0x2357/0x4320 drivers/usb/core/hub.c:5591
+ process_one_work+0x98d/0x1600 kernel/workqueue.c:2275
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2421
+ kthread+0x3b1/0x4a0 kernel/kthread.c:292
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-As it stands, the driver will panic when seeing a G Pro X Superlight
-connected to the Powerplay receiver and won't send any input events to
-userspace! The kernel will warn about this so the issue should be easy
-to identify, but it is still very worrying how hard it will fail :(
-
-[915977.398471] logitech-djreceiver 0003:046D:C53A.0107: unusable device of type UNKNOWN (0x0f) connected on slot 1
-
-Signed-off-by: Filipe Laíns <lains@riseup.net>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+719da9b149a931f5143f@syzkaller.appspotmail.com
+Fixes: 9799110825db ("ALSA: usb-audio: Disable USB autosuspend properly in setup_disable_autosuspend()")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/f1ebad6e721412843bd1b12584444c0a63c6b2fb.1615242183.git.paskripkin@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-logitech-dj.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/usb/card.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index fcdc922bc973..271bd8d24339 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -995,7 +995,12 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
- 	case 0x0d:
--		device_type = "eQUAD Lightspeed 1_1";
-+		device_type = "eQUAD Lightspeed 1.1";
-+		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
-+		workitem.reports_supported |= STD_KEYBOARD;
-+		break;
-+	case 0x0f:
-+		device_type = "eQUAD Lightspeed 1.2";
- 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
--- 
-2.30.1
-
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -831,7 +831,8 @@ static int usb_audio_probe(struct usb_in
+ 		snd_media_device_create(chip, intf);
+ 	}
+ 
+-	chip->quirk_type = quirk->type;
++	if (quirk)
++		chip->quirk_type = quirk->type;
+ 
+ 	usb_chip[chip->index] = chip;
+ 	chip->intf[chip->num_interfaces] = intf;
 
 
