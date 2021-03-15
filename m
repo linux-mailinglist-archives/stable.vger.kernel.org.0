@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F15533B53D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A529533B541
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230502AbhCONxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55852 "EHLO mail.kernel.org"
+        id S230525AbhCONxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230263AbhCONxW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0C8164EEC;
-        Mon, 15 Mar 2021 13:53:20 +0000 (UTC)
+        id S230317AbhCONxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 872CA64EF5;
+        Mon, 15 Mar 2021 13:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816402;
-        bh=CZ7on+YJf3WTcr/rsqN6YG/1VWuXArhhpbw7a5u7HUc=;
+        s=korg; t=1615816404;
+        bh=zhGzYpt1DWZXepqyUTty50aJRMtJnC4qZUGqNWv8MGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTRrVQGer6lK/pim2FPBgUCA8mf4uUm2dgdQaAIk3RgXHiu6e+XmlJVPRDMWnJTjR
-         7tD/g/f5Za94Gc2LbRICi/E08bXDw/Qh0GE7gmhq5Ku2ls2pe2pACD4CrQ4NWq+GO+
-         9FBFBivVDvh+a422sgsJ3hByvp1JXJnTS4+ULI8U=
+        b=CHil81b1rkudT0x/oXooqSsn4Mr/he2CZD8hFhZkr21unINJyaxnTFvSylX9O83sk
+         jyOZcpxjWGdSLNggJjS753VTDR1jO43ceYBoWzEN0mEm7FzllB0jK2gsWQhVU8QFbm
+         czdTEkA5ghw5Jx3RvIJ0nVALz9sJrfhtwktUmo38=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 23/75] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
-Date:   Mon, 15 Mar 2021 14:51:37 +0100
-Message-Id: <20210315135209.006879358@linuxfoundation.org>
+Subject: [PATCH 4.4 24/75] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
+Date:   Mon, 15 Mar 2021 14:51:38 +0100
+Message-Id: <20210315135209.039143393@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
 References: <20210315135208.252034256@linuxfoundation.org>
@@ -42,34 +43,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
+[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
 
-Avoid a potentially large stack frame and overflow by making
-"cpumask_t avail" a static variable. There is no concurrent
-access due to the existing locking.
+If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
+but we leave it partially setup. We don't have functions that can undo the
+pdu and init task setup. We only have cleanup_task which can clean up both
+parts. So this has us just fail the cmd and go through the standard cleanup
+routine and then have the SCSI midlayer retry it like is done when it fails
+in the queuecommand path.
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/libiscsi.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index f113fcd781d8..486f0d4f9aee 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -738,7 +738,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
- static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
- {
- 	struct sclp_core_entry *core;
--	cpumask_t avail;
-+	static cpumask_t avail;
- 	bool configured;
- 	u16 core_id;
- 	int nr, i;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index ecf3950c4438..18b8d86ef74b 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1568,14 +1568,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
+ 		}
+ 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
+ 		if (rc) {
+-			if (rc == -ENOMEM || rc == -EACCES) {
+-				spin_lock_bh(&conn->taskqueuelock);
+-				list_add_tail(&conn->task->running,
+-					      &conn->cmdqueue);
+-				conn->task = NULL;
+-				spin_unlock_bh(&conn->taskqueuelock);
+-				goto done;
+-			} else
++			if (rc == -ENOMEM || rc == -EACCES)
++				fail_scsi_task(conn->task, DID_IMM_RETRY);
++			else
+ 				fail_scsi_task(conn->task, DID_ABORT);
+ 			spin_lock_bh(&conn->taskqueuelock);
+ 			continue;
 -- 
 2.30.1
 
