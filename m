@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDEA133C4CA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA61233C4E2
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:56:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231837AbhCORtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 13:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44196 "EHLO mail.kernel.org"
+        id S231142AbhCOR4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 13:56:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235612AbhCORsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236502AbhCORsm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 13:48:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E48A64F2F;
-        Mon, 15 Mar 2021 17:48:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C68EA64F38;
+        Mon, 15 Mar 2021 17:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1615830493;
-        bh=vhPAhW0x7mGVQ83LazsE9LXinn6+EdNYgfTVcwbp1ko=;
+        s=korg; t=1615830499;
+        bh=La0k6mXiBq4v1eGGNkR102cawZAbudeEJTNqKuXcXSU=;
         h=Date:From:To:Subject:From;
-        b=MQLqKWSMsoZP/5fi5fg0kpdx9MLx1VT/8eHcRonoWAfxm4LggSGMATNw515nVWs66
-         bsd+C12CvLq17vN6SpVkVRH12rrS3hxFtM6lWMSOdW1ihZaSG6hiXClhqxKlsJOjCk
-         69c7dedVuU7R171K+PzbTUfzFpfqjLCbeVRHPtdk=
-Date:   Mon, 15 Mar 2021 10:48:13 -0700
+        b=UZyiCcqMuplsqIOPtlKxGAEYqtE3WoLkaQcY2rMgzyKcK9MNkNsnO/5+MTbUMi8nz
+         bnuB8RwbeBoUcAAZDEcBsCqJvwVTHNUNJmr6wub9yhhjb38AdWPIrk1FIELkag2rzf
+         /C+SG3MvyqLT8mWRIfMlDUQQgKmn8+1AEBVuoTRA=
+Date:   Mon, 15 Mar 2021 10:48:18 -0700
 From:   akpm@linux-foundation.org
-To:     deller@gmx.de, liorribak@gmail.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk
+To:     aou@eecs.berkeley.edu, arnd@arndb.de, deanbo422@gmail.com,
+        elver@google.com, green.hu@gmail.com, guoren@kernel.org,
+        keescook@chromium.org, luc.vanoostenryck@gmail.com,
+        masahiroy@kernel.org, mm-commits@vger.kernel.org,
+        nathan@kernel.org, ndesaulniers@google.com, nickhu@andestech.com,
+        nivedita@alum.mit.edu, ojeda@kernel.org, palmer@dabbelt.com,
+        paul.walmsley@sifive.com, rdunlap@infradead.org,
+        samitolvanen@google.com, stable@vger.kernel.org
 Subject:  [merged]
- binfmt_misc-fix-possible-deadlock-in-bm_register_write.patch removed from
- -mm tree
-Message-ID: <20210315174813.ieDvNISHG%akpm@linux-foundation.org>
+ linux-compiler-clangh-define-have_builtin_bswap.patch removed from -mm tree
+Message-ID: <20210315174818.oB6_t9ZNg%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,126 +40,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: binfmt_misc: fix possible deadlock in bm_register_write
+     Subject: linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*
 has been removed from the -mm tree.  Its filename was
-     binfmt_misc-fix-possible-deadlock-in-bm_register_write.patch
+     linux-compiler-clangh-define-have_builtin_bswap.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Lior Ribak <liorribak@gmail.com>
-Subject: binfmt_misc: fix possible deadlock in bm_register_write
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*
 
-There is a deadlock in bm_register_write:
+Separating compiler-clang.h from compiler-gcc.h inadventently dropped the
+definitions of the three HAVE_BUILTIN_BSWAP macros, which requires falling
+back to the open-coded version and hoping that the compiler detects it.
 
-First, in the begining of the function, a lock is taken on the binfmt_misc
-root inode with inode_lock(d_inode(root)).
+Since all versions of clang support the __builtin_bswap interfaces, add
+back the flags and have the headers pick these up automatically.
 
-Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
-open_exec on the user-provided interpreter.
+This results in a 4% improvement of compilation speed for arm defconfig.
 
-open_exec will call a path lookup, and if the path lookup process includes
-the root of binfmt_misc, it will try to take a shared lock on its inode
-again, but it is already locked, and the code will get stuck in a deadlock
+Note: it might also be worth revisiting which architectures set
+CONFIG_ARCH_USE_BUILTIN_BSWAP for one compiler or the other, today this is
+set on six architectures (arm32, csky, mips, powerpc, s390, x86), while
+another ten architectures define custom helpers (alpha, arc, ia64, m68k,
+mips, nios2, parisc, sh, sparc, xtensa), and the rest (arm64, h8300,
+hexagon, microblaze, nds32, openrisc, riscv) just get the unoptimized
+version and rely on the compiler to detect it.
 
-To reproduce the bug:
-$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
+A long time ago, the compiler builtins were architecture specific, but
+nowadays, all compilers that are able to build the kernel have correct
+implementations of them, though some may not be as optimized as the inline
+asm versions.
 
-backtrace of where the lock occurs (#5):
-0  schedule () at ./arch/x86/include/asm/current.h:15
-1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
-2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
-3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
-4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
-5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
-6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
-7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
-8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
-9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
-10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
-11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
-12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
-", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
-13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
-", count=19) at fs/read_write.c:658
-14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
-15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
+The patch that dropped the optimization landed in v4.19, so as discussed
+it would be fairly safe to backport this revert to stable kernels to the
+4.19/5.4/5.10 stable kernels, but there is a remaining risk for
+regressions, and it has no known side-effects besides compile speed.
 
-To solve the issue, the open_exec call is moved to before the write
-lock is taken by bm_register_write
-
-Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
-Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
-Signed-off-by: Lior Ribak <liorribak@gmail.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lkml.kernel.org/r/20210226161151.2629097-1-arnd@kernel.org
+Link: https://lore.kernel.org/lkml/20210225164513.3667778-1-arnd@kernel.org/
+Fixes: 815f0ddb346c ("include/linux/compiler*.h: make compiler-*.h mutually exclusive")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Miguel Ojeda <ojeda@kernel.org>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Arvind Sankar <nivedita@alum.mit.edu>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/binfmt_misc.c |   29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ include/linux/compiler-clang.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/binfmt_misc.c~binfmt_misc-fix-possible-deadlock-in-bm_register_write
-+++ a/fs/binfmt_misc.c
-@@ -649,12 +649,24 @@ static ssize_t bm_register_write(struct
- 	struct super_block *sb = file_inode(file)->i_sb;
- 	struct dentry *root = sb->s_root, *dentry;
- 	int err = 0;
-+	struct file *f = NULL;
+--- a/include/linux/compiler-clang.h~linux-compiler-clangh-define-have_builtin_bswap
++++ a/include/linux/compiler-clang.h
+@@ -31,6 +31,12 @@
+ #define __no_sanitize_thread
+ #endif
  
- 	e = create_entry(buffer, count);
- 
- 	if (IS_ERR(e))
- 		return PTR_ERR(e);
- 
-+	if (e->flags & MISC_FMT_OPEN_FILE) {
-+		f = open_exec(e->interpreter);
-+		if (IS_ERR(f)) {
-+			pr_notice("register: failed to install interpreter file %s\n",
-+				 e->interpreter);
-+			kfree(e);
-+			return PTR_ERR(f);
-+		}
-+		e->interp_file = f;
-+	}
++#if defined(CONFIG_ARCH_USE_BUILTIN_BSWAP)
++#define __HAVE_BUILTIN_BSWAP32__
++#define __HAVE_BUILTIN_BSWAP64__
++#define __HAVE_BUILTIN_BSWAP16__
++#endif /* CONFIG_ARCH_USE_BUILTIN_BSWAP */
 +
- 	inode_lock(d_inode(root));
- 	dentry = lookup_one_len(e->name, root, strlen(e->name));
- 	err = PTR_ERR(dentry);
-@@ -678,21 +690,6 @@ static ssize_t bm_register_write(struct
- 		goto out2;
- 	}
- 
--	if (e->flags & MISC_FMT_OPEN_FILE) {
--		struct file *f;
--
--		f = open_exec(e->interpreter);
--		if (IS_ERR(f)) {
--			err = PTR_ERR(f);
--			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
--			simple_release_fs(&bm_mnt, &entry_count);
--			iput(inode);
--			inode = NULL;
--			goto out2;
--		}
--		e->interp_file = f;
--	}
--
- 	e->dentry = dget(dentry);
- 	inode->i_private = e;
- 	inode->i_fop = &bm_entry_operations;
-@@ -709,6 +706,8 @@ out:
- 	inode_unlock(d_inode(root));
- 
- 	if (err) {
-+		if (f)
-+			filp_close(f, NULL);
- 		kfree(e);
- 		return err;
- 	}
+ #if __has_feature(undefined_behavior_sanitizer)
+ /* GCC does not have __SANITIZE_UNDEFINED__ */
+ #define __no_sanitize_undefined \
 _
 
-Patches currently in -mm which might be from liorribak@gmail.com are
+Patches currently in -mm which might be from arnd@arndb.de are
 
 
