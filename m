@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C04B33B857
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A20033B76C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233994AbhCOOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S232964AbhCOOAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232849AbhCOOAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8E9364F2C;
-        Mon, 15 Mar 2021 13:59:30 +0000 (UTC)
+        id S232506AbhCON7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AAD564F77;
+        Mon, 15 Mar 2021 13:58:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816772;
-        bh=RoXW4qYsjowdjYRwEkUrLlyxsPVbzch6wfVru7DvVJI=;
+        s=korg; t=1615816722;
+        bh=itJ8U0Bp7EtEKyhUtm3nAEiZShDwqJ9fXKGVeV80Vcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mh6gpWq0aFBUVtD/+qqG0W7sw6tJt3QMtKxyNuCQJkavuC48ec9oFbWh6hpXSFlJQ
-         8PQyKQMqM+oFeofS1CDYoBAt26G6Xr4RlccfXhhWS+BHi2wM3c1XUx4KvQANKNcvIN
-         WpT9QgaZwj5lHh1Mgtlu8qJSgNQdCL9FVmIfn7LY=
+        b=yjW15r5+xzwhitUXU5HzQqQIUcXT9rRv0OnIxisJt5clGKu2qhgKm/GkbXaPf1eCQ
+         EXlWlo8FdgosXGA3yGtAMebNrHW6bfE/Rt5XuFdBk6N3jJwBOJ0zlsV4bWK48lsOXw
+         yJUboHWpsoFIpbTsxP+okuu6WajDzpjSOM2MqJ00=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
-        Bodo Stroesser <bostroesser@gmail.com>,
-        Aleksandr Miloserdov <a.miloserdov@yadro.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 057/120] scsi: target: core: Add cmd length set before cmd complete
-Date:   Mon, 15 Mar 2021 14:56:48 +0100
-Message-Id: <20210315135721.855243136@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Daniele Palmas <dnlplm@gmail.com>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 19/95] net: usb: qmi_wwan: allow qmimux add/del with master up
+Date:   Mon, 15 Mar 2021 14:56:49 +0100
+Message-Id: <20210315135740.904887392@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +44,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Aleksandr Miloserdov <a.miloserdov@yadro.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit 1c73e0c5e54d5f7d77f422a10b03ebe61eaed5ad ]
+commit 6c59cff38e66584ae3ac6c2f0cbd8d039c710ba7 upstream.
 
-TCM doesn't properly handle underflow case for service actions. One way to
-prevent it is to always complete command with
-target_complete_cmd_with_length(), however it requires access to data_sg,
-which is not always available.
+There's no reason for preventing the creation and removal
+of qmimux network interfaces when the underlying interface
+is up.
 
-This change introduces target_set_cmd_data_length() function which allows
-to set command data length before completing it.
+This makes qmi_wwan mux implementation more similar to the
+rmnet one, simplifying userspace management of the same
+logical interfaces.
 
-Link: https://lore.kernel.org/r/20210209072202.41154-2-a.miloserdov@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
-Signed-off-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c6adf77953bc ("net: usb: qmi_wwan: add qmap mux protocol support")
+Reported-by: Aleksander Morgado <aleksander@aleksander.es>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/target/target_core_transport.c | 15 +++++++++++----
- include/target/target_core_backend.h   |  1 +
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/net/usb/qmi_wwan.c |   14 --------------
+ 1 file changed, 14 deletions(-)
 
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index f1b730b77a31..bdada97cd4fe 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -841,11 +841,9 @@ void target_complete_cmd(struct se_cmd *cmd, u8 scsi_status)
- }
- EXPORT_SYMBOL(target_complete_cmd);
- 
--void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int length)
-+void target_set_cmd_data_length(struct se_cmd *cmd, int length)
- {
--	if ((scsi_status == SAM_STAT_GOOD ||
--	     cmd->se_cmd_flags & SCF_TREAT_READ_AS_NORMAL) &&
--	    length < cmd->data_length) {
-+	if (length < cmd->data_length) {
- 		if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
- 			cmd->residual_count += cmd->data_length - length;
- 		} else {
-@@ -855,6 +853,15 @@ void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int len
- 
- 		cmd->data_length = length;
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -378,13 +378,6 @@ static ssize_t add_mux_store(struct devi
+ 		goto err;
  	}
-+}
-+EXPORT_SYMBOL(target_set_cmd_data_length);
-+
-+void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int length)
-+{
-+	if (scsi_status == SAM_STAT_GOOD ||
-+	    cmd->se_cmd_flags & SCF_TREAT_READ_AS_NORMAL) {
-+		target_set_cmd_data_length(cmd, length);
-+	}
  
- 	target_complete_cmd(cmd, scsi_status);
- }
-diff --git a/include/target/target_core_backend.h b/include/target/target_core_backend.h
-index 51b6f50eabee..0deeff9b4496 100644
---- a/include/target/target_core_backend.h
-+++ b/include/target/target_core_backend.h
-@@ -69,6 +69,7 @@ int	transport_backend_register(const struct target_backend_ops *);
- void	target_backend_unregister(const struct target_backend_ops *);
+-	/* we don't want to modify a running netdev */
+-	if (netif_running(dev->net)) {
+-		netdev_err(dev->net, "Cannot change a running device\n");
+-		ret = -EBUSY;
+-		goto err;
+-	}
+-
+ 	ret = qmimux_register_device(dev->net, mux_id);
+ 	if (!ret) {
+ 		info->flags |= QMI_WWAN_FLAG_MUX;
+@@ -414,13 +407,6 @@ static ssize_t del_mux_store(struct devi
+ 	if (!rtnl_trylock())
+ 		return restart_syscall();
  
- void	target_complete_cmd(struct se_cmd *, u8);
-+void	target_set_cmd_data_length(struct se_cmd *, int);
- void	target_complete_cmd_with_length(struct se_cmd *, u8, int);
- 
- void	transport_copy_sense_to_cmd(struct se_cmd *, unsigned char *);
--- 
-2.30.1
-
+-	/* we don't want to modify a running netdev */
+-	if (netif_running(dev->net)) {
+-		netdev_err(dev->net, "Cannot change a running device\n");
+-		ret = -EBUSY;
+-		goto err;
+-	}
+-
+ 	del_dev = qmimux_find_dev(dev, mux_id);
+ 	if (!del_dev) {
+ 		netdev_err(dev->net, "mux_id not present\n");
 
 
