@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7770C33B6D7
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EABF433B6BE
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232441AbhCON64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S232156AbhCON6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231683AbhCON6L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A59964F09;
-        Mon, 15 Mar 2021 13:57:56 +0000 (UTC)
+        id S232245AbhCON6B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90C9764F0D;
+        Mon, 15 Mar 2021 13:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816679;
-        bh=4dxnC+z2O23rt+e3NSTNQYUyj91ckyhJEtphZAoFisM=;
+        s=korg; t=1615816681;
+        bh=nz1kj4uZaKmsov5VzACaBVHY/4az2fmYnuOqpZqP68k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2wHS+Px2KHvdz8z/6c6efeNLfnayP5q5fQhBWzSHPBU7DvAAp4heukOSgRQG9WXcz
-         onGniNf515oNJeeQEgF7hxetOPzFnNYklPIKFSHoqXNdmUdEHYsJLkl6NgnPqp8U82
-         Bjumvgby9ynlCGekmJeyncjdKx13bwaRaW5k51uo=
+        b=AkOj7YiiWE/3JukUacgALg2gLtcn5LWssW4nuHzG1QdCr+M5hgPzC7hS/vowrWUfd
+         GXrs373O52rWfcF/fyJawjTplPiYiiMD7O4isVQSZ/lYS6hl5gUG2mLxLeD/bngXxj
+         U5Lme+oTM7a4VCoG+8IbRktiqJ9X86Qvo+R48CBw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 042/168] perf traceevent: Ensure read cmdlines are null terminated.
-Date:   Mon, 15 Mar 2021 14:54:34 +0100
-Message-Id: <20210315135551.740860511@linuxfoundation.org>
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 043/168] net: hns3: fix query vlan mask value error for flow director
+Date:   Mon, 15 Mar 2021 14:54:35 +0100
+Message-Id: <20210315135551.772128666@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -47,36 +42,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Rogers <irogers@google.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit 137a5258939aca56558f3a23eb229b9c4b293917 upstream.
+commit c75ec148a316e8cf52274d16b9b422703b96f5ce upstream.
 
-Issue detected by address sanitizer.
+Currently, the driver returns VLAN_VID_MASK for vlan mask field,
+when get flow director rule information for rule doesn't use vlan.
+It may cause the vlan mask value display as 0xf000 in this
+case, like below:
 
-Fixes: cd4ceb63438e9e28 ("perf util: Save pid-cmdline mapping into tracing header")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Acked-by: Namhyung Kim <namhyung@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20210226221431.1985458-1-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+estuary:/$ ethtool -u eth1
+50 RX rings available
+Total 1 rules
+
+Filter: 2
+Rule Type: TCP over IPv4
+Src IP addr: 0.0.0.0 mask: 255.255.255.255
+Dest IP addr: 0.0.0.0 mask: 255.255.255.255
+TOS: 0x0 mask: 0xff
+Src port: 0 mask: 0xffff
+Dest port: 0 mask: 0xffff
+VLAN EtherType: 0x0 mask: 0xffff
+VLAN: 0x0 mask: 0xf000
+User-defined: 0x1234 mask: 0x0
+Action: Direct to queue 3
+
+Fix it by return 0.
+
+Fixes: 05c2314fe6a8 ("net: hns3: Add support for rule query of flow director")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/trace-event-read.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/perf/util/trace-event-read.c
-+++ b/tools/perf/util/trace-event-read.c
-@@ -361,6 +361,7 @@ static int read_saved_cmdline(struct tep
- 		pr_debug("error reading saved cmdlines\n");
- 		goto out;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -5939,8 +5939,7 @@ static int hclge_get_fd_rule_info(struct
+ 		fs->h_ext.vlan_tci = cpu_to_be16(rule->tuples.vlan_tag1);
+ 		fs->m_ext.vlan_tci =
+ 				rule->unused_tuple & BIT(INNER_VLAN_TAG_FST) ?
+-				cpu_to_be16(VLAN_VID_MASK) :
+-				cpu_to_be16(rule->tuples_mask.vlan_tag1);
++				0 : cpu_to_be16(rule->tuples_mask.vlan_tag1);
  	}
-+	buf[ret] = '\0';
  
- 	parse_saved_cmdline(pevent, buf, size);
- 	ret = 0;
+ 	if (fs->flow_type & FLOW_MAC_EXT) {
 
 
