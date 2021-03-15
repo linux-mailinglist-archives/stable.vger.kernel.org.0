@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0926933B764
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA95E33B7F9
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232712AbhCOOAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:16 -0400
+        id S233184AbhCOOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:48 -0400
 Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230407AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06C3E64EE9;
-        Mon, 15 Mar 2021 13:58:42 +0000 (UTC)
+        id S232784AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 256D664EEC;
+        Mon, 15 Mar 2021 13:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816724;
-        bh=cwa9O6gcJyxFsf7aw8GCQXL7kgj6DFA1kw0CV3UWM0I=;
+        s=korg; t=1615816777;
+        bh=LXscjiXWZJ2WlE7Mtt3dJ7ZOLe/VyzM4lJVZMmH1jPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWTYZcyt6+YnYSwo/Sy/EQFhczNOyCT9s/4LekSf8SqkL0e69mYz3wG414eWP+HYT
-         uU/vCDE5KmQS5P2gAywCjuU/bXE6YN8TF4bwv7SnbhbDJqWj3hma5pTCK8TFeENE1i
-         KlA6ygjfNXrZy0GQhgE53jpqY5fonJlsA+IoAY6I=
+        b=xern2o/perd//ORQNz+fyKJJLKDIT4Kgcym57pLeDo4WhicQGmkHqVYNbTVzgAh4b
+         lhmCPFg6Z+YRO1fpFhw0/3aE7HU7Ww/wwgBO5N+ST58IUTiIDop5Ma7HrZ2/s5ZaVu
+         ihlA+k4Ys+EoJfMek9OUudaf25zIC7/DfekItxVA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
-        Paul Moore <paul@paul-moore.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 20/95] cipso,calipso: resolve a number of problems with the DOI refcounts
-Date:   Mon, 15 Mar 2021 14:56:50 +0100
-Message-Id: <20210315135740.944952360@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Abhishek Sahu <abhsahu@nvidia.com>
+Subject: [PATCH 4.19 060/120] ALSA: hda/hdmi: Cancel pending works before suspend
+Date:   Mon, 15 Mar 2021 14:56:51 +0100
+Message-Id: <20210315135721.947705456@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,134 +41,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Paul Moore <paul@paul-moore.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ad5d07f4a9cd671233ae20983848874731102c08 upstream.
+commit eea46a0879bcca23e15071f9968c0f6e6596e470 upstream.
 
-The current CIPSO and CALIPSO refcounting scheme for the DOI
-definitions is a bit flawed in that we:
+The per_pin->work might be still floating at the suspend, and this may
+hit the access to the hardware at an unexpected timing.  Cancel the
+work properly at the suspend callback for avoiding the buggy access.
 
-1. Don't correctly match gets/puts in netlbl_cipsov4_list().
-2. Decrement the refcount on each attempt to remove the DOI from the
-   DOI list, only removing it from the list once the refcount drops
-   to zero.
+Note that the bug doesn't trigger easily in the recent kernels since
+the work is queued only when the repoll count is set, and usually it's
+only at the resume callback, but it's still possible to hit in
+theory.
 
-This patch fixes these problems by adding the missing "puts" to
-netlbl_cipsov4_list() and introduces a more conventional, i.e.
-not-buggy, refcounting mechanism to the DOI definitions.  Upon the
-addition of a DOI to the DOI list, it is initialized with a refcount
-of one, removing a DOI from the list removes it from the list and
-drops the refcount by one; "gets" and "puts" behave as expected with
-respect to refcounts, increasing and decreasing the DOI's refcount by
-one.
-
-Fixes: b1edeb102397 ("netlabel: Replace protocol/NetLabel linking with refrerence counts")
-Fixes: d7cce01504a0 ("netlabel: Add support for removing a CALIPSO DOI.")
-Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
+Reported-and-tested-by: Abhishek Sahu <abhsahu@nvidia.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210310112809.9215-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/cipso_ipv4.c            |   11 +----------
- net/ipv6/calipso.c               |   14 +++++---------
- net/netlabel/netlabel_cipso_v4.c |    3 +++
- 3 files changed, 9 insertions(+), 19 deletions(-)
+ sound/pci/hda/patch_hdmi.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -533,16 +533,10 @@ int cipso_v4_doi_remove(u32 doi, struct
- 		ret_val = -ENOENT;
- 		goto doi_remove_return;
- 	}
--	if (!refcount_dec_and_test(&doi_def->refcount)) {
--		spin_unlock(&cipso_v4_doi_list_lock);
--		ret_val = -EBUSY;
--		goto doi_remove_return;
--	}
- 	list_del_rcu(&doi_def->list);
- 	spin_unlock(&cipso_v4_doi_list_lock);
- 
--	cipso_v4_cache_invalidate();
--	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
-+	cipso_v4_doi_putdef(doi_def);
- 	ret_val = 0;
- 
- doi_remove_return:
-@@ -599,9 +593,6 @@ void cipso_v4_doi_putdef(struct cipso_v4
- 
- 	if (!refcount_dec_and_test(&doi_def->refcount))
- 		return;
--	spin_lock(&cipso_v4_doi_list_lock);
--	list_del_rcu(&doi_def->list);
--	spin_unlock(&cipso_v4_doi_list_lock);
- 
- 	cipso_v4_cache_invalidate();
- 	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
---- a/net/ipv6/calipso.c
-+++ b/net/ipv6/calipso.c
-@@ -97,6 +97,9 @@ struct calipso_map_cache_entry {
- 
- static struct calipso_map_cache_bkt *calipso_cache;
- 
-+static void calipso_cache_invalidate(void);
-+static void calipso_doi_putdef(struct calipso_doi *doi_def);
-+
- /* Label Mapping Cache Functions
-  */
- 
-@@ -458,15 +461,10 @@ static int calipso_doi_remove(u32 doi, s
- 		ret_val = -ENOENT;
- 		goto doi_remove_return;
- 	}
--	if (!refcount_dec_and_test(&doi_def->refcount)) {
--		spin_unlock(&calipso_doi_list_lock);
--		ret_val = -EBUSY;
--		goto doi_remove_return;
--	}
- 	list_del_rcu(&doi_def->list);
- 	spin_unlock(&calipso_doi_list_lock);
- 
--	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
-+	calipso_doi_putdef(doi_def);
- 	ret_val = 0;
- 
- doi_remove_return:
-@@ -522,10 +520,8 @@ static void calipso_doi_putdef(struct ca
- 
- 	if (!refcount_dec_and_test(&doi_def->refcount))
- 		return;
--	spin_lock(&calipso_doi_list_lock);
--	list_del_rcu(&doi_def->list);
--	spin_unlock(&calipso_doi_list_lock);
- 
-+	calipso_cache_invalidate();
- 	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -2326,6 +2326,18 @@ static void generic_hdmi_free(struct hda
  }
  
---- a/net/netlabel/netlabel_cipso_v4.c
-+++ b/net/netlabel/netlabel_cipso_v4.c
-@@ -581,6 +581,7 @@ list_start:
- 
- 		break;
- 	}
-+	cipso_v4_doi_putdef(doi_def);
- 	rcu_read_unlock();
- 
- 	genlmsg_end(ans_skb, data);
-@@ -589,12 +590,14 @@ list_start:
- list_retry:
- 	/* XXX - this limit is a guesstimate */
- 	if (nlsze_mult < 4) {
-+		cipso_v4_doi_putdef(doi_def);
- 		rcu_read_unlock();
- 		kfree_skb(ans_skb);
- 		nlsze_mult *= 2;
- 		goto list_start;
- 	}
- list_failure_lock:
-+	cipso_v4_doi_putdef(doi_def);
- 	rcu_read_unlock();
- list_failure:
- 	kfree_skb(ans_skb);
+ #ifdef CONFIG_PM
++static int generic_hdmi_suspend(struct hda_codec *codec)
++{
++	struct hdmi_spec *spec = codec->spec;
++	int pin_idx;
++
++	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
++		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
++		cancel_delayed_work_sync(&per_pin->work);
++	}
++	return 0;
++}
++
+ static int generic_hdmi_resume(struct hda_codec *codec)
+ {
+ 	struct hdmi_spec *spec = codec->spec;
+@@ -2349,6 +2361,7 @@ static const struct hda_codec_ops generi
+ 	.build_controls		= generic_hdmi_build_controls,
+ 	.unsol_event		= hdmi_unsol_event,
+ #ifdef CONFIG_PM
++	.suspend		= generic_hdmi_suspend,
+ 	.resume			= generic_hdmi_resume,
+ #endif
+ };
 
 
