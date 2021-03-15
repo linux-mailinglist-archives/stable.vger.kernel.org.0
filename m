@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6D7133B92A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2276B33B98B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232918AbhCOOFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S233991AbhCOOGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233228AbhCOOBM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAEEE64F6D;
-        Mon, 15 Mar 2021 14:00:44 +0000 (UTC)
+        id S233420AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 440BA64EFC;
+        Mon, 15 Mar 2021 14:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816846;
-        bh=tKfLqY2RtHJ2cGJXWSiB9eV7t8BzdLjfNlrWg1O+C48=;
+        s=korg; t=1615816876;
+        bh=b/wjv+TaXy3JctKRELBAG1GtOJTlYgRS9cSqdaiFkdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YL9EwobDUA3q0aqHTFtZUj4si2P27Vl7yA6oxbMqar1MDg9Ach9jmEFO9fHJVVSDS
-         ki1qspmQfkceVssqsw8JyWGn2p7JT1lro+kfG4j6h3x4IgFYPx/9qWGVGdndw2AtcE
-         Yb134VTpDzrHQhGfNI3Z3L3qT1cyCYlI65SF6jLk=
+        b=0hAHvru8fAnnq++m+nn5SsfoOubAkqhyg6Mfzbzu4BvrlqDeELgazWKitNGZc6Wpz
+         IzAUNBlHPgoxKMxH0n5wrSKl7WTg9B9ImQI3/WOqVv8Z4Bqa26pCd8B7c4iORyz08J
+         veBN+s53+70oAVpI7oZ7zL2IFIdKMIMSKEZOZwmk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 148/290] sparc32: Limit memblock allocation to low memory
+        stable@vger.kernel.org,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.11 178/306] block: Discard page cache of zone reset target range
 Date:   Mon, 15 Mar 2021 14:54:01 +0100
-Message-Id: <20210315135546.918508206@linuxfoundation.org>
+Message-Id: <20210315135513.632459126@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
+commit e5113505904ea1c1c0e1f92c1cfa91fbf4da1694 upstream.
 
-Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
-memblocks instead of bootmem, but also made high memory available via
-memblock allocation which does not work together with e.g. phys_to_virt
-and can lead to kernel panic.
+When zone reset ioctl and data read race for a same zone on zoned block
+devices, the data read leaves stale page cache even though the zone
+reset ioctl zero clears all the zone data on the device. To avoid
+non-zero data read from the stale page cache after zone reset, discard
+page cache of reset target zones in blkdev_zone_mgmt_ioctl(). Introduce
+the helper function blkdev_truncate_zone_range() to discard the page
+cache. Ensure the page cache discarded by calling the helper function
+before and after zone reset in same manner as fallocate does.
 
-This changes back to only low memory being allocatable in the early
-stages, now using memblock allocation.
+This patch can be applied back to the stable kernel version v5.10.y.
+Rework is needed for older stable kernels.
 
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Fixes: 3ed05a987e0f ("blk-zoned: implement ioctls")
+Cc: <stable@vger.kernel.org> # 5.10+
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Link: https://lore.kernel.org/r/20210311072546.678999-1-shinichiro.kawasaki@wdc.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sparc/mm/init_32.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block/blk-zoned.c |   38 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 36 insertions(+), 2 deletions(-)
 
-diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-index eb2946b1df8a..6139c5700ccc 100644
---- a/arch/sparc/mm/init_32.c
-+++ b/arch/sparc/mm/init_32.c
-@@ -197,6 +197,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
- 	size = memblock_phys_mem_size() - memblock_reserved_size();
- 	*pages_avail = (size >> PAGE_SHIFT) - high_pages;
- 
-+	/* Only allow low memory to be allocated via memblock allocation */
-+	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
-+
- 	return max_pfn;
+--- a/block/blk-zoned.c
++++ b/block/blk-zoned.c
+@@ -318,6 +318,22 @@ int blkdev_report_zones_ioctl(struct blo
+ 	return 0;
  }
  
--- 
-2.30.1
-
++static int blkdev_truncate_zone_range(struct block_device *bdev, fmode_t mode,
++				      const struct blk_zone_range *zrange)
++{
++	loff_t start, end;
++
++	if (zrange->sector + zrange->nr_sectors <= zrange->sector ||
++	    zrange->sector + zrange->nr_sectors > get_capacity(bdev->bd_disk))
++		/* Out of range */
++		return -EINVAL;
++
++	start = zrange->sector << SECTOR_SHIFT;
++	end = ((zrange->sector + zrange->nr_sectors) << SECTOR_SHIFT) - 1;
++
++	return truncate_bdev_range(bdev, mode, start, end);
++}
++
+ /*
+  * BLKRESETZONE, BLKOPENZONE, BLKCLOSEZONE and BLKFINISHZONE ioctl processing.
+  * Called from blkdev_ioctl.
+@@ -329,6 +345,7 @@ int blkdev_zone_mgmt_ioctl(struct block_
+ 	struct request_queue *q;
+ 	struct blk_zone_range zrange;
+ 	enum req_opf op;
++	int ret;
+ 
+ 	if (!argp)
+ 		return -EINVAL;
+@@ -352,6 +369,11 @@ int blkdev_zone_mgmt_ioctl(struct block_
+ 	switch (cmd) {
+ 	case BLKRESETZONE:
+ 		op = REQ_OP_ZONE_RESET;
++
++		/* Invalidate the page cache, including dirty pages. */
++		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
++		if (ret)
++			return ret;
+ 		break;
+ 	case BLKOPENZONE:
+ 		op = REQ_OP_ZONE_OPEN;
+@@ -366,8 +388,20 @@ int blkdev_zone_mgmt_ioctl(struct block_
+ 		return -ENOTTY;
+ 	}
+ 
+-	return blkdev_zone_mgmt(bdev, op, zrange.sector, zrange.nr_sectors,
+-				GFP_KERNEL);
++	ret = blkdev_zone_mgmt(bdev, op, zrange.sector, zrange.nr_sectors,
++			       GFP_KERNEL);
++
++	/*
++	 * Invalidate the page cache again for zone reset: writes can only be
++	 * direct for zoned devices so concurrent writes would not add any page
++	 * to the page cache after/during reset. The page cache may be filled
++	 * again due to concurrent reads though and dropping the pages for
++	 * these is fine.
++	 */
++	if (!ret && cmd == BLKRESETZONE)
++		ret = blkdev_truncate_zone_range(bdev, mode, &zrange);
++
++	return ret;
+ }
+ 
+ static inline unsigned long *blk_alloc_zone_bitmap(int node,
 
 
