@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E3EE33B720
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 934CD33B733
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231659AbhCON7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S231216AbhCON7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232172AbhCON6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F82764EF3;
-        Mon, 15 Mar 2021 13:58:23 +0000 (UTC)
+        id S229740AbhCON6i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07B5164EEA;
+        Mon, 15 Mar 2021 13:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816704;
-        bh=4GSH7fTBYRqaOlAHAgVPQNgBz676YW1tXyjvJOEbmrU=;
+        s=korg; t=1615816706;
+        bh=IMiE8sgTmT6MWYyCr2FjWlWXdsJ/CgFtXkVcVyCt/hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IU+MQQBZkYwSeQfcx7Jnwno5IHnyB4k4IYLNvhfPXIDKqsx8LaYdryEoTVkhKvl2C
-         cIkNtkzEzAJBmoPv3NiJqppE2Lj8GAu/5AKjYmJsyz0VDrDz2i+Bv/XjcunpCVHBGO
-         v1EmPGn8AJpJ35lcQgb6C69svzISu6tIaHlSfdxo=
+        b=vwGTOlGVn0IE11XnyvBqHeytCtTb6k4HRsTS8SD9sMl36sqFMAku8Yb9wMHJMEK1C
+         Z+05Cgu6R0AIIbzkd5z4/FjxMsBR7W0Wp/vRC9Dtut7YK4fWmzL/9QCnGOhJnrLKpP
+         YMr/qfKRWt/C5rAYkWHi6Oqh0+Fva42YQi89haVI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        stable@vger.kernel.org, Balazs Nemeth <bnemeth@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 017/120] sh_eth: fix TRSCER mask for SH771x
-Date:   Mon, 15 Mar 2021 14:56:08 +0100
-Message-Id: <20210315135720.577285620@linuxfoundation.org>
+Subject: [PATCH 4.19 018/120] net: check if protocol extracted by virtio_net_hdr_set_proto is correct
+Date:   Mon, 15 Mar 2021 14:56:09 +0100
+Message-Id: <20210315135720.608461594@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -41,36 +42,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Balazs Nemeth <bnemeth@redhat.com>
 
-commit 8c91bc3d44dfef8284af384877fbe61117e8b7d1 upstream.
+commit 924a9bc362a5223cd448ca08c3dde21235adc310 upstream.
 
-According  to  the SH7710, SH7712, SH7713 Group User's Manual: Hardware,
-Rev. 3.00, the TRSCER register actually has only bit 7 valid (and named
-differently), with all the other bits reserved. Apparently, this was not
-the case with some early revisions of the manual as we have the other
-bits declared (and set) in the original driver.  Follow the suit and add
-the explicit sh_eth_cpu_data::trscer_err_mask initializer for SH771x...
+For gso packets, virtio_net_hdr_set_proto sets the protocol (if it isn't
+set) based on the type in the virtio net hdr, but the skb could contain
+anything since it could come from packet_snd through a raw socket. If
+there is a mismatch between what virtio_net_hdr_set_proto sets and
+the actual protocol, then the skb could be handled incorrectly later
+on.
 
-Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+An example where this poses an issue is with the subsequent call to
+skb_flow_dissect_flow_keys_basic which relies on skb->protocol being set
+correctly. A specially crafted packet could fool
+skb_flow_dissect_flow_keys_basic preventing EINVAL to be returned.
+
+Avoid blindly trusting the information provided by the virtio net header
+by checking that the protocol in the packet actually matches the
+protocol set by virtio_net_hdr_set_proto. Note that since the protocol
+is only checked if skb->dev implements header_ops->parse_protocol,
+packets from devices without the implementation are not checked at this
+stage.
+
+Fixes: 9274124f023b ("net: stricter validation of untrusted gso packets")
+Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c |    3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/virtio_net.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -1126,6 +1126,9 @@ static struct sh_eth_cpu_data sh771x_dat
- 			  EESIPR_CEEFIP | EESIPR_CELFIP |
- 			  EESIPR_RRFIP | EESIPR_RTLFIP | EESIPR_RTSFIP |
- 			  EESIPR_PREIP | EESIPR_CERFIP,
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -79,8 +79,13 @@ static inline int virtio_net_hdr_to_skb(
+ 		if (gso_type && skb->network_header) {
+ 			struct flow_keys_basic keys;
+ 
+-			if (!skb->protocol)
++			if (!skb->protocol) {
++				__be16 protocol = dev_parse_header_protocol(skb);
 +
-+	.trscer_err_mask = DESC_I_RINT8,
-+
- 	.tsu		= 1,
- 	.dual_port	= 1,
- };
+ 				virtio_net_hdr_set_proto(skb, hdr);
++				if (protocol && protocol != skb->protocol)
++					return -EINVAL;
++			}
+ retry:
+ 			if (!skb_flow_dissect_flow_keys_basic(skb, &keys,
+ 							      NULL, 0, 0, 0,
 
 
