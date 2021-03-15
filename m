@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3382A33B66A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F15533B53D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbhCON5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
+        id S230502AbhCONxr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230506AbhCON5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C3864F19;
-        Mon, 15 Mar 2021 13:57:15 +0000 (UTC)
+        id S230263AbhCONxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0C8164EEC;
+        Mon, 15 Mar 2021 13:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816637;
-        bh=BjK/QruW1BkNMl4dzTySEjSv3ASKfjDmmcd39gaG9j4=;
+        s=korg; t=1615816402;
+        bh=CZ7on+YJf3WTcr/rsqN6YG/1VWuXArhhpbw7a5u7HUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5WGZC2dDCmvjsn7PsG62RaZa5uJVai8Zq9UdccUrS7Fi7buW9nghuhfP0LTkVgor
-         JqTPb4ssd1xH4yFNHMZetu2YYIn1pBi8Z1bBu9/Dt+IsbpV9gqKg1mJnfvjiGI4ci3
-         3cgEmptjgBp2ydyMxL2xUyCKNO9k/+hVo4V/XAWE=
+        b=lTRrVQGer6lK/pim2FPBgUCA8mf4uUm2dgdQaAIk3RgXHiu6e+XmlJVPRDMWnJTjR
+         7tD/g/f5Za94Gc2LbRICi/E08bXDw/Qh0GE7gmhq5Ku2ls2pe2pACD4CrQ4NWq+GO+
+         9FBFBivVDvh+a422sgsJ3hByvp1JXJnTS4+ULI8U=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Suchanek <msuchanek@suse.de>,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 034/306] ibmvnic: Fix possibly uninitialized old_num_tx_queues variable warning.
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 23/75] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
 Date:   Mon, 15 Mar 2021 14:51:37 +0100
-Message-Id: <20210315135508.789050230@linuxfoundation.org>
+Message-Id: <20210315135209.006879358@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Michal Suchanek <msuchanek@suse.de>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 6881b07fdd24850def1f03761c66042b983ff86e upstream.
+[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
 
-GCC 7.5 reports:
-../drivers/net/ethernet/ibm/ibmvnic.c: In function 'ibmvnic_reset_init':
-../drivers/net/ethernet/ibm/ibmvnic.c:5373:51: warning: 'old_num_tx_queues' may be used uninitialized in this function [-Wmaybe-uninitialized]
-../drivers/net/ethernet/ibm/ibmvnic.c:5373:6: warning: 'old_num_rx_queues' may be used uninitialized in this function [-Wmaybe-uninitialized]
+Avoid a potentially large stack frame and overflow by making
+"cpumask_t avail" a static variable. There is no concurrent
+access due to the existing locking.
 
-The variable is initialized only if(reset) and used only if(reset &&
-something) so this is a false positive. However, there is no reason to
-not initialize the variables unconditionally avoiding the warning.
-
-Fixes: 635e442f4a48 ("ibmvnic: merge ibmvnic_reset_init and ibmvnic_init")
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-Reviewed-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/s390/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -5283,16 +5283,14 @@ static int ibmvnic_reset_init(struct ibm
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index f113fcd781d8..486f0d4f9aee 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -738,7 +738,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
+ static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
  {
- 	struct device *dev = &adapter->vdev->dev;
- 	unsigned long timeout = msecs_to_jiffies(20000);
--	u64 old_num_rx_queues, old_num_tx_queues;
-+	u64 old_num_rx_queues = adapter->req_rx_queues;
-+	u64 old_num_tx_queues = adapter->req_tx_queues;
- 	int rc;
- 
- 	adapter->from_passive_init = false;
- 
--	if (reset) {
--		old_num_rx_queues = adapter->req_rx_queues;
--		old_num_tx_queues = adapter->req_tx_queues;
-+	if (reset)
- 		reinit_completion(&adapter->init_done);
--	}
- 
- 	adapter->init_done_rc = 0;
- 	rc = ibmvnic_send_crq_init(adapter);
+ 	struct sclp_core_entry *core;
+-	cpumask_t avail;
++	static cpumask_t avail;
+ 	bool configured;
+ 	u16 core_id;
+ 	int nr, i;
+-- 
+2.30.1
+
 
 
