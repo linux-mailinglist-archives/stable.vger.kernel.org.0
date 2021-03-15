@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFDA33B59E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0128B33B724
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231548AbhCONyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S232734AbhCON7h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231445AbhCONy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FA364EF8;
-        Mon, 15 Mar 2021 13:54:23 +0000 (UTC)
+        id S232330AbhCON6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8027164F16;
+        Mon, 15 Mar 2021 13:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816465;
-        bh=b+x86pNFQz9OjbNkJFCrYhX1jcF9AiTdcI+7loYAAec=;
+        s=korg; t=1615816704;
+        bh=lYI+fxC0x0wtugthTFEwxqBaDX2lnENLz29pCkVtjPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfRR38rUXuOkyi91/rq2lcDCq2Y9SLMlxqg5eQdPl/YKxCVK+0Gj/olTWFaBN2NE8
-         MpptDwu9/2KQIH2MqeV/+TYcqEcOpEFN8kchVbjQGtBBuoLMzQ5Qtgbs/ZCo2fl/QC
-         8fsbFpDIq/JLhdc9pu5/22bNjC9j/QnxvPrhxZMc=
+        b=tilEB6kimJEU3SyDUv+MaQe5tpcZMyq6aKtieC53iEFVNzJdtdw0dlb43bHXxUg5f
+         zhMXDNiCgvXrwqiryq+h2KXSrGbSMuUgru8bTPnbD/b0VnaleG0tMdbdIGDa705n9W
+         X487l5v26OF6WWgClaKqF2qQHv59F6SKUFvz73cc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.9 55/78] staging: comedi: das800: Fix endian problem for AI command data
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 075/306] s390/qeth: fix notification for pending buffers during teardown
 Date:   Mon, 15 Mar 2021 14:52:18 +0100
-Message-Id: <20210315135213.880534562@linuxfoundation.org>
+Message-Id: <20210315135510.180474061@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-commit 459b1e8c8fe97fcba0bd1b623471713dce2c5eaf upstream.
+commit 7eefda7f353ef86ad82a2dc8329e8a3538c08ab6 upstream.
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the call to
-`comedi_buf_write_samples()` is passing the address of a 32-bit integer
-variable.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the variable
-holding the sample value to `unsigned short`.
+The cited commit reworked the state machine for pending TX buffers.
+In qeth_iqd_tx_complete() it turned PENDING into a transient state, and
+uses NEED_QAOB for buffers that get parked while waiting for their QAOB
+completion.
 
-Fixes: ad9eb43c93d8 ("staging: comedi: das800: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-6-abbotti@mev.co.uk
+But it missed to adjust the check in qeth_tx_complete_buf(). So if
+qeth_tx_complete_pending_bufs() is called during teardown to drain
+the parked TX buffers, we no longer raise a notification for af_iucv.
+
+Instead of updating the checked state, just move this code into
+qeth_tx_complete_pending_bufs() itself. This also gets rid of the
+special-case in the common TX completion path.
+
+Fixes: 8908f36d20d8 ("s390/qeth: fix af_iucv notification race")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/das800.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/net/qeth_core_main.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/comedi/drivers/das800.c
-+++ b/drivers/staging/comedi/drivers/das800.c
-@@ -436,7 +436,7 @@ static irqreturn_t das800_interrupt(int
- 	struct comedi_cmd *cmd;
- 	unsigned long irq_flags;
- 	unsigned int status;
--	unsigned int val;
-+	unsigned short val;
- 	bool fifo_empty;
- 	bool fifo_overflow;
- 	int i;
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1386,9 +1386,6 @@ static void qeth_tx_complete_buf(struct
+ 	struct qeth_qdio_out_q *queue = buf->q;
+ 	struct sk_buff *skb;
+ 
+-	if (atomic_read(&buf->state) == QETH_QDIO_BUF_PENDING)
+-		qeth_notify_skbs(queue, buf, TX_NOTIFY_GENERALERROR);
+-
+ 	/* Empty buffer? */
+ 	if (buf->next_element_to_fill == 0)
+ 		return;
+@@ -1461,6 +1458,9 @@ static void qeth_tx_complete_pending_buf
+ 			QETH_CARD_TEXT(card, 5, "fp");
+ 			QETH_CARD_TEXT_(card, 5, "%lx", (long) buf);
+ 
++			if (drain)
++				qeth_notify_skbs(queue, buf,
++						 TX_NOTIFY_GENERALERROR);
+ 			qeth_tx_complete_buf(buf, drain, 0);
+ 
+ 			list_del(&buf->list_entry);
 
 
