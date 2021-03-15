@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4683033B7FA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1938A33B899
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbhCOOBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S230125AbhCOOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232781AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 321EF64EEF;
-        Mon, 15 Mar 2021 13:59:35 +0000 (UTC)
+        id S229992AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC3D264F17;
+        Mon, 15 Mar 2021 14:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816776;
-        bh=6oitWgIH5mIY2SE+wNaQ6r+GtKwh0skbfozHpeWqKuA=;
+        s=korg; t=1615816812;
+        bh=hQdHPMwGgGk4WGhFQSNaeVxXu8ip59ymBMc5lU7ocLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwdakz/8Gn7JJUy8nasTpPbAa9LtHMStKQNnecFdvqaeReUaVuUoqUvW6pSQmhhrv
-         XNlsFSB+UVwLWsdr+uq8w3de0J9zxVuFVcuP2vsdsDpQXRmPh/xbBVqjl54v8Ebd/n
-         YKV0YAn8TZtMwWuc88ZiXLIRBMV9pF8+6V7jO73w=
+        b=dk3AgUZi8isdSbYG1XW5mIN3xkwDYPBv19tQ9LGIQzb+rzRJJtV0Q31v+Voe7J+7j
+         Dpss9+obErDnqmfL+AU1wP+hcbpgZdrkFXpO/ojAPE9oHkKLDBjFrcgWS4zSq5ftEi
+         1vD6Fcr/lsq79D/ASObHpBGXVdHtYXncmt96MAuc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 108/290] net: hns3: fix error mask definition of flow director
-Date:   Mon, 15 Mar 2021 14:53:21 +0100
-Message-Id: <20210315135545.553699274@linuxfoundation.org>
+Subject: [PATCH 5.11 139/306] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
+Date:   Mon, 15 Mar 2021 14:53:22 +0100
+Message-Id: <20210315135512.340539325@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +42,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit ae85ddda0f1b341b2d25f5a5e0eff1d42b6ef3df ]
+[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
 
-Currently, some bit filed definitions of flow director TCAM
-configuration command are incorrect. Since the wrong MSB is
-always 0, and these fields are assgined in order, so it still works.
+While sampling for marked events, currently we record the sample only
+if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
+set. SIAR_VALID bit is used for fetching the instruction address from
+Sampled Instruction Address Register(SIAR). But there are some
+usecases, where the user is interested only in the PMU stats at each
+counter overflow and the exact IP of the overflow event is not
+required. Dropping SIAR invalid samples will fail to record some of
+the counter overflows in such cases.
 
-Fix it by redefine them.
+Example of such usecase is dumping the PMU stats (event counts) after
+some regular amount of instructions/events from the userspace (ex: via
+ptrace). Here counter overflow is indicated to userspace via signal
+handler, and captured by monitoring and enabling I/O signaling on the
+event file descriptor. In these cases, we expect to get
+sample/overflow indication after each specified sample_period.
 
-Fixes: 117328680288 ("net: hns3: Add input key and action config support for flow director")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Perf event attribute will not have PERF_SAMPLE_IP set in the
+sample_type if exact IP of the overflow event is not requested. So
+while profiling if SAMPLE_IP is not set, just record the counter
+overflow irrespective of SIAR_VALID check.
+
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+[mpe: Reflow comment and if formatting]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-index 096e26a2e16b..36690fc5c1af 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
-@@ -1031,16 +1031,16 @@ struct hclge_fd_tcam_config_3_cmd {
- #define HCLGE_FD_AD_DROP_B		0
- #define HCLGE_FD_AD_DIRECT_QID_B	1
- #define HCLGE_FD_AD_QID_S		2
--#define HCLGE_FD_AD_QID_M		GENMASK(12, 2)
-+#define HCLGE_FD_AD_QID_M		GENMASK(11, 2)
- #define HCLGE_FD_AD_USE_COUNTER_B	12
- #define HCLGE_FD_AD_COUNTER_NUM_S	13
- #define HCLGE_FD_AD_COUNTER_NUM_M	GENMASK(20, 13)
- #define HCLGE_FD_AD_NXT_STEP_B		20
- #define HCLGE_FD_AD_NXT_KEY_S		21
--#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(26, 21)
-+#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(25, 21)
- #define HCLGE_FD_AD_WR_RULE_ID_B	0
- #define HCLGE_FD_AD_RULE_ID_S		1
--#define HCLGE_FD_AD_RULE_ID_M		GENMASK(13, 1)
-+#define HCLGE_FD_AD_RULE_ID_M		GENMASK(12, 1)
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index a4908652242e..51f413521fde 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -2149,7 +2149,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+ 			left += period;
+ 			if (left <= 0)
+ 				left = period;
+-			record = siar_valid(regs);
++
++			/*
++			 * If address is not requested in the sample via
++			 * PERF_SAMPLE_IP, just record that sample irrespective
++			 * of SIAR valid check.
++			 */
++			if (event->attr.sample_type & PERF_SAMPLE_IP)
++				record = siar_valid(regs);
++			else
++				record = 1;
++
+ 			event->hw.last_period = event->hw.sample_period;
+ 		}
+ 		if (left < 0x80000000LL)
+@@ -2167,9 +2177,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
+ 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
+ 	 * these cases.
+ 	 */
+-	if (event->attr.exclude_kernel && record)
+-		if (is_kernel_addr(mfspr(SPRN_SIAR)))
+-			record = 0;
++	if (event->attr.exclude_kernel &&
++	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
++	    is_kernel_addr(mfspr(SPRN_SIAR)))
++		record = 0;
  
- struct hclge_fd_ad_config_cmd {
- 	u8 stage;
+ 	/*
+ 	 * Finally record data if requested.
 -- 
 2.30.1
 
