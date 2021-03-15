@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAAEA33B5CE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3280D33B5CF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbhCONzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59270 "EHLO mail.kernel.org"
+        id S231663AbhCONz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231611AbhCONy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ABE364EEC;
-        Mon, 15 Mar 2021 13:54:55 +0000 (UTC)
+        id S231627AbhCONy7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D52C64EE3;
+        Mon, 15 Mar 2021 13:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816496;
-        bh=UkfYB3iuj51x07Lnblew2NlIB6Xy7CbiW2rKzYvaodk=;
+        s=korg; t=1615816498;
+        bh=UH8wfHJUhGSjAHiImjldg67Vme/we82x4qabwkFo8aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cd6ozKQzD2YkrfLy04mC3CWZXdxJKqV+l95QioD4+BaM8vkL/KIbJwmKsy6xZyWCJ
-         0y5G74dvn3CEu7U/a5UiSk5UE52Sw5lPcRWqEuS54uHgJCfudyH4DldQJz+0PJerjV
-         40PawrFLdtd0rcleyV/SvfCo+lIU43+ZwJJdBu98=
+        b=XNh45/hbnEuzN6d6qXJUJNtyvM3Ta/FKOrCZAmWlNR142RmNv06O0sB6Tq4jYynTa
+         oqQlWRiPB4BVYMtcCIA/mr+AqYL+65l8Xjnzj1bf1UOaB+Sc2SDKQTNXEdDldbIyxC
+         /NrSR2LHpyeATjhsVWP+uR2pZakO/iJ+Do2V/TPw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Boyang Yu <byu@arista.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Paul Menzel <pmenzel@molgen.mpg.de>
-Subject: [PATCH 4.9 72/78] hwmon: (lm90) Fix max6658 sporadic wrong temperature reading
-Date:   Mon, 15 Mar 2021 14:52:35 +0100
-Message-Id: <20210315135214.421593339@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Andrew Jones <drjones@redhat.com>
+Subject: [PATCH 4.9 73/78] KVM: arm64: Fix exclusive limit for IPA size
+Date:   Mon, 15 Mar 2021 14:52:36 +0100
+Message-Id: <20210315135214.454159692@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
 References: <20210315135212.060847074@linuxfoundation.org>
@@ -42,120 +42,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Boyang Yu <byu@arista.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 62456189f3292c62f87aef363f204886dc1d4b48 upstream.
+Commit 262b003d059c6671601a19057e9fe1a5e7f23722 upstream.
 
-max6658 may report unrealistically high temperature during
-the driver initialization, for which, its overtemp alarm pin
-also gets asserted. For certain devices implementing overtemp
-protection based on that pin, it may further trigger a reset to
-the device. By reproducing the problem, the wrong reading is
-found to be coincident with changing the conversion rate.
+When registering a memslot, we check the size and location of that
+memslot against the IPA size to ensure that we can provide guest
+access to the whole of the memory.
 
-To mitigate this issue, set the stop bit before changing the
-conversion rate and unset it thereafter. After such change, the
-wrong reading is not reproduced. Apply this change only to the
-max6657 kind for now, controlled by flag LM90_PAUSE_ON_CONFIG.
+Unfortunately, this check rejects memslot that end-up at the exact
+limit of the addressing capability for a given IPA size. For example,
+it refuses the creation of a 2GB memslot at 0x8000000 with a 32bit
+IPA space.
 
-Signed-off-by: Boyang Yu <byu@arista.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Cc: Paul Menzel <pmenzel@molgen.mpg.de>
+Fix it by relaxing the check to accept a memslot reaching the
+limit of the IPA space.
+
+Fixes: c3058d5da222 ("arm/arm64: KVM: Ensure memslots are within KVM_PHYS_SIZE")
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 4.4, 4.9
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Link: https://lore.kernel.org/r/20210311100016.3830038-3-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm90.c |   42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ arch/arm/kvm/mmu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/lm90.c
-+++ b/drivers/hwmon/lm90.c
-@@ -186,6 +186,7 @@ enum chips { lm90, adm1032, lm99, lm86,
- #define LM90_HAVE_EMERGENCY_ALARM (1 << 5)/* emergency alarm		*/
- #define LM90_HAVE_TEMP3		(1 << 6) /* 3rd temperature sensor	*/
- #define LM90_HAVE_BROKEN_ALERT	(1 << 7) /* Broken alert		*/
-+#define LM90_PAUSE_FOR_CONFIG	(1 << 8) /* Pause conversion for config	*/
- 
- /* LM90 status */
- #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
-@@ -286,6 +287,7 @@ static const struct lm90_params lm90_par
- 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
- 	},
- 	[max6657] = {
-+		.flags = LM90_PAUSE_FOR_CONFIG,
- 		.alert_alarms = 0x7c,
- 		.max_convrate = 8,
- 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
-@@ -486,6 +488,38 @@ static inline int lm90_select_remote_cha
- 	return 0;
- }
- 
-+static int lm90_write_convrate(struct i2c_client *client,
-+			       struct lm90_data *data, int val)
-+{
-+	int err;
-+	int config_orig, config_stop;
-+
-+	/* Save config and pause conversion */
-+	if (data->flags & LM90_PAUSE_FOR_CONFIG) {
-+		config_orig = lm90_read_reg(client, LM90_REG_R_CONFIG1);
-+		if (config_orig < 0)
-+			return config_orig;
-+		config_stop = config_orig | 0x40;
-+		if (config_orig != config_stop) {
-+			err = i2c_smbus_write_byte_data(client,
-+							LM90_REG_W_CONFIG1,
-+							config_stop);
-+			if (err < 0)
-+				return err;
-+		}
-+	}
-+
-+	/* Set conv rate */
-+	err = i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE, val);
-+
-+	/* Revert change to config */
-+	if (data->flags & LM90_PAUSE_FOR_CONFIG && config_orig != config_stop)
-+		i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1,
-+					  config_orig);
-+
-+	return err;
-+}
-+
- /*
-  * Set conversion rate.
-  * client->update_lock must be held when calling this function (unless we are
-@@ -506,7 +540,7 @@ static int lm90_set_convrate(struct i2c_
- 		if (interval >= update_interval * 3 / 4)
- 			break;
- 
--	err = i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE, i);
-+	err = lm90_write_convrate(client, data, i);
- 	data->update_interval = DIV_ROUND_CLOSEST(update_interval, 64);
- 	return err;
- }
-@@ -1512,8 +1546,7 @@ static void lm90_restore_conf(void *_dat
- 	struct i2c_client *client = data->client;
- 
- 	/* Restore initial configuration */
--	i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE,
--				  data->convrate_orig);
-+	lm90_write_convrate(client, data, data->convrate_orig);
- 	i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1,
- 				  data->config_orig);
- }
-@@ -1530,12 +1563,13 @@ static int lm90_init_client(struct i2c_c
- 	/*
- 	 * Start the conversions.
+--- a/arch/arm/kvm/mmu.c
++++ b/arch/arm/kvm/mmu.c
+@@ -1834,7 +1834,7 @@ int kvm_arch_prepare_memory_region(struc
+ 	 * Prevent userspace from creating a memory region outside of the IPA
+ 	 * space addressable by the KVM guest IPA space.
  	 */
--	lm90_set_convrate(client, data, 500);	/* 500ms; 2Hz conversion rate */
- 	config = lm90_read_reg(client, LM90_REG_R_CONFIG1);
- 	if (config < 0)
- 		return config;
- 	data->config_orig = config;
+-	if (memslot->base_gfn + memslot->npages >=
++	if (memslot->base_gfn + memslot->npages >
+ 	    (KVM_PHYS_SIZE >> PAGE_SHIFT))
+ 		return -EFAULT;
  
-+	lm90_set_convrate(client, data, 500); /* 500ms; 2Hz conversion rate */
-+
- 	/* Check Temperature Range Select */
- 	if (data->kind == adt7461 || data->kind == tmp451) {
- 		if (config & 0x04)
 
 
