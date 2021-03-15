@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC8533B561
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AEDD33B663
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbhCONyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56918 "EHLO mail.kernel.org"
+        id S232127AbhCON5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230480AbhCONxp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79F2D64EB6;
-        Mon, 15 Mar 2021 13:53:43 +0000 (UTC)
+        id S231802AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0701E64F00;
+        Mon, 15 Mar 2021 13:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816425;
-        bh=BI0f3vxvgUWulihZxWgR0nEuD5eB5Ik7A18asIs/818=;
+        s=korg; t=1615816620;
+        bh=Tj752T5KVH6A+ShCPQIpgLAwmmH7EX4UNPwrp+k8CT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRJDVLExSD4VtX1JsHmLsiP6If6g4smJ4ALsR7sdBB8cZCqFHcHhIXTlUyg2XkieR
-         OqLsJ/+Rzd5tMygy4+oVdiGUlGXttecTF6rSgnT3rycKAjtF6SxGkUPY05KGzYrNtr
-         ZVhx3bbTFhDLEEVDCX7cc3zMffu7Fteu/DY0CpCw=
+        b=Wv71est7MDgz7NTGxheOTR0jMXGnN2ayxqJqZwCiMqPcrp2C5at1syt/lotBHqCgv
+         HZCF+dR/NkFyZWhdTLn+f+6Xrz4Th8WXyQBCrKxXJ0PAlRdAsc0jldl57rNjcLYQag
+         2bI4Lmm7YSyvduXYBen6uxCwjbkAMoSjqwc0xfQg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 36/75] USB: serial: io_edgeport: fix memory leak in edge_startup
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Pavel Emelyanov <xemul@parallels.com>,
+        Qingyu Li <ieatmuttonchuan@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 017/290] tcp: add sanity tests to TCP_QUEUE_SEQ
 Date:   Mon, 15 Mar 2021 14:51:50 +0100
-Message-Id: <20210315135209.426616432@linuxfoundation.org>
+Message-Id: <20210315135542.521992931@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +43,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cfdc67acc785e01a8719eeb7012709d245564701 upstream.
+commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d upstream.
 
-sysbot found memory leak in edge_startup().
-The problem was that when an error was received from the usb_submit_urb(),
-nothing was cleaned up.
+Qingyu Li reported a syzkaller bug where the repro
+changes RCV SEQ _after_ restoring data in the receive queue.
 
-Reported-by: syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
-Cc: stable@vger.kernel.org	# 2.6.21: c5c0c55598ce
-Signed-off-by: Johan Hovold <johan@kernel.org>
+mprotect(0x4aa000, 12288, PROT_READ)    = 0
+mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
+mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
+mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
+socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
+setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
+connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
+setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
+sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
+setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
+setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
+recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
+
+syslog shows:
+[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
+[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
+
+This should not be allowed. TCP_QUEUE_SEQ should only be used
+when queues are empty.
+
+This patch fixes this case, and the tx path as well.
+
+Fixes: ee9952831cfd ("tcp: Initial repair mode")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
+Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/io_edgeport.c |   26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ net/ipv4/tcp.c |   23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/serial/io_edgeport.c
-+++ b/drivers/usb/serial/io_edgeport.c
-@@ -2966,26 +2966,32 @@ static int edge_startup(struct usb_seria
- 				response = -ENODEV;
- 			}
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -3164,16 +3164,23 @@ static int do_tcp_setsockopt(struct sock
+ 		break;
  
--			usb_free_urb(edge_serial->interrupt_read_urb);
--			kfree(edge_serial->interrupt_in_buffer);
--
--			usb_free_urb(edge_serial->read_urb);
--			kfree(edge_serial->bulk_in_buffer);
--
--			kfree(edge_serial);
--
--			return response;
-+			goto error;
- 		}
- 
- 		/* start interrupt read for this edgeport this interrupt will
- 		 * continue as long as the edgeport is connected */
- 		response = usb_submit_urb(edge_serial->interrupt_read_urb,
- 								GFP_KERNEL);
--		if (response)
-+		if (response) {
- 			dev_err(ddev, "%s - Error %d submitting control urb\n",
- 				__func__, response);
-+
-+			goto error;
+ 	case TCP_QUEUE_SEQ:
+-		if (sk->sk_state != TCP_CLOSE)
++		if (sk->sk_state != TCP_CLOSE) {
+ 			err = -EPERM;
+-		else if (tp->repair_queue == TCP_SEND_QUEUE)
+-			WRITE_ONCE(tp->write_seq, val);
+-		else if (tp->repair_queue == TCP_RECV_QUEUE) {
+-			WRITE_ONCE(tp->rcv_nxt, val);
+-			WRITE_ONCE(tp->copied_seq, val);
+-		}
+-		else
++		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
++			if (!tcp_rtx_queue_empty(sk))
++				err = -EPERM;
++			else
++				WRITE_ONCE(tp->write_seq, val);
++		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
++			if (tp->rcv_nxt != tp->copied_seq) {
++				err = -EPERM;
++			} else {
++				WRITE_ONCE(tp->rcv_nxt, val);
++				WRITE_ONCE(tp->copied_seq, val);
++			}
++		} else {
+ 			err = -EINVAL;
 +		}
- 	}
- 	return response;
-+
-+error:
-+	usb_free_urb(edge_serial->interrupt_read_urb);
-+	kfree(edge_serial->interrupt_in_buffer);
-+
-+	usb_free_urb(edge_serial->read_urb);
-+	kfree(edge_serial->bulk_in_buffer);
-+
-+	kfree(edge_serial);
-+
-+	return response;
- }
+ 		break;
  
- 
+ 	case TCP_REPAIR_OPTIONS:
 
 
