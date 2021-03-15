@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2D9B33B729
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D35033B6FF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbhCON7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S232626AbhCON7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232186AbhCON6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26BBD64F05;
-        Mon, 15 Mar 2021 13:58:12 +0000 (UTC)
+        id S229690AbhCON6P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FBA864F19;
+        Mon, 15 Mar 2021 13:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816694;
-        bh=wPUb7zSk3hPGqLqGomfBvu/tCAvJ00s5fF//vm3tWIw=;
+        s=korg; t=1615816695;
+        bh=YK6SNUgni5tr2e3RnJh/XBRvphOtoSaXM0nwiP95bX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ec67GYz8m3C3khCJnv6QZNNCZGqVApy3uZFwC+ggNRU0/cURBtHMQpLNXyc+qqckb
-         ZUp3S9O++/FyfBBijdmvE/757WZjQawsniTNijVnaQ1ed0CerXGnn4iHEs6y4xU15q
-         FHXfjlH4X0kAHFZFum2xMrv9u49371/1Yz3nKOLM=
+        b=xoVJ1+qEf30sMWMrFARusfIEdea72tERwvsInijONHljliq/Q7A9UTQ072w2oV3WC
+         WXDFL41a1ZIl2XQNaejv4BujRfyJgAh5DKeUDwRFZt0PIdlUY1tYuQgVaTUqBaYXg2
+         jKIyITI+LlUBIDo4/WzydNPhiSmVhrO50fYfq2vU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 011/120] tcp: annotate tp->copied_seq lockless reads
-Date:   Mon, 15 Mar 2021 14:56:02 +0100
-Message-Id: <20210315135720.384809636@linuxfoundation.org>
+Subject: [PATCH 4.19 012/120] tcp: annotate tp->write_seq lockless reads
+Date:   Mon, 15 Mar 2021 14:56:03 +0100
+Message-Id: <20210315135720.418426545@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -43,191 +43,238 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 7db48e983930285b765743ebd665aecf9850582b ]
+[ Upstream commit 0f31746452e6793ad6271337438af8f4defb8940 ]
 
-There are few places where we fetch tp->copied_seq while
+There are few places where we fetch tp->write_seq while
 this field can change from IRQ or other cpu.
 
 We need to add READ_ONCE() annotations, and also make
 sure write sides use corresponding WRITE_ONCE() to avoid
 store-tearing.
 
-Note that tcp_inq_hint() was already using READ_ONCE(tp->copied_seq)
-
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c           |   18 +++++++++---------
- net/ipv4/tcp_diag.c      |    3 ++-
- net/ipv4/tcp_input.c     |    6 +++---
- net/ipv4/tcp_ipv4.c      |    2 +-
+ include/net/tcp.h        |    2 +-
+ net/ipv4/tcp.c           |   20 ++++++++++++--------
+ net/ipv4/tcp_diag.c      |    2 +-
+ net/ipv4/tcp_ipv4.c      |   21 ++++++++++++---------
  net/ipv4/tcp_minisocks.c |    2 +-
- net/ipv4/tcp_output.c    |    2 +-
- net/ipv6/tcp_ipv6.c      |    2 +-
- 7 files changed, 18 insertions(+), 17 deletions(-)
+ net/ipv4/tcp_output.c    |    4 ++--
+ net/ipv6/tcp_ipv6.c      |   13 +++++++------
+ 7 files changed, 36 insertions(+), 28 deletions(-)
 
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1880,7 +1880,7 @@ static inline u32 tcp_notsent_lowat(cons
+ static inline bool tcp_stream_memory_free(const struct sock *sk)
+ {
+ 	const struct tcp_sock *tp = tcp_sk(sk);
+-	u32 notsent_bytes = tp->write_seq - tp->snd_nxt;
++	u32 notsent_bytes = READ_ONCE(tp->write_seq) - tp->snd_nxt;
+ 
+ 	return notsent_bytes < tcp_notsent_lowat(tp);
+ }
 --- a/net/ipv4/tcp.c
 +++ b/net/ipv4/tcp.c
-@@ -567,7 +567,7 @@ __poll_t tcp_poll(struct file *file, str
- 	    (state != TCP_SYN_RECV || tp->fastopen_rsk)) {
- 		int target = sock_rcvlowat(sk, 0, INT_MAX);
- 
--		if (tp->urg_seq == tp->copied_seq &&
-+		if (tp->urg_seq == READ_ONCE(tp->copied_seq) &&
- 		    !sock_flag(sk, SOCK_URGINLINE) &&
- 		    tp->urg_data)
- 			target++;
-@@ -628,7 +628,7 @@ int tcp_ioctl(struct sock *sk, int cmd,
- 		unlock_sock_fast(sk, slow);
+@@ -637,7 +637,7 @@ int tcp_ioctl(struct sock *sk, int cmd,
+ 		if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV))
+ 			answ = 0;
+ 		else
+-			answ = tp->write_seq - tp->snd_una;
++			answ = READ_ONCE(tp->write_seq) - tp->snd_una;
  		break;
- 	case SIOCATMARK:
--		answ = tp->urg_data && tp->urg_seq == tp->copied_seq;
-+		answ = tp->urg_data && tp->urg_seq == READ_ONCE(tp->copied_seq);
- 		break;
- 	case SIOCOUTQ:
+ 	case SIOCOUTQNSD:
  		if (sk->sk_state == TCP_LISTEN)
-@@ -1696,9 +1696,9 @@ int tcp_read_sock(struct sock *sk, read_
- 		sk_eat_skb(sk, skb);
- 		if (!desc->count)
- 			break;
--		tp->copied_seq = seq;
-+		WRITE_ONCE(tp->copied_seq, seq);
- 	}
--	tp->copied_seq = seq;
-+	WRITE_ONCE(tp->copied_seq, seq);
- 
- 	tcp_rcv_space_adjust(sk);
- 
-@@ -1835,7 +1835,7 @@ static int tcp_zerocopy_receive(struct s
- out:
- 	up_read(&current->mm->mmap_sem);
- 	if (length) {
--		tp->copied_seq = seq;
-+		WRITE_ONCE(tp->copied_seq, seq);
- 		tcp_rcv_space_adjust(sk);
- 
- 		/* Clean up data we have read: This will do ACK frames. */
-@@ -2112,7 +2112,7 @@ int tcp_recvmsg(struct sock *sk, struct
- 			if (urg_offset < used) {
- 				if (!urg_offset) {
- 					if (!sock_flag(sk, SOCK_URGINLINE)) {
--						++*seq;
-+						WRITE_ONCE(*seq, *seq + 1);
- 						urg_hole++;
- 						offset++;
- 						used--;
-@@ -2134,7 +2134,7 @@ int tcp_recvmsg(struct sock *sk, struct
- 			}
- 		}
- 
--		*seq += used;
-+		WRITE_ONCE(*seq, *seq + used);
- 		copied += used;
- 		len -= used;
- 
-@@ -2163,7 +2163,7 @@ skip_copy:
- 
- 	found_fin_ok:
- 		/* Process the FIN. */
--		++*seq;
-+		WRITE_ONCE(*seq, *seq + 1);
- 		if (!(flags & MSG_PEEK))
- 			sk_eat_skb(sk, skb);
+@@ -646,7 +646,7 @@ int tcp_ioctl(struct sock *sk, int cmd,
+ 		if ((1 << sk->sk_state) & (TCPF_SYN_SENT | TCPF_SYN_RECV))
+ 			answ = 0;
+ 		else
+-			answ = tp->write_seq - tp->snd_nxt;
++			answ = READ_ONCE(tp->write_seq) - tp->snd_nxt;
  		break;
-@@ -2578,7 +2578,7 @@ int tcp_disconnect(struct sock *sk, int
+ 	default:
+ 		return -ENOIOCTLCMD;
+@@ -1037,7 +1037,7 @@ new_segment:
+ 		sk->sk_wmem_queued += copy;
+ 		sk_mem_charge(sk, copy);
+ 		skb->ip_summed = CHECKSUM_PARTIAL;
+-		tp->write_seq += copy;
++		WRITE_ONCE(tp->write_seq, tp->write_seq + copy);
+ 		TCP_SKB_CB(skb)->end_seq += copy;
+ 		tcp_skb_pcount_set(skb, 0);
  
- 	tcp_clear_xmit_timers(sk);
- 	__skb_queue_purge(&sk->sk_receive_queue);
--	tp->copied_seq = tp->rcv_nxt;
-+	WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
- 	tp->urg_data = 0;
- 	tcp_write_queue_purge(sk);
- 	tcp_fastopen_active_disable_ofo_check(sk);
+@@ -1391,7 +1391,7 @@ new_segment:
+ 		if (!copied)
+ 			TCP_SKB_CB(skb)->tcp_flags &= ~TCPHDR_PSH;
+ 
+-		tp->write_seq += copy;
++		WRITE_ONCE(tp->write_seq, tp->write_seq + copy);
+ 		TCP_SKB_CB(skb)->end_seq += copy;
+ 		tcp_skb_pcount_set(skb, 0);
+ 
+@@ -2556,6 +2556,7 @@ int tcp_disconnect(struct sock *sk, int
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	int old_state = sk->sk_state;
++	u32 seq;
+ 
+ 	if (old_state != TCP_CLOSE)
+ 		tcp_set_state(sk, TCP_CLOSE);
+@@ -2593,9 +2594,12 @@ int tcp_disconnect(struct sock *sk, int
+ 	sock_reset_flag(sk, SOCK_DONE);
+ 	tp->srtt_us = 0;
+ 	tp->rcv_rtt_last_tsecr = 0;
+-	tp->write_seq += tp->max_window + 2;
+-	if (tp->write_seq == 0)
+-		tp->write_seq = 1;
++
++	seq = tp->write_seq + tp->max_window + 2;
++	if (!seq)
++		seq = 1;
++	WRITE_ONCE(tp->write_seq, seq);
++
+ 	tp->snd_cwnd = 2;
+ 	icsk->icsk_probes_out = 0;
+ 	tp->snd_ssthresh = TCP_INFINITE_SSTHRESH;
+@@ -2885,7 +2889,7 @@ static int do_tcp_setsockopt(struct sock
+ 		if (sk->sk_state != TCP_CLOSE)
+ 			err = -EPERM;
+ 		else if (tp->repair_queue == TCP_SEND_QUEUE)
+-			tp->write_seq = val;
++			WRITE_ONCE(tp->write_seq, val);
+ 		else if (tp->repair_queue == TCP_RECV_QUEUE) {
+ 			WRITE_ONCE(tp->rcv_nxt, val);
+ 			WRITE_ONCE(tp->copied_seq, val);
 --- a/net/ipv4/tcp_diag.c
 +++ b/net/ipv4/tcp_diag.c
-@@ -30,7 +30,8 @@ static void tcp_diag_get_info(struct soc
- 	} else if (sk->sk_type == SOCK_STREAM) {
- 		const struct tcp_sock *tp = tcp_sk(sk);
+@@ -32,7 +32,7 @@ static void tcp_diag_get_info(struct soc
  
--		r->idiag_rqueue = max_t(int, READ_ONCE(tp->rcv_nxt) - tp->copied_seq, 0);
-+		r->idiag_rqueue = max_t(int, READ_ONCE(tp->rcv_nxt) -
-+					     READ_ONCE(tp->copied_seq), 0);
- 		r->idiag_wqueue = tp->write_seq - tp->snd_una;
+ 		r->idiag_rqueue = max_t(int, READ_ONCE(tp->rcv_nxt) -
+ 					     READ_ONCE(tp->copied_seq), 0);
+-		r->idiag_wqueue = tp->write_seq - tp->snd_una;
++		r->idiag_wqueue = READ_ONCE(tp->write_seq) - tp->snd_una;
  	}
  	if (info)
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5889,7 +5889,7 @@ static int tcp_rcv_synsent_state_process
- 		/* Remember, tcp_poll() does not lock socket!
- 		 * Change state from SYN-SENT only after copied_seq
- 		 * is initialized. */
--		tp->copied_seq = tp->rcv_nxt;
-+		WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
- 
- 		smc_check_reset_syn(tp);
- 
-@@ -5964,7 +5964,7 @@ discard:
- 		}
- 
- 		WRITE_ONCE(tp->rcv_nxt, TCP_SKB_CB(skb)->seq + 1);
--		tp->copied_seq = tp->rcv_nxt;
-+		WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
- 		tp->rcv_wup = TCP_SKB_CB(skb)->seq + 1;
- 
- 		/* RFC1323: The window in SYN & SYN/ACK segments is
-@@ -6126,7 +6126,7 @@ int tcp_rcv_state_process(struct sock *s
- 			tcp_rearm_rto(sk);
- 		} else {
- 			tcp_init_transfer(sk, BPF_SOCK_OPS_PASSIVE_ESTABLISHED_CB);
--			tp->copied_seq = tp->rcv_nxt;
-+			WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
- 		}
- 		smp_mb();
- 		tcp_set_state(sk, TCP_ESTABLISHED);
+ 		tcp_get_info(sk, info);
 --- a/net/ipv4/tcp_ipv4.c
 +++ b/net/ipv4/tcp_ipv4.c
-@@ -2340,7 +2340,7 @@ static void get_tcp4_sock(struct sock *s
- 		 * we might find a transient negative value.
+@@ -169,9 +169,11 @@ int tcp_twsk_unique(struct sock *sk, str
+ 		 * without appearing to create any others.
  		 */
- 		rx_queue = max_t(int, READ_ONCE(tp->rcv_nxt) -
--				      tp->copied_seq, 0);
-+				      READ_ONCE(tp->copied_seq), 0);
+ 		if (likely(!tp->repair)) {
+-			tp->write_seq = tcptw->tw_snd_nxt + 65535 + 2;
+-			if (tp->write_seq == 0)
+-				tp->write_seq = 1;
++			u32 seq = tcptw->tw_snd_nxt + 65535 + 2;
++
++			if (!seq)
++				seq = 1;
++			WRITE_ONCE(tp->write_seq, seq);
+ 			tp->rx_opt.ts_recent	   = tcptw->tw_ts_recent;
+ 			tp->rx_opt.ts_recent_stamp = tcptw->tw_ts_recent_stamp;
+ 		}
+@@ -258,7 +260,7 @@ int tcp_v4_connect(struct sock *sk, stru
+ 		tp->rx_opt.ts_recent	   = 0;
+ 		tp->rx_opt.ts_recent_stamp = 0;
+ 		if (likely(!tp->repair))
+-			tp->write_seq	   = 0;
++			WRITE_ONCE(tp->write_seq, 0);
+ 	}
  
+ 	inet->inet_dport = usin->sin_port;
+@@ -296,10 +298,11 @@ int tcp_v4_connect(struct sock *sk, stru
+ 
+ 	if (likely(!tp->repair)) {
+ 		if (!tp->write_seq)
+-			tp->write_seq = secure_tcp_seq(inet->inet_saddr,
+-						       inet->inet_daddr,
+-						       inet->inet_sport,
+-						       usin->sin_port);
++			WRITE_ONCE(tp->write_seq,
++				   secure_tcp_seq(inet->inet_saddr,
++						  inet->inet_daddr,
++						  inet->inet_sport,
++						  usin->sin_port));
+ 		tp->tsoffset = secure_tcp_ts_off(sock_net(sk),
+ 						 inet->inet_saddr,
+ 						 inet->inet_daddr);
+@@ -2345,7 +2348,7 @@ static void get_tcp4_sock(struct sock *s
  	seq_printf(f, "%4d: %08X:%04X %08X:%04X %02X %08X:%08X %02X:%08lX "
  			"%08X %5u %8d %lu %d %pK %lu %lu %u %u %d",
+ 		i, src, srcp, dest, destp, state,
+-		tp->write_seq - tp->snd_una,
++		READ_ONCE(tp->write_seq) - tp->snd_una,
+ 		rx_queue,
+ 		timer_active,
+ 		jiffies_delta_to_clock_t(timer_expires - jiffies),
 --- a/net/ipv4/tcp_minisocks.c
 +++ b/net/ipv4/tcp_minisocks.c
-@@ -470,7 +470,7 @@ struct sock *tcp_create_openreq_child(co
+@@ -510,7 +510,7 @@ struct sock *tcp_create_openreq_child(co
+ 	newtp->app_limited = ~0U;
  
- 	seq = treq->rcv_isn + 1;
- 	newtp->rcv_wup = seq;
--	newtp->copied_seq = seq;
-+	WRITE_ONCE(newtp->copied_seq, seq);
- 	WRITE_ONCE(newtp->rcv_nxt, seq);
- 	newtp->segs_in = 1;
+ 	tcp_init_xmit_timers(newsk);
+-	newtp->write_seq = newtp->pushed_seq = treq->snt_isn + 1;
++	WRITE_ONCE(newtp->write_seq, newtp->pushed_seq = treq->snt_isn + 1);
+ 
+ 	newtp->rx_opt.saw_tstamp = 0;
  
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -3381,7 +3381,7 @@ static void tcp_connect_init(struct sock
- 	else
- 		tp->rcv_tstamp = tcp_jiffies32;
- 	tp->rcv_wup = tp->rcv_nxt;
--	tp->copied_seq = tp->rcv_nxt;
-+	WRITE_ONCE(tp->copied_seq, tp->rcv_nxt);
+@@ -1175,7 +1175,7 @@ static void tcp_queue_skb(struct sock *s
+ 	struct tcp_sock *tp = tcp_sk(sk);
  
- 	inet_csk(sk)->icsk_rto = tcp_timeout_init(sk);
- 	inet_csk(sk)->icsk_retransmits = 0;
+ 	/* Advance write_seq and place onto the write_queue. */
+-	tp->write_seq = TCP_SKB_CB(skb)->end_seq;
++	WRITE_ONCE(tp->write_seq, TCP_SKB_CB(skb)->end_seq);
+ 	__skb_header_release(skb);
+ 	tcp_add_write_queue_tail(sk, skb);
+ 	sk->sk_wmem_queued += skb->truesize;
+@@ -3397,7 +3397,7 @@ static void tcp_connect_queue_skb(struct
+ 	__skb_header_release(skb);
+ 	sk->sk_wmem_queued += skb->truesize;
+ 	sk_mem_charge(sk, skb->truesize);
+-	tp->write_seq = tcb->end_seq;
++	WRITE_ONCE(tp->write_seq, tcb->end_seq);
+ 	tp->packets_out += tcp_skb_pcount(skb);
+ }
+ 
 --- a/net/ipv6/tcp_ipv6.c
 +++ b/net/ipv6/tcp_ipv6.c
-@@ -1839,7 +1839,7 @@ static void get_tcp6_sock(struct seq_fil
- 		 * we might find a transient negative value.
- 		 */
- 		rx_queue = max_t(int, READ_ONCE(tp->rcv_nxt) -
--				      tp->copied_seq, 0);
-+				      READ_ONCE(tp->copied_seq), 0);
+@@ -206,7 +206,7 @@ static int tcp_v6_connect(struct sock *s
+ 	    !ipv6_addr_equal(&sk->sk_v6_daddr, &usin->sin6_addr)) {
+ 		tp->rx_opt.ts_recent = 0;
+ 		tp->rx_opt.ts_recent_stamp = 0;
+-		tp->write_seq = 0;
++		WRITE_ONCE(tp->write_seq, 0);
+ 	}
  
- 	seq_printf(seq,
- 		   "%4d: %08X%08X%08X%08X:%04X %08X%08X%08X%08X:%04X "
+ 	sk->sk_v6_daddr = usin->sin6_addr;
+@@ -304,10 +304,11 @@ static int tcp_v6_connect(struct sock *s
+ 
+ 	if (likely(!tp->repair)) {
+ 		if (!tp->write_seq)
+-			tp->write_seq = secure_tcpv6_seq(np->saddr.s6_addr32,
+-							 sk->sk_v6_daddr.s6_addr32,
+-							 inet->inet_sport,
+-							 inet->inet_dport);
++			WRITE_ONCE(tp->write_seq,
++				   secure_tcpv6_seq(np->saddr.s6_addr32,
++						    sk->sk_v6_daddr.s6_addr32,
++						    inet->inet_sport,
++						    inet->inet_dport));
+ 		tp->tsoffset = secure_tcpv6_ts_off(sock_net(sk),
+ 						   np->saddr.s6_addr32,
+ 						   sk->sk_v6_daddr.s6_addr32);
+@@ -1850,7 +1851,7 @@ static void get_tcp6_sock(struct seq_fil
+ 		   dest->s6_addr32[0], dest->s6_addr32[1],
+ 		   dest->s6_addr32[2], dest->s6_addr32[3], destp,
+ 		   state,
+-		   tp->write_seq - tp->snd_una,
++		   READ_ONCE(tp->write_seq) - tp->snd_una,
+ 		   rx_queue,
+ 		   timer_active,
+ 		   jiffies_delta_to_clock_t(timer_expires - jiffies),
 
 
