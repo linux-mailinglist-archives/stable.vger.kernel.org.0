@@ -2,33 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89BB333B90B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED2133B91E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234751AbhCOOFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S231964AbhCOOF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233197AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233204AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C94AA64EF8;
-        Mon, 15 Mar 2021 14:00:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5229C64F06;
+        Mon, 15 Mar 2021 14:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816834;
-        bh=yKxm+gGEX77Yzcc03ZKJ+sTiaF0sQsPtK8F1W46HQwc=;
+        s=korg; t=1615816837;
+        bh=myaF3D99RkWXV3VhgdD/gmpVZL5N7dsK6TT+Ici6Uaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxMuJgQdFECdrUVXN2Y4f3mXw/THNCmaigB1wN+5YhELdvt0M+u5Ejv6YvVnu6o38
-         6q8cCSqFMIapKLprBMOA8jejRgN7Cv2LqiLkcl1NzvqbXuljhenrlBbwdmXoZ8cKNQ
-         e2/ifLEJzjRyy0j/f6uZxxbIIa5c09bjo9fNqI2I=
+        b=sRreGn2fNInIQiDIHaHKY/1hAOxXieKrDoI/KOQRo3ahCMLc9fPJyYX28FgXe/PW0
+         gU+GoSFKCbJYABPWmXJfrtFwNQxmB6XGpYo8oHz+mVjbSHUKWsaLRAJPXyZ2idLYvK
+         ziaI3aWGgyKihNPPfBibS56oDef/aHr5aCJ0pdD8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        David Hildenbrand <david@redhat.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 143/168] sh_eth: fix TRSCER mask for R7S72100
-Date:   Mon, 15 Mar 2021 14:56:15 +0100
-Message-Id: <20210315135555.035960416@linuxfoundation.org>
+Subject: [PATCH 5.4 144/168] arm64/mm: Fix pfn_valid() for ZONE_DEVICE based memory
+Date:   Mon, 15 Mar 2021 14:56:16 +0100
+Message-Id: <20210315135555.075374670@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,36 +47,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 75be7fb7f978202c4c3a1a713af4485afb2ff5f6 ]
+[ Upstream commit eeb0753ba27b26f609e61f9950b14f1b934fe429 ]
 
-According  to  the RZ/A1H Group, RZ/A1M Group User's Manual: Hardware,
-Rev. 4.00, the TRSCER register has bit 9 reserved, hence we can't use
-the driver's default TRSCER mask.  Add the explicit initializer for
-sh_eth_cpu_data::trscer_err_mask for R7S72100.
+pfn_valid() validates a pfn but basically it checks for a valid struct page
+backing for that pfn. It should always return positive for memory ranges
+backed with struct page mapping. But currently pfn_valid() fails for all
+ZONE_DEVICE based memory types even though they have struct page mapping.
 
-Fixes: db893473d313 ("sh_eth: Add support for r7s72100")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+pfn_valid() asserts that there is a memblock entry for a given pfn without
+MEMBLOCK_NOMAP flag being set. The problem with ZONE_DEVICE based memory is
+that they do not have memblock entries. Hence memblock_is_map_memory() will
+invariably fail via memblock_search() for a ZONE_DEVICE based address. This
+eventually fails pfn_valid() which is wrong. memblock_is_map_memory() needs
+to be skipped for such memory ranges. As ZONE_DEVICE memory gets hotplugged
+into the system via memremap_pages() called from a driver, their respective
+memory sections will not have SECTION_IS_EARLY set.
+
+Normal hotplug memory will never have MEMBLOCK_NOMAP set in their memblock
+regions. Because the flag MEMBLOCK_NOMAP was specifically designed and set
+for firmware reserved memory regions. memblock_is_map_memory() can just be
+skipped as its always going to be positive and that will be an optimization
+for the normal hotplug memory. Like ZONE_DEVICE based memory, all normal
+hotplugged memory too will not have SECTION_IS_EARLY set for their sections
+
+Skipping memblock_is_map_memory() for all non early memory sections would
+fix pfn_valid() problem for ZONE_DEVICE based memory and also improve its
+performance for normal hotplug memory as well.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: David Hildenbrand <david@redhat.com>
+Fixes: 73b20c84d42d ("arm64: mm: implement pte_devmap support")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/1614921898-4099-2-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/sh_eth.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/mm/init.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/net/ethernet/renesas/sh_eth.c b/drivers/net/ethernet/renesas/sh_eth.c
-index 91d234b18195..a042f4607b0d 100644
---- a/drivers/net/ethernet/renesas/sh_eth.c
-+++ b/drivers/net/ethernet/renesas/sh_eth.c
-@@ -610,6 +610,8 @@ static struct sh_eth_cpu_data r7s72100_data = {
- 			  EESR_TDE,
- 	.fdr_value	= 0x0000070f,
+diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
+index 602bd19630ff..cbcac03c0e0d 100644
+--- a/arch/arm64/mm/init.c
++++ b/arch/arm64/mm/init.c
+@@ -245,6 +245,18 @@ int pfn_valid(unsigned long pfn)
  
-+	.trscer_err_mask = DESC_I_RINT8 | DESC_I_RINT5,
+ 	if (!valid_section(__nr_to_section(pfn_to_section_nr(pfn))))
+ 		return 0;
 +
- 	.no_psr		= 1,
- 	.apr		= 1,
- 	.mpr		= 1,
++	/*
++	 * ZONE_DEVICE memory does not have the memblock entries.
++	 * memblock_is_map_memory() check for ZONE_DEVICE based
++	 * addresses will always fail. Even the normal hotplugged
++	 * memory will never have MEMBLOCK_NOMAP flag set in their
++	 * memblock entries. Skip memblock search for all non early
++	 * memory sections covering all of hotplug memory including
++	 * both normal and ZONE_DEVICE based.
++	 */
++	if (!early_section(__pfn_to_section(pfn)))
++		return pfn_section_valid(__pfn_to_section(pfn), pfn);
+ #endif
+ 	return memblock_is_map_memory(addr);
+ }
 -- 
 2.30.1
 
