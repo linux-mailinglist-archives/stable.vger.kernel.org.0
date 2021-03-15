@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0509933B8F3
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0181F33BA13
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234731AbhCOOE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S229648AbhCOOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232151AbhCON6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0064264F38;
-        Mon, 15 Mar 2021 13:58:31 +0000 (UTC)
+        id S233723AbhCOOCW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D3E64EF3;
+        Mon, 15 Mar 2021 14:02:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816713;
-        bh=f+o1AMYCHacmqHLrAENwRc2ZmliogSAderchS9BeCKo=;
+        s=korg; t=1615816941;
+        bh=198ZG1tjpE0eJK8e0iIWR6GPw4Ku9YEGd3F79jUu4mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4eTLcgFSFnYmjM5CVZWNciS60xEGRgaU8UkPflysJ57rcOm4QeNsvjLx6gTz/WwD
-         +MzZ1f0yk4AVVw6mzg8YIygva6VNCuzpq5IIkTaywHz33oraudb8ZKnb+5vQBDou5F
-         PdH0g/1he/GfW+7L/gGymutlkb3LGMH1vvgPsIgs=
+        b=AWfC0o80CkgYi2ZUC5VYP8gzxjgcSPSTJ9NPI+53d3awzGl/t9yW3tqr/ymzHy9my
+         gpdQoYzvCkAmIwMbQ6tau18dFF5jNS1toM3Y5utD/dWEYKm01l8H8SMa0SBgPJFRHp
+         AU+1D+pQj27ybnjdPpCX68EMGC+BNBsdWa4Sb7vc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/168] i2c: rcar: faster irq code to minimize HW race condition
+        stable@vger.kernel.org, Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Subject: [PATCH 5.10 201/290] usb: gadget: f_uac1: stop playback on function disable
 Date:   Mon, 15 Mar 2021 14:54:54 +0100
-Message-Id: <20210315135552.408449230@linuxfoundation.org>
+Message-Id: <20210315135548.709145884@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit c7b514ec979e23a08c411f3d8ed39c7922751422 ]
+commit cc2ac63d4cf72104e0e7f58bb846121f0f51bb19 upstream.
 
-To avoid the HW race condition on R-Car Gen2 and earlier, we need to
-write to ICMCR as soon as possible in the interrupt handler. We can
-improve this by writing a static value instead of masking out bits.
+There is missing playback stop/cleanup in case of
+gadget's ->disable callback that happens on
+events like USB host resetting or gadget disconnection
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
+Cc: <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-3-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-rcar.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/usb/gadget/function/f_uac1.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 9c162a01a584..9d54ae935524 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -89,7 +89,6 @@
+--- a/drivers/usb/gadget/function/f_uac1.c
++++ b/drivers/usb/gadget/function/f_uac1.c
+@@ -499,6 +499,7 @@ static void f_audio_disable(struct usb_f
+ 	uac1->as_out_alt = 0;
+ 	uac1->as_in_alt = 0;
  
- #define RCAR_BUS_PHASE_START	(MDBS | MIE | ESG)
- #define RCAR_BUS_PHASE_DATA	(MDBS | MIE)
--#define RCAR_BUS_MASK_DATA	(~(ESG | FSB) & 0xFF)
- #define RCAR_BUS_PHASE_STOP	(MDBS | MIE | FSB)
++	u_audio_stop_playback(&uac1->g_audio);
+ 	u_audio_stop_capture(&uac1->g_audio);
+ }
  
- #define RCAR_IRQ_SEND	(MNR | MAL | MST | MAT | MDE)
-@@ -616,7 +615,7 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- /*
-  * This driver has a lock-free design because there are IP cores (at least
-  * R-Car Gen2) which have an inherent race condition in their hardware design.
-- * There, we need to clear RCAR_BUS_MASK_DATA bits as soon as possible after
-+ * There, we need to switch to RCAR_BUS_PHASE_DATA as soon as possible after
-  * the interrupt was generated, otherwise an unwanted repeated message gets
-  * generated. It turned out that taking a spinlock at the beginning of the ISR
-  * was already causing repeated messages. Thus, this driver was converted to
-@@ -625,13 +624,11 @@ static bool rcar_i2c_slave_irq(struct rcar_i2c_priv *priv)
- static irqreturn_t rcar_i2c_irq(int irq, void *ptr)
- {
- 	struct rcar_i2c_priv *priv = ptr;
--	u32 msr, val;
-+	u32 msr;
- 
- 	/* Clear START or STOP immediately, except for REPSTART after read */
--	if (likely(!(priv->flags & ID_P_REP_AFTER_RD))) {
--		val = rcar_i2c_read(priv, ICMCR);
--		rcar_i2c_write(priv, ICMCR, val & RCAR_BUS_MASK_DATA);
--	}
-+	if (likely(!(priv->flags & ID_P_REP_AFTER_RD)))
-+		rcar_i2c_write(priv, ICMCR, RCAR_BUS_PHASE_DATA);
- 
- 	msr = rcar_i2c_read(priv, ICMSR);
- 
--- 
-2.30.1
-
 
 
