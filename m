@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B82E933B7CF
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C287033B8DE
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232419AbhCOOBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S232328AbhCOOEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232761AbhCON7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 432C364F17;
-        Mon, 15 Mar 2021 13:59:25 +0000 (UTC)
+        id S232976AbhCOOA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0CE764F40;
+        Mon, 15 Mar 2021 14:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816766;
-        bh=1+oiQI9T+BEZ7+cq5WdB+SVZL/j02OZ6fOiHXpw0xMY=;
+        s=korg; t=1615816801;
+        bh=8Ot3fnhF37NWp6SS6AiQuMpnw4SuJYw28xAlGF+me/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqRYMX1HqE3MYE1Ag60mIzD9QSgRHfUEmbWxh/rVrqwPMbNI/nuks7/PLu3NtNLMf
-         0BhjBwwjZHbhZDVOGop27NnC3o4t6kIHfJk+W6/h4ZxL2qapD86RqCxAziD9+iLcU/
-         37vS8B5hFfMGtsQKeV22yr1jnSTapaL4EVE2Eqno=
+        b=XEZl7zBeASVfBVwp9m4Qc0vNW5wEXAlIOqf9U9yM6bV8F0a9DBt+VdpMmkJnIqY88
+         6n6Fo40voGaEk8PSbZnzMqWLAUR8EW3FTZG0dZq7xXFddZili34XZEAIqFvRxC0D9o
+         6w53cq3mtDlMcMu+/C8E6Forsdv78Yrvt4cIJn0Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 102/290] media: usbtv: Fix deadlock on suspend
-Date:   Mon, 15 Mar 2021 14:53:15 +0100
-Message-Id: <20210315135545.366669444@linuxfoundation.org>
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 133/306] mmc: sdhci-iproc: Add ACPI bindings for the RPi
+Date:   Mon, 15 Mar 2021 14:53:16 +0100
+Message-Id: <20210315135512.147381673@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +43,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-commit 8a7e27fd5cd696ba564a3f62cedef7269cfd0723 upstream.
+[ Upstream commit 4f9833d3ec8da34861cd0680b00c73e653877eb9 ]
 
-usbtv doesn't support power management, so on system suspend the
-.disconnect callback of the driver is called. The teardown sequence
-includes a call to snd_card_free. Its implementation waits until the
-refcount of the sound card device drops to zero, however, if its file is
-open, snd_card_file_add takes a reference, which can't be dropped during
-the suspend, because the userspace processes are already frozen at this
-point. snd_card_free waits for completion forever, leading to a hang on
-suspend.
+The RPi4 has an Arasan controller it carries over from the RPi3 and a newer
+eMMC2 controller.  Because of a couple of quirks, it seems wiser to bind
+these controllers to the same driver that DT is using on this platform
+rather than the generic sdhci_acpi driver with PNP0D40.
 
-This commit fixes this deadlock condition by replacing snd_card_free
-with snd_card_free_when_closed, that doesn't wait until all references
-are released, allowing suspend to progress.
+So, BCM2847 describes the older Arasan and BRCME88C describes the newer
+eMMC2. The older Arasan is reusing an existing ACPI _HID used by other OSes
+booting these tables on the RPi.
 
-Fixes: 63ddf68de52e ("[media] usbtv: add audio support")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+With this change, Linux is capable of utilizing the SD card slot, and the
+Wi-Fi when booted with UEFI+ACPI on the RPi4.
+
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210120000406.1843400-2-jeremy.linton@arm.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/usbtv/usbtv-audio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-iproc.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/media/usb/usbtv/usbtv-audio.c
-+++ b/drivers/media/usb/usbtv/usbtv-audio.c
-@@ -371,7 +371,7 @@ void usbtv_audio_free(struct usbtv *usbt
- 	cancel_work_sync(&usbtv->snd_trigger);
+diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
+index c9434b461aab..ddeaf8e1f72f 100644
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -296,9 +296,27 @@ static const struct of_device_id sdhci_iproc_of_match[] = {
+ MODULE_DEVICE_TABLE(of, sdhci_iproc_of_match);
  
- 	if (usbtv->snd && usbtv->udev) {
--		snd_card_free(usbtv->snd);
-+		snd_card_free_when_closed(usbtv->snd);
- 		usbtv->snd = NULL;
- 	}
- }
+ #ifdef CONFIG_ACPI
++/*
++ * This is a duplicate of bcm2835_(pltfrm_)data without caps quirks
++ * which are provided by the ACPI table.
++ */
++static const struct sdhci_pltfm_data sdhci_bcm_arasan_data = {
++	.quirks = SDHCI_QUIRK_BROKEN_CARD_DETECTION |
++		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
++	.ops = &sdhci_iproc_32only_ops,
++};
++
++static const struct sdhci_iproc_data bcm_arasan_data = {
++	.pdata = &sdhci_bcm_arasan_data,
++};
++
+ static const struct acpi_device_id sdhci_iproc_acpi_ids[] = {
+ 	{ .id = "BRCM5871", .driver_data = (kernel_ulong_t)&iproc_cygnus_data },
+ 	{ .id = "BRCM5872", .driver_data = (kernel_ulong_t)&iproc_data },
++	{ .id = "BCM2847",  .driver_data = (kernel_ulong_t)&bcm_arasan_data },
++	{ .id = "BRCME88C", .driver_data = (kernel_ulong_t)&bcm2711_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(acpi, sdhci_iproc_acpi_ids);
+-- 
+2.30.1
+
 
 
