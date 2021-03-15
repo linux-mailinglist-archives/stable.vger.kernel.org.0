@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC75133B856
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB02033B8C8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233965AbhCOOCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S234603AbhCOOE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232841AbhCOOAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3095764F23;
-        Mon, 15 Mar 2021 13:59:29 +0000 (UTC)
+        id S233074AbhCOOAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7648F64EF2;
+        Mon, 15 Mar 2021 14:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816770;
-        bh=bZ61Lsc6miP6if/nFdb1yLtUkD/FCo2g9VgZgGoIQgc=;
+        s=korg; t=1615816820;
+        bh=rmXW1BrrexEFnDJF9MaWbYvftiMtUytwwrL7bvFJhVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Yn01rkbcEMmCOVcS3bI2ahg0U+SHob9vAUs0Mj92OfxCxmGqCrmiRSnLivBRAOnZ
-         Ul5xoDAjshouSoMkx8Hv6nxE6bjoV8uBHKxtqhyx8jKMS/O2xcCrMxBBUSyAPw31t7
-         enD9Q5SUaIOoJR400ZVB3iC5Q26er1qVGuXiore8=
+        b=bjYAQaLkfH6NbJ7e86+g5cUaA3BhWyvWlbrvVbzmgvn08ba7MAmU1tebLUeY7ppBq
+         GDvVvCdUf4OajuWkSeQo3vhaaK3RBZBDYcmN8V6SoUeWwVONRpP+RuLBzeZTaSZt+k
+         BXP/mRoKkOCocjJ4NrwaNeZCTpgZuaYfTY8jKoNY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yorick de Wid <ydewid@gmail.com>
-Subject: [PATCH 4.14 49/95] Goodix Fingerprint device is not a modem
-Date:   Mon, 15 Mar 2021 14:57:19 +0100
-Message-Id: <20210315135741.887945440@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 089/120] staging: rtl8192u: fix ->ssid overflow in r8192_wx_set_scan()
+Date:   Mon, 15 Mar 2021 14:57:20 +0100
+Message-Id: <20210315135722.883689101@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yorick de Wid <ydewid@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 4d8654e81db7346f915eca9f1aff18f385cab621 upstream.
+commit 87107518d7a93fec6cdb2559588862afeee800fb upstream.
 
-The CDC ACM driver is false matching the Goodix Fingerprint device
-against the USB_CDC_ACM_PROTO_AT_V25TER.
+We need to cap len at IW_ESSID_MAX_SIZE (32) to avoid memory corruption.
+This can be controlled by the user via the ioctl.
 
-The Goodix Fingerprint device is a biometrics sensor that should be
-handled in user-space. libfprint has some support for Goodix
-fingerprint sensors, although not for this particular one. It is
-possible that the vendor allocates a PID per OEM (Lenovo, Dell etc).
-If this happens to be the case then more devices from the same vendor
-could potentially match the ACM modem module table.
-
-Signed-off-by: Yorick de Wid <ydewid@gmail.com>
+Fixes: 5f53d8ca3d5d ("Staging: add rtl8192SU wireless usb driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210213144901.53199-1-ydewid@gmail.com
+Link: https://lore.kernel.org/r/YEHoAWMOSZBUw91F@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/staging/rtl8192u/r8192U_wx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1986,6 +1986,11 @@ static const struct usb_device_id acm_id
- 	.driver_info = SEND_ZERO_PACKET,
- 	},
+--- a/drivers/staging/rtl8192u/r8192U_wx.c
++++ b/drivers/staging/rtl8192u/r8192U_wx.c
+@@ -333,8 +333,10 @@ static int r8192_wx_set_scan(struct net_
+ 		struct iw_scan_req *req = (struct iw_scan_req *)b;
  
-+	/* Exclude Goodix Fingerprint Reader */
-+	{ USB_DEVICE(0x27c6, 0x5395),
-+	.driver_info = IGNORE_DEVICE,
-+	},
+ 		if (req->essid_len) {
+-			ieee->current_network.ssid_len = req->essid_len;
+-			memcpy(ieee->current_network.ssid, req->essid, req->essid_len);
++			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
 +
- 	/* control interfaces without any protocol set */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
- 		USB_CDC_PROTO_NONE) },
++			ieee->current_network.ssid_len = len;
++			memcpy(ieee->current_network.ssid, req->essid, len);
+ 		}
+ 	}
+ 
 
 
