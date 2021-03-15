@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0939033B722
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC88233B5D1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbhCON7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S230454AbhCONz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232165AbhCON6Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9544264F4A;
-        Mon, 15 Mar 2021 13:58:21 +0000 (UTC)
+        id S231660AbhCONzD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:55:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A15D064EB6;
+        Mon, 15 Mar 2021 13:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816703;
-        bh=98MF8/ODNy3scW7fgMkNaWKxFbnVN2mLF74ZaQb+7E0=;
+        s=korg; t=1615816503;
+        bh=l69FUftW8NIve7NEWCJlehUULKtIpdKpxh9a8jGzzag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVjXs9Wvn23JpbedzeIcYmPwLk7L5NBttdmPrxtyIJeOqYdX98pa9LH8ROm5LRaK/
-         d1WyIiP+xnfmZUcwMm4JIxRWNXyksJRIpV5/2MMc7qsVsB9DhhjLJ0ytZMSyMnksiW
-         BR0aR2GmdDIixVQyB1LFERE1e6o6XFr3GQmZVPJ4=
+        b=Ft/kQvJwp3IiuyU3wviaGcfKwf0v77Ieb3uYH+Jjxp/epLz0zF1jxeWNevUDQv54T
+         +bNzxRst1J2NllkUEc6qC1STaK1JINtRoDy2Kph6uD3nwisA0JC40LeUX/2CqxRUJ9
+         pTSuVmrvy6651HoDMa185W7HXFT2BCm3p51PIhAE=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antonio Terceiro <antonio.terceiro@linaro.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        He Zhe <zhe.he@windriver.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.10 065/290] perf build: Fix ccache usage in $(CC) when generating arch errno table
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 4.9 75/78] iio: imu: adis16400: fix memory leak
 Date:   Mon, 15 Mar 2021 14:52:38 +0100
-Message-Id: <20210315135544.109381805@linuxfoundation.org>
+Message-Id: <20210315135214.517438267@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Antonio Terceiro <antonio.terceiro@linaro.org>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-commit dacfc08dcafa7d443ab339592999e37bbb8a3ef0 upstream.
+commit 9c0530e898f384c5d279bfcebd8bb17af1105873 upstream.
 
-This was introduced by commit e4ffd066ff440a57 ("perf: Normalize gcc
-parameter when generating arch errno table").
+In adis_update_scan_mode_burst, if adis->buffer allocation fails release
+the adis->xfer.
 
-Assuming the first word of $(CC) is the actual compiler breaks usage
-like CC="ccache gcc": the script ends up calling ccache directly with
-gcc arguments, what fails. Instead of getting the first word, just
-remove from $(CC) any word that starts with a "-". This maintains the
-spirit of the original patch, while not breaking ccache users.
-
-Fixes: e4ffd066ff440a57 ("perf: Normalize gcc parameter when generating arch errno table")
-Signed-off-by: Antonio Terceiro <antonio.terceiro@linaro.org>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: He Zhe <zhe.he@windriver.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210224130046.346977-1-antonio.terceiro@linaro.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[krzk: backport applied to adis16400_buffer.c instead of adis_buffer.c]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/Makefile.perf |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/imu/adis16400_buffer.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -600,7 +600,7 @@ arch_errno_hdr_dir := $(srctree)/tools
- arch_errno_tbl := $(srctree)/tools/perf/trace/beauty/arch_errno_names.sh
+--- a/drivers/iio/imu/adis16400_buffer.c
++++ b/drivers/iio/imu/adis16400_buffer.c
+@@ -37,8 +37,11 @@ int adis16400_update_scan_mode(struct ii
+ 		return -ENOMEM;
  
- $(arch_errno_name_array): $(arch_errno_tbl)
--	$(Q)$(SHELL) '$(arch_errno_tbl)' $(firstword $(CC)) $(arch_errno_hdr_dir) > $@
-+	$(Q)$(SHELL) '$(arch_errno_tbl)' '$(patsubst -%,,$(CC))' $(arch_errno_hdr_dir) > $@
+ 	adis->buffer = kzalloc(burst_length + sizeof(u16), GFP_KERNEL);
+-	if (!adis->buffer)
++	if (!adis->buffer) {
++		kfree(adis->xfer);
++		adis->xfer = NULL;
+ 		return -ENOMEM;
++	}
  
- sync_file_range_arrays := $(beauty_outdir)/sync_file_range_arrays.c
- sync_file_range_tbls := $(srctree)/tools/perf/trace/beauty/sync_file_range.sh
+ 	tx = adis->buffer + burst_length;
+ 	tx[0] = ADIS_READ_REG(ADIS16400_GLOB_CMD);
 
 
