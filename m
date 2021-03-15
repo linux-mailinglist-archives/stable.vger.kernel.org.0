@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E8E33B60C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 659D133B60A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229939AbhCON5D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33084 "EHLO mail.kernel.org"
+        id S230409AbhCON5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230284AbhCON40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BFF464EF3;
-        Mon, 15 Mar 2021 13:56:23 +0000 (UTC)
+        id S231925AbhCON41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73EA164EFD;
+        Mon, 15 Mar 2021 13:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816585;
-        bh=70AUbpV9tK0YhOrcRgrP7R9s4mmDAQNs1J8jxcriaI8=;
+        s=korg; t=1615816586;
+        bh=dyFux2b2LyDMCXe/IMqQ3EfGFCXl+2a5DzNiD2gn5G0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0ZHcszr2wp/YoR9E3hyHjTZlR01Ec7GH7nx6AZUVrtL0MV4sA+1HmmIt9aympKCV
-         cl5NV0iTxaSZe9aJi2/4ZxXq6P1pIMyVXcexc5MnPmXirAvtCGsPYnqUMggFwoOWaO
-         SnAwV5VtpdNQdbCKaquVXA5AtggxUHTmD/DnD+lk=
+        b=0t6gP978ISpAj9tCduL5YiGJANRS/gIBqabHtW0al2MnBjgrlFkiCezuc2nfLcku+
+         FRdoXt8PWwHOLkIuk6GuxBETqpPzbfQ4SSnPV1HB4Jp85qLwNfncHihc6UHz/vu/d8
+         BfKL14WxNWSvepvxLv1oVk4+YOBDGDhyiQwRwdp4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 005/306] ethernet: alx: fix order of calls on resume
-Date:   Mon, 15 Mar 2021 14:51:08 +0100
-Message-Id: <20210315135507.804938583@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.11 006/306] crypto: mips/poly1305 - enable for all MIPS processors
+Date:   Mon, 15 Mar 2021 14:51:09 +0100
+Message-Id: <20210315135507.836410524@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -42,68 +42,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
+commit 6c810cf20feef0d4338e9b424ab7f2644a8b353e upstream.
 
-netif_device_attach() will unpause the queues so we can't call
-it before __alx_open(). This went undetected until
-commit b0999223f224 ("alx: add ability to allocate and free
-alx_napi structures") but now if stack tries to xmit immediately
-on resume before __alx_open() we'll crash on the NAPI being null:
+The MIPS Poly1305 implementation is generic MIPS code written such as to
+support down to the original MIPS I and MIPS III ISA for the 32-bit and
+64-bit variant respectively.  Lift the current limitation then to enable
+code for MIPSr1 ISA or newer processors only and have it available for
+all MIPS processors.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000198
- CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
- Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
- RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
- Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
-0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
- RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
- RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
- RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
- RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
- R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
- R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
- FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
- i915 0000:00:02.0: vblank wait timed out on crtc 0
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
- Call Trace:
-  dev_hard_start_xmit+0xc7/0x1e0
-  sch_direct_xmit+0x10f/0x310
-
-Cc: <stable@vger.kernel.org> # 4.9+
-Fixes: bc2bebe8de8e ("alx: remove WoL support")
-Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: a11d055e7a64 ("crypto: mips/poly1305 - incorporate OpenSSL/CRYPTOGAMS optimized implementation")
+Cc: stable@vger.kernel.org # v5.5+
+Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/mips/crypto/Makefile |    4 ++--
+ crypto/Kconfig            |    2 +-
+ drivers/net/Kconfig       |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -1894,13 +1894,16 @@ static int alx_resume(struct device *dev
+--- a/arch/mips/crypto/Makefile
++++ b/arch/mips/crypto/Makefile
+@@ -12,8 +12,8 @@ AFLAGS_chacha-core.o += -O2 # needed to
+ obj-$(CONFIG_CRYPTO_POLY1305_MIPS) += poly1305-mips.o
+ poly1305-mips-y := poly1305-core.o poly1305-glue.o
  
- 	if (!netif_running(alx->dev))
- 		return 0;
--	netif_device_attach(alx->dev);
+-perlasm-flavour-$(CONFIG_CPU_MIPS32) := o32
+-perlasm-flavour-$(CONFIG_CPU_MIPS64) := 64
++perlasm-flavour-$(CONFIG_32BIT) := o32
++perlasm-flavour-$(CONFIG_64BIT) := 64
  
- 	rtnl_lock();
- 	err = __alx_open(alx, true);
- 	rtnl_unlock();
-+	if (err)
-+		return err;
-+
-+	netif_device_attach(alx->dev);
+ quiet_cmd_perlasm = PERLASM $@
+       cmd_perlasm = $(PERL) $(<) $(perlasm-flavour-y) $(@)
+--- a/crypto/Kconfig
++++ b/crypto/Kconfig
+@@ -772,7 +772,7 @@ config CRYPTO_POLY1305_X86_64
  
--	return err;
-+	return 0;
- }
+ config CRYPTO_POLY1305_MIPS
+ 	tristate "Poly1305 authenticator algorithm (MIPS optimized)"
+-	depends on CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
++	depends on MIPS
+ 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
  
- static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
+ config CRYPTO_MD4
+--- a/drivers/net/Kconfig
++++ b/drivers/net/Kconfig
+@@ -92,7 +92,7 @@ config WIREGUARD
+ 	select CRYPTO_POLY1305_ARM if ARM
+ 	select CRYPTO_CURVE25519_NEON if ARM && KERNEL_MODE_NEON
+ 	select CRYPTO_CHACHA_MIPS if CPU_MIPS32_R2
+-	select CRYPTO_POLY1305_MIPS if CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
++	select CRYPTO_POLY1305_MIPS if MIPS
+ 	help
+ 	  WireGuard is a secure, fast, and easy to use replacement for IPSec
+ 	  that uses modern cryptography and clever networking tricks. It's
 
 
