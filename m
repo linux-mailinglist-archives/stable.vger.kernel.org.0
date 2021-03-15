@@ -2,34 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC95B33BA58
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D8F433BA7E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235649AbhCOOI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49638 "EHLO mail.kernel.org"
+        id S233516AbhCOOJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234357AbhCOODQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5091164E83;
-        Mon, 15 Mar 2021 14:03:15 +0000 (UTC)
+        id S231781AbhCOODw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8D9B64F02;
+        Mon, 15 Mar 2021 14:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816996;
-        bh=jXmsmJ53SzD4UnqQjC8pqBIu+n78DV1VH/uxOqQKBCI=;
+        s=korg; t=1615817031;
+        bh=1cpXjPpo4Z5OBCeVk7aKUYLS5wTG3/dSdIXOKFik8Zg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=slNT9CmwrnqQt6xfrXY1qYQxGkJfoZ2LBhkqZ8BH+zG5QXbsXKOZOHvbUOkEshcM1
-         zgdOTcFqt4yJ4u71NYpJlDRwsNPjVak2wsBFw3Y6OLfD9XWFAHXhL8j266F2UFV0M5
-         pe8QlI5Sh883wGlL2iCk4iKBaKhA0TpySQLE0f8s=
+        b=FFPYjRbb/dxdWXKE9eCDERImmA9FBdFQAyVcylZIZiBIJsrxlod+qyC+LkHFG34WT
+         jijabTZb4gBsgLvTL/FKj74ElT1C9E/sWn7GRziKpVmxQoSck1UvX2YGlrLBLxITqx
+         tNIVcyz70cbyHxrheohYLrY2QDrX/a3qVfjAAWNw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 237/290] staging: comedi: dmm32at: Fix endian problem for AI command data
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 267/306] include/linux/sched/mm.h: use rcu_dereference in in_vfork()
 Date:   Mon, 15 Mar 2021 14:55:30 +0100
-Message-Id: <20210315135549.991767452@linuxfoundation.org>
+Message-Id: <20210315135516.668510601@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +46,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 54999c0d94b3c26625f896f8e3460bc029821578 upstream.
+[ Upstream commit 149fc787353f65b7e72e05e7b75d34863266c3e2 ]
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the call to
-`comedi_buf_write_samples()` is passing the address of a 32-bit integer
-variable.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the variable
-holding the sample value to `unsigned short`.
+Fix a sparse warning by using rcu_dereference().  Technically this is a
+bug and a sufficiently aggressive compiler could reload the `real_parent'
+pointer outside the protection of the rcu lock (and access freed memory),
+but I think it's pretty unlikely to happen.
 
-[Note: the bug was introduced in commit 1700529b24cc ("staging: comedi:
-dmm32at: use comedi_buf_write_samples()") but the patch applies better
-to the later (but in the same kernel release) commit 0c0eadadcbe6e
-("staging: comedi: dmm32at: introduce dmm32_ai_get_sample()").]
-
-Fixes: 0c0eadadcbe6e ("staging: comedi: dmm32at: introduce dmm32_ai_get_sample()")
-Cc: <stable@vger.kernel.org> # 3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-7-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210221194207.1351703-1-willy@infradead.org
+Fixes: b18dc5f291c0 ("mm, oom: skip vforked tasks from being selected")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/dmm32at.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/sched/mm.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/dmm32at.c
-+++ b/drivers/staging/comedi/drivers/dmm32at.c
-@@ -404,7 +404,7 @@ static irqreturn_t dmm32at_isr(int irq,
- {
- 	struct comedi_device *dev = d;
- 	unsigned char intstat;
--	unsigned int val;
-+	unsigned short val;
- 	int i;
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 1ae08b8462a4..90b2a0bce11c 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -140,7 +140,8 @@ static inline bool in_vfork(struct task_struct *tsk)
+ 	 * another oom-unkillable task does this it should blame itself.
+ 	 */
+ 	rcu_read_lock();
+-	ret = tsk->vfork_done && tsk->real_parent->mm == tsk->mm;
++	ret = tsk->vfork_done &&
++			rcu_dereference(tsk->real_parent)->mm == tsk->mm;
+ 	rcu_read_unlock();
  
- 	if (!dev->attached) {
+ 	return ret;
+-- 
+2.30.1
+
 
 
