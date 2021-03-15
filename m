@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA09633B7EE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EC0E33B83D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233469AbhCOOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S233845AbhCOOCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232500AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DEE864F37;
-        Mon, 15 Mar 2021 13:59:17 +0000 (UTC)
+        id S232050AbhCOOAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D6BA64F6C;
+        Mon, 15 Mar 2021 13:59:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816758;
-        bh=a77GqLSXsGmp8xbkH5T6Phr1hqd34GJGS40ghwUy/FM=;
+        s=korg; t=1615816792;
+        bh=ka+VR+x+eTKMjtnL29ms605xL/Zc6Y/olRdV1ddsA0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OSB1wpWBonPuxC+T0NPvUBgF6Q8fWXrgyqU2R0r4dYXQTZ2PNyNGYoQBNIFtNXS+i
-         VzqDMhgsSbYyEkiAm4L61CCg+cGj5lHuZD3d8XtigtZfe64T1w4sJqa6ktPIdj5LNd
-         w2sEu9NLqtA9gtkw3/hZmwaAyzO6rfz1iLkA1rKQ=
+        b=0uWTjmCC2LL5TBmmw+NA5dloRbOw10xQ+Welycm4Zqk29e72SM2jjc25DVtH5sXJ6
+         BubiYc3SRXSLm1eTVqhQncwrTni+K9/Tx00q3FYe4LP4ygZcanDdzizfpwg9XXmwSZ
+         HH/rUmqb3L4ExPm8em8gMfDBPWjn2mjejb5UO0fY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Dave Airlie <airlied@redhat.com>
-Subject: [PATCH 5.10 097/290] drm/i915: Wedge the GPU if command parser setup fails
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 127/306] scsi: ufs: WB is only available on LUN #0 to #7
 Date:   Mon, 15 Mar 2021 14:53:10 +0100
-Message-Id: <20210315135545.196139488@linuxfoundation.org>
+Message-Id: <20210315135511.954863594@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,138 +43,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit a829f033e966d5e4aa27c3ef2b381f51734e4a7f upstream.
+[ Upstream commit a2fca52ee640a04112ed9d9a137c940ea6ad288e ]
 
-Commit 311a50e76a33 ("drm/i915: Add support for mandatory cmdparsing")
-introduced mandatory command parsing but setup failures were not
-translated into wedging the GPU which was probably the intent.
+Kernel stack violation when getting unit_descriptor/wb_buf_alloc_units from
+rpmb LUN. The reason is that the unit descriptor length is different per
+LU.
 
-Possible errors come in two categories. Either the sanity check on
-internal tables has failed, which should be caught in CI unless an
-affected platform would be missed in testing; or memory allocation failure
-happened during driver load, which should be extremely unlikely but for
-correctness should still be handled.
+The length of Normal LU is 45 while the one of rpmb LU is 35.
 
-v2:
- * Tidy coding style. (Chris)
+int ufshcd_read_desc_param(struct ufs_hba *hba, ...)
+{
+	param_offset=41;
+	param_size=4;
+	buff_len=45;
+	...
+	buff_len=35 by rpmb LU;
 
-[airlied: cherry-picked to avoid rc1 base]
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: 311a50e76a33 ("drm/i915: Add support for mandatory cmdparsing")
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Chris Wilson <chris.p.wilson@intel.com>
-Reviewed-by: Chris Wilson <chris.p.wilson@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210302114213.1102223-1-tvrtko.ursulin@linux.intel.com
-(cherry picked from commit 5a1a659762d35a6dc51047c9127c011303c77b7f)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	if (is_kmalloc) {
+		/* Make sure we don't copy more data than available */
+		if (param_offset + param_size > buff_len)
+			param_size = buff_len - param_offset;
+			--> param_size = 250;
+		memcpy(param_read_buf, &desc_buf[param_offset], param_size);
+		--> memcpy(param_read_buf, desc_buf+41, 250);
+
+[  141.868974][ T9174] Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: wb_buf_alloc_units_show+0x11c/0x11c
+	}
+}
+
+Link: https://lore.kernel.org/r/20210111095927.1830311-1-jaegeuk@kernel.org
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_engine_cs.c |    7 ++++++-
- drivers/gpu/drm/i915/i915_cmd_parser.c    |   19 +++++++++++++------
- drivers/gpu/drm/i915/i915_drv.h           |    2 +-
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/scsi/ufs/ufs-sysfs.c | 3 ++-
+ drivers/scsi/ufs/ufs.h       | 6 ++++--
+ drivers/scsi/ufs/ufshcd.c    | 2 +-
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -708,9 +708,12 @@ static int engine_setup_common(struct in
- 		goto err_status;
- 	}
- 
-+	err = intel_engine_init_cmd_parser(engine);
-+	if (err)
-+		goto err_cmd_parser;
-+
- 	intel_engine_init_active(engine, ENGINE_PHYSICAL);
- 	intel_engine_init_execlists(engine);
--	intel_engine_init_cmd_parser(engine);
- 	intel_engine_init__pm(engine);
- 	intel_engine_init_retire(engine);
- 
-@@ -724,6 +727,8 @@ static int engine_setup_common(struct in
- 
- 	return 0;
- 
-+err_cmd_parser:
-+	intel_breadcrumbs_free(engine->breadcrumbs);
- err_status:
- 	cleanup_status_page(engine);
- 	return err;
---- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-+++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-@@ -939,7 +939,7 @@ static void fini_hash_table(struct intel
-  * struct intel_engine_cs based on whether the platform requires software
-  * command parsing.
+diff --git a/drivers/scsi/ufs/ufs-sysfs.c b/drivers/scsi/ufs/ufs-sysfs.c
+index 08e72b7eef6a..50e90416262b 100644
+--- a/drivers/scsi/ufs/ufs-sysfs.c
++++ b/drivers/scsi/ufs/ufs-sysfs.c
+@@ -792,7 +792,8 @@ static ssize_t _pname##_show(struct device *dev,			\
+ 	struct scsi_device *sdev = to_scsi_device(dev);			\
+ 	struct ufs_hba *hba = shost_priv(sdev->host);			\
+ 	u8 lun = ufshcd_scsi_to_upiu_lun(sdev->lun);			\
+-	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun))		\
++	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun,		\
++				_duname##_DESC_PARAM##_puname))		\
+ 		return -EINVAL;						\
+ 	return ufs_sysfs_read_desc_param(hba, QUERY_DESC_IDN_##_duname,	\
+ 		lun, _duname##_DESC_PARAM##_puname, buf, _size);	\
+diff --git a/drivers/scsi/ufs/ufs.h b/drivers/scsi/ufs/ufs.h
+index 14dfda735adf..580aa56965d0 100644
+--- a/drivers/scsi/ufs/ufs.h
++++ b/drivers/scsi/ufs/ufs.h
+@@ -552,13 +552,15 @@ struct ufs_dev_info {
+  * @return: true if the lun has a matching unit descriptor, false otherwise
   */
--void intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
-+int intel_engine_init_cmd_parser(struct intel_engine_cs *engine)
+ static inline bool ufs_is_valid_unit_desc_lun(struct ufs_dev_info *dev_info,
+-		u8 lun)
++		u8 lun, u8 param_offset)
  {
- 	const struct drm_i915_cmd_table *cmd_tables;
- 	int cmd_table_count;
-@@ -947,7 +947,7 @@ void intel_engine_init_cmd_parser(struct
- 
- 	if (!IS_GEN(engine->i915, 7) && !(IS_GEN(engine->i915, 9) &&
- 					  engine->class == COPY_ENGINE_CLASS))
--		return;
-+		return 0;
- 
- 	switch (engine->class) {
- 	case RENDER_CLASS:
-@@ -1012,19 +1012,19 @@ void intel_engine_init_cmd_parser(struct
- 		break;
- 	default:
- 		MISSING_CASE(engine->class);
--		return;
-+		goto out;
+ 	if (!dev_info || !dev_info->max_lu_supported) {
+ 		pr_err("Max General LU supported by UFS isn't initialized\n");
+ 		return false;
  	}
- 
- 	if (!validate_cmds_sorted(engine, cmd_tables, cmd_table_count)) {
- 		drm_err(&engine->i915->drm,
- 			"%s: command descriptions are not sorted\n",
- 			engine->name);
--		return;
-+		goto out;
- 	}
- 	if (!validate_regs_sorted(engine)) {
- 		drm_err(&engine->i915->drm,
- 			"%s: registers are not sorted\n", engine->name);
--		return;
-+		goto out;
- 	}
- 
- 	ret = init_hash_table(engine, cmd_tables, cmd_table_count);
-@@ -1032,10 +1032,17 @@ void intel_engine_init_cmd_parser(struct
- 		drm_err(&engine->i915->drm,
- 			"%s: initialised failed!\n", engine->name);
- 		fini_hash_table(engine);
--		return;
-+		goto out;
- 	}
- 
- 	engine->flags |= I915_ENGINE_USING_CMD_PARSER;
-+
-+out:
-+	if (intel_engine_requires_cmd_parser(engine) &&
-+	    !intel_engine_using_cmd_parser(engine))
-+		return -EINVAL;
-+
-+	return 0;
+-
++	/* WB is available only for the logical unit from 0 to 7 */
++	if (param_offset == UNIT_DESC_PARAM_WB_BUF_ALLOC_UNITS)
++		return lun < UFS_UPIU_MAX_WB_LUN_ID;
+ 	return lun == UFS_UPIU_RPMB_WLUN || (lun < dev_info->max_lu_supported);
  }
  
- /**
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -1946,7 +1946,7 @@ const char *i915_cache_level_str(struct
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 428b9e0ac47e..a568f7ae0566 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -3427,7 +3427,7 @@ static inline int ufshcd_read_unit_desc_param(struct ufs_hba *hba,
+ 	 * Unit descriptors are only available for general purpose LUs (LUN id
+ 	 * from 0 to 7) and RPMB Well known LU.
+ 	 */
+-	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun))
++	if (!ufs_is_valid_unit_desc_lun(&hba->dev_info, lun, param_offset))
+ 		return -EOPNOTSUPP;
  
- /* i915_cmd_parser.c */
- int i915_cmd_parser_get_version(struct drm_i915_private *dev_priv);
--void intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
-+int intel_engine_init_cmd_parser(struct intel_engine_cs *engine);
- void intel_engine_cleanup_cmd_parser(struct intel_engine_cs *engine);
- int intel_engine_cmd_parser(struct intel_engine_cs *engine,
- 			    struct i915_vma *batch,
+ 	return ufshcd_read_desc_param(hba, QUERY_DESC_IDN_UNIT, lun,
+-- 
+2.30.1
+
 
 
