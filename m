@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F99333B903
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4683033B7FA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234630AbhCOOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S231395AbhCOOBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233127AbhCOOAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E20F664F13;
-        Mon, 15 Mar 2021 14:00:08 +0000 (UTC)
+        id S232781AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 321EF64EEF;
+        Mon, 15 Mar 2021 13:59:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816810;
-        bh=6QsA3z8I06ZYH6oCcr108UQjnXDSrmEOYb3taYZi5CA=;
+        s=korg; t=1615816776;
+        bh=6oitWgIH5mIY2SE+wNaQ6r+GtKwh0skbfozHpeWqKuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufj7HvmXk4hMSkm33uB/508xGOP7oWJBhAa4604M4dSyV8BaWxUpAYEn7n68vT2On
-         ohJ7rAs514f+AlmFq22/x9xAQYa9N/a/NXl52Q087aMSp2qcUHUr3eSm218xLePQFn
-         V/WzmEyaWZK8BL1EgRRbQ7h8A4cDdW3xOGB5oXFA=
+        b=gwdakz/8Gn7JJUy8nasTpPbAa9LtHMStKQNnecFdvqaeReUaVuUoqUvW6pSQmhhrv
+         XNlsFSB+UVwLWsdr+uq8w3de0J9zxVuFVcuP2vsdsDpQXRmPh/xbBVqjl54v8Ebd/n
+         YKV0YAn8TZtMwWuc88ZiXLIRBMV9pF8+6V7jO73w=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 138/306] powerpc: improve handling of unrecoverable system reset
+Subject: [PATCH 5.10 108/290] net: hns3: fix error mask definition of flow director
 Date:   Mon, 15 Mar 2021 14:53:21 +0100
-Message-Id: <20210315135512.309857307@linuxfoundation.org>
+Message-Id: <20210315135545.553699274@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +43,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
+[ Upstream commit ae85ddda0f1b341b2d25f5a5e0eff1d42b6ef3df ]
 
-If an unrecoverable system reset hits in process context, the system
-does not have to panic. Similar to machine check, call nmi_exit()
-before die().
+Currently, some bit filed definitions of flow director TCAM
+configuration command are incorrect. Since the wrong MSB is
+always 0, and these fields are assgined in order, so it still works.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
+Fix it by redefine them.
+
+Fixes: 117328680288 ("net: hns3: Add input key and action config support for flow director")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/traps.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 3ec7b443fe6b..4be05517f2db 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -503,8 +503,11 @@ void system_reset_exception(struct pt_regs *regs)
- 		die("Unrecoverable nested System Reset", regs, SIGABRT);
- #endif
- 	/* Must die if the interrupt is not recoverable */
--	if (!(regs->msr & MSR_RI))
-+	if (!(regs->msr & MSR_RI)) {
-+		/* For the reason explained in die_mce, nmi_exit before die */
-+		nmi_exit();
- 		die("Unrecoverable System Reset", regs, SIGABRT);
-+	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 096e26a2e16b..36690fc5c1af 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1031,16 +1031,16 @@ struct hclge_fd_tcam_config_3_cmd {
+ #define HCLGE_FD_AD_DROP_B		0
+ #define HCLGE_FD_AD_DIRECT_QID_B	1
+ #define HCLGE_FD_AD_QID_S		2
+-#define HCLGE_FD_AD_QID_M		GENMASK(12, 2)
++#define HCLGE_FD_AD_QID_M		GENMASK(11, 2)
+ #define HCLGE_FD_AD_USE_COUNTER_B	12
+ #define HCLGE_FD_AD_COUNTER_NUM_S	13
+ #define HCLGE_FD_AD_COUNTER_NUM_M	GENMASK(20, 13)
+ #define HCLGE_FD_AD_NXT_STEP_B		20
+ #define HCLGE_FD_AD_NXT_KEY_S		21
+-#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(26, 21)
++#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(25, 21)
+ #define HCLGE_FD_AD_WR_RULE_ID_B	0
+ #define HCLGE_FD_AD_RULE_ID_S		1
+-#define HCLGE_FD_AD_RULE_ID_M		GENMASK(13, 1)
++#define HCLGE_FD_AD_RULE_ID_M		GENMASK(12, 1)
  
- 	if (saved_hsrrs) {
- 		mtspr(SPRN_HSRR0, hsrr0);
+ struct hclge_fd_ad_config_cmd {
+ 	u8 stage;
 -- 
 2.30.1
 
