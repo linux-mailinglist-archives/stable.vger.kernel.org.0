@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBBA333B9A2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2655C33BA28
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233483AbhCOOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S235013AbhCOOIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233460AbhCOOBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40B8D64F35;
-        Mon, 15 Mar 2021 14:01:34 +0000 (UTC)
+        id S233643AbhCOOCP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3324864EEF;
+        Mon, 15 Mar 2021 14:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816895;
-        bh=AcZvpOfDmIVlxJS5liTO1vkvD80q7FGV+/T9uZpO1Xs=;
+        s=korg; t=1615816924;
+        bh=j/cRpuSaTG/ikfUPjVyiZeucg2SiJvxu/HB5bNElkEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtzwK7Xl+cTYFTu490XawPOcbpItSnzChDy/dc82wPERbMit6vVM0ZvmN4uW3lbhz
-         S4OZJzDchHGWnegyjdTxIRoS5d25G6VJFuSd7tcmwfja2++7lxHtowW0oUZlwDhAPQ
-         kVs7Psnzpz8vxSlbFhlM0XIHMs96uaK1uImxbwIw=
+        b=uWh19LU8MTzQDcCumCBBTpxOz/3FASqwYNsI7v0a651igXsrU1VNhRYdpKes7Doqq
+         yyal/lq+b/bQq6rroHm+mzoDVKDjBuvktqEOc6xneKhKEs99FzQYzdXMVDfnEwUhhD
+         /uviVtyac23upq0jNrAjW+NqV9fd/CH4lB6mLMZw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Simeon Simeonoff <sim.simeonoff@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 174/290] ALSA: hda/ca0132: Add Sound BlasterX AE-5 Plus support
-Date:   Mon, 15 Mar 2021 14:54:27 +0100
-Message-Id: <20210315135547.783481944@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.11 205/306] xhci: Improve detection of device initiated wake signal.
+Date:   Mon, 15 Mar 2021 14:54:28 +0100
+Message-Id: <20210315135514.565777322@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,31 +41,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Simeon Simeonoff <sim.simeonoff@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit f15c5c11abfbf8909eb30598315ecbec2311cfdc upstream.
+commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
 
-The new AE-5 Plus model has a different Subsystem ID compared to the
-non-plus model. Adding the new id to the list of quirks.
+A xHC USB 3 port might miss the first wake signal from a USB 3 device
+if the port LFPS reveiver isn't enabled fast enough after xHC resume.
 
-Signed-off-by: Simeon Simeonoff <sim.simeonoff@gmail.com>
+xHC host will anyway be resumed by a PME# signal, but will go back to
+suspend if no port activity is seen.
+The device resends the U3 LFPS wake signal after a 100ms delay, but
+by then host is already suspended, starting all over from the
+beginning of this issue.
+
+USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
+needs to delay 100ms before resending the wake.
+
+Don't suspend immediately if port activity isn't detected in resume.
+Instead add a retry. If there is no port activity then delay for 120ms,
+and re-check for port activity.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/998cafbe10b648f724ee33570553f2d780a38963.camel@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_ca0132.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -1275,6 +1275,7 @@ static const struct snd_pci_quirk ca0132
- 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
- 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
-+	SND_PCI_QUIRK(0x1102, 0x0191, "Sound Blaster AE-5 Plus", QUIRK_AE5),
- 	SND_PCI_QUIRK(0x1102, 0x0081, "Sound Blaster AE-7", QUIRK_AE7),
- 	{}
- };
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1088,6 +1088,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 	struct usb_hcd		*secondary_hcd;
+ 	int			retval = 0;
+ 	bool			comp_timer_running = false;
++	bool			pending_portevent = false;
+ 
+ 	if (!hcd->state)
+ 		return 0;
+@@ -1226,13 +1227,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
+ 
+  done:
+ 	if (retval == 0) {
+-		/* Resume root hubs only when have pending events. */
+-		if (xhci_pending_portevent(xhci)) {
++		/*
++		 * Resume roothubs only if there are pending events.
++		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
++		 * the first wake signalling failed, give it that chance.
++		 */
++		pending_portevent = xhci_pending_portevent(xhci);
++		if (!pending_portevent) {
++			msleep(120);
++			pending_portevent = xhci_pending_portevent(xhci);
++		}
++
++		if (pending_portevent) {
+ 			usb_hcd_resume_root_hub(xhci->shared_hcd);
+ 			usb_hcd_resume_root_hub(hcd);
+ 		}
+ 	}
+-
+ 	/*
+ 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
+ 	 * be re-initialized Always after a system resume. Ports are subject
 
 
