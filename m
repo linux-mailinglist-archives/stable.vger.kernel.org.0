@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84BA833B6A7
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58EF333B6BA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232347AbhCON61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
+        id S231564AbhCON6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232157AbhCON5w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C725964EF0;
-        Mon, 15 Mar 2021 13:57:50 +0000 (UTC)
+        id S232176AbhCON5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80FC264F46;
+        Mon, 15 Mar 2021 13:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816672;
-        bh=zpNUKK/aPKyGPqxpwHHm0Ond1XIcDiwIFmzE1PWTR9g=;
+        s=korg; t=1615816673;
+        bh=NA7KxTzMwB/3fc+2h+6SWGrMvXG17Xc0AhBUCDyRlew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AAGBxRZ44E3Itw7wHJso4aUK7whqR1XFKdPzegdLiliBSM50E9hihai9RX7PZbxV/
-         JYQLP/L5wx+OVs/MEvfMLUg/9v7tDWlQ8025/8p7N7LMl/STg6HJv8EJi2a4tqjY0k
-         AbMP1hB3I8rmB8/cVE2a1252N+f0JTIKX+VSIEbA=
+        b=OhYQ4ZUG6hYfkFCVQM6TasYGt0iyDQ4Vj3AABy0FzoVy0GjUWmxHoyrrd0CL5E4Kq
+         x/JR6HShI3yCDJVbYsORztX8PE0aCGOn8TZPsfuIkJTeVdn6Z+vqcRd/BhQfkAkuDv
+         XNnuh5Go5d1eGwOdsSq7QndJrbdYBiL8rIqJFNdQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
-        Shannon Nelson <snelson@pensando.io>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 038/168] ixgbe: fail to create xfrm offload of IPsec tunnel mode SA
-Date:   Mon, 15 Mar 2021 14:54:30 +0100
-Message-Id: <20210315135551.598600129@linuxfoundation.org>
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 039/168] net: stmmac: stop each tx channel independently
+Date:   Mon, 15 Mar 2021 14:54:31 +0100
+Message-Id: <20210315135551.631141231@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,53 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Antony Antony <antony@phenome.org>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit d785e1fec60179f534fbe8d006c890e5ad186e51 upstream.
+commit a3e860a83397bf761ec1128a3f0ba186445992c6 upstream.
 
-Based on talks and indirect references ixgbe IPsec offlod do not
-support IPsec tunnel mode offload. It can only support IPsec transport
-mode offload. Now explicitly fail when creating non transport mode SA
-with offload to avoid false performance expectations.
+If clear GMAC_CONFIG_TE bit, it would stop all tx channels, but users
+may only want to stop specific tx channel.
 
-Fixes: 63a67fe229ea ("ixgbe: add ipsec offload add and remove SA")
-Signed-off-by: Antony Antony <antony@phenome.org>
-Acked-by: Shannon Nelson <snelson@pensando.io>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c |    5 +++++
- drivers/net/ethernet/intel/ixgbevf/ipsec.c     |    5 +++++
- 2 files changed, 10 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-@@ -575,6 +575,11 @@ static int ixgbe_ipsec_add_sa(struct xfr
- 		return -EINVAL;
- 	}
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
+@@ -60,10 +60,6 @@ void dwmac4_dma_stop_tx(void __iomem *io
  
-+	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
-+		netdev_err(dev, "Unsupported mode for ipsec offload\n");
-+		return -EINVAL;
-+	}
-+
- 	if (ixgbe_ipsec_check_mgmt_ip(xs)) {
- 		netdev_err(dev, "IPsec IP addr clash with mgmt filters\n");
- 		return -EINVAL;
---- a/drivers/net/ethernet/intel/ixgbevf/ipsec.c
-+++ b/drivers/net/ethernet/intel/ixgbevf/ipsec.c
-@@ -272,6 +272,11 @@ static int ixgbevf_ipsec_add_sa(struct x
- 		return -EINVAL;
- 	}
+ 	value &= ~DMA_CONTROL_ST;
+ 	writel(value, ioaddr + DMA_CHAN_TX_CONTROL(chan));
+-
+-	value = readl(ioaddr + GMAC_CONFIG);
+-	value &= ~GMAC_CONFIG_TE;
+-	writel(value, ioaddr + GMAC_CONFIG);
+ }
  
-+	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
-+		netdev_err(dev, "Unsupported mode for ipsec offload\n");
-+		return -EINVAL;
-+	}
-+
- 	if (xs->xso.flags & XFRM_OFFLOAD_INBOUND) {
- 		struct rx_sa rsa;
- 
+ void dwmac4_dma_start_rx(void __iomem *ioaddr, u32 chan)
 
 
