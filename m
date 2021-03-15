@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB20933B9C3
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6198933B8CF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234900AbhCOOGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S234623AbhCOOEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233373AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A21C764FA5;
-        Mon, 15 Mar 2021 14:01:04 +0000 (UTC)
+        id S233010AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E763764F3E;
+        Mon, 15 Mar 2021 14:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816866;
-        bh=0YZbGA7eDVAKAWK1KBKD6n0riqc/6+pK3ROtEnl+Gak=;
+        s=korg; t=1615816811;
+        bh=LtaBHPPjGw7SX7S201LXX2RssfLoU12kjn9AknrYuH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ai6rVCDmS6zT4FyfWnh2aw5mbixcfJ+9qLX9QDD5tRFHQUhC+GLs/BsB1y72F11Qd
-         uuc0Fq1sqkm2L53c4Yt3dlIsukx9jW5Vdpf/5lrE6fqd4F93V865s3BMYI+TDetupv
-         kdOBpmJrJ6aQNxWqteG1ucr+KoGmHmYX7c2nx3u0=
+        b=qVhyW91kr4NpFdKfGzceQ/AP2ta+kqsixajWdaYQalh6B1QZzr/6bJd0TWV3l+Vdz
+         B0aFAZlD1hZY/X138zY/ILmz0aD2JXcz0J+Hy1niARoxt+dUvsmDPtPzI8CcaWStEY
+         +Kix50OvBLaVgdpZnZyVcaxF0GELcXuWKGVE1iLY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.19 118/120] xen/events: reset affinity of 2-level event when tearing it down
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 79/95] staging: comedi: pcl711: Fix endian problem for AI command data
 Date:   Mon, 15 Mar 2021 14:57:49 +0100
-Message-Id: <20210315135723.843649212@linuxfoundation.org>
+Message-Id: <20210315135742.875679804@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
+commit a084303a645896e834883f2c5170d044410dfdb3 upstream.
 
-When creating a new event channel with 2-level events the affinity
-needs to be reset initially in order to avoid using an old affinity
-from earlier usage of the event channel port. So when tearing an event
-channel down reset all affinity bits.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the call to
+`comedi_buf_write_samples()` is passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variable
+holding the sample value to `unsigned short`.
 
-The same applies to the affinity when onlining a vcpu: all old
-affinity settings for this vcpu must be reset. As percpu events get
-initialized before the percpu event channel hook is called,
-resetting of the affinities happens after offlining a vcpu (this is
-working, as initial percpu memory is zeroed out).
-
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 1f44c034de2e ("staging: comedi: pcl711: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-9-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_2l.c       |   15 +++++++++++++++
- drivers/xen/events/events_base.c     |    1 +
- drivers/xen/events/events_internal.h |    8 ++++++++
- 3 files changed, 24 insertions(+)
+ drivers/staging/comedi/drivers/pcl711.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/xen/events/events_2l.c
-+++ b/drivers/xen/events/events_2l.c
-@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
- 	return EVTCHN_2L_NR_CHANNELS;
- }
+--- a/drivers/staging/comedi/drivers/pcl711.c
++++ b/drivers/staging/comedi/drivers/pcl711.c
+@@ -193,7 +193,7 @@ static irqreturn_t pcl711_interrupt(int
+ 	struct comedi_device *dev = d;
+ 	struct comedi_subdevice *s = dev->read_subdev;
+ 	struct comedi_cmd *cmd = &s->async->cmd;
+-	unsigned int data;
++	unsigned short data;
  
-+static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
-+{
-+	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
-+}
-+
- static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
- {
- 	clear_bit(info->evtchn, BM(per_cpu(cpu_evtchn_mask, info->cpu)));
-@@ -354,9 +359,18 @@ static void evtchn_2l_resume(void)
- 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
- }
- 
-+static int evtchn_2l_percpu_deinit(unsigned int cpu)
-+{
-+	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
-+			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
-+
-+	return 0;
-+}
-+
- static const struct evtchn_ops evtchn_ops_2l = {
- 	.max_channels      = evtchn_2l_max_channels,
- 	.nr_channels       = evtchn_2l_max_channels,
-+	.remove            = evtchn_2l_remove,
- 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
- 	.clear_pending     = evtchn_2l_clear_pending,
- 	.set_pending       = evtchn_2l_set_pending,
-@@ -366,6 +380,7 @@ static const struct evtchn_ops evtchn_op
- 	.unmask            = evtchn_2l_unmask,
- 	.handle_events     = evtchn_2l_handle_events,
- 	.resume	           = evtchn_2l_resume,
-+	.percpu_deinit     = evtchn_2l_percpu_deinit,
- };
- 
- void __init xen_evtchn_2l_init(void)
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -285,6 +285,7 @@ static int xen_irq_info_pirq_setup(unsig
- static void xen_irq_info_cleanup(struct irq_info *info)
- {
- 	set_evtchn_to_irq(info->evtchn, -1);
-+	xen_evtchn_port_remove(info->evtchn, info->cpu);
- 	info->evtchn = 0;
- }
- 
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -67,6 +67,7 @@ struct evtchn_ops {
- 	unsigned (*nr_channels)(void);
- 
- 	int (*setup)(struct irq_info *info);
-+	void (*remove)(evtchn_port_t port, unsigned int cpu);
- 	void (*bind_to_cpu)(struct irq_info *info, unsigned cpu);
- 
- 	void (*clear_pending)(unsigned port);
-@@ -109,6 +110,13 @@ static inline int xen_evtchn_port_setup(
- 	return 0;
- }
- 
-+static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
-+					  unsigned int cpu)
-+{
-+	if (evtchn_ops->remove)
-+		evtchn_ops->remove(evtchn, cpu);
-+}
-+
- static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
- 					       unsigned cpu)
- {
+ 	if (!dev->attached) {
+ 		dev_err(dev->class_dev, "spurious interrupt\n");
 
 
