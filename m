@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0233933B65F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C63F33B55A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232111AbhCON5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34068 "EHLO mail.kernel.org"
+        id S231180AbhCONyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231760AbhCON5L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06C2E64F01;
-        Mon, 15 Mar 2021 13:56:56 +0000 (UTC)
+        id S229929AbhCONxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17AFF64EF6;
+        Mon, 15 Mar 2021 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816618;
-        bh=i5kk/hM9hB1ybFBjKO9kXNeWoWRQ6eg16y6EqfJXVAc=;
+        s=korg; t=1615816416;
+        bh=xPOyjQVC9zn/UwBkVcl/FOk/o6vGCPsyRe8EBtqcggY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UnM+xPIiAhx2QllT9zRpxBi09JZ1P471G4mcuYqHWhgco8YyNfe2VpfMTIXCoVIAw
-         BNZczvDyKwdp5dfHXeaqoUGuDQXckdpMhB5BTM+tru8SD6xJ9MGw3X6UjXy7xoY4K8
-         YawB1DX5SOA/Aucg1NKt5KwPhbsmSpvyZ4dae0yE=
+        b=c3qTcETC61KCJLbdDE26yzfaqw/j8Bg/dKBocdXHU4E1jjXXfVbQigL88Tu0E8X5o
+         UtvVkrL09tXxfU9XLT4bqvfj7Boi1x0TabX2cUWCUUudb5y4RDhyiVs/WV498Psmjf
+         808eHnYRQhgmKdCwGecn0JyW6QGi96jYfo3jeo2o=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Arjun Roy <arjunroy@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 016/290] tcp: Fix sign comparison bug in getsockopt(TCP_ZEROCOPY_RECEIVE)
+        stable@vger.kernel.org, Abhishek Sahu <abhsahu@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 26/78] ALSA: hda: Avoid spurious unsol event handling during S3/S4
 Date:   Mon, 15 Mar 2021 14:51:49 +0100
-Message-Id: <20210315135542.489803245@linuxfoundation.org>
+Message-Id: <20210315135212.921800364@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +41,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Arjun Roy <arjunroy@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 2107d45f17bedd7dbf4178462da0ac223835a2a7 upstream.
+commit 5ff9dde42e8c72ed8102eb8cb62e03f9dc2103ab upstream.
 
-getsockopt(TCP_ZEROCOPY_RECEIVE) has a bug where we read a
-user-provided "len" field of type signed int, and then compare the
-value to the result of an "offsetofend" operation, which is unsigned.
+When HD-audio bus receives unsolicited events during its system
+suspend/resume (S3 and S4) phase, the controller driver may still try
+to process events although the codec chips are already (or yet)
+powered down.  This might screw up the codec communication, resulting
+in CORB/RIRB errors.  Such events should be rather skipped, as the
+codec chip status such as the jack status will be fully refreshed at
+the system resume time.
 
-Negative values provided by the user will be promoted to large
-positive numbers; thus checking that len < offsetofend() will return
-false when the intention was that it return true.
+Since we're tracking the system suspend/resume state in codec
+power.power_state field, let's add the check in the common unsol event
+handler entry point to filter out such events.
 
-Note that while len is originally checked for negative values earlier
-on in do_tcp_getsockopt(), subsequent calls to get_user() re-read the
-value from userspace which may have changed in the meantime.
-
-Therefore, re-add the check for negative values after the call to
-get_user in the handler code for TCP_ZEROCOPY_RECEIVE.
-
-Fixes: c8856c051454 ("tcp-zerocopy: Return inq along with tcp receive zerocopy.")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Arjun Roy <arjunroy@google.com>
-Link: https://lore.kernel.org/r/20210225232628.4033281-1-arjunroy.kdev@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
+Tested-by: Abhishek Sahu <abhsahu@nvidia.com>
+Cc: <stable@vger.kernel.org> # 183ab39eb0ea: ALSA: hda: Initialize power_state
+Link: https://lore.kernel.org/r/20210310112809.9215-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/pci/hda/hda_bind.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3829,7 +3829,8 @@ static int do_tcp_getsockopt(struct sock
+--- a/sound/pci/hda/hda_bind.c
++++ b/sound/pci/hda/hda_bind.c
+@@ -46,6 +46,10 @@ static void hda_codec_unsol_event(struct
+ 	if (codec->bus->shutdown)
+ 		return;
  
- 		if (get_user(len, optlen))
- 			return -EFAULT;
--		if (len < offsetofend(struct tcp_zerocopy_receive, length))
-+		if (len < 0 ||
-+		    len < offsetofend(struct tcp_zerocopy_receive, length))
- 			return -EINVAL;
- 		if (len > sizeof(zc)) {
- 			len = sizeof(zc);
++	/* ignore unsol events during system suspend/resume */
++	if (codec->core.dev.power.power_state.event != PM_EVENT_ON)
++		return;
++
+ 	if (codec->patch_ops.unsol_event)
+ 		codec->patch_ops.unsol_event(codec, ev);
+ }
 
 
