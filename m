@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E630633B967
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FE433BA98
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233884AbhCOOCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S235111AbhCOOJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232887AbhCOOAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54A4164F69;
-        Mon, 15 Mar 2021 13:59:47 +0000 (UTC)
+        id S234547AbhCOOER (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5803C64DAD;
+        Mon, 15 Mar 2021 14:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816788;
-        bh=I5/Ju2sqpmZF9GUUl8cG9iEELjgWoaYlwhzX40Zzz+w=;
+        s=korg; t=1615817057;
+        bh=WpyuGGg4fLXOdll3DlmkFdMT8Yj29Ez8TxbVjZ3qKs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmHgCTdvvEXa509HzwRzsKcpsliJh6Mz9R8ltjy9IAjXdSphkhfYw25B7+sY5rTWk
-         pxWDL0Rcqf5AGK49eR3FiSeVJGeL410+tUvSLdBYSOt04aXZYGbHWNoS8b2L9ZwUZ2
-         AzFF0uydqQxpKnfQvmJNIp69U/8iENmKlQPF14WE=
+        b=a1Nuqb1N6Bm7H0047eBXvMGhC2Pgpo3pG7Z1jVsH9d8Q75NbYySi9slZtkPJk/r37
+         L6W9dk2dNLo0KNZSnFTsgFXeeYfpuS/HtJ6JzraVxUCp+9qEtlxaUmKVu2j/aTi/dH
+         MfWkcEJpSXCP2khFL7TWrtj9qoIiBZX2Mqm1iIHU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.4 110/168] usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other EPNUM
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 5.11 279/306] efi: stub: omit SetVirtualAddressMap() if marked unsupported in RT_PROP table
 Date:   Mon, 15 Mar 2021 14:55:42 +0100
-Message-Id: <20210315135553.976127888@linuxfoundation.org>
+Message-Id: <20210315135517.098808085@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit b1d25e6ee57c2605845595b6c61340d734253eb3 upstream.
+commit 9e9888a0fe97b9501a40f717225d2bef7100a2c1 upstream.
 
-According to the datasheet, this controller has a restriction
-which "set an endpoint number so that combinations of the DIR bit and
-the EPNUM bits do not overlap.". However, since the udc core driver is
-possible to assign a bulk pipe as an interrupt endpoint, an endpoint
-number may not match the pipe number. After that, when user rebinds
-another gadget driver, this driver broke the restriction because
-the driver didn't clear any configuration in usb_ep_disable().
+The EFI_RT_PROPERTIES_TABLE contains a mask of runtime services that are
+available after ExitBootServices(). This mostly does not concern the EFI
+stub at all, given that it runs before that. However, there is one call
+that is made at runtime, which is the call to SetVirtualAddressMap()
+(which is not even callable at boot time to begin with)
 
-Example:
- # modprobe g_ncm
- Then, EP3 = pipe 3, EP4 = pipe 4, EP5 = pipe 6
- # rmmod g_ncm
- # modprobe g_hid
- Then, EP3 = pipe 6, EP4 = pipe 7.
- So, pipe 3 and pipe 6 are set as EP3.
+So add the missing handling of the RT_PROP table to ensure that we only
+call SetVirtualAddressMap() if it is not being advertised as unsupported
+by the firmware.
 
-So, clear PIPECFG register in usbhs_pipe_free().
-
-Fixes: dfb87b8bfe09 ("usb: renesas_usbhs: gadget: fix re-enabling pipe without re-connecting")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/1615168538-26101-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
+Cc: <stable@vger.kernel.org> # v5.10+
+Tested-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/renesas_usbhs/pipe.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/firmware/efi/libstub/efi-stub.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/drivers/usb/renesas_usbhs/pipe.c
-+++ b/drivers/usb/renesas_usbhs/pipe.c
-@@ -746,6 +746,8 @@ struct usbhs_pipe *usbhs_pipe_malloc(str
- 
- void usbhs_pipe_free(struct usbhs_pipe *pipe)
- {
-+	usbhsp_pipe_select(pipe);
-+	usbhsp_pipe_cfg_set(pipe, 0xFFFF, 0);
- 	usbhsp_put_pipe(pipe);
+--- a/drivers/firmware/efi/libstub/efi-stub.c
++++ b/drivers/firmware/efi/libstub/efi-stub.c
+@@ -96,6 +96,18 @@ static void install_memreserve_table(voi
+ 		efi_err("Failed to install memreserve config table!\n");
  }
  
++static u32 get_supported_rt_services(void)
++{
++	const efi_rt_properties_table_t *rt_prop_table;
++	u32 supported = EFI_RT_SUPPORTED_ALL;
++
++	rt_prop_table = get_efi_config_table(EFI_RT_PROPERTIES_TABLE_GUID);
++	if (rt_prop_table)
++		supported &= rt_prop_table->runtime_services_supported;
++
++	return supported;
++}
++
+ /*
+  * EFI entry point for the arm/arm64 EFI stubs.  This is the entrypoint
+  * that is described in the PE/COFF header.  Most of the code is the same
+@@ -250,6 +262,10 @@ efi_status_t __efiapi efi_pe_entry(efi_h
+ 			  (prop_tbl->memory_protection_attribute &
+ 			   EFI_PROPERTIES_RUNTIME_MEMORY_PROTECTION_NON_EXECUTABLE_PE_DATA);
+ 
++	/* force efi_novamap if SetVirtualAddressMap() is unsupported */
++	efi_novamap |= !(get_supported_rt_services() &
++			 EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP);
++
+ 	/* hibernation expects the runtime regions to stay in the same place */
+ 	if (!IS_ENABLED(CONFIG_HIBERNATION) && !efi_nokaslr && !flat_va_mapping) {
+ 		/*
 
 
