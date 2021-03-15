@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E3433B78C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D7933B791
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233110AbhCOOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S233137AbhCOOAo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232632AbhCON7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD3464F40;
-        Mon, 15 Mar 2021 13:59:00 +0000 (UTC)
+        id S232660AbhCON71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5F1964EEC;
+        Mon, 15 Mar 2021 13:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816741;
-        bh=YID2P7AvDCfohH6m59JbgtIUUiOAnIQBKEJthKB0uos=;
+        s=korg; t=1615816742;
+        bh=fzv0hS2tpRP+IvjwmV+vVbY3kcM+z5Dwz+AHRVWSx+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQhnCoItQi/+EM667U8KW2i7V5R8eYZjQrhWVbCiXh9mT03l86OXQT0cQskISkB2B
-         Qcs6EaHbSaQufrjMXcsewHW2zMKVdNmBqOWoNIcjgMHBa7V1mA7HiH9E4B/lIo2gHO
-         s2P20McCFI1/kitTVRwMuDCRQrOwJHsYVZZYPs3c=
+        b=HqkNfhkU8EO+fKW4FVt3cOrSR0B6j/pS6UsaN0ZTzzsqt1tg/CbDj3zyQ8qpVrnZ7
+         caYrU8noCauBjPwz85w4el1VVmLKDzfaVwd108XoCX3GcSy8t6k5dAMwgm+b8Kll4a
+         nUXOsjp8nVfsJBeLcn45+XKA6B+LdbX/+IT52FFY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Takashi Iwai <tiwai@suse.de>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 096/306] drm/radeon: also init GEM funcs in radeon_gem_prime_import_sg_table
-Date:   Mon, 15 Mar 2021 14:52:39 +0100
-Message-Id: <20210315135510.902710918@linuxfoundation.org>
+Subject: [PATCH 5.11 097/306] drm/amd/display: Add a backlight module option
+Date:   Mon, 15 Mar 2021 14:52:40 +0100
+Message-Id: <20210315135510.936504116@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -42,65 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Christian König <christian.koenig@amd.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit a25955ba123499d7db520175c6be59c29f9215e3 upstream.
+commit 7a46f05e5e163c00e41892e671294286e53fe15c upstream.
 
-Otherwise we will run into a NULL ptr deref.
+There seem devices that don't work with the aux channel backlight
+control.  For allowing such users to test with the other backlight
+control method, provide a new module option, aux_backlight, to specify
+enabling or disabling the aux backport support explicitly.  As
+default, the aux support is detected by the hardware capability.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=212137
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+v2: make the backlight option generic in case we add future
+backlight types (Alex)
+
+BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1180749
+BugLink: https://gitlab.freedesktop.org/drm/amd/-/issues/1438
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 5.11.x
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon.h       |    2 ++
- drivers/gpu/drm/radeon/radeon_gem.c   |    4 ++--
- drivers/gpu/drm/radeon/radeon_prime.c |    2 ++
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h               |    1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c           |    4 ++++
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    5 +++++
+ 3 files changed, 10 insertions(+)
 
---- a/drivers/gpu/drm/radeon/radeon.h
-+++ b/drivers/gpu/drm/radeon/radeon.h
-@@ -575,6 +575,8 @@ struct radeon_gem {
- 	struct list_head	objects;
- };
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -179,6 +179,7 @@ extern uint amdgpu_smu_memory_pool_size;
+ extern uint amdgpu_dc_feature_mask;
+ extern uint amdgpu_dc_debug_mask;
+ extern uint amdgpu_dm_abm_level;
++extern int amdgpu_backlight;
+ extern struct amdgpu_mgpu_info mgpu_info;
+ extern int amdgpu_ras_enable;
+ extern uint amdgpu_ras_mask;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -777,6 +777,10 @@ uint amdgpu_dm_abm_level;
+ MODULE_PARM_DESC(abmlevel, "ABM level (0 = off (default), 1-4 = backlight reduction level) ");
+ module_param_named(abmlevel, amdgpu_dm_abm_level, uint, 0444);
  
-+extern const struct drm_gem_object_funcs radeon_gem_object_funcs;
++int amdgpu_backlight = -1;
++MODULE_PARM_DESC(backlight, "Backlight control (0 = pwm, 1 = aux, -1 auto (default))");
++module_param_named(backlight, amdgpu_backlight, bint, 0444);
 +
- int radeon_gem_init(struct radeon_device *rdev);
- void radeon_gem_fini(struct radeon_device *rdev);
- int radeon_gem_object_create(struct radeon_device *rdev, unsigned long size,
---- a/drivers/gpu/drm/radeon/radeon_gem.c
-+++ b/drivers/gpu/drm/radeon/radeon_gem.c
-@@ -43,7 +43,7 @@ struct sg_table *radeon_gem_prime_get_sg
- int radeon_gem_prime_pin(struct drm_gem_object *obj);
- void radeon_gem_prime_unpin(struct drm_gem_object *obj);
+ /**
+  * DOC: tmz (int)
+  * Trusted Memory Zone (TMZ) is a method to protect data being written
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2209,6 +2209,11 @@ static void update_connector_ext_caps(st
+ 	    caps->ext_caps->bits.hdr_aux_backlight_control == 1)
+ 		caps->aux_support = true;
  
--static const struct drm_gem_object_funcs radeon_gem_object_funcs;
-+const struct drm_gem_object_funcs radeon_gem_object_funcs;
- 
- static void radeon_gem_object_free(struct drm_gem_object *gobj)
- {
-@@ -227,7 +227,7 @@ static int radeon_gem_handle_lockup(stru
- 	return r;
- }
- 
--static const struct drm_gem_object_funcs radeon_gem_object_funcs = {
-+const struct drm_gem_object_funcs radeon_gem_object_funcs = {
- 	.free = radeon_gem_object_free,
- 	.open = radeon_gem_object_open,
- 	.close = radeon_gem_object_close,
---- a/drivers/gpu/drm/radeon/radeon_prime.c
-+++ b/drivers/gpu/drm/radeon/radeon_prime.c
-@@ -56,6 +56,8 @@ struct drm_gem_object *radeon_gem_prime_
- 	if (ret)
- 		return ERR_PTR(ret);
- 
-+	bo->tbo.base.funcs = &radeon_gem_object_funcs;
++	if (amdgpu_backlight == 0)
++		caps->aux_support = false;
++	else if (amdgpu_backlight == 1)
++		caps->aux_support = true;
 +
- 	mutex_lock(&rdev->gem.mutex);
- 	list_add_tail(&bo->list, &rdev->gem.objects);
- 	mutex_unlock(&rdev->gem.mutex);
+ 	/* From the specification (CTA-861-G), for calculating the maximum
+ 	 * luminance we need to use:
+ 	 *	Luminance = 50*2**(CV/32)
 
 
