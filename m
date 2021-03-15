@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F0033B624
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3395533B4FE
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbhCON5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33852 "EHLO mail.kernel.org"
+        id S229890AbhCONxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230354AbhCON4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21CEB64EF3;
-        Mon, 15 Mar 2021 13:56:44 +0000 (UTC)
+        id S229908AbhCONwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:52:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2253464EEA;
+        Mon, 15 Mar 2021 13:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816606;
-        bh=XaLBq42/E+mlwlGI2vk6zUz1rdgx0t7/XCw3YyfywR4=;
+        s=korg; t=1615816367;
+        bh=vRo8iCMwicVVfGHyerCQN0aGd6rTpteztCZtzcUKuA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDY3e1RO+8AAhRwc0g21y4YzAQ5u6utnJv4JxHvkvOH0Cd13OTAbw1WtuqKn7UgQM
-         6WjOB7CaABhn8k654UFlXinnjatQc/sd1NwcBl4+69tfm6jsDMDo5fII9rxh4srf0g
-         UCUfvMpVPbuhhDD5FuXrBQIyhvcyQseJktHzfUyQ=
+        b=AlspU9OibjRrupj8Sxs8oHlJ8Cz/A1zapq8M3A2MybiMDb9+rejsA5WeepdiSJQpL
+         luJhStxp44IvpYNEeCmdQbSukSLD7NDdh/NZzVSA/qLkR7RPTAb5JLE2qbpSe7RyRH
+         8ghvSH5B6RJVoD9VvLQcdmQ9MZrKk5YzQJm8NJII=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
-        Andre Naujoks <nautsch2@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.11 017/306] can: skb: can_skb_set_owner(): fix ref counting if socket was closed before setting skb ownership
+Subject: [PATCH 4.4 06/75] can: flexcan: enable RX FIFO after FRZ/HALT valid
 Date:   Mon, 15 Mar 2021 14:51:20 +0100
-Message-Id: <20210315135508.197123225@linuxfoundation.org>
+Message-Id: <20210315135208.472233913@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,71 +41,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit e940e0895a82c6fbaa259f2615eb52b57ee91a7e upstream.
+commit ec15e27cc8904605846a354bb1f808ea1432f853 upstream.
 
-There are two ref count variables controlling the free()ing of a socket:
-- struct sock::sk_refcnt - which is changed by sock_hold()/sock_put()
-- struct sock::sk_wmem_alloc - which accounts the memory allocated by
-  the skbs in the send path.
+RX FIFO enable failed could happen when do system reboot stress test:
 
-In case there are still TX skbs on the fly and the socket() is closed,
-the struct sock::sk_refcnt reaches 0. In the TX-path the CAN stack
-clones an "echo" skb, calls sock_hold() on the original socket and
-references it. This produces the following back trace:
+[    0.303958] flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
+[    0.304281] flexcan 5a8d0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.314640] flexcan 5a8d0000.can: registering netdev failed
+[    0.320728] flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
+[    0.320991] flexcan 5a8e0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.331360] flexcan 5a8e0000.can: registering netdev failed
+[    0.337444] flexcan 5a8f0000.can: 5a8f0000.can supply xceiver not found, using dummy regulator
+[    0.337716] flexcan 5a8f0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.348117] flexcan 5a8f0000.can: registering netdev failed
 
-| WARNING: CPU: 0 PID: 280 at lib/refcount.c:25 refcount_warn_saturate+0x114/0x134
-| refcount_t: addition on 0; use-after-free.
-| Modules linked in: coda_vpu(E) v4l2_jpeg(E) videobuf2_vmalloc(E) imx_vdoa(E)
-| CPU: 0 PID: 280 Comm: test_can.sh Tainted: G            E     5.11.0-04577-gf8ff6603c617 #203
-| Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-| Backtrace:
-| [<80bafea4>] (dump_backtrace) from [<80bb0280>] (show_stack+0x20/0x24) r7:00000000 r6:600f0113 r5:00000000 r4:81441220
-| [<80bb0260>] (show_stack) from [<80bb593c>] (dump_stack+0xa0/0xc8)
-| [<80bb589c>] (dump_stack) from [<8012b268>] (__warn+0xd4/0x114) r9:00000019 r8:80f4a8c2 r7:83e4150c r6:00000000 r5:00000009 r4:80528f90
-| [<8012b194>] (__warn) from [<80bb09c4>] (warn_slowpath_fmt+0x88/0xc8) r9:83f26400 r8:80f4a8d1 r7:00000009 r6:80528f90 r5:00000019 r4:80f4a8c2
-| [<80bb0940>] (warn_slowpath_fmt) from [<80528f90>] (refcount_warn_saturate+0x114/0x134) r8:00000000 r7:00000000 r6:82b44000 r5:834e5600 r4:83f4d540
-| [<80528e7c>] (refcount_warn_saturate) from [<8079a4c8>] (__refcount_add.constprop.0+0x4c/0x50)
-| [<8079a47c>] (__refcount_add.constprop.0) from [<8079a57c>] (can_put_echo_skb+0xb0/0x13c)
-| [<8079a4cc>] (can_put_echo_skb) from [<8079ba98>] (flexcan_start_xmit+0x1c4/0x230) r9:00000010 r8:83f48610 r7:0fdc0000 r6:0c080000 r5:82b44000 r4:834e5600
-| [<8079b8d4>] (flexcan_start_xmit) from [<80969078>] (netdev_start_xmit+0x44/0x70) r9:814c0ba0 r8:80c8790c r7:00000000 r6:834e5600 r5:82b44000 r4:82ab1f00
-| [<80969034>] (netdev_start_xmit) from [<809725a4>] (dev_hard_start_xmit+0x19c/0x318) r9:814c0ba0 r8:00000000 r7:82ab1f00 r6:82b44000 r5:00000000 r4:834e5600
-| [<80972408>] (dev_hard_start_xmit) from [<809c6584>] (sch_direct_xmit+0xcc/0x264) r10:834e5600 r9:00000000 r8:00000000 r7:82b44000 r6:82ab1f00 r5:834e5600 r4:83f27400
-| [<809c64b8>] (sch_direct_xmit) from [<809c6c0c>] (__qdisc_run+0x4f0/0x534)
+RX FIFO should be enabled after the FRZ/HALT are valid. But the current
+code enable RX FIFO and FRZ/HALT at the same time.
 
-To fix this problem, only set skb ownership to sockets which have still
-a ref count > 0.
-
-Fixes: 0ae89beb283a ("can: add destructor for self generated skbs")
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Cc: Andre Naujoks <nautsch2@gmail.com>
-Link: https://lore.kernel.org/r/20210226092456.27126-1-o.rempel@pengutronix.de
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
+Link: https://lore.kernel.org/r/20210218110037.16591-3-qiangqing.zhang@nxp.com
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/can/skb.h |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/can/flexcan.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/include/linux/can/skb.h
-+++ b/include/linux/can/skb.h
-@@ -49,8 +49,12 @@ static inline void can_skb_reserve(struc
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1098,10 +1098,14 @@ static int register_flexcandev(struct ne
+ 	if (err)
+ 		goto out_chip_disable;
  
- static inline void can_skb_set_owner(struct sk_buff *skb, struct sock *sk)
- {
--	if (sk) {
--		sock_hold(sk);
-+	/* If the socket has already been closed by user space, the
-+	 * refcount may already be 0 (and the socket will be freed
-+	 * after the last TX skb has been freed). So only increase
-+	 * socket refcount if the refcount is > 0.
-+	 */
-+	if (sk && refcount_inc_not_zero(&sk->sk_refcnt)) {
- 		skb->destructor = sock_efree;
- 		skb->sk = sk;
- 	}
+-	/* set freeze, halt and activate FIFO, restrict register access */
++	/* set freeze, halt */
++	err = flexcan_chip_freeze(priv);
++	if (err)
++		goto out_chip_disable;
++
++	/* activate FIFO, restrict register access */
+ 	reg = flexcan_read(&regs->mcr);
+-	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT |
+-		FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
++	reg |=  FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
+ 	flexcan_write(reg, &regs->mcr);
+ 
+ 	/* Currently we only support newer versions of this core
 
 
