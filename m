@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D623333BAE2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8F1A33B801
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235754AbhCOOKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49682 "EHLO mail.kernel.org"
+        id S233363AbhCOOBv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234407AbhCOODU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7BF64EEF;
-        Mon, 15 Mar 2021 14:03:19 +0000 (UTC)
+        id S232775AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5D8464EF0;
+        Mon, 15 Mar 2021 13:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817000;
-        bh=Q7fOIOhYYEgWEapd03u/hAGSKrUrhyVrhseD34/Bq5s=;
+        s=korg; t=1615816775;
+        bh=PTIV3Q+ldmGS5yR7bJr3pPecoqqWfaeNBLeyEKfVCc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Ch87m8lX7oIqF5l1H0CljRDYCCV1lD+OLmUy89TBWhXaAmYpM4+00ZWfemtQqbMM
-         qPQvFKK3/QpbRemxCdsMIJKEA2wvCUc7BWgoZB/wPQ05n+4SWyV4c1ibDw0aZxilqD
-         QljPnHuWQ17jcVZ41bhwaW36CMksOduFOmXdDkj4=
+        b=mAEBkGzpJx3VISrMOSW2YyzgXQ9hvTnGed/ixntMFwWnFMvYT5MK9KiLxSmQ3AGv+
+         wJuIVpBfif1A82IdEaG4w3D+9xsSrSo0RsVL0ef0iGhJKLhptFp2Pug5R3GvcVBe4S
+         3bEA+xRRjuEUGn2bqSwO9lkhiFP3nkvmue3u2jrE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 240/290] staging: comedi: pcl818: Fix endian problem for AI command data
+        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 101/168] mmc: core: Fix partition switch time for eMMC
 Date:   Mon, 15 Mar 2021 14:55:33 +0100
-Message-Id: <20210315135550.107625889@linuxfoundation.org>
+Message-Id: <20210315135553.695158157@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +42,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 148e34fd33d53740642db523724226de14ee5281 upstream.
+commit 66fbacccbab91e6e55d9c8f1fc0910a8eb6c81f7 upstream.
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the call to
-`comedi_buf_write_samples()` is passing the address of a 32-bit integer
-parameter.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the parameter
-holding the sample value to `unsigned short`.
+Avoid the following warning by always defining partition switch time:
 
-[Note: the bug was introduced in commit edf4537bcbf5 ("staging: comedi:
-pcl818: use comedi_buf_write_samples()") but the patch applies better to
-commit d615416de615 ("staging: comedi: pcl818: introduce
-pcl818_ai_write_sample()").]
+ [    3.209874] mmc1: unspecified timeout for CMD6 - use generic
+ [    3.222780] ------------[ cut here ]------------
+ [    3.233363] WARNING: CPU: 1 PID: 111 at drivers/mmc/core/mmc_ops.c:575 __mmc_switch+0x200/0x204
 
-Fixes: d615416de615 ("staging: comedi: pcl818: introduce pcl818_ai_write_sample()")
-Cc: <stable@vger.kernel.org> # 4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-10-abbotti@mev.co.uk
+Reported-by: Paul Fertser <fercerpav@gmail.com>
+Fixes: 1c447116d017 ("mmc: mmc: Fix partition switch timeout for some eMMCs")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/168bbfd6-0c5b-5ace-ab41-402e7937c46e@intel.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/pcl818.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/core/mmc.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/staging/comedi/drivers/pcl818.c
-+++ b/drivers/staging/comedi/drivers/pcl818.c
-@@ -423,7 +423,7 @@ static int pcl818_ai_eoc(struct comedi_d
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -423,10 +423,6 @@ static int mmc_decode_ext_csd(struct mmc
  
- static bool pcl818_ai_write_sample(struct comedi_device *dev,
- 				   struct comedi_subdevice *s,
--				   unsigned int chan, unsigned int val)
-+				   unsigned int chan, unsigned short val)
- {
- 	struct pcl818_private *devpriv = dev->private;
- 	struct comedi_cmd *cmd = &s->async->cmd;
+ 		/* EXT_CSD value is in units of 10ms, but we store in ms */
+ 		card->ext_csd.part_time = 10 * ext_csd[EXT_CSD_PART_SWITCH_TIME];
+-		/* Some eMMC set the value too low so set a minimum */
+-		if (card->ext_csd.part_time &&
+-		    card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
+-			card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
+ 
+ 		/* Sleep / awake timeout in 100ns units */
+ 		if (sa_shift > 0 && sa_shift <= 0x17)
+@@ -616,6 +612,17 @@ static int mmc_decode_ext_csd(struct mmc
+ 		card->ext_csd.data_sector_size = 512;
+ 	}
+ 
++	/*
++	 * GENERIC_CMD6_TIME is to be used "unless a specific timeout is defined
++	 * when accessing a specific field", so use it here if there is no
++	 * PARTITION_SWITCH_TIME.
++	 */
++	if (!card->ext_csd.part_time)
++		card->ext_csd.part_time = card->ext_csd.generic_cmd6_time;
++	/* Some eMMC set the value too low so set a minimum */
++	if (card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
++		card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
++
+ 	/* eMMC v5 or later */
+ 	if (card->ext_csd.rev >= 7) {
+ 		memcpy(card->ext_csd.fwrev, &ext_csd[EXT_CSD_FIRMWARE_VERSION],
 
 
