@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 826C633B834
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0308933BAB2
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233784AbhCOOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S235665AbhCOOKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232932AbhCOOAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B7C564EF0;
-        Mon, 15 Mar 2021 13:59:56 +0000 (UTC)
+        id S234634AbhCOOEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29096601FD;
+        Mon, 15 Mar 2021 14:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816798;
-        bh=OOca3kBORgZR7pDsF6UQXxGFhNJsYMQXZVOqWCCcrdc=;
+        s=korg; t=1615817075;
+        bh=a5dFQLmPODNEZdfFFdpwNGbuv6Bx/XSnfOSNpPuOyGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hgW8ulApHJMjQ4UbRDJHaOkCrsTSj1uacCy1t/ic+9mPVoyxasRpQa0kbqKWetTDo
-         1fEexukLJTmKrVAbxJPyg/zSvYYQOJUwpmovPEBQr3dDrQ0YWBJzGThaXdcSJdJ07B
-         qOw9Rsm0uRvTB8V+72cbYXtUGhh2yW5hrV7cVyuU=
+        b=ZJlHo4YNvfq4neZiUkQWgDZeGHQAFzso3VPlk6zFoaxhmILd5l1Jrx6OA5BY1nZ9t
+         X5K/MOxZwC8oL7CbzbLK+5fvSABWvKoIWgdypuG/2t2zuJ8z0F52oY7fhxxCC05ypv
+         BxdA2oD+QmVYT8kVoPTsVTZh1CEfsjgJiHK5v3Is=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Karan Singhal <karan.singhal@acuitybrands.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 117/168] USB: serial: cp210x: add ID for Acuity Brands nLight Air Adapter
-Date:   Mon, 15 Mar 2021 14:55:49 +0100
-Message-Id: <20210315135554.200556826@linuxfoundation.org>
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.11 287/306] x86/sev-es: Introduce ip_within_syscall_gap() helper
+Date:   Mon, 15 Mar 2021 14:55:50 +0100
+Message-Id: <20210315135517.388600712@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +41,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Karan Singhal <karan.singhal@acuitybrands.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit ca667a33207daeaf9c62b106815728718def60ec upstream.
+commit 78a81d88f60ba773cbe890205e1ee67f00502948 upstream.
 
-IDs of nLight Air Adapter, Acuity Brands, Inc.:
-vid: 10c4
-pid: 88d8
+Introduce a helper to check whether an exception came from the syscall
+gap and use it in the SEV-ES code. Extend the check to also cover the
+compatibility SYSCALL entry path.
 
-Signed-off-by: Karan Singhal <karan.singhal@acuitybrands.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # 5.10+
+Link: https://lkml.kernel.org/r/20210303141716.29223-2-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/entry/entry_64_compat.S |    2 ++
+ arch/x86/include/asm/proto.h     |    1 +
+ arch/x86/include/asm/ptrace.h    |   15 +++++++++++++++
+ arch/x86/kernel/traps.c          |    3 +--
+ 4 files changed, 19 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -146,6 +146,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x10C4, 0x8857) },	/* CEL EM357 ZigBee USB Stick */
- 	{ USB_DEVICE(0x10C4, 0x88A4) }, /* MMB Networks ZigBee USB Device */
- 	{ USB_DEVICE(0x10C4, 0x88A5) }, /* Planet Innovation Ingeni ZigBee USB Device */
-+	{ USB_DEVICE(0x10C4, 0x88D8) }, /* Acuity Brands nLight Air Adapter */
- 	{ USB_DEVICE(0x10C4, 0x88FB) }, /* CESINEL MEDCAL STII Network Analyzer */
- 	{ USB_DEVICE(0x10C4, 0x8938) }, /* CESINEL MEDCAL S II Network Analyzer */
- 	{ USB_DEVICE(0x10C4, 0x8946) }, /* Ketra N1 Wireless Interface */
+--- a/arch/x86/entry/entry_64_compat.S
++++ b/arch/x86/entry/entry_64_compat.S
+@@ -210,6 +210,8 @@ SYM_CODE_START(entry_SYSCALL_compat)
+ 	/* Switch to the kernel stack */
+ 	movq	PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+ 
++SYM_INNER_LABEL(entry_SYSCALL_compat_safe_stack, SYM_L_GLOBAL)
++
+ 	/* Construct struct pt_regs on stack */
+ 	pushq	$__USER32_DS		/* pt_regs->ss */
+ 	pushq	%r8			/* pt_regs->sp */
+--- a/arch/x86/include/asm/proto.h
++++ b/arch/x86/include/asm/proto.h
+@@ -25,6 +25,7 @@ void __end_SYSENTER_singlestep_region(vo
+ void entry_SYSENTER_compat(void);
+ void __end_entry_SYSENTER_compat(void);
+ void entry_SYSCALL_compat(void);
++void entry_SYSCALL_compat_safe_stack(void);
+ void entry_INT80_compat(void);
+ #ifdef CONFIG_XEN_PV
+ void xen_entry_INT80_compat(void);
+--- a/arch/x86/include/asm/ptrace.h
++++ b/arch/x86/include/asm/ptrace.h
+@@ -94,6 +94,8 @@ struct pt_regs {
+ #include <asm/paravirt_types.h>
+ #endif
+ 
++#include <asm/proto.h>
++
+ struct cpuinfo_x86;
+ struct task_struct;
+ 
+@@ -175,6 +177,19 @@ static inline bool any_64bit_mode(struct
+ #ifdef CONFIG_X86_64
+ #define current_user_stack_pointer()	current_pt_regs()->sp
+ #define compat_user_stack_pointer()	current_pt_regs()->sp
++
++static inline bool ip_within_syscall_gap(struct pt_regs *regs)
++{
++	bool ret = (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
++		    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack);
++
++#ifdef CONFIG_IA32_EMULATION
++	ret = ret || (regs->ip >= (unsigned long)entry_SYSCALL_compat &&
++		      regs->ip <  (unsigned long)entry_SYSCALL_compat_safe_stack);
++#endif
++
++	return ret;
++}
+ #endif
+ 
+ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -694,8 +694,7 @@ asmlinkage __visible noinstr struct pt_r
+ 	 * In the SYSCALL entry path the RSP value comes from user-space - don't
+ 	 * trust it and switch to the current kernel stack
+ 	 */
+-	if (regs->ip >= (unsigned long)entry_SYSCALL_64 &&
+-	    regs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
++	if (ip_within_syscall_gap(regs)) {
+ 		sp = this_cpu_read(cpu_current_top_of_stack);
+ 		goto sync;
+ 	}
 
 
