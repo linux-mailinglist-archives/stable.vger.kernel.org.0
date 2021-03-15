@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54AED33B894
+	by mail.lfdr.de (Postfix) with ESMTP id A0E6B33B895
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231712AbhCOOD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S232793AbhCOOD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233020AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233033AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F09464F2B;
-        Mon, 15 Mar 2021 14:00:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FE9A64F0B;
+        Mon, 15 Mar 2021 14:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816812;
-        bh=Ka8gW4bNWcdAax6/0NiwlubvqKWPXd3fZbvk1dYbZoc=;
+        s=korg; t=1615816814;
+        bh=rmXW1BrrexEFnDJF9MaWbYvftiMtUytwwrL7bvFJhVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFTb1LaGYgBGb2grvX4+vMYede4z/fDE0qFqEaHNtZhEucvbIvZ4O+Aj9R+A407V9
-         zxXxprK4jbGeSk27blAUkAPg6N+8KIOrKRJLkZOCs64KbNnw5ATFe71yR4PqH6eJc4
-         L3VjRZZ4/2wvWbZqo77aIQe0N0MhIc/YT8WQw3/k=
+        b=rN9X7eB/8GgzBFeb/fadNqjkgky3S9uCojEW9ttJ4v/Fj6uJ3+AbRK++7jTIraNH7
+         6JcqyP2cnk5FRhWjUbyDMnr7FEbDlc1Iq5qd6+nsI4Brvqx882aYzajKlWEbYzUyHQ
+         VZQFuso2SicdpHh13x5gjA9EMlxfk5DfU5yMeFNk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Jonathan Marek <jonathan@marek.ca>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Subject: [PATCH 5.4 126/168] misc: fastrpc: restrict user apps from sending kernel RPC messages
-Date:   Mon, 15 Mar 2021 14:55:58 +0100
-Message-Id: <20210315135554.491454698@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.4 127/168] staging: rtl8192u: fix ->ssid overflow in r8192_wx_set_scan()
+Date:   Mon, 15 Mar 2021 14:55:59 +0100
+Message-Id: <20210315135554.522930342@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,38 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 20c40794eb85ea29852d7bc37c55713802a543d6 upstream.
+commit 87107518d7a93fec6cdb2559588862afeee800fb upstream.
 
-Verify that user applications are not using the kernel RPC message
-handle to restrict them from directly attaching to guest OS on the
-remote subsystem. This is a port of CVE-2019-2308 fix.
+We need to cap len at IW_ESSID_MAX_SIZE (32) to avoid memory corruption.
+This can be controlled by the user via the ioctl.
 
-Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Jonathan Marek <jonathan@marek.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Link: https://lore.kernel.org/r/20210212192658.3476137-1-dmitry.baryshkov@linaro.org
+Fixes: 5f53d8ca3d5d ("Staging: add rtl8192SU wireless usb driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YEHoAWMOSZBUw91F@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/staging/rtl8192u/r8192U_wx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -924,6 +924,11 @@ static int fastrpc_internal_invoke(struc
- 	if (!fl->cctx->rpdev)
- 		return -EPIPE;
+--- a/drivers/staging/rtl8192u/r8192U_wx.c
++++ b/drivers/staging/rtl8192u/r8192U_wx.c
+@@ -333,8 +333,10 @@ static int r8192_wx_set_scan(struct net_
+ 		struct iw_scan_req *req = (struct iw_scan_req *)b;
  
-+	if (handle == FASTRPC_INIT_HANDLE && !kernel) {
-+		dev_warn_ratelimited(fl->sctx->dev, "user app trying to send a kernel RPC message (%d)\n",  handle);
-+		return -EPERM;
-+	}
+ 		if (req->essid_len) {
+-			ieee->current_network.ssid_len = req->essid_len;
+-			memcpy(ieee->current_network.ssid, req->essid, req->essid_len);
++			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
 +
- 	ctx = fastrpc_context_alloc(fl, kernel, sc, args);
- 	if (IS_ERR(ctx))
- 		return PTR_ERR(ctx);
++			ieee->current_network.ssid_len = len;
++			memcpy(ieee->current_network.ssid, req->essid, len);
+ 		}
+ 	}
+ 
 
 
