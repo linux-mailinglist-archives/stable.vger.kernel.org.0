@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29B4533BA84
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A096B33B84B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234421AbhCOOJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
+        id S233912AbhCOOCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233519AbhCOOEB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F00DA64F0A;
-        Mon, 15 Mar 2021 14:03:58 +0000 (UTC)
+        id S232638AbhCOOAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A2F864EFC;
+        Mon, 15 Mar 2021 14:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817040;
-        bh=IVTg84+G1khuab8C13rVN6gswVwBOlr/7Nji6DjvZWM=;
+        s=korg; t=1615816802;
+        bh=F54PcwDAnn2FMWaao0DWhknqEzjDpPH545XJu/fYX0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByfJl7HjqkLKP3yojnfm8W3aBUyLq8aiOBpJlJlg8GDjuBpjFAOV/88K+bRAk5xMw
-         UVAh3cyC3Hj/JJu1N4WmX71Ft0AChLvIxlnewMkrICTv1jaAFIYw0g5BIIduAYdSyf
-         XjZXhyQuAcKqjJeLo35S85+jBOSrANG8XxSTCuZs=
+        b=bvZdVIn85ggmmkzSUBkyPwJJLU/FQvoTi9GQkJSRL6C/4CccUw99XrpXY+eHxWbPp
+         bybu5ATydSl4jw2Xlwji67dtAePzRxeO1p3kVWs7Mo8xEBikn6MN4cde7lXGbuJcko
+         5d6bhZCTmNe+DK2LkVVGlerHsSk1sLW6d9kJ8AOo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 259/290] include/linux/sched/mm.h: use rcu_dereference in in_vfork()
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.4 120/168] usbip: fix vhci_hcd to check for stream socket
 Date:   Mon, 15 Mar 2021 14:55:52 +0100
-Message-Id: <20210315135550.766623942@linuxfoundation.org>
+Message-Id: <20210315135554.305303546@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +42,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 149fc787353f65b7e72e05e7b75d34863266c3e2 ]
+commit f55a0571690c4aae03180e001522538c0927432f upstream.
 
-Fix a sparse warning by using rcu_dereference().  Technically this is a
-bug and a sufficiently aggressive compiler could reload the `real_parent'
-pointer outside the protection of the rcu lock (and access freed memory),
-but I think it's pretty unlikely to happen.
+Fix attach_store() to validate the passed in file descriptor is a
+stream socket. If the file descriptor passed was a SOCK_DGRAM socket,
+sock_recvmsg() can't detect end of stream.
 
-Link: https://lkml.kernel.org/r/20210221194207.1351703-1-willy@infradead.org
-Fixes: b18dc5f291c0 ("mm, oom: skip vforked tasks from being selected")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Suggested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/52712aa308915bda02cece1589e04ee8b401d1f3.1615171203.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sched/mm.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/usbip/vhci_sysfs.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
-index d5ece7a9a403..dc1f4dcd9a82 100644
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -140,7 +140,8 @@ static inline bool in_vfork(struct task_struct *tsk)
- 	 * another oom-unkillable task does this it should blame itself.
- 	 */
- 	rcu_read_lock();
--	ret = tsk->vfork_done && tsk->real_parent->mm == tsk->mm;
-+	ret = tsk->vfork_done &&
-+			rcu_dereference(tsk->real_parent)->mm == tsk->mm;
- 	rcu_read_unlock();
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -349,8 +349,16 @@ static ssize_t attach_store(struct devic
  
- 	return ret;
--- 
-2.30.1
-
+ 	/* Extract socket from fd. */
+ 	socket = sockfd_lookup(sockfd, &err);
+-	if (!socket)
++	if (!socket) {
++		dev_err(dev, "failed to lookup sock");
+ 		return -EINVAL;
++	}
++	if (socket->type != SOCK_STREAM) {
++		dev_err(dev, "Expecting SOCK_STREAM - found %d",
++			socket->type);
++		sockfd_put(socket);
++		return -EINVAL;
++	}
+ 
+ 	/* now need lock until setting vdev status as used */
+ 
 
 
