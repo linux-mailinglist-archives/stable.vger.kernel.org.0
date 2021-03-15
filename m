@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F2633B676
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE7633B671
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232215AbhCON54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34948 "EHLO mail.kernel.org"
+        id S232195AbhCON5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231965AbhCON5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D864564F2D;
-        Mon, 15 Mar 2021 13:57:22 +0000 (UTC)
+        id S231974AbhCON50 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D14064F2E;
+        Mon, 15 Mar 2021 13:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816644;
-        bh=KUgnUfIhMV6ghQ263E7VfkbB5r4OQ8SSZIpzaryCweQ=;
+        s=korg; t=1615816646;
+        bh=vIoJfkP/KyKIowEL//154z/eF4hgW/Ht+kKhEUmzkKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/VBLTZwuW1PfHDYW6mSJo9qIztITKt5A2cwR+8G7dzd8pcuFjBFA9a/n6FtxxG/I
-         rSPiMWeur5CWZ1eUXZu5BBee7KiP1ppymQiIq3vQbIHgYFj/jSWYUU28yMqwUpqzAy
-         gjfMR5RjCVP0vx63NgXDWdMbBFiWbAnuNkB1vxoY=
+        b=rKyBO6einBYS6VXGZaqvBLIk0Nhz/S4zY4YON03V2VUODcIY8RRxyf5TwjUghESOr
+         cTAqw85DEvCPi2iIWipP9VyA30iBC0v5I8P2PVW+Ad8oiwwmW3FGzWmsX6JEy+ZnAv
+         6DbjP9qdbKYEKfLKG+78dJ3HHo1Qcyxb7XOTF+Rg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Plattner <christoph.plattner@thalesgroup.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 030/290] powerpc/603: Fix protection of user pages mapped with PROT_NONE
-Date:   Mon, 15 Mar 2021 14:52:03 +0100
-Message-Id: <20210315135542.940267543@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.10 031/290] mount: fix mounting of detached mounts onto targets that reside on shared mounts
+Date:   Mon, 15 Mar 2021 14:52:04 +0100
+Message-Id: <20210315135542.973247872@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -43,96 +43,321 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit c119565a15a628efdfa51352f9f6c5186e506a1c upstream.
+commit ee2e3f50629f17b0752b55b2566c15ce8dafb557 upstream.
 
-On book3s/32, page protection is defined by the PP bits in the PTE
-which provide the following protection depending on the access
-keys defined in the matching segment register:
-- PP 00 means RW with key 0 and N/A with key 1.
-- PP 01 means RW with key 0 and RO with key 1.
-- PP 10 means RW with both key 0 and key 1.
-- PP 11 means RO with both key 0 and key 1.
+Creating a series of detached mounts, attaching them to the filesystem,
+and unmounting them can be used to trigger an integer overflow in
+ns->mounts causing the kernel to block any new mounts in count_mounts()
+and returning ENOSPC because it falsely assumes that the maximum number
+of mounts in the mount namespace has been reached, i.e. it thinks it
+can't fit the new mounts into the mount namespace anymore.
 
-Since the implementation of kernel userspace access protection,
-PP bits have been set as follows:
-- PP00 for pages without _PAGE_USER
-- PP01 for pages with _PAGE_USER and _PAGE_RW
-- PP11 for pages with _PAGE_USER and without _PAGE_RW
+Depending on the number of mounts in your system, this can be reproduced
+on any kernel that supportes open_tree() and move_mount() by compiling
+and running the following program:
 
-For kernelspace segments, kernel accesses are performed with key 0
-and user accesses are performed with key 1. As PP00 is used for
-non _PAGE_USER pages, user can't access kernel pages not flagged
-_PAGE_USER while kernel can.
+  /* SPDX-License-Identifier: LGPL-2.1+ */
 
-For userspace segments, both kernel and user accesses are performed
-with key 0, therefore pages not flagged _PAGE_USER are still
-accessible to the user.
+  #define _GNU_SOURCE
+  #include <errno.h>
+  #include <fcntl.h>
+  #include <getopt.h>
+  #include <limits.h>
+  #include <stdbool.h>
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <string.h>
+  #include <sys/mount.h>
+  #include <sys/stat.h>
+  #include <sys/syscall.h>
+  #include <sys/types.h>
+  #include <unistd.h>
 
-This shouldn't be an issue, because userspace is expected to be
-accessible to the user. But unlike most other architectures, powerpc
-implements PROT_NONE protection by removing _PAGE_USER flag instead of
-flagging the page as not valid. This means that pages in userspace
-that are not flagged _PAGE_USER shall remain inaccessible.
+  /* open_tree() */
+  #ifndef OPEN_TREE_CLONE
+  #define OPEN_TREE_CLONE 1
+  #endif
 
-To get the expected behaviour, just mimic other architectures in the
-TLB miss handler by checking _PAGE_USER permission on userspace
-accesses as if it was the _PAGE_PRESENT bit.
+  #ifndef OPEN_TREE_CLOEXEC
+  #define OPEN_TREE_CLOEXEC O_CLOEXEC
+  #endif
 
-Note that this problem only is only for 603 cores. The 604+ have
-an hash table, and hash_page() function already implement the
-verification of _PAGE_USER permission on userspace pages.
+  #ifndef __NR_open_tree
+          #if defined __alpha__
+                  #define __NR_open_tree 538
+          #elif defined _MIPS_SIM
+                  #if _MIPS_SIM == _MIPS_SIM_ABI32        /* o32 */
+                          #define __NR_open_tree 4428
+                  #endif
+                  #if _MIPS_SIM == _MIPS_SIM_NABI32       /* n32 */
+                          #define __NR_open_tree 6428
+                  #endif
+                  #if _MIPS_SIM == _MIPS_SIM_ABI64        /* n64 */
+                          #define __NR_open_tree 5428
+                  #endif
+          #elif defined __ia64__
+                  #define __NR_open_tree (428 + 1024)
+          #else
+                  #define __NR_open_tree 428
+          #endif
+  #endif
 
-Fixes: f342adca3afc ("powerpc/32s: Prepare Kernel Userspace Access Protection")
-Cc: stable@vger.kernel.org # v5.2+
-Reported-by: Christoph Plattner <christoph.plattner@thalesgroup.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/4a0c6e3bb8f0c162457bf54d9bc6fd8d7b55129f.1612160907.git.christophe.leroy@csgroup.eu
+  /* move_mount() */
+  #ifndef MOVE_MOUNT_F_EMPTY_PATH
+  #define MOVE_MOUNT_F_EMPTY_PATH 0x00000004 /* Empty from path permitted */
+  #endif
+
+  #ifndef __NR_move_mount
+          #if defined __alpha__
+                  #define __NR_move_mount 539
+          #elif defined _MIPS_SIM
+                  #if _MIPS_SIM == _MIPS_SIM_ABI32        /* o32 */
+                          #define __NR_move_mount 4429
+                  #endif
+                  #if _MIPS_SIM == _MIPS_SIM_NABI32       /* n32 */
+                          #define __NR_move_mount 6429
+                  #endif
+                  #if _MIPS_SIM == _MIPS_SIM_ABI64        /* n64 */
+                          #define __NR_move_mount 5429
+                  #endif
+          #elif defined __ia64__
+                  #define __NR_move_mount (428 + 1024)
+          #else
+                  #define __NR_move_mount 429
+          #endif
+  #endif
+
+  static inline int sys_open_tree(int dfd, const char *filename, unsigned int flags)
+  {
+          return syscall(__NR_open_tree, dfd, filename, flags);
+  }
+
+  static inline int sys_move_mount(int from_dfd, const char *from_pathname, int to_dfd,
+                                   const char *to_pathname, unsigned int flags)
+  {
+          return syscall(__NR_move_mount, from_dfd, from_pathname, to_dfd, to_pathname, flags);
+  }
+
+  static bool is_shared_mountpoint(const char *path)
+  {
+          bool shared = false;
+          FILE *f = NULL;
+          char *line = NULL;
+          int i;
+          size_t len = 0;
+
+          f = fopen("/proc/self/mountinfo", "re");
+          if (!f)
+                  return 0;
+
+          while (getline(&line, &len, f) > 0) {
+                  char *slider1, *slider2;
+
+                  for (slider1 = line, i = 0; slider1 && i < 4; i++)
+                          slider1 = strchr(slider1 + 1, ' ');
+
+                  if (!slider1)
+                          continue;
+
+                  slider2 = strchr(slider1 + 1, ' ');
+                  if (!slider2)
+                          continue;
+
+                  *slider2 = '\0';
+                  if (strcmp(slider1 + 1, path) == 0) {
+                          /* This is the path. Is it shared? */
+                          slider1 = strchr(slider2 + 1, ' ');
+                          if (slider1 && strstr(slider1, "shared:")) {
+                                  shared = true;
+                                  break;
+                          }
+                  }
+          }
+          fclose(f);
+          free(line);
+
+          return shared;
+  }
+
+  static void usage(void)
+  {
+          const char *text = "mount-new [--recursive] <base-dir>\n";
+          fprintf(stderr, "%s", text);
+          _exit(EXIT_SUCCESS);
+  }
+
+  #define exit_usage(format, ...)                              \
+          ({                                                   \
+                  fprintf(stderr, format "\n", ##__VA_ARGS__); \
+                  usage();                                     \
+          })
+
+  #define exit_log(format, ...)                                \
+          ({                                                   \
+                  fprintf(stderr, format "\n", ##__VA_ARGS__); \
+                  exit(EXIT_FAILURE);                          \
+          })
+
+  static const struct option longopts[] = {
+          {"help",        no_argument,            0,      'a'},
+          { NULL,         no_argument,            0,       0 },
+  };
+
+  int main(int argc, char *argv[])
+  {
+          int exit_code = EXIT_SUCCESS, index = 0;
+          int dfd, fd_tree, new_argc, ret;
+          char *base_dir;
+          char *const *new_argv;
+          char target[PATH_MAX];
+
+          while ((ret = getopt_long_only(argc, argv, "", longopts, &index)) != -1) {
+                  switch (ret) {
+                  case 'a':
+                          /* fallthrough */
+                  default:
+                          usage();
+                  }
+          }
+
+          new_argv = &argv[optind];
+          new_argc = argc - optind;
+          if (new_argc < 1)
+                  exit_usage("Missing base directory\n");
+          base_dir = new_argv[0];
+
+          if (*base_dir != '/')
+                  exit_log("Please specify an absolute path");
+
+          /* Ensure that target is a shared mountpoint. */
+          if (!is_shared_mountpoint(base_dir))
+                  exit_log("Please ensure that \"%s\" is a shared mountpoint", base_dir);
+
+          dfd = open(base_dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+          if (dfd < 0)
+                  exit_log("%m - Failed to open base directory \"%s\"", base_dir);
+
+          ret = mkdirat(dfd, "detached-move-mount", 0755);
+          if (ret < 0)
+                  exit_log("%m - Failed to create required temporary directories");
+
+          ret = snprintf(target, sizeof(target), "%s/detached-move-mount", base_dir);
+          if (ret < 0 || (size_t)ret >= sizeof(target))
+                  exit_log("%m - Failed to assemble target path");
+
+          /*
+           * Having a mount table with 10000 mounts is already quite excessive
+           * and shoult account even for weird test systems.
+           */
+          for (size_t i = 0; i < 10000; i++) {
+                  fd_tree = sys_open_tree(dfd, "detached-move-mount",
+                                          OPEN_TREE_CLONE |
+                                          OPEN_TREE_CLOEXEC |
+                                          AT_EMPTY_PATH);
+                  if (fd_tree < 0) {
+                          fprintf(stderr, "%m - Failed to open %d(detached-move-mount)", dfd);
+                          exit_code = EXIT_FAILURE;
+                          break;
+                  }
+
+                  ret = sys_move_mount(fd_tree, "", dfd, "detached-move-mount", MOVE_MOUNT_F_EMPTY_PATH);
+                  if (ret < 0) {
+                          if (errno == ENOSPC)
+                                  fprintf(stderr, "%m - Buggy mount counting");
+                          else
+                                  fprintf(stderr, "%m - Failed to attach mount to %d(detached-move-mount)", dfd);
+                          exit_code = EXIT_FAILURE;
+                          break;
+                  }
+                  close(fd_tree);
+
+                  ret = umount2(target, MNT_DETACH);
+                  if (ret < 0) {
+                          fprintf(stderr, "%m - Failed to unmount %s", target);
+                          exit_code = EXIT_FAILURE;
+                          break;
+                  }
+          }
+
+          (void)unlinkat(dfd, "detached-move-mount", AT_REMOVEDIR);
+          close(dfd);
+
+          exit(exit_code);
+  }
+
+and wait for the kernel to refuse any new mounts by returning ENOSPC.
+How many iterations are needed depends on the number of mounts in your
+system. Assuming you have something like 50 mounts on a standard system
+it should be almost instantaneous.
+
+The root cause of this is that detached mounts aren't handled correctly
+when source and target mount are identical and reside on a shared mount
+causing a broken mount tree where the detached source itself is
+propagated which propagation prevents for regular bind-mounts and new
+mounts. This ultimately leads to a miscalculation of the number of
+mounts in the mount namespace.
+
+Detached mounts created via
+open_tree(fd, path, OPEN_TREE_CLONE)
+are essentially like an unattached new mount, or an unattached
+bind-mount. They can then later on be attached to the filesystem via
+move_mount() which calls into attach_recursive_mount(). Part of
+attaching it to the filesystem is making sure that mounts get correctly
+propagated in case the destination mountpoint is MS_SHARED, i.e. is a
+shared mountpoint. This is done by calling into propagate_mnt() which
+walks the list of peers calling propagate_one() on each mount in this
+list making sure it receives the propagation event.
+The propagate_one() functions thereby skips both new mounts and bind
+mounts to not propagate them "into themselves". Both are identified by
+checking whether the mount is already attached to any mount namespace in
+mnt->mnt_ns. The is what the IS_MNT_NEW() helper is responsible for.
+
+However, detached mounts have an anonymous mount namespace attached to
+them stashed in mnt->mnt_ns which means that IS_MNT_NEW() doesn't
+realize they need to be skipped causing the mount to propagate "into
+itself" breaking the mount table and causing a disconnect between the
+number of mounts recorded as being beneath or reachable from the target
+mountpoint and the number of mounts actually recorded/counted in
+ns->mounts ultimately causing an overflow which in turn prevents any new
+mounts via the ENOSPC issue.
+
+So teach propagation to handle detached mounts by making it aware of
+them. I've been tracking this issue down for the last couple of days and
+then verifying that the fix is correct by
+unmounting everything in my current mount table leaving only /proc and
+/sys mounted and running the reproducer above overnight verifying the
+number of mounts counted in ns->mounts. With this fix the counts are
+correct and the ENOSPC issue can't be reproduced.
+
+This change will only have an effect on mounts created with the new
+mount API since detached mounts cannot be created with the old mount API
+so regressions are extremely unlikely.
+
+Link: https://lore.kernel.org/r/20210306101010.243666-1-christian.brauner@ubuntu.com
+Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/head_book3s_32.S |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/pnode.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/head_book3s_32.S
-+++ b/arch/powerpc/kernel/head_book3s_32.S
-@@ -461,10 +461,11 @@ InstructionTLBMiss:
- 	cmplw	0,r1,r3
- #endif
- 	mfspr	r2, SPRN_SPRG_PGDIR
--	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
-+	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
- #if defined(CONFIG_MODULES) || defined(CONFIG_DEBUG_PAGEALLOC)
- 	bgt-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
-+	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
- 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
- #endif
- 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
-@@ -523,9 +524,10 @@ DataLoadTLBMiss:
- 	lis	r1, TASK_SIZE@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- 	mfspr	r2, SPRN_SPRG_PGDIR
--	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
-+	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
- 	bgt-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
-+	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
- 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
- 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
- 	lwz	r2,0(r2)		/* get pmd entry */
-@@ -599,9 +601,10 @@ DataStoreTLBMiss:
- 	lis	r1, TASK_SIZE@h		/* check if kernel address */
- 	cmplw	0,r1,r3
- 	mfspr	r2, SPRN_SPRG_PGDIR
--	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
-+	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
- 	bgt-	112f
- 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
-+	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
- 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
- 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
- 	lwz	r2,0(r2)		/* get pmd entry */
+--- a/fs/pnode.h
++++ b/fs/pnode.h
+@@ -12,7 +12,7 @@
+ 
+ #define IS_MNT_SHARED(m) ((m)->mnt.mnt_flags & MNT_SHARED)
+ #define IS_MNT_SLAVE(m) ((m)->mnt_master)
+-#define IS_MNT_NEW(m)  (!(m)->mnt_ns)
++#define IS_MNT_NEW(m)  (!(m)->mnt_ns || is_anon_ns((m)->mnt_ns))
+ #define CLEAR_MNT_SHARED(m) ((m)->mnt.mnt_flags &= ~MNT_SHARED)
+ #define IS_MNT_UNBINDABLE(m) ((m)->mnt.mnt_flags & MNT_UNBINDABLE)
+ #define IS_MNT_MARKED(m) ((m)->mnt.mnt_flags & MNT_MARKED)
 
 
