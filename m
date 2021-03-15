@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 254B133B55F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B1433B567
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231266AbhCONyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56592 "EHLO mail.kernel.org"
+        id S231309AbhCONyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230455AbhCONxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F0AB61606;
-        Mon, 15 Mar 2021 13:53:40 +0000 (UTC)
+        id S230526AbhCONxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42A4364EED;
+        Mon, 15 Mar 2021 13:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816421;
-        bh=15rT5BZa2GapqoVJJCeqH9LGpg8DFfJBAxHjZG3W4MU=;
+        s=korg; t=1615816428;
+        bh=/RrIS0wPRJ2jKcDUj/WI2DqVdqay1L2H+3QyBkhJEdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laNlonF9ZdbIRwjswgXA2BjdqwH4zkv/g4/0uplvECfqS88Kf+QlOvqDGFWAhF7bt
-         pb3U6ptNNNRDTsdQGuz9bpIGt51uv9EY982ZrcQDmPs144DUwqSsbgec7T/ITAWcI7
-         /2KXBYlPBRyyCUApST/54LgILbp32YtM/LQ6hNow=
+        b=VYhZoa+e1rP6YVugoko5WRgfE5LNitdUKpx4CspBb5RXBmIxxYplmeOKdDLJA7vov
+         kg96RvSSVhzPdv1FnWuwvQ5nnX/qgqfdhAu+AMRUo6uELm/aEMVjqy98h/R20XT8bC
+         /Z1m8085zaWzVSvnNuE44I8y+pp4M1azLYvd0i0s=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.9 29/78] mmc: core: Fix partition switch time for eMMC
+        stable@vger.kernel.org,
+        Karan Singhal <karan.singhal@acuitybrands.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 38/75] USB: serial: cp210x: add ID for Acuity Brands nLight Air Adapter
 Date:   Mon, 15 Mar 2021 14:51:52 +0100
-Message-Id: <20210315135213.031197766@linuxfoundation.org>
+Message-Id: <20210315135209.496755423@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Karan Singhal <karan.singhal@acuitybrands.com>
 
-commit 66fbacccbab91e6e55d9c8f1fc0910a8eb6c81f7 upstream.
+commit ca667a33207daeaf9c62b106815728718def60ec upstream.
 
-Avoid the following warning by always defining partition switch time:
+IDs of nLight Air Adapter, Acuity Brands, Inc.:
+vid: 10c4
+pid: 88d8
 
- [    3.209874] mmc1: unspecified timeout for CMD6 - use generic
- [    3.222780] ------------[ cut here ]------------
- [    3.233363] WARNING: CPU: 1 PID: 111 at drivers/mmc/core/mmc_ops.c:575 __mmc_switch+0x200/0x204
-
-Reported-by: Paul Fertser <fercerpav@gmail.com>
-Fixes: 1c447116d017 ("mmc: mmc: Fix partition switch timeout for some eMMCs")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/168bbfd6-0c5b-5ace-ab41-402e7937c46e@intel.com
+Signed-off-by: Karan Singhal <karan.singhal@acuitybrands.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -423,10 +423,6 @@ static int mmc_decode_ext_csd(struct mmc
- 
- 		/* EXT_CSD value is in units of 10ms, but we store in ms */
- 		card->ext_csd.part_time = 10 * ext_csd[EXT_CSD_PART_SWITCH_TIME];
--		/* Some eMMC set the value too low so set a minimum */
--		if (card->ext_csd.part_time &&
--		    card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
--			card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
- 
- 		/* Sleep / awake timeout in 100ns units */
- 		if (sa_shift > 0 && sa_shift <= 0x17)
-@@ -610,6 +606,17 @@ static int mmc_decode_ext_csd(struct mmc
- 		card->ext_csd.data_sector_size = 512;
- 	}
- 
-+	/*
-+	 * GENERIC_CMD6_TIME is to be used "unless a specific timeout is defined
-+	 * when accessing a specific field", so use it here if there is no
-+	 * PARTITION_SWITCH_TIME.
-+	 */
-+	if (!card->ext_csd.part_time)
-+		card->ext_csd.part_time = card->ext_csd.generic_cmd6_time;
-+	/* Some eMMC set the value too low so set a minimum */
-+	if (card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
-+		card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
-+
- 	/* eMMC v5 or later */
- 	if (card->ext_csd.rev >= 7) {
- 		memcpy(card->ext_csd.fwrev, &ext_csd[EXT_CSD_FIRMWARE_VERSION],
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -142,6 +142,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x8857) },	/* CEL EM357 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x88A4) }, /* MMB Networks ZigBee USB Device */
+ 	{ USB_DEVICE(0x10C4, 0x88A5) }, /* Planet Innovation Ingeni ZigBee USB Device */
++	{ USB_DEVICE(0x10C4, 0x88D8) }, /* Acuity Brands nLight Air Adapter */
+ 	{ USB_DEVICE(0x10C4, 0x88FB) }, /* CESINEL MEDCAL STII Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8938) }, /* CESINEL MEDCAL S II Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8946) }, /* Ketra N1 Wireless Interface */
 
 
