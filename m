@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7DC33B9F1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C52C633BA25
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235086AbhCOOHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:07:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48936 "EHLO mail.kernel.org"
+        id S234974AbhCOOIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233663AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233660AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 10:02:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 993AF64F09;
-        Mon, 15 Mar 2021 14:02:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5532D64F19;
+        Mon, 15 Mar 2021 14:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816927;
-        bh=xudjOPEZd9tiaGVCohY8fhUN0/qc8p1vWlE7VKIYnFA=;
+        s=korg; t=1615816929;
+        bh=PTcLLVHr/9HBRIE549YIz8JnuFcy9FkCf0zgoZIqlec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5HvNdcVHk7KwCD+cNyFcx1IbYg5xTU/b11OAzrVtAnPg/r2OSOdg1elh7jdKY5zC
-         D9bRV5dfMNkaSfbK1o02mOSXkI0Ey+S6N9PwnUX7H+yu+MtduRVDFZVBF+y8nvDVlN
-         wD0/HzsdrNkY4j64agvetyGE6++vrMVu5Qewrkyk=
+        b=CQX9wdgl0eioVzKLnBH+ocT+YtNAdN5XU5G5O0ADh+bVrZhtoZkYjTJhoyXZlMY4b
+         BtZo3M1uUPEzXe8XkC2dqWLFGBrOs5AYC1b0JJljDFt8DpmpWBiGJl8eTGbUmStz+/
+         3hpul6gK4Zhi8zJRQehELFf0fHXlPhWoABkZ8vgM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.10 192/290] xen/events: reset affinity of 2-level event when tearing it down
-Date:   Mon, 15 Mar 2021 14:54:45 +0100
-Message-Id: <20210315135548.404440115@linuxfoundation.org>
+        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 193/290] mmc: mmci: Add MMC_CAP_NEED_RSP_BUSY for the stm32 variants
+Date:   Mon, 15 Mar 2021 14:54:46 +0100
+Message-Id: <20210315135548.436575012@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -43,108 +41,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
+commit 774514bf977377c9137640a0310bd64eed0f7323 upstream.
 
-When creating a new event channel with 2-level events the affinity
-needs to be reset initially in order to avoid using an old affinity
-from earlier usage of the event channel port. So when tearing an event
-channel down reset all affinity bits.
+An issue has been observed on STM32MP157C-EV1 board, with an erase command
+with secure erase argument, ending up waiting for ~4 hours before timeout.
 
-The same applies to the affinity when onlining a vcpu: all old
-affinity settings for this vcpu must be reset. As percpu events get
-initialized before the percpu event channel hook is called,
-resetting of the affinities happens after offlining a vcpu (this is
-working, as initial percpu memory is zeroed out).
+The requested busy timeout from the mmc core ends up with 14784000ms (~4
+hours), but the supported host->max_busy_timeout is 86767ms, which leads to
+that the core switch to use an R1 response in favor of the R1B and polls
+for busy with the host->card_busy() ops. In this case the polling doesn't
+work as expected, as we never detects that the card stops signaling busy,
+which leads to the following message:
 
+ mmc1: Card stuck being busy! __mmc_poll_for_busy
+
+The problem boils done to that the stm32 variants can't use R1 responses in
+favor of R1B responses, as it leads to an internal state machine in the
+controller to get stuck. To continue to process requests, it would need to
+be reset.
+
+To fix this problem, let's set MMC_CAP_NEED_RSP_BUSY for the stm32 variant,
+which prevent the mmc core from switching to R1 responses. Additionally,
+let's cap the cmd->busy_timeout to the host->max_busy_timeout, thus rely on
+86767ms to be sufficient (~66 seconds was need for this test case).
+
+Fixes: 94fe2580a2f3 ("mmc: core: Enable erase/discard/trim support for all mmc hosts")
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Link: https://lore.kernel.org/r/20210225145454.12780-1-yann.gautier@foss.st.com
 Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+[Ulf: Simplified the code and extended the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_2l.c       |   15 +++++++++++++++
- drivers/xen/events/events_base.c     |    1 +
- drivers/xen/events/events_internal.h |    8 ++++++++
- 3 files changed, 24 insertions(+)
+ drivers/mmc/host/mmci.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/xen/events/events_2l.c
-+++ b/drivers/xen/events/events_2l.c
-@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
- 	return EVTCHN_2L_NR_CHANNELS;
- }
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1241,7 +1241,11 @@ mmci_start_command(struct mmci_host *hos
+ 		if (!cmd->busy_timeout)
+ 			cmd->busy_timeout = 10 * MSEC_PER_SEC;
  
-+static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
-+{
-+	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
-+}
+-		clks = (unsigned long long)cmd->busy_timeout * host->cclk;
++		if (cmd->busy_timeout > host->mmc->max_busy_timeout)
++			clks = (unsigned long long)host->mmc->max_busy_timeout * host->cclk;
++		else
++			clks = (unsigned long long)cmd->busy_timeout * host->cclk;
 +
- static void evtchn_2l_bind_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
- 				  unsigned int old_cpu)
- {
-@@ -355,9 +360,18 @@ static void evtchn_2l_resume(void)
- 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
- }
+ 		do_div(clks, MSEC_PER_SEC);
+ 		writel_relaxed(clks, host->base + MMCIDATATIMER);
+ 	}
+@@ -2091,6 +2095,10 @@ static int mmci_probe(struct amba_device
+ 		mmc->caps |= MMC_CAP_WAIT_WHILE_BUSY;
+ 	}
  
-+static int evtchn_2l_percpu_deinit(unsigned int cpu)
-+{
-+	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
-+			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
++	/* Variants with mandatory busy timeout in HW needs R1B responses. */
++	if (variant->busy_timeout)
++		mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
 +
-+	return 0;
-+}
-+
- static const struct evtchn_ops evtchn_ops_2l = {
- 	.max_channels      = evtchn_2l_max_channels,
- 	.nr_channels       = evtchn_2l_max_channels,
-+	.remove            = evtchn_2l_remove,
- 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
- 	.clear_pending     = evtchn_2l_clear_pending,
- 	.set_pending       = evtchn_2l_set_pending,
-@@ -367,6 +381,7 @@ static const struct evtchn_ops evtchn_op
- 	.unmask            = evtchn_2l_unmask,
- 	.handle_events     = evtchn_2l_handle_events,
- 	.resume	           = evtchn_2l_resume,
-+	.percpu_deinit     = evtchn_2l_percpu_deinit,
- };
- 
- void __init xen_evtchn_2l_init(void)
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -338,6 +338,7 @@ static int xen_irq_info_pirq_setup(unsig
- static void xen_irq_info_cleanup(struct irq_info *info)
- {
- 	set_evtchn_to_irq(info->evtchn, -1);
-+	xen_evtchn_port_remove(info->evtchn, info->cpu);
- 	info->evtchn = 0;
- }
- 
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -14,6 +14,7 @@ struct evtchn_ops {
- 	unsigned (*nr_channels)(void);
- 
- 	int (*setup)(evtchn_port_t port);
-+	void (*remove)(evtchn_port_t port, unsigned int cpu);
- 	void (*bind_to_cpu)(evtchn_port_t evtchn, unsigned int cpu,
- 			    unsigned int old_cpu);
- 
-@@ -54,6 +55,13 @@ static inline int xen_evtchn_port_setup(
- 	return 0;
- }
- 
-+static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
-+					  unsigned int cpu)
-+{
-+	if (evtchn_ops->remove)
-+		evtchn_ops->remove(evtchn, cpu);
-+}
-+
- static inline void xen_evtchn_port_bind_to_cpu(evtchn_port_t evtchn,
- 					       unsigned int cpu,
- 					       unsigned int old_cpu)
+ 	/* Prepare a CMD12 - needed to clear the DPSM on some variants. */
+ 	host->stop_abort.opcode = MMC_STOP_TRANSMISSION;
+ 	host->stop_abort.arg = 0;
 
 
