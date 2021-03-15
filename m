@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97E5D33C00C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:36:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A1A33C00F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:36:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233015AbhCOPgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 11:36:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60514 "EHLO mail.kernel.org"
+        id S233243AbhCOPgE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 11:36:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234095AbhCOPfs (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 11:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0A6164E74;
-        Mon, 15 Mar 2021 15:35:47 +0000 (UTC)
+        id S234637AbhCOPfy (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 11:35:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EAE064E22;
+        Mon, 15 Mar 2021 15:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615822548;
-        bh=f0Jv0x1N5MtpHDuqTanDbxZeRxFZI4g4VUau1mU18Eo=;
+        s=korg; t=1615822553;
+        bh=HHPlcCmbRgs1877IMu3ICI8XbLPtPKcHZMhTV0e0/Fg=;
         h=Subject:To:From:Date:From;
-        b=L4G8jOWFOgSYWRCfRKI2B9MgrbSU4/hB41kKCQ7Flggss+vaN9nYpqgG3kzbcM16M
-         hZugExyDkUyD7tYdXftmjS4GpW1zCpCzMmbu/Dm/t6DUsGtsWSDIInBy5310eQvqmu
-         w+t2FU3OKoW1hHCyJoPn6LpL7pJZXrRoM/ORjYx8=
-Subject: patch "counter: stm32-timer-cnt: fix ceiling write max value" added to staging-linus
-To:     fabrice.gasnier@foss.st.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, vilhelm.gray@gmail.com
+        b=ZoyA1s3aP6K3ftsmNfWoyalo/bbpEnJ34NS5uaUHaLjI+oEOJg8DuNbKuXqUjK3S2
+         ln/+zShPCMhdWNXGWbMzTSZ1iJ85O0PJz2IMNI+8/QvMf29+DB7XOWvS5DUaMl7Z6W
+         F1s7103fcykH9fBwsbjEWQc38INqrOQv+U4/1NCA=
+Subject: patch "iio: hid-sensor-temperature: Fix issues of timestamp channel" added to staging-linus
+To:     xiang.ye@intel.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Mar 2021 16:35:25 +0100
-Message-ID: <161582252598140@kroah.com>
+Date:   Mon, 15 Mar 2021 16:35:26 +0100
+Message-ID: <1615822526151133@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    counter: stm32-timer-cnt: fix ceiling write max value
+    iio: hid-sensor-temperature: Fix issues of timestamp channel
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,58 +51,71 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e4c3e133294c0a292d21073899b05ebf530169bd Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Date: Tue, 2 Mar 2021 15:43:55 +0100
-Subject: counter: stm32-timer-cnt: fix ceiling write max value
+From 141e7633aa4d2838d1f6ad5c74cccc53547c16ac Mon Sep 17 00:00:00 2001
+From: Ye Xiang <xiang.ye@intel.com>
+Date: Wed, 3 Mar 2021 14:36:14 +0800
+Subject: iio: hid-sensor-temperature: Fix issues of timestamp channel
 
-The ceiling value isn't checked before writing it into registers. The user
-could write a value higher than the counter resolution (e.g. 16 or 32 bits
-indicated by max_arr). This makes most significant bits to be truncated.
-Fix it by checking the max_arr to report a range error [1] to the user.
+This patch fixes 2 issues of timestamp channel:
+1. This patch ensures that there is sufficient space and correct
+alignment for the timestamp.
+2. Correct the timestamp channel scan index.
 
-[1] https://lkml.org/lkml/2021/2/12/358
-
-Fixes: ad29937e206f ("counter: Add STM32 Timer quadrature encoder")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
+Fixes: 59d0f2da3569 ("iio: hid: Add temperature sensor support")
+Signed-off-by: Ye Xiang <xiang.ye@intel.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1614696235-24088-1-git-send-email-fabrice.gasnier@foss.st.com
+Link: https://lore.kernel.org/r/20210303063615.12130-4-xiang.ye@intel.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/counter/stm32-timer-cnt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/temperature/hid-sensor-temperature.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/counter/stm32-timer-cnt.c b/drivers/counter/stm32-timer-cnt.c
-index cd50dc12bd02..2295be3f309a 100644
---- a/drivers/counter/stm32-timer-cnt.c
-+++ b/drivers/counter/stm32-timer-cnt.c
-@@ -32,6 +32,7 @@ struct stm32_timer_cnt {
- 	struct regmap *regmap;
- 	struct clk *clk;
- 	u32 ceiling;
-+	u32 max_arr;
- 	bool enabled;
- 	struct stm32_timer_regs bak;
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index 81688f1b932f..da9a247097fa 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -15,7 +15,10 @@
+ struct temperature_state {
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info temperature_attr;
+-	s32 temperature_data;
++	struct {
++		s32 temperature_data;
++		u64 timestamp __aligned(8);
++	} scan;
+ 	int scale_pre_decml;
+ 	int scale_post_decml;
+ 	int scale_precision;
+@@ -32,7 +35,7 @@ static const struct iio_chan_spec temperature_channels[] = {
+ 			BIT(IIO_CHAN_INFO_SAMP_FREQ) |
+ 			BIT(IIO_CHAN_INFO_HYSTERESIS),
+ 	},
+-	IIO_CHAN_SOFT_TIMESTAMP(3),
++	IIO_CHAN_SOFT_TIMESTAMP(1),
  };
-@@ -191,6 +192,9 @@ static ssize_t stm32_count_ceiling_write(struct counter_device *counter,
- 	if (ret)
- 		return ret;
  
-+	if (ceiling > priv->max_arr)
-+		return -ERANGE;
-+
- 	/* TIMx_ARR register shouldn't be buffered (ARPE=0) */
- 	regmap_update_bits(priv->regmap, TIM_CR1, TIM_CR1_ARPE, 0);
- 	regmap_write(priv->regmap, TIM_ARR, ceiling);
-@@ -371,6 +375,7 @@ static int stm32_timer_cnt_probe(struct platform_device *pdev)
- 	priv->regmap = ddata->regmap;
- 	priv->clk = ddata->clk;
- 	priv->ceiling = ddata->max_arr;
-+	priv->max_arr = ddata->max_arr;
+ /* Adjust channel real bits based on report descriptor */
+@@ -123,9 +126,8 @@ static int temperature_proc_event(struct hid_sensor_hub_device *hsdev,
+ 	struct temperature_state *temp_st = iio_priv(indio_dev);
  
- 	priv->counter.name = dev_name(dev);
- 	priv->counter.parent = dev;
+ 	if (atomic_read(&temp_st->common_attributes.data_ready))
+-		iio_push_to_buffers_with_timestamp(indio_dev,
+-				&temp_st->temperature_data,
+-				iio_get_time_ns(indio_dev));
++		iio_push_to_buffers_with_timestamp(indio_dev, &temp_st->scan,
++						   iio_get_time_ns(indio_dev));
+ 
+ 	return 0;
+ }
+@@ -140,7 +142,7 @@ static int temperature_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 
+ 	switch (usage_id) {
+ 	case HID_USAGE_SENSOR_DATA_ENVIRONMENTAL_TEMPERATURE:
+-		temp_st->temperature_data = *(s32 *)raw_data;
++		temp_st->scan.temperature_data = *(s32 *)raw_data;
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 -- 
 2.30.2
 
