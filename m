@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 993AB33B7E7
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE5C33B8CA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbhCOOBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S234614AbhCOOE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232469AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94AD964F19;
-        Mon, 15 Mar 2021 13:59:27 +0000 (UTC)
+        id S233045AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A727A64EF0;
+        Mon, 15 Mar 2021 14:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816768;
-        bh=2kspGpLfUEBLgLAq1ZGvCCgsmP9b4EWHvwylP07uFQU=;
+        s=korg; t=1615816817;
+        bh=Fhgwe28ATRz/2WBldTQblfj5onW69dG5dekJ9gMPgiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TyESi0MSvnh1PEcNj5SsoUVjGD/4WOHGtiDxMiMxZ+THxixI+5OIAy1I0/iHrZvLv
-         Ft3jbyATlxLBPMsK/cdi+tUyWP75fniEvajZzJZIm2FBGEguPlM0JikdYW/A9DZhVi
-         CId4sJx/i7m2mY2cKeELn4y40p8l+6Wu0HktH+RE=
+        b=fcPSw4O0YSbnDK6klh60iuln/Wvt1bE78lAppEbQNM2wXNqvyLN4G0l5cLUcmJZhQ
+         QHe/oqb/031/Cxm0/iFHz8QH2cR1RzVVR2Jn3IlcowZjXvTYgA2k1oUaRzqHQojIv1
+         NTiRxbgBa9M6rkutTgNfi4c3aOHWExL+/lHO2Xfo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 48/95] mmc: core: Fix partition switch time for eMMC
+        stable@vger.kernel.org,
+        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
+        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
+        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.19 087/120] usbip: fix vhci_hcd attach_store() races leading to gpf
 Date:   Mon, 15 Mar 2021 14:57:18 +0100
-Message-Id: <20210315135741.856616568@linuxfoundation.org>
+Message-Id: <20210315135722.816611001@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +45,142 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 66fbacccbab91e6e55d9c8f1fc0910a8eb6c81f7 upstream.
+commit 718ad9693e3656120064b715fe931f43a6201e67 upstream.
 
-Avoid the following warning by always defining partition switch time:
+attach_store() is invoked when user requests import (attach) a device
+from usbip host.
 
- [    3.209874] mmc1: unspecified timeout for CMD6 - use generic
- [    3.222780] ------------[ cut here ]------------
- [    3.233363] WARNING: CPU: 1 PID: 111 at drivers/mmc/core/mmc_ops.c:575 __mmc_switch+0x200/0x204
+Attach and detach are governed by local state and shared state
+- Shared state (usbip device status) - Device status is used to manage
+  the attach and detach operations on import-able devices.
+- Local state (tcp_socket, rx and tx thread task_struct ptrs)
+  A valid tcp_socket controls rx and tx thread operations while the
+  device is in exported state.
+- Device has to be in the right state to be attached and detached.
 
-Reported-by: Paul Fertser <fercerpav@gmail.com>
-Fixes: 1c447116d017 ("mmc: mmc: Fix partition switch timeout for some eMMCs")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/168bbfd6-0c5b-5ace-ab41-402e7937c46e@intel.com
+Attach sequence includes validating the socket and creating receive (rx)
+and transmit (tx) threads to talk to the host to get access to the
+imported device. rx and tx threads depends on local and shared state to
+be correct and in sync.
+
+Detach sequence shuts the socket down and stops the rx and tx threads.
+Detach sequence relies on local and shared states to be in sync.
+
+There are races in updating the local and shared status in the current
+attach sequence resulting in crashes. These stem from starting rx and
+tx threads before local and global state is updated correctly to be in
+sync.
+
+1. Doesn't handle kthread_create() error and saves invalid ptr in local
+   state that drives rx and tx threads.
+2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
+   before updating usbip_device status to VDEV_ST_NOTASSIGNED. This opens
+   up a race condition between the threads, port connect, and detach
+   handling.
+
+Fix the above problems:
+- Stop using kthread_get_run() macro to create/start threads.
+- Create threads and get task struct reference.
+- Add kthread_create() failure handling and bail out.
+- Hold vhci and usbip_device locks to update local and shared states after
+  creating rx and tx threads.
+- Update usbip_device status to VDEV_ST_NOTASSIGNED.
+- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
+- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
+  and status) is complete.
+
+Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
+kthread_get_run() improper error handling problem and others. This is
+hard problem to find and debug since the races aren't seen in a normal
+case. Fuzzing forces the race window to be small enough for the
+kthread_get_run() error path bug and starting threads before updating the
+local and shared state bug in the attach sequence.
+- Update usbip_device tcp_rx and tcp_tx pointers holding vhci and
+  usbip_device locks.
+
+Tested with syzbot reproducer:
+- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
+
+Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/bb434bd5d7a64fbec38b5ecfb838a6baef6eb12b.1615171203.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/usb/usbip/vhci_sysfs.c |   29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -426,10 +426,6 @@ static int mmc_decode_ext_csd(struct mmc
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -312,6 +312,8 @@ static ssize_t attach_store(struct devic
+ 	struct vhci *vhci;
+ 	int err;
+ 	unsigned long flags;
++	struct task_struct *tcp_rx = NULL;
++	struct task_struct *tcp_tx = NULL;
  
- 		/* EXT_CSD value is in units of 10ms, but we store in ms */
- 		card->ext_csd.part_time = 10 * ext_csd[EXT_CSD_PART_SWITCH_TIME];
--		/* Some eMMC set the value too low so set a minimum */
--		if (card->ext_csd.part_time &&
--		    card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
--			card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
- 
- 		/* Sleep / awake timeout in 100ns units */
- 		if (sa_shift > 0 && sa_shift <= 0x17)
-@@ -619,6 +615,17 @@ static int mmc_decode_ext_csd(struct mmc
- 		card->ext_csd.data_sector_size = 512;
+ 	/*
+ 	 * @rhport: port number of vhci_hcd
+@@ -360,9 +362,24 @@ static ssize_t attach_store(struct devic
+ 		return -EINVAL;
  	}
  
-+	/*
-+	 * GENERIC_CMD6_TIME is to be used "unless a specific timeout is defined
-+	 * when accessing a specific field", so use it here if there is no
-+	 * PARTITION_SWITCH_TIME.
-+	 */
-+	if (!card->ext_csd.part_time)
-+		card->ext_csd.part_time = card->ext_csd.generic_cmd6_time;
-+	/* Some eMMC set the value too low so set a minimum */
-+	if (card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
-+		card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
+-	/* now need lock until setting vdev status as used */
++	/* create threads before locking */
++	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
++	if (IS_ERR(tcp_rx)) {
++		sockfd_put(socket);
++		return -EINVAL;
++	}
++	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
++	if (IS_ERR(tcp_tx)) {
++		kthread_stop(tcp_rx);
++		sockfd_put(socket);
++		return -EINVAL;
++	}
 +
- 	/* eMMC v5 or later */
- 	if (card->ext_csd.rev >= 7) {
- 		memcpy(card->ext_csd.fwrev, &ext_csd[EXT_CSD_FIRMWARE_VERSION],
++	/* get task structs now */
++	get_task_struct(tcp_rx);
++	get_task_struct(tcp_tx);
+ 
+-	/* begin a lock */
++	/* now begin lock until setting vdev status set */
+ 	spin_lock_irqsave(&vhci->lock, flags);
+ 	spin_lock(&vdev->ud.lock);
+ 
+@@ -372,6 +389,8 @@ static ssize_t attach_store(struct devic
+ 		spin_unlock_irqrestore(&vhci->lock, flags);
+ 
+ 		sockfd_put(socket);
++		kthread_stop_put(tcp_rx);
++		kthread_stop_put(tcp_tx);
+ 
+ 		dev_err(dev, "port %d already used\n", rhport);
+ 		/*
+@@ -390,14 +409,16 @@ static ssize_t attach_store(struct devic
+ 	vdev->speed         = speed;
+ 	vdev->ud.sockfd     = sockfd;
+ 	vdev->ud.tcp_socket = socket;
++	vdev->ud.tcp_rx     = tcp_rx;
++	vdev->ud.tcp_tx     = tcp_tx;
+ 	vdev->ud.status     = VDEV_ST_NOTASSIGNED;
+ 
+ 	spin_unlock(&vdev->ud.lock);
+ 	spin_unlock_irqrestore(&vhci->lock, flags);
+ 	/* end the lock */
+ 
+-	vdev->ud.tcp_rx = kthread_get_run(vhci_rx_loop, &vdev->ud, "vhci_rx");
+-	vdev->ud.tcp_tx = kthread_get_run(vhci_tx_loop, &vdev->ud, "vhci_tx");
++	wake_up_process(vdev->ud.tcp_rx);
++	wake_up_process(vdev->ud.tcp_tx);
+ 
+ 	rh_port_connect(vdev, speed);
+ 
 
 
