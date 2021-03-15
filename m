@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A7E333BAC2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4924533BAB8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232268AbhCOOKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48972 "EHLO mail.kernel.org"
+        id S235201AbhCOOKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233694AbhCOOCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5502A64E4D;
-        Mon, 15 Mar 2021 14:02:17 +0000 (UTC)
+        id S232250AbhCON6H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AAC464F29;
+        Mon, 15 Mar 2021 13:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816938;
-        bh=y9MWJwAHKI1yTKJrTrQ3s9kibterPfHI/FArkPmAavI=;
+        s=korg; t=1615816685;
+        bh=YbjjcTlyeZCxsakUCq89yYNSmpj+tvaTA1dxF0paFmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTcK5EVT/fLIyJsTAdLcO/mRU0M7s0DP5vqg+RqWZtxRiyBQr7JtBUf6UUmZIPHKX
-         qBxIs1bUSNM31QTsr3n+2dIYTuwu16+860/Kn9S25+O3V5tt+4XEW/4PtWSXU+khpk
-         6NrtZgHv50KsckBG9ERLh7cuzU8XxoktTLbVOQoM=
+        b=G9tpF3aGgLKJlUZa6c3DG1iJvse1e35OK3VdIKUH0Q0bnWKsbasJtJgU+B/BeMpCz
+         eCWxl4yG2AHoZsmhFpsDlIiZp959PbCCn6cpF+l1BoEwBvjFFhJu16sZdf8XizOvyM
+         ixDms6Svs2/9c/deqfiq4rcIex3Qr6tzMgE2TxLo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.11 215/306] usbip: fix stub_dev usbip_sockfd_store() races leading to gpf
+        stable@vger.kernel.org, Scott Branden <scott.branden@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 046/168] bnxt_en: reliably allocate IRQ table on reset to avoid crash
 Date:   Mon, 15 Mar 2021 14:54:38 +0100
-Message-Id: <20210315135514.891060948@linuxfoundation.org>
+Message-Id: <20210315135551.879835775@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,134 +43,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Edwin Peer <edwin.peer@broadcom.com>
 
-commit 9380afd6df70e24eacbdbde33afc6a3950965d22 upstream.
+commit 20d7d1c5c9b11e9f538ed4a2289be106de970d3e upstream.
 
-usbip_sockfd_store() is invoked when user requests attach (import)
-detach (unimport) usb device from usbip host. vhci_hcd sends import
-request and usbip_sockfd_store() exports the device if it is free
-for export.
+The following trace excerpt corresponds with a NULL pointer dereference
+of 'bp->irq_tbl' in bnxt_setup_inta() on an Aarch64 system after many
+device resets:
 
-Export and unexport are governed by local state and shared state
-- Shared state (usbip device status, sockfd) - sockfd and Device
-  status are used to determine if stub should be brought up or shut
-  down.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- While the device is exported, device status is marked used and socket,
-  sockfd, and thread pointers are valid.
+    Unable to handle kernel NULL pointer dereference at ... 000000d
+    ...
+    pc : string+0x3c/0x80
+    lr : vsnprintf+0x294/0x7e0
+    sp : ffff00000f61ba70 pstate : 20000145
+    x29: ffff00000f61ba70 x28: 000000000000000d
+    x27: ffff0000009c8b5a x26: ffff00000f61bb80
+    x25: ffff0000009c8b5a x24: 0000000000000012
+    x23: 00000000ffffffe0 x22: ffff000008990428
+    x21: ffff00000f61bb80 x20: 000000000000000d
+    x19: 000000000000001f x18: 0000000000000000
+    x17: 0000000000000000 x16: ffff800b6d0fb400
+    x15: 0000000000000000 x14: ffff800b7fe31ae8
+    x13: 00001ed16472c920 x12: ffff000008c6b1c9
+    x11: ffff000008cf0580 x10: ffff00000f61bb80
+    x9 : 00000000ffffffd8 x8 : 000000000000000c
+    x7 : ffff800b684b8000 x6 : 0000000000000000
+    x5 : 0000000000000065 x4 : 0000000000000001
+    x3 : ffff0a00ffffff04 x2 : 000000000000001f
+    x1 : 0000000000000000 x0 : 000000000000000d
+    Call trace:
+    string+0x3c/0x80
+    vsnprintf+0x294/0x7e0
+    snprintf+0x44/0x50
+    __bnxt_open_nic+0x34c/0x928 [bnxt_en]
+    bnxt_open+0xe8/0x238 [bnxt_en]
+    __dev_open+0xbc/0x130
+    __dev_change_flags+0x12c/0x168
+    dev_change_flags+0x20/0x60
+    ...
 
-Export sequence (stub-up) includes validating the socket and creating
-receive (rx) and transmit (tx) threads to talk to the client to provide
-access to the exported device. rx and tx threads depends on local and
-shared state to be correct and in sync.
+Ordinarily, a call to bnxt_setup_inta() (not in trace due to inlining)
+would not be expected on a system supporting MSIX at all. However, if
+bnxt_init_int_mode() does not end up being called after the call to
+bnxt_clear_int_mode() in bnxt_fw_reset_close(), then the driver will
+think that only INTA is supported and bp->irq_tbl will be NULL,
+causing the above crash.
 
-Unexport (stub-down) sequence shuts the socket down and stops the rx and
-tx threads. Stub-down sequence relies on local and shared states to be
-in sync.
+In the error recovery scenario, we call bnxt_clear_int_mode() in
+bnxt_fw_reset_close() early in the sequence. Ordinarily, we will
+call bnxt_init_int_mode() in bnxt_hwrm_if_change() after we
+reestablish communication with the firmware after reset.  However,
+if the sequence has to abort before we call bnxt_init_int_mode() and
+if the user later attempts to re-open the device, then it will cause
+the crash above.
 
-There are races in updating the local and shared status in the current
-stub-up sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
+We fix it in 2 ways:
 
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to SDEV_ST_USED. This opens up a
-   race condition between the threads and usbip_sockfd_store() stub up
-   and down handling.
+1. Check for bp->irq_tbl in bnxt_setup_int_mode(). If it is NULL, call
+bnxt_init_init_mode().
 
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold usbip_device lock to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to SDEV_ST_USED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
+2. If we need to abort in bnxt_hwrm_if_change() and cannot complete
+the error recovery sequence, set the BNXT_STATE_ABORT_ERR flag.  This
+will cause more drastic recovery at the next attempt to re-open the
+device, including a call to bnxt_init_int_mode().
 
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is a
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the stub-up sequence.
-
-Tested with syzbot reproducer:
-- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
-
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/268a0668144d5ff36ec7d87fdfa90faf583b7ccc.1615171203.git.skhan@linuxfoundation.org
+Fixes: 3bc7d4a352ef ("bnxt_en: Add BNXT_STATE_IN_FW_RESET state.")
+Reviewed-by: Scott Branden <scott.branden@broadcom.com>
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/stub_dev.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -46,6 +46,8 @@ static ssize_t usbip_sockfd_store(struct
- 	int sockfd = 0;
- 	struct socket *socket;
- 	int rv;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7925,10 +7925,18 @@ static void bnxt_setup_inta(struct bnxt
+ 	bp->irq_tbl[0].handler = bnxt_inta;
+ }
  
- 	if (!sdev) {
- 		dev_err(dev, "sdev is null\n");
-@@ -80,20 +82,36 @@ static ssize_t usbip_sockfd_store(struct
- 			goto sock_err;
- 		}
- 
--		sdev->ud.tcp_socket = socket;
--		sdev->ud.sockfd = sockfd;
--
-+		/* unlock and create threads and get tasks */
- 		spin_unlock_irq(&sdev->ud.lock);
-+		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
-+		if (IS_ERR(tcp_rx)) {
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
-+		if (IS_ERR(tcp_tx)) {
-+			kthread_stop(tcp_rx);
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
- 
--		sdev->ud.tcp_rx = kthread_get_run(stub_rx_loop, &sdev->ud,
--						  "stub_rx");
--		sdev->ud.tcp_tx = kthread_get_run(stub_tx_loop, &sdev->ud,
--						  "stub_tx");
-+		/* get task structs now */
-+		get_task_struct(tcp_rx);
-+		get_task_struct(tcp_tx);
- 
-+		/* lock and update sdev->ud state */
- 		spin_lock_irq(&sdev->ud.lock);
-+		sdev->ud.tcp_socket = socket;
-+		sdev->ud.sockfd = sockfd;
-+		sdev->ud.tcp_rx = tcp_rx;
-+		sdev->ud.tcp_tx = tcp_tx;
- 		sdev->ud.status = SDEV_ST_USED;
- 		spin_unlock_irq(&sdev->ud.lock);
- 
-+		wake_up_process(sdev->ud.tcp_rx);
-+		wake_up_process(sdev->ud.tcp_tx);
++static int bnxt_init_int_mode(struct bnxt *bp);
 +
- 	} else {
- 		dev_info(dev, "stub down\n");
+ static int bnxt_setup_int_mode(struct bnxt *bp)
+ {
+ 	int rc;
  
++	if (!bp->irq_tbl) {
++		rc = bnxt_init_int_mode(bp);
++		if (rc || !bp->irq_tbl)
++			return rc ?: -ENODEV;
++	}
++
+ 	if (bp->flags & BNXT_FLAG_USING_MSIX)
+ 		bnxt_setup_msix(bp);
+ 	else
+@@ -8113,7 +8121,7 @@ static int bnxt_init_inta(struct bnxt *b
+ 
+ static int bnxt_init_int_mode(struct bnxt *bp)
+ {
+-	int rc = 0;
++	int rc = -ENODEV;
+ 
+ 	if (bp->flags & BNXT_FLAG_MSIX_CAP)
+ 		rc = bnxt_init_msix(bp);
+@@ -8748,7 +8756,8 @@ static int bnxt_hwrm_if_change(struct bn
+ {
+ 	struct hwrm_func_drv_if_change_output *resp = bp->hwrm_cmd_resp_addr;
+ 	struct hwrm_func_drv_if_change_input req = {0};
+-	bool resc_reinit = false, fw_reset = false;
++	bool fw_reset = !bp->irq_tbl;
++	bool resc_reinit = false;
+ 	u32 flags = 0;
+ 	int rc;
+ 
+@@ -8776,6 +8785,7 @@ static int bnxt_hwrm_if_change(struct bn
+ 
+ 	if (test_bit(BNXT_STATE_IN_FW_RESET, &bp->state) && !fw_reset) {
+ 		netdev_err(bp->dev, "RESET_DONE not set during FW reset.\n");
++		set_bit(BNXT_STATE_ABORT_ERR, &bp->state);
+ 		return -ENODEV;
+ 	}
+ 	if (resc_reinit || fw_reset) {
 
 
