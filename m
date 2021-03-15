@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4854033B836
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 992EF33BAA0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbhCOOC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S235233AbhCOOJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232896AbhCOOAG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 254C664F1E;
-        Mon, 15 Mar 2021 13:59:50 +0000 (UTC)
+        id S234589AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F04364EF9;
+        Mon, 15 Mar 2021 14:04:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816791;
-        bh=j/cRpuSaTG/ikfUPjVyiZeucg2SiJvxu/HB5bNElkEs=;
+        s=korg; t=1615817060;
+        bh=Wv/L7dQYYmEgnEQy5a6/j0Hm8/20q6x4KkXVE12LBk0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XVuqkgxg+Zs7FN2U67SNW6xTcJ1pgpu8GcF4OZb6D+94oLM196mrXSiPUjGfdxyV9
-         Wq47T7PtyoTdxI8bQfrAIn01LqL1PL9dVT5HWbpFqn07PCayYuSNMTDiWyu8gcfDi6
-         YZSsogxcFHkLWjnrxxbfiRcgGBQQAZnQwUsOi00Q=
+        b=vAEwH1gY3f6HECDKCsFLgswKZeixgDKABwPMzm89Q+HDaHRl2N3vSBYH8PgPzFZ1l
+         F4zHRXZR7365tUfILqPeaiMeg0QkkGgmZ/wNdMwD2JLk+NIbqlJoGrg+oCrYcF2adN
+         WGK0cs96NKfdkGjgR0uBZom5hu5lnyaTAkhtLQ9E=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 112/168] xhci: Improve detection of device initiated wake signal.
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 281/306] powerpc: Fix inverted SET_FULL_REGS bitop
 Date:   Mon, 15 Mar 2021 14:55:44 +0100
-Message-Id: <20210315135554.041760279@linuxfoundation.org>
+Message-Id: <20210315135517.178753846@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +41,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
+commit 73ac79881804eed2e9d76ecdd1018037f8510cb1 upstream.
 
-A xHC USB 3 port might miss the first wake signal from a USB 3 device
-if the port LFPS reveiver isn't enabled fast enough after xHC resume.
+This bit operation was inverted and set the low bit rather than
+cleared it, breaking the ability to ptrace non-volatile GPRs after
+exec. Fix.
 
-xHC host will anyway be resumed by a PME# signal, but will go back to
-suspend if no port activity is seen.
-The device resends the U3 LFPS wake signal after a 100ms delay, but
-by then host is already suspended, starting all over from the
-beginning of this issue.
+Only affects 64e and 32-bit.
 
-USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
-needs to delay 100ms before resending the wake.
-
-Don't suspend immediately if port activity isn't detected in resume.
-Instead add a retry. If there is no port activity then delay for 120ms,
-and re-check for port activity.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
+Fixes: feb9df3462e6 ("powerpc/64s: Always has full regs, so remove remnant checks")
+Cc: stable@vger.kernel.org # v5.8+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210308085530.3191843-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/ptrace.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1088,6 +1088,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 	struct usb_hcd		*secondary_hcd;
- 	int			retval = 0;
- 	bool			comp_timer_running = false;
-+	bool			pending_portevent = false;
- 
- 	if (!hcd->state)
- 		return 0;
-@@ -1226,13 +1227,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 
-  done:
- 	if (retval == 0) {
--		/* Resume root hubs only when have pending events. */
--		if (xhci_pending_portevent(xhci)) {
-+		/*
-+		 * Resume roothubs only if there are pending events.
-+		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
-+		 * the first wake signalling failed, give it that chance.
-+		 */
-+		pending_portevent = xhci_pending_portevent(xhci);
-+		if (!pending_portevent) {
-+			msleep(120);
-+			pending_portevent = xhci_pending_portevent(xhci);
-+		}
-+
-+		if (pending_portevent) {
- 			usb_hcd_resume_root_hub(xhci->shared_hcd);
- 			usb_hcd_resume_root_hub(hcd);
- 		}
- 	}
--
- 	/*
- 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
- 	 * be re-initialized Always after a system resume. Ports are subject
+--- a/arch/powerpc/include/asm/ptrace.h
++++ b/arch/powerpc/include/asm/ptrace.h
+@@ -195,7 +195,7 @@ static inline void regs_set_return_value
+ #define TRAP_FLAGS_MASK		0x11
+ #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
+ #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
+-#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
++#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
+ #endif
+ #define CHECK_FULL_REGS(regs)	BUG_ON(!FULL_REGS(regs))
+ #define NV_REG_POISON		0xdeadbeefdeadbeefUL
+@@ -210,7 +210,7 @@ static inline void regs_set_return_value
+ #define TRAP_FLAGS_MASK		0x1F
+ #define TRAP(regs)		((regs)->trap & ~TRAP_FLAGS_MASK)
+ #define FULL_REGS(regs)		(((regs)->trap & 1) == 0)
+-#define SET_FULL_REGS(regs)	((regs)->trap |= 1)
++#define SET_FULL_REGS(regs)	((regs)->trap &= ~1)
+ #define IS_CRITICAL_EXC(regs)	(((regs)->trap & 2) != 0)
+ #define IS_MCHECK_EXC(regs)	(((regs)->trap & 4) != 0)
+ #define IS_DEBUG_EXC(regs)	(((regs)->trap & 8) != 0)
 
 
