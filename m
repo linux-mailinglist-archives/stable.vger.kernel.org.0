@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3395533B4FE
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E8633B4FB
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbhCONxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55376 "EHLO mail.kernel.org"
+        id S229927AbhCONxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229908AbhCONwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:52:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2253464EEA;
-        Mon, 15 Mar 2021 13:52:45 +0000 (UTC)
+        id S229917AbhCONwt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:52:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D713C64D9E;
+        Mon, 15 Mar 2021 13:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816367;
-        bh=vRo8iCMwicVVfGHyerCQN0aGd6rTpteztCZtzcUKuA4=;
+        s=korg; t=1615816369;
+        bh=RtPS6I2sPdTd21blcm4L0KYzvV5RBFSeZhr/AUca1kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlspU9OibjRrupj8Sxs8oHlJ8Cz/A1zapq8M3A2MybiMDb9+rejsA5WeepdiSJQpL
-         luJhStxp44IvpYNEeCmdQbSukSLD7NDdh/NZzVSA/qLkR7RPTAb5JLE2qbpSe7RyRH
-         8ghvSH5B6RJVoD9VvLQcdmQ9MZrKk5YzQJm8NJII=
+        b=gcsXKN/L3uZa0k+D188rYKrhJ7O/kKjEW+gllFQ9qUVVoWrZ5ZnD9v1V0yxCal4B3
+         +zQUujPSr0goLfhep00AKDNXNkv0rH4TuKT8hONWlOFAcl1mGJgqJi7ERH8eY5yI3G
+         2wHrPx2sFMN3CetaGbigtcMDxJc0SPWNpFqdXHi0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 06/75] can: flexcan: enable RX FIFO after FRZ/HALT valid
-Date:   Mon, 15 Mar 2021 14:51:20 +0100
-Message-Id: <20210315135208.472233913@linuxfoundation.org>
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.4 07/75] netfilter: x_tables: gpf inside xt_find_revision()
+Date:   Mon, 15 Mar 2021 14:51:21 +0100
+Message-Id: <20210315135208.505146721@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
 References: <20210315135208.252034256@linuxfoundation.org>
@@ -41,53 +42,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit ec15e27cc8904605846a354bb1f808ea1432f853 upstream.
+commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
 
-RX FIFO enable failed could happen when do system reboot stress test:
+nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
+without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
+and cause host to crash:
 
-[    0.303958] flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
-[    0.304281] flexcan 5a8d0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.314640] flexcan 5a8d0000.can: registering netdev failed
-[    0.320728] flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
-[    0.320991] flexcan 5a8e0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.331360] flexcan 5a8e0000.can: registering netdev failed
-[    0.337444] flexcan 5a8f0000.can: 5a8f0000.can supply xceiver not found, using dummy regulator
-[    0.337716] flexcan 5a8f0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
-[    0.348117] flexcan 5a8f0000.can: registering netdev failed
+general protection fault: 0000 [#1]
+Modules linked in: ... [last unloaded: xt_cluster]
+CPU: 0 PID: 542455 Comm: iptables
+RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
+RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
+R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
+(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
+xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
+Call Trace:
+ [<ffffffff902ccf44>] match_revfn+0x54/0xc0
+ [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
+ [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
+ [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
+ [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
+ [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
+ [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
+ [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
+ [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
+ [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
 
-RX FIFO should be enabled after the FRZ/HALT are valid. But the current
-code enable RX FIFO and FRZ/HALT at the same time.
-
-Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
-Link: https://lore.kernel.org/r/20210218110037.16591-3-qiangqing.zhang@nxp.com
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/flexcan.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/netfilter/x_tables.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -1098,10 +1098,14 @@ static int register_flexcandev(struct ne
- 	if (err)
- 		goto out_chip_disable;
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -271,6 +271,7 @@ static int match_revfn(u8 af, const char
+ 	const struct xt_match *m;
+ 	int have_rev = 0;
  
--	/* set freeze, halt and activate FIFO, restrict register access */
-+	/* set freeze, halt */
-+	err = flexcan_chip_freeze(priv);
-+	if (err)
-+		goto out_chip_disable;
-+
-+	/* activate FIFO, restrict register access */
- 	reg = flexcan_read(&regs->mcr);
--	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT |
--		FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
-+	reg |=  FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
- 	flexcan_write(reg, &regs->mcr);
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(m, &xt[af].match, list) {
+ 		if (strcmp(m->name, name) == 0) {
+ 			if (m->revision > *bestp)
+@@ -279,6 +280,7 @@ static int match_revfn(u8 af, const char
+ 				have_rev = 1;
+ 		}
+ 	}
++	mutex_unlock(&xt[af].mutex);
  
- 	/* Currently we only support newer versions of this core
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -291,6 +293,7 @@ static int target_revfn(u8 af, const cha
+ 	const struct xt_target *t;
+ 	int have_rev = 0;
+ 
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(t, &xt[af].target, list) {
+ 		if (strcmp(t->name, name) == 0) {
+ 			if (t->revision > *bestp)
+@@ -299,6 +302,7 @@ static int target_revfn(u8 af, const cha
+ 				have_rev = 1;
+ 		}
+ 	}
++	mutex_unlock(&xt[af].mutex);
+ 
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -312,12 +316,10 @@ int xt_find_revision(u8 af, const char *
+ {
+ 	int have_rev, best = -1;
+ 
+-	mutex_lock(&xt[af].mutex);
+ 	if (target == 1)
+ 		have_rev = target_revfn(af, name, revision, &best);
+ 	else
+ 		have_rev = match_revfn(af, name, revision, &best);
+-	mutex_unlock(&xt[af].mutex);
+ 
+ 	/* Nothing at all?  Return 0 to try loading module. */
+ 	if (best == -1) {
 
 
