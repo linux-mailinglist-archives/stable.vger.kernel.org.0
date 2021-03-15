@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D343333B615
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E590533B61C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230280AbhCON5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33470 "EHLO mail.kernel.org"
+        id S230320AbhCON5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230406AbhCON4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 875DB64F0D;
-        Mon, 15 Mar 2021 13:56:30 +0000 (UTC)
+        id S230180AbhCON4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F0664EED;
+        Mon, 15 Mar 2021 13:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816592;
-        bh=gzN5PkFkUWudEMi04cj0c3boflBM/MsbXBB6st06LkI=;
+        s=korg; t=1615816594;
+        bh=mvbavpRwyDZocyv8ldOUoDiqHwnZizG1ECvHExjijLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RW0MD1Qw1vz49PmtV+ttqFE2OLztChqEkwPI8CDzi1kI/eFPyGXFBhRytnf9/lMJ/
-         QRJBhY1gMnkuCIfSeJj4MLw2SOCu+xx1MEnBPlISBOvqGCvSD1aVep4rsEZEE8JDCh
-         RJSrlKj3fNXjM0yzvmT7bDBkNWyjuEju+LiHlBLI=
+        b=1wYXRZ2IftmUlfngGlZPSXHYJjj15snW15jrxMPogZutHMmp0yD09VhTbh+I2raP6
+         KV5xNKB6FlC6Bi72Gg9bCdUNaa5ylA7WuLWJ/3LZA+VFBeDJvdR0NRN+QyYsVoCM48
+         IkItGjUFQEVmBM14O+llPfECZNbhAbWKVTXzQPds=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tom Herbert <tom@herbertland.com>,
+        stable@vger.kernel.org, Balazs Nemeth <bnemeth@redhat.com>,
         Willem de Bruijn <willemb@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.11 009/306] net: Fix gro aggregation for udp encaps with zero csum
-Date:   Mon, 15 Mar 2021 14:51:12 +0100
-Message-Id: <20210315135507.938449429@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 010/306] net: check if protocol extracted by virtio_net_hdr_set_proto is correct
+Date:   Mon, 15 Mar 2021 14:51:13 +0100
+Message-Id: <20210315135507.968640892@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -46,110 +42,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Balazs Nemeth <bnemeth@redhat.com>
 
-commit 89e5c58fc1e2857ccdaae506fb8bc5fed57ee063 upstream.
+commit 924a9bc362a5223cd448ca08c3dde21235adc310 upstream.
 
-We noticed a GRO issue for UDP-based encaps such as vxlan/geneve when the
-csum for the UDP header itself is 0. In that case, GRO aggregation does
-not take place on the phys dev, but instead is deferred to the vxlan/geneve
-driver (see trace below).
+For gso packets, virtio_net_hdr_set_proto sets the protocol (if it isn't
+set) based on the type in the virtio net hdr, but the skb could contain
+anything since it could come from packet_snd through a raw socket. If
+there is a mismatch between what virtio_net_hdr_set_proto sets and
+the actual protocol, then the skb could be handled incorrectly later
+on.
 
-The reason is essentially that GRO aggregation bails out in udp_gro_receive()
-for such case when drivers marked the skb with CHECKSUM_UNNECESSARY (ice, i40e,
-others) where for non-zero csums 2abb7cdc0dc8 ("udp: Add support for doing
-checksum unnecessary conversion") promotes those skbs to CHECKSUM_COMPLETE
-and napi context has csum_valid set. This is however not the case for zero
-UDP csum (here: csum_cnt is still 0 and csum_valid continues to be false).
+An example where this poses an issue is with the subsequent call to
+skb_flow_dissect_flow_keys_basic which relies on skb->protocol being set
+correctly. A specially crafted packet could fool
+skb_flow_dissect_flow_keys_basic preventing EINVAL to be returned.
 
-At the same time 57c67ff4bd92 ("udp: additional GRO support") added matches
-on !uh->check ^ !uh2->check as part to determine candidates for aggregation,
-so it certainly is expected to handle zero csums in udp_gro_receive(). The
-purpose of the check added via 662880f44203 ("net: Allow GRO to use and set
-levels of checksum unnecessary") seems to catch bad csum and stop aggregation
-right away.
+Avoid blindly trusting the information provided by the virtio net header
+by checking that the protocol in the packet actually matches the
+protocol set by virtio_net_hdr_set_proto. Note that since the protocol
+is only checked if skb->dev implements header_ops->parse_protocol,
+packets from devices without the implementation are not checked at this
+stage.
 
-One way to fix aggregation in the zero case is to only perform the !csum_valid
-check in udp_gro_receive() if uh->check is infact non-zero.
-
-Before:
-
-  [...]
-  swapper     0 [008]   731.946506: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100400 len=1500   (1)
-  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100200 len=1500
-  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101100 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101700 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101b00 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100600 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100f00 len=1500
-  swapper     0 [008]   731.946509: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100a00 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100500 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100700 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101d00 len=1500   (2)
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101000 len=1500
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101c00 len=1500
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101400 len=1500
-  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100e00 len=1500
-  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101600 len=1500
-  swapper     0 [008]   731.946521: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100800 len=774
-  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497100400 len=14032 (1)
-  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497101d00 len=9112  (2)
-  [...]
-
-  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
-  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
-  Recv   Send    Send
-  Socket Socket  Message  Elapsed
-  Size   Size    Size     Time     Throughput
-  bytes  bytes   bytes    secs.    10^6bits/sec
-
-   87380  16384  16384    20.01    13129.24
-
-After:
-
-  [...]
-  swapper     0 [026]   521.862641: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479000 len=11286 (1)
-  swapper     0 [026]   521.862643: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479000 len=11236 (1)
-  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d478500 len=2898  (2)
-  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479f00 len=8490  (3)
-  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d478500 len=2848  (2)
-  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479f00 len=8440  (3)
-  [...]
-
-  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
-  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
-  Recv   Send    Send
-  Socket Socket  Message  Elapsed
-  Size   Size    Size     Time     Throughput
-  bytes  bytes   bytes    secs.    10^6bits/sec
-
-   87380  16384  16384    20.01    24576.53
-
-Fixes: 57c67ff4bd92 ("udp: additional GRO support")
-Fixes: 662880f44203 ("net: Allow GRO to use and set levels of checksum unnecessary")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: Tom Herbert <tom@herbertland.com>
+Fixes: 9274124f023b ("net: stricter validation of untrusted gso packets")
+Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
 Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20210226212248.8300-1-daniel@iogearbox.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp_offload.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/virtio_net.h |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -525,7 +525,7 @@ struct sk_buff *udp_gro_receive(struct l
- 	}
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -79,8 +79,13 @@ static inline int virtio_net_hdr_to_skb(
+ 		if (gso_type && skb->network_header) {
+ 			struct flow_keys_basic keys;
  
- 	if (!sk || NAPI_GRO_CB(skb)->encap_mark ||
--	    (skb->ip_summed != CHECKSUM_PARTIAL &&
-+	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
- 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
- 	     !NAPI_GRO_CB(skb)->csum_valid) ||
- 	    !udp_sk(sk)->gro_receive)
+-			if (!skb->protocol)
++			if (!skb->protocol) {
++				__be16 protocol = dev_parse_header_protocol(skb);
++
+ 				virtio_net_hdr_set_proto(skb, hdr);
++				if (protocol && protocol != skb->protocol)
++					return -EINVAL;
++			}
+ retry:
+ 			if (!skb_flow_dissect_flow_keys_basic(NULL, skb, &keys,
+ 							      NULL, 0, 0, 0,
 
 
