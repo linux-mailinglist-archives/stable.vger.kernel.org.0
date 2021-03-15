@@ -2,48 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B7533B9C2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E24F833B99A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbhCOOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S233003AbhCOOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233374AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C55A264F90;
-        Mon, 15 Mar 2021 14:01:02 +0000 (UTC)
+        id S233464AbhCOOBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 150C864F39;
+        Mon, 15 Mar 2021 14:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816866;
-        bh=h9DrtrNVvXagdWmgwfSWCFFohJD6o0Zn+vEkJUwHi2g=;
+        s=korg; t=1615816898;
+        bh=PTcLLVHr/9HBRIE549YIz8JnuFcy9FkCf0zgoZIqlec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ckKbVdEAIr0jv3h0Rc8ScznscqhbYb348WWgftYe9M/sHwsmBMkYlOQcmRi4vZpj
-         9+Q3+P6rfSZ+2+21AdULjUAbNlOb4xRQSuRABLp7UBg1EHHWPxtyj8OLed0sdJgEUW
-         rrD47Qgo1UWeu5ZG+pLX8MtlyqofbwZC7y9/M5eI=
+        b=TcsH3lXuXhvf2WoN/9n1Usq6XyCK6rlZTKRrmlK0Q9dts1qtrYcwIHeb3U5KlFGZ6
+         v0/SenWoMRFttZuqaZoiImrBCXuTJin196V8s2WsyqUFFbH82ebNHUssrpu6LMmKPp
+         XRBcwk+Ru+bOEzyNUnwH5nHIV258Odeor5sScDQc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Branislav Rankov <Branislav.Rankov@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/290] kasan: fix memory corruption in kasan_bitops_tags test
+        stable@vger.kernel.org, Yann Gautier <yann.gautier@foss.st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.11 189/306] mmc: mmci: Add MMC_CAP_NEED_RSP_BUSY for the stm32 variants
 Date:   Mon, 15 Mar 2021 14:54:12 +0100
-Message-Id: <20210315135547.281025423@linuxfoundation.org>
+Message-Id: <20210315135514.001542867@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +41,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Yann Gautier <yann.gautier@foss.st.com>
 
-[ Upstream commit e66e1799a76621003e5b04c9c057826a2152e103 ]
+commit 774514bf977377c9137640a0310bd64eed0f7323 upstream.
 
-Since the hardware tag-based KASAN mode might not have a redzone that
-comes after an allocated object (when kasan.mode=prod is enabled), the
-kasan_bitops_tags() test ends up corrupting the next object in memory.
+An issue has been observed on STM32MP157C-EV1 board, with an erase command
+with secure erase argument, ending up waiting for ~4 hours before timeout.
 
-Change the test so it always accesses the redzone that lies within the
-allocated object's boundaries.
+The requested busy timeout from the mmc core ends up with 14784000ms (~4
+hours), but the supported host->max_busy_timeout is 86767ms, which leads to
+that the core switch to use an R1 response in favor of the R1B and polls
+for busy with the host->card_busy() ops. In this case the polling doesn't
+work as expected, as we never detects that the card stops signaling busy,
+which leads to the following message:
 
-Link: https://linux-review.googlesource.com/id/I67f51d1ee48f0a8d0fe2658c2a39e4879fe0832a
-Link: https://lkml.kernel.org/r/7d452ce4ae35bb1988d2c9244dfea56cf2cc9315.1610733117.git.andreyknvl@google.com
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Alexander Potapenko <glider@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Branislav Rankov <Branislav.Rankov@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>
-Cc: Peter Collingbourne <pcc@google.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ mmc1: Card stuck being busy! __mmc_poll_for_busy
+
+The problem boils done to that the stm32 variants can't use R1 responses in
+favor of R1B responses, as it leads to an internal state machine in the
+controller to get stuck. To continue to process requests, it would need to
+be reset.
+
+To fix this problem, let's set MMC_CAP_NEED_RSP_BUSY for the stm32 variant,
+which prevent the mmc core from switching to R1 responses. Additionally,
+let's cap the cmd->busy_timeout to the host->max_busy_timeout, thus rely on
+86767ms to be sufficient (~66 seconds was need for this test case).
+
+Fixes: 94fe2580a2f3 ("mmc: core: Enable erase/discard/trim support for all mmc hosts")
+Signed-off-by: Yann Gautier <yann.gautier@foss.st.com>
+Link: https://lore.kernel.org/r/20210225145454.12780-1-yann.gautier@foss.st.com
+Cc: stable@vger.kernel.org
+[Ulf: Simplified the code and extended the commit message]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/test_kasan.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mmc/host/mmci.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/lib/test_kasan.c b/lib/test_kasan.c
-index 662f862702fc..400507f1e5db 100644
---- a/lib/test_kasan.c
-+++ b/lib/test_kasan.c
-@@ -737,13 +737,13 @@ static void kasan_bitops_tags(struct kunit *test)
- 		return;
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1241,7 +1241,11 @@ mmci_start_command(struct mmci_host *hos
+ 		if (!cmd->busy_timeout)
+ 			cmd->busy_timeout = 10 * MSEC_PER_SEC;
+ 
+-		clks = (unsigned long long)cmd->busy_timeout * host->cclk;
++		if (cmd->busy_timeout > host->mmc->max_busy_timeout)
++			clks = (unsigned long long)host->mmc->max_busy_timeout * host->cclk;
++		else
++			clks = (unsigned long long)cmd->busy_timeout * host->cclk;
++
+ 		do_div(clks, MSEC_PER_SEC);
+ 		writel_relaxed(clks, host->base + MMCIDATATIMER);
+ 	}
+@@ -2091,6 +2095,10 @@ static int mmci_probe(struct amba_device
+ 		mmc->caps |= MMC_CAP_WAIT_WHILE_BUSY;
  	}
  
--	/* Allocation size will be rounded to up granule size, which is 16. */
--	bits = kzalloc(sizeof(*bits), GFP_KERNEL);
-+	/* kmalloc-64 cache will be used and the last 16 bytes will be the redzone. */
-+	bits = kzalloc(48, GFP_KERNEL);
- 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, bits);
- 
--	/* Do the accesses past the 16 allocated bytes. */
--	kasan_bitops_modify(test, BITS_PER_LONG, &bits[1]);
--	kasan_bitops_test_and_modify(test, BITS_PER_LONG + BITS_PER_BYTE, &bits[1]);
-+	/* Do the accesses past the 48 allocated bytes, but within the redone. */
-+	kasan_bitops_modify(test, BITS_PER_LONG, (void *)bits + 48);
-+	kasan_bitops_test_and_modify(test, BITS_PER_LONG + BITS_PER_BYTE, (void *)bits + 48);
- 
- 	kfree(bits);
- }
--- 
-2.30.1
-
++	/* Variants with mandatory busy timeout in HW needs R1B responses. */
++	if (variant->busy_timeout)
++		mmc->caps |= MMC_CAP_NEED_RSP_BUSY;
++
+ 	/* Prepare a CMD12 - needed to clear the DPSM on some variants. */
+ 	host->stop_abort.opcode = MMC_STOP_TRANSMISSION;
+ 	host->stop_abort.arg = 0;
 
 
