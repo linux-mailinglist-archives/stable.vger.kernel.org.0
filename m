@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A347A33B560
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4176233B71D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbhCONyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
+        id S232711AbhCON7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230468AbhCONxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25E5764DAD;
-        Mon, 15 Mar 2021 13:53:41 +0000 (UTC)
+        id S232084AbhCON5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2368064F19;
+        Mon, 15 Mar 2021 13:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816423;
-        bh=+qXyopVlb6I52eh4Prd0dbNBohQZskhhj/Q2fdKsKLk=;
+        s=korg; t=1615816664;
+        bh=KyhRkJu76SQjITrL0Y+C/w9/g1Uj7Z66XJy9r1h2G1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+8LtCcLrmqyfLKDDeTebK4UXTORkDiuOnm4EDgI8Uc6BTLH3zagZxi/15fYKrgsN
-         7Bqh8HXyDVEyoA+Re70dy9gbpKbpghcbWJGXFDizyviN5Y34IlqicK/hXvXemoSfka
-         smWDL7fnvnG0jy6iLh0Dctt3xkMekIt2o0MEfPZI=
+        b=NZ2ZlV4jatvHRMlt9zjELVbjYxgPzrr00k9XrQUDpMhKa/JHDSIsyQ45d7zS3Um7E
+         2dQOi03Z6zj3yof/uHI42SVzZ48i1OV6RJx9Nwt0iRZL3T8EExXK1oyfuSKbkMj6Fr
+         2dhxHEfv76Q3ZgQgTLvSMhpUVSU3Ugpzzb92rvIU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Manoj Gupta <manojgupta@google.com>
-Subject: [PATCH 4.9 30/78] scripts/recordmcount.{c,pl}: support -ffunction-sections .text.* section names
+        stable@vger.kernel.org,
+        =?UTF-8?q?Markus=20Bl=C3=B6chl?= <Markus.Bloechl@ipetronik.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 050/306] net: enetc: dont disable VLAN filtering in IFF_PROMISC mode
 Date:   Mon, 15 Mar 2021 14:51:53 +0100
-Message-Id: <20210315135213.061571101@linuxfoundation.org>
+Message-Id: <20210315135509.342682516@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +43,76 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joe Lawrence <joe.lawrence@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
+commit a74dbce9d4541888fe0d39afe69a3a95004669b4 upstream.
 
-When building with -ffunction-sections, the compiler will place each
-function into its own ELF section, prefixed with ".text".  For example,
-a simple test module with functions test_module_do_work() and
-test_module_wq_func():
+Quoting from the blamed commit:
 
-  % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
-  .text
-  .text.test_module_do_work
-  .text.test_module_wq_func
-  .init.text
-  .exit.text
+    In promiscuous mode, it is more intuitive that all traffic is received,
+    including VLAN tagged traffic. It appears that it is necessary to set
+    the flag in PSIPVMR for that to be the case, so VLAN promiscuous mode is
+    also temporarily enabled. On exit from promiscuous mode, the setting
+    made by ethtool is restored.
 
-Adjust the recordmcount scripts to look for ".text" as a section name
-prefix.  This will ensure that those functions will be included in the
-__mcount_loc relocations:
+Intuitive or not, there isn't any definition issued by a standards body
+which says that promiscuity has anything to do with VLAN filtering - it
+only has to do with accepting packets regardless of destination MAC address.
 
-  % objdump --reloc --section __mcount_loc test_module.o
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_X86_64_64       .text.test_module_do_work
-  0000000000000008 R_X86_64_64       .text.test_module_wq_func
-  0000000000000010 R_X86_64_64       .init.text
+In fact people are already trying to use this misunderstanding/bug of
+the enetc driver as a justification to transform promiscuity into
+something it never was about: accepting every packet (maybe that would
+be the "rx-all" netdev feature?):
+https://lore.kernel.org/netdev/20201110153958.ci5ekor3o2ekg3ky@ipetronik.com/
 
-Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
+This is relevant because there are use cases in the kernel (such as
+tc-flower rules with the protocol 802.1Q and a vlan_id key) which do not
+(yet) use the vlan_vid_add API to be compatible with VLAN-filtering NICs
+such as enetc, so for those, disabling rx-vlan-filter is currently the
+only right solution to make these setups work:
+https://lore.kernel.org/netdev/CA+h21hoxwRdhq4y+w8Kwgm74d4cA0xLeiHTrmT-VpSaM7obhkg@mail.gmail.com/
+The blamed patch has unintentionally introduced one more way for this to
+work, which is to enable IFF_PROMISC, however this is non-portable
+because port promiscuity is not meant to disable VLAN filtering.
+Therefore, it could invite people to write broken scripts for enetc, and
+then wonder why they are broken when migrating to other drivers that
+don't handle promiscuity in the same way.
 
-Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-[Manoj: Resolve conflict on 4.4.y/4.9.y because of missing 42c269c88dc1]
-Signed-off-by: Manoj Gupta <manojgupta@google.com>
+Fixes: 7070eea5e95a ("enetc: permit configuration of rx-vlan-filter with ethtool")
+Cc: Markus Blöchl <Markus.Bloechl@ipetronik.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- scripts/recordmcount.c  |    2 +-
- scripts/recordmcount.pl |   13 +++++++++++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc_pf.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -362,7 +362,7 @@ static uint32_t (*w2)(uint16_t);
- static int
- is_mcounted_section_name(char const *const txtname)
+--- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
+@@ -190,7 +190,6 @@ static void enetc_pf_set_rx_mode(struct
  {
--	return strcmp(".text",           txtname) == 0 ||
-+	return strncmp(".text",          txtname, 5) == 0 ||
- 		strcmp(".ref.text",      txtname) == 0 ||
- 		strcmp(".sched.text",    txtname) == 0 ||
- 		strcmp(".spinlock.text", txtname) == 0 ||
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -140,6 +140,11 @@ my %text_sections = (
-      ".text.unlikely" => 1,
- );
+ 	struct enetc_ndev_priv *priv = netdev_priv(ndev);
+ 	struct enetc_pf *pf = enetc_si_priv(priv->si);
+-	char vlan_promisc_simap = pf->vlan_promisc_simap;
+ 	struct enetc_hw *hw = &priv->si->hw;
+ 	bool uprom = false, mprom = false;
+ 	struct enetc_mac_filter *filter;
+@@ -203,16 +202,12 @@ static void enetc_pf_set_rx_mode(struct
+ 		psipmr = ENETC_PSIPMR_SET_UP(0) | ENETC_PSIPMR_SET_MP(0);
+ 		uprom = true;
+ 		mprom = true;
+-		/* Enable VLAN promiscuous mode for SI0 (PF) */
+-		vlan_promisc_simap |= BIT(0);
+ 	} else if (ndev->flags & IFF_ALLMULTI) {
+ 		/* enable multi cast promisc mode for SI0 (PF) */
+ 		psipmr = ENETC_PSIPMR_SET_MP(0);
+ 		mprom = true;
+ 	}
  
-+# Acceptable section-prefixes to record.
-+my %text_section_prefixes = (
-+     ".text." => 1,
-+);
-+
- # Note: we are nice to C-programmers here, thus we skip the '||='-idiom.
- $objdump = 'objdump' if (!$objdump);
- $objcopy = 'objcopy' if (!$objcopy);
-@@ -505,6 +510,14 @@ while (<IN>) {
- 
- 	# Only record text sections that we know are safe
- 	$read_function = defined($text_sections{$1});
-+	if (!$read_function) {
-+	    foreach my $prefix (keys %text_section_prefixes) {
-+	        if (substr($1, 0, length $prefix) eq $prefix) {
-+	            $read_function = 1;
-+	            last;
-+	        }
-+	    }
-+	}
- 	# print out any recorded offsets
- 	update_funcs();
- 
+-	enetc_set_vlan_promisc(&pf->si->hw, vlan_promisc_simap);
+-
+ 	/* first 2 filter entries belong to PF */
+ 	if (!uprom) {
+ 		/* Update unicast filters */
 
 
