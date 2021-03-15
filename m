@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA95E33B7F9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C0233BABF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbhCOOBs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S235681AbhCOOKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232784AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 256D664EEC;
-        Mon, 15 Mar 2021 13:59:35 +0000 (UTC)
+        id S232531AbhCON7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E29C64EF1;
+        Mon, 15 Mar 2021 13:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816777;
-        bh=LXscjiXWZJ2WlE7Mtt3dJ7ZOLe/VyzM4lJVZMmH1jPY=;
+        s=korg; t=1615816725;
+        bh=/8R6R06lhlNFIZDBwF3ujdYr58JUCq8f0opCZTPs2JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xern2o/perd//ORQNz+fyKJJLKDIT4Kgcym57pLeDo4WhicQGmkHqVYNbTVzgAh4b
-         lhmCPFg6Z+YRO1fpFhw0/3aE7HU7Ww/wwgBO5N+ST58IUTiIDop5Ma7HrZ2/s5ZaVu
-         ihlA+k4Ys+EoJfMek9OUudaf25zIC7/DfekItxVA=
+        b=WzuDKTWCg9G2aBFip8BkReSnUpEaXQpGuPVvzarlv4vjJovYz5an9Yog+WMsifOze
+         QRWoVmHwQoxFDi+VzFUgB840yDunuUbcvQ2ztlj2hmz37cHm3L6GdQ6SbLnrTbxGIH
+         4XyaL3ocw9ezxFE9QnVYusXEiqdtX8ME3HYB1ZYI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Abhishek Sahu <abhsahu@nvidia.com>
-Subject: [PATCH 4.19 060/120] ALSA: hda/hdmi: Cancel pending works before suspend
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 21/95] net: lapbether: Remove netif_start_queue / netif_stop_queue
 Date:   Mon, 15 Mar 2021 14:56:51 +0100
-Message-Id: <20210315135721.947705456@linuxfoundation.org>
+Message-Id: <20210315135740.975849857@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit eea46a0879bcca23e15071f9968c0f6e6596e470 upstream.
+commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
 
-The per_pin->work might be still floating at the suspend, and this may
-hit the access to the hardware at an unexpected timing.  Cancel the
-work properly at the suspend callback for avoiding the buggy access.
+For the devices in this driver, the default qdisc is "noqueue",
+because their "tx_queue_len" is 0.
 
-Note that the bug doesn't trigger easily in the recent kernels since
-the work is queued only when the repoll count is set, and usually it's
-only at the resume callback, but it's still possible to hit in
-theory.
+In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
+"noqueue" qdisc are specially handled. Packets are transmitted without
+being queued after a "dev->flags & IFF_UP" check. However, it's possible
+that even if this check succeeds, "ops->ndo_stop" may still have already
+been called. This is because in "__dev_close_many", "ops->ndo_stop" is
+called before clearing the "IFF_UP" flag.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
-Reported-and-tested-by: Abhishek Sahu <abhsahu@nvidia.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210310112809.9215-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
+"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
+checks "netif_xmit_stopped" and finds that the queue is already stopped.
+In this case, it will complain that:
+"Virtual device ... asks to queue packet!"
+
+To prevent "__dev_queue_xmit" from generating this complaint, we should
+not call "netif_stop_queue" in "ops->ndo_stop".
+
+We also don't need to call "netif_start_queue" in "ops->ndo_open",
+because after a netdev is allocated and registered, the
+"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
+to call "netif_start_queue" to clear it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_hdmi.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/wan/lapbether.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/sound/pci/hda/patch_hdmi.c
-+++ b/sound/pci/hda/patch_hdmi.c
-@@ -2326,6 +2326,18 @@ static void generic_hdmi_free(struct hda
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -286,7 +286,6 @@ static int lapbeth_open(struct net_devic
+ 		return -ENODEV;
+ 	}
+ 
+-	netif_start_queue(dev);
+ 	return 0;
  }
  
- #ifdef CONFIG_PM
-+static int generic_hdmi_suspend(struct hda_codec *codec)
-+{
-+	struct hdmi_spec *spec = codec->spec;
-+	int pin_idx;
-+
-+	for (pin_idx = 0; pin_idx < spec->num_pins; pin_idx++) {
-+		struct hdmi_spec_per_pin *per_pin = get_pin(spec, pin_idx);
-+		cancel_delayed_work_sync(&per_pin->work);
-+	}
-+	return 0;
-+}
-+
- static int generic_hdmi_resume(struct hda_codec *codec)
+@@ -294,8 +293,6 @@ static int lapbeth_close(struct net_devi
  {
- 	struct hdmi_spec *spec = codec->spec;
-@@ -2349,6 +2361,7 @@ static const struct hda_codec_ops generi
- 	.build_controls		= generic_hdmi_build_controls,
- 	.unsol_event		= hdmi_unsol_event,
- #ifdef CONFIG_PM
-+	.suspend		= generic_hdmi_suspend,
- 	.resume			= generic_hdmi_resume,
- #endif
- };
+ 	int err;
+ 
+-	netif_stop_queue(dev);
+-
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
+ 
 
 
