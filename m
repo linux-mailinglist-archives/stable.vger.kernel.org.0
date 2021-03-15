@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75CE333BA9D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3B233BAE8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235283AbhCOOJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52490 "EHLO mail.kernel.org"
+        id S235771AbhCOOKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234594AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3A9664EF8;
-        Mon, 15 Mar 2021 14:04:22 +0000 (UTC)
+        id S234509AbhCOODr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17AEA64EF9;
+        Mon, 15 Mar 2021 14:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817064;
-        bh=x3Htg2voxND8Ah2g0xemyHciB6hV7tmKLcRWo8Y2DHg=;
+        s=korg; t=1615817026;
+        bh=PplaeYjiW7UAMAtNFVbW8J4x19PJGp6QA3tBFY0m3Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEQ9RI/8HPTNrZymOQ0C96y36LM5azbLJnmbedegf1QZzUBTwzPkLbTGi6J6uWDY+
-         bEwtazM44z59lwSXnTcKdtpTktLORk9/0eJskOz3UxOwFU/6gZogLVV8IoObLz4Dvw
-         F3cUGz4iKd9HGbEjU/VnVQx17LlrxD6GPhsqj0Zk=
+        b=fq+W0FCWixILVgBoT9p9MAlaPzr9OMWAO+aqMsdMO7dRcixtKCiRIk4pm1jcY6wjU
+         epKWxVJUEooz6ee0fVLZgFXqzpRxpajL+ifvixl+f9KIKWc4jrgbmVaftyxTfmI1qN
+         Ccirnu8JtzVz3h9Q89KsfPYwHQwqIkUyqbkq7kDM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Ribak <liorribak@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 283/306] binfmt_misc: fix possible deadlock in bm_register_write
+        stable@vger.kernel.org, Gabriel Marin <gmx@google.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>
+Subject: [PATCH 5.10 253/290] perf/core: Flush PMU internal buffers for per-CPU events
 Date:   Mon, 15 Mar 2021 14:55:46 +0100
-Message-Id: <20210315135517.252925776@linuxfoundation.org>
+Message-Id: <20210315135550.565470611@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,118 +45,177 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lior Ribak <liorribak@gmail.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit e7850f4d844e0acfac7e570af611d89deade3146 upstream.
+[ Upstream commit a5398bffc01fe044848c5024e5e867e407f239b8 ]
 
-There is a deadlock in bm_register_write:
+Sometimes the PMU internal buffers have to be flushed for per-CPU events
+during a context switch, e.g., large PEBS. Otherwise, the perf tool may
+report samples in locations that do not belong to the process where the
+samples are processed in, because PEBS does not tag samples with PID/TID.
 
-First, in the begining of the function, a lock is taken on the binfmt_misc
-root inode with inode_lock(d_inode(root)).
+The current code only flush the buffers for a per-task event. It doesn't
+check a per-CPU event.
 
-Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
-open_exec on the user-provided interpreter.
+Add a new event state flag, PERF_ATTACH_SCHED_CB, to indicate that the
+PMU internal buffers have to be flushed for this event during a context
+switch.
 
-open_exec will call a path lookup, and if the path lookup process includes
-the root of binfmt_misc, it will try to take a shared lock on its inode
-again, but it is already locked, and the code will get stuck in a deadlock
+Add sched_cb_entry and perf_sched_cb_usages back to track the PMU/cpuctx
+which is required to be flushed.
 
-To reproduce the bug:
-$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
+Only need to invoke the sched_task() for per-CPU events in this patch.
+The per-task events have been handled in perf_event_context_sched_in/out
+already.
 
-backtrace of where the lock occurs (#5):
-0  schedule () at ./arch/x86/include/asm/current.h:15
-1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
-2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
-3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
-4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
-5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
-6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
-7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
-8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
-9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
-10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
-11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
-12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
-", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
-13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
-", count=19) at fs/read_write.c:658
-14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
-15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
-
-To solve the issue, the open_exec call is moved to before the write
-lock is taken by bm_register_write
-
-Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
-Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
-Signed-off-by: Lior Ribak <liorribak@gmail.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9c964efa4330 ("perf/x86/intel: Drain the PEBS buffer during context switches")
+Reported-by: Gabriel Marin <gmx@google.com>
+Originally-by: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20201130193842.10569-1-kan.liang@linux.intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_misc.c |   29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ include/linux/perf_event.h |  2 ++
+ kernel/events/core.c       | 42 ++++++++++++++++++++++++++++++++++----
+ 2 files changed, 40 insertions(+), 4 deletions(-)
 
---- a/fs/binfmt_misc.c
-+++ b/fs/binfmt_misc.c
-@@ -647,12 +647,24 @@ static ssize_t bm_register_write(struct
- 	struct super_block *sb = file_inode(file)->i_sb;
- 	struct dentry *root = sb->s_root, *dentry;
- 	int err = 0;
-+	struct file *f = NULL;
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 96450f6fb1de..22ce0604b448 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -606,6 +606,7 @@ struct swevent_hlist {
+ #define PERF_ATTACH_TASK	0x04
+ #define PERF_ATTACH_TASK_DATA	0x08
+ #define PERF_ATTACH_ITRACE	0x10
++#define PERF_ATTACH_SCHED_CB	0x20
  
- 	e = create_entry(buffer, count);
+ struct perf_cgroup;
+ struct perf_buffer;
+@@ -872,6 +873,7 @@ struct perf_cpu_context {
+ 	struct list_head		cgrp_cpuctx_entry;
+ #endif
  
- 	if (IS_ERR(e))
- 		return PTR_ERR(e);
++	struct list_head		sched_cb_entry;
+ 	int				sched_cb_usage;
  
-+	if (e->flags & MISC_FMT_OPEN_FILE) {
-+		f = open_exec(e->interpreter);
-+		if (IS_ERR(f)) {
-+			pr_notice("register: failed to install interpreter file %s\n",
-+				 e->interpreter);
-+			kfree(e);
-+			return PTR_ERR(f);
-+		}
-+		e->interp_file = f;
-+	}
+ 	int				online;
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index c3ba29d058b7..4af161b3f322 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -383,6 +383,7 @@ static DEFINE_MUTEX(perf_sched_mutex);
+ static atomic_t perf_sched_count;
+ 
+ static DEFINE_PER_CPU(atomic_t, perf_cgroup_events);
++static DEFINE_PER_CPU(int, perf_sched_cb_usages);
+ static DEFINE_PER_CPU(struct pmu_event_list, pmu_sb_events);
+ 
+ static atomic_t nr_mmap_events __read_mostly;
+@@ -3466,11 +3467,16 @@ static void perf_event_context_sched_out(struct task_struct *task, int ctxn,
+ 	}
+ }
+ 
++static DEFINE_PER_CPU(struct list_head, sched_cb_list);
 +
- 	inode_lock(d_inode(root));
- 	dentry = lookup_one_len(e->name, root, strlen(e->name));
- 	err = PTR_ERR(dentry);
-@@ -676,21 +688,6 @@ static ssize_t bm_register_write(struct
- 		goto out2;
- 	}
+ void perf_sched_cb_dec(struct pmu *pmu)
+ {
+ 	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
  
--	if (e->flags & MISC_FMT_OPEN_FILE) {
--		struct file *f;
--
--		f = open_exec(e->interpreter);
--		if (IS_ERR(f)) {
--			err = PTR_ERR(f);
--			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
--			simple_release_fs(&bm_mnt, &entry_count);
--			iput(inode);
--			inode = NULL;
--			goto out2;
--		}
--		e->interp_file = f;
--	}
--
- 	e->dentry = dget(dentry);
- 	inode->i_private = e;
- 	inode->i_fop = &bm_entry_operations;
-@@ -707,6 +704,8 @@ out:
- 	inode_unlock(d_inode(root));
+-	--cpuctx->sched_cb_usage;
++	this_cpu_dec(perf_sched_cb_usages);
++
++	if (!--cpuctx->sched_cb_usage)
++		list_del(&cpuctx->sched_cb_entry);
+ }
  
- 	if (err) {
-+		if (f)
-+			filp_close(f, NULL);
- 		kfree(e);
- 		return err;
+ 
+@@ -3478,7 +3484,10 @@ void perf_sched_cb_inc(struct pmu *pmu)
+ {
+ 	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
+ 
+-	cpuctx->sched_cb_usage++;
++	if (!cpuctx->sched_cb_usage++)
++		list_add(&cpuctx->sched_cb_entry, this_cpu_ptr(&sched_cb_list));
++
++	this_cpu_inc(perf_sched_cb_usages);
+ }
+ 
+ /*
+@@ -3507,6 +3516,24 @@ static void __perf_pmu_sched_task(struct perf_cpu_context *cpuctx, bool sched_in
+ 	perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+ }
+ 
++static void perf_pmu_sched_task(struct task_struct *prev,
++				struct task_struct *next,
++				bool sched_in)
++{
++	struct perf_cpu_context *cpuctx;
++
++	if (prev == next)
++		return;
++
++	list_for_each_entry(cpuctx, this_cpu_ptr(&sched_cb_list), sched_cb_entry) {
++		/* will be handled in perf_event_context_sched_in/out */
++		if (cpuctx->task_ctx)
++			continue;
++
++		__perf_pmu_sched_task(cpuctx, sched_in);
++	}
++}
++
+ static void perf_event_switch(struct task_struct *task,
+ 			      struct task_struct *next_prev, bool sched_in);
+ 
+@@ -3529,6 +3556,9 @@ void __perf_event_task_sched_out(struct task_struct *task,
+ {
+ 	int ctxn;
+ 
++	if (__this_cpu_read(perf_sched_cb_usages))
++		perf_pmu_sched_task(task, next, false);
++
+ 	if (atomic_read(&nr_switch_events))
+ 		perf_event_switch(task, next, false);
+ 
+@@ -3837,6 +3867,9 @@ void __perf_event_task_sched_in(struct task_struct *prev,
+ 
+ 	if (atomic_read(&nr_switch_events))
+ 		perf_event_switch(task, prev, true);
++
++	if (__this_cpu_read(perf_sched_cb_usages))
++		perf_pmu_sched_task(prev, task, true);
+ }
+ 
+ static u64 perf_calculate_period(struct perf_event *event, u64 nsec, u64 count)
+@@ -4661,7 +4694,7 @@ static void unaccount_event(struct perf_event *event)
+ 	if (event->parent)
+ 		return;
+ 
+-	if (event->attach_state & PERF_ATTACH_TASK)
++	if (event->attach_state & (PERF_ATTACH_TASK | PERF_ATTACH_SCHED_CB))
+ 		dec = true;
+ 	if (event->attr.mmap || event->attr.mmap_data)
+ 		atomic_dec(&nr_mmap_events);
+@@ -11056,7 +11089,7 @@ static void account_event(struct perf_event *event)
+ 	if (event->parent)
+ 		return;
+ 
+-	if (event->attach_state & PERF_ATTACH_TASK)
++	if (event->attach_state & (PERF_ATTACH_TASK | PERF_ATTACH_SCHED_CB))
+ 		inc = true;
+ 	if (event->attr.mmap || event->attr.mmap_data)
+ 		atomic_inc(&nr_mmap_events);
+@@ -12848,6 +12881,7 @@ static void __init perf_event_init_all_cpus(void)
+ #ifdef CONFIG_CGROUP_PERF
+ 		INIT_LIST_HEAD(&per_cpu(cgrp_cpuctx_list, cpu));
+ #endif
++		INIT_LIST_HEAD(&per_cpu(sched_cb_list, cpu));
  	}
+ }
+ 
+-- 
+2.30.1
+
 
 
