@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4BF33B81F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC33433B956
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbhCOOCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S234868AbhCOOF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232905AbhCOOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C5D764F22;
-        Mon, 15 Mar 2021 13:59:40 +0000 (UTC)
+        id S231776AbhCOOAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A628B64EEC;
+        Mon, 15 Mar 2021 14:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816781;
-        bh=K28SDMwJeMMpklXN1g79KePga1nmOBsYjA+rCIPvEpM=;
+        s=korg; t=1615816817;
+        bh=N/eHAXzvXyN+mREmoj93Pa8P0PQs52ow+Si4Lnh6rnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdcEQoZb0rk6NpYI9f0TUnb2tKUfrFakDjG0oK1FOIkMFd4xlB4hE7uE2x0NlDM77
-         qKSJhYyg/tC8JPAS+z9RMpgAKb7Y471NQF75i6lJ8n3nj0jGV3JXPTpVC8umXhr/ud
-         pd/YG0+5GqKXKSbCTldGxHPFNx9Qw8n1bClwe2oE=
+        b=px7rFIwAz1dqdxb3WZoChCkvpSnvFlokJQ03mE/GTRf9Drah6m+P6d5Cnof9o9XSd
+         JgwmpmkBj8bCKVv4/jksl/NakLNtGyUCq8hf9PRJakD9TPkkqv41tGVRPbtB7PGw3a
+         5Job7ZclAAXd0DLgDMiVU9CJTEFBo3tmArwGu9mw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 111/290] s390/qeth: improve completion of pending TX buffers
-Date:   Mon, 15 Mar 2021 14:53:24 +0100
-Message-Id: <20210315135545.658253502@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        "Tj (Elloe Linux)" <ml.linux@elloe.vision>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 142/306] iommu/amd: Fix performance counter initialization
+Date:   Mon, 15 Mar 2021 14:53:25 +0100
+Message-Id: <20210315135512.447963867@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,196 +43,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit c20383ad1656b0f6354dd50e4acd894f9d94090d ]
+[ Upstream commit 6778ff5b21bd8e78c8bd547fd66437cf2657fd9b ]
 
-The current design attaches a pending TX buffer to a custom
-single-linked list, which is anchored at the buffer's slot on the
-TX ring. The buffer is then checked for final completion whenever
-this slot is processed during a subsequent TX NAPI poll cycle.
+Certain AMD platforms enable power gating feature for IOMMU PMC,
+which prevents the IOMMU driver from updating the counter while
+trying to validate the PMC functionality in the init_iommu_perf_ctr().
+This results in disabling PMC support and the following error message:
 
-But if there's insufficient traffic on the ring, we might never make
-enough progress to get back to this ring slot and discover the pending
-buffer's final TX completion. In particular if this missing TX
-completion blocks the application from sending further traffic.
+    "AMD-Vi: Unable to read/write to IOMMU perf counter"
 
-So convert the custom single-linked list code to a per-queue list_head,
-and scan this list on every TX NAPI cycle.
+To workaround this issue, disable power gating temporarily by programming
+the counter source to non-zero value while validating the counter,
+and restore the prior state afterward.
 
-Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Tested-by: Tj (Elloe Linux) <ml.linux@elloe.vision>
+Link: https://lore.kernel.org/r/20210208122712.5048-1-suravee.suthikulpanit@amd.com
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201753
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h      |  3 +-
- drivers/s390/net/qeth_core_main.c | 69 +++++++++++++------------------
- 2 files changed, 30 insertions(+), 42 deletions(-)
+ drivers/iommu/amd/init.c | 45 ++++++++++++++++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index ea969b8fe687..bf8404b0e74f 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -436,7 +436,7 @@ struct qeth_qdio_out_buffer {
- 	int is_header[QDIO_MAX_ELEMENTS_PER_BUFFER];
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 83d8ab2aed9f..01da76dc1caa 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -12,6 +12,7 @@
+ #include <linux/acpi.h>
+ #include <linux/list.h>
+ #include <linux/bitmap.h>
++#include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/interrupt.h>
+@@ -254,6 +255,8 @@ static enum iommu_init_state init_state = IOMMU_START_STATE;
+ static int amd_iommu_enable_interrupts(void);
+ static int __init iommu_go_to_state(enum iommu_init_state state);
+ static void init_device_table_dma(void);
++static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
++				u8 fxn, u64 *value, bool is_write);
  
- 	struct qeth_qdio_out_q *q;
--	struct qeth_qdio_out_buffer *next_pending;
-+	struct list_head list_entry;
- };
+ static bool amd_iommu_pre_enabled = true;
  
- struct qeth_card;
-@@ -500,6 +500,7 @@ struct qeth_qdio_out_q {
- 	struct qdio_buffer *qdio_bufs[QDIO_MAX_BUFFERS_PER_Q];
- 	struct qeth_qdio_out_buffer *bufs[QDIO_MAX_BUFFERS_PER_Q];
- 	struct qdio_outbuf_state *bufstates; /* convenience pointer */
-+	struct list_head pending_bufs;
- 	struct qeth_out_q_stats stats;
- 	spinlock_t lock;
- 	unsigned int priority;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index e2cdb5c2fc66..db785030293b 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -73,8 +73,6 @@ static void qeth_free_qdio_queues(struct qeth_card *card);
- static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
- 		struct qeth_qdio_out_buffer *buf,
- 		enum iucv_tx_notify notification);
--static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
--				 int budget);
- 
- static void qeth_close_dev_handler(struct work_struct *work)
- {
-@@ -465,41 +463,6 @@ static enum iucv_tx_notify qeth_compute_cq_notification(int sbalf15,
- 	return n;
- }
- 
--static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
--					 int forced_cleanup)
--{
--	if (q->card->options.cq != QETH_CQ_ENABLED)
--		return;
--
--	if (q->bufs[bidx]->next_pending != NULL) {
--		struct qeth_qdio_out_buffer *head = q->bufs[bidx];
--		struct qeth_qdio_out_buffer *c = q->bufs[bidx]->next_pending;
--
--		while (c) {
--			if (forced_cleanup ||
--			    atomic_read(&c->state) == QETH_QDIO_BUF_EMPTY) {
--				struct qeth_qdio_out_buffer *f = c;
--
--				QETH_CARD_TEXT(f->q->card, 5, "fp");
--				QETH_CARD_TEXT_(f->q->card, 5, "%lx", (long) f);
--				/* release here to avoid interleaving between
--				   outbound tasklet and inbound tasklet
--				   regarding notifications and lifecycle */
--				qeth_tx_complete_buf(c, forced_cleanup, 0);
--
--				c = f->next_pending;
--				WARN_ON_ONCE(head->next_pending != f);
--				head->next_pending = c;
--				kmem_cache_free(qeth_qdio_outbuf_cache, f);
--			} else {
--				head = c;
--				c = c->next_pending;
--			}
--
--		}
--	}
--}
--
- static void qeth_qdio_handle_aob(struct qeth_card *card,
- 				 unsigned long phys_aob_addr)
- {
-@@ -537,7 +500,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
- 		qeth_notify_skbs(buffer->q, buffer, notification);
- 
- 		/* Free dangling allocations. The attached skbs are handled by
--		 * qeth_cleanup_handled_pending().
-+		 * qeth_tx_complete_pending_bufs().
- 		 */
- 		for (i = 0;
- 		     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
-@@ -1484,14 +1447,35 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
- 	atomic_set(&buf->state, QETH_QDIO_BUF_EMPTY);
- }
- 
-+static void qeth_tx_complete_pending_bufs(struct qeth_card *card,
-+					  struct qeth_qdio_out_q *queue,
-+					  bool drain)
-+{
-+	struct qeth_qdio_out_buffer *buf, *tmp;
-+
-+	list_for_each_entry_safe(buf, tmp, &queue->pending_bufs, list_entry) {
-+		if (drain || atomic_read(&buf->state) == QETH_QDIO_BUF_EMPTY) {
-+			QETH_CARD_TEXT(card, 5, "fp");
-+			QETH_CARD_TEXT_(card, 5, "%lx", (long) buf);
-+
-+			qeth_tx_complete_buf(buf, drain, 0);
-+
-+			list_del(&buf->list_entry);
-+			kmem_cache_free(qeth_qdio_outbuf_cache, buf);
-+		}
-+	}
-+}
-+
- static void qeth_drain_output_queue(struct qeth_qdio_out_q *q, bool free)
- {
- 	int j;
- 
-+	qeth_tx_complete_pending_bufs(q->card, q, true);
-+
- 	for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j) {
- 		if (!q->bufs[j])
- 			continue;
--		qeth_cleanup_handled_pending(q, j, 1);
-+
- 		qeth_clear_output_buffer(q, q->bufs[j], true, 0);
- 		if (free) {
- 			kmem_cache_free(qeth_qdio_outbuf_cache, q->bufs[j]);
-@@ -2611,7 +2595,6 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
- 	skb_queue_head_init(&newbuf->skb_list);
- 	lockdep_set_class(&newbuf->skb_list.lock, &qdio_out_skb_queue_key);
- 	newbuf->q = q;
--	newbuf->next_pending = q->bufs[bidx];
- 	atomic_set(&newbuf->state, QETH_QDIO_BUF_EMPTY);
- 	q->bufs[bidx] = newbuf;
+@@ -1712,13 +1715,11 @@ static int __init init_iommu_all(struct acpi_table_header *table)
  	return 0;
-@@ -2693,6 +2676,7 @@ static int qeth_alloc_qdio_queues(struct qeth_card *card)
- 		card->qdio.out_qs[i] = queue;
- 		queue->card = card;
- 		queue->queue_no = i;
-+		INIT_LIST_HEAD(&queue->pending_bufs);
- 		spin_lock_init(&queue->lock);
- 		timer_setup(&queue->timer, qeth_tx_completion_timer, 0);
- 		queue->coalesce_usecs = QETH_TX_COALESCE_USECS;
-@@ -5890,6 +5874,8 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
- 					qeth_schedule_recovery(card);
- 				}
+ }
  
-+				list_add(&buffer->list_entry,
-+					 &queue->pending_bufs);
- 				/* Skip clearing the buffer: */
- 				return;
- 			case QETH_QDIO_BUF_QAOB_OK:
-@@ -5945,6 +5931,8 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
- 		unsigned int bytes = 0;
- 		int completed;
+-static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
+-				u8 fxn, u64 *value, bool is_write);
+-
+-static void init_iommu_perf_ctr(struct amd_iommu *iommu)
++static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
+ {
++	int retry;
+ 	struct pci_dev *pdev = iommu->dev;
+-	u64 val = 0xabcd, val2 = 0, save_reg = 0;
++	u64 val = 0xabcd, val2 = 0, save_reg, save_src;
  
-+		qeth_tx_complete_pending_bufs(card, queue, false);
+ 	if (!iommu_feature(iommu, FEATURE_PC))
+ 		return;
+@@ -1726,17 +1727,39 @@ static void init_iommu_perf_ctr(struct amd_iommu *iommu)
+ 	amd_iommu_pc_present = true;
+ 
+ 	/* save the value to restore, if writable */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false))
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false) ||
++	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, false))
+ 		goto pc_false;
+ 
+-	/* Check if the performance counters can be written to */
+-	if ((iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true)) ||
+-	    (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false)) ||
+-	    (val != val2))
++	/*
++	 * Disable power gating by programing the performance counter
++	 * source to 20 (i.e. counts the reads and writes from/to IOMMU
++	 * Reserved Register [MMIO Offset 1FF8h] that are ignored.),
++	 * which never get incremented during this init phase.
++	 * (Note: The event is also deprecated.)
++	 */
++	val = 20;
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 8, &val, true))
+ 		goto pc_false;
+ 
++	/* Check if the performance counters can be written to */
++	val = 0xabcd;
++	for (retry = 5; retry; retry--) {
++		if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true) ||
++		    iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false) ||
++		    val2)
++			break;
 +
- 		if (qeth_out_queue_is_empty(queue)) {
- 			napi_complete(napi);
- 			return 0;
-@@ -5977,7 +5965,6 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
++		/* Wait about 20 msec for power gating to disable and retry. */
++		msleep(20);
++	}
++
+ 	/* restore */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true))
++	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true) ||
++	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, true))
++		goto pc_false;
++
++	if (val != val2)
+ 		goto pc_false;
  
- 			qeth_handle_send_error(card, buffer, error);
- 			qeth_iqd_tx_complete(queue, bidx, error, budget);
--			qeth_cleanup_handled_pending(queue, bidx, false);
- 		}
- 
- 		netdev_tx_completed_queue(txq, packets, bytes);
+ 	pci_info(pdev, "IOMMU performance counters supported\n");
 -- 
 2.30.1
 
