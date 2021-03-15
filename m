@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB8F33B6B4
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94E5733B6BD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231313AbhCON6e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57222 "EHLO mail.kernel.org"
+        id S232120AbhCON6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231355AbhCONyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE5B2601FD;
-        Mon, 15 Mar 2021 13:54:03 +0000 (UTC)
+        id S232241AbhCON6A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2043C64F01;
+        Mon, 15 Mar 2021 13:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816444;
-        bh=qGJDHKHscL4c0vYzroDgIRcH/wbB5wiswAGnbwBhUBU=;
+        s=korg; t=1615816680;
+        bh=p2Qq4GYPioMsa0XKgXrE0A9OR9T7H/RwnkiV9NVLwRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g00CDtrH5OrZ0RTBojFzYH1H05xJkxh2RXiGBPXL62UQ7ipup9qjn2mUdH3MrifVx
-         fRVnGsCICNI5pZEFuFdKRiRpQDvbPPTZ0K5tbTesp2Id5pUiiTQCM7tpUsfCkNbPq7
-         HPU9IDeVwQqJFkiKQtxVhPeZ0LOsW+IzRRVq8MBU=
+        b=sOsfEpCermotee2PbXAyuYHCuyiGX8HkBscMlp10o48Zg14vLk3Vqx4U7Ybt7A05r
+         hDAxCyA+MiHzzWxksRkEP0dhC72eIA8p9IkXYURY1P9B4mkruAXPjuWjThJlRqXW+P
+         dfqp8uHbObeWvTtJON5sHWd2agyWGbHuDJRT1pHc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lee Gibson <leegib@gmail.com>
-Subject: [PATCH 4.4 48/75] staging: rtl8192e: Fix possible buffer overflow in _rtl92e_wx_set_scan
-Date:   Mon, 15 Mar 2021 14:52:02 +0100
-Message-Id: <20210315135209.816279539@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 060/306] net: mscc: ocelot: properly reject destination IP keys in VCAP IS1
+Date:   Mon, 15 Mar 2021 14:52:03 +0100
+Message-Id: <20210315135509.678873406@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lee Gibson <leegib@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 8687bf9ef9551bcf93897e33364d121667b1aadf upstream.
+commit f1becbed411c6fa29d7ce3def3a1dcd4f63f2d74 upstream.
 
-Function _rtl92e_wx_set_scan calls memcpy without checking the length.
-A user could control that length and trigger a buffer overflow.
-Fix by checking the length is within the maximum allowed size.
+An attempt is made to warn the user about the fact that VCAP IS1 cannot
+offload keys matching on destination IP (at least given the current half
+key format), but sadly that warning fails miserably in practice, due to
+the fact that it operates on an uninitialized "match" variable. We must
+first decode the keys from the flow rule.
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210226145157.424065-1-leegib@gmail.com
+Fixes: 75944fda1dfe ("net: mscc: ocelot: offload ingress skbedit and vlan actions to VCAP IS1")
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtl8192e/rtl_wx.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mscc/ocelot_flower.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
-+++ b/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
-@@ -419,9 +419,10 @@ static int _rtl92e_wx_set_scan(struct ne
- 		struct iw_scan_req *req = (struct iw_scan_req *)b;
- 
- 		if (req->essid_len) {
--			ieee->current_network.ssid_len = req->essid_len;
--			memcpy(ieee->current_network.ssid, req->essid,
--			       req->essid_len);
-+			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+
-+			ieee->current_network.ssid_len = len;
-+			memcpy(ieee->current_network.ssid, req->essid, len);
+--- a/drivers/net/ethernet/mscc/ocelot_flower.c
++++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+@@ -540,13 +540,14 @@ ocelot_flower_parse_key(struct ocelot *o
+ 			return -EOPNOTSUPP;
  		}
- 	}
+ 
++		flow_rule_match_ipv4_addrs(rule, &match);
++
+ 		if (filter->block_id == VCAP_IS1 && *(u32 *)&match.mask->dst) {
+ 			NL_SET_ERR_MSG_MOD(extack,
+ 					   "Key type S1_NORMAL cannot match on destination IP");
+ 			return -EOPNOTSUPP;
+ 		}
+ 
+-		flow_rule_match_ipv4_addrs(rule, &match);
+ 		tmp = &filter->key.ipv4.sip.value.addr[0];
+ 		memcpy(tmp, &match.key->src, 4);
  
 
 
