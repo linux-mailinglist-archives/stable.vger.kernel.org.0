@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BDCA33B8D9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 825F533B7F6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234652AbhCOOEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S233487AbhCOOBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231975AbhCOOAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F9F64EFD;
-        Mon, 15 Mar 2021 14:00:05 +0000 (UTC)
+        id S232546AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E59D564F34;
+        Mon, 15 Mar 2021 13:59:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816806;
-        bh=6OhngbGwqvsnATk/KIC5F1A9jZo516TfcwsKiUsPGBI=;
+        s=korg; t=1615816773;
+        bh=SmkaahNmjuMD/+bb5iHDas9E0xh7WN3DAKY9tEEcZ9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcltqmveBYHeUFDksWWFILrF6VESZCnr7e0JYp6s6ud1juLXmQffAAXvGgf8iTh1Z
-         DktiNRuF/R2zL5vaeE3db+Dbg/yW+pKrp9AinAORypOkx5zAsPIG/L9xtxWirUU3pv
-         vWH2NO3CN42sOXBhvXPFgmCgQtolihNxaqcdJc3w=
+        b=uaKS+fa0ayhgUge8Pr0/DAOSz5byX2MXE1EF4N55tZeg8kUa9PrZK7Y7zApdK17MI
+         IVxCDRTC+UalNnx26aQ3dXG1ZLwCmM8eKWwQYsX6iyIpVZT/1hEr8bpT+CtrK4QTDS
+         +IIHebYLrkczMKTATiu/Y5QZv4MrLsKBkzUYxuao=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Oliver OHalloran <oohall@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 136/306] powerpc/pci: Add ppc_md.discover_phbs()
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 106/290] media: rc: compile rc-cec.c into rc-core
 Date:   Mon, 15 Mar 2021 14:53:19 +0100
-Message-Id: <20210315135512.246764515@linuxfoundation.org>
+Message-Id: <20210315135545.491077454@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +43,140 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Oliver O'Halloran <oohall@gmail.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-[ Upstream commit 5537fcb319d016ce387f818dd774179bc03217f5 ]
+commit f09f9f93afad770a04b35235a0aa465fcc8d6e3d upstream.
 
-On many powerpc platforms the discovery and initalisation of
-pci_controllers (PHBs) happens inside of setup_arch(). This is very early
-in boot (pre-initcalls) and means that we're initialising the PHB long
-before many basic kernel services (slab allocator, debugfs, a real ioremap)
-are available.
+The rc-cec keymap is unusual in that it can't be built as a module,
+instead it is registered directly in rc-main.c if CONFIG_MEDIA_CEC_RC
+is set. This is because it can be called from drm_dp_cec_set_edid() via
+cec_register_adapter() in an asynchronous context, and it is not
+allowed to use request_module() to load rc-cec.ko in that case. Trying to
+do so results in a 'WARN_ON_ONCE(wait && current_is_async())'.
 
-On PowerNV this causes an additional problem since we map the PHB registers
-with ioremap(). As of commit d538aadc2718 ("powerpc/ioremap: warn on early
-use of ioremap()") a warning is printed because we're using the "incorrect"
-API to setup and MMIO mapping in searly boot. The kernel does provide
-early_ioremap(), but that is not intended to create long-lived MMIO
-mappings and a seperate warning is printed by generic code if
-early_ioremap() mappings are "leaked."
+Since this keymap is only used if CONFIG_MEDIA_CEC_RC is set, we
+just compile this keymap into the rc-core module and never as a
+separate module.
 
-This is all fixable with dumb hacks like using early_ioremap() to setup
-the initial mapping then replacing it with a real ioremap later on in
-boot, but it does raise the question: Why the hell are we setting up the
-PHB's this early in boot?
-
-The old and wise claim it's due to "hysterical rasins." Aside from amused
-grapes there doesn't appear to be any real reason to maintain the current
-behaviour. Already most of the newer embedded platforms perform PHB
-discovery in an arch_initcall and between the end of setup_arch() and the
-start of initcalls none of the generic kernel code does anything PCI
-related. On powerpc scanning PHBs occurs in a subsys_initcall so it should
-be possible to move the PHB discovery to a core, postcore or arch initcall.
-
-This patch adds the ppc_md.discover_phbs hook and a core_initcall stub that
-calls it. The core_initcalls are the earliest to be called so this will
-any possibly issues with dependency between initcalls. This isn't just an
-academic issue either since on pseries and PowerNV EEH init occurs in an
-arch_initcall and depends on the pci_controllers being available, similarly
-the creation of pci_dns occurs at core_initcall_sync (i.e. between core and
-postcore initcalls). These problems need to be addressed seperately.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
-[mpe: Make discover_phbs() static]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20201103043523.916109-1-oohall@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 2c6d1fffa1d9 (drm: add support for DisplayPort CEC-Tunneling-over-AUX)
+Reported-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/machdep.h |  3 +++
- arch/powerpc/kernel/pci-common.c   | 10 ++++++++++
- 2 files changed, 13 insertions(+)
+ drivers/media/rc/Makefile         |    1 +
+ drivers/media/rc/keymaps/Makefile |    1 -
+ drivers/media/rc/keymaps/rc-cec.c |   28 +++++++++++-----------------
+ drivers/media/rc/rc-main.c        |    6 ++++++
+ include/media/rc-map.h            |    7 +++++++
+ 5 files changed, 25 insertions(+), 18 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/machdep.h b/arch/powerpc/include/asm/machdep.h
-index cf6ebbc16cb4..764f2732a821 100644
---- a/arch/powerpc/include/asm/machdep.h
-+++ b/arch/powerpc/include/asm/machdep.h
-@@ -59,6 +59,9 @@ struct machdep_calls {
- 	int		(*pcibios_root_bridge_prepare)(struct pci_host_bridge
- 				*bridge);
+--- a/drivers/media/rc/Makefile
++++ b/drivers/media/rc/Makefile
+@@ -5,6 +5,7 @@ obj-y += keymaps/
+ obj-$(CONFIG_RC_CORE) += rc-core.o
+ rc-core-y := rc-main.o rc-ir-raw.o
+ rc-core-$(CONFIG_LIRC) += lirc_dev.o
++rc-core-$(CONFIG_MEDIA_CEC_RC) += keymaps/rc-cec.o
+ rc-core-$(CONFIG_BPF_LIRC_MODE2) += bpf-lirc.o
+ obj-$(CONFIG_IR_NEC_DECODER) += ir-nec-decoder.o
+ obj-$(CONFIG_IR_RC5_DECODER) += ir-rc5-decoder.o
+--- a/drivers/media/rc/keymaps/Makefile
++++ b/drivers/media/rc/keymaps/Makefile
+@@ -21,7 +21,6 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t
+ 			rc-behold.o \
+ 			rc-behold-columbus.o \
+ 			rc-budget-ci-old.o \
+-			rc-cec.o \
+ 			rc-cinergy-1400.o \
+ 			rc-cinergy.o \
+ 			rc-d680-dmb.o \
+--- a/drivers/media/rc/keymaps/rc-cec.c
++++ b/drivers/media/rc/keymaps/rc-cec.c
+@@ -1,6 +1,16 @@
+ // SPDX-License-Identifier: GPL-2.0-or-later
+ /* Keytable for the CEC remote control
+  *
++ * This keymap is unusual in that it can't be built as a module,
++ * instead it is registered directly in rc-main.c if CONFIG_MEDIA_CEC_RC
++ * is set. This is because it can be called from drm_dp_cec_set_edid() via
++ * cec_register_adapter() in an asynchronous context, and it is not
++ * allowed to use request_module() to load rc-cec.ko in that case.
++ *
++ * Since this keymap is only used if CONFIG_MEDIA_CEC_RC is set, we
++ * just compile this keymap into the rc-core module and never as a
++ * separate module.
++ *
+  * Copyright (c) 2015 by Kamil Debski
+  */
  
-+	/* finds all the pci_controllers present at boot */
-+	void 		(*discover_phbs)(void);
-+
- 	/* To setup PHBs when using automatic OF platform driver for PCI */
- 	int		(*pci_setup_phb)(struct pci_controller *host);
+@@ -152,7 +162,7 @@ static struct rc_map_table cec[] = {
+ 	/* 0x77-0xff: Reserved */
+ };
  
-diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
-index 2b555997b295..001e90cd8948 100644
---- a/arch/powerpc/kernel/pci-common.c
-+++ b/arch/powerpc/kernel/pci-common.c
-@@ -1699,3 +1699,13 @@ static void fixup_hide_host_resource_fsl(struct pci_dev *dev)
+-static struct rc_map_list cec_map = {
++struct rc_map_list cec_map = {
+ 	.map = {
+ 		.scan		= cec,
+ 		.size		= ARRAY_SIZE(cec),
+@@ -160,19 +170,3 @@ static struct rc_map_list cec_map = {
+ 		.name		= RC_MAP_CEC,
+ 	}
+ };
+-
+-static int __init init_rc_map_cec(void)
+-{
+-	return rc_map_register(&cec_map);
+-}
+-
+-static void __exit exit_rc_map_cec(void)
+-{
+-	rc_map_unregister(&cec_map);
+-}
+-
+-module_init(init_rc_map_cec);
+-module_exit(exit_rc_map_cec);
+-
+-MODULE_LICENSE("GPL");
+-MODULE_AUTHOR("Kamil Debski");
+--- a/drivers/media/rc/rc-main.c
++++ b/drivers/media/rc/rc-main.c
+@@ -2069,6 +2069,9 @@ static int __init rc_core_init(void)
+ 
+ 	led_trigger_register_simple("rc-feedback", &led_feedback);
+ 	rc_map_register(&empty_map);
++#ifdef CONFIG_MEDIA_CEC_RC
++	rc_map_register(&cec_map);
++#endif
+ 
+ 	return 0;
  }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MOTOROLA, PCI_ANY_ID, fixup_hide_host_resource_fsl);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_FREESCALE, PCI_ANY_ID, fixup_hide_host_resource_fsl);
+@@ -2078,6 +2081,9 @@ static void __exit rc_core_exit(void)
+ 	lirc_dev_exit();
+ 	class_unregister(&rc_class);
+ 	led_trigger_unregister_simple(led_feedback);
++#ifdef CONFIG_MEDIA_CEC_RC
++	rc_map_unregister(&cec_map);
++#endif
+ 	rc_map_unregister(&empty_map);
+ }
+ 
+--- a/include/media/rc-map.h
++++ b/include/media/rc-map.h
+@@ -175,6 +175,13 @@ struct rc_map_list {
+ 	struct rc_map map;
+ };
+ 
++#ifdef CONFIG_MEDIA_CEC_RC
++/*
++ * rc_map_list from rc-cec.c
++ */
++extern struct rc_map_list cec_map;
++#endif
 +
-+
-+static int __init discover_phbs(void)
-+{
-+	if (ppc_md.discover_phbs)
-+		ppc_md.discover_phbs();
-+
-+	return 0;
-+}
-+core_initcall(discover_phbs);
--- 
-2.30.1
-
+ /* Routines from rc-map.c */
+ 
+ /**
 
 
