@@ -2,111 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B018C33B066
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 11:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A66833B0A2
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 12:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbhCOKxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 06:53:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:20339 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229673AbhCOKw5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 06:52:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615805576;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=LK2mxkow7e8brVvXEdY4+jZpUz8M80ZpwI/loM8Aq14=;
-        b=Hge9OH3UCfbXi8dRnUK+ZbtH3kfJ0w2Gfh0aDB1RGguIEo29/QGHXAtMS7g/6hIJgAAFfY
-        4G2xx0o8oklIxGdvVVxFnYiay1cWhIkRoNKCDYXPi15vchYo50HUalh6DnvxtD/oNttVLE
-        RHYkVFbtj0OZejt7kZgApFsqlt09EoM=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-582-2wKRHwT-Md6bC1YL508QnQ-1; Mon, 15 Mar 2021 06:52:54 -0400
-X-MC-Unique: 2wKRHwT-Md6bC1YL508QnQ-1
-Received: by mail-ed1-f69.google.com with SMTP id r19so15328991edv.3
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 03:52:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
-         :message-id:mime-version:content-transfer-encoding;
-        bh=LK2mxkow7e8brVvXEdY4+jZpUz8M80ZpwI/loM8Aq14=;
-        b=UK+6XgMHrE1hrhkBeWg3Tr3IKR7uDx9pSadQPgrfrNwP6PhpSwo/K3jNRbn40eCx5q
-         tF9O8pwuxx56NLpSnWwyHYfjTey+2hvBt1HbiWunMCpQScOBvpJKPVV52BRyMPBoFDYg
-         6yq83lU+m5M7osNEEOKFaJ3VVsNNCJtuNEvP/FjqB3m7u7DmqkyKYmVBEP76ozCmp3gj
-         VtAzM2boRd/xrkRTsimkHkVYp3Zh1wDpNWvCj9fuA8YCojiAqUVwebHvLCY9ovSAkmrp
-         MBI6LMcgINuEFiGZKgkpAtuiQHu6a+9kygbRkHxYCtfkCYK5uZCQHsFIk0kevr++BfQ+
-         0w/w==
-X-Gm-Message-State: AOAM533+bzLH7ZZVhOzV7E40VFcQ7eenyWaSueW7KxIgfPN90IBsIZ3w
-        9LTKOvNTFMJ2sFISv0y8Zp/xKKGLTUdMlnPzLrdujC9F+Ibc73t/sLMZsDZPah5fXwuGU7e8pwG
-        V8u4mS+QaHDAi+07C
-X-Received: by 2002:aa7:df84:: with SMTP id b4mr28919057edy.240.1615805573751;
-        Mon, 15 Mar 2021 03:52:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwx9wCpiGKad6zkmoQf20XvPw/JdC59hTlwQbulqEsV40iMgbgWHPodUkiEnuXQgGqtdDrTYA==
-X-Received: by 2002:aa7:df84:: with SMTP id b4mr28919049edy.240.1615805573623;
-        Mon, 15 Mar 2021 03:52:53 -0700 (PDT)
-Received: from alrua-x1.borgediget.toke.dk ([45.145.92.2])
-        by smtp.gmail.com with ESMTPSA id lk12sm7058344ejb.14.2021.03.15.03.52.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Mar 2021 03:52:53 -0700 (PDT)
-Received: by alrua-x1.borgediget.toke.dk (Postfix, from userid 1000)
-        id 76BD418027E; Mon, 15 Mar 2021 11:52:52 +0100 (CET)
-From:   Toke =?utf-8?Q?H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     David Howells <dhowells@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Gilad Ben-Yossef <gilad@benyossef.com>,
-        keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: public_key: check that pkey_algo is non-NULL
- before passing it to strcmp()
-In-Reply-To: <YEi1RgPgwfT7qHQM@kroah.com>
-References: <875z419ihk.fsf@toke.dk> <20210112161044.3101-1-toke@redhat.com>
- <2648795.1610536273@warthog.procyon.org.uk>
- <2656681.1610542679@warthog.procyon.org.uk> <87sg6yqich.fsf@toke.dk>
- <YEi1RgPgwfT7qHQM@kroah.com>
-X-Clacks-Overhead: GNU Terry Pratchett
-Date:   Mon, 15 Mar 2021 11:52:52 +0100
-Message-ID: <87czw0pu2j.fsf@toke.dk>
+        id S229806AbhCOLHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 07:07:35 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:47241 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229901AbhCOLHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 07:07:11 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3A7AD194094B;
+        Mon, 15 Mar 2021 07:07:11 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 15 Mar 2021 07:07:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1YpRMK
+        BLT5bFvwy+tIvEUoxQCNzBTpaheGpz/XA0y/8=; b=tgjs1lgXPy4v374Wgz4LXS
+        Qq776N5taVvLELmjghjlOsMrg0dlmkzQpPv2ql0eNPfIIbFV+UKignv3ozKz1L2c
+        sz06qm2c234OyiOhvZeK4k+lYCmKyoWpb3J9dem0YaM27AStH3uWUyBS1rFx4HLJ
+        bcz9BeOVTTMepNOvfq4hmebQBvjB7b1sntZsqsBaBVQQzwsDsnBcSCMFtu54JE73
+        +EP11IM+szFOWLffha3i4WWniNgtmZF2pgHYYfV8Q5WqMUaeUc9TU6PBUhXC7F2z
+        uCSHWp1F0t/9MbVATCH+19z6khaq7tzj9FsnWUFmvxWwZm+xnMjRZEljVULAqnbA
+        ==
+X-ME-Sender: <xms:3j9PYG10JRvtILNpiWksn4pe7mWodZVUF3NnFtyrUwuQVKy_8yNwvA>
+    <xme:3j9PYLHrKoyo8JcAAp4mhK_toGyJYpy3548fyWrjLb29Tho1f_BCqSLqxLsc8-3nn
+    Aua_PvMvTFiog>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvledgvdefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:3j9PYIThqGu-KKX5T1hBwfGZHWsBdgTZ3vaQewI3CqydUnlZm1aN8A>
+    <xmx:3j9PYKCSWZCvl6CtO83PRyH7TwgSXpp7S6aU_sCIy7MqxREjcwZKYQ>
+    <xmx:3j9PYA0bCp1ngXNpvxi-9E3mmMCB-DowLwqczvKB9xAN0mp6vK0nfQ>
+    <xmx:3z9PYFoI4J1W4mu3G5oICGUhEVQqCVbmwVJSU-tonZE1aspd_hmL8c7mTgE>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1C8DB1080054;
+        Mon, 15 Mar 2021 07:07:10 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mm/madvise: replace ptrace attach requirement for" failed to apply to 5.10-stable tree
+To:     surenb@google.com, akpm@linux-foundation.org, fweimer@redhat.com,
+        jannh@google.com, jeffv@google.com, jmorris@namei.org,
+        keescook@chromium.org, mhocko@suse.com, minchan@kernel.org,
+        oleg@redhat.com, rientjes@google.com, shakeelb@google.com,
+        stable@vger.kernel.org, timmurray@google.com,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Mar 2021 12:07:08 +0100
+Message-ID: <1615806428159123@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greg KH <gregkh@linuxfoundation.org> writes:
 
-> On Mon, Jan 18, 2021 at 06:13:02PM +0100, Toke H=C3=B8iland-J=C3=B8rgense=
-n wrote:
->> David Howells <dhowells@redhat.com> writes:
->>=20
->> > Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com> wrote:
->> >
->> >> Reviewed-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
->> >>=20
->> >> and also, if you like:
->> >>=20
->> >> Tested-by: Toke H=C3=B8iland-J=C3=B8rgensen <toke@redhat.com>
->> >
->> > Thanks!
->>=20
->> Any chance of that patch getting into -stable anytime soon? Would be
->> nice to have working WiFi without having to compile my own kernels ;)
->
-> What ever happened to this patch?  I can't seem to find it in Linus's
-> tree anywhere :(
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This was a matter of crossed streams: Tianjia had already submitted an
-identical fix, which went in as:
+thanks,
 
-7178a107f5ea ("X.509: Fix crash caused by NULL pointer")
+greg k-h
 
-And that has made it into -stable, so all is well as far as I'm
-concerned. Sorry for the confusion!
+------------------ original commit in Linus's tree ------------------
 
--Toke
+From 96cfe2c0fd23ea7c2368d14f769d287e7ae1082e Mon Sep 17 00:00:00 2001
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Fri, 12 Mar 2021 21:08:06 -0800
+Subject: [PATCH] mm/madvise: replace ptrace attach requirement for
+ process_madvise
+
+process_madvise currently requires ptrace attach capability.
+PTRACE_MODE_ATTACH gives one process complete control over another
+process.  It effectively removes the security boundary between the two
+processes (in one direction).  Granting ptrace attach capability even to a
+system process is considered dangerous since it creates an attack surface.
+This severely limits the usage of this API.
+
+The operations process_madvise can perform do not affect the correctness
+of the operation of the target process; they only affect where the data is
+physically located (and therefore, how fast it can be accessed).  What we
+want is the ability for one process to influence another process in order
+to optimize performance across the entire system while leaving the
+security boundary intact.
+
+Replace PTRACE_MODE_ATTACH with a combination of PTRACE_MODE_READ and
+CAP_SYS_NICE.  PTRACE_MODE_READ to prevent leaking ASLR metadata and
+CAP_SYS_NICE for influencing process performance.
+
+Link: https://lkml.kernel.org/r/20210303185807.2160264-1-surenb@google.com
+Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tim Murray <timmurray@google.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: <stable@vger.kernel.org>	[5.10+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/madvise.c b/mm/madvise.c
+index df692d2e35d4..01fef79ac761 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -1198,12 +1198,22 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
+ 		goto release_task;
+ 	}
+ 
+-	mm = mm_access(task, PTRACE_MODE_ATTACH_FSCREDS);
++	/* Require PTRACE_MODE_READ to avoid leaking ASLR metadata. */
++	mm = mm_access(task, PTRACE_MODE_READ_FSCREDS);
+ 	if (IS_ERR_OR_NULL(mm)) {
+ 		ret = IS_ERR(mm) ? PTR_ERR(mm) : -ESRCH;
+ 		goto release_task;
+ 	}
+ 
++	/*
++	 * Require CAP_SYS_NICE for influencing process performance. Note that
++	 * only non-destructive hints are currently supported.
++	 */
++	if (!capable(CAP_SYS_NICE)) {
++		ret = -EPERM;
++		goto release_mm;
++	}
++
+ 	total_len = iov_iter_count(&iter);
+ 
+ 	while (iov_iter_count(&iter)) {
+@@ -1218,6 +1228,7 @@ SYSCALL_DEFINE5(process_madvise, int, pidfd, const struct iovec __user *, vec,
+ 	if (ret == 0)
+ 		ret = total_len - iov_iter_count(&iter);
+ 
++release_mm:
+ 	mmput(mm);
+ release_task:
+ 	put_task_struct(task);
 
