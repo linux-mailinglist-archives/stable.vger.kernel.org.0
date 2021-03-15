@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98AFB33B8D2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FDE33BA91
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234631AbhCOOEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S233748AbhCOOJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233011AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2598F64F35;
-        Mon, 15 Mar 2021 14:00:09 +0000 (UTC)
+        id S234544AbhCOOEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF70564EF1;
+        Mon, 15 Mar 2021 14:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816811;
-        bh=33wxDA+U8uhcNj+hgQP2X8Hi+2CrCVx0NpPPF+yWc+0=;
+        s=korg; t=1615817055;
+        bh=zg/ODY4xgrUUljpz1wfqqqExAwX4/xT6tnck+U0eMes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQBaSY0BbbScNrms5vun0G0tPzGmyoAkRz4903JRfBJMuOpozqLXyvuY0nLPI4OCJ
-         wQmw8iGxIIKPuhHXTrOKerIKNFRA7yZueM3QM2+xp8bTM7xBqhw8yl7RIiIrDX3xwW
-         Z+5gqQ2mPhUBvHg5qcDVT7JhEc1cWQhTPi3+yP6I=
+        b=q+3lO2f61ep3rqdUF0qg1h1hDkuseDTlALzEPJy9a7e4l/EyfJVXH33P2eeqTEzLd
+         7QHShTk3gZcLtUqnRf/YZv/1iBO2fBnEGCgTNAaCwJa9Qe/DFLB3ws62+V49S6TXI/
+         30jYnD2GZWrT7W4Tg88imoRtHnXkv/pYEwsnu7Wg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shile Zhang <shile.zhang@linux.alibaba.com>
-Subject: [PATCH 5.4 125/168] misc/pvpanic: Export module FDT device table
-Date:   Mon, 15 Mar 2021 14:55:57 +0100
-Message-Id: <20210315135554.459327001@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Olsa <jolsa@redhat.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 265/290] powerpc/64s: Fix instruction encoding for lis in ppc_function_entry()
+Date:   Mon, 15 Mar 2021 14:55:58 +0100
+Message-Id: <20210315135550.972155787@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +43,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 65527a51c66f4edfa28602643d7dd4fa366eb826 upstream.
+commit cea15316ceee2d4a51dfdecd79e08a438135416c upstream.
 
-Export the module FDT device table to ensure the FDT compatible strings
-are listed in the module alias. This help the pvpanic driver can be
-loaded on boot automatically not only the ACPI device, but also the FDT
-device.
+'lis r2,N' is 'addis r2,0,N' and the instruction encoding in the macro
+LIS_R2 is incorrect (it currently maps to 'addis r0,r2,N'). Fix the
+same.
 
-Fixes: 46f934c9a12fc ("misc/pvpanic: add support to get pvpanic device info FDT")
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20210218123116.207751-1-shile.zhang@linux.alibaba.com
-Cc: stable <stable@vger.kernel.org>
+Fixes: c71b7eff426f ("powerpc: Add ABIv2 support to ppc_function_entry")
+Cc: stable@vger.kernel.org # v3.16+
+Reported-by: Jiri Olsa <jolsa@redhat.com>
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Acked-by: Segher Boessenkool <segher@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210304020411.16796-1-naveen.n.rao@linux.vnet.ibm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/pvpanic.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/code-patching.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/pvpanic.c
-+++ b/drivers/misc/pvpanic.c
-@@ -166,6 +166,7 @@ static const struct of_device_id pvpanic
- 	{ .compatible = "qemu,pvpanic-mmio", },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, pvpanic_mmio_match);
+--- a/arch/powerpc/include/asm/code-patching.h
++++ b/arch/powerpc/include/asm/code-patching.h
+@@ -73,7 +73,7 @@ void __patch_exception(int exc, unsigned
+ #endif
  
- static struct platform_driver pvpanic_mmio_driver = {
- 	.driver = {
+ #define OP_RT_RA_MASK	0xffff0000UL
+-#define LIS_R2		0x3c020000UL
++#define LIS_R2		0x3c400000UL
+ #define ADDIS_R2_R12	0x3c4c0000UL
+ #define ADDI_R2_R2	0x38420000UL
+ 
 
 
