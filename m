@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B66F33BA42
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 104D833BABE
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235623AbhCOOIn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49420 "EHLO mail.kernel.org"
+        id S235683AbhCOOKM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234126AbhCOOC6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0A7464EED;
-        Mon, 15 Mar 2021 14:02:56 +0000 (UTC)
+        id S230493AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9920F64F26;
+        Mon, 15 Mar 2021 13:58:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816978;
-        bh=kcnnK6WDFQU8lLJFM3dyQCYTMLsnTb223hTde03XaC8=;
+        s=korg; t=1615816729;
+        bh=XFxMRO3ByBIar4l5dByYkLZmVRksAJ4SHtt1s/yJ/0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1FDt35jmrvu4tYt7MM22ATHQhjB0mAHkm9ROsDhfDa8T+0WkI6VLl4bptzori0mwf
-         /VmpHDGEeUo4IEIY9ZO8aaLojJLyAngy58WRk8WRA9C/GcHC1uCDPNcOMux3KENaWd
-         WwA2qE4BCsr+ERXhqioSD44Lu7meIZSjeLrUhbLc=
+        b=go/IZsQxJ4ktUQ4tjd70IEu/EJET4y4v6E+eKvsDhKRmdQ3QKFpqsYYSGEwgp41Mj
+         0n5j5rKFt08/+7F8FI2ohWQQIped1P2hwT+qqZdQ3/qhzpjEmy0B77hPHRmvi16MSK
+         hfkiTIlI/OzSsjPvCE8jS5NoIwJg0i7HvVyqyWRQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Atish Patra <atish.patra@wdc.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 241/306] net: macb: Add default usrio config to default gem config
+        stable@vger.kernel.org,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 072/168] HID: logitech-dj: add support for the new lightspeed connection iteration
 Date:   Mon, 15 Mar 2021 14:55:04 +0100
-Message-Id: <20210315135515.793306491@linuxfoundation.org>
+Message-Id: <20210315135552.741586286@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +42,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Atish Patra <atish.patra@wdc.com>
+From: Filipe Laíns <lains@riseup.net>
 
-[ Upstream commit b12422362ce947098ac420ac3c975fc006af4c02 ]
+[ Upstream commit fab3a95654eea01d6b0204995be8b7492a00d001 ]
 
-There is no usrio config defined for default gem config leading to
-a kernel panic devices that don't define a data. This issue can be
-reprdouced with microchip polar fire soc where compatible string
-is defined as "cdns,macb".
+This new connection type is the new iteration of the Lightspeed
+connection and will probably be used in some of the newer gaming
+devices. It is currently use in the G Pro X Superlight.
 
-Fixes: edac63861db7 ("add userio bits as platform configuration")
+This patch should be backported to older versions, as currently the
+driver will panic when seing the unsupported connection. This isn't
+an issue when using the receiver that came with the device, as Logitech
+has been using different PIDs when they change the connection type, but
+is an issue when using a generic receiver (well, generic Lightspeed
+receiver), which is the case of the one in the Powerplay mat. Currently,
+the only generic Ligthspeed receiver we support, and the only one that
+exists AFAIK, is ther Powerplay.
 
-Signed-off-by: Atish Patra <atish.patra@wdc.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As it stands, the driver will panic when seeing a G Pro X Superlight
+connected to the Powerplay receiver and won't send any input events to
+userspace! The kernel will warn about this so the issue should be easy
+to identify, but it is still very worrying how hard it will fail :(
+
+[915977.398471] logitech-djreceiver 0003:046D:C53A.0107: unusable device of type UNKNOWN (0x0f) connected on slot 1
+
+Signed-off-by: Filipe Laíns <lains@riseup.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/hid/hid-logitech-dj.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 814a5b10141d..07cdb38e7d11 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -3950,6 +3950,13 @@ static int macb_init(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct macb_usrio_config macb_default_usrio = {
-+	.mii = MACB_BIT(MII),
-+	.rmii = MACB_BIT(RMII),
-+	.rgmii = GEM_BIT(RGMII),
-+	.refclk = MACB_BIT(CLKEN),
-+};
-+
- #if defined(CONFIG_OF)
- /* 1518 rounded up */
- #define AT91ETHER_MAX_RBUFF_SZ	0x600
-@@ -4435,13 +4442,6 @@ static int fu540_c000_init(struct platform_device *pdev)
- 	return macb_init(pdev);
- }
- 
--static const struct macb_usrio_config macb_default_usrio = {
--	.mii = MACB_BIT(MII),
--	.rmii = MACB_BIT(RMII),
--	.rgmii = GEM_BIT(RGMII),
--	.refclk = MACB_BIT(CLKEN),
--};
--
- static const struct macb_usrio_config sama7g5_usrio = {
- 	.mii = 0,
- 	.rmii = 1,
-@@ -4590,6 +4590,7 @@ static const struct macb_config default_gem_config = {
- 	.dma_burst_length = 16,
- 	.clk_init = macb_clk_init,
- 	.init = macb_init,
-+	.usrio = &macb_default_usrio,
- 	.jumbo_max_len = 10240,
- };
- 
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 86001cfbdb6f..b499ac37dc7b 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -995,7 +995,12 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
+ 		workitem.reports_supported |= STD_KEYBOARD;
+ 		break;
+ 	case 0x0d:
+-		device_type = "eQUAD Lightspeed 1_1";
++		device_type = "eQUAD Lightspeed 1.1";
++		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
++		workitem.reports_supported |= STD_KEYBOARD;
++		break;
++	case 0x0f:
++		device_type = "eQUAD Lightspeed 1.2";
+ 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
+ 		workitem.reports_supported |= STD_KEYBOARD;
+ 		break;
 -- 
 2.30.1
 
