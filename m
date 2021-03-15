@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF97F33B585
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C86BF33B686
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231246AbhCONyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57294 "EHLO mail.kernel.org"
+        id S232249AbhCON6F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231386AbhCONyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49C4A64E89;
-        Mon, 15 Mar 2021 13:54:08 +0000 (UTC)
+        id S231986AbhCON52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 877D564EF0;
+        Mon, 15 Mar 2021 13:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816449;
-        bh=dyxUvkeFFAfCa9HbSej9c83vTx3J2aDdsBEsBapoT2M=;
+        s=korg; t=1615816647;
+        bh=83Xs0tMceLlpSnIvlu0A0942S6gOOumlqNnRQalz+6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S79YEYXxElVZmHsRfKLO6Kes1BNhcZzWqSrSvk2sCD1dNRxXhX7Q3vQZ4G5x5XG9k
-         Up9CXp1PN+wdokLe/vgD7YLnFDvA+aWaKvLsUwE64PGgcdGMcD4UTpocSJDhrRiHdd
-         DOsS/FU2ErSx/U0dwrNDRdHPl7ImXp0kni+vhOc4=
+        b=ZQk/zFK+a0SQWTZk3Fr/Dk1ixzV7QyPSH/hPUh8JCaCbjJU8ZCyGwaMHjJ/0KurX4
+         YeV9p14ESUgslCDaRa9lu3NGqdPVyMrBnfU+yoSuJnSdO5ipveImBsLZ6eyFvm78fK
+         2BbxMIHj2gLFazhKWSPLER5PJtr9Ae7naqyl77RM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 51/75] staging: comedi: adv_pci1710: Fix endian problem for AI command data
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 032/290] cifs: return proper error code in statfs(2)
 Date:   Mon, 15 Mar 2021 14:52:05 +0100
-Message-Id: <20210315135209.914501090@linuxfoundation.org>
+Message-Id: <20210315135543.007898513@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +43,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit b2e78630f733a76508b53ba680528ca39c890e82 upstream.
+commit 14302ee3301b3a77b331cc14efb95bf7184c73cc upstream.
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the calls to
-`comedi_buf_write_samples()` are passing the address of a 32-bit integer
-variable.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the variables
-holding the sample value to `unsigned short`.  The type of the `val`
-parameter of `pci1710_ai_read_sample()` is changed to `unsigned short *`
-accordingly.  The type of the `val` variable in `pci1710_ai_insn_read()`
-is also changed to `unsigned short` since its address is passed to
-`pci1710_ai_read_sample()`.
+In cifs_statfs(), if server->ops->queryfs is not NULL, then we should
+use its return value rather than always returning 0.  Instead, use rc
+variable as it is properly set to 0 in case there is no
+server->ops->queryfs.
 
-Fixes: a9c3a015c12f ("staging: comedi: adv_pci1710: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-4-abbotti@mev.co.uk
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/cifs/cifsfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -351,11 +351,11 @@ static int pci171x_ai_eoc(struct comedi_
- static int pci171x_ai_read_sample(struct comedi_device *dev,
- 				  struct comedi_subdevice *s,
- 				  unsigned int cur_chan,
--				  unsigned int *val)
-+				  unsigned short *val)
- {
- 	const struct boardtype *board = dev->board_ptr;
- 	struct pci1710_private *devpriv = dev->private;
--	unsigned int sample;
-+	unsigned short sample;
- 	unsigned int chan;
+--- a/fs/cifs/cifsfs.c
++++ b/fs/cifs/cifsfs.c
+@@ -286,7 +286,7 @@ cifs_statfs(struct dentry *dentry, struc
+ 		rc = server->ops->queryfs(xid, tcon, cifs_sb, buf);
  
- 	sample = inw(dev->iobase + PCI171X_AD_DATA_REG);
-@@ -395,7 +395,7 @@ static int pci171x_ai_insn_read(struct c
- 	pci171x_ai_setup_chanlist(dev, s, &insn->chanspec, 1, 1);
+ 	free_xid(xid);
+-	return 0;
++	return rc;
+ }
  
- 	for (i = 0; i < insn->n; i++) {
--		unsigned int val;
-+		unsigned short val;
- 
- 		/* start conversion */
- 		outw(0, dev->iobase + PCI171X_SOFTTRG_REG);
-@@ -516,7 +516,7 @@ static void pci1710_handle_every_sample(
- {
- 	struct comedi_cmd *cmd = &s->async->cmd;
- 	unsigned int status;
--	unsigned int val;
-+	unsigned short val;
- 	int ret;
- 
- 	status = inw(dev->iobase + PCI171X_STATUS_REG);
-@@ -576,7 +576,7 @@ static void pci1710_handle_fifo(struct c
- 	}
- 
- 	for (i = 0; i < devpriv->max_samples; i++) {
--		unsigned int val;
-+		unsigned short val;
- 		int ret;
- 
- 		ret = pci171x_ai_read_sample(dev, s, s->async->cur_chan, &val);
+ static long cifs_fallocate(struct file *file, int mode, loff_t off, loff_t len)
 
 
