@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 162BC33BA65
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6536C33B7B7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235090AbhCOOJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49810 "EHLO mail.kernel.org"
+        id S233237AbhCOOBM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229868AbhCOODa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5601264E83;
-        Mon, 15 Mar 2021 14:03:28 +0000 (UTC)
+        id S232736AbhCON7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C277B64DAD;
+        Mon, 15 Mar 2021 13:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817009;
-        bh=dnOEBefTkEQGovmqEsF2IJREFw23MOB2niidlyjTGZQ=;
+        s=korg; t=1615816759;
+        bh=IzOuBKvlcXDQO5mbUQb1xCUN8aaHclHba4Q1eHNYjmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qEFWn9K8k1eOze1yADrE3e0j9N3kpCzoXzquRx8PAgWZzuoLtoWBf99y20IYy+Jig
-         oLOj6FrccR2xXBRnxvZgHsdfgVarqaEqdtRVGffDS4A4thZ+mNGQ+foZ0zPuW7j9J/
-         1zKZodbsdHPraGp/MlmFOrTLvaWFhQKwJT2zRzuM=
+        b=oock5ZNhD0fq/WSB3bY/JW9B5tlVBq7TM0RYDPy0A+gaDuS1uT8BC5RQ3x9yXiYTg
+         Yy5+OwFaZxpjk4BSfhzRwzZH28TrSxx8wxnhBaRDniMJ0jl3Rwrcwm6kq7uUpmiNBz
+         oPEiFr2sevetpYqIAjgoBGk8GilFRSYBtI+R32cI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 258/306] mptcp: put subflow sock on connect error
-Date:   Mon, 15 Mar 2021 14:55:21 +0100
-Message-Id: <20210315135516.368742595@linuxfoundation.org>
+        stable@vger.kernel.org, Simeon Simeonoff <sim.simeonoff@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 090/168] ALSA: hda/ca0132: Add Sound BlasterX AE-5 Plus support
+Date:   Mon, 15 Mar 2021 14:55:22 +0100
+Message-Id: <20210315135553.334418486@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +41,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Florian Westphal <fw@strlen.de>
+From: Simeon Simeonoff <sim.simeonoff@gmail.com>
 
-[ Upstream commit f07157792c633b528de5fc1dbe2e4ea54f8e09d4 ]
+commit f15c5c11abfbf8909eb30598315ecbec2311cfdc upstream.
 
-mptcp_add_pending_subflow() performs a sock_hold() on the subflow,
-then adds the subflow to the join list.
+The new AE-5 Plus model has a different Subsystem ID compared to the
+non-plus model. Adding the new id to the list of quirks.
 
-Without a sock_put the subflow sk won't be freed in case connect() fails.
-
-unreferenced object 0xffff88810c03b100 (size 3000):
-[..]
-    sk_prot_alloc.isra.0+0x2f/0x110
-    sk_alloc+0x5d/0xc20
-    inet6_create+0x2b7/0xd30
-    __sock_create+0x17f/0x410
-    mptcp_subflow_create_socket+0xff/0x9c0
-    __mptcp_subflow_connect+0x1da/0xaf0
-    mptcp_pm_nl_work+0x6e0/0x1120
-    mptcp_worker+0x508/0x9a0
-
-Fixes: 5b950ff4331ddda ("mptcp: link MPC subflow into msk only after accept")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Simeon Simeonoff <sim.simeonoff@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/998cafbe10b648f724ee33570553f2d780a38963.camel@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c | 1 +
+ sound/pci/hda/patch_ca0132.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 81b7be67d288..c3090003a17b 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1174,6 +1174,7 @@ int __mptcp_subflow_connect(struct sock *sk, const struct mptcp_addr_info *loc,
- 	spin_lock_bh(&msk->join_list_lock);
- 	list_del(&subflow->node);
- 	spin_unlock_bh(&msk->join_list_lock);
-+	sock_put(mptcp_subflow_tcp_sock(subflow));
- 
- failed:
- 	subflow->disposable = 1;
--- 
-2.30.1
-
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -1185,6 +1185,7 @@ static const struct snd_pci_quirk ca0132
+ 	SND_PCI_QUIRK(0x1102, 0x0013, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0018, "Recon3D", QUIRK_R3D),
+ 	SND_PCI_QUIRK(0x1102, 0x0051, "Sound Blaster AE-5", QUIRK_AE5),
++	SND_PCI_QUIRK(0x1102, 0x0191, "Sound Blaster AE-5 Plus", QUIRK_AE5),
+ 	SND_PCI_QUIRK(0x1102, 0x0081, "Sound Blaster AE-7", QUIRK_AE7),
+ 	{}
+ };
 
 
