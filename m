@@ -2,74 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436CF33C828
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 22:06:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1172D33C82B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 22:07:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbhCOVGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 17:06:09 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59772 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233464AbhCOVFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 17:05:41 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id CF7821C0B8B; Mon, 15 Mar 2021 22:05:38 +0100 (CET)
-Date:   Mon, 15 Mar 2021 22:05:38 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/75] 4.4.262-rc1 review
-Message-ID: <20210315210537.GA1968@amd>
-References: <20210315135208.252034256@linuxfoundation.org>
+        id S231362AbhCOVGk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 17:06:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229746AbhCOVGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 17:06:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BB8064E99;
+        Mon, 15 Mar 2021 21:06:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615842377;
+        bh=Gh3bCfJLOnCQytiwwVzryrz8z/8CPerrsKfGDmGTEqI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=GSkpFdT5WVMerCRPnBlqQbH5QPMv1pdGrc30jHS6bVFJH316NLDxiVEjmKexEeBzz
+         d9Bz37BBg9y618s+CGNuLfeuNf+1dApTAogOrMWa1o18q1TqtRcosPeIZ3e6IGw59J
+         j5IUWHj8riT0K9a1W//lJ8nJvoEYLlWfbe3/eV69FCor/GnVaZ6ZCT30K8k+xcV1dJ
+         0b0rjvPdXW+f4hXS1RQJrqpZIrG7O+HQ1BP+xhRZ+DW7umiQt3pa6ipLrCyRsE303d
+         XqRdDN/Swt7ZWpKSuXSBliqXJ3poQptigzR+qV8PjRtO/VdNc46gJDkHiM6iRNJSWz
+         EiwD09NzwzFlA==
+Date:   Mon, 15 Mar 2021 17:06:16 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Christian Eggers <ceggers@arri.de>
+Subject: Re: [PATCH 5.10 113/290] net: dsa: implement a central TX
+ reallocation procedure
+Message-ID: <YE/MSHkyR0PXSUox@sashalap>
+References: <20210315135541.921894249@linuxfoundation.org>
+ <20210315135545.737069480@linuxfoundation.org>
+ <20210315195601.auhfy5uafjafgczs@skbuf>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20210315195601.auhfy5uafjafgczs@skbuf>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 15, 2021 at 07:56:02PM +0000, Vladimir Oltean wrote:
+>> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+>> Tested-by: Christian Eggers <ceggers@arri.de> # For tail taggers only
+>> Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
+>> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>
+>For context, Sasha explains here:
+>https://www.spinics.net/lists/stable-commits/msg190151.html
+>(the conversation is somewhat truncated, unfortunately, because
+>stable-commits@vger.kernel.org ate my replies)
+>that 13 patches were backported to get the unrelated commit 9200f515c41f
+>("net: dsa: tag_mtk: fix 802.1ad VLAN egress") to apply cleanly with git-am.
+>
+>I am not strictly against this, even though I would have liked to know
+>that the maintainers were explicitly informed about it.
+>
+>Greg, could you make your stable backporting emails include the output
+>of ./get_maintainer.pl into the list of recipients? Thanks.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Did it not happen here? I've looked at Greg's script[1] and it seemed to
+me like it does go through get_maintainer.pl.
 
-Hi!
 
-> This is the start of the stable review cycle for the 4.4.262 release.
-> There are 75 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+[1] https://github.com/gregkh/gregkh-linux/blob/master/scripts/generate_cc_list
 
-CIP testing did not find any problems here:
-
-https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
-4.4.y
-
-Tested-by: Pavel Machek (CIP) <pavel@denx.de>
-
-Best regards,
-                                                                Pavel
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBPzCEACgkQMOfwapXb+vJd9ACeMImcW3HHMP3A3wC+xjY1ev77
-UkIAoIGb307MIn0lVxyNcYbaqESYyK01
-=JbHU
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+-- 
+Thanks,
+Sasha
