@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 066F033B613
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BDB633B62C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbhCON5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33286 "EHLO mail.kernel.org"
+        id S230154AbhCON5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230468AbhCON4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA56564DAD;
-        Mon, 15 Mar 2021 13:56:34 +0000 (UTC)
+        id S231707AbhCON4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 735B064F31;
+        Mon, 15 Mar 2021 13:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816596;
-        bh=qOnis5ASUbtP4DBaEjgypEoRm67TjZW/8eJm0wxkdp4=;
+        s=korg; t=1615816597;
+        bh=MLwSzS5Vnp2OoJVdpI1dqdnD2DwcwS0rspTGTGTA9UM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFwb55Z0ZIP1kcOV/ICDKv11LVsPEZcZiUb1UlDi321qYwf8CfDImARzd45h7r7y2
-         eA+Sn+9F3aDIT5k6lIfz4jB8vFlnu01uUB5QkCdZ7Yh0qFxxDZIIvy+xz3KskzNETk
-         xFfxjer4OItmwfucXvkmjvjDA1C5WzZb7IsQZxdo=
+        b=MuK/6X/lVp9SsuNu+J+yJaZlxXbFyJikr7x+ZTqkNzvhlAXL73x78dNNbtIzGuRMF
+         TNzF9FWAabXRzJGfRBhfw6NFabHOGHRSlg7e8ifYddDzjoQyPqcqeARrBrTkfrOKG1
+         7d3+6/QX6Ck3Y4uv+C13WBugEf3ytXHFLKz9WpM0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Balazs Nemeth <bnemeth@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 011/306] net: avoid infinite loop in mpls_gso_segment when mpls_hlen == 0
-Date:   Mon, 15 Mar 2021 14:51:14 +0100
-Message-Id: <20210315135507.999543928@linuxfoundation.org>
+        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.11 012/306] ath11k: fix AP mode for QCA6390
+Date:   Mon, 15 Mar 2021 14:51:15 +0100
+Message-Id: <20210315135508.030734513@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -43,44 +40,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Balazs Nemeth <bnemeth@redhat.com>
+From: Kalle Valo <kvalo@codeaurora.org>
 
-commit d348ede32e99d3a04863e9f9b28d224456118c27 upstream.
+commit 77d7e87128d4dfb400df4208b2812160e999c165 upstream.
 
-A packet with skb_inner_network_header(skb) == skb_network_header(skb)
-and ETH_P_MPLS_UC will prevent mpls_gso_segment from pulling any headers
-from the packet. Subsequently, the call to skb_mac_gso_segment will
-again call mpls_gso_segment with the same packet leading to an infinite
-loop. In addition, ensure that the header length is a multiple of four,
-which should hold irrespective of the number of stacked labels.
+Commit c134d1f8c436 ("ath11k: Handle errors if peer creation fails") completely
+broke AP mode on QCA6390:
 
-Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+kernel: [  151.230734] ath11k_pci 0000:06:00.0: failed to create peer after vdev start delay: -22
+wpa_supplicant[2307]: Failed to set beacon parameters
+wpa_supplicant[2307]: Interface initialization failed
+wpa_supplicant[2307]: wlan0: interface state UNINITIALIZED->DISABLED
+wpa_supplicant[2307]: wlan0: AP-DISABLED
+wpa_supplicant[2307]: wlan0: Unable to setup interface.
+wpa_supplicant[2307]: Failed to initialize AP interface
+
+This was because commit c134d1f8c436 ("ath11k: Handle errors if peer creation
+fails") added error handling for ath11k_peer_create(), which had been failing
+all along but was unnoticed due to the missing error handling. The actual bug
+was introduced already in commit aa44b2f3ecd4 ("ath11k: start vdev if a bss peer is
+already created").
+
+ath11k_peer_create() was failing because for AP mode the peer is created
+already earlier op_add_interface() and we should skip creation here, but the
+check for modes was wrong.  Fixing that makes AP mode work again.
+
+This shouldn't affect IPQ8074 nor QCN9074 as they have hw_params.vdev_start_delay disabled.
+
+Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
+
+Fixes: c134d1f8c436 ("ath11k: Handle errors if peer creation fails")
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1614006849-25764-1-git-send-email-kvalo@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mpls/mpls_gso.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ath/ath11k/mac.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/mpls/mpls_gso.c
-+++ b/net/mpls/mpls_gso.c
-@@ -14,6 +14,7 @@
- #include <linux/netdev_features.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
-+#include <net/mpls.h>
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5299,8 +5299,8 @@ ath11k_mac_op_assign_vif_chanctx(struct
+ 	}
  
- static struct sk_buff *mpls_gso_segment(struct sk_buff *skb,
- 				       netdev_features_t features)
-@@ -27,6 +28,8 @@ static struct sk_buff *mpls_gso_segment(
- 
- 	skb_reset_network_header(skb);
- 	mpls_hlen = skb_inner_network_header(skb) - skb_network_header(skb);
-+	if (unlikely(!mpls_hlen || mpls_hlen % MPLS_HLEN))
-+		goto out;
- 	if (unlikely(!pskb_may_pull(skb, mpls_hlen)))
- 		goto out;
- 
+ 	if (ab->hw_params.vdev_start_delay &&
+-	    (arvif->vdev_type == WMI_VDEV_TYPE_AP ||
+-	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR)) {
++	    arvif->vdev_type != WMI_VDEV_TYPE_AP &&
++	    arvif->vdev_type != WMI_VDEV_TYPE_MONITOR) {
+ 		param.vdev_id = arvif->vdev_id;
+ 		param.peer_type = WMI_PEER_TYPE_DEFAULT;
+ 		param.peer_addr = ar->mac_addr;
 
 
