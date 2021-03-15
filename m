@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB7933B7AB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 613AD33B8E3
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232202AbhCOOBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S234684AbhCOOEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230270AbhCON7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 728F164F4F;
-        Mon, 15 Mar 2021 13:59:18 +0000 (UTC)
+        id S232989AbhCOOAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7463064F10;
+        Mon, 15 Mar 2021 14:00:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816759;
-        bh=Cx7Z6Teu877+PcieRFJ0pOYWFpG8cXlCbz19Qlmfev0=;
+        s=korg; t=1615816808;
+        bh=IRd2fbfWB7PxKr72oQAlufixyevhTRLq+lbOG35j/Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lprL3i00Nv3F4Ms1cyrKq0fdGONOw1mHTRqNw7B5spr7nhy0Y2qx+2HwwtONC6eSp
-         FyOFNcmZZzFleXsBhnJnV2riUhCn1eOhZ3BAzvz7OTdEFWOcAOGGVgeOuHDV2g9g4C
-         PVlwnEGtpJb4rVvo2/rj2jVvCwn7D96nVa+lxDTk=
+        b=UVAcasN4OKzxY+xtDYDpbZwQD87NinsUfkfSpPXvivSdUyYzbN5uh/O+arho5G/BX
+         WBaSrpwrD8t9h6W4BosbJ+qaIX76jCfWk3UVTURGLXZtodOxLvJ+PUnCUjq6pVD9ju
+         34qbHzvEFNgAYMlNWOcf/eyI35kjfU45s0DDAq4A=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 42/95] ALSA: hda: Drop the BATCH workaround for AMD controllers
-Date:   Mon, 15 Mar 2021 14:57:12 +0100
-Message-Id: <20210315135741.651429790@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 082/120] USB: serial: cp210x: add some more GE USB IDs
+Date:   Mon, 15 Mar 2021 14:57:13 +0100
+Message-Id: <20210315135722.650821374@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-commit 28e96c1693ec1cdc963807611f8b5ad400431e82 upstream.
+commit 42213a0190b535093a604945db05a4225bf43885 upstream.
 
-The commit c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on
-AMD controller (1022:1457)") introduced a few workarounds for the
-recent AMD HD-audio controller, and one of them is the forced BATCH
-PCM mode so that PulseAudio avoids the timer-based scheduling.  This
-was thought to cover for some badly working applications, but this
-actually worsens for more others.  In total, this wasn't a good idea
-to enforce it.
+GE CS1000 has some more custom USB IDs for CP2102N; add them
+to the driver to have working auto-probing.
 
-This is a partial revert of the commit above for dropping the PCM
-BATCH enforcement part to recover from the regression again.
-
-Fixes: c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on AMD controller (1022:1457)")
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195303
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210308160726.22930-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_controller.c |    7 -------
- 1 file changed, 7 deletions(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/pci/hda/hda_controller.c
-+++ b/sound/pci/hda/hda_controller.c
-@@ -624,13 +624,6 @@ static int azx_pcm_open(struct snd_pcm_s
- 				     20,
- 				     178000000);
- 
--	/* by some reason, the playback stream stalls on PulseAudio with
--	 * tsched=1 when a capture stream triggers.  Until we figure out the
--	 * real cause, disable tsched mode by telling the PCM info flag.
--	 */
--	if (chip->driver_caps & AZX_DCAPS_AMD_WORKAROUND)
--		runtime->hw.info |= SNDRV_PCM_INFO_BATCH;
--
- 	if (chip->align_buffer_size)
- 		/* constrain buffer sizes to be multiple of 128
- 		   bytes. This is more efficient in terms of memory
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -203,6 +203,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
+ 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
+ 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
++	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
++	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
+ 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
+ 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
+ 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
 
 
