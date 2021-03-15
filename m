@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6A133B94E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9D5433B878
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233685AbhCOOFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S231252AbhCOODg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233148AbhCOOAv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24AB064F8D;
-        Mon, 15 Mar 2021 14:00:27 +0000 (UTC)
+        id S232802AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D5FC64F00;
+        Mon, 15 Mar 2021 13:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816828;
-        bh=YepXQey3VhzdjKuyvShC6OU940m+12UNp0NOjewn6GY=;
+        s=korg; t=1615816779;
+        bh=g4ge6Wj4d/EzIdZfVNtg/6fBbvqxzeqxSwJk5KUjrNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plqJIzaR3A+lB0Yf2BjsHMKmpMbPd9YnEoEq+jxluQt595xAp5H7ff8y8aDtjUZ0b
-         FfGQZDcpUTxaLmwBIZ/kE4IVM99PaIwBfz4hFOb7Cmebfpn4sl73MF+9hsDdjItpDX
-         Zb8qZs/sE3FMGS2fQtzTuY17SMyJEp0Au2N1+3HQ=
+        b=qwZ85T9/RE+fE+CB1Ue1vqOzVHZmujm8HVWO61nU0tQ0A2xncCiI+gnyHijFKaUUw
+         BChdObB6+YZAQCs9qPKBXPQ69KZhSyFngox3hO/uDWhrjImtw8drXtJFedWPTYEI82
+         nz+A9zxvak+swGBuE4jZItjJDakt6/PvPJj17HPU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Lee Gibson <leegib@gmail.com>
-Subject: [PATCH 4.19 095/120] staging: rtl8192e: Fix possible buffer overflow in _rtl92e_wx_set_scan
+        stable@vger.kernel.org,
+        syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 56/95] USB: serial: io_edgeport: fix memory leak in edge_startup
 Date:   Mon, 15 Mar 2021 14:57:26 +0100
-Message-Id: <20210315135723.086563394@linuxfoundation.org>
+Message-Id: <20210315135742.117613218@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +43,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lee Gibson <leegib@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 8687bf9ef9551bcf93897e33364d121667b1aadf upstream.
+commit cfdc67acc785e01a8719eeb7012709d245564701 upstream.
 
-Function _rtl92e_wx_set_scan calls memcpy without checking the length.
-A user could control that length and trigger a buffer overflow.
-Fix by checking the length is within the maximum allowed size.
+sysbot found memory leak in edge_startup().
+The problem was that when an error was received from the usb_submit_urb(),
+nothing was cleaned up.
 
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210226145157.424065-1-leegib@gmail.com
+Reported-by: syzbot+59f777bdcbdd7eea5305@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 6e8cf7751f9f ("USB: add EPIC support to the io_edgeport driver")
+Cc: stable@vger.kernel.org	# 2.6.21: c5c0c55598ce
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtl8192e/rtl_wx.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/serial/io_edgeport.c |   26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
---- a/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
-+++ b/drivers/staging/rtl8192e/rtl8192e/rtl_wx.c
-@@ -415,9 +415,10 @@ static int _rtl92e_wx_set_scan(struct ne
- 		struct iw_scan_req *req = (struct iw_scan_req *)b;
+--- a/drivers/usb/serial/io_edgeport.c
++++ b/drivers/usb/serial/io_edgeport.c
+@@ -3025,26 +3025,32 @@ static int edge_startup(struct usb_seria
+ 				response = -ENODEV;
+ 			}
  
- 		if (req->essid_len) {
--			ieee->current_network.ssid_len = req->essid_len;
--			memcpy(ieee->current_network.ssid, req->essid,
--			       req->essid_len);
-+			int len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+
-+			ieee->current_network.ssid_len = len;
-+			memcpy(ieee->current_network.ssid, req->essid, len);
+-			usb_free_urb(edge_serial->interrupt_read_urb);
+-			kfree(edge_serial->interrupt_in_buffer);
+-
+-			usb_free_urb(edge_serial->read_urb);
+-			kfree(edge_serial->bulk_in_buffer);
+-
+-			kfree(edge_serial);
+-
+-			return response;
++			goto error;
  		}
+ 
+ 		/* start interrupt read for this edgeport this interrupt will
+ 		 * continue as long as the edgeport is connected */
+ 		response = usb_submit_urb(edge_serial->interrupt_read_urb,
+ 								GFP_KERNEL);
+-		if (response)
++		if (response) {
+ 			dev_err(ddev, "%s - Error %d submitting control urb\n",
+ 				__func__, response);
++
++			goto error;
++		}
  	}
+ 	return response;
++
++error:
++	usb_free_urb(edge_serial->interrupt_read_urb);
++	kfree(edge_serial->interrupt_in_buffer);
++
++	usb_free_urb(edge_serial->read_urb);
++	kfree(edge_serial->bulk_in_buffer);
++
++	kfree(edge_serial);
++
++	return response;
+ }
+ 
  
 
 
