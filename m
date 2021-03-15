@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6DE533B726
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 279A233B730
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbhCON7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S231642AbhCON7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232348AbhCON61 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C79964F06;
-        Mon, 15 Mar 2021 13:58:23 +0000 (UTC)
+        id S231764AbhCON6g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBFD964F21;
+        Mon, 15 Mar 2021 13:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816705;
-        bh=CFdK68bRiQtcxu9cW51TqKqftLMt8jefhAL5Plbd2RA=;
+        s=korg; t=1615816707;
+        bh=3Xtx1xluerSHb2MuXtSuO+2Aui405FGB83xaJuhkix4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uM1I5YSGBcEq89TR/1ri3Fc4oxxs7zMyUUQ0d+hRkXRI8mGZUI1TFNkWuexmwn+Bt
-         P/yU/KLiPn0jMWNhknhC4sQnLKXEMO3BeBclE7IIN2i4eltSnVjNrmjbXixJix7t7K
-         7zvxj3pJZS/EeAFGUUDX/NnlmCbGt4m4n+J5Ndxw=
+        b=jRTeWn1YlDquiCewCzY63OwNMn3vK648Pcm1h0Vg5WW90v+GGXFKM3ZH1zCLk0Hdj
+         eePwIsslwD5Qv7TC7KiuP3odkqlmUYk03JIkymF1BfiHo7l0ASrXNsAw7WN0yZMLWH
+         LtHfRUBuwCrsri2cKtRUHMMgMoKjkvalx3N3nQKU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 058/168] media: rc: compile rc-cec.c into rc-core
-Date:   Mon, 15 Mar 2021 14:54:50 +0100
-Message-Id: <20210315135552.268594743@linuxfoundation.org>
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 059/168] net: hns3: fix error mask definition of flow director
+Date:   Mon, 15 Mar 2021 14:54:51 +0100
+Message-Id: <20210315135552.299941159@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,140 +43,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit f09f9f93afad770a04b35235a0aa465fcc8d6e3d upstream.
+[ Upstream commit ae85ddda0f1b341b2d25f5a5e0eff1d42b6ef3df ]
 
-The rc-cec keymap is unusual in that it can't be built as a module,
-instead it is registered directly in rc-main.c if CONFIG_MEDIA_CEC_RC
-is set. This is because it can be called from drm_dp_cec_set_edid() via
-cec_register_adapter() in an asynchronous context, and it is not
-allowed to use request_module() to load rc-cec.ko in that case. Trying to
-do so results in a 'WARN_ON_ONCE(wait && current_is_async())'.
+Currently, some bit filed definitions of flow director TCAM
+configuration command are incorrect. Since the wrong MSB is
+always 0, and these fields are assgined in order, so it still works.
 
-Since this keymap is only used if CONFIG_MEDIA_CEC_RC is set, we
-just compile this keymap into the rc-core module and never as a
-separate module.
+Fix it by redefine them.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 2c6d1fffa1d9 (drm: add support for DisplayPort CEC-Tunneling-over-AUX)
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 117328680288 ("net: hns3: Add input key and action config support for flow director")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/Makefile         |    1 +
- drivers/media/rc/keymaps/Makefile |    1 -
- drivers/media/rc/keymaps/rc-cec.c |   28 +++++++++++-----------------
- drivers/media/rc/rc-main.c        |    6 ++++++
- include/media/rc-map.h            |    7 +++++++
- 5 files changed, 25 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/media/rc/Makefile
-+++ b/drivers/media/rc/Makefile
-@@ -5,6 +5,7 @@ obj-y += keymaps/
- obj-$(CONFIG_RC_CORE) += rc-core.o
- rc-core-y := rc-main.o rc-ir-raw.o
- rc-core-$(CONFIG_LIRC) += lirc_dev.o
-+rc-core-$(CONFIG_MEDIA_CEC_RC) += keymaps/rc-cec.o
- rc-core-$(CONFIG_BPF_LIRC_MODE2) += bpf-lirc.o
- obj-$(CONFIG_IR_NEC_DECODER) += ir-nec-decoder.o
- obj-$(CONFIG_IR_RC5_DECODER) += ir-rc5-decoder.o
---- a/drivers/media/rc/keymaps/Makefile
-+++ b/drivers/media/rc/keymaps/Makefile
-@@ -20,7 +20,6 @@ obj-$(CONFIG_RC_MAP) += rc-adstech-dvb-t
- 			rc-behold.o \
- 			rc-behold-columbus.o \
- 			rc-budget-ci-old.o \
--			rc-cec.o \
- 			rc-cinergy-1400.o \
- 			rc-cinergy.o \
- 			rc-d680-dmb.o \
---- a/drivers/media/rc/keymaps/rc-cec.c
-+++ b/drivers/media/rc/keymaps/rc-cec.c
-@@ -1,6 +1,16 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- /* Keytable for the CEC remote control
-  *
-+ * This keymap is unusual in that it can't be built as a module,
-+ * instead it is registered directly in rc-main.c if CONFIG_MEDIA_CEC_RC
-+ * is set. This is because it can be called from drm_dp_cec_set_edid() via
-+ * cec_register_adapter() in an asynchronous context, and it is not
-+ * allowed to use request_module() to load rc-cec.ko in that case.
-+ *
-+ * Since this keymap is only used if CONFIG_MEDIA_CEC_RC is set, we
-+ * just compile this keymap into the rc-core module and never as a
-+ * separate module.
-+ *
-  * Copyright (c) 2015 by Kamil Debski
-  */
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+index 1426eb5ddf3d..e34e0854635c 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.h
+@@ -1018,16 +1018,16 @@ struct hclge_fd_tcam_config_3_cmd {
+ #define HCLGE_FD_AD_DROP_B		0
+ #define HCLGE_FD_AD_DIRECT_QID_B	1
+ #define HCLGE_FD_AD_QID_S		2
+-#define HCLGE_FD_AD_QID_M		GENMASK(12, 2)
++#define HCLGE_FD_AD_QID_M		GENMASK(11, 2)
+ #define HCLGE_FD_AD_USE_COUNTER_B	12
+ #define HCLGE_FD_AD_COUNTER_NUM_S	13
+ #define HCLGE_FD_AD_COUNTER_NUM_M	GENMASK(20, 13)
+ #define HCLGE_FD_AD_NXT_STEP_B		20
+ #define HCLGE_FD_AD_NXT_KEY_S		21
+-#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(26, 21)
++#define HCLGE_FD_AD_NXT_KEY_M		GENMASK(25, 21)
+ #define HCLGE_FD_AD_WR_RULE_ID_B	0
+ #define HCLGE_FD_AD_RULE_ID_S		1
+-#define HCLGE_FD_AD_RULE_ID_M		GENMASK(13, 1)
++#define HCLGE_FD_AD_RULE_ID_M		GENMASK(12, 1)
  
-@@ -152,7 +162,7 @@ static struct rc_map_table cec[] = {
- 	/* 0x77-0xff: Reserved */
- };
- 
--static struct rc_map_list cec_map = {
-+struct rc_map_list cec_map = {
- 	.map = {
- 		.scan		= cec,
- 		.size		= ARRAY_SIZE(cec),
-@@ -160,19 +170,3 @@ static struct rc_map_list cec_map = {
- 		.name		= RC_MAP_CEC,
- 	}
- };
--
--static int __init init_rc_map_cec(void)
--{
--	return rc_map_register(&cec_map);
--}
--
--static void __exit exit_rc_map_cec(void)
--{
--	rc_map_unregister(&cec_map);
--}
--
--module_init(init_rc_map_cec);
--module_exit(exit_rc_map_cec);
--
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Kamil Debski");
---- a/drivers/media/rc/rc-main.c
-+++ b/drivers/media/rc/rc-main.c
-@@ -2033,6 +2033,9 @@ static int __init rc_core_init(void)
- 
- 	led_trigger_register_simple("rc-feedback", &led_feedback);
- 	rc_map_register(&empty_map);
-+#ifdef CONFIG_MEDIA_CEC_RC
-+	rc_map_register(&cec_map);
-+#endif
- 
- 	return 0;
- }
-@@ -2042,6 +2045,9 @@ static void __exit rc_core_exit(void)
- 	lirc_dev_exit();
- 	class_unregister(&rc_class);
- 	led_trigger_unregister_simple(led_feedback);
-+#ifdef CONFIG_MEDIA_CEC_RC
-+	rc_map_unregister(&cec_map);
-+#endif
- 	rc_map_unregister(&empty_map);
- }
- 
---- a/include/media/rc-map.h
-+++ b/include/media/rc-map.h
-@@ -126,6 +126,13 @@ struct rc_map_list {
- 	struct rc_map map;
- };
- 
-+#ifdef CONFIG_MEDIA_CEC_RC
-+/*
-+ * rc_map_list from rc-cec.c
-+ */
-+extern struct rc_map_list cec_map;
-+#endif
-+
- /* Routines from rc-map.c */
- 
- /**
+ struct hclge_fd_ad_config_cmd {
+ 	u8 stage;
+-- 
+2.30.1
+
 
 
