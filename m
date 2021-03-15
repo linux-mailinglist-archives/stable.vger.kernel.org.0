@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AB8633B879
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5D233BA8A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232402AbhCOODg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S233889AbhCOOJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232799AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001CC64F2A;
-        Mon, 15 Mar 2021 13:59:37 +0000 (UTC)
+        id S233818AbhCOOEH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E89E064F14;
+        Mon, 15 Mar 2021 14:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816778;
-        bh=F8v/l4JLCdnX/eiCX8y5Gw/EUzGL9RdcWID8SrzuYGM=;
+        s=korg; t=1615817046;
+        bh=VAI+JS20/fut6PfLINwRKqo3fVIlRUWYxvJi9LvGuD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBYjHek8drdFd5ZTKsOHt85iKyysT22q91GXzZODnx5IBrEd5QHQHuqa61AGbVWnz
-         XKrbu5xVWW5DDlGGUc9brq1TG782GlIhO0oEnw+26ETBVFkdwaHSbS/vnvOcE+3tAa
-         odCtz16wQM7oEqtKPkdecAzQ22aOfpZUU8Jf2oKM=
+        b=CqiT+lUUoqjMECW1tAKB2WN/otEIN7mJ1j6FyLJbXbBDedSUoiPg33+zUXovLt3Q8
+         JedE9LUTO9NGDevLqvMiXPNnj0tu796WU1uLwRC9aYDgBzYOLQbEl10/5+oBMY2a/7
+         tul1G1hYN751tF6qRXqd7obza7Vo3CgMO+sSd/yQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yorick de Wid <ydewid@gmail.com>
-Subject: [PATCH 5.4 103/168] Goodix Fingerprint device is not a modem
-Date:   Mon, 15 Mar 2021 14:55:35 +0100
-Message-Id: <20210315135553.754818908@linuxfoundation.org>
+        stable@vger.kernel.org, Nadav Amit <nadav.amit@gmail.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.11 273/306] sched/membarrier: fix missing local execution of ipi_sync_rq_state()
+Date:   Mon, 15 Mar 2021 14:55:36 +0100
+Message-Id: <20210315135516.889665733@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +43,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yorick de Wid <ydewid@gmail.com>
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 
-commit 4d8654e81db7346f915eca9f1aff18f385cab621 upstream.
+commit ce29ddc47b91f97e7f69a0fb7cbb5845f52a9825 upstream.
 
-The CDC ACM driver is false matching the Goodix Fingerprint device
-against the USB_CDC_ACM_PROTO_AT_V25TER.
+The function sync_runqueues_membarrier_state() should copy the
+membarrier state from the @mm received as parameter to each runqueue
+currently running tasks using that mm.
 
-The Goodix Fingerprint device is a biometrics sensor that should be
-handled in user-space. libfprint has some support for Goodix
-fingerprint sensors, although not for this particular one. It is
-possible that the vendor allocates a PID per OEM (Lenovo, Dell etc).
-If this happens to be the case then more devices from the same vendor
-could potentially match the ACM modem module table.
+However, the use of smp_call_function_many() skips the current runqueue,
+which is unintended. Replace by a call to on_each_cpu_mask().
 
-Signed-off-by: Yorick de Wid <ydewid@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210213144901.53199-1-ydewid@gmail.com
+Fixes: 227a4aadc75b ("sched/membarrier: Fix p->mm->membarrier_state racy load")
+Reported-by: Nadav Amit <nadav.amit@gmail.com>
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org # 5.4.x+
+Link: https://lore.kernel.org/r/74F1E842-4A84-47BF-B6C2-5407DFDD4A4A@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ kernel/sched/membarrier.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1941,6 +1941,11 @@ static const struct usb_device_id acm_id
- 	.driver_info = SEND_ZERO_PACKET,
- 	},
+--- a/kernel/sched/membarrier.c
++++ b/kernel/sched/membarrier.c
+@@ -471,9 +471,7 @@ static int sync_runqueues_membarrier_sta
+ 	}
+ 	rcu_read_unlock();
  
-+	/* Exclude Goodix Fingerprint Reader */
-+	{ USB_DEVICE(0x27c6, 0x5395),
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+
- 	/* control interfaces without any protocol set */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
- 		USB_CDC_PROTO_NONE) },
+-	preempt_disable();
+-	smp_call_function_many(tmpmask, ipi_sync_rq_state, mm, 1);
+-	preempt_enable();
++	on_each_cpu_mask(tmpmask, ipi_sync_rq_state, mm, true);
+ 
+ 	free_cpumask_var(tmpmask);
+ 	cpus_read_unlock();
 
 
