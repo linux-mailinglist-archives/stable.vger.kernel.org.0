@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E1133B507
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ADC633B636
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229987AbhCONxH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55474 "EHLO mail.kernel.org"
+        id S231972AbhCON50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229536AbhCONwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:52:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A27E764EB6;
-        Mon, 15 Mar 2021 13:52:53 +0000 (UTC)
+        id S231782AbhCON4x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6441E64F04;
+        Mon, 15 Mar 2021 13:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816375;
-        bh=90rt/R300T0yeBDlUv1j8R/0HAAsGEgXlH838DM2RxM=;
+        s=korg; t=1615816613;
+        bh=/DvgIlr4ETpl8Cix5cKP/hiyEbzH3TloGFe7PpMYaXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S9HU1iczRehOurdhG3sGQCWoPWl/twu/+t2YAZ9Dn+OrSKe0lrsHscN3zOM6XubZS
-         RTuHBZy/Ii1IchI7P/ucxva9kZ8+bGYdANAopzmxfV1eUnp1G2Xfpo8WNG7gWRHjB8
-         KxF5hT3ofeCIoVWbBP8AxsSmwcGwMpdqtLuRkiAg=
+        b=yHjgBdqVku8rOQInFmq+OM/pxMHkkbvDXeqEM7hWU51jaRtAgGuA+SDa23p0zwek4
+         MQ+2On1479OnqGfDr03lpU650aufsPHs5haGJgBXBluJHJZQgtSjfhHsod4D8n9BOc
+         5CuS9b2/v2KFkiFOlm1qaeQVYO61jdGGNRlgTqZs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Jann Horn <jannh@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Christoph Lameter <cl@linux.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 10/75] Revert "mm, slub: consider rest of partial list if acquire_slab() fails"
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.11 021/306] can: flexcan: invoke flexcan_chip_freeze() to enter freeze mode
 Date:   Mon, 15 Mar 2021 14:51:24 +0100
-Message-Id: <20210315135208.602406622@linuxfoundation.org>
+Message-Id: <20210315135508.340779488@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit 9b1ea29bc0d7b94d420f96a0f4121403efc3dd85 upstream.
+commit c63820045e2000f05657467a08715c18c9f490d9 upstream.
 
-This reverts commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf.
+Invoke flexcan_chip_freeze() to enter freeze mode, since need poll
+freeze mode acknowledge.
 
-The kernel test robot reports a huge performance regression due to the
-commit, and the reason seems fairly straightforward: when there is
-contention on the page list (which is what causes acquire_slab() to
-fail), we do _not_ want to just loop and try again, because that will
-transfer the contention to the 'n->list_lock' spinlock we hold, and
-just make things even worse.
-
-This is admittedly likely a problem only on big machines - the kernel
-test robot report comes from a 96-thread dual socket Intel Xeon Gold
-6252 setup, but the regression there really is quite noticeable:
-
-   -47.9% regression of stress-ng.rawpkt.ops_per_sec
-
-and the commit that was marked as being fixed (7ced37197196: "slub:
-Acquire_slab() avoid loop") actually did the loop exit early very
-intentionally (the hint being that "avoid loop" part of that commit
-message), exactly to avoid this issue.
-
-The correct thing to do may be to pick some kind of reasonable middle
-ground: instead of breaking out of the loop on the very first sign of
-contention, or trying over and over and over again, the right thing may
-be to re-try _once_, and then give up on the second failure (or pick
-your favorite value for "once"..).
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/lkml/20210301080404.GF12822@xsang-OptiPlex-9020/
-Cc: Jann Horn <jannh@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
+Link: https://lore.kernel.org/r/20210218110037.16591-4-qiangqing.zhang@nxp.com
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/flexcan.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1682,7 +1682,7 @@ static void *get_partial_node(struct kme
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1479,10 +1479,13 @@ static int flexcan_chip_start(struct net
  
- 		t = acquire_slab(s, n, page, object == NULL, &objects);
- 		if (!t)
--			continue; /* cmpxchg raced */
-+			break;
+ 	flexcan_set_bittiming(dev);
  
- 		available += objects;
- 		if (!object) {
++	/* set freeze, halt */
++	err = flexcan_chip_freeze(priv);
++	if (err)
++		goto out_chip_disable;
++
+ 	/* MCR
+ 	 *
+-	 * enable freeze
+-	 * halt now
+ 	 * only supervisor access
+ 	 * enable warning int
+ 	 * enable individual RX masking
+@@ -1491,9 +1494,8 @@ static int flexcan_chip_start(struct net
+ 	 */
+ 	reg_mcr = priv->read(&regs->mcr);
+ 	reg_mcr &= ~FLEXCAN_MCR_MAXMB(0xff);
+-	reg_mcr |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT | FLEXCAN_MCR_SUPV |
+-		FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ | FLEXCAN_MCR_IDAM_C |
+-		FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
++	reg_mcr |= FLEXCAN_MCR_SUPV | FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ |
++		FLEXCAN_MCR_IDAM_C | FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
+ 
+ 	/* MCR
+ 	 *
 
 
