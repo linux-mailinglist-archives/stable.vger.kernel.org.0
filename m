@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B20A33B579
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7856B33B572
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbhCONy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57164 "EHLO mail.kernel.org"
+        id S231421AbhCONyZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231267AbhCONyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA1FA64EED;
-        Mon, 15 Mar 2021 13:53:58 +0000 (UTC)
+        id S231179AbhCONxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1B1764F0C;
+        Mon, 15 Mar 2021 13:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816440;
-        bh=M7PhpwSt5TPxUqDhfNPRBZXEtNzf3SIHNEI0Nj992Y0=;
+        s=korg; t=1615816435;
+        bh=R8iV5TFY6en2U9lZZxjFGMWeEYt6XPv3puKMObAvjpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCvg1lDilA9hu/LqhiuA9XYJT8k9IFMA8cTN/4UiwuxO4KVq8NydjmYhjy9DMcdWY
-         +d2YmKEGIfRKNJmht7C7VyGBfBg6R7iarp6UqKgyAns7XWomk7MLos3zgh27mMHSAo
-         v+nsHm9qt611hvNXLtMvxydAnqXLFJgBfyH2+itA=
+        b=FKrtpYwJJS0QOQsnSti3o+7yI5W33q5CpNGQ4L9Wt/zO+X+7npMc4UNLfV5aXsscV
+         Xnj6WtCsdq+GmoNsfL+t/CYrj3o7/af3fhV9ox1CFLoOKtREP3ASFLUINEuTmJBkJO
+         QHta/gQujOvMof7xBX5dUXssWTP8Q5mnXR5W8O18=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.4 45/75] staging: rtl8712: unterminated string leads to read overflow
-Date:   Mon, 15 Mar 2021 14:51:59 +0100
-Message-Id: <20210315135209.722824707@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Karan Singhal <karan.singhal@acuitybrands.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 37/78] USB: serial: cp210x: add ID for Acuity Brands nLight Air Adapter
+Date:   Mon, 15 Mar 2021 14:52:00 +0100
+Message-Id: <20210315135213.284922379@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Karan Singhal <karan.singhal@acuitybrands.com>
 
-commit d660f4f42ccea50262c6ee90c8e7ad19a69fb225 upstream.
+commit ca667a33207daeaf9c62b106815728718def60ec upstream.
 
-The memdup_user() function does not necessarily return a NUL terminated
-string so this can lead to a read overflow.  Switch from memdup_user()
-to strndup_user() to fix this bug.
+IDs of nLight Air Adapter, Acuity Brands, Inc.:
+vid: 10c4
+pid: 88d8
 
-Fixes: c6dc001f2add ("staging: r8712u: Merging Realtek's latest (v2.6.6). Various fixes.")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YDYSR+1rj26NRhvb@mwanda
+Signed-off-by: Karan Singhal <karan.singhal@acuitybrands.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8712/rtl871x_ioctl_linux.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-+++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-@@ -935,7 +935,7 @@ static int r871x_wx_set_priv(struct net_
- 	struct iw_point *dwrq = (struct iw_point *)awrq;
- 
- 	len = dwrq->length;
--	ext = memdup_user(dwrq->pointer, len);
-+	ext = strndup_user(dwrq->pointer, len);
- 	if (IS_ERR(ext))
- 		return PTR_ERR(ext);
- 
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -143,6 +143,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x10C4, 0x8857) },	/* CEL EM357 ZigBee USB Stick */
+ 	{ USB_DEVICE(0x10C4, 0x88A4) }, /* MMB Networks ZigBee USB Device */
+ 	{ USB_DEVICE(0x10C4, 0x88A5) }, /* Planet Innovation Ingeni ZigBee USB Device */
++	{ USB_DEVICE(0x10C4, 0x88D8) }, /* Acuity Brands nLight Air Adapter */
+ 	{ USB_DEVICE(0x10C4, 0x88FB) }, /* CESINEL MEDCAL STII Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8938) }, /* CESINEL MEDCAL S II Network Analyzer */
+ 	{ USB_DEVICE(0x10C4, 0x8946) }, /* Ketra N1 Wireless Interface */
 
 
