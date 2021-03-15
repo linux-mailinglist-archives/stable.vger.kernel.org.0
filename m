@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17EFD33B74A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E667933B781
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232832AbhCOOAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
+        id S233036AbhCOOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232559AbhCON7D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6224F64EEF;
-        Mon, 15 Mar 2021 13:58:49 +0000 (UTC)
+        id S232152AbhCON7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA65464F35;
+        Mon, 15 Mar 2021 13:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816730;
-        bh=ARJ3dRydyS1Ffdu3I1F0lWkWNccCt51wguNDYPItEfk=;
+        s=korg; t=1615816732;
+        bh=wg2yj9QpO+l8N0iOHMXm7lpOUNINfu6Tujb51ym6jf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rhHlTOJ+jS+o3E1gBfFBUWChNrWMDDkpcIATCmH+B1I3fWyltP2MAKKDWIHfDtCcw
-         SPfky+EFgW6r+sSWAIf/6qXWWvCUghKOcs8To1RibYTA3qWzGCZkqmMhQ83pBwKuQg
-         oDDUdUi9359ny5HtiIpt7Yw6EQIocYBugDX30zzE=
+        b=z4KKZm+PTPkijVJh6inix8Zv183rS3hGwCqaDRLk1Ewpptwpm/G3/F2eaFY88v+k+
+         0cdtH1Yr6RDendZ2AqA0muwrk4ftDHtHmT0sPmik+CZ7aYJtvF1hMcXrC7TgqzIj2I
+         /Ptg1YEpBA/aaVlC3pFc4gL6q4AKqvGdtEmqdDVw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Roman Guskov <rguskov@dh-electronics.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 080/290] gpiolib: acpi: Allow to find GpioInt() resource by name and index
-Date:   Mon, 15 Mar 2021 14:52:53 +0100
-Message-Id: <20210315135544.620625395@linuxfoundation.org>
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.10 081/290] gpiolib: Read "gpio-line-names" from a firmware node
+Date:   Mon, 15 Mar 2021 14:52:54 +0100
+Message-Id: <20210315135544.659848571@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -45,99 +45,75 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 809390219fb9c2421239afe5c9eb862d73978ba0 upstream.
+commit b41ba2ec54a70908067034f139aa23d0dd2985ce upstream.
 
-Currently only search by index is supported. However, in some cases
-we might need to pass the quirks to the acpi_dev_gpio_irq_get().
+On STM32MP1, the GPIO banks are subnodes of pin-controller@50002000,
+see arch/arm/boot/dts/stm32mp151.dtsi. The driver for
+pin-controller@50002000 is in drivers/pinctrl/stm32/pinctrl-stm32.c
+and iterates over all of its DT subnodes when registering each GPIO
+bank gpiochip. Each gpiochip has:
 
-For this, split out acpi_dev_gpio_irq_get_by() and replace
-acpi_dev_gpio_irq_get() by calling above with NULL for name parameter.
+  - gpio_chip.parent = dev,
+    where dev is the device node of the pin controller
+  - gpio_chip.of_node = np,
+    which is the OF node of the GPIO bank
 
-Fixes: ba8c90c61847 ("gpio: pca953x: Override IRQ for one of the expanders on Galileo Gen 2")
-Depends-on: 0ea683931adb ("gpio: dwapb: Convert driver to using the GPIO-lib-based IRQ-chip")
+Therefore, dev_fwnode(chip->parent) != of_fwnode_handle(chip.of_node),
+i.e. pin-controller@50002000 != pin-controller@50002000/gpio@5000*000.
+
+The original code behaved correctly, as it extracted the "gpio-line-names"
+from of_fwnode_handle(chip.of_node) = pin-controller@50002000/gpio@5000*000.
+
+To achieve the same behaviour, read property from the firmware node.
+
+Fixes: 7cba1a4d5e162 ("gpiolib: generalize devprop_gpiochip_set_names() for device properties")
+Reported-by: Marek Vasut <marex@denx.de>
+Reported-by: Roman Guskov <rguskov@dh-electronics.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib-acpi.c |   12 ++++++++----
- include/linux/acpi.h        |   10 ++++++++--
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ drivers/gpio/gpiolib.c |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -916,8 +916,9 @@ struct gpio_desc *acpi_node_get_gpiod(st
- }
- 
- /**
-- * acpi_dev_gpio_irq_get() - Find GpioInt and translate it to Linux IRQ number
-+ * acpi_dev_gpio_irq_get_by() - Find GpioInt and translate it to Linux IRQ number
-  * @adev: pointer to a ACPI device to get IRQ from
-+ * @name: optional name of GpioInt resource
-  * @index: index of GpioInt resource (starting from %0)
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -364,22 +364,18 @@ static int gpiochip_set_desc_names(struc
   *
-  * If the device has one or more GpioInt resources, this function can be
-@@ -927,9 +928,12 @@ struct gpio_desc *acpi_node_get_gpiod(st
-  * The function is idempotent, though each time it runs it will configure GPIO
-  * pin direction according to the flags in GpioInt resource.
-  *
-+ * The function takes optional @name parameter. If the resource has a property
-+ * name, then only those will be taken into account.
-+ *
-  * Return: Linux IRQ number (> %0) on success, negative errno on failure.
+  * Looks for device property "gpio-line-names" and if it exists assigns
+  * GPIO line names for the chip. The memory allocated for the assigned
+- * names belong to the underlying software node and should not be released
++ * names belong to the underlying firmware node and should not be released
+  * by the caller.
   */
--int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
-+int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index)
+ static int devprop_gpiochip_set_names(struct gpio_chip *chip)
  {
- 	int idx, i;
- 	unsigned int irq_flags;
-@@ -939,7 +943,7 @@ int acpi_dev_gpio_irq_get(struct acpi_de
- 		struct acpi_gpio_info info;
- 		struct gpio_desc *desc;
+ 	struct gpio_device *gdev = chip->gpiodev;
+-	struct device *dev = chip->parent;
++	struct fwnode_handle *fwnode = dev_fwnode(&gdev->dev);
+ 	const char **names;
+ 	int ret, i;
+ 	int count;
  
--		desc = acpi_get_gpiod_by_index(adev, NULL, i, &info);
-+		desc = acpi_get_gpiod_by_index(adev, name, i, &info);
+-	/* GPIO chip may not have a parent device whose properties we inspect. */
+-	if (!dev)
+-		return 0;
+-
+-	count = device_property_string_array_count(dev, "gpio-line-names");
++	count = fwnode_property_string_array_count(fwnode, "gpio-line-names");
+ 	if (count < 0)
+ 		return 0;
  
- 		/* Ignore -EPROBE_DEFER, it only matters if idx matches */
- 		if (IS_ERR(desc) && PTR_ERR(desc) != -EPROBE_DEFER)
-@@ -976,7 +980,7 @@ int acpi_dev_gpio_irq_get(struct acpi_de
- 	}
- 	return -ENOENT;
- }
--EXPORT_SYMBOL_GPL(acpi_dev_gpio_irq_get);
-+EXPORT_SYMBOL_GPL(acpi_dev_gpio_irq_get_by);
+@@ -393,7 +389,7 @@ static int devprop_gpiochip_set_names(st
+ 	if (!names)
+ 		return -ENOMEM;
  
- static acpi_status
- acpi_gpio_adr_space_handler(u32 function, acpi_physical_address address,
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -1072,19 +1072,25 @@ void __acpi_handle_debug(struct _ddebug
- #if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
- bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- 				struct acpi_resource_gpio **agpio);
--int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index);
-+int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int index);
- #else
- static inline bool acpi_gpio_get_irq_resource(struct acpi_resource *ares,
- 					      struct acpi_resource_gpio **agpio)
- {
- 	return false;
- }
--static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
-+static inline int acpi_dev_gpio_irq_get_by(struct acpi_device *adev,
-+					   const char *name, int index)
- {
- 	return -ENXIO;
- }
- #endif
- 
-+static inline int acpi_dev_gpio_irq_get(struct acpi_device *adev, int index)
-+{
-+	return acpi_dev_gpio_irq_get_by(adev, NULL, index);
-+}
-+
- /* Device properties */
- 
- #ifdef CONFIG_ACPI
+-	ret = device_property_read_string_array(dev, "gpio-line-names",
++	ret = fwnode_property_read_string_array(fwnode, "gpio-line-names",
+ 						names, count);
+ 	if (ret < 0) {
+ 		dev_warn(&gdev->dev, "failed to read GPIO line names\n");
 
 
