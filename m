@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E462133B8A0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5058133B7F5
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232987AbhCOOEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
+        id S233489AbhCOOBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233077AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACA2664F5E;
-        Mon, 15 Mar 2021 14:00:20 +0000 (UTC)
+        id S232608AbhCON7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3028964EF3;
+        Mon, 15 Mar 2021 13:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816821;
-        bh=Cm/Nn7sjPvLLKzeR3Jxp5wSWHSo4ZMfsZNjZY6+goL0=;
+        s=korg; t=1615816774;
+        bh=2L7puG+yzZ4TW/Os7JW9fjafcAwTAHMZ6V+iNCv1x6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hNqa8KlR5x9m4Rn9Efrkk+8g7UkjHUveFq67Lz1xs8gBy/O1kuywdqy2LvcuV+Gl4
-         PtAx5P7zfAU6yw0EHgNGMNXtPtUk8L314ZscRk6fP3b/k11RrHs1+q6iYD9XJnYpE4
-         VP/h4csxeM49LFV1fLnl0VG/kVotoYeNAuwfuxzo=
+        b=RZaIYZ5y85MPxS8U0SG/sfv0pen7ES1GgPXG3M2mY7Hjxgz031di3Wm4S7tERemiM
+         ZuioAOrUpdOiDPxAZ6838ZTsPEjpfdw8G5qjPSUFAnku+7nLIPXDq7hyjn+J74nNTP
+         VeVjQ6mNth5tBZI50qhBx/O//j2eZpxk2odTS1m4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 090/120] staging: rtl8188eu: prevent ->ssid overflow in rtw_wx_set_scan()
-Date:   Mon, 15 Mar 2021 14:57:21 +0100
-Message-Id: <20210315135722.923359350@linuxfoundation.org>
+        stable@vger.kernel.org, Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Subject: [PATCH 4.14 52/95] usb: gadget: f_uac1: stop playback on function disable
+Date:   Mon, 15 Mar 2021 14:57:22 +0100
+Message-Id: <20210315135741.981252235@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-commit 74b6b20df8cfe90ada777d621b54c32e69e27cd7 upstream.
+commit cc2ac63d4cf72104e0e7f58bb846121f0f51bb19 upstream.
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->ssid[] array.
+There is missing playback stop/cleanup in case of
+gadget's ->disable callback that happens on
+events like USB host resetting or gadget disconnection
 
-Fixes: a2c60d42d97c ("staging: r8188eu: Add files for new driver - part 16")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YEHymwsnHewzoam7@mwanda
+Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
+Cc: <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-3-git-send-email-ruslan.bilovol@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8188eu/os_dep/ioctl_linux.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/f_uac1.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
-@@ -1161,9 +1161,11 @@ static int rtw_wx_set_scan(struct net_de
- 						break;
- 					}
- 					sec_len = *(pos++); len -= 1;
--					if (sec_len > 0 && sec_len <= len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						ssid_index++;
- 					}
- 					pos += sec_len;
+--- a/drivers/usb/gadget/function/f_uac1.c
++++ b/drivers/usb/gadget/function/f_uac1.c
+@@ -503,6 +503,7 @@ static void f_audio_disable(struct usb_f
+ 	uac1->as_out_alt = 0;
+ 	uac1->as_in_alt = 0;
+ 
++	u_audio_stop_playback(&uac1->g_audio);
+ 	u_audio_stop_capture(&uac1->g_audio);
+ }
+ 
 
 
