@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E00E733B68B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD59733B692
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231482AbhCON6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S232271AbhCON6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231450AbhCON5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D251964F19;
-        Mon, 15 Mar 2021 13:57:19 +0000 (UTC)
+        id S231773AbhCON5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46AD364F04;
+        Mon, 15 Mar 2021 13:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816640;
-        bh=ORxlB67NflfF1DCYHbr3rsYeUa7+4osg/vvYopBHtiI=;
+        s=korg; t=1615816642;
+        bh=VAKMwhZUhB+UP3gKr7StP1RfsiEAuHeGjIzf8ezS07I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iCcnVXe+Tj8p9P91nzTTZJiSK+b4+KGji/5wyxKroRyt/JUTqRjKUe6+zpT89k6as
-         Klwa2oZX4D+RdpcOnKENxGp4dgFFMOcJKEPv6w6nfuPa4MrDP2GZrWMfoDCa+2JAob
-         hxyJDTgJxvtcvDCbC1OW6qCSfGet6vncMjE4nd+4=
+        b=TdLn39i2eVIvnHMxxqROrv7EU1aphyyF3JZqJz8/dKQPjwgSPh4CqE38PSVA/eCOJ
+         q7r8yL5lU4jk40oojjAq+Hk+0dKDsPbt1xYS6OusbD/3lNmi1LU4V/sMJbasT6NrLW
+         jLp4EmH12Bx6LUZHoYllxDbih6sT0ah6SanV5pqc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 020/168] ibmvnic: always store valid MAC address
-Date:   Mon, 15 Mar 2021 14:54:12 +0100
-Message-Id: <20210315135551.015322124@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 021/168] mt76: dma: do not report truncated frames to mac80211
+Date:   Mon, 15 Mar 2021 14:54:13 +0100
+Message-Id: <20210315135551.048571771@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -41,53 +41,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jiri Wiesner <jwiesner@suse.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-commit 67eb211487f0c993d9f402d1c196ef159fd6a3b5 upstream.
+commit d0bd52c591a1070c54dc428e926660eb4f981099 upstream.
 
-The last change to ibmvnic_set_mac(), 8fc3672a8ad3, meant to prevent
-users from setting an invalid MAC address on an ibmvnic interface
-that has not been brought up yet. The change also prevented the
-requested MAC address from being stored by the adapter object for an
-ibmvnic interface when the state of the ibmvnic interface is
-VNIC_PROBED - that is after probing has finished but before the
-ibmvnic interface is brought up. The MAC address stored by the
-adapter object is used and sent to the hypervisor for checking when
-an ibmvnic interface is brought up.
+Commit b102f0c522cf6 ("mt76: fix array overflow on receiving too many
+fragments for a packet") fixes a possible OOB access but it introduces a
+memory leak since the pending frame is not released to page_frag_cache
+if the frag array of skb_shared_info is full. Commit 93a1d4791c10
+("mt76: dma: fix a possible memory leak in mt76_add_fragment()") fixes
+the issue but does not free the truncated skb that is forwarded to
+mac80211 layer. Fix the leftover issue discarding even truncated skbs.
 
-The ibmvnic driver ignoring the requested MAC address when in
-VNIC_PROBED state caused LACP bonds (bonds in 802.3ad mode) with more
-than one slave to malfunction. The bonding code must be able to
-change the MAC address of its slaves before they are brought up
-during enslaving. The inability of kernels with 8fc3672a8ad3 to set
-the MAC addresses of bonding slaves is observable in the output of
-"ip address show". The MAC addresses of the slaves are the same as
-the MAC address of the bond on a working system whereas the slaves
-retain their original MAC addresses on a system with a malfunctioning
-LACP bond.
-
-Fixes: 8fc3672a8ad3 ("ibmvnic: fix ibmvnic_set_mac")
-Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 93a1d4791c10 ("mt76: dma: fix a possible memory leak in mt76_add_fragment()")
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/a03166fcc8214644333c68674a781836e0f57576.1612697217.git.lorenzo@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/wireless/mediatek/mt76/dma.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1753,10 +1753,9 @@ static int ibmvnic_set_mac(struct net_de
- 	if (!is_valid_ether_addr(addr->sa_data))
- 		return -EADDRNOTAVAIL;
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -454,13 +454,13 @@ mt76_add_fragment(struct mt76_dev *dev,
+ {
+ 	struct sk_buff *skb = q->rx_head;
+ 	struct skb_shared_info *shinfo = skb_shinfo(skb);
++	int nr_frags = shinfo->nr_frags;
  
--	if (adapter->state != VNIC_PROBED) {
--		ether_addr_copy(adapter->mac_addr, addr->sa_data);
-+	ether_addr_copy(adapter->mac_addr, addr->sa_data);
-+	if (adapter->state != VNIC_PROBED)
- 		rc = __ibmvnic_set_mac(netdev, addr->sa_data);
--	}
+-	if (shinfo->nr_frags < ARRAY_SIZE(shinfo->frags)) {
++	if (nr_frags < ARRAY_SIZE(shinfo->frags)) {
+ 		struct page *page = virt_to_head_page(data);
+ 		int offset = data - page_address(page) + q->buf_offset;
  
- 	return rc;
+-		skb_add_rx_frag(skb, shinfo->nr_frags, page, offset, len,
+-				q->buf_size);
++		skb_add_rx_frag(skb, nr_frags, page, offset, len, q->buf_size);
+ 	} else {
+ 		skb_free_frag(data);
+ 	}
+@@ -469,7 +469,10 @@ mt76_add_fragment(struct mt76_dev *dev,
+ 		return;
+ 
+ 	q->rx_head = NULL;
+-	dev->drv->rx_skb(dev, q - dev->q_rx, skb);
++	if (nr_frags < ARRAY_SIZE(shinfo->frags))
++		dev->drv->rx_skb(dev, q - dev->q_rx, skb);
++	else
++		dev_kfree_skb(skb);
  }
+ 
+ static int
 
 
