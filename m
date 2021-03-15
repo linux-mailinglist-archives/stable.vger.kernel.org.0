@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E65BA33BC7D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC7433BC7F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:35:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234394AbhCOOZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
+        id S232838AbhCOOZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232682AbhCOOYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:24:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6224B6506D;
-        Mon, 15 Mar 2021 14:24:50 +0000 (UTC)
+        id S234252AbhCOOY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6379B6502A;
+        Mon, 15 Mar 2021 14:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615818291;
-        bh=qlgasr3+ZRpAg9iQcYqf+dX55vEfBbKD0Qm7BuwN1TI=;
+        s=korg; t=1615818295;
+        bh=RXPRvnHLDljYdrVhnWVzu2cYYFuBvZDjyZ3DtKUkY2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B49mjBUJguCHsNOewLCrKgJNHP4g9IrY63bYBspU/poJSPNs+ugOkxc4HQx1C9D1f
-         EVjviIy514qLBOcMbEps2xC8e3LJthrjgxrwI9Zqdp+oKpmo81fZ3APM10oPbM6HAo
-         q1KzbfL4fc5wGTlm7WhlASAuciTf7Yqa3YjKnMqI=
+        b=qPWxgZ1gcB9v9m8cVY0rsjI+zex8qxy87H0KbOLo2gyvxRMBYfDiP0rDOgMR9Pi1x
+         h5ifFbOhwaQtxNn0wAfAFGFrxGBDcgLmGQ5oYRDbAvQd7RcwZSmvQ7J6oE1c6XMpCA
+         AwJtZmwTEQOnT8iTdKNlmjwMRPCOESQ71N1DJb0c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Matthew Wilcox <willy@infradead.org>,
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Yu Zhao <yuzhao@google.com>, Peter Xu <peterx@redhat.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Pavel Emelyanov <xemul@openvz.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 300/306] mm/highmem.c: fix zero_user_segments() with start > end
-Date:   Mon, 15 Mar 2021 15:24:25 +0100
-Message-Id: <20210315135517.847546877@linuxfoundation.org>
+Subject: [PATCH 5.11 301/306] mm/userfaultfd: fix memory corruption due to writeprotect
+Date:   Mon, 15 Mar 2021 15:24:26 +0100
+Message-Id: <20210315135517.880800941@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135517.556638562@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -45,77 +52,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Nadav Amit <namit@vmware.com>
 
-commit 184cee516f3e24019a08ac8eb5c7cf04c00933cb upstream.
+commit 6ce64428d62026a10cb5d80138ff2f90cc21d367 upstream.
 
-zero_user_segments() is used from __block_write_begin_int(), for example
-like the following
+Userfaultfd self-test fails occasionally, indicating a memory corruption.
 
-	zero_user_segments(page, 4096, 1024, 512, 918)
+Analyzing this problem indicates that there is a real bug since mmap_lock
+is only taken for read in mwriteprotect_range() and defers flushes, and
+since there is insufficient consideration of concurrent deferred TLB
+flushes in wp_page_copy().  Although the PTE is flushed from the TLBs in
+wp_page_copy(), this flush takes place after the copy has already been
+performed, and therefore changes of the page are possible between the time
+of the copy and the time in which the PTE is flushed.
 
-But new the zero_user_segments() implementation for for HIGHMEM +
-TRANSPARENT_HUGEPAGE doesn't handle "start > end" case correctly, and hits
-BUG_ON().  (we can fix __block_write_begin_int() instead though, it is the
-old and multiple usage)
+To make matters worse, memory-unprotection using userfaultfd also poses a
+problem.  Although memory unprotection is logically a promotion of PTE
+permissions, and therefore should not require a TLB flush, the current
+userrfaultfd code might actually cause a demotion of the architectural PTE
+permission: when userfaultfd_writeprotect() unprotects memory region, it
+unintentionally *clears* the RW-bit if it was already set.  Note that this
+unprotecting a PTE that is not write-protected is a valid use-case: the
+userfaultfd monitor might ask to unprotect a region that holds both
+write-protected and write-unprotected PTEs.
 
-Also it calls kmap_atomic() unnecessarily while start == end == 0.
+The scenario that happens in selftests/vm/userfaultfd is as follows:
 
-Link: https://lkml.kernel.org/r/87v9ab60r4.fsf@mail.parknet.co.jp
-Fixes: 0060ef3b4e6d ("mm: support THPs in zero_user_segments")
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
+cpu0				cpu1			cpu2
+----				----			----
+							[ Writable PTE
+							  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-*unprotect* ]
+mwriteprotect_range()
+mmap_read_lock()
+change_protection()
+
+change_protection_range()
+...
+change_pte_range()
+[ *clear* “write”-bit ]
+[ defer TLB flushes ]
+				[ page-fault ]
+				...
+				wp_page_copy()
+				 cow_user_page()
+				  [ copy page ]
+							[ write to old
+							  page ]
+				...
+				 set_pte_at_notify()
+
+A similar scenario can happen:
+
+cpu0		cpu1		cpu2		cpu3
+----		----		----		----
+						[ Writable PTE
+				  		  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-protect ]
+[ deferred TLB flush ]
+		userfaultfd_writeprotect()
+		[ write-unprotect ]
+		[ deferred TLB flush]
+				[ page-fault ]
+				wp_page_copy()
+				 cow_user_page()
+				 [ copy page ]
+				 ...		[ write to page ]
+				set_pte_at_notify()
+
+This race exists since commit 292924b26024 ("userfaultfd: wp: apply
+_PAGE_UFFD_WP bit").  Yet, as Yu Zhao pointed, these races became apparent
+since commit 09854ba94c6a ("mm: do_wp_page() simplification") which made
+wp_page_copy() more likely to take place, specifically if page_count(page)
+> 1.
+
+To resolve the aforementioned races, check whether there are pending
+flushes on uffd-write-protected VMAs, and if there are, perform a flush
+before doing the COW.
+
+Further optimizations will follow to avoid during uffd-write-unprotect
+unnecassary PTE write-protection and TLB flushes.
+
+Link: https://lkml.kernel.org/r/20210304095423.3825684-1-namit@vmware.com
+Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Suggested-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Tested-by: Peter Xu <peterx@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Pavel Emelyanov <xemul@openvz.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>	[5.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/highmem.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ mm/memory.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -368,20 +368,24 @@ void zero_user_segments(struct page *pag
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3092,6 +3092,14 @@ static vm_fault_t do_wp_page(struct vm_f
+ 		return handle_userfault(vmf, VM_UFFD_WP);
+ 	}
  
- 	BUG_ON(end1 > page_size(page) || end2 > page_size(page));
- 
-+	if (start1 >= end1)
-+		start1 = end1 = 0;
-+	if (start2 >= end2)
-+		start2 = end2 = 0;
++	/*
++	 * Userfaultfd write-protect can defer flushes. Ensure the TLB
++	 * is flushed in this case before copying.
++	 */
++	if (unlikely(userfaultfd_wp(vmf->vma) &&
++		     mm_tlb_flush_pending(vmf->vma->vm_mm)))
++		flush_tlb_page(vmf->vma, vmf->address);
 +
- 	for (i = 0; i < compound_nr(page); i++) {
- 		void *kaddr = NULL;
- 
--		if (start1 < PAGE_SIZE || start2 < PAGE_SIZE)
--			kaddr = kmap_atomic(page + i);
--
- 		if (start1 >= PAGE_SIZE) {
- 			start1 -= PAGE_SIZE;
- 			end1 -= PAGE_SIZE;
- 		} else {
- 			unsigned this_end = min_t(unsigned, end1, PAGE_SIZE);
- 
--			if (end1 > start1)
-+			if (end1 > start1) {
-+				kaddr = kmap_atomic(page + i);
- 				memset(kaddr + start1, 0, this_end - start1);
-+			}
- 			end1 -= this_end;
- 			start1 = 0;
- 		}
-@@ -392,8 +396,11 @@ void zero_user_segments(struct page *pag
- 		} else {
- 			unsigned this_end = min_t(unsigned, end2, PAGE_SIZE);
- 
--			if (end2 > start2)
-+			if (end2 > start2) {
-+				if (!kaddr)
-+					kaddr = kmap_atomic(page + i);
- 				memset(kaddr + start2, 0, this_end - start2);
-+			}
- 			end2 -= this_end;
- 			start2 = 0;
- 		}
+ 	vmf->page = vm_normal_page(vma, vmf->address, vmf->orig_pte);
+ 	if (!vmf->page) {
+ 		/*
 
 
