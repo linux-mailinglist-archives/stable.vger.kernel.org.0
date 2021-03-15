@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEA6833B8C0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 985E733B93E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230117AbhCOOEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S234820AbhCOOFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232119AbhCOOAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5090364F90;
-        Mon, 15 Mar 2021 14:00:27 +0000 (UTC)
+        id S233153AbhCOOAy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20FBE64F8A;
+        Mon, 15 Mar 2021 14:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816828;
-        bh=wEEQlQ4L0PU89i5t+tVx+7qzfChUGHaXwvK1uzRbHZU=;
+        s=korg; t=1615816830;
+        bh=8Ot3fnhF37NWp6SS6AiQuMpnw4SuJYw28xAlGF+me/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KyxArfUsHgzFfuSMeqebr4f4s3ax/gP2VTg8N/X4Rv8fQ5SFLnXLuYklzaQZymeRl
-         pDiM+EY5B0/z2PWujGsvz4AZeGmOWAHNYnA41hx483kRs71oz2iJKGzmvRpi/rYau7
-         XNDZQ9PPFA0R0tPOvRFNIIpxTAndXFVxnPZ5Y990=
+        b=uZ/g/7D74w+ImoIeXAxhQLLnifgX3O/B59FufR0uFs6kPAuCf1NU4sTL1W11qhkW5
+         iMZ1+no6/7H8RFg78Y1f4mnBXt4eDuKMOQ5wEcJDWMNi/DUEqGwEM66q9N9pm7jaXq
+         maRLcIxH5fcEJ0NX/tQQMfzZL9qC6XL7E7QEebLM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
+        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/290] mmc: mediatek: fix race condition between msdc_request_timeout and irq
-Date:   Mon, 15 Mar 2021 14:53:50 +0100
-Message-Id: <20210315135546.543875131@linuxfoundation.org>
+Subject: [PATCH 5.10 138/290] mmc: sdhci-iproc: Add ACPI bindings for the RPi
+Date:   Mon, 15 Mar 2021 14:53:51 +0100
+Message-Id: <20210315135546.576777150@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -42,82 +43,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Jeremy Linton <jeremy.linton@arm.com>
 
-[ Upstream commit 0354ca6edd464a2cf332f390581977b8699ed081 ]
+[ Upstream commit 4f9833d3ec8da34861cd0680b00c73e653877eb9 ]
 
-when get request SW timeout, if CMD/DAT xfer done irq coming right now,
-then there is race between the msdc_request_timeout work and irq handler,
-and the host->cmd and host->data may set to NULL in irq handler. also,
-current flow ensure that only one path can go to msdc_request_done(), so
-no need check the return value of cancel_delayed_work().
+The RPi4 has an Arasan controller it carries over from the RPi3 and a newer
+eMMC2 controller.  Because of a couple of quirks, it seems wiser to bind
+these controllers to the same driver that DT is using on this platform
+rather than the generic sdhci_acpi driver with PNP0D40.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Link: https://lore.kernel.org/r/20201218071611.12276-1-chaotian.jing@mediatek.com
+So, BCM2847 describes the older Arasan and BRCME88C describes the newer
+eMMC2. The older Arasan is reusing an existing ACPI _HID used by other OSes
+booting these tables on the RPi.
+
+With this change, Linux is capable of utilizing the SD card slot, and the
+Wi-Fi when booted with UEFI+ACPI on the RPi4.
+
+Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20210120000406.1843400-2-jeremy.linton@arm.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/mmc/host/sdhci-iproc.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 004fbfc23672..dc84e2dff408 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -1101,13 +1101,13 @@ static void msdc_track_cmd_data(struct msdc_host *host,
- static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
- {
- 	unsigned long flags;
--	bool ret;
+diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
+index c9434b461aab..ddeaf8e1f72f 100644
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -296,9 +296,27 @@ static const struct of_device_id sdhci_iproc_of_match[] = {
+ MODULE_DEVICE_TABLE(of, sdhci_iproc_of_match);
  
--	ret = cancel_delayed_work(&host->req_timeout);
--	if (!ret) {
--		/* delay work already running */
--		return;
--	}
-+	/*
-+	 * No need check the return value of cancel_delayed_work, as only ONE
-+	 * path will go here!
-+	 */
-+	cancel_delayed_work(&host->req_timeout);
+ #ifdef CONFIG_ACPI
++/*
++ * This is a duplicate of bcm2835_(pltfrm_)data without caps quirks
++ * which are provided by the ACPI table.
++ */
++static const struct sdhci_pltfm_data sdhci_bcm_arasan_data = {
++	.quirks = SDHCI_QUIRK_BROKEN_CARD_DETECTION |
++		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
++	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
++	.ops = &sdhci_iproc_32only_ops,
++};
 +
- 	spin_lock_irqsave(&host->lock, flags);
- 	host->mrq = NULL;
- 	spin_unlock_irqrestore(&host->lock, flags);
-@@ -1129,7 +1129,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- 	bool done = false;
- 	bool sbc_error;
- 	unsigned long flags;
--	u32 *rsp = cmd->resp;
-+	u32 *rsp;
- 
- 	if (mrq->sbc && cmd == mrq->cmd &&
- 	    (events & (MSDC_INT_ACMDRDY | MSDC_INT_ACMDCRCERR
-@@ -1150,6 +1150,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- 
- 	if (done)
- 		return true;
-+	rsp = cmd->resp;
- 
- 	sdr_clr_bits(host->base + MSDC_INTEN, cmd_ints_mask);
- 
-@@ -1337,7 +1338,7 @@ static void msdc_data_xfer_next(struct msdc_host *host,
- static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 				struct mmc_request *mrq, struct mmc_data *data)
- {
--	struct mmc_command *stop = data->stop;
-+	struct mmc_command *stop;
- 	unsigned long flags;
- 	bool done;
- 	unsigned int check_data = events &
-@@ -1353,6 +1354,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 
- 	if (done)
- 		return true;
-+	stop = data->stop;
- 
- 	if (check_data || (stop && stop->error)) {
- 		dev_dbg(host->dev, "DMA status: 0x%8X\n",
++static const struct sdhci_iproc_data bcm_arasan_data = {
++	.pdata = &sdhci_bcm_arasan_data,
++};
++
+ static const struct acpi_device_id sdhci_iproc_acpi_ids[] = {
+ 	{ .id = "BRCM5871", .driver_data = (kernel_ulong_t)&iproc_cygnus_data },
+ 	{ .id = "BRCM5872", .driver_data = (kernel_ulong_t)&iproc_data },
++	{ .id = "BCM2847",  .driver_data = (kernel_ulong_t)&bcm_arasan_data },
++	{ .id = "BRCME88C", .driver_data = (kernel_ulong_t)&bcm2711_data },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(acpi, sdhci_iproc_acpi_ids);
 -- 
 2.30.1
 
