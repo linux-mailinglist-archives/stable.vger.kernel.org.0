@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6690F33BAE9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F409433BA9E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235768AbhCOOKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50058 "EHLO mail.kernel.org"
+        id S235305AbhCOOJt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234481AbhCOODp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1746B64EF1;
-        Mon, 15 Mar 2021 14:03:42 +0000 (UTC)
+        id S234590AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1218364F0A;
+        Mon, 15 Mar 2021 14:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817024;
-        bh=WtmMRBEZ6HyeP+mdN5x/IA7nqV4P4wPW+6UIcR7l5l8=;
+        s=korg; t=1615817062;
+        bh=t6RUt6HUzB0MgaDyS9B4bHBo4NehUJSKVH0UAGG2iL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkfdOJxx6ZKa9B+EQe92wda+ULiKdzTdrqkzKd3mb7Lr8PhTtsPBSWw77vKE6Y0RT
-         D+QnIWay3Y4uXmvP8CD5RvlGVkvaqAN1+Hx5UlTvWHNKDOHiWhM+wPny0+vlqtjXNg
-         Kio9Ej1oWIf2Z29eQHBWpPXTMMboEwO3fP6WD0Yw=
+        b=irN83YvP4IeyYc8IV7OhdY/gcPSsiheo7SCVRHc7yV2eajuu+a00XAa4rBQtQRWG3
+         AfllZd/yys2koJ/vnMHIcMSWjBJR7XupI7oUOZuED3C5Qq2kSM55HoUkYFCB0O2TyV
+         s8c2ZoqCKbsmJA2/ArvNVrtG/4ABxZjsaNn4CPJI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Salter <msalter@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 252/290] arm64: mm: use a 48-bit ID map when possible on 52-bit VA builds
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 282/306] powerpc: Fix missing declaration of [en/dis]able_kernel_vsx()
 Date:   Mon, 15 Mar 2021 14:55:45 +0100
-Message-Id: <20210315135550.534088596@linuxfoundation.org>
+Message-Id: <20210315135517.220340775@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +43,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 7ba8f2b2d652cd8d8a2ab61f4be66973e70f9f88 ]
+commit bd73758803c2eedc037c2268b65a19542a832594 upstream.
 
-52-bit VA kernels can run on hardware that is only 48-bit capable, but
-configure the ID map as 52-bit by default. This was not a problem until
-recently, because the special T0SZ value for a 52-bit VA space was never
-programmed into the TCR register anwyay, and because a 52-bit ID map
-happens to use the same number of translation levels as a 48-bit one.
+Add stub instances of enable_kernel_vsx() and disable_kernel_vsx()
+when CONFIG_VSX is not set, to avoid following build failure.
 
-This behavior was changed by commit 1401bef703a4 ("arm64: mm: Always update
-TCR_EL1 from __cpu_set_tcr_t0sz()"), which causes the unsupported T0SZ
-value for a 52-bit VA to be programmed into TCR_EL1. While some hardware
-simply ignores this, Mark reports that Amberwing systems choke on this,
-resulting in a broken boot. But even before that commit, the unsupported
-idmap_t0sz value was exposed to KVM and used to program TCR_EL2 incorrectly
-as well.
+  CC [M]  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o
+  In file included from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services_types.h:29,
+                   from ./drivers/gpu/drm/amd/amdgpu/../display/dc/dm_services.h:37,
+                   from drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:27:
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c: In function 'dcn_bw_apply_registry_override':
+  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:64:3: error: implicit declaration of function 'enable_kernel_vsx'; did you mean 'enable_kernel_fp'? [-Werror=implicit-function-declaration]
+     64 |   enable_kernel_vsx(); \
+        |   ^~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:640:2: note: in expansion of macro 'DC_FP_START'
+    640 |  DC_FP_START();
+        |  ^~~~~~~~~~~
+  ./drivers/gpu/drm/amd/amdgpu/../display/dc/os_types.h:75:3: error: implicit declaration of function 'disable_kernel_vsx'; did you mean 'disable_kernel_fp'? [-Werror=implicit-function-declaration]
+     75 |   disable_kernel_vsx(); \
+        |   ^~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.c:676:2: note: in expansion of macro 'DC_FP_END'
+    676 |  DC_FP_END();
+        |  ^~~~~~~~~
+  cc1: some warnings being treated as errors
+  make[5]: *** [drivers/gpu/drm/amd/amdgpu/../display/dc/calcs/dcn_calcs.o] Error 1
 
-Given that we already have to deal with address spaces being either 48-bit
-or 52-bit in size, the cleanest approach seems to be to simply default to
-a 48-bit VA ID map, and only switch to a 52-bit one if the placement of the
-kernel in DRAM requires it. This is guaranteed not to happen unless the
-system is actually 52-bit VA capable.
+This works because the caller is checking if VSX is available using
+cpu_has_feature():
 
-Fixes: 90ec95cda91a ("arm64: mm: Introduce VA_BITS_MIN")
-Reported-by: Mark Salter <msalter@redhat.com>
-Link: http://lore.kernel.org/r/20210310003216.410037-1-msalter@redhat.com
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Link: https://lore.kernel.org/r/20210310171515.416643-2-ardb@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  #define DC_FP_START() { \
+  	if (cpu_has_feature(CPU_FTR_VSX_COMP)) { \
+  		preempt_disable(); \
+  		enable_kernel_vsx(); \
+  	} else if (cpu_has_feature(CPU_FTR_ALTIVEC_COMP)) { \
+  		preempt_disable(); \
+  		enable_kernel_altivec(); \
+  	} else if (!cpu_has_feature(CPU_FTR_FPU_UNAVAILABLE)) { \
+  		preempt_disable(); \
+  		enable_kernel_fp(); \
+  	} \
+
+When CONFIG_VSX is not selected, cpu_has_feature(CPU_FTR_VSX_COMP)
+constant folds to 'false' so the call to enable_kernel_vsx() is
+discarded and the build succeeds.
+
+Fixes: 16a9dea110a6 ("amdgpu: Enable initial DCN support on POWER")
+Cc: stable@vger.kernel.org # v5.6+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Incorporate some discussion comments into the change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/8d7d285a027e9d21f5ff7f850fa71a2655b0c4af.1615279170.git.christophe.leroy@csgroup.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/mmu_context.h | 5 +----
- arch/arm64/kernel/head.S             | 2 +-
- arch/arm64/mm/mmu.c                  | 2 +-
- 3 files changed, 3 insertions(+), 6 deletions(-)
+ arch/powerpc/include/asm/switch_to.h |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
-index 0672236e1aea..4e2ba9477845 100644
---- a/arch/arm64/include/asm/mmu_context.h
-+++ b/arch/arm64/include/asm/mmu_context.h
-@@ -65,10 +65,7 @@ extern u64 idmap_ptrs_per_pgd;
- 
- static inline bool __cpu_uses_extended_idmap(void)
+--- a/arch/powerpc/include/asm/switch_to.h
++++ b/arch/powerpc/include/asm/switch_to.h
+@@ -71,6 +71,16 @@ static inline void disable_kernel_vsx(vo
  {
--	if (IS_ENABLED(CONFIG_ARM64_VA_BITS_52))
--		return false;
--
--	return unlikely(idmap_t0sz != TCR_T0SZ(VA_BITS));
-+	return unlikely(idmap_t0sz != TCR_T0SZ(vabits_actual));
+ 	msr_check_and_clear(MSR_FP|MSR_VEC|MSR_VSX);
  }
++#else
++static inline void enable_kernel_vsx(void)
++{
++	BUILD_BUG();
++}
++
++static inline void disable_kernel_vsx(void)
++{
++	BUILD_BUG();
++}
+ #endif
  
- /*
-diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
-index e7550a5289fe..78cdd6b24172 100644
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -334,7 +334,7 @@ SYM_FUNC_START_LOCAL(__create_page_tables)
- 	 */
- 	adrp	x5, __idmap_text_end
- 	clz	x5, x5
--	cmp	x5, TCR_T0SZ(VA_BITS)	// default T0SZ small enough?
-+	cmp	x5, TCR_T0SZ(VA_BITS_MIN) // default T0SZ small enough?
- 	b.ge	1f			// .. then skip VA range extension
- 
- 	adr_l	x6, idmap_t0sz
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index f0125bb09fa3..6aabf1eced31 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -40,7 +40,7 @@
- #define NO_BLOCK_MAPPINGS	BIT(0)
- #define NO_CONT_MAPPINGS	BIT(1)
- 
--u64 idmap_t0sz = TCR_T0SZ(VA_BITS);
-+u64 idmap_t0sz = TCR_T0SZ(VA_BITS_MIN);
- u64 idmap_ptrs_per_pgd = PTRS_PER_PGD;
- 
- u64 __section(".mmuoff.data.write") vabits_actual;
--- 
-2.30.1
-
+ #ifdef CONFIG_SPE
 
 
