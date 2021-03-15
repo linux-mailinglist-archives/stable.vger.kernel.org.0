@@ -2,115 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF7733C4E0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A2B33C4CB
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:49:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231316AbhCOR4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 13:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
+        id S232208AbhCORtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 13:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236550AbhCORsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236568AbhCORsn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 13:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4C5C64F58;
-        Mon, 15 Mar 2021 17:48:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D533764F5B;
+        Mon, 15 Mar 2021 17:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1615830517;
-        bh=p3GeSzMUy9sipGaHkGayXlliieXen41G/6ysFvV0sfQ=;
+        s=korg; t=1615830520;
+        bh=eCQgNydi5ZQxBjMS2fyYTn2ZrA/o6A9I8QZjTWlYx9k=;
         h=Date:From:To:Subject:From;
-        b=xcqWv5RJbeL8uYn7mccP1muwG3rZE+8rAyWeataBNXp6YQYxh919qv/kKvkGIGMxM
-         cR9VkZ6wlzArggfeZmv1cM4wshMqp8thLpNdupkuXA0+ehsov9219Ay3fszAsay0w5
-         gyeDcGk9RUua9DG/gJd7J2t1psKHny07gieHpshU=
-Date:   Mon, 15 Mar 2021 10:48:36 -0700
+        b=GwpThDINkiwKPOCY2UdKmmDGZHjcIvUPRILY6FrNdZO09M7yVrHNEZCLxNDdeZB/3
+         rEhN+ivRto9I0IenO524unPzpz2E4+S1ElaYR0qhmQqgRWaHkB7mSHDggO7iRgvoIf
+         cO7tgsu/59TlsvQy7u69rwpVu8nTkfgMOO8fpCJ0=
+Date:   Mon, 15 Mar 2021 10:48:39 -0700
 From:   akpm@linux-foundation.org
-To:     andreyknvl@google.com, aryabinin@virtuozzo.com,
-        Branislav.Rankov@arm.com, catalin.marinas@arm.com,
-        dvyukov@google.com, elver@google.com, eugenis@google.com,
-        glider@google.com, kevin.brodsky@arm.com,
-        mm-commits@vger.kernel.org, pcc@google.com, stable@vger.kernel.org,
-        vincenzo.frascino@arm.com, will.deacon@arm.com
+To:     aarcange@redhat.com, luto@kernel.org, mike.kravetz@oracle.com,
+        minchan@kernel.org, mm-commits@vger.kernel.org, namit@vmware.com,
+        peterx@redhat.com, peterz@infradead.org, rppt@linux.vnet.ibm.com,
+        stable@vger.kernel.org, will@kernel.org, xemul@openvz.org,
+        yuzhao@google.com
 Subject:  [merged]
- kasan-fix-kasan_stack-dependency-for-hw_tags.patch removed from -mm tree
-Message-ID: <20210315174836.crh9O6pxI%akpm@linux-foundation.org>
+ mm-userfaultfd-fix-memory-corruption-due-to-writeprotect.patch removed from
+ -mm tree
+Message-ID: <20210315174839.VoNmtO0F9%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: kasan: fix KASAN_STACK dependency for HW_TAGS
+     Subject: mm/userfaultfd: fix memory corruption due to writeprotect
 has been removed from the -mm tree.  Its filename was
-     kasan-fix-kasan_stack-dependency-for-hw_tags.patch
+     mm-userfaultfd-fix-memory-corruption-due-to-writeprotect.patch
 
-This patch was dropped because it was merged into mainline or a subsystem tree
+This patch was dropped because it was merged into mainline or a subsystem t=
+ree
 
 ------------------------------------------------------
-From: Andrey Konovalov <andreyknvl@google.com>
-Subject: kasan: fix KASAN_STACK dependency for HW_TAGS
+=46rom: Nadav Amit <namit@vmware.com>
+Subject: mm/userfaultfd: fix memory corruption due to writeprotect
 
-There's a runtime failure when running HW_TAGS-enabled kernel built with
-GCC on hardware that doesn't support MTE.  GCC-built kernels always have
-CONFIG_KASAN_STACK enabled, even though stack instrumentation isn't
-supported by HW_TAGS.  Having that config enabled causes KASAN to issue
-MTE-only instructions to unpoison kernel stacks, which causes the failure.
+Userfaultfd self-test fails occasionally, indicating a memory corruption.
 
-Fix the issue by disallowing CONFIG_KASAN_STACK when HW_TAGS is used.
+Analyzing this problem indicates that there is a real bug since mmap_lock
+is only taken for read in mwriteprotect_range() and defers flushes, and
+since there is insufficient consideration of concurrent deferred TLB
+flushes in wp_page_copy().  Although the PTE is flushed from the TLBs in
+wp_page_copy(), this flush takes place after the copy has already been
+performed, and therefore changes of the page are possible between the time
+of the copy and the time in which the PTE is flushed.
 
-(The commit that introduced CONFIG_KASAN_HW_TAGS specified proper
- dependency for CONFIG_KASAN_STACK_ENABLE but not for CONFIG_KASAN_STACK.)
+To make matters worse, memory-unprotection using userfaultfd also poses a
+problem.  Although memory unprotection is logically a promotion of PTE
+permissions, and therefore should not require a TLB flush, the current
+userrfaultfd code might actually cause a demotion of the architectural PTE
+permission: when userfaultfd_writeprotect() unprotects memory region, it
+unintentionally *clears* the RW-bit if it was already set.  Note that this
+unprotecting a PTE that is not write-protected is a valid use-case: the
+userfaultfd monitor might ask to unprotect a region that holds both
+write-protected and write-unprotected PTEs.
 
-Link: https://lkml.kernel.org/r/59e75426241dbb5611277758c8d4d6f5f9298dac.1615215441.git.andreyknvl@google.com
-Fixes: 6a63a63ff1ac ("kasan: introduce CONFIG_KASAN_HW_TAGS")
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reported-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <stable@vger.kernel.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Peter Collingbourne <pcc@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Branislav Rankov <Branislav.Rankov@arm.com>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>
+The scenario that happens in selftests/vm/userfaultfd is as follows:
+
+cpu0				cpu1			cpu2
+----				----			----
+							[ Writable PTE
+							  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-*unprotect* ]
+mwriteprotect_range()
+mmap_read_lock()
+change_protection()
+
+change_protection_range()
+...
+change_pte_range()
+[ *clear* =E2=80=9Cwrite=E2=80=9D-bit ]
+[ defer TLB flushes ]
+				[ page-fault ]
+				...
+				wp_page_copy()
+				 cow_user_page()
+				  [ copy page ]
+							[ write to old
+							  page ]
+				...
+				 set_pte_at_notify()
+
+A similar scenario can happen:
+
+cpu0		cpu1		cpu2		cpu3
+----		----		----		----
+						[ Writable PTE
+				  		  cached in TLB ]
+userfaultfd_writeprotect()
+[ write-protect ]
+[ deferred TLB flush ]
+		userfaultfd_writeprotect()
+		[ write-unprotect ]
+		[ deferred TLB flush]
+				[ page-fault ]
+				wp_page_copy()
+				 cow_user_page()
+				 [ copy page ]
+				 ...		[ write to page ]
+				set_pte_at_notify()
+
+This race exists since commit 292924b26024 ("userfaultfd: wp: apply
+_PAGE_UFFD_WP bit").  Yet, as Yu Zhao pointed, these races became apparent
+since commit 09854ba94c6a ("mm: do_wp_page() simplification") which made
+wp_page_copy() more likely to take place, specifically if page_count(page)
+> 1.
+
+To resolve the aforementioned races, check whether there are pending
+flushes on uffd-write-protected VMAs, and if there are, perform a flush
+before doing the COW.
+
+Further optimizations will follow to avoid during uffd-write-unprotect
+unnecassary PTE write-protection and TLB flushes.
+
+Link: https://lkml.kernel.org/r/20210304095423.3825684-1-namit@vmware.com
+Fixes: 09854ba94c6a ("mm: do_wp_page() simplification")
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Suggested-by: Yu Zhao <yuzhao@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
+Tested-by: Peter Xu <peterx@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Pavel Emelyanov <xemul@openvz.org>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>	[5.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- lib/Kconfig.kasan |    1 +
- 1 file changed, 1 insertion(+)
+ mm/memory.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/lib/Kconfig.kasan~kasan-fix-kasan_stack-dependency-for-hw_tags
-+++ a/lib/Kconfig.kasan
-@@ -156,6 +156,7 @@ config KASAN_STACK_ENABLE
- 
- config KASAN_STACK
- 	int
-+	depends on KASAN_GENERIC || KASAN_SW_TAGS
- 	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
- 	default 0
- 
+--- a/mm/memory.c~mm-userfaultfd-fix-memory-corruption-due-to-writeprotect
++++ a/mm/memory.c
+@@ -3097,6 +3097,14 @@ static vm_fault_t do_wp_page(struct vm_f
+ 		return handle_userfault(vmf, VM_UFFD_WP);
+ 	}
+=20
++	/*
++	 * Userfaultfd write-protect can defer flushes. Ensure the TLB
++	 * is flushed in this case before copying.
++	 */
++	if (unlikely(userfaultfd_wp(vmf->vma) &&
++		     mm_tlb_flush_pending(vmf->vma->vm_mm)))
++		flush_tlb_page(vmf->vma, vmf->address);
++
+ 	vmf->page =3D vm_normal_page(vma, vmf->address, vmf->orig_pte);
+ 	if (!vmf->page) {
+ 		/*
 _
 
-Patches currently in -mm which might be from andreyknvl@google.com are
+Patches currently in -mm which might be from namit@vmware.com are
 
-kasan-fix-per-page-tags-for-non-page_alloc-pages.patch
-kasan-initialize-shadow-to-tag_invalid-for-sw_tags.patch
-mm-kasan-dont-poison-boot-memory-with-tag-based-modes.patch
-arm64-kasan-allow-to-init-memory-when-setting-tags.patch
-kasan-init-memory-in-kasan_unpoison-for-hw_tags.patch
-kasan-mm-integrate-page_alloc-init-with-hw_tags.patch
-kasan-mm-integrate-slab-init_on_alloc-with-hw_tags.patch
-kasan-mm-integrate-slab-init_on_free-with-hw_tags.patch
-kasan-docs-clean-up-sections.patch
-kasan-docs-update-overview-section.patch
-kasan-docs-update-usage-section.patch
-kasan-docs-update-error-reports-section.patch
-kasan-docs-update-boot-parameters-section.patch
-kasan-docs-update-generic-implementation-details-section.patch
-kasan-docs-update-sw_tags-implementation-details-section.patch
-kasan-docs-update-hw_tags-implementation-details-section.patch
-kasan-docs-update-shadow-memory-section.patch
-kasan-docs-update-ignoring-accesses-section.patch
-kasan-docs-update-tests-section.patch
 
