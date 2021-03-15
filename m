@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D30B733B9C1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E15233B98E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232443AbhCOOGk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
+        id S234800AbhCOOGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232349AbhCOOBs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAC7264E89;
-        Mon, 15 Mar 2021 14:01:45 +0000 (UTC)
+        id S233419AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1521064EEA;
+        Mon, 15 Mar 2021 14:01:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816907;
-        bh=nzF2+Ac+ZX7dpNx3h28V4HmbX4N/sSYTFFXDDkmkFwI=;
+        s=korg; t=1615816877;
+        bh=slnlhpSBqrcz8K5+o2gwuRlOg2HLVJt1EKKH8unuxJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBI/H3ffjZO+YtXafmb/kQdFkdM68RGtDqQgy1OwN/Vo/+rLJNf+B0HJwAz8nUKqc
-         +J+LVw0f2O0LAoXZnWERR/Wtq4OjhEI+WE80ldPYQTJUs/al8Z0plnlYq6G9sizAEo
-         HSVnYtr+SLKkS+OKIIvVdVIjcxcEfwjqkQYBwseo=
+        b=RKSx1caNA0Sfvu7v6TdSzKyJEGrwpy6bBM+p1VTzvaMKYlwW8SZYWoXPbZNMJPaZI
+         8eswbuSgVDQLRuTvy7OamYXhOMeF9+eSUMtiv8BLFlkuchBK8htrvXUJ5in0CB7FAI
+         /p+W20f5pGewv48XiddpdVkpqkZCc5fO+DQQkbj0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>
-Subject: [PATCH 5.11 194/306] USB: gadget: udc: s3c2410_udc: fix return value check in s3c2410_udc_probe()
+        stable@vger.kernel.org, Roman Bolshakov <r.bolshakov@yadro.com>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        Aleksandr Miloserdov <a.miloserdov@yadro.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 164/290] scsi: target: core: Add cmd length set before cmd complete
 Date:   Mon, 15 Mar 2021 14:54:17 +0100
-Message-Id: <20210315135514.181530714@linuxfoundation.org>
+Message-Id: <20210315135547.447658469@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Aleksandr Miloserdov <a.miloserdov@yadro.com>
 
-commit 414c20df7d401bcf1cb6c13d2dd944fb53ae4acf upstream.
+[ Upstream commit 1c73e0c5e54d5f7d77f422a10b03ebe61eaed5ad ]
 
-In case of error, the function devm_platform_ioremap_resource()
-returns ERR_PTR() and never returns NULL. The NULL test in the
-return value check should be replaced with IS_ERR().
+TCM doesn't properly handle underflow case for service actions. One way to
+prevent it is to always complete command with
+target_complete_cmd_with_length(), however it requires access to data_sg,
+which is not always available.
 
-Fixes: 188db4435ac6 ("usb: gadget: s3c: use platform resources")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210305034927.3232386-1-weiyongjun1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This change introduces target_set_cmd_data_length() function which allows
+to set command data length before completing it.
+
+Link: https://lore.kernel.org/r/20210209072202.41154-2-a.miloserdov@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Aleksandr Miloserdov <a.miloserdov@yadro.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/s3c2410_udc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/target/target_core_transport.c | 15 +++++++++++----
+ include/target/target_core_backend.h   |  1 +
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/udc/s3c2410_udc.c
-+++ b/drivers/usb/gadget/udc/s3c2410_udc.c
-@@ -1773,8 +1773,8 @@ static int s3c2410_udc_probe(struct plat
- 	udc_info = dev_get_platdata(&pdev->dev);
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index ff26ab0a5f60..484f0ba0a65b 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -873,11 +873,9 @@ void target_complete_cmd(struct se_cmd *cmd, u8 scsi_status)
+ }
+ EXPORT_SYMBOL(target_complete_cmd);
  
- 	base_addr = devm_platform_ioremap_resource(pdev, 0);
--	if (!base_addr) {
--		retval = -ENOMEM;
-+	if (IS_ERR(base_addr)) {
-+		retval = PTR_ERR(base_addr);
- 		goto err_mem;
+-void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int length)
++void target_set_cmd_data_length(struct se_cmd *cmd, int length)
+ {
+-	if ((scsi_status == SAM_STAT_GOOD ||
+-	     cmd->se_cmd_flags & SCF_TREAT_READ_AS_NORMAL) &&
+-	    length < cmd->data_length) {
++	if (length < cmd->data_length) {
+ 		if (cmd->se_cmd_flags & SCF_UNDERFLOW_BIT) {
+ 			cmd->residual_count += cmd->data_length - length;
+ 		} else {
+@@ -887,6 +885,15 @@ void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int len
+ 
+ 		cmd->data_length = length;
  	}
++}
++EXPORT_SYMBOL(target_set_cmd_data_length);
++
++void target_complete_cmd_with_length(struct se_cmd *cmd, u8 scsi_status, int length)
++{
++	if (scsi_status == SAM_STAT_GOOD ||
++	    cmd->se_cmd_flags & SCF_TREAT_READ_AS_NORMAL) {
++		target_set_cmd_data_length(cmd, length);
++	}
  
+ 	target_complete_cmd(cmd, scsi_status);
+ }
+diff --git a/include/target/target_core_backend.h b/include/target/target_core_backend.h
+index 6336780d83a7..ce2fba49c95d 100644
+--- a/include/target/target_core_backend.h
++++ b/include/target/target_core_backend.h
+@@ -72,6 +72,7 @@ int	transport_backend_register(const struct target_backend_ops *);
+ void	target_backend_unregister(const struct target_backend_ops *);
+ 
+ void	target_complete_cmd(struct se_cmd *, u8);
++void	target_set_cmd_data_length(struct se_cmd *, int);
+ void	target_complete_cmd_with_length(struct se_cmd *, u8, int);
+ 
+ void	transport_copy_sense_to_cmd(struct se_cmd *, unsigned char *);
+-- 
+2.30.1
+
 
 
