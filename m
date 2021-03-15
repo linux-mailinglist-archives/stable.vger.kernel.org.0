@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1927133B662
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3022533B616
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232114AbhCON5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34826 "EHLO mail.kernel.org"
+        id S230299AbhCON5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231572AbhCON5P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04CE764F18;
-        Mon, 15 Mar 2021 13:57:13 +0000 (UTC)
+        id S229844AbhCON4g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB16464EB6;
+        Mon, 15 Mar 2021 13:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816635;
-        bh=Ov+vMxu7B3lb5UN/RgPNTqrMU4kdSUd3pJNbWAZnNKs=;
+        s=korg; t=1615816596;
+        bh=70AUbpV9tK0YhOrcRgrP7R9s4mmDAQNs1J8jxcriaI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzyoPmOqd3ang9+JQo2jGaCdcUY1az2ER1YBAQMgm8Fq55YKLoJKvOUwXfr+H0/Mr
-         58SZ+3u/admrZ1iO1fcTsxPHfWCGb/RMITW0m/ngz4DiGfLd87XRFkNwkbUVtLLrCb
-         DEA7pHYrHlI22dlLlpkrODudTkT35okMJHOgcvoQ=
+        b=kKMDEH6gkKieFfAbTZVE88gfOl7z75ETU2GeVGbJn0CPrD2LkFy669ADtdzbpMvSY
+         IeOpnlOXa2jQ2jOuL2LEnosfYtg6FVhXsfrYJLwAJhWK487sz7yL4+AWp3+sWlzXk3
+         xfVPzqNdIC6pRLdadxN1ckHc0cqB4v5bIuCLAABI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>
-Subject: [PATCH 5.11 033/306] libbpf: Clear map_info before each bpf_obj_get_info_by_fd
-Date:   Mon, 15 Mar 2021 14:51:36 +0100
-Message-Id: <20210315135508.748269654@linuxfoundation.org>
+        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 004/290] ethernet: alx: fix order of calls on resume
+Date:   Mon, 15 Mar 2021 14:51:37 +0100
+Message-Id: <20210315135542.082629062@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,59 +42,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 2b2aedabc44e9660f90ccf7ba1ca2706d75f411f upstream.
+commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
 
-xsk_lookup_bpf_maps, based on prog_fd, looks whether current prog has a
-reference to XSKMAP. BPF prog can include insns that work on various BPF
-maps and this is covered by iterating through map_ids.
+netif_device_attach() will unpause the queues so we can't call
+it before __alx_open(). This went undetected until
+commit b0999223f224 ("alx: add ability to allocate and free
+alx_napi structures") but now if stack tries to xmit immediately
+on resume before __alx_open() we'll crash on the NAPI being null:
 
-The bpf_map_info that is passed to bpf_obj_get_info_by_fd for filling
-needs to be cleared at each iteration, so that it doesn't contain any
-outdated fields and that is currently missing in the function of
-interest.
+ BUG: kernel NULL pointer dereference, address: 0000000000000198
+ CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
+ Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
+ RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
+ Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
+0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
+ RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
+ RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
+ RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
+ RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
+ R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
+ R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
+ FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
+ i915 0000:00:02.0: vblank wait timed out on crtc 0
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
+ Call Trace:
+  dev_hard_start_xmit+0xc7/0x1e0
+  sch_direct_xmit+0x10f/0x310
 
-To fix that, zero-init map_info via memset before each
-bpf_obj_get_info_by_fd call.
-
-Also, since the area of this code is touched, in general strcmp is
-considered harmful, so let's convert it to strncmp and provide the
-size of the array name for current map_info.
-
-While at it, do s/continue/break/ once we have found the xsks_map to
-terminate the search.
-
-Fixes: 5750902a6e9b ("libbpf: proper XSKMAP cleanup")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20210303185636.18070-4-maciej.fijalkowski@intel.com
+Cc: <stable@vger.kernel.org> # 4.9+
+Fixes: bc2bebe8de8e ("alx: remove WoL support")
+Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/xsk.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/atheros/alx/main.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/tools/lib/bpf/xsk.c
-+++ b/tools/lib/bpf/xsk.c
-@@ -535,15 +535,16 @@ static int xsk_lookup_bpf_maps(struct xs
- 		if (fd < 0)
- 			continue;
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1894,13 +1894,16 @@ static int alx_resume(struct device *dev
  
-+		memset(&map_info, 0, map_len);
- 		err = bpf_obj_get_info_by_fd(fd, &map_info, &map_len);
- 		if (err) {
- 			close(fd);
- 			continue;
- 		}
+ 	if (!netif_running(alx->dev))
+ 		return 0;
+-	netif_device_attach(alx->dev);
  
--		if (!strcmp(map_info.name, "xsks_map")) {
-+		if (!strncmp(map_info.name, "xsks_map", sizeof(map_info.name))) {
- 			ctx->xsks_map_fd = fd;
--			continue;
-+			break;
- 		}
+ 	rtnl_lock();
+ 	err = __alx_open(alx, true);
+ 	rtnl_unlock();
++	if (err)
++		return err;
++
++	netif_device_attach(alx->dev);
  
- 		close(fd);
+-	return err;
++	return 0;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
 
 
