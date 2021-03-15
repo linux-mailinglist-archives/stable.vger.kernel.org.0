@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC88233B5D1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B7833B5D4
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230454AbhCONz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59328 "EHLO mail.kernel.org"
+        id S229851AbhCONze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231660AbhCONzD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:55:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A15D064EB6;
-        Mon, 15 Mar 2021 13:55:01 +0000 (UTC)
+        id S231678AbhCONzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:55:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4DD664EF0;
+        Mon, 15 Mar 2021 13:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816503;
-        bh=l69FUftW8NIve7NEWCJlehUULKtIpdKpxh9a8jGzzag=;
+        s=korg; t=1615816505;
+        bh=hm+F9/ytjl8jY3HhLNOg3aaXlrtafAjGslkFqjsSGIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ft/kQvJwp3IiuyU3wviaGcfKwf0v77Ieb3uYH+Jjxp/epLz0zF1jxeWNevUDQv54T
-         +bNzxRst1J2NllkUEc6qC1STaK1JINtRoDy2Kph6uD3nwisA0JC40LeUX/2CqxRUJ9
-         pTSuVmrvy6651HoDMa185W7HXFT2BCm3p51PIhAE=
+        b=Ixyd2dxRc0Et6cjmEDAIMMsA9hl/02MDp/dpxPOZqYNdhg48QlktBlKOS+YTboiH/
+         VTnUyj0Wc+NUNJ8ctPQL1nPoKAct7DvpOlZBf7R66nGARZJLhNNKIi9JxT4Xs6aDwS
+         hw/kOxmSu5gQAF1j8wu4JBFp+NroYjueVd8U3tXY=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH 4.9 75/78] iio: imu: adis16400: fix memory leak
-Date:   Mon, 15 Mar 2021 14:52:38 +0100
-Message-Id: <20210315135214.517438267@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 4.9 76/78] xen/events: reset affinity of 2-level event when tearing it down
+Date:   Mon, 15 Mar 2021 14:52:39 +0100
+Message-Id: <20210315135214.551270817@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
 References: <20210315135212.060847074@linuxfoundation.org>
@@ -43,37 +43,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 9c0530e898f384c5d279bfcebd8bb17af1105873 upstream.
+commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
 
-In adis_update_scan_mode_burst, if adis->buffer allocation fails release
-the adis->xfer.
+When creating a new event channel with 2-level events the affinity
+needs to be reset initially in order to avoid using an old affinity
+from earlier usage of the event channel port. So when tearing an event
+channel down reset all affinity bits.
 
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-[krzk: backport applied to adis16400_buffer.c instead of adis_buffer.c]
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+The same applies to the affinity when onlining a vcpu: all old
+affinity settings for this vcpu must be reset. As percpu events get
+initialized before the percpu event channel hook is called,
+resetting of the affinities happens after offlining a vcpu (this is
+working, as initial percpu memory is zeroed out).
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/adis16400_buffer.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/xen/events/events_2l.c       |   15 +++++++++++++++
+ drivers/xen/events/events_base.c     |    1 +
+ drivers/xen/events/events_internal.h |    8 ++++++++
+ 3 files changed, 24 insertions(+)
 
---- a/drivers/iio/imu/adis16400_buffer.c
-+++ b/drivers/iio/imu/adis16400_buffer.c
-@@ -37,8 +37,11 @@ int adis16400_update_scan_mode(struct ii
- 		return -ENOMEM;
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -46,6 +46,11 @@ static unsigned evtchn_2l_max_channels(v
+ 	return EVTCHN_2L_NR_CHANNELS;
+ }
  
- 	adis->buffer = kzalloc(burst_length + sizeof(u16), GFP_KERNEL);
--	if (!adis->buffer)
-+	if (!adis->buffer) {
-+		kfree(adis->xfer);
-+		adis->xfer = NULL;
- 		return -ENOMEM;
-+	}
++static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
++{
++	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
++}
++
+ static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
+ {
+ 	clear_bit(info->evtchn, BM(per_cpu(cpu_evtchn_mask, info->cpu)));
+@@ -353,9 +358,18 @@ static void evtchn_2l_resume(void)
+ 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
+ }
  
- 	tx = adis->buffer + burst_length;
- 	tx[0] = ADIS_READ_REG(ADIS16400_GLOB_CMD);
++static int evtchn_2l_percpu_deinit(unsigned int cpu)
++{
++	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
++			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
++
++	return 0;
++}
++
+ static const struct evtchn_ops evtchn_ops_2l = {
+ 	.max_channels      = evtchn_2l_max_channels,
+ 	.nr_channels       = evtchn_2l_max_channels,
++	.remove            = evtchn_2l_remove,
+ 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+@@ -365,6 +379,7 @@ static const struct evtchn_ops evtchn_op
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+ 	.resume	           = evtchn_2l_resume,
++	.percpu_deinit     = evtchn_2l_percpu_deinit,
+ };
+ 
+ void __init xen_evtchn_2l_init(void)
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -286,6 +286,7 @@ static int xen_irq_info_pirq_setup(unsig
+ static void xen_irq_info_cleanup(struct irq_info *info)
+ {
+ 	set_evtchn_to_irq(info->evtchn, -1);
++	xen_evtchn_port_remove(info->evtchn, info->cpu);
+ 	info->evtchn = 0;
+ }
+ 
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -67,6 +67,7 @@ struct evtchn_ops {
+ 	unsigned (*nr_channels)(void);
+ 
+ 	int (*setup)(struct irq_info *info);
++	void (*remove)(evtchn_port_t port, unsigned int cpu);
+ 	void (*bind_to_cpu)(struct irq_info *info, unsigned cpu);
+ 
+ 	void (*clear_pending)(unsigned port);
+@@ -109,6 +110,13 @@ static inline int xen_evtchn_port_setup(
+ 	return 0;
+ }
+ 
++static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
++					  unsigned int cpu)
++{
++	if (evtchn_ops->remove)
++		evtchn_ops->remove(evtchn, cpu);
++}
++
+ static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
+ 					       unsigned cpu)
+ {
 
 
