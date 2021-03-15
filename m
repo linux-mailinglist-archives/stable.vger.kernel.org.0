@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81E4733B533
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 588AC33B53B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230461AbhCONxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
+        id S229958AbhCONxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230097AbhCONxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 388A364EE3;
-        Mon, 15 Mar 2021 13:53:11 +0000 (UTC)
+        id S230224AbhCONxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C47BD64EED;
+        Mon, 15 Mar 2021 13:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816392;
-        bh=CXDrykB2YTXWYcveyql7HCHu+NhUEXIlNh+/o7fFvTg=;
+        s=korg; t=1615816400;
+        bh=ERUHNMOAXOR0Y7NR3rcHwcxECMch+cEw29hwqw98+ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtCYqdgUpPG2NqOAuc63B4y0oPHqqEovv0W0U8ow3CRBlXjgUxCBJxA2Ve7Oy5J4H
-         UG7POpW0bXPzl274KNbo582KSZZf6CuBtmcVOdqQeIN1AYfhQPK/wM9cnmI0TVLC0H
-         wnz/6CUqGDpSqWeYtUx8pHj4utAKLEEP3vQXCy8U=
+        b=uSNn2jXtLDYAVTTuz4kC93MjKQyvmoQQ1CguojVN3FduqPm743zeONI1plook9/2v
+         A8i9wJIQkjbzXCa/W94vVjvQSU6rExFlMW5PuatETTJm/EgfAJ2QGZglFyxprpFhBS
+         EizorucZ59OY/49jlkI4Hq+YF60f4Y9B3/5Coq94=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 13/78] net: sched: avoid duplicates in classes dump
+        stable@vger.kernel.org, Martin Kaiser <martin@kaiser.cx>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 22/75] PCI: xgene-msi: Fix race in installing chained irq handler
 Date:   Mon, 15 Mar 2021 14:51:36 +0100
-Message-Id: <20210315135212.505232270@linuxfoundation.org>
+Message-Id: <20210315135208.974959880@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +42,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maximilian Heyne <mheyne@amazon.de>
+From: Martin Kaiser <martin@kaiser.cx>
 
-commit bfc2560563586372212b0a8aeca7428975fa91fe upstream.
+[ Upstream commit a93c00e5f975f23592895b7e83f35de2d36b7633 ]
 
-This is a follow up of commit ea3274695353 ("net: sched: avoid
-duplicates in qdisc dump") which has fixed the issue only for the qdisc
-dump.
+Fix a race where a pending interrupt could be received and the handler
+called before the handler's data has been setup, by converting to
+irq_set_chained_handler_and_data().
 
-The duplicate printing also occurs when dumping the classes via
-  tc class show dev eth0
+See also 2cf5a03cb29d ("PCI/keystone: Fix race in installing chained IRQ
+handler").
 
-Fixes: 59cc1f61f09c ("net: sched: convert qdisc linked list to hashtable")
-Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Based on the mail discussion, it seems ok to drop the error handling.
+
+Link: https://lore.kernel.org/r/20210115212435.19940-3-martin@kaiser.cx
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_api.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/host/pci-xgene-msi.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1789,7 +1789,7 @@ static int tc_dump_tclass_qdisc(struct Q
+diff --git a/drivers/pci/host/pci-xgene-msi.c b/drivers/pci/host/pci-xgene-msi.c
+index a6456b578269..b6a099371ad2 100644
+--- a/drivers/pci/host/pci-xgene-msi.c
++++ b/drivers/pci/host/pci-xgene-msi.c
+@@ -393,13 +393,9 @@ static int xgene_msi_hwirq_alloc(unsigned int cpu)
+ 		if (!msi_group->gic_irq)
+ 			continue;
  
- static int tc_dump_tclass_root(struct Qdisc *root, struct sk_buff *skb,
- 			       struct tcmsg *tcm, struct netlink_callback *cb,
--			       int *t_p, int s_t)
-+			       int *t_p, int s_t, bool recur)
- {
- 	struct Qdisc *q;
- 	int b;
-@@ -1800,7 +1800,7 @@ static int tc_dump_tclass_root(struct Qd
- 	if (tc_dump_tclass_qdisc(root, skb, tcm, cb, t_p, s_t) < 0)
- 		return -1;
- 
--	if (!qdisc_dev(root))
-+	if (!qdisc_dev(root) || !recur)
- 		return 0;
- 
- 	hash_for_each(qdisc_dev(root)->qdisc_hash, b, q, hash) {
-@@ -1828,13 +1828,13 @@ static int tc_dump_tclass(struct sk_buff
- 	s_t = cb->args[0];
- 	t = 0;
- 
--	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t) < 0)
-+	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
- 		goto done;
- 
- 	dev_queue = dev_ingress_queue(dev);
- 	if (dev_queue &&
- 	    tc_dump_tclass_root(dev_queue->qdisc_sleeping, skb, tcm, cb,
--				&t, s_t) < 0)
-+				&t, s_t, false) < 0)
- 		goto done;
- 
- done:
+-		irq_set_chained_handler(msi_group->gic_irq,
+-					xgene_msi_isr);
+-		err = irq_set_handler_data(msi_group->gic_irq, msi_group);
+-		if (err) {
+-			pr_err("failed to register GIC IRQ handler\n");
+-			return -EINVAL;
+-		}
++		irq_set_chained_handler_and_data(msi_group->gic_irq,
++			xgene_msi_isr, msi_group);
++
+ 		/*
+ 		 * Statically allocate MSI GIC IRQs to each CPU core.
+ 		 * With 8-core X-Gene v1, 2 MSI GIC IRQs are allocated
+-- 
+2.30.1
+
 
 
