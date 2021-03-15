@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CEB133B618
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2EF33B536
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231765AbhCON5L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33778 "EHLO mail.kernel.org"
+        id S229945AbhCONxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230521AbhCON4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72BBB64EEC;
-        Mon, 15 Mar 2021 13:56:36 +0000 (UTC)
+        id S230131AbhCONxQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A21D164EE3;
+        Mon, 15 Mar 2021 13:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816598;
-        bh=dyFux2b2LyDMCXe/IMqQ3EfGFCXl+2a5DzNiD2gn5G0=;
+        s=korg; t=1615816396;
+        bh=FgnwEirIJlCfuiFacdLl2MgN29DBDcntNFmOzOCqrtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUjeEpG2AxkgajA6cK3hI12333eKjaAaCTvn922GYpTqGCJd9uCRtyWTNumrH9nbg
-         Y2esaEOEk/8UTz83Zb3P5dy59sUp0UaLkGxyesUa5gclqmhcQTQds7iLkWia4AOzAc
-         uLJZy37U/WqnXTxiBjgzTtg0F2A6vbMdUg/AfLJ8=
+        b=uARKSVcXab0PzyDN8RQ+8+9uz2yYlzYAi4REEpRDuHEalfY+PDOk8XRYfEQA8rsS7
+         NYaY6639Q6pFYPCGAKwpMxoQ1pMk4l8lnxbCAxwhOaqCyZ4mHjgIoJd2wQmZM5dt/o
+         QYOatwIm6/IzUN8uJoVQvQWJxU9A6Btu/Jg3YgqE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 005/290] crypto: mips/poly1305 - enable for all MIPS processors
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 15/78] net: davicom: Fix regulator not turned off on failed probe
 Date:   Mon, 15 Mar 2021 14:51:38 +0100
-Message-Id: <20210315135542.124142544@linuxfoundation.org>
+Message-Id: <20210315135212.566588976@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +41,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 6c810cf20feef0d4338e9b424ab7f2644a8b353e upstream.
+commit ac88c531a5b38877eba2365a3f28f0c8b513dc33 upstream.
 
-The MIPS Poly1305 implementation is generic MIPS code written such as to
-support down to the original MIPS I and MIPS III ISA for the 32-bit and
-64-bit variant respectively.  Lift the current limitation then to enable
-code for MIPSr1 ISA or newer processors only and have it available for
-all MIPS processors.
+When the probe fails or requests to be defered, we must disable the
+regulator that was previously enabled.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: a11d055e7a64 ("crypto: mips/poly1305 - incorporate OpenSSL/CRYPTOGAMS optimized implementation")
-Cc: stable@vger.kernel.org # v5.5+
-Acked-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/crypto/Makefile |    4 ++--
- crypto/Kconfig            |    2 +-
- drivers/net/Kconfig       |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/davicom/dm9000.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/mips/crypto/Makefile
-+++ b/arch/mips/crypto/Makefile
-@@ -12,8 +12,8 @@ AFLAGS_chacha-core.o += -O2 # needed to
- obj-$(CONFIG_CRYPTO_POLY1305_MIPS) += poly1305-mips.o
- poly1305-mips-y := poly1305-core.o poly1305-glue.o
+--- a/drivers/net/ethernet/davicom/dm9000.c
++++ b/drivers/net/ethernet/davicom/dm9000.c
+@@ -1459,7 +1459,7 @@ dm9000_probe(struct platform_device *pde
+ 		if (ret) {
+ 			dev_err(dev, "failed to request reset gpio %d: %d\n",
+ 				reset_gpios, ret);
+-			return -ENODEV;
++			goto out_regulator_disable;
+ 		}
  
--perlasm-flavour-$(CONFIG_CPU_MIPS32) := o32
--perlasm-flavour-$(CONFIG_CPU_MIPS64) := 64
-+perlasm-flavour-$(CONFIG_32BIT) := o32
-+perlasm-flavour-$(CONFIG_64BIT) := 64
+ 		/* According to manual PWRST# Low Period Min 1ms */
+@@ -1471,8 +1471,10 @@ dm9000_probe(struct platform_device *pde
  
- quiet_cmd_perlasm = PERLASM $@
-       cmd_perlasm = $(PERL) $(<) $(perlasm-flavour-y) $(@)
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -772,7 +772,7 @@ config CRYPTO_POLY1305_X86_64
+ 	if (!pdata) {
+ 		pdata = dm9000_parse_dt(&pdev->dev);
+-		if (IS_ERR(pdata))
+-			return PTR_ERR(pdata);
++		if (IS_ERR(pdata)) {
++			ret = PTR_ERR(pdata);
++			goto out_regulator_disable;
++		}
+ 	}
  
- config CRYPTO_POLY1305_MIPS
- 	tristate "Poly1305 authenticator algorithm (MIPS optimized)"
--	depends on CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
-+	depends on MIPS
- 	select CRYPTO_ARCH_HAVE_LIB_POLY1305
+ 	/* Init network device */
+@@ -1715,6 +1717,10 @@ out:
+ 	dm9000_release_board(pdev, db);
+ 	free_netdev(ndev);
  
- config CRYPTO_MD4
---- a/drivers/net/Kconfig
-+++ b/drivers/net/Kconfig
-@@ -92,7 +92,7 @@ config WIREGUARD
- 	select CRYPTO_POLY1305_ARM if ARM
- 	select CRYPTO_CURVE25519_NEON if ARM && KERNEL_MODE_NEON
- 	select CRYPTO_CHACHA_MIPS if CPU_MIPS32_R2
--	select CRYPTO_POLY1305_MIPS if CPU_MIPS32 || (CPU_MIPS64 && 64BIT)
-+	select CRYPTO_POLY1305_MIPS if MIPS
- 	help
- 	  WireGuard is a secure, fast, and easy to use replacement for IPSec
- 	  that uses modern cryptography and clever networking tricks. It's
++out_regulator_disable:
++	if (!IS_ERR(power))
++		regulator_disable(power);
++
+ 	return ret;
+ }
+ 
 
 
