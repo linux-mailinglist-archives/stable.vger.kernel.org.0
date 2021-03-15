@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C5833B62A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AB9C33B62F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231946AbhCON5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33286 "EHLO mail.kernel.org"
+        id S231307AbhCON5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231489AbhCON4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2633D64EED;
-        Mon, 15 Mar 2021 13:56:46 +0000 (UTC)
+        id S231744AbhCON4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4467364EEC;
+        Mon, 15 Mar 2021 13:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816608;
-        bh=lQqZ31p/1FjojljzydhEX/AOh6vMwibdy62aoftNbNg=;
+        s=korg; t=1615816610;
+        bh=JSO7HjCPXzECWUoqg072bc6aHfuQwXZ6MlP0UVke4xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJj/dgetBi+hYNmdRcXoLvgVS5ezIgd0+IuLr0H5wezQ09WBTxT/T3yxef2hDT7fL
-         F4bPHF689BN4n0ee82LWCk8QZrgeleii2alC+Tl05QQ8yO+L8CG613JkdnQQ6AuDey
-         wOPRGm/a26rOuutliJA0Kw5n6ZaLh76gkJDUDw3o=
+        b=jo6D/wMkopTw3DbBRRKbaUdT1im7Z/lAm4RgUGznMHM6XaWohuU/f6EYnTN+kLrar
+         nh2jzufYsEA9iRT5dHEWOt2RVS7kxmfDZ0OraaFdHdhjC31zsqHb973EqA9slZwFNw
+         Nl5VE8lpZ0/UVhTRBzo9FL/M5LvZS6t9tJUxMHUU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Laurent Vivier <lvivier@redhat.com>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 002/168] powerpc/pseries: Dont enforce MSI affinity with kdump
-Date:   Mon, 15 Mar 2021 14:53:54 +0100
-Message-Id: <20210315135550.414757224@linuxfoundation.org>
+        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 003/168] ethernet: alx: fix order of calls on resume
+Date:   Mon, 15 Mar 2021 14:53:55 +0100
+Message-Id: <20210315135550.448416136@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,92 +42,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Greg Kurz <groug@kaod.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit f9619d5e5174867536b7e558683bc4408eab833f upstream.
+commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
 
-Depending on the number of online CPUs in the original kernel, it is
-likely for CPU #0 to be offline in a kdump kernel. The associated IRQs
-in the affinity mappings provided by irq_create_affinity_masks() are
-thus not started by irq_startup(), as per-design with managed IRQs.
+netif_device_attach() will unpause the queues so we can't call
+it before __alx_open(). This went undetected until
+commit b0999223f224 ("alx: add ability to allocate and free
+alx_napi structures") but now if stack tries to xmit immediately
+on resume before __alx_open() we'll crash on the NAPI being null:
 
-This can be a problem with multi-queue block devices driven by blk-mq :
-such a non-started IRQ is very likely paired with the single queue
-enforced by blk-mq during kdump (see blk_mq_alloc_tag_set()). This
-causes the device to remain silent and likely hangs the guest at
-some point.
+ BUG: kernel NULL pointer dereference, address: 0000000000000198
+ CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
+ Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
+ RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
+ Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
+0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
+ RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
+ RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
+ RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
+ RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
+ R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
+ R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
+ FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
+ i915 0000:00:02.0: vblank wait timed out on crtc 0
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
+ Call Trace:
+  dev_hard_start_xmit+0xc7/0x1e0
+  sch_direct_xmit+0x10f/0x310
 
-This is a regression caused by commit 9ea69a55b3b9 ("powerpc/pseries:
-Pass MSI affinity to irq_create_mapping()"). Note that this only happens
-with the XIVE interrupt controller because XICS has a workaround to bypass
-affinity, which is activated during kdump with the "noirqdistrib" kernel
-parameter.
-
-The issue comes from a combination of factors:
-- discrepancy between the number of queues detected by the multi-queue
-  block driver, that was used to create the MSI vectors, and the single
-  queue mode enforced later on by blk-mq because of kdump (i.e. keeping
-  all queues fixes the issue)
-- CPU#0 offline (i.e. kdump always succeed with CPU#0)
-
-Given that I couldn't reproduce on x86, which seems to always have CPU#0
-online even during kdump, I'm not sure where this should be fixed. Hence
-going for another approach : fine-grained affinity is for performance
-and we don't really care about that during kdump. Simply revert to the
-previous working behavior of ignoring affinity masks in this case only.
-
-Fixes: 9ea69a55b3b9 ("powerpc/pseries: Pass MSI affinity to irq_create_mapping()")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Laurent Vivier <lvivier@redhat.com>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210215094506.1196119-1-groug@kaod.org
+Cc: <stable@vger.kernel.org> # 4.9+
+Fixes: bc2bebe8de8e ("alx: remove WoL support")
+Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/pseries/msi.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/atheros/alx/main.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/platforms/pseries/msi.c
-+++ b/arch/powerpc/platforms/pseries/msi.c
-@@ -4,6 +4,7 @@
-  * Copyright 2006-2007 Michael Ellerman, IBM Corp.
-  */
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1897,13 +1897,16 @@ static int alx_resume(struct device *dev
  
-+#include <linux/crash_dump.h>
- #include <linux/device.h>
- #include <linux/irq.h>
- #include <linux/msi.h>
-@@ -458,8 +459,28 @@ again:
- 			return hwirq;
- 		}
+ 	if (!netif_running(alx->dev))
+ 		return 0;
+-	netif_device_attach(alx->dev);
  
--		virq = irq_create_mapping_affinity(NULL, hwirq,
--						   entry->affinity);
-+		/*
-+		 * Depending on the number of online CPUs in the original
-+		 * kernel, it is likely for CPU #0 to be offline in a kdump
-+		 * kernel. The associated IRQs in the affinity mappings
-+		 * provided by irq_create_affinity_masks() are thus not
-+		 * started by irq_startup(), as per-design for managed IRQs.
-+		 * This can be a problem with multi-queue block devices driven
-+		 * by blk-mq : such a non-started IRQ is very likely paired
-+		 * with the single queue enforced by blk-mq during kdump (see
-+		 * blk_mq_alloc_tag_set()). This causes the device to remain
-+		 * silent and likely hangs the guest at some point.
-+		 *
-+		 * We don't really care for fine-grained affinity when doing
-+		 * kdump actually : simply ignore the pre-computed affinity
-+		 * masks in this case and let the default mask with all CPUs
-+		 * be used when creating the IRQ mappings.
-+		 */
-+		if (is_kdump_kernel())
-+			virq = irq_create_mapping(NULL, hwirq);
-+		else
-+			virq = irq_create_mapping_affinity(NULL, hwirq,
-+							   entry->affinity);
+ 	rtnl_lock();
+ 	err = __alx_open(alx, true);
+ 	rtnl_unlock();
++	if (err)
++		return err;
++
++	netif_device_attach(alx->dev);
  
- 		if (!virq) {
- 			pr_debug("rtas_msi: Failed mapping hwirq %d\n", hwirq);
+-	return err;
++	return 0;
+ }
+ 
+ static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
 
 
