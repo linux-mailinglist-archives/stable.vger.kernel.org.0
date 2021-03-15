@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D4933B890
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4BF33B81F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232486AbhCOODw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S233654AbhCOOCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233034AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 493ED64F38;
-        Mon, 15 Mar 2021 14:00:14 +0000 (UTC)
+        id S232905AbhCOOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C5D764F22;
+        Mon, 15 Mar 2021 13:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816815;
-        bh=7+xiyjyfbCc/RzfNkjeCk5MZNcx31IYxdwWdpFIj0Sg=;
+        s=korg; t=1615816781;
+        bh=K28SDMwJeMMpklXN1g79KePga1nmOBsYjA+rCIPvEpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJDSYZo66KbQKdNmvYNStVpfUT3lRBkpQt9tY9pFkKCiCFYCL9/NwumLWMbOzJsIT
-         xk4aC2GN96qiDKn4+3AUFr8qNVspIyVztG4Nq56JVWSozXbW4ObamPqc7ODWwuelQf
-         REuRZBi/CnvzPf5U708Rv9n3nBXU5pxSWsAX22/M=
+        b=EdcEQoZb0rk6NpYI9f0TUnb2tKUfrFakDjG0oK1FOIkMFd4xlB4hE7uE2x0NlDM77
+         qKSJhYyg/tC8JPAS+z9RMpgAKb7Y471NQF75i6lJ8n3nj0jGV3JXPTpVC8umXhr/ud
+         pd/YG0+5GqKXKSbCTldGxHPFNx9Qw8n1bClwe2oE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 141/306] powerpc/64: Fix stack trace not displaying final frame
+Subject: [PATCH 5.10 111/290] s390/qeth: improve completion of pending TX buffers
 Date:   Mon, 15 Mar 2021 14:53:24 +0100
-Message-Id: <20210315135512.409359198@linuxfoundation.org>
+Message-Id: <20210315135545.658253502@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +42,196 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit e3de1e291fa58a1ab0f471a4b458eff2514e4b5f ]
+[ Upstream commit c20383ad1656b0f6354dd50e4acd894f9d94090d ]
 
-In commit bf13718bc57a ("powerpc: show registers when unwinding
-interrupt frames") we changed our stack dumping logic to show the full
-registers whenever we find an interrupt frame on the stack.
+The current design attaches a pending TX buffer to a custom
+single-linked list, which is anchored at the buffer's slot on the
+TX ring. The buffer is then checked for final completion whenever
+this slot is processed during a subsequent TX NAPI poll cycle.
 
-However we didn't notice that on 64-bit this doesn't show the final
-frame, ie. the interrupt that brought us in from userspace, whereas on
-32-bit it does.
+But if there's insufficient traffic on the ring, we might never make
+enough progress to get back to this ring slot and discover the pending
+buffer's final TX completion. In particular if this missing TX
+completion blocks the application from sending further traffic.
 
-That is due to confusion about the size of that last frame. The code
-in show_stack() calls validate_sp(), passing it STACK_INT_FRAME_SIZE
-to check the sp is at least that far below the top of the stack.
+So convert the custom single-linked list code to a per-queue list_head,
+and scan this list on every TX NAPI cycle.
 
-However on 64-bit that size is too large for the final frame, because
-it includes the red zone, but we don't allocate a red zone for the
-first frame.
-
-So add a new define that encodes the correct size for 32-bit and
-64-bit, and use it in show_stack().
-
-This results in the full trace being shown on 64-bit, eg:
-
-  sysrq: Trigger a crash
-  Kernel panic - not syncing: sysrq triggered crash
-  CPU: 0 PID: 83 Comm: sh Not tainted 5.11.0-rc2-gcc-8.2.0-00188-g571abcb96b10-dirty #649
-  Call Trace:
-  [c00000000a1c3ac0] [c000000000897b70] dump_stack+0xc4/0x114 (unreliable)
-  [c00000000a1c3b00] [c00000000014334c] panic+0x178/0x41c
-  [c00000000a1c3ba0] [c00000000094e600] sysrq_handle_crash+0x40/0x50
-  [c00000000a1c3c00] [c00000000094ef98] __handle_sysrq+0xd8/0x210
-  [c00000000a1c3ca0] [c00000000094f820] write_sysrq_trigger+0x100/0x188
-  [c00000000a1c3ce0] [c0000000005559dc] proc_reg_write+0x10c/0x1b0
-  [c00000000a1c3d10] [c000000000479950] vfs_write+0xf0/0x360
-  [c00000000a1c3d60] [c000000000479d9c] ksys_write+0x7c/0x140
-  [c00000000a1c3db0] [c00000000002bf5c] system_call_exception+0x19c/0x2c0
-  [c00000000a1c3e10] [c00000000000d35c] system_call_common+0xec/0x278
-  --- interrupt: c00 at 0x7fff9fbab428
-  NIP:  00007fff9fbab428 LR: 000000001000b724 CTR: 0000000000000000
-  REGS: c00000000a1c3e80 TRAP: 0c00   Not tainted  (5.11.0-rc2-gcc-8.2.0-00188-g571abcb96b10-dirty)
-  MSR:  900000000280f033 <SF,HV,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 22002884  XER: 00000000
-  IRQMASK: 0
-  GPR00: 0000000000000004 00007fffc3cb8960 00007fff9fc59900 0000000000000001
-  GPR04: 000000002a4b32d0 0000000000000002 0000000000000063 0000000000000063
-  GPR08: 000000002a4b32d0 0000000000000000 0000000000000000 0000000000000000
-  GPR12: 0000000000000000 00007fff9fcca9a0 0000000000000000 0000000000000000
-  GPR16: 0000000000000000 0000000000000000 0000000000000000 00000000100b8fd0
-  GPR20: 000000002a4b3485 00000000100b8f90 0000000000000000 0000000000000000
-  GPR24: 000000002a4b0440 00000000100e77b8 0000000000000020 000000002a4b32d0
-  GPR28: 0000000000000001 0000000000000002 000000002a4b32d0 0000000000000001
-  NIP [00007fff9fbab428] 0x7fff9fbab428
-  LR [000000001000b724] 0x1000b724
-  --- interrupt: c00
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210209141627.2898485-1-mpe@ellerman.id.au
+Fixes: 0da9581ddb0f ("qeth: exploit asynchronous delivery of storage blocks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/ptrace.h | 3 +++
- arch/powerpc/kernel/asm-offsets.c | 2 +-
- arch/powerpc/kernel/process.c     | 2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 +-
+ drivers/s390/net/qeth_core_main.c | 69 +++++++++++++------------------
+ 2 files changed, 30 insertions(+), 42 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/ptrace.h b/arch/powerpc/include/asm/ptrace.h
-index 58f9dc060a7b..8236c5e749e4 100644
---- a/arch/powerpc/include/asm/ptrace.h
-+++ b/arch/powerpc/include/asm/ptrace.h
-@@ -70,6 +70,9 @@ struct pt_regs
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index ea969b8fe687..bf8404b0e74f 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -436,7 +436,7 @@ struct qeth_qdio_out_buffer {
+ 	int is_header[QDIO_MAX_ELEMENTS_PER_BUFFER];
+ 
+ 	struct qeth_qdio_out_q *q;
+-	struct qeth_qdio_out_buffer *next_pending;
++	struct list_head list_entry;
  };
- #endif
  
-+
-+#define STACK_FRAME_WITH_PT_REGS (STACK_FRAME_OVERHEAD + sizeof(struct pt_regs))
-+
- #ifdef __powerpc64__
+ struct qeth_card;
+@@ -500,6 +500,7 @@ struct qeth_qdio_out_q {
+ 	struct qdio_buffer *qdio_bufs[QDIO_MAX_BUFFERS_PER_Q];
+ 	struct qeth_qdio_out_buffer *bufs[QDIO_MAX_BUFFERS_PER_Q];
+ 	struct qdio_outbuf_state *bufstates; /* convenience pointer */
++	struct list_head pending_bufs;
+ 	struct qeth_out_q_stats stats;
+ 	spinlock_t lock;
+ 	unsigned int priority;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index e2cdb5c2fc66..db785030293b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -73,8 +73,6 @@ static void qeth_free_qdio_queues(struct qeth_card *card);
+ static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
+ 		struct qeth_qdio_out_buffer *buf,
+ 		enum iucv_tx_notify notification);
+-static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
+-				 int budget);
  
- /*
-diff --git a/arch/powerpc/kernel/asm-offsets.c b/arch/powerpc/kernel/asm-offsets.c
-index b12d7c049bfe..989006b5ad0f 100644
---- a/arch/powerpc/kernel/asm-offsets.c
-+++ b/arch/powerpc/kernel/asm-offsets.c
-@@ -309,7 +309,7 @@ int main(void)
+ static void qeth_close_dev_handler(struct work_struct *work)
+ {
+@@ -465,41 +463,6 @@ static enum iucv_tx_notify qeth_compute_cq_notification(int sbalf15,
+ 	return n;
+ }
  
- 	/* Interrupt register frame */
- 	DEFINE(INT_FRAME_SIZE, STACK_INT_FRAME_SIZE);
--	DEFINE(SWITCH_FRAME_SIZE, STACK_FRAME_OVERHEAD + sizeof(struct pt_regs));
-+	DEFINE(SWITCH_FRAME_SIZE, STACK_FRAME_WITH_PT_REGS);
- 	STACK_PT_REGS_OFFSET(GPR0, gpr[0]);
- 	STACK_PT_REGS_OFFSET(GPR1, gpr[1]);
- 	STACK_PT_REGS_OFFSET(GPR2, gpr[2]);
-diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-index a66f435dabbf..b65a73e4d642 100644
---- a/arch/powerpc/kernel/process.c
-+++ b/arch/powerpc/kernel/process.c
-@@ -2176,7 +2176,7 @@ void show_stack(struct task_struct *tsk, unsigned long *stack,
- 		 * See if this is an exception frame.
- 		 * We look for the "regshere" marker in the current frame.
+-static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+-					 int forced_cleanup)
+-{
+-	if (q->card->options.cq != QETH_CQ_ENABLED)
+-		return;
+-
+-	if (q->bufs[bidx]->next_pending != NULL) {
+-		struct qeth_qdio_out_buffer *head = q->bufs[bidx];
+-		struct qeth_qdio_out_buffer *c = q->bufs[bidx]->next_pending;
+-
+-		while (c) {
+-			if (forced_cleanup ||
+-			    atomic_read(&c->state) == QETH_QDIO_BUF_EMPTY) {
+-				struct qeth_qdio_out_buffer *f = c;
+-
+-				QETH_CARD_TEXT(f->q->card, 5, "fp");
+-				QETH_CARD_TEXT_(f->q->card, 5, "%lx", (long) f);
+-				/* release here to avoid interleaving between
+-				   outbound tasklet and inbound tasklet
+-				   regarding notifications and lifecycle */
+-				qeth_tx_complete_buf(c, forced_cleanup, 0);
+-
+-				c = f->next_pending;
+-				WARN_ON_ONCE(head->next_pending != f);
+-				head->next_pending = c;
+-				kmem_cache_free(qeth_qdio_outbuf_cache, f);
+-			} else {
+-				head = c;
+-				c = c->next_pending;
+-			}
+-
+-		}
+-	}
+-}
+-
+ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				 unsigned long phys_aob_addr)
+ {
+@@ -537,7 +500,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 		qeth_notify_skbs(buffer->q, buffer, notification);
+ 
+ 		/* Free dangling allocations. The attached skbs are handled by
+-		 * qeth_cleanup_handled_pending().
++		 * qeth_tx_complete_pending_bufs().
  		 */
--		if (validate_sp(sp, tsk, STACK_INT_FRAME_SIZE)
-+		if (validate_sp(sp, tsk, STACK_FRAME_WITH_PT_REGS)
- 		    && stack[STACK_FRAME_MARKER] == STACK_FRAME_REGS_MARKER) {
- 			struct pt_regs *regs = (struct pt_regs *)
- 				(sp + STACK_FRAME_OVERHEAD);
+ 		for (i = 0;
+ 		     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
+@@ -1484,14 +1447,35 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
+ 	atomic_set(&buf->state, QETH_QDIO_BUF_EMPTY);
+ }
+ 
++static void qeth_tx_complete_pending_bufs(struct qeth_card *card,
++					  struct qeth_qdio_out_q *queue,
++					  bool drain)
++{
++	struct qeth_qdio_out_buffer *buf, *tmp;
++
++	list_for_each_entry_safe(buf, tmp, &queue->pending_bufs, list_entry) {
++		if (drain || atomic_read(&buf->state) == QETH_QDIO_BUF_EMPTY) {
++			QETH_CARD_TEXT(card, 5, "fp");
++			QETH_CARD_TEXT_(card, 5, "%lx", (long) buf);
++
++			qeth_tx_complete_buf(buf, drain, 0);
++
++			list_del(&buf->list_entry);
++			kmem_cache_free(qeth_qdio_outbuf_cache, buf);
++		}
++	}
++}
++
+ static void qeth_drain_output_queue(struct qeth_qdio_out_q *q, bool free)
+ {
+ 	int j;
+ 
++	qeth_tx_complete_pending_bufs(q->card, q, true);
++
+ 	for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j) {
+ 		if (!q->bufs[j])
+ 			continue;
+-		qeth_cleanup_handled_pending(q, j, 1);
++
+ 		qeth_clear_output_buffer(q, q->bufs[j], true, 0);
+ 		if (free) {
+ 			kmem_cache_free(qeth_qdio_outbuf_cache, q->bufs[j]);
+@@ -2611,7 +2595,6 @@ static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *q, int bidx)
+ 	skb_queue_head_init(&newbuf->skb_list);
+ 	lockdep_set_class(&newbuf->skb_list.lock, &qdio_out_skb_queue_key);
+ 	newbuf->q = q;
+-	newbuf->next_pending = q->bufs[bidx];
+ 	atomic_set(&newbuf->state, QETH_QDIO_BUF_EMPTY);
+ 	q->bufs[bidx] = newbuf;
+ 	return 0;
+@@ -2693,6 +2676,7 @@ static int qeth_alloc_qdio_queues(struct qeth_card *card)
+ 		card->qdio.out_qs[i] = queue;
+ 		queue->card = card;
+ 		queue->queue_no = i;
++		INIT_LIST_HEAD(&queue->pending_bufs);
+ 		spin_lock_init(&queue->lock);
+ 		timer_setup(&queue->timer, qeth_tx_completion_timer, 0);
+ 		queue->coalesce_usecs = QETH_TX_COALESCE_USECS;
+@@ -5890,6 +5874,8 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 					qeth_schedule_recovery(card);
+ 				}
+ 
++				list_add(&buffer->list_entry,
++					 &queue->pending_bufs);
+ 				/* Skip clearing the buffer: */
+ 				return;
+ 			case QETH_QDIO_BUF_QAOB_OK:
+@@ -5945,6 +5931,8 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
+ 		unsigned int bytes = 0;
+ 		int completed;
+ 
++		qeth_tx_complete_pending_bufs(card, queue, false);
++
+ 		if (qeth_out_queue_is_empty(queue)) {
+ 			napi_complete(napi);
+ 			return 0;
+@@ -5977,7 +5965,6 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
+ 
+ 			qeth_handle_send_error(card, buffer, error);
+ 			qeth_iqd_tx_complete(queue, bidx, error, budget);
+-			qeth_cleanup_handled_pending(queue, bidx, false);
+ 		}
+ 
+ 		netdev_tx_completed_queue(txq, packets, bytes);
 -- 
 2.30.1
 
