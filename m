@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7326A33B908
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C45C33B97B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbhCOOFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S234895AbhCOOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231907AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F83E64F16;
-        Mon, 15 Mar 2021 14:00:35 +0000 (UTC)
+        id S233376AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11C0864FAB;
+        Mon, 15 Mar 2021 14:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816836;
-        bh=ffHiKX2x359sykKVshemZJfSIe3BzHOOXXmMQABK2nQ=;
+        s=korg; t=1615816866;
+        bh=6l8rwjeuK1Wifa+KWPbGb6ZQnQvOs+p5WE2NX50jh9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCzqEEBh8a4KPvfv5hWjTaB3Mwzijs1xvrj9v56VfODcuNb+1i9R2v5oGumrP0BHO
-         EgXR0uGDzIdnGoMoUAwFTUzXksmlmiWzi7pvkhJkh1fC1GjSPu+EjhWxLM5UapXUWg
-         QLgzaTvQvMh/5BRAsYLIJyEtK7wM5Sw5l5hDrtkc=
+        b=AE8HuaiwHQ0QfewNye6q3V6ErzwrVUF3yKga7kQMCLWzbIrXAT6YDtzFQ8ORTjgwI
+         3z7pvH64EldBj7sO1v/khT5u3LIswe9KcgcBhvmZADSw1uh8FBrHFawRpT4NCEm7f4
+         l5J/Jd7rqvdZZn/PoHgIC5EB8gkkCErur5htg1CI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 142/290] powerpc: improve handling of unrecoverable system reset
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 172/306] ALSA: usb-audio: Apply the control quirk to Plantronics headsets
 Date:   Mon, 15 Mar 2021 14:53:55 +0100
-Message-Id: <20210315135546.711852192@linuxfoundation.org>
+Message-Id: <20210315135513.430916118@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
+commit 06abcb18b3a021ba1a3f2020cbefb3ed04e59e72 upstream.
 
-If an unrecoverable system reset hits in process context, the system
-does not have to panic. Similar to machine check, call nmi_exit()
-before die().
+Other Plantronics headset models seem requiring the same workaround as
+C320-M to add the 20ms delay for the control messages, too.  Apply the
+workaround generically for devices with the vendor ID 0x047f.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that the problem didn't surface before 5.11 just with luck.
+Since 5.11 got a big code rewrite about the stream handling, the
+parameter setup procedure has changed, and this seemed triggering the
+problem more often.
+
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182552
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210304085009.4770-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/traps.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/usb/quirks.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 5006dcbe1d9f..77dffea3d537 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -509,8 +509,11 @@ void system_reset_exception(struct pt_regs *regs)
- 		die("Unrecoverable nested System Reset", regs, SIGABRT);
- #endif
- 	/* Must die if the interrupt is not recoverable */
--	if (!(regs->msr & MSR_RI))
-+	if (!(regs->msr & MSR_RI)) {
-+		/* For the reason explained in die_mce, nmi_exit before die */
-+		nmi_exit();
- 		die("Unrecoverable System Reset", regs, SIGABRT);
-+	}
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1672,10 +1672,10 @@ void snd_usb_ctl_msg_quirk(struct usb_de
+ 		msleep(20);
  
- 	if (saved_hsrrs) {
- 		mtspr(SPRN_HSRR0, hsrr0);
--- 
-2.30.1
-
+ 	/*
+-	 * Plantronics C320-M needs a delay to avoid random
+-	 * microhpone failures.
++	 * Plantronics headsets (C320, C320-M, etc) need a delay to avoid
++	 * random microhpone failures.
+ 	 */
+-	if (chip->usb_id == USB_ID(0x047f, 0xc025)  &&
++	if (USB_ID_VENDOR(chip->usb_id) == 0x047f &&
+ 	    (requesttype & USB_TYPE_MASK) == USB_TYPE_CLASS)
+ 		msleep(20);
+ 
 
 
