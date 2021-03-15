@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D81333B6BF
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B20A33B579
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232144AbhCON6n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S231446AbhCONy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232180AbhCON5y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F0B364F38;
-        Mon, 15 Mar 2021 13:57:52 +0000 (UTC)
+        id S231267AbhCONyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA1FA64EED;
+        Mon, 15 Mar 2021 13:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816673;
-        bh=hfBGN1Peg/rIQkG7ON/X7Zf0+SAOusI5JQZZixjpQRg=;
+        s=korg; t=1615816440;
+        bh=M7PhpwSt5TPxUqDhfNPRBZXEtNzf3SIHNEI0Nj992Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A26U10+/4Xed5GhFs8g4rVFpd6FkKdUL0fbYVjuEytx+EEkd8uXMPMbHABfW3h6ma
-         n3SH07PZYGMAdHSh/6wYWd8LwPJL3CtrG3boQEGTe07pvN9mmbo/I6fyY4RFMdhXmT
-         SW85cPuObXuAG44PoyLNiTbVPn/OAr+mfMpy9RkA=
+        b=SCvg1lDilA9hu/LqhiuA9XYJT8k9IFMA8cTN/4UiwuxO4KVq8NydjmYhjy9DMcdWY
+         +d2YmKEGIfRKNJmht7C7VyGBfBg6R7iarp6UqKgyAns7XWomk7MLos3zgh27mMHSAo
+         v+nsHm9qt611hvNXLtMvxydAnqXLFJgBfyH2+itA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kevin(Yudong) Yang" <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 056/306] net/mlx4_en: update moderation when config reset
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.4 45/75] staging: rtl8712: unterminated string leads to read overflow
 Date:   Mon, 15 Mar 2021 14:51:59 +0100
-Message-Id: <20210315135509.544280532@linuxfoundation.org>
+Message-Id: <20210315135209.722824707@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +40,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kevin(Yudong) Yang <yyd@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 00ff801bb8ce6711e919af4530b6ffa14a22390a upstream.
+commit d660f4f42ccea50262c6ee90c8e7ad19a69fb225 upstream.
 
-This patch fixes a bug that the moderation config will not be
-applied when calling mlx4_en_reset_config. For example, when
-turning on rx timestamping, mlx4_en_reset_config() will be called,
-causing the NIC to forget previous moderation config.
+The memdup_user() function does not necessarily return a NUL terminated
+string so this can lead to a read overflow.  Switch from memdup_user()
+to strndup_user() to fix this bug.
 
-This fix is in phase with a previous fix:
-commit 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss
-after set_ringparam is called")
-
-Tested: Before this patch, on a host with NIC using mlx4, run
-netserver and stream TCP to the host at full utilization.
-$ sar -I SUM 1
-                 INTR    intr/s
-14:03:56          sum  48758.00
-
-After rx hwtstamp is enabled:
-$ sar -I SUM 1
-14:10:38          sum 317771.00
-We see the moderation is not working properly and issued 7x more
-interrupts.
-
-After the patch, and turned on rx hwtstamp, the rate of interrupts
-is as expected:
-$ sar -I SUM 1
-14:52:11          sum  49332.00
-
-Fixes: 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss after set_ringparam is called")
-Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Neal Cardwell <ncardwell@google.com>
-CC: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c6dc001f2add ("staging: r8712u: Merging Realtek's latest (v2.6.6). Various fixes.")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YDYSR+1rj26NRhvb@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    2 +-
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c  |    2 ++
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h    |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8712/rtl871x_ioctl_linux.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -47,7 +47,7 @@
- #define EN_ETHTOOL_SHORT_MASK cpu_to_be16(0xffff)
- #define EN_ETHTOOL_WORD_MASK  cpu_to_be32(0xffffffff)
+--- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
++++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
+@@ -935,7 +935,7 @@ static int r871x_wx_set_priv(struct net_
+ 	struct iw_point *dwrq = (struct iw_point *)awrq;
  
--static int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
- {
- 	int i, t;
- 	int err = 0;
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -3558,6 +3558,8 @@ int mlx4_en_reset_config(struct net_devi
- 			en_err(priv, "Failed starting port\n");
- 	}
+ 	len = dwrq->length;
+-	ext = memdup_user(dwrq->pointer, len);
++	ext = strndup_user(dwrq->pointer, len);
+ 	if (IS_ERR(ext))
+ 		return PTR_ERR(ext);
  
-+	if (!err)
-+		err = mlx4_en_moderation_update(priv);
- out:
- 	mutex_unlock(&mdev->state_lock);
- 	kfree(tmp);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -775,6 +775,7 @@ void mlx4_en_ptp_overflow_check(struct m
- #define DEV_FEATURE_CHANGED(dev, new_features, feature) \
- 	((dev->features & feature) ^ (new_features & feature))
- 
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv);
- int mlx4_en_reset_config(struct net_device *dev,
- 			 struct hwtstamp_config ts_config,
- 			 netdev_features_t new_features);
 
 
