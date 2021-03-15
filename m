@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D64ED33B55C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C91133B562
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbhCONyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56470 "EHLO mail.kernel.org"
+        id S231289AbhCONyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230438AbhCONxk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53BE964F09;
-        Mon, 15 Mar 2021 13:53:38 +0000 (UTC)
+        id S230498AbhCONxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ABDE64F0A;
+        Mon, 15 Mar 2021 13:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816420;
-        bh=T8deVsoflrBrjDVkIa3NOKgs6WFSLpGXqZYchHTwFmY=;
+        s=korg; t=1615816426;
+        bh=i5atjL/3NbkstyTcDLDklYerNdPa7lqpf+umxYwjipY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkmREle+itj3JeoG78cqZmUcaQHVLYqNIFkrz2G+eWq5n+rZY5aMKu2MNDN1tKbQy
-         /92ZVdKza/8QZwBHROo2YldFk80sIelaooXiUG3ksJb8VoeBw0B8Uf9FJ25qK9jZ/k
-         YEE801a2kUdqPsxnLOARM7q6ka/quoxzqsDC4E7Q=
+        b=ZAiWxAZzcAN+srXymGkv9RaBpr4IuVh8AxKH1PmF7TjwlDzSrJtiXD/EzG3vapcmW
+         uQiTW85+TCXnQmK4vI4+LM+gVmQKnPgW30vpmiAty0VpPnO0Qee/CxglQw3dC4NAw0
+         5EDr/FY9JS5EEA/5izjAlV06ap0dfuBCbQiwjrWg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Bjoern Walk <bwalk@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 28/78] s390/dasd: fix hanging DASD driver unbind
+        stable@vger.kernel.org, Niv Sardi <xaiki@evilgiggle.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 37/75] USB: serial: ch341: add new Product ID
 Date:   Mon, 15 Mar 2021 14:51:51 +0100
-Message-Id: <20210315135212.991503020@linuxfoundation.org>
+Message-Id: <20210315135209.466970291@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +41,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Niv Sardi <xaiki@evilgiggle.com>
 
-commit 7d365bd0bff3c0310c39ebaffc9a8458e036d666 upstream.
+commit 5563b3b6420362c8a1f468ca04afe6d5f0a8d0a3 upstream.
 
-In case of an unbind of the DASD device driver the function
-dasd_generic_remove() is called which shuts down the device.
-Among others this functions removes the int_handler from the cdev.
-During shutdown the device cancels all outstanding IO requests and waits
-for completion of the clear request.
-Unfortunately the clear interrupt will never be received when there is no
-interrupt handler connected.
+Add PID for CH340 that's found on cheap programmers.
 
-Fix by moving the int_handler removal after the call to the state machine
-where no request or interrupt is outstanding.
+The driver works flawlessly as soon as the new PID (0x9986) is added to it.
+These look like ANU232MI but ship with a ch341 inside. They have no special
+identifiers (mine only has the string "DB9D20130716" printed on the PCB and
+nothing identifiable on the packaging. The merchant i bought it from
+doesn't sell these anymore).
 
+the lsusb -v output is:
+Bus 001 Device 009: ID 9986:7523
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x9986
+  idProduct          0x7523
+  bcdDevice            2.54
+  iManufacturer           0
+  iProduct                0
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0027
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower               96mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      1
+      bInterfaceProtocol      2
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
+
+Signed-off-by: Niv Sardi <xaiki@evilgiggle.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/serial/ch341.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3399,8 +3399,6 @@ void dasd_generic_remove(struct ccw_devi
- 	struct dasd_device *device;
- 	struct dasd_block *block;
- 
--	cdev->handler = NULL;
--
- 	device = dasd_device_from_cdev(cdev);
- 	if (IS_ERR(device)) {
- 		dasd_remove_sysfs_files(cdev);
-@@ -3419,6 +3417,7 @@ void dasd_generic_remove(struct ccw_devi
- 	 * no quite down yet.
- 	 */
- 	dasd_set_target_state(device, DASD_STATE_NEW);
-+	cdev->handler = NULL;
- 	/* dasd_delete_device destroys the device reference. */
- 	block = device->block;
- 	dasd_delete_device(device);
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -75,6 +75,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
++	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 
 
