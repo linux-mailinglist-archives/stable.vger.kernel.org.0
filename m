@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9489033B8CD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FFF933B844
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232880AbhCOOEa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S233871AbhCOOCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233070AbhCOOAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBAF464F64;
-        Mon, 15 Mar 2021 14:00:18 +0000 (UTC)
+        id S232016AbhCOOAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5426364F6E;
+        Mon, 15 Mar 2021 13:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816820;
-        bh=tKfLqY2RtHJ2cGJXWSiB9eV7t8BzdLjfNlrWg1O+C48=;
+        s=korg; t=1615816788;
+        bh=Urk2Yb0PYFEln6/sAQFmJc+KSUuE1VgJnDV/ISFiNWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EpEdy7BRENzyyJjG63jI8m3zKtZTeoTtDpyS0657MFmzZqVHG9OlFS+IBaNYbV7C3
-         Rwifnvh928bbXY0NkwxgXDpMYvlBJGjuDCw8s2yYF6AUkaTMRFZoubakn0WOuyoUzG
-         Yu7cMx6KLegiZo0P7yY0S89tZ9wZ84EJSyAPMq+o=
+        b=reUofijc1O0ka54A1ONk/sdaqXT6pboHwJxivSXKT8QUh4jhN7tvicYWClk8RoECV
+         lNXvXL9YUJVjAOx+NL/YoqdbRBz07bQSbEybxDRPwKZhI2NMLJff3lvDWeFR58qaTF
+         V3y+fZEGrm/jUwFS2qrhFPQfGnivtfFskIOrSH5A=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Christian Eggers <ceggers@arri.de>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 144/306] sparc32: Limit memblock allocation to low memory
-Date:   Mon, 15 Mar 2021 14:53:27 +0100
-Message-Id: <20210315135512.510318025@linuxfoundation.org>
+Subject: [PATCH 5.10 115/290] net: dsa: trailer: dont allocate additional memory for padding/tagging
+Date:   Mon, 15 Mar 2021 14:53:28 +0100
+Message-Id: <20210315135545.807996307@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Christian Eggers <ceggers@arri.de>
 
-[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
+[ Upstream commit ef3f72fee286bd270453ce2344feb7295a798508 ]
 
-Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
-memblocks instead of bootmem, but also made high memory available via
-memblock allocation which does not work together with e.g. phys_to_virt
-and can lead to kernel panic.
+The caller (dsa_slave_xmit) guarantees that the frame length is at least
+ETH_ZLEN and that enough memory for tail tagging is available.
 
-This changes back to only low memory being allocatable in the early
-stages, now using memblock allocation.
-
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christian Eggers <ceggers@arri.de>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/mm/init_32.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/dsa/tag_trailer.c | 31 ++-----------------------------
+ 1 file changed, 2 insertions(+), 29 deletions(-)
 
-diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
-index eb2946b1df8a..6139c5700ccc 100644
---- a/arch/sparc/mm/init_32.c
-+++ b/arch/sparc/mm/init_32.c
-@@ -197,6 +197,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
- 	size = memblock_phys_mem_size() - memblock_reserved_size();
- 	*pages_avail = (size >> PAGE_SHIFT) - high_pages;
+diff --git a/net/dsa/tag_trailer.c b/net/dsa/tag_trailer.c
+index 3a1cc24a4f0a..5b97ede56a0f 100644
+--- a/net/dsa/tag_trailer.c
++++ b/net/dsa/tag_trailer.c
+@@ -13,42 +13,15 @@
+ static struct sk_buff *trailer_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct dsa_port *dp = dsa_slave_to_port(dev);
+-	struct sk_buff *nskb;
+-	int padlen;
+ 	u8 *trailer;
  
-+	/* Only allow low memory to be allocated via memblock allocation */
-+	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
-+
- 	return max_pfn;
+-	/*
+-	 * We have to make sure that the trailer ends up as the very
+-	 * last 4 bytes of the packet.  This means that we have to pad
+-	 * the packet to the minimum ethernet frame size, if necessary,
+-	 * before adding the trailer.
+-	 */
+-	padlen = 0;
+-	if (skb->len < 60)
+-		padlen = 60 - skb->len;
+-
+-	nskb = alloc_skb(NET_IP_ALIGN + skb->len + padlen + 4, GFP_ATOMIC);
+-	if (!nskb)
+-		return NULL;
+-	skb_reserve(nskb, NET_IP_ALIGN);
+-
+-	skb_reset_mac_header(nskb);
+-	skb_set_network_header(nskb, skb_network_header(skb) - skb->head);
+-	skb_set_transport_header(nskb, skb_transport_header(skb) - skb->head);
+-	skb_copy_and_csum_dev(skb, skb_put(nskb, skb->len));
+-	consume_skb(skb);
+-
+-	if (padlen) {
+-		skb_put_zero(nskb, padlen);
+-	}
+-
+-	trailer = skb_put(nskb, 4);
++	trailer = skb_put(skb, 4);
+ 	trailer[0] = 0x80;
+ 	trailer[1] = 1 << dp->index;
+ 	trailer[2] = 0x10;
+ 	trailer[3] = 0x00;
+ 
+-	return nskb;
++	return skb;
  }
  
+ static struct sk_buff *trailer_rcv(struct sk_buff *skb, struct net_device *dev,
 -- 
 2.30.1
 
