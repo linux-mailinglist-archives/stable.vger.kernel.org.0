@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECA9133B896
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D629A33B893
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbhCOOD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
+        id S232990AbhCOODz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233014AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6B6864F33;
-        Mon, 15 Mar 2021 14:00:09 +0000 (UTC)
+        id S233028AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B8AE64F4B;
+        Mon, 15 Mar 2021 14:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816811;
-        bh=3c0MogGl9MpIaEJ0nwjZaBmQoxwOldb6L0hsW2RRFMY=;
+        s=korg; t=1615816813;
+        bh=cVqynOJDFRJZW692g2gKwamZGseGvNVXmtaIOGX8ERg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z2U5CPL0JeBm0R6mRAR/5JxY8RkAHkc3XsD9s3NYSRj62sRC+vVEnSMtXW0U5QdK6
-         0JbyMtLDHHs0ncFx4N4XhfQNl0FomgrefQSFoALMGVonnrfo64Xw0+VY43jAwX/+BN
-         XFQ2t+Zr7gji4LLgeoFk2BH3Df5eMETwkNq6L/Jo=
+        b=KjWiQBbKje6iITl5ZEwuywf46tlBQaZPi241V/YFGQLYZVTngOA6fo/AExhYJ95U7
+         89knkxM9fTW32/xhxjDc6l6SzNvyqqHaHycodm/yqtUOzlUaj0tP0i83+eE7DY9hBa
+         aNfxoTKhqxfOYirCersu0q9BLM/VSctA+rMqiLCs=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ritesh Singh <ritesi@codeaurora.org>,
+        Maharaja Kennadyrajan <mkenna@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 127/290] net: enetc: initialize RFS/RSS memories for unused ports too
-Date:   Mon, 15 Mar 2021 14:53:40 +0100
-Message-Id: <20210315135546.200632751@linuxfoundation.org>
+Subject: [PATCH 5.10 128/290] ath11k: peer delete synchronization with firmware
+Date:   Mon, 15 Mar 2021 14:53:41 +0100
+Message-Id: <20210315135546.236777857@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -44,172 +43,210 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Ritesh Singh <ritesi@codeaurora.org>
 
-[ Upstream commit 3222b5b613db558e9a494bbf53f3c984d90f71ea ]
+[ Upstream commit 690ace20ff790f443c3cbaf12e1769e4eb0072db ]
 
-Michael reports that since linux-next-20210211, the AER messages for ECC
-errors have started reappearing, and this time they can be reliably
-reproduced with the first ping on one of his LS1028A boards.
+Peer creation in firmware fails, if last peer deletion
+is still in progress.
+Hence, add wait for the event after deleting every peer
+from host driver to synchronize with firmware.
 
-$ ping 1[   33.258069] pcieport 0000:00:1f.0: AER: Multiple Corrected error received: 0000:00:00.0
-72.16.0.1
-PING [   33.267050] pcieport 0000:00:1f.0: AER: can't find device of ID0000
-172.16.0.1 (172.16.0.1): 56 data bytes
-64 bytes from 172.16.0.1: seq=0 ttl=64 time=17.124 ms
-64 bytes from 172.16.0.1: seq=1 ttl=64 time=0.273 ms
-
-$ devmem 0x1f8010e10 32
-0xC0000006
-
-It isn't clear why this is necessary, but it seems that for the errors
-to go away, we must clear the entire RFS and RSS memory, not just for
-the ports in use.
-
-Sadly the code is structured in such a way that we can't have unified
-logic for the used and unused ports. For the minimal initialization of
-an unused port, we need just to enable and ioremap the PF memory space,
-and a control buffer descriptor ring. Unused ports must then free the
-CBDR because the driver will exit, but used ports can not pick up from
-where that code path left, since the CBDR API does not reinitialize a
-ring when setting it up, so its producer and consumer indices are out of
-sync between the software and hardware state. So a separate
-enetc_init_unused_port function was created, and it gets called right
-after the PF memory space is enabled.
-
-Fixes: 07bf34a50e32 ("net: enetc: initialize the RFS and RSS memories")
-Reported-by: Michael Walle <michael@walle.cc>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Tested-by: Michael Walle <michael@walle.cc>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ritesh Singh <ritesi@codeaurora.org>
+Signed-off-by: Maharaja Kennadyrajan <mkenna@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1605514143-17652-3-git-send-email-mkenna@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c  |  8 ++---
- drivers/net/ethernet/freescale/enetc/enetc.h  |  4 +++
- .../net/ethernet/freescale/enetc/enetc_pf.c   | 33 ++++++++++++++++---
- 3 files changed, 36 insertions(+), 9 deletions(-)
+ drivers/net/wireless/ath/ath11k/core.c |  1 +
+ drivers/net/wireless/ath/ath11k/core.h |  1 +
+ drivers/net/wireless/ath/ath11k/mac.c  | 17 +++++++++-
+ drivers/net/wireless/ath/ath11k/peer.c | 44 ++++++++++++++++++++++++--
+ drivers/net/wireless/ath/ath11k/peer.h |  2 ++
+ drivers/net/wireless/ath/ath11k/wmi.c  | 17 ++++++++--
+ 6 files changed, 75 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
-index 019a0fa3d9a5..df4a858c8001 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -1035,7 +1035,7 @@ static void enetc_free_rxtx_rings(struct enetc_ndev_priv *priv)
- 		enetc_free_tx_ring(priv->tx_ring[i]);
- }
+diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
+index ebd6886a8c18..a68fe3a45a74 100644
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -774,6 +774,7 @@ static void ath11k_core_restart(struct work_struct *work)
+ 		complete(&ar->scan.started);
+ 		complete(&ar->scan.completed);
+ 		complete(&ar->peer_assoc_done);
++		complete(&ar->peer_delete_done);
+ 		complete(&ar->install_key_done);
+ 		complete(&ar->vdev_setup_done);
+ 		complete(&ar->bss_survey_done);
+diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
+index 5a7915f75e1e..c8e36251068c 100644
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -502,6 +502,7 @@ struct ath11k {
+ 	u8 lmac_id;
  
--static int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
-+int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
- {
- 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
+ 	struct completion peer_assoc_done;
++	struct completion peer_delete_done;
  
-@@ -1056,7 +1056,7 @@ static int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
- 	return 0;
- }
+ 	int install_key_status;
+ 	struct completion install_key_done;
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index b5bd9b06da89..c8f1b786e746 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -4589,8 +4589,22 @@ static int ath11k_mac_op_add_interface(struct ieee80211_hw *hw,
  
--static void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
-+void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
- {
- 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
- 
-@@ -1064,7 +1064,7 @@ static void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
- 	cbdr->bd_base = NULL;
- }
- 
--static void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
-+void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
- {
- 	/* set CBDR cache attributes */
- 	enetc_wr(hw, ENETC_SICAR2,
-@@ -1084,7 +1084,7 @@ static void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
- 	cbdr->cir = hw->reg + ENETC_SICBDRCIR;
- }
- 
--static void enetc_clear_cbdr(struct enetc_hw *hw)
-+void enetc_clear_cbdr(struct enetc_hw *hw)
- {
- 	enetc_wr(hw, ENETC_SICBDRMR, 0);
- }
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc.h b/drivers/net/ethernet/freescale/enetc/enetc.h
-index 6bc23f9b53fa..15d19cbd5a95 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.h
-@@ -311,6 +311,10 @@ int enetc_setup_tc(struct net_device *ndev, enum tc_setup_type type,
- void enetc_set_ethtool_ops(struct net_device *ndev);
- 
- /* control buffer descriptor ring (CBDR) */
-+int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
-+void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
-+void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr);
-+void enetc_clear_cbdr(struct enetc_hw *hw);
- int enetc_set_mac_flt_entry(struct enetc_si *si, int index,
- 			    char *mac_addr, int si_map);
- int enetc_clear_mac_flt_entry(struct enetc_si *si, int index);
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index f29058dddb36..83187cd59fdd 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -1081,6 +1081,26 @@ static int enetc_init_port_rss_memory(struct enetc_si *si)
- 	return err;
- }
- 
-+static void enetc_init_unused_port(struct enetc_si *si)
-+{
-+	struct device *dev = &si->pdev->dev;
-+	struct enetc_hw *hw = &si->hw;
-+	int err;
+ err_peer_del:
+ 	if (arvif->vdev_type == WMI_VDEV_TYPE_AP) {
++		reinit_completion(&ar->peer_delete_done);
 +
-+	si->cbd_ring.bd_count = ENETC_CBDR_DEFAULT_SIZE;
-+	err = enetc_alloc_cbdr(dev, &si->cbd_ring);
-+	if (err)
-+		return;
++		ret = ath11k_wmi_send_peer_delete_cmd(ar, vif->addr,
++						      arvif->vdev_id);
++		if (ret) {
++			ath11k_warn(ar->ab, "failed to delete peer vdev_id %d addr %pM\n",
++				    arvif->vdev_id, vif->addr);
++			return ret;
++		}
 +
-+	enetc_setup_cbdr(hw, &si->cbd_ring);
++		ret = ath11k_wait_for_peer_delete_done(ar, arvif->vdev_id,
++						       vif->addr);
++		if (ret)
++			return ret;
 +
-+	enetc_init_port_rfs_memory(si);
-+	enetc_init_port_rss_memory(si);
-+
-+	enetc_clear_cbdr(hw);
-+	enetc_free_cbdr(dev, &si->cbd_ring);
-+}
-+
- static int enetc_pf_probe(struct pci_dev *pdev,
- 			  const struct pci_device_id *ent)
- {
-@@ -1091,11 +1111,6 @@ static int enetc_pf_probe(struct pci_dev *pdev,
- 	struct enetc_pf *pf;
- 	int err;
- 
--	if (node && !of_device_is_available(node)) {
--		dev_info(&pdev->dev, "device is disabled, skipping\n");
--		return -ENODEV;
--	}
--
- 	err = enetc_pci_probe(pdev, KBUILD_MODNAME, sizeof(*pf));
- 	if (err) {
- 		dev_err(&pdev->dev, "PCI probing failed\n");
-@@ -1109,6 +1124,13 @@ static int enetc_pf_probe(struct pci_dev *pdev,
- 		goto err_map_pf_space;
+ 		ar->num_peers--;
+-		ath11k_wmi_send_peer_delete_cmd(ar, vif->addr, arvif->vdev_id);
  	}
  
-+	if (node && !of_device_is_available(node)) {
-+		enetc_init_unused_port(si);
-+		dev_info(&pdev->dev, "device is disabled, skipping\n");
-+		err = -ENODEV;
-+		goto err_device_disabled;
+ err_vdev_del:
+@@ -6413,6 +6427,7 @@ int ath11k_mac_allocate(struct ath11k_base *ab)
+ 		mutex_init(&ar->conf_mutex);
+ 		init_completion(&ar->vdev_setup_done);
+ 		init_completion(&ar->peer_assoc_done);
++		init_completion(&ar->peer_delete_done);
+ 		init_completion(&ar->install_key_done);
+ 		init_completion(&ar->bss_survey_done);
+ 		init_completion(&ar->scan.started);
+diff --git a/drivers/net/wireless/ath/ath11k/peer.c b/drivers/net/wireless/ath/ath11k/peer.c
+index 61ad9300eafb..1866d82678fa 100644
+--- a/drivers/net/wireless/ath/ath11k/peer.c
++++ b/drivers/net/wireless/ath/ath11k/peer.c
+@@ -177,12 +177,36 @@ static int ath11k_wait_for_peer_deleted(struct ath11k *ar, int vdev_id, const u8
+ 	return ath11k_wait_for_peer_common(ar->ab, vdev_id, addr, false);
+ }
+ 
++int ath11k_wait_for_peer_delete_done(struct ath11k *ar, u32 vdev_id,
++				     const u8 *addr)
++{
++	int ret;
++	unsigned long time_left;
++
++	ret = ath11k_wait_for_peer_deleted(ar, vdev_id, addr);
++	if (ret) {
++		ath11k_warn(ar->ab, "failed wait for peer deleted");
++		return ret;
 +	}
 +
- 	pf = enetc_si_priv(si);
- 	pf->si = si;
- 	pf->total_vfs = pci_sriov_get_totalvfs(pdev);
-@@ -1191,6 +1213,7 @@ err_alloc_si_res:
- 	si->ndev = NULL;
- 	free_netdev(ndev);
- err_alloc_netdev:
-+err_device_disabled:
- err_map_pf_space:
- 	enetc_pci_remove(pdev);
++	time_left = wait_for_completion_timeout(&ar->peer_delete_done,
++						3 * HZ);
++	if (time_left == 0) {
++		ath11k_warn(ar->ab, "Timeout in receiving peer delete response\n");
++		return -ETIMEDOUT;
++	}
++
++	return 0;
++}
++
+ int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr)
+ {
+ 	int ret;
  
+ 	lockdep_assert_held(&ar->conf_mutex);
+ 
++	reinit_completion(&ar->peer_delete_done);
++
+ 	ret = ath11k_wmi_send_peer_delete_cmd(ar, addr, vdev_id);
+ 	if (ret) {
+ 		ath11k_warn(ar->ab,
+@@ -191,7 +215,7 @@ int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr)
+ 		return ret;
+ 	}
+ 
+-	ret = ath11k_wait_for_peer_deleted(ar, vdev_id, addr);
++	ret = ath11k_wait_for_peer_delete_done(ar, vdev_id, addr);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -247,8 +271,22 @@ int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
+ 		spin_unlock_bh(&ar->ab->base_lock);
+ 		ath11k_warn(ar->ab, "failed to find peer %pM on vdev %i after creation\n",
+ 			    param->peer_addr, param->vdev_id);
+-		ath11k_wmi_send_peer_delete_cmd(ar, param->peer_addr,
+-						param->vdev_id);
++
++		reinit_completion(&ar->peer_delete_done);
++
++		ret = ath11k_wmi_send_peer_delete_cmd(ar, param->peer_addr,
++						      param->vdev_id);
++		if (ret) {
++			ath11k_warn(ar->ab, "failed to delete peer vdev_id %d addr %pM\n",
++				    param->vdev_id, param->peer_addr);
++			return ret;
++		}
++
++		ret = ath11k_wait_for_peer_delete_done(ar, param->vdev_id,
++						       param->peer_addr);
++		if (ret)
++			return ret;
++
+ 		return -ENOENT;
+ 	}
+ 
+diff --git a/drivers/net/wireless/ath/ath11k/peer.h b/drivers/net/wireless/ath/ath11k/peer.h
+index 5d125ce8984e..bba2e00b6944 100644
+--- a/drivers/net/wireless/ath/ath11k/peer.h
++++ b/drivers/net/wireless/ath/ath11k/peer.h
+@@ -41,5 +41,7 @@ void ath11k_peer_cleanup(struct ath11k *ar, u32 vdev_id);
+ int ath11k_peer_delete(struct ath11k *ar, u32 vdev_id, u8 *addr);
+ int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
+ 		       struct ieee80211_sta *sta, struct peer_create_params *param);
++int ath11k_wait_for_peer_delete_done(struct ath11k *ar, u32 vdev_id,
++				     const u8 *addr);
+ 
+ #endif /* _PEER_H_ */
+diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
+index 04b8b002edfe..173ab6ceed1f 100644
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -5532,15 +5532,26 @@ static int ath11k_ready_event(struct ath11k_base *ab, struct sk_buff *skb)
+ static void ath11k_peer_delete_resp_event(struct ath11k_base *ab, struct sk_buff *skb)
+ {
+ 	struct wmi_peer_delete_resp_event peer_del_resp;
++	struct ath11k *ar;
+ 
+ 	if (ath11k_pull_peer_del_resp_ev(ab, skb, &peer_del_resp) != 0) {
+ 		ath11k_warn(ab, "failed to extract peer delete resp");
+ 		return;
+ 	}
+ 
+-	/* TODO: Do we need to validate whether ath11k_peer_find() return NULL
+-	 *	 Why this is needed when there is HTT event for peer delete
+-	 */
++	rcu_read_lock();
++	ar = ath11k_mac_get_ar_by_vdev_id(ab, peer_del_resp.vdev_id);
++	if (!ar) {
++		ath11k_warn(ab, "invalid vdev id in peer delete resp ev %d",
++			    peer_del_resp.vdev_id);
++		rcu_read_unlock();
++		return;
++	}
++
++	complete(&ar->peer_delete_done);
++	rcu_read_unlock();
++	ath11k_dbg(ab, ATH11K_DBG_WMI, "peer delete resp for vdev id %d addr %pM\n",
++		   peer_del_resp.vdev_id, peer_del_resp.peer_macaddr.addr);
+ }
+ 
+ static inline const char *ath11k_wmi_vdev_resp_print(u32 vdev_resp_status)
 -- 
 2.30.1
 
