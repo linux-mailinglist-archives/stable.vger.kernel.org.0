@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6441333B887
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BDCA33B8D9
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234514AbhCOODs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S234652AbhCOOEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232952AbhCOOAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF90164F5D;
-        Mon, 15 Mar 2021 14:00:03 +0000 (UTC)
+        id S231975AbhCOOAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F9F64EFD;
+        Mon, 15 Mar 2021 14:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816805;
-        bh=1LANfikIH4WX96lOTe4tjEdD+qWcOW6ze56Lfeyz/Dc=;
+        s=korg; t=1615816806;
+        bh=6OhngbGwqvsnATk/KIC5F1A9jZo516TfcwsKiUsPGBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JWr7WXcYtuHfvJfwGjIsgweDcKkZd0zST+CVVGrRiq3hRKrhAFms3WBkKwASRXdq
-         1A9N0m0KXqbkyN7uEdD87sxTLSM/nx/HKh27rLyRPCAwF3iuXheWXOURtqoEtdGDeY
-         7eWNiIVEzkVxUU8HEkpRzAhcCRS+Iw4m/ksmYu2c=
+        b=UcltqmveBYHeUFDksWWFILrF6VESZCnr7e0JYp6s6ud1juLXmQffAAXvGgf8iTh1Z
+         DktiNRuF/R2zL5vaeE3db+Dbg/yW+pKrp9AinAORypOkx5zAsPIG/L9xtxWirUU3pv
+         vWH2NO3CN42sOXBhvXPFgmCgQtolihNxaqcdJc3w=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lubomir Rintel <lkundrak@v3.sk>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Oliver OHalloran <oohall@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 135/306] Platform: OLPC: Fix probe error handling
-Date:   Mon, 15 Mar 2021 14:53:18 +0100
-Message-Id: <20210315135512.214850549@linuxfoundation.org>
+Subject: [PATCH 5.11 136/306] powerpc/pci: Add ppc_md.discover_phbs()
+Date:   Mon, 15 Mar 2021 14:53:19 +0100
+Message-Id: <20210315135512.246764515@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -42,58 +43,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Oliver O'Halloran <oohall@gmail.com>
 
-[ Upstream commit cec551ea0d41c679ed11d758e1a386e20285b29d ]
+[ Upstream commit 5537fcb319d016ce387f818dd774179bc03217f5 ]
 
-Reset ec_priv if probe ends unsuccessfully.
+On many powerpc platforms the discovery and initalisation of
+pci_controllers (PHBs) happens inside of setup_arch(). This is very early
+in boot (pre-initcalls) and means that we're initialising the PHB long
+before many basic kernel services (slab allocator, debugfs, a real ioremap)
+are available.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Link: https://lore.kernel.org/r/20210126073740.10232-2-lkundrak@v3.sk
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+On PowerNV this causes an additional problem since we map the PHB registers
+with ioremap(). As of commit d538aadc2718 ("powerpc/ioremap: warn on early
+use of ioremap()") a warning is printed because we're using the "incorrect"
+API to setup and MMIO mapping in searly boot. The kernel does provide
+early_ioremap(), but that is not intended to create long-lived MMIO
+mappings and a seperate warning is printed by generic code if
+early_ioremap() mappings are "leaked."
+
+This is all fixable with dumb hacks like using early_ioremap() to setup
+the initial mapping then replacing it with a real ioremap later on in
+boot, but it does raise the question: Why the hell are we setting up the
+PHB's this early in boot?
+
+The old and wise claim it's due to "hysterical rasins." Aside from amused
+grapes there doesn't appear to be any real reason to maintain the current
+behaviour. Already most of the newer embedded platforms perform PHB
+discovery in an arch_initcall and between the end of setup_arch() and the
+start of initcalls none of the generic kernel code does anything PCI
+related. On powerpc scanning PHBs occurs in a subsys_initcall so it should
+be possible to move the PHB discovery to a core, postcore or arch initcall.
+
+This patch adds the ppc_md.discover_phbs hook and a core_initcall stub that
+calls it. The core_initcalls are the earliest to be called so this will
+any possibly issues with dependency between initcalls. This isn't just an
+academic issue either since on pseries and PowerNV EEH init occurs in an
+arch_initcall and depends on the pci_controllers being available, similarly
+the creation of pci_dns occurs at core_initcall_sync (i.e. between core and
+postcore initcalls). These problems need to be addressed seperately.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+[mpe: Make discover_phbs() static]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20201103043523.916109-1-oohall@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/olpc/olpc-ec.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/machdep.h |  3 +++
+ arch/powerpc/kernel/pci-common.c   | 10 ++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/platform/olpc/olpc-ec.c b/drivers/platform/olpc/olpc-ec.c
-index f64b82824db2..2db7113383fd 100644
---- a/drivers/platform/olpc/olpc-ec.c
-+++ b/drivers/platform/olpc/olpc-ec.c
-@@ -426,11 +426,8 @@ static int olpc_ec_probe(struct platform_device *pdev)
+diff --git a/arch/powerpc/include/asm/machdep.h b/arch/powerpc/include/asm/machdep.h
+index cf6ebbc16cb4..764f2732a821 100644
+--- a/arch/powerpc/include/asm/machdep.h
++++ b/arch/powerpc/include/asm/machdep.h
+@@ -59,6 +59,9 @@ struct machdep_calls {
+ 	int		(*pcibios_root_bridge_prepare)(struct pci_host_bridge
+ 				*bridge);
  
- 	/* get the EC revision */
- 	err = olpc_ec_cmd(EC_FIRMWARE_REV, NULL, 0, &ec->version, 1);
--	if (err) {
--		ec_priv = NULL;
--		kfree(ec);
--		return err;
--	}
-+	if (err)
-+		goto error;
- 
- 	config.dev = pdev->dev.parent;
- 	config.driver_data = ec;
-@@ -440,12 +437,16 @@ static int olpc_ec_probe(struct platform_device *pdev)
- 	if (IS_ERR(ec->dcon_rdev)) {
- 		dev_err(&pdev->dev, "failed to register DCON regulator\n");
- 		err = PTR_ERR(ec->dcon_rdev);
--		kfree(ec);
--		return err;
-+		goto error;
- 	}
- 
- 	ec->dbgfs_dir = olpc_ec_setup_debugfs();
- 
-+	return 0;
++	/* finds all the pci_controllers present at boot */
++	void 		(*discover_phbs)(void);
 +
-+error:
-+	ec_priv = NULL;
-+	kfree(ec);
- 	return err;
- }
+ 	/* To setup PHBs when using automatic OF platform driver for PCI */
+ 	int		(*pci_setup_phb)(struct pci_controller *host);
  
+diff --git a/arch/powerpc/kernel/pci-common.c b/arch/powerpc/kernel/pci-common.c
+index 2b555997b295..001e90cd8948 100644
+--- a/arch/powerpc/kernel/pci-common.c
++++ b/arch/powerpc/kernel/pci-common.c
+@@ -1699,3 +1699,13 @@ static void fixup_hide_host_resource_fsl(struct pci_dev *dev)
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MOTOROLA, PCI_ANY_ID, fixup_hide_host_resource_fsl);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_FREESCALE, PCI_ANY_ID, fixup_hide_host_resource_fsl);
++
++
++static int __init discover_phbs(void)
++{
++	if (ppc_md.discover_phbs)
++		ppc_md.discover_phbs();
++
++	return 0;
++}
++core_initcall(discover_phbs);
 -- 
 2.30.1
 
