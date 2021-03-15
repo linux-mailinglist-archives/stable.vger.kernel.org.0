@@ -2,189 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBC733B0B7
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 12:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B75A033B0C1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 12:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229699AbhCOLLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 07:11:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46024 "EHLO mail.kernel.org"
+        id S229510AbhCOLOB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 07:14:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229970AbhCOLLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 07:11:16 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D1E464E99;
-        Mon, 15 Mar 2021 11:11:16 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94)
-        (envelope-from <maz@kernel.org>)
-        id 1lLl7y-001db8-1F; Mon, 15 Mar 2021 11:11:14 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     kvmarm@lists.cs.columbia.edu, kernel-team@android.com,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH][stable-5.10] KVM: arm64: Ensure I-cache isolation between vcpus of a same VM
-Date:   Mon, 15 Mar 2021 11:11:11 +0000
-Message-Id: <20210315111111.4136402-1-maz@kernel.org>
-X-Mailer: git-send-email 2.29.2
+        id S229524AbhCOLNd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 07:13:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD17B64E10;
+        Mon, 15 Mar 2021 11:13:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615806813;
+        bh=AKWEmaPrXELQ9DKAd3z+F/HAa98wqlzzQo22o8VET5M=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WH1N3ebsm/ySCkEuFvZxrL/3DmCubqqojHr9iDI7dhIVMy+u0gqmc0K0JHVfTud/f
+         pGm+wZ+kGT7lIdxoMMDKx23w9nJVlJxAsYhGh66Fl2yi1eOgWvQxD6r1cbZUuLOxM1
+         wBPs63P5428VmaZ1rD4c7yqsILTc/S0Ze7RxAwZY=
+Date:   Mon, 15 Mar 2021 12:13:30 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     hulkrobot@huawei.com
+Cc:     stable@vger.kernel.org
+Subject: Re: [linux-stable-rc CI] Test report for 5.10.24-rc1/x86
+Message-ID: <YE9BWj6w9MMazBY+@kroah.com>
+References: <c2371fc0-2f0f-4fd0-b4a3-c3a04a09a25a@DGGEMS405-HUB.china.huawei.com>
+ <YE9AmC1IccBTomxo@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, kvmarm@lists.cs.columbia.edu, kernel-team@android.com, stable@vger.kernel.org, will@kernel.org, catalin.marinas@arm.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+In-Reply-To: <YE9AmC1IccBTomxo@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 01dc9262ff5797b675c32c0c6bc682777d23de05 upstream.
+On Mon, Mar 15, 2021 at 12:10:16PM +0100, Greg KH wrote:
+> On Mon, Mar 15, 2021 at 06:44:43PM +0800, hulkrobot@huawei.com wrote:
+> > Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > Branch: linux-5.10.y
+> > Arch: x86
+> > Version: 5.10.24-rc1
+> > Commit: 5b0ddd114df102f34c83b8cd4ce4a03397ab7aa9
+> > Compiler: gcc version 7.3.0 (GCC)
+> > --------------------------------------------------------------------
+> > Kernel build failed, error log:
+> > arch/x86/kernel/sev-es.c:1275:14: error: implicit declaration of function ‘irqentry_nmi_enter’; did you mean ‘irqentry_enter’? [-Werror=implicit-function-declaration]
+> >   irq_state = irqentry_nmi_enter(regs);
+> >               ^~~~~~~~~~~~~~~~~~
+> >               irqentry_enter
+> > arch/x86/kernel/sev-es.c:1275:12: error: incompatible types when assigning to type ‘irqentry_state_t {aka struct irqentry_state}’ from type ‘int’
+> >   irq_state = irqentry_nmi_enter(regs);
+> >             ^
+> > arch/x86/kernel/sev-es.c:1339:2: error: implicit declaration of function ‘irqentry_nmi_exit’; did you mean ‘irqentry_exit’? [-Werror=implicit-function-declaration]
+> >   irqentry_nmi_exit(regs, irq_state);
+> >   ^~~~~~~~~~~~~~~~~
+> >   irqentry_exit
+> > cc1: some warnings being treated as errors
+> > make[2]: *** [scripts/Makefile.build:279: arch/x86/kernel/sev-es.o] Error 1
+> > make[2]: *** Waiting for unfinished jobs....
+> 
+> I do not see irqentry_nmi_enter() in this tree at all, where did that
+> come from?
 
-It recently became apparent that the ARMv8 architecture has interesting
-rules regarding attributes being used when fetching instructions
-if the MMU is off at Stage-1.
+Ah, nevermind, I was looking at the 5.4.y queue/tree, this is now
+showing up in my builds as well, will go fix it up, thanks...
 
-In this situation, the CPU is allowed to fetch from the PoC and
-allocate into the I-cache (unless the memory is mapped with
-the XN attribute at Stage-2).
-
-If we transpose this to vcpus sharing a single physical CPU,
-it is possible for a vcpu running with its MMU off to influence
-another vcpu running with its MMU on, as the latter is expected to
-fetch from the PoU (and self-patching code doesn't flush below that
-level).
-
-In order to solve this, reuse the vcpu-private TLB invalidation
-code to apply the same policy to the I-cache, nuking it every time
-the vcpu runs on a physical CPU that ran another vcpu of the same
-VM in the past.
-
-This involve renaming __kvm_tlb_flush_local_vmid() to
-__kvm_flush_cpu_context(), and inserting a local i-cache invalidation
-there.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Will Deacon <will@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/20210303164505.68492-1-maz@kernel.org
----
- arch/arm64/include/asm/kvm_asm.h   | 4 ++--
- arch/arm64/kvm/arm.c               | 7 ++++++-
- arch/arm64/kvm/hyp/nvhe/hyp-main.c | 4 ++--
- arch/arm64/kvm/hyp/nvhe/tlb.c      | 3 ++-
- arch/arm64/kvm/hyp/vhe/tlb.c       | 3 ++-
- 5 files changed, 14 insertions(+), 7 deletions(-)
-
-diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-index 54387ccd1ab2..044bb9e2cd74 100644
---- a/arch/arm64/include/asm/kvm_asm.h
-+++ b/arch/arm64/include/asm/kvm_asm.h
-@@ -49,7 +49,7 @@
- #define __KVM_HOST_SMCCC_FUNC___kvm_flush_vm_context		2
- #define __KVM_HOST_SMCCC_FUNC___kvm_tlb_flush_vmid_ipa		3
- #define __KVM_HOST_SMCCC_FUNC___kvm_tlb_flush_vmid		4
--#define __KVM_HOST_SMCCC_FUNC___kvm_tlb_flush_local_vmid	5
-+#define __KVM_HOST_SMCCC_FUNC___kvm_flush_cpu_context		5
- #define __KVM_HOST_SMCCC_FUNC___kvm_timer_set_cntvoff		6
- #define __KVM_HOST_SMCCC_FUNC___kvm_enable_ssbs			7
- #define __KVM_HOST_SMCCC_FUNC___vgic_v3_get_ich_vtr_el2		8
-@@ -180,10 +180,10 @@ DECLARE_KVM_HYP_SYM(__bp_harden_hyp_vecs);
- #define __bp_harden_hyp_vecs	CHOOSE_HYP_SYM(__bp_harden_hyp_vecs)
- 
- extern void __kvm_flush_vm_context(void);
-+extern void __kvm_flush_cpu_context(struct kvm_s2_mmu *mmu);
- extern void __kvm_tlb_flush_vmid_ipa(struct kvm_s2_mmu *mmu, phys_addr_t ipa,
- 				     int level);
- extern void __kvm_tlb_flush_vmid(struct kvm_s2_mmu *mmu);
--extern void __kvm_tlb_flush_local_vmid(struct kvm_s2_mmu *mmu);
- 
- extern void __kvm_timer_set_cntvoff(u64 cntvoff);
- 
-diff --git a/arch/arm64/kvm/arm.c b/arch/arm64/kvm/arm.c
-index c0ffb019ca8b..a1c2c955474e 100644
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -352,11 +352,16 @@ void kvm_arch_vcpu_load(struct kvm_vcpu *vcpu, int cpu)
- 	last_ran = this_cpu_ptr(mmu->last_vcpu_ran);
- 
- 	/*
-+	 * We guarantee that both TLBs and I-cache are private to each
-+	 * vcpu. If detecting that a vcpu from the same VM has
-+	 * previously run on the same physical CPU, call into the
-+	 * hypervisor code to nuke the relevant contexts.
-+	 *
- 	 * We might get preempted before the vCPU actually runs, but
- 	 * over-invalidation doesn't affect correctness.
- 	 */
- 	if (*last_ran != vcpu->vcpu_id) {
--		kvm_call_hyp(__kvm_tlb_flush_local_vmid, mmu);
-+		kvm_call_hyp(__kvm_flush_cpu_context, mmu);
- 		*last_ran = vcpu->vcpu_id;
- 	}
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/hyp-main.c b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-index e2eafe2c93af..3df30b459215 100644
---- a/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-+++ b/arch/arm64/kvm/hyp/nvhe/hyp-main.c
-@@ -46,11 +46,11 @@ static void handle_host_hcall(unsigned long func_id,
- 		__kvm_tlb_flush_vmid(kern_hyp_va(mmu));
- 		break;
- 	}
--	case KVM_HOST_SMCCC_FUNC(__kvm_tlb_flush_local_vmid): {
-+	case KVM_HOST_SMCCC_FUNC(__kvm_flush_cpu_context): {
- 		unsigned long r1 = host_ctxt->regs.regs[1];
- 		struct kvm_s2_mmu *mmu = (struct kvm_s2_mmu *)r1;
- 
--		__kvm_tlb_flush_local_vmid(kern_hyp_va(mmu));
-+		__kvm_flush_cpu_context(kern_hyp_va(mmu));
- 		break;
- 	}
- 	case KVM_HOST_SMCCC_FUNC(__kvm_timer_set_cntvoff): {
-diff --git a/arch/arm64/kvm/hyp/nvhe/tlb.c b/arch/arm64/kvm/hyp/nvhe/tlb.c
-index fbde89a2c6e8..229b06748c20 100644
---- a/arch/arm64/kvm/hyp/nvhe/tlb.c
-+++ b/arch/arm64/kvm/hyp/nvhe/tlb.c
-@@ -123,7 +123,7 @@ void __kvm_tlb_flush_vmid(struct kvm_s2_mmu *mmu)
- 	__tlb_switch_to_host(&cxt);
- }
- 
--void __kvm_tlb_flush_local_vmid(struct kvm_s2_mmu *mmu)
-+void __kvm_flush_cpu_context(struct kvm_s2_mmu *mmu)
- {
- 	struct tlb_inv_context cxt;
- 
-@@ -131,6 +131,7 @@ void __kvm_tlb_flush_local_vmid(struct kvm_s2_mmu *mmu)
- 	__tlb_switch_to_guest(mmu, &cxt);
- 
- 	__tlbi(vmalle1);
-+	asm volatile("ic iallu");
- 	dsb(nsh);
- 	isb();
- 
-diff --git a/arch/arm64/kvm/hyp/vhe/tlb.c b/arch/arm64/kvm/hyp/vhe/tlb.c
-index fd7895945bbc..66f17349f0c3 100644
---- a/arch/arm64/kvm/hyp/vhe/tlb.c
-+++ b/arch/arm64/kvm/hyp/vhe/tlb.c
-@@ -127,7 +127,7 @@ void __kvm_tlb_flush_vmid(struct kvm_s2_mmu *mmu)
- 	__tlb_switch_to_host(&cxt);
- }
- 
--void __kvm_tlb_flush_local_vmid(struct kvm_s2_mmu *mmu)
-+void __kvm_flush_cpu_context(struct kvm_s2_mmu *mmu)
- {
- 	struct tlb_inv_context cxt;
- 
-@@ -135,6 +135,7 @@ void __kvm_tlb_flush_local_vmid(struct kvm_s2_mmu *mmu)
- 	__tlb_switch_to_guest(mmu, &cxt);
- 
- 	__tlbi(vmalle1);
-+	asm volatile("ic iallu");
- 	dsb(nsh);
- 	isb();
- 
--- 
-2.29.2
-
+greg k-h
