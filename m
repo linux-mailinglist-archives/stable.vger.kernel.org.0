@@ -2,112 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B23C833B015
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 11:38:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0862C33B02F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 11:45:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229767AbhCOKhx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 06:37:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39332 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229510AbhCOKhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 06:37:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7B264E99
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 10:37:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615804663;
-        bh=2mcHhZunRKf2pmIpcWDF+bT3l2pBE1Mu9v+bAsSeGtM=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=anErYdfWRebdGgyAQP81stOM2EW0gCWrxMqwIQsW4tFePzwJrPudELQocw8RWMnEq
-         dRGcW1Yy/mXcvJ0FtlacLHDtSxQKNQ0xsTu6wmpqw7dn9CxrHGIs0GFXsbiXm8mT2v
-         6aPVFoMHPCfiraEKUZvUrJsH8i2r0zRCDX39OvVpNCJyUCgoK/Vd8w0v5VNDdDdxPo
-         joCXkfapb7vlp3Mb9HzjB87VYmwmYwnYG/taDHTKidrbW/l70kvsL3g0kpqUzLsQm/
-         /V8HdEz4eX2EM7pu9I0r4GpukPtamkWSXsFBsVgm5MFc6ZE6nhoQ8h75dG791vq6zt
-         Nq3hkl9fODarQ==
-Received: by mail-ot1-f53.google.com with SMTP id o19-20020a9d22130000b02901bfa5b79e18so4864045ota.0
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 03:37:43 -0700 (PDT)
-X-Gm-Message-State: AOAM530l0KPO/RgRTWSaBoZSs0TydYLinKy5XYFXv6vlKBv0bX5VvC/p
-        nNu2LChSfPp9SEZ+JpCyn2h9I7F7ngWUiYVU2Dg=
-X-Google-Smtp-Source: ABdhPJyP/pA6L3VF3Pp9cT0gjhRXg0wKy6LW1DKr2fmVN1B5EdahDUOquP7El2eUy7JtqWXiwbIkUrCpOWMLb3L5UL4=
-X-Received: by 2002:a9d:6e15:: with SMTP id e21mr13403906otr.77.1615804662665;
- Mon, 15 Mar 2021 03:37:42 -0700 (PDT)
+        id S229601AbhCOKo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 06:44:59 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:13605 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229767AbhCOKo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 06:44:56 -0400
+Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4DzY0l23GLz16HYR;
+        Mon, 15 Mar 2021 18:43:03 +0800 (CST)
+Received: from [127.0.0.1] (10.175.101.122) by DGGEMS405-HUB.china.huawei.com
+ (10.3.19.205) with Microsoft SMTP Server id 14.3.498.0; Mon, 15 Mar 2021
+ 18:44:43 +0800
+Content-Type: multipart/alternative;
+        boundary="===============6403388118311083473=="
 MIME-Version: 1.0
-References: <CAKwvOdka=y54W=ssgCZRgr2B+NaYFHF07KnnNDfrwv79-geSQw@mail.gmail.com>
- <YEs+iaQzEQYNgXcw@kroah.com> <CAKwvOd=xr5je726djQeMMrZAuNcJpX9=R-X19epVy85cjbNbqw@mail.gmail.com>
- <YEw6i39k6hqZJS8+@sashalap> <YE8kIbyWKSojC1SV@kroah.com> <YE8k/2WTPFGwMpHk@kroah.com>
- <YE8l2qhycaGPYdNn@kroah.com>
-In-Reply-To: <YE8l2qhycaGPYdNn@kroah.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 15 Mar 2021 11:37:31 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXGLrVXZPAoxTtMueB9toeoktuKza-mRpd4vZ0SLN6bSSQ@mail.gmail.com>
-Message-ID: <CAMj1kXGLrVXZPAoxTtMueB9toeoktuKza-mRpd4vZ0SLN6bSSQ@mail.gmail.com>
-Subject: Re: ARCH=arm LLVM_IAS=1 patches for 5.10, 5.4, and 4.19
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Jian Cai <jiancai@google.com>, Stefan Agner <stefan@agner.ch>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>, candle.sun@unisoc.com,
-        =?UTF-8?B?TWlsZXMgQ2hlbiAo6Zmz5rCR5qi6KQ==?= 
-        <miles.chen@mediatek.com>, Stephen Hines <srhines@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        Marc Zyngier <maz@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Date:   Mon, 15 Mar 2021 18:44:43 +0800
+From:   <hulkrobot@huawei.com>
+To:     <stable@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>
+Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_5=2E10=2E24-rc1/x86?=
+Message-ID: <c2371fc0-2f0f-4fd0-b4a3-c3a04a09a25a@DGGEMS405-HUB.china.huawei.com>
+X-Originating-IP: [10.175.101.122]
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 15 Mar 2021 at 10:16, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Mar 15, 2021 at 10:12:31AM +0100, Greg KH wrote:
-> > On Mon, Mar 15, 2021 at 10:08:49AM +0100, Greg KH wrote:
-> > > On Fri, Mar 12, 2021 at 11:07:39PM -0500, Sasha Levin wrote:
-> > > > On Fri, Mar 12, 2021 at 09:28:56AM -0800, Nick Desaulniers wrote:
-> > > > > My mistake, meant to lop those last two commits off of 4.19.y, they
-> > > > > were the ones I referred to earlier working their way through the ARM
-> > > > > maintainers tree.  Regenerated the series' (rather than edit the patch
-> > > > > files) additionally with --base=auto. Re-attached.
-> > > >
-> > > > Queued up, thanks!
-> > >
-> > > This series seems to cause build breakages in a lot of places, so I'm
-> > > going to drop the whole set of them now:
-> > >     https://lore.kernel.org/r/be846d89-ab5a-f02a-c05e-1cd40acc5baa@roeck-us.net
-> > > and:
-> > >     https://lore.kernel.org/r/066efc42-0788-8668-2ff5-d431e77068b5@roeck-us.net
-> > >
-> > > Nick, if you want these merged, can you fix up the errors and resend?
-> > >
-> > > Perhaps you might want to run these through the tuxbuild tool before
-> > > sending?  You should have access to it...
-> >
-> > Oops, wait, they are fine for 5.10.y, just 4.19 and 5.4 are broken, will
-> > go drop those patches only.
->
-> Also, these are a lot of churn for 5.4 and 4.19, I'm not convinced it's
-> really needed there.  Why again is this required?
->
+--===============6403388118311083473==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
 
-I think backporting this stuff is causing more problems than it
-solves. Note that the 5.4 Thumb2 build is still broken today because
-it carries
+S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
+Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNS4xMC55CkFyY2g6
+IHg4NgpWZXJzaW9uOiA1LjEwLjI0LXJjMQpDb21taXQ6IDViMGRkZDExNGRmMTAyZjM0YzgzYjhj
+ZDRjZTRhMDMzOTdhYjdhYTkNCkNvbXBpbGVyOiBnY2MgdmVyc2lvbiA3LjMuMCAoR0NDKQotLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQpLZXJuZWwgYnVpbGQgZmFpbGVkLCBlcnJvciBsb2c6CmFyY2gveDg2L2tlcm5lbC9z
+ZXYtZXMuYzoxMjc1OjE0OiBlcnJvcjogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24g
+4oCYaXJxZW50cnlfbm1pX2VudGVy4oCZOyBkaWQgeW91IG1lYW4g4oCYaXJxZW50cnlfZW50ZXLi
+gJk/IFstV2Vycm9yPWltcGxpY2l0LWZ1bmN0aW9uLWRlY2xhcmF0aW9uXQogIGlycV9zdGF0ZSA9
+IGlycWVudHJ5X25taV9lbnRlcihyZWdzKTsKICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+
+fn4KICAgICAgICAgICAgICBpcnFlbnRyeV9lbnRlcgphcmNoL3g4Ni9rZXJuZWwvc2V2LWVzLmM6
+MTI3NToxMjogZXJyb3I6IGluY29tcGF0aWJsZSB0eXBlcyB3aGVuIGFzc2lnbmluZyB0byB0eXBl
+IOKAmGlycWVudHJ5X3N0YXRlX3Qge2FrYSBzdHJ1Y3QgaXJxZW50cnlfc3RhdGV94oCZIGZyb20g
+dHlwZSDigJhpbnTigJkKICBpcnFfc3RhdGUgPSBpcnFlbnRyeV9ubWlfZW50ZXIocmVncyk7CiAg
+ICAgICAgICAgIF4KYXJjaC94ODYva2VybmVsL3Nldi1lcy5jOjEzMzk6MjogZXJyb3I6IGltcGxp
+Y2l0IGRlY2xhcmF0aW9uIG9mIGZ1bmN0aW9uIOKAmGlycWVudHJ5X25taV9leGl04oCZOyBkaWQg
+eW91IG1lYW4g4oCYaXJxZW50cnlfZXhpdOKAmT8gWy1XZXJyb3I9aW1wbGljaXQtZnVuY3Rpb24t
+ZGVjbGFyYXRpb25dCiAgaXJxZW50cnlfbm1pX2V4aXQocmVncywgaXJxX3N0YXRlKTsKICBefn5+
+fn5+fn5+fn5+fn5+fgogIGlycWVudHJ5X2V4aXQKY2MxOiBzb21lIHdhcm5pbmdzIGJlaW5nIHRy
+ZWF0ZWQgYXMgZXJyb3JzCm1ha2VbMl06ICoqKiBbc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoyNzk6
+IGFyY2gveDg2L2tlcm5lbC9zZXYtZXMub10gRXJyb3IgMQptYWtlWzJdOiAqKiogV2FpdGluZyBm
+b3IgdW5maW5pc2hlZCBqb2JzLi4uLgotLQptbS9wYWdlX2FsbG9jLmM6MzI3NToyOiBlcnJvcjog
+aW1wbGljaXQgZGVjbGFyYXRpb24gb2YgZnVuY3Rpb24g4oCYc3BsaXRfcGFnZV9tZW1jZ+KAmTsg
+ZGlkIHlvdSBtZWFuIOKAmHNwbGl0X3BhZ2Vfb3duZXLigJk/IFstV2Vycm9yPWltcGxpY2l0LWZ1
+bmN0aW9uLWRlY2xhcmF0aW9uXQogIHNwbGl0X3BhZ2VfbWVtY2cocGFnZSwgMSA8PCBvcmRlcik7
+CiAgXn5+fn5+fn5+fn5+fn5+fgogIHNwbGl0X3BhZ2Vfb3duZXIKLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KVGVzdGVk
+LWJ5OiBIdWxrIFJvYm90IDxodWxrcm9ib3RAaHVhd2VpLmNvbT4=
 
-eff8728fe698 vmlinux.lds.h: Add PGO and AutoFDO input sections
-
-but does not carry
-
-f77ac2e378be ARM: 9030/1: entry: omit FP emulation for UND exceptions
-taken in kernel mode
-
-which is tagged as a fix for the former patch, and landed in v5.11.
-(Side question: anyone have a clue why the patch in question was never
-selected for backporting?)
-
-So I really think we should apply more caution here, and have a
-*really* good story on why it is essential that these patches are
-backported. In this case, I am not convinced there is one.
-
--- 
-Ard.
+--===============6403388118311083473==--
