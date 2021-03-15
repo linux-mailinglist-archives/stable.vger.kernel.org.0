@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4120733BA4F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5CB33BAD8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbhCOOIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49544 "EHLO mail.kernel.org"
+        id S235738AbhCOOKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234262AbhCOODI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 048CA64DAD;
-        Mon, 15 Mar 2021 14:03:06 +0000 (UTC)
+        id S233980AbhCOOCq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C3164EF1;
+        Mon, 15 Mar 2021 14:02:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816988;
-        bh=cZ83mKjCJXO+pr922AHWsqr7sJPYruQK8+WdF2VCpl4=;
+        s=korg; t=1615816964;
+        bh=7FnpRKc4Wvba20HFD+Q6GPJu64JtwqjEycgRBK0bmhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F9X3FLhk34ppN3FQC7nLGht0YZOS0dpKf1Lj2wslumEmmLFomrdpljqbSMI/LxjVn
-         Y4U4X7UgWXqvamkCDlzzDS2Ya9gEXYIcV+5LDWjbUQv2Kdd7FFfMXJgRvzLIy2Tp31
-         1/+9aDpvZZ1dnBqJPOn85dEAuOQWvY8j9119uNEY=
+        b=JZvEaIFka9dfJ9M0Qizw+0kWfQzInLS1E4TNNFv3jQ2YGfA0E/G3uZkEioJ4GsC/L
+         I0sQ9Jxsx4mcVslmGciwFCRhqQtC2IVIFlnhZngsx6MKeUAPQU965x2GZAQ64v2A1F
+         X/Ccc0qMl6pVMLv6S/UsTQpi75J36Mrl/nfhxilI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Jansen <gerardu@amazon.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 246/306] NFS: Dont revalidate the directory permissions on a lookup failure
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.10 216/290] usbip: fix stub_dev to check for stream socket
 Date:   Mon, 15 Mar 2021 14:55:09 +0100
-Message-Id: <20210315135515.959029673@linuxfoundation.org>
+Message-Id: <20210315135549.266480936@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +42,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit 82e7ca1334ab16e2e04fafded1cab9dfcdc11b40 ]
+commit 47ccc8fc2c9c94558b27b6f9e2582df32d29e6e8 upstream.
 
-There should be no reason to expect the directory permissions to change
-just because the directory contents changed or a negative lookup timed
-out. So let's avoid doing a full call to nfs_mark_for_revalidate() in
-that case.
-Furthermore, if this is a negative dentry, and we haven't actually done
-a new lookup, then we have no reason yet to believe the directory has
-changed at all. So let's remove the gratuitous directory inode
-invalidation altogether when called from
-nfs_lookup_revalidate_negative().
+Fix usbip_sockfd_store() to validate the passed in file descriptor is
+a stream socket. If the file descriptor passed was a SOCK_DGRAM socket,
+sock_recvmsg() can't detect end of stream.
 
-Reported-by: Geert Jansen <gerardu@amazon.com>
-Fixes: 5ceb9d7fdaaf ("NFS: Refactor nfs_lookup_revalidate()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Suggested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/e942d2bd03afb8e8552bd2a5d84e18d17670d521.1615171203.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/dir.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ drivers/usb/usbip/stub_dev.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/nfs/dir.c b/fs/nfs/dir.c
-index ef827ae193d2..7bcc6fcf1096 100644
---- a/fs/nfs/dir.c
-+++ b/fs/nfs/dir.c
-@@ -1401,6 +1401,15 @@ int nfs_lookup_verify_inode(struct inode *inode, unsigned int flags)
- 	goto out;
- }
- 
-+static void nfs_mark_dir_for_revalidate(struct inode *inode)
-+{
-+	struct nfs_inode *nfsi = NFS_I(inode);
-+
-+	spin_lock(&inode->i_lock);
-+	nfsi->cache_validity |= NFS_INO_REVAL_PAGECACHE;
-+	spin_unlock(&inode->i_lock);
-+}
-+
- /*
-  * We judge how long we want to trust negative
-  * dentries by looking at the parent inode mtime.
-@@ -1435,7 +1444,6 @@ nfs_lookup_revalidate_done(struct inode *dir, struct dentry *dentry,
- 			__func__, dentry);
- 		return 1;
- 	case 0:
--		nfs_mark_for_revalidate(dir);
- 		if (inode && S_ISDIR(inode->i_mode)) {
- 			/* Purge readdir caches. */
- 			nfs_zap_caches(inode);
-@@ -1525,6 +1533,13 @@ nfs_lookup_revalidate_dentry(struct inode *dir, struct dentry *dentry,
- 	nfs_free_fattr(fattr);
- 	nfs_free_fhandle(fhandle);
- 	nfs4_label_free(label);
-+
-+	/*
-+	 * If the lookup failed despite the dentry change attribute being
-+	 * a match, then we should revalidate the directory cache.
-+	 */
-+	if (!ret && nfs_verify_change_attribute(dir, dentry->d_time))
-+		nfs_mark_dir_for_revalidate(dir);
- 	return nfs_lookup_revalidate_done(dir, dentry, inode, ret);
- }
- 
-@@ -1567,7 +1582,7 @@ nfs_do_lookup_revalidate(struct inode *dir, struct dentry *dentry,
- 		error = nfs_lookup_verify_inode(inode, flags);
- 		if (error) {
- 			if (error == -ESTALE)
--				nfs_zap_caches(dir);
-+				nfs_mark_dir_for_revalidate(dir);
- 			goto out_bad;
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -69,8 +69,16 @@ static ssize_t usbip_sockfd_store(struct
  		}
- 		nfs_advise_use_readdirplus(dir);
-@@ -2064,7 +2079,6 @@ nfs_add_or_obtain(struct dentry *dentry, struct nfs_fh *fhandle,
- 	dput(parent);
- 	return d;
- out_error:
--	nfs_mark_for_revalidate(dir);
- 	d = ERR_PTR(error);
- 	goto out;
- }
--- 
-2.30.1
-
+ 
+ 		socket = sockfd_lookup(sockfd, &err);
+-		if (!socket)
++		if (!socket) {
++			dev_err(dev, "failed to lookup sock");
+ 			goto err;
++		}
++
++		if (socket->type != SOCK_STREAM) {
++			dev_err(dev, "Expecting SOCK_STREAM - found %d",
++				socket->type);
++			goto sock_err;
++		}
+ 
+ 		sdev->ud.tcp_socket = socket;
+ 		sdev->ud.sockfd = sockfd;
+@@ -100,6 +108,8 @@ static ssize_t usbip_sockfd_store(struct
+ 
+ 	return count;
+ 
++sock_err:
++	sockfd_put(socket);
+ err:
+ 	spin_unlock_irq(&sdev->ud.lock);
+ 	return -EINVAL;
 
 
