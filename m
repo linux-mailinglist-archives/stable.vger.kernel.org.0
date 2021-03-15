@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0614B33B66B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5209B33B674
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232160AbhCON5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:52 -0400
+        id S232211AbhCON54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:56 -0400
 Received: from mail.kernel.org ([198.145.29.99]:34792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231901AbhCON5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 438AE64F1A;
-        Mon, 15 Mar 2021 13:57:16 +0000 (UTC)
+        id S231926AbhCON5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0307264F00;
+        Mon, 15 Mar 2021 13:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816637;
-        bh=brXWXpnYW6YQL0ESqPRMZqTazFW2xCed+nZ3A+nBLeU=;
+        s=korg; t=1615816639;
+        bh=fJc62Oz+a/Fiquv8Q8uwC8LC00ejr5byc32G7xfch1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UY+XdkQkIBZ/PnBjRuf5GakahDW7i2+HMt99+WKEGrrSbzlZT3n1Zthgj08gzsXZU
-         3Z8yyOIuLNtISsxGcGZ1BzrbSficFTQhFw9IxrEN/0iozDiD+I6kLGcGG/+jeqt5UR
-         YTNWlEsyD+7LIJFa02J7npX1XfPbUOdDUCHoDM+Y=
+        b=CZJzyrB4z8SPPRJRSlu7M0PjGrn5/YVNxxyN3B6gyxAwox5dlXuSxuWkuXBuQqUef
+         HmyFHRTgOqpxvG0nqclhwqVLjVEzFcV77NYEKfPJUVebgnUGghdVZqF7K0MooxIgrT
+         oWEX5OHpDyL334rQUzYj2O7S6z7G1FN5WdhqxWik=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.4 018/168] selftests/bpf: Mask bpf_csum_diff() return value to 16 bits in test_verifier
-Date:   Mon, 15 Mar 2021 14:54:10 +0100
-Message-Id: <20210315135550.945940300@linuxfoundation.org>
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>
+Subject: [PATCH 5.4 019/168] samples, bpf: Add missing munmap in xdpsock
+Date:   Mon, 15 Mar 2021 14:54:11 +0100
+Message-Id: <20210315135550.976065939@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,57 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 
-commit 6185266c5a853bb0f2a459e3ff594546f277609b upstream.
+commit 6bc6699881012b5bd5d49fa861a69a37fc01b49c upstream.
 
-The verifier test labelled "valid read map access into a read-only array
-2" calls the bpf_csum_diff() helper and checks its return value. However,
-architecture implementations of csum_partial() (which is what the helper
-uses) differ in whether they fold the return value to 16 bit or not. For
-example, x86 version has ...
+We mmap the umem region, but we never munmap it.
+Add the missing call at the end of the cleanup.
 
-	if (unlikely(odd)) {
-		result = from32to16(result);
-		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
-	}
-
-... while generic lib/checksum.c does:
-
-	result = from32to16(result);
-	if (odd)
-		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
-
-This makes the helper return different values on different architectures,
-breaking the test on non-x86. To fix this, add an additional instruction
-to always mask the return value to 16 bits, and update the expected return
-value accordingly.
-
-Fixes: fb2abb73e575 ("bpf, selftest: test {rd, wr}only flags and direct value access")
-Signed-off-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
+Fixes: 3945b37a975d ("samples/bpf: use hugepages in xdpsock app")
+Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210228103017.320240-1-yauheni.kaliuta@redhat.com
+Acked-by: Björn Töpel <bjorn.topel@intel.com>
+Link: https://lore.kernel.org/bpf/20210303185636.18070-3-maciej.fijalkowski@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/verifier/array_access.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ samples/bpf/xdpsock_user.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/tools/testing/selftests/bpf/verifier/array_access.c
-+++ b/tools/testing/selftests/bpf/verifier/array_access.c
-@@ -250,12 +250,13 @@
- 	BPF_MOV64_IMM(BPF_REG_5, 0),
- 	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
- 		     BPF_FUNC_csum_diff),
-+	BPF_ALU64_IMM(BPF_AND, BPF_REG_0, 0xffff),
- 	BPF_EXIT_INSN(),
- 	},
- 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
- 	.fixup_map_array_ro = { 3 },
- 	.result = ACCEPT,
--	.retval = -29,
-+	.retval = 65507,
- },
- {
- 	"invalid write map access into a read-only array 1",
+--- a/samples/bpf/xdpsock_user.c
++++ b/samples/bpf/xdpsock_user.c
+@@ -783,5 +783,7 @@ int main(int argc, char **argv)
+ 	else
+ 		l2fwd_all();
+ 
++	munmap(bufs, NUM_FRAMES * opt_xsk_frame_size);
++
+ 	return 0;
+ }
 
 
