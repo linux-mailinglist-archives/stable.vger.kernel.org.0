@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A440433B868
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E462133B8A0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231591AbhCOOD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S232987AbhCOOEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232852AbhCOOAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C782464F2D;
-        Mon, 15 Mar 2021 13:59:31 +0000 (UTC)
+        id S233077AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACA2664F5E;
+        Mon, 15 Mar 2021 14:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816772;
-        bh=MSP8kRQdu9cVgKtkUKGOzKMLH42GRH1kzDEAfiVVdzQ=;
+        s=korg; t=1615816821;
+        bh=Cm/Nn7sjPvLLKzeR3Jxp5wSWHSo4ZMfsZNjZY6+goL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cPiCqIn6YsuAvOYbzfqVd1GqT3rIiqnxqn+eh3xZdQauFOSd3wWGwVEG4J5WHEcS+
-         yyJbssflp6SXTwvPpZ1cNpX82eNUPntHcb5v8orPokGlY8KznRY5ISrmavgwqkR+SX
-         d5R6cqn0+w4F4OIwfP0GCLqXuaGjY9sOyhnHgfZo=
+        b=hNqa8KlR5x9m4Rn9Efrkk+8g7UkjHUveFq67Lz1xs8gBy/O1kuywdqy2LvcuV+Gl4
+         PtAx5P7zfAU6yw0EHgNGMNXtPtUk8L314ZscRk6fP3b/k11RrHs1+q6iYD9XJnYpE4
+         VP/h4csxeM49LFV1fLnl0VG/kVotoYeNAuwfuxzo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@freescale.com>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Subject: [PATCH 4.14 51/95] usb: gadget: f_uac2: always increase endpoint max_packet_size by one audio slot
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 090/120] staging: rtl8188eu: prevent ->ssid overflow in rtw_wx_set_scan()
 Date:   Mon, 15 Mar 2021 14:57:21 +0100
-Message-Id: <20210315135741.950586126@linuxfoundation.org>
+Message-Id: <20210315135722.923359350@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 789ea77310f0200c84002884ffd628e2baf3ad8a upstream.
+commit 74b6b20df8cfe90ada777d621b54c32e69e27cd7 upstream.
 
-As per UAC2 Audio Data Formats spec (2.3.1.1 USB Packets),
-if the sampling rate is a constant, the allowable variation
-of number of audio slots per virtual frame is +/- 1 audio slot.
+This code has a check to prevent read overflow but it needs another
+check to prevent writing beyond the end of the ->ssid[] array.
 
-It means that endpoint should be able to accept/send +1 audio
-slot.
-
-Previous endpoint max_packet_size calculation code
-was adding sometimes +1 audio slot due to DIV_ROUND_UP
-behaviour which was rounding up to closest integer.
-However this doesn't work if the numbers are divisible.
-
-It had no any impact with Linux hosts which ignore
-this issue, but in case of more strict Windows it
-caused rejected enumeration
-
-Thus always add +1 audio slot to endpoint's max packet size
-
-Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
-Cc: Peter Chen <peter.chen@freescale.com>
-Cc: <stable@vger.kernel.org> #v4.3+
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1614599375-8803-2-git-send-email-ruslan.bilovol@gmail.com
+Fixes: a2c60d42d97c ("staging: r8188eu: Add files for new driver - part 16")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YEHymwsnHewzoam7@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/os_dep/ioctl_linux.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -486,7 +486,7 @@ static int set_ep_max_packet_size(const
- 	}
- 
- 	max_size_bw = num_channels(chmask) * ssize *
--		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
-+		((srate / (factor / (1 << (ep_desc->bInterval - 1)))) + 1);
- 	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
- 						    max_size_ep));
- 
+--- a/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
++++ b/drivers/staging/rtl8188eu/os_dep/ioctl_linux.c
+@@ -1161,9 +1161,11 @@ static int rtw_wx_set_scan(struct net_de
+ 						break;
+ 					}
+ 					sec_len = *(pos++); len -= 1;
+-					if (sec_len > 0 && sec_len <= len) {
++					if (sec_len > 0 &&
++					    sec_len <= len &&
++					    sec_len <= 32) {
+ 						ssid[ssid_index].SsidLength = sec_len;
+-						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
++						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
+ 						ssid_index++;
+ 					}
+ 					pos += sec_len;
 
 
