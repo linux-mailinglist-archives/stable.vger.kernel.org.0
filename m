@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3C8733B625
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAABF33B547
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbhCON5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33630 "EHLO mail.kernel.org"
+        id S231149AbhCONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231183AbhCON4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91BF864EF0;
-        Mon, 15 Mar 2021 13:56:40 +0000 (UTC)
+        id S230394AbhCONx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 147BF64EE3;
+        Mon, 15 Mar 2021 13:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816602;
-        bh=EZ6438jdmEK2eveHPKSP6K3z3mdbdXEA24l4Melgygs=;
+        s=korg; t=1615816409;
+        bh=teUnFo6lz84TObThR+47puxhK4824JQ6PffgWhlreDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGdt6ZnwXXZG9ZeISq80M7qb2UFSEgTY08WRnmGkxXMnDb34HxIaU075fxmNNItai
-         EHaGdeFDxyL31ggW/JUugoRje5cbk1NE0N9mk5eeBN6mQe64yXy2nU4BE/0qf9O5YT
-         4TDgtctqYKtinlGj4Z9lIQ3cT8BIO0w42PjyWaoo=
+        b=Sm4afVbPilHif/14Wy77WAv4d+Efsbm+HFbBPO19+arxC1MULU5RUwRxF1qFSxQMh
+         85jytJxVznD8Xuei/iTuKP4J9jj13eBPA3quC5C9uY3b5SI6/jUwddeYZamqwkmlYn
+         proNHywCzTHSPwQrtlCorZSmgii7uBYV48BdmuJg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tom Herbert <tom@herbertland.com>,
-        Willem de Bruijn <willemb@google.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 007/290] net: Fix gro aggregation for udp encaps with zero csum
-Date:   Mon, 15 Mar 2021 14:51:40 +0100
-Message-Id: <20210315135542.187362018@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 27/75] ALSA: usb-audio: Fix "cannot get freq eq" errors on Dell AE515 sound bar
+Date:   Mon, 15 Mar 2021 14:51:41 +0100
+Message-Id: <20210315135209.141215753@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,110 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 89e5c58fc1e2857ccdaae506fb8bc5fed57ee063 upstream.
+commit fec60c3bc5d1713db2727cdffc638d48f9c07dc3 upstream.
 
-We noticed a GRO issue for UDP-based encaps such as vxlan/geneve when the
-csum for the UDP header itself is 0. In that case, GRO aggregation does
-not take place on the phys dev, but instead is deferred to the vxlan/geneve
-driver (see trace below).
+Dell AE515 sound bar (413c:a506) spews the error messages when the
+driver tries to read the current sample frequency, hence it needs to
+be on the list in snd_usb_get_sample_rate_quirk().
 
-The reason is essentially that GRO aggregation bails out in udp_gro_receive()
-for such case when drivers marked the skb with CHECKSUM_UNNECESSARY (ice, i40e,
-others) where for non-zero csums 2abb7cdc0dc8 ("udp: Add support for doing
-checksum unnecessary conversion") promotes those skbs to CHECKSUM_COMPLETE
-and napi context has csum_valid set. This is however not the case for zero
-UDP csum (here: csum_cnt is still 0 and csum_valid continues to be false).
-
-At the same time 57c67ff4bd92 ("udp: additional GRO support") added matches
-on !uh->check ^ !uh2->check as part to determine candidates for aggregation,
-so it certainly is expected to handle zero csums in udp_gro_receive(). The
-purpose of the check added via 662880f44203 ("net: Allow GRO to use and set
-levels of checksum unnecessary") seems to catch bad csum and stop aggregation
-right away.
-
-One way to fix aggregation in the zero case is to only perform the !csum_valid
-check in udp_gro_receive() if uh->check is infact non-zero.
-
-Before:
-
-  [...]
-  swapper     0 [008]   731.946506: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100400 len=1500   (1)
-  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100200 len=1500
-  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101100 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101700 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101b00 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100600 len=1500
-  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100f00 len=1500
-  swapper     0 [008]   731.946509: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100a00 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100500 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100700 len=1500
-  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101d00 len=1500   (2)
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101000 len=1500
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101c00 len=1500
-  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101400 len=1500
-  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100e00 len=1500
-  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101600 len=1500
-  swapper     0 [008]   731.946521: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100800 len=774
-  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497100400 len=14032 (1)
-  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497101d00 len=9112  (2)
-  [...]
-
-  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
-  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
-  Recv   Send    Send
-  Socket Socket  Message  Elapsed
-  Size   Size    Size     Time     Throughput
-  bytes  bytes   bytes    secs.    10^6bits/sec
-
-   87380  16384  16384    20.01    13129.24
-
-After:
-
-  [...]
-  swapper     0 [026]   521.862641: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479000 len=11286 (1)
-  swapper     0 [026]   521.862643: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479000 len=11236 (1)
-  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d478500 len=2898  (2)
-  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479f00 len=8490  (3)
-  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d478500 len=2848  (2)
-  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479f00 len=8440  (3)
-  [...]
-
-  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
-  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
-  Recv   Send    Send
-  Socket Socket  Message  Elapsed
-  Size   Size    Size     Time     Throughput
-  bytes  bytes   bytes    secs.    10^6bits/sec
-
-   87380  16384  16384    20.01    24576.53
-
-Fixes: 57c67ff4bd92 ("udp: additional GRO support")
-Fixes: 662880f44203 ("net: Allow GRO to use and set levels of checksum unnecessary")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Cc: Tom Herbert <tom@herbertland.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20210226212248.8300-1-daniel@iogearbox.net
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211551
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210304083021.2152-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp_offload.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/udp_offload.c
-+++ b/net/ipv4/udp_offload.c
-@@ -522,7 +522,7 @@ struct sk_buff *udp_gro_receive(struct l
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1154,6 +1154,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x1de7, 0x0114): /* Phoenix Audio MT202pcs */
+ 	case USB_ID(0x21B4, 0x0081): /* AudioQuest DragonFly */
+ 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
++	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
+ 		return true;
  	}
- 
- 	if (!sk || NAPI_GRO_CB(skb)->encap_mark ||
--	    (skb->ip_summed != CHECKSUM_PARTIAL &&
-+	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
- 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
- 	     !NAPI_GRO_CB(skb)->csum_valid) ||
- 	    !udp_sk(sk)->gro_receive)
+ 	return false;
 
 
