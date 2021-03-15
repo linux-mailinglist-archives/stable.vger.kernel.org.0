@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 985E733B93E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1342B33B9DF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234820AbhCOOFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S235008AbhCOOGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233153AbhCOOAy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20FBE64F8A;
-        Mon, 15 Mar 2021 14:00:28 +0000 (UTC)
+        id S232097AbhCOOBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A9BF264F6B;
+        Mon, 15 Mar 2021 14:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816830;
-        bh=8Ot3fnhF37NWp6SS6AiQuMpnw4SuJYw28xAlGF+me/8=;
+        s=korg; t=1615816861;
+        bh=HB43tIWA/SDJJ+Ad8NreII/d3eY5xm7qwiFNHDfBMVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZ/g/7D74w+ImoIeXAxhQLLnifgX3O/B59FufR0uFs6kPAuCf1NU4sTL1W11qhkW5
-         iMZ1+no6/7H8RFg78Y1f4mnBXt4eDuKMOQ5wEcJDWMNi/DUEqGwEM66q9N9pm7jaXq
-         maRLcIxH5fcEJ0NX/tQQMfzZL9qC6XL7E7QEebLM=
+        b=PMJ6dtttofaFMJZaNAhdVj4WALjIFGXK7KRp8N0Eychq2kKyF13fAdvkKDKAqbgLI
+         3G8scPoFh7D707eVs/F+8prvpG973MlCZiDtUsjelzyiSPWHMO60dmq7LJDjTMei3K
+         FfMX/qb3qqqXdm04aUrOlbBrzt8Bs8q6JMN2lRtw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/290] mmc: sdhci-iproc: Add ACPI bindings for the RPi
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 168/306] ALSA: hda: Drop the BATCH workaround for AMD controllers
 Date:   Mon, 15 Mar 2021 14:53:51 +0100
-Message-Id: <20210315135546.576777150@linuxfoundation.org>
+Message-Id: <20210315135513.305263241@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +40,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4f9833d3ec8da34861cd0680b00c73e653877eb9 ]
+commit 28e96c1693ec1cdc963807611f8b5ad400431e82 upstream.
 
-The RPi4 has an Arasan controller it carries over from the RPi3 and a newer
-eMMC2 controller.  Because of a couple of quirks, it seems wiser to bind
-these controllers to the same driver that DT is using on this platform
-rather than the generic sdhci_acpi driver with PNP0D40.
+The commit c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on
+AMD controller (1022:1457)") introduced a few workarounds for the
+recent AMD HD-audio controller, and one of them is the forced BATCH
+PCM mode so that PulseAudio avoids the timer-based scheduling.  This
+was thought to cover for some badly working applications, but this
+actually worsens for more others.  In total, this wasn't a good idea
+to enforce it.
 
-So, BCM2847 describes the older Arasan and BRCME88C describes the newer
-eMMC2. The older Arasan is reusing an existing ACPI _HID used by other OSes
-booting these tables on the RPi.
+This is a partial revert of the commit above for dropping the PCM
+BATCH enforcement part to recover from the regression again.
 
-With this change, Linux is capable of utilizing the SD card slot, and the
-Wi-Fi when booted with UEFI+ACPI on the RPi4.
-
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20210120000406.1843400-2-jeremy.linton@arm.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c02f77d32d2c ("ALSA: hda - Workaround for crackled sound on AMD controller (1022:1457)")
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195303
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210308160726.22930-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-iproc.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ sound/pci/hda/hda_controller.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-iproc.c b/drivers/mmc/host/sdhci-iproc.c
-index c9434b461aab..ddeaf8e1f72f 100644
---- a/drivers/mmc/host/sdhci-iproc.c
-+++ b/drivers/mmc/host/sdhci-iproc.c
-@@ -296,9 +296,27 @@ static const struct of_device_id sdhci_iproc_of_match[] = {
- MODULE_DEVICE_TABLE(of, sdhci_iproc_of_match);
+--- a/sound/pci/hda/hda_controller.c
++++ b/sound/pci/hda/hda_controller.c
+@@ -609,13 +609,6 @@ static int azx_pcm_open(struct snd_pcm_s
+ 				     20,
+ 				     178000000);
  
- #ifdef CONFIG_ACPI
-+/*
-+ * This is a duplicate of bcm2835_(pltfrm_)data without caps quirks
-+ * which are provided by the ACPI table.
-+ */
-+static const struct sdhci_pltfm_data sdhci_bcm_arasan_data = {
-+	.quirks = SDHCI_QUIRK_BROKEN_CARD_DETECTION |
-+		  SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
-+		  SDHCI_QUIRK_NO_HISPD_BIT,
-+	.quirks2 = SDHCI_QUIRK2_PRESET_VALUE_BROKEN,
-+	.ops = &sdhci_iproc_32only_ops,
-+};
-+
-+static const struct sdhci_iproc_data bcm_arasan_data = {
-+	.pdata = &sdhci_bcm_arasan_data,
-+};
-+
- static const struct acpi_device_id sdhci_iproc_acpi_ids[] = {
- 	{ .id = "BRCM5871", .driver_data = (kernel_ulong_t)&iproc_cygnus_data },
- 	{ .id = "BRCM5872", .driver_data = (kernel_ulong_t)&iproc_data },
-+	{ .id = "BCM2847",  .driver_data = (kernel_ulong_t)&bcm_arasan_data },
-+	{ .id = "BRCME88C", .driver_data = (kernel_ulong_t)&bcm2711_data },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(acpi, sdhci_iproc_acpi_ids);
--- 
-2.30.1
-
+-	/* by some reason, the playback stream stalls on PulseAudio with
+-	 * tsched=1 when a capture stream triggers.  Until we figure out the
+-	 * real cause, disable tsched mode by telling the PCM info flag.
+-	 */
+-	if (chip->driver_caps & AZX_DCAPS_AMD_WORKAROUND)
+-		runtime->hw.info |= SNDRV_PCM_INFO_BATCH;
+-
+ 	if (chip->align_buffer_size)
+ 		/* constrain buffer sizes to be multiple of 128
+ 		   bytes. This is more efficient in terms of memory
 
 
