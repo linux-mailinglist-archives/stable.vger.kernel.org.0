@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27B333B6F7
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B4D33B709
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232118AbhCON7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S232651AbhCON70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232296AbhCON6W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 211E664F2F;
-        Mon, 15 Mar 2021 13:58:17 +0000 (UTC)
+        id S232169AbhCON6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E42B664F12;
+        Mon, 15 Mar 2021 13:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816699;
-        bh=zpNUKK/aPKyGPqxpwHHm0Ond1XIcDiwIFmzE1PWTR9g=;
+        s=korg; t=1615816701;
+        bh=9CV0ZSnjWWhvIHdvkEWgDCT3NYALRwpERTnLsQQyn3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEJVfHxTAM/6CUjOP2A8Hmw1U4tSS6zWD/utZNl8EaAp7Jy/Zxu7f6Z8EjbArnqwD
-         oAyCoESIKlkPzJtVB8Az2je9wXL/wgfZleDvLzkQ5YOXIr6vrJhjrTzqO9eQ4Hq3uz
-         AIKVO/WYbXoW4BWZ0aFGqQceFu44xupb6OB9pdwk=
+        b=Pj8YgrS/E4djL59U2zIyqRwA9YLVOpSQFW0M2D9mt7Gm30qoZTqppnQCISq959cYy
+         WvsK34r658SRlxK0KSfXdX9kE6l19C0AHsc2ChvDLR5j0TUEVS+tk7RARtLfEMU+lg
+         5fkGyyDloZnvOXB6jRIO+BY0IwEVsba/ShOnY0qU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
-        Shannon Nelson <snelson@pensando.io>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 063/290] ixgbe: fail to create xfrm offload of IPsec tunnel mode SA
-Date:   Mon, 15 Mar 2021 14:52:36 +0100
-Message-Id: <20210315135544.048787405@linuxfoundation.org>
+        stable@vger.kernel.org, Kun-Chuan Hsieh <jetswayss@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 5.10 064/290] tools/resolve_btfids: Fix build error with older host toolchains
+Date:   Mon, 15 Mar 2021 14:52:37 +0100
+Message-Id: <20210315135544.077842633@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -43,53 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Antony Antony <antony@phenome.org>
+From: Kun-Chuan Hsieh <jetswayss@gmail.com>
 
-commit d785e1fec60179f534fbe8d006c890e5ad186e51 upstream.
+commit 41462c6e730ca0e63f5fed5a517052385d980c54 upstream.
 
-Based on talks and indirect references ixgbe IPsec offlod do not
-support IPsec tunnel mode offload. It can only support IPsec transport
-mode offload. Now explicitly fail when creating non transport mode SA
-with offload to avoid false performance expectations.
+Older libelf.h and glibc elf.h might not yet define the ELF compression
+types.
 
-Fixes: 63a67fe229ea ("ixgbe: add ipsec offload add and remove SA")
-Signed-off-by: Antony Antony <antony@phenome.org>
-Acked-by: Shannon Nelson <snelson@pensando.io>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Checking and defining SHF_COMPRESSED fix the build error when compiling
+with older toolchains. Also, the tool resolve_btfids is compiled with host
+toolchain. The host toolchain is more likely to be older than the cross
+compile toolchain.
+
+Fixes: 51f6463aacfb ("tools/resolve_btfids: Fix sections with wrong alignment")
+Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/bpf/20210224052752.5284-1-jetswayss@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c |    5 +++++
- drivers/net/ethernet/intel/ixgbevf/ipsec.c     |    5 +++++
- 2 files changed, 10 insertions(+)
+ tools/bpf/resolve_btfids/main.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-@@ -575,6 +575,11 @@ static int ixgbe_ipsec_add_sa(struct xfr
- 		return -EINVAL;
- 	}
+--- a/tools/bpf/resolve_btfids/main.c
++++ b/tools/bpf/resolve_btfids/main.c
+@@ -258,6 +258,11 @@ static struct btf_id *add_symbol(struct
+ 	return btf_id__add(root, id, false);
+ }
  
-+	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
-+		netdev_err(dev, "Unsupported mode for ipsec offload\n");
-+		return -EINVAL;
-+	}
++/* Older libelf.h and glibc elf.h might not yet define the ELF compression types. */
++#ifndef SHF_COMPRESSED
++#define SHF_COMPRESSED (1 << 11) /* Section with compressed data. */
++#endif
 +
- 	if (ixgbe_ipsec_check_mgmt_ip(xs)) {
- 		netdev_err(dev, "IPsec IP addr clash with mgmt filters\n");
- 		return -EINVAL;
---- a/drivers/net/ethernet/intel/ixgbevf/ipsec.c
-+++ b/drivers/net/ethernet/intel/ixgbevf/ipsec.c
-@@ -272,6 +272,11 @@ static int ixgbevf_ipsec_add_sa(struct x
- 		return -EINVAL;
- 	}
- 
-+	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
-+		netdev_err(dev, "Unsupported mode for ipsec offload\n");
-+		return -EINVAL;
-+	}
-+
- 	if (xs->xso.flags & XFRM_OFFLOAD_INBOUND) {
- 		struct rx_sa rsa;
- 
+ /*
+  * The data of compressed section should be aligned to 4
+  * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
 
 
