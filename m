@@ -2,158 +2,335 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E323C33C4FA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:58:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39E0C33C4E8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 18:56:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229879AbhCOR5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 13:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40318 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233173AbhCOR5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 13:57:18 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87012C061762
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 10:43:40 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id a1so17253585ljp.2
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 10:43:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OtMjZ54OJDOqbtIenqxR+lq1GcaSGpVZuR7abMKUDls=;
-        b=DOparOOWNjFSzT0WLXYcgWo45dz5psBgKIGV7respI0DOAw+ytj1pRuhTs7D2SqEPH
-         ljRWKIxPmia711zdBEWPDhKgRI64SupDSG2W+f7jD/wbFKp2Clkn4/+tqueeJfyLmls4
-         ZUWAY787zjg/tE9U7LfjbbDfcDDX/XM9gEOcD+FjFTyphW0Dhb6cdqVYBzutwlvbqnXd
-         sBClYWJvlSoqhoDY907VwLV06KH+/tgAleUrgUaNTNIu0JkpQNMJ99hewftjMCBrfbzs
-         3ypqM6dIw1zSwwuRQDCLBaBqfSScB/vmY5dz0zoVyzMIelArgjjIQEhEz2qRekftjHLQ
-         qArg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OtMjZ54OJDOqbtIenqxR+lq1GcaSGpVZuR7abMKUDls=;
-        b=Kov29MQr6xcazBxW9Ve0Q6KeXRh1KkSt6fm46a5q+dlZWcLt2Ix/dUaV3ONBoZkejG
-         7SrLKFM+G4sp1+YbcmG0hUBbJoKXOcoClvk2shi36L0paQTl2de8Ks0VhL/qlFIOWdLs
-         0aab5EDRi+2oM8QTyrISCMSi0ltMefRYRmIsKYgvdzaITTTMSE9lIFh3IM+ejKNd6JIz
-         zDiF4SeCfNRIGoL+mgOCxiHtrI6QwxrVRfaeVPrU9Ne/o/4JFdXJt18y1fR1RLRzW+/v
-         KfYM4kENh3EaHcDwUunYYDKyh32Wuvyfdio5OQYoKvku4a0VdRBTJgU3MYem7L3nJ+lX
-         jZ9Q==
-X-Gm-Message-State: AOAM530JKLPKb7is/O28wnn99850talDVqn2G1J8crnwXQ69D+SdHwRJ
-        EAEODkAW6KvkSxVKgU6uECrts2Mj/v0sqn8TD0Wgdw==
-X-Google-Smtp-Source: ABdhPJyoWoJhb8Ys25u9Mfsi7IM38mLM841V2NfuRriNEsngycl2SFnbuly6ANDglO7IcDj3yNfopCvRvwo8479gMqI=
-X-Received: by 2002:a2e:b008:: with SMTP id y8mr88050ljk.233.1615830218474;
- Mon, 15 Mar 2021 10:43:38 -0700 (PDT)
+        id S231239AbhCOR4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 13:56:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44184 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234889AbhCORsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 13:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C737764F10;
+        Mon, 15 Mar 2021 17:47:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1615830471;
+        bh=NaE41y79ZWRo1rUoExuK5ZE+Nq7BXabH1ehK7riR4sY=;
+        h=Date:From:To:Subject:From;
+        b=GwenHxk7GwUmh/CKMtmPKbZaIw5DL4NEALKMoVzmsl1zazW5qE5Z7JKzL8r6MQaiz
+         9eBRJnVKKQLodmDql6aZTmfhzFoyrCnev6KPN3FL2ySZ+zCEgIyDBQpeGizCgNf9Pb
+         o4dpPdG7LOxazQ9g/TDdT4WwJ949J7xAucqYpsc8=
+Date:   Mon, 15 Mar 2021 10:47:50 -0700
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, bhe@redhat.com, bp@alien8.de, cai@lca.pw,
+        chris@chris-wilson.co.uk, david@redhat.com, hpa@zytor.com,
+        lma@semihalf.com, mgorman@suse.de, mhocko@kernel.org,
+        mingo@redhat.com, mm-commits@vger.kernel.org, rppt@linux.ibm.com,
+        stable@vger.kernel.org, tglx@linutronix.de,
+        tomi.p.sarvela@intel.com, vbabka@suse.cz
+Subject:  [merged]
+ =?US-ASCII?Q?mm-page=5Fallocc-refactor-initialization-of-struct-page-for-?=
+ =?US-ASCII?Q?holes-in-memory-layout.patch?= removed from -mm tree
+Message-ID: <20210315174750.gcxQqEMxg%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-References: <CAKwvOdka=y54W=ssgCZRgr2B+NaYFHF07KnnNDfrwv79-geSQw@mail.gmail.com>
- <YEs+iaQzEQYNgXcw@kroah.com> <CAKwvOd=xr5je726djQeMMrZAuNcJpX9=R-X19epVy85cjbNbqw@mail.gmail.com>
- <YEw6i39k6hqZJS8+@sashalap> <YE8kIbyWKSojC1SV@kroah.com> <YE8k/2WTPFGwMpHk@kroah.com>
- <YE8l2qhycaGPYdNn@kroah.com> <CAMj1kXGLrVXZPAoxTtMueB9toeoktuKza-mRpd4vZ0SLN6bSSQ@mail.gmail.com>
-In-Reply-To: <CAMj1kXGLrVXZPAoxTtMueB9toeoktuKza-mRpd4vZ0SLN6bSSQ@mail.gmail.com>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Mon, 15 Mar 2021 10:43:26 -0700
-Message-ID: <CAKwvOdmJm3v3sHfopWXrSPFn46qaSX9cna=Nd+FZiN=Nz9zmQQ@mail.gmail.com>
-Subject: Re: ARCH=arm LLVM_IAS=1 patches for 5.10, 5.4, and 4.19
-To:     Ard Biesheuvel <ardb@kernel.org>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Jian Cai <jiancai@google.com>, Stefan Agner <stefan@agner.ch>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>, candle.sun@unisoc.com,
-        =?UTF-8?B?TWlsZXMgQ2hlbiAo6Zmz5rCR5qi6KQ==?= 
-        <miles.chen@mediatek.com>, Stephen Hines <srhines@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        Marc Zyngier <maz@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 3:37 AM Ard Biesheuvel <ardb@kernel.org> wrote:
->
-> Note that the 5.4 Thumb2 build is still broken today because
-> it carries
->
-> eff8728fe698 vmlinux.lds.h: Add PGO and AutoFDO input sections
->
-> but does not carry
->
-> f77ac2e378be ARM: 9030/1: entry: omit FP emulation for UND exceptions
-> taken in kernel mode
->
-> which is tagged as a fix for the former patch, and landed in v5.11.
-> (Side question: anyone have a clue why the patch in question was never
-> selected for backporting?)
 
-I will follow up on the rest, but some quick forensics.
+The patch titled
+     Subject: mm/page_alloc.c: refactor initialization of struct page for h=
+oles in memory layout
+has been removed from the -mm tree.  Its filename was
+     mm-page_allocc-refactor-initialization-of-struct-page-for-holes-in-mem=
+ory-layout.patch
 
-f77ac2e378be ("ARM: 9030/1: entry: omit FP emulation for UND
-exceptions taken in kernel mode")
+This patch was dropped because it was merged into mainline or a subsystem t=
+ree
 
-was selected for inclusion into 5.10.y on 2020-12-20:
-https://lore.kernel.org/stable/20201228125038.405690346@linuxfoundation.org/
+------------------------------------------------------
+=46rom: Mike Rapoport <rppt@linux.ibm.com>
+Subject: mm/page_alloc.c: refactor initialization of struct page for holes =
+in memory layout
 
-I actually don't have a
-Subject: FAILED: patch "[PATCH] <oneline>" failed to apply to X.YY-stable tree
-email for this, which seems unusual. I don't know if one wasn't sent,
-or message engine had a hiccup or what, so I don't know if it simply
-failed to apply to older trees.  Ard, did you as the author receive
-such an email?  Usually everyone cc'ed on the patch gets such emails
-from autosel, it looks like.
+There could be struct pages that are not backed by actual physical memory.
+This can happen when the actual memory bank is not a multiple of
+SECTION_SIZE or when an architecture does not register memory holes
+reserved by the firmware as memblock.memory.
 
-Then *later*
-eff8728fe698 ("vmlinux.lds.h: Add PGO and AutoFDO input sections")
-was sent to stable on 2021-01-13:
-https://lore.kernel.org/stable/20210113185758.GA571703@ubuntu-m3-large-x86/
+Such pages are currently initialized using init_unavailable_mem() function
+that iterates through PFNs in holes in memblock.memory and if there is a
+struct page corresponding to a PFN, the fields of this page are set to
+default values and it is marked as Reserved.
 
-I was cc'ed on both, and didn't notice or forgot that one had
-additional fixes necessary.  My mistake.
+init_unavailable_mem() does not take into account zone and node the page
+belongs to and sets both zone and node links in struct page to zero.
 
-I think one way to avoid that in the future in a semi automated
-fashion would be to have an in tree script like checkpatch that given
-a sha from mainline would check git log for any Fixes tag that may
-exist on subsequent patches.  Then it should be possible for any patch
-that itself is backported (contains "commit XXX upstream") to be fed
-in when auto selected or submitted to stable (or before then) to check
-for new fixes.  Probably would still need to be run periodically, as
-Fixes: aren't necessarily available when AutoSel runs.  For the
-toolchain, we have a bot that watches for reverts for example, but
-non-standard commit messages denoting one patch fixes another makes
-this far from perfect.  Would still need to be run periodically,
-because if a Fixes: exists, but hasn't been merged yet, it could get
-missed.
+Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock
+regions rather that check each PFN") the holes inside a zone were
+re-initialized during memmap_init() and got their zone/node links right.=20
+However, after that commit nothing updates the struct pages representing
+such holes.
 
-Though I'm curious how the machinery that picks up Fixes: tags works.
-Does it run on a time based cadence?  Is it only run as part of
-AutoSel, but not for manual backports sent to the list?  Would it have
-picked up on f77ac2e378be at some point?
+On a system that has firmware reserved holes in a zone above ZONE_DMA, for
+instance in a configuration below:
 
-f77ac2e378be doesn't apply cleanly to linux-5.4.y. There's a conflict
-in arch/arm/vfp/vfphw.S due to 5.4 missing
-commit 2cbd1cc3dcd3 ("ARM: 8991/1: use VFP assembler mnemonics if available")
-which is one of the patches I sent in the 5.4 series in this thread.
-That was 1 of a 3 patch series:
-https://lore.kernel.org/linux-arm-kernel/cover.1593205699.git.stefan@agner.ch/
+	# grep -A1 E820 /proc/iomem
+	7a17b000-7a216fff : Unknown E820 type
+	7a217000-7bffffff : System RAM
 
-Should I separate out just those 3 and f77ac2e378be and send that for
-5.4, or manually backport just f77ac2e378be and note in the commit
-message the conflict?
+unset zone link in struct page will trigger
 
-eff8728fe698 was sent back to 4.4, so if it's easy to reproduce the
-observed failure, we can test to see if branches older than 5.4 are
-also affected.  It sounds like eff8728fe698 was merged 2021-01-15, so
-THUMB2 would have been broken since then. I didn't see any reports on
-https://lore.kernel.org/stable/20210113185758.GA571703@ubuntu-m3-large-x86/;
-was this reported elsewhere earlier? Did automated testing help find
-this, or was it found manually just now?  I'm curious if there's a way
-to expand our automated coverage since this eluded us?
+	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
 
-commit 3ce47d95b734 ("powerpc: Handle .text.{hot,unlikely}.* in linker script")
-is the only other commit in mainline that refers to eff8728fe698, but
-doesn't use that in its Fixes tag.  I don't see any other follow up
-patches (yet! *ducks*).
---
-Thanks,
-~Nick Desaulniers
+in set_pfnblock_flags_mask() when called with a struct page from a range
+other than E820_TYPE_RAM because there are pages in the range of
+ZONE_DMA32 but the unset zone link in struct page makes them appear as a
+part of ZONE_DMA.
+
+Interleave initialization of the unavailable pages with the normal
+initialization of memory map, so that zone and node information will be
+properly set on struct pages that are not backed by the actual memory.
+
+With this change the pages for holes inside a zone will get proper
+zone/node links and the pages that are not spanned by any node will get
+links to the adjacent zone/node.  The holes between nodes will be
+prepended to the zone/node above the hole and the trailing pages in the
+last section that will be appended to the zone/node below.
+
+[akpm@linux-foundation.org: don't initialize static to zero, use %llu for u=
+64]
+Link: https://lkml.kernel.org/r/20210225224351.7356-2-rppt@kernel.org
+Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather=
+ that check each PFN")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: Qian Cai <cai@lca.pw>
+Reported-by: Andrea Arcangeli <aarcange@redhat.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: =C5=81ukasz Majczak <lma@semihalf.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_alloc.c |  158 +++++++++++++++++++++-------------------------
+ 1 file changed, 75 insertions(+), 83 deletions(-)
+
+--- a/mm/page_alloc.c~mm-page_allocc-refactor-initialization-of-struct-page=
+-for-holes-in-memory-layout
++++ a/mm/page_alloc.c
+@@ -6259,12 +6259,65 @@ static void __meminit zone_init_free_lis
+ 	}
+ }
+=20
++#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
++/*
++ * Only struct pages that correspond to ranges defined by memblock.memory
++ * are zeroed and initialized by going through __init_single_page() during
++ * memmap_init_zone().
++ *
++ * But, there could be struct pages that correspond to holes in
++ * memblock.memory. This can happen because of the following reasons:
++ * - physical memory bank size is not necessarily the exact multiple of the
++ *   arbitrary section size
++ * - early reserved memory may not be listed in memblock.memory
++ * - memory layouts defined with memmap=3D kernel parameter may not align
++ *   nicely with memmap sections
++ *
++ * Explicitly initialize those struct pages so that:
++ * - PG_Reserved is set
++ * - zone and node links point to zone and node that span the page if the
++ *   hole is in the middle of a zone
++ * - zone and node links point to adjacent zone/node if the hole falls on
++ *   the zone boundary; the pages in such holes will be prepended to the
++ *   zone/node above the hole except for the trailing pages in the last
++ *   section that will be appended to the zone/node below.
++ */
++static u64 __meminit init_unavailable_range(unsigned long spfn,
++					    unsigned long epfn,
++					    int zone, int node)
++{
++	unsigned long pfn;
++	u64 pgcnt =3D 0;
++
++	for (pfn =3D spfn; pfn < epfn; pfn++) {
++		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
++			pfn =3D ALIGN_DOWN(pfn, pageblock_nr_pages)
++				+ pageblock_nr_pages - 1;
++			continue;
++		}
++		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
++		__SetPageReserved(pfn_to_page(pfn));
++		pgcnt++;
++	}
++
++	return pgcnt;
++}
++#else
++static inline u64 init_unavailable_range(unsigned long spfn, unsigned long=
+ epfn,
++					 int zone, int node)
++{
++	return 0;
++}
++#endif
++
+ void __meminit __weak memmap_init_zone(struct zone *zone)
+ {
+ 	unsigned long zone_start_pfn =3D zone->zone_start_pfn;
+ 	unsigned long zone_end_pfn =3D zone_start_pfn + zone->spanned_pages;
+ 	int i, nid =3D zone_to_nid(zone), zone_id =3D zone_idx(zone);
++	static unsigned long hole_pfn;
+ 	unsigned long start_pfn, end_pfn;
++	u64 pgcnt =3D 0;
+=20
+ 	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+ 		start_pfn =3D clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+@@ -6274,7 +6327,29 @@ void __meminit __weak memmap_init_zone(s
+ 			memmap_init_range(end_pfn - start_pfn, nid,
+ 					zone_id, start_pfn, zone_end_pfn,
+ 					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
++
++		if (hole_pfn < start_pfn)
++			pgcnt +=3D init_unavailable_range(hole_pfn, start_pfn,
++							zone_id, nid);
++		hole_pfn =3D end_pfn;
+ 	}
++
++#ifdef CONFIG_SPARSEMEM
++	/*
++	 * Initialize the hole in the range [zone_end_pfn, section_end].
++	 * If zone boundary falls in the middle of a section, this hole
++	 * will be re-initialized during the call to this function for the
++	 * higher zone.
++	 */
++	end_pfn =3D round_up(zone_end_pfn, PAGES_PER_SECTION);
++	if (hole_pfn < end_pfn)
++		pgcnt +=3D init_unavailable_range(hole_pfn, end_pfn,
++						zone_id, nid);
++#endif
++
++	if (pgcnt)
++		pr_info("  %s zone: %llu pages in unavailable ranges\n",
++			zone->name, pgcnt);
+ }
+=20
+ static int zone_batchsize(struct zone *zone)
+@@ -7071,88 +7146,6 @@ void __init free_area_init_memoryless_no
+ 	free_area_init_node(nid);
+ }
+=20
+-#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
+-/*
+- * Initialize all valid struct pages in the range [spfn, epfn) and mark th=
+em
+- * PageReserved(). Return the number of struct pages that were initialized.
+- */
+-static u64 __init init_unavailable_range(unsigned long spfn, unsigned long=
+ epfn)
+-{
+-	unsigned long pfn;
+-	u64 pgcnt =3D 0;
+-
+-	for (pfn =3D spfn; pfn < epfn; pfn++) {
+-		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
+-			pfn =3D ALIGN_DOWN(pfn, pageblock_nr_pages)
+-				+ pageblock_nr_pages - 1;
+-			continue;
+-		}
+-		/*
+-		 * Use a fake node/zone (0) for now. Some of these pages
+-		 * (in memblock.reserved but not in memblock.memory) will
+-		 * get re-initialized via reserve_bootmem_region() later.
+-		 */
+-		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
+-		__SetPageReserved(pfn_to_page(pfn));
+-		pgcnt++;
+-	}
+-
+-	return pgcnt;
+-}
+-
+-/*
+- * Only struct pages that are backed by physical memory are zeroed and
+- * initialized by going through __init_single_page(). But, there are some
+- * struct pages which are reserved in memblock allocator and their fields
+- * may be accessed (for example page_to_pfn() on some configuration access=
+es
+- * flags). We must explicitly initialize those struct pages.
+- *
+- * This function also addresses a similar issue where struct pages are left
+- * uninitialized because the physical address range is not covered by
+- * memblock.memory or memblock.reserved. That could happen when memblock
+- * layout is manually configured via memmap=3D, or when the highest physic=
+al
+- * address (max_pfn) does not end on a section boundary.
+- */
+-static void __init init_unavailable_mem(void)
+-{
+-	phys_addr_t start, end;
+-	u64 i, pgcnt;
+-	phys_addr_t next =3D 0;
+-
+-	/*
+-	 * Loop through unavailable ranges not covered by memblock.memory.
+-	 */
+-	pgcnt =3D 0;
+-	for_each_mem_range(i, &start, &end) {
+-		if (next < start)
+-			pgcnt +=3D init_unavailable_range(PFN_DOWN(next),
+-							PFN_UP(start));
+-		next =3D end;
+-	}
+-
+-	/*
+-	 * Early sections always have a fully populated memmap for the whole
+-	 * section - see pfn_valid(). If the last section has holes at the
+-	 * end and that section is marked "online", the memmap will be
+-	 * considered initialized. Make sure that memmap has a well defined
+-	 * state.
+-	 */
+-	pgcnt +=3D init_unavailable_range(PFN_DOWN(next),
+-					round_up(max_pfn, PAGES_PER_SECTION));
+-
+-	/*
+-	 * Struct pages that do not have backing memory. This could be because
+-	 * firmware is using some of this memory, or for some other reasons.
+-	 */
+-	if (pgcnt)
+-		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+-}
+-#else
+-static inline void __init init_unavailable_mem(void)
+-{
+-}
+-#endif /* !CONFIG_FLAT_NODE_MEM_MAP */
+-
+ #if MAX_NUMNODES > 1
+ /*
+  * Figure out the number of possible node ids.
+@@ -7576,7 +7569,6 @@ void __init free_area_init(unsigned long
+ 	/* Initialise every node */
+ 	mminit_verify_pageflags_layout();
+ 	setup_nr_node_ids();
+-	init_unavailable_mem();
+ 	for_each_online_node(nid) {
+ 		pg_data_t *pgdat =3D NODE_DATA(nid);
+ 		free_area_init_node(nid);
+_
+
+Patches currently in -mm which might be from rppt@linux.ibm.com are
+
+
