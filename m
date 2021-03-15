@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E061033B883
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A9533B97D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232657AbhCOODr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S233387AbhCOOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231492AbhCON72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88CDD64EF2;
-        Mon, 15 Mar 2021 13:59:03 +0000 (UTC)
+        id S233389AbhCOOBi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A01364FBC;
+        Mon, 15 Mar 2021 14:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816744;
-        bh=uWjmqd3vi/Hw0HY6wpiy2PHmEkJHmyNnY7TxG/om+FU=;
+        s=korg; t=1615816868;
+        bh=8BsP7PzX23kUwEpPHzsJwyJsQ7RWeraVnNiMuMxwPVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1s4cOzlawCl0AeMAC2nqRBqXVayaFs+NMoarhI92rx0wA02R+uLzMF6oGOb9JSl8l
-         seCH995pVrWvnQiR2RQpLxOGZrBsrjd62SGhY88hyEsRoVlOlKKJLJZeQOvZLMhw6w
-         R1Mm3AdJSV6PVcwt769OsXUCqJ0rLrl3pAET7k8s=
+        b=MXj56FFiFzNiSF6tmjGrSs3v+Wq9h47s5wPTKT4eEaSI6Fxm8Vu0Mw63T52f63Ag8
+         DPAMhSFwEYb5kuVn6F0sUaZVAgsSrPTQ7sJLo5PnXwD99XYR7Pfoo22iEsUBsm8EMi
+         VFFwulCZjD7S8wjkk65rHqhWDmKQm0wFzBSBXWlA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 041/120] net: phy: fix save wrong speed and duplex problem if autoneg is on
-Date:   Mon, 15 Mar 2021 14:56:32 +0100
-Message-Id: <20210315135721.337831191@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Andrew Jones <drjones@redhat.com>
+Subject: [PATCH 5.4 161/168] KVM: arm64: Fix exclusive limit for IPA size
+Date:   Mon, 15 Mar 2021 14:56:33 +0100
+Message-Id: <20210315135555.657668150@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +42,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit d9032dba5a2b2bbf0fdce67c8795300ec9923b43 ]
+commit 262b003d059c6671601a19057e9fe1a5e7f23722 upstream.
 
-If phy uses generic driver and autoneg is on, enter command
-"ethtool -s eth0 speed 50" will not change phy speed actually, but
-command "ethtool eth0" shows speed is 50Mb/s because phydev->speed
-has been set to 50 and no update later.
+When registering a memslot, we check the size and location of that
+memslot against the IPA size to ensure that we can provide guest
+access to the whole of the memory.
 
-And duplex setting has same problem too.
+Unfortunately, this check rejects memslot that end-up at the exact
+limit of the addressing capability for a given IPA size. For example,
+it refuses the creation of a 2GB memslot at 0x8000000 with a 32bit
+IPA space.
 
-However, if autoneg is on, phy only changes speed and duplex according to
-phydev->advertising, but not phydev->speed and phydev->duplex. So in this
-case, phydev->speed and phydev->duplex don't need to be set in function
-phy_ethtool_ksettings_set() if autoneg is on.
+Fix it by relaxing the check to accept a memslot reaching the
+limit of the IPA space.
 
-Fixes: 51e2a3846eab ("PHY: Avoid unnecessary aneg restarts")
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c3058d5da222 ("arm/arm64: KVM: Ensure memslots are within KVM_PHYS_SIZE")
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Link: https://lore.kernel.org/r/20210311100016.3830038-3-maz@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/phy/phy.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ virt/kvm/arm/mmu.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index cc454b8c032c..dd4bf4265a5e 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -335,7 +335,10 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
+--- a/virt/kvm/arm/mmu.c
++++ b/virt/kvm/arm/mmu.c
+@@ -2307,8 +2307,7 @@ int kvm_arch_prepare_memory_region(struc
+ 	 * Prevent userspace from creating a memory region outside of the IPA
+ 	 * space addressable by the KVM guest IPA space.
+ 	 */
+-	if (memslot->base_gfn + memslot->npages >=
+-	    (kvm_phys_size(kvm) >> PAGE_SHIFT))
++	if ((memslot->base_gfn + memslot->npages) > (kvm_phys_size(kvm) >> PAGE_SHIFT))
+ 		return -EFAULT;
  
- 	phydev->autoneg = autoneg;
- 
--	phydev->speed = speed;
-+	if (autoneg == AUTONEG_DISABLE) {
-+		phydev->speed = speed;
-+		phydev->duplex = duplex;
-+	}
- 
- 	phydev->advertising = advertising;
- 
-@@ -344,8 +347,6 @@ int phy_ethtool_ksettings_set(struct phy_device *phydev,
- 	else
- 		phydev->advertising &= ~ADVERTISED_Autoneg;
- 
--	phydev->duplex = duplex;
--
- 	phydev->mdix_ctrl = cmd->base.eth_tp_mdix_ctrl;
- 
- 	/* Restart the PHY */
--- 
-2.30.1
-
+ 	down_read(&current->mm->mmap_sem);
 
 
