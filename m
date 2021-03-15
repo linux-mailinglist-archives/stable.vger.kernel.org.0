@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0BA33B97C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D9633B9B5
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234061AbhCOOGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S234955AbhCOOGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233380AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B9764FC0;
-        Mon, 15 Mar 2021 14:01:06 +0000 (UTC)
+        id S233470AbhCOOBo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC13F64E89;
+        Mon, 15 Mar 2021 14:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816867;
-        bh=MhuxdJGA/iHLtYvIfq5Z8fSG7I/IPtnSqScMjtv/Jpk=;
+        s=korg; t=1615816900;
+        bh=PTIV3Q+ldmGS5yR7bJr3pPecoqqWfaeNBLeyEKfVCc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQDqLnBUdmiTfJ/OQMQOc9e5ItYdFMq4l3sdMUcGHGTlAb29M3GnbFepRnu8UBWRI
-         G1ee9jlXKf7OvuDN75iGLVEDA3TmaRLa3BTeHE4/d8SWnviZhdi5exLCJVlkEPYgmx
-         b2I1CkbjQXKnwh1+E+eNGwHrKLJztz19atJBusDY=
+        b=2LMJCaxfzuZHZOsyrMQmSeYAbfxpUQAs4+ttHGLHYs6NXeYbtddfA7VD6Km6gB7JU
+         lrT60E5XIJLMEAPrVlHXzqdFnz19SuYQ0wDctJ0iL28iylCq5tTeFMaH4tLXUsZ+Wu
+         hb4BKxaQKFPv6nyXH/6W2AYHXKoPli4fG3dFHVyo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 160/290] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
+        stable@vger.kernel.org, Paul Fertser <fercerpav@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.11 190/306] mmc: core: Fix partition switch time for eMMC
 Date:   Mon, 15 Mar 2021 14:54:13 +0100
-Message-Id: <20210315135547.312229029@linuxfoundation.org>
+Message-Id: <20210315135514.031728471@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +42,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
+commit 66fbacccbab91e6e55d9c8f1fc0910a8eb6c81f7 upstream.
 
-Avoid a potentially large stack frame and overflow by making
-"cpumask_t avail" a static variable. There is no concurrent
-access due to the existing locking.
+Avoid the following warning by always defining partition switch time:
 
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ [    3.209874] mmc1: unspecified timeout for CMD6 - use generic
+ [    3.222780] ------------[ cut here ]------------
+ [    3.233363] WARNING: CPU: 1 PID: 111 at drivers/mmc/core/mmc_ops.c:575 __mmc_switch+0x200/0x204
+
+Reported-by: Paul Fertser <fercerpav@gmail.com>
+Fixes: 1c447116d017 ("mmc: mmc: Fix partition switch timeout for some eMMCs")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Link: https://lore.kernel.org/r/168bbfd6-0c5b-5ace-ab41-402e7937c46e@intel.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/smp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/core/mmc.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 3a0d545f0ce8..791bc373418b 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -775,7 +775,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
- static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
- {
- 	struct sclp_core_entry *core;
--	cpumask_t avail;
-+	static cpumask_t avail;
- 	bool configured;
- 	u16 core_id;
- 	int nr, i;
--- 
-2.30.1
-
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -423,10 +423,6 @@ static int mmc_decode_ext_csd(struct mmc
+ 
+ 		/* EXT_CSD value is in units of 10ms, but we store in ms */
+ 		card->ext_csd.part_time = 10 * ext_csd[EXT_CSD_PART_SWITCH_TIME];
+-		/* Some eMMC set the value too low so set a minimum */
+-		if (card->ext_csd.part_time &&
+-		    card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
+-			card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
+ 
+ 		/* Sleep / awake timeout in 100ns units */
+ 		if (sa_shift > 0 && sa_shift <= 0x17)
+@@ -616,6 +612,17 @@ static int mmc_decode_ext_csd(struct mmc
+ 		card->ext_csd.data_sector_size = 512;
+ 	}
+ 
++	/*
++	 * GENERIC_CMD6_TIME is to be used "unless a specific timeout is defined
++	 * when accessing a specific field", so use it here if there is no
++	 * PARTITION_SWITCH_TIME.
++	 */
++	if (!card->ext_csd.part_time)
++		card->ext_csd.part_time = card->ext_csd.generic_cmd6_time;
++	/* Some eMMC set the value too low so set a minimum */
++	if (card->ext_csd.part_time < MMC_MIN_PART_SWITCH_TIME)
++		card->ext_csd.part_time = MMC_MIN_PART_SWITCH_TIME;
++
+ 	/* eMMC v5 or later */
+ 	if (card->ext_csd.rev >= 7) {
+ 		memcpy(card->ext_csd.fwrev, &ext_csd[EXT_CSD_FIRMWARE_VERSION],
 
 
