@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A93C733BA56
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A93533BA75
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235438AbhCOOI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49594 "EHLO mail.kernel.org"
+        id S231349AbhCOOJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234318AbhCOODM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 169B064DAD;
-        Mon, 15 Mar 2021 14:03:10 +0000 (UTC)
+        id S232842AbhCOODo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2A4F64EF3;
+        Mon, 15 Mar 2021 14:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816992;
-        bh=V7viz8xu8N8sJYEkw/htq8X3o9dPilKEp2U4S6NTMI4=;
+        s=korg; t=1615817022;
+        bh=5Q28Insji8hCawfXC4N4OSXAj2QgE19Qfz+hVjQ/DAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sq3OpH8mX7mNXkyX8bUg4UT734sepzJ1xfg/0XnyxPEmcKmZNqS3iglX8f8xUq2A/
-         ufAGjhU/GrMkLghrEARr2fEh+IJxtSDBE7S/KW7d9eF7xrUiGEPpMdojPspgbRdmDr
-         XxlNvipSWq1v6Em6VBh8TjiYlCow/x5LLgB2E4yE=
+        b=ezjW++H7DaIThPSu25UIKVd/uixf056rrqcY3KqwCSa/pPSUcC26NABixR0SMrO+z
+         qLXcbhhXl0BnU61DWWnKJQxjdJbqDKnTVV70Tcooc4poppR6m/sqVaNZwBbj4J9FQy
+         RmNiOA9iEZjL6torwVmvEhhIqmH5Qi4lm0CGX+Gg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 234/290] staging: comedi: adv_pci1710: Fix endian problem for AI command data
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 264/306] seqlock,lockdep: Fix seqcount_latch_init()
 Date:   Mon, 15 Mar 2021 14:55:27 +0100
-Message-Id: <20210315135549.892348450@linuxfoundation.org>
+Message-Id: <20210315135516.564663602@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +42,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit b2e78630f733a76508b53ba680528ca39c890e82 upstream.
+[ Upstream commit 4817a52b306136c8b2b2271d8770401441e4cf79 ]
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the calls to
-`comedi_buf_write_samples()` are passing the address of a 32-bit integer
-variable.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the variables
-holding the sample value to `unsigned short`.  The type of the `val`
-parameter of `pci1710_ai_read_sample()` is changed to `unsigned short *`
-accordingly.  The type of the `val` variable in `pci1710_ai_insn_read()`
-is also changed to `unsigned short` since its address is passed to
-`pci1710_ai_read_sample()`.
+seqcount_init() must be a macro in order to preserve the static
+variable that is used for the lockdep key. Don't then wrap it in an
+inline function, which destroys that.
 
-Fixes: a9c3a015c12f ("staging: comedi: adv_pci1710: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-4-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Luckily there aren't many users of this function, but fix it before it
+becomes a problem.
+
+Fixes: 80793c3471d9 ("seqlock: Introduce seqcount_latch_t")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YEeFEbNUVkZaXDp4@hirez.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/adv_pci1710.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/linux/seqlock.h | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/staging/comedi/drivers/adv_pci1710.c
-+++ b/drivers/staging/comedi/drivers/adv_pci1710.c
-@@ -300,11 +300,11 @@ static int pci1710_ai_eoc(struct comedi_
- static int pci1710_ai_read_sample(struct comedi_device *dev,
- 				  struct comedi_subdevice *s,
- 				  unsigned int cur_chan,
--				  unsigned int *val)
-+				  unsigned short *val)
- {
- 	const struct boardtype *board = dev->board_ptr;
- 	struct pci1710_private *devpriv = dev->private;
--	unsigned int sample;
-+	unsigned short sample;
- 	unsigned int chan;
+diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
+index 2f7bb92b4c9e..f61e34fbaaea 100644
+--- a/include/linux/seqlock.h
++++ b/include/linux/seqlock.h
+@@ -664,10 +664,7 @@ typedef struct {
+  * seqcount_latch_init() - runtime initializer for seqcount_latch_t
+  * @s: Pointer to the seqcount_latch_t instance
+  */
+-static inline void seqcount_latch_init(seqcount_latch_t *s)
+-{
+-	seqcount_init(&s->seqcount);
+-}
++#define seqcount_latch_init(s) seqcount_init(&(s)->seqcount)
  
- 	sample = inw(dev->iobase + PCI171X_AD_DATA_REG);
-@@ -345,7 +345,7 @@ static int pci1710_ai_insn_read(struct c
- 	pci1710_ai_setup_chanlist(dev, s, &insn->chanspec, 1, 1);
- 
- 	for (i = 0; i < insn->n; i++) {
--		unsigned int val;
-+		unsigned short val;
- 
- 		/* start conversion */
- 		outw(0, dev->iobase + PCI171X_SOFTTRG_REG);
-@@ -395,7 +395,7 @@ static void pci1710_handle_every_sample(
- {
- 	struct comedi_cmd *cmd = &s->async->cmd;
- 	unsigned int status;
--	unsigned int val;
-+	unsigned short val;
- 	int ret;
- 
- 	status = inw(dev->iobase + PCI171X_STATUS_REG);
-@@ -455,7 +455,7 @@ static void pci1710_handle_fifo(struct c
- 	}
- 
- 	for (i = 0; i < devpriv->max_samples; i++) {
--		unsigned int val;
-+		unsigned short val;
- 		int ret;
- 
- 		ret = pci1710_ai_read_sample(dev, s, s->async->cur_chan, &val);
+ /**
+  * raw_read_seqcount_latch() - pick even/odd latch data copy
+-- 
+2.30.1
+
 
 
