@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CDD533B65B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E4733B533
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbhCON5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
+        id S230461AbhCONxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231553AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F72064EED;
-        Mon, 15 Mar 2021 13:57:11 +0000 (UTC)
+        id S230097AbhCONxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 388A364EE3;
+        Mon, 15 Mar 2021 13:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816633;
-        bh=Y90632oKp6pme6AICtcjNYorJnRMU5a7uKrSrXxBsIU=;
+        s=korg; t=1615816392;
+        bh=CXDrykB2YTXWYcveyql7HCHu+NhUEXIlNh+/o7fFvTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sR4uHxg7ddNi1Ig8Xd9AachhFuLnT/3VhbUP5aSQoENjjARD3xSXi4nvap7B8L2uN
-         cvU1S/5xMyB7z+4x8GlFm7KzXO9hA7dwMv1eN5aOQFKpN/cXV0ay6otVI3VwPEdJ5E
-         gKM+4iYro1OMFiFDqU2iKLvp6ofq3DfjM8teSxt8=
+        b=GtCYqdgUpPG2NqOAuc63B4y0oPHqqEovv0W0U8ow3CRBlXjgUxCBJxA2Ve7Oy5J4H
+         UG7POpW0bXPzl274KNbo582KSZZf6CuBtmcVOdqQeIN1AYfhQPK/wM9cnmI0TVLC0H
+         wnz/6CUqGDpSqWeYtUx8pHj4utAKLEEP3vQXCy8U=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>
-Subject: [PATCH 5.11 032/306] samples, bpf: Add missing munmap in xdpsock
-Date:   Mon, 15 Mar 2021 14:51:35 +0100
-Message-Id: <20210315135508.714503227@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Heyne <mheyne@amazon.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 13/78] net: sched: avoid duplicates in classes dump
+Date:   Mon, 15 Mar 2021 14:51:36 +0100
+Message-Id: <20210315135212.505232270@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+From: Maximilian Heyne <mheyne@amazon.de>
 
-commit 6bc6699881012b5bd5d49fa861a69a37fc01b49c upstream.
+commit bfc2560563586372212b0a8aeca7428975fa91fe upstream.
 
-We mmap the umem region, but we never munmap it.
-Add the missing call at the end of the cleanup.
+This is a follow up of commit ea3274695353 ("net: sched: avoid
+duplicates in qdisc dump") which has fixed the issue only for the qdisc
+dump.
 
-Fixes: 3945b37a975d ("samples/bpf: use hugepages in xdpsock app")
-Signed-off-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Björn Töpel <bjorn.topel@intel.com>
-Link: https://lore.kernel.org/bpf/20210303185636.18070-3-maciej.fijalkowski@intel.com
+The duplicate printing also occurs when dumping the classes via
+  tc class show dev eth0
+
+Fixes: 59cc1f61f09c ("net: sched: convert qdisc linked list to hashtable")
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- samples/bpf/xdpsock_user.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/sched/sch_api.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/samples/bpf/xdpsock_user.c
-+++ b/samples/bpf/xdpsock_user.c
-@@ -1699,5 +1699,7 @@ int main(int argc, char **argv)
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1789,7 +1789,7 @@ static int tc_dump_tclass_qdisc(struct Q
  
- 	xdpsock_cleanup();
+ static int tc_dump_tclass_root(struct Qdisc *root, struct sk_buff *skb,
+ 			       struct tcmsg *tcm, struct netlink_callback *cb,
+-			       int *t_p, int s_t)
++			       int *t_p, int s_t, bool recur)
+ {
+ 	struct Qdisc *q;
+ 	int b;
+@@ -1800,7 +1800,7 @@ static int tc_dump_tclass_root(struct Qd
+ 	if (tc_dump_tclass_qdisc(root, skb, tcm, cb, t_p, s_t) < 0)
+ 		return -1;
  
-+	munmap(bufs, NUM_FRAMES * opt_xsk_frame_size);
-+
- 	return 0;
- }
+-	if (!qdisc_dev(root))
++	if (!qdisc_dev(root) || !recur)
+ 		return 0;
+ 
+ 	hash_for_each(qdisc_dev(root)->qdisc_hash, b, q, hash) {
+@@ -1828,13 +1828,13 @@ static int tc_dump_tclass(struct sk_buff
+ 	s_t = cb->args[0];
+ 	t = 0;
+ 
+-	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t) < 0)
++	if (tc_dump_tclass_root(dev->qdisc, skb, tcm, cb, &t, s_t, true) < 0)
+ 		goto done;
+ 
+ 	dev_queue = dev_ingress_queue(dev);
+ 	if (dev_queue &&
+ 	    tc_dump_tclass_root(dev_queue->qdisc_sleeping, skb, tcm, cb,
+-				&t, s_t) < 0)
++				&t, s_t, false) < 0)
+ 		goto done;
+ 
+ done:
 
 
