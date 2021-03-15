@@ -2,99 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D9233B252
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 13:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD36333B25B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 13:17:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbhCOMMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 08:12:19 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:60427 "EHLO
+        id S230330AbhCOMRL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 08:17:11 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:44883 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230460AbhCOMMF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 08:12:05 -0400
+        by vger.kernel.org with ESMTP id S230133AbhCOMRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 08:17:07 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 81FD2A73;
-        Mon, 15 Mar 2021 08:12:04 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 5FF95DEE;
+        Mon, 15 Mar 2021 08:17:07 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 15 Mar 2021 08:12:04 -0400
+  by compute4.internal (MEProxy); Mon, 15 Mar 2021 08:17:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=fBzFGXpNRHFQAuoFpt3mgnhFIZl
-        zWeWUYreZMDki7ow=; b=gw53q3OjkrFzCu1fp5IWbVA4JpuvJNTGU/Wbgw63OTd
-        USFej0wvrXQDL1F/MFZ/clpjoPxkMAKGOx7605gn/yfef1kf9tLQLv2K7uu3wCIz
-        qot2o1QJ3q0VvRgqWYCEW3/MBooAqvlsmdsV2qXPZTHntevFGX00BFFLXosR9B8D
-        UjbDy3tdBTZH2wor8sJNfXBtdo7mixDUU6K6tmgfyhNMrFzH/BLj53xB0beA/3ct
-        j0VtIYySnwGCRIcOFPOxzXqDCmeyaNGbJZDlWaE0JBKNzLiv0jBDzKKV904xS615
-        1E7Xg0eXlLOaOTFS0o4aWSjrzoUJnAqi8Qz0GqKv3Bw==
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=Q
+        TNpZcM/XtZMSX4D6R8d3S9df2Cz3a//gcurkONM0Qs=; b=JkhfbjnbbRzhMy7VL
+        HYBiuZOmUg5uqhKGatAyULgQv2RfM1alUTsBE5GTdmPguBkmDacFk31rino4VtLt
+        MYIGNCl3Kv1xzB+N6mf4k1Mzik0P8cmE5TMmwz1UEncDSZWbCin0HZGud+3+wuW+
+        +VRgmV5vZKeUXnTUfE0WpKnHh1XxbO6dZTKSjT9uQNmzSmSx7nNGAdkk97CN8naa
+        edTc28c+knEY8OCU+ISr/MVdHmKScwmRhOYQlCRUz9Bb3t0We/O6duMAuDl6zIre
+        MdPmfuk/NdgJ9b/FYW/OX0ETHulVMlu6je6n3at6kMLfULob1aekJshj1tGELRtX
+        0NOPw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=fBzFGX
-        pNRHFQAuoFpt3mgnhFIZlzWeWUYreZMDki7ow=; b=OFCs8LhIlnylYNTNYP5yPD
-        ur9JBCu7IN1lxBPNCp8kiGAVdHp8MpgpLrKBZxUfNjnFwn0NATS32VA4i1OS0K1k
-        d9IRf5/Al1e3UYveBzUbqau2OVWQMrtTRU2tKea1OoedFDIfJm9+sGK2wwOIwQrd
-        ZYhVPgsDncp9Hm2fewIw089kMy7sty9oLbN/64hoPxzlpZsG/u+8iFZ9D0Qr2+I4
-        sC9j57a9uNELy4VNtfqdkYdTXtdYuW8QXyAvtPyAV28uak1vB4WS0TT+gwyE/w5R
-        OH9y0UZxEuw+j2A0IfZxjJ4IO0HTnBhfMpWmDvyuKIWYI8LzglkZ/6ut4lfPVG/g
-        ==
-X-ME-Sender: <xms:E09PYCdG5-OkCzOg39zOQQvwzTsL8mY6-G2nB-wppeXpa-aq3HGgNg>
-    <xme:E09PYMMEapj_93UZsqqRW8Tst2vDy_ZfZssgbk-Esb5_tGuoDSVMHOgZS5N-E8tje
-    d1iMdQfw47GYQ>
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=QTNpZcM/XtZMSX4D6R8d3S9df2Cz3a//gcurkONM0
+        Qs=; b=PCrhFW9hVg6KawI0VIyrr8aqn9ePQMFjKZPLeiVE6kIlUlkD0U2iLZaz8
+        okXwbeCAcHK/BfpmFnX3x/5JNEzTgG+hbVicemXYMcduBdTG5sJBiduIlCzH09Aa
+        ueLwKYmAkjIgJXkYr5X3YUWT05g6WR/juGHIsbVi2TBgwY0CIhoPQqh6bYSqJ2c5
+        sKcFDj/obP+ykCB/WvSoCIfkThLhHh5WE/Uki7X/V2M1S+XEhpy2iOZLiOxTg+A2
+        52+5hwrL3n3JZ5hAeADgqVXskeQU9vO9H4XQXOX+KYWFnhLx/r1QOq+ku1xvzg6+
+        zldGTSI97Ptu7Odmev5xpMSw7IgZw==
+X-ME-Sender: <xms:QlBPYEmR0OwzJ9YDyt7EuYvoqdSbAphhZn8zJKT57w31sIYHKCwiYA>
+    <xme:QlBPYD2Ol7wiAJF8WaYUL1TLAHk0lXQduQXNi941lXCovBeM_bK0LTs8AFR_PRTaK
+    kca7r9C1AXm2g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvledgfeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
-    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:E09PYDiRj5qyIjhLl7L59bwJdsImw6CHAe1mHxw3f11mA_VGf_QCeA>
-    <xmx:E09PYP-QHIC1SqvyAyi-KeAF0ew_u_h8lNdWlSzDWZqwo73PTxzgZg>
-    <xmx:E09PYOuaxj9vXfqBs_lbET6HycOFYJA2mybEtHubcF1xteunFLAXEw>
-    <xmx:FE9PYH76k6gK--epSo85EeaTRuT2r0xZkeIPqXepnM1SegW1vDnX_A>
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggugfgjsehtke
+    ertddttddunecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
+    qeenucggtffrrghtthgvrhhnpeevtdeileeuteeggefgueefhfevgfdttefgtefgtddvge
+    ejheeiuddvtdekffehffenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghr
+    ufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtg
+    homh
+X-ME-Proxy: <xmx:QlBPYCq27nMZIa0nSRRRi5WjBoeqAUmiXMG4UQGx1YJyhfA2-bvWZg>
+    <xmx:QlBPYAm46HOUMo4wo6CnxPga_K799bS9wfFCZARIByNc9oK7cPocoA>
+    <xmx:QlBPYC02_iFakcwwWIb6coDtJaMseQk6yKT2b5Sf0MLzVT-SnjC9qw>
+    <xmx:Q1BPYLhrdlKmq3KequV0LYo2-oHRWVqQkMIU60V6Hrso_kMxzvaL6g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 246EF1080069;
-        Mon, 15 Mar 2021 08:12:03 -0400 (EDT)
-Date:   Mon, 15 Mar 2021 13:12:00 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 95D301080057;
+        Mon, 15 Mar 2021 08:17:06 -0400 (EDT)
+Date:   Mon, 15 Mar 2021 13:16:51 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v2 stable v4.4+ 1/2] iio: imu: adis16400: release
- allocated memory on failure
-Message-ID: <YE9PEKdZWznxnMUo@kroah.com>
-References: <20210313172950.6224-1-krzysztof.kozlowski@canonical.com>
+To:     =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: Backported patches for stable 5.10
+Message-ID: <YE9QM2IfNFrnE9Qv@kroah.com>
+References: <aed51a72-7dbd-7d0c-df2c-4b226f63e44a@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20210313172950.6224-1-krzysztof.kozlowski@canonical.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <aed51a72-7dbd-7d0c-df2c-4b226f63e44a@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Mar 13, 2021 at 06:29:49PM +0100, Krzysztof Kozlowski wrote:
-> From: Navid Emamdoost <navid.emamdoost@gmail.com>
-> 
-> commit ab612b1daf415b62c58e130cb3d0f30b255a14d0 upstream.
-> 
-> In adis_update_scan_mode, if allocation for adis->buffer fails,
-> previously allocated adis->xfer needs to be released.
-> 
-> Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-> Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> 
-> ---
-> 
-> Changes since v1:
-> 1. Add also this one for backport: v4.4 - v4.14. Newer should take
-> direct cherry pick
-> ---
->  drivers/iio/imu/adis_buffer.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+On Mon, Mar 15, 2021 at 09:18:28AM +0100, Jürgen Groß wrote:
+> I've attached backports of 2 patches for 5.10.
 
-Both patches now queued up, thanks for the backports.
+All backported patches now queued up, thanks for doing them!
 
 greg k-h
