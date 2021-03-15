@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A529533B541
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2339133B66F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230525AbhCONxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55870 "EHLO mail.kernel.org"
+        id S232178AbhCON5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230317AbhCONxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 872CA64EF5;
-        Mon, 15 Mar 2021 13:53:22 +0000 (UTC)
+        id S231916AbhCON5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03DF064F05;
+        Mon, 15 Mar 2021 13:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816404;
-        bh=zhGzYpt1DWZXepqyUTty50aJRMtJnC4qZUGqNWv8MGE=;
+        s=korg; t=1615816639;
+        bh=8GZ4p3TXLepViQ513HLpLPRkvv5/j8M+HDptTBlUlhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CHil81b1rkudT0x/oXooqSsn4Mr/he2CZD8hFhZkr21unINJyaxnTFvSylX9O83sk
-         jyOZcpxjWGdSLNggJjS753VTDR1jO43ceYBoWzEN0mEm7FzllB0jK2gsWQhVU8QFbm
-         czdTEkA5ghw5Jx3RvIJ0nVALz9sJrfhtwktUmo38=
+        b=u1sgJLaRyaCIu3PvTJYbMSAuKsTwj9AOcIm8lE6D0N2kDL/g0iKSUEI3bL4o7o2pD
+         hWWekJ0ofxB2HjJ1mfTsPvXyU70pcdJYM2HeiNMuwhDGVfye4wJevoTtz+Z1tmoptp
+         gjWK6w7xYed8mniGlLxF7Csx9x1ZwRjKgEhCXP9w=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 24/75] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
+        stable@vger.kernel.org, Jiri Wiesner <jwiesner@suse.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 035/306] ibmvnic: always store valid MAC address
 Date:   Mon, 15 Mar 2021 14:51:38 +0100
-Message-Id: <20210315135209.039143393@linuxfoundation.org>
+Message-Id: <20210315135508.824885507@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +41,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Jiri Wiesner <jwiesner@suse.com>
 
-[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
+commit 67eb211487f0c993d9f402d1c196ef159fd6a3b5 upstream.
 
-If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
-but we leave it partially setup. We don't have functions that can undo the
-pdu and init task setup. We only have cleanup_task which can clean up both
-parts. So this has us just fail the cmd and go through the standard cleanup
-routine and then have the SCSI midlayer retry it like is done when it fails
-in the queuecommand path.
+The last change to ibmvnic_set_mac(), 8fc3672a8ad3, meant to prevent
+users from setting an invalid MAC address on an ibmvnic interface
+that has not been brought up yet. The change also prevented the
+requested MAC address from being stored by the adapter object for an
+ibmvnic interface when the state of the ibmvnic interface is
+VNIC_PROBED - that is after probing has finished but before the
+ibmvnic interface is brought up. The MAC address stored by the
+adapter object is used and sent to the hypervisor for checking when
+an ibmvnic interface is brought up.
 
-Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The ibmvnic driver ignoring the requested MAC address when in
+VNIC_PROBED state caused LACP bonds (bonds in 802.3ad mode) with more
+than one slave to malfunction. The bonding code must be able to
+change the MAC address of its slaves before they are brought up
+during enslaving. The inability of kernels with 8fc3672a8ad3 to set
+the MAC addresses of bonding slaves is observable in the output of
+"ip address show". The MAC addresses of the slaves are the same as
+the MAC address of the bond on a working system whereas the slaves
+retain their original MAC addresses on a system with a malfunctioning
+LACP bond.
+
+Fixes: 8fc3672a8ad3 ("ibmvnic: fix ibmvnic_set_mac")
+Signed-off-by: Jiri Wiesner <jwiesner@suse.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libiscsi.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index ecf3950c4438..18b8d86ef74b 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1568,14 +1568,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
- 		}
- 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
- 		if (rc) {
--			if (rc == -ENOMEM || rc == -EACCES) {
--				spin_lock_bh(&conn->taskqueuelock);
--				list_add_tail(&conn->task->running,
--					      &conn->cmdqueue);
--				conn->task = NULL;
--				spin_unlock_bh(&conn->taskqueuelock);
--				goto done;
--			} else
-+			if (rc == -ENOMEM || rc == -EACCES)
-+				fail_scsi_task(conn->task, DID_IMM_RETRY);
-+			else
- 				fail_scsi_task(conn->task, DID_ABORT);
- 			spin_lock_bh(&conn->taskqueuelock);
- 			continue;
--- 
-2.30.1
-
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1923,10 +1923,9 @@ static int ibmvnic_set_mac(struct net_de
+ 	if (!is_valid_ether_addr(addr->sa_data))
+ 		return -EADDRNOTAVAIL;
+ 
+-	if (adapter->state != VNIC_PROBED) {
+-		ether_addr_copy(adapter->mac_addr, addr->sa_data);
++	ether_addr_copy(adapter->mac_addr, addr->sa_data);
++	if (adapter->state != VNIC_PROBED)
+ 		rc = __ibmvnic_set_mac(netdev, addr->sa_data);
+-	}
+ 
+ 	return rc;
+ }
 
 
