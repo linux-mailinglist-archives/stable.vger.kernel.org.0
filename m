@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64BE733BA3E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A0C33B7CC
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235247AbhCOOIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
+        id S233306AbhCOOBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234090AbhCOOCz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7D7264E83;
-        Mon, 15 Mar 2021 14:02:53 +0000 (UTC)
+        id S232758AbhCON7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B493B64F3A;
+        Mon, 15 Mar 2021 13:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816975;
-        bh=wYn9ekKjGJS6jyTe0348dfUT899Q5inpi3XsKOBw0Jw=;
+        s=korg; t=1615816747;
+        bh=HsTOAjFt0Qv3hWvDbeT7KpYR94s0MCCee9gvtc+rK34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1JPyd5ahdMYKASNUZlfcj3NEi2AhPkNL89VPQDj7cVH5RgjGxSPwd6jIGdOCiXkQ
-         npQK3xV6eHuFqbtBuCI9VxE63IlkZPAwJRtZrGWZCGve6eOQhiUfB3f1BNRm6QSFIU
-         asPVeKIJeftrByD/sVSM5irR/JU/aUJ589+aYFyo=
+        b=UWP+8pfyq5dJd90el9Uyl70uWatxKlqcuDDJwEtTqljD8uWBa2OTYoDDueITwhfDx
+         zd7LfpaZDpnjOwVSK72+8/R7WIhIKP7p4zYluIOxI4WqXqQOUN6voKH7Dpe3aR4Vb1
+         3zEjND29CM48qZAaK0K5uRXdLnkrfdgguLY391YQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Shiyan <shc_work@mail.ru>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: [PATCH 5.10 222/290] Revert "serial: max310x: rework RX interrupt handling"
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 083/168] s390/smp: __smp_rescan_cpus() - move cpumask away from stack
 Date:   Mon, 15 Mar 2021 14:55:15 +0100
-Message-Id: <20210315135549.480725314@linuxfoundation.org>
+Message-Id: <20210315135553.113281586@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alexander Shiyan <shc_work@mail.ru>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-commit 2334de198fed3da72e9785ecdd691d101aa96e77 upstream.
+[ Upstream commit 62c8dca9e194326802b43c60763f856d782b225c ]
 
-This reverts commit fce3c5c1a2d9cd888f2987662ce17c0c651916b2.
+Avoid a potentially large stack frame and overflow by making
+"cpumask_t avail" a static variable. There is no concurrent
+access due to the existing locking.
 
-FIFO is triggered 4 intervals after receiving a byte, it's good
-when we don't care about the time of reception, but are only
-interested in the presence of any activity on the line.
-Unfortunately, this method is not suitable for all tasks,
-for example, the RS-485 protocol will not work properly,
-since the state machine must track the request-response time
-and after the timeout expires, a decision is made that the device
-on the line is not responding.
-
-Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
-Link: https://lore.kernel.org/r/20210217080608.31192-1-shc_work@mail.ru
-Fixes: fce3c5c1a2d9 ("serial: max310x: rework RX interrupt handling")
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c |   29 +++++------------------------
- 1 file changed, 5 insertions(+), 24 deletions(-)
+ arch/s390/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1056,9 +1056,9 @@ static int max310x_startup(struct uart_p
- 	max310x_port_update(port, MAX310X_MODE1_REG,
- 			    MAX310X_MODE1_TRNSCVCTRL_BIT, 0);
- 
--	/* Reset FIFOs */
--	max310x_port_write(port, MAX310X_MODE2_REG,
--			   MAX310X_MODE2_FIFORST_BIT);
-+	/* Configure MODE2 register & Reset FIFOs*/
-+	val = MAX310X_MODE2_RXEMPTINV_BIT | MAX310X_MODE2_FIFORST_BIT;
-+	max310x_port_write(port, MAX310X_MODE2_REG, val);
- 	max310x_port_update(port, MAX310X_MODE2_REG,
- 			    MAX310X_MODE2_FIFORST_BIT, 0);
- 
-@@ -1086,27 +1086,8 @@ static int max310x_startup(struct uart_p
- 	/* Clear IRQ status register */
- 	max310x_port_read(port, MAX310X_IRQSTS_REG);
- 
--	/*
--	 * Let's ask for an interrupt after a timeout equivalent to
--	 * the receiving time of 4 characters after the last character
--	 * has been received.
--	 */
--	max310x_port_write(port, MAX310X_RXTO_REG, 4);
--
--	/*
--	 * Make sure we also get RX interrupts when the RX FIFO is
--	 * filling up quickly, so get an interrupt when half of the RX
--	 * FIFO has been filled in.
--	 */
--	max310x_port_write(port, MAX310X_FIFOTRIGLVL_REG,
--			   MAX310X_FIFOTRIGLVL_RX(MAX310X_FIFO_SIZE / 2));
--
--	/* Enable RX timeout interrupt in LSR */
--	max310x_port_write(port, MAX310X_LSR_IRQEN_REG,
--			   MAX310X_LSR_RXTO_BIT);
--
--	/* Enable LSR, RX FIFO trigger, CTS change interrupts */
--	val = MAX310X_IRQ_LSR_BIT  | MAX310X_IRQ_RXFIFO_BIT | MAX310X_IRQ_TXEMPTY_BIT;
-+	/* Enable RX, TX, CTS change interrupts */
-+	val = MAX310X_IRQ_RXEMPTY_BIT | MAX310X_IRQ_TXEMPTY_BIT;
- 	max310x_port_write(port, MAX310X_IRQEN_REG, val | MAX310X_IRQ_CTS_BIT);
- 
- 	return 0;
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 659d99af9156..8c51462f13fd 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -765,7 +765,7 @@ static int smp_add_core(struct sclp_core_entry *core, cpumask_t *avail,
+ static int __smp_rescan_cpus(struct sclp_core_info *info, bool early)
+ {
+ 	struct sclp_core_entry *core;
+-	cpumask_t avail;
++	static cpumask_t avail;
+ 	bool configured;
+ 	u16 core_id;
+ 	int nr, i;
+-- 
+2.30.1
+
 
 
