@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B31833B8ED
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CF633B905
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234713AbhCOOEz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S234653AbhCOOFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231842AbhCOOAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DDF864F6B;
-        Mon, 15 Mar 2021 14:00:28 +0000 (UTC)
+        id S229548AbhCOOAo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF35964F0D;
+        Mon, 15 Mar 2021 14:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816830;
-        bh=dpNLNHW/QygloMIqlvx0KwTncpanXdgkoxVjCGsbNzY=;
+        s=korg; t=1615816832;
+        bh=G5Ly4m8YQK16F/DM72YCVJVXhsPGh8FQM0w0iDYFpkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bXnAydVv+eDUWLv76d31D4bD2vZ0nT6tI39YpSLiEYgCgmoeYsZsM/EIOwpsVsEDq
-         ijATIkMwfQySBI+KA/dqNRYi4xIdfDO07PQ/u4RRycpRmkTBZ1UCMDkrQxVETfgPgt
-         R3XPD/VCv9zi+KuXcXE0O9ICQzL2EefVEaikXh/M=
+        b=pr3eDWRUa3BsYXuvzwQx8Ct0QG/xt1edrPYdpqILcKioOW5CLIvFn7BLEUux+lMvo
+         urJFgJj3i67OAoNfs3ehXA/qxkh7lw2lNX95QhzYJYohxzrkRVQeVu26LhbUf1Fc8J
+         2vV67e6PiZUQRKNr5nL3p9RV+nmLaPc2613fwglQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Ribak <liorribak@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 89/95] binfmt_misc: fix possible deadlock in bm_register_write
-Date:   Mon, 15 Mar 2021 14:57:59 +0100
-Message-Id: <20210315135743.212730459@linuxfoundation.org>
+        stable@vger.kernel.org, Boyang Yu <byu@arista.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: [PATCH 4.14 90/95] hwmon: (lm90) Fix max6658 sporadic wrong temperature reading
+Date:   Mon, 15 Mar 2021 14:58:00 +0100
+Message-Id: <20210315135743.244479697@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
 References: <20210315135740.245494252@linuxfoundation.org>
@@ -44,118 +42,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Lior Ribak <liorribak@gmail.com>
+From: Boyang Yu <byu@arista.com>
 
-commit e7850f4d844e0acfac7e570af611d89deade3146 upstream.
+commit 62456189f3292c62f87aef363f204886dc1d4b48 upstream.
 
-There is a deadlock in bm_register_write:
+max6658 may report unrealistically high temperature during
+the driver initialization, for which, its overtemp alarm pin
+also gets asserted. For certain devices implementing overtemp
+protection based on that pin, it may further trigger a reset to
+the device. By reproducing the problem, the wrong reading is
+found to be coincident with changing the conversion rate.
 
-First, in the begining of the function, a lock is taken on the binfmt_misc
-root inode with inode_lock(d_inode(root)).
+To mitigate this issue, set the stop bit before changing the
+conversion rate and unset it thereafter. After such change, the
+wrong reading is not reproduced. Apply this change only to the
+max6657 kind for now, controlled by flag LM90_PAUSE_ON_CONFIG.
 
-Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
-open_exec on the user-provided interpreter.
-
-open_exec will call a path lookup, and if the path lookup process includes
-the root of binfmt_misc, it will try to take a shared lock on its inode
-again, but it is already locked, and the code will get stuck in a deadlock
-
-To reproduce the bug:
-$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
-
-backtrace of where the lock occurs (#5):
-0  schedule () at ./arch/x86/include/asm/current.h:15
-1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
-2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
-3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
-4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
-5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
-6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
-7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
-8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
-9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
-10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
-11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
-12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
-", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
-13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
-", count=19) at fs/read_write.c:658
-14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
-15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
-
-To solve the issue, the open_exec call is moved to before the write
-lock is taken by bm_register_write
-
-Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
-Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
-Signed-off-by: Lior Ribak <liorribak@gmail.com>
-Acked-by: Helge Deller <deller@gmx.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Boyang Yu <byu@arista.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/binfmt_misc.c |   29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ drivers/hwmon/lm90.c |   42 ++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
---- a/fs/binfmt_misc.c
-+++ b/fs/binfmt_misc.c
-@@ -694,12 +694,24 @@ static ssize_t bm_register_write(struct
- 	struct super_block *sb = file_inode(file)->i_sb;
- 	struct dentry *root = sb->s_root, *dentry;
- 	int err = 0;
-+	struct file *f = NULL;
+--- a/drivers/hwmon/lm90.c
++++ b/drivers/hwmon/lm90.c
+@@ -187,6 +187,7 @@ enum chips { lm90, adm1032, lm99, lm86,
+ #define LM90_HAVE_EMERGENCY_ALARM (1 << 5)/* emergency alarm		*/
+ #define LM90_HAVE_TEMP3		(1 << 6) /* 3rd temperature sensor	*/
+ #define LM90_HAVE_BROKEN_ALERT	(1 << 7) /* Broken alert		*/
++#define LM90_PAUSE_FOR_CONFIG	(1 << 8) /* Pause conversion for config	*/
  
- 	e = create_entry(buffer, count);
+ /* LM90 status */
+ #define LM90_STATUS_LTHRM	(1 << 0) /* local THERM limit tripped */
+@@ -380,6 +381,7 @@ static const struct lm90_params lm90_par
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+ 	},
+ 	[max6657] = {
++		.flags = LM90_PAUSE_FOR_CONFIG,
+ 		.alert_alarms = 0x7c,
+ 		.max_convrate = 8,
+ 		.reg_local_ext = MAX6657_REG_R_LOCAL_TEMPL,
+@@ -580,6 +582,38 @@ static inline int lm90_select_remote_cha
+ 	return 0;
+ }
  
- 	if (IS_ERR(e))
- 		return PTR_ERR(e);
- 
-+	if (e->flags & MISC_FMT_OPEN_FILE) {
-+		f = open_exec(e->interpreter);
-+		if (IS_ERR(f)) {
-+			pr_notice("register: failed to install interpreter file %s\n",
-+				 e->interpreter);
-+			kfree(e);
-+			return PTR_ERR(f);
++static int lm90_write_convrate(struct i2c_client *client,
++			       struct lm90_data *data, int val)
++{
++	int err;
++	int config_orig, config_stop;
++
++	/* Save config and pause conversion */
++	if (data->flags & LM90_PAUSE_FOR_CONFIG) {
++		config_orig = lm90_read_reg(client, LM90_REG_R_CONFIG1);
++		if (config_orig < 0)
++			return config_orig;
++		config_stop = config_orig | 0x40;
++		if (config_orig != config_stop) {
++			err = i2c_smbus_write_byte_data(client,
++							LM90_REG_W_CONFIG1,
++							config_stop);
++			if (err < 0)
++				return err;
 +		}
-+		e->interp_file = f;
 +	}
 +
- 	inode_lock(d_inode(root));
- 	dentry = lookup_one_len(e->name, root, strlen(e->name));
- 	err = PTR_ERR(dentry);
-@@ -723,21 +735,6 @@ static ssize_t bm_register_write(struct
- 		goto out2;
- 	}
++	/* Set conv rate */
++	err = i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE, val);
++
++	/* Revert change to config */
++	if (data->flags & LM90_PAUSE_FOR_CONFIG && config_orig != config_stop)
++		i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1,
++					  config_orig);
++
++	return err;
++}
++
+ /*
+  * Set conversion rate.
+  * client->update_lock must be held when calling this function (unless we are
+@@ -600,7 +634,7 @@ static int lm90_set_convrate(struct i2c_
+ 		if (interval >= update_interval * 3 / 4)
+ 			break;
  
--	if (e->flags & MISC_FMT_OPEN_FILE) {
--		struct file *f;
--
--		f = open_exec(e->interpreter);
--		if (IS_ERR(f)) {
--			err = PTR_ERR(f);
--			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
--			simple_release_fs(&bm_mnt, &entry_count);
--			iput(inode);
--			inode = NULL;
--			goto out2;
--		}
--		e->interp_file = f;
--	}
--
- 	e->dentry = dget(dentry);
- 	inode->i_private = e;
- 	inode->i_fop = &bm_entry_operations;
-@@ -754,6 +751,8 @@ out:
- 	inode_unlock(d_inode(root));
+-	err = i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE, i);
++	err = lm90_write_convrate(client, data, i);
+ 	data->update_interval = DIV_ROUND_CLOSEST(update_interval, 64);
+ 	return err;
+ }
+@@ -1606,8 +1640,7 @@ static void lm90_restore_conf(void *_dat
+ 	struct i2c_client *client = data->client;
  
- 	if (err) {
-+		if (f)
-+			filp_close(f, NULL);
- 		kfree(e);
- 		return err;
- 	}
+ 	/* Restore initial configuration */
+-	i2c_smbus_write_byte_data(client, LM90_REG_W_CONVRATE,
+-				  data->convrate_orig);
++	lm90_write_convrate(client, data, data->convrate_orig);
+ 	i2c_smbus_write_byte_data(client, LM90_REG_W_CONFIG1,
+ 				  data->config_orig);
+ }
+@@ -1624,12 +1657,13 @@ static int lm90_init_client(struct i2c_c
+ 	/*
+ 	 * Start the conversions.
+ 	 */
+-	lm90_set_convrate(client, data, 500);	/* 500ms; 2Hz conversion rate */
+ 	config = lm90_read_reg(client, LM90_REG_R_CONFIG1);
+ 	if (config < 0)
+ 		return config;
+ 	data->config_orig = config;
+ 
++	lm90_set_convrate(client, data, 500); /* 500ms; 2Hz conversion rate */
++
+ 	/* Check Temperature Range Select */
+ 	if (data->kind == adt7461 || data->kind == tmp451) {
+ 		if (config & 0x04)
 
 
