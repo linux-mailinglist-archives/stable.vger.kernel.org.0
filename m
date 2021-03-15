@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4299A33B707
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFDA33B59E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232643AbhCON7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35420 "EHLO mail.kernel.org"
+        id S231548AbhCONyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232125AbhCON5u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F83764F09;
-        Mon, 15 Mar 2021 13:57:48 +0000 (UTC)
+        id S231445AbhCONy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:54:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 19FA364EF8;
+        Mon, 15 Mar 2021 13:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816669;
-        bh=fjUUu17dwnZ0NHecHECeOCQ3UxojkbVmQ0VRqEx5UfI=;
+        s=korg; t=1615816465;
+        bh=b+x86pNFQz9OjbNkJFCrYhX1jcF9AiTdcI+7loYAAec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZ7WfhIUgIxdhba6/D+4WEZoxztAUXlxyKACt98/ZxP8404B/XVPHe1vruRQKtBTk
-         eJ9bXkHGhboRCJmTizFrl5lfuIieqBVCerjbu7USTpY6allaTYR/oUBuTSF7QRaU8N
-         wMqszojEDPZU6j7fH3YG0A/iVE5ogHSvAbeqIH9w=
+        b=TfRR38rUXuOkyi91/rq2lcDCq2Y9SLMlxqg5eQdPl/YKxCVK+0Gj/olTWFaBN2NE8
+         MpptDwu9/2KQIH2MqeV/+TYcqEcOpEFN8kchVbjQGtBBuoLMzQ5Qtgbs/ZCo2fl/QC
+         8fsbFpDIq/JLhdc9pu5/22bNjC9j/QnxvPrhxZMc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kevin(Yudong) Yang" <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 045/290] net/mlx4_en: update moderation when config reset
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.9 55/78] staging: comedi: das800: Fix endian problem for AI command data
 Date:   Mon, 15 Mar 2021 14:52:18 +0100
-Message-Id: <20210315135543.447181545@linuxfoundation.org>
+Message-Id: <20210315135213.880534562@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +40,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kevin(Yudong) Yang <yyd@google.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit 00ff801bb8ce6711e919af4530b6ffa14a22390a upstream.
+commit 459b1e8c8fe97fcba0bd1b623471713dce2c5eaf upstream.
 
-This patch fixes a bug that the moderation config will not be
-applied when calling mlx4_en_reset_config. For example, when
-turning on rx timestamping, mlx4_en_reset_config() will be called,
-causing the NIC to forget previous moderation config.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the call to
+`comedi_buf_write_samples()` is passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variable
+holding the sample value to `unsigned short`.
 
-This fix is in phase with a previous fix:
-commit 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss
-after set_ringparam is called")
-
-Tested: Before this patch, on a host with NIC using mlx4, run
-netserver and stream TCP to the host at full utilization.
-$ sar -I SUM 1
-                 INTR    intr/s
-14:03:56          sum  48758.00
-
-After rx hwtstamp is enabled:
-$ sar -I SUM 1
-14:10:38          sum 317771.00
-We see the moderation is not working properly and issued 7x more
-interrupts.
-
-After the patch, and turned on rx hwtstamp, the rate of interrupts
-is as expected:
-$ sar -I SUM 1
-14:52:11          sum  49332.00
-
-Fixes: 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss after set_ringparam is called")
-Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Neal Cardwell <ncardwell@google.com>
-CC: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ad9eb43c93d8 ("staging: comedi: das800: use comedi_buf_write_samples()")
+Cc: <stable@vger.kernel.org> # 3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-6-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    2 +-
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c  |    2 ++
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h    |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/das800.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -47,7 +47,7 @@
- #define EN_ETHTOOL_SHORT_MASK cpu_to_be16(0xffff)
- #define EN_ETHTOOL_WORD_MASK  cpu_to_be32(0xffffffff)
- 
--static int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
- {
- 	int i, t;
- 	int err = 0;
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -3559,6 +3559,8 @@ int mlx4_en_reset_config(struct net_devi
- 			en_err(priv, "Failed starting port\n");
- 	}
- 
-+	if (!err)
-+		err = mlx4_en_moderation_update(priv);
- out:
- 	mutex_unlock(&mdev->state_lock);
- 	kfree(tmp);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -795,6 +795,7 @@ void mlx4_en_ptp_overflow_check(struct m
- #define DEV_FEATURE_CHANGED(dev, new_features, feature) \
- 	((dev->features & feature) ^ (new_features & feature))
- 
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv);
- int mlx4_en_reset_config(struct net_device *dev,
- 			 struct hwtstamp_config ts_config,
- 			 netdev_features_t new_features);
+--- a/drivers/staging/comedi/drivers/das800.c
++++ b/drivers/staging/comedi/drivers/das800.c
+@@ -436,7 +436,7 @@ static irqreturn_t das800_interrupt(int
+ 	struct comedi_cmd *cmd;
+ 	unsigned long irq_flags;
+ 	unsigned int status;
+-	unsigned int val;
++	unsigned short val;
+ 	bool fifo_empty;
+ 	bool fifo_overflow;
+ 	int i;
 
 
