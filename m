@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DE7433B667
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C12B133B661
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbhCON5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34802 "EHLO mail.kernel.org"
+        id S232124AbhCON5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231817AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DB2664EF0;
-        Mon, 15 Mar 2021 13:57:12 +0000 (UTC)
+        id S230125AbhCON5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3848E64EEC;
+        Mon, 15 Mar 2021 13:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816633;
-        bh=nsYvCEi2xoNHe+CzywZRoMdYn6xHq91vEpzjR/JdKQk=;
+        s=korg; t=1615816635;
+        bh=jSKspWM7EfzKqcDjD2f4ifI8H3zPgj3EYllVYCjybuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnoYtfstzeJxYP6uNRQgLe8Suk6bV/+WAObb0pC/TxNYSMZgHupCB0haWayrgTzZ0
-         7ZQ94zChOCvHg2X+ujDL47DlPryxiuSg1xBP+gusrVBoSlD1PB5bM0v1F1frHQ4U1I
-         Wp5DbjlQyQWMmrEFnrstEaiVn1Im55Lo0Vz5mVY8=
+        b=1ib0c51QCRNW6em5vb5+FaP8c0k19tKAJqhlyzr+fTGi+fg/v184QKWgqX517UDqd
+         kpxsvGHoids220aSUyL63SKFzlQxBYFmZxieqoc0qe1BZfzdbJtURwOJYW35dzLuLV
+         KxYnzlhUDbeA8MsDYCStctokbczOoJAOYXCtu8kU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.4 016/168] netfilter: x_tables: gpf inside xt_find_revision()
-Date:   Mon, 15 Mar 2021 14:54:08 +0100
-Message-Id: <20210315135550.870891404@linuxfoundation.org>
+        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        William Tu <u9012063@gmail.com>
+Subject: [PATCH 5.4 017/168] selftests/bpf: No need to drop the packet when there is no geneve opt
+Date:   Mon, 15 Mar 2021 14:54:09 +0100
+Message-Id: <20210315135550.908514716@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,89 +42,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
+commit 557c223b643a35effec9654958d8edc62fd2603a upstream.
 
-nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
-without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
-and cause host to crash:
+In bpf geneve tunnel test we set geneve option on tx side. On rx side we
+only call bpf_skb_get_tunnel_opt(). Since commit 9c2e14b48119 ("ip_tunnels:
+Set tunnel option flag when tunnel metadata is present") geneve_rx() will
+not add TUNNEL_GENEVE_OPT flag if there is no geneve option, which cause
+bpf_skb_get_tunnel_opt() return ENOENT and _geneve_get_tunnel() in
+test_tunnel_kern.c drop the packet.
 
-general protection fault: 0000 [#1]
-Modules linked in: ... [last unloaded: xt_cluster]
-CPU: 0 PID: 542455 Comm: iptables
-RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
-RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
-R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
-(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
-xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
-Call Trace:
- [<ffffffff902ccf44>] match_revfn+0x54/0xc0
- [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
- [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
- [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
- [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
- [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
- [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
- [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
- [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
- [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
+As it should be valid that bpf_skb_get_tunnel_opt() return error when
+there is not tunnel option, there is no need to drop the packet and
+break all geneve rx traffic. Just set opt_class to 0 in this test and
+keep returning TC_ACT_OK.
 
-Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 933a741e3b82 ("selftests/bpf: bpf tunnel test.")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: William Tu <u9012063@gmail.com>
+Link: https://lore.kernel.org/bpf/20210224081403.1425474-1-liuhangbin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/x_tables.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/testing/selftests/bpf/progs/test_tunnel_kern.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -330,6 +330,7 @@ static int match_revfn(u8 af, const char
- 	const struct xt_match *m;
- 	int have_rev = 0;
- 
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(m, &xt[af].match, list) {
- 		if (strcmp(m->name, name) == 0) {
- 			if (m->revision > *bestp)
-@@ -338,6 +339,7 @@ static int match_revfn(u8 af, const char
- 				have_rev = 1;
- 		}
+--- a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
++++ b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
+@@ -446,10 +446,8 @@ int _geneve_get_tunnel(struct __sk_buff
  	}
-+	mutex_unlock(&xt[af].mutex);
  
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -350,6 +352,7 @@ static int target_revfn(u8 af, const cha
- 	const struct xt_target *t;
- 	int have_rev = 0;
+ 	ret = bpf_skb_get_tunnel_opt(skb, &gopt, sizeof(gopt));
+-	if (ret < 0) {
+-		ERROR(ret);
+-		return TC_ACT_SHOT;
+-	}
++	if (ret < 0)
++		gopt.opt_class = 0;
  
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(t, &xt[af].target, list) {
- 		if (strcmp(t->name, name) == 0) {
- 			if (t->revision > *bestp)
-@@ -358,6 +361,7 @@ static int target_revfn(u8 af, const cha
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -371,12 +375,10 @@ int xt_find_revision(u8 af, const char *
- {
- 	int have_rev, best = -1;
- 
--	mutex_lock(&xt[af].mutex);
- 	if (target == 1)
- 		have_rev = target_revfn(af, name, revision, &best);
- 	else
- 		have_rev = match_revfn(af, name, revision, &best);
--	mutex_unlock(&xt[af].mutex);
- 
- 	/* Nothing at all?  Return 0 to try loading module. */
- 	if (best == -1) {
+ 	bpf_trace_printk(fmt, sizeof(fmt),
+ 			key.tunnel_id, key.remote_ipv4, gopt.opt_class);
 
 
