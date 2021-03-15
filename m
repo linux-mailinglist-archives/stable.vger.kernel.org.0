@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A487933BAD1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D8333BA1F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbhCOOK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48918 "EHLO mail.kernel.org"
+        id S234483AbhCOOIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233644AbhCOOCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FB3464F00;
-        Mon, 15 Mar 2021 14:02:01 +0000 (UTC)
+        id S233772AbhCOOC0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A74A64E89;
+        Mon, 15 Mar 2021 14:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816922;
-        bh=wmSJzdMwCOzPUjx8SWQUQRJX27s79VJqdKjOsW4Yauo=;
+        s=korg; t=1615816945;
+        bh=iJSUvtsb3maAC8bD3ziwMEJcukoB4xLuWwKSkdd9bH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC23MDigiwfyI9vkVDBivU53u5iLF8eiUQ1cPkhTBBy+qnH3VUO+d3s48jGdf45lX
-         4EMFG+uUq0SE8yxa9gquDkUAYB6dhfBh+zhx2z27OvH2AWbNwwMjD0hCJgVg+D2VYc
-         BT50YEUp/ngGJ/2YO99jCoYlGGsHHNTazRehLEw8=
+        b=UEpyQAhc60J2T9Y73ILbmvujNHp0NpxqwvpwHgkx0BzKhe9xK8n429DjxXS0PF1kc
+         q4KbXHAx/AHFNPs1h8SKLlKM6Zxtpa4elvxDG4LvmKPJfoDLROjKq+L72q2d5V/cfS
+         p/xUG0s3G0mXJskVZEtGCvtmqYUdJ0kLQttjM+0o=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Bjoern Walk <bwalk@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 189/290] s390/dasd: fix hanging DASD driver unbind
+        stable@vger.kernel.org, Shile Zhang <shile.zhang@linux.alibaba.com>
+Subject: [PATCH 5.11 219/306] misc/pvpanic: Export module FDT device table
 Date:   Mon, 15 Mar 2021 14:54:42 +0100
-Message-Id: <20210315135548.305196173@linuxfoundation.org>
+Message-Id: <20210315135515.017729154@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +40,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-commit 7d365bd0bff3c0310c39ebaffc9a8458e036d666 upstream.
+commit 65527a51c66f4edfa28602643d7dd4fa366eb826 upstream.
 
-In case of an unbind of the DASD device driver the function
-dasd_generic_remove() is called which shuts down the device.
-Among others this functions removes the int_handler from the cdev.
-During shutdown the device cancels all outstanding IO requests and waits
-for completion of the clear request.
-Unfortunately the clear interrupt will never be received when there is no
-interrupt handler connected.
+Export the module FDT device table to ensure the FDT compatible strings
+are listed in the module alias. This help the pvpanic driver can be
+loaded on boot automatically not only the ACPI device, but also the FDT
+device.
 
-Fix by moving the int_handler removal after the call to the state machine
-where no request or interrupt is outstanding.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 46f934c9a12fc ("misc/pvpanic: add support to get pvpanic device info FDT")
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20210218123116.207751-1-shile.zhang@linux.alibaba.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/misc/pvpanic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3522,8 +3522,6 @@ void dasd_generic_remove(struct ccw_devi
- 	struct dasd_device *device;
- 	struct dasd_block *block;
+--- a/drivers/misc/pvpanic.c
++++ b/drivers/misc/pvpanic.c
+@@ -92,6 +92,7 @@ static const struct of_device_id pvpanic
+ 	{ .compatible = "qemu,pvpanic-mmio", },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, pvpanic_mmio_match);
  
--	cdev->handler = NULL;
--
- 	device = dasd_device_from_cdev(cdev);
- 	if (IS_ERR(device)) {
- 		dasd_remove_sysfs_files(cdev);
-@@ -3542,6 +3540,7 @@ void dasd_generic_remove(struct ccw_devi
- 	 * no quite down yet.
- 	 */
- 	dasd_set_target_state(device, DASD_STATE_NEW);
-+	cdev->handler = NULL;
- 	/* dasd_delete_device destroys the device reference. */
- 	block = device->block;
- 	dasd_delete_device(device);
+ static const struct acpi_device_id pvpanic_device_ids[] = {
+ 	{ "QEMU0001", 0 },
 
 
