@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546DB33B94D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A942233B994
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234858AbhCOOFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:52 -0400
+        id S230290AbhCOOGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:14 -0400
 Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233250AbhCOOBN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E981664FCE;
-        Mon, 15 Mar 2021 14:00:51 +0000 (UTC)
+        id S233442AbhCOOBl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A87A364F06;
+        Mon, 15 Mar 2021 14:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816853;
-        bh=crG9gWp9IMJ+prHgTgVtp2fwvPLbxGDd4h4QNbdJBMY=;
+        s=korg; t=1615816885;
+        bh=hrGdOrt4gZVGQEqv/sHRyRlydI/WbwDZ6dUGMlUJots=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+EuYcaDxuNZagl/I4V4oQlMm32nMZVnog0HTbK6c4UUxNRIkS4ZUx3m7GZ5kMZ69
-         3suphzIhtfaXgQ7ncekpq1FSwabLXJ/kAXUpSkFohB+aoeC51Myzv6AESURGRgeQps
-         e/5dsSM527cdzEbLTZoQ5vp3epOuMqlBHbp1CfLM=
+        b=Q7oVyrgBAQTgUEV2LUzVDo3r/UsBxdHYI3T/DsiymS1uFpmbRrUv47/S/pwxZFacc
+         QresNtEc5YaLDOX1P5jxyCiPev7pzUGnLZjAhRn6SkcZf9gnMzDZs7mymrc4CUvUs2
+         AEx8U612RNZzNYN0xc7mFItDSEtiEyAo2no0ZyPE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 152/290] PCI: mediatek: Add missing of_node_put() to fix reference leak
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.11 182/306] arm64: perf: Fix 64-bit event counter read truncation
 Date:   Mon, 15 Mar 2021 14:54:05 +0100
-Message-Id: <20210315135547.056737606@linuxfoundation.org>
+Message-Id: <20210315135513.771484717@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +52,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 42814c438aac79746d310f413a27d5b0b959c5de ]
+commit 7bb8bc6eb550116c504fb25af8678b9d7ca2abc5 upstream.
 
-The for_each_available_child_of_node helper internally makes use of the
-of_get_next_available_child() which performs an of_node_get() on each
-iteration when searching for next available child node.
+Commit 0fdf1bb75953 ("arm64: perf: Avoid PMXEV* indirection") changed
+armv8pmu_read_evcntr() to return a u32 instead of u64. The result is
+silent truncation of the event counter when using 64-bit counters. Given
+the offending commit appears to have passed thru several folks, it seems
+likely this was a bad rebase after v8.5 PMU 64-bit counters landed.
 
-Should an available child node be found, then it would return a device
-node pointer with reference count incremented, thus early return from
-the middle of the loop requires an explicit of_node_put() to prevent
-reference count leak.
-
-To stop the reference leak, explicitly call of_node_put() before
-returning after an error occurred.
-
-Link: https://lore.kernel.org/r/20210120184810.3068794-1-kw@linux.com
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: 0fdf1bb75953 ("arm64: perf: Avoid PMXEV* indirection")
+Signed-off-by: Rob Herring <robh@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Link: https://lore.kernel.org/r/20210310004412.1450128-1-robh@kernel.org
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pcie-mediatek.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/perf_event.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
-index cf4c18f0c25a..23548b517e4b 100644
---- a/drivers/pci/controller/pcie-mediatek.c
-+++ b/drivers/pci/controller/pcie-mediatek.c
-@@ -1035,14 +1035,14 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		err = of_pci_get_devfn(child);
- 		if (err < 0) {
- 			dev_err(dev, "failed to parse devfn: %d\n", err);
--			return err;
-+			goto error_put_node;
- 		}
- 
- 		slot = PCI_SLOT(err);
- 
- 		err = mtk_pcie_parse_port(pcie, child, slot);
- 		if (err)
--			return err;
-+			goto error_put_node;
- 	}
- 
- 	err = mtk_pcie_subsys_powerup(pcie);
-@@ -1058,6 +1058,9 @@ static int mtk_pcie_setup(struct mtk_pcie *pcie)
- 		mtk_pcie_subsys_powerdown(pcie);
- 
- 	return 0;
-+error_put_node:
-+	of_node_put(child);
-+	return err;
+--- a/arch/arm64/kernel/perf_event.c
++++ b/arch/arm64/kernel/perf_event.c
+@@ -460,7 +460,7 @@ static inline int armv8pmu_counter_has_o
+ 	return pmnc & BIT(ARMV8_IDX_TO_COUNTER(idx));
  }
  
- static int mtk_pcie_probe(struct platform_device *pdev)
--- 
-2.30.1
-
+-static inline u32 armv8pmu_read_evcntr(int idx)
++static inline u64 armv8pmu_read_evcntr(int idx)
+ {
+ 	u32 counter = ARMV8_IDX_TO_COUNTER(idx);
+ 
 
 
