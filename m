@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91B4B33BA8E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D93333B815
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235036AbhCOOJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
+        id S233600AbhCOOCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234485AbhCOOEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001AE601FD;
-        Mon, 15 Mar 2021 14:04:06 +0000 (UTC)
+        id S232834AbhCOOAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EFA764F31;
+        Mon, 15 Mar 2021 13:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817048;
-        bh=wTkS8Du1PyKudOn9ERCR7T2hGeUF3cVTnJ+QTC5wg/U=;
+        s=korg; t=1615816781;
+        bh=rmC7IlEqG/sf97jfBeF9COqnucpg5NZszwxabt3aGbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5KmDIYZAPE+f6I/X0QygJwbVolhz1dYC+DCnoVM4814XvFCepj2dHxuRUqj4Ncds
-         EtZzonmdrjvhU2NQo4HhuUnLIoF9lWaKjjkmLiwVb1i2MhayfxX3hYdRRaOHSdaBZ8
-         d9KQK/3L9FDb/qza/9lf8bPD0PKEP7JKyP1RcDQo=
+        b=KqLyLFHNv+0DF8B6NiIRfEkg69Ha5xvGF+iSrXaEVfSLvhfSfvN0Uuj5WyNMbQD9e
+         ARJuiuWaiFjOTjy2fcni8fvpVjuizOtFrEzDcoxEckDZ5PYB5jauLujVDb7w/SC8Kk
+         OGdhpp5NsyvjCAZ44PvXtyy163kX5uualtKiVyGg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Valentin Schneider <valentin.schneider@arm.com>
-Subject: [PATCH 5.11 274/306] sched: Collate affine_move_task() stoppers
+        stable@vger.kernel.org, Peter Chen <peter.chen@freescale.com>,
+        Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Subject: [PATCH 5.4 105/168] usb: gadget: f_uac2: always increase endpoint max_packet_size by one audio slot
 Date:   Mon, 15 Mar 2021 14:55:37 +0100
-Message-Id: <20210315135516.922062784@linuxfoundation.org>
+Message-Id: <20210315135553.817987765@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +41,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-commit 58b1a45086b5f80f2b2842aa7ed0da51a64a302b upstream.
+commit 789ea77310f0200c84002884ffd628e2baf3ad8a upstream.
 
-The SCA_MIGRATE_ENABLE and task_running() cases are almost identical,
-collapse them to avoid further duplication.
+As per UAC2 Audio Data Formats spec (2.3.1.1 USB Packets),
+if the sampling rate is a constant, the allowable variation
+of number of audio slots per virtual frame is +/- 1 audio slot.
 
-Fixes: 6d337eab041d ("sched: Fix migrate_disable() vs set_cpus_allowed_ptr()")
-Cc: stable@kernel.org
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20210224131355.500108964@infradead.org
+It means that endpoint should be able to accept/send +1 audio
+slot.
+
+Previous endpoint max_packet_size calculation code
+was adding sometimes +1 audio slot due to DIV_ROUND_UP
+behaviour which was rounding up to closest integer.
+However this doesn't work if the numbers are divisible.
+
+It had no any impact with Linux hosts which ignore
+this issue, but in case of more strict Windows it
+caused rejected enumeration
+
+Thus always add +1 audio slot to endpoint's max packet size
+
+Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
+Cc: Peter Chen <peter.chen@freescale.com>
+Cc: <stable@vger.kernel.org> #v4.3+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-2-git-send-email-ruslan.bilovol@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c |   23 ++++++++---------------
- 1 file changed, 8 insertions(+), 15 deletions(-)
+ drivers/usb/gadget/function/f_uac2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2279,30 +2279,23 @@ static int affine_move_task(struct rq *r
- 		return -EINVAL;
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -478,7 +478,7 @@ static int set_ep_max_packet_size(const
  	}
  
--	if (flags & SCA_MIGRATE_ENABLE) {
--
--		refcount_inc(&pending->refs); /* pending->{arg,stop_work} */
--		p->migration_flags &= ~MDF_PUSH;
--		task_rq_unlock(rq, p, rf);
--
--		stop_one_cpu_nowait(cpu_of(rq), migration_cpu_stop,
--				    &pending->arg, &pending->stop_work);
--
--		return 0;
--	}
--
- 	if (task_running(rq, p) || p->state == TASK_WAKING) {
- 		/*
--		 * Lessen races (and headaches) by delegating
--		 * is_migration_disabled(p) checks to the stopper, which will
--		 * run on the same CPU as said p.
-+		 * MIGRATE_ENABLE gets here because 'p == current', but for
-+		 * anything else we cannot do is_migration_disabled(), punt
-+		 * and have the stopper function handle it all race-free.
- 		 */
-+
- 		refcount_inc(&pending->refs); /* pending->{arg,stop_work} */
-+		if (flags & SCA_MIGRATE_ENABLE)
-+			p->migration_flags &= ~MDF_PUSH;
- 		task_rq_unlock(rq, p, rf);
+ 	max_size_bw = num_channels(chmask) * ssize *
+-		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
++		((srate / (factor / (1 << (ep_desc->bInterval - 1)))) + 1);
+ 	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
+ 						    max_size_ep));
  
- 		stop_one_cpu_nowait(cpu_of(rq), migration_cpu_stop,
- 				    &pending->arg, &pending->stop_work);
- 
-+		if (flags & SCA_MIGRATE_ENABLE)
-+			return 0;
- 	} else {
- 
- 		if (!is_migration_disabled(p)) {
 
 
