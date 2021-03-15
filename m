@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0305233ADE2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:50:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABAA133ADE1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:50:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229520AbhCOItq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 04:49:46 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:37601 "EHLO
+        id S229490AbhCOIts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 04:49:48 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:47051 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229490AbhCOItS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:49:18 -0400
+        by vger.kernel.org with ESMTP id S229519AbhCOIti (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:49:38 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E94C2194093E;
-        Mon, 15 Mar 2021 04:49:15 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1CA8D1941952;
+        Mon, 15 Mar 2021 04:49:38 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 15 Mar 2021 04:49:15 -0400
+  by compute4.internal (MEProxy); Mon, 15 Mar 2021 04:49:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JvWTy/
-        2WD345B0YrGhGrOTjlKOz5ngAJR/GvIxPehhU=; b=Ln8Gtfc82kaSXxxfYW+xbr
-        zQrz0sBRd2sf7dL9FCej5LxHIoi6ZkMun9BkS8ZBDdtWCl4lNm3Ew1mSrxOC0mMd
-        yWyu77ru4lM2LoXqvTJAbdw3bKz5AhuzV3kt9ikPvofD8r8PGOVlg2FdmYNnaKp1
-        qv4eHRyoIk2RC1ufNPLfDMfkqLAcnQ+Sw8pR69OXSGaHJEZOlQ2tPkSY8tvBxpYL
-        i2uOCf6oMK3XZPfFnfoQvxIYmNgo1SfyaFPcl/YAa1+TEHJt+cCGdsxUhoy7oeVq
-        LIi8D4XuxxuBfBZcdR7Sz8ColfihCbqd3vrt+vHQ9AJ1foL6wNp4XiVr/X3K3tCw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=e2Nndr
+        Q0lbV/2sfJh1KmCjq4iH9Xvk66/4mdQeXZxtY=; b=CYNAWv/2GskPJ6bzTAPp3Q
+        +d6awspPgzIVO2kxgpl5pHv9hNWixOrqIKuDovK7ycnUlvgwuM/LZsSY58f0FuBp
+        dzSry8RdcghRWlA/u+XXZsc3TqS+zDw/X62K+zdr2H4Bvmd83EKgM8nPr7XAtTeQ
+        vK53C2S6kRi7iIqV/7zHFW03sP3CqUB2DYc34VnlgECgQ0BV8bhzQ4GS6qUtdhPQ
+        /j4amUVsC2KJLuzVDHbZ4MKvj/mADhDe37M4tqFYCh4laeAk/gagiIgKx/xQqSUm
+        gsVpBewI7nEw6uj02Me10TnOXoisbjPqURKHxoXAlmVK+f7y0xwnqmFY2T74qHUQ
         ==
-X-ME-Sender: <xms:ix9PYGilXmmKY6eel4lSFWK5lGIQCkVEgWZjgCmtKY_00KatX7cpCA>
-    <xme:ix9PYHD5vdkTZ0biNxSdkp4I_QPb_Up6u_ke_igOsze4t5KI4DiDYxFMuwh_jMKmq
-    n_6P1zP5-JY9g>
+X-ME-Sender: <xms:oR9PYGkSJ7HmLrp-0c7nlABELPNzBfZ4olPbkhyiVsF9WC6qp64Gcw>
+    <xme:oR9PYN1I79YAXMLtC_aSie-4WwR7a5mb32krToP6cefigR14WhLGyo7rXkz--qv8Y
+    RLcOnBsVgTZTg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvkedguddviecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucggtffrrghtthgvrhhnpeelleelvdegfeelledtteegudegfffghfduffduud
     ekgeefleegieegkeejhfelveenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhp
-    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpe
+    peekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgepgeenucfrrghrrghmpe
     hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:ix9PYOEsnm7Uq8yScSx2uGHd6BAsmFRDo4Cfqh0_JMMuWp8UiN3j5Q>
-    <xmx:ix9PYPSt-vcFYxPTicKAEjztKGwRkV5kQxhquICwi2PLJ_dLx4U_1A>
-    <xmx:ix9PYDwNOf8eDP8WDa4q-nrUXMVRb3RcYbz52pE5F8X7V_ZMsGj1Nw>
-    <xmx:ix9PYKk04ByHIONm5JB4uei2VMp-tJhc0XbxRDAi_O7yFK5wRqByyg>
+X-ME-Proxy: <xmx:oh9PYErsdEhl1__BmPobhVoPpUey2R9OAqw2Bk8przE-R1uLjvw0WQ>
+    <xmx:oh9PYKmDLitM_YvbaYcXirwp54qFIJlI-6OUBKtG6P0Ez5my7xXArw>
+    <xmx:oh9PYE2pJ1fBhxwSLcnQjs-0c1RHnZjy8ghNzAxYlOOE8H0GLygnsg>
+    <xmx:oh9PYB_7iI4A3H9lgiMdBar9_Zdbnw-gl6AcUlo7bBjuAQbbGGLWtQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8FBC6240054;
-        Mon, 15 Mar 2021 04:49:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm64: nvhe: Save the SPE context early" failed to apply to 5.4-stable tree
-To:     suzuki.poulose@arm.com, alexandru.elisei@arm.com,
-        catalin.marinas@arm.com, christoffer.dall@arm.com,
-        mark.rutland@arm.com, maz@kernel.org, pbonzini@redhat.com,
-        will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id BA9BF24005C;
+        Mon, 15 Mar 2021 04:49:37 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: arm64: Reject VM creation when the default IPA size is" failed to apply to 5.4-stable tree
+To:     maz@kernel.org, drjones@redhat.com, eric.auger@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Mar 2021 09:49:05 +0100
-Message-ID: <16157981451454@kroah.com>
+Date:   Mon, 15 Mar 2021 09:49:36 +0100
+Message-ID: <161579817659181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -73,120 +70,88 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b96b0c5de685df82019e16826a282d53d86d112c Mon Sep 17 00:00:00 2001
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Date: Fri, 5 Mar 2021 18:52:47 +0000
-Subject: [PATCH] KVM: arm64: nvhe: Save the SPE context early
+From 7d717558dd5ef10d28866750d5c24ff892ea3778 Mon Sep 17 00:00:00 2001
+From: Marc Zyngier <maz@kernel.org>
+Date: Thu, 11 Mar 2021 10:00:15 +0000
+Subject: [PATCH] KVM: arm64: Reject VM creation when the default IPA size is
+ unsupported
 
-The nVHE KVM hyp drains and disables the SPE buffer, before
-entering the guest, as the EL1&0 translation regime
-is going to be loaded with that of the guest.
+KVM/arm64 has forever used a 40bit default IPA space, partially
+due to its 32bit heritage (where the only choice is 40bit).
 
-But this operation is performed way too late, because :
-  - The owning translation regime of the SPE buffer
-    is transferred to EL2. (MDCR_EL2_E2PB == 0)
-  - The guest Stage1 is loaded.
+However, there are implementations in the wild that have a *cough*
+much smaller *cough* IPA space, which leads to a misprogramming of
+VTCR_EL2, and a guest that is stuck on its first memory access
+if userspace dares to ask for the default IPA setting (which most
+VMMs do).
 
-Thus the flush could use the host EL1 virtual address,
-but use the EL2 translations instead of host EL1, for writing
-out any cached data.
+Instead, blundly reject the creation of such VM, as we can't
+satisfy the requirements from userspace (with a one-off warning).
+Also clarify the boot warning, and document that the VM creation
+will fail when an unsupported IPA size is provided.
 
-Fix this by moving the SPE buffer handling early enough.
-The restore path is doing the right thing.
+Although this is an ABI change, it doesn't really change much
+for userspace:
 
-Fixes: 014c4c77aad7 ("KVM: arm64: Improve debug register save/restore flow")
-Cc: stable@vger.kernel.org
-Cc: Christoffer Dall <christoffer.dall@arm.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Alexandru Elisei <alexandru.elisei@arm.com>
-Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+- the guest couldn't run before this change, but no error was
+  returned. At least userspace knows what is happening.
+
+- a memory slot that was accepted because it did fit the default
+  IPA space now doesn't even get a chance to be registered.
+
+The other thing that is left doing is to convince userspace to
+actually use the IPA space setting instead of relying on the
+antiquated default.
+
+Fixes: 233a7cb23531 ("kvm: arm64: Allow tuning the physical address size for VM")
 Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210302120345.3102874-1-suzuki.poulose@arm.com
-Message-Id: <20210305185254.3730990-2-maz@kernel.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Link: https://lore.kernel.org/r/20210311100016.3830038-2-maz@kernel.org
 
-diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
-index c0450828378b..385bd7dd3d39 100644
---- a/arch/arm64/include/asm/kvm_hyp.h
-+++ b/arch/arm64/include/asm/kvm_hyp.h
-@@ -83,6 +83,11 @@ void sysreg_restore_guest_state_vhe(struct kvm_cpu_context *ctxt);
- void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
- void __debug_switch_to_host(struct kvm_vcpu *vcpu);
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 1a2b5210cdbf..38e327d4b479 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -182,6 +182,9 @@ is dependent on the CPU capability and the kernel configuration. The limit can
+ be retrieved using KVM_CAP_ARM_VM_IPA_SIZE of the KVM_CHECK_EXTENSION
+ ioctl() at run-time.
  
-+#ifdef __KVM_NVHE_HYPERVISOR__
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
-+#endif
++Creation of the VM will fail if the requested IPA size (whether it is
++implicit or explicit) is unsupported on the host.
 +
- void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
- void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
+ Please note that configuring the IPA size does not affect the capability
+ exposed by the guest CPUs in ID_AA64MMFR0_EL1[PARange]. It only affects
+ size of the address translated by the stage2 level (guest physical to
+diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+index 47f3f035f3ea..9d3d09a89894 100644
+--- a/arch/arm64/kvm/reset.c
++++ b/arch/arm64/kvm/reset.c
+@@ -324,10 +324,9 @@ int kvm_set_ipa_limit(void)
+ 	}
  
-diff --git a/arch/arm64/kvm/hyp/nvhe/debug-sr.c b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-index 91a711aa8382..f401724f12ef 100644
---- a/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-+++ b/arch/arm64/kvm/hyp/nvhe/debug-sr.c
-@@ -58,16 +58,24 @@ static void __debug_restore_spe(u64 pmscr_el1)
- 	write_sysreg_s(pmscr_el1, SYS_PMSCR_EL1);
+ 	kvm_ipa_limit = id_aa64mmfr0_parange_to_phys_shift(parange);
+-	WARN(kvm_ipa_limit < KVM_PHYS_SHIFT,
+-	     "KVM IPA Size Limit (%d bits) is smaller than default size\n",
+-	     kvm_ipa_limit);
+-	kvm_info("IPA Size Limit: %d bits\n", kvm_ipa_limit);
++	kvm_info("IPA Size Limit: %d bits%s\n", kvm_ipa_limit,
++		 ((kvm_ipa_limit < KVM_PHYS_SHIFT) ?
++		  " (Reduced IPA size, limited VM/VMM compatibility)" : ""));
+ 
+ 	return 0;
  }
+@@ -356,6 +355,11 @@ int kvm_arm_setup_stage2(struct kvm *kvm, unsigned long type)
+ 			return -EINVAL;
+ 	} else {
+ 		phys_shift = KVM_PHYS_SHIFT;
++		if (phys_shift > kvm_ipa_limit) {
++			pr_warn_once("%s using unsupported default IPA limit, upgrade your VMM\n",
++				     current->comm);
++			return -EINVAL;
++		}
+ 	}
  
--void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	/* Disable and flush SPE data generation */
- 	__debug_save_spe(&vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_guest(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_guest_common(vcpu);
- }
- 
--void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
- {
- 	__debug_restore_spe(vcpu->arch.host_debug_state.pmscr_el1);
-+}
-+
-+void __debug_switch_to_host(struct kvm_vcpu *vcpu)
-+{
- 	__debug_switch_to_host_common(vcpu);
- }
- 
-diff --git a/arch/arm64/kvm/hyp/nvhe/switch.c b/arch/arm64/kvm/hyp/nvhe/switch.c
-index f3d0e9eca56c..59aa1045fdaf 100644
---- a/arch/arm64/kvm/hyp/nvhe/switch.c
-+++ b/arch/arm64/kvm/hyp/nvhe/switch.c
-@@ -192,6 +192,14 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	pmu_switch_needed = __pmu_switch_to_guest(host_ctxt);
- 
- 	__sysreg_save_state_nvhe(host_ctxt);
-+	/*
-+	 * We must flush and disable the SPE buffer for nVHE, as
-+	 * the translation regime(EL1&0) is going to be loaded with
-+	 * that of the guest. And we must do this before we change the
-+	 * translation regime to EL2 (via MDCR_EL2_E2PB == 0) and
-+	 * before we load guest Stage1.
-+	 */
-+	__debug_save_host_buffers_nvhe(vcpu);
- 
- 	__adjust_pc(vcpu);
- 
-@@ -234,11 +242,12 @@ int __kvm_vcpu_run(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
- 		__fpsimd_save_fpexc32(vcpu);
- 
-+	__debug_switch_to_host(vcpu);
- 	/*
- 	 * This must come after restoring the host sysregs, since a non-VHE
- 	 * system may enable SPE here and make use of the TTBRs.
- 	 */
--	__debug_switch_to_host(vcpu);
-+	__debug_restore_host_buffers_nvhe(vcpu);
- 
- 	if (pmu_switch_needed)
- 		__pmu_switch_to_host(host_ctxt);
+ 	mmfr0 = read_sanitised_ftr_reg(SYS_ID_AA64MMFR0_EL1);
 
