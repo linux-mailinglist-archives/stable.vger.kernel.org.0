@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 429EC33B881
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC58033B7A0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234502AbhCOODp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S233150AbhCOOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232805AbhCOOAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E68C264F2F;
-        Mon, 15 Mar 2021 13:59:51 +0000 (UTC)
+        id S232674AbhCON72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E4C164EEF;
+        Mon, 15 Mar 2021 13:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816793;
-        bh=FTAwELuj2EcQRMLn9mlwt2MunR7r3AyeDut4nIGaRjk=;
+        s=korg; t=1615816745;
+        bh=iakUUpx4G6VONJ2CRlAEqBBDWFCcmWmLRSuQ8I4Q60A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9A6+sqpr7C2CBDUYpENgWh9CJdFqEGQk8npWJtLTIImK6xtjvPJR96x7s8ZLjKXz
-         mfOdPC0ovvcFRrswvC1ZPAmSxAaVKSyUpWdl4eFSReuYy40fUHzYgbGPO5k0AqBhia
-         GTczQcWMy1HfktBJ6gpDtgnxFIYiF8Yq9AThOzeM=
+        b=b+y9q0T1n/MuaaChoTzQua8DHlOf78tKoHLIBYDvUX7zELSZvqmKl0mZpPigW1kiW
+         xYuLzpI6DnLaLP2tgRxUUep0hMHekf6nnZBSOxgsKNmgSmxzm/u6Yk9A3CZlN49nJo
+         tbAZxgkEqqCfl0CbxdkEu0KvWewVk+6+FH934Paw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Colitti <lorenzo@google.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 071/120] USB: gadget: u_ether: Fix a configfs return code
-Date:   Mon, 15 Mar 2021 14:57:02 +0100
-Message-Id: <20210315135722.306884259@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 33/95] mmc: mxs-mmc: Fix a resource leak in an error handling path in mxs_mmc_probe()
+Date:   Mon, 15 Mar 2021 14:57:03 +0100
+Message-Id: <20210315135741.360989589@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +43,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 650bf52208d804ad5ee449c58102f8dc43175573 upstream.
+[ Upstream commit 0bb7e560f821c7770973a94e346654c4bdccd42c ]
 
-If the string is invalid, this should return -EINVAL instead of 0.
+If 'mmc_of_parse()' fails, we must undo the previous 'dma_request_chan()'
+call.
 
-Fixes: 73517cf49bd4 ("usb: gadget: add RNDIS configfs options for class/subclass/protocol")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Lorenzo Colitti <lorenzo@google.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YCqZ3P53yyIg5cn7@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/20201208203527.49262-1-christophe.jaillet@wanadoo.fr
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/u_ether_configfs.h |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/mmc/host/mxs-mmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/u_ether_configfs.h
-+++ b/drivers/usb/gadget/function/u_ether_configfs.h
-@@ -169,12 +169,11 @@ out:									\
- 						size_t len)		\
- 	{								\
- 		struct f_##_f_##_opts *opts = to_f_##_f_##_opts(item);	\
--		int ret;						\
-+		int ret = -EINVAL;					\
- 		u8 val;							\
- 									\
- 		mutex_lock(&opts->lock);				\
--		ret = sscanf(page, "%02hhx", &val);			\
--		if (ret > 0) {						\
-+		if (sscanf(page, "%02hhx", &val) > 0) {			\
- 			opts->_n_ = val;				\
- 			ret = len;					\
- 		}							\
+diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
+index add1e70195ea..7125687faf76 100644
+--- a/drivers/mmc/host/mxs-mmc.c
++++ b/drivers/mmc/host/mxs-mmc.c
+@@ -659,7 +659,7 @@ static int mxs_mmc_probe(struct platform_device *pdev)
+ 
+ 	ret = mmc_of_parse(mmc);
+ 	if (ret)
+-		goto out_clk_disable;
++		goto out_free_dma;
+ 
+ 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
+ 
+-- 
+2.30.1
+
 
 
