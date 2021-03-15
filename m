@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDDE33B52B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB4F33B509
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229870AbhCONxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
+        id S230000AbhCONxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229874AbhCONxE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 441EF64EF9;
-        Mon, 15 Mar 2021 13:53:02 +0000 (UTC)
+        id S229512AbhCONwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:52:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1816164EED;
+        Mon, 15 Mar 2021 13:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816383;
-        bh=qaz12JiLe/Ys9E2n86Og5/hr3vi/49HOTrA/XwLcJrM=;
+        s=korg; t=1615816375;
+        bh=XNpy37LGE6RZ+Ti4veN4+ZUKqsUfs9mUVHCpS4Q+XMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNVJxop/0yHYGh4afbsb0XfeqjsNQ/PMML1WireISbB6nHRjjpC4ZLusN+8ljhxx4
-         CxtbniT9A4r+ZCuhTrUApiK5XVT8yF1YUxOWwDiGpD/rmnDxkdcGxlxXnu09x/tHCp
-         K92/bnRw+6VqUlaaiHRj6P+UWzhimR5GR41ubMbc=
+        b=R13SQqRi1a117vRyQb34K7EjgBGj/LovlYEKwjrcRz++i0k6HU/TET8Izt9d6nmJI
+         e7+edUXGUHxtS3+4gdvpu0mGfbVpUwhIW7ZUzTN3yCwZkRCfGKAXuaq7pcEteXD6Bf
+         mzOj/zrfXclUEQdf7ck8VJ8IFlZw0YTDPS2PdcLc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 4.4 13/75] futex: fix dead code in attach_to_pi_owner()
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tom Herbert <tom@herbertland.com>,
+        Willem de Bruijn <willemb@google.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 04/78] net: Fix gro aggregation for udp encaps with zero csum
 Date:   Mon, 15 Mar 2021 14:51:27 +0100
-Message-Id: <20210315135208.696700074@linuxfoundation.org>
+Message-Id: <20210315135212.212795602@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,67 +46,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-This patch comes directly from an origin patch (commit
-91509e84949fc97e7424521c32a9e227746e0b85) in v4.9.
-And it is part of a full patch which was originally back-ported
-to v4.14 as commit e6e00df182908f34360c3c9f2d13cc719362e9c0
+commit 89e5c58fc1e2857ccdaae506fb8bc5fed57ee063 upstream.
 
-The handle_exit_race() function is defined in commit 9c3f39860367
- ("futex: Cure exit race"), which never returns -EBUSY. This results
-in a small piece of dead code in the attach_to_pi_owner() function:
+We noticed a GRO issue for UDP-based encaps such as vxlan/geneve when the
+csum for the UDP header itself is 0. In that case, GRO aggregation does
+not take place on the phys dev, but instead is deferred to the vxlan/geneve
+driver (see trace below).
 
-	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
-	...
-	if (ret == -EBUSY)
-		*exiting = p; /* dead code */
+The reason is essentially that GRO aggregation bails out in udp_gro_receive()
+for such case when drivers marked the skb with CHECKSUM_UNNECESSARY (ice, i40e,
+others) where for non-zero csums 2abb7cdc0dc8 ("udp: Add support for doing
+checksum unnecessary conversion") promotes those skbs to CHECKSUM_COMPLETE
+and napi context has csum_valid set. This is however not the case for zero
+UDP csum (here: csum_cnt is still 0 and csum_valid continues to be false).
 
-The return value -EBUSY is added to handle_exit_race() in upsteam
-commit ac31c7ff8624409 ("futex: Provide distinct return value when
-owner is exiting"). This commit was incorporated into v4.9.255, before
-the function handle_exit_race() was introduced, whitout Modify
-handle_exit_race().
+At the same time 57c67ff4bd92 ("udp: additional GRO support") added matches
+on !uh->check ^ !uh2->check as part to determine candidates for aggregation,
+so it certainly is expected to handle zero csums in udp_gro_receive(). The
+purpose of the check added via 662880f44203 ("net: Allow GRO to use and set
+levels of checksum unnecessary") seems to catch bad csum and stop aggregation
+right away.
 
-To fix dead code, extract the change of handle_exit_race() from
-commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
- is exiting"), re-incorporated.
+One way to fix aggregation in the zero case is to only perform the !csum_valid
+check in udp_gro_receive() if uh->check is infact non-zero.
 
-Lee writes:
+Before:
 
-This commit takes the remaining functional snippet of:
+  [...]
+  swapper     0 [008]   731.946506: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100400 len=1500   (1)
+  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100200 len=1500
+  swapper     0 [008]   731.946507: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101100 len=1500
+  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101700 len=1500
+  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101b00 len=1500
+  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100600 len=1500
+  swapper     0 [008]   731.946508: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100f00 len=1500
+  swapper     0 [008]   731.946509: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100a00 len=1500
+  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100500 len=1500
+  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100700 len=1500
+  swapper     0 [008]   731.946516: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101d00 len=1500   (2)
+  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101000 len=1500
+  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101c00 len=1500
+  swapper     0 [008]   731.946517: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101400 len=1500
+  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100e00 len=1500
+  swapper     0 [008]   731.946518: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497101600 len=1500
+  swapper     0 [008]   731.946521: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff966497100800 len=774
+  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497100400 len=14032 (1)
+  swapper     0 [008]   731.946530: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff966497101d00 len=9112  (2)
+  [...]
 
- ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
+  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
+  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
+  Recv   Send    Send
+  Socket Socket  Message  Elapsed
+  Size   Size    Size     Time     Throughput
+  bytes  bytes   bytes    secs.    10^6bits/sec
 
-... and is the correct fix for this issue.
+   87380  16384  16384    20.01    13129.24
 
-Fixes: 9c3f39860367 ("futex: Cure exit race")
-Cc: stable@vger.kernel.org # v4.9.258
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Reviewed-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+After:
+
+  [...]
+  swapper     0 [026]   521.862641: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479000 len=11286 (1)
+  swapper     0 [026]   521.862643: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479000 len=11236 (1)
+  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d478500 len=2898  (2)
+  swapper     0 [026]   521.862650: net:netif_receive_skb: dev=enp10s0f0  skbaddr=0xffff93ab0d479f00 len=8490  (3)
+  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d478500 len=2848  (2)
+  swapper     0 [026]   521.862653: net:netif_receive_skb: dev=test_vxlan skbaddr=0xffff93ab0d479f00 len=8440  (3)
+  [...]
+
+  # netperf -H 10.55.10.4 -t TCP_STREAM -l 20
+  MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 10.55.10.4 () port 0 AF_INET : demo
+  Recv   Send    Send
+  Socket Socket  Message  Elapsed
+  Size   Size    Size     Time     Throughput
+  bytes  bytes   bytes    secs.    10^6bits/sec
+
+   87380  16384  16384    20.01    24576.53
+
+Fixes: 57c67ff4bd92 ("udp: additional GRO support")
+Fixes: 662880f44203 ("net: Allow GRO to use and set levels of checksum unnecessary")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Cc: Tom Herbert <tom@herbertland.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20210226212248.8300-1-daniel@iogearbox.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/udp_offload.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1204,11 +1204,11 @@ static int handle_exit_race(u32 __user *
- 	u32 uval2;
+--- a/net/ipv4/udp_offload.c
++++ b/net/ipv4/udp_offload.c
+@@ -265,7 +265,7 @@ struct sk_buff **udp_gro_receive(struct
+ 	struct sock *sk;
  
- 	/*
--	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
--	 * for it to finish.
-+	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
-+	 * caller that the alleged owner is busy.
- 	 */
- 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
--		return -EAGAIN;
-+		return -EBUSY;
- 
- 	/*
- 	 * Reread the user space value to handle the following situation:
+ 	if (NAPI_GRO_CB(skb)->encap_mark ||
+-	    (skb->ip_summed != CHECKSUM_PARTIAL &&
++	    (uh->check && skb->ip_summed != CHECKSUM_PARTIAL &&
+ 	     NAPI_GRO_CB(skb)->csum_cnt == 0 &&
+ 	     !NAPI_GRO_CB(skb)->csum_valid))
+ 		goto out;
 
 
