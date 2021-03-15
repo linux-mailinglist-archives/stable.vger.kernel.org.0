@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C91933B52C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB40933B538
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230431AbhCONxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55690 "EHLO mail.kernel.org"
+        id S230475AbhCONxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230027AbhCONxJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D3C964EEE;
-        Mon, 15 Mar 2021 13:53:06 +0000 (UTC)
+        id S230145AbhCONxR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CE8C64EED;
+        Mon, 15 Mar 2021 13:53:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816388;
-        bh=evTCwKnb3R5yY60YRWT6NmwzJ7cyicuutJgWGsoFtyo=;
+        s=korg; t=1615816396;
+        bh=PhgHNYBFT2asspsMB8sRxrS9HQYXygFe+G+z4EgUY6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0BGu2k2TeX2tOmmrG/HayaN6o7VBDheZSVu1N6kVh5MYzRj4UT3ayeNSm0usNQ+/
-         wi7thRHzRScIQqr3wY1TctbzLg9tXMWiZ5lMSfjrJHwzb/ANTMjmDpNc0Wu0MKjwaS
-         qjVPPrzIhqdiCwcVNPJsIuwrmPPcJLTvLpDz6+S8=
+        b=0HvB+0Ddqa5/ytDE00KtEOPkjXrkp6CEn+i+AdBA9IO+IItIcPHntpeJd+5S4PFkR
+         8karLjuDu2K9C9VZBl0dHsFnT4j5gn0M8MYcJN4JTZNJ7Jtnm3YtW0ga3MfJuxYy2k
+         CZXyWF8HJ4nrKKE6Ydh+kfUWtjP4f/BQJwHpnLUQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Jann Horn <jannh@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Christoph Lameter <cl@linux.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 11/78] Revert "mm, slub: consider rest of partial list if acquire_slab() fails"
+        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 20/75] mmc: mediatek: fix race condition between msdc_request_timeout and irq
 Date:   Mon, 15 Mar 2021 14:51:34 +0100
-Message-Id: <20210315135212.435215008@linuxfoundation.org>
+Message-Id: <20210315135208.913950051@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +42,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Chaotian Jing <chaotian.jing@mediatek.com>
 
-commit 9b1ea29bc0d7b94d420f96a0f4121403efc3dd85 upstream.
+[ Upstream commit 0354ca6edd464a2cf332f390581977b8699ed081 ]
 
-This reverts commit 8ff60eb052eeba95cfb3efe16b08c9199f8121cf.
+when get request SW timeout, if CMD/DAT xfer done irq coming right now,
+then there is race between the msdc_request_timeout work and irq handler,
+and the host->cmd and host->data may set to NULL in irq handler. also,
+current flow ensure that only one path can go to msdc_request_done(), so
+no need check the return value of cancel_delayed_work().
 
-The kernel test robot reports a huge performance regression due to the
-commit, and the reason seems fairly straightforward: when there is
-contention on the page list (which is what causes acquire_slab() to
-fail), we do _not_ want to just loop and try again, because that will
-transfer the contention to the 'n->list_lock' spinlock we hold, and
-just make things even worse.
-
-This is admittedly likely a problem only on big machines - the kernel
-test robot report comes from a 96-thread dual socket Intel Xeon Gold
-6252 setup, but the regression there really is quite noticeable:
-
-   -47.9% regression of stress-ng.rawpkt.ops_per_sec
-
-and the commit that was marked as being fixed (7ced37197196: "slub:
-Acquire_slab() avoid loop") actually did the loop exit early very
-intentionally (the hint being that "avoid loop" part of that commit
-message), exactly to avoid this issue.
-
-The correct thing to do may be to pick some kind of reasonable middle
-ground: instead of breaking out of the loop on the very first sign of
-contention, or trying over and over and over again, the right thing may
-be to re-try _once_, and then give up on the second failure (or pick
-your favorite value for "once"..).
-
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/lkml/20210301080404.GF12822@xsang-OptiPlex-9020/
-Cc: Jann Horn <jannh@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Acked-by: Christoph Lameter <cl@linux.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
+Link: https://lore.kernel.org/r/20201218071611.12276-1-chaotian.jing@mediatek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/mtk-sd.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/mm/slub.c
-+++ b/mm/slub.c
-@@ -1833,7 +1833,7 @@ static void *get_partial_node(struct kme
+diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
+index 5ef25463494f..1770c8df9d1b 100644
+--- a/drivers/mmc/host/mtk-sd.c
++++ b/drivers/mmc/host/mtk-sd.c
+@@ -720,13 +720,13 @@ static void msdc_track_cmd_data(struct msdc_host *host,
+ static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
+ {
+ 	unsigned long flags;
+-	bool ret;
  
- 		t = acquire_slab(s, n, page, object == NULL, &objects);
- 		if (!t)
--			continue; /* cmpxchg raced */
-+			break;
+-	ret = cancel_delayed_work(&host->req_timeout);
+-	if (!ret) {
+-		/* delay work already running */
+-		return;
+-	}
++	/*
++	 * No need check the return value of cancel_delayed_work, as only ONE
++	 * path will go here!
++	 */
++	cancel_delayed_work(&host->req_timeout);
++
+ 	spin_lock_irqsave(&host->lock, flags);
+ 	host->mrq = NULL;
+ 	spin_unlock_irqrestore(&host->lock, flags);
+@@ -747,7 +747,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
+ 	bool done = false;
+ 	bool sbc_error;
+ 	unsigned long flags;
+-	u32 *rsp = cmd->resp;
++	u32 *rsp;
  
- 		available += objects;
- 		if (!object) {
+ 	if (mrq->sbc && cmd == mrq->cmd &&
+ 	    (events & (MSDC_INT_ACMDRDY | MSDC_INT_ACMDCRCERR
+@@ -768,6 +768,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
+ 
+ 	if (done)
+ 		return true;
++	rsp = cmd->resp;
+ 
+ 	sdr_clr_bits(host->base + MSDC_INTEN, cmd_ints_mask);
+ 
+@@ -942,7 +943,7 @@ static void msdc_data_xfer_next(struct msdc_host *host,
+ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 				struct mmc_request *mrq, struct mmc_data *data)
+ {
+-	struct mmc_command *stop = data->stop;
++	struct mmc_command *stop;
+ 	unsigned long flags;
+ 	bool done;
+ 	unsigned int check_data = events &
+@@ -958,6 +959,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 
+ 	if (done)
+ 		return true;
++	stop = data->stop;
+ 
+ 	if (check_data || (stop && stop->error)) {
+ 		dev_dbg(host->dev, "DMA status: 0x%8X\n",
+-- 
+2.30.1
+
 
 
