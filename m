@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A41EE33B809
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFC6033B766
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbhCOOBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S232946AbhCOOAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232807AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E94EB64EEA;
-        Mon, 15 Mar 2021 13:59:38 +0000 (UTC)
+        id S231422AbhCON7L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E4CF64E83;
+        Mon, 15 Mar 2021 13:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816780;
-        bh=xPOyjQVC9zn/UwBkVcl/FOk/o6vGCPsyRe8EBtqcggY=;
+        s=korg; t=1615816730;
+        bh=9ePwYnwhBKuyVuujznYnndoTArbDbP4WcimtpsYv5tE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O9xvh1BhuEq8cuNZjkbmt9AIJQZLlCpdcqEAiDlgVVUfxWiovTNb+iDxIKtUsLLuk
-         NO32XeQ+Efi1Ro47viXWfjOs98TmH+4kAek4k0UXzWQeM7q4lNw5IiGm9UBPCYCxRO
-         siK2U9Z65T2XysYbY1OqAtKo8OpSh6N8oBWfP8RQ=
+        b=bS2uQpqQI73uTk9HApTeEnnnqVW/pV+h2qFLyCYR7DgD65norQYT/ZFGpLRkiUAwQ
+         83212KXEfIPrZ4JCs9Vb5joprY4sqbsJprkspYF8OoSbBMTWQFnJ4vJY5PtS+sou44
+         NzI2JzsThMUgxB+FlWRunoxpmBNJ4NVLnZPWDgt4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Sahu <abhsahu@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 062/120] ALSA: hda: Avoid spurious unsol event handling during S3/S4
-Date:   Mon, 15 Mar 2021 14:56:53 +0100
-Message-Id: <20210315135722.008348499@linuxfoundation.org>
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 24/95] net: stmmac: stop each tx channel independently
+Date:   Mon, 15 Mar 2021 14:56:54 +0100
+Message-Id: <20210315135741.070108332@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +41,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit 5ff9dde42e8c72ed8102eb8cb62e03f9dc2103ab upstream.
+commit a3e860a83397bf761ec1128a3f0ba186445992c6 upstream.
 
-When HD-audio bus receives unsolicited events during its system
-suspend/resume (S3 and S4) phase, the controller driver may still try
-to process events although the codec chips are already (or yet)
-powered down.  This might screw up the codec communication, resulting
-in CORB/RIRB errors.  Such events should be rather skipped, as the
-codec chip status such as the jack status will be fully refreshed at
-the system resume time.
+If clear GMAC_CONFIG_TE bit, it would stop all tx channels, but users
+may only want to stop specific tx channel.
 
-Since we're tracking the system suspend/resume state in codec
-power.power_state field, let's add the check in the common unsol event
-handler entry point to filter out such events.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
-Tested-by: Abhishek Sahu <abhsahu@nvidia.com>
-Cc: <stable@vger.kernel.org> # 183ab39eb0ea: ALSA: hda: Initialize power_state
-Link: https://lore.kernel.org/r/20210310112809.9215-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_bind.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -46,6 +46,10 @@ static void hda_codec_unsol_event(struct
- 	if (codec->bus->shutdown)
- 		return;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_lib.c
+@@ -63,10 +63,6 @@ void dwmac4_dma_stop_tx(void __iomem *io
  
-+	/* ignore unsol events during system suspend/resume */
-+	if (codec->core.dev.power.power_state.event != PM_EVENT_ON)
-+		return;
-+
- 	if (codec->patch_ops.unsol_event)
- 		codec->patch_ops.unsol_event(codec, ev);
+ 	value &= ~DMA_CONTROL_ST;
+ 	writel(value, ioaddr + DMA_CHAN_TX_CONTROL(chan));
+-
+-	value = readl(ioaddr + GMAC_CONFIG);
+-	value &= ~GMAC_CONFIG_TE;
+-	writel(value, ioaddr + GMAC_CONFIG);
  }
+ 
+ void dwmac4_dma_start_rx(void __iomem *ioaddr, u32 chan)
 
 
