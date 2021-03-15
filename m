@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD7233B527
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BFB733B656
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229979AbhCONxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55654 "EHLO mail.kernel.org"
+        id S232066AbhCON5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229945AbhCONxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DE3561606;
-        Mon, 15 Mar 2021 13:53:03 +0000 (UTC)
+        id S230204AbhCON5I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81BBA64EEE;
+        Mon, 15 Mar 2021 13:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816385;
-        bh=F/Xy1t0ooY/XYzzrx09NjPVLLKoiU183ZMnQP/qTA/8=;
+        s=korg; t=1615816620;
+        bh=Ux5Nui7i5uAA02jA+/Fd1375riJrUm2Q5kXkTqXaIOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Du6xQihS8a0Ml60LU3vVof26KXJS2eElwQrNquuvgTYqIbqkfzEjeU9mYkVQYxRou
-         NmUlSGY6bdCf626aBQzTz5nEzFeFXObrXnfNTgnwE1fBK8WDWmHMsNf81r3kZzSTYe
-         LP9N7fpCeVOTXYPvVGVX89fKPIyElA8yD8/N5jEA=
+        b=bHCajVRl4bXk24CEPN4uI5uq6WdLFsRKd6k1CwRfmVZAJJDF/B18h0Vc5i7Am6ajt
+         091d/5655TgdpFcfDqsjs2AsTPUYxHXMYUTgDxdOOvXd5S7Vyr85vFd/IsbuRsvOmM
+         DIoJr2pyzXH2zMXPHy2ObuBWyo/3S0YiYmY5oZGI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kevin(Yudong) Yang" <yyd@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 14/75] net/mlx4_en: update moderation when config reset
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.11 025/306] netfilter: nf_nat: undo erroneous tcp edemux lookup
 Date:   Mon, 15 Mar 2021 14:51:28 +0100
-Message-Id: <20210315135208.728222767@linuxfoundation.org>
+Message-Id: <20210315135508.478257023@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +41,120 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kevin(Yudong) Yang <yyd@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 00ff801bb8ce6711e919af4530b6ffa14a22390a upstream.
+commit 03a3ca37e4c6478e3a84f04c8429dd5889e107fd upstream.
 
-This patch fixes a bug that the moderation config will not be
-applied when calling mlx4_en_reset_config. For example, when
-turning on rx timestamping, mlx4_en_reset_config() will be called,
-causing the NIC to forget previous moderation config.
+Under extremely rare conditions TCP early demux will retrieve the wrong
+socket.
 
-This fix is in phase with a previous fix:
-commit 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss
-after set_ringparam is called")
+1. local machine establishes a connection to a remote server, S, on port
+   p.
 
-Tested: Before this patch, on a host with NIC using mlx4, run
-netserver and stream TCP to the host at full utilization.
-$ sar -I SUM 1
-                 INTR    intr/s
-14:03:56          sum  48758.00
+   This gives:
+   laddr:lport -> S:p
+   ... both in tcp and conntrack.
 
-After rx hwtstamp is enabled:
-$ sar -I SUM 1
-14:10:38          sum 317771.00
-We see the moderation is not working properly and issued 7x more
-interrupts.
+2. local machine establishes a connection to host H, on port p2.
+   2a. TCP stack choses same laddr:lport, so we have
+   laddr:lport -> H:p2 from TCP point of view.
+   2b). There is a destination NAT rewrite in place, translating
+        H:p2 to S:p.  This results in following conntrack entries:
 
-After the patch, and turned on rx hwtstamp, the rate of interrupts
-is as expected:
-$ sar -I SUM 1
-14:52:11          sum  49332.00
+   I)  laddr:lport -> S:p  (origin)  S:p -> laddr:lport (reply)
+   II) laddr:lport -> H:p2 (origin)  S:p -> laddr:lport2 (reply)
 
-Fixes: 79c54b6bbf06 ("net/mlx4_en: Fix TX moderation info loss after set_ringparam is called")
-Signed-off-by: Kevin(Yudong) Yang <yyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Neal Cardwell <ncardwell@google.com>
-CC: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   NAT engine has rewritten laddr:lport to laddr:lport2 to map
+   the reply packet to the correct origin.
+
+   When server sends SYN/ACK to laddr:lport2, the PREROUTING hook
+   will undo-the SNAT transformation, rewriting IP header to
+   S:p -> laddr:lport
+
+   This causes TCP early demux to associate the skb with the TCP socket
+   of the first connection.
+
+   The INPUT hook will then reverse the DNAT transformation, rewriting
+   the IP header to H:p2 -> laddr:lport.
+
+Because packet ends up with the wrong socket, the new connection
+never completes: originator stays in SYN_SENT and conntrack entry
+remains in SYN_RECV until timeout, and responder retransmits SYN/ACK
+until it gives up.
+
+To resolve this, orphan the skb after the input rewrite:
+Because the source IP address changed, the socket must be incorrect.
+We can't move the DNAT undo to prerouting due to backwards
+compatibility, doing so will make iptables/nftables rules to no longer
+match the way they did.
+
+After orphan, the packet will be handed to the next protocol layer
+(tcp, udp, ...) and that will repeat the socket lookup just like as if
+early demux was disabled.
+
+Fixes: 41063e9dd1195 ("ipv4: Early TCP socket demux.")
+Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1427
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    2 +-
- drivers/net/ethernet/mellanox/mlx4/en_netdev.c  |    2 ++
- drivers/net/ethernet/mellanox/mlx4/mlx4_en.h    |    1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ net/netfilter/nf_nat_proto.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -47,7 +47,7 @@
- #define EN_ETHTOOL_SHORT_MASK cpu_to_be16(0xffff)
- #define EN_ETHTOOL_WORD_MASK  cpu_to_be32(0xffffffff)
+--- a/net/netfilter/nf_nat_proto.c
++++ b/net/netfilter/nf_nat_proto.c
+@@ -646,8 +646,8 @@ nf_nat_ipv4_fn(void *priv, struct sk_buf
+ }
  
--static int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv)
+ static unsigned int
+-nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
+-	       const struct nf_hook_state *state)
++nf_nat_ipv4_pre_routing(void *priv, struct sk_buff *skb,
++			const struct nf_hook_state *state)
  {
- 	int i;
- 	int err = 0;
---- a/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_netdev.c
-@@ -3188,6 +3188,8 @@ int mlx4_en_reset_config(struct net_devi
- 			en_err(priv, "Failed starting port\n");
- 	}
+ 	unsigned int ret;
+ 	__be32 daddr = ip_hdr(skb)->daddr;
+@@ -660,6 +660,23 @@ nf_nat_ipv4_in(void *priv, struct sk_buf
+ }
  
-+	if (!err)
-+		err = mlx4_en_moderation_update(priv);
- out:
- 	mutex_unlock(&mdev->state_lock);
- 	netdev_features_change(dev);
---- a/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-+++ b/drivers/net/ethernet/mellanox/mlx4/mlx4_en.h
-@@ -839,6 +839,7 @@ void mlx4_en_ptp_overflow_check(struct m
- #define DEV_FEATURE_CHANGED(dev, new_features, feature) \
- 	((dev->features & feature) ^ (new_features & feature))
- 
-+int mlx4_en_moderation_update(struct mlx4_en_priv *priv);
- int mlx4_en_reset_config(struct net_device *dev,
- 			 struct hwtstamp_config ts_config,
- 			 netdev_features_t new_features);
+ static unsigned int
++nf_nat_ipv4_local_in(void *priv, struct sk_buff *skb,
++		     const struct nf_hook_state *state)
++{
++	__be32 saddr = ip_hdr(skb)->saddr;
++	struct sock *sk = skb->sk;
++	unsigned int ret;
++
++	ret = nf_nat_ipv4_fn(priv, skb, state);
++
++	if (ret == NF_ACCEPT && sk && saddr != ip_hdr(skb)->saddr &&
++	    !inet_sk_transparent(sk))
++		skb_orphan(skb); /* TCP edemux obtained wrong socket */
++
++	return ret;
++}
++
++static unsigned int
+ nf_nat_ipv4_out(void *priv, struct sk_buff *skb,
+ 		const struct nf_hook_state *state)
+ {
+@@ -736,7 +753,7 @@ nf_nat_ipv4_local_fn(void *priv, struct
+ static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
+ 	/* Before packet filtering, change destination */
+ 	{
+-		.hook		= nf_nat_ipv4_in,
++		.hook		= nf_nat_ipv4_pre_routing,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_PRE_ROUTING,
+ 		.priority	= NF_IP_PRI_NAT_DST,
+@@ -757,7 +774,7 @@ static const struct nf_hook_ops nf_nat_i
+ 	},
+ 	/* After packet filtering, change source */
+ 	{
+-		.hook		= nf_nat_ipv4_fn,
++		.hook		= nf_nat_ipv4_local_in,
+ 		.pf		= NFPROTO_IPV4,
+ 		.hooknum	= NF_INET_LOCAL_IN,
+ 		.priority	= NF_IP_PRI_NAT_SRC,
 
 
