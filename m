@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D1433B849
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9FBB33B917
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233898AbhCOOCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
+        id S234775AbhCOOFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232069AbhCOOAP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98EB064F05;
-        Mon, 15 Mar 2021 13:59:45 +0000 (UTC)
+        id S231743AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F12A964DAD;
+        Mon, 15 Mar 2021 14:00:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816786;
-        bh=yOctb2DWSX1j9ncR181f6JnRrNfFuR3rmejQsGw0HCs=;
+        s=korg; t=1615816835;
+        bh=jXmsmJ53SzD4UnqQjC8pqBIu+n78DV1VH/uxOqQKBCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJpimI5pgRx5po/wCjCc83TRnxiIVvuK/H4GM766aDI+3H9E43/Gf/gEoR7rKViuq
-         dZcydqqhjo/9hdoDx+dkLkTSIHKy8eQw7vLQjDXR4Dpb45jDIHEDT6Yn+EUOXz8UI4
-         EkoT/fVJWb8hh7gBUze99wsDMm82PZ+xkLzc80Ko=
+        b=vDaa1j3uu1vg+9hmnwq9m7vdOOC9q2tL55IlLXRwmXxjZ0rGCs+cI7lUnMoIFbAuA
+         e4reGlvOjFE3AolbI5dgYq89ce2fZ0fORzMr/Wf+dSpkUOjfPIFvxJy/cTXayhgDcK
+         1m8oFw4joLFlorYCeW6o49UkCCxbl6yNzjoCnpOo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.14 61/95] usbip: fix vhci_hcd to check for stream socket
-Date:   Mon, 15 Mar 2021 14:57:31 +0100
-Message-Id: <20210315135742.275255591@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.19 101/120] staging: comedi: dmm32at: Fix endian problem for AI command data
+Date:   Mon, 15 Mar 2021 14:57:32 +0100
+Message-Id: <20210315135723.278834062@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +40,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit f55a0571690c4aae03180e001522538c0927432f upstream.
+commit 54999c0d94b3c26625f896f8e3460bc029821578 upstream.
 
-Fix attach_store() to validate the passed in file descriptor is a
-stream socket. If the file descriptor passed was a SOCK_DGRAM socket,
-sock_recvmsg() can't detect end of stream.
+The analog input subdevice supports Comedi asynchronous commands that
+use Comedi's 16-bit sample format.  However, the call to
+`comedi_buf_write_samples()` is passing the address of a 32-bit integer
+variable.  On bigendian machines, this will copy 2 bytes from the wrong
+end of the 32-bit value.  Fix it by changing the type of the variable
+holding the sample value to `unsigned short`.
 
-Cc: stable@vger.kernel.org
-Suggested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/52712aa308915bda02cece1589e04ee8b401d1f3.1615171203.git.skhan@linuxfoundation.org
+[Note: the bug was introduced in commit 1700529b24cc ("staging: comedi:
+dmm32at: use comedi_buf_write_samples()") but the patch applies better
+to the later (but in the same kernel release) commit 0c0eadadcbe6e
+("staging: comedi: dmm32at: introduce dmm32_ai_get_sample()").]
+
+Fixes: 0c0eadadcbe6e ("staging: comedi: dmm32at: introduce dmm32_ai_get_sample()")
+Cc: <stable@vger.kernel.org> # 3.19+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-7-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/vhci_sysfs.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/staging/comedi/drivers/dmm32at.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/usbip/vhci_sysfs.c
-+++ b/drivers/usb/usbip/vhci_sysfs.c
-@@ -363,8 +363,16 @@ static ssize_t store_attach(struct devic
+--- a/drivers/staging/comedi/drivers/dmm32at.c
++++ b/drivers/staging/comedi/drivers/dmm32at.c
+@@ -404,7 +404,7 @@ static irqreturn_t dmm32at_isr(int irq,
+ {
+ 	struct comedi_device *dev = d;
+ 	unsigned char intstat;
+-	unsigned int val;
++	unsigned short val;
+ 	int i;
  
- 	/* Extract socket from fd. */
- 	socket = sockfd_lookup(sockfd, &err);
--	if (!socket)
-+	if (!socket) {
-+		dev_err(dev, "failed to lookup sock");
- 		return -EINVAL;
-+	}
-+	if (socket->type != SOCK_STREAM) {
-+		dev_err(dev, "Expecting SOCK_STREAM - found %d",
-+			socket->type);
-+		sockfd_put(socket);
-+		return -EINVAL;
-+	}
- 
- 	/* now need lock until setting vdev status as used */
- 
+ 	if (!dev->attached) {
 
 
