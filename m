@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2679333BAE0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A983833BA3A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235685AbhCOOKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49626 "EHLO mail.kernel.org"
+        id S233806AbhCOOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:08:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234347AbhCOODP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C3964DAD;
-        Mon, 15 Mar 2021 14:03:13 +0000 (UTC)
+        id S234055AbhCOOCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B15464EEE;
+        Mon, 15 Mar 2021 14:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816995;
-        bh=GT23MI2WT8PQhaf0Bt8mf+eRN5Gc0SR/mz72E4QscaI=;
+        s=korg; t=1615816971;
+        bh=Fhgwe28ATRz/2WBldTQblfj5onW69dG5dekJ9gMPgiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDE/EdXi/kUkdxSCfyP9L/UWzdv7F4UUJDHZpxMs3bcHoKqkvTcHRG3nbr7DwM31l
-         Z3OqtuaEb1MZtTUm5kw+dnNpTgl7UXFnVuQZu5wr0mg8/eDsa4ii2rDBz8HUYKdMO0
-         UWDytwbM43i0ZaT8uOf8FyucNCUb5fpBPyMyZKZI=
+        b=pDH9fAEtu+lscKC1dOnKyE6HVIUwtfLdO2sMidR6JIM/90IdU9HQWurref+55CDSw
+         G0Kl7IiqwqhJZrUWnFjajuX05emTUl4prOBSqLgJFT7lMMp9DzT7lulTG4QTHbWqRE
+         hDPg+eDc/NLWRZbWM9/5wbq8kqYyRkmzzx/RVNTw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anthony DeRossi <ajderossi@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 250/306] drm/ttm: Fix TTM page pool accounting
+        stable@vger.kernel.org,
+        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
+        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
+        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.10 220/290] usbip: fix vhci_hcd attach_store() races leading to gpf
 Date:   Mon, 15 Mar 2021 14:55:13 +0100
-Message-Id: <20210315135516.095878997@linuxfoundation.org>
+Message-Id: <20210315135549.402933956@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +45,142 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Anthony DeRossi <ajderossi@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-[ Upstream commit ca63d76fd2319db984f2875992643f900caf2c72 ]
+commit 718ad9693e3656120064b715fe931f43a6201e67 upstream.
 
-Freed pages are not subtracted from the allocated_pages counter in
-ttm_pool_type_fini(), causing a leak in the count on device removal.
-The next shrinker invocation loops forever trying to free pages that are
-no longer in the pool:
+attach_store() is invoked when user requests import (attach) a device
+from usbip host.
 
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu:  3-....: (9998 ticks this GP) idle=54e/1/0x4000000000000000 softirq=434857/434857 fqs=2237
-    (t=10001 jiffies g=2194533 q=49211)
-  NMI backtrace for cpu 3
-  CPU: 3 PID: 1034 Comm: kswapd0 Tainted: P           O      5.11.0-com #1
-  Hardware name: System manufacturer System Product Name/PRIME X570-PRO, BIOS 1405 11/19/2019
-  Call Trace:
-   <IRQ>
-   ...
-   </IRQ>
-   sysvec_apic_timer_interrupt+0x77/0x80
-   asm_sysvec_apic_timer_interrupt+0x12/0x20
-  RIP: 0010:mutex_unlock+0x16/0x20
-  Code: e7 48 8b 70 10 e8 7a 53 77 ff eb aa e8 43 6c ff ff 0f 1f 00 65 48 8b 14 25 00 6d 01 00 31 c9 48 89 d0 f0 48 0f b1 0f 48 39 c2 <74> 05 e9 e3 fe ff ff c3 66 90 48 8b 47 20 48 85 c0 74 0f 8b 50 10
-  RSP: 0018:ffffbdb840797be8 EFLAGS: 00000246
-  RAX: ffff9ff445a41c00 RBX: ffffffffc02a9ef8 RCX: 0000000000000000
-  RDX: ffff9ff445a41c00 RSI: ffffbdb840797c78 RDI: ffffffffc02a9ac0
-  RBP: 0000000000000080 R08: 0000000000000000 R09: ffffbdb840797c80
-  R10: 0000000000000000 R11: fffffffffffffff5 R12: 0000000000000000
-  R13: 0000000000000000 R14: 0000000000000084 R15: ffffffffc02a9a60
-   ttm_pool_shrink+0x7d/0x90 [ttm]
-   ttm_pool_shrinker_scan+0x5/0x20 [ttm]
-   do_shrink_slab+0x13a/0x1a0
-...
+Attach and detach are governed by local state and shared state
+- Shared state (usbip device status) - Device status is used to manage
+  the attach and detach operations on import-able devices.
+- Local state (tcp_socket, rx and tx thread task_struct ptrs)
+  A valid tcp_socket controls rx and tx thread operations while the
+  device is in exported state.
+- Device has to be in the right state to be attached and detached.
 
-debugfs shows the incorrect total:
+Attach sequence includes validating the socket and creating receive (rx)
+and transmit (tx) threads to talk to the host to get access to the
+imported device. rx and tx threads depends on local and shared state to
+be correct and in sync.
 
-  $ cat /sys/kernel/debug/dri/0/ttm_page_pool
-            --- 0--- --- 1--- --- 2--- --- 3--- --- 4--- --- 5--- --- 6--- --- 7--- --- 8--- --- 9--- ---10---
-  wc      :        0        0        0        0        0        0        0        0        0        0        0
-  uc      :        0        0        0        0        0        0        0        0        0        0        0
-  wc 32   :        0        0        0        0        0        0        0        0        0        0        0
-  uc 32   :        0        0        0        0        0        0        0        0        0        0        0
-  DMA uc  :        0        0        0        0        0        0        0        0        0        0        0
-  DMA wc  :        0        0        0        0        0        0        0        0        0        0        0
-  DMA     :        0        0        0        0        0        0        0        0        0        0        0
+Detach sequence shuts the socket down and stops the rx and tx threads.
+Detach sequence relies on local and shared states to be in sync.
 
-  total   :     3029 of  8244261
+There are races in updating the local and shared status in the current
+attach sequence resulting in crashes. These stem from starting rx and
+tx threads before local and global state is updated correctly to be in
+sync.
 
-Using ttm_pool_type_take() to remove pages from the pool before freeing
-them correctly accounts for the freed pages.
+1. Doesn't handle kthread_create() error and saves invalid ptr in local
+   state that drives rx and tx threads.
+2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
+   before updating usbip_device status to VDEV_ST_NOTASSIGNED. This opens
+   up a race condition between the threads, port connect, and detach
+   handling.
 
-Fixes: d099fc8f540a ("drm/ttm: new TT backend allocation pool v3")
-Signed-off-by: Anthony DeRossi <ajderossi@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210303011723.22512-1-ajderossi@gmail.com
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the above problems:
+- Stop using kthread_get_run() macro to create/start threads.
+- Create threads and get task struct reference.
+- Add kthread_create() failure handling and bail out.
+- Hold vhci and usbip_device locks to update local and shared states after
+  creating rx and tx threads.
+- Update usbip_device status to VDEV_ST_NOTASSIGNED.
+- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
+- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
+  and status) is complete.
+
+Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
+kthread_get_run() improper error handling problem and others. This is
+hard problem to find and debug since the races aren't seen in a normal
+case. Fuzzing forces the race window to be small enough for the
+kthread_get_run() error path bug and starting threads before updating the
+local and shared state bug in the attach sequence.
+- Update usbip_device tcp_rx and tcp_tx pointers holding vhci and
+  usbip_device locks.
+
+Tested with syzbot reproducer:
+- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
+
+Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/bb434bd5d7a64fbec38b5ecfb838a6baef6eb12b.1615171203.git.skhan@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ttm/ttm_pool.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/usbip/vhci_sysfs.c |   29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
-index 6e27cb1bf48b..4eb6efb8b8c0 100644
---- a/drivers/gpu/drm/ttm/ttm_pool.c
-+++ b/drivers/gpu/drm/ttm/ttm_pool.c
-@@ -268,13 +268,13 @@ static void ttm_pool_type_init(struct ttm_pool_type *pt, struct ttm_pool *pool,
- /* Remove a pool_type from the global shrinker list and free all pages */
- static void ttm_pool_type_fini(struct ttm_pool_type *pt)
- {
--	struct page *p, *tmp;
-+	struct page *p;
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -312,6 +312,8 @@ static ssize_t attach_store(struct devic
+ 	struct vhci *vhci;
+ 	int err;
+ 	unsigned long flags;
++	struct task_struct *tcp_rx = NULL;
++	struct task_struct *tcp_tx = NULL;
  
- 	mutex_lock(&shrinker_lock);
- 	list_del(&pt->shrinker_list);
- 	mutex_unlock(&shrinker_lock);
+ 	/*
+ 	 * @rhport: port number of vhci_hcd
+@@ -360,9 +362,24 @@ static ssize_t attach_store(struct devic
+ 		return -EINVAL;
+ 	}
  
--	list_for_each_entry_safe(p, tmp, &pt->pages, lru)
-+	while ((p = ttm_pool_type_take(pt)))
- 		ttm_pool_free_page(pt->pool, pt->caching, pt->order, p);
- }
+-	/* now need lock until setting vdev status as used */
++	/* create threads before locking */
++	tcp_rx = kthread_create(vhci_rx_loop, &vdev->ud, "vhci_rx");
++	if (IS_ERR(tcp_rx)) {
++		sockfd_put(socket);
++		return -EINVAL;
++	}
++	tcp_tx = kthread_create(vhci_tx_loop, &vdev->ud, "vhci_tx");
++	if (IS_ERR(tcp_tx)) {
++		kthread_stop(tcp_rx);
++		sockfd_put(socket);
++		return -EINVAL;
++	}
++
++	/* get task structs now */
++	get_task_struct(tcp_rx);
++	get_task_struct(tcp_tx);
  
--- 
-2.30.1
-
+-	/* begin a lock */
++	/* now begin lock until setting vdev status set */
+ 	spin_lock_irqsave(&vhci->lock, flags);
+ 	spin_lock(&vdev->ud.lock);
+ 
+@@ -372,6 +389,8 @@ static ssize_t attach_store(struct devic
+ 		spin_unlock_irqrestore(&vhci->lock, flags);
+ 
+ 		sockfd_put(socket);
++		kthread_stop_put(tcp_rx);
++		kthread_stop_put(tcp_tx);
+ 
+ 		dev_err(dev, "port %d already used\n", rhport);
+ 		/*
+@@ -390,14 +409,16 @@ static ssize_t attach_store(struct devic
+ 	vdev->speed         = speed;
+ 	vdev->ud.sockfd     = sockfd;
+ 	vdev->ud.tcp_socket = socket;
++	vdev->ud.tcp_rx     = tcp_rx;
++	vdev->ud.tcp_tx     = tcp_tx;
+ 	vdev->ud.status     = VDEV_ST_NOTASSIGNED;
+ 
+ 	spin_unlock(&vdev->ud.lock);
+ 	spin_unlock_irqrestore(&vhci->lock, flags);
+ 	/* end the lock */
+ 
+-	vdev->ud.tcp_rx = kthread_get_run(vhci_rx_loop, &vdev->ud, "vhci_rx");
+-	vdev->ud.tcp_tx = kthread_get_run(vhci_tx_loop, &vdev->ud, "vhci_tx");
++	wake_up_process(vdev->ud.tcp_rx);
++	wake_up_process(vdev->ud.tcp_tx);
+ 
+ 	rh_port_connect(vdev, speed);
+ 
 
 
