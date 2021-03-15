@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCD033BAAF
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7ED933B8AA
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229796AbhCOOKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52256 "EHLO mail.kernel.org"
+        id S231817AbhCOOEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234531AbhCOOEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE34E600EF;
-        Mon, 15 Mar 2021 14:04:29 +0000 (UTC)
+        id S233088AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85AA364F5C;
+        Mon, 15 Mar 2021 14:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817070;
-        bh=OHv1nKKCAKvIH2TaTT7goYf05R0q2NVr1eEY/WRP0Fw=;
+        s=korg; t=1615816824;
+        bh=ZGHqpYg9bmFhxcT4Y1kLePiSwzu/r6PtAwOwk3qAU0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ri2tikmfpNKvK19fcHtUpGhNxDwk9k//tNzFSJ4qs/2ssji42FBxUM8/pGUoZWc7i
-         O4hF9iGSfUfcm2cFHs73UEV3vJ8myvj+umpFFDI9ogOi1CeCkjcEuL/l+LRMZNyxBx
-         vQrRjUlpkBHZ4ru9rJwhSXv6VLoEucUjud36qH3g=
+        b=RlRSVeMOr6h7+ggEXUNAz7XM2GHseuPEHPEvi4aJAM3/mDXVnfOLAVg2pjH/qAo38
+         N628BCklI8aIQXaUH5aAU8tuFshmLc9ySdFckTYUFVhIsHJH9ZRoparPX2CKyjAhYj
+         UeLMbMItQg9FGcgKEkKJtYCWfBy3JEfSZHYjHZtQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 274/290] x86/sev-es: Use __copy_from_user_inatomic()
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.4 135/168] staging: comedi: addi_apci_1500: Fix endian problem for command sample
 Date:   Mon, 15 Mar 2021 14:56:07 +0100
-Message-Id: <20210315135551.288732589@linuxfoundation.org>
+Message-Id: <20210315135554.777851035@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,146 +40,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit bffe30dd9f1f3b2608a87ac909a224d6be472485 upstream.
+commit ac0bbf55ed3be75fde1f8907e91ecd2fd589bde3 upstream.
 
-The #VC handler must run in atomic context and cannot sleep. This is a
-problem when it tries to fetch instruction bytes from user-space via
-copy_from_user().
+The digital input subdevice supports Comedi asynchronous commands that
+read interrupt status information.  This uses 16-bit Comedi samples (of
+which only the bottom 8 bits contain status information).  However, the
+interrupt handler is calling `comedi_buf_write_samples()` with the
+address of a 32-bit variable `unsigned int status`.  On a bigendian
+machine, this will copy 2 bytes from the wrong end of the variable.  Fix
+it by changing the type of the variable to `unsigned short`.
 
-Introduce a insn_fetch_from_user_inatomic() helper which uses
-__copy_from_user_inatomic() to safely copy the instruction bytes to
-kernel memory in the #VC handler.
-
-Fixes: 5e3427a7bc432 ("x86/sev-es: Handle instruction fetches from user-space")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org # v5.10+
-Link: https://lkml.kernel.org/r/20210303141716.29223-6-joro@8bytes.org
+Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
+Cc: <stable@vger.kernel.org> #4.0+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/insn-eval.h |  2 +
- arch/x86/kernel/sev-es.c         |  2 +-
- arch/x86/lib/insn-eval.c         | 66 +++++++++++++++++++++++++-------
- 3 files changed, 55 insertions(+), 15 deletions(-)
+ drivers/staging/comedi/drivers/addi_apci_1500.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index a0f839aa144d..98b4dae5e8bc 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -23,6 +23,8 @@ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
- int insn_fetch_from_user(struct pt_regs *regs,
- 			 unsigned char buf[MAX_INSN_SIZE]);
-+int insn_fetch_from_user_inatomic(struct pt_regs *regs,
-+				  unsigned char buf[MAX_INSN_SIZE]);
- bool insn_decode(struct insn *insn, struct pt_regs *regs,
- 		 unsigned char buf[MAX_INSN_SIZE], int buf_size);
+--- a/drivers/staging/comedi/drivers/addi_apci_1500.c
++++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
+@@ -208,7 +208,7 @@ static irqreturn_t apci1500_interrupt(in
+ 	struct comedi_device *dev = d;
+ 	struct apci1500_private *devpriv = dev->private;
+ 	struct comedi_subdevice *s = dev->read_subdev;
+-	unsigned int status = 0;
++	unsigned short status = 0;
+ 	unsigned int val;
  
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index c3fd8fa79838..04a780abb512 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -258,7 +258,7 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
- 	int res;
- 
- 	if (user_mode(ctxt->regs)) {
--		res = insn_fetch_from_user(ctxt->regs, buffer);
-+		res = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
- 		if (!res) {
- 			ctxt->fi.vector     = X86_TRAP_PF;
- 			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 4229950a5d78..bb0b3fe1e0a0 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1415,6 +1415,25 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
- 	}
- }
- 
-+static unsigned long insn_get_effective_ip(struct pt_regs *regs)
-+{
-+	unsigned long seg_base = 0;
-+
-+	/*
-+	 * If not in user-space long mode, a custom code segment could be in
-+	 * use. This is true in protected mode (if the process defined a local
-+	 * descriptor table), or virtual-8086 mode. In most of the cases
-+	 * seg_base will be zero as in USER_CS.
-+	 */
-+	if (!user_64bit_mode(regs)) {
-+		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
-+		if (seg_base == -1L)
-+			return 0;
-+	}
-+
-+	return seg_base + regs->ip;
-+}
-+
- /**
-  * insn_fetch_from_user() - Copy instruction bytes from user-space memory
-  * @regs:	Structure with register values as seen when entering kernel mode
-@@ -1431,24 +1450,43 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
-  */
- int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
- {
--	unsigned long seg_base = 0;
-+	unsigned long ip;
- 	int not_copied;
- 
--	/*
--	 * If not in user-space long mode, a custom code segment could be in
--	 * use. This is true in protected mode (if the process defined a local
--	 * descriptor table), or virtual-8086 mode. In most of the cases
--	 * seg_base will be zero as in USER_CS.
--	 */
--	if (!user_64bit_mode(regs)) {
--		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
--		if (seg_base == -1L)
--			return 0;
--	}
-+	ip = insn_get_effective_ip(regs);
-+	if (!ip)
-+		return 0;
-+
-+	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
- 
-+	return MAX_INSN_SIZE - not_copied;
-+}
-+
-+/**
-+ * insn_fetch_from_user_inatomic() - Copy instruction bytes from user-space memory
-+ *                                   while in atomic code
-+ * @regs:	Structure with register values as seen when entering kernel mode
-+ * @buf:	Array to store the fetched instruction
-+ *
-+ * Gets the linear address of the instruction and copies the instruction bytes
-+ * to the buf. This function must be used in atomic context.
-+ *
-+ * Returns:
-+ *
-+ * Number of instruction bytes copied.
-+ *
-+ * 0 if nothing was copied.
-+ */
-+int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
-+{
-+	unsigned long ip;
-+	int not_copied;
-+
-+	ip = insn_get_effective_ip(regs);
-+	if (!ip)
-+		return 0;
- 
--	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
--				    MAX_INSN_SIZE);
-+	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
- 
- 	return MAX_INSN_SIZE - not_copied;
- }
--- 
-2.30.2
-
+ 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
+@@ -238,14 +238,14 @@ static irqreturn_t apci1500_interrupt(in
+ 	 *
+ 	 *    Mask     Meaning
+ 	 * ----------  ------------------------------------------
+-	 * 0x00000001  Event 1 has occurred
+-	 * 0x00000010  Event 2 has occurred
+-	 * 0x00000100  Counter/timer 1 has run down (not implemented)
+-	 * 0x00001000  Counter/timer 2 has run down (not implemented)
+-	 * 0x00010000  Counter 3 has run down (not implemented)
+-	 * 0x00100000  Watchdog has run down (not implemented)
+-	 * 0x01000000  Voltage error
+-	 * 0x10000000  Short-circuit error
++	 * 0b00000001  Event 1 has occurred
++	 * 0b00000010  Event 2 has occurred
++	 * 0b00000100  Counter/timer 1 has run down (not implemented)
++	 * 0b00001000  Counter/timer 2 has run down (not implemented)
++	 * 0b00010000  Counter 3 has run down (not implemented)
++	 * 0b00100000  Watchdog has run down (not implemented)
++	 * 0b01000000  Voltage error
++	 * 0b10000000  Short-circuit error
+ 	 */
+ 	comedi_buf_write_samples(s, &status, 1);
+ 	comedi_handle_events(dev, s);
 
 
