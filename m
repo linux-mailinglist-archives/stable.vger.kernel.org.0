@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF91F33B646
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A368433B66C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbhCON5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:35 -0400
+        id S232168AbhCON5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:53 -0400
 Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229494AbhCON5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE22B64EF8;
-        Mon, 15 Mar 2021 13:57:02 +0000 (UTC)
+        id S231921AbhCON5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 503CA64EF9;
+        Mon, 15 Mar 2021 13:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816623;
-        bh=xzvWaLslCjVyEyJRrHIraB3ZL1rUNymL+0aC4Pgv+Eg=;
+        s=korg; t=1615816625;
+        bh=GHWPrKkjs+Ig7xn4jmmEy1KgITn56omBYTry/y42Vqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kStv1wVezYMTvh/TnHmNlHIgDtGUHCLcH8YLGUpbjVxNvyDfie8Z3P+L0deubez2a
-         xVuAW7qyP6Z5RemFzXfftMlIPMqy7SuGDP4V7nwJ75Nh21/Nwgfax21PBSIxduoH3t
-         Ul6F3AQIA59t3ux2qxfj5SJY5rAKMaiEF5uqFsrA=
+        b=H6zY2EYrKWlRAEFySGZ3ge9H8NErWEfRQSn3VcqOCSDwbprZUGab7KPDlBXww9EiU
+         K1uEpGSul/DTBODp9LV9iIQzUL9ZAQxH6us30p2PIp+kKU4a7IxfMNMP5OcRRn8J6L
+         zNt9lNouyyVW+bSULPMHE2V6257pC+ufzCQTRH8Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 010/168] can: flexcan: assert FRZ bit in flexcan_chip_freeze()
-Date:   Mon, 15 Mar 2021 14:54:02 +0100
-Message-Id: <20210315135550.683448596@linuxfoundation.org>
+Subject: [PATCH 5.4 011/168] can: flexcan: enable RX FIFO after FRZ/HALT valid
+Date:   Mon, 15 Mar 2021 14:54:03 +0100
+Message-Id: <20210315135550.713280166@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -43,33 +43,51 @@ From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-commit 449052cfebf624b670faa040245d3feed770d22f upstream.
+commit ec15e27cc8904605846a354bb1f808ea1432f853 upstream.
 
-Assert HALT bit to enter freeze mode, there is a premise that FRZ bit is
-asserted. This patch asserts FRZ bit in flexcan_chip_freeze, although
-the reset value is 1b'1. This is a prepare patch, later patch will
-invoke flexcan_chip_freeze() to enter freeze mode, which polling freeze
-mode acknowledge.
+RX FIFO enable failed could happen when do system reboot stress test:
 
-Fixes: b1aa1c7a2165b ("can: flexcan: fix transition from and to freeze mode in chip_{,un}freeze")
-Link: https://lore.kernel.org/r/20210218110037.16591-2-qiangqing.zhang@nxp.com
+[    0.303958] flexcan 5a8d0000.can: 5a8d0000.can supply xceiver not found, using dummy regulator
+[    0.304281] flexcan 5a8d0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.314640] flexcan 5a8d0000.can: registering netdev failed
+[    0.320728] flexcan 5a8e0000.can: 5a8e0000.can supply xceiver not found, using dummy regulator
+[    0.320991] flexcan 5a8e0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.331360] flexcan 5a8e0000.can: registering netdev failed
+[    0.337444] flexcan 5a8f0000.can: 5a8f0000.can supply xceiver not found, using dummy regulator
+[    0.337716] flexcan 5a8f0000.can (unnamed net_device) (uninitialized): Could not enable RX FIFO, unsupported core
+[    0.348117] flexcan 5a8f0000.can: registering netdev failed
+
+RX FIFO should be enabled after the FRZ/HALT are valid. But the current
+code enable RX FIFO and FRZ/HALT at the same time.
+
+Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
+Link: https://lore.kernel.org/r/20210218110037.16591-3-qiangqing.zhang@nxp.com
 Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/flexcan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/flexcan.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 --- a/drivers/net/can/flexcan.c
 +++ b/drivers/net/can/flexcan.c
-@@ -548,7 +548,7 @@ static int flexcan_chip_freeze(struct fl
- 	u32 reg;
+@@ -1432,10 +1432,14 @@ static int register_flexcandev(struct ne
+ 	if (err)
+ 		goto out_chip_disable;
  
+-	/* set freeze, halt and activate FIFO, restrict register access */
++	/* set freeze, halt */
++	err = flexcan_chip_freeze(priv);
++	if (err)
++		goto out_chip_disable;
++
++	/* activate FIFO, restrict register access */
  	reg = priv->read(&regs->mcr);
--	reg |= FLEXCAN_MCR_HALT;
-+	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT;
+-	reg |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT |
+-		FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
++	reg |=  FLEXCAN_MCR_FEN | FLEXCAN_MCR_SUPV;
  	priv->write(reg, &regs->mcr);
  
- 	while (timeout-- && !(priv->read(&regs->mcr) & FLEXCAN_MCR_FRZ_ACK))
+ 	/* Currently we only support newer versions of this core
 
 
