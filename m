@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6741533B7DD
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23FF733B9BD
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbhCOOBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S233087AbhCOOGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229870AbhCON7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B1964F7B;
-        Mon, 15 Mar 2021 13:59:15 +0000 (UTC)
+        id S232448AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D7AE64F18;
+        Mon, 15 Mar 2021 14:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816756;
-        bh=BZd8ZWTBHXjORfUMwuiP28uoGML+8uvn3smCDSKYvXE=;
+        s=korg; t=1615816880;
+        bh=EB9cg7bSKpIDIET2GE5V4KJy/7WW8G1edDN2vLCsgDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHK28rt/J3yKD4PlFngVR1BEQpl+4Fw7CFYxjI5fnkWUh/ZEjEL4t1F/9hdbFSU0C
-         JSoK8eeFXMbD5fMRieSvWoCSvb+8B1+e0VZ0XtnQtGVZFOeYeRpXxIhMfVw6Mk0j+p
-         +7t3eADaqUFDgBxQFi3VatGEKspSbJ08GvW8naTs=
+        b=1HzzqwjEMnDGW28JGbtqDHG6DoFpX7m0UgQBdVDP5yxODl9RJz51NxC52K/Qb2aGP
+         tz1+Ic3QO/TQ3cPCLXhAZiESaYsI5XZkEjUZeKqALMNFQgHWX11Ye8nzbkR2U3JNoG
+         DWvFf4fPYfZoUpa0C7RJNmKV1JURmIxBAW02we34=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/120] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Ross Lagerwall <ross.lagerwall@citrix.com>
+Subject: [PATCH 5.4 167/168] xen/events: dont unmask an event channel when an eoi is pending
 Date:   Mon, 15 Mar 2021 14:56:39 +0100
-Message-Id: <20210315135721.560237991@linuxfoundation.org>
+Message-Id: <20210315135555.850998161@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,80 +44,379 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
+commit 25da4618af240fbec6112401498301a6f2bc9702 upstream.
 
-While sampling for marked events, currently we record the sample only
-if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
-set. SIAR_VALID bit is used for fetching the instruction address from
-Sampled Instruction Address Register(SIAR). But there are some
-usecases, where the user is interested only in the PMU stats at each
-counter overflow and the exact IP of the overflow event is not
-required. Dropping SIAR invalid samples will fail to record some of
-the counter overflows in such cases.
+An event channel should be kept masked when an eoi is pending for it.
+When being migrated to another cpu it might be unmasked, though.
 
-Example of such usecase is dumping the PMU stats (event counts) after
-some regular amount of instructions/events from the userspace (ex: via
-ptrace). Here counter overflow is indicated to userspace via signal
-handler, and captured by monitoring and enabling I/O signaling on the
-event file descriptor. In these cases, we expect to get
-sample/overflow indication after each specified sample_period.
+In order to avoid this keep three different flags for each event channel
+to be able to distinguish "normal" masking/unmasking from eoi related
+masking/unmasking and temporary masking. The event channel should only
+be able to generate an interrupt if all flags are cleared.
 
-Perf event attribute will not have PERF_SAMPLE_IP set in the
-sample_type if exact IP of the overflow event is not requested. So
-while profiling if SAMPLE_IP is not set, just record the counter
-overflow irrespective of SIAR_VALID check.
+Cc: stable@vger.kernel.org
+Fixes: 54c9de89895e ("xen/events: add a new "late EOI" evtchn framework")
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Tested-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-3-jgross@suse.com
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Reflow comment and if formatting]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[boris -- corrected Fixed tag format]
+
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/xen/events/events_2l.c       |    7 --
+ drivers/xen/events/events_base.c     |  110 ++++++++++++++++++++++++++---------
+ drivers/xen/events/events_fifo.c     |    7 --
+ drivers/xen/events/events_internal.h |   13 +---
+ 4 files changed, 88 insertions(+), 49 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 70de13822828..091bdeaf02a3 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2046,7 +2046,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 			left += period;
- 			if (left <= 0)
- 				left = period;
--			record = siar_valid(regs);
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -76,12 +76,6 @@ static bool evtchn_2l_is_pending(unsigne
+ 	return sync_test_bit(port, BM(&s->evtchn_pending[0]));
+ }
+ 
+-static bool evtchn_2l_test_and_set_mask(unsigned port)
+-{
+-	struct shared_info *s = HYPERVISOR_shared_info;
+-	return sync_test_and_set_bit(port, BM(&s->evtchn_mask[0]));
+-}
+-
+ static void evtchn_2l_mask(unsigned port)
+ {
+ 	struct shared_info *s = HYPERVISOR_shared_info;
+@@ -375,7 +369,6 @@ static const struct evtchn_ops evtchn_op
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+ 	.is_pending        = evtchn_2l_is_pending,
+-	.test_and_set_mask = evtchn_2l_test_and_set_mask,
+ 	.mask              = evtchn_2l_mask,
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -99,6 +99,7 @@ static DEFINE_RWLOCK(evtchn_rwlock);
+  *   evtchn_rwlock
+  *     IRQ-desc lock
+  *       percpu eoi_list_lock
++ *         irq_info->lock
+  */
+ 
+ static LIST_HEAD(xen_irq_list_head);
+@@ -220,6 +221,8 @@ static int xen_irq_info_common_setup(str
+ 	info->irq = irq;
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
++	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
++	spin_lock_init(&info->lock);
+ 
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -367,6 +370,34 @@ unsigned int cpu_from_evtchn(unsigned in
+ 	return ret;
+ }
+ 
++static void do_mask(struct irq_info *info, u8 reason)
++{
++	unsigned long flags;
 +
-+			/*
-+			 * If address is not requested in the sample via
-+			 * PERF_SAMPLE_IP, just record that sample irrespective
-+			 * of SIAR valid check.
-+			 */
-+			if (event->attr.sample_type & PERF_SAMPLE_IP)
-+				record = siar_valid(regs);
-+			else
-+				record = 1;
++	spin_lock_irqsave(&info->lock, flags);
 +
- 			event->hw.last_period = event->hw.sample_period;
- 		}
- 		if (left < 0x80000000LL)
-@@ -2064,9 +2074,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
- 	 * these cases.
++	if (!info->mask_reason)
++		mask_evtchn(info->evtchn);
++
++	info->mask_reason |= reason;
++
++	spin_unlock_irqrestore(&info->lock, flags);
++}
++
++static void do_unmask(struct irq_info *info, u8 reason)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&info->lock, flags);
++
++	info->mask_reason &= ~reason;
++
++	if (!info->mask_reason)
++		unmask_evtchn(info->evtchn);
++
++	spin_unlock_irqrestore(&info->lock, flags);
++}
++
+ #ifdef CONFIG_X86
+ static bool pirq_check_eoi_map(unsigned irq)
+ {
+@@ -494,7 +525,7 @@ static void xen_irq_lateeoi_locked(struc
+ 	}
+ 
+ 	info->eoi_time = 0;
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
+ }
+ 
+ static void xen_irq_lateeoi_worker(struct work_struct *work)
+@@ -681,7 +712,8 @@ static void pirq_query_unmask(int irq)
+ 
+ static void eoi_pirq(struct irq_data *data)
+ {
+-	int evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	int evtchn = info ? info->evtchn : 0;
+ 	struct physdev_eoi eoi = { .irq = pirq_from_irq(data->irq) };
+ 	int rc = 0;
+ 
+@@ -690,14 +722,13 @@ static void eoi_pirq(struct irq_data *da
+ 
+ 	if (unlikely(irqd_is_setaffinity_pending(data)) &&
+ 	    likely(!irqd_irq_disabled(data))) {
+-		int masked = test_and_set_mask(evtchn);
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 		clear_evtchn(evtchn);
+ 
+ 		irq_move_masked_irq(data);
+ 
+-		if (!masked)
+-			unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 	} else
+ 		clear_evtchn(evtchn);
+ 
+@@ -750,7 +781,8 @@ static unsigned int __startup_pirq(unsig
+ 		goto err;
+ 
+ out:
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EXPLICIT);
++
+ 	eoi_pirq(irq_get_irq_data(irq));
+ 
+ 	return 0;
+@@ -777,7 +809,7 @@ static void shutdown_pirq(struct irq_dat
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return;
+ 
+-	mask_evtchn(evtchn);
++	do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ 	xen_evtchn_close(evtchn);
+ 	xen_irq_info_cleanup(info);
+ }
+@@ -1636,10 +1668,10 @@ void rebind_evtchn_irq(int evtchn, int i
+ }
+ 
+ /* Rebind an evtchn so that it gets delivered to a specific cpu */
+-static int xen_rebind_evtchn_to_cpu(int evtchn, unsigned int tcpu)
++static int xen_rebind_evtchn_to_cpu(struct irq_info *info, unsigned int tcpu)
+ {
+ 	struct evtchn_bind_vcpu bind_vcpu;
+-	int masked;
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return -1;
+@@ -1655,7 +1687,7 @@ static int xen_rebind_evtchn_to_cpu(int
+ 	 * Mask the event while changing the VCPU binding to prevent
+ 	 * it being delivered on an unexpected VCPU.
  	 */
--	if (event->attr.exclude_kernel && record)
--		if (is_kernel_addr(mfspr(SPRN_SIAR)))
--			record = 0;
-+	if (event->attr.exclude_kernel &&
-+	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
-+	    is_kernel_addr(mfspr(SPRN_SIAR)))
-+		record = 0;
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
  
  	/*
- 	 * Finally record data if requested.
--- 
-2.30.1
-
+ 	 * If this fails, it usually just indicates that we're dealing with a
+@@ -1665,8 +1697,7 @@ static int xen_rebind_evtchn_to_cpu(int
+ 	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
+ 		bind_evtchn_to_cpu(evtchn, tcpu);
+ 
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 0;
+ }
+@@ -1675,7 +1706,7 @@ static int set_affinity_irq(struct irq_d
+ 			    bool force)
+ {
+ 	unsigned tcpu = cpumask_first_and(dest, cpu_online_mask);
+-	int ret = xen_rebind_evtchn_to_cpu(evtchn_from_irq(data->irq), tcpu);
++	int ret = xen_rebind_evtchn_to_cpu(info_for_irq(data->irq), tcpu);
+ 
+ 	if (!ret)
+ 		irq_data_update_effective_affinity(data, cpumask_of(tcpu));
+@@ -1694,37 +1725,39 @@ EXPORT_SYMBOL_GPL(xen_set_affinity_evtch
+ 
+ static void enable_dynirq(struct irq_data *data)
+ {
+-	int evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void disable_dynirq(struct irq_data *data)
+ {
+-	int evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		mask_evtchn(evtchn);
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void ack_dynirq(struct irq_data *data)
+ {
+-	int evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return;
+ 
+ 	if (unlikely(irqd_is_setaffinity_pending(data)) &&
+ 	    likely(!irqd_irq_disabled(data))) {
+-		int masked = test_and_set_mask(evtchn);
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 		clear_evtchn(evtchn);
+ 
+ 		irq_move_masked_irq(data);
+ 
+-		if (!masked)
+-			unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 	} else
+ 		clear_evtchn(evtchn);
+ }
+@@ -1735,18 +1768,39 @@ static void mask_ack_dynirq(struct irq_d
+ 	ack_dynirq(data);
+ }
+ 
++static void lateeoi_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++		clear_evtchn(evtchn);
++	}
++}
++
++static void lateeoi_mask_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
++		clear_evtchn(evtchn);
++	}
++}
++
+ static int retrigger_dynirq(struct irq_data *data)
+ {
+-	unsigned int evtchn = evtchn_from_irq(data->irq);
+-	int masked;
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return 0;
+ 
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 	set_evtchn(evtchn);
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 1;
+ }
+@@ -1952,8 +2006,8 @@ static struct irq_chip xen_lateeoi_chip
+ 	.irq_mask		= disable_dynirq,
+ 	.irq_unmask		= enable_dynirq,
+ 
+-	.irq_ack		= mask_ack_dynirq,
+-	.irq_mask_ack		= mask_ack_dynirq,
++	.irq_ack		= lateeoi_ack_dynirq,
++	.irq_mask_ack		= lateeoi_mask_ack_dynirq,
+ 
+ 	.irq_set_affinity	= set_affinity_irq,
+ 	.irq_retrigger		= retrigger_dynirq,
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -209,12 +209,6 @@ static bool evtchn_fifo_is_pending(unsig
+ 	return sync_test_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
+ }
+ 
+-static bool evtchn_fifo_test_and_set_mask(unsigned port)
+-{
+-	event_word_t *word = event_word_from_port(port);
+-	return sync_test_and_set_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
+-}
+-
+ static void evtchn_fifo_mask(unsigned port)
+ {
+ 	event_word_t *word = event_word_from_port(port);
+@@ -420,7 +414,6 @@ static const struct evtchn_ops evtchn_op
+ 	.clear_pending     = evtchn_fifo_clear_pending,
+ 	.set_pending       = evtchn_fifo_set_pending,
+ 	.is_pending        = evtchn_fifo_is_pending,
+-	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
+ 	.mask              = evtchn_fifo_mask,
+ 	.unmask            = evtchn_fifo_unmask,
+ 	.handle_events     = evtchn_fifo_handle_events,
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -33,13 +33,18 @@ struct irq_info {
+ 	struct list_head eoi_list;
+ 	short refcnt;
+ 	short spurious_cnt;
+-	enum xen_irq_type type;	/* type */
++	short type;		/* type */
++	u8 mask_reason;		/* Why is event channel masked */
++#define EVT_MASK_REASON_EXPLICIT	0x01
++#define EVT_MASK_REASON_TEMPORARY	0x02
++#define EVT_MASK_REASON_EOI_PENDING	0x04
+ 	unsigned irq;
+ 	unsigned int evtchn;	/* event channel */
+ 	unsigned short cpu;	/* cpu bound */
+ 	unsigned short eoi_cpu;	/* EOI must happen on this cpu */
+ 	unsigned int irq_epoch;	/* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;		/* Time in jiffies when to EOI. */
++	spinlock_t lock;
+ 
+ 	union {
+ 		unsigned short virq;
+@@ -71,7 +76,6 @@ struct evtchn_ops {
+ 	void (*clear_pending)(unsigned port);
+ 	void (*set_pending)(unsigned port);
+ 	bool (*is_pending)(unsigned port);
+-	bool (*test_and_set_mask)(unsigned port);
+ 	void (*mask)(unsigned port);
+ 	void (*unmask)(unsigned port);
+ 
+@@ -136,11 +140,6 @@ static inline bool test_evtchn(unsigned
+ 	return evtchn_ops->is_pending(port);
+ }
+ 
+-static inline bool test_and_set_mask(unsigned port)
+-{
+-	return evtchn_ops->test_and_set_mask(port);
+-}
+-
+ static inline void mask_evtchn(unsigned port)
+ {
+ 	return evtchn_ops->mask(port);
 
 
