@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 767F233B6A2
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24CF133B56B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbhCON6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35798 "EHLO mail.kernel.org"
+        id S231400AbhCONyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232100AbhCON5q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBC9264F2A;
-        Mon, 15 Mar 2021 13:57:44 +0000 (UTC)
+        id S231139AbhCONxv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82532601FD;
+        Mon, 15 Mar 2021 13:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816666;
-        bh=pny48JMF8EItcEvxYPHnHgRxgT1cLNtVlxNuIxCiRVI=;
+        s=korg; t=1615816431;
+        bh=fpXfRSw+AbCJhjOt51PK3cz4STo8A38OHY1mXVwR5Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqsRCCsLGvdCQsOvVcXUJpEFfGGMuahwUcABckrMqYcEOl0B2uGY9lH7nDcVrdx9H
-         43CSLxnVIVFEzc2q+JsS9x+qFaZgtbzYN4Cza1taYnwIAd/rJNJhAT2QMNC5aKvBWi
-         hsRVxDUotYIEImG8M2/0bKqujeZ6dl/VnMC9ulN4=
+        b=Xq+D0buz5WR1MzOeZ5GDXCOFG9EZ3IX302bX4gcbQ05mx0lqlceq0JuNq4liomVHn
+         Hx9Wx7xdAYQAooEJUDv/YTpzg71iOV0c5FkiXZUeKdXwWBRQloeMGufK+THXL7ROqR
+         Jd8R6YiXlR0TDKjW33Q9rXF8CbRIzKzsKek72Dds=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 051/306] net: enetc: force the RGMII speed and duplex instead of operating in inband mode
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.4 40/75] usbip: fix stub_dev to check for stream socket
 Date:   Mon, 15 Mar 2021 14:51:54 +0100
-Message-Id: <20210315135509.373702471@linuxfoundation.org>
+Message-Id: <20210315135209.560229694@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,150 +42,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit c76a97218dcbb2cb7cec1404ace43ef96c87d874 upstream.
+commit 47ccc8fc2c9c94558b27b6f9e2582df32d29e6e8 upstream.
 
-The ENETC port 0 MAC supports in-band status signaling coming from a PHY
-when operating in RGMII mode, and this feature is enabled by default.
+Fix usbip_sockfd_store() to validate the passed in file descriptor is
+a stream socket. If the file descriptor passed was a SOCK_DGRAM socket,
+sock_recvmsg() can't detect end of stream.
 
-It has been reported that RGMII is broken in fixed-link, and that is not
-surprising considering the fact that no PHY is attached to the MAC in
-that case, but a switch.
-
-This brings us to the topic of the patch: the enetc driver should have
-not enabled the optional in-band status signaling for RGMII unconditionally,
-but should have forced the speed and duplex to what was resolved by
-phylink.
-
-Note that phylink does not accept the RGMII modes as valid for in-band
-signaling, and these operate a bit differently than 1000base-x and SGMII
-(notably there is no clause 37 state machine so no ACK required from the
-MAC, instead the PHY sends extra code words on RXD[3:0] whenever it is
-not transmitting something else, so it should be safe to leave a PHY
-with this option unconditionally enabled even if we ignore it). The spec
-talks about this here:
-https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/138/RGMIIv1_5F00_3.pdf
-
-Fixes: 71b77a7a27a3 ("enetc: Migrate to PHYLINK and PCS_LYNX")
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Acked-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Suggested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/e942d2bd03afb8e8552bd2a5d84e18d17670d521.1615171203.git.skhan@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc_hw.h |   13 ++++-
- drivers/net/ethernet/freescale/enetc/enetc_pf.c |   53 ++++++++++++++++++++----
- 2 files changed, 56 insertions(+), 10 deletions(-)
+ drivers/usb/usbip/stub_dev.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -238,10 +238,17 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PM_IMDIO_BASE	0x8030
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -83,8 +83,16 @@ static ssize_t store_sockfd(struct devic
+ 		}
  
- #define ENETC_PM0_IF_MODE	0x8300
--#define ENETC_PMO_IFM_RG	BIT(2)
-+#define ENETC_PM0_IFM_RG	BIT(2)
- #define ENETC_PM0_IFM_RLP	(BIT(5) | BIT(11))
--#define ENETC_PM0_IFM_RGAUTO	(BIT(15) | ENETC_PMO_IFM_RG | BIT(1))
--#define ENETC_PM0_IFM_XGMII	BIT(12)
-+#define ENETC_PM0_IFM_EN_AUTO	BIT(15)
-+#define ENETC_PM0_IFM_SSP_MASK	GENMASK(14, 13)
-+#define ENETC_PM0_IFM_SSP_1000	(2 << 13)
-+#define ENETC_PM0_IFM_SSP_100	(0 << 13)
-+#define ENETC_PM0_IFM_SSP_10	(1 << 13)
-+#define ENETC_PM0_IFM_FULL_DPX	BIT(12)
-+#define ENETC_PM0_IFM_IFMODE_MASK GENMASK(1, 0)
-+#define ENETC_PM0_IFM_IFMODE_XGMII 0
-+#define ENETC_PM0_IFM_IFMODE_GMII 2
- #define ENETC_PSIDCAPR		0x1b08
- #define ENETC_PSIDCAPR_MSK	GENMASK(15, 0)
- #define ENETC_PSFCAPR		0x1b18
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -315,7 +315,7 @@ static void enetc_set_loopback(struct ne
- 	u32 reg;
+ 		socket = sockfd_lookup(sockfd, &err);
+-		if (!socket)
++		if (!socket) {
++			dev_err(dev, "failed to lookup sock");
+ 			goto err;
++		}
++
++		if (socket->type != SOCK_STREAM) {
++			dev_err(dev, "Expecting SOCK_STREAM - found %d",
++				socket->type);
++			goto sock_err;
++		}
  
- 	reg = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
--	if (reg & ENETC_PMO_IFM_RG) {
-+	if (reg & ENETC_PM0_IFM_RG) {
- 		/* RGMII mode */
- 		reg = (reg & ~ENETC_PM0_IFM_RLP) |
- 		      (en ? ENETC_PM0_IFM_RLP : 0);
-@@ -494,13 +494,20 @@ static void enetc_configure_port_mac(str
+ 		sdev->ud.tcp_socket = socket;
+ 		sdev->ud.sockfd = sockfd;
+@@ -114,6 +122,8 @@ static ssize_t store_sockfd(struct devic
  
- static void enetc_mac_config(struct enetc_hw *hw, phy_interface_t phy_mode)
- {
--	/* set auto-speed for RGMII */
--	if (enetc_port_rd(hw, ENETC_PM0_IF_MODE) & ENETC_PMO_IFM_RG ||
--	    phy_interface_mode_is_rgmii(phy_mode))
--		enetc_port_wr(hw, ENETC_PM0_IF_MODE, ENETC_PM0_IFM_RGAUTO);
-+	u32 val;
-+
-+	if (phy_interface_mode_is_rgmii(phy_mode)) {
-+		val = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
-+		val &= ~ENETC_PM0_IFM_EN_AUTO;
-+		val &= ENETC_PM0_IFM_IFMODE_MASK;
-+		val |= ENETC_PM0_IFM_IFMODE_GMII | ENETC_PM0_IFM_RG;
-+		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+	}
+ 	return count;
  
--	if (phy_mode == PHY_INTERFACE_MODE_USXGMII)
--		enetc_port_wr(hw, ENETC_PM0_IF_MODE, ENETC_PM0_IFM_XGMII);
-+	if (phy_mode == PHY_INTERFACE_MODE_USXGMII) {
-+		val = ENETC_PM0_IFM_FULL_DPX | ENETC_PM0_IFM_IFMODE_XGMII;
-+		enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+	}
- }
- 
- static void enetc_mac_enable(struct enetc_hw *hw, bool en)
-@@ -932,6 +939,34 @@ static void enetc_pl_mac_config(struct p
- 		phylink_set_pcs(priv->phylink, &pf->pcs->pcs);
- }
- 
-+static void enetc_force_rgmii_mac(struct enetc_hw *hw, int speed, int duplex)
-+{
-+	u32 old_val, val;
-+
-+	old_val = val = enetc_port_rd(hw, ENETC_PM0_IF_MODE);
-+
-+	if (speed == SPEED_1000) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_1000;
-+	} else if (speed == SPEED_100) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_100;
-+	} else if (speed == SPEED_10) {
-+		val &= ~ENETC_PM0_IFM_SSP_MASK;
-+		val |= ENETC_PM0_IFM_SSP_10;
-+	}
-+
-+	if (duplex == DUPLEX_FULL)
-+		val |= ENETC_PM0_IFM_FULL_DPX;
-+	else
-+		val &= ~ENETC_PM0_IFM_FULL_DPX;
-+
-+	if (val == old_val)
-+		return;
-+
-+	enetc_port_wr(hw, ENETC_PM0_IF_MODE, val);
-+}
-+
- static void enetc_pl_mac_link_up(struct phylink_config *config,
- 				 struct phy_device *phy, unsigned int mode,
- 				 phy_interface_t interface, int speed,
-@@ -944,6 +979,10 @@ static void enetc_pl_mac_link_up(struct
- 	if (priv->active_offloads & ENETC_F_QBV)
- 		enetc_sched_speed_set(priv, speed);
- 
-+	if (!phylink_autoneg_inband(mode) &&
-+	    phy_interface_mode_is_rgmii(interface))
-+		enetc_force_rgmii_mac(&pf->si->hw, speed, duplex);
-+
- 	enetc_mac_enable(&pf->si->hw, true);
- }
- 
++sock_err:
++	sockfd_put(socket);
+ err:
+ 	spin_unlock_irq(&sdev->ud.lock);
+ 	return -EINVAL;
 
 
