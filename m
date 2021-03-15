@@ -2,99 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E863233AE78
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 10:18:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC3933AE82
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 10:20:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbhCOJSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 05:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229532AbhCOJRy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 05:17:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9736D60295;
-        Mon, 15 Mar 2021 09:17:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615799874;
-        bh=bObUlKsvuzKNv0YT409ZuH8UMOU+9GsEB7AUc0ogmTg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yWOveoRP6mp3VzC2nTAjuIpwJKEpM7gqRaj/m2nX3358U9uAfFEvaOaEhoMEsAcI+
-         cDrm9mN4/mo5+2T/21myL9vpmhfYJY69PLUBfy12Yg5+/g5lxPy3c16Ru6RPqwhy8J
-         u9xJMszJavI/0h3ZLmF5RPdqVds0sopPzHtPAoLM=
-Date:   Mon, 15 Mar 2021 10:17:51 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        lkft-triage@lists.linaro.org
-Subject: Re: v4.19.y-queue, v5.4.y-queue stable rc build failures
-Message-ID: <YE8mP1WtTU8Qkrpu@kroah.com>
-References: <be846d89-ab5a-f02a-c05e-1cd40acc5baa@roeck-us.net>
- <CA+G9fYv+46uD-RqW9ue5x_4_JF_iKYavd9PDnEFsrEUvvVZStg@mail.gmail.com>
+        id S229549AbhCOJT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 05:19:57 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:39709 "EHLO
+        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229518AbhCOJTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 05:19:39 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 6CEC51941865;
+        Mon, 15 Mar 2021 05:19:38 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 15 Mar 2021 05:19:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=JnTQ48
+        7Ki4+x9DolCm7NANSv5qQhX4sdcHvvDSdbh7M=; b=aQchEy+pfA2SCS3jZUc3ti
+        GLBb2bA4CNhRhjb9ldhoOz1ajDXd8JVW935vshSiJjMgMo8GJyfuLnpvNspXYNPO
+        dKJQTA8GotdVnQnaL0ejqWfCnu2XlhSVO12Yyo5sC+6vgpjlcP9W6ZkjCLIan1Qf
+        nsVmmqpjp09a9yvOkTa6/ayScUqBeZCTt+xX9rz7H4QOaGf2etOkhO+xcMS6xaDR
+        JHQ9snYcdWCyVbPko8VoNyq8O3ODs7QRb5karHjmycARsj/DtLad6sgHDyJCT76A
+        QSQaYSByHwEo8WCzfm91ZLKESqbSTwtZWvXvzcNWsX7uAeX7VBqX+t1BVeVWRPgg
+        ==
+X-ME-Sender: <xms:qSZPYAZ50D1wXMo1cnkynJCxpxX3RihucxY3Wb9UYyGQGM5MQ3SN3Q>
+    <xme:qSZPYNZWKeAtPGzIMlvVUd4UWBR-viF3fhcNSLQDfOezHMLiTHhgZZLE_yDmjvmsq
+    lAFPVqzplOhZA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvledgtdduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:qSZPYEW-W582jd3wisL6d2EMpncgJu9wTbWFbTC3CmQs4WxdgH1tuw>
+    <xmx:qSZPYM32wiXVixrTCxMSvgIRSK6suj6muHl603CWg5rKHxRgh4RO-g>
+    <xmx:qSZPYDYwZkpRhS0vy5l2UUBE3UXbMD8M2XG-ASmmcyvuTfVobFrHuQ>
+    <xmx:qiZPYGkvUE06BNvi5KoifMVjGn8c-jFTxZIAhlQo0iyhWn6-J7F02w>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B3197108005F;
+        Mon, 15 Mar 2021 05:19:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] MIPS: kernel: Reserve exception base early to prevent" failed to apply to 4.4-stable tree
+To:     tsbogend@alpha.franken.de, Sergey.Semin@baikalelectronics.ru,
+        f.fainelli@gmail.com, fancer.lancer@gmail.com,
+        kdasu.kdev@gmail.com, rppt@linux.ibm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 15 Mar 2021 10:19:35 +0100
+Message-ID: <161579997523144@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYv+46uD-RqW9ue5x_4_JF_iKYavd9PDnEFsrEUvvVZStg@mail.gmail.com>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 01:45:21PM +0530, Naresh Kamboju wrote:
-> On Mon, 15 Mar 2021 at 05:56, Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> > Building arm:axm55xx_defconfig ... failed
-> > --------------
-> > Error log:
-> > /tmp/cc2ylxxJ.s: Assembler messages:
-> > /tmp/cc2ylxxJ.s:87: Error: co-processor register expected -- `mrc p10,7,r7,FPEXC,cr0,0'
-> > /tmp/cc2ylxxJ.s:103: Error: co-processor register expected -- `mcr p10,7,r3,FPEXC,cr0,0'
-> > /tmp/cc2ylxxJ.s:537: Error: co-processor register expected -- `mcr p10,7,r7,FPEXC,cr0,0'
-> > make[3]: *** [arch/arm/kvm/hyp/switch.o] Error 1
-> > make[2]: *** [arch/arm/kvm/hyp] Error 2
-> > make[2]: *** Waiting for unfinished jobs....
-> > make[1]: *** [arch/arm/kvm] Error 2
-> > make[1]: *** Waiting for unfinished jobs....
-> > make: *** [sub-make] Error 2
-> 
-> These issues were noticed on the stable rc 5.4 branch also while building for
-> arm axm55xx_defconfig.
-> 
-> /tmp/ccKgdkaN.s: Assembler messages:
-> /tmp/ccKgdkaN.s:87: Error: co-processor register expected -- `mrc
-> p10,7,r7,FPEXC,cr0,0'
-> /tmp/ccKgdkaN.s:103: Error: co-processor register expected -- `mcr
-> p10,7,r3,FPEXC,cr0,0'
-> /tmp/ccKgdkaN.s:556: Error: co-processor register expected -- `mcr
-> p10,7,r7,FPEXC,cr0,0'
-> make[3]: *** [/builds/1piRajjPILoGGDzi5cHI5ZMuCJZ/scripts/Makefile.build:261:
-> arch/arm/kvm/hyp/switch.o] Error 1
-> 
-> 
-> > --------------
-> >
-> > I didn't find an obvious candidate so I bisected it.
-> >
-> > # bad: [a233c6b3f6de88ca62da8fde45f330b104827851] Linux 4.19.181-rc1
-> > # good: [030194a5b292bb7613407668d85af0b987bb9839] Linux 4.19.180
-> > git bisect start 'HEAD' 'v4.19.180'
-> > # good: [ecee76d4b15b8431827e910589edfb4c12a589f9] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
-> > git bisect good ecee76d4b15b8431827e910589edfb4c12a589f9
-> > # good: [722ce092b23ae91337694d40e6ac216b16962788] ARM: 8929/1: use APSR_nzcv instead of r15 as mrc operand
-> > git bisect good 722ce092b23ae91337694d40e6ac216b16962788
-> > # bad: [2e6919206bb0bcac507b7905fc7c9b3dd861ab4b] ARM: 9025/1: Kconfig: CPU_BIG_ENDIAN depends on !LD_IS_LLD
-> > git bisect bad 2e6919206bb0bcac507b7905fc7c9b3dd861ab4b
-> > # good: [831e354481111c30d68c980434e2cfe42590f189] kbuild: add CONFIG_LD_IS_LLD
-> > git bisect good 831e354481111c30d68c980434e2cfe42590f189
-> > # bad: [9b99f469087843c9216976865a97da96f9cdcbbc] ARM: 8991/1: use VFP assembler mnemonics if available
-> > git bisect bad 9b99f469087843c9216976865a97da96f9cdcbbc
-> > # good: [41ad45cb9ecb66f76abc77d938b3693839fb5e20] ARM: 8990/1: use VFP assembler mnemonics in register load/store macros
-> > git bisect good 41ad45cb9ecb66f76abc77d938b3693839fb5e20
-> > # first bad commit: [9b99f469087843c9216976865a97da96f9cdcbbc] ARM: 8991/1: use VFP assembler mnemonics if available
-> >
-> > Reverting the offending patch from v4.19.y-queue fixes the problem.
-> > I didn't check v5.4.y-queue.
-> 
-> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1095669013#L346
 
-Thanks, both trees should now be fixed.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From bd67b711bfaa02cf19e88aa2d9edae5c1c1d2739 Mon Sep 17 00:00:00 2001
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Date: Mon, 8 Mar 2021 10:24:47 +0100
+Subject: [PATCH] MIPS: kernel: Reserve exception base early to prevent
+ corruption
+
+BMIPS is one of the few platforms that do change the exception base.
+After commit 2dcb39645441 ("memblock: do not start bottom-up allocations
+with kernel_end") we started seeing BMIPS boards fail to boot with the
+built-in FDT being corrupted.
+
+Before the cited commit, early allocations would be in the [kernel_end,
+RAM_END] range, but after commit they would be within [RAM_START +
+PAGE_SIZE, RAM_END].
+
+The custom exception base handler that is installed by
+bmips_ebase_setup() done for BMIPS5000 CPUs ends-up trampling on the
+memory region allocated by unflatten_and_copy_device_tree() thus
+corrupting the FDT used by the kernel.
+
+To fix this, we need to perform an early reservation of the custom
+exception space. Additional we reserve the first 4k (1k for R3k) for
+either normal exception vector space (legacy CPUs) or special vectors
+like cache exceptions.
+
+Huge thanks to Serge for analysing and proposing a solution to this
+issue.
+
+Fixes: 2dcb39645441 ("memblock: do not start bottom-up allocations with kernel_end")
+Reported-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Debugged-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+
+diff --git a/arch/mips/include/asm/traps.h b/arch/mips/include/asm/traps.h
+index 6aa8f126a43d..b710e76c9c65 100644
+--- a/arch/mips/include/asm/traps.h
++++ b/arch/mips/include/asm/traps.h
+@@ -24,8 +24,11 @@ extern void (*board_ebase_setup)(void);
+ extern void (*board_cache_error_setup)(void);
+ 
+ extern int register_nmi_notifier(struct notifier_block *nb);
++extern void reserve_exception_space(phys_addr_t addr, unsigned long size);
+ extern char except_vec_nmi[];
+ 
++#define VECTORSPACING 0x100	/* for EI/VI mode */
++
+ #define nmi_notifier(fn, pri)						\
+ ({									\
+ 	static struct notifier_block fn##_nb = {			\
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index 9a89637b4ecf..b71892064f27 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -26,6 +26,7 @@
+ #include <asm/elf.h>
+ #include <asm/pgtable-bits.h>
+ #include <asm/spram.h>
++#include <asm/traps.h>
+ #include <linux/uaccess.h>
+ 
+ #include "fpu-probe.h"
+@@ -1628,6 +1629,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
+ 		c->cputype = CPU_BMIPS3300;
+ 		__cpu_name[cpu] = "Broadcom BMIPS3300";
+ 		set_elf_platform(cpu, "bmips3300");
++		reserve_exception_space(0x400, VECTORSPACING * 64);
+ 		break;
+ 	case PRID_IMP_BMIPS43XX: {
+ 		int rev = c->processor_id & PRID_REV_MASK;
+@@ -1638,6 +1640,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "Broadcom BMIPS4380";
+ 			set_elf_platform(cpu, "bmips4380");
+ 			c->options |= MIPS_CPU_RIXI;
++			reserve_exception_space(0x400, VECTORSPACING * 64);
+ 		} else {
+ 			c->cputype = CPU_BMIPS4350;
+ 			__cpu_name[cpu] = "Broadcom BMIPS4350";
+@@ -1654,6 +1657,7 @@ static inline void cpu_probe_broadcom(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "Broadcom BMIPS5000";
+ 		set_elf_platform(cpu, "bmips5000");
+ 		c->options |= MIPS_CPU_ULRI | MIPS_CPU_RIXI;
++		reserve_exception_space(0x1000, VECTORSPACING * 64);
+ 		break;
+ 	}
+ }
+@@ -2133,6 +2137,8 @@ void cpu_probe(void)
+ 	if (cpu == 0)
+ 		__ua_limit = ~((1ull << cpu_vmbits) - 1);
+ #endif
++
++	reserve_exception_space(0, 0x1000);
+ }
+ 
+ void cpu_report(void)
+diff --git a/arch/mips/kernel/cpu-r3k-probe.c b/arch/mips/kernel/cpu-r3k-probe.c
+index abdbbe8c5a43..af654771918c 100644
+--- a/arch/mips/kernel/cpu-r3k-probe.c
++++ b/arch/mips/kernel/cpu-r3k-probe.c
+@@ -21,6 +21,7 @@
+ #include <asm/fpu.h>
+ #include <asm/mipsregs.h>
+ #include <asm/elf.h>
++#include <asm/traps.h>
+ 
+ #include "fpu-probe.h"
+ 
+@@ -158,6 +159,8 @@ void cpu_probe(void)
+ 		cpu_set_fpu_opts(c);
+ 	else
+ 		cpu_set_nofpu_opts(c);
++
++	reserve_exception_space(0, 0x400);
+ }
+ 
+ void cpu_report(void)
+diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
+index e0352958e2f7..808b8b61ded1 100644
+--- a/arch/mips/kernel/traps.c
++++ b/arch/mips/kernel/traps.c
+@@ -2009,13 +2009,16 @@ void __noreturn nmi_exception_handler(struct pt_regs *regs)
+ 	nmi_exit();
+ }
+ 
+-#define VECTORSPACING 0x100	/* for EI/VI mode */
+-
+ unsigned long ebase;
+ EXPORT_SYMBOL_GPL(ebase);
+ unsigned long exception_handlers[32];
+ unsigned long vi_handlers[64];
+ 
++void reserve_exception_space(phys_addr_t addr, unsigned long size)
++{
++	memblock_reserve(addr, size);
++}
++
+ void __init *set_except_vector(int n, void *addr)
+ {
+ 	unsigned long handler = (unsigned long) addr;
+@@ -2367,10 +2370,7 @@ void __init trap_init(void)
+ 
+ 	if (!cpu_has_mips_r2_r6) {
+ 		ebase = CAC_BASE;
+-		ebase_pa = virt_to_phys((void *)ebase);
+ 		vec_size = 0x400;
+-
+-		memblock_reserve(ebase_pa, vec_size);
+ 	} else {
+ 		if (cpu_has_veic || cpu_has_vint)
+ 			vec_size = 0x200 + VECTORSPACING*64;
+
