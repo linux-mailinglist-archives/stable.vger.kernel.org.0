@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9269033B736
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E179E33B735
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232025AbhCON7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232433AbhCON7u (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 09:59:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230393AbhCON6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A55F264F22;
-        Mon, 15 Mar 2021 13:58:26 +0000 (UTC)
+        id S232405AbhCON6y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DE3864F23;
+        Mon, 15 Mar 2021 13:58:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816708;
-        bh=30qpCNvgCAC4jJqpN+nWjFnoFgCNXtc8piRFPskl9po=;
+        s=korg; t=1615816712;
+        bh=fp7/jORTTkB/zysu0rIqrNVPgesZ/3LVIgjFsONMG5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JV3rwOj/eTDCjOhQ4qVAfOzypgm0iomeQxfRqSx7pbz0sJT2VaEgDktS5Aviv9ROb
-         zB3txZ8A4Ns307aRqaeaVEX0GwbR8mC9CgP3w+7TISU6YVeBSIWNOxMgMZXPL9qL20
-         Ly74oeV4ftrSaxyheSA20mAq8v2DUOgrp3eIMVXw=
+        b=xTkKFEB15R+H5vBD2N+oYUHWo86q9/De8+c5aVMHqxbA00jYL+xY233cslQo5x82N
+         /h5tPymcybc9wK6sWfVFRduEt01sHiQXdTdy2bDW0Vde4v8iFNi1yVytRf2Mk54w3p
+         Jewrz0UI4Jj4AfeyK3q1AIWL5AZwgL7KQTQ/npzA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Balazs Nemeth <bnemeth@redhat.com>,
-        Willem de Bruijn <willemb@google.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
+        Ramesh Babu B <ramesh.babu.b@intel.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 019/120] net: avoid infinite loop in mpls_gso_segment when mpls_hlen == 0
-Date:   Mon, 15 Mar 2021 14:56:10 +0100
-Message-Id: <20210315135720.638602447@linuxfoundation.org>
+Subject: [PATCH 4.19 021/120] net: stmmac: fix incorrect DMA channel intr enable setting of EQoS v4.10
+Date:   Mon, 15 Mar 2021 14:56:12 +0100
+Message-Id: <20210315135720.696640625@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -43,44 +42,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Balazs Nemeth <bnemeth@redhat.com>
+From: Ong Boon Leong <boon.leong.ong@intel.com>
 
-commit d348ede32e99d3a04863e9f9b28d224456118c27 upstream.
+commit 879c348c35bb5fb758dd881d8a97409c1862dae8 upstream.
 
-A packet with skb_inner_network_header(skb) == skb_network_header(skb)
-and ETH_P_MPLS_UC will prevent mpls_gso_segment from pulling any headers
-from the packet. Subsequently, the call to skb_mac_gso_segment will
-again call mpls_gso_segment with the same packet leading to an infinite
-loop. In addition, ensure that the header length is a multiple of four,
-which should hold irrespective of the number of stacked labels.
+We introduce dwmac410_dma_init_channel() here for both EQoS v4.10 and
+above which use different DMA_CH(n)_Interrupt_Enable bit definitions for
+NIE and AIE.
 
-Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Ramesh Babu B <ramesh.babu.b@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mpls/mpls_gso.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/net/mpls/mpls_gso.c
-+++ b/net/mpls/mpls_gso.c
-@@ -18,6 +18,7 @@
- #include <linux/netdev_features.h>
- #include <linux/netdevice.h>
- #include <linux/skbuff.h>
-+#include <net/mpls.h>
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+@@ -119,6 +119,23 @@ static void dwmac4_dma_init_channel(void
+ 	       ioaddr + DMA_CHAN_INTR_ENA(chan));
+ }
  
- static struct sk_buff *mpls_gso_segment(struct sk_buff *skb,
- 				       netdev_features_t features)
-@@ -31,6 +32,8 @@ static struct sk_buff *mpls_gso_segment(
- 
- 	skb_reset_network_header(skb);
- 	mpls_hlen = skb_inner_network_header(skb) - skb_network_header(skb);
-+	if (unlikely(!mpls_hlen || mpls_hlen % MPLS_HLEN))
-+		goto out;
- 	if (unlikely(!pskb_may_pull(skb, mpls_hlen)))
- 		goto out;
- 
++static void dwmac410_dma_init_channel(void __iomem *ioaddr,
++				      struct stmmac_dma_cfg *dma_cfg, u32 chan)
++{
++	u32 value;
++
++	/* common channel control register config */
++	value = readl(ioaddr + DMA_CHAN_CONTROL(chan));
++	if (dma_cfg->pblx8)
++		value = value | DMA_BUS_MODE_PBL;
++
++	writel(value, ioaddr + DMA_CHAN_CONTROL(chan));
++
++	/* Mask interrupts by writing to CSR7 */
++	writel(DMA_CHAN_INTR_DEFAULT_MASK_4_10,
++	       ioaddr + DMA_CHAN_INTR_ENA(chan));
++}
++
+ static void dwmac4_dma_init(void __iomem *ioaddr,
+ 			    struct stmmac_dma_cfg *dma_cfg, int atds)
+ {
+@@ -461,7 +478,7 @@ const struct stmmac_dma_ops dwmac4_dma_o
+ const struct stmmac_dma_ops dwmac410_dma_ops = {
+ 	.reset = dwmac4_dma_reset,
+ 	.init = dwmac4_dma_init,
+-	.init_chan = dwmac4_dma_init_channel,
++	.init_chan = dwmac410_dma_init_channel,
+ 	.init_rx_chan = dwmac4_dma_init_rx_chan,
+ 	.init_tx_chan = dwmac4_dma_init_tx_chan,
+ 	.axi = dwmac4_dma_axi,
 
 
