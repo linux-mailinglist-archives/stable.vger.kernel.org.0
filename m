@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F05933B7C9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E75B33B985
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231604AbhCOOBU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S234056AbhCOOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232718AbhCON7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE99064F73;
-        Mon, 15 Mar 2021 13:59:13 +0000 (UTC)
+        id S233422AbhCOOBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A93B864EF0;
+        Mon, 15 Mar 2021 14:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816754;
-        bh=xoQR4W2eLoVMf5THu+qO2cIW0s+W03v4FSCbI0tO2nk=;
+        s=korg; t=1615816878;
+        bh=n3FtlREOVVzRH53tiaO0kZzH93lD160lJblRxHLW9bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNbv31vbsA2MIPkDEjs3nVATRbjvI8veuhYoPTKRVqKGXfaxD2wqPv7rCda8P0SPf
-         JIUSD7N+IEUJeq69Ygf83EZUSYRpgF2yiWS63N4ONVrkEALsQBpp9rXcrq4V1bevyf
-         I9+OpiZWm4u6VUdbqpGxTUg+rL02k4fY0z2PKMUU=
+        b=wfE2YPox2LPlnoK/8n0oenYlyiTJr8GzZGryWFIhJfvMK4iRLqUQNu7EdYNkXb5mO
+         H2O/3nAGaPahw28Dhr5IB2AaSzyBkBMEkD57E25+Msd17v3gB5tj18g6dYFY0BimzD
+         N7BLt6pA9FWLJnarrUcyWgohDrCkmvFL8F6Mbr1A=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/120] powerpc: improve handling of unrecoverable system reset
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.4 166/168] xen/events: reset affinity of 2-level event when tearing it down
 Date:   Mon, 15 Mar 2021 14:56:38 +0100
-Message-Id: <20210315135721.528845841@linuxfoundation.org>
+Message-Id: <20210315135555.819614796@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
+commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
 
-If an unrecoverable system reset hits in process context, the system
-does not have to panic. Similar to machine check, call nmi_exit()
-before die().
+When creating a new event channel with 2-level events the affinity
+needs to be reset initially in order to avoid using an old affinity
+from earlier usage of the event channel port. So when tearing an event
+channel down reset all affinity bits.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The same applies to the affinity when onlining a vcpu: all old
+affinity settings for this vcpu must be reset. As percpu events get
+initialized before the percpu event channel hook is called,
+resetting of the affinities happens after offlining a vcpu (this is
+working, as initial percpu memory is zeroed out).
+
+Cc: stable@vger.kernel.org
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/traps.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/xen/events/events_2l.c       |   15 +++++++++++++++
+ drivers/xen/events/events_base.c     |    1 +
+ drivers/xen/events/events_internal.h |    8 ++++++++
+ 3 files changed, 24 insertions(+)
 
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 1b2d84cb373b..2379c4bf3979 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -433,8 +433,11 @@ void system_reset_exception(struct pt_regs *regs)
- 		die("Unrecoverable nested System Reset", regs, SIGABRT);
- #endif
- 	/* Must die if the interrupt is not recoverable */
--	if (!(regs->msr & MSR_RI))
-+	if (!(regs->msr & MSR_RI)) {
-+		/* For the reason explained in die_mce, nmi_exit before die */
-+		nmi_exit();
- 		die("Unrecoverable System Reset", regs, SIGABRT);
-+	}
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
+ 	return EVTCHN_2L_NR_CHANNELS;
+ }
  
- 	if (!nested)
- 		nmi_exit();
--- 
-2.30.1
-
++static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
++{
++	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
++}
++
+ static void evtchn_2l_bind_to_cpu(struct irq_info *info, unsigned cpu)
+ {
+ 	clear_bit(info->evtchn, BM(per_cpu(cpu_evtchn_mask, info->cpu)));
+@@ -354,9 +359,18 @@ static void evtchn_2l_resume(void)
+ 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
+ }
+ 
++static int evtchn_2l_percpu_deinit(unsigned int cpu)
++{
++	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
++			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
++
++	return 0;
++}
++
+ static const struct evtchn_ops evtchn_ops_2l = {
+ 	.max_channels      = evtchn_2l_max_channels,
+ 	.nr_channels       = evtchn_2l_max_channels,
++	.remove            = evtchn_2l_remove,
+ 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+@@ -366,6 +380,7 @@ static const struct evtchn_ops evtchn_op
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+ 	.resume	           = evtchn_2l_resume,
++	.percpu_deinit     = evtchn_2l_percpu_deinit,
+ };
+ 
+ void __init xen_evtchn_2l_init(void)
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -286,6 +286,7 @@ static int xen_irq_info_pirq_setup(unsig
+ static void xen_irq_info_cleanup(struct irq_info *info)
+ {
+ 	set_evtchn_to_irq(info->evtchn, -1);
++	xen_evtchn_port_remove(info->evtchn, info->cpu);
+ 	info->evtchn = 0;
+ }
+ 
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -65,6 +65,7 @@ struct evtchn_ops {
+ 	unsigned (*nr_channels)(void);
+ 
+ 	int (*setup)(struct irq_info *info);
++	void (*remove)(evtchn_port_t port, unsigned int cpu);
+ 	void (*bind_to_cpu)(struct irq_info *info, unsigned cpu);
+ 
+ 	void (*clear_pending)(unsigned port);
+@@ -107,6 +108,13 @@ static inline int xen_evtchn_port_setup(
+ 	return 0;
+ }
+ 
++static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
++					  unsigned int cpu)
++{
++	if (evtchn_ops->remove)
++		evtchn_ops->remove(evtchn, cpu);
++}
++
+ static inline void xen_evtchn_port_bind_to_cpu(struct irq_info *info,
+ 					       unsigned cpu)
+ {
 
 
