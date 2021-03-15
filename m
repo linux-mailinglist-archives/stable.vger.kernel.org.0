@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5ED33B87B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 165EE33B79E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234487AbhCOODk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S233145AbhCOOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232676AbhCON72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A50C364EFD;
-        Mon, 15 Mar 2021 13:59:04 +0000 (UTC)
+        id S232679AbhCON73 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 341EF64F06;
+        Mon, 15 Mar 2021 13:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816745;
-        bh=RKfLxMnZv9tg3Hc6sF4mpRfKZdwysk6g59YZPb7FI2Q=;
+        s=korg; t=1615816747;
+        bh=588BgDknMzbDHS7zPOgtnxq0+noLDSWDQe9Z1AjJ8w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RzBJOYFa2FsFPiOkR4UT2DuulcKRczIe5ylc02v6QOGxX1kuMvnd4YzLXXMPRq7Xs
-         tGQypEe9gN6I6qMEgpkIq/9jDFM7aNHGigrGat2owuaQ8Di1rmxS5xJOcjwwyqt3Uk
-         rscF9ow8v3X33kJ/lALzB9bTZCCgAkHwbRJcFliw=
+        b=SQpiQbNM/TvefCFvBomnVQQ3MHhkb13xThyenTiiXlBSNQ43PdRRvum5OyvwHu4dX
+         3s3eh17HTko178vl7L0avd2pTdkqBb/4B7dr0hDHzfzm1mi9rc4mOmezA1wkJOFLUf
+         YPGZvWBKWoMvzGDSBSniKsHepTSxw4b0U7Kk1KSY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
-        <holger@applied-asynchrony.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.11 099/306] drm/amd/display: Fix nested FPU context in dcn21_validate_bandwidth()
-Date:   Mon, 15 Mar 2021 14:52:42 +0100
-Message-Id: <20210315135510.998406518@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Feifei Xu <Feifei.Xu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Georgios Toptsidis <gtoptsid@gmail.com>
+Subject: [PATCH 5.11 100/306] drm/amd/pm: correct the watermark settings for Polaris
+Date:   Mon, 15 Mar 2021 14:52:43 +0100
+Message-Id: <20210315135511.029768060@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -43,57 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Holger Hoffstätte <holger@applied-asynchrony.com>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 15e8b95d5f7509e0b09289be8c422c459c9f0412 upstream.
+commit 48123d068fcb584838ce29912660c5e9490bad0e upstream.
 
-Commit 41401ac67791 added FPU wrappers to dcn21_validate_bandwidth(),
-which was correct. Unfortunately a nested function alredy contained
-DC_FP_START()/DC_FP_END() calls, which results in nested FPU context
-enter/exit and complaints by kernel_fpu_begin_mask().
-This can be observed e.g. with 5.10.20, which backported 41401ac67791
-and now emits the following warning on boot:
+The "/ 10" should be applied to the right-hand operand instead of
+the left-hand one.
 
-WARNING: CPU: 6 PID: 858 at arch/x86/kernel/fpu/core.c:129 kernel_fpu_begin_mask+0xa5/0xc0
-Call Trace:
- dcn21_calculate_wm+0x47/0xa90 [amdgpu]
- dcn21_validate_bandwidth_fp+0x15d/0x2b0 [amdgpu]
- dcn21_validate_bandwidth+0x29/0x40 [amdgpu]
- dc_validate_global_state+0x3c7/0x4c0 [amdgpu]
-
-The warning is emitted due to the additional DC_FP_START/END calls in
-patch_bounding_box(), which is inlined into dcn21_calculate_wm(),
-its only caller. Removing the calls brings the code in line with
-dcn20 and makes the warning disappear.
-
-Fixes: 41401ac67791 ("drm/amd/display: Add FPU wrappers to dcn21_validate_bandwidth()")
-Signed-off-by: Holger Hoffstätte <holger@applied-asynchrony.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Noticed-by: Georgios Toptsidis <gtoptsid@gmail.com>
+Reviewed-by: Feifei Xu <Feifei.Xu@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -1062,8 +1062,6 @@ static void patch_bounding_box(struct dc
- {
- 	int i;
- 
--	DC_FP_START();
--
- 	if (dc->bb_overrides.sr_exit_time_ns) {
- 		for (i = 0; i < WM_SET_COUNT; i++) {
- 			  dc->clk_mgr->bw_params->wm_table.entries[i].sr_exit_time_us =
-@@ -1088,8 +1086,6 @@ static void patch_bounding_box(struct dc
- 				dc->bb_overrides.dram_clock_change_latency_ns / 1000.0;
- 		}
- 	}
--
--	DC_FP_END();
- }
- 
- void dcn21_calculate_wm(
+--- a/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
++++ b/drivers/gpu/drm/amd/pm/powerplay/hwmgr/smu7_hwmgr.c
+@@ -5216,10 +5216,10 @@ static int smu7_set_watermarks_for_clock
+ 		for (j = 0; j < dep_sclk_table->count; j++) {
+ 			valid_entry = false;
+ 			for (k = 0; k < watermarks->num_wm_sets; k++) {
+-				if (dep_sclk_table->entries[i].clk / 10 >= watermarks->wm_clk_ranges[k].wm_min_eng_clk_in_khz &&
+-				    dep_sclk_table->entries[i].clk / 10 < watermarks->wm_clk_ranges[k].wm_max_eng_clk_in_khz &&
+-				    dep_mclk_table->entries[i].clk / 10 >= watermarks->wm_clk_ranges[k].wm_min_mem_clk_in_khz &&
+-				    dep_mclk_table->entries[i].clk / 10 < watermarks->wm_clk_ranges[k].wm_max_mem_clk_in_khz) {
++				if (dep_sclk_table->entries[i].clk >= watermarks->wm_clk_ranges[k].wm_min_eng_clk_in_khz / 10 &&
++				    dep_sclk_table->entries[i].clk < watermarks->wm_clk_ranges[k].wm_max_eng_clk_in_khz / 10 &&
++				    dep_mclk_table->entries[i].clk >= watermarks->wm_clk_ranges[k].wm_min_mem_clk_in_khz / 10 &&
++				    dep_mclk_table->entries[i].clk < watermarks->wm_clk_ranges[k].wm_max_mem_clk_in_khz / 10) {
+ 					valid_entry = true;
+ 					table->DisplayWatermark[i][j] = watermarks->wm_clk_ranges[k].wm_set_id;
+ 					break;
 
 
