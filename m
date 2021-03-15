@@ -2,83 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33E8333AE73
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 10:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E863233AE78
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 10:18:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229505AbhCOJQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 05:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45806 "EHLO mail.kernel.org"
+        id S229599AbhCOJSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 05:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229532AbhCOJQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 05:16:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB1A60295;
-        Mon, 15 Mar 2021 09:16:12 +0000 (UTC)
+        id S229532AbhCOJRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 05:17:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9736D60295;
+        Mon, 15 Mar 2021 09:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615799773;
-        bh=NG+qQtIB4o00/FxExg7ks+watPEb18jxu+yvp3QSShE=;
+        s=korg; t=1615799874;
+        bh=bObUlKsvuzKNv0YT409ZuH8UMOU+9GsEB7AUc0ogmTg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2iQbIvDCf0I4vyW1xUvwFPdQelUKG4/XExISDh5F8qe7DraPC2oEU1UmnUeLkI7yd
-         30MYYjfRWpWBI0pFiu7S4i7z/gGcwbwINOU8xmAW9DJe41zQKgVVMTJPQmaBlWMZTi
-         ++bb9fR6Gvo6WFnI7xeIW+9QhA8ORRgi9lUz7FNk=
-Date:   Mon, 15 Mar 2021 10:16:10 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        Jian Cai <jiancai@google.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sami Tolvanen <samitolvanen@google.com>, candle.sun@unisoc.com,
-        Miles Chen =?utf-8?B?KOmZs+awkeaouik=?= 
-        <miles.chen@mediatek.com>, Stephen Hines <srhines@google.com>,
-        Luis Lozano <llozano@google.com>,
-        Sandeep Patil <sspatil@google.com>
-Subject: Re: ARCH=arm LLVM_IAS=1 patches for 5.10, 5.4, and 4.19
-Message-ID: <YE8l2qhycaGPYdNn@kroah.com>
-References: <CAKwvOdka=y54W=ssgCZRgr2B+NaYFHF07KnnNDfrwv79-geSQw@mail.gmail.com>
- <YEs+iaQzEQYNgXcw@kroah.com>
- <CAKwvOd=xr5je726djQeMMrZAuNcJpX9=R-X19epVy85cjbNbqw@mail.gmail.com>
- <YEw6i39k6hqZJS8+@sashalap>
- <YE8kIbyWKSojC1SV@kroah.com>
- <YE8k/2WTPFGwMpHk@kroah.com>
+        b=yWOveoRP6mp3VzC2nTAjuIpwJKEpM7gqRaj/m2nX3358U9uAfFEvaOaEhoMEsAcI+
+         cDrm9mN4/mo5+2T/21myL9vpmhfYJY69PLUBfy12Yg5+/g5lxPy3c16Ru6RPqwhy8J
+         u9xJMszJavI/0h3ZLmF5RPdqVds0sopPzHtPAoLM=
+Date:   Mon, 15 Mar 2021 10:17:51 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     stable <stable@vger.kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        lkft-triage@lists.linaro.org
+Subject: Re: v4.19.y-queue, v5.4.y-queue stable rc build failures
+Message-ID: <YE8mP1WtTU8Qkrpu@kroah.com>
+References: <be846d89-ab5a-f02a-c05e-1cd40acc5baa@roeck-us.net>
+ <CA+G9fYv+46uD-RqW9ue5x_4_JF_iKYavd9PDnEFsrEUvvVZStg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YE8k/2WTPFGwMpHk@kroah.com>
+In-Reply-To: <CA+G9fYv+46uD-RqW9ue5x_4_JF_iKYavd9PDnEFsrEUvvVZStg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 10:12:31AM +0100, Greg KH wrote:
-> On Mon, Mar 15, 2021 at 10:08:49AM +0100, Greg KH wrote:
-> > On Fri, Mar 12, 2021 at 11:07:39PM -0500, Sasha Levin wrote:
-> > > On Fri, Mar 12, 2021 at 09:28:56AM -0800, Nick Desaulniers wrote:
-> > > > My mistake, meant to lop those last two commits off of 4.19.y, they
-> > > > were the ones I referred to earlier working their way through the ARM
-> > > > maintainers tree.  Regenerated the series' (rather than edit the patch
-> > > > files) additionally with --base=auto. Re-attached.
-> > > 
-> > > Queued up, thanks!
-> > 
-> > This series seems to cause build breakages in a lot of places, so I'm
-> > going to drop the whole set of them now:
-> > 	https://lore.kernel.org/r/be846d89-ab5a-f02a-c05e-1cd40acc5baa@roeck-us.net
-> > and:
-> > 	https://lore.kernel.org/r/066efc42-0788-8668-2ff5-d431e77068b5@roeck-us.net
-> > 
-> > Nick, if you want these merged, can you fix up the errors and resend?
-> > 
-> > Perhaps you might want to run these through the tuxbuild tool before
-> > sending?  You should have access to it...
+On Mon, Mar 15, 2021 at 01:45:21PM +0530, Naresh Kamboju wrote:
+> On Mon, 15 Mar 2021 at 05:56, Guenter Roeck <linux@roeck-us.net> wrote:
+> >
+> > Building arm:axm55xx_defconfig ... failed
+> > --------------
+> > Error log:
+> > /tmp/cc2ylxxJ.s: Assembler messages:
+> > /tmp/cc2ylxxJ.s:87: Error: co-processor register expected -- `mrc p10,7,r7,FPEXC,cr0,0'
+> > /tmp/cc2ylxxJ.s:103: Error: co-processor register expected -- `mcr p10,7,r3,FPEXC,cr0,0'
+> > /tmp/cc2ylxxJ.s:537: Error: co-processor register expected -- `mcr p10,7,r7,FPEXC,cr0,0'
+> > make[3]: *** [arch/arm/kvm/hyp/switch.o] Error 1
+> > make[2]: *** [arch/arm/kvm/hyp] Error 2
+> > make[2]: *** Waiting for unfinished jobs....
+> > make[1]: *** [arch/arm/kvm] Error 2
+> > make[1]: *** Waiting for unfinished jobs....
+> > make: *** [sub-make] Error 2
 > 
-> Oops, wait, they are fine for 5.10.y, just 4.19 and 5.4 are broken, will
-> go drop those patches only.
+> These issues were noticed on the stable rc 5.4 branch also while building for
+> arm axm55xx_defconfig.
+> 
+> /tmp/ccKgdkaN.s: Assembler messages:
+> /tmp/ccKgdkaN.s:87: Error: co-processor register expected -- `mrc
+> p10,7,r7,FPEXC,cr0,0'
+> /tmp/ccKgdkaN.s:103: Error: co-processor register expected -- `mcr
+> p10,7,r3,FPEXC,cr0,0'
+> /tmp/ccKgdkaN.s:556: Error: co-processor register expected -- `mcr
+> p10,7,r7,FPEXC,cr0,0'
+> make[3]: *** [/builds/1piRajjPILoGGDzi5cHI5ZMuCJZ/scripts/Makefile.build:261:
+> arch/arm/kvm/hyp/switch.o] Error 1
+> 
+> 
+> > --------------
+> >
+> > I didn't find an obvious candidate so I bisected it.
+> >
+> > # bad: [a233c6b3f6de88ca62da8fde45f330b104827851] Linux 4.19.181-rc1
+> > # good: [030194a5b292bb7613407668d85af0b987bb9839] Linux 4.19.180
+> > git bisect start 'HEAD' 'v4.19.180'
+> > # good: [ecee76d4b15b8431827e910589edfb4c12a589f9] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
+> > git bisect good ecee76d4b15b8431827e910589edfb4c12a589f9
+> > # good: [722ce092b23ae91337694d40e6ac216b16962788] ARM: 8929/1: use APSR_nzcv instead of r15 as mrc operand
+> > git bisect good 722ce092b23ae91337694d40e6ac216b16962788
+> > # bad: [2e6919206bb0bcac507b7905fc7c9b3dd861ab4b] ARM: 9025/1: Kconfig: CPU_BIG_ENDIAN depends on !LD_IS_LLD
+> > git bisect bad 2e6919206bb0bcac507b7905fc7c9b3dd861ab4b
+> > # good: [831e354481111c30d68c980434e2cfe42590f189] kbuild: add CONFIG_LD_IS_LLD
+> > git bisect good 831e354481111c30d68c980434e2cfe42590f189
+> > # bad: [9b99f469087843c9216976865a97da96f9cdcbbc] ARM: 8991/1: use VFP assembler mnemonics if available
+> > git bisect bad 9b99f469087843c9216976865a97da96f9cdcbbc
+> > # good: [41ad45cb9ecb66f76abc77d938b3693839fb5e20] ARM: 8990/1: use VFP assembler mnemonics in register load/store macros
+> > git bisect good 41ad45cb9ecb66f76abc77d938b3693839fb5e20
+> > # first bad commit: [9b99f469087843c9216976865a97da96f9cdcbbc] ARM: 8991/1: use VFP assembler mnemonics if available
+> >
+> > Reverting the offending patch from v4.19.y-queue fixes the problem.
+> > I didn't check v5.4.y-queue.
+> 
+> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1095669013#L346
 
-Also, these are a lot of churn for 5.4 and 4.19, I'm not convinced it's
-really needed there.  Why again is this required?
-
-thanks,
+Thanks, both trees should now be fixed.
 
 greg k-h
