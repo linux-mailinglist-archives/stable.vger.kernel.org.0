@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C761033B9A0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2A6033B9CF
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234910AbhCOOGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
+        id S234972AbhCOOGr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231638AbhCOOBm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9413464F13;
-        Mon, 15 Mar 2021 14:01:31 +0000 (UTC)
+        id S233349AbhCOOBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CC164F71;
+        Mon, 15 Mar 2021 14:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816892;
-        bh=RARTWRmMCeWFgmqKMl0uq7OGgRtFjymUTajyhit0Rk8=;
+        s=korg; t=1615816859;
+        bh=L15DI/G3qO9jKwXK/H7XDWSGeuDMvy2QI13LVQIQw1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QRzPWLbIzYRQ10DpoT/YCV/JY0fytTuascrelkYu1cVgcQEHd4BRwnEYTRGoeDY2M
-         wbsErgFxKCZ5JOwpyszpkId9DfpvEMZoxDu3JVmIqObc4bn/U/yUWW24WZWC4EWUk3
-         zm7q06+9qDLlLYAyu92RfjEwxlaMMpeNyxaDcJ/c=
+        b=K0ShNMpbaVsiUOiHLPm1ldxuhNMAbiFtymr8oGJMo9CENfiQmYwBhcDNfeRAYpqLP
+         ChWUvCd16V78srREvwPVpt218TuNqYgHsTFmQs/hZ1QtPRPTF+Xn5L/YiIk9xQEa2+
+         9LltsAOWG/4h1Ne6ZDGJwxqWz/biRuS73dknTsE8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 5.11 186/306] xen/events: reset affinity of 2-level event when tearing it down
+        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.10 156/290] kbuild: clamp SUBLEVEL to 255
 Date:   Mon, 15 Mar 2021 14:54:09 +0100
-Message-Id: <20210315135513.901188003@linuxfoundation.org>
+Message-Id: <20210315135547.188981758@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,108 +41,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+[ Upstream commit 9b82f13e7ef316cdc0a8858f1349f4defce3f9e0 ]
 
-commit 9e77d96b8e2724ed00380189f7b0ded61113b39f upstream.
+Right now if SUBLEVEL becomes larger than 255 it will overflow into the
+territory of PATCHLEVEL, causing havoc in userspace that tests for
+specific kernel version.
 
-When creating a new event channel with 2-level events the affinity
-needs to be reset initially in order to avoid using an old affinity
-from earlier usage of the event channel port. So when tearing an event
-channel down reset all affinity bits.
+While userspace code tests for MAJOR and PATCHLEVEL, it doesn't test
+SUBLEVEL at any point as ABI changes don't happen in the context of
+stable tree.
 
-The same applies to the affinity when onlining a vcpu: all old
-affinity settings for this vcpu must be reset. As percpu events get
-initialized before the percpu event channel hook is called,
-resetting of the affinities happens after offlining a vcpu (this is
-working, as initial percpu memory is zeroed out).
+Thus, to avoid overflows, simply clamp SUBLEVEL to it's maximum value in
+the context of LINUX_VERSION_CODE. This does not affect "make
+kernelversion" and such.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-2-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/events/events_2l.c       |   15 +++++++++++++++
- drivers/xen/events/events_base.c     |    1 +
- drivers/xen/events/events_internal.h |    8 ++++++++
- 3 files changed, 24 insertions(+)
+ Makefile | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/xen/events/events_2l.c
-+++ b/drivers/xen/events/events_2l.c
-@@ -47,6 +47,11 @@ static unsigned evtchn_2l_max_channels(v
- 	return EVTCHN_2L_NR_CHANNELS;
- }
+diff --git a/Makefile b/Makefile
+index 7fdb78b48f55..56d375763b0d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1247,9 +1247,15 @@ define filechk_utsrelease.h
+ endef
  
-+static void evtchn_2l_remove(evtchn_port_t evtchn, unsigned int cpu)
-+{
-+	clear_bit(evtchn, BM(per_cpu(cpu_evtchn_mask, cpu)));
-+}
-+
- static void evtchn_2l_bind_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
- 				  unsigned int old_cpu)
- {
-@@ -355,9 +360,18 @@ static void evtchn_2l_resume(void)
- 				EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
- }
+ define filechk_version.h
+-	echo \#define LINUX_VERSION_CODE $(shell                         \
+-	expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
+-	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'
++	if [ $(SUBLEVEL) -gt 255 ]; then                                 \
++		echo \#define LINUX_VERSION_CODE $(shell                 \
++		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 255); \
++	else                                                             \
++		echo \#define LINUX_VERSION_CODE $(shell                 \
++		expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + $(SUBLEVEL)); \
++	fi;                                                              \
++	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) +  \
++	((c) > 255 ? 255 : (c)))'
+ endef
  
-+static int evtchn_2l_percpu_deinit(unsigned int cpu)
-+{
-+	memset(per_cpu(cpu_evtchn_mask, cpu), 0, sizeof(xen_ulong_t) *
-+			EVTCHN_2L_NR_CHANNELS/BITS_PER_EVTCHN_WORD);
-+
-+	return 0;
-+}
-+
- static const struct evtchn_ops evtchn_ops_2l = {
- 	.max_channels      = evtchn_2l_max_channels,
- 	.nr_channels       = evtchn_2l_max_channels,
-+	.remove            = evtchn_2l_remove,
- 	.bind_to_cpu       = evtchn_2l_bind_to_cpu,
- 	.clear_pending     = evtchn_2l_clear_pending,
- 	.set_pending       = evtchn_2l_set_pending,
-@@ -367,6 +381,7 @@ static const struct evtchn_ops evtchn_op
- 	.unmask            = evtchn_2l_unmask,
- 	.handle_events     = evtchn_2l_handle_events,
- 	.resume	           = evtchn_2l_resume,
-+	.percpu_deinit     = evtchn_2l_percpu_deinit,
- };
- 
- void __init xen_evtchn_2l_init(void)
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -368,6 +368,7 @@ static int xen_irq_info_pirq_setup(unsig
- static void xen_irq_info_cleanup(struct irq_info *info)
- {
- 	set_evtchn_to_irq(info->evtchn, -1);
-+	xen_evtchn_port_remove(info->evtchn, info->cpu);
- 	info->evtchn = 0;
- 	channels_on_cpu_dec(info);
- }
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -14,6 +14,7 @@ struct evtchn_ops {
- 	unsigned (*nr_channels)(void);
- 
- 	int (*setup)(evtchn_port_t port);
-+	void (*remove)(evtchn_port_t port, unsigned int cpu);
- 	void (*bind_to_cpu)(evtchn_port_t evtchn, unsigned int cpu,
- 			    unsigned int old_cpu);
- 
-@@ -54,6 +55,13 @@ static inline int xen_evtchn_port_setup(
- 	return 0;
- }
- 
-+static inline void xen_evtchn_port_remove(evtchn_port_t evtchn,
-+					  unsigned int cpu)
-+{
-+	if (evtchn_ops->remove)
-+		evtchn_ops->remove(evtchn, cpu);
-+}
-+
- static inline void xen_evtchn_port_bind_to_cpu(evtchn_port_t evtchn,
- 					       unsigned int cpu,
- 					       unsigned int old_cpu)
+ $(version_h): FORCE
+-- 
+2.30.1
+
 
 
