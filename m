@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC4533B96B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E3F733BA7D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233985AbhCOOCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S232154AbhCOOJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232848AbhCOOAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8431C64F0B;
-        Mon, 15 Mar 2021 13:59:31 +0000 (UTC)
+        id S232959AbhCOOD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63EFE64EFE;
+        Mon, 15 Mar 2021 14:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816772;
-        bh=lGNL/JT7lIjRPxO0TIltZb7Yz1P6YQBKW48n2PCB4J4=;
+        s=korg; t=1615817035;
+        bh=gBfXCs28r8ABvjy41oG9UdBYScySp7cRYPNfKWEh9Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i41FctDkY5lBdapQzi4KdgU5wSsINCBrARZgVCATW8r7B97JGI7etIkHB8KtD5cou
-         BpoN0FLrqPYTT0YJnp5dO1cSpnZt/M45+X4ojiQwuArM9qJeQ68N9/ZMbTZm/IBx9/
-         LoxaM9S/qC8YlHA6qU8CR6Q0HFRjHvk/2ocb62Fk=
+        b=ABBpMOAPQtxl0HlSrKKE2ULNQ4btDROe5r45dXtAmopI49mLfr+Ba2Fabeg9lmK7S
+         KiPwONkLw5SWXRtzxVeOtMw7wEQRWyLQQKnYEF52Vli4TsI0i4aSFAvW1N7JWAoMrS
+         8EWYNVuPywrGVuWRpMiuedzXUrityx/Ayhl80hJA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Bjoern Walk <bwalk@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 099/168] s390/dasd: fix hanging IO request during DASD driver unbind
-Date:   Mon, 15 Mar 2021 14:55:31 +0100
-Message-Id: <20210315135553.623696674@linuxfoundation.org>
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        John Dias <joaodias@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 269/306] zram: fix return value on writeback_store
+Date:   Mon, 15 Mar 2021 14:55:32 +0100
+Message-Id: <20210315135516.745775749@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +45,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Minchan Kim <minchan@kernel.org>
 
-commit 66f669a272898feb1c69b770e1504aa2ec7723d1 upstream.
+commit 57e0076e6575a7b7cef620a0bd2ee2549ef77818 upstream.
 
-Prevent that an IO request is build during device shutdown initiated by
-a driver unbind. This request will never be able to be processed or
-canceled and will hang forever. This will lead also to a hanging unbind.
+writeback_store's return value is overwritten by submit_bio_wait's return
+value.  Thus, writeback_store will return zero since there was no IO
+error.  In the end, write syscall from userspace will see the zero as
+return value, which could make the process stall to keep trying the write
+until it will succeed.
 
-Fix by checking not only if the device is in READY state but also check
-that there is no device offline initiated before building a new IO request.
-
-Fixes: e443343e509a ("s390/dasd: blk-mq conversion")
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Tested-by: Bjoern Walk <bwalk@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20210312173949.2197662-1-minchan@kernel.org
+Fixes: 3b82a051c101("drivers/block/zram/zram_drv.c: fix error return codes not being returned in writeback_store")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: John Dias <joaodias@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/zram/zram_drv.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3087,7 +3087,8 @@ static blk_status_t do_dasd_request(stru
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -628,7 +628,7 @@ static ssize_t writeback_store(struct de
+ 	struct bio_vec bio_vec;
+ 	struct page *page;
+ 	ssize_t ret = len;
+-	int mode;
++	int mode, err;
+ 	unsigned long blk_idx = 0;
  
- 	basedev = block->base;
- 	spin_lock_irq(&dq->lock);
--	if (basedev->state < DASD_STATE_READY) {
-+	if (basedev->state < DASD_STATE_READY ||
-+	    test_bit(DASD_FLAG_OFFLINE, &basedev->flags)) {
- 		DBF_DEV_EVENT(DBF_ERR, basedev,
- 			      "device not ready for request %p", req);
- 		rc = BLK_STS_IOERR;
+ 	if (sysfs_streq(buf, "idle"))
+@@ -729,12 +729,17 @@ static ssize_t writeback_store(struct de
+ 		 * XXX: A single page IO would be inefficient for write
+ 		 * but it would be not bad as starter.
+ 		 */
+-		ret = submit_bio_wait(&bio);
+-		if (ret) {
++		err = submit_bio_wait(&bio);
++		if (err) {
+ 			zram_slot_lock(zram, index);
+ 			zram_clear_flag(zram, index, ZRAM_UNDER_WB);
+ 			zram_clear_flag(zram, index, ZRAM_IDLE);
+ 			zram_slot_unlock(zram, index);
++			/*
++			 * Return last IO error unless every IO were
++			 * not suceeded.
++			 */
++			ret = err;
+ 			continue;
+ 		}
+ 
 
 
