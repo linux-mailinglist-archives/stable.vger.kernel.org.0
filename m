@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 815A033B64B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C56633B526
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232038AbhCON5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
+        id S229930AbhCONxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231348AbhCON5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 194E964EF3;
-        Mon, 15 Mar 2021 13:57:06 +0000 (UTC)
+        id S229893AbhCONxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BACBD64EFC;
+        Mon, 15 Mar 2021 13:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816628;
-        bh=MRxnbr6GCvzlsTlzldQEnZM3HHwrm9aBD+N7NzrjEOA=;
+        s=korg; t=1615816384;
+        bh=OXnWKWN1H4WtRWucWVhg9d6TejNIKWrkYLsfjxNWZes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XKKRi1xOX9X/S0TqTF+yaHlWbZMRkMwqqJkoGY315Z3eBI/WArq6sG1kFkfEzvUlX
-         VpvcWfQ62/w4jSZKaXPA4iZQllZ5Ah+j2+7RsGn6gfTfv8ORXW0wdJmFY7CDCH2sJR
-         vmLIF039t8MMyreDipziQtTRiEAFnSH6/T+xdnjI=
+        b=js7jyqGoDDUofVqqJj64Cz3e3f2UCOCZFX1HBJ6O1edpl2pdkLSGkyobBFFesCurs
+         oqmTMJqUeqVzfik0gL3wUwhSfP2cO6Aoj757Cu1+LmAH+9aOeo/K/4//mF5lLnKfMF
+         KPyWUL9xsXB/n1o1S06F5RNKnamDLQXNJI/8h6xc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Heiko Carstens <hca@linux.ibm.com>, Yonghong Song <yhs@fb.com>
-Subject: [PATCH 5.11 029/306] selftests/bpf: Use the last page in test_snprintf_btf on s390
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 4.9 09/78] netfilter: x_tables: gpf inside xt_find_revision()
 Date:   Mon, 15 Mar 2021 14:51:32 +0100
-Message-Id: <20210315135508.613058716@linuxfoundation.org>
+Message-Id: <20210315135212.373435847@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +42,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 42a382a466a967dc053c73b969cd2ac2fec502cf upstream.
+commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
 
-test_snprintf_btf fails on s390, because NULL points to a readable
-struct lowcore there. Fix by using the last page instead.
+nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
+without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
+and cause host to crash:
 
-Error message example:
+general protection fault: 0000 [#1]
+Modules linked in: ... [last unloaded: xt_cluster]
+CPU: 0 PID: 542455 Comm: iptables
+RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
+RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
+R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
+(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
+xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
+Call Trace:
+ [<ffffffff902ccf44>] match_revfn+0x54/0xc0
+ [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
+ [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
+ [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
+ [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
+ [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
+ [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
+ [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
+ [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
+ [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
 
-    printing fffffffffffff000 should generate error, got (361)
-
-Fixes: 076a95f5aff2 ("selftests/bpf: Add bpf_snprintf_btf helper tests")
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20210227051726.121256-1-iii@linux.ibm.com
+Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/netif_receive_skb.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ net/netfilter/x_tables.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/bpf/progs/netif_receive_skb.c
-+++ b/tools/testing/selftests/bpf/progs/netif_receive_skb.c
-@@ -16,6 +16,13 @@ bool skip = false;
- #define STRSIZE			2048
- #define EXPECTED_STRSIZE	256
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -272,6 +272,7 @@ static int match_revfn(u8 af, const char
+ 	const struct xt_match *m;
+ 	int have_rev = 0;
  
-+#if defined(bpf_target_s390)
-+/* NULL points to a readable struct lowcore on s390, so take the last page */
-+#define BADPTR			((void *)0xFFFFFFFFFFFFF000ULL)
-+#else
-+#define BADPTR			0
-+#endif
-+
- #ifndef ARRAY_SIZE
- #define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
- #endif
-@@ -113,11 +120,11 @@ int BPF_PROG(trace_netif_receive_skb, st
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(m, &xt[af].match, list) {
+ 		if (strcmp(m->name, name) == 0) {
+ 			if (m->revision > *bestp)
+@@ -280,6 +281,7 @@ static int match_revfn(u8 af, const char
+ 				have_rev = 1;
+ 		}
  	}
++	mutex_unlock(&xt[af].mutex);
  
- 	/* Check invalid ptr value */
--	p.ptr = 0;
-+	p.ptr = BADPTR;
- 	__ret = bpf_snprintf_btf(str, STRSIZE, &p, sizeof(p), 0);
- 	if (__ret >= 0) {
--		bpf_printk("printing NULL should generate error, got (%d)",
--			   __ret);
-+		bpf_printk("printing %llx should generate error, got (%d)",
-+			   (unsigned long long)BADPTR, __ret);
- 		ret = -ERANGE;
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -292,6 +294,7 @@ static int target_revfn(u8 af, const cha
+ 	const struct xt_target *t;
+ 	int have_rev = 0;
+ 
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(t, &xt[af].target, list) {
+ 		if (strcmp(t->name, name) == 0) {
+ 			if (t->revision > *bestp)
+@@ -300,6 +303,7 @@ static int target_revfn(u8 af, const cha
+ 				have_rev = 1;
+ 		}
  	}
++	mutex_unlock(&xt[af].mutex);
  
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -313,12 +317,10 @@ int xt_find_revision(u8 af, const char *
+ {
+ 	int have_rev, best = -1;
+ 
+-	mutex_lock(&xt[af].mutex);
+ 	if (target == 1)
+ 		have_rev = target_revfn(af, name, revision, &best);
+ 	else
+ 		have_rev = match_revfn(af, name, revision, &best);
+-	mutex_unlock(&xt[af].mutex);
+ 
+ 	/* Nothing at all?  Return 0 to try loading module. */
+ 	if (best == -1) {
 
 
