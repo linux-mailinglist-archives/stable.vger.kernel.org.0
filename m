@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E869733C006
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:36:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4517533C009
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 16:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232183AbhCOPf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 11:35:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60380 "EHLO mail.kernel.org"
+        id S232518AbhCOPgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 11:36:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231486AbhCOPf3 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 11:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C60F64EB3;
-        Mon, 15 Mar 2021 15:35:28 +0000 (UTC)
+        id S232792AbhCOPfc (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 11:35:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6F6F64E74;
+        Mon, 15 Mar 2021 15:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615822529;
-        bh=zWWxGxHTmns0CwQHzqZ6Ne2C2xMMBP4sVzeGu/8yJJ8=;
+        s=korg; t=1615822532;
+        bh=mpJGC1tq+aMqikQcS/rifbb3xsHAUd7z5b9NS3VHXg4=;
         h=Subject:To:From:Date:From;
-        b=R2APQaYiVs3axwHDdbir13gClkHr05jl/aqr+BkkHwFKzVBc1i1zrryqSrvfvm/bT
-         5xRsmrZmV3WgeOq1D9VAVJqgJzvsvhr1/c2H/Q8qz9W8H9DftZ6yF70jBC2WpoEDwz
-         zoIN1jzVGC823N9r9um017h2gwX8rzt+Xd7wtrkM=
-Subject: patch "iio: adc: adi-axi-adc: add proper Kconfig dependencies" added to staging-linus
-To:     alexandru.ardelean@analog.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, lkp@intel.com
+        b=ZGyA8yhgpGI3fILIOSm3qTP/sxGO8rm/1tx0Zgk2nhv4MJE3V+SAyrKqrr2Dud+Z/
+         4A4yhUQdJZdK80EA8ylJPY6CF6AFgSTBPk3k57tnKcwD29ewzwwCf1K0Ig5XipADxT
+         pdrUlGX8auktG7aT6nFUFq1dycuz0tf7+eX9cDVA=
+Subject: patch "iio: adc: ad7949: fix wrong ADC result due to incorrect bit mask" added to staging-linus
+To:     wilfried.wessner@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, andy.shevchenko@gmail.com,
+        charles-antoine.couret@essensium.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 15 Mar 2021 16:35:22 +0100
-Message-ID: <1615822522478@kroah.com>
+Message-ID: <16158225222918@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: adi-axi-adc: add proper Kconfig dependencies
+    iio: adc: ad7949: fix wrong ADC result due to incorrect bit mask
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,41 +52,41 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From be24c65e9fa2486bb8ec98d9f592bdcf04bedd88 Mon Sep 17 00:00:00 2001
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Date: Wed, 10 Feb 2021 12:50:44 +0200
-Subject: iio: adc: adi-axi-adc: add proper Kconfig dependencies
+From f890987fac8153227258121740a9609668c427f3 Mon Sep 17 00:00:00 2001
+From: Wilfried Wessner <wilfried.wessner@gmail.com>
+Date: Mon, 8 Feb 2021 15:27:05 +0100
+Subject: iio: adc: ad7949: fix wrong ADC result due to incorrect bit mask
 
-The ADI AXI ADC driver requires IO mem access and OF to work. This change
-adds these dependencies to the Kconfig symbol of the driver.
+Fixes a wrong bit mask used for the ADC's result, which was caused by an
+improper usage of the GENMASK() macro. The bits higher than ADC's
+resolution are undefined and if not masked out correctly, a wrong result
+can be given. The GENMASK() macro indexing is zero based, so the mask has
+to go from [resolution - 1 , 0].
 
-This was also found via the lkp bot, as the
-devm_platform_ioremap_resource() symbol was not found at link-time on the
-S390 architecture.
-
-Fixes: ef04070692a21 ("iio: adc: adi-axi-adc: add support for AXI ADC IP core")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Fixes: 7f40e0614317f ("iio:adc:ad7949: Add AD7949 ADC driver family")
+Signed-off-by: Wilfried Wessner <wilfried.wessner@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Charles-Antoine Couret <charles-antoine.couret@essensium.com>
 Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210210105044.48914-1-alexandru.ardelean@analog.com
+Link: https://lore.kernel.org/r/20210208142705.GA51260@ubuntu
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/adc/ad7949.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
-index 15587a1bc80d..8d0be5b3029a 100644
---- a/drivers/iio/adc/Kconfig
-+++ b/drivers/iio/adc/Kconfig
-@@ -266,6 +266,8 @@ config ADI_AXI_ADC
- 	select IIO_BUFFER
- 	select IIO_BUFFER_HW_CONSUMER
- 	select IIO_BUFFER_DMAENGINE
-+	depends on HAS_IOMEM
-+	depends on OF
- 	help
- 	  Say yes here to build support for Analog Devices Generic
- 	  AXI ADC IP core. The IP core is used for interfacing with
+diff --git a/drivers/iio/adc/ad7949.c b/drivers/iio/adc/ad7949.c
+index 5d597e5050f6..1b4b3203e428 100644
+--- a/drivers/iio/adc/ad7949.c
++++ b/drivers/iio/adc/ad7949.c
+@@ -91,7 +91,7 @@ static int ad7949_spi_read_channel(struct ad7949_adc_chip *ad7949_adc, int *val,
+ 	int ret;
+ 	int i;
+ 	int bits_per_word = ad7949_adc->resolution;
+-	int mask = GENMASK(ad7949_adc->resolution, 0);
++	int mask = GENMASK(ad7949_adc->resolution - 1, 0);
+ 	struct spi_message msg;
+ 	struct spi_transfer tx[] = {
+ 		{
 -- 
 2.30.2
 
