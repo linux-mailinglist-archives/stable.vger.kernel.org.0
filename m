@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E8133B56F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C0733B70D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbhCONyY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57042 "EHLO mail.kernel.org"
+        id S231686AbhCON71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231194AbhCONxz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BF3B64EF0;
-        Mon, 15 Mar 2021 13:53:53 +0000 (UTC)
+        id S232123AbhCON5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1300964F05;
+        Mon, 15 Mar 2021 13:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816435;
-        bh=+v8QAgvYgNIpdStiRG1288yKy4WwdsJSEJKqh8j7Gdg=;
+        s=korg; t=1615816669;
+        bh=tY7mSKS2kMEWZq6wzbs1H0730TwdKD8U16YPRpV9648=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOJ+Hmg3+KEGIemiA6ArxqMxnGqIpJ2JUrmBLB4jReWmzC8umHQh6onEqMKEWwOHz
-         XS7ZbsN8RNcNfz75f0MPI+pjVto5UYVN8zcovi7GVczBfv4RXqSLigaCkrMsESdnh5
-         mdfuLaC8UyGGlsKxm5ErzQBUgZle5N2X6cfoK7Lc=
+        b=nUijj0ZOaU5WcQG0kcdCrlixnBBe09hTAUYGOWrw495/pk1QGiZu/k0I0rcj2Ocvs
+         u785aIx48L9t5N63LW/VVDP1flMF7fyvi8EDFZ81rj2Xfydw5ephRtTAXDy8f5yJam
+         +YmpaRNOS/kcC1BBuTwB6WwzktKRjHgNSI3i81nY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>,
-        syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>,
-        syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.4 42/75] usbip: fix stub_dev usbip_sockfd_store() races leading to gpf
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 053/306] net: enetc: keep RX ring consumer index in sync with hardware
 Date:   Mon, 15 Mar 2021 14:51:56 +0100
-Message-Id: <20210315135209.630408255@linuxfoundation.org>
+Message-Id: <20210315135509.445594752@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,134 +41,242 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 9380afd6df70e24eacbdbde33afc6a3950965d22 upstream.
+commit 3a5d12c9be6f30080600c8bacaf310194e37d029 upstream.
 
-usbip_sockfd_store() is invoked when user requests attach (import)
-detach (unimport) usb device from usbip host. vhci_hcd sends import
-request and usbip_sockfd_store() exports the device if it is free
-for export.
+The RX rings have a producer index owned by hardware, where newly
+received frame buffers are placed, and a consumer index owned by
+software, where newly allocated buffers are placed, in expectation of
+hardware being able to place frame data in them.
 
-Export and unexport are governed by local state and shared state
-- Shared state (usbip device status, sockfd) - sockfd and Device
-  status are used to determine if stub should be brought up or shut
-  down.
-- Local state (tcp_socket, rx and tx thread task_struct ptrs)
-  A valid tcp_socket controls rx and tx thread operations while the
-  device is in exported state.
-- While the device is exported, device status is marked used and socket,
-  sockfd, and thread pointers are valid.
+Hardware increments the producer index when a frame is received, however
+it is not allowed to increment the producer index to match the consumer
+index (RBCIR) since the ring can hold at most RBLENR[LENGTH]-1 received
+BDs. Whenever the producer index matches the value of the consumer
+index, the ring has no unprocessed received frames and all BDs in the
+ring have been initialized/prepared by software, i.e. hardware owns all
+BDs in the ring.
 
-Export sequence (stub-up) includes validating the socket and creating
-receive (rx) and transmit (tx) threads to talk to the client to provide
-access to the exported device. rx and tx threads depends on local and
-shared state to be correct and in sync.
+The code uses the next_to_clean variable to keep track of the producer
+index, and the next_to_use variable to keep track of the consumer index.
 
-Unexport (stub-down) sequence shuts the socket down and stops the rx and
-tx threads. Stub-down sequence relies on local and shared states to be
-in sync.
+The RX rings are seeded from enetc_refill_rx_ring, which is called from
+two places:
 
-There are races in updating the local and shared status in the current
-stub-up sequence resulting in crashes. These stem from starting rx and
-tx threads before local and global state is updated correctly to be in
-sync.
+1. initially the ring is seeded until full with enetc_bd_unused(rx_ring),
+   i.e. with 511 buffers. This will make next_to_clean=0 and next_to_use=511:
 
-1. Doesn't handle kthread_create() error and saves invalid ptr in local
-   state that drives rx and tx threads.
-2. Updates tcp_socket and sockfd,  starts stub_rx and stub_tx threads
-   before updating usbip_device status to SDEV_ST_USED. This opens up a
-   race condition between the threads and usbip_sockfd_store() stub up
-   and down handling.
+.ndo_open
+-> enetc_open
+   -> enetc_setup_bdrs
+      -> enetc_setup_rxbdr
+         -> enetc_refill_rx_ring
 
-Fix the above problems:
-- Stop using kthread_get_run() macro to create/start threads.
-- Create threads and get task struct reference.
-- Add kthread_create() failure handling and bail out.
-- Hold usbip_device lock to update local and shared states after
-  creating rx and tx threads.
-- Update usbip_device status to SDEV_ST_USED.
-- Update usbip_device tcp_socket, sockfd, tcp_rx, and tcp_tx
-- Start threads after usbip_device (tcp_socket, sockfd, tcp_rx, tcp_tx,
-  and status) is complete.
+2. then during the data path processing, it is refilled with 16 buffers
+   at a time:
 
-Credit goes to syzbot and Tetsuo Handa for finding and root-causing the
-kthread_get_run() improper error handling problem and others. This is a
-hard problem to find and debug since the races aren't seen in a normal
-case. Fuzzing forces the race window to be small enough for the
-kthread_get_run() error path bug and starting threads before updating the
-local and shared state bug in the stub-up sequence.
+enetc_msix
+-> napi_schedule
+   -> enetc_poll
+      -> enetc_clean_rx_ring
+         -> enetc_refill_rx_ring
 
-Tested with syzbot reproducer:
-- https://syzkaller.appspot.com/text?tag=ReproC&x=14801034d00000
+There is just one problem: the initial seeding done during .ndo_open
+updates just the producer index (ENETC_RBPIR) with 0, and the software
+next_to_clean and next_to_use variables. Notably, it will not update the
+consumer index to make the hardware aware of the newly added buffers.
 
-Fixes: 9720b4bc76a83807 ("staging/usbip: convert to kthread")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot <syzbot+a93fba6d384346a761e3@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+bf1a360e305ee719e364@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+95ce4b142579611ef0a9@syzkaller.appspotmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Link: https://lore.kernel.org/r/268a0668144d5ff36ec7d87fdfa90faf583b7ccc.1615171203.git.skhan@linuxfoundation.org
+Wait, what? So how does it work?
+
+Well, the reset values of the producer index and of the consumer index
+of a ring are both zero. As per the description in the second paragraph,
+it means that the ring is full of buffers waiting for hardware to put
+frames in them, which by coincidence is almost true, because we have in
+fact seeded 511 buffers into the ring.
+
+But will the hardware attempt to access the 512th entry of the ring,
+which has an invalid BD in it? Well, no, because in order to do that, it
+would have to first populate the first 511 entries, and the NAPI
+enetc_poll will kick in by then. Eventually, after 16 processed slots
+have become available in the RX ring, enetc_clean_rx_ring will call
+enetc_refill_rx_ring and then will [ finally ] update the consumer index
+with the new software next_to_use variable. From now on, the
+next_to_clean and next_to_use variables are in sync with the producer
+and consumer ring indices.
+
+So the day is saved, right? Well, not quite. Freeing the memory
+allocated for the rings is done in:
+
+enetc_close
+-> enetc_clear_bdrs
+   -> enetc_clear_rxbdr
+      -> this just disables the ring
+-> enetc_free_rxtx_rings
+   -> enetc_free_rx_ring
+      -> sets next_to_clean and next_to_use to 0
+
+but again, nothing is committed to the hardware producer and consumer
+indices (yay!). The assumption is that the ring is disabled, so the
+indices don't matter anyway, and it's the responsibility of the "open"
+code path to set those up.
+
+.. Except that the "open" code path does not set those up properly.
+
+While initially, things almost work, during subsequent enetc_close ->
+enetc_open sequences, we have problems. To be precise, the enetc_open
+that is subsequent to enetc_close will again refill the ring with 511
+entries, but it will leave the consumer index untouched. Untouched
+means, of course, equal to the value it had before disabling the ring
+and draining the old buffers in enetc_close.
+
+But as mentioned, enetc_setup_rxbdr will at least update the producer
+index though, through this line of code:
+
+	enetc_rxbdr_wr(hw, idx, ENETC_RBPIR, 0);
+
+so at this stage we'll have:
+
+next_to_clean=0 (in hardware 0)
+next_to_use=511 (in hardware we'll have the refill index prior to enetc_close)
+
+Again, the next_to_clean and producer index are in sync and set to
+correct values, so the driver manages to limp on. Eventually, 16 ring
+entries will be consumed by enetc_poll, and the savior
+enetc_clean_rx_ring will come and call enetc_refill_rx_ring, and then
+update the hardware consumer ring based upon the new next_to_use.
+
+So.. it works?
+Well, by coincidence, it almost does, but there's a circumstance where
+enetc_clean_rx_ring won't be there to save us. If the previous value of
+the consumer index was 15, there's a problem, because the NAPI poll
+sequence will only issue a refill when 16 or more buffers have been
+consumed.
+
+It's easiest to illustrate this with an example:
+
+ip link set eno0 up
+ip addr add 192.168.100.1/24 dev eno0
+ping 192.168.100.1 -c 20 # ping this port from another board
+ip link set eno0 down
+ip link set eno0 up
+ping 192.168.100.1 -c 20 # ping it again from the same other board
+
+One by one:
+
+1. ip link set eno0 up
+-> calls enetc_setup_rxbdr:
+   -> calls enetc_refill_rx_ring(511 buffers)
+   -> next_to_clean=0 (in hw 0)
+   -> next_to_use=511 (in hw 0)
+
+2. ping 192.168.100.1 -c 20 # ping this port from another board
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=1 next_to_clean 0 (in hw 1) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=2 next_to_clean 1 (in hw 2) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=3 next_to_clean 2 (in hw 3) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=4 next_to_clean 3 (in hw 4) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=5 next_to_clean 4 (in hw 5) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=6 next_to_clean 5 (in hw 6) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=7 next_to_clean 6 (in hw 7) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=8 next_to_clean 7 (in hw 8) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=9 next_to_clean 8 (in hw 9) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=10 next_to_clean 9 (in hw 10) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=11 next_to_clean 10 (in hw 11) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=12 next_to_clean 11 (in hw 12) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=13 next_to_clean 12 (in hw 13) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=14 next_to_clean 13 (in hw 14) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=15 next_to_clean 14 (in hw 15) next_to_use 511 (in hw 0)
+enetc_clean_rx_ring: enetc_refill_rx_ring(16) increments next_to_use by 16 (mod 512) and writes it to hw
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=0 next_to_clean 15 (in hw 16) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=1 next_to_clean 16 (in hw 17) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=2 next_to_clean 17 (in hw 18) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=3 next_to_clean 18 (in hw 19) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=4 next_to_clean 19 (in hw 20) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=5 next_to_clean 20 (in hw 21) next_to_use 15 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=6 next_to_clean 21 (in hw 22) next_to_use 15 (in hw 15)
+
+20 packets transmitted, 20 packets received, 0% packet loss
+
+3. ip link set eno0 down
+enetc_free_rx_ring: next_to_clean 0 (in hw 22), next_to_use 0 (in hw 15)
+
+4. ip link set eno0 up
+-> calls enetc_setup_rxbdr:
+   -> calls enetc_refill_rx_ring(511 buffers)
+   -> next_to_clean=0 (in hw 0)
+   -> next_to_use=511 (in hw 15)
+
+5. ping 192.168.100.1 -c 20 # ping it again from the same other board
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=1 next_to_clean 0 (in hw 1) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=2 next_to_clean 1 (in hw 2) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=3 next_to_clean 2 (in hw 3) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=4 next_to_clean 3 (in hw 4) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=5 next_to_clean 4 (in hw 5) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=6 next_to_clean 5 (in hw 6) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=7 next_to_clean 6 (in hw 7) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=8 next_to_clean 7 (in hw 8) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=9 next_to_clean 8 (in hw 9) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=10 next_to_clean 9 (in hw 10) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=11 next_to_clean 10 (in hw 11) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=12 next_to_clean 11 (in hw 12) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=13 next_to_clean 12 (in hw 13) next_to_use 511 (in hw 15)
+enetc_clean_rx_ring: rx_frm_cnt=1 cleaned_cnt=14 next_to_clean 13 (in hw 14) next_to_use 511 (in hw 15)
+
+20 packets transmitted, 12 packets received, 40% packet loss
+
+And there it dies. No enetc_refill_rx_ring (because cleaned_cnt must be equal
+to 15 for that to happen), no nothing. The hardware enters the condition where
+the producer (14) + 1 is equal to the consumer (15) index, which makes it
+believe it has no more free buffers to put packets in, so it starts discarding
+them:
+
+ip netns exec ns0 ethtool -S eno0 | grep -v ': 0'
+NIC statistics:
+     Rx ring  0 discarded frames: 8
+
+Summarized, if the interface receives between 16 and 32 (mod 512) frames
+and then there is a link flap, then the port will eventually die with no
+way to recover. If it receives less than 16 (mod 512) frames, then the
+initial NAPI poll [ before the link flap ] will not update the consumer
+index in hardware (it will remain zero) which will be ok when the buffers
+are later reinitialized. If more than 32 (mod 512) frames are received,
+the initial NAPI poll has the chance to refill the ring twice, updating
+the consumer index to at least 32. So after the link flap, the consumer
+index is still wrong, but the post-flap NAPI poll gets a chance to
+refill the ring once (because it passes through cleaned_cnt=15) and
+makes the consumer index be again back in sync with next_to_use.
+
+The solution to this problem is actually simple, we just need to write
+next_to_use into the hardware consumer index at enetc_open time, which
+always brings it back in sync after an initial buffer seeding process.
+
+The simpler thing would be to put the write to the consumer index into
+enetc_refill_rx_ring directly, but there are issues with the MDIO
+locking: in the NAPI poll code we have the enetc_lock_mdio() taken from
+top-level and we use the unlocked enetc_wr_reg_hot, whereas in
+enetc_open, the enetc_lock_mdio() is not taken at the top level, but
+instead by each individual enetc_wr_reg, so we are forced to put an
+additional enetc_wr_reg in enetc_setup_rxbdr. Better organization of
+the code is left as a refactoring exercise.
+
+Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/usbip/stub_dev.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -60,6 +60,8 @@ static ssize_t store_sockfd(struct devic
- 	int sockfd = 0;
- 	struct socket *socket;
- 	int rv;
-+	struct task_struct *tcp_rx = NULL;
-+	struct task_struct *tcp_tx = NULL;
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1212,6 +1212,8 @@ static void enetc_setup_rxbdr(struct ene
+ 	rx_ring->idr = hw->reg + ENETC_SIRXIDR;
  
- 	if (!sdev) {
- 		dev_err(dev, "sdev is null\n");
-@@ -94,20 +96,36 @@ static ssize_t store_sockfd(struct devic
- 			goto sock_err;
- 		}
+ 	enetc_refill_rx_ring(rx_ring, enetc_bd_unused(rx_ring));
++	/* update ENETC's consumer index */
++	enetc_rxbdr_wr(hw, idx, ENETC_RBCIR, rx_ring->next_to_use);
  
--		sdev->ud.tcp_socket = socket;
--		sdev->ud.sockfd = sockfd;
--
-+		/* unlock and create threads and get tasks */
- 		spin_unlock_irq(&sdev->ud.lock);
-+		tcp_rx = kthread_create(stub_rx_loop, &sdev->ud, "stub_rx");
-+		if (IS_ERR(tcp_rx)) {
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
-+		tcp_tx = kthread_create(stub_tx_loop, &sdev->ud, "stub_tx");
-+		if (IS_ERR(tcp_tx)) {
-+			kthread_stop(tcp_rx);
-+			sockfd_put(socket);
-+			return -EINVAL;
-+		}
- 
--		sdev->ud.tcp_rx = kthread_get_run(stub_rx_loop, &sdev->ud,
--						  "stub_rx");
--		sdev->ud.tcp_tx = kthread_get_run(stub_tx_loop, &sdev->ud,
--						  "stub_tx");
-+		/* get task structs now */
-+		get_task_struct(tcp_rx);
-+		get_task_struct(tcp_tx);
- 
-+		/* lock and update sdev->ud state */
- 		spin_lock_irq(&sdev->ud.lock);
-+		sdev->ud.tcp_socket = socket;
-+		sdev->ud.sockfd = sockfd;
-+		sdev->ud.tcp_rx = tcp_rx;
-+		sdev->ud.tcp_tx = tcp_tx;
- 		sdev->ud.status = SDEV_ST_USED;
- 		spin_unlock_irq(&sdev->ud.lock);
- 
-+		wake_up_process(sdev->ud.tcp_rx);
-+		wake_up_process(sdev->ud.tcp_tx);
-+
- 	} else {
- 		dev_info(dev, "stub down\n");
- 
+ 	/* enable ring */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBMR, rbmr);
 
 
