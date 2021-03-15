@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD81E33B830
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75CE333BA9D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233775AbhCOOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S235283AbhCOOJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232912AbhCOOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C532264F47;
-        Mon, 15 Mar 2021 13:59:52 +0000 (UTC)
+        id S234594AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3A9664EF8;
+        Mon, 15 Mar 2021 14:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816793;
-        bh=UnvoTaee++uQmgZBcbDloBQf3a1K2DhIcoEylFd3FLI=;
+        s=korg; t=1615817064;
+        bh=x3Htg2voxND8Ah2g0xemyHciB6hV7tmKLcRWo8Y2DHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gftBEHfcJ/o1fYGJJKucJWNC9rTDeRYFRG7c9q32janp25toTp2Ui8DbHjoEiy2Iq
-         ZfjAtnDJDuC5bWiNtJXTOolfketMstSwU84jBURctXxXQYDP4zqA+X+GC+is7ELLzP
-         /BFb9o57vrbhz9jjJpPtnFqL6kk/cA3EdpqSEy4I=
+        b=NEQ9RI/8HPTNrZymOQ0C96y36LM5azbLJnmbedegf1QZzUBTwzPkLbTGi6J6uWDY+
+         bEwtazM44z59lwSXnTcKdtpTktLORk9/0eJskOz3UxOwFU/6gZogLVV8IoObLz4Dvw
+         F3cUGz4iKd9HGbEjU/VnVQx17LlrxD6GPhsqj0Zk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.4 114/168] xhci: Fix repeated xhci wake after suspend due to uncleared internal wake state
+        stable@vger.kernel.org, Lior Ribak <liorribak@gmail.com>,
+        Helge Deller <deller@gmx.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 283/306] binfmt_misc: fix possible deadlock in bm_register_write
 Date:   Mon, 15 Mar 2021 14:55:46 +0100
-Message-Id: <20210315135554.109970675@linuxfoundation.org>
+Message-Id: <20210315135517.252925776@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,115 +44,118 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Lior Ribak <liorribak@gmail.com>
 
-commit d26c00e7276fc92b18c253d69e872f6b03832bad upstream.
+commit e7850f4d844e0acfac7e570af611d89deade3146 upstream.
 
-If port terminations are detected in suspend, but link never reaches U0
-then xHCI may have an internal uncleared wake state that will cause an
-immediate wake after suspend.
+There is a deadlock in bm_register_write:
 
-This wake state is normally cleared when driver clears the PORT_CSC bit,
-which is set after a device is enabled and in U0.
+First, in the begining of the function, a lock is taken on the binfmt_misc
+root inode with inode_lock(d_inode(root)).
 
-Write 1 to clear PORT_CSC for ports that don't have anything connected
-when suspending. This makes sure any pending internal wake states in
-xHCI are cleared.
+Then, if the user used the MISC_FMT_OPEN_FILE flag, the function will call
+open_exec on the user-provided interpreter.
 
-Cc: stable@vger.kernel.org
-Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-5-mathias.nyman@linux.intel.com
+open_exec will call a path lookup, and if the path lookup process includes
+the root of binfmt_misc, it will try to take a shared lock on its inode
+again, but it is already locked, and the code will get stuck in a deadlock
+
+To reproduce the bug:
+$ echo ":iiiii:E::ii::/proc/sys/fs/binfmt_misc/bla:F" > /proc/sys/fs/binfmt_misc/register
+
+backtrace of where the lock occurs (#5):
+0  schedule () at ./arch/x86/include/asm/current.h:15
+1  0xffffffff81b51237 in rwsem_down_read_slowpath (sem=0xffff888003b202e0, count=<optimized out>, state=state@entry=2) at kernel/locking/rwsem.c:992
+2  0xffffffff81b5150a in __down_read_common (state=2, sem=<optimized out>) at kernel/locking/rwsem.c:1213
+3  __down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1222
+4  down_read (sem=<optimized out>) at kernel/locking/rwsem.c:1355
+5  0xffffffff811ee22a in inode_lock_shared (inode=<optimized out>) at ./include/linux/fs.h:783
+6  open_last_lookups (op=0xffffc9000022fe34, file=0xffff888004098600, nd=0xffffc9000022fd10) at fs/namei.c:3177
+7  path_openat (nd=nd@entry=0xffffc9000022fd10, op=op@entry=0xffffc9000022fe34, flags=flags@entry=65) at fs/namei.c:3366
+8  0xffffffff811efe1c in do_filp_open (dfd=<optimized out>, pathname=pathname@entry=0xffff8880031b9000, op=op@entry=0xffffc9000022fe34) at fs/namei.c:3396
+9  0xffffffff811e493f in do_open_execat (fd=fd@entry=-100, name=name@entry=0xffff8880031b9000, flags=<optimized out>, flags@entry=0) at fs/exec.c:913
+10 0xffffffff811e4a92 in open_exec (name=<optimized out>) at fs/exec.c:948
+11 0xffffffff8124aa84 in bm_register_write (file=<optimized out>, buffer=<optimized out>, count=19, ppos=<optimized out>) at fs/binfmt_misc.c:682
+12 0xffffffff811decd2 in vfs_write (file=file@entry=0xffff888004098500, buf=buf@entry=0xa758d0 ":iiiii:E::ii::i:CF
+", count=count@entry=19, pos=pos@entry=0xffffc9000022ff10) at fs/read_write.c:603
+13 0xffffffff811defda in ksys_write (fd=<optimized out>, buf=0xa758d0 ":iiiii:E::ii::i:CF
+", count=19) at fs/read_write.c:658
+14 0xffffffff81b49813 in do_syscall_64 (nr=<optimized out>, regs=0xffffc9000022ff58) at arch/x86/entry/common.c:46
+15 0xffffffff81c0007c in entry_SYSCALL_64 () at arch/x86/entry/entry_64.S:120
+
+To solve the issue, the open_exec call is moved to before the write
+lock is taken by bm_register_write
+
+Link: https://lkml.kernel.org/r/20210228224414.95962-1-liorribak@gmail.com
+Fixes: 948b701a607f1 ("binfmt_misc: add persistent opened binary handler for containers")
+Signed-off-by: Lior Ribak <liorribak@gmail.com>
+Acked-by: Helge Deller <deller@gmx.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   62 +++++++++++++++++++++++-------------------------
- 1 file changed, 30 insertions(+), 32 deletions(-)
+ fs/binfmt_misc.c |   29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -883,44 +883,42 @@ static void xhci_clear_command_ring(stru
- 	xhci_set_cmd_ring_deq(xhci);
- }
+--- a/fs/binfmt_misc.c
++++ b/fs/binfmt_misc.c
+@@ -647,12 +647,24 @@ static ssize_t bm_register_write(struct
+ 	struct super_block *sb = file_inode(file)->i_sb;
+ 	struct dentry *root = sb->s_root, *dentry;
+ 	int err = 0;
++	struct file *f = NULL;
  
--static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
-+/*
-+ * Disable port wake bits if do_wakeup is not set.
-+ *
-+ * Also clear a possible internal port wake state left hanging for ports that
-+ * detected termination but never successfully enumerated (trained to 0U).
-+ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
-+ * at enumeration clears this wake, force one here as well for unconnected ports
-+ */
+ 	e = create_entry(buffer, count);
+ 
+ 	if (IS_ERR(e))
+ 		return PTR_ERR(e);
+ 
++	if (e->flags & MISC_FMT_OPEN_FILE) {
++		f = open_exec(e->interpreter);
++		if (IS_ERR(f)) {
++			pr_notice("register: failed to install interpreter file %s\n",
++				 e->interpreter);
++			kfree(e);
++			return PTR_ERR(f);
++		}
++		e->interp_file = f;
++	}
 +
-+static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
-+				       struct xhci_hub *rhub,
-+				       bool do_wakeup)
- {
--	struct xhci_port **ports;
--	int port_index;
- 	unsigned long flags;
- 	u32 t1, t2, portsc;
-+	int i;
- 
- 	spin_lock_irqsave(&xhci->lock, flags);
- 
--	/* disable usb3 ports Wake bits */
--	port_index = xhci->usb3_rhub.num_ports;
--	ports = xhci->usb3_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
--		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb3_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
--		}
--	}
-+	for (i = 0; i < rhub->num_ports; i++) {
-+		portsc = readl(rhub->ports[i]->addr);
-+		t1 = xhci_port_state_to_neutral(portsc);
-+		t2 = t1;
-+
-+		/* clear wake bits if do_wake is not set */
-+		if (!do_wakeup)
-+			t2 &= ~PORT_WAKE_BITS;
-+
-+		/* Don't touch csc bit if connected or connect change is set */
-+		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
-+			t2 |= PORT_CSC;
- 
--	/* disable usb2 ports Wake bits */
--	port_index = xhci->usb2_rhub.num_ports;
--	ports = xhci->usb2_rhub.ports;
--	while (port_index--) {
--		t1 = readl(ports[port_index]->addr);
--		portsc = t1;
--		t1 = xhci_port_state_to_neutral(t1);
--		t2 = t1 & ~PORT_WAKE_BITS;
- 		if (t1 != t2) {
--			writel(t2, ports[port_index]->addr);
--			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
--				 xhci->usb2_rhub.hcd->self.busnum,
--				 port_index + 1, portsc, t2);
-+			writel(t2, rhub->ports[i]->addr);
-+			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
-+				 rhub->hcd->self.busnum, i + 1, portsc, t2);
- 		}
+ 	inode_lock(d_inode(root));
+ 	dentry = lookup_one_len(e->name, root, strlen(e->name));
+ 	err = PTR_ERR(dentry);
+@@ -676,21 +688,6 @@ static ssize_t bm_register_write(struct
+ 		goto out2;
  	}
- 	spin_unlock_irqrestore(&xhci->lock, flags);
-@@ -983,8 +981,8 @@ int xhci_suspend(struct xhci_hcd *xhci,
- 		return -EINVAL;
  
- 	/* Clear root port wake on bits if wakeup not allowed. */
--	if (!do_wakeup)
--		xhci_disable_port_wake_on_bits(xhci);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
-+	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
+-	if (e->flags & MISC_FMT_OPEN_FILE) {
+-		struct file *f;
+-
+-		f = open_exec(e->interpreter);
+-		if (IS_ERR(f)) {
+-			err = PTR_ERR(f);
+-			pr_notice("register: failed to install interpreter file %s\n", e->interpreter);
+-			simple_release_fs(&bm_mnt, &entry_count);
+-			iput(inode);
+-			inode = NULL;
+-			goto out2;
+-		}
+-		e->interp_file = f;
+-	}
+-
+ 	e->dentry = dget(dentry);
+ 	inode->i_private = e;
+ 	inode->i_fop = &bm_entry_operations;
+@@ -707,6 +704,8 @@ out:
+ 	inode_unlock(d_inode(root));
  
- 	if (!HCD_HW_ACCESSIBLE(hcd))
- 		return 0;
+ 	if (err) {
++		if (f)
++			filp_close(f, NULL);
+ 		kfree(e);
+ 		return err;
+ 	}
 
 
