@@ -2,47 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A79C33BAA9
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAABF33B82B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232444AbhCOOKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
+        id S233746AbhCOOCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234622AbhCOOEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 445A864E83;
-        Mon, 15 Mar 2021 14:04:28 +0000 (UTC)
+        id S232923AbhCOOAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6EA64F92;
+        Mon, 15 Mar 2021 13:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817071;
-        bh=aD9FFcm63Hj9Nhu8p+dI7qWaGC5qGSu94P5UNIjpjdg=;
+        s=korg; t=1615816796;
+        bh=ZVveNTZOC9To2IBySsO7Ne8khllO+LB55e5NlwO6B6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrOTBncntcbe9KS6IgcgH9gu7o1K6opLAn6h1KKV2q/RY12mo90Zx/UeOORvhBhaC
-         jh4u04x1lFVc+XHwpOSOylou5h2T8xShZc7q3VtHrwelR7++niylwPOZPXx3qZR3qQ
-         Ov3yZaKuKmr32gR4cPsihV1jiqbEnqG559+zdzms=
+        b=OuBnPI0ZC040qmh1Q2qB6h0JqVtLIghy7+eNc5wDVFPP/X9cdQ9Mh+nP38rIr1OfN
+         A7ntKdLEMSGygZu9aG5GfYsNzPbn027onGJ5NqO8vSOGbChTmYM4KyRKHvP8Q/XM2U
+         JExM6F5BkadWZ4d/6Waoq7ejOhVRbo4v/KK2jI3I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Alexander Potapenko <glider@google.com>,
-        Marco Elver <elver@google.com>,
-        Peter Collingbourne <pcc@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Branislav Rankov <Branislav.Rankov@arm.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 285/306] kasan: fix KASAN_STACK dependency for HW_TAGS
+        stable@vger.kernel.org, Niv Sardi <xaiki@evilgiggle.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 116/168] USB: serial: ch341: add new Product ID
 Date:   Mon, 15 Mar 2021 14:55:48 +0100
-Message-Id: <20210315135517.316445703@linuxfoundation.org>
+Message-Id: <20210315135554.170665466@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,52 +41,103 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Niv Sardi <xaiki@evilgiggle.com>
 
-commit d9b571c885a8974fbb7d4ee639dbc643fd000f9e upstream.
+commit 5563b3b6420362c8a1f468ca04afe6d5f0a8d0a3 upstream.
 
-There's a runtime failure when running HW_TAGS-enabled kernel built with
-GCC on hardware that doesn't support MTE.  GCC-built kernels always have
-CONFIG_KASAN_STACK enabled, even though stack instrumentation isn't
-supported by HW_TAGS.  Having that config enabled causes KASAN to issue
-MTE-only instructions to unpoison kernel stacks, which causes the failure.
+Add PID for CH340 that's found on cheap programmers.
 
-Fix the issue by disallowing CONFIG_KASAN_STACK when HW_TAGS is used.
+The driver works flawlessly as soon as the new PID (0x9986) is added to it.
+These look like ANU232MI but ship with a ch341 inside. They have no special
+identifiers (mine only has the string "DB9D20130716" printed on the PCB and
+nothing identifiable on the packaging. The merchant i bought it from
+doesn't sell these anymore).
 
-(The commit that introduced CONFIG_KASAN_HW_TAGS specified proper
- dependency for CONFIG_KASAN_STACK_ENABLE but not for CONFIG_KASAN_STACK.)
+the lsusb -v output is:
+Bus 001 Device 009: ID 9986:7523
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass          255 Vendor Specific Class
+  bDeviceSubClass         0
+  bDeviceProtocol         0
+  bMaxPacketSize0         8
+  idVendor           0x9986
+  idProduct          0x7523
+  bcdDevice            2.54
+  iManufacturer           0
+  iProduct                0
+  iSerial                 0
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength       0x0027
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower               96mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           3
+      bInterfaceClass       255 Vendor Specific Class
+      bInterfaceSubClass      1
+      bInterfaceProtocol      2
+      iInterface              0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0020  1x 32 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
 
-Link: https://lkml.kernel.org/r/59e75426241dbb5611277758c8d4d6f5f9298dac.1615215441.git.andreyknvl@google.com
-Fixes: 6a63a63ff1ac ("kasan: introduce CONFIG_KASAN_HW_TAGS")
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reported-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: <stable@vger.kernel.org>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Marco Elver <elver@google.com>
-Cc: Peter Collingbourne <pcc@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Branislav Rankov <Branislav.Rankov@arm.com>
-Cc: Kevin Brodsky <kevin.brodsky@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Niv Sardi <xaiki@evilgiggle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/Kconfig.kasan |    1 +
+ drivers/usb/serial/ch341.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/lib/Kconfig.kasan
-+++ b/lib/Kconfig.kasan
-@@ -156,6 +156,7 @@ config KASAN_STACK_ENABLE
- 
- config KASAN_STACK
- 	int
-+	depends on KASAN_GENERIC || KASAN_SW_TAGS
- 	default 1 if KASAN_STACK_ENABLE || CC_IS_GCC
- 	default 0
- 
+--- a/drivers/usb/serial/ch341.c
++++ b/drivers/usb/serial/ch341.c
+@@ -85,6 +85,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x1a86, 0x7522) },
+ 	{ USB_DEVICE(0x1a86, 0x7523) },
+ 	{ USB_DEVICE(0x4348, 0x5523) },
++	{ USB_DEVICE(0x9986, 0x7523) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(usb, id_table);
 
 
