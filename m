@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B3833BA90
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98AFB33B8D2
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbhCOOJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
+        id S234631AbhCOOEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234536AbhCOOEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:04:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BBF264F17;
-        Mon, 15 Mar 2021 14:04:12 +0000 (UTC)
+        id S233011AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2598F64F35;
+        Mon, 15 Mar 2021 14:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817053;
-        bh=WpyuGGg4fLXOdll3DlmkFdMT8Yj29Ez8TxbVjZ3qKs0=;
+        s=korg; t=1615816811;
+        bh=33wxDA+U8uhcNj+hgQP2X8Hi+2CrCVx0NpPPF+yWc+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gvfuZzg8k+RfkG22cq+7KWj8DgpnnvNc2/x7rCnBC5Rqk0+F7Nn4spBpom2ccuvXn
-         c493GMtSbx+Dnt3tYbEvkbipJ0Grl32sXnW2ujHA5Wm/zFvi7VLpezApPHdErfQx/Y
-         Jc9ZjFKnZnLp5kHJQtLdoh9OCHDnq2qOOu4qz9CY=
+        b=rQBaSY0BbbScNrms5vun0G0tPzGmyoAkRz4903JRfBJMuOpozqLXyvuY0nLPI4OCJ
+         wQmw8iGxIIKPuhHXTrOKerIKNFRA7yZueM3QM2+xp8bTM7xBqhw8yl7RIiIrDX3xwW
+         Z+5gqQ2mPhUBvHg5qcDVT7JhEc1cWQhTPi3+yP6I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.10 264/290] efi: stub: omit SetVirtualAddressMap() if marked unsupported in RT_PROP table
+        stable@vger.kernel.org, Shile Zhang <shile.zhang@linux.alibaba.com>
+Subject: [PATCH 5.4 125/168] misc/pvpanic: Export module FDT device table
 Date:   Mon, 15 Mar 2021 14:55:57 +0100
-Message-Id: <20210315135550.939002740@linuxfoundation.org>
+Message-Id: <20210315135554.459327001@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +40,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-commit 9e9888a0fe97b9501a40f717225d2bef7100a2c1 upstream.
+commit 65527a51c66f4edfa28602643d7dd4fa366eb826 upstream.
 
-The EFI_RT_PROPERTIES_TABLE contains a mask of runtime services that are
-available after ExitBootServices(). This mostly does not concern the EFI
-stub at all, given that it runs before that. However, there is one call
-that is made at runtime, which is the call to SetVirtualAddressMap()
-(which is not even callable at boot time to begin with)
+Export the module FDT device table to ensure the FDT compatible strings
+are listed in the module alias. This help the pvpanic driver can be
+loaded on boot automatically not only the ACPI device, but also the FDT
+device.
 
-So add the missing handling of the RT_PROP table to ensure that we only
-call SetVirtualAddressMap() if it is not being advertised as unsupported
-by the firmware.
-
-Cc: <stable@vger.kernel.org> # v5.10+
-Tested-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 46f934c9a12fc ("misc/pvpanic: add support to get pvpanic device info FDT")
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20210218123116.207751-1-shile.zhang@linux.alibaba.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/libstub/efi-stub.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/misc/pvpanic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/firmware/efi/libstub/efi-stub.c
-+++ b/drivers/firmware/efi/libstub/efi-stub.c
-@@ -96,6 +96,18 @@ static void install_memreserve_table(voi
- 		efi_err("Failed to install memreserve config table!\n");
- }
+--- a/drivers/misc/pvpanic.c
++++ b/drivers/misc/pvpanic.c
+@@ -166,6 +166,7 @@ static const struct of_device_id pvpanic
+ 	{ .compatible = "qemu,pvpanic-mmio", },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, pvpanic_mmio_match);
  
-+static u32 get_supported_rt_services(void)
-+{
-+	const efi_rt_properties_table_t *rt_prop_table;
-+	u32 supported = EFI_RT_SUPPORTED_ALL;
-+
-+	rt_prop_table = get_efi_config_table(EFI_RT_PROPERTIES_TABLE_GUID);
-+	if (rt_prop_table)
-+		supported &= rt_prop_table->runtime_services_supported;
-+
-+	return supported;
-+}
-+
- /*
-  * EFI entry point for the arm/arm64 EFI stubs.  This is the entrypoint
-  * that is described in the PE/COFF header.  Most of the code is the same
-@@ -250,6 +262,10 @@ efi_status_t __efiapi efi_pe_entry(efi_h
- 			  (prop_tbl->memory_protection_attribute &
- 			   EFI_PROPERTIES_RUNTIME_MEMORY_PROTECTION_NON_EXECUTABLE_PE_DATA);
- 
-+	/* force efi_novamap if SetVirtualAddressMap() is unsupported */
-+	efi_novamap |= !(get_supported_rt_services() &
-+			 EFI_RT_SUPPORTED_SET_VIRTUAL_ADDRESS_MAP);
-+
- 	/* hibernation expects the runtime regions to stay in the same place */
- 	if (!IS_ENABLED(CONFIG_HIBERNATION) && !efi_nokaslr && !flat_va_mapping) {
- 		/*
+ static struct platform_driver pvpanic_mmio_driver = {
+ 	.driver = {
 
 
