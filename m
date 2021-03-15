@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F14433B50F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1061133B500
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230034AbhCONxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55502 "EHLO mail.kernel.org"
+        id S229948AbhCONxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229731AbhCONw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:52:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC95E64EF3;
-        Mon, 15 Mar 2021 13:52:55 +0000 (UTC)
+        id S229919AbhCONwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:52:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EAAA64EEC;
+        Mon, 15 Mar 2021 13:52:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816378;
-        bh=HKe5UBMMdAnGoLiNdfKFFgFaEeDjkan3DRQmV0S3XC4=;
+        s=korg; t=1615816370;
+        bh=53j0FcMQQNm8OF72VSJVGls+1WQtkpEOpK/tgX+uFjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBlT9St4OJ7GbCj8yJ3E3pH7WKW3kyiC3uT4QiDcsSeTW9DSyyEfWaDu8CmC862oK
-         GdGBXfRLfYVb+fu9txis0hXUViEAQwdD/xfqPQ+0NU7F7ulsMRL9DLmTsFByeROA+K
-         gbw2GjNM7+o2q0amODdfWOq+9D2SHGAWymzrhK3E=
+        b=Xua0mnw/mEfO7SmeHKNgodlef/0v3vYpZLdJ8WB1XeLoa19pRNa21mXSiJWT9k7QY
+         sWDN4wTNu8Gy2L8OVZylNZeEIHbk6Fu4vxpb83nxLQwrIbnxlO34YHlobrfI2lsQqW
+         60oT8nfq8D2Vhr+xKD6fbDj3tPIqN8a/1rNPH7zw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
-        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
-        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Lee Jones <lee.jones@linaro.org>,
-        Zheng Yejian <zhengyejian1@huawei.com>
-Subject: [PATCH 4.4 11/75] futex: Change locking rules
+        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 02/78] ethernet: alx: fix order of calls on resume
 Date:   Mon, 15 Mar 2021 14:51:25 +0100
-Message-Id: <20210315135208.632919306@linuxfoundation.org>
+Message-Id: <20210315135212.149650666@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,324 +42,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit 734009e96d1983ad739e5b656e03430b3660c913 upstream.
+commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
 
-This patch comes directly from an origin patch (commit
-dc3f2ff11740159080f2e8e359ae0ab57c8e74b6) in v4.9.
+netif_device_attach() will unpause the queues so we can't call
+it before __alx_open(). This went undetected until
+commit b0999223f224 ("alx: add ability to allocate and free
+alx_napi structures") but now if stack tries to xmit immediately
+on resume before __alx_open() we'll crash on the NAPI being null:
 
-Currently futex-pi relies on hb->lock to serialize everything. But hb->lock
-creates another set of problems, especially priority inversions on RT where
-hb->lock becomes a rt_mutex itself.
+ BUG: kernel NULL pointer dereference, address: 0000000000000198
+ CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
+ Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
+ RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
+ Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
+0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
+ RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
+ RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
+ RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
+ RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
+ R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
+ R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
+ FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
+ i915 0000:00:02.0: vblank wait timed out on crtc 0
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
+ Call Trace:
+  dev_hard_start_xmit+0xc7/0x1e0
+  sch_direct_xmit+0x10f/0x310
 
-The rt_mutex::wait_lock is the most obvious protection for keeping the
-futex user space value and the kernel internal pi_state in sync.
-
-Rework and document the locking so rt_mutex::wait_lock is held accross all
-operations which modify the user space value and the pi state.
-
-This allows to invoke rt_mutex_unlock() (including deboost) without holding
-hb->lock as a next step.
-
-Nothing yet relies on the new locking rules.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: juri.lelli@arm.com
-Cc: bigeasy@linutronix.de
-Cc: xlpang@redhat.com
-Cc: rostedt@goodmis.org
-Cc: mathieu.desnoyers@efficios.com
-Cc: jdesfossez@efficios.com
-Cc: dvhart@infradead.org
-Cc: bristot@redhat.com
-Link: http://lkml.kernel.org/r/20170322104151.751993333@infradead.org
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-[Lee: Back-ported in support of a previous futex back-port attempt]
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+Cc: <stable@vger.kernel.org> # 4.9+
+Fixes: bc2bebe8de8e ("alx: remove WoL support")
+Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
+Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/futex.c |  138 ++++++++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 112 insertions(+), 26 deletions(-)
+ drivers/net/ethernet/atheros/alx/main.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -1016,6 +1016,39 @@ static void exit_pi_state_list(struct ta
-  * [10] There is no transient state which leaves owner and user space
-  *	TID out of sync. Except one error case where the kernel is denied
-  *	write access to the user address, see fixup_pi_state_owner().
-+ *
-+ *
-+ * Serialization and lifetime rules:
-+ *
-+ * hb->lock:
-+ *
-+ *	hb -> futex_q, relation
-+ *	futex_q -> pi_state, relation
-+ *
-+ *	(cannot be raw because hb can contain arbitrary amount
-+ *	 of futex_q's)
-+ *
-+ * pi_mutex->wait_lock:
-+ *
-+ *	{uval, pi_state}
-+ *
-+ *	(and pi_mutex 'obviously')
-+ *
-+ * p->pi_lock:
-+ *
-+ *	p->pi_state_list -> pi_state->list, relation
-+ *
-+ * pi_state->refcount:
-+ *
-+ *	pi_state lifetime
-+ *
-+ *
-+ * Lock order:
-+ *
-+ *   hb->lock
-+ *     pi_mutex->wait_lock
-+ *       p->pi_lock
-+ *
-  */
+--- a/drivers/net/ethernet/atheros/alx/main.c
++++ b/drivers/net/ethernet/atheros/alx/main.c
+@@ -1694,13 +1694,19 @@ static int alx_resume(struct device *dev
+ 	struct pci_dev *pdev = to_pci_dev(dev);
+ 	struct alx_priv *alx = pci_get_drvdata(pdev);
+ 	struct alx_hw *hw = &alx->hw;
++	int err;
  
- /*
-@@ -1023,10 +1056,12 @@ static void exit_pi_state_list(struct ta
-  * the pi_state against the user space value. If correct, attach to
-  * it.
-  */
--static int attach_to_pi_state(u32 uval, struct futex_pi_state *pi_state,
-+static int attach_to_pi_state(u32 __user *uaddr, u32 uval,
-+			      struct futex_pi_state *pi_state,
- 			      struct futex_pi_state **ps)
- {
- 	pid_t pid = uval & FUTEX_TID_MASK;
-+	int ret, uval2;
+ 	alx_reset_phy(hw);
  
- 	/*
- 	 * Userspace might have messed up non-PI and PI futexes [3]
-@@ -1034,9 +1069,34 @@ static int attach_to_pi_state(u32 uval,
- 	if (unlikely(!pi_state))
- 		return -EINVAL;
- 
-+	/*
-+	 * We get here with hb->lock held, and having found a
-+	 * futex_top_waiter(). This means that futex_lock_pi() of said futex_q
-+	 * has dropped the hb->lock in between queue_me() and unqueue_me_pi(),
-+	 * which in turn means that futex_lock_pi() still has a reference on
-+	 * our pi_state.
-+	 */
- 	WARN_ON(!atomic_read(&pi_state->refcount));
- 
- 	/*
-+	 * Now that we have a pi_state, we can acquire wait_lock
-+	 * and do the state validation.
-+	 */
-+	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 	if (!netif_running(alx->dev))
+ 		return 0;
 +
-+	/*
-+	 * Since {uval, pi_state} is serialized by wait_lock, and our current
-+	 * uval was read without holding it, it can have changed. Verify it
-+	 * still is what we expect it to be, otherwise retry the entire
-+	 * operation.
-+	 */
-+	if (get_futex_value_locked(&uval2, uaddr))
-+		goto out_efault;
++	err = __alx_open(alx, true);
++	if (err)
++		return err;
 +
-+	if (uval != uval2)
-+		goto out_eagain;
-+
-+	/*
- 	 * Handle the owner died case:
- 	 */
- 	if (uval & FUTEX_OWNER_DIED) {
-@@ -1051,11 +1111,11 @@ static int attach_to_pi_state(u32 uval,
- 			 * is not 0. Inconsistent state. [5]
- 			 */
- 			if (pid)
--				return -EINVAL;
-+				goto out_einval;
- 			/*
- 			 * Take a ref on the state and return success. [4]
- 			 */
--			goto out_state;
-+			goto out_attach;
- 		}
- 
- 		/*
-@@ -1067,14 +1127,14 @@ static int attach_to_pi_state(u32 uval,
- 		 * Take a ref on the state and return success. [6]
- 		 */
- 		if (!pid)
--			goto out_state;
-+			goto out_attach;
- 	} else {
- 		/*
- 		 * If the owner died bit is not set, then the pi_state
- 		 * must have an owner. [7]
- 		 */
- 		if (!pi_state->owner)
--			return -EINVAL;
-+			goto out_einval;
- 	}
- 
- 	/*
-@@ -1083,11 +1143,29 @@ static int attach_to_pi_state(u32 uval,
- 	 * user space TID. [9/10]
- 	 */
- 	if (pid != task_pid_vnr(pi_state->owner))
--		return -EINVAL;
--out_state:
-+		goto out_einval;
-+
-+out_attach:
- 	atomic_inc(&pi_state->refcount);
-+	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
- 	*ps = pi_state;
- 	return 0;
-+
-+out_einval:
-+	ret = -EINVAL;
-+	goto out_error;
-+
-+out_eagain:
-+	ret = -EAGAIN;
-+	goto out_error;
-+
-+out_efault:
-+	ret = -EFAULT;
-+	goto out_error;
-+
-+out_error:
-+	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
-+	return ret;
+ 	netif_device_attach(alx->dev);
+-	return __alx_open(alx, true);
++	return 0;
  }
  
- /**
-@@ -1180,6 +1258,9 @@ static int attach_to_pi_owner(u32 uval,
- 
- 	/*
- 	 * No existing pi state. First waiter. [2]
-+	 *
-+	 * This creates pi_state, we have hb->lock held, this means nothing can
-+	 * observe this state, wait_lock is irrelevant.
- 	 */
- 	pi_state = alloc_pi_state();
- 
-@@ -1204,7 +1285,8 @@ static int attach_to_pi_owner(u32 uval,
- 	return 0;
- }
- 
--static int lookup_pi_state(u32 uval, struct futex_hash_bucket *hb,
-+static int lookup_pi_state(u32 __user *uaddr, u32 uval,
-+			   struct futex_hash_bucket *hb,
- 			   union futex_key *key, struct futex_pi_state **ps,
- 			   struct task_struct **exiting)
- {
-@@ -1215,7 +1297,7 @@ static int lookup_pi_state(u32 uval, str
- 	 * attach to the pi_state when the validation succeeds.
- 	 */
- 	if (match)
--		return attach_to_pi_state(uval, match->pi_state, ps);
-+		return attach_to_pi_state(uaddr, uval, match->pi_state, ps);
- 
- 	/*
- 	 * We are the first waiter - try to look up the owner based on
-@@ -1234,7 +1316,7 @@ static int lock_pi_update_atomic(u32 __u
- 	if (unlikely(cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)))
- 		return -EFAULT;
- 
--	/*If user space value changed, let the caller retry */
-+	/* If user space value changed, let the caller retry */
- 	return curval != uval ? -EAGAIN : 0;
- }
- 
-@@ -1298,7 +1380,7 @@ static int futex_lock_pi_atomic(u32 __us
- 	 */
- 	match = futex_top_waiter(hb, key);
- 	if (match)
--		return attach_to_pi_state(uval, match->pi_state, ps);
-+		return attach_to_pi_state(uaddr, uval, match->pi_state, ps);
- 
- 	/*
- 	 * No waiter and user TID is 0. We are here because the
-@@ -1438,6 +1520,7 @@ static int wake_futex_pi(u32 __user *uad
- 
- 	if (cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)) {
- 		ret = -EFAULT;
-+
- 	} else if (curval != uval) {
- 		/*
- 		 * If a unconditional UNLOCK_PI operation (user space did not
-@@ -1971,7 +2054,7 @@ retry_private:
- 			 * rereading and handing potential crap to
- 			 * lookup_pi_state.
- 			 */
--			ret = lookup_pi_state(ret, hb2, &key2,
-+			ret = lookup_pi_state(uaddr2, ret, hb2, &key2,
- 					      &pi_state, &exiting);
- 		}
- 
-@@ -2249,7 +2332,6 @@ static int __fixup_pi_state_owner(u32 __
- 	int err = 0;
- 
- 	oldowner = pi_state->owner;
--
- 	/*
- 	 * We are here because either:
- 	 *
-@@ -2268,11 +2350,10 @@ static int __fixup_pi_state_owner(u32 __
- 	 * because we can fault here. Imagine swapped out pages or a fork
- 	 * that marked all the anonymous memory readonly for cow.
- 	 *
--	 * Modifying pi_state _before_ the user space value would
--	 * leave the pi_state in an inconsistent state when we fault
--	 * here, because we need to drop the hash bucket lock to
--	 * handle the fault. This might be observed in the PID check
--	 * in lookup_pi_state.
-+	 * Modifying pi_state _before_ the user space value would leave the
-+	 * pi_state in an inconsistent state when we fault here, because we
-+	 * need to drop the locks to handle the fault. This might be observed
-+	 * in the PID check in lookup_pi_state.
- 	 */
- retry:
- 	if (!argowner) {
-@@ -2333,21 +2414,26 @@ retry:
- 	return argowner == current;
- 
- 	/*
--	 * To handle the page fault we need to drop the hash bucket
--	 * lock here. That gives the other task (either the highest priority
--	 * waiter itself or the task which stole the rtmutex) the
--	 * chance to try the fixup of the pi_state. So once we are
--	 * back from handling the fault we need to check the pi_state
--	 * after reacquiring the hash bucket lock and before trying to
--	 * do another fixup. When the fixup has been done already we
--	 * simply return.
-+	 * To handle the page fault we need to drop the locks here. That gives
-+	 * the other task (either the highest priority waiter itself or the
-+	 * task which stole the rtmutex) the chance to try the fixup of the
-+	 * pi_state. So once we are back from handling the fault we need to
-+	 * check the pi_state after reacquiring the locks and before trying to
-+	 * do another fixup. When the fixup has been done already we simply
-+	 * return.
-+	 *
-+	 * Note: we hold both hb->lock and pi_mutex->wait_lock. We can safely
-+	 * drop hb->lock since the caller owns the hb -> futex_q relation.
-+	 * Dropping the pi_mutex->wait_lock requires the state revalidate.
- 	 */
- handle_fault:
-+	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
- 	spin_unlock(q->lock_ptr);
- 
- 	err = fault_in_user_writeable(uaddr);
- 
- 	spin_lock(q->lock_ptr);
-+	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
- 
- 	/*
- 	 * Check if someone else fixed it for us:
+ static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
 
 
