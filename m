@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A9D233B546
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E45433B548
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231147AbhCONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231154AbhCONxw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 15 Mar 2021 09:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230373AbhCONx1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92D3264E89;
-        Mon, 15 Mar 2021 13:53:25 +0000 (UTC)
+        id S229926AbhCONx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D27B61606;
+        Mon, 15 Mar 2021 13:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816407;
-        bh=qoDi2vTsop8woPakjQoyEeGBNQtQbU2oPDlNnDr0eQk=;
+        s=korg; t=1615816409;
+        bh=ERUHNMOAXOR0Y7NR3rcHwcxECMch+cEw29hwqw98+ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FH/mga2N1GjfJvH1+oeAT7//XsGckVljJnXz6IfvAzNq7mzHEfOMm3WWhV7a3c8Y5
-         FqiEUxU3w3nOzM17HoqIbk5yUwEsCXf/FRhaiG0RZhdsLVC6koLuC/DUb1NbrZHfO/
-         il544oJzV1Sog+ipBPQsxG+GoBivUpwwSn1WL/Kc=
+        b=JTWXbRJdM2bTffRmlnc2iqxkTJQkOH/SOeu3XW89U8fD/ysSdF98x4chtcNgWseLf
+         wmyRjqVPLYl1bVpWdW+AXveS8fAru9KTTF4TQQdM8NwDZHlTHKdPYWjlGHXz3rIQbr
+         YCyn19SE0QGWAXzN2CGAqbR+yNivM2KlD1y4Dq1I=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Martin Kaiser <martin@kaiser.cx>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/78] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
-Date:   Mon, 15 Mar 2021 14:51:44 +0100
-Message-Id: <20210315135212.763259976@linuxfoundation.org>
+Subject: [PATCH 4.9 22/78] PCI: xgene-msi: Fix race in installing chained irq handler
+Date:   Mon, 15 Mar 2021 14:51:45 +0100
+Message-Id: <20210315135212.793830780@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
 References: <20210315135212.060847074@linuxfoundation.org>
@@ -42,78 +42,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Martin Kaiser <martin@kaiser.cx>
 
-[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
+[ Upstream commit a93c00e5f975f23592895b7e83f35de2d36b7633 ]
 
-While sampling for marked events, currently we record the sample only
-if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
-set. SIAR_VALID bit is used for fetching the instruction address from
-Sampled Instruction Address Register(SIAR). But there are some
-usecases, where the user is interested only in the PMU stats at each
-counter overflow and the exact IP of the overflow event is not
-required. Dropping SIAR invalid samples will fail to record some of
-the counter overflows in such cases.
+Fix a race where a pending interrupt could be received and the handler
+called before the handler's data has been setup, by converting to
+irq_set_chained_handler_and_data().
 
-Example of such usecase is dumping the PMU stats (event counts) after
-some regular amount of instructions/events from the userspace (ex: via
-ptrace). Here counter overflow is indicated to userspace via signal
-handler, and captured by monitoring and enabling I/O signaling on the
-event file descriptor. In these cases, we expect to get
-sample/overflow indication after each specified sample_period.
+See also 2cf5a03cb29d ("PCI/keystone: Fix race in installing chained IRQ
+handler").
 
-Perf event attribute will not have PERF_SAMPLE_IP set in the
-sample_type if exact IP of the overflow event is not requested. So
-while profiling if SAMPLE_IP is not set, just record the counter
-overflow irrespective of SIAR_VALID check.
+Based on the mail discussion, it seems ok to drop the error handling.
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Reflow comment and if formatting]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Link: https://lore.kernel.org/r/20210115212435.19940-3-martin@kaiser.cx
+Signed-off-by: Martin Kaiser <martin@kaiser.cx>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/pci/host/pci-xgene-msi.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 1f1ac446ace9..f2d8f35c181f 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2010,7 +2010,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 			left += period;
- 			if (left <= 0)
- 				left = period;
--			record = siar_valid(regs);
-+
-+			/*
-+			 * If address is not requested in the sample via
-+			 * PERF_SAMPLE_IP, just record that sample irrespective
-+			 * of SIAR valid check.
-+			 */
-+			if (event->attr.sample_type & PERF_SAMPLE_IP)
-+				record = siar_valid(regs);
-+			else
-+				record = 1;
-+
- 			event->hw.last_period = event->hw.sample_period;
- 		}
- 		if (left < 0x80000000LL)
-@@ -2028,9 +2038,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
- 	 * these cases.
- 	 */
--	if (event->attr.exclude_kernel && record)
--		if (is_kernel_addr(mfspr(SPRN_SIAR)))
--			record = 0;
-+	if (event->attr.exclude_kernel &&
-+	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
-+	    is_kernel_addr(mfspr(SPRN_SIAR)))
-+		record = 0;
+diff --git a/drivers/pci/host/pci-xgene-msi.c b/drivers/pci/host/pci-xgene-msi.c
+index a6456b578269..b6a099371ad2 100644
+--- a/drivers/pci/host/pci-xgene-msi.c
++++ b/drivers/pci/host/pci-xgene-msi.c
+@@ -393,13 +393,9 @@ static int xgene_msi_hwirq_alloc(unsigned int cpu)
+ 		if (!msi_group->gic_irq)
+ 			continue;
  
- 	/*
- 	 * Finally record data if requested.
+-		irq_set_chained_handler(msi_group->gic_irq,
+-					xgene_msi_isr);
+-		err = irq_set_handler_data(msi_group->gic_irq, msi_group);
+-		if (err) {
+-			pr_err("failed to register GIC IRQ handler\n");
+-			return -EINVAL;
+-		}
++		irq_set_chained_handler_and_data(msi_group->gic_irq,
++			xgene_msi_isr, msi_group);
++
+ 		/*
+ 		 * Statically allocate MSI GIC IRQs to each CPU core.
+ 		 * With 8-core X-Gene v1, 2 MSI GIC IRQs are allocated
 -- 
 2.30.1
 
