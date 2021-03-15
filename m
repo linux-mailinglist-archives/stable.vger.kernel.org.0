@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 939C733B818
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E886433BA6E
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233606AbhCOOCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
+        id S235660AbhCOOJL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232881AbhCOOAF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDCA364F56;
-        Mon, 15 Mar 2021 13:59:45 +0000 (UTC)
+        id S231356AbhCOODg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC68264EF1;
+        Mon, 15 Mar 2021 14:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816787;
-        bh=WdSA0u9QNjoXc1vg2BJB76lxbzJAX+Hz+pf+MzpjaqE=;
+        s=korg; t=1615817015;
+        bh=OsN9fP/3Q8x/uk2NpP+b5JvtzITPXV9VGc9C/iPEXmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9xAMCdio+kZQTjLkjrogyL8zv6+5TVRlOg5mfjRxgxmc0KxP3mZDG5MAj1YSashL
-         /I/9CRRWu8Avlmk+AQqJmZpQiSwFtd5CMH1dDdwXwzr7vQSyjbJ76VNLVu4iZ/Zww1
-         n7GAJAjAnNBzOEkRcawtUH5qTcQw5FS3+onWDxUM=
+        b=Fd/9gMAanGlnPqJmvpSzOsb5salbpoj99oPxa7dRvf9JJ5q9iKI5+ObqUqQXLzglN
+         y9m0w5XUwDT7SXiYGELLMqtgCwIsaqfhdCOcM+8oyC+BDhf6xOlPoB4f0bmmBspo5a
+         etEbWywEzhRkPj5WpFWHTQY50VnLkAcptXTYOhxw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
-        Pete Zaitcev <zaitcev@redhat.com>
-Subject: [PATCH 5.4 109/168] USB: usblp: fix a hang in poll() if disconnected
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 248/290] NFSv4.2: fix return value of _nfs4_get_security_label()
 Date:   Mon, 15 Mar 2021 14:55:41 +0100
-Message-Id: <20210315135553.940841112@linuxfoundation.org>
+Message-Id: <20210315135550.399707805@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +44,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pete Zaitcev <zaitcev@redhat.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit 9de2c43acf37a17dc4c69ff78bb099b80fb74325 upstream.
+[ Upstream commit 53cb245454df5b13d7063162afd7a785aed6ebf2 ]
 
-Apparently an application that opens a device and calls select()
-on it, will hang if the decice is disconnected. It's a little
-surprising that we had this bug for 15 years, but apparently
-nobody ever uses select() with a printer: only write() and read(),
-and those work fine. Well, you can also select() with a timeout.
+An xattr 'get' handler is expected to return the length of the value on
+success, yet _nfs4_get_security_label() (and consequently also
+nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
+just 0 on success.
 
-The fix is modeled after devio.c. A few other drivers check the
-condition first, then do not add the wait queue in case the
-device is disconnected. We doubt that's completely race-free.
-So, this patch adds the process first, then locks properly
-and checks for the disconnect.
+Fix this by returning label.len instead, which contains the length of
+the result.
 
-Reviewed-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210303221053.1cf3313e@suzdal.zaitcev.lan
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usblp.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ fs/nfs/nfs4proc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -494,16 +494,24 @@ static int usblp_release(struct inode *i
- /* No kernel lock - fine */
- static __poll_t usblp_poll(struct file *file, struct poll_table_struct *wait)
- {
--	__poll_t ret;
-+	struct usblp *usblp = file->private_data;
-+	__poll_t ret = 0;
- 	unsigned long flags;
- 
--	struct usblp *usblp = file->private_data;
- 	/* Should we check file->f_mode & FMODE_WRITE before poll_wait()? */
- 	poll_wait(file, &usblp->rwait, wait);
- 	poll_wait(file, &usblp->wwait, wait);
-+
-+	mutex_lock(&usblp->mut);
-+	if (!usblp->present)
-+		ret |= EPOLLHUP;
-+	mutex_unlock(&usblp->mut);
-+
- 	spin_lock_irqsave(&usblp->lock, flags);
--	ret = ((usblp->bidir && usblp->rcomplete) ? EPOLLIN  | EPOLLRDNORM : 0) |
--	   ((usblp->no_paper || usblp->wcomplete) ? EPOLLOUT | EPOLLWRNORM : 0);
-+	if (usblp->bidir && usblp->rcomplete)
-+		ret |= EPOLLIN  | EPOLLRDNORM;
-+	if (usblp->no_paper || usblp->wcomplete)
-+		ret |= EPOLLOUT | EPOLLWRNORM;
- 	spin_unlock_irqrestore(&usblp->lock, flags);
- 	return ret;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index a811d42ffbd1..ba2dfba4854b 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5967,7 +5967,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
+ 		return ret;
+ 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
+ 		return -ENOENT;
+-	return 0;
++	return label.len;
  }
+ 
+ static int nfs4_get_security_label(struct inode *inode, void *buf,
+-- 
+2.30.1
+
 
 
