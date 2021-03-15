@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5044A33B87C
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8734633B82C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234484AbhCOODj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:39 -0400
+        id S233740AbhCOOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:23 -0400
 Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232360AbhCON73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C585864F0C;
-        Mon, 15 Mar 2021 13:59:05 +0000 (UTC)
+        id S232916AbhCOOAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C146164F6A;
+        Mon, 15 Mar 2021 13:59:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816747;
-        bh=+QnRPzzf1qvh82l53XUQmC1gcoNnuT5ofcbVJhLuIRI=;
+        s=korg; t=1615816795;
+        bh=198ZG1tjpE0eJK8e0iIWR6GPw4Ku9YEGd3F79jUu4mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgBa8bJkMM+Cv0C6bay/+ZyZPcjctZH0bd/aiILPGJnYM0LIq70+vt70DYMraEmru
-         cPWUY+hkaQeMJYeIqp6lHeNGMZjvds8rSCht2ocp80jmbVXBLDpx1gMfGiolnG0kQi
-         ra49joEjp9we8gC1WiTo792cHo2oC+lk8sCoi7aU=
+        b=Vvq6RgzQ2KFD4WKB/7DfwJSvEifZC3pQj8ljCr28DHw3tOsZ24sy/JdSy4t/u8PIH
+         XoiT0CbCzk6qwCm92ITfUzdl/SFkqfWJwaqLyGeDHZAUf0cyuTT++Qd9YSu3yT/I7Z
+         hMQp7YnKQdpoD9dzzG/V2bheGIS/gUSGBGQ1zgH8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 34/95] mmc: mediatek: fix race condition between msdc_request_timeout and irq
+        stable@vger.kernel.org, Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Subject: [PATCH 4.19 073/120] usb: gadget: f_uac1: stop playback on function disable
 Date:   Mon, 15 Mar 2021 14:57:04 +0100
-Message-Id: <20210315135741.393099144@linuxfoundation.org>
+Message-Id: <20210315135722.369346145@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit 0354ca6edd464a2cf332f390581977b8699ed081 ]
+commit cc2ac63d4cf72104e0e7f58bb846121f0f51bb19 upstream.
 
-when get request SW timeout, if CMD/DAT xfer done irq coming right now,
-then there is race between the msdc_request_timeout work and irq handler,
-and the host->cmd and host->data may set to NULL in irq handler. also,
-current flow ensure that only one path can go to msdc_request_done(), so
-no need check the return value of cancel_delayed_work().
+There is missing playback stop/cleanup in case of
+gadget's ->disable callback that happens on
+events like USB host resetting or gadget disconnection
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Link: https://lore.kernel.org/r/20201218071611.12276-1-chaotian.jing@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 0591bc236015 ("usb: gadget: add f_uac1 variant based on a new u_audio api")
+Cc: <stable@vger.kernel.org> # 4.13+
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/1614599375-8803-3-git-send-email-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mtk-sd.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/function/f_uac1.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 1a5d5c40324b..e51a62cff5ec 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -758,13 +758,13 @@ static void msdc_track_cmd_data(struct msdc_host *host,
- static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
- {
- 	unsigned long flags;
--	bool ret;
+--- a/drivers/usb/gadget/function/f_uac1.c
++++ b/drivers/usb/gadget/function/f_uac1.c
+@@ -499,6 +499,7 @@ static void f_audio_disable(struct usb_f
+ 	uac1->as_out_alt = 0;
+ 	uac1->as_in_alt = 0;
  
--	ret = cancel_delayed_work(&host->req_timeout);
--	if (!ret) {
--		/* delay work already running */
--		return;
--	}
-+	/*
-+	 * No need check the return value of cancel_delayed_work, as only ONE
-+	 * path will go here!
-+	 */
-+	cancel_delayed_work(&host->req_timeout);
-+
- 	spin_lock_irqsave(&host->lock, flags);
- 	host->mrq = NULL;
- 	spin_unlock_irqrestore(&host->lock, flags);
-@@ -782,7 +782,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- 	bool done = false;
- 	bool sbc_error;
- 	unsigned long flags;
--	u32 *rsp = cmd->resp;
-+	u32 *rsp;
++	u_audio_stop_playback(&uac1->g_audio);
+ 	u_audio_stop_capture(&uac1->g_audio);
+ }
  
- 	if (mrq->sbc && cmd == mrq->cmd &&
- 	    (events & (MSDC_INT_ACMDRDY | MSDC_INT_ACMDCRCERR
-@@ -803,6 +803,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- 
- 	if (done)
- 		return true;
-+	rsp = cmd->resp;
- 
- 	sdr_clr_bits(host->base + MSDC_INTEN, cmd_ints_mask);
- 
-@@ -984,7 +985,7 @@ static void msdc_data_xfer_next(struct msdc_host *host,
- static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 				struct mmc_request *mrq, struct mmc_data *data)
- {
--	struct mmc_command *stop = data->stop;
-+	struct mmc_command *stop;
- 	unsigned long flags;
- 	bool done;
- 	unsigned int check_data = events &
-@@ -1000,6 +1001,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 
- 	if (done)
- 		return true;
-+	stop = data->stop;
- 
- 	if (check_data || (stop && stop->error)) {
- 		dev_dbg(host->dev, "DMA status: 0x%8X\n",
--- 
-2.30.1
-
 
 
