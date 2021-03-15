@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D91A533B988
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D7133B92A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234578AbhCOOGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S232918AbhCOOFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233408AbhCOOBj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAC4664E4D;
-        Mon, 15 Mar 2021 14:01:13 +0000 (UTC)
+        id S233228AbhCOOBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAEEE64F6D;
+        Mon, 15 Mar 2021 14:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816874;
-        bh=/Ddd2zPl42t0KPISs+Dxeg/qgBi4KA8gGxKbfY4SnUE=;
+        s=korg; t=1615816846;
+        bh=tKfLqY2RtHJ2cGJXWSiB9eV7t8BzdLjfNlrWg1O+C48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGR8Q++AJpaR5qaqdBApDgqF1xdqnpbGcgzC3/XIdr+5+C8VIs7xJhbk/Kv7npEkK
-         QbWpNaam60Y4ZvDdpE8Wrs1PH/AamD6zlC/MFgt5On1zIzXIQTonAz6jLfjEvj8DSt
-         3sGWSoGaNVMDkmL9PNxryOdQE5HTFiCITKqsQUJw=
+        b=YL9EwobDUA3q0aqHTFtZUj4si2P27Vl7yA6oxbMqar1MDg9Ach9jmEFO9fHJVVSDS
+         ki1qspmQfkceVssqsw8JyWGn2p7JT1lro+kfG4j6h3x4IgFYPx/9qWGVGdndw2AtcE
+         Yb134VTpDzrHQhGfNI3Z3L3qT1cyCYlI65SF6jLk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.11 177/306] Revert 95ebabde382c ("capabilities: Dont allow writing ambiguous v3 file capabilities")
-Date:   Mon, 15 Mar 2021 14:54:00 +0100
-Message-Id: <20210315135513.599831367@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 148/290] sparc32: Limit memblock allocation to low memory
+Date:   Mon, 15 Mar 2021 14:54:01 +0100
+Message-Id: <20210315135546.918508206@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +43,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Andreas Larsson <andreas@gaisler.com>
 
-commit 3b0c2d3eaa83da259d7726192cf55a137769012f upstream.
+[ Upstream commit bda166930c37604ffa93f2425426af6921ec575a ]
 
-It turns out that there are in fact userspace implementations that
-care and this recent change caused a regression.
+Commit cca079ef8ac29a7c02192d2bad2ffe4c0c5ffdd0 changed sparc32 to use
+memblocks instead of bootmem, but also made high memory available via
+memblock allocation which does not work together with e.g. phys_to_virt
+and can lead to kernel panic.
 
-https://github.com/containers/buildah/issues/3071
+This changes back to only low memory being allocatable in the early
+stages, now using memblock allocation.
 
-As the motivation for the original change was future development,
-and the impact is existing real world code just revert this change
-and allow the ambiguity in v3 file caps.
-
-Cc: stable@vger.kernel.org
-Fixes: 95ebabde382c ("capabilities: Don't allow writing ambiguous v3 file capabilities")
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/commoncap.c |   12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ arch/sparc/mm/init_32.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -500,8 +500,7 @@ int cap_convert_nscap(struct dentry *den
- 	__u32 magic, nsmagic;
- 	struct inode *inode = d_backing_inode(dentry);
- 	struct user_namespace *task_ns = current_user_ns(),
--		*fs_ns = inode->i_sb->s_user_ns,
--		*ancestor;
-+		*fs_ns = inode->i_sb->s_user_ns;
- 	kuid_t rootid;
- 	size_t newsize;
+diff --git a/arch/sparc/mm/init_32.c b/arch/sparc/mm/init_32.c
+index eb2946b1df8a..6139c5700ccc 100644
+--- a/arch/sparc/mm/init_32.c
++++ b/arch/sparc/mm/init_32.c
+@@ -197,6 +197,9 @@ unsigned long __init bootmem_init(unsigned long *pages_avail)
+ 	size = memblock_phys_mem_size() - memblock_reserved_size();
+ 	*pages_avail = (size >> PAGE_SHIFT) - high_pages;
  
-@@ -524,15 +523,6 @@ int cap_convert_nscap(struct dentry *den
- 	if (nsrootid == -1)
- 		return -EINVAL;
++	/* Only allow low memory to be allocated via memblock allocation */
++	memblock_set_current_limit(max_low_pfn << PAGE_SHIFT);
++
+ 	return max_pfn;
+ }
  
--	/*
--	 * Do not allow allow adding a v3 filesystem capability xattr
--	 * if the rootid field is ambiguous.
--	 */
--	for (ancestor = task_ns->parent; ancestor; ancestor = ancestor->parent) {
--		if (from_kuid(ancestor, rootid) == 0)
--			return -EINVAL;
--	}
--
- 	newsize = sizeof(struct vfs_ns_cap_data);
- 	nscap = kmalloc(newsize, GFP_ATOMIC);
- 	if (!nscap)
+-- 
+2.30.1
+
 
 
