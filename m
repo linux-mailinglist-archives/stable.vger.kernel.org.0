@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24AC933B8B3
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D0633B803
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232207AbhCOOEO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
+        id S231183AbhCOOBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233098AbhCOOAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69DD064F4F;
-        Mon, 15 Mar 2021 14:00:24 +0000 (UTC)
+        id S232789AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 018E264F13;
+        Mon, 15 Mar 2021 13:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816825;
-        bh=IFfqQ8qPfWnqGiSXAud+IN7dXAdtEKUe1+FwHMdPJCE=;
+        s=korg; t=1615816778;
+        bh=Fc0/wGpjCtvfAMceyXDg7vg0fHNv+XZlMIcPLgQ7d2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBnKGBGK30qt4p8OsUDAhdJPqW4YLyczQlyjAxorpk12+m2485JQsEjNt95HegHeJ
-         orEe6IPePAXKeqih7w5YeAffeX6Y7VGoGw3j2hSvlVXZJL0eFJj1MUd6Yyj0kVeZ28
-         KpAMi6ZJqGPVmeT7Yg+6pdE6pmZJwi73q2Qe1+Lk=
+        b=uyMFtlU8wyCSf9//c7ot2p9TPq8CVwzYs1R4iBpAanKE5Z56oeXQJDwYTK1T6G5TY
+         WP+urNMdj3XvVNplFG7VU2vcsBGThyyJJZUxvMlozZknyQGRLHCVOEGLTD4diVMyit
+         bF2tu114CyzNU8ADURZR+kkgVtWuSx4abmG26lRU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 093/120] staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
-Date:   Mon, 15 Mar 2021 14:57:24 +0100
-Message-Id: <20210315135723.019585083@linuxfoundation.org>
+        stable@vger.kernel.org, Forest Crossman <cyrozap@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 55/95] usb: xhci: Fix ASMedia ASM1042A and ASM3242 DMA addressing
+Date:   Mon, 15 Mar 2021 14:57:25 +0100
+Message-Id: <20210315135742.078972166@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Forest Crossman <cyrozap@gmail.com>
 
-commit e163b9823a0b08c3bb8dc4f5b4b5c221c24ec3e5 upstream.
+commit b71c669ad8390dd1c866298319ff89fe68b45653 upstream.
 
-The user can specify a "req->essid_len" of up to 255 but if it's
-over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
+I've confirmed that both the ASMedia ASM1042A and ASM3242 have the same
+problem as the ASM1142 and ASM2142/ASM3142, where they lose some of the
+upper bits of 64-bit DMA addresses. As with the other chips, this can
+cause problems on systems where the upper bits matter, and adding the
+XHCI_NO_64BIT_SUPPORT quirk completely fixes the issue.
 
-Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
+Cc: stable@vger.kernel.org
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/ks7010/ks_wlan_net.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/ks7010/ks_wlan_net.c
-+++ b/drivers/staging/ks7010/ks_wlan_net.c
-@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_d
- {
- 	struct ks_wlan_private *priv = netdev_priv(dev);
- 	struct iw_scan_req *req = NULL;
-+	int len;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -63,6 +63,7 @@
+ #define PCI_DEVICE_ID_ASMEDIA_1042A_XHCI		0x1142
+ #define PCI_DEVICE_ID_ASMEDIA_1142_XHCI			0x1242
+ #define PCI_DEVICE_ID_ASMEDIA_2142_XHCI			0x2142
++#define PCI_DEVICE_ID_ASMEDIA_3242_XHCI			0x3242
  
- 	if (priv->sleep_mode == SLP_SLEEP)
- 		return -EPERM;
-@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_d
- 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
- 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
- 		req = (struct iw_scan_req *)extra;
--		priv->scan_ssid_len = req->essid_len;
--		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
-+		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+		priv->scan_ssid_len = len;
-+		memcpy(priv->scan_ssid, req->essid, len);
- 	} else {
- 		priv->scan_ssid_len = 0;
- 	}
+ static const char hcd_name[] = "xhci_hcd";
+ 
+@@ -236,11 +237,14 @@ static void xhci_pci_quirks(struct devic
+ 		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042_XHCI)
+ 		xhci->quirks |= XHCI_BROKEN_STREAMS;
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+-		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI)
++		pdev->device == PCI_DEVICE_ID_ASMEDIA_1042A_XHCI) {
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
++		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
++	}
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
+ 	    (pdev->device == PCI_DEVICE_ID_ASMEDIA_1142_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI))
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_2142_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_ASMEDIA_3242_XHCI))
+ 		xhci->quirks |= XHCI_NO_64BIT_SUPPORT;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ASMEDIA &&
 
 
