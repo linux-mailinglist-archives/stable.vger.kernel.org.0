@@ -2,164 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB9133C7E6
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 21:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A4E833C7E8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 21:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231688AbhCOUmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 16:42:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbhCOUm0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 16:42:26 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE40C06174A;
-        Mon, 15 Mar 2021 13:42:24 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id bt4so9450517pjb.5;
-        Mon, 15 Mar 2021 13:42:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=O6e8S7lh6iAwMopRVdoRppSa4LuJ+ayzrZbrIdMcAvU=;
-        b=B2ZkDvaAj+Bp0Qzw0qkFL5KfWIaPT7HH3yGSGINZ70hMsMP78DCawnP2aK/j3gfikE
-         6mJX2QHwgPqtMH/xLMMqZRug9agGhKiZF+0lPwNok/2zFimS12sL/Hfa5mK9TxMz7Pw7
-         pK5eD10SdJo49R7Q1Bar2lmzlckM8cOiTEHBAOa7RlWqm/xt/xpUQdOvLQ8nQXC0fjef
-         1FM9cD46b1uPD/iclC8CfdSOxm6hLpaYCCF08uv/npw0k44OS3xmUApWpIRUhcV5//cx
-         CbOgNwscEeod/ckQ2pHrEKj5slLnApTO03GD7kgKirj7hMOTBdDYRZDtXh+xX5e8xtjA
-         zBog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=O6e8S7lh6iAwMopRVdoRppSa4LuJ+ayzrZbrIdMcAvU=;
-        b=TIUr1lfMnF8GziQuQwOFR+emlH9flE68CqglgKJr6bcv2zlqWq+ZUgt4mTM0ybL02q
-         8l4XLATgvqlIyF3ZeX4RnSQNQSJirKjYe4ioQvI+sSRgc/wYidQmupMowbnh2ULOVk84
-         SyDQChEr6s+M1SvMU0uUvSxcP9STx3Lmh2yc6N4l9SUB3wYBrQjF9aF0j1ImUrKSW0oS
-         0VuSwV2lelcdlqwVZ2kMF8gImaTomr+DFbghdXOH0Gs/yA3zJoI4Kqn/B/go5oOYQIwd
-         rRzlQm9+goI5xgI/yeNpYBdK20tA1ZM3GYp3ck9orF9BGeBVPTjh5UzxES4bksDfOiVw
-         lJWw==
-X-Gm-Message-State: AOAM533aFtVdBEPwxu/7jNkW835RwD2vH6ra57EJDfZf0NT5jc8f0lqH
-        2WQX328Ut9w2/62pkn9GcboNSo5twb0=
-X-Google-Smtp-Source: ABdhPJzv4HCdbNqFTYAiNiPmpXDxe8kGt5XtOLngOQl2RkR/z+SpaqhCj1uU7m4WaANyftZsfiFnWA==
-X-Received: by 2002:a17:90a:9b18:: with SMTP id f24mr924038pjp.96.1615840944027;
-        Mon, 15 Mar 2021 13:42:24 -0700 (PDT)
-Received: from [10.230.29.202] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id w79sm14955596pfc.87.2021.03.15.13.42.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 15 Mar 2021 13:42:23 -0700 (PDT)
-Subject: Re: [PATCH 4.9 00/78] 4.9.262-rc1 review
-To:     gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
-        Ben Hutchings <ben@decadent.org.uk>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210315135212.060847074@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <11774be7-0738-1a23-f186-0875b9e82ef6@gmail.com>
-Date:   Mon, 15 Mar 2021 13:42:20 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.8.1
+        id S231559AbhCOUnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 16:43:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232741AbhCOUnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 16:43:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0806F64F01;
+        Mon, 15 Mar 2021 20:43:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615840994;
+        bh=IVYQn8WxFP9IQ+eQj6c/g9F2LLfY7Y7JElDpXVrfo6g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MWDW3XIO9iLgI2lQzQe6gUHMIQmsWnYGiYRE8YogxZ6HphEjBn51WkN+JSDW85VNQ
+         nTv4cjwt8/Hib7mqSajoAeJrvSZIpolXaz1wWqKkaRcYmr0Zpn7uLHuMTce+Qiyn9z
+         ysUE9VLNbjM7edUm12/QAfrqB62h82EiWRu2gAfQ0HlGZLLGZvnWwJ0h0/L6BurXqs
+         sPeDGrYOZ8+RGMZItfVrWEd0b2+yOp6wLBb4ASWTC6eU/9dlg+JyPpej263DhnCyoq
+         zWU11jolHfq7Vyzk+MjXYgKJHeu+j5VOdIR3Ue1f4gGPkbJCAgOQ1eJDwlKkCuyD41
+         iLr/EJRb4N0Mg==
+Date:   Mon, 15 Mar 2021 16:43:13 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>,
+        Jian Cai <jiancai@google.com>, Stefan Agner <stefan@agner.ch>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sami Tolvanen <samitolvanen@google.com>, candle.sun@unisoc.com,
+        Miles Chen =?utf-8?B?KOmZs+awkeaouik=?= 
+        <miles.chen@mediatek.com>, Stephen Hines <srhines@google.com>,
+        Luis Lozano <llozano@google.com>,
+        Sandeep Patil <sspatil@google.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: Re: ARCH=arm LLVM_IAS=1 patches for 5.10, 5.4, and 4.19
+Message-ID: <YE/G4ZGtFNDFw9ej@sashalap>
+References: <CAKwvOdka=y54W=ssgCZRgr2B+NaYFHF07KnnNDfrwv79-geSQw@mail.gmail.com>
+ <YEs+iaQzEQYNgXcw@kroah.com>
+ <CAKwvOd=xr5je726djQeMMrZAuNcJpX9=R-X19epVy85cjbNbqw@mail.gmail.com>
+ <YEw6i39k6hqZJS8+@sashalap>
+ <YE8kIbyWKSojC1SV@kroah.com>
+ <YE8k/2WTPFGwMpHk@kroah.com>
+ <YE8l2qhycaGPYdNn@kroah.com>
+ <CAMj1kXGLrVXZPAoxTtMueB9toeoktuKza-mRpd4vZ0SLN6bSSQ@mail.gmail.com>
+ <CAKwvOdmJm3v3sHfopWXrSPFn46qaSX9cna=Nd+FZiN=Nz9zmQQ@mail.gmail.com>
+ <YE+wNS1iiVTU8YGb@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <YE+wNS1iiVTU8YGb@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Mar 15, 2021 at 08:06:29PM +0100, Greg KH wrote:
+>On Mon, Mar 15, 2021 at 10:43:26AM -0700, Nick Desaulniers wrote:
+>> Then it should be possible for any patch
+>> that itself is backported (contains "commit XXX upstream") to be fed
+>> in when auto selected or submitted to stable (or before then) to check
+>> for new fixes.  Probably would still need to be run periodically, as
+>> Fixes: aren't necessarily available when AutoSel runs.  For the
+>> toolchain, we have a bot that watches for reverts for example, but
+>> non-standard commit messages denoting one patch fixes another makes
+>> this far from perfect.  Would still need to be run periodically,
+>> because if a Fixes: exists, but hasn't been merged yet, it could get
+>> missed.
+>
+>I do re-run my script at times, it does require it to be run every once
+>in a while.  But again, who is going to care about this except me and
+>Sasha?
 
+I actually run something like that often, there are tons of patches with
+Fixes: that points to commits in the stable tree, but quite a few need a
+less-than-trivial backport that no one did.
 
-On 3/15/2021 6:51 AM, gregkh@linuxfoundation.org wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> This is the start of the stable review cycle for the 4.9.262 release.
-> There are 78 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 17 Mar 2021 13:51:58 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.262-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+>> Though I'm curious how the machinery that picks up Fixes: tags works.
+>> Does it run on a time based cadence?  Is it only run as part of
+>> AutoSel, but not for manual backports sent to the list?  Would it have
+>> picked up on f77ac2e378be at some point?
+>
+>Maybe it will, mine might have picked it up, who knows, I haven't run it
+>in a while.  But as you say, because it fails to apply, that's a good
+>reason for me to not backport it.
 
-On ARCH_BRCMSTB using 32-bit and 64-bit kernels, still seeing the
-following futex warning, unfortunately simply running the function
-tracers does not allow me to trigger the warning, so I am having a hard
-time coming up with a simple reproducer:
+I run it on a weekly basis for *new* commits.
 
-*** 0[   66.551916] ------------[ cut here ]------------
-[   66.557855] WARNING: CPU: 3 PID: 1628 at kernel/futex.c:1584
-do_futex+0x800/0x974
-[   66.565457] Modules linked in: brcmv3d(O) wakeup_drv(O) bcmdriver(PO)
-[   66.572048]
-[   66.573609] CPU: 3 PID: 1628 Comm: boot Tainted: P           O
-4.9.262-1.22pre-g4c1466bf10ac #2
-[   66.582693] Hardware name: BCX972160DV (DT)
-[   66.586936] task: ffffffc07ae92280 task.stack: ffffffc0016ec000
-[   66.592923] PC is at do_futex+0x800/0x974
-[   66.596992] LR is at do_futex+0x784/0x974
-[   66.601057] pc : [<ffffff800810f470>] lr : [<ffffff800810f3f4>]
-pstate: 600001c5
-[   66.608547] sp : ffffffc0016efd10
-[   66.611912] x29: ffffffc0016efd10 x28: 0000000000000000
-[   66.617313] x27: 000000000000065c x26: ffffffc0016efdf8
-[   66.622713] x25: ffffffc079bf9090 x24: 000000008000065c
-[   66.628112] x23: ffffffc0016ec000 x22: 0000000000000000
-[   66.633511] x21: 000000000d72fbb0 x20: ffffffc079bf9080
-[   66.638912] x19: 0000000000000001 x18: 0000000000000000
-[   66.644313] x17: 0000007f845adfe8 x16: ffffff800810f5e4
-[   66.649713] x15: 000017d28638a692 x14: 00055d4a5b4a1ca0
-[   66.655114] x13: 000000000000012d x12: 0000000000000018
-[   66.660514] x11: 000000001f758ce6 x10: 0000000000000042
-[   66.665915] x9 : 003b9aca00000000 x8 : 0000000000000062
-[   66.671314] x7 : 0000000000007070 x6 : 0000000000000000
-[   66.676714] x5 : ffffffc079bf90b8 x4 : 0000000000000000
-[   66.682112] x3 : 0000000000000001 x2 : 0000000000000000
-[   66.687512] x1 : 0000000000000000 x0 : ffffff8009b0f7dd
-[   66.692909]
-[   66.694444] ---[ end trace cc7627749f0e27f6 ]---
-[   66.699114] Call trace:
-[   66.701614] Exception stack(0xffffffc0016efb10 to 0xffffffc0016efc40)
-[   66.708121] fb00:                                   0000000000000001
-0000007fffffffff
-[   66.712143] arm-scmi brcm_scmi@0: mbox timed out in resp(caller:
-scmi_perf_level_set+0x80/0xc0)
-[   66.712155] cpufreq: __target_index: Failed to change cpu frequency: -110
-[   66.731690] fb20: ffffffc0016efd10 ffffff800810f470 00000000600001c5
-000000000000003d
-[   66.739624] fb40: ffffffc079bf9090 ffffffc0016efdf8 000000000000065c
-ffffff8009a26000
-[   66.747559] fb60: ffffffc0016efb80 ffffff80080ddbec ffffffc0016efb90
-ffffff80080cf2ac
-[   66.755492] fb80: ffffff80099f6000 ffffff80080de170 ffffffc0016efc50
-ffffff80080c88e8
-[   66.763426] fba0: ffffffc07a6da280 ffffffc07a6da4a0 ffffffc0016efbc0
-ffffff80083d531c
-[   66.771360] fbc0: ffffffc0016efc00 ffffff800808e5c4 0000000000000008
-00000000000409ff
-[   66.779295] fbe0: ffffff8009b0f7dd 0000000000000000 0000000000000000
-0000000000000001
-[   66.787227] fc00: 0000000000000000 ffffffc079bf90b8 0000000000000000
-0000000000007070
-[   66.795160] fc20: 0000000000000062 003b9aca00000000 0000000000000042
-000000001f758ce6
-[   66.803095] [<ffffff800810f470>] do_futex+0x800/0x974
-[   66.808211] [<ffffff800810f740>] SyS_futex+0x15c/0x184
-[   66.813415] [<ffffff8008083180>] el0_svc_naked+0x34/0x38
-
-other than that:
-
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Florian
+Thanks,
+Sasha
