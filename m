@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA8A333B8C5
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 513DC33BAA7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234596AbhCOOE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S233722AbhCOOJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232263AbhCOOAh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F8C164EF3;
-        Mon, 15 Mar 2021 14:00:22 +0000 (UTC)
+        id S231916AbhCOOEa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA87564E89;
+        Mon, 15 Mar 2021 14:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816823;
-        bh=uEJo1uYAUKC2yFLQgXzIXbHI3oV4iq54+jSSHrfHZM4=;
+        s=korg; t=1615817069;
+        bh=0CceF+b+LmF5KHpXmBA8tZP9h2CE5iqe//MjyHGSF9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guQInOrkxRzpT6znpllHv1o+m3Rrj4y5wwA5qqy/8qnu4yAdBW/zGbMxWda0qunI5
-         fYSeFE0mW2wmBAblPVgDasYQbYVm8rnNzaJSH3CJKzDb6gQEDNweHeK0XaQNlPQ+2G
-         lLNBiJTFXkRaib1goue1bv0Qw27pxdtJIx2/9JLY=
+        b=VV+hnPO4YPkPav3yhjAhiLL42JEDeuJj2X598qvccyYt08ENVyLVa0bqx+ENGddy/
+         W7pdEBNllaAgCxZ+W+zhw2mXO3LbegmjI8Po0bjHbGLCf1K6eMJmtl9HdMVEjnUcvz
+         DYjig+XYQiekxnDEh+bSQhqkezCT1bJnJLNPLmXA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.4 134/168] staging: comedi: addi_apci_1032: Fix endian problem for COS sample
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 273/290] x86/sev-es: Correctly track IRQ states in runtime #VC handler
 Date:   Mon, 15 Mar 2021 14:56:06 +0100
-Message-Id: <20210315135554.747947375@linuxfoundation.org>
+Message-Id: <20210315135551.250398104@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 25317f428a78fde71b2bf3f24d05850f08a73a52 upstream.
+commit 62441a1fb53263bda349b6e5997c3cc5c120d89e upstream.
 
-The Change-Of-State (COS) subdevice supports Comedi asynchronous
-commands to read 16-bit change-of-state values.  However, the interrupt
-handler is calling `comedi_buf_write_samples()` with the address of a
-32-bit integer `&s->state`.  On bigendian architectures, it will copy 2
-bytes from the wrong end of the 32-bit integer.  Fix it by transferring
-the value via a 16-bit integer.
+Call irqentry_nmi_enter()/irqentry_nmi_exit() in the #VC handler to
+correctly track the IRQ state during its execution.
 
-Fixes: 6bb45f2b0c86 ("staging: comedi: addi_apci_1032: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-2-abbotti@mev.co.uk
+Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lkml.kernel.org/r/20210303141716.29223-5-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1032.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/sev-es.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1032.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1032.c
-@@ -260,6 +260,7 @@ static irqreturn_t apci1032_interrupt(in
- 	struct apci1032_private *devpriv = dev->private;
- 	struct comedi_subdevice *s = dev->read_subdev;
- 	unsigned int ctrl;
-+	unsigned short val;
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -1258,13 +1258,12 @@ static __always_inline bool on_vc_fallba
+ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ {
+ 	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
++	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
+ 	struct ghcb *ghcb;
  
- 	/* check interrupt is from this device */
- 	if ((inl(devpriv->amcc_iobase + AMCC_OP_REG_INTCSR) &
-@@ -275,7 +276,8 @@ static irqreturn_t apci1032_interrupt(in
- 	outl(ctrl & ~APCI1032_CTRL_INT_ENA, dev->iobase + APCI1032_CTRL_REG);
+-	lockdep_assert_irqs_disabled();
+-
+ 	/*
+ 	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
+ 	 */
+@@ -1273,6 +1272,8 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_co
+ 		return;
+ 	}
  
- 	s->state = inl(dev->iobase + APCI1032_STATUS_REG) & 0xffff;
--	comedi_buf_write_samples(s, &s->state, 1);
-+	val = s->state;
-+	comedi_buf_write_samples(s, &val, 1);
- 	comedi_handle_events(dev, s);
++	irq_state = irqentry_nmi_enter(regs);
++	lockdep_assert_irqs_disabled();
+ 	instrumentation_begin();
  
- 	/* enable the interrupt */
+ 	/*
+@@ -1335,6 +1336,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_co
+ 
+ out:
+ 	instrumentation_end();
++	irqentry_nmi_exit(regs, irq_state);
+ 
+ 	return;
+ 
 
 
