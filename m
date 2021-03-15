@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFB733B656
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70A0933B648
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232066AbhCON5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34136 "EHLO mail.kernel.org"
+        id S232024AbhCON5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230204AbhCON5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81BBA64EEE;
-        Mon, 15 Mar 2021 13:56:59 +0000 (UTC)
+        id S230455AbhCON5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2382D64F0B;
+        Mon, 15 Mar 2021 13:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816620;
-        bh=Ux5Nui7i5uAA02jA+/Fd1375riJrUm2Q5kXkTqXaIOQ=;
+        s=korg; t=1615816622;
+        bh=nsYvCEi2xoNHe+CzywZRoMdYn6xHq91vEpzjR/JdKQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHCajVRl4bXk24CEPN4uI5uq6WdLFsRKd6k1CwRfmVZAJJDF/B18h0Vc5i7Am6ajt
-         091d/5655TgdpFcfDqsjs2AsTPUYxHXMYUTgDxdOOvXd5S7Vyr85vFd/IsbuRsvOmM
-         DIoJr2pyzXH2zMXPHy2ObuBWyo/3S0YiYmY5oZGI=
+        b=D0EKi0EjF9ekbWWDuH4YUZNTK3fBvyjKw2W2XdJcXrE7jDywyFAHkI+6g7vHTxTwC
+         7uK/t+BNiNryKR52FS2KZFRnzqDa3ZClkvK1ZqLH/NMit8GN3NYZ0tgH6udKXQJF4P
+         C3oqyiy/jWsFS5O980epis94wEWLow+rgBncvzeE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
         Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.11 025/306] netfilter: nf_nat: undo erroneous tcp edemux lookup
-Date:   Mon, 15 Mar 2021 14:51:28 +0100
-Message-Id: <20210315135508.478257023@linuxfoundation.org>
+Subject: [PATCH 5.11 026/306] netfilter: x_tables: gpf inside xt_find_revision()
+Date:   Mon, 15 Mar 2021 14:51:29 +0100
+Message-Id: <20210315135508.510397578@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -41,120 +42,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Florian Westphal <fw@strlen.de>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 03a3ca37e4c6478e3a84f04c8429dd5889e107fd upstream.
+commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
 
-Under extremely rare conditions TCP early demux will retrieve the wrong
-socket.
+nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
+without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
+and cause host to crash:
 
-1. local machine establishes a connection to a remote server, S, on port
-   p.
+general protection fault: 0000 [#1]
+Modules linked in: ... [last unloaded: xt_cluster]
+CPU: 0 PID: 542455 Comm: iptables
+RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
+RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
+R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
+(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
+xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
+Call Trace:
+ [<ffffffff902ccf44>] match_revfn+0x54/0xc0
+ [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
+ [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
+ [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
+ [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
+ [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
+ [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
+ [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
+ [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
+ [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
 
-   This gives:
-   laddr:lport -> S:p
-   ... both in tcp and conntrack.
-
-2. local machine establishes a connection to host H, on port p2.
-   2a. TCP stack choses same laddr:lport, so we have
-   laddr:lport -> H:p2 from TCP point of view.
-   2b). There is a destination NAT rewrite in place, translating
-        H:p2 to S:p.  This results in following conntrack entries:
-
-   I)  laddr:lport -> S:p  (origin)  S:p -> laddr:lport (reply)
-   II) laddr:lport -> H:p2 (origin)  S:p -> laddr:lport2 (reply)
-
-   NAT engine has rewritten laddr:lport to laddr:lport2 to map
-   the reply packet to the correct origin.
-
-   When server sends SYN/ACK to laddr:lport2, the PREROUTING hook
-   will undo-the SNAT transformation, rewriting IP header to
-   S:p -> laddr:lport
-
-   This causes TCP early demux to associate the skb with the TCP socket
-   of the first connection.
-
-   The INPUT hook will then reverse the DNAT transformation, rewriting
-   the IP header to H:p2 -> laddr:lport.
-
-Because packet ends up with the wrong socket, the new connection
-never completes: originator stays in SYN_SENT and conntrack entry
-remains in SYN_RECV until timeout, and responder retransmits SYN/ACK
-until it gives up.
-
-To resolve this, orphan the skb after the input rewrite:
-Because the source IP address changed, the socket must be incorrect.
-We can't move the DNAT undo to prerouting due to backwards
-compatibility, doing so will make iptables/nftables rules to no longer
-match the way they did.
-
-After orphan, the packet will be handed to the next protocol layer
-(tcp, udp, ...) and that will repeat the socket lookup just like as if
-early demux was disabled.
-
-Fixes: 41063e9dd1195 ("ipv4: Early TCP socket demux.")
-Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1427
-Signed-off-by: Florian Westphal <fw@strlen.de>
+Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_nat_proto.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ net/netfilter/x_tables.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/nf_nat_proto.c
-+++ b/net/netfilter/nf_nat_proto.c
-@@ -646,8 +646,8 @@ nf_nat_ipv4_fn(void *priv, struct sk_buf
- }
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -330,6 +330,7 @@ static int match_revfn(u8 af, const char
+ 	const struct xt_match *m;
+ 	int have_rev = 0;
  
- static unsigned int
--nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
--	       const struct nf_hook_state *state)
-+nf_nat_ipv4_pre_routing(void *priv, struct sk_buff *skb,
-+			const struct nf_hook_state *state)
- {
- 	unsigned int ret;
- 	__be32 daddr = ip_hdr(skb)->daddr;
-@@ -660,6 +660,23 @@ nf_nat_ipv4_in(void *priv, struct sk_buf
- }
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(m, &xt[af].match, list) {
+ 		if (strcmp(m->name, name) == 0) {
+ 			if (m->revision > *bestp)
+@@ -338,6 +339,7 @@ static int match_revfn(u8 af, const char
+ 				have_rev = 1;
+ 		}
+ 	}
++	mutex_unlock(&xt[af].mutex);
  
- static unsigned int
-+nf_nat_ipv4_local_in(void *priv, struct sk_buff *skb,
-+		     const struct nf_hook_state *state)
-+{
-+	__be32 saddr = ip_hdr(skb)->saddr;
-+	struct sock *sk = skb->sk;
-+	unsigned int ret;
-+
-+	ret = nf_nat_ipv4_fn(priv, skb, state);
-+
-+	if (ret == NF_ACCEPT && sk && saddr != ip_hdr(skb)->saddr &&
-+	    !inet_sk_transparent(sk))
-+		skb_orphan(skb); /* TCP edemux obtained wrong socket */
-+
-+	return ret;
-+}
-+
-+static unsigned int
- nf_nat_ipv4_out(void *priv, struct sk_buff *skb,
- 		const struct nf_hook_state *state)
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -350,6 +352,7 @@ static int target_revfn(u8 af, const cha
+ 	const struct xt_target *t;
+ 	int have_rev = 0;
+ 
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(t, &xt[af].target, list) {
+ 		if (strcmp(t->name, name) == 0) {
+ 			if (t->revision > *bestp)
+@@ -358,6 +361,7 @@ static int target_revfn(u8 af, const cha
+ 				have_rev = 1;
+ 		}
+ 	}
++	mutex_unlock(&xt[af].mutex);
+ 
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -371,12 +375,10 @@ int xt_find_revision(u8 af, const char *
  {
-@@ -736,7 +753,7 @@ nf_nat_ipv4_local_fn(void *priv, struct
- static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
- 	/* Before packet filtering, change destination */
- 	{
--		.hook		= nf_nat_ipv4_in,
-+		.hook		= nf_nat_ipv4_pre_routing,
- 		.pf		= NFPROTO_IPV4,
- 		.hooknum	= NF_INET_PRE_ROUTING,
- 		.priority	= NF_IP_PRI_NAT_DST,
-@@ -757,7 +774,7 @@ static const struct nf_hook_ops nf_nat_i
- 	},
- 	/* After packet filtering, change source */
- 	{
--		.hook		= nf_nat_ipv4_fn,
-+		.hook		= nf_nat_ipv4_local_in,
- 		.pf		= NFPROTO_IPV4,
- 		.hooknum	= NF_INET_LOCAL_IN,
- 		.priority	= NF_IP_PRI_NAT_SRC,
+ 	int have_rev, best = -1;
+ 
+-	mutex_lock(&xt[af].mutex);
+ 	if (target == 1)
+ 		have_rev = target_revfn(af, name, revision, &best);
+ 	else
+ 		have_rev = match_revfn(af, name, revision, &best);
+-	mutex_unlock(&xt[af].mutex);
+ 
+ 	/* Nothing at all?  Return 0 to try loading module. */
+ 	if (best == -1) {
 
 
