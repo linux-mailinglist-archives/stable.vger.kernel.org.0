@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E1433B645
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF8D33B6A1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231187AbhCON5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+        id S232329AbhCON6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230094AbhCON5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00ECF64EF3;
-        Mon, 15 Mar 2021 13:57:00 +0000 (UTC)
+        id S232058AbhCON5l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EADA64EF3;
+        Mon, 15 Mar 2021 13:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816622;
-        bh=Ux5Nui7i5uAA02jA+/Fd1375riJrUm2Q5kXkTqXaIOQ=;
+        s=korg; t=1615816661;
+        bh=v7OhbPiWHZ14hluDN2kaDtfx5Wtnlzz+pRqmGBDx9Pk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xi8dmbYn0KYWkwxFIwWRd8ivnO+XgtydhhxvHNoXMwExVvQPwhflwNmcg0xnNPgoi
-         qTmK/TQGbV43HwQ1Y+Q/gWHAm1GiiKY0FBn3PiC3SNWn6ruAWQEHW9c+3Fi9KpBs3q
-         k2uCHLHGwLsvNcsBopLh42/zc63Xv0eN3AlZkTJM=
+        b=DWNqSDJ5O/lYMYk60xYuyg1zvpYLRrW7d473owrCwS+TFUJLN8CzESFuXiN1ZTyfh
+         7cKjVSZT73mkY9YIkCe5JHOZ3wfWhFzG1DU4ETxQnopn+cjb4ynDtvTNPHV7QQRFMM
+         x6Lhs5E2yXjBUVTS7TkpZyBSxvc6qVO6qqx0btH8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 018/290] netfilter: nf_nat: undo erroneous tcp edemux lookup
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 048/306] net: enetc: take the MDIO lock only once per NAPI poll cycle
 Date:   Mon, 15 Mar 2021 14:51:51 +0100
-Message-Id: <20210315135542.552567324@linuxfoundation.org>
+Message-Id: <20210315135509.275006442@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,120 +41,173 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Florian Westphal <fw@strlen.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 03a3ca37e4c6478e3a84f04c8429dd5889e107fd upstream.
+commit 6d36ecdbc4410e61a0e02adc5d3abeee22a8ffd3 upstream.
 
-Under extremely rare conditions TCP early demux will retrieve the wrong
-socket.
+The workaround for the ENETC MDIO erratum caused a performance
+degradation of 82 Kpps (seen with IP forwarding of two 1Gbps streams of
+64B packets). This is due to excessive locking and unlocking in the fast
+path, which can be avoided.
 
-1. local machine establishes a connection to a remote server, S, on port
-   p.
+By taking the MDIO read-side lock only once per NAPI poll cycle, we are
+able to regain 54 Kpps (65%) of the performance hit. The rest of the
+performance degradation comes from the TX data path, but unfortunately
+it doesn't look like we can optimize that away easily, even with
+netdev_xmit_more(), there just isn't any skb batching done, to help with
+taking the MDIO lock less often than once per packet.
 
-   This gives:
-   laddr:lport -> S:p
-   ... both in tcp and conntrack.
+We need to change the register accessor type for enetc_get_tx_tstamp,
+because it now runs under the enetc_lock_mdio as per the new call path
+detailed below:
 
-2. local machine establishes a connection to host H, on port p2.
-   2a. TCP stack choses same laddr:lport, so we have
-   laddr:lport -> H:p2 from TCP point of view.
-   2b). There is a destination NAT rewrite in place, translating
-        H:p2 to S:p.  This results in following conntrack entries:
+enetc_msix
+-> napi_schedule
+   -> enetc_poll
+      -> enetc_lock_mdio
+      -> enetc_clean_tx_ring
+         -> enetc_get_tx_tstamp
+      -> enetc_clean_rx_ring
+      -> enetc_unlock_mdio
 
-   I)  laddr:lport -> S:p  (origin)  S:p -> laddr:lport (reply)
-   II) laddr:lport -> H:p2 (origin)  S:p -> laddr:lport2 (reply)
-
-   NAT engine has rewritten laddr:lport to laddr:lport2 to map
-   the reply packet to the correct origin.
-
-   When server sends SYN/ACK to laddr:lport2, the PREROUTING hook
-   will undo-the SNAT transformation, rewriting IP header to
-   S:p -> laddr:lport
-
-   This causes TCP early demux to associate the skb with the TCP socket
-   of the first connection.
-
-   The INPUT hook will then reverse the DNAT transformation, rewriting
-   the IP header to H:p2 -> laddr:lport.
-
-Because packet ends up with the wrong socket, the new connection
-never completes: originator stays in SYN_SENT and conntrack entry
-remains in SYN_RECV until timeout, and responder retransmits SYN/ACK
-until it gives up.
-
-To resolve this, orphan the skb after the input rewrite:
-Because the source IP address changed, the socket must be incorrect.
-We can't move the DNAT undo to prerouting due to backwards
-compatibility, doing so will make iptables/nftables rules to no longer
-match the way they did.
-
-After orphan, the packet will be handed to the next protocol layer
-(tcp, udp, ...) and that will repeat the socket lookup just like as if
-early demux was disabled.
-
-Fixes: 41063e9dd1195 ("ipv4: Early TCP socket demux.")
-Closes: https://bugzilla.netfilter.org/show_bug.cgi?id=1427
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: fd5736bf9f23 ("enetc: Workaround for MDIO register access issue")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_nat_proto.c |   25 +++++++++++++++++++++----
- 1 file changed, 21 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c    |   31 ++++++------------------
+ drivers/net/ethernet/freescale/enetc/enetc_hw.h |    2 +
+ 2 files changed, 11 insertions(+), 22 deletions(-)
 
---- a/net/netfilter/nf_nat_proto.c
-+++ b/net/netfilter/nf_nat_proto.c
-@@ -646,8 +646,8 @@ nf_nat_ipv4_fn(void *priv, struct sk_buf
- }
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -281,6 +281,8 @@ static int enetc_poll(struct napi_struct
+ 	int work_done;
+ 	int i;
  
- static unsigned int
--nf_nat_ipv4_in(void *priv, struct sk_buff *skb,
--	       const struct nf_hook_state *state)
-+nf_nat_ipv4_pre_routing(void *priv, struct sk_buff *skb,
-+			const struct nf_hook_state *state)
- {
- 	unsigned int ret;
- 	__be32 daddr = ip_hdr(skb)->daddr;
-@@ -660,6 +660,23 @@ nf_nat_ipv4_in(void *priv, struct sk_buf
- }
++	enetc_lock_mdio();
++
+ 	for (i = 0; i < v->count_tx_rings; i++)
+ 		if (!enetc_clean_tx_ring(&v->tx_ring[i], budget))
+ 			complete = false;
+@@ -291,8 +293,10 @@ static int enetc_poll(struct napi_struct
+ 	if (work_done)
+ 		v->rx_napi_work = true;
  
- static unsigned int
-+nf_nat_ipv4_local_in(void *priv, struct sk_buff *skb,
-+		     const struct nf_hook_state *state)
-+{
-+	__be32 saddr = ip_hdr(skb)->saddr;
-+	struct sock *sk = skb->sk;
-+	unsigned int ret;
-+
-+	ret = nf_nat_ipv4_fn(priv, skb, state);
-+
-+	if (ret == NF_ACCEPT && sk && saddr != ip_hdr(skb)->saddr &&
-+	    !inet_sk_transparent(sk))
-+		skb_orphan(skb); /* TCP edemux obtained wrong socket */
-+
-+	return ret;
-+}
-+
-+static unsigned int
- nf_nat_ipv4_out(void *priv, struct sk_buff *skb,
- 		const struct nf_hook_state *state)
+-	if (!complete)
++	if (!complete) {
++		enetc_unlock_mdio();
+ 		return budget;
++	}
+ 
+ 	napi_complete_done(napi, work_done);
+ 
+@@ -301,8 +305,6 @@ static int enetc_poll(struct napi_struct
+ 
+ 	v->rx_napi_work = false;
+ 
+-	enetc_lock_mdio();
+-
+ 	/* enable interrupts */
+ 	enetc_wr_reg_hot(v->rbier, ENETC_RBIER_RXTIE);
+ 
+@@ -327,8 +329,8 @@ static void enetc_get_tx_tstamp(struct e
  {
-@@ -736,7 +753,7 @@ nf_nat_ipv4_local_fn(void *priv, struct
- static const struct nf_hook_ops nf_nat_ipv4_ops[] = {
- 	/* Before packet filtering, change destination */
- 	{
--		.hook		= nf_nat_ipv4_in,
-+		.hook		= nf_nat_ipv4_pre_routing,
- 		.pf		= NFPROTO_IPV4,
- 		.hooknum	= NF_INET_PRE_ROUTING,
- 		.priority	= NF_IP_PRI_NAT_DST,
-@@ -757,7 +774,7 @@ static const struct nf_hook_ops nf_nat_i
- 	},
- 	/* After packet filtering, change source */
- 	{
--		.hook		= nf_nat_ipv4_fn,
-+		.hook		= nf_nat_ipv4_local_in,
- 		.pf		= NFPROTO_IPV4,
- 		.hooknum	= NF_INET_LOCAL_IN,
- 		.priority	= NF_IP_PRI_NAT_SRC,
+ 	u32 lo, hi, tstamp_lo;
+ 
+-	lo = enetc_rd(hw, ENETC_SICTR0);
+-	hi = enetc_rd(hw, ENETC_SICTR1);
++	lo = enetc_rd_hot(hw, ENETC_SICTR0);
++	hi = enetc_rd_hot(hw, ENETC_SICTR1);
+ 	tstamp_lo = le32_to_cpu(txbd->wb.tstamp);
+ 	if (lo <= tstamp_lo)
+ 		hi -= 1;
+@@ -358,9 +360,7 @@ static bool enetc_clean_tx_ring(struct e
+ 	i = tx_ring->next_to_clean;
+ 	tx_swbd = &tx_ring->tx_swbd[i];
+ 
+-	enetc_lock_mdio();
+ 	bds_to_clean = enetc_bd_ready_count(tx_ring, i);
+-	enetc_unlock_mdio();
+ 
+ 	do_tstamp = false;
+ 
+@@ -403,8 +403,6 @@ static bool enetc_clean_tx_ring(struct e
+ 			tx_swbd = tx_ring->tx_swbd;
+ 		}
+ 
+-		enetc_lock_mdio();
+-
+ 		/* BD iteration loop end */
+ 		if (is_eof) {
+ 			tx_frm_cnt++;
+@@ -415,8 +413,6 @@ static bool enetc_clean_tx_ring(struct e
+ 
+ 		if (unlikely(!bds_to_clean))
+ 			bds_to_clean = enetc_bd_ready_count(tx_ring, i);
+-
+-		enetc_unlock_mdio();
+ 	}
+ 
+ 	tx_ring->next_to_clean = i;
+@@ -660,8 +656,6 @@ static int enetc_clean_rx_ring(struct en
+ 		u32 bd_status;
+ 		u16 size;
+ 
+-		enetc_lock_mdio();
+-
+ 		if (cleaned_cnt >= ENETC_RXBD_BUNDLE) {
+ 			int count = enetc_refill_rx_ring(rx_ring, cleaned_cnt);
+ 
+@@ -672,19 +666,15 @@ static int enetc_clean_rx_ring(struct en
+ 
+ 		rxbd = enetc_rxbd(rx_ring, i);
+ 		bd_status = le32_to_cpu(rxbd->r.lstatus);
+-		if (!bd_status) {
+-			enetc_unlock_mdio();
++		if (!bd_status)
+ 			break;
+-		}
+ 
+ 		enetc_wr_reg_hot(rx_ring->idr, BIT(rx_ring->index));
+ 		dma_rmb(); /* for reading other rxbd fields */
+ 		size = le16_to_cpu(rxbd->r.buf_len);
+ 		skb = enetc_map_rx_buff_to_skb(rx_ring, i, size);
+-		if (!skb) {
+-			enetc_unlock_mdio();
++		if (!skb)
+ 			break;
+-		}
+ 
+ 		enetc_get_offloads(rx_ring, rxbd, skb);
+ 
+@@ -696,7 +686,6 @@ static int enetc_clean_rx_ring(struct en
+ 
+ 		if (unlikely(bd_status &
+ 			     ENETC_RXBD_LSTATUS(ENETC_RXBD_ERR_MASK))) {
+-			enetc_unlock_mdio();
+ 			dev_kfree_skb(skb);
+ 			while (!(bd_status & ENETC_RXBD_LSTATUS_F)) {
+ 				dma_rmb();
+@@ -736,8 +725,6 @@ static int enetc_clean_rx_ring(struct en
+ 
+ 		enetc_process_skb(rx_ring, skb);
+ 
+-		enetc_unlock_mdio();
+-
+ 		napi_gro_receive(napi, skb);
+ 
+ 		rx_frm_cnt++;
+--- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
+@@ -453,6 +453,8 @@ static inline u64 _enetc_rd_reg64_wa(voi
+ #define enetc_wr_reg(reg, val)		_enetc_wr_reg_wa((reg), (val))
+ #define enetc_rd(hw, off)		enetc_rd_reg((hw)->reg + (off))
+ #define enetc_wr(hw, off, val)		enetc_wr_reg((hw)->reg + (off), val)
++#define enetc_rd_hot(hw, off)		enetc_rd_reg_hot((hw)->reg + (off))
++#define enetc_wr_hot(hw, off, val)	enetc_wr_reg_hot((hw)->reg + (off), val)
+ #define enetc_rd64(hw, off)		_enetc_rd_reg64_wa((hw)->reg + (off))
+ /* port register accessors - PF only */
+ #define enetc_port_rd(hw, off)		enetc_rd_reg((hw)->port + (off))
 
 
