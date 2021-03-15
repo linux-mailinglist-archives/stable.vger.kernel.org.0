@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 878BF33B5E3
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C549733B739
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231293AbhCONzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:55:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59402 "EHLO mail.kernel.org"
+        id S232570AbhCON7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhCONzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5332A64EB6;
-        Mon, 15 Mar 2021 13:55:08 +0000 (UTC)
+        id S232406AbhCON6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13E5B64EEE;
+        Mon, 15 Mar 2021 13:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816510;
-        bh=+a99zkgVXIsOsSy2xm8mD7Pb7cBSn8jGKLpGXBnAiAU=;
+        s=korg; t=1615816710;
+        bh=Vr0sgJqWyvNZnVFR/n03t2Gv7d6qsk5EVb5smonF9Oo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kBIQ5BZCpB59dKApEUE93VhKdyO+k1elZAWo/Vta6+aaj4VCFXiS5QSO9wOz434Kq
-         Kj++3eSIIxJwdVSYjHzOaLEu58Ll+4M+u44TYV9G6LAh3eBRWxP97sOOkKR8HS+HHN
-         nH8Ock8Bmta2ylJCUxIO7o9OLi1oZ5sBHYJG1+xc=
+        b=PSwy3xkEViYcJeCPd6CxusuzSiD3lU1IJW4b4xWumMw9s9a0raiaL0vY90NqDwb7G
+         ivCIeu9Hc8cuGC3dUxba9FC/HPIU6b9TZDYsrqQA7BB8WmaYxWT/4YeoMXcLh7sqa1
+         iaFVmDqJQQPudMGFxyn2u+NpZ+d0rPM3DxPAE7iM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
-        Juergen Gross <jgross@suse.com>,
-        Julien Grall <jgrall@amazon.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.9 78/78] xen/events: avoid handling the same event on two cpus at the same time
-Date:   Mon, 15 Mar 2021 14:52:41 +0100
-Message-Id: <20210315135214.612976968@linuxfoundation.org>
+        stable@vger.kernel.org, Yinjun Zhang <yinjun.zhang@corigine.com>,
+        Simon Horman <simon.horman@netronome.com>,
+        Louis Peens <louis.peens@netronome.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 069/290] ethtool: fix the check logic of at least one channel for RX/TX
+Date:   Mon, 15 Mar 2021 14:52:42 +0100
+Message-Id: <20210315135544.237279519@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +43,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Juergen Gross <jgross@suse.com>
+From: Yinjun Zhang <yinjun.zhang@corigine.com>
 
-commit b6622798bc50b625a1e62f82c7190df40c1f5b21 upstream.
+commit a4fc088ad4ff4a99d01978aa41065132b574b4b2 upstream.
 
-When changing the cpu affinity of an event it can happen today that
-(with some unlucky timing) the same event will be handled on the old
-and the new cpu at the same time.
+The command "ethtool -L <intf> combined 0" may clean the RX/TX channel
+count and skip the error path, since the attrs
+tb[ETHTOOL_A_CHANNELS_RX_COUNT] and tb[ETHTOOL_A_CHANNELS_TX_COUNT]
+are NULL in this case when recent ethtool is used.
 
-Avoid that by adding an "event active" flag to the per-event data and
-call the handler only if this flag isn't set.
+Tested using ethtool v5.10.
 
-Cc: stable@vger.kernel.org
-Reported-by: Julien Grall <julien@xen.org>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Julien Grall <jgrall@amazon.com>
-Link: https://lore.kernel.org/r/20210306161833.4552-4-jgross@suse.com
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Fixes: 7be92514b99c ("ethtool: check if there is at least one channel for TX/RX in the core")
+Signed-off-by: Yinjun Zhang <yinjun.zhang@corigine.com>
+Signed-off-by: Simon Horman <simon.horman@netronome.com>
+Signed-off-by: Louis Peens <louis.peens@netronome.com>
+Link: https://lore.kernel.org/r/20210225125102.23989-1-simon.horman@netronome.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/events/events_base.c     |   25 +++++++++++++++++--------
- drivers/xen/events/events_internal.h |    1 +
- 2 files changed, 18 insertions(+), 8 deletions(-)
+ net/ethtool/channels.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -702,6 +702,12 @@ static void xen_evtchn_close(unsigned in
- 		BUG();
- }
+--- a/net/ethtool/channels.c
++++ b/net/ethtool/channels.c
+@@ -116,10 +116,9 @@ int ethnl_set_channels(struct sk_buff *s
+ 	struct ethtool_channels channels = {};
+ 	struct ethnl_req_info req_info = {};
+ 	struct nlattr **tb = info->attrs;
+-	const struct nlattr *err_attr;
++	u32 err_attr, max_rx_in_use = 0;
+ 	const struct ethtool_ops *ops;
+ 	struct net_device *dev;
+-	u32 max_rx_in_use = 0;
+ 	int ret;
  
-+static void event_handler_exit(struct irq_info *info)
-+{
-+	smp_store_release(&info->is_active, 0);
-+	clear_evtchn(info->evtchn);
-+}
-+
- static void pirq_query_unmask(int irq)
- {
- 	struct physdev_irq_status_query irq_status;
-@@ -732,13 +738,13 @@ static void eoi_pirq(struct irq_data *da
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 	ret = ethnl_parse_header_dev_get(&req_info,
+@@ -157,34 +156,35 @@ int ethnl_set_channels(struct sk_buff *s
  
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 	if (pirq_needs_eoi(data->irq)) {
- 		rc = HYPERVISOR_physdev_op(PHYSDEVOP_eoi, &eoi);
-@@ -1574,6 +1580,8 @@ void handle_irq_for_port(evtchn_port_t p
+ 	/* ensure new channel counts are within limits */
+ 	if (channels.rx_count > channels.max_rx)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
+ 	else if (channels.tx_count > channels.max_tx)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
+ 	else if (channels.other_count > channels.max_other)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_OTHER_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_OTHER_COUNT;
+ 	else if (channels.combined_count > channels.max_combined)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
+ 	else
+-		err_attr = NULL;
++		err_attr = 0;
+ 	if (err_attr) {
+ 		ret = -EINVAL;
+-		NL_SET_ERR_MSG_ATTR(info->extack, err_attr,
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
+ 				    "requested channel count exceeds maximum");
+ 		goto out_ops;
  	}
  
- 	info = info_for_irq(irq);
-+	if (xchg_acquire(&info->is_active, 1))
-+		return;
- 
- 	if (ctrl->defer_eoi) {
- 		info->eoi_cpu = smp_processor_id();
-@@ -1750,13 +1758,13 @@ static void ack_dynirq(struct irq_data *
- 	    likely(!irqd_irq_disabled(data))) {
- 		do_mask(info, EVT_MASK_REASON_TEMPORARY);
- 
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 
- 		irq_move_masked_irq(data);
- 
- 		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
- 	} else
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- 
- static void mask_ack_dynirq(struct irq_data *data)
-@@ -1772,7 +1780,7 @@ static void lateeoi_ack_dynirq(struct ir
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
+ 	/* ensure there is at least one RX and one TX channel */
+ 	if (!channels.combined_count && !channels.rx_count)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_RX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_RX_COUNT;
+ 	else if (!channels.combined_count && !channels.tx_count)
+-		err_attr = tb[ETHTOOL_A_CHANNELS_TX_COUNT];
++		err_attr = ETHTOOL_A_CHANNELS_TX_COUNT;
+ 	else
+-		err_attr = NULL;
++		err_attr = 0;
+ 	if (err_attr) {
+ 		if (mod_combined)
+-			err_attr = tb[ETHTOOL_A_CHANNELS_COMBINED_COUNT];
++			err_attr = ETHTOOL_A_CHANNELS_COMBINED_COUNT;
+ 		ret = -EINVAL;
+-		NL_SET_ERR_MSG_ATTR(info->extack, err_attr, "requested channel counts would result in no RX or TX channel being configured");
++		NL_SET_ERR_MSG_ATTR(info->extack, tb[err_attr],
++				    "requested channel counts would result in no RX or TX channel being configured");
+ 		goto out_ops;
  	}
- }
  
-@@ -1783,7 +1791,7 @@ static void lateeoi_mask_ack_dynirq(stru
- 
- 	if (VALID_EVTCHN(evtchn)) {
- 		do_mask(info, EVT_MASK_REASON_EXPLICIT);
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- 	}
- }
- 
-@@ -1892,10 +1900,11 @@ static void restore_cpu_ipis(unsigned in
- /* Clear an irq's pending state, in preparation for polling on it */
- void xen_clear_irq_pending(int irq)
- {
--	int evtchn = evtchn_from_irq(irq);
-+	struct irq_info *info = info_for_irq(irq);
-+	evtchn_port_t evtchn = info ? info->evtchn : 0;
- 
- 	if (VALID_EVTCHN(evtchn))
--		clear_evtchn(evtchn);
-+		event_handler_exit(info);
- }
- EXPORT_SYMBOL(xen_clear_irq_pending);
- void xen_set_irq_pending(int irq)
---- a/drivers/xen/events/events_internal.h
-+++ b/drivers/xen/events/events_internal.h
-@@ -40,6 +40,7 @@ struct irq_info {
- #define EVT_MASK_REASON_EXPLICIT	0x01
- #define EVT_MASK_REASON_TEMPORARY	0x02
- #define EVT_MASK_REASON_EOI_PENDING	0x04
-+	u8 is_active;		/* Is event just being handled? */
- 	unsigned irq;
- 	unsigned int evtchn;	/* event channel */
- 	unsigned short cpu;	/* cpu bound */
 
 
