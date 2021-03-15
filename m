@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9389C33B76A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBC9233BACC
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232955AbhCOOAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S235708AbhCOOKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:10:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232525AbhCON7B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C0764EE5;
-        Mon, 15 Mar 2021 13:58:43 +0000 (UTC)
+        id S233863AbhCOOCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FA364DAD;
+        Mon, 15 Mar 2021 14:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816724;
-        bh=ghFUyYXA2Y/ZwjMH7eat5HszhmeuGBjHZ3X+Z2fUBd8=;
+        s=korg; t=1615816952;
+        bh=xKgkFWzxlPRIvHIuGIVg8npd7F6MBl11aaKZJp0K8E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unchqKlUHGJ7URtMs62dL0tqDPjELMiJk6GXYKeCDKLFDG/axKmwuKm6E4FSNGd08
-         fCNJtd1mS5ENFUIWq/kyROWE+oYOCaSo5JbRgYyM8+pMuM3A58GJdET73egPMY7XGo
-         okYmWn4H/U8qcJwZs20qjUDT1bGT8wErOwhpV0Yk=
+        b=frAYc2E4nXyAYMU1upd7beMHApai5WKgveQ2u2s721CnepkbqL8JRoldJSAFfbWAo
+         cugefwDHnJmbpvjWT7QgLslaJWYePaQlwORakOCkQiae9dQiA9XQH6/rdhD33CCEGi
+         nhH8+qhXc5+uNYjJM16Y0dupvDNtJg8z3PEZLtBc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/168] spi: stm32: make spurious and overrun interrupts visible
+        stable@vger.kernel.org, Bernhard <bernhard.gebetsberger@gmx.at>,
+        Stanislaw Gruszka <stf_xl@wp.pl>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 208/290] usb: xhci: do not perform Soft Retry for some xHCI hosts
 Date:   Mon, 15 Mar 2021 14:55:01 +0100
-Message-Id: <20210315135552.638932637@linuxfoundation.org>
+Message-Id: <20210315135548.961675918@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +42,75 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Stanislaw Gruszka <stf_xl@wp.pl>
 
-[ Upstream commit c64e7efe46b7de21937ef4b3594d9b1fc74f07df ]
+commit a4a251f8c23518899d2078c320cf9ce2fa459c9f upstream.
 
-We do not expect to receive spurious interrupts so rise a warning
-if it happens.
+On some systems rt2800usb and mt7601u devices are unable to operate since
+commit f8f80be501aa ("xhci: Use soft retry to recover faster from
+transaction errors")
 
-RX overrun is an error condition that signals a corrupted RX
-stream both in dma and in irq modes. Report the error and
-abort the transfer in either cases.
+Seems that some xHCI controllers can not perform Soft Retry correctly,
+affecting those devices.
 
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1612551572-495-9-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To avoid the problem add xhci->quirks flag that restore pre soft retry
+xhci behaviour for affected xHCI controllers. Currently those are
+AMD_PROMONTORYA_4 and AMD_PROMONTORYA_2, since it was confirmed
+by the users: on those xHCI hosts issue happen and is gone after
+disabling Soft Retry.
+
+[minor commit message rewording for checkpatch -Mathias]
+
+Fixes: f8f80be501aa ("xhci: Use soft retry to recover faster from transaction errors")
+Cc: <stable@vger.kernel.org> # 4.20+
+Reported-by: Bernhard <bernhard.gebetsberger@gmx.at>
+Tested-by: Bernhard <bernhard.gebetsberger@gmx.at>
+Signed-off-by: Stanislaw Gruszka <stf_xl@wp.pl>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202541
+Link: https://lore.kernel.org/r/20210311115353.2137560-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-stm32.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ drivers/usb/host/xhci-pci.c  |    5 +++++
+ drivers/usb/host/xhci-ring.c |    3 ++-
+ drivers/usb/host/xhci.h      |    1 +
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 8622cf9d3f64..9e7a6de3c43d 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -924,8 +924,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 		mask |= STM32H7_SPI_SR_RXP;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -295,6 +295,11 @@ static void xhci_pci_quirks(struct devic
+ 	     pdev->device == 0x9026)
+ 		xhci->quirks |= XHCI_RESET_PLL_ON_DISCONNECT;
  
- 	if (!(sr & mask)) {
--		dev_dbg(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
--			sr, ier);
-+		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
-+			 sr, ier);
- 		spin_unlock_irqrestore(&spi->lock, flags);
- 		return IRQ_NONE;
- 	}
-@@ -952,15 +952,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 	}
++	if (pdev->vendor == PCI_VENDOR_ID_AMD &&
++	    (pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_2 ||
++	     pdev->device == PCI_DEVICE_ID_AMD_PROMONTORYA_4))
++		xhci->quirks |= XHCI_NO_SOFT_RETRY;
++
+ 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
+ 		xhci_dbg_trace(xhci, trace_xhci_dbg_quirks,
+ 				"QUIRK: Resetting on resume");
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2307,7 +2307,8 @@ static int process_bulk_intr_td(struct x
+ 		remaining	= 0;
+ 		break;
+ 	case COMP_USB_TRANSACTION_ERROR:
+-		if ((ep_ring->err_count++ > MAX_SOFT_RETRY) ||
++		if (xhci->quirks & XHCI_NO_SOFT_RETRY ||
++		    (ep_ring->err_count++ > MAX_SOFT_RETRY) ||
+ 		    le32_to_cpu(slot_ctx->tt_info) & TT_SLOT)
+ 			break;
+ 		*status = 0;
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1879,6 +1879,7 @@ struct xhci_hcd {
+ #define XHCI_SKIP_PHY_INIT	BIT_ULL(37)
+ #define XHCI_DISABLE_SPARSE	BIT_ULL(38)
+ #define XHCI_SG_TRB_CACHE_SIZE_QUIRK	BIT_ULL(39)
++#define XHCI_NO_SOFT_RETRY	BIT_ULL(40)
  
- 	if (sr & STM32H7_SPI_SR_OVR) {
--		dev_warn(spi->dev, "Overrun: received value discarded\n");
--		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
--			stm32h7_spi_read_rxfifo(spi, false);
--		/*
--		 * If overrun is detected while using DMA, it means that
--		 * something went wrong, so stop the current transfer
--		 */
--		if (spi->cur_usedma)
--			end = true;
-+		dev_err(spi->dev, "Overrun: RX data lost\n");
-+		end = true;
- 	}
- 
- 	if (sr & STM32H7_SPI_SR_EOT) {
--- 
-2.30.1
-
+ 	unsigned int		num_active_eps;
+ 	unsigned int		limit_active_eps;
 
 
