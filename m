@@ -2,73 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB02833B229
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 13:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1418A33B23F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 13:10:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230484AbhCOMIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 08:08:34 -0400
-Received: from vps0.lunn.ch ([185.16.172.187]:56792 "EHLO vps0.lunn.ch"
+        id S229748AbhCOMJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 08:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230157AbhCOMIX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 08:08:23 -0400
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94)
-        (envelope-from <andrew@lunn.ch>)
-        id 1lLm1A-00B6Bw-Sf; Mon, 15 Mar 2021 13:08:16 +0100
-Date:   Mon, 15 Mar 2021 13:08:16 +0100
-From:   Andrew Lunn <andrew@lunn.ch>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-Subject: Re: [PATCH mvebu + mvebu/dt64 4/4] arm64: dts: marvell: armada-37xx:
- move firmware node to generic dtsi file
-Message-ID: <YE9OMFHwLi8q0qnb@lunn.ch>
-References: <20210308153703.23097-1-kabel@kernel.org>
- <20210308153703.23097-4-kabel@kernel.org>
- <87czw4kath.fsf@BL-laptop>
- <20210312101027.1997ec75@kernel.org>
- <YEt/Ll08M1cwgGR/@lunn.ch>
- <20210312161704.5e575906@kernel.org>
- <YEuOfI5FKLYgdQV+@lunn.ch>
- <20210315101454.dpyfdwk43poirxlw@pali>
+        id S231241AbhCOMJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 08:09:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF29864E76;
+        Mon, 15 Mar 2021 12:09:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615810165;
+        bh=4dGy2llSx7XEaMNzR4zA+6ClqI3HgMXzddrgHFnaB8Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BIvYXyaIyBwcUYbLAP3wNCPdm/aBo3LznXHrPQPAVip3Sh9Ou8GOUhwyrODXt7kcs
+         QJQhoLZD0ZwDeR3PASI2BoZq4bJ3dKwN5bDmClkcmjDtGcm29cQQGoylT3x0uuDIOj
+         Lti5CmmAck+AEdzkOj2Z3XL3f9slLJMDMiEjrIC0=
+Date:   Mon, 15 Mar 2021 13:09:23 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mike Rapoport <rppt@linux.ibm.com>
+Cc:     rppt@kernel.org, aarcange@redhat.com, akpm@linux-foundation.org,
+        bhe@redhat.com, bp@alien8.de, cai@lca.pw, chris@chris-wilson.co.uk,
+        david@redhat.com, hpa@zytor.com, lma@semihalf.com, mgorman@suse.de,
+        mhocko@kernel.org, mingo@redhat.com, stable@vger.kernel.org,
+        tglx@linutronix.de, tomi.p.sarvela@intel.com,
+        torvalds@linux-foundation.org, vbabka@suse.cz
+Subject: Re: FAILED: patch "[PATCH] mm/page_alloc.c: refactor initialization
+ of struct page for" failed to apply to 5.11-stable tree
+Message-ID: <YE9Oc461sWN2bUdC@kroah.com>
+References: <161579835811940@kroah.com>
+ <YE8ngJ3k/RuL5RER@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210315101454.dpyfdwk43poirxlw@pali>
+In-Reply-To: <YE8ngJ3k/RuL5RER@linux.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Mar 15, 2021 at 11:14:54AM +0100, Pali Rohár wrote:
-> On Friday 12 March 2021 16:53:32 Andrew Lunn wrote:
-> > > So theoretically the turris-mox-rwtm driver can be renamed into
-> > > something else and we can add a different compatible in order not to
-> > > sound so turris-mox specific.
-> > 
-> > That would be a good idea. And if possible, try to push the hardware
-> > random number code upstream in the firmware repos, so everybody gets
-> > it by default, not just those using your build. Who is responsible for
-> > upstream? Marvell?
-> > 
-> > 	  Andrew
+On Mon, Mar 15, 2021 at 11:23:12AM +0200, Mike Rapoport wrote:
+> Hi,
 > 
-> Hello Andrew!
+> On Mon, Mar 15, 2021 at 09:52:38AM +0100, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 5.11-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From 0740a50b9baa4472cfb12442df4b39e2712a64a4 Mon Sep 17 00:00:00 2001
+> > From: Mike Rapoport <rppt@kernel.org>
+> > Date: Fri, 12 Mar 2021 21:07:12 -0800
+> > Subject: [PATCH] mm/page_alloc.c: refactor initialization of struct page for
+> >  holes in memory layout
 > 
-> I do not think that renaming driver is the best option. For future it
-> would complicate backporting patches to stable kernel and also it would
-> make usage of 'gitk' harder as this tool cannot automatically track file
-> renames.
+> The version below applies to v5.11 and v5.10.
 
-Hi Pali
+Now applied, thanks.
 
-I'm not suggesting renaming the .c file.
-
-What would be good is to add additional compatible strings. Add a more
-generic compatible. What goes into the .dtsi should use the generic
-name. Also, the node names should also be generic, since the node name
-is probably not used anywhere, just the compatible string. Keep the
-current compatible in the driver, for backwards compatibility with
-older DT blobs.
-
-      Andrew
+greg k-h
