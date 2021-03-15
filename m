@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355CA33B964
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5D3333BA7B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233810AbhCOOC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S233416AbhCOOJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232940AbhCOOAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 844B964EF2;
-        Mon, 15 Mar 2021 13:59:58 +0000 (UTC)
+        id S232876AbhCOOD4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27BF264F0B;
+        Mon, 15 Mar 2021 14:03:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816799;
-        bh=IRd2fbfWB7PxKr72oQAlufixyevhTRLq+lbOG35j/Zo=;
+        s=korg; t=1615817034;
+        bh=/JTvGATYW5r/jlAqVIzH0rTIktRXFjvbCTITl6syH2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCPy14e05yPSIPIXpE0AZmTklWAdlWe+16uX4BZjlpk9KeFqN4KzoY54sZdix6IKB
-         wmnBFPTUENWkDCxTNYj6Gr5mG6Ms0XxWRyvikEfiYPIyKnALDFia16yzDRqokOrGRM
-         E3jX2gLD+D9UQyMIZEDVbStoXzBrLVPg2SvFKo+g=
+        b=lFThMuuveseEsqLvMS+Dr4PgRsZaFqLZ+20LBDoARZo5iCNPcyX5mJaXHK8QpqwTd
+         f9yS6STLiD5Pd4kLL4GLCNUQcCyjrMa9bSrhr7yF9XqyeBqKxPxkSixsYBBD4O+JjE
+         ou/xK+ebyY58M6HfDzCRxIXpzFYPP5U5Bi5GZZsg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 118/168] USB: serial: cp210x: add some more GE USB IDs
+        stable@vger.kernel.org, Eric Dumazet <eric.dumazet@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 257/290] seqlock,lockdep: Fix seqcount_latch_init()
 Date:   Mon, 15 Mar 2021 14:55:50 +0100
-Message-Id: <20210315135554.238269928@linuxfoundation.org>
+Message-Id: <20210315135550.693627314@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +42,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 42213a0190b535093a604945db05a4225bf43885 upstream.
+[ Upstream commit 4817a52b306136c8b2b2271d8770401441e4cf79 ]
 
-GE CS1000 has some more custom USB IDs for CP2102N; add them
-to the driver to have working auto-probing.
+seqcount_init() must be a macro in order to preserve the static
+variable that is used for the lockdep key. Don't then wrap it in an
+inline function, which destroys that.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Luckily there aren't many users of this function, but fix it before it
+becomes a problem.
+
+Fixes: 80793c3471d9 ("seqlock: Introduce seqcount_latch_t")
+Reported-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/YEeFEbNUVkZaXDp4@hirez.programming.kicks-ass.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/seqlock.h | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -203,6 +203,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
-+	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
- 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+diff --git a/include/linux/seqlock.h b/include/linux/seqlock.h
+index cbfc78b92b65..1ac20d75b061 100644
+--- a/include/linux/seqlock.h
++++ b/include/linux/seqlock.h
+@@ -659,10 +659,7 @@ typedef struct {
+  * seqcount_latch_init() - runtime initializer for seqcount_latch_t
+  * @s: Pointer to the seqcount_latch_t instance
+  */
+-static inline void seqcount_latch_init(seqcount_latch_t *s)
+-{
+-	seqcount_init(&s->seqcount);
+-}
++#define seqcount_latch_init(s) seqcount_init(&(s)->seqcount)
+ 
+ /**
+  * raw_read_seqcount_latch() - pick even/odd latch data copy
+-- 
+2.30.1
+
 
 
