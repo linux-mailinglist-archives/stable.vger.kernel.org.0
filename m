@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2EF33B536
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7392333B61B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbhCONxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
+        id S231811AbhCON5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230131AbhCONxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A21D164EE3;
-        Mon, 15 Mar 2021 13:53:14 +0000 (UTC)
+        id S231130AbhCON4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F0864EF8;
+        Mon, 15 Mar 2021 13:56:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816396;
-        bh=FgnwEirIJlCfuiFacdLl2MgN29DBDcntNFmOzOCqrtg=;
+        s=korg; t=1615816600;
+        bh=YgK7z5OuoTYfHFxczuQxZsrqwMpzCQi6HapODk0JIQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uARKSVcXab0PzyDN8RQ+8+9uz2yYlzYAi4REEpRDuHEalfY+PDOk8XRYfEQA8rsS7
-         NYaY6639Q6pFYPCGAKwpMxoQ1pMk4l8lnxbCAxwhOaqCyZ4mHjgIoJd2wQmZM5dt/o
-         QYOatwIm6/IzUN8uJoVQvQWJxU9A6Btu/Jg3YgqE=
+        b=wNOUiRgU7KyzGBS3TtWwV9VeHenGLyD5E6LruP8/4GygUzOSSUV20I57u+VIEc3Vn
+         g7O/ZquAV6bXgQqA48htqhxikF5Lq2vErF+RGANgv5NOWVA87cYF0e8UeuwwakxW+E
+         S/Lzpi1z68v8NxuDk/aYvy1LTAEQjDYqoUXOriiw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 15/78] net: davicom: Fix regulator not turned off on failed probe
-Date:   Mon, 15 Mar 2021 14:51:38 +0100
-Message-Id: <20210315135212.566588976@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Kennedy <hurricos@gmail.com>,
+        Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.10 006/290] ath9k: fix transmitting to stations in dynamic SMPS mode
+Date:   Mon, 15 Mar 2021 14:51:39 +0100
+Message-Id: <20210315135542.156631808@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit ac88c531a5b38877eba2365a3f28f0c8b513dc33 upstream.
+commit 3b9ea7206d7e1fdd7419cbd10badd3b2c80d04b4 upstream.
 
-When the probe fails or requests to be defered, we must disable the
-regulator that was previously enabled.
+When transmitting to a receiver in dynamic SMPS mode, all transmissions that
+use multiple spatial streams need to be sent using CTS-to-self or RTS/CTS to
+give the receiver's extra chains some time to wake up.
+This fixes the tx rate getting stuck at <= MCS7 for some clients, especially
+Intel ones, which make aggressive use of SMPS.
 
-Fixes: 7994fe55a4a2 ("dm9000: Add regulator and reset support to dm9000")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Reported-by: Martin Kennedy <hurricos@gmail.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210214184911.96702-1-nbd@nbd.name
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/davicom/dm9000.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/ath9k.h |    3 ++-
+ drivers/net/wireless/ath/ath9k/xmit.c  |    6 ++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/davicom/dm9000.c
-+++ b/drivers/net/ethernet/davicom/dm9000.c
-@@ -1459,7 +1459,7 @@ dm9000_probe(struct platform_device *pde
- 		if (ret) {
- 			dev_err(dev, "failed to request reset gpio %d: %d\n",
- 				reset_gpios, ret);
--			return -ENODEV;
-+			goto out_regulator_disable;
- 		}
+--- a/drivers/net/wireless/ath/ath9k/ath9k.h
++++ b/drivers/net/wireless/ath/ath9k/ath9k.h
+@@ -177,7 +177,8 @@ struct ath_frame_info {
+ 	s8 txq;
+ 	u8 keyix;
+ 	u8 rtscts_rate;
+-	u8 retries : 7;
++	u8 retries : 6;
++	u8 dyn_smps : 1;
+ 	u8 baw_tracked : 1;
+ 	u8 tx_power;
+ 	enum ath9k_key_type keytype:2;
+--- a/drivers/net/wireless/ath/ath9k/xmit.c
++++ b/drivers/net/wireless/ath/ath9k/xmit.c
+@@ -1271,6 +1271,11 @@ static void ath_buf_set_rate(struct ath_
+ 				 is_40, is_sgi, is_sp);
+ 			if (rix < 8 && (tx_info->flags & IEEE80211_TX_CTL_STBC))
+ 				info->rates[i].RateFlags |= ATH9K_RATESERIES_STBC;
++			if (rix >= 8 && fi->dyn_smps) {
++				info->rates[i].RateFlags |=
++					ATH9K_RATESERIES_RTS_CTS;
++				info->flags |= ATH9K_TXDESC_CTSENA;
++			}
  
- 		/* According to manual PWRST# Low Period Min 1ms */
-@@ -1471,8 +1471,10 @@ dm9000_probe(struct platform_device *pde
- 
- 	if (!pdata) {
- 		pdata = dm9000_parse_dt(&pdev->dev);
--		if (IS_ERR(pdata))
--			return PTR_ERR(pdata);
-+		if (IS_ERR(pdata)) {
-+			ret = PTR_ERR(pdata);
-+			goto out_regulator_disable;
-+		}
- 	}
- 
- 	/* Init network device */
-@@ -1715,6 +1717,10 @@ out:
- 	dm9000_release_board(pdev, db);
- 	free_netdev(ndev);
- 
-+out_regulator_disable:
-+	if (!IS_ERR(power))
-+		regulator_disable(power);
-+
- 	return ret;
- }
- 
+ 			info->txpower[i] = ath_get_rate_txpower(sc, bf, rix,
+ 								is_40, false);
+@@ -2114,6 +2119,7 @@ static void setup_frame_info(struct ieee
+ 		fi->keyix = an->ps_key;
+ 	else
+ 		fi->keyix = ATH9K_TXKEYIX_INVALID;
++	fi->dyn_smps = sta && sta->smps_mode == IEEE80211_SMPS_DYNAMIC;
+ 	fi->keytype = keytype;
+ 	fi->framelen = framelen;
+ 	fi->tx_power = txpower;
 
 
