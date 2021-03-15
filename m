@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 830B133B7E3
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 405D533B984
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233372AbhCOOBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S233996AbhCOOGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231286AbhCON7p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C47F64F6D;
-        Mon, 15 Mar 2021 13:59:10 +0000 (UTC)
+        id S233410AbhCOOBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5178F64DAD;
+        Mon, 15 Mar 2021 14:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816751;
-        bh=T5wvFzsGYzArj4n7CriyzkjOCCV3mQtkBavvzvnzmp0=;
+        s=korg; t=1615816874;
+        bh=gOIejV+/bBiUcgMjnZ/TDR9kYFEXWqR+mNLQGCWAF98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=znFUWBQ5WwqBaWPMevMSVY85bTBdp0SyF+Bp3+YUMwfk2D6AXWSZqThgYex47P5S2
-         cEYSVA9ovt4BVz41VNKAQ3fQRkkI3J/gUZGnvsKGTcVJ1j6GPAYDxyuy7aXW76cH6s
-         oj8n3HZnzSZJpdm/3AIMgHXVxjydGR+Scad3Dbg0=
+        b=o1DECGyckVcKlXdEsjXkgV4nvm8Aoxz80U22mSiC2VDtknRyC7DfT2H6jQM8XWciG
+         DrqFjebQClQk0FNcTxb+33c/W7t/vTRazBuxNmyc3kso2RtxhsBDyYw9I1eZRTGGth
+         sAYmOheuxXLOMTHIGs1o6BnZs3INtFfeQHrb/fzI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chaotian Jing <chaotian.jing@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/120] mmc: mediatek: fix race condition between msdc_request_timeout and irq
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.4 164/168] KVM: arm64: Ensure I-cache isolation between vcpus of a same VM
 Date:   Mon, 15 Mar 2021 14:56:36 +0100
-Message-Id: <20210315135721.467709232@linuxfoundation.org>
+Message-Id: <20210315135555.752583848@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,84 +42,129 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 0354ca6edd464a2cf332f390581977b8699ed081 ]
+Commit 01dc9262ff5797b675c32c0c6bc682777d23de05 upstream.
 
-when get request SW timeout, if CMD/DAT xfer done irq coming right now,
-then there is race between the msdc_request_timeout work and irq handler,
-and the host->cmd and host->data may set to NULL in irq handler. also,
-current flow ensure that only one path can go to msdc_request_done(), so
-no need check the return value of cancel_delayed_work().
+It recently became apparent that the ARMv8 architecture has interesting
+rules regarding attributes being used when fetching instructions
+if the MMU is off at Stage-1.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Link: https://lore.kernel.org/r/20201218071611.12276-1-chaotian.jing@mediatek.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In this situation, the CPU is allowed to fetch from the PoC and
+allocate into the I-cache (unless the memory is mapped with
+the XN attribute at Stage-2).
+
+If we transpose this to vcpus sharing a single physical CPU,
+it is possible for a vcpu running with its MMU off to influence
+another vcpu running with its MMU on, as the latter is expected to
+fetch from the PoU (and self-patching code doesn't flush below that
+level).
+
+In order to solve this, reuse the vcpu-private TLB invalidation
+code to apply the same policy to the I-cache, nuking it every time
+the vcpu runs on a physical CPU that ran another vcpu of the same
+VM in the past.
+
+This involve renaming __kvm_tlb_flush_local_vmid() to
+__kvm_flush_cpu_context(), and inserting a local i-cache invalidation
+there.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Will Deacon <will@kernel.org>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/20210303164505.68492-1-maz@kernel.org
+[maz: added 32bit ARM support]
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/mtk-sd.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ arch/arm/include/asm/kvm_asm.h   |    2 +-
+ arch/arm/kvm/hyp/tlb.c           |    3 ++-
+ arch/arm64/include/asm/kvm_asm.h |    2 +-
+ arch/arm64/kvm/hyp/tlb.c         |    3 ++-
+ virt/kvm/arm/arm.c               |    8 +++++++-
+ 5 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 9ecf86ba4bb0..967e47770af6 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -928,13 +928,13 @@ static void msdc_track_cmd_data(struct msdc_host *host,
- static void msdc_request_done(struct msdc_host *host, struct mmc_request *mrq)
+--- a/arch/arm/include/asm/kvm_asm.h
++++ b/arch/arm/include/asm/kvm_asm.h
+@@ -56,7 +56,7 @@ extern char __kvm_hyp_init_end[];
+ extern void __kvm_flush_vm_context(void);
+ extern void __kvm_tlb_flush_vmid_ipa(struct kvm *kvm, phys_addr_t ipa);
+ extern void __kvm_tlb_flush_vmid(struct kvm *kvm);
+-extern void __kvm_tlb_flush_local_vmid(struct kvm_vcpu *vcpu);
++extern void __kvm_flush_cpu_context(struct kvm_vcpu *vcpu);
+ 
+ extern void __kvm_timer_set_cntvoff(u32 cntvoff_low, u32 cntvoff_high);
+ 
+--- a/arch/arm/kvm/hyp/tlb.c
++++ b/arch/arm/kvm/hyp/tlb.c
+@@ -45,7 +45,7 @@ void __hyp_text __kvm_tlb_flush_vmid_ipa
+ 	__kvm_tlb_flush_vmid(kvm);
+ }
+ 
+-void __hyp_text __kvm_tlb_flush_local_vmid(struct kvm_vcpu *vcpu)
++void __hyp_text __kvm_flush_cpu_context(struct kvm_vcpu *vcpu)
  {
- 	unsigned long flags;
--	bool ret;
+ 	struct kvm *kvm = kern_hyp_va(kern_hyp_va(vcpu)->kvm);
  
--	ret = cancel_delayed_work(&host->req_timeout);
--	if (!ret) {
--		/* delay work already running */
--		return;
--	}
-+	/*
-+	 * No need check the return value of cancel_delayed_work, as only ONE
-+	 * path will go here!
-+	 */
-+	cancel_delayed_work(&host->req_timeout);
-+
- 	spin_lock_irqsave(&host->lock, flags);
- 	host->mrq = NULL;
- 	spin_unlock_irqrestore(&host->lock, flags);
-@@ -952,7 +952,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- 	bool done = false;
- 	bool sbc_error;
- 	unsigned long flags;
--	u32 *rsp = cmd->resp;
-+	u32 *rsp;
+@@ -54,6 +54,7 @@ void __hyp_text __kvm_tlb_flush_local_vm
+ 	isb();
  
- 	if (mrq->sbc && cmd == mrq->cmd &&
- 	    (events & (MSDC_INT_ACMDRDY | MSDC_INT_ACMDCRCERR
-@@ -973,6 +973,7 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
+ 	write_sysreg(0, TLBIALL);
++	write_sysreg(0, ICIALLU);
+ 	dsb(nsh);
+ 	isb();
  
- 	if (done)
- 		return true;
-+	rsp = cmd->resp;
+--- a/arch/arm64/include/asm/kvm_asm.h
++++ b/arch/arm64/include/asm/kvm_asm.h
+@@ -60,7 +60,7 @@ extern char __kvm_hyp_vector[];
+ extern void __kvm_flush_vm_context(void);
+ extern void __kvm_tlb_flush_vmid_ipa(struct kvm *kvm, phys_addr_t ipa);
+ extern void __kvm_tlb_flush_vmid(struct kvm *kvm);
+-extern void __kvm_tlb_flush_local_vmid(struct kvm_vcpu *vcpu);
++extern void __kvm_flush_cpu_context(struct kvm_vcpu *vcpu);
  
- 	sdr_clr_bits(host->base + MSDC_INTEN, cmd_ints_mask);
+ extern void __kvm_timer_set_cntvoff(u32 cntvoff_low, u32 cntvoff_high);
  
-@@ -1154,7 +1155,7 @@ static void msdc_data_xfer_next(struct msdc_host *host,
- static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 				struct mmc_request *mrq, struct mmc_data *data)
+--- a/arch/arm64/kvm/hyp/tlb.c
++++ b/arch/arm64/kvm/hyp/tlb.c
+@@ -182,7 +182,7 @@ void __hyp_text __kvm_tlb_flush_vmid(str
+ 	__tlb_switch_to_host(kvm, &cxt);
+ }
+ 
+-void __hyp_text __kvm_tlb_flush_local_vmid(struct kvm_vcpu *vcpu)
++void __hyp_text __kvm_flush_cpu_context(struct kvm_vcpu *vcpu)
  {
--	struct mmc_command *stop = data->stop;
-+	struct mmc_command *stop;
- 	unsigned long flags;
- 	bool done;
- 	unsigned int check_data = events &
-@@ -1170,6 +1171,7 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
+ 	struct kvm *kvm = kern_hyp_va(kern_hyp_va(vcpu)->kvm);
+ 	struct tlb_inv_context cxt;
+@@ -191,6 +191,7 @@ void __hyp_text __kvm_tlb_flush_local_vm
+ 	__tlb_switch_to_guest(kvm, &cxt);
  
- 	if (done)
- 		return true;
-+	stop = data->stop;
+ 	__tlbi(vmalle1);
++	asm volatile("ic iallu");
+ 	dsb(nsh);
+ 	isb();
  
- 	if (check_data || (stop && stop->error)) {
- 		dev_dbg(host->dev, "DMA status: 0x%8X\n",
--- 
-2.30.1
-
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -373,11 +373,17 @@ void kvm_arch_vcpu_load(struct kvm_vcpu
+ 	cpu_data = this_cpu_ptr(&kvm_host_data);
+ 
+ 	/*
++	 * We guarantee that both TLBs and I-cache are private to each
++	 * vcpu. If detecting that a vcpu from the same VM has
++	 * previously run on the same physical CPU, call into the
++	 * hypervisor code to nuke the relevant contexts.
++	 *
++         * We might get preempted before the vCPU actually runs, but
+ 	 * We might get preempted before the vCPU actually runs, but
+ 	 * over-invalidation doesn't affect correctness.
+ 	 */
+ 	if (*last_ran != vcpu->vcpu_id) {
+-		kvm_call_hyp(__kvm_tlb_flush_local_vmid, vcpu);
++		kvm_call_hyp(__kvm_flush_cpu_context, vcpu);
+ 		*last_ran = vcpu->vcpu_id;
+ 	}
+ 
 
 
