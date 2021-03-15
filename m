@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D708A33B664
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEDDE33B52B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231402AbhCON5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34096 "EHLO mail.kernel.org"
+        id S229870AbhCONxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231807AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7799964F05;
-        Mon, 15 Mar 2021 13:56:57 +0000 (UTC)
+        id S229874AbhCONxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 441EF64EF9;
+        Mon, 15 Mar 2021 13:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816619;
-        bh=/+tUiVkxhsq5nvMtpV03ucQMrUlxNoCwFo1NCUVR0HM=;
+        s=korg; t=1615816383;
+        bh=qaz12JiLe/Ys9E2n86Og5/hr3vi/49HOTrA/XwLcJrM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RE2Zg5X//lmBZ0TZ/EdysH24qOBImVCtperUFB5l0LghtA+/In7iYWpmS3NTILX5r
-         0yGIhMSsUtKa9vm+STESWFNuUOJmXOj2VbEI68myyMFBI3FijxO/U+MVrLc4mCiSXv
-         678y3oRHEzboihCqI5uzPVAIjsjFcbBGL7KV71d8=
+        b=XNVJxop/0yHYGh4afbsb0XfeqjsNQ/PMML1WireISbB6nHRjjpC4ZLusN+8ljhxx4
+         CxtbniT9A4r+ZCuhTrUApiK5XVT8yF1YUxOWwDiGpD/rmnDxkdcGxlxXnu09x/tHCp
+         K92/bnRw+6VqUlaaiHRj6P+UWzhimR5GR41ubMbc=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Qingyu Li <ieatmuttonchuan@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 024/306] tcp: add sanity tests to TCP_QUEUE_SEQ
+        stable@vger.kernel.org, Xiaoming Ni <nixiaoming@huawei.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 4.4 13/75] futex: fix dead code in attach_to_pi_owner()
 Date:   Mon, 15 Mar 2021 14:51:27 +0100
-Message-Id: <20210315135508.445397367@linuxfoundation.org>
+Message-Id: <20210315135208.696700074@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +42,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d upstream.
+This patch comes directly from an origin patch (commit
+91509e84949fc97e7424521c32a9e227746e0b85) in v4.9.
+And it is part of a full patch which was originally back-ported
+to v4.14 as commit e6e00df182908f34360c3c9f2d13cc719362e9c0
 
-Qingyu Li reported a syzkaller bug where the repro
-changes RCV SEQ _after_ restoring data in the receive queue.
+The handle_exit_race() function is defined in commit 9c3f39860367
+ ("futex: Cure exit race"), which never returns -EBUSY. This results
+in a small piece of dead code in the attach_to_pi_owner() function:
 
-mprotect(0x4aa000, 12288, PROT_READ)    = 0
-mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
-mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
-mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
-socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
-setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
-connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
-setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
-sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
-setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
-setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
-recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
+	int ret = handle_exit_race(uaddr, uval, p); /* Never return -EBUSY */
+	...
+	if (ret == -EBUSY)
+		*exiting = p; /* dead code */
 
-syslog shows:
-[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
-[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
+The return value -EBUSY is added to handle_exit_race() in upsteam
+commit ac31c7ff8624409 ("futex: Provide distinct return value when
+owner is exiting"). This commit was incorporated into v4.9.255, before
+the function handle_exit_race() was introduced, whitout Modify
+handle_exit_race().
 
-This should not be allowed. TCP_QUEUE_SEQ should only be used
-when queues are empty.
+To fix dead code, extract the change of handle_exit_race() from
+commit ac31c7ff8624409 ("futex: Provide distinct return value when owner
+ is exiting"), re-incorporated.
 
-This patch fixes this case, and the tx path as well.
+Lee writes:
 
-Fixes: ee9952831cfd ("tcp: Initial repair mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
-Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit takes the remaining functional snippet of:
+
+ ac31c7ff8624409 ("futex: Provide distinct return value when owner is exiting")
+
+... and is the correct fix for this issue.
+
+Fixes: 9c3f39860367 ("futex: Cure exit race")
+Cc: stable@vger.kernel.org # v4.9.258
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Reviewed-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ kernel/futex.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3431,16 +3431,23 @@ static int do_tcp_setsockopt(struct sock
- 		break;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1204,11 +1204,11 @@ static int handle_exit_race(u32 __user *
+ 	u32 uval2;
  
- 	case TCP_QUEUE_SEQ:
--		if (sk->sk_state != TCP_CLOSE)
-+		if (sk->sk_state != TCP_CLOSE) {
- 			err = -EPERM;
--		else if (tp->repair_queue == TCP_SEND_QUEUE)
--			WRITE_ONCE(tp->write_seq, val);
--		else if (tp->repair_queue == TCP_RECV_QUEUE) {
--			WRITE_ONCE(tp->rcv_nxt, val);
--			WRITE_ONCE(tp->copied_seq, val);
--		}
--		else
-+		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
-+			if (!tcp_rtx_queue_empty(sk))
-+				err = -EPERM;
-+			else
-+				WRITE_ONCE(tp->write_seq, val);
-+		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
-+			if (tp->rcv_nxt != tp->copied_seq) {
-+				err = -EPERM;
-+			} else {
-+				WRITE_ONCE(tp->rcv_nxt, val);
-+				WRITE_ONCE(tp->copied_seq, val);
-+			}
-+		} else {
- 			err = -EINVAL;
-+		}
- 		break;
+ 	/*
+-	 * If the futex exit state is not yet FUTEX_STATE_DEAD, wait
+-	 * for it to finish.
++	 * If the futex exit state is not yet FUTEX_STATE_DEAD, tell the
++	 * caller that the alleged owner is busy.
+ 	 */
+ 	if (tsk && tsk->futex_state != FUTEX_STATE_DEAD)
+-		return -EAGAIN;
++		return -EBUSY;
  
- 	case TCP_REPAIR_OPTIONS:
+ 	/*
+ 	 * Reread the user space value to handle the following situation:
 
 
