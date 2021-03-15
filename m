@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1938A33B899
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 324D233B877
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230125AbhCOOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S231793AbhCOODe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229992AbhCOOAd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC3D264F17;
-        Mon, 15 Mar 2021 14:00:10 +0000 (UTC)
+        id S232796AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04E9A64F0F;
+        Mon, 15 Mar 2021 13:59:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816812;
-        bh=hQdHPMwGgGk4WGhFQSNaeVxXu8ip59ymBMc5lU7ocLc=;
+        s=korg; t=1615816778;
+        bh=qYSZhbsdiszQduk0+BNPrbuG2cow5pgdsdbLws3nUHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dk3AgUZi8isdSbYG1XW5mIN3xkwDYPBv19tQ9LGIQzb+rzRJJtV0Q31v+Voe7J+7j
-         Dpss9+obErDnqmfL+AU1wP+hcbpgZdrkFXpO/ojAPE9oHkKLDBjFrcgWS4zSq5ftEi
-         1vD6Fcr/lsq79D/ASObHpBGXVdHtYXncmt96MAuc=
+        b=nc8fJGqFruDfMvLVU8xyaw9lvbLoegnakebtivQtSZxWOVfLPv9MEU7O0zitqrs3a
+         VV2FkZsKgcENOntUiUlxGrD+NhXSgx6hBE6JI0WaAr92GHSc+VRTvGgS0d0MkfXhEe
+         OCHCm0fzE1RP//kxW9wm7vd4WRqdhxWjAbcQDPiY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 139/306] powerpc/perf: Record counter overflow always if SAMPLE_IP is unset
+Subject: [PATCH 5.10 109/290] s390/qeth: dont replace a fully completed async TX buffer
 Date:   Mon, 15 Mar 2021 14:53:22 +0100
-Message-Id: <20210315135512.340539325@linuxfoundation.org>
+Message-Id: <20210315135545.589676142@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,78 +42,181 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit d137845c973147a22622cc76c7b0bc16f6206323 ]
+[ Upstream commit db4ffdcef7c9a842e55228c9faef7abf8b72382f ]
 
-While sampling for marked events, currently we record the sample only
-if the SIAR valid bit of Sampled Instruction Event Register (SIER) is
-set. SIAR_VALID bit is used for fetching the instruction address from
-Sampled Instruction Address Register(SIAR). But there are some
-usecases, where the user is interested only in the PMU stats at each
-counter overflow and the exact IP of the overflow event is not
-required. Dropping SIAR invalid samples will fail to record some of
-the counter overflows in such cases.
+For TX buffers that require an additional async notification via QAOB, the
+TX completion code can now manage all the necessary processing if the
+notification has already occurred (or is occurring concurrently).
 
-Example of such usecase is dumping the PMU stats (event counts) after
-some regular amount of instructions/events from the userspace (ex: via
-ptrace). Here counter overflow is indicated to userspace via signal
-handler, and captured by monitoring and enabling I/O signaling on the
-event file descriptor. In these cases, we expect to get
-sample/overflow indication after each specified sample_period.
+In such cases we can avoid replacing the metadata that is associated
+with the buffer's slot on the ring, and just keep using the current one.
 
-Perf event attribute will not have PERF_SAMPLE_IP set in the
-sample_type if exact IP of the overflow event is not requested. So
-while profiling if SAMPLE_IP is not set, just record the counter
-overflow irrespective of SIAR_VALID check.
+As qeth_clear_output_buffer() will also handle any kmem cache-allocated
+memory that was mapped into the TX buffer, qeth_qdio_handle_aob()
+doesn't need to worry about it.
 
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Reflow comment and if formatting]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1612516492-1428-1-git-send-email-atrajeev@linux.vnet.ibm.com
+While at it, also remove the unneeded forward declaration for
+qeth_init_qdio_out_buf().
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/core-book3s.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 89 ++++++++++++++++++-------------
+ 1 file changed, 51 insertions(+), 38 deletions(-)
 
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index a4908652242e..51f413521fde 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -2149,7 +2149,17 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 			left += period;
- 			if (left <= 0)
- 				left = period;
--			record = siar_valid(regs);
-+
-+			/*
-+			 * If address is not requested in the sample via
-+			 * PERF_SAMPLE_IP, just record that sample irrespective
-+			 * of SIAR valid check.
-+			 */
-+			if (event->attr.sample_type & PERF_SAMPLE_IP)
-+				record = siar_valid(regs);
-+			else
-+				record = 1;
-+
- 			event->hw.last_period = event->hw.sample_period;
- 		}
- 		if (left < 0x80000000LL)
-@@ -2167,9 +2177,10 @@ static void record_and_restart(struct perf_event *event, unsigned long val,
- 	 * MMCR2. Check attr.exclude_kernel and address to drop the sample in
- 	 * these cases.
- 	 */
--	if (event->attr.exclude_kernel && record)
--		if (is_kernel_addr(mfspr(SPRN_SIAR)))
--			record = 0;
-+	if (event->attr.exclude_kernel &&
-+	    (event->attr.sample_type & PERF_SAMPLE_IP) &&
-+	    is_kernel_addr(mfspr(SPRN_SIAR)))
-+		record = 0;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 77cd714978bd..78a866424022 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -75,7 +75,6 @@ static void qeth_notify_skbs(struct qeth_qdio_out_q *queue,
+ 		enum iucv_tx_notify notification);
+ static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
+ 				 int budget);
+-static int qeth_init_qdio_out_buf(struct qeth_qdio_out_q *, int);
  
- 	/*
- 	 * Finally record data if requested.
+ static void qeth_close_dev_handler(struct work_struct *work)
+ {
+@@ -517,18 +516,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	buffer = (struct qeth_qdio_out_buffer *) aob->user1;
+ 	QETH_CARD_TEXT_(card, 5, "%lx", aob->user1);
+ 
+-	/* Free dangling allocations. The attached skbs are handled by
+-	 * qeth_cleanup_handled_pending().
+-	 */
+-	for (i = 0;
+-	     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
+-	     i++) {
+-		void *data = phys_to_virt(aob->sba[i]);
+-
+-		if (data && buffer->is_header[i])
+-			kmem_cache_free(qeth_core_header_cache, data);
+-	}
+-
+ 	if (aob->aorc) {
+ 		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
+ 		new_state = QETH_QDIO_BUF_QAOB_ERROR;
+@@ -536,10 +523,9 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 
+ 	switch (atomic_xchg(&buffer->state, new_state)) {
+ 	case QETH_QDIO_BUF_PRIMED:
+-		/* Faster than TX completion code. */
+-		notification = qeth_compute_cq_notification(aob->aorc, 0);
+-		qeth_notify_skbs(buffer->q, buffer, notification);
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		/* Faster than TX completion code, let it handle the async
++		 * completion for us.
++		 */
+ 		break;
+ 	case QETH_QDIO_BUF_PENDING:
+ 		/* TX completion code is active and will handle the async
+@@ -550,6 +536,19 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 		/* TX completion code is already finished. */
+ 		notification = qeth_compute_cq_notification(aob->aorc, 1);
+ 		qeth_notify_skbs(buffer->q, buffer, notification);
++
++		/* Free dangling allocations. The attached skbs are handled by
++		 * qeth_cleanup_handled_pending().
++		 */
++		for (i = 0;
++		     i < aob->sb_count && i < QETH_MAX_BUFFER_ELEMENTS(card);
++		     i++) {
++			void *data = phys_to_virt(aob->sba[i]);
++
++			if (data && buffer->is_header[i])
++				kmem_cache_free(qeth_core_header_cache, data);
++		}
++
+ 		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
+ 		break;
+ 	default:
+@@ -5870,9 +5869,13 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 				 QDIO_OUTBUF_STATE_FLAG_PENDING)) {
+ 		WARN_ON_ONCE(card->options.cq != QETH_CQ_ENABLED);
+ 
+-		if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
+-						   QETH_QDIO_BUF_PENDING) ==
+-		    QETH_QDIO_BUF_PRIMED) {
++		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
++
++		switch (atomic_cmpxchg(&buffer->state,
++				       QETH_QDIO_BUF_PRIMED,
++				       QETH_QDIO_BUF_PENDING)) {
++		case QETH_QDIO_BUF_PRIMED:
++			/* We have initial ownership, no QAOB (yet): */
+ 			qeth_notify_skbs(queue, buffer, TX_NOTIFY_PENDING);
+ 
+ 			/* Handle race with qeth_qdio_handle_aob(): */
+@@ -5880,39 +5883,49 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 					    QETH_QDIO_BUF_NEED_QAOB)) {
+ 			case QETH_QDIO_BUF_PENDING:
+ 				/* No concurrent QAOB notification. */
+-				break;
++
++				/* Prepare the queue slot for immediate re-use: */
++				qeth_scrub_qdio_buffer(buffer->buffer, queue->max_elements);
++				if (qeth_init_qdio_out_buf(queue, bidx)) {
++					QETH_CARD_TEXT(card, 2, "outofbuf");
++					qeth_schedule_recovery(card);
++				}
++
++				/* Skip clearing the buffer: */
++				return;
+ 			case QETH_QDIO_BUF_QAOB_OK:
+ 				qeth_notify_skbs(queue, buffer,
+ 						 TX_NOTIFY_DELAYED_OK);
+-				atomic_set(&buffer->state,
+-					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				error = false;
+ 				break;
+ 			case QETH_QDIO_BUF_QAOB_ERROR:
+ 				qeth_notify_skbs(queue, buffer,
+ 						 TX_NOTIFY_DELAYED_GENERALERROR);
+-				atomic_set(&buffer->state,
+-					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				error = true;
+ 				break;
+ 			default:
+ 				WARN_ON_ONCE(1);
+ 			}
+-		}
+-
+-		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
+ 
+-		/* prepare the queue slot for re-use: */
+-		qeth_scrub_qdio_buffer(buffer->buffer, queue->max_elements);
+-		if (qeth_init_qdio_out_buf(queue, bidx)) {
+-			QETH_CARD_TEXT(card, 2, "outofbuf");
+-			qeth_schedule_recovery(card);
++			break;
++		case QETH_QDIO_BUF_QAOB_OK:
++			/* qeth_qdio_handle_aob() already received a QAOB: */
++			qeth_notify_skbs(queue, buffer, TX_NOTIFY_OK);
++			error = false;
++			break;
++		case QETH_QDIO_BUF_QAOB_ERROR:
++			/* qeth_qdio_handle_aob() already received a QAOB: */
++			qeth_notify_skbs(queue, buffer, TX_NOTIFY_GENERALERROR);
++			error = true;
++			break;
++		default:
++			WARN_ON_ONCE(1);
+ 		}
+-
+-		return;
+-	}
+-
+-	if (card->options.cq == QETH_CQ_ENABLED)
++	} else if (card->options.cq == QETH_CQ_ENABLED) {
+ 		qeth_notify_skbs(queue, buffer,
+ 				 qeth_compute_cq_notification(sflags, 0));
++	}
++
+ 	qeth_clear_output_buffer(queue, buffer, error, budget);
+ }
+ 
 -- 
 2.30.1
 
