@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C0B33B64F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0CE133B657
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbhCON5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
+        id S232076AbhCON5n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231329AbhCON5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231382AbhCON5J (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 15 Mar 2021 09:57:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E073F64EEC;
-        Mon, 15 Mar 2021 13:57:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53E5764EFD;
+        Mon, 15 Mar 2021 13:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816626;
-        bh=sujTiFdD43xDCjXbqoWEtCzs6XmK5ywQFXvpQXWecoI=;
+        s=korg; t=1615816628;
+        bh=/ARiGRTysZEO0zch14sIudIpLeSsRLsa8TZ0ZFfxbQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYTxbDui7/pqlhXu4B9ITe0Q/L8wZ93cFpCsbiot9hKKDKBMOR2AE6hY1Drvk8QBH
-         6hWTr80NJW0ddIZ3ai069qb9fi8dr9wZcAZhABdVnfwma8xxy0BEJAhYH1V5Dw1qXj
-         rbofJ1G1v7eGfWDPkPgVZYR1UMYwK36p9l97AsbA=
+        b=NmoQkCSMlfYCec+n8+h0wN9bI3/YaS+AtlxUaOHLMMus2mRYsqhTBEPjPDBDJmDDe
+         E5Iy2tWf5FmYxzbD8ARtHFM/LutuHnzoSAkZgtoR9s3KqwHHCMkY84vo/YoyMcqole
+         zbJ6iv3k5TI4J9ORMDqAOcNj0gPMU4znOwTY00Nw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 012/168] can: flexcan: invoke flexcan_chip_freeze() to enter freeze mode
-Date:   Mon, 15 Mar 2021 14:54:04 +0100
-Message-Id: <20210315135550.744268606@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>
+Subject: [PATCH 5.4 013/168] can: tcan4x5x: tcan4x5x_init(): fix initialization - clear MRAM before entering Normal Mode
+Date:   Mon, 15 Mar 2021 14:54:05 +0100
+Message-Id: <20210315135550.775526741@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -41,51 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 
-commit c63820045e2000f05657467a08715c18c9f490d9 upstream.
+commit 2712625200ed69c642b9abc3a403830c4643364c upstream.
 
-Invoke flexcan_chip_freeze() to enter freeze mode, since need poll
-freeze mode acknowledge.
+This patch prevents a potentially destructive race condition. The
+device is fully operational on the bus after entering Normal Mode, so
+zeroing the MRAM after entering this mode may lead to loss of
+information, e.g. new received messages.
 
-Fixes: e955cead03117 ("CAN: Add Flexcan CAN controller driver")
-Link: https://lore.kernel.org/r/20210218110037.16591-4-qiangqing.zhang@nxp.com
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+This patch fixes the problem by first initializing the MRAM, then
+bringing the device into Normale Mode.
+
+Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
+Link: https://lore.kernel.org/r/20210226163440.313628-1-torin@maxiluxsystems.com
+Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/flexcan.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/can/m_can/tcan4x5x.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/flexcan.c
-+++ b/drivers/net/can/flexcan.c
-@@ -1057,10 +1057,13 @@ static int flexcan_chip_start(struct net
+--- a/drivers/net/can/m_can/tcan4x5x.c
++++ b/drivers/net/can/m_can/tcan4x5x.c
+@@ -325,14 +325,14 @@ static int tcan4x5x_init(struct m_can_cl
+ 	if (ret)
+ 		return ret;
  
- 	flexcan_set_bittiming(dev);
- 
-+	/* set freeze, halt */
-+	err = flexcan_chip_freeze(priv);
-+	if (err)
-+		goto out_chip_disable;
++	/* Zero out the MCAN buffers */
++	m_can_init_ram(cdev);
 +
- 	/* MCR
- 	 *
--	 * enable freeze
--	 * halt now
- 	 * only supervisor access
- 	 * enable warning int
- 	 * enable individual RX masking
-@@ -1069,9 +1072,8 @@ static int flexcan_chip_start(struct net
- 	 */
- 	reg_mcr = priv->read(&regs->mcr);
- 	reg_mcr &= ~FLEXCAN_MCR_MAXMB(0xff);
--	reg_mcr |= FLEXCAN_MCR_FRZ | FLEXCAN_MCR_HALT | FLEXCAN_MCR_SUPV |
--		FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ | FLEXCAN_MCR_IDAM_C |
--		FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
-+	reg_mcr |= FLEXCAN_MCR_SUPV | FLEXCAN_MCR_WRN_EN | FLEXCAN_MCR_IRMQ |
-+		FLEXCAN_MCR_IDAM_C | FLEXCAN_MCR_MAXMB(priv->tx_mb_idx);
+ 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
+ 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
+ 	if (ret)
+ 		return ret;
  
- 	/* MCR
- 	 *
+-	/* Zero out the MCAN buffers */
+-	m_can_init_ram(cdev);
+-
+ 	return ret;
+ }
+ 
 
 
