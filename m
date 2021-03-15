@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E263B33B891
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 818E933B80C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232845AbhCOODx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S231271AbhCOOB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233029AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 813D964F1E;
-        Mon, 15 Mar 2021 14:00:12 +0000 (UTC)
+        id S232808AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3CEF64F16;
+        Mon, 15 Mar 2021 13:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816813;
-        bh=w4QaNXjUDjaiped9JuQNsCoByJ8C/CItVMR5fDiL4kw=;
+        s=korg; t=1615816779;
+        bh=V5zeatwusUhooNPoZJu1Az09+q1MdFbTpey8zMyqGkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NK02AoV9l26j14XnbK71vMGEwl9+z2LYp2i+Gre841Na9gisx5F9J8tDxyS4/N+Kp
-         LkxjOo7I9uwXY4+s6HXrWp9IqRBUPs2xOwv/iI6pFc/WU+RPsoynsSDxfH85w7cEFu
-         bpFYafFIuTyyTQJTM+jEQLS3NFTHw1b6uOaHs/9Q=
+        b=uKLieP/TlKBdnYY8l9Y1/C4/S0/4DDawc14JdsMsT+A3DOQPyVzo/FzVDt3zInpAi
+         8TVlcDJYDjC+dZEt5eW8vqTLJYbg8xSamnj+gViO03tnMO9QCIgpxWQtqs92kKsJba
+         R5xi6k80Jlp/971cE7fv48X2B9/wVfgGdUkegxIo=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 140/306] HID: logitech-dj: add support for the new lightspeed connection iteration
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 110/290] s390/qeth: remove QETH_QDIO_BUF_HANDLED_DELAYED state
 Date:   Mon, 15 Mar 2021 14:53:23 +0100
-Message-Id: <20210315135512.371613741@linuxfoundation.org>
+Message-Id: <20210315135545.621916698@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +42,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Filipe Laíns <lains@riseup.net>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit fab3a95654eea01d6b0204995be8b7492a00d001 ]
+[ Upstream commit 75cf3854dcdf7b5c583538cae12ffa054d237d93 ]
 
-This new connection type is the new iteration of the Lightspeed
-connection and will probably be used in some of the newer gaming
-devices. It is currently use in the G Pro X Superlight.
+Reuse the QETH_QDIO_BUF_EMPTY state to indicate that a TX buffer has
+been completed with a QAOB notification, and may be cleaned up by
+qeth_cleanup_handled_pending().
 
-This patch should be backported to older versions, as currently the
-driver will panic when seing the unsupported connection. This isn't
-an issue when using the receiver that came with the device, as Logitech
-has been using different PIDs when they change the connection type, but
-is an issue when using a generic receiver (well, generic Lightspeed
-receiver), which is the case of the one in the Powerplay mat. Currently,
-the only generic Ligthspeed receiver we support, and the only one that
-exists AFAIK, is ther Powerplay.
-
-As it stands, the driver will panic when seeing a G Pro X Superlight
-connected to the Powerplay receiver and won't send any input events to
-userspace! The kernel will warn about this so the issue should be easy
-to identify, but it is still very worrying how hard it will fail :(
-
-[915977.398471] logitech-djreceiver 0003:046D:C53A.0107: unusable device of type UNKNOWN (0x0f) connected on slot 1
-
-Signed-off-by: Filipe Laíns <lains@riseup.net>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-dj.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core.h      | 2 --
+ drivers/s390/net/qeth_core_main.c | 5 ++---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index fcdc922bc973..271bd8d24339 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -995,7 +995,12 @@ static void logi_hidpp_recv_queue_notif(struct hid_device *hdev,
- 		workitem.reports_supported |= STD_KEYBOARD;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 2f7e06ec9a30..ea969b8fe687 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -424,8 +424,6 @@ enum qeth_qdio_out_buffer_state {
+ 	/* Received QAOB notification on CQ: */
+ 	QETH_QDIO_BUF_QAOB_OK,
+ 	QETH_QDIO_BUF_QAOB_ERROR,
+-	/* Handled via transfer pending / completion queue. */
+-	QETH_QDIO_BUF_HANDLED_DELAYED,
+ };
+ 
+ struct qeth_qdio_out_buffer {
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 78a866424022..e2cdb5c2fc66 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -477,8 +477,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+ 
+ 		while (c) {
+ 			if (forced_cleanup ||
+-			    atomic_read(&c->state) ==
+-			      QETH_QDIO_BUF_HANDLED_DELAYED) {
++			    atomic_read(&c->state) == QETH_QDIO_BUF_EMPTY) {
+ 				struct qeth_qdio_out_buffer *f = c;
+ 
+ 				QETH_CARD_TEXT(f->q->card, 5, "fp");
+@@ -549,7 +548,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				kmem_cache_free(qeth_core_header_cache, data);
+ 		}
+ 
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
  		break;
- 	case 0x0d:
--		device_type = "eQUAD Lightspeed 1_1";
-+		device_type = "eQUAD Lightspeed 1.1";
-+		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
-+		workitem.reports_supported |= STD_KEYBOARD;
-+		break;
-+	case 0x0f:
-+		device_type = "eQUAD Lightspeed 1.2";
- 		logi_hidpp_dev_conn_notif_equad(hdev, hidpp_report, &workitem);
- 		workitem.reports_supported |= STD_KEYBOARD;
- 		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
 -- 
 2.30.1
 
