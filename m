@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15E9D33B8F8
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47BAA33B7F7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232318AbhCOOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36764 "EHLO mail.kernel.org"
+        id S230505AbhCOOBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232130AbhCON6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BC2F64F12;
-        Mon, 15 Mar 2021 13:58:31 +0000 (UTC)
+        id S231627AbhCON7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D54FA64F83;
+        Mon, 15 Mar 2021 13:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816712;
-        bh=17kiGj+Xz5WYkgk95QsxcHOJhDvBc8kIncZX7obZk4o=;
+        s=korg; t=1615816765;
+        bh=a6ceXE+1bgi5Z1QgAaCKnCvMs9anHpQ5hzlxuq+FEXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BRjA3VXKt+M8Rgr0VMlBexAq77bpEDw5+yn7W5P0Q3RUAFBoAkNufV5DaekqCb9mF
-         b8FXjEN7Kvzffw+4qmIR/phEWvEiOTdbnRa9Mi96kx2mYq0rJ4s3nEH3yW8B2aZtVE
-         gkepeLyiZYg6lXqgDf4dI8Q009xwVnUcUEB9VCUg=
+        b=wGN627+geo14VnQ5GtOJWQCxHnvoKKFKcDGM8ItgK9H+CI1KIxyD+tBVHOF82vG3k
+         0Ho3yfLYAWnA06zBWP7FulOUk+WkM2UL629RBGFgxHRKMZx3JnI1UOnRaMnsgjCYJx
+         +qpfQf2C0C6k7yRLmjz+bPz7qInBVB4iBj1ZANuM=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Manoj Gupta <manojgupta@google.com>
-Subject: [PATCH 4.14 13/95] scripts/recordmcount.{c,pl}: support -ffunction-sections .text.* section names
-Date:   Mon, 15 Mar 2021 14:56:43 +0100
-Message-Id: <20210315135740.708448900@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 053/120] PCI: Fix pci_register_io_range() memory leak
+Date:   Mon, 15 Mar 2021 14:56:44 +0100
+Message-Id: <20210315135721.724444454@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +43,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Joe Lawrence <joe.lawrence@redhat.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
+[ Upstream commit f6bda644fa3a7070621c3bf12cd657f69a42f170 ]
 
-When building with -ffunction-sections, the compiler will place each
-function into its own ELF section, prefixed with ".text".  For example,
-a simple test module with functions test_module_do_work() and
-test_module_wq_func():
+Kmemleak reports:
 
-  % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
-  .text
-  .text.test_module_do_work
-  .text.test_module_wq_func
-  .init.text
-  .exit.text
+  unreferenced object 0xc328de40 (size 64):
+    comm "kworker/1:1", pid 21, jiffies 4294938212 (age 1484.670s)
+    hex dump (first 32 bytes):
+      00 00 00 00 00 00 00 00 e0 d8 fc eb 00 00 00 00  ................
+      00 00 10 fe 00 00 00 00 00 00 00 00 00 00 00 00  ................
 
-Adjust the recordmcount scripts to look for ".text" as a section name
-prefix.  This will ensure that those functions will be included in the
-__mcount_loc relocations:
+  backtrace:
+    [<ad758d10>] pci_register_io_range+0x3c/0x80
+    [<2c7f139e>] of_pci_range_to_resource+0x48/0xc0
+    [<f079ecc8>] devm_of_pci_get_host_bridge_resources.constprop.0+0x2ac/0x3ac
+    [<e999753b>] devm_of_pci_bridge_init+0x60/0x1b8
+    [<a895b229>] devm_pci_alloc_host_bridge+0x54/0x64
+    [<e451ddb0>] rcar_pcie_probe+0x2c/0x644
 
-  % objdump --reloc --section __mcount_loc test_module.o
-  OFFSET           TYPE              VALUE
-  0000000000000000 R_X86_64_64       .text.test_module_do_work
-  0000000000000008 R_X86_64_64       .text.test_module_wq_func
-  0000000000000010 R_X86_64_64       .init.text
+In case a PCI host driver's probe is deferred, the same I/O range may be
+allocated again, and be ignored, causing a memory leak.
 
-Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
+Fix this by (a) letting logic_pio_register_range() return -EEXIST if the
+passed range already exists, so pci_register_io_range() will free it, and
+by (b) making pci_register_io_range() not consider -EEXIST an error
+condition.
 
-Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Manoj Gupta <manojgupta@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210202100332.829047-1-geert+renesas@glider.be
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.c  |    2 +-
- scripts/recordmcount.pl |   13 +++++++++++++
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/pci/pci.c | 4 ++++
+ lib/logic_pio.c   | 3 +++
+ 2 files changed, 7 insertions(+)
 
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -415,7 +415,7 @@ static uint32_t (*w2)(uint16_t);
- static int
- is_mcounted_section_name(char const *const txtname)
- {
--	return strcmp(".text",           txtname) == 0 ||
-+	return strncmp(".text",          txtname, 5) == 0 ||
- 		strcmp(".init.text",     txtname) == 0 ||
- 		strcmp(".ref.text",      txtname) == 0 ||
- 		strcmp(".sched.text",    txtname) == 0 ||
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -142,6 +142,11 @@ my %text_sections = (
-      ".text.unlikely" => 1,
- );
- 
-+# Acceptable section-prefixes to record.
-+my %text_section_prefixes = (
-+     ".text." => 1,
-+);
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 83fda1987d1f..9ebf32de8575 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -3817,6 +3817,10 @@ int pci_register_io_range(struct fwnode_handle *fwnode, phys_addr_t addr,
+ 	ret = logic_pio_register_range(range);
+ 	if (ret)
+ 		kfree(range);
 +
- # Note: we are nice to C-programmers here, thus we skip the '||='-idiom.
- $objdump = 'objdump' if (!$objdump);
- $objcopy = 'objcopy' if (!$objcopy);
-@@ -507,6 +512,14 @@ while (<IN>) {
++	/* Ignore duplicates due to deferred probing */
++	if (ret == -EEXIST)
++		ret = 0;
+ #endif
  
- 	# Only record text sections that we know are safe
- 	$read_function = defined($text_sections{$1});
-+	if (!$read_function) {
-+	    foreach my $prefix (keys %text_section_prefixes) {
-+	        if (substr($1, 0, length $prefix) eq $prefix) {
-+	            $read_function = 1;
-+	            last;
-+	        }
-+	    }
-+	}
- 	# print out any recorded offsets
- 	update_funcs();
- 
+ 	return ret;
+diff --git a/lib/logic_pio.c b/lib/logic_pio.c
+index 905027574e5d..774bb02fff10 100644
+--- a/lib/logic_pio.c
++++ b/lib/logic_pio.c
+@@ -27,6 +27,8 @@ static DEFINE_MUTEX(io_range_mutex);
+  * @new_range: pointer to the IO range to be registered.
+  *
+  * Returns 0 on success, the error code in case of failure.
++ * If the range already exists, -EEXIST will be returned, which should be
++ * considered a success.
+  *
+  * Register a new IO range node in the IO range list.
+  */
+@@ -49,6 +51,7 @@ int logic_pio_register_range(struct logic_pio_hwaddr *new_range)
+ 	list_for_each_entry(range, &io_range_list, list) {
+ 		if (range->fwnode == new_range->fwnode) {
+ 			/* range already there */
++			ret = -EEXIST;
+ 			goto end_register;
+ 		}
+ 		if (range->flags == LOGIC_PIO_CPU_MMIO &&
+-- 
+2.30.1
+
 
 
