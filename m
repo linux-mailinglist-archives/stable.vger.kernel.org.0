@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15A8933B78F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E3433B78C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231565AbhCOOAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S233110AbhCOOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232618AbhCON7R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FAC164EEE;
-        Mon, 15 Mar 2021 13:58:58 +0000 (UTC)
+        id S232632AbhCON7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD3464F40;
+        Mon, 15 Mar 2021 13:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816739;
-        bh=gRKwgZktH4u+F9jk1fBKe/Bz8H5BM0x3BycRYvJZzgM=;
+        s=korg; t=1615816741;
+        bh=YID2P7AvDCfohH6m59JbgtIUUiOAnIQBKEJthKB0uos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yfg5hqE7hPf3K1guV40oEe0RnnZAw9flcwWzlEbBvQvm0laQINKD+tbuzwPoa1GEa
-         3kiRwfvguSCn4u+K5Y3UwySsulcgwxgI5UPck1mEYUg7v6CFsQiWt5QdJdIAUJzpp6
-         UljhRTIO1rhD4Hr8xgKCTN9jNSyNeD99s+eCSLf4=
+        b=WQhnCoItQi/+EM667U8KW2i7V5R8eYZjQrhWVbCiXh9mT03l86OXQT0cQskISkB2B
+         Qcs6EaHbSaQufrjMXcsewHW2zMKVdNmBqOWoNIcjgMHBa7V1mA7HiH9E4B/lIo2gHO
+         s2P20McCFI1/kitTVRwMuDCRQrOwJHsYVZZYPs3c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
-        syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.11 095/306] drm/compat: Clear bounce structures
-Date:   Mon, 15 Mar 2021 14:52:38 +0100
-Message-Id: <20210315135510.870783622@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.11 096/306] drm/radeon: also init GEM funcs in radeon_gem_prime_import_sg_table
+Date:   Mon, 15 Mar 2021 14:52:39 +0100
+Message-Id: <20210315135510.902710918@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -43,79 +42,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Christian König <christian.koenig@amd.com>
 
-commit de066e116306baf3a6a62691ac63cfc0b1dabddb upstream.
+commit a25955ba123499d7db520175c6be59c29f9215e3 upstream.
 
-Some of them have gaps, or fields we don't clear. Native ioctl code
-does full copies plus zero-extends on size mismatch, so nothing can
-leak. But compat is more hand-rolled so need to be careful.
+Otherwise we will run into a NULL ptr deref.
 
-None of these matter for performance, so just memset.
-
-Also I didn't fix up the CONFIG_DRM_LEGACY or CONFIG_DRM_AGP ioctl, those
-are security holes anyway.
-
-Acked-by: Maxime Ripard <mripard@kernel.org>
-Reported-by: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com # vblank ioctl
-Cc: syzbot+620cf21140fc7e772a5d@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210222100643.400935-1-daniel.vetter@ffwll.ch
-(cherry picked from commit e926c474ebee404441c838d18224cd6f246a71b7)
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=212137
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 5.11.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_ioc32.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/radeon/radeon.h       |    2 ++
+ drivers/gpu/drm/radeon/radeon_gem.c   |    4 ++--
+ drivers/gpu/drm/radeon/radeon_prime.c |    2 ++
+ 3 files changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_ioc32.c
-+++ b/drivers/gpu/drm/drm_ioc32.c
-@@ -99,6 +99,8 @@ static int compat_drm_version(struct fil
- 	if (copy_from_user(&v32, (void __user *)arg, sizeof(v32)))
- 		return -EFAULT;
+--- a/drivers/gpu/drm/radeon/radeon.h
++++ b/drivers/gpu/drm/radeon/radeon.h
+@@ -575,6 +575,8 @@ struct radeon_gem {
+ 	struct list_head	objects;
+ };
  
-+	memset(&v, 0, sizeof(v));
++extern const struct drm_gem_object_funcs radeon_gem_object_funcs;
 +
- 	v = (struct drm_version) {
- 		.name_len = v32.name_len,
- 		.name = compat_ptr(v32.name),
-@@ -137,6 +139,9 @@ static int compat_drm_getunique(struct f
+ int radeon_gem_init(struct radeon_device *rdev);
+ void radeon_gem_fini(struct radeon_device *rdev);
+ int radeon_gem_object_create(struct radeon_device *rdev, unsigned long size,
+--- a/drivers/gpu/drm/radeon/radeon_gem.c
++++ b/drivers/gpu/drm/radeon/radeon_gem.c
+@@ -43,7 +43,7 @@ struct sg_table *radeon_gem_prime_get_sg
+ int radeon_gem_prime_pin(struct drm_gem_object *obj);
+ void radeon_gem_prime_unpin(struct drm_gem_object *obj);
  
- 	if (copy_from_user(&uq32, (void __user *)arg, sizeof(uq32)))
- 		return -EFAULT;
-+
-+	memset(&uq, 0, sizeof(uq));
-+
- 	uq = (struct drm_unique){
- 		.unique_len = uq32.unique_len,
- 		.unique = compat_ptr(uq32.unique),
-@@ -265,6 +270,8 @@ static int compat_drm_getclient(struct f
- 	if (copy_from_user(&c32, argp, sizeof(c32)))
- 		return -EFAULT;
+-static const struct drm_gem_object_funcs radeon_gem_object_funcs;
++const struct drm_gem_object_funcs radeon_gem_object_funcs;
  
-+	memset(&client, 0, sizeof(client));
-+
- 	client.idx = c32.idx;
+ static void radeon_gem_object_free(struct drm_gem_object *gobj)
+ {
+@@ -227,7 +227,7 @@ static int radeon_gem_handle_lockup(stru
+ 	return r;
+ }
  
- 	err = drm_ioctl_kernel(file, drm_getclient, &client, 0);
-@@ -852,6 +859,8 @@ static int compat_drm_wait_vblank(struct
- 	if (copy_from_user(&req32, argp, sizeof(req32)))
- 		return -EFAULT;
+-static const struct drm_gem_object_funcs radeon_gem_object_funcs = {
++const struct drm_gem_object_funcs radeon_gem_object_funcs = {
+ 	.free = radeon_gem_object_free,
+ 	.open = radeon_gem_object_open,
+ 	.close = radeon_gem_object_close,
+--- a/drivers/gpu/drm/radeon/radeon_prime.c
++++ b/drivers/gpu/drm/radeon/radeon_prime.c
+@@ -56,6 +56,8 @@ struct drm_gem_object *radeon_gem_prime_
+ 	if (ret)
+ 		return ERR_PTR(ret);
  
-+	memset(&req, 0, sizeof(req));
++	bo->tbo.base.funcs = &radeon_gem_object_funcs;
 +
- 	req.request.type = req32.request.type;
- 	req.request.sequence = req32.request.sequence;
- 	req.request.signal = req32.request.signal;
-@@ -889,6 +898,8 @@ static int compat_drm_mode_addfb2(struct
- 	struct drm_mode_fb_cmd2 req64;
- 	int err;
- 
-+	memset(&req64, 0, sizeof(req64));
-+
- 	if (copy_from_user(&req64, argp,
- 			   offsetof(drm_mode_fb_cmd232_t, modifier)))
- 		return -EFAULT;
+ 	mutex_lock(&rdev->gem.mutex);
+ 	list_add_tail(&bo->list, &rdev->gem.objects);
+ 	mutex_unlock(&rdev->gem.mutex);
 
 
