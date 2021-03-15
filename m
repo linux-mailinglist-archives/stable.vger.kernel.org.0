@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7015133B82F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7399933B929
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233732AbhCOOCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S234666AbhCOOFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232913AbhCOOAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B8164F7B;
-        Mon, 15 Mar 2021 13:59:54 +0000 (UTC)
+        id S233220AbhCOOBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7876B64F26;
+        Mon, 15 Mar 2021 14:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816795;
-        bh=5bZpTcBmK+2vI2T1B/jBbHQLVceUA7/ysSqpNbVbBhE=;
+        s=korg; t=1615816842;
+        bh=B43GDS3I1qY2etSavp/5lN2sKvNurHCKTPwX72luz/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=En+/bEPpUGXICrmJJXsZVM1X8n+GmexsG2RAX2PTiYOX4i1FxB2S04fHYhqvZPtLH
-         AopspmY9SZwno/Z7hKcJRKGZg0hTi/ry2QF2CkWnb02reJJZyCTW43fbP//WRjjQD3
-         TupowAH1wvfzH3tGM1FyJBx+4OvcqLhydf1Wt5co=
+        b=Ki+geed7XWTykT4cuxRtfbMTzCMFu//Ej4iogk9Oyvu3CmaJiODaMua7STYptk9qu
+         7Fi53jfRNFAb5bnu5UxzPPAvgS5FOpE7TjsaHL2a9mSK6ugyG6Z6USMXy1fJdNab5S
+         TIA1olyS4G8YNb1wacgaFNxXlewZuPbEixFIzVYI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.14 67/95] staging: rtl8712: unterminated string leads to read overflow
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        James Morris <jamorris@linux.microsoft.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 106/120] NFSv4.2: fix return value of _nfs4_get_security_label()
 Date:   Mon, 15 Mar 2021 14:57:37 +0100
-Message-Id: <20210315135742.460311847@linuxfoundation.org>
+Message-Id: <20210315135723.447125955@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +44,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit d660f4f42ccea50262c6ee90c8e7ad19a69fb225 upstream.
+[ Upstream commit 53cb245454df5b13d7063162afd7a785aed6ebf2 ]
 
-The memdup_user() function does not necessarily return a NUL terminated
-string so this can lead to a read overflow.  Switch from memdup_user()
-to strndup_user() to fix this bug.
+An xattr 'get' handler is expected to return the length of the value on
+success, yet _nfs4_get_security_label() (and consequently also
+nfs4_xattr_get_nfs4_label(), which is used as an xattr handler) returns
+just 0 on success.
 
-Fixes: c6dc001f2add ("staging: r8712u: Merging Realtek's latest (v2.6.6). Various fixes.")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YDYSR+1rj26NRhvb@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by returning label.len instead, which contains the length of
+the result.
+
+Fixes: aa9c2669626c ("NFS: Client implementation of Labeled-NFS")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: James Morris <jamorris@linux.microsoft.com>
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8712/rtl871x_ioctl_linux.c |    2 +-
+ fs/nfs/nfs4proc.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-+++ b/drivers/staging/rtl8712/rtl871x_ioctl_linux.c
-@@ -927,7 +927,7 @@ static int r871x_wx_set_priv(struct net_
- 	struct iw_point *dwrq = (struct iw_point *)awrq;
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index d89a815f7c31..d63b248582d1 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5611,7 +5611,7 @@ static int _nfs4_get_security_label(struct inode *inode, void *buf,
+ 		return ret;
+ 	if (!(fattr.valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL))
+ 		return -ENOENT;
+-	return 0;
++	return label.len;
+ }
  
- 	len = dwrq->length;
--	ext = memdup_user(dwrq->pointer, len);
-+	ext = strndup_user(dwrq->pointer, len);
- 	if (IS_ERR(ext))
- 		return PTR_ERR(ext);
- 
+ static int nfs4_get_security_label(struct inode *inode, void *buf,
+-- 
+2.30.1
+
 
 
