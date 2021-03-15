@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1AB33BA2D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1989833B799
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235026AbhCOOIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49248 "EHLO mail.kernel.org"
+        id S233064AbhCOOAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:00:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233972AbhCOOCp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03A1964EEF;
-        Mon, 15 Mar 2021 14:02:41 +0000 (UTC)
+        id S232431AbhCON7Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04AF564F64;
+        Mon, 15 Mar 2021 13:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816963;
-        bh=HfN/6IztsEI0ht3nyJF/ft+P3WtrXmaSO4d7Ehr3zCk=;
+        s=korg; t=1615816736;
+        bh=kqGk0XuYjjRsOWNK4lG836j9SdgxgTuwrNWE5f5K6Ik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tfbj9pEfgpAatXRWAE79QHKN6mmxnkdr9FllvUJsIpIcNSYm+81kyiV4q5/WREtLt
-         HlXlLy27b11zxBR9VOvuoYgv09+Y9J4uOibgIszyosBrivcfLzT+QSOAHr31DmABAI
-         gOD2/2hG7XdSUYdYXw1WjWB3trQv/jSY8ero7g0c=
+        b=E/vhvx3obdRSrTgaCTr6ewk46R16fL1Fwj5sRP9wzPHcmhc9jymFcotLm+qgKAwLC
+         ulGZQpqwpig/otUSYjslM7JrK22vnnNu0+nxk8RvaS/PRXv+q+xPRYJZe23NjsMZ4G
+         z5jno6lVty2+NmLYyjVCUW+vHRITNJJSLYylak6E=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 215/290] USB: serial: cp210x: add some more GE USB IDs
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Khalid Aziz <khalid.aziz@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 076/168] sparc64: Use arch_validate_flags() to validate ADI flag
 Date:   Mon, 15 Mar 2021 14:55:08 +0100
-Message-Id: <20210315135549.230140452@linuxfoundation.org>
+Message-Id: <20210315135552.886580091@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,31 +45,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Khalid Aziz <khalid.aziz@oracle.com>
 
-commit 42213a0190b535093a604945db05a4225bf43885 upstream.
+[ Upstream commit 147d8622f2a26ef34beacc60e1ed8b66c2fa457f ]
 
-GE CS1000 has some more custom USB IDs for CP2102N; add them
-to the driver to have working auto-probing.
+When userspace calls mprotect() to enable ADI on an address range,
+do_mprotect_pkey() calls arch_validate_prot() to validate new
+protection flags. arch_validate_prot() for sparc looks at the first
+VMA associated with address range to verify if ADI can indeed be
+enabled on this address range. This has two issues - (1) Address
+range might cover multiple VMAs while arch_validate_prot() looks at
+only the first VMA, (2) arch_validate_prot() peeks at VMA without
+holding mmap lock which can result in race condition.
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+arch_validate_flags() from commit c462ac288f2c ("mm: Introduce
+arch_validate_flags()") allows for VMA flags to be validated for all
+VMAs that cover the address range given by user while holding mmap
+lock. This patch updates sparc code to move the VMA check from
+arch_validate_prot() to arch_validate_flags() to fix above two
+issues.
+
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Khalid Aziz <khalid.aziz@oracle.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/sparc/include/asm/mman.h | 54 +++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 25 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -206,6 +206,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x1901, 0x0194) },	/* GE Healthcare Remote Alarm Box */
- 	{ USB_DEVICE(0x1901, 0x0195) },	/* GE B850/B650/B450 CP2104 DP UART interface */
- 	{ USB_DEVICE(0x1901, 0x0196) },	/* GE B850 CP2105 DP UART interface */
-+	{ USB_DEVICE(0x1901, 0x0197) }, /* GE CS1000 Display serial interface */
-+	{ USB_DEVICE(0x1901, 0x0198) }, /* GE CS1000 M.2 Key E serial interface */
- 	{ USB_DEVICE(0x199B, 0xBA30) }, /* LORD WSDA-200-USB */
- 	{ USB_DEVICE(0x19CF, 0x3000) }, /* Parrot NMEA GPS Flight Recorder */
- 	{ USB_DEVICE(0x1ADB, 0x0001) }, /* Schweitzer Engineering C662 Cable */
+diff --git a/arch/sparc/include/asm/mman.h b/arch/sparc/include/asm/mman.h
+index f94532f25db1..274217e7ed70 100644
+--- a/arch/sparc/include/asm/mman.h
++++ b/arch/sparc/include/asm/mman.h
+@@ -57,35 +57,39 @@ static inline int sparc_validate_prot(unsigned long prot, unsigned long addr)
+ {
+ 	if (prot & ~(PROT_READ | PROT_WRITE | PROT_EXEC | PROT_SEM | PROT_ADI))
+ 		return 0;
+-	if (prot & PROT_ADI) {
+-		if (!adi_capable())
+-			return 0;
++	return 1;
++}
+ 
+-		if (addr) {
+-			struct vm_area_struct *vma;
++#define arch_validate_flags(vm_flags) arch_validate_flags(vm_flags)
++/* arch_validate_flags() - Ensure combination of flags is valid for a
++ *	VMA.
++ */
++static inline bool arch_validate_flags(unsigned long vm_flags)
++{
++	/* If ADI is being enabled on this VMA, check for ADI
++	 * capability on the platform and ensure VMA is suitable
++	 * for ADI
++	 */
++	if (vm_flags & VM_SPARC_ADI) {
++		if (!adi_capable())
++			return false;
+ 
+-			vma = find_vma(current->mm, addr);
+-			if (vma) {
+-				/* ADI can not be enabled on PFN
+-				 * mapped pages
+-				 */
+-				if (vma->vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
+-					return 0;
++		/* ADI can not be enabled on PFN mapped pages */
++		if (vm_flags & (VM_PFNMAP | VM_MIXEDMAP))
++			return false;
+ 
+-				/* Mergeable pages can become unmergeable
+-				 * if ADI is enabled on them even if they
+-				 * have identical data on them. This can be
+-				 * because ADI enabled pages with identical
+-				 * data may still not have identical ADI
+-				 * tags on them. Disallow ADI on mergeable
+-				 * pages.
+-				 */
+-				if (vma->vm_flags & VM_MERGEABLE)
+-					return 0;
+-			}
+-		}
++		/* Mergeable pages can become unmergeable
++		 * if ADI is enabled on them even if they
++		 * have identical data on them. This can be
++		 * because ADI enabled pages with identical
++		 * data may still not have identical ADI
++		 * tags on them. Disallow ADI on mergeable
++		 * pages.
++		 */
++		if (vm_flags & VM_MERGEABLE)
++			return false;
+ 	}
+-	return 1;
++	return true;
+ }
+ #endif /* CONFIG_SPARC64 */
+ 
+-- 
+2.30.1
+
 
 
