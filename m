@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4A633BAE4
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F4933BA5F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235764AbhCOOKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:10:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49712 "EHLO mail.kernel.org"
+        id S235504AbhCOOJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234450AbhCOODX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE72064EED;
-        Mon, 15 Mar 2021 14:03:21 +0000 (UTC)
+        id S234471AbhCOODY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4406564E83;
+        Mon, 15 Mar 2021 14:03:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817002;
-        bh=hRi6m1Bb5VR/buKeMZd3yV/trt2XhIAgjIg+RXM4Ky8=;
+        s=korg; t=1615817004;
+        bh=65FGN8tFjwc5m23owKilo2IaNt4swdnOZ2xh3T4ygqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SrdpR2BAq8JzHHrzdPAYoU8T3esuLFXny+xa5XsyJ5A3ZWe9pem1wiVsSa4crZxYr
-         vlM5zEPMwn6e0kPPjtcNcFY7UkTtsu2xNZTMA83zM9Oe2WxqFbhLftSUj3136nCtqg
-         tRlW/6hM7N1d3BhiwYlwHjvH/irCtGzt3JfEV7uI=
+        b=uxasuCUQ/ndmpM95igljsMRP3LY1snhXNkKh0se/D+FJgnBqaeFIvmFF3M2MvIVcf
+         3E7M0EQyvG6FBf05AJHE3ko7BhrEUHICMIgImrldpxYSlTVYA+zFKv6yWzNg6bgJLg
+         souTohcVgnvgO7lNbyL8LqX/3GBfi9kQqtcgHya4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Dave Airlie <airlied@redhat.com>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 254/306] io_uring: perform IOPOLL reaping if canceler is thread itself
-Date:   Mon, 15 Mar 2021 14:55:17 +0100
-Message-Id: <20210315135516.228552704@linuxfoundation.org>
+Subject: [PATCH 5.11 255/306] drm/nouveau: fix dma syncing for loops (v2)
+Date:   Mon, 15 Mar 2021 14:55:18 +0100
+Message-Id: <20210315135516.263822597@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -41,35 +42,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dave Airlie <airlied@redhat.com>
 
-[ Upstream commit d052d1d685f5125249ab4ff887562c88ba959638 ]
+[ Upstream commit 4042160c2e5433e0759782c402292a90b5bf458d ]
 
-We bypass IOPOLL completion polling (and reaping) for the SQPOLL thread,
-but if it's the thread itself invoking cancelations, then we still need
-to perform it or no one will.
+The index variable should only be increased in one place.
 
-Fixes: 9936c7c2bc76 ("io_uring: deduplicate core cancellations sequence")
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Noticed this while trying to track down another oops.
+
+v2: use while loop.
+
+Fixes: f295c8cfec83 ("drm/nouveau: fix dma syncing warning with debugging on.")
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210311043527.5376-1-airlied@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/nouveau/nouveau_bo.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 241313278e5a..00ef0b90d149 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -8891,7 +8891,8 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 		}
+diff --git a/drivers/gpu/drm/nouveau/nouveau_bo.c b/drivers/gpu/drm/nouveau/nouveau_bo.c
+index 7ea367a5444d..f1c9a22083be 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_bo.c
++++ b/drivers/gpu/drm/nouveau/nouveau_bo.c
+@@ -556,7 +556,8 @@ nouveau_bo_sync_for_device(struct nouveau_bo *nvbo)
+ 	if (nvbo->force_coherent)
+ 		return;
  
- 		/* SQPOLL thread does its own polling */
--		if (!(ctx->flags & IORING_SETUP_SQPOLL) && !files) {
-+		if ((!(ctx->flags & IORING_SETUP_SQPOLL) && !files) ||
-+		    (ctx->sq_data && ctx->sq_data->thread == current)) {
- 			while (!list_empty_careful(&ctx->iopoll_list)) {
- 				io_iopoll_try_reap_events(ctx);
- 				ret = true;
+-	for (i = 0; i < ttm_dma->num_pages; ++i) {
++	i = 0;
++	while (i < ttm_dma->num_pages) {
+ 		struct page *p = ttm_dma->pages[i];
+ 		size_t num_pages = 1;
+ 
+@@ -587,7 +588,8 @@ nouveau_bo_sync_for_cpu(struct nouveau_bo *nvbo)
+ 	if (nvbo->force_coherent)
+ 		return;
+ 
+-	for (i = 0; i < ttm_dma->num_pages; ++i) {
++	i = 0;
++	while (i < ttm_dma->num_pages) {
+ 		struct page *p = ttm_dma->pages[i];
+ 		size_t num_pages = 1;
+ 
 -- 
 2.30.1
 
