@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D7933BC4D
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB5933BC4E
 	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:35:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233628AbhCOOYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:24:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45672 "EHLO mail.kernel.org"
+        id S232796AbhCOOYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238411AbhCOOXK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:23:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B12764F52;
-        Mon, 15 Mar 2021 14:23:06 +0000 (UTC)
+        id S238432AbhCOOXN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:23:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C694F64F40;
+        Mon, 15 Mar 2021 14:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615818190;
-        bh=k9eW9TBA9tTEqQYg2gPOtA2Kq7PMzIC3XTuig0MWXFQ=;
+        s=korg; t=1615818192;
+        bh=hbEX9w5kzOTpmFIRyuoTA/+xL+YXgGfA2AnjiXdYSos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGL0aqQKIOZ//j5eLtCiQRimTTAjiHixINND+WhX8cvnW7T9KGOkbZttsOPZDxHZk
-         ZSAiVtUQmrZXL51fjCrpG3Di2DIgcy3SzDpCkeg8XwSaWhB3zT5ktHmS9nlBPaTEOS
-         WfQJxn8XWIooM1UvyzD6tbkf2ZviMRU5WGygcnnY=
+        b=0YEOzr4jzemVdTdXFHrbEnxfWtLAABKXIogaxqyq9YX6GMEFnIrF++vN0utY3rfaT
+         oI01J2Vs/f9Tf5c4XiP3kMWrxchxCJjSqoNnLHXTm4RJEoccJFPUdJVtEnkpewAsQE
+         qKBZB9pnwPE4IaVrUgglo6wKS6Ii6g1DNIv2YSQ4=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        Qian Cai <cai@lca.pw>, Andrea Arcangeli <aarcange@redhat.com>,
-        Baoquan He <bhe@redhat.com>, Vlastimil Babka <vbabka@suse.cz>,
-        David Hildenbrand <david@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        =?UTF-8?q?=C5=81ukasz=20Majczak?= <lma@semihalf.com>,
-        Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
-        Michal Hocko <mhocko@kernel.org>,
-        "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 286/290] mm/page_alloc.c: refactor initialization of struct page for holes in memory layout
-Date:   Mon, 15 Mar 2021 15:22:36 +0100
-Message-Id: <20210315135551.704702873@linuxfoundation.org>
+        stable@vger.kernel.org, Julien Grall <julien@xen.org>,
+        Juergen Gross <jgross@suse.com>,
+        Julien Grall <jgrall@amazon.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Ross Lagerwall <ross.lagerwall@citrix.com>
+Subject: [PATCH 5.10 287/290] xen/events: dont unmask an event channel when an eoi is pending
+Date:   Mon, 15 Mar 2021 15:22:37 +0100
+Message-Id: <20210315135551.742544934@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135551.391322899@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -54,278 +45,377 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Juergen Gross <jgross@suse.com>
 
-commit 0740a50b9baa4472cfb12442df4b39e2712a64a4 upstream.
+commit 25da4618af240fbec6112401498301a6f2bc9702 upstream.
 
-There could be struct pages that are not backed by actual physical memory.
-This can happen when the actual memory bank is not a multiple of
-SECTION_SIZE or when an architecture does not register memory holes
-reserved by the firmware as memblock.memory.
+An event channel should be kept masked when an eoi is pending for it.
+When being migrated to another cpu it might be unmasked, though.
 
-Such pages are currently initialized using init_unavailable_mem() function
-that iterates through PFNs in holes in memblock.memory and if there is a
-struct page corresponding to a PFN, the fields of this page are set to
-default values and it is marked as Reserved.
+In order to avoid this keep three different flags for each event channel
+to be able to distinguish "normal" masking/unmasking from eoi related
+masking/unmasking and temporary masking. The event channel should only
+be able to generate an interrupt if all flags are cleared.
 
-init_unavailable_mem() does not take into account zone and node the page
-belongs to and sets both zone and node links in struct page to zero.
-
-Before commit 73a6e474cb37 ("mm: memmap_init: iterate over memblock
-regions rather that check each PFN") the holes inside a zone were
-re-initialized during memmap_init() and got their zone/node links right.
-However, after that commit nothing updates the struct pages representing
-such holes.
-
-On a system that has firmware reserved holes in a zone above ZONE_DMA, for
-instance in a configuration below:
-
-	# grep -A1 E820 /proc/iomem
-	7a17b000-7a216fff : Unknown E820 type
-	7a217000-7bffffff : System RAM
-
-unset zone link in struct page will trigger
-
-	VM_BUG_ON_PAGE(!zone_spans_pfn(page_zone(page), pfn), page);
-
-in set_pfnblock_flags_mask() when called with a struct page from a range
-other than E820_TYPE_RAM because there are pages in the range of
-ZONE_DMA32 but the unset zone link in struct page makes them appear as a
-part of ZONE_DMA.
-
-Interleave initialization of the unavailable pages with the normal
-initialization of memory map, so that zone and node information will be
-properly set on struct pages that are not backed by the actual memory.
-
-With this change the pages for holes inside a zone will get proper
-zone/node links and the pages that are not spanned by any node will get
-links to the adjacent zone/node.  The holes between nodes will be
-prepended to the zone/node above the hole and the trailing pages in the
-last section that will be appended to the zone/node below.
-
-[akpm@linux-foundation.org: don't initialize static to zero, use %llu for u64]
-
-Link: https://lkml.kernel.org/r/20210225224351.7356-2-rppt@kernel.org
-Fixes: 73a6e474cb37 ("mm: memmap_init: iterate over memblock regions rather that check each PFN")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reported-by: Qian Cai <cai@lca.pw>
-Reported-by: Andrea Arcangeli <aarcange@redhat.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Łukasz Majczak <lma@semihalf.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: "Sarvela, Tomi P" <tomi.p.sarvela@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Fixes: 54c9de89895e ("xen/events: add a new "late EOI" evtchn framework")
+Reported-by: Julien Grall <julien@xen.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Julien Grall <jgrall@amazon.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Tested-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Link: https://lore.kernel.org/r/20210306161833.4552-3-jgross@suse.com
+[boris -- corrected Fixed tag format]
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |  158 ++++++++++++++++++++++++++------------------------------
- 1 file changed, 75 insertions(+), 83 deletions(-)
+ drivers/xen/events/events_2l.c       |    7 --
+ drivers/xen/events/events_base.c     |  117 ++++++++++++++++++++++++++---------
+ drivers/xen/events/events_fifo.c     |    7 --
+ drivers/xen/events/events_internal.h |    6 -
+ 4 files changed, 88 insertions(+), 49 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6189,13 +6189,66 @@ static void __meminit zone_init_free_lis
- 	}
+--- a/drivers/xen/events/events_2l.c
++++ b/drivers/xen/events/events_2l.c
+@@ -77,12 +77,6 @@ static bool evtchn_2l_is_pending(evtchn_
+ 	return sync_test_bit(port, BM(&s->evtchn_pending[0]));
  }
  
-+#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
-+/*
-+ * Only struct pages that correspond to ranges defined by memblock.memory
-+ * are zeroed and initialized by going through __init_single_page() during
-+ * memmap_init_zone().
-+ *
-+ * But, there could be struct pages that correspond to holes in
-+ * memblock.memory. This can happen because of the following reasons:
-+ * - physical memory bank size is not necessarily the exact multiple of the
-+ *   arbitrary section size
-+ * - early reserved memory may not be listed in memblock.memory
-+ * - memory layouts defined with memmap= kernel parameter may not align
-+ *   nicely with memmap sections
-+ *
-+ * Explicitly initialize those struct pages so that:
-+ * - PG_Reserved is set
-+ * - zone and node links point to zone and node that span the page if the
-+ *   hole is in the middle of a zone
-+ * - zone and node links point to adjacent zone/node if the hole falls on
-+ *   the zone boundary; the pages in such holes will be prepended to the
-+ *   zone/node above the hole except for the trailing pages in the last
-+ *   section that will be appended to the zone/node below.
-+ */
-+static u64 __meminit init_unavailable_range(unsigned long spfn,
-+					    unsigned long epfn,
-+					    int zone, int node)
-+{
-+	unsigned long pfn;
-+	u64 pgcnt = 0;
-+
-+	for (pfn = spfn; pfn < epfn; pfn++) {
-+		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
-+			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
-+				+ pageblock_nr_pages - 1;
-+			continue;
-+		}
-+		__init_single_page(pfn_to_page(pfn), pfn, zone, node);
-+		__SetPageReserved(pfn_to_page(pfn));
-+		pgcnt++;
-+	}
-+
-+	return pgcnt;
-+}
-+#else
-+static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
-+					 int zone, int node)
-+{
-+	return 0;
-+}
-+#endif
-+
- void __meminit __weak memmap_init(unsigned long size, int nid,
- 				  unsigned long zone,
- 				  unsigned long range_start_pfn)
+-static bool evtchn_2l_test_and_set_mask(evtchn_port_t port)
+-{
+-	struct shared_info *s = HYPERVISOR_shared_info;
+-	return sync_test_and_set_bit(port, BM(&s->evtchn_mask[0]));
+-}
+-
+ static void evtchn_2l_mask(evtchn_port_t port)
  {
-+	static unsigned long hole_pfn;
- 	unsigned long start_pfn, end_pfn;
- 	unsigned long range_end_pfn = range_start_pfn + size;
- 	int i;
-+	u64 pgcnt = 0;
+ 	struct shared_info *s = HYPERVISOR_shared_info;
+@@ -376,7 +370,6 @@ static const struct evtchn_ops evtchn_op
+ 	.clear_pending     = evtchn_2l_clear_pending,
+ 	.set_pending       = evtchn_2l_set_pending,
+ 	.is_pending        = evtchn_2l_is_pending,
+-	.test_and_set_mask = evtchn_2l_test_and_set_mask,
+ 	.mask              = evtchn_2l_mask,
+ 	.unmask            = evtchn_2l_unmask,
+ 	.handle_events     = evtchn_2l_handle_events,
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -96,13 +96,18 @@ struct irq_info {
+ 	struct list_head eoi_list;
+ 	short refcnt;
+ 	short spurious_cnt;
+-	enum xen_irq_type type; /* type */
++	short type;             /* type */
++	u8 mask_reason;         /* Why is event channel masked */
++#define EVT_MASK_REASON_EXPLICIT	0x01
++#define EVT_MASK_REASON_TEMPORARY	0x02
++#define EVT_MASK_REASON_EOI_PENDING	0x04
+ 	unsigned irq;
+ 	evtchn_port_t evtchn;   /* event channel */
+ 	unsigned short cpu;     /* cpu bound */
+ 	unsigned short eoi_cpu; /* EOI must happen on this cpu-1 */
+ 	unsigned int irq_epoch; /* If eoi_cpu valid: irq_epoch of event */
+ 	u64 eoi_time;           /* Time in jiffies when to EOI. */
++	spinlock_t lock;
  
- 	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
- 		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
-@@ -6206,7 +6259,29 @@ void __meminit __weak memmap_init(unsign
- 			memmap_init_zone(size, nid, zone, start_pfn, range_end_pfn,
- 					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
- 		}
+ 	union {
+ 		unsigned short virq;
+@@ -151,6 +156,7 @@ static DEFINE_RWLOCK(evtchn_rwlock);
+  *   evtchn_rwlock
+  *     IRQ-desc lock
+  *       percpu eoi_list_lock
++ *         irq_info->lock
+  */
+ 
+ static LIST_HEAD(xen_irq_list_head);
+@@ -272,6 +278,8 @@ static int xen_irq_info_common_setup(str
+ 	info->irq = irq;
+ 	info->evtchn = evtchn;
+ 	info->cpu = cpu;
++	info->mask_reason = EVT_MASK_REASON_EXPLICIT;
++	spin_lock_init(&info->lock);
+ 
+ 	ret = set_evtchn_to_irq(evtchn, irq);
+ 	if (ret < 0)
+@@ -419,6 +427,34 @@ unsigned int cpu_from_evtchn(evtchn_port
+ 	return ret;
+ }
+ 
++static void do_mask(struct irq_info *info, u8 reason)
++{
++	unsigned long flags;
 +
-+		if (hole_pfn < start_pfn)
-+			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
-+							zone, nid);
-+		hole_pfn = end_pfn;
++	spin_lock_irqsave(&info->lock, flags);
++
++	if (!info->mask_reason)
++		mask_evtchn(info->evtchn);
++
++	info->mask_reason |= reason;
++
++	spin_unlock_irqrestore(&info->lock, flags);
++}
++
++static void do_unmask(struct irq_info *info, u8 reason)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&info->lock, flags);
++
++	info->mask_reason &= ~reason;
++
++	if (!info->mask_reason)
++		unmask_evtchn(info->evtchn);
++
++	spin_unlock_irqrestore(&info->lock, flags);
++}
++
+ #ifdef CONFIG_X86
+ static bool pirq_check_eoi_map(unsigned irq)
+ {
+@@ -546,7 +582,7 @@ static void xen_irq_lateeoi_locked(struc
  	}
-+
-+#ifdef CONFIG_SPARSEMEM
-+	/*
-+	 * Initialize the hole in the range [zone_end_pfn, section_end].
-+	 * If zone boundary falls in the middle of a section, this hole
-+	 * will be re-initialized during the call to this function for the
-+	 * higher zone.
-+	 */
-+	end_pfn = round_up(range_end_pfn, PAGES_PER_SECTION);
-+	if (hole_pfn < end_pfn)
-+		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
-+						zone, nid);
-+#endif
-+
-+	if (pgcnt)
-+		pr_info("  %s zone: %llu pages in unavailable ranges\n",
-+			zone_names[zone], pgcnt);
+ 
+ 	info->eoi_time = 0;
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EOI_PENDING);
  }
  
- static int zone_batchsize(struct zone *zone)
-@@ -6999,88 +7074,6 @@ void __init free_area_init_memoryless_no
- 	free_area_init_node(nid);
+ static void xen_irq_lateeoi_worker(struct work_struct *work)
+@@ -733,7 +769,8 @@ static void pirq_query_unmask(int irq)
+ 
+ static void eoi_pirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 	struct physdev_eoi eoi = { .irq = pirq_from_irq(data->irq) };
+ 	int rc = 0;
+ 
+@@ -742,14 +779,13 @@ static void eoi_pirq(struct irq_data *da
+ 
+ 	if (unlikely(irqd_is_setaffinity_pending(data)) &&
+ 	    likely(!irqd_irq_disabled(data))) {
+-		int masked = test_and_set_mask(evtchn);
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 		clear_evtchn(evtchn);
+ 
+ 		irq_move_masked_irq(data);
+ 
+-		if (!masked)
+-			unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 	} else
+ 		clear_evtchn(evtchn);
+ 
+@@ -802,7 +838,8 @@ static unsigned int __startup_pirq(unsig
+ 		goto err;
+ 
+ out:
+-	unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_EXPLICIT);
++
+ 	eoi_pirq(irq_get_irq_data(irq));
+ 
+ 	return 0;
+@@ -829,7 +866,7 @@ static void shutdown_pirq(struct irq_dat
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return;
+ 
+-	mask_evtchn(evtchn);
++	do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ 	xen_evtchn_close(evtchn);
+ 	xen_irq_info_cleanup(info);
+ }
+@@ -1656,10 +1693,10 @@ void rebind_evtchn_irq(evtchn_port_t evt
  }
  
--#if !defined(CONFIG_FLAT_NODE_MEM_MAP)
--/*
-- * Initialize all valid struct pages in the range [spfn, epfn) and mark them
-- * PageReserved(). Return the number of struct pages that were initialized.
-- */
--static u64 __init init_unavailable_range(unsigned long spfn, unsigned long epfn)
+ /* Rebind an evtchn so that it gets delivered to a specific cpu */
+-static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
++static int xen_rebind_evtchn_to_cpu(struct irq_info *info, unsigned int tcpu)
+ {
+ 	struct evtchn_bind_vcpu bind_vcpu;
+-	int masked;
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return -1;
+@@ -1675,7 +1712,7 @@ static int xen_rebind_evtchn_to_cpu(evtc
+ 	 * Mask the event while changing the VCPU binding to prevent
+ 	 * it being delivered on an unexpected VCPU.
+ 	 */
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	/*
+ 	 * If this fails, it usually just indicates that we're dealing with a
+@@ -1685,8 +1722,7 @@ static int xen_rebind_evtchn_to_cpu(evtc
+ 	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
+ 		bind_evtchn_to_cpu(evtchn, tcpu);
+ 
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 0;
+ }
+@@ -1695,7 +1731,7 @@ static int set_affinity_irq(struct irq_d
+ 			    bool force)
+ {
+ 	unsigned tcpu = cpumask_first_and(dest, cpu_online_mask);
+-	int ret = xen_rebind_evtchn_to_cpu(evtchn_from_irq(data->irq), tcpu);
++	int ret = xen_rebind_evtchn_to_cpu(info_for_irq(data->irq), tcpu);
+ 
+ 	if (!ret)
+ 		irq_data_update_effective_affinity(data, cpumask_of(tcpu));
+@@ -1714,37 +1750,39 @@ EXPORT_SYMBOL_GPL(xen_set_affinity_evtch
+ 
+ static void enable_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void disable_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (VALID_EVTCHN(evtchn))
+-		mask_evtchn(evtchn);
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
+ }
+ 
+ static void ack_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return;
+ 
+ 	if (unlikely(irqd_is_setaffinity_pending(data)) &&
+ 	    likely(!irqd_irq_disabled(data))) {
+-		int masked = test_and_set_mask(evtchn);
++		do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 		clear_evtchn(evtchn);
+ 
+ 		irq_move_masked_irq(data);
+ 
+-		if (!masked)
+-			unmask_evtchn(evtchn);
++		do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 	} else
+ 		clear_evtchn(evtchn);
+ }
+@@ -1755,18 +1793,39 @@ static void mask_ack_dynirq(struct irq_d
+ 	ack_dynirq(data);
+ }
+ 
++static void lateeoi_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EOI_PENDING);
++		clear_evtchn(evtchn);
++	}
++}
++
++static void lateeoi_mask_ack_dynirq(struct irq_data *data)
++{
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
++
++	if (VALID_EVTCHN(evtchn)) {
++		do_mask(info, EVT_MASK_REASON_EXPLICIT);
++		clear_evtchn(evtchn);
++	}
++}
++
+ static int retrigger_dynirq(struct irq_data *data)
+ {
+-	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
+-	int masked;
++	struct irq_info *info = info_for_irq(data->irq);
++	evtchn_port_t evtchn = info ? info->evtchn : 0;
+ 
+ 	if (!VALID_EVTCHN(evtchn))
+ 		return 0;
+ 
+-	masked = test_and_set_mask(evtchn);
++	do_mask(info, EVT_MASK_REASON_TEMPORARY);
+ 	set_evtchn(evtchn);
+-	if (!masked)
+-		unmask_evtchn(evtchn);
++	do_unmask(info, EVT_MASK_REASON_TEMPORARY);
+ 
+ 	return 1;
+ }
+@@ -1974,8 +2033,8 @@ static struct irq_chip xen_lateeoi_chip
+ 	.irq_mask		= disable_dynirq,
+ 	.irq_unmask		= enable_dynirq,
+ 
+-	.irq_ack		= mask_ack_dynirq,
+-	.irq_mask_ack		= mask_ack_dynirq,
++	.irq_ack		= lateeoi_ack_dynirq,
++	.irq_mask_ack		= lateeoi_mask_ack_dynirq,
+ 
+ 	.irq_set_affinity	= set_affinity_irq,
+ 	.irq_retrigger		= retrigger_dynirq,
+--- a/drivers/xen/events/events_fifo.c
++++ b/drivers/xen/events/events_fifo.c
+@@ -209,12 +209,6 @@ static bool evtchn_fifo_is_pending(evtch
+ 	return sync_test_bit(EVTCHN_FIFO_BIT(PENDING, word), BM(word));
+ }
+ 
+-static bool evtchn_fifo_test_and_set_mask(evtchn_port_t port)
 -{
--	unsigned long pfn;
--	u64 pgcnt = 0;
--
--	for (pfn = spfn; pfn < epfn; pfn++) {
--		if (!pfn_valid(ALIGN_DOWN(pfn, pageblock_nr_pages))) {
--			pfn = ALIGN_DOWN(pfn, pageblock_nr_pages)
--				+ pageblock_nr_pages - 1;
--			continue;
--		}
--		/*
--		 * Use a fake node/zone (0) for now. Some of these pages
--		 * (in memblock.reserved but not in memblock.memory) will
--		 * get re-initialized via reserve_bootmem_region() later.
--		 */
--		__init_single_page(pfn_to_page(pfn), pfn, 0, 0);
--		__SetPageReserved(pfn_to_page(pfn));
--		pgcnt++;
--	}
--
--	return pgcnt;
+-	event_word_t *word = event_word_from_port(port);
+-	return sync_test_and_set_bit(EVTCHN_FIFO_BIT(MASKED, word), BM(word));
 -}
 -
--/*
-- * Only struct pages that are backed by physical memory are zeroed and
-- * initialized by going through __init_single_page(). But, there are some
-- * struct pages which are reserved in memblock allocator and their fields
-- * may be accessed (for example page_to_pfn() on some configuration accesses
-- * flags). We must explicitly initialize those struct pages.
-- *
-- * This function also addresses a similar issue where struct pages are left
-- * uninitialized because the physical address range is not covered by
-- * memblock.memory or memblock.reserved. That could happen when memblock
-- * layout is manually configured via memmap=, or when the highest physical
-- * address (max_pfn) does not end on a section boundary.
-- */
--static void __init init_unavailable_mem(void)
+ static void evtchn_fifo_mask(evtchn_port_t port)
+ {
+ 	event_word_t *word = event_word_from_port(port);
+@@ -423,7 +417,6 @@ static const struct evtchn_ops evtchn_op
+ 	.clear_pending     = evtchn_fifo_clear_pending,
+ 	.set_pending       = evtchn_fifo_set_pending,
+ 	.is_pending        = evtchn_fifo_is_pending,
+-	.test_and_set_mask = evtchn_fifo_test_and_set_mask,
+ 	.mask              = evtchn_fifo_mask,
+ 	.unmask            = evtchn_fifo_unmask,
+ 	.handle_events     = evtchn_fifo_handle_events,
+--- a/drivers/xen/events/events_internal.h
++++ b/drivers/xen/events/events_internal.h
+@@ -21,7 +21,6 @@ struct evtchn_ops {
+ 	void (*clear_pending)(evtchn_port_t port);
+ 	void (*set_pending)(evtchn_port_t port);
+ 	bool (*is_pending)(evtchn_port_t port);
+-	bool (*test_and_set_mask)(evtchn_port_t port);
+ 	void (*mask)(evtchn_port_t port);
+ 	void (*unmask)(evtchn_port_t port);
+ 
+@@ -84,11 +83,6 @@ static inline bool test_evtchn(evtchn_po
+ 	return evtchn_ops->is_pending(port);
+ }
+ 
+-static inline bool test_and_set_mask(evtchn_port_t port)
 -{
--	phys_addr_t start, end;
--	u64 i, pgcnt;
--	phys_addr_t next = 0;
--
--	/*
--	 * Loop through unavailable ranges not covered by memblock.memory.
--	 */
--	pgcnt = 0;
--	for_each_mem_range(i, &start, &end) {
--		if (next < start)
--			pgcnt += init_unavailable_range(PFN_DOWN(next),
--							PFN_UP(start));
--		next = end;
--	}
--
--	/*
--	 * Early sections always have a fully populated memmap for the whole
--	 * section - see pfn_valid(). If the last section has holes at the
--	 * end and that section is marked "online", the memmap will be
--	 * considered initialized. Make sure that memmap has a well defined
--	 * state.
--	 */
--	pgcnt += init_unavailable_range(PFN_DOWN(next),
--					round_up(max_pfn, PAGES_PER_SECTION));
--
--	/*
--	 * Struct pages that do not have backing memory. This could be because
--	 * firmware is using some of this memory, or for some other reasons.
--	 */
--	if (pgcnt)
--		pr_info("Zeroed struct page in unavailable ranges: %lld pages", pgcnt);
+-	return evtchn_ops->test_and_set_mask(port);
 -}
--#else
--static inline void __init init_unavailable_mem(void)
--{
--}
--#endif /* !CONFIG_FLAT_NODE_MEM_MAP */
 -
- #if MAX_NUMNODES > 1
- /*
-  * Figure out the number of possible node ids.
-@@ -7504,7 +7497,6 @@ void __init free_area_init(unsigned long
- 	/* Initialise every node */
- 	mminit_verify_pageflags_layout();
- 	setup_nr_node_ids();
--	init_unavailable_mem();
- 	for_each_online_node(nid) {
- 		pg_data_t *pgdat = NODE_DATA(nid);
- 		free_area_init_node(nid);
+ static inline void mask_evtchn(evtchn_port_t port)
+ {
+ 	return evtchn_ops->mask(port);
 
 
