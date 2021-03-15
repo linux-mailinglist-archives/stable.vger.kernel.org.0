@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0173C33B9EC
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A26B733B9EB
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235055AbhCOOHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:07:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
+        id S235064AbhCOOHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233556AbhCOOCB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB22264F17;
-        Mon, 15 Mar 2021 14:01:58 +0000 (UTC)
+        id S233563AbhCOOCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC8664E83;
+        Mon, 15 Mar 2021 14:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816920;
-        bh=WdSA0u9QNjoXc1vg2BJB76lxbzJAX+Hz+pf+MzpjaqE=;
+        s=korg; t=1615816921;
+        bh=I5/Ju2sqpmZF9GUUl8cG9iEELjgWoaYlwhzX40Zzz+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9+JW4SBBga7vVBIgfpHontEjougyBlqhMYk+OZujXNh1ngVAqiGcPbH6rtPnkNBZ
-         zmUGOhbiPoYDEN5cjHaxjfOXpn5nh0mHo7flR5NtRx5llcLJAv3DMxs7a5aRHzJFnH
-         pxGL6Eqw3svzxYB+57xstxlfudzaFImDW8EK87aM=
+        b=AtbVm58qlo5v4PGxRQZYAsJxAJUDTrX96PIcvb9zHmk+H8Mxh8MkCUPWDymllmpMy
+         1ANeCHYvaah4nubPxIMMWqc7FYTU2mfdMUFrvzr20lOepwt776oWtf6CmMjTw0V8fk
+         4RCp6+HJ44nNJ+fK6d4jDbYbUJMHmfEKost1lVSk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
-        Pete Zaitcev <zaitcev@redhat.com>
-Subject: [PATCH 5.11 202/306] USB: usblp: fix a hang in poll() if disconnected
-Date:   Mon, 15 Mar 2021 14:54:25 +0100
-Message-Id: <20210315135514.466896343@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.11 203/306] usb: renesas_usbhs: Clear PIPECFG for re-enabling pipe with other EPNUM
+Date:   Mon, 15 Mar 2021 14:54:26 +0100
+Message-Id: <20210315135514.497948719@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
@@ -41,61 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Pete Zaitcev <zaitcev@redhat.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 9de2c43acf37a17dc4c69ff78bb099b80fb74325 upstream.
+commit b1d25e6ee57c2605845595b6c61340d734253eb3 upstream.
 
-Apparently an application that opens a device and calls select()
-on it, will hang if the decice is disconnected. It's a little
-surprising that we had this bug for 15 years, but apparently
-nobody ever uses select() with a printer: only write() and read(),
-and those work fine. Well, you can also select() with a timeout.
+According to the datasheet, this controller has a restriction
+which "set an endpoint number so that combinations of the DIR bit and
+the EPNUM bits do not overlap.". However, since the udc core driver is
+possible to assign a bulk pipe as an interrupt endpoint, an endpoint
+number may not match the pipe number. After that, when user rebinds
+another gadget driver, this driver broke the restriction because
+the driver didn't clear any configuration in usb_ep_disable().
 
-The fix is modeled after devio.c. A few other drivers check the
-condition first, then do not add the wait queue in case the
-device is disconnected. We doubt that's completely race-free.
-So, this patch adds the process first, then locks properly
-and checks for the disconnect.
+Example:
+ # modprobe g_ncm
+ Then, EP3 = pipe 3, EP4 = pipe 4, EP5 = pipe 6
+ # rmmod g_ncm
+ # modprobe g_hid
+ Then, EP3 = pipe 6, EP4 = pipe 7.
+ So, pipe 3 and pipe 6 are set as EP3.
 
-Reviewed-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
+So, clear PIPECFG register in usbhs_pipe_free().
+
+Fixes: dfb87b8bfe09 ("usb: renesas_usbhs: gadget: fix re-enabling pipe without re-connecting")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210303221053.1cf3313e@suzdal.zaitcev.lan
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/1615168538-26101-1-git-send-email-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/usblp.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/usb/renesas_usbhs/pipe.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/class/usblp.c
-+++ b/drivers/usb/class/usblp.c
-@@ -494,16 +494,24 @@ static int usblp_release(struct inode *i
- /* No kernel lock - fine */
- static __poll_t usblp_poll(struct file *file, struct poll_table_struct *wait)
- {
--	__poll_t ret;
-+	struct usblp *usblp = file->private_data;
-+	__poll_t ret = 0;
- 	unsigned long flags;
+--- a/drivers/usb/renesas_usbhs/pipe.c
++++ b/drivers/usb/renesas_usbhs/pipe.c
+@@ -746,6 +746,8 @@ struct usbhs_pipe *usbhs_pipe_malloc(str
  
--	struct usblp *usblp = file->private_data;
- 	/* Should we check file->f_mode & FMODE_WRITE before poll_wait()? */
- 	poll_wait(file, &usblp->rwait, wait);
- 	poll_wait(file, &usblp->wwait, wait);
-+
-+	mutex_lock(&usblp->mut);
-+	if (!usblp->present)
-+		ret |= EPOLLHUP;
-+	mutex_unlock(&usblp->mut);
-+
- 	spin_lock_irqsave(&usblp->lock, flags);
--	ret = ((usblp->bidir && usblp->rcomplete) ? EPOLLIN  | EPOLLRDNORM : 0) |
--	   ((usblp->no_paper || usblp->wcomplete) ? EPOLLOUT | EPOLLWRNORM : 0);
-+	if (usblp->bidir && usblp->rcomplete)
-+		ret |= EPOLLIN  | EPOLLRDNORM;
-+	if (usblp->no_paper || usblp->wcomplete)
-+		ret |= EPOLLOUT | EPOLLWRNORM;
- 	spin_unlock_irqrestore(&usblp->lock, flags);
- 	return ret;
+ void usbhs_pipe_free(struct usbhs_pipe *pipe)
+ {
++	usbhsp_pipe_select(pipe);
++	usbhsp_pipe_cfg_set(pipe, 0xFFFF, 0);
+ 	usbhsp_put_pipe(pipe);
  }
+ 
 
 
