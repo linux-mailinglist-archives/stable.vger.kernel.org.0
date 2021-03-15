@@ -2,37 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58B3433B8B1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 627A833B926
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbhCOOEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S234799AbhCOOFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233103AbhCOOAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CCCB64F2E;
-        Mon, 15 Mar 2021 14:00:07 +0000 (UTC)
+        id S233221AbhCOOBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5406A64F09;
+        Mon, 15 Mar 2021 14:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816809;
-        bh=6O5awPON+ge0i8ZbQh2v/7heA9fjMbMOYT6/2TkgcR8=;
+        s=korg; t=1615816841;
+        bh=jkUcoZXhHr0dEP2cyq5ThXRptqnM24/Ia9ZPOvyKiuw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HjtRP7K0oDjvzbc+g/6Wxf+NzzBNXsss8oyyDLb01+NXDLLv2gLpFWTyYNPNYO79q
-         1JTIROOjaN0bRwbmVQpINEjTdbjJTq0uI3psubYtLba+XHrqZDfiiOwaQ7HcU4BR3x
-         78jMSgxX3BlTlttU5JNjhUyiYsAd3qHzoyNCrky8=
+        b=VybOM9p8BHrM4kLV+3kwegexSn5QQs1t3N+0rT8TsAECvIa42XL/Jg/R5UgbLN9Us
+         dhuqHPe3K/Z2/eRN1a3z6rf9FUZGfOQAAgIbgIUDfcxLNVNIWnleI0TYTFzkSLU3pW
+         p/oFYz5gAp+0Tnu4spfDIhe4JZGVvJT0emODJxQ8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Branislav Rankov <Branislav.Rankov@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        Peter Collingbourne <pcc@google.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 126/290] enetc: Fix unused var build warning for CONFIG_OF
+Subject: [PATCH 5.11 156/306] kasan: fix memory corruption in kasan_bitops_tags test
 Date:   Mon, 15 Mar 2021 14:53:39 +0100
-Message-Id: <20210315135546.168919059@linuxfoundation.org>
+Message-Id: <20210315135512.906322942@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +54,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-[ Upstream commit 4560b2a3ecdd5d587c4c6eea4339899f173a559a ]
+[ Upstream commit e66e1799a76621003e5b04c9c057826a2152e103 ]
 
-When CONFIG_OF is disabled, there is a harmless warning about
-an unused variable:
+Since the hardware tag-based KASAN mode might not have a redzone that
+comes after an allocated object (when kasan.mode=prod is enabled), the
+kasan_bitops_tags() test ends up corrupting the next object in memory.
 
-enetc_pf.c: In function 'enetc_phylink_create':
-enetc_pf.c:981:17: error: unused variable 'dev' [-Werror=unused-variable]
+Change the test so it always accesses the redzone that lies within the
+allocated object's boundaries.
 
-Slightly rearrange the code to pass around the of_node as a
-function argument, which avoids the problem without hurting
-readability.
-
-Fixes: 71b77a7a27a3 ("enetc: Migrate to PHYLINK and PCS_LYNX")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Claudiu Manoil <claudiu.manoil@nxp.com>
-Link: https://lore.kernel.org/r/20201204120800.17193-1-claudiu.manoil@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://linux-review.googlesource.com/id/I67f51d1ee48f0a8d0fe2658c2a39e4879fe0832a
+Link: https://lkml.kernel.org/r/7d452ce4ae35bb1988d2c9244dfea56cf2cc9315.1610733117.git.andreyknvl@google.com
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Alexander Potapenko <glider@google.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Branislav Rankov <Branislav.Rankov@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: Kevin Brodsky <kevin.brodsky@arm.com>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/freescale/enetc/enetc_pf.c   | 21 +++++++++----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ lib/test_kasan.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/enetc/enetc_pf.c b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-index b35096455293..f29058dddb36 100644
---- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
-@@ -859,13 +859,12 @@ static bool enetc_port_has_pcs(struct enetc_pf *pf)
- 		pf->if_mode == PHY_INTERFACE_MODE_USXGMII);
+diff --git a/lib/test_kasan.c b/lib/test_kasan.c
+index 2947274cc2d3..5a2f104ca13f 100644
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -737,13 +737,13 @@ static void kasan_bitops_tags(struct kunit *test)
+ 		return;
+ 	}
+ 
+-	/* Allocation size will be rounded to up granule size, which is 16. */
+-	bits = kzalloc(sizeof(*bits), GFP_KERNEL);
++	/* kmalloc-64 cache will be used and the last 16 bytes will be the redzone. */
++	bits = kzalloc(48, GFP_KERNEL);
+ 	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, bits);
+ 
+-	/* Do the accesses past the 16 allocated bytes. */
+-	kasan_bitops_modify(test, BITS_PER_LONG, &bits[1]);
+-	kasan_bitops_test_and_modify(test, BITS_PER_LONG + BITS_PER_BYTE, &bits[1]);
++	/* Do the accesses past the 48 allocated bytes, but within the redone. */
++	kasan_bitops_modify(test, BITS_PER_LONG, (void *)bits + 48);
++	kasan_bitops_test_and_modify(test, BITS_PER_LONG + BITS_PER_BYTE, (void *)bits + 48);
+ 
+ 	kfree(bits);
  }
- 
--static int enetc_mdiobus_create(struct enetc_pf *pf)
-+static int enetc_mdiobus_create(struct enetc_pf *pf, struct device_node *node)
- {
--	struct device *dev = &pf->si->pdev->dev;
- 	struct device_node *mdio_np;
- 	int err;
- 
--	mdio_np = of_get_child_by_name(dev->of_node, "mdio");
-+	mdio_np = of_get_child_by_name(node, "mdio");
- 	if (mdio_np) {
- 		err = enetc_mdio_probe(pf, mdio_np);
- 
-@@ -1009,18 +1008,17 @@ static const struct phylink_mac_ops enetc_mac_phylink_ops = {
- 	.mac_link_down = enetc_pl_mac_link_down,
- };
- 
--static int enetc_phylink_create(struct enetc_ndev_priv *priv)
-+static int enetc_phylink_create(struct enetc_ndev_priv *priv,
-+				struct device_node *node)
- {
- 	struct enetc_pf *pf = enetc_si_priv(priv->si);
--	struct device *dev = &pf->si->pdev->dev;
- 	struct phylink *phylink;
- 	int err;
- 
- 	pf->phylink_config.dev = &priv->ndev->dev;
- 	pf->phylink_config.type = PHYLINK_NETDEV;
- 
--	phylink = phylink_create(&pf->phylink_config,
--				 of_fwnode_handle(dev->of_node),
-+	phylink = phylink_create(&pf->phylink_config, of_fwnode_handle(node),
- 				 pf->if_mode, &enetc_mac_phylink_ops);
- 	if (IS_ERR(phylink)) {
- 		err = PTR_ERR(phylink);
-@@ -1086,13 +1084,14 @@ static int enetc_init_port_rss_memory(struct enetc_si *si)
- static int enetc_pf_probe(struct pci_dev *pdev,
- 			  const struct pci_device_id *ent)
- {
-+	struct device_node *node = pdev->dev.of_node;
- 	struct enetc_ndev_priv *priv;
- 	struct net_device *ndev;
- 	struct enetc_si *si;
- 	struct enetc_pf *pf;
- 	int err;
- 
--	if (pdev->dev.of_node && !of_device_is_available(pdev->dev.of_node)) {
-+	if (node && !of_device_is_available(node)) {
- 		dev_info(&pdev->dev, "device is disabled, skipping\n");
- 		return -ENODEV;
- 	}
-@@ -1161,12 +1160,12 @@ static int enetc_pf_probe(struct pci_dev *pdev,
- 		goto err_alloc_msix;
- 	}
- 
--	if (!of_get_phy_mode(pdev->dev.of_node, &pf->if_mode)) {
--		err = enetc_mdiobus_create(pf);
-+	if (!of_get_phy_mode(node, &pf->if_mode)) {
-+		err = enetc_mdiobus_create(pf, node);
- 		if (err)
- 			goto err_mdiobus_create;
- 
--		err = enetc_phylink_create(priv);
-+		err = enetc_phylink_create(priv, node);
- 		if (err)
- 			goto err_phylink_create;
- 	}
 -- 
 2.30.1
 
