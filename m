@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AEDD33B663
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 150E033B69A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbhCON5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34124 "EHLO mail.kernel.org"
+        id S232283AbhCON6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231802AbhCON5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0701E64F00;
-        Mon, 15 Mar 2021 13:56:58 +0000 (UTC)
+        id S232049AbhCON5k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E40264EEC;
+        Mon, 15 Mar 2021 13:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816620;
-        bh=Tj752T5KVH6A+ShCPQIpgLAwmmH7EX4UNPwrp+k8CT8=;
+        s=korg; t=1615816659;
+        bh=jc66TvqUUbe1HBobHMcLfxnpLpiyNn+zSqvT8O3Y9jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wv71est7MDgz7NTGxheOTR0jMXGnN2ayxqJqZwCiMqPcrp2C5at1syt/lotBHqCgv
-         HZCF+dR/NkFyZWhdTLn+f+6Xrz4Th8WXyQBCrKxXJ0PAlRdAsc0jldl57rNjcLYQag
-         2bI4Lmm7YSyvduXYBen6uxCwjbkAMoSjqwc0xfQg=
+        b=U2qKRizsqfZ/g3DMNI+XWjXv+TsBBO8NLDe9mESyEQV6Cj36GECo3TvdJiRmgRCRo
+         5poKAVgjfz7IqSvl/falzfyGgdrDQBDcbM17DkQ2MgpTmotIUayhLt17Nta46GxZj8
+         qg6run+JUNm3KIh7L1Uos0PUQ3ClBJevdEgje+cQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Qingyu Li <ieatmuttonchuan@gmail.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 017/290] tcp: add sanity tests to TCP_QUEUE_SEQ
+Subject: [PATCH 5.11 047/306] net: enetc: initialize RFS/RSS memories for unused ports too
 Date:   Mon, 15 Mar 2021 14:51:50 +0100
-Message-Id: <20210315135542.521992931@linuxfoundation.org>
+Message-Id: <20210315135509.241900768@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +43,165 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 8811f4a9836e31c14ecdf79d9f3cb7c5d463265d upstream.
+commit 3222b5b613db558e9a494bbf53f3c984d90f71ea upstream.
 
-Qingyu Li reported a syzkaller bug where the repro
-changes RCV SEQ _after_ restoring data in the receive queue.
+Michael reports that since linux-next-20210211, the AER messages for ECC
+errors have started reappearing, and this time they can be reliably
+reproduced with the first ping on one of his LS1028A boards.
 
-mprotect(0x4aa000, 12288, PROT_READ)    = 0
-mmap(0x1ffff000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x1ffff000
-mmap(0x20000000, 16777216, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x20000000
-mmap(0x21000000, 4096, PROT_NONE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x21000000
-socket(AF_INET6, SOCK_STREAM, IPPROTO_IP) = 3
-setsockopt(3, SOL_TCP, TCP_REPAIR, [1], 4) = 0
-connect(3, {sa_family=AF_INET6, sin6_port=htons(0), sin6_flowinfo=htonl(0), inet_pton(AF_INET6, "::1", &sin6_addr), sin6_scope_id=0}, 28) = 0
-setsockopt(3, SOL_TCP, TCP_REPAIR_QUEUE, [1], 4) = 0
-sendmsg(3, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="0x0000000000000003\0\0", iov_len=20}], msg_iovlen=1, msg_controllen=0, msg_flags=0}, 0) = 20
-setsockopt(3, SOL_TCP, TCP_REPAIR, [0], 4) = 0
-setsockopt(3, SOL_TCP, TCP_QUEUE_SEQ, [128], 4) = 0
-recvfrom(3, NULL, 20, 0, NULL, NULL)    = -1 ECONNRESET (Connection reset by peer)
+$ ping 1[   33.258069] pcieport 0000:00:1f.0: AER: Multiple Corrected error received: 0000:00:00.0
+72.16.0.1
+PING [   33.267050] pcieport 0000:00:1f.0: AER: can't find device of ID0000
+172.16.0.1 (172.16.0.1): 56 data bytes
+64 bytes from 172.16.0.1: seq=0 ttl=64 time=17.124 ms
+64 bytes from 172.16.0.1: seq=1 ttl=64 time=0.273 ms
 
-syslog shows:
-[  111.205099] TCP recvmsg seq # bug 2: copied 80, seq 0, rcvnxt 80, fl 0
-[  111.207894] WARNING: CPU: 1 PID: 356 at net/ipv4/tcp.c:2343 tcp_recvmsg_locked+0x90e/0x29a0
+$ devmem 0x1f8010e10 32
+0xC0000006
 
-This should not be allowed. TCP_QUEUE_SEQ should only be used
-when queues are empty.
+It isn't clear why this is necessary, but it seems that for the errors
+to go away, we must clear the entire RFS and RSS memory, not just for
+the ports in use.
 
-This patch fixes this case, and the tx path as well.
+Sadly the code is structured in such a way that we can't have unified
+logic for the used and unused ports. For the minimal initialization of
+an unused port, we need just to enable and ioremap the PF memory space,
+and a control buffer descriptor ring. Unused ports must then free the
+CBDR because the driver will exit, but used ports can not pick up from
+where that code path left, since the CBDR API does not reinitialize a
+ring when setting it up, so its producer and consumer indices are out of
+sync between the software and hardware state. So a separate
+enetc_init_unused_port function was created, and it gets called right
+after the PF memory space is enabled.
 
-Fixes: ee9952831cfd ("tcp: Initial repair mode")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=212005
-Reported-by: Qingyu Li <ieatmuttonchuan@gmail.com>
+Fixes: 07bf34a50e32 ("net: enetc: initialize the RFS and RSS memories")
+Reported-by: Michael Walle <michael@walle.cc>
+Cc: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Tested-by: Michael Walle <michael@walle.cc>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c    |    8 ++---
+ drivers/net/ethernet/freescale/enetc/enetc.h    |    4 ++
+ drivers/net/ethernet/freescale/enetc/enetc_pf.c |   33 ++++++++++++++++++++----
+ 3 files changed, 36 insertions(+), 9 deletions(-)
 
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -3164,16 +3164,23 @@ static int do_tcp_setsockopt(struct sock
- 		break;
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -984,7 +984,7 @@ static void enetc_free_rxtx_rings(struct
+ 		enetc_free_tx_ring(priv->tx_ring[i]);
+ }
  
- 	case TCP_QUEUE_SEQ:
--		if (sk->sk_state != TCP_CLOSE)
-+		if (sk->sk_state != TCP_CLOSE) {
- 			err = -EPERM;
--		else if (tp->repair_queue == TCP_SEND_QUEUE)
--			WRITE_ONCE(tp->write_seq, val);
--		else if (tp->repair_queue == TCP_RECV_QUEUE) {
--			WRITE_ONCE(tp->rcv_nxt, val);
--			WRITE_ONCE(tp->copied_seq, val);
--		}
--		else
-+		} else if (tp->repair_queue == TCP_SEND_QUEUE) {
-+			if (!tcp_rtx_queue_empty(sk))
-+				err = -EPERM;
-+			else
-+				WRITE_ONCE(tp->write_seq, val);
-+		} else if (tp->repair_queue == TCP_RECV_QUEUE) {
-+			if (tp->rcv_nxt != tp->copied_seq) {
-+				err = -EPERM;
-+			} else {
-+				WRITE_ONCE(tp->rcv_nxt, val);
-+				WRITE_ONCE(tp->copied_seq, val);
-+			}
-+		} else {
- 			err = -EINVAL;
-+		}
- 		break;
+-static int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
++int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ {
+ 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
  
- 	case TCP_REPAIR_OPTIONS:
+@@ -1005,7 +1005,7 @@ static int enetc_alloc_cbdr(struct devic
+ 	return 0;
+ }
+ 
+-static void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
++void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr)
+ {
+ 	int size = cbdr->bd_count * sizeof(struct enetc_cbd);
+ 
+@@ -1013,7 +1013,7 @@ static void enetc_free_cbdr(struct devic
+ 	cbdr->bd_base = NULL;
+ }
+ 
+-static void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
++void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr)
+ {
+ 	/* set CBDR cache attributes */
+ 	enetc_wr(hw, ENETC_SICAR2,
+@@ -1033,7 +1033,7 @@ static void enetc_setup_cbdr(struct enet
+ 	cbdr->cir = hw->reg + ENETC_SICBDRCIR;
+ }
+ 
+-static void enetc_clear_cbdr(struct enetc_hw *hw)
++void enetc_clear_cbdr(struct enetc_hw *hw)
+ {
+ 	enetc_wr(hw, ENETC_SICBDRMR, 0);
+ }
+--- a/drivers/net/ethernet/freescale/enetc/enetc.h
++++ b/drivers/net/ethernet/freescale/enetc/enetc.h
+@@ -310,6 +310,10 @@ int enetc_setup_tc(struct net_device *nd
+ void enetc_set_ethtool_ops(struct net_device *ndev);
+ 
+ /* control buffer descriptor ring (CBDR) */
++int enetc_alloc_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
++void enetc_free_cbdr(struct device *dev, struct enetc_cbdr *cbdr);
++void enetc_setup_cbdr(struct enetc_hw *hw, struct enetc_cbdr *cbdr);
++void enetc_clear_cbdr(struct enetc_hw *hw);
+ int enetc_set_mac_flt_entry(struct enetc_si *si, int index,
+ 			    char *mac_addr, int si_map);
+ int enetc_clear_mac_flt_entry(struct enetc_si *si, int index);
+--- a/drivers/net/ethernet/freescale/enetc/enetc_pf.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc_pf.c
+@@ -1041,6 +1041,26 @@ static int enetc_init_port_rss_memory(st
+ 	return err;
+ }
+ 
++static void enetc_init_unused_port(struct enetc_si *si)
++{
++	struct device *dev = &si->pdev->dev;
++	struct enetc_hw *hw = &si->hw;
++	int err;
++
++	si->cbd_ring.bd_count = ENETC_CBDR_DEFAULT_SIZE;
++	err = enetc_alloc_cbdr(dev, &si->cbd_ring);
++	if (err)
++		return;
++
++	enetc_setup_cbdr(hw, &si->cbd_ring);
++
++	enetc_init_port_rfs_memory(si);
++	enetc_init_port_rss_memory(si);
++
++	enetc_clear_cbdr(hw);
++	enetc_free_cbdr(dev, &si->cbd_ring);
++}
++
+ static int enetc_pf_probe(struct pci_dev *pdev,
+ 			  const struct pci_device_id *ent)
+ {
+@@ -1051,11 +1071,6 @@ static int enetc_pf_probe(struct pci_dev
+ 	struct enetc_pf *pf;
+ 	int err;
+ 
+-	if (node && !of_device_is_available(node)) {
+-		dev_info(&pdev->dev, "device is disabled, skipping\n");
+-		return -ENODEV;
+-	}
+-
+ 	err = enetc_pci_probe(pdev, KBUILD_MODNAME, sizeof(*pf));
+ 	if (err) {
+ 		dev_err(&pdev->dev, "PCI probing failed\n");
+@@ -1069,6 +1084,13 @@ static int enetc_pf_probe(struct pci_dev
+ 		goto err_map_pf_space;
+ 	}
+ 
++	if (node && !of_device_is_available(node)) {
++		enetc_init_unused_port(si);
++		dev_info(&pdev->dev, "device is disabled, skipping\n");
++		err = -ENODEV;
++		goto err_device_disabled;
++	}
++
+ 	pf = enetc_si_priv(si);
+ 	pf->si = si;
+ 	pf->total_vfs = pci_sriov_get_totalvfs(pdev);
+@@ -1151,6 +1173,7 @@ err_alloc_si_res:
+ 	si->ndev = NULL;
+ 	free_netdev(ndev);
+ err_alloc_netdev:
++err_device_disabled:
+ err_map_pf_space:
+ 	enetc_pci_remove(pdev);
+ 
 
 
