@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98A933ADBA
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C7233ADC1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 09:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbhCOIka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 04:40:30 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:58147 "EHLO
+        id S229636AbhCOIlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 04:41:04 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:34209 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229644AbhCOIkY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:40:24 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E7CB919408EA;
-        Mon, 15 Mar 2021 04:40:23 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Mon, 15 Mar 2021 04:40:23 -0400
+        by vger.kernel.org with ESMTP id S229540AbhCOIkf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 15 Mar 2021 04:40:35 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.nyi.internal (Postfix) with ESMTP id C9B52194195B;
+        Mon, 15 Mar 2021 04:40:32 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Mon, 15 Mar 2021 04:40:32 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=od7ugO
-        AYc66bIFBlYQc+3tMqf/1g+Y2LiX0mZWPRdmg=; b=dQ4w4bpxu5DYHv7GyQJPll
-        31qhzdLRm01htw2x1D2QiuwAdU57BR/jFFabm3DY7lDEZD46q27kRE0CND4VIedA
-        RX+Hj0wuhSrHhYRbb1CdOir2AjI5KYIAje5QiWFy/oqyFd2dNnN5uyjW68wQYm33
-        Q9j8wVcWIce03SIu3zp2oLc1d9SqVAXv8hcJfxHvHn7bXTBukr4zzsWpDV82wbnY
-        D3jruM5hkHejvQf9lpaD/LvBhPsSKZGffrB/Da7wEimD10VIB0imq1palxI6fQZO
-        f0U4a6xE7ttFYdpDNw0CgMk6IUm6JrFTpaq+g2+fF3ivK9JZE9VItwL5fyRBPiIw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=dWaprm
+        yy5g0jq9LPpRZiTjRbY0dUGuOl/kGEPdxgDQQ=; b=DDXuiUcCpCnSRVq8pBNuV3
+        LhzROR6IG/XeBA0zYbeTCIfmNBnkFly3z5yBOcb9r252/d5s0OYkk/Hf9Z9rTTDu
+        qepe9gEhLIid/D61T1yCFW+KamTuXNFCg7uCVja19g06I1TOvN8DtbXlK6f6VhAG
+        AGb/6VJf+1t72UpmG+eVMxkXyD1B1ErkaD0nLzJu4YDeI3+L7aGUcsLkQkiAplBX
+        5WQOlssZrG8S1lIyWTascwuBbLedilesikxQBClVQYj9pYffTn96Byy5B2OzqJlr
+        +vzv4PzgsfUnjDcS4qeI902zjL/N5yBi60aAKHMT+Kvbuo/y7xSm/W017L7E+q+w
         ==
-X-ME-Sender: <xms:dh1PYNBuqjI4o-7U3AruFoFgIZhgmszcyc0iLFbJE0qpGG5KAHt8ew>
-    <xme:dh1PYLgq1oGVSeZaOW6zUhDobHtZvjya-HXsyDH_-3i0jU0Dm3xsDmxasIOR_GRXm
-    3pq2Df9IIjvlg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvkedguddvfecutefuodetggdotefrod
+X-ME-Sender: <xms:fx1PYNSsgR6xzQAqt2kzgzAqkRTEAkWoJ8fk2tQyY4bjpH0LInuHyw>
+    <xme:fx1PYGuPYhLRA9KEvnAnTrZFX7GbyvU13IGiJY6oSwVbYnYDxY192g-iK7KYpJL8H
+    he8Hdnq-nwYOw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvkedguddvgecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecuogfuohhrthgvugftvggtihhpvdculdegtddmne
     cujfgurhepuffvhfffkfggtgfgsehtkeertddttdflnecuhfhrohhmpeeoghhrvghgkhhh
@@ -39,14 +39,14 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledruddvkedguddvfecutefuodetgg
     rghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdejgedrieegnecuvehluh
     hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhho
     rghhrdgtohhm
-X-ME-Proxy: <xmx:dh1PYInYkZubrq_sxfag7fisrOHGbRHinpAS4P9aTjnhtGnzWQP74g>
-    <xmx:dh1PYHy00_b-Suja_jG25gmSTjT3vEaHuI_dSog7cJVQXYM6M53fuA>
-    <xmx:dh1PYCQF33KvQ57N_taEFJZCekTz7d2z-rCiR_HNAFV6GMWU60ZuQQ>
-    <xmx:dx1PYDL241iXRipo_N_8KsyLfTpFb2GYDJXVEebInFZ7GUEajoxrPzohsc4>
+X-ME-Proxy: <xmx:fx1PYPsnmgL9lm8e3lVq4gy1c0VYvG58B_BBXVh-tUtww4Jw0yZcwQ>
+    <xmx:fx1PYMx0neK7KGKj5301U5T-ipS7UySrh1eM2WCYdGJACeb8ITTDJA>
+    <xmx:fx1PYFgMCZcdiP_j8UYtTSNV569gcPh3jP5Mg3S5dHW9vxG_168DZw>
+    <xmx:gB1PYB0n-Rol570CR-XBaFqRntB1vQXUD7IpocT_vtQOvJzjZtPgJc-WGCw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1906424005A;
-        Mon, 15 Mar 2021 04:40:22 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*" failed to apply to 5.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id CFFF6108005F;
+        Mon, 15 Mar 2021 04:40:30 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] linux/compiler-clang.h: define HAVE_BUILTIN_BSWAP*" failed to apply to 4.19-stable tree
 To:     arnd@arndb.de, akpm@linux-foundation.org, aou@eecs.berkeley.edu,
         deanbo422@gmail.com, elver@google.com, green.hu@gmail.com,
         guoren@kernel.org, keescook@chromium.org,
@@ -58,8 +58,8 @@ To:     arnd@arndb.de, akpm@linux-foundation.org, aou@eecs.berkeley.edu,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 15 Mar 2021 09:40:20 +0100
-Message-ID: <1615797620203184@kroah.com>
+Date:   Mon, 15 Mar 2021 09:40:21 +0100
+Message-ID: <161579762118239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,7 +68,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
