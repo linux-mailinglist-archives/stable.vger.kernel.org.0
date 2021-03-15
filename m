@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12E8633B4FB
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32DE333B62B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229927AbhCONxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55396 "EHLO mail.kernel.org"
+        id S231950AbhCON5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229917AbhCONwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:52:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D713C64D9E;
-        Mon, 15 Mar 2021 13:52:47 +0000 (UTC)
+        id S231574AbhCON4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 535C464EFE;
+        Mon, 15 Mar 2021 13:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816369;
-        bh=RtPS6I2sPdTd21blcm4L0KYzvV5RBFSeZhr/AUca1kk=;
+        s=korg; t=1615816608;
+        bh=fHyZTa1DYU/Knqh6mLdjAJX4WqBhgq98n0fx+lI7uVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcsXKN/L3uZa0k+D188rYKrhJ7O/kKjEW+gllFQ9qUVVoWrZ5ZnD9v1V0yxCal4B3
-         +zQUujPSr0goLfhep00AKDNXNkv0rH4TuKT8hONWlOFAcl1mGJgqJi7ERH8eY5yI3G
-         2wHrPx2sFMN3CetaGbigtcMDxJc0SPWNpFqdXHi0=
+        b=U6kJXxyAXYhdt4kMQWV9wzuj7h2g8izUJQgcR3a6lSx/siYR2JoRJoo4HO/XuOtPF
+         xQM4mF1GEFDuzYub74S0A+aaWlM3+aoDuPx2noVyDZLu86Pt4mOIFK35nLVOSuEPjs
+         Sng9MuJeHw0xMkzsPS6jPXMFelJY7YsCH8c/QA0c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 4.4 07/75] netfilter: x_tables: gpf inside xt_find_revision()
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.11 018/306] gpio: pca953x: Set IRQ type when handle Intel Galileo Gen 2
 Date:   Mon, 15 Mar 2021 14:51:21 +0100
-Message-Id: <20210315135208.505146721@linuxfoundation.org>
+Message-Id: <20210315135508.228776334@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +43,133 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
+commit eb441337c7147514ab45036cadf09c3a71e4ce31 upstream.
 
-nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
-without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
-and cause host to crash:
+The commit 0ea683931adb ("gpio: dwapb: Convert driver to using the
+GPIO-lib-based IRQ-chip") indeliberately made a regression on how
+IRQ line from GPIO I²C expander is handled. I.e. it reveals that
+the quirk for Intel Galileo Gen 2 misses the part of setting IRQ type
+which previously was predefined by gpio-dwapb driver. Now, we have to
+reorganize the approach to call necessary parts, which can be done via
+ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER quirk.
 
-general protection fault: 0000 [#1]
-Modules linked in: ... [last unloaded: xt_cluster]
-CPU: 0 PID: 542455 Comm: iptables
-RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
-RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
-R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
-(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
-xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
-Call Trace:
- [<ffffffff902ccf44>] match_revfn+0x54/0xc0
- [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
- [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
- [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
- [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
- [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
- [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
- [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
- [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
- [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
+Without this fix and with above mentioned change the kernel hangs
+on the first IRQ event with:
 
-Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+    gpio gpiochip3: Persistence not supported for GPIO 1
+    irq 32, desc: 62f8fb50, depth: 0, count: 0, unhandled: 0
+    ->handle_irq():  41c7b0ab, handle_bad_irq+0x0/0x40
+    ->irq_data.chip(): e03f1e72, 0xc2539218
+    ->action(): 0ecc7e6f
+    ->action->handler(): 8a3db21e, irq_default_primary_handler+0x0/0x10
+       IRQ_NOPROBE set
+    unexpected IRQ trap at vector 20
+
+Fixes: ba8c90c61847 ("gpio: pca953x: Override IRQ for one of the expanders on Galileo Gen 2")
+Depends-on: 0ea683931adb ("gpio: dwapb: Convert driver to using the GPIO-lib-based IRQ-chip")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/x_tables.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-pca953x.c |   78 ++++++++++++--------------------------------
+ 1 file changed, 23 insertions(+), 55 deletions(-)
 
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -271,6 +271,7 @@ static int match_revfn(u8 af, const char
- 	const struct xt_match *m;
- 	int have_rev = 0;
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -112,8 +112,29 @@ MODULE_DEVICE_TABLE(i2c, pca953x_id);
+ #ifdef CONFIG_GPIO_PCA953X_IRQ
  
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(m, &xt[af].match, list) {
- 		if (strcmp(m->name, name) == 0) {
- 			if (m->revision > *bestp)
-@@ -279,6 +280,7 @@ static int match_revfn(u8 af, const char
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
+ #include <linux/dmi.h>
+-#include <linux/gpio.h>
+-#include <linux/list.h>
++
++static const struct acpi_gpio_params pca953x_irq_gpios = { 0, 0, true };
++
++static const struct acpi_gpio_mapping pca953x_acpi_irq_gpios[] = {
++	{ "irq-gpios", &pca953x_irq_gpios, 1, ACPI_GPIO_QUIRK_ABSOLUTE_NUMBER },
++	{ }
++};
++
++static int pca953x_acpi_get_irq(struct device *dev)
++{
++	int ret;
++
++	ret = devm_acpi_dev_add_driver_gpios(dev, pca953x_acpi_irq_gpios);
++	if (ret)
++		dev_warn(dev, "can't add GPIO ACPI mapping\n");
++
++	ret = acpi_dev_gpio_irq_get_by(ACPI_COMPANION(dev), "irq-gpios", 0);
++	if (ret < 0)
++		return ret;
++
++	dev_info(dev, "ACPI interrupt quirk (IRQ %d)\n", ret);
++	return ret;
++}
  
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -291,6 +293,7 @@ static int target_revfn(u8 af, const cha
- 	const struct xt_target *t;
- 	int have_rev = 0;
+ static const struct dmi_system_id pca953x_dmi_acpi_irq_info[] = {
+ 	{
+@@ -132,59 +153,6 @@ static const struct dmi_system_id pca953
+ 	},
+ 	{}
+ };
+-
+-#ifdef CONFIG_ACPI
+-static int pca953x_acpi_get_pin(struct acpi_resource *ares, void *data)
+-{
+-	struct acpi_resource_gpio *agpio;
+-	int *pin = data;
+-
+-	if (acpi_gpio_get_irq_resource(ares, &agpio))
+-		*pin = agpio->pin_table[0];
+-	return 1;
+-}
+-
+-static int pca953x_acpi_find_pin(struct device *dev)
+-{
+-	struct acpi_device *adev = ACPI_COMPANION(dev);
+-	int pin = -ENOENT, ret;
+-	LIST_HEAD(r);
+-
+-	ret = acpi_dev_get_resources(adev, &r, pca953x_acpi_get_pin, &pin);
+-	acpi_dev_free_resource_list(&r);
+-	if (ret < 0)
+-		return ret;
+-
+-	return pin;
+-}
+-#else
+-static inline int pca953x_acpi_find_pin(struct device *dev) { return -ENXIO; }
+-#endif
+-
+-static int pca953x_acpi_get_irq(struct device *dev)
+-{
+-	int pin, ret;
+-
+-	pin = pca953x_acpi_find_pin(dev);
+-	if (pin < 0)
+-		return pin;
+-
+-	dev_info(dev, "Applying ACPI interrupt quirk (GPIO %d)\n", pin);
+-
+-	if (!gpio_is_valid(pin))
+-		return -EINVAL;
+-
+-	ret = gpio_request(pin, "pca953x interrupt");
+-	if (ret)
+-		return ret;
+-
+-	ret = gpio_to_irq(pin);
+-
+-	/* When pin is used as an IRQ, no need to keep it requested */
+-	gpio_free(pin);
+-
+-	return ret;
+-}
+ #endif
  
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(t, &xt[af].target, list) {
- 		if (strcmp(t->name, name) == 0) {
- 			if (t->revision > *bestp)
-@@ -299,6 +302,7 @@ static int target_revfn(u8 af, const cha
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -312,12 +316,10 @@ int xt_find_revision(u8 af, const char *
- {
- 	int have_rev, best = -1;
- 
--	mutex_lock(&xt[af].mutex);
- 	if (target == 1)
- 		have_rev = target_revfn(af, name, revision, &best);
- 	else
- 		have_rev = match_revfn(af, name, revision, &best);
--	mutex_unlock(&xt[af].mutex);
- 
- 	/* Nothing at all?  Return 0 to try loading module. */
- 	if (best == -1) {
+ static const struct acpi_device_id pca953x_acpi_ids[] = {
 
 
