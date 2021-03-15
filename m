@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E179E33B735
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD9C33B73D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232433AbhCON7u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
+        id S231206AbhCON7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232405AbhCON6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DE3864F23;
-        Mon, 15 Mar 2021 13:58:30 +0000 (UTC)
+        id S232452AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E12F064F50;
+        Mon, 15 Mar 2021 13:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816712;
-        bh=fp7/jORTTkB/zysu0rIqrNVPgesZ/3LVIgjFsONMG5I=;
+        s=korg; t=1615816717;
+        bh=cwa9O6gcJyxFsf7aw8GCQXL7kgj6DFA1kw0CV3UWM0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTkKFEB15R+H5vBD2N+oYUHWo86q9/De8+c5aVMHqxbA00jYL+xY233cslQo5x82N
-         /h5tPymcybc9wK6sWfVFRduEt01sHiQXdTdy2bDW0Vde4v8iFNi1yVytRf2Mk54w3p
-         Jewrz0UI4Jj4AfeyK3q1AIWL5AZwgL7KQTQ/npzA=
+        b=kSyUm8Zwk/i2xdiDhPiR4wLD3/0RBtXEDZazlwZFsgCusNFaIZDyvL5HlhZ1Al1nR
+         7cK9H1OuDFFnzIWgxUYGodHikbZ5IoHpIE1V0eGqXP8hZ12DxGUSfkj42MsbxsQY53
+         xoxOK6MP0yp4GsObUHfR8q5DcRC/9bddHDLv6tNw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ong Boon Leong <boon.leong.ong@intel.com>,
-        Ramesh Babu B <ramesh.babu.b@intel.com>,
+        stable@vger.kernel.org,
+        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
+        Paul Moore <paul@paul-moore.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 021/120] net: stmmac: fix incorrect DMA channel intr enable setting of EQoS v4.10
-Date:   Mon, 15 Mar 2021 14:56:12 +0100
-Message-Id: <20210315135720.696640625@linuxfoundation.org>
+Subject: [PATCH 4.19 024/120] cipso,calipso: resolve a number of problems with the DOI refcounts
+Date:   Mon, 15 Mar 2021 14:56:15 +0100
+Message-Id: <20210315135720.784778867@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
 References: <20210315135720.002213995@linuxfoundation.org>
@@ -42,57 +43,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ong Boon Leong <boon.leong.ong@intel.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 879c348c35bb5fb758dd881d8a97409c1862dae8 upstream.
+commit ad5d07f4a9cd671233ae20983848874731102c08 upstream.
 
-We introduce dwmac410_dma_init_channel() here for both EQoS v4.10 and
-above which use different DMA_CH(n)_Interrupt_Enable bit definitions for
-NIE and AIE.
+The current CIPSO and CALIPSO refcounting scheme for the DOI
+definitions is a bit flawed in that we:
 
-Fixes: 48863ce5940f ("stmmac: add DMA support for GMAC 4.xx")
-Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Ramesh Babu B <ramesh.babu.b@intel.com>
+1. Don't correctly match gets/puts in netlbl_cipsov4_list().
+2. Decrement the refcount on each attempt to remove the DOI from the
+   DOI list, only removing it from the list once the refcount drops
+   to zero.
+
+This patch fixes these problems by adding the missing "puts" to
+netlbl_cipsov4_list() and introduces a more conventional, i.e.
+not-buggy, refcounting mechanism to the DOI definitions.  Upon the
+addition of a DOI to the DOI list, it is initialized with a refcount
+of one, removing a DOI from the list removes it from the list and
+drops the refcount by one; "gets" and "puts" behave as expected with
+respect to refcounts, increasing and decreasing the DOI's refcount by
+one.
+
+Fixes: b1edeb102397 ("netlabel: Replace protocol/NetLabel linking with refrerence counts")
+Fixes: d7cce01504a0 ("netlabel: Add support for removing a CALIPSO DOI.")
+Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ net/ipv4/cipso_ipv4.c            |   11 +----------
+ net/ipv6/calipso.c               |   14 +++++---------
+ net/netlabel/netlabel_cipso_v4.c |    3 +++
+ 3 files changed, 9 insertions(+), 19 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-@@ -119,6 +119,23 @@ static void dwmac4_dma_init_channel(void
- 	       ioaddr + DMA_CHAN_INTR_ENA(chan));
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -533,16 +533,10 @@ int cipso_v4_doi_remove(u32 doi, struct
+ 		ret_val = -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!refcount_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&cipso_v4_doi_list_lock);
+-		ret_val = -EBUSY;
+-		goto doi_remove_return;
+-	}
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&cipso_v4_doi_list_lock);
+ 
+-	cipso_v4_cache_invalidate();
+-	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
++	cipso_v4_doi_putdef(doi_def);
+ 	ret_val = 0;
+ 
+ doi_remove_return:
+@@ -599,9 +593,6 @@ void cipso_v4_doi_putdef(struct cipso_v4
+ 
+ 	if (!refcount_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&cipso_v4_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&cipso_v4_doi_list_lock);
+ 
+ 	cipso_v4_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -97,6 +97,9 @@ struct calipso_map_cache_entry {
+ 
+ static struct calipso_map_cache_bkt *calipso_cache;
+ 
++static void calipso_cache_invalidate(void);
++static void calipso_doi_putdef(struct calipso_doi *doi_def);
++
+ /* Label Mapping Cache Functions
+  */
+ 
+@@ -458,15 +461,10 @@ static int calipso_doi_remove(u32 doi, s
+ 		ret_val = -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!refcount_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&calipso_doi_list_lock);
+-		ret_val = -EBUSY;
+-		goto doi_remove_return;
+-	}
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&calipso_doi_list_lock);
+ 
+-	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
++	calipso_doi_putdef(doi_def);
+ 	ret_val = 0;
+ 
+ doi_remove_return:
+@@ -522,10 +520,8 @@ static void calipso_doi_putdef(struct ca
+ 
+ 	if (!refcount_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&calipso_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&calipso_doi_list_lock);
+ 
++	calipso_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
  }
  
-+static void dwmac410_dma_init_channel(void __iomem *ioaddr,
-+				      struct stmmac_dma_cfg *dma_cfg, u32 chan)
-+{
-+	u32 value;
-+
-+	/* common channel control register config */
-+	value = readl(ioaddr + DMA_CHAN_CONTROL(chan));
-+	if (dma_cfg->pblx8)
-+		value = value | DMA_BUS_MODE_PBL;
-+
-+	writel(value, ioaddr + DMA_CHAN_CONTROL(chan));
-+
-+	/* Mask interrupts by writing to CSR7 */
-+	writel(DMA_CHAN_INTR_DEFAULT_MASK_4_10,
-+	       ioaddr + DMA_CHAN_INTR_ENA(chan));
-+}
-+
- static void dwmac4_dma_init(void __iomem *ioaddr,
- 			    struct stmmac_dma_cfg *dma_cfg, int atds)
- {
-@@ -461,7 +478,7 @@ const struct stmmac_dma_ops dwmac4_dma_o
- const struct stmmac_dma_ops dwmac410_dma_ops = {
- 	.reset = dwmac4_dma_reset,
- 	.init = dwmac4_dma_init,
--	.init_chan = dwmac4_dma_init_channel,
-+	.init_chan = dwmac410_dma_init_channel,
- 	.init_rx_chan = dwmac4_dma_init_rx_chan,
- 	.init_tx_chan = dwmac4_dma_init_tx_chan,
- 	.axi = dwmac4_dma_axi,
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -581,6 +581,7 @@ list_start:
+ 
+ 		break;
+ 	}
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+ 
+ 	genlmsg_end(ans_skb, data);
+@@ -589,12 +590,14 @@ list_start:
+ list_retry:
+ 	/* XXX - this limit is a guesstimate */
+ 	if (nlsze_mult < 4) {
++		cipso_v4_doi_putdef(doi_def);
+ 		rcu_read_unlock();
+ 		kfree_skb(ans_skb);
+ 		nlsze_mult *= 2;
+ 		goto list_start;
+ 	}
+ list_failure_lock:
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+ list_failure:
+ 	kfree_skb(ans_skb);
 
 
