@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3B233B63A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F14433B50F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:53:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231985AbhCON51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34020 "EHLO mail.kernel.org"
+        id S230034AbhCONxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231826AbhCON4z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D1F764EF8;
-        Mon, 15 Mar 2021 13:56:53 +0000 (UTC)
+        id S229731AbhCONw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:52:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC95E64EF3;
+        Mon, 15 Mar 2021 13:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816615;
-        bh=lNNjEH3y75qU/3lNnN4IaqhItFZUyuGOmBkNvfUvis8=;
+        s=korg; t=1615816378;
+        bh=HKe5UBMMdAnGoLiNdfKFFgFaEeDjkan3DRQmV0S3XC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CCFf6gEacIpUydNdDwsd4CrFXjvSruOk4taQDZwBQgEHndcw0MYBXVxcxZyGXKuQk
-         cVSIWAnA2j3ujhmp8FsryswSPlrBervuDEeVzxnhEywuF7F7ht3uDzBcGkajT4YvRf
-         +Wlx9gK1+Ia4gd/nwbKgFDx7yMWO7BsLzfF95Yd0=
+        b=RBlT9St4OJ7GbCj8yJ3E3pH7WKW3kyiC3uT4QiDcsSeTW9DSyyEfWaDu8CmC862oK
+         GdGBXfRLfYVb+fu9txis0hXUViEAQwdD/xfqPQ+0NU7F7ulsMRL9DLmTsFByeROA+K
+         gbw2GjNM7+o2q0amODdfWOq+9D2SHGAWymzrhK3E=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
-        Torin Cooper-Bennun <torin@maxiluxsystems.com>
-Subject: [PATCH 5.11 022/306] can: tcan4x5x: tcan4x5x_init(): fix initialization - clear MRAM before entering Normal Mode
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        juri.lelli@arm.com, bigeasy@linutronix.de, xlpang@redhat.com,
+        rostedt@goodmis.org, mathieu.desnoyers@efficios.com,
+        jdesfossez@efficios.com, dvhart@infradead.org, bristot@redhat.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Lee Jones <lee.jones@linaro.org>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 4.4 11/75] futex: Change locking rules
 Date:   Mon, 15 Mar 2021 14:51:25 +0100
-Message-Id: <20210315135508.380452145@linuxfoundation.org>
+Message-Id: <20210315135208.632919306@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
+References: <20210315135208.252034256@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +47,324 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2712625200ed69c642b9abc3a403830c4643364c upstream.
+commit 734009e96d1983ad739e5b656e03430b3660c913 upstream.
 
-This patch prevents a potentially destructive race condition. The
-device is fully operational on the bus after entering Normal Mode, so
-zeroing the MRAM after entering this mode may lead to loss of
-information, e.g. new received messages.
+This patch comes directly from an origin patch (commit
+dc3f2ff11740159080f2e8e359ae0ab57c8e74b6) in v4.9.
 
-This patch fixes the problem by first initializing the MRAM, then
-bringing the device into Normale Mode.
+Currently futex-pi relies on hb->lock to serialize everything. But hb->lock
+creates another set of problems, especially priority inversions on RT where
+hb->lock becomes a rt_mutex itself.
 
-Fixes: 5443c226ba91 ("can: tcan4x5x: Add tcan4x5x driver to the kernel")
-Link: https://lore.kernel.org/r/20210226163440.313628-1-torin@maxiluxsystems.com
-Suggested-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+The rt_mutex::wait_lock is the most obvious protection for keeping the
+futex user space value and the kernel internal pi_state in sync.
+
+Rework and document the locking so rt_mutex::wait_lock is held accross all
+operations which modify the user space value and the pi state.
+
+This allows to invoke rt_mutex_unlock() (including deboost) without holding
+hb->lock as a next step.
+
+Nothing yet relies on the new locking rules.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: juri.lelli@arm.com
+Cc: bigeasy@linutronix.de
+Cc: xlpang@redhat.com
+Cc: rostedt@goodmis.org
+Cc: mathieu.desnoyers@efficios.com
+Cc: jdesfossez@efficios.com
+Cc: dvhart@infradead.org
+Cc: bristot@redhat.com
+Link: http://lkml.kernel.org/r/20170322104151.751993333@infradead.org
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+[Lee: Back-ported in support of a previous futex back-port attempt]
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/m_can/tcan4x5x.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/futex.c |  138 ++++++++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 112 insertions(+), 26 deletions(-)
 
---- a/drivers/net/can/m_can/tcan4x5x.c
-+++ b/drivers/net/can/m_can/tcan4x5x.c
-@@ -326,14 +326,14 @@ static int tcan4x5x_init(struct m_can_cl
- 	if (ret)
- 		return ret;
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1016,6 +1016,39 @@ static void exit_pi_state_list(struct ta
+  * [10] There is no transient state which leaves owner and user space
+  *	TID out of sync. Except one error case where the kernel is denied
+  *	write access to the user address, see fixup_pi_state_owner().
++ *
++ *
++ * Serialization and lifetime rules:
++ *
++ * hb->lock:
++ *
++ *	hb -> futex_q, relation
++ *	futex_q -> pi_state, relation
++ *
++ *	(cannot be raw because hb can contain arbitrary amount
++ *	 of futex_q's)
++ *
++ * pi_mutex->wait_lock:
++ *
++ *	{uval, pi_state}
++ *
++ *	(and pi_mutex 'obviously')
++ *
++ * p->pi_lock:
++ *
++ *	p->pi_state_list -> pi_state->list, relation
++ *
++ * pi_state->refcount:
++ *
++ *	pi_state lifetime
++ *
++ *
++ * Lock order:
++ *
++ *   hb->lock
++ *     pi_mutex->wait_lock
++ *       p->pi_lock
++ *
+  */
  
-+	/* Zero out the MCAN buffers */
-+	m_can_init_ram(cdev);
+ /*
+@@ -1023,10 +1056,12 @@ static void exit_pi_state_list(struct ta
+  * the pi_state against the user space value. If correct, attach to
+  * it.
+  */
+-static int attach_to_pi_state(u32 uval, struct futex_pi_state *pi_state,
++static int attach_to_pi_state(u32 __user *uaddr, u32 uval,
++			      struct futex_pi_state *pi_state,
+ 			      struct futex_pi_state **ps)
+ {
+ 	pid_t pid = uval & FUTEX_TID_MASK;
++	int ret, uval2;
+ 
+ 	/*
+ 	 * Userspace might have messed up non-PI and PI futexes [3]
+@@ -1034,9 +1069,34 @@ static int attach_to_pi_state(u32 uval,
+ 	if (unlikely(!pi_state))
+ 		return -EINVAL;
+ 
++	/*
++	 * We get here with hb->lock held, and having found a
++	 * futex_top_waiter(). This means that futex_lock_pi() of said futex_q
++	 * has dropped the hb->lock in between queue_me() and unqueue_me_pi(),
++	 * which in turn means that futex_lock_pi() still has a reference on
++	 * our pi_state.
++	 */
+ 	WARN_ON(!atomic_read(&pi_state->refcount));
+ 
+ 	/*
++	 * Now that we have a pi_state, we can acquire wait_lock
++	 * and do the state validation.
++	 */
++	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
 +
- 	ret = regmap_update_bits(tcan4x5x->regmap, TCAN4X5X_CONFIG,
- 				 TCAN4X5X_MODE_SEL_MASK, TCAN4X5X_MODE_NORMAL);
- 	if (ret)
- 		return ret;
++	/*
++	 * Since {uval, pi_state} is serialized by wait_lock, and our current
++	 * uval was read without holding it, it can have changed. Verify it
++	 * still is what we expect it to be, otherwise retry the entire
++	 * operation.
++	 */
++	if (get_futex_value_locked(&uval2, uaddr))
++		goto out_efault;
++
++	if (uval != uval2)
++		goto out_eagain;
++
++	/*
+ 	 * Handle the owner died case:
+ 	 */
+ 	if (uval & FUTEX_OWNER_DIED) {
+@@ -1051,11 +1111,11 @@ static int attach_to_pi_state(u32 uval,
+ 			 * is not 0. Inconsistent state. [5]
+ 			 */
+ 			if (pid)
+-				return -EINVAL;
++				goto out_einval;
+ 			/*
+ 			 * Take a ref on the state and return success. [4]
+ 			 */
+-			goto out_state;
++			goto out_attach;
+ 		}
  
--	/* Zero out the MCAN buffers */
--	m_can_init_ram(cdev);
--
- 	return ret;
+ 		/*
+@@ -1067,14 +1127,14 @@ static int attach_to_pi_state(u32 uval,
+ 		 * Take a ref on the state and return success. [6]
+ 		 */
+ 		if (!pid)
+-			goto out_state;
++			goto out_attach;
+ 	} else {
+ 		/*
+ 		 * If the owner died bit is not set, then the pi_state
+ 		 * must have an owner. [7]
+ 		 */
+ 		if (!pi_state->owner)
+-			return -EINVAL;
++			goto out_einval;
+ 	}
+ 
+ 	/*
+@@ -1083,11 +1143,29 @@ static int attach_to_pi_state(u32 uval,
+ 	 * user space TID. [9/10]
+ 	 */
+ 	if (pid != task_pid_vnr(pi_state->owner))
+-		return -EINVAL;
+-out_state:
++		goto out_einval;
++
++out_attach:
+ 	atomic_inc(&pi_state->refcount);
++	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
+ 	*ps = pi_state;
+ 	return 0;
++
++out_einval:
++	ret = -EINVAL;
++	goto out_error;
++
++out_eagain:
++	ret = -EAGAIN;
++	goto out_error;
++
++out_efault:
++	ret = -EFAULT;
++	goto out_error;
++
++out_error:
++	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
++	return ret;
  }
  
+ /**
+@@ -1180,6 +1258,9 @@ static int attach_to_pi_owner(u32 uval,
+ 
+ 	/*
+ 	 * No existing pi state. First waiter. [2]
++	 *
++	 * This creates pi_state, we have hb->lock held, this means nothing can
++	 * observe this state, wait_lock is irrelevant.
+ 	 */
+ 	pi_state = alloc_pi_state();
+ 
+@@ -1204,7 +1285,8 @@ static int attach_to_pi_owner(u32 uval,
+ 	return 0;
+ }
+ 
+-static int lookup_pi_state(u32 uval, struct futex_hash_bucket *hb,
++static int lookup_pi_state(u32 __user *uaddr, u32 uval,
++			   struct futex_hash_bucket *hb,
+ 			   union futex_key *key, struct futex_pi_state **ps,
+ 			   struct task_struct **exiting)
+ {
+@@ -1215,7 +1297,7 @@ static int lookup_pi_state(u32 uval, str
+ 	 * attach to the pi_state when the validation succeeds.
+ 	 */
+ 	if (match)
+-		return attach_to_pi_state(uval, match->pi_state, ps);
++		return attach_to_pi_state(uaddr, uval, match->pi_state, ps);
+ 
+ 	/*
+ 	 * We are the first waiter - try to look up the owner based on
+@@ -1234,7 +1316,7 @@ static int lock_pi_update_atomic(u32 __u
+ 	if (unlikely(cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)))
+ 		return -EFAULT;
+ 
+-	/*If user space value changed, let the caller retry */
++	/* If user space value changed, let the caller retry */
+ 	return curval != uval ? -EAGAIN : 0;
+ }
+ 
+@@ -1298,7 +1380,7 @@ static int futex_lock_pi_atomic(u32 __us
+ 	 */
+ 	match = futex_top_waiter(hb, key);
+ 	if (match)
+-		return attach_to_pi_state(uval, match->pi_state, ps);
++		return attach_to_pi_state(uaddr, uval, match->pi_state, ps);
+ 
+ 	/*
+ 	 * No waiter and user TID is 0. We are here because the
+@@ -1438,6 +1520,7 @@ static int wake_futex_pi(u32 __user *uad
+ 
+ 	if (cmpxchg_futex_value_locked(&curval, uaddr, uval, newval)) {
+ 		ret = -EFAULT;
++
+ 	} else if (curval != uval) {
+ 		/*
+ 		 * If a unconditional UNLOCK_PI operation (user space did not
+@@ -1971,7 +2054,7 @@ retry_private:
+ 			 * rereading and handing potential crap to
+ 			 * lookup_pi_state.
+ 			 */
+-			ret = lookup_pi_state(ret, hb2, &key2,
++			ret = lookup_pi_state(uaddr2, ret, hb2, &key2,
+ 					      &pi_state, &exiting);
+ 		}
+ 
+@@ -2249,7 +2332,6 @@ static int __fixup_pi_state_owner(u32 __
+ 	int err = 0;
+ 
+ 	oldowner = pi_state->owner;
+-
+ 	/*
+ 	 * We are here because either:
+ 	 *
+@@ -2268,11 +2350,10 @@ static int __fixup_pi_state_owner(u32 __
+ 	 * because we can fault here. Imagine swapped out pages or a fork
+ 	 * that marked all the anonymous memory readonly for cow.
+ 	 *
+-	 * Modifying pi_state _before_ the user space value would
+-	 * leave the pi_state in an inconsistent state when we fault
+-	 * here, because we need to drop the hash bucket lock to
+-	 * handle the fault. This might be observed in the PID check
+-	 * in lookup_pi_state.
++	 * Modifying pi_state _before_ the user space value would leave the
++	 * pi_state in an inconsistent state when we fault here, because we
++	 * need to drop the locks to handle the fault. This might be observed
++	 * in the PID check in lookup_pi_state.
+ 	 */
+ retry:
+ 	if (!argowner) {
+@@ -2333,21 +2414,26 @@ retry:
+ 	return argowner == current;
+ 
+ 	/*
+-	 * To handle the page fault we need to drop the hash bucket
+-	 * lock here. That gives the other task (either the highest priority
+-	 * waiter itself or the task which stole the rtmutex) the
+-	 * chance to try the fixup of the pi_state. So once we are
+-	 * back from handling the fault we need to check the pi_state
+-	 * after reacquiring the hash bucket lock and before trying to
+-	 * do another fixup. When the fixup has been done already we
+-	 * simply return.
++	 * To handle the page fault we need to drop the locks here. That gives
++	 * the other task (either the highest priority waiter itself or the
++	 * task which stole the rtmutex) the chance to try the fixup of the
++	 * pi_state. So once we are back from handling the fault we need to
++	 * check the pi_state after reacquiring the locks and before trying to
++	 * do another fixup. When the fixup has been done already we simply
++	 * return.
++	 *
++	 * Note: we hold both hb->lock and pi_mutex->wait_lock. We can safely
++	 * drop hb->lock since the caller owns the hb -> futex_q relation.
++	 * Dropping the pi_mutex->wait_lock requires the state revalidate.
+ 	 */
+ handle_fault:
++	raw_spin_unlock_irq(&pi_state->pi_mutex.wait_lock);
+ 	spin_unlock(q->lock_ptr);
+ 
+ 	err = fault_in_user_writeable(uaddr);
+ 
+ 	spin_lock(q->lock_ptr);
++	raw_spin_lock_irq(&pi_state->pi_mutex.wait_lock);
+ 
+ 	/*
+ 	 * Check if someone else fixed it for us:
 
 
