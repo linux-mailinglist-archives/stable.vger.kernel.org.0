@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B4D33B709
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E16C33B5D0
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232651AbhCON70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37836 "EHLO mail.kernel.org"
+        id S231676AbhCONz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232169AbhCON6X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E42B664F12;
-        Mon, 15 Mar 2021 13:58:19 +0000 (UTC)
+        id S229729AbhCONzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:55:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4029F64F01;
+        Mon, 15 Mar 2021 13:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816701;
-        bh=9CV0ZSnjWWhvIHdvkEWgDCT3NYALRwpERTnLsQQyn3k=;
+        s=korg; t=1615816501;
+        bh=z90pGu7p3BOrQPmS8E6uLrmVTmfzYnYHQMcVmptljWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj8YgrS/E4djL59U2zIyqRwA9YLVOpSQFW0M2D9mt7Gm30qoZTqppnQCISq959cYy
-         WvsK34r658SRlxK0KSfXdX9kE6l19C0AHsc2ChvDLR5j0TUEVS+tk7RARtLfEMU+lg
-         5fkGyyDloZnvOXB6jRIO+BY0IwEVsba/ShOnY0qU=
+        b=zs7gjBwMFuCOTn3sU6wExWD45OlzrFN4ij/CLiPUyFzv5eJRKuIaeadQpCgULJmO1
+         ZDxzaNP7Z+ww6myFS+lZqTuZ/HPROEQsDM0JrfOaYin9qn2Rniz5+U+meDFxOgVKNc
+         9OHbNdBZuJnEku85FJVq1RMKvjqSMW93oxrC3j/A=
 From:   gregkh@linuxfoundation.org
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kun-Chuan Hsieh <jetswayss@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Jiri Olsa <jolsa@redhat.com>
-Subject: [PATCH 5.10 064/290] tools/resolve_btfids: Fix build error with older host toolchains
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 4.9 74/78] iio: imu: adis16400: release allocated memory on failure
 Date:   Mon, 15 Mar 2021 14:52:37 +0100
-Message-Id: <20210315135544.077842633@linuxfoundation.org>
+Message-Id: <20210315135214.486187760@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Kun-Chuan Hsieh <jetswayss@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 41462c6e730ca0e63f5fed5a517052385d980c54 upstream.
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-Older libelf.h and glibc elf.h might not yet define the ELF compression
-types.
+commit ab612b1daf415b62c58e130cb3d0f30b255a14d0 upstream.
 
-Checking and defining SHF_COMPRESSED fix the build error when compiling
-with older toolchains. Also, the tool resolve_btfids is compiled with host
-toolchain. The host toolchain is more likely to be older than the cross
-compile toolchain.
+In adis_update_scan_mode, if allocation for adis->buffer fails,
+previously allocated adis->xfer needs to be released.
 
-Fixes: 51f6463aacfb ("tools/resolve_btfids: Fix sections with wrong alignment")
-Signed-off-by: Kun-Chuan Hsieh <jetswayss@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/bpf/20210224052752.5284-1-jetswayss@gmail.com
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Reviewed-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/resolve_btfids/main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/imu/adis_buffer.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/bpf/resolve_btfids/main.c
-+++ b/tools/bpf/resolve_btfids/main.c
-@@ -258,6 +258,11 @@ static struct btf_id *add_symbol(struct
- 	return btf_id__add(root, id, false);
- }
+--- a/drivers/iio/imu/adis_buffer.c
++++ b/drivers/iio/imu/adis_buffer.c
+@@ -39,8 +39,11 @@ int adis_update_scan_mode(struct iio_dev
+ 		return -ENOMEM;
  
-+/* Older libelf.h and glibc elf.h might not yet define the ELF compression types. */
-+#ifndef SHF_COMPRESSED
-+#define SHF_COMPRESSED (1 << 11) /* Section with compressed data. */
-+#endif
-+
- /*
-  * The data of compressed section should be aligned to 4
-  * (for 32bit) or 8 (for 64 bit) bytes. The binutils ld
+ 	adis->buffer = kzalloc(indio_dev->scan_bytes * 2, GFP_KERNEL);
+-	if (!adis->buffer)
++	if (!adis->buffer) {
++		kfree(adis->xfer);
++		adis->xfer = NULL;
+ 		return -ENOMEM;
++	}
+ 
+ 	rx = adis->buffer;
+ 	tx = rx + scan_count;
 
 
