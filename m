@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C12B133B661
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0614B33B66B
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbhCON5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
+        id S232160AbhCON5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230125AbhCON5Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3848E64EEC;
-        Mon, 15 Mar 2021 13:57:14 +0000 (UTC)
+        id S231901AbhCON5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 438AE64F1A;
+        Mon, 15 Mar 2021 13:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816635;
-        bh=jSKspWM7EfzKqcDjD2f4ifI8H3zPgj3EYllVYCjybuA=;
+        s=korg; t=1615816637;
+        bh=brXWXpnYW6YQL0ESqPRMZqTazFW2xCed+nZ3A+nBLeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ib0c51QCRNW6em5vb5+FaP8c0k19tKAJqhlyzr+fTGi+fg/v184QKWgqX517UDqd
-         kpxsvGHoids220aSUyL63SKFzlQxBYFmZxieqoc0qe1BZfzdbJtURwOJYW35dzLuLV
-         KxYnzlhUDbeA8MsDYCStctokbczOoJAOYXCtu8kU=
+        b=UY+XdkQkIBZ/PnBjRuf5GakahDW7i2+HMt99+WKEGrrSbzlZT3n1Zthgj08gzsXZU
+         3Z8yyOIuLNtISsxGcGZ1BzrbSficFTQhFw9IxrEN/0iozDiD+I6kLGcGG/+jeqt5UR
+         YTNWlEsyD+7LIJFa02J7npX1XfPbUOdDUCHoDM+Y=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        William Tu <u9012063@gmail.com>
-Subject: [PATCH 5.4 017/168] selftests/bpf: No need to drop the packet when there is no geneve opt
-Date:   Mon, 15 Mar 2021 14:54:09 +0100
-Message-Id: <20210315135550.908514716@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yauheni Kaliuta <yauheni.kaliuta@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.4 018/168] selftests/bpf: Mask bpf_csum_diff() return value to 16 bits in test_verifier
+Date:   Mon, 15 Mar 2021 14:54:10 +0100
+Message-Id: <20210315135550.945940300@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,46 +42,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
 
-commit 557c223b643a35effec9654958d8edc62fd2603a upstream.
+commit 6185266c5a853bb0f2a459e3ff594546f277609b upstream.
 
-In bpf geneve tunnel test we set geneve option on tx side. On rx side we
-only call bpf_skb_get_tunnel_opt(). Since commit 9c2e14b48119 ("ip_tunnels:
-Set tunnel option flag when tunnel metadata is present") geneve_rx() will
-not add TUNNEL_GENEVE_OPT flag if there is no geneve option, which cause
-bpf_skb_get_tunnel_opt() return ENOENT and _geneve_get_tunnel() in
-test_tunnel_kern.c drop the packet.
+The verifier test labelled "valid read map access into a read-only array
+2" calls the bpf_csum_diff() helper and checks its return value. However,
+architecture implementations of csum_partial() (which is what the helper
+uses) differ in whether they fold the return value to 16 bit or not. For
+example, x86 version has ...
 
-As it should be valid that bpf_skb_get_tunnel_opt() return error when
-there is not tunnel option, there is no need to drop the packet and
-break all geneve rx traffic. Just set opt_class to 0 in this test and
-keep returning TC_ACT_OK.
+	if (unlikely(odd)) {
+		result = from32to16(result);
+		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
+	}
 
-Fixes: 933a741e3b82 ("selftests/bpf: bpf tunnel test.")
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+... while generic lib/checksum.c does:
+
+	result = from32to16(result);
+	if (odd)
+		result = ((result >> 8) & 0xff) | ((result & 0xff) << 8);
+
+This makes the helper return different values on different architectures,
+breaking the test on non-x86. To fix this, add an additional instruction
+to always mask the return value to 16 bits, and update the expected return
+value accordingly.
+
+Fixes: fb2abb73e575 ("bpf, selftest: test {rd, wr}only flags and direct value access")
+Signed-off-by: Yauheni Kaliuta <yauheni.kaliuta@redhat.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: William Tu <u9012063@gmail.com>
-Link: https://lore.kernel.org/bpf/20210224081403.1425474-1-liuhangbin@gmail.com
+Link: https://lore.kernel.org/bpf/20210228103017.320240-1-yauheni.kaliuta@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/progs/test_tunnel_kern.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ tools/testing/selftests/bpf/verifier/array_access.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-+++ b/tools/testing/selftests/bpf/progs/test_tunnel_kern.c
-@@ -446,10 +446,8 @@ int _geneve_get_tunnel(struct __sk_buff
- 	}
- 
- 	ret = bpf_skb_get_tunnel_opt(skb, &gopt, sizeof(gopt));
--	if (ret < 0) {
--		ERROR(ret);
--		return TC_ACT_SHOT;
--	}
-+	if (ret < 0)
-+		gopt.opt_class = 0;
- 
- 	bpf_trace_printk(fmt, sizeof(fmt),
- 			key.tunnel_id, key.remote_ipv4, gopt.opt_class);
+--- a/tools/testing/selftests/bpf/verifier/array_access.c
++++ b/tools/testing/selftests/bpf/verifier/array_access.c
+@@ -250,12 +250,13 @@
+ 	BPF_MOV64_IMM(BPF_REG_5, 0),
+ 	BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0,
+ 		     BPF_FUNC_csum_diff),
++	BPF_ALU64_IMM(BPF_AND, BPF_REG_0, 0xffff),
+ 	BPF_EXIT_INSN(),
+ 	},
+ 	.prog_type = BPF_PROG_TYPE_SCHED_CLS,
+ 	.fixup_map_array_ro = { 3 },
+ 	.result = ACCEPT,
+-	.retval = -29,
++	.retval = 65507,
+ },
+ {
+ 	"invalid write map access into a read-only array 1",
 
 
