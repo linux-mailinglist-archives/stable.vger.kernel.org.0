@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C00B533B777
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E50C33B7C3
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232985AbhCOOAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37612 "EHLO mail.kernel.org"
+        id S232487AbhCOOBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232495AbhCON67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0093B64F29;
-        Mon, 15 Mar 2021 13:58:40 +0000 (UTC)
+        id S232724AbhCON7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AE8664F5F;
+        Mon, 15 Mar 2021 13:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816722;
-        bh=bEj67SlRkQh96fFM0wqHYsH5alerkYTtOlOVpLd73Z0=;
+        s=korg; t=1615816756;
+        bh=PutbLPfySmXgGXfCj/xiBvob+lHf6Yw9ssvPM9ZX8mU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KlWuNfr+LaEPBMiLNN/YDgoNd+r9wzTnEZ6GOlUudvGIRfLTnQWmPP4j68rWWgTSQ
-         ijezV3xO96QJhoXGwk88uZDsw9JmbnDrA8k/aarRLctWZZZaQq5IYMHprkMjTSigBt
-         LYsIAgaHGLMyXm+pC+nwXuVMf6RQCd32PoEXQAG0=
+        b=dvHPCyvovIzsjxQun6luEPiNjrrMZs957x7CBtiIDlslyhld3Y4Zn+9x3sX2QDFXS
+         zG3GCLFKLaeS6KexqFQK4vJUXioCznY/GB96cn4xPBxrVixuUZScmBQNGNDCuH7kDN
+         t+4UqdEUrlA/1yrlf8xbHeaFmjwh7BM1wcefFgLY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 075/290] net: hns3: fix query vlan mask value error for flow director
-Date:   Mon, 15 Mar 2021 14:52:48 +0100
-Message-Id: <20210315135544.447649704@linuxfoundation.org>
+        stable@vger.kernel.org, Neil Roberts <nroberts@igalia.com>,
+        Steven Price <steven.price@arm.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: [PATCH 5.11 106/306] drm/shmem-helper: Dont remove the offset in vm_area_struct pgoff
+Date:   Mon, 15 Mar 2021 14:52:49 +0100
+Message-Id: <20210315135511.230816332@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +42,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Neil Roberts <nroberts@igalia.com>
 
-commit c75ec148a316e8cf52274d16b9b422703b96f5ce upstream.
+commit 11d5a4745e00e73745774671dbf2fb07bd6e2363 upstream.
 
-Currently, the driver returns VLAN_VID_MASK for vlan mask field,
-when get flow director rule information for rule doesn't use vlan.
-It may cause the vlan mask value display as 0xf000 in this
-case, like below:
+When mmapping the shmem, it would previously adjust the pgoff in the
+vm_area_struct to remove the fake offset that is added to be able to
+identify the buffer. This patch removes the adjustment and makes the
+fault handler use the vm_fault address to calculate the page offset
+instead. Although using this address is apparently discouraged, several
+DRM drivers seem to be doing it anyway.
 
-estuary:/$ ethtool -u eth1
-50 RX rings available
-Total 1 rules
+The problem with removing the pgoff is that it prevents
+drm_vma_node_unmap from working because that searches the mapping tree
+by address. That doesn't work because all of the mappings are at offset
+0. drm_vma_node_unmap is being used by the shmem helpers when purging
+the buffer.
 
-Filter: 2
-Rule Type: TCP over IPv4
-Src IP addr: 0.0.0.0 mask: 255.255.255.255
-Dest IP addr: 0.0.0.0 mask: 255.255.255.255
-TOS: 0x0 mask: 0xff
-Src port: 0 mask: 0xffff
-Dest port: 0 mask: 0xffff
-VLAN EtherType: 0x0 mask: 0xffff
-VLAN: 0x0 mask: 0xf000
-User-defined: 0x1234 mask: 0x0
-Action: Direct to queue 3
+This fixes a bug in Panfrost which is using drm_gem_shmem_purge. Without
+this the mapping for the purged buffer can still be accessed which might
+mean it would access random pages from other buffers
 
-Fix it by return 0.
+v2: Don't check whether the unsigned page_offset is less than 0.
 
-Fixes: 05c2314fe6a8 ("net: hns3: Add support for rule query of flow director")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 17acb9f35ed7 ("drm/shmem: Add madvise state and purge helpers")
+Signed-off-by: Neil Roberts <nroberts@igalia.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210223155125.199577-3-nroberts@igalia.com
+Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -6183,8 +6183,7 @@ static void hclge_fd_get_ext_info(struct
- 		fs->h_ext.vlan_tci = cpu_to_be16(rule->tuples.vlan_tag1);
- 		fs->m_ext.vlan_tci =
- 				rule->unused_tuple & BIT(INNER_VLAN_TAG_FST) ?
--				cpu_to_be16(VLAN_VID_MASK) :
--				cpu_to_be16(rule->tuples_mask.vlan_tag1);
-+				0 : cpu_to_be16(rule->tuples_mask.vlan_tag1);
- 	}
+--- a/drivers/gpu/drm/drm_gem_shmem_helper.c
++++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+@@ -527,15 +527,19 @@ static vm_fault_t drm_gem_shmem_fault(st
+ 	loff_t num_pages = obj->size >> PAGE_SHIFT;
+ 	vm_fault_t ret;
+ 	struct page *page;
++	pgoff_t page_offset;
++
++	/* We don't use vmf->pgoff since that has the fake offset */
++	page_offset = (vmf->address - vma->vm_start) >> PAGE_SHIFT;
  
- 	if (fs->flow_type & FLOW_MAC_EXT) {
+ 	mutex_lock(&shmem->pages_lock);
+ 
+-	if (vmf->pgoff >= num_pages ||
++	if (page_offset >= num_pages ||
+ 	    WARN_ON_ONCE(!shmem->pages) ||
+ 	    shmem->madv < 0) {
+ 		ret = VM_FAULT_SIGBUS;
+ 	} else {
+-		page = shmem->pages[vmf->pgoff];
++		page = shmem->pages[page_offset];
+ 
+ 		ret = vmf_insert_page(vma, vmf->address, page);
+ 	}
+@@ -591,9 +595,6 @@ int drm_gem_shmem_mmap(struct drm_gem_ob
+ 	struct drm_gem_shmem_object *shmem;
+ 	int ret;
+ 
+-	/* Remove the fake offset */
+-	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
+-
+ 	if (obj->import_attach) {
+ 		/* Drop the reference drm_gem_mmap_obj() acquired.*/
+ 		drm_gem_object_put(obj);
 
 
