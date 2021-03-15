@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A142133B924
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6583A33B979
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbhCOOFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S232783AbhCOOGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230192AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 152BE61477;
-        Mon, 15 Mar 2021 14:00:33 +0000 (UTC)
+        id S233369AbhCOOBh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C861E64FB2;
+        Mon, 15 Mar 2021 14:01:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816835;
-        bh=GTeUtwzfq/978IFxOmeHTwhMilYuUVY1oe7gQEu1PeU=;
+        s=korg; t=1615816865;
+        bh=T8Z3ON9Dfnl14NHHXv96sr73TwTKtyfJMyfBAYYkE7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T1tZju5bfeeMaAcNV/Zt1bhx9wi4OtuRNTKZKYSVWlpuah/TgfxjUtQdBJOxSM/++
-         a16P3dNC48rvZhCV4TO5uESf+nH3Ep0h7L+pCIJGFgv5wb4UOwIKzydHCYtasQ6WB7
-         0ER3wQthCXvx1/JLYOaQuPLtUEWhjC/PMpbp7ZdY=
+        b=a9HqpNBJVkmvo7nVe3eZgpqH2kEgYjANwqfbQibsmaMtecshceSKp2XmKHDOTuXJX
+         7SuI9YpimP8w6XCu3RLL2cJTw6kbvTxACBz+vIaSBisLEHLHofrU5IaJqaD0NwkahB
+         +yriYoqx1r9WP1Kr7E8zGLLaC8lNG/hTK5prHUY0=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 141/290] spi: stm32: make spurious and overrun interrupts visible
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.11 171/306] ALSA: usb-audio: Fix "cannot get freq eq" errors on Dell AE515 sound bar
 Date:   Mon, 15 Mar 2021 14:53:54 +0100
-Message-Id: <20210315135546.680216630@linuxfoundation.org>
+Message-Id: <20210315135513.399886052@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +40,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Alain Volmat <alain.volmat@foss.st.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c64e7efe46b7de21937ef4b3594d9b1fc74f07df ]
+commit fec60c3bc5d1713db2727cdffc638d48f9c07dc3 upstream.
 
-We do not expect to receive spurious interrupts so rise a warning
-if it happens.
+Dell AE515 sound bar (413c:a506) spews the error messages when the
+driver tries to read the current sample frequency, hence it needs to
+be on the list in snd_usb_get_sample_rate_quirk().
 
-RX overrun is an error condition that signals a corrupted RX
-stream both in dma and in irq modes. Report the error and
-abort the transfer in either cases.
-
-Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-Link: https://lore.kernel.org/r/1612551572-495-9-git-send-email-alain.volmat@foss.st.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211551
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210304083021.2152-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/spi/spi-stm32.c | 15 ++++-----------
- 1 file changed, 4 insertions(+), 11 deletions(-)
+ sound/usb/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/spi/spi-stm32.c b/drivers/spi/spi-stm32.c
-index 6eeb39669a86..53c4311cc6ab 100644
---- a/drivers/spi/spi-stm32.c
-+++ b/drivers/spi/spi-stm32.c
-@@ -928,8 +928,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
- 		mask |= STM32H7_SPI_SR_RXP;
- 
- 	if (!(sr & mask)) {
--		dev_dbg(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
--			sr, ier);
-+		dev_warn(spi->dev, "spurious IT (sr=0x%08x, ier=0x%08x)\n",
-+			 sr, ier);
- 		spin_unlock_irqrestore(&spi->lock, flags);
- 		return IRQ_NONE;
- 	}
-@@ -956,15 +956,8 @@ static irqreturn_t stm32h7_spi_irq_thread(int irq, void *dev_id)
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1520,6 +1520,7 @@ bool snd_usb_get_sample_rate_quirk(struc
+ 	case USB_ID(0x1901, 0x0191): /* GE B850V3 CP2114 audio interface */
+ 	case USB_ID(0x21b4, 0x0081): /* AudioQuest DragonFly */
+ 	case USB_ID(0x2912, 0x30c8): /* Audioengine D1 */
++	case USB_ID(0x413c, 0xa506): /* Dell AE515 sound bar */
+ 		return true;
  	}
  
- 	if (sr & STM32H7_SPI_SR_OVR) {
--		dev_warn(spi->dev, "Overrun: received value discarded\n");
--		if (!spi->cur_usedma && (spi->rx_buf && (spi->rx_len > 0)))
--			stm32h7_spi_read_rxfifo(spi, false);
--		/*
--		 * If overrun is detected while using DMA, it means that
--		 * something went wrong, so stop the current transfer
--		 */
--		if (spi->cur_usedma)
--			end = true;
-+		dev_err(spi->dev, "Overrun: RX data lost\n");
-+		end = true;
- 	}
- 
- 	if (sr & STM32H7_SPI_SR_EOT) {
--- 
-2.30.1
-
 
 
