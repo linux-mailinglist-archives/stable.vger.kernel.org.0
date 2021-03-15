@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24B2433B88F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0803433B94C
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231948AbhCOODw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:03:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S234850AbhCOOFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:05:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231866AbhCOOAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 172C064FAB;
-        Mon, 15 Mar 2021 14:00:13 +0000 (UTC)
+        id S233239AbhCOOBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:01:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4117564F56;
+        Mon, 15 Mar 2021 14:00:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816815;
-        bh=hO6yZG1cain8SdkXCW05F7WCHrRiE8TmoVhXnPyDdSo=;
+        s=korg; t=1615816849;
+        bh=5JkEQhZyy6tNcgw/Mn7IBu1WfEqYGJ4I9IjfJJSL07s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYHXyD32JDMyhG7rcyqKqqUtfmc/fRo1So2PPgXOFrBczw5jt9mU/oY5Y2c3Hg5eB
-         QyhnEXuxMGaKoLvh5s35uPXVtKXgAXotWnk9bN2bgeW2THrFAui+cZcKATJSWDuDi2
-         33YQGHoXNQUpii6H0/QyaO7zE8Lru7n0GA11KyQo=
+        b=ArxNHRge61MJcXrbgVFvMWzUIHg7/nWYDPeIu/4FMBefblVqarPR1RMC+/7vnW55T
+         Q9ZzePbk0cdbQ7ARQpV9c7znioFFVW2T1SZC+M+/+fuDP68i2Hzc1iOYYSEcESOkMU
+         E739oTvVIQvvCXYpL0HMhxfgkhNasqQzTDlNO0ls=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Huang <cjhuang@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/290] ath11k: start vdev if a bss peer is already created
-Date:   Mon, 15 Mar 2021 14:53:42 +0100
-Message-Id: <20210315135546.266491278@linuxfoundation.org>
+Subject: [PATCH 5.11 160/306] scsi: libiscsi: Fix iscsi_prep_scsi_cmd_pdu() error handling
+Date:   Mon, 15 Mar 2021 14:53:43 +0100
+Message-Id: <20210315135513.041699981@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,103 +43,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Carl Huang <cjhuang@codeaurora.org>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit aa44b2f3ecd41f90b7e477158036648a49d21a32 ]
+[ Upstream commit d28d48c699779973ab9a3bd0e5acfa112bd4fdef ]
 
-For QCA6390, bss peer must be created before vdev is to start. This
-change is to start vdev if a bss peer is created. Otherwise, ath11k
-delays to start vdev.
+If iscsi_prep_scsi_cmd_pdu() fails we try to add it back to the cmdqueue,
+but we leave it partially setup. We don't have functions that can undo the
+pdu and init task setup. We only have cleanup_task which can clean up both
+parts. So this has us just fail the cmd and go through the standard cleanup
+routine and then have the SCSI midlayer retry it like is done when it fails
+in the queuecommand path.
 
-This fixes an issue in a case where HT/VHT/HE settings change between
-authentication and association, e.g., due to the user space request
-to disable HT.
-
-Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
-
-Signed-off-by: Carl Huang <cjhuang@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20201211051358.9191-1-cjhuang@codeaurora.org
+Link: https://lore.kernel.org/r/20210207044608.27585-2-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c  |  8 ++++++--
- drivers/net/wireless/ath/ath11k/peer.c | 17 +++++++++++++++++
- drivers/net/wireless/ath/ath11k/peer.h |  2 ++
- 3 files changed, 25 insertions(+), 2 deletions(-)
+ drivers/scsi/libiscsi.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index c8f1b786e746..f3c5023f8a45 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -2986,6 +2986,7 @@ static int ath11k_mac_station_add(struct ath11k *ar,
- 	}
- 
- 	if (ab->hw_params.vdev_start_delay &&
-+	    !arvif->is_started &&
- 	    arvif->vdev_type != WMI_VDEV_TYPE_AP) {
- 		ret = ath11k_start_vdev_delay(ar->hw, vif);
- 		if (ret) {
-@@ -5248,7 +5249,8 @@ ath11k_mac_op_assign_vif_chanctx(struct ieee80211_hw *hw,
- 	/* for QCA6390 bss peer must be created before vdev_start */
- 	if (ab->hw_params.vdev_start_delay &&
- 	    arvif->vdev_type != WMI_VDEV_TYPE_AP &&
--	    arvif->vdev_type != WMI_VDEV_TYPE_MONITOR) {
-+	    arvif->vdev_type != WMI_VDEV_TYPE_MONITOR &&
-+	    !ath11k_peer_find_by_vdev_id(ab, arvif->vdev_id)) {
- 		memcpy(&arvif->chanctx, ctx, sizeof(*ctx));
- 		ret = 0;
- 		goto out;
-@@ -5259,7 +5261,9 @@ ath11k_mac_op_assign_vif_chanctx(struct ieee80211_hw *hw,
- 		goto out;
- 	}
- 
--	if (ab->hw_params.vdev_start_delay) {
-+	if (ab->hw_params.vdev_start_delay &&
-+	    (arvif->vdev_type == WMI_VDEV_TYPE_AP ||
-+	    arvif->vdev_type == WMI_VDEV_TYPE_MONITOR)) {
- 		param.vdev_id = arvif->vdev_id;
- 		param.peer_type = WMI_PEER_TYPE_DEFAULT;
- 		param.peer_addr = ar->mac_addr;
-diff --git a/drivers/net/wireless/ath/ath11k/peer.c b/drivers/net/wireless/ath/ath11k/peer.c
-index 1866d82678fa..b69e7ebfa930 100644
---- a/drivers/net/wireless/ath/ath11k/peer.c
-+++ b/drivers/net/wireless/ath/ath11k/peer.c
-@@ -76,6 +76,23 @@ struct ath11k_peer *ath11k_peer_find_by_id(struct ath11k_base *ab,
- 	return NULL;
- }
- 
-+struct ath11k_peer *ath11k_peer_find_by_vdev_id(struct ath11k_base *ab,
-+						int vdev_id)
-+{
-+	struct ath11k_peer *peer;
-+
-+	spin_lock_bh(&ab->base_lock);
-+
-+	list_for_each_entry(peer, &ab->peers, list) {
-+		if (vdev_id == peer->vdev_id) {
-+			spin_unlock_bh(&ab->base_lock);
-+			return peer;
-+		}
-+	}
-+	spin_unlock_bh(&ab->base_lock);
-+	return NULL;
-+}
-+
- void ath11k_peer_unmap_event(struct ath11k_base *ab, u16 peer_id)
- {
- 	struct ath11k_peer *peer;
-diff --git a/drivers/net/wireless/ath/ath11k/peer.h b/drivers/net/wireless/ath/ath11k/peer.h
-index bba2e00b6944..8553ed061aea 100644
---- a/drivers/net/wireless/ath/ath11k/peer.h
-+++ b/drivers/net/wireless/ath/ath11k/peer.h
-@@ -43,5 +43,7 @@ int ath11k_peer_create(struct ath11k *ar, struct ath11k_vif *arvif,
- 		       struct ieee80211_sta *sta, struct peer_create_params *param);
- int ath11k_wait_for_peer_delete_done(struct ath11k *ar, u32 vdev_id,
- 				     const u8 *addr);
-+struct ath11k_peer *ath11k_peer_find_by_vdev_id(struct ath11k_base *ab,
-+						int vdev_id);
- 
- #endif /* _PEER_H_ */
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 1851015299b3..af40de7e51e7 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1532,14 +1532,9 @@ static int iscsi_data_xmit(struct iscsi_conn *conn)
+ 		}
+ 		rc = iscsi_prep_scsi_cmd_pdu(conn->task);
+ 		if (rc) {
+-			if (rc == -ENOMEM || rc == -EACCES) {
+-				spin_lock_bh(&conn->taskqueuelock);
+-				list_add_tail(&conn->task->running,
+-					      &conn->cmdqueue);
+-				conn->task = NULL;
+-				spin_unlock_bh(&conn->taskqueuelock);
+-				goto done;
+-			} else
++			if (rc == -ENOMEM || rc == -EACCES)
++				fail_scsi_task(conn->task, DID_IMM_RETRY);
++			else
+ 				fail_scsi_task(conn->task, DID_ABORT);
+ 			spin_lock_bh(&conn->taskqueuelock);
+ 			continue;
 -- 
 2.30.1
 
