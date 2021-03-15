@@ -2,45 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 216F533BA76
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486A133B808
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbhCOOJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50102 "EHLO mail.kernel.org"
+        id S233517AbhCOOBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:01:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234504AbhCOODq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6C6664EE3;
-        Mon, 15 Mar 2021 14:03:42 +0000 (UTC)
+        id S232814AbhCON75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE8064F18;
+        Mon, 15 Mar 2021 13:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615817025;
-        bh=LhpoZ0uUhZh39UDjgMmZOu5gqIsck3d/R/PafC0L0CM=;
+        s=korg; t=1615816767;
+        bh=/Ddd2zPl42t0KPISs+Dxeg/qgBi4KA8gGxKbfY4SnUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzCiHcsljwFXzuyWLJ4NeHPTPTSv/0matAbNQCl6g5BJt6PCzEQ4PhwwCOZO2DjGW
-         FcSHpQlpa1CVgQxALUdSLcq+exVXGy/Ewm1Nlaa/jIyDTNWQZ5ipyHH6i8nQNrcgP3
-         xjfS7wJJzX+4m25HZmrvCqihabj6WCvXeBoUQb2s=
+        b=U7vyhzPXR1hXVWbOjatxr+DMmeLXQoxDH8GtB8xmIsVvdbxp7i0xhpesD0/SWc0tO
+         CYd3Ut5fRIREZ/Mtx0on9OmieBEJf7D4rsfW9SsldTDlV0o+PWVIhqQC7H1vCkD7sM
+         JTLTF+zng2i7DhnCQsUMFX3MKB23Nc7BiHNlA1UU=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        David Hildenbrand <david@redhat.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Faiyaz Mohammed <faiyazm@codeaurora.org>,
-        Baoquan He <bhe@redhat.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Aslan Bakirov <aslan@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 265/306] memblock: fix section mismatch warning
+        stable@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [PATCH 5.4 096/168] Revert 95ebabde382c ("capabilities: Dont allow writing ambiguous v3 file capabilities")
 Date:   Mon, 15 Mar 2021 14:55:28 +0100
-Message-Id: <20210315135516.595578150@linuxfoundation.org>
+Message-Id: <20210315135553.525307621@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
+References: <20210315135550.333963635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,75 +40,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 34dc2efb39a231280fd6696a59bbe712bf3c5c4a ]
+commit 3b0c2d3eaa83da259d7726192cf55a137769012f upstream.
 
-The inlining logic in clang-13 is rewritten to often not inline some
-functions that were inlined by all earlier compilers.
+It turns out that there are in fact userspace implementations that
+care and this recent change caused a regression.
 
-In case of the memblock interfaces, this exposed a harmless bug of a
-missing __init annotation:
+https://github.com/containers/buildah/issues/3071
 
-WARNING: modpost: vmlinux.o(.text+0x507c0a): Section mismatch in reference from the function memblock_bottom_up() to the variable .meminit.data:memblock
-The function memblock_bottom_up() references
-the variable __meminitdata memblock.
-This is often because memblock_bottom_up lacks a __meminitdata
-annotation or the annotation of memblock is wrong.
+As the motivation for the original change was future development,
+and the impact is existing real world code just revert this change
+and allow the ambiguity in v3 file caps.
 
-Interestingly, these annotations were present originally, but got removed
-with the explanation that the __init annotation prevents the function from
-getting inlined.  I checked this again and found that while this is the
-case with clang, gcc (version 7 through 10, did not test others) does
-inline the functions regardless.
-
-As the previous change was apparently intended to help the clang builds,
-reverting it to help the newer clang versions seems appropriate as well.
-gcc builds don't seem to care either way.
-
-Link: https://lkml.kernel.org/r/20210225133808.2188581-1-arnd@kernel.org
-Fixes: 5bdba520c1b3 ("mm: memblock: drop __init from memblock functions to make it inline")
-Reference: 2cfb3665e864 ("include/linux/memblock.h: add __init to memblock_set_bottom_up()")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Faiyaz Mohammed <faiyazm@codeaurora.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Aslan Bakirov <aslan@fb.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 95ebabde382c ("capabilities: Don't allow writing ambiguous v3 file capabilities")
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/memblock.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/commoncap.c |   12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index b93c44b9121e..7643d2dfa959 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -460,7 +460,7 @@ static inline void memblock_free_late(phys_addr_t base, phys_addr_t size)
- /*
-  * Set the allocation direction to bottom-up or top-down.
-  */
--static inline void memblock_set_bottom_up(bool enable)
-+static inline __init void memblock_set_bottom_up(bool enable)
- {
- 	memblock.bottom_up = enable;
- }
-@@ -470,7 +470,7 @@ static inline void memblock_set_bottom_up(bool enable)
-  * if this is true, that said, memblock will allocate memory
-  * in bottom-up direction.
-  */
--static inline bool memblock_bottom_up(void)
-+static inline __init bool memblock_bottom_up(void)
- {
- 	return memblock.bottom_up;
- }
--- 
-2.30.1
-
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -500,8 +500,7 @@ int cap_convert_nscap(struct dentry *den
+ 	__u32 magic, nsmagic;
+ 	struct inode *inode = d_backing_inode(dentry);
+ 	struct user_namespace *task_ns = current_user_ns(),
+-		*fs_ns = inode->i_sb->s_user_ns,
+-		*ancestor;
++		*fs_ns = inode->i_sb->s_user_ns;
+ 	kuid_t rootid;
+ 	size_t newsize;
+ 
+@@ -524,15 +523,6 @@ int cap_convert_nscap(struct dentry *den
+ 	if (nsrootid == -1)
+ 		return -EINVAL;
+ 
+-	/*
+-	 * Do not allow allow adding a v3 filesystem capability xattr
+-	 * if the rootid field is ambiguous.
+-	 */
+-	for (ancestor = task_ns->parent; ancestor; ancestor = ancestor->parent) {
+-		if (from_kuid(ancestor, rootid) == 0)
+-			return -EINVAL;
+-	}
+-
+ 	newsize = sizeof(struct vfs_ns_cap_data);
+ 	nscap = kmalloc(newsize, GFP_ATOMIC);
+ 	if (!nscap)
 
 
