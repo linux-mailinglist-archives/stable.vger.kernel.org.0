@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E3433B9F8
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0BA533B9F6
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235137AbhCOOHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:07:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
+        id S235115AbhCOOHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233674AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:02:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B97264F0D;
-        Mon, 15 Mar 2021 14:02:11 +0000 (UTC)
+        id S233683AbhCOOCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22A1464F2A;
+        Mon, 15 Mar 2021 14:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816932;
-        bh=/vJDTPrN7rS8uO5Sccty2NbMJzCiahnO/8xXXkGJJpg=;
+        s=korg; t=1615816934;
+        bh=u7UkRSy9B1ZZ3IVHg+R2ZGdmRPhqigoLa7nfDciS3UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STZgampaEZwxF0FL2TKtC3bGSwKhOf3ryf8u9fEz81APE6oL+J+Rn8TVERQ6nMGIq
-         N5ce6qlf+8BjwwoaFV8UraT9iGL8YYlCg3iHpcd8OEIR6473JlMpHnFLODmxWtsQo8
-         2gtUzsGaqOFH3PZabIlBMV+NXubmWPVQGxH7ROCM=
+        b=djlo7smlpWppW5KJ4EUTwUrXUTFwYzXi2qhPe5BbURDYIF7k/kvyID9HAZYyM7gmG
+         1vpJdBWx7hL3bSVrGL/xSl7LaD7QdsmDNluUjlxJfQSr5RWtsjOoEe5oATJaJXFooF
+         F1fYG1hifeEZ3GmEq9XTVy+o/pXzVRwrXIRKuKhw=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Li <Frank.Li@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 195/290] mmc: cqhci: Fix random crash when remove mmc module/card
-Date:   Mon, 15 Mar 2021 14:54:48 +0100
-Message-Id: <20210315135548.499564280@linuxfoundation.org>
+        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.10 196/290] cifs: do not send close in compound create+close requests
+Date:   Mon, 15 Mar 2021 14:54:49 +0100
+Message-Id: <20210315135548.531298161@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
 References: <20210315135541.921894249@linuxfoundation.org>
@@ -42,94 +43,179 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Frank Li <lznuaa@gmail.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-commit f06391c45e83f9a731045deb23df7cc3814fd795 upstream.
+commit 04ad69c342fc4de5bd23be9ef15ea7574fb1a87e upstream.
 
-[ 6684.493350] Unable to handle kernel paging request at virtual address ffff800011c5b0f0
-[ 6684.498531] mmc0: card 0001 removed
-[ 6684.501556] Mem abort info:
-[ 6684.509681]   ESR = 0x96000047
-[ 6684.512786]   EC = 0x25: DABT (current EL), IL = 32 bits
-[ 6684.518394]   SET = 0, FnV = 0
-[ 6684.521707]   EA = 0, S1PTW = 0
-[ 6684.524998] Data abort info:
-[ 6684.528236]   ISV = 0, ISS = 0x00000047
-[ 6684.532986]   CM = 0, WnR = 1
-[ 6684.536129] swapper pgtable: 4k pages, 48-bit VAs, pgdp=0000000081b22000
-[ 6684.543923] [ffff800011c5b0f0] pgd=00000000bffff003, p4d=00000000bffff003, pud=00000000bfffe003, pmd=00000000900e1003, pte=0000000000000000
-[ 6684.557915] Internal error: Oops: 96000047 [#1] PREEMPT SMP
-[ 6684.564240] Modules linked in: sdhci_esdhc_imx(-) sdhci_pltfm sdhci cqhci mmc_block mmc_core fsl_jr_uio caam_jr caamkeyblob_desc caamhash_desc caamalg_desc crypto_engine rng_core authenc libdes crct10dif_ce flexcan can_dev caam error [last unloaded: mmc_core]
-[ 6684.587281] CPU: 0 PID: 79138 Comm: kworker/0:3H Not tainted 5.10.9-01410-g3ba33182767b-dirty #10
-[ 6684.596160] Hardware name: Freescale i.MX8DXL EVK (DT)
-[ 6684.601320] Workqueue: kblockd blk_mq_run_work_fn
+In case of interrupted syscalls, prevent sending CLOSE commands for
+compound CREATE+CLOSE requests by introducing an
+CIFS_CP_CREATE_CLOSE_OP flag to indicate lower layers that it should
+not send a CLOSE command to the MIDs corresponding the compound
+CREATE+CLOSE request.
 
-[ 6684.606094] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
-[ 6684.612286] pc : cqhci_request+0x148/0x4e8 [cqhci]
-^GMessage from syslogd@  at Thu Jan  1 01:51:24 1970 ...[ 6684.617085] lr : cqhci_request+0x314/0x4e8 [cqhci]
-[ 6684.626734] sp : ffff80001243b9f0
-[ 6684.630049] x29: ffff80001243b9f0 x28: ffff00002c3dd000
-[ 6684.635367] x27: 0000000000000001 x26: 0000000000000001
-[ 6684.640690] x25: ffff00002c451000 x24: 000000000000000f
-[ 6684.646007] x23: ffff000017e71c80 x22: ffff00002c451000
-[ 6684.651326] x21: ffff00002c0f3550 x20: ffff00002c0f3550
-[ 6684.656651] x19: ffff000017d46880 x18: ffff00002cea1500
-[ 6684.661977] x17: 0000000000000000 x16: 0000000000000000
-[ 6684.667294] x15: 000001ee628e3ed1 x14: 0000000000000278
-[ 6684.672610] x13: 0000000000000001 x12: 0000000000000001
-[ 6684.677927] x11: 0000000000000000 x10: 0000000000000000
-[ 6684.683243] x9 : 000000000000002b x8 : 0000000000001000
-[ 6684.688560] x7 : 0000000000000010 x6 : ffff00002c0f3678
-[ 6684.693886] x5 : 000000000000000f x4 : ffff800011c5b000
-[ 6684.699211] x3 : 000000000002d988 x2 : 0000000000000008
-[ 6684.704537] x1 : 00000000000000f0 x0 : 0002d9880008102f
-[ 6684.709854] Call trace:
-[ 6684.712313]  cqhci_request+0x148/0x4e8 [cqhci]
-[ 6684.716803]  mmc_cqe_start_req+0x58/0x68 [mmc_core]
-[ 6684.721698]  mmc_blk_mq_issue_rq+0x460/0x810 [mmc_block]
-[ 6684.727018]  mmc_mq_queue_rq+0x118/0x2b0 [mmc_block]
+A simple reproducer:
 
-The problem occurs when cqhci_request() get called after cqhci_disable() as
-it leads to access of allocated memory that has already been freed. Let's
-fix the problem by calling cqhci_disable() a bit later in the remove path.
+    #!/bin/bash
 
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Diagnosed-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Link: https://lore.kernel.org/r/20210303174248.542175-1-Frank.Li@nxp.com
-Fixes: f690f4409ddd ("mmc: mmc: Enable CQE's")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+    mount //server/share /mnt -o username=foo,password=***
+    tc qdisc add dev eth0 root netem delay 450ms
+    stat -f /mnt &>/dev/null & pid=$!
+    sleep 0.01
+    kill $pid
+    tc qdisc del dev eth0 root
+    umount /mnt
+
+Before patch:
+
+    ...
+    6 0.256893470 192.168.122.2 → 192.168.122.15 SMB2 402 Create Request File: ;GetInfo Request FS_INFO/FileFsFullSizeInformation;Close Request
+    7 0.257144491 192.168.122.15 → 192.168.122.2 SMB2 498 Create Response File: ;GetInfo Response;Close Response
+    9 0.260798209 192.168.122.2 → 192.168.122.15 SMB2 146 Close Request File:
+   10 0.260841089 192.168.122.15 → 192.168.122.2 SMB2 130 Close Response, Error: STATUS_FILE_CLOSED
+
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+CC: <stable@vger.kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/mmc/core/bus.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/core/bus.c
-+++ b/drivers/mmc/core/bus.c
-@@ -399,11 +399,6 @@ void mmc_remove_card(struct mmc_card *ca
- 	mmc_remove_card_debugfs(card);
- #endif
+---
+ fs/cifs/cifsglob.h  |   11 ++++++-----
+ fs/cifs/smb2inode.c |    1 +
+ fs/cifs/smb2misc.c  |    8 ++++----
+ fs/cifs/smb2ops.c   |   10 +++++-----
+ fs/cifs/smb2proto.h |    3 +--
+ fs/cifs/transport.c |    2 +-
+ 6 files changed, 18 insertions(+), 17 deletions(-)
+
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -256,7 +256,7 @@ struct smb_version_operations {
+ 	/* verify the message */
+ 	int (*check_message)(char *, unsigned int, struct TCP_Server_Info *);
+ 	bool (*is_oplock_break)(char *, struct TCP_Server_Info *);
+-	int (*handle_cancelled_mid)(char *, struct TCP_Server_Info *);
++	int (*handle_cancelled_mid)(struct mid_q_entry *, struct TCP_Server_Info *);
+ 	void (*downgrade_oplock)(struct TCP_Server_Info *server,
+ 				 struct cifsInodeInfo *cinode, __u32 oplock,
+ 				 unsigned int epoch, bool *purge_cache);
+@@ -1785,10 +1785,11 @@ static inline bool is_retryable_error(in
+ #define   CIFS_NO_RSP_BUF   0x040    /* no response buffer required */
  
--	if (host->cqe_enabled) {
--		host->cqe_ops->cqe_disable(host);
--		host->cqe_enabled = false;
--	}
--
- 	if (mmc_card_present(card)) {
- 		if (mmc_host_is_spi(card->host)) {
- 			pr_info("%s: SPI card removed\n",
-@@ -416,6 +411,10 @@ void mmc_remove_card(struct mmc_card *ca
- 		of_node_put(card->dev.of_node);
- 	}
+ /* Type of request operation */
+-#define   CIFS_ECHO_OP      0x080    /* echo request */
+-#define   CIFS_OBREAK_OP   0x0100    /* oplock break request */
+-#define   CIFS_NEG_OP      0x0200    /* negotiate request */
+-#define   CIFS_OP_MASK     0x0380    /* mask request type */
++#define   CIFS_ECHO_OP            0x080  /* echo request */
++#define   CIFS_OBREAK_OP          0x0100 /* oplock break request */
++#define   CIFS_NEG_OP             0x0200 /* negotiate request */
++#define   CIFS_CP_CREATE_CLOSE_OP 0x0400 /* compound create+close request */
++#define   CIFS_OP_MASK            0x0780 /* mask request type */
  
-+	if (host->cqe_enabled) {
-+		host->cqe_ops->cqe_disable(host);
-+		host->cqe_enabled = false;
-+	}
-+
- 	put_device(&card->dev);
+ #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
+ #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
+--- a/fs/cifs/smb2inode.c
++++ b/fs/cifs/smb2inode.c
+@@ -358,6 +358,7 @@ smb2_compound_op(const unsigned int xid,
+ 	if (cfile)
+ 		goto after_close;
+ 	/* Close */
++	flags |= CIFS_CP_CREATE_CLOSE_OP;
+ 	rqst[num_rqst].rq_iov = &vars->close_iov[0];
+ 	rqst[num_rqst].rq_nvec = 1;
+ 	rc = SMB2_close_init(tcon, server,
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -835,14 +835,14 @@ smb2_handle_cancelled_close(struct cifs_
  }
--
+ 
+ int
+-smb2_handle_cancelled_mid(char *buffer, struct TCP_Server_Info *server)
++smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_Server_Info *server)
+ {
+-	struct smb2_sync_hdr *sync_hdr = (struct smb2_sync_hdr *)buffer;
+-	struct smb2_create_rsp *rsp = (struct smb2_create_rsp *)buffer;
++	struct smb2_sync_hdr *sync_hdr = mid->resp_buf;
++	struct smb2_create_rsp *rsp = mid->resp_buf;
+ 	struct cifs_tcon *tcon;
+ 	int rc;
+ 
+-	if (sync_hdr->Command != SMB2_CREATE ||
++	if ((mid->optype & CIFS_CP_CREATE_CLOSE_OP) || sync_hdr->Command != SMB2_CREATE ||
+ 	    sync_hdr->Status != STATUS_SUCCESS)
+ 		return 0;
+ 
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1137,7 +1137,7 @@ smb2_set_ea(const unsigned int xid, stru
+ 	struct TCP_Server_Info *server = cifs_pick_channel(ses);
+ 	__le16 *utf16_path = NULL;
+ 	int ea_name_len = strlen(ea_name);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	int len;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+@@ -1515,7 +1515,7 @@ smb2_ioctl_query_info(const unsigned int
+ 	struct smb_query_info qi;
+ 	struct smb_query_info __user *pqi;
+ 	int rc = 0;
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb2_query_info_rsp *qi_rsp = NULL;
+ 	struct smb2_ioctl_rsp *io_rsp = NULL;
+ 	void *buffer = NULL;
+@@ -2482,7 +2482,7 @@ smb2_query_info_compound(const unsigned
+ {
+ 	struct cifs_ses *ses = tcon->ses;
+ 	struct TCP_Server_Info *server = cifs_pick_channel(ses);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -2880,7 +2880,7 @@ smb2_query_symlink(const unsigned int xi
+ 	unsigned int sub_offset;
+ 	unsigned int print_len;
+ 	unsigned int print_offset;
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+@@ -3062,7 +3062,7 @@ smb2_query_reparse_tag(const unsigned in
+ 	struct cifs_open_parms oparms;
+ 	struct cifs_fid fid;
+ 	struct TCP_Server_Info *server = cifs_pick_channel(tcon->ses);
+-	int flags = 0;
++	int flags = CIFS_CP_CREATE_CLOSE_OP;
+ 	struct smb_rqst rqst[3];
+ 	int resp_buftype[3];
+ 	struct kvec rsp_iov[3];
+--- a/fs/cifs/smb2proto.h
++++ b/fs/cifs/smb2proto.h
+@@ -246,8 +246,7 @@ extern int SMB2_oplock_break(const unsig
+ extern int smb2_handle_cancelled_close(struct cifs_tcon *tcon,
+ 				       __u64 persistent_fid,
+ 				       __u64 volatile_fid);
+-extern int smb2_handle_cancelled_mid(char *buffer,
+-					struct TCP_Server_Info *server);
++extern int smb2_handle_cancelled_mid(struct mid_q_entry *mid, struct TCP_Server_Info *server);
+ void smb2_cancelled_close_fid(struct work_struct *work);
+ extern int SMB2_QFS_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 			 u64 persistent_file_id, u64 volatile_file_id,
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -101,7 +101,7 @@ static void _cifs_mid_q_entry_release(st
+ 	if (midEntry->resp_buf && (midEntry->mid_flags & MID_WAIT_CANCELLED) &&
+ 	    midEntry->mid_state == MID_RESPONSE_RECEIVED &&
+ 	    server->ops->handle_cancelled_mid)
+-		server->ops->handle_cancelled_mid(midEntry->resp_buf, server);
++		server->ops->handle_cancelled_mid(midEntry, server);
+ 
+ 	midEntry->mid_state = MID_FREE;
+ 	atomic_dec(&midCount);
 
 
