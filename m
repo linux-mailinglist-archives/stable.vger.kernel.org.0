@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FA3B33B89A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5F8933BAA1
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233511AbhCOOEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S233904AbhCOOJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233055AbhCOOAf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87E4F64F37;
-        Mon, 15 Mar 2021 14:00:18 +0000 (UTC)
+        id S234595AbhCOOE1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:04:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C4664EF1;
+        Mon, 15 Mar 2021 14:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816819;
-        bh=IFfqQ8qPfWnqGiSXAud+IN7dXAdtEKUe1+FwHMdPJCE=;
+        s=korg; t=1615817066;
+        bh=oqEf25nvMNpzF7bOgfDJbXuzXtb2BZEjztG/ZKz2/Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbVX3OnX3sqAyqlXpsHAX1sIE4s7XdH1jlbY2zVAMoBLXf994y4M/AYTW/dBSvumS
-         Mf8pwgFs6beUTwgcHleDspzwAefjK5jJ6OkxEcgnmWiyiwwqD+tdQoCJRv367ldHC4
-         rgRQ6j3pzN8al8Vku3tpSHk8/HD47G6S1tkEM3IU=
+        b=bTFx5AvJbhpOksRNqBurA/UNIpwEPuHgVGQq80kmInzRLCdaw0kyB4Mv5LKK4oJmB
+         Aw5wYZs1Ov0aYGWoyp+cEE0il8+aSL/lIBfT8m9vLMPYQKV+EXqXreVD1LKJuGuiSU
+         0x/OHrzClxbSykxQYpaiKolcGjN3dASsAd+5VS4c=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.4 131/168] staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
-Date:   Mon, 15 Mar 2021 14:56:03 +0100
-Message-Id: <20210315135554.647688271@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 271/290] x86/sev-es: Check regs->sp is trusted before adjusting #VC IST stack
+Date:   Mon, 15 Mar 2021 14:56:04 +0100
+Message-Id: <20210315135551.180280688@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit e163b9823a0b08c3bb8dc4f5b4b5c221c24ec3e5 upstream.
+commit 545ac14c16b5dbd909d5a90ddf5b5a629a40fa94 upstream.
 
-The user can specify a "req->essid_len" of up to 255 but if it's
-over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
+The code in the NMI handler to adjust the #VC handler IST stack is
+needed in case an NMI hits when the #VC handler is still using its IST
+stack.
 
-Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
+But the check for this condition also needs to look if the regs->sp
+value is trusted, meaning it was not set by user-space. Extend the check
+to not use regs->sp when the NMI interrupted user-space code or the
+SYSCALL gap.
+
+Fixes: 315562c9af3d5 ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
+Reported-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # 5.10+
+Link: https://lkml.kernel.org/r/20210303141716.29223-3-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/ks7010/ks_wlan_net.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/kernel/sev-es.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/staging/ks7010/ks_wlan_net.c
-+++ b/drivers/staging/ks7010/ks_wlan_net.c
-@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_d
- {
- 	struct ks_wlan_private *priv = netdev_priv(dev);
- 	struct iw_scan_req *req = NULL;
-+	int len;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 84c1821819af..301f20f6d4dd 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -121,8 +121,18 @@ static void __init setup_vc_stacks(int cpu)
+ 	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
+ }
  
- 	if (priv->sleep_mode == SLP_SLEEP)
- 		return -EPERM;
-@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_d
- 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
- 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
- 		req = (struct iw_scan_req *)extra;
--		priv->scan_ssid_len = req->essid_len;
--		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
-+		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
-+		priv->scan_ssid_len = len;
-+		memcpy(priv->scan_ssid, req->essid, len);
- 	} else {
- 		priv->scan_ssid_len = 0;
- 	}
+-static __always_inline bool on_vc_stack(unsigned long sp)
++static __always_inline bool on_vc_stack(struct pt_regs *regs)
+ {
++	unsigned long sp = regs->sp;
++
++	/* User-mode RSP is not trusted */
++	if (user_mode(regs))
++		return false;
++
++	/* SYSCALL gap still has user-mode RSP */
++	if (ip_within_syscall_gap(regs))
++		return false;
++
+ 	return ((sp >= __this_cpu_ist_bottom_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
+ }
+ 
+@@ -144,7 +154,7 @@ void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+ 	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
+ 
+ 	/* Make room on the IST stack */
+-	if (on_vc_stack(regs->sp))
++	if (on_vc_stack(regs))
+ 		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
+ 	else
+ 		new_ist = old_ist - sizeof(old_ist);
+-- 
+2.30.2
+
 
 
