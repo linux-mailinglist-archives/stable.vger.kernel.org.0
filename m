@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7B333BA52
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5361233BA6F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234745AbhCOOIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49574 "EHLO mail.kernel.org"
+        id S234183AbhCOOJP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:09:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49843 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234305AbhCOODL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:03:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C454064E89;
-        Mon, 15 Mar 2021 14:03:09 +0000 (UTC)
+        id S232820AbhCOODl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:03:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1F5464E83;
+        Mon, 15 Mar 2021 14:03:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816990;
-        bh=ZGHqpYg9bmFhxcT4Y1kLePiSwzu/r6PtAwOwk3qAU0U=;
+        s=korg; t=1615817020;
+        bh=lp7t4PAGlGJxwaLGTr21In+LijphDBOdYAJ98nN3adY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lu7p4VTEegE4JWLh9la+Z3qD7S93NLz3B+aePQumf0AizhFdyWzJc4eWFrKUUz1r/
-         F7+Xtq19B7RPTtrjdJwfj1SuGStoNGgtmC3w2GrRliHeKrKiFrTfo07KDsr4Tfvg1P
-         Q5iD8hzRixXZFR2wEB16V/0ojCShpPlg/3V8ZxkY=
+        b=Qsp+/YR0gC3xNLCIdiPs4Tsf5r9VVreaYMXJY6e5M5Pzjn/8+dCfcs7PKOTHaVXhe
+         xfz8PVLFLJtJ4sxQZSDm8t8IY5PJAB1vCdyLoye7PC+Dcpp6RemcXI+ttuTq8NGuDO
+         IyGhx2XL/90lIzW5km6EYCrWHb9hdM9t9m/zxHOg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 5.10 233/290] staging: comedi: addi_apci_1500: Fix endian problem for command sample
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 263/306] powerpc/64s/exception: Clean up a missed SRR specifier
 Date:   Mon, 15 Mar 2021 14:55:26 +0100
-Message-Id: <20210315135549.860777757@linuxfoundation.org>
+Message-Id: <20210315135516.533659446@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +43,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Daniel Axtens <dja@axtens.net>
 
-commit ac0bbf55ed3be75fde1f8907e91ecd2fd589bde3 upstream.
+[ Upstream commit c080a173301ffc62cb6c76308c803c7fee05517a ]
 
-The digital input subdevice supports Comedi asynchronous commands that
-read interrupt status information.  This uses 16-bit Comedi samples (of
-which only the bottom 8 bits contain status information).  However, the
-interrupt handler is calling `comedi_buf_write_samples()` with the
-address of a 32-bit variable `unsigned int status`.  On a bigendian
-machine, this will copy 2 bytes from the wrong end of the variable.  Fix
-it by changing the type of the variable to `unsigned short`.
+Nick's patch cleaning up the SRR specifiers in exception-64s.S missed
+a single instance of EXC_HV_OR_STD. Clean that up.
 
-Fixes: a8c66b684efa ("staging: comedi: addi_apci_1500: rewrite the subdevice support functions")
-Cc: <stable@vger.kernel.org> #4.0+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-3-abbotti@mev.co.uk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Caught by clang's integrated assembler.
+
+Fixes: 3f7fbd97d07d ("powerpc/64s/exception: Clean up SRR specifiers")
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210225031006.1204774-2-dja@axtens.net
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/comedi/drivers/addi_apci_1500.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ arch/powerpc/kernel/exceptions-64s.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/comedi/drivers/addi_apci_1500.c
-+++ b/drivers/staging/comedi/drivers/addi_apci_1500.c
-@@ -208,7 +208,7 @@ static irqreturn_t apci1500_interrupt(in
- 	struct comedi_device *dev = d;
- 	struct apci1500_private *devpriv = dev->private;
- 	struct comedi_subdevice *s = dev->read_subdev;
--	unsigned int status = 0;
-+	unsigned short status = 0;
- 	unsigned int val;
+diff --git a/arch/powerpc/kernel/exceptions-64s.S b/arch/powerpc/kernel/exceptions-64s.S
+index 6e53f7638737..de988770a7e4 100644
+--- a/arch/powerpc/kernel/exceptions-64s.S
++++ b/arch/powerpc/kernel/exceptions-64s.S
+@@ -470,7 +470,7 @@ DEFINE_FIXED_SYMBOL(\name\()_common_real)
  
- 	val = inl(devpriv->amcc + AMCC_OP_REG_INTCSR);
-@@ -238,14 +238,14 @@ static irqreturn_t apci1500_interrupt(in
- 	 *
- 	 *    Mask     Meaning
- 	 * ----------  ------------------------------------------
--	 * 0x00000001  Event 1 has occurred
--	 * 0x00000010  Event 2 has occurred
--	 * 0x00000100  Counter/timer 1 has run down (not implemented)
--	 * 0x00001000  Counter/timer 2 has run down (not implemented)
--	 * 0x00010000  Counter 3 has run down (not implemented)
--	 * 0x00100000  Watchdog has run down (not implemented)
--	 * 0x01000000  Voltage error
--	 * 0x10000000  Short-circuit error
-+	 * 0b00000001  Event 1 has occurred
-+	 * 0b00000010  Event 2 has occurred
-+	 * 0b00000100  Counter/timer 1 has run down (not implemented)
-+	 * 0b00001000  Counter/timer 2 has run down (not implemented)
-+	 * 0b00010000  Counter 3 has run down (not implemented)
-+	 * 0b00100000  Watchdog has run down (not implemented)
-+	 * 0b01000000  Voltage error
-+	 * 0b10000000  Short-circuit error
- 	 */
- 	comedi_buf_write_samples(s, &status, 1);
- 	comedi_handle_events(dev, s);
+ 	ld	r10,PACAKMSR(r13)	/* get MSR value for kernel */
+ 	/* MSR[RI] is clear iff using SRR regs */
+-	.if IHSRR == EXC_HV_OR_STD
++	.if IHSRR_IF_HVMODE
+ 	BEGIN_FTR_SECTION
+ 	xori	r10,r10,MSR_RI
+ 	END_FTR_SECTION_IFCLR(CPU_FTR_HVMODE)
+-- 
+2.30.1
+
 
 
