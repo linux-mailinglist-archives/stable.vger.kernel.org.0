@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A6E133B99B
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:08:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7104433B9F7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:09:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233525AbhCOOGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:06:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
+        id S235110AbhCOOHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:07:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233466AbhCOOBn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF15C64EF3;
-        Mon, 15 Mar 2021 14:01:38 +0000 (UTC)
+        id S233658AbhCOOCR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:02:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8FEB64E89;
+        Mon, 15 Mar 2021 14:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816900;
-        bh=9ibA2mjQg2zuTjL39SlYdc/2f0IYeUrZryi5svSAFy8=;
+        s=korg; t=1615816926;
+        bh=UnvoTaee++uQmgZBcbDloBQf3a1K2DhIcoEylFd3FLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPiU/RyrThmRUrS2zwHANMkideq15JcSyGZk20cs8cm4UD134X2eCN3YF15/o3+rf
-         tM9HXbT9tVAa/MeIdDIfjmwEM+WJDbnMMswVcRE5+daREinBOSac8zVxCBRVDmvoin
-         X32bUJ6w0a8Zn20PWMXsnXP1aEvJRwSNLFB2XJ5Y=
+        b=CoiZIGDqydG8hfQcDx8+fuvbBP9AJtMl0HzNgA17qS9jRcAjiYuGRzlvwbGPlyRYv
+         mGeUKYJaezmmQEGm4QoECfyBUgLhWnrlZ7S2JzI79RD2wubEPXcDcY/Zj6ej8lok+o
+         oiEuVVdTfyN2DiagyQ9SqXicXcE5DkCO6mg0KxUY=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhishek Sahu <abhsahu@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 177/290] ALSA: hda: Avoid spurious unsol event handling during S3/S4
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.11 207/306] xhci: Fix repeated xhci wake after suspend due to uncleared internal wake state
 Date:   Mon, 15 Mar 2021 14:54:30 +0100
-Message-Id: <20210315135547.896143692@linuxfoundation.org>
+Message-Id: <20210315135514.629705304@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +42,115 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 5ff9dde42e8c72ed8102eb8cb62e03f9dc2103ab upstream.
+commit d26c00e7276fc92b18c253d69e872f6b03832bad upstream.
 
-When HD-audio bus receives unsolicited events during its system
-suspend/resume (S3 and S4) phase, the controller driver may still try
-to process events although the codec chips are already (or yet)
-powered down.  This might screw up the codec communication, resulting
-in CORB/RIRB errors.  Such events should be rather skipped, as the
-codec chip status such as the jack status will be fully refreshed at
-the system resume time.
+If port terminations are detected in suspend, but link never reaches U0
+then xHCI may have an internal uncleared wake state that will cause an
+immediate wake after suspend.
 
-Since we're tracking the system suspend/resume state in codec
-power.power_state field, let's add the check in the common unsol event
-handler entry point to filter out such events.
+This wake state is normally cleared when driver clears the PORT_CSC bit,
+which is set after a device is enabled and in U0.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1182377
-Tested-by: Abhishek Sahu <abhsahu@nvidia.com>
-Cc: <stable@vger.kernel.org> # 183ab39eb0ea: ALSA: hda: Initialize power_state
-Link: https://lore.kernel.org/r/20210310112809.9215-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Write 1 to clear PORT_CSC for ports that don't have anything connected
+when suspending. This makes sure any pending internal wake states in
+xHCI are cleared.
+
+Cc: stable@vger.kernel.org
+Tested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210311115353.2137560-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_bind.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci.c |   62 +++++++++++++++++++++++-------------------------
+ 1 file changed, 30 insertions(+), 32 deletions(-)
 
---- a/sound/pci/hda/hda_bind.c
-+++ b/sound/pci/hda/hda_bind.c
-@@ -47,6 +47,10 @@ static void hda_codec_unsol_event(struct
- 	if (codec->bus->shutdown)
- 		return;
- 
-+	/* ignore unsol events during system suspend/resume */
-+	if (codec->core.dev.power.power_state.event != PM_EVENT_ON)
-+		return;
-+
- 	if (codec->patch_ops.unsol_event)
- 		codec->patch_ops.unsol_event(codec, ev);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -883,44 +883,42 @@ static void xhci_clear_command_ring(stru
+ 	xhci_set_cmd_ring_deq(xhci);
  }
+ 
+-static void xhci_disable_port_wake_on_bits(struct xhci_hcd *xhci)
++/*
++ * Disable port wake bits if do_wakeup is not set.
++ *
++ * Also clear a possible internal port wake state left hanging for ports that
++ * detected termination but never successfully enumerated (trained to 0U).
++ * Internal wake causes immediate xHCI wake after suspend. PORT_CSC write done
++ * at enumeration clears this wake, force one here as well for unconnected ports
++ */
++
++static void xhci_disable_hub_port_wake(struct xhci_hcd *xhci,
++				       struct xhci_hub *rhub,
++				       bool do_wakeup)
+ {
+-	struct xhci_port **ports;
+-	int port_index;
+ 	unsigned long flags;
+ 	u32 t1, t2, portsc;
++	int i;
+ 
+ 	spin_lock_irqsave(&xhci->lock, flags);
+ 
+-	/* disable usb3 ports Wake bits */
+-	port_index = xhci->usb3_rhub.num_ports;
+-	ports = xhci->usb3_rhub.ports;
+-	while (port_index--) {
+-		t1 = readl(ports[port_index]->addr);
+-		portsc = t1;
+-		t1 = xhci_port_state_to_neutral(t1);
+-		t2 = t1 & ~PORT_WAKE_BITS;
+-		if (t1 != t2) {
+-			writel(t2, ports[port_index]->addr);
+-			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
+-				 xhci->usb3_rhub.hcd->self.busnum,
+-				 port_index + 1, portsc, t2);
+-		}
+-	}
++	for (i = 0; i < rhub->num_ports; i++) {
++		portsc = readl(rhub->ports[i]->addr);
++		t1 = xhci_port_state_to_neutral(portsc);
++		t2 = t1;
++
++		/* clear wake bits if do_wake is not set */
++		if (!do_wakeup)
++			t2 &= ~PORT_WAKE_BITS;
++
++		/* Don't touch csc bit if connected or connect change is set */
++		if (!(portsc & (PORT_CSC | PORT_CONNECT)))
++			t2 |= PORT_CSC;
+ 
+-	/* disable usb2 ports Wake bits */
+-	port_index = xhci->usb2_rhub.num_ports;
+-	ports = xhci->usb2_rhub.ports;
+-	while (port_index--) {
+-		t1 = readl(ports[port_index]->addr);
+-		portsc = t1;
+-		t1 = xhci_port_state_to_neutral(t1);
+-		t2 = t1 & ~PORT_WAKE_BITS;
+ 		if (t1 != t2) {
+-			writel(t2, ports[port_index]->addr);
+-			xhci_dbg(xhci, "disable wake bits port %d-%d, portsc: 0x%x, write: 0x%x\n",
+-				 xhci->usb2_rhub.hcd->self.busnum,
+-				 port_index + 1, portsc, t2);
++			writel(t2, rhub->ports[i]->addr);
++			xhci_dbg(xhci, "config port %d-%d wake bits, portsc: 0x%x, write: 0x%x\n",
++				 rhub->hcd->self.busnum, i + 1, portsc, t2);
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&xhci->lock, flags);
+@@ -983,8 +981,8 @@ int xhci_suspend(struct xhci_hcd *xhci,
+ 		return -EINVAL;
+ 
+ 	/* Clear root port wake on bits if wakeup not allowed. */
+-	if (!do_wakeup)
+-		xhci_disable_port_wake_on_bits(xhci);
++	xhci_disable_hub_port_wake(xhci, &xhci->usb3_rhub, do_wakeup);
++	xhci_disable_hub_port_wake(xhci, &xhci->usb2_rhub, do_wakeup);
+ 
+ 	if (!HCD_HW_ACCESSIBLE(hcd))
+ 		return 0;
 
 
