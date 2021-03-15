@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 005D433B7FF
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24AC933B8B3
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbhCOOBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S232207AbhCOOEO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232785AbhCON74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B6AC64EFD;
-        Mon, 15 Mar 2021 13:59:35 +0000 (UTC)
+        id S233098AbhCOOAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69DD064F4F;
+        Mon, 15 Mar 2021 14:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816776;
-        bh=AneO6NVmCoHwv/zQGDAcWoadoYb/AGpFcxb2TvJ4kl4=;
+        s=korg; t=1615816825;
+        bh=IFfqQ8qPfWnqGiSXAud+IN7dXAdtEKUe1+FwHMdPJCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcIcVZ3sK5h4DOB6F+M/yvdAdxeufwJuVt2DY3u1RH+gUwMJyVHdccQ9at4OI7joJ
-         NU2sWAHocntgak7GKT5Igkib9msgUMdbAvyWX47YiDcW3zv4cZWgGJAyGWWvhabKlz
-         lvjcnDmv9dTSQra5CWTzLJTMin6fxWb18j9jasIk=
+        b=lBnKGBGK30qt4p8OsUDAhdJPqW4YLyczQlyjAxorpk12+m2485JQsEjNt95HegHeJ
+         orEe6IPePAXKeqih7w5YeAffeX6Y7VGoGw3j2hSvlVXZJL0eFJj1MUd6Yyj0kVeZ28
+         KpAMi6ZJqGPVmeT7Yg+6pdE6pmZJwi73q2Qe1+Lk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 54/95] xhci: Improve detection of device initiated wake signal.
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 093/120] staging: ks7010: prevent buffer overflow in ks_wlan_set_scan()
 Date:   Mon, 15 Mar 2021 14:57:24 +0100
-Message-Id: <20210315135742.045483785@linuxfoundation.org>
+Message-Id: <20210315135723.019585083@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
-References: <20210315135740.245494252@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 253f588c70f66184b1f3a9bbb428b49bbda73e80 upstream.
+commit e163b9823a0b08c3bb8dc4f5b4b5c221c24ec3e5 upstream.
 
-A xHC USB 3 port might miss the first wake signal from a USB 3 device
-if the port LFPS reveiver isn't enabled fast enough after xHC resume.
+The user can specify a "req->essid_len" of up to 255 but if it's
+over IW_ESSID_MAX_SIZE (32) that can lead to memory corruption.
 
-xHC host will anyway be resumed by a PME# signal, but will go back to
-suspend if no port activity is seen.
-The device resends the U3 LFPS wake signal after a 100ms delay, but
-by then host is already suspended, starting all over from the
-beginning of this issue.
-
-USB 3 specs say U3 wake LFPS signal is sent for max 10ms, then device
-needs to delay 100ms before resending the wake.
-
-Don't suspend immediately if port activity isn't detected in resume.
-Instead add a retry. If there is no port activity then delay for 120ms,
-and re-check for port activity.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210311115353.2137560-3-mathias.nyman@linux.intel.com
+Fixes: 13a9930d15b4 ("staging: ks7010: add driver from Nanonote extra-repository")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/YD4fS8+HmM/Qmrw6@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/staging/ks7010/ks_wlan_net.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1021,6 +1021,7 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 	struct usb_hcd		*secondary_hcd;
- 	int			retval = 0;
- 	bool			comp_timer_running = false;
-+	bool			pending_portevent = false;
+--- a/drivers/staging/ks7010/ks_wlan_net.c
++++ b/drivers/staging/ks7010/ks_wlan_net.c
+@@ -1120,6 +1120,7 @@ static int ks_wlan_set_scan(struct net_d
+ {
+ 	struct ks_wlan_private *priv = netdev_priv(dev);
+ 	struct iw_scan_req *req = NULL;
++	int len;
  
- 	if (!hcd->state)
- 		return 0;
-@@ -1154,13 +1155,22 @@ int xhci_resume(struct xhci_hcd *xhci, b
- 
-  done:
- 	if (retval == 0) {
--		/* Resume root hubs only when have pending events. */
--		if (xhci_pending_portevent(xhci)) {
-+		/*
-+		 * Resume roothubs only if there are pending events.
-+		 * USB 3 devices resend U3 LFPS wake after a 100ms delay if
-+		 * the first wake signalling failed, give it that chance.
-+		 */
-+		pending_portevent = xhci_pending_portevent(xhci);
-+		if (!pending_portevent) {
-+			msleep(120);
-+			pending_portevent = xhci_pending_portevent(xhci);
-+		}
-+
-+		if (pending_portevent) {
- 			usb_hcd_resume_root_hub(xhci->shared_hcd);
- 			usb_hcd_resume_root_hub(hcd);
- 		}
+ 	if (priv->sleep_mode == SLP_SLEEP)
+ 		return -EPERM;
+@@ -1129,8 +1130,9 @@ static int ks_wlan_set_scan(struct net_d
+ 	if (wrqu->data.length == sizeof(struct iw_scan_req) &&
+ 	    wrqu->data.flags & IW_SCAN_THIS_ESSID) {
+ 		req = (struct iw_scan_req *)extra;
+-		priv->scan_ssid_len = req->essid_len;
+-		memcpy(priv->scan_ssid, req->essid, priv->scan_ssid_len);
++		len = min_t(int, req->essid_len, IW_ESSID_MAX_SIZE);
++		priv->scan_ssid_len = len;
++		memcpy(priv->scan_ssid, req->essid, len);
+ 	} else {
+ 		priv->scan_ssid_len = 0;
  	}
--
- 	/*
- 	 * If system is subject to the Quirk, Compliance Mode Timer needs to
- 	 * be re-initialized Always after a system resume. Ports are subject
 
 
