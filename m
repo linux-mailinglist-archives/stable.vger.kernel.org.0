@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED2133B91E
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:06:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B1A33B743
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231964AbhCOOF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:05:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S232815AbhCON75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233204AbhCOOBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5229C64F06;
-        Mon, 15 Mar 2021 14:00:35 +0000 (UTC)
+        id S231331AbhCON65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:58:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B65764F47;
+        Mon, 15 Mar 2021 13:58:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816837;
-        bh=myaF3D99RkWXV3VhgdD/gmpVZL5N7dsK6TT+Ici6Uaw=;
+        s=korg; t=1615816718;
+        bh=/8R6R06lhlNFIZDBwF3ujdYr58JUCq8f0opCZTPs2JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sRreGn2fNInIQiDIHaHKY/1hAOxXieKrDoI/KOQRo3ahCMLc9fPJyYX28FgXe/PW0
-         gU+GoSFKCbJYABPWmXJfrtFwNQxmB6XGpYo8oHz+mVjbSHUKWsaLRAJPXyZ2idLYvK
-         ziaI3aWGgyKihNPPfBibS56oDef/aHr5aCJ0pdD8=
+        b=r/3PofNB1tA9DLtpB+Yuw7Rw0UJT8Tu0egTvEaURnf8u0YGUBB+cayoX2T+MgqLrh
+         kHQEb9vOM7uyj/BBN0TrUvsRRneZc2NS3vx5FjAWJ904G31h53H+CbQ/8zZfoz5r4C
+         Bp3xnd/5wQpsThbgWFA7ZKuTpT7aT7PtBg5E5L3Q=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        David Hildenbrand <david@redhat.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 144/168] arm64/mm: Fix pfn_valid() for ZONE_DEVICE based memory
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 025/120] net: lapbether: Remove netif_start_queue / netif_stop_queue
 Date:   Mon, 15 Mar 2021 14:56:16 +0100
-Message-Id: <20210315135555.075374670@linuxfoundation.org>
+Message-Id: <20210315135720.818663923@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-References: <20210315135550.333963635@linuxfoundation.org>
+In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
+References: <20210315135720.002213995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,77 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit eeb0753ba27b26f609e61f9950b14f1b934fe429 ]
+commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
 
-pfn_valid() validates a pfn but basically it checks for a valid struct page
-backing for that pfn. It should always return positive for memory ranges
-backed with struct page mapping. But currently pfn_valid() fails for all
-ZONE_DEVICE based memory types even though they have struct page mapping.
+For the devices in this driver, the default qdisc is "noqueue",
+because their "tx_queue_len" is 0.
 
-pfn_valid() asserts that there is a memblock entry for a given pfn without
-MEMBLOCK_NOMAP flag being set. The problem with ZONE_DEVICE based memory is
-that they do not have memblock entries. Hence memblock_is_map_memory() will
-invariably fail via memblock_search() for a ZONE_DEVICE based address. This
-eventually fails pfn_valid() which is wrong. memblock_is_map_memory() needs
-to be skipped for such memory ranges. As ZONE_DEVICE memory gets hotplugged
-into the system via memremap_pages() called from a driver, their respective
-memory sections will not have SECTION_IS_EARLY set.
+In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
+"noqueue" qdisc are specially handled. Packets are transmitted without
+being queued after a "dev->flags & IFF_UP" check. However, it's possible
+that even if this check succeeds, "ops->ndo_stop" may still have already
+been called. This is because in "__dev_close_many", "ops->ndo_stop" is
+called before clearing the "IFF_UP" flag.
 
-Normal hotplug memory will never have MEMBLOCK_NOMAP set in their memblock
-regions. Because the flag MEMBLOCK_NOMAP was specifically designed and set
-for firmware reserved memory regions. memblock_is_map_memory() can just be
-skipped as its always going to be positive and that will be an optimization
-for the normal hotplug memory. Like ZONE_DEVICE based memory, all normal
-hotplugged memory too will not have SECTION_IS_EARLY set for their sections
+If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
+"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
+checks "netif_xmit_stopped" and finds that the queue is already stopped.
+In this case, it will complain that:
+"Virtual device ... asks to queue packet!"
 
-Skipping memblock_is_map_memory() for all non early memory sections would
-fix pfn_valid() problem for ZONE_DEVICE based memory and also improve its
-performance for normal hotplug memory as well.
+To prevent "__dev_queue_xmit" from generating this complaint, we should
+not call "netif_stop_queue" in "ops->ndo_stop".
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Acked-by: David Hildenbrand <david@redhat.com>
-Fixes: 73b20c84d42d ("arm64: mm: implement pte_devmap support")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/1614921898-4099-2-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+We also don't need to call "netif_start_queue" in "ops->ndo_open",
+because after a netdev is allocated and registered, the
+"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
+to call "netif_start_queue" to clear it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/mm/init.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/wan/lapbether.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/arm64/mm/init.c b/arch/arm64/mm/init.c
-index 602bd19630ff..cbcac03c0e0d 100644
---- a/arch/arm64/mm/init.c
-+++ b/arch/arm64/mm/init.c
-@@ -245,6 +245,18 @@ int pfn_valid(unsigned long pfn)
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -286,7 +286,6 @@ static int lapbeth_open(struct net_devic
+ 		return -ENODEV;
+ 	}
  
- 	if (!valid_section(__nr_to_section(pfn_to_section_nr(pfn))))
- 		return 0;
-+
-+	/*
-+	 * ZONE_DEVICE memory does not have the memblock entries.
-+	 * memblock_is_map_memory() check for ZONE_DEVICE based
-+	 * addresses will always fail. Even the normal hotplugged
-+	 * memory will never have MEMBLOCK_NOMAP flag set in their
-+	 * memblock entries. Skip memblock search for all non early
-+	 * memory sections covering all of hotplug memory including
-+	 * both normal and ZONE_DEVICE based.
-+	 */
-+	if (!early_section(__pfn_to_section(pfn)))
-+		return pfn_section_valid(__pfn_to_section(pfn), pfn);
- #endif
- 	return memblock_is_map_memory(addr);
+-	netif_start_queue(dev);
+ 	return 0;
  }
--- 
-2.30.1
-
+ 
+@@ -294,8 +293,6 @@ static int lapbeth_close(struct net_devi
+ {
+ 	int err;
+ 
+-	netif_stop_queue(dev);
+-
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
+ 
 
 
