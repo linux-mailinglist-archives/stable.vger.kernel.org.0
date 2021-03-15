@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DA9533B60F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 197D233B609
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230353AbhCON5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33014 "EHLO mail.kernel.org"
+        id S230239AbhCON5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231908AbhCON4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD4A464EEC;
-        Mon, 15 Mar 2021 13:56:16 +0000 (UTC)
+        id S231910AbhCON4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:56:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AAA664EEA;
+        Mon, 15 Mar 2021 13:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816577;
-        bh=sdWnjAJvlnqJ2n9U+Zkd63cqwHEfAh4fXY7VV+tHcpE=;
+        s=korg; t=1615816579;
+        bh=KtDpyLf74fgR6EOtIktt0yFGHHdBQziWMH+r0DgByUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSoin9YbIbRyHLkldqDIB5zXtakTgJ4Pr8Z4ly5o5nvmR7t+j57p9IU49X71kBbDQ
-         Y2EZdkCI/0FscZBZbtL0fzlWOxThg4LRtpiAgY0B7jsAHLb0Q/Nb/nq34z8BQslZjV
-         TpMBL0tJnKC85GmXWLklXehlBlrI0b02YTL0EaXY=
+        b=lu5LfpWG85H/rmh1C8L1qcvgICpDX1LuRPDeZbcDCCvkhuOGIa9fb2KGGtSKDocfn
+         tH+jPxMXYfxhmTEZQX8jhmiRTVVvkqwvvqgQdUWiJyYeuPz2rV9LRThI+sdJarqNyw
+         i19w7dzdc17KRNa1ukau5aJY/MY3F/kVeDUWXDAQ=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.11 001/306] uapi: nfnetlink_cthelper.h: fix userspace compilation error
-Date:   Mon, 15 Mar 2021 14:51:04 +0100
-Message-Id: <20210315135507.664859664@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christoph Plattner <christoph.plattner@thalesgroup.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 002/306] powerpc/603: Fix protection of user pages mapped with PROT_NONE
+Date:   Mon, 15 Mar 2021 14:51:05 +0100
+Message-Id: <20210315135507.702342534@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
 References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,33 +43,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dmitry V. Levin <ldv@altlinux.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit c33cb0020ee6dd96cc9976d6085a7d8422f6dbed upstream.
+commit c119565a15a628efdfa51352f9f6c5186e506a1c upstream.
 
-Apparently, <linux/netfilter/nfnetlink_cthelper.h> and
-<linux/netfilter/nfnetlink_acct.h> could not be included into the same
-compilation unit because of a cut-and-paste typo in the former header.
+On book3s/32, page protection is defined by the PP bits in the PTE
+which provide the following protection depending on the access
+keys defined in the matching segment register:
+- PP 00 means RW with key 0 and N/A with key 1.
+- PP 01 means RW with key 0 and RO with key 1.
+- PP 10 means RW with both key 0 and key 1.
+- PP 11 means RO with both key 0 and key 1.
 
-Fixes: 12f7a505331e6 ("netfilter: add user-space connection tracking helper infrastructure")
-Cc: <stable@vger.kernel.org> # v3.6
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Since the implementation of kernel userspace access protection,
+PP bits have been set as follows:
+- PP00 for pages without _PAGE_USER
+- PP01 for pages with _PAGE_USER and _PAGE_RW
+- PP11 for pages with _PAGE_USER and without _PAGE_RW
+
+For kernelspace segments, kernel accesses are performed with key 0
+and user accesses are performed with key 1. As PP00 is used for
+non _PAGE_USER pages, user can't access kernel pages not flagged
+_PAGE_USER while kernel can.
+
+For userspace segments, both kernel and user accesses are performed
+with key 0, therefore pages not flagged _PAGE_USER are still
+accessible to the user.
+
+This shouldn't be an issue, because userspace is expected to be
+accessible to the user. But unlike most other architectures, powerpc
+implements PROT_NONE protection by removing _PAGE_USER flag instead of
+flagging the page as not valid. This means that pages in userspace
+that are not flagged _PAGE_USER shall remain inaccessible.
+
+To get the expected behaviour, just mimic other architectures in the
+TLB miss handler by checking _PAGE_USER permission on userspace
+accesses as if it was the _PAGE_PRESENT bit.
+
+Note that this problem only is only for 603 cores. The 604+ have
+an hash table, and hash_page() function already implement the
+verification of _PAGE_USER permission on userspace pages.
+
+Fixes: f342adca3afc ("powerpc/32s: Prepare Kernel Userspace Access Protection")
+Cc: stable@vger.kernel.org # v5.2+
+Reported-by: Christoph Plattner <christoph.plattner@thalesgroup.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/4a0c6e3bb8f0c162457bf54d9bc6fd8d7b55129f.1612160907.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/netfilter/nfnetlink_cthelper.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/head_book3s_32.S |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/include/uapi/linux/netfilter/nfnetlink_cthelper.h
-+++ b/include/uapi/linux/netfilter/nfnetlink_cthelper.h
-@@ -5,7 +5,7 @@
- #define NFCT_HELPER_STATUS_DISABLED	0
- #define NFCT_HELPER_STATUS_ENABLED	1
- 
--enum nfnl_acct_msg_types {
-+enum nfnl_cthelper_msg_types {
- 	NFNL_MSG_CTHELPER_NEW,
- 	NFNL_MSG_CTHELPER_GET,
- 	NFNL_MSG_CTHELPER_DEL,
+--- a/arch/powerpc/kernel/head_book3s_32.S
++++ b/arch/powerpc/kernel/head_book3s_32.S
+@@ -447,11 +447,12 @@ InstructionTLBMiss:
+ 	cmplw	0,r1,r3
+ #endif
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
++	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ #ifdef CONFIG_MODULES
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1,_PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_EXEC
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ #endif
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+@@ -510,10 +511,11 @@ DataLoadTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
++	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1, _PAGE_PRESENT | _PAGE_ACCESSED
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+ 	lwz	r2,0(r2)		/* get pmd entry */
+@@ -587,10 +589,11 @@ DataStoreTLBMiss:
+ 	lis	r1, TASK_SIZE@h		/* check if kernel address */
+ 	cmplw	0,r1,r3
+ 	mfspr	r2, SPRN_SDR1
+-	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
++	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED | _PAGE_USER
+ 	rlwinm	r2, r2, 28, 0xfffff000
+ 	bgt-	112f
+ 	lis	r2, (swapper_pg_dir - PAGE_OFFSET)@ha	/* if kernel address, use */
++	li	r1, _PAGE_RW | _PAGE_DIRTY | _PAGE_PRESENT | _PAGE_ACCESSED
+ 	addi	r2, r2, (swapper_pg_dir - PAGE_OFFSET)@l	/* kernel page table */
+ 112:	rlwimi	r2,r3,12,20,29		/* insert top 10 bits of address */
+ 	lwz	r2,0(r2)		/* get pmd entry */
 
 
