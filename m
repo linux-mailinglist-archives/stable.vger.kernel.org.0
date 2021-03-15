@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E5133B592
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:56:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3FD733B6A8
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231435AbhCONyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57698 "EHLO mail.kernel.org"
+        id S232343AbhCON61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231250AbhCONyP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:54:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 635FC64DAD;
-        Mon, 15 Mar 2021 13:54:14 +0000 (UTC)
+        id S232103AbhCON5q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91D6B64EF0;
+        Mon, 15 Mar 2021 13:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816455;
-        bh=dDrwFa6owSn6R7R0/m6/hTi1cokMWlZNhTxRuZR9vR4=;
+        s=korg; t=1615816654;
+        bh=x/IlDJ8JHbbMUkHRvRPdn/2xOomMcPYzXEQhNmMiNiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFCL3bV2NwfEt4+GEjh+EAieZDm30MN1NaXmulVLOWu0kFCZMoNC4AjDaAhcSoUKU
-         pDqcE56KlqLeZcSx5/HZ4dWioiE9dzNwRG5azdsQQaRupv8NfXf/V88UqksnT6PgMq
-         zFwKeN4CYKXWsO+aLvY62nl4ua99Fl1MRGJLdi3w=
+        b=GQ24duU7HEtILaYfofiyZ0Bm/lD/n0altTitP0Tmp4R7ILKX0SKCRovUax9nLRN/S
+         uL28TNh0QGFRQGxbkFCOuiDJRc2alaRgGAOdBgklBl9Nc+ERt8mF2DbDkgcwGWOQmo
+         SDDxf8wZy8GvCN7Fkw9p9xLW3vhebcGdIQs3nvR8=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: [PATCH 4.4 55/75] staging: comedi: me4000: Fix endian problem for AI command data
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 036/290] sh_eth: fix TRSCER mask for SH771x
 Date:   Mon, 15 Mar 2021 14:52:09 +0100
-Message-Id: <20210315135210.051309378@linuxfoundation.org>
+Message-Id: <20210315135543.140854196@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-References: <20210315135208.252034256@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ian Abbott <abbotti@mev.co.uk>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit b39dfcced399d31e7c4b7341693b18e01c8f655e upstream.
+commit 8c91bc3d44dfef8284af384877fbe61117e8b7d1 upstream.
 
-The analog input subdevice supports Comedi asynchronous commands that
-use Comedi's 16-bit sample format.  However, the calls to
-`comedi_buf_write_samples()` are passing the address of a 32-bit integer
-variable.  On bigendian machines, this will copy 2 bytes from the wrong
-end of the 32-bit value.  Fix it by changing the type of the variable
-holding the sample value to `unsigned short`.
+According  to  the SH7710, SH7712, SH7713 Group User's Manual: Hardware,
+Rev. 3.00, the TRSCER register actually has only bit 7 valid (and named
+differently), with all the other bits reserved. Apparently, this was not
+the case with some early revisions of the manual as we have the other
+bits declared (and set) in the original driver.  Follow the suit and add
+the explicit sh_eth_cpu_data::trscer_err_mask initializer for SH771x...
 
-Fixes: de88924f67d1 ("staging: comedi: me4000: use comedi_buf_write_samples()")
-Cc: <stable@vger.kernel.org> # 3.19+
-Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
-Link: https://lore.kernel.org/r/20210223143055.257402-8-abbotti@mev.co.uk
+Fixes: 86a74ff21a7a ("net: sh_eth: add support for Renesas SuperH Ethernet")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/comedi/drivers/me4000.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/sh_eth.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/staging/comedi/drivers/me4000.c
-+++ b/drivers/staging/comedi/drivers/me4000.c
-@@ -933,7 +933,7 @@ static irqreturn_t me4000_ai_isr(int irq
- 	struct comedi_subdevice *s = dev->read_subdev;
- 	int i;
- 	int c = 0;
--	unsigned int lval;
-+	unsigned short lval;
- 
- 	if (!dev->attached)
- 		return IRQ_NONE;
+--- a/drivers/net/ethernet/renesas/sh_eth.c
++++ b/drivers/net/ethernet/renesas/sh_eth.c
+@@ -1089,6 +1089,9 @@ static struct sh_eth_cpu_data sh771x_dat
+ 			  EESIPR_CEEFIP | EESIPR_CELFIP |
+ 			  EESIPR_RRFIP | EESIPR_RTLFIP | EESIPR_RTSFIP |
+ 			  EESIPR_PREIP | EESIPR_CERFIP,
++
++	.trscer_err_mask = DESC_I_RINT8,
++
+ 	.tsu		= 1,
+ 	.dual_port	= 1,
+ };
 
 
