@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BFAA33B64A
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A347A33B560
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231661AbhCON5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
+        id S231262AbhCONyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:54:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231139AbhCON5G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8989D64EF0;
-        Mon, 15 Mar 2021 13:57:02 +0000 (UTC)
+        id S230468AbhCONxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25E5764DAD;
+        Mon, 15 Mar 2021 13:53:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816623;
-        bh=nsYvCEi2xoNHe+CzywZRoMdYn6xHq91vEpzjR/JdKQk=;
+        s=korg; t=1615816423;
+        bh=+qXyopVlb6I52eh4Prd0dbNBohQZskhhj/Q2fdKsKLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v93QLcVbXGkn4O2UFj/up4WcxfdnKnvS/O4dh+2g3PCAgCdRAvkaVX7khgFSDDbCV
-         qLCG2A8wVjTgtGZJIev6kx9ieHRlqb/K9SguUcU1rgoy7WEsW+2pErVO2i04Z76cuZ
-         OUHrFNJQULehgjKhmiEuWVab2dYIW1nKcQXlI6JE=
+        b=v+8LtCcLrmqyfLKDDeTebK4UXTORkDiuOnm4EDgI8Uc6BTLH3zagZxi/15fYKrgsN
+         7Bqh8HXyDVEyoA+Re70dy9gbpKbpghcbWJGXFDizyviN5Y34IlqicK/hXvXemoSfka
+         smWDL7fnvnG0jy6iLh0Dctt3xkMekIt2o0MEfPZI=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 019/290] netfilter: x_tables: gpf inside xt_find_revision()
-Date:   Mon, 15 Mar 2021 14:51:52 +0100
-Message-Id: <20210315135542.583007327@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Lawrence <joe.lawrence@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Manoj Gupta <manojgupta@google.com>
+Subject: [PATCH 4.9 30/78] scripts/recordmcount.{c,pl}: support -ffunction-sections .text.* section names
+Date:   Mon, 15 Mar 2021 14:51:53 +0100
+Message-Id: <20210315135213.061571101@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +42,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Joe Lawrence <joe.lawrence@redhat.com>
 
-commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
+commit 9c8e2f6d3d361439cc6744a094f1c15681b55269 upstream.
 
-nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
-without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
-and cause host to crash:
+When building with -ffunction-sections, the compiler will place each
+function into its own ELF section, prefixed with ".text".  For example,
+a simple test module with functions test_module_do_work() and
+test_module_wq_func():
 
-general protection fault: 0000 [#1]
-Modules linked in: ... [last unloaded: xt_cluster]
-CPU: 0 PID: 542455 Comm: iptables
-RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
-RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
-R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
-(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
-xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
-Call Trace:
- [<ffffffff902ccf44>] match_revfn+0x54/0xc0
- [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
- [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
- [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
- [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
- [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
- [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
- [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
- [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
- [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
+  % objdump --section-headers test_module.o | awk '/\.text/{print $2}'
+  .text
+  .text.test_module_do_work
+  .text.test_module_wq_func
+  .init.text
+  .exit.text
 
-Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Reviewed-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Adjust the recordmcount scripts to look for ".text" as a section name
+prefix.  This will ensure that those functions will be included in the
+__mcount_loc relocations:
+
+  % objdump --reloc --section __mcount_loc test_module.o
+  OFFSET           TYPE              VALUE
+  0000000000000000 R_X86_64_64       .text.test_module_do_work
+  0000000000000008 R_X86_64_64       .text.test_module_wq_func
+  0000000000000010 R_X86_64_64       .init.text
+
+Link: http://lkml.kernel.org/r/1542745158-25392-2-git-send-email-joe.lawrence@redhat.com
+
+Signed-off-by: Joe Lawrence <joe.lawrence@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+[Manoj: Resolve conflict on 4.4.y/4.9.y because of missing 42c269c88dc1]
+Signed-off-by: Manoj Gupta <manojgupta@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/netfilter/x_tables.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -330,6 +330,7 @@ static int match_revfn(u8 af, const char
- 	const struct xt_match *m;
- 	int have_rev = 0;
- 
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(m, &xt[af].match, list) {
- 		if (strcmp(m->name, name) == 0) {
- 			if (m->revision > *bestp)
-@@ -338,6 +339,7 @@ static int match_revfn(u8 af, const char
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -350,6 +352,7 @@ static int target_revfn(u8 af, const cha
- 	const struct xt_target *t;
- 	int have_rev = 0;
- 
-+	mutex_lock(&xt[af].mutex);
- 	list_for_each_entry(t, &xt[af].target, list) {
- 		if (strcmp(t->name, name) == 0) {
- 			if (t->revision > *bestp)
-@@ -358,6 +361,7 @@ static int target_revfn(u8 af, const cha
- 				have_rev = 1;
- 		}
- 	}
-+	mutex_unlock(&xt[af].mutex);
- 
- 	if (af != NFPROTO_UNSPEC && !have_rev)
- 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
-@@ -371,12 +375,10 @@ int xt_find_revision(u8 af, const char *
+---
+ scripts/recordmcount.c  |    2 +-
+ scripts/recordmcount.pl |   13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+--- a/scripts/recordmcount.c
++++ b/scripts/recordmcount.c
+@@ -362,7 +362,7 @@ static uint32_t (*w2)(uint16_t);
+ static int
+ is_mcounted_section_name(char const *const txtname)
  {
- 	int have_rev, best = -1;
+-	return strcmp(".text",           txtname) == 0 ||
++	return strncmp(".text",          txtname, 5) == 0 ||
+ 		strcmp(".ref.text",      txtname) == 0 ||
+ 		strcmp(".sched.text",    txtname) == 0 ||
+ 		strcmp(".spinlock.text", txtname) == 0 ||
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -140,6 +140,11 @@ my %text_sections = (
+      ".text.unlikely" => 1,
+ );
  
--	mutex_lock(&xt[af].mutex);
- 	if (target == 1)
- 		have_rev = target_revfn(af, name, revision, &best);
- 	else
- 		have_rev = match_revfn(af, name, revision, &best);
--	mutex_unlock(&xt[af].mutex);
++# Acceptable section-prefixes to record.
++my %text_section_prefixes = (
++     ".text." => 1,
++);
++
+ # Note: we are nice to C-programmers here, thus we skip the '||='-idiom.
+ $objdump = 'objdump' if (!$objdump);
+ $objcopy = 'objcopy' if (!$objcopy);
+@@ -505,6 +510,14 @@ while (<IN>) {
  
- 	/* Nothing at all?  Return 0 to try loading module. */
- 	if (best == -1) {
+ 	# Only record text sections that we know are safe
+ 	$read_function = defined($text_sections{$1});
++	if (!$read_function) {
++	    foreach my $prefix (keys %text_section_prefixes) {
++	        if (substr($1, 0, length $prefix) eq $prefix) {
++	            $read_function = 1;
++	            last;
++	        }
++	    }
++	}
+ 	# print out any recorded offsets
+ 	update_funcs();
+ 
 
 
