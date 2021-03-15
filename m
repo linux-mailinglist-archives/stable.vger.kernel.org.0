@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3022533B616
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:58:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A4A33B531
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230299AbhCON5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:57:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33630 "EHLO mail.kernel.org"
+        id S230453AbhCONxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:53:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229844AbhCON4g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:56:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB16464EB6;
-        Mon, 15 Mar 2021 13:56:34 +0000 (UTC)
+        id S230110AbhCONxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:53:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD33964E89;
+        Mon, 15 Mar 2021 13:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816596;
-        bh=70AUbpV9tK0YhOrcRgrP7R9s4mmDAQNs1J8jxcriaI8=;
+        s=korg; t=1615816394;
+        bh=/8R6R06lhlNFIZDBwF3ujdYr58JUCq8f0opCZTPs2JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKMDEH6gkKieFfAbTZVE88gfOl7z75ETU2GeVGbJn0CPrD2LkFy669ADtdzbpMvSY
-         IeOpnlOXa2jQ2jOuL2LEnosfYtg6FVhXsfrYJLwAJhWK487sz7yL4+AWp3+sWlzXk3
-         xfVPzqNdIC6pRLdadxN1ckHc0cqB4v5bIuCLAABI=
+        b=zvFzEFd/kafs54uSrTGWLoyQgp9pR9bBScqJz0sAAxTqzBA5Mo+QDl2EmBVCKndDa
+         fuFY8m36cj9rNmcUd7OJQ0dDs/uOCopD9f+3trvg8lPKXhiUNPYlDV9F+Zrk/4rvje
+         Kjtj6+ibKvmxSYcqUO9aPG/6WSlv2V0LO17bnvzk=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zbynek Michl <zbynek.michl@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 004/290] ethernet: alx: fix order of calls on resume
+Subject: [PATCH 4.9 14/78] net: lapbether: Remove netif_start_queue / netif_stop_queue
 Date:   Mon, 15 Mar 2021 14:51:37 +0100
-Message-Id: <20210315135542.082629062@linuxfoundation.org>
+Message-Id: <20210315135212.534633267@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
+References: <20210315135212.060847074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Xie He <xie.he.0141@gmail.com>
 
-commit a4dcfbc4ee2218abd567d81d795082d8d4afcdf6 upstream.
+commit f7d9d4854519fdf4d45c70a4d953438cd88e7e58 upstream.
 
-netif_device_attach() will unpause the queues so we can't call
-it before __alx_open(). This went undetected until
-commit b0999223f224 ("alx: add ability to allocate and free
-alx_napi structures") but now if stack tries to xmit immediately
-on resume before __alx_open() we'll crash on the NAPI being null:
+For the devices in this driver, the default qdisc is "noqueue",
+because their "tx_queue_len" is 0.
 
- BUG: kernel NULL pointer dereference, address: 0000000000000198
- CPU: 0 PID: 12 Comm: ksoftirqd/0 Tainted: G           OE 5.10.0-3-amd64 #1 Debian 5.10.13-1
- Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77-D3H, BIOS F15 11/14/2013
- RIP: 0010:alx_start_xmit+0x34/0x650 [alx]
- Code: 41 56 41 55 41 54 55 53 48 83 ec 20 0f b7 57 7c 8b 8e b0
-0b 00 00 39 ca 72 06 89 d0 31 d2 f7 f1 89 d2 48 8b 84 df
- RSP: 0018:ffffb09240083d28 EFLAGS: 00010297
- RAX: 0000000000000000 RBX: ffffa04d80ae7800 RCX: 0000000000000004
- RDX: 0000000000000000 RSI: ffffa04d80afa000 RDI: ffffa04e92e92a00
- RBP: 0000000000000042 R08: 0000000000000100 R09: ffffa04ea3146700
- R10: 0000000000000014 R11: 0000000000000000 R12: ffffa04e92e92100
- R13: 0000000000000001 R14: ffffa04e92e92a00 R15: ffffa04e92e92a00
- FS:  0000000000000000(0000) GS:ffffa0508f600000(0000) knlGS:0000000000000000
- i915 0000:00:02.0: vblank wait timed out on crtc 0
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000198 CR3: 000000004460a001 CR4: 00000000001706f0
- Call Trace:
-  dev_hard_start_xmit+0xc7/0x1e0
-  sch_direct_xmit+0x10f/0x310
+In function "__dev_queue_xmit" in "net/core/dev.c", devices with the
+"noqueue" qdisc are specially handled. Packets are transmitted without
+being queued after a "dev->flags & IFF_UP" check. However, it's possible
+that even if this check succeeds, "ops->ndo_stop" may still have already
+been called. This is because in "__dev_close_many", "ops->ndo_stop" is
+called before clearing the "IFF_UP" flag.
 
-Cc: <stable@vger.kernel.org> # 4.9+
-Fixes: bc2bebe8de8e ("alx: remove WoL support")
-Reported-by: Zbynek Michl <zbynek.michl@gmail.com>
-Link: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=983595
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Zbynek Michl <zbynek.michl@gmail.com>
+If we call "netif_stop_queue" in "ops->ndo_stop", then it's possible in
+"__dev_queue_xmit", it sees the "IFF_UP" flag is present, and then it
+checks "netif_xmit_stopped" and finds that the queue is already stopped.
+In this case, it will complain that:
+"Virtual device ... asks to queue packet!"
+
+To prevent "__dev_queue_xmit" from generating this complaint, we should
+not call "netif_stop_queue" in "ops->ndo_stop".
+
+We also don't need to call "netif_start_queue" in "ops->ndo_open",
+because after a netdev is allocated and registered, the
+"__QUEUE_STATE_DRV_XOFF" flag is initially not set, so there is no need
+to call "netif_start_queue" to clear it.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/atheros/alx/main.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/wan/lapbether.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/net/ethernet/atheros/alx/main.c
-+++ b/drivers/net/ethernet/atheros/alx/main.c
-@@ -1894,13 +1894,16 @@ static int alx_resume(struct device *dev
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -286,7 +286,6 @@ static int lapbeth_open(struct net_devic
+ 		return -ENODEV;
+ 	}
  
- 	if (!netif_running(alx->dev))
- 		return 0;
--	netif_device_attach(alx->dev);
- 
- 	rtnl_lock();
- 	err = __alx_open(alx, true);
- 	rtnl_unlock();
-+	if (err)
-+		return err;
-+
-+	netif_device_attach(alx->dev);
- 
--	return err;
-+	return 0;
+-	netif_start_queue(dev);
+ 	return 0;
  }
  
- static SIMPLE_DEV_PM_OPS(alx_pm_ops, alx_suspend, alx_resume);
+@@ -294,8 +293,6 @@ static int lapbeth_close(struct net_devi
+ {
+ 	int err;
+ 
+-	netif_stop_queue(dev);
+-
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
+ 
 
 
