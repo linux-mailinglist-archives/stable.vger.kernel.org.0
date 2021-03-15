@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C2033B564
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:55:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF90A33B712
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbhCONyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57050 "EHLO mail.kernel.org"
+        id S232680AbhCON72 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:59:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230499AbhCONxr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:53:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 983C264EF4;
-        Mon, 15 Mar 2021 13:53:45 +0000 (UTC)
+        id S232116AbhCON5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A278C64F1A;
+        Mon, 15 Mar 2021 13:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816427;
-        bh=eIQ1Dx6r4nTfUikTFLl1a1FCC6RAXUFnnPDny7KbnQQ=;
+        s=korg; t=1615816667;
+        bh=vFRmbBK0M2OQW8V+CUumkxqvezOiQ2jYY7POR7dYWI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hWmAkpvu02SvZf8K1XBHu6NYMKhcr0AhorKZ/epMRhIAU7lz5upPR6c81Pp/fynqm
-         dS/K4RCPjJysfa1i1Ra/A+fvf5T9MVI+EMqAMcgLuk5M9h1VELl6OzXJG/Y4dkGbuB
-         3/aP86sx6D0aB2U1Sw2O/hYKKhcWYFibfcTc6ONE=
+        b=BufZtyMunCfWmASNOkCFv8plXHMrrDdOyTKz9hUeD8ngcpDd7u1dnykk0F58pHwJY
+         ZRN5zZewxj9kTS8Qt6FSiymCRIb8OG57ZamAllWU5OZpD9bOmGLeVwG66SkK3Wmoqj
+         KPTu+RF8OoR+pDYuyWSZfYVsDD9fNnK+sgx9hlJE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@freescale.com>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Subject: [PATCH 4.9 32/78] usb: gadget: f_uac2: always increase endpoint max_packet_size by one audio slot
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.11 052/306] net: enetc: remove bogus write to SIRXIDR from enetc_setup_rxbdr
 Date:   Mon, 15 Mar 2021 14:51:55 +0100
-Message-Id: <20210315135213.123273333@linuxfoundation.org>
+Message-Id: <20210315135509.408889744@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135212.060847074@linuxfoundation.org>
-References: <20210315135212.060847074@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 789ea77310f0200c84002884ffd628e2baf3ad8a upstream.
+commit 96a5223b918c8b79270fc0fec235a7ebad459098 upstream.
 
-As per UAC2 Audio Data Formats spec (2.3.1.1 USB Packets),
-if the sampling rate is a constant, the allowable variation
-of number of audio slots per virtual frame is +/- 1 audio slot.
+The Station Interface Receive Interrupt Detect Register (SIRXIDR)
+contains a 16-bit wide mask of 'interrupt detected' events for each ring
+associated with a port. Bit i is write-1-to-clean for RX ring i.
 
-It means that endpoint should be able to accept/send +1 audio
-slot.
+I have no explanation whatsoever how this line of code came to be
+inserted in the blamed commit. I checked the downstream versions of that
+patch and none of them have it.
 
-Previous endpoint max_packet_size calculation code
-was adding sometimes +1 audio slot due to DIV_ROUND_UP
-behaviour which was rounding up to closest integer.
-However this doesn't work if the numbers are divisible.
+The somewhat comical aspect of it is that we're writing a binary number
+to the SIRXIDR register, which is derived from enetc_bd_unused(rx_ring).
+Since the RX rings have 512 buffer descriptors, we end up writing 511 to
+this register, which is 0x1ff, so we are effectively clearing the
+'interrupt detected' event for rings 0-8.
 
-It had no any impact with Linux hosts which ignore
-this issue, but in case of more strict Windows it
-caused rejected enumeration
+This register is not what is used for interrupt handling though - it
+only provides a summary for the entire SI. The hardware provides one
+separate Interrupt Detect Register per RX ring, which auto-clears upon
+read. So there doesn't seem to be any adverse effect caused by this
+bogus write.
 
-Thus always add +1 audio slot to endpoint's max packet size
+There is, however, one reason why this should be handled as a bugfix:
+next_to_clean _should_ be committed to hardware, just not to that
+register, and this was obscuring the fact that it wasn't. This is fixed
+in the next patch, and removing the bogus line now allows the fix patch
+to be backported beyond that point.
 
-Fixes: 913e4a90b6f9 ("usb: gadget: f_uac2: finalize wMaxPacketSize according to bandwidth")
-Cc: Peter Chen <peter.chen@freescale.com>
-Cc: <stable@vger.kernel.org> #v4.3+
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/1614599375-8803-2-git-send-email-ruslan.bilovol@gmail.com
+Fixes: fd5736bf9f23 ("enetc: Workaround for MDIO register access issue")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -997,7 +997,7 @@ static int set_ep_max_packet_size(const
- 	}
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -1212,7 +1212,6 @@ static void enetc_setup_rxbdr(struct ene
+ 	rx_ring->idr = hw->reg + ENETC_SIRXIDR;
  
- 	max_size_bw = num_channels(chmask) * ssize *
--		DIV_ROUND_UP(srate, factor / (1 << (ep_desc->bInterval - 1)));
-+		((srate / (factor / (1 << (ep_desc->bInterval - 1)))) + 1);
- 	ep_desc->wMaxPacketSize = cpu_to_le16(min_t(u16, max_size_bw,
- 						    max_size_ep));
+ 	enetc_refill_rx_ring(rx_ring, enetc_bd_unused(rx_ring));
+-	enetc_wr(hw, ENETC_SIRXIDR, rx_ring->next_to_use);
  
+ 	/* enable ring */
+ 	enetc_rxbdr_wr(hw, idx, ENETC_RBMR, rbmr);
 
 
