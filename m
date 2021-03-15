@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A0D33B6C1
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BA833B6A7
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232218AbhCON6p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35446 "EHLO mail.kernel.org"
+        id S232347AbhCON61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232244AbhCON6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:58:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1998A64EEE;
-        Mon, 15 Mar 2021 13:57:48 +0000 (UTC)
+        id S232157AbhCON5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C725964EF0;
+        Mon, 15 Mar 2021 13:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816670;
-        bh=6ohsfSn4nqNla9ID/b6WxiXGfxNyTSthS+ATfirT2LU=;
+        s=korg; t=1615816672;
+        bh=zpNUKK/aPKyGPqxpwHHm0Ond1XIcDiwIFmzE1PWTR9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUAF7O1x75x4oZq8ajH35+mbcqFlnaO6f7QYuzJi/4rxWPVW1zrw/4wF0t6lmKllk
-         Mk4qXUlW/lDMpnkCYrT+7mv9m6hc51BrGy3cyhz6VWoMXpD5DN+HNJ7hJPdlYrHIpd
-         LxcqE10aomvyXzK0iupklC3pJUL9jLQd9+35DWz4=
+        b=AAGBxRZ44E3Itw7wHJso4aUK7whqR1XFKdPzegdLiliBSM50E9hihai9RX7PZbxV/
+         JYQLP/L5wx+OVs/MEvfMLUg/9v7tDWlQ8025/8p7N7LMl/STg6HJv8EJi2a4tqjY0k
+         AbMP1hB3I8rmB8/cVE2a1252N+f0JTIKX+VSIEbA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 037/168] net: qrtr: fix error return code of qrtr_sendmsg()
-Date:   Mon, 15 Mar 2021 14:54:29 +0100
-Message-Id: <20210315135551.560772278@linuxfoundation.org>
+        stable@vger.kernel.org, Antony Antony <antony@phenome.org>,
+        Shannon Nelson <snelson@pensando.io>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.4 038/168] ixgbe: fail to create xfrm offload of IPsec tunnel mode SA
+Date:   Mon, 15 Mar 2021 14:54:30 +0100
+Message-Id: <20210315135551.598600129@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
 References: <20210315135550.333963635@linuxfoundation.org>
@@ -42,36 +43,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Antony Antony <antony@phenome.org>
 
-commit 179d0ba0c454057a65929c46af0d6ad986754781 upstream.
+commit d785e1fec60179f534fbe8d006c890e5ad186e51 upstream.
 
-When sock_alloc_send_skb() returns NULL to skb, no error return code of
-qrtr_sendmsg() is assigned.
-To fix this bug, rc is assigned with -ENOMEM in this case.
+Based on talks and indirect references ixgbe IPsec offlod do not
+support IPsec tunnel mode offload. It can only support IPsec transport
+mode offload. Now explicitly fail when creating non transport mode SA
+with offload to avoid false performance expectations.
 
-Fixes: 194ccc88297a ("net: qrtr: Support decoding incoming v2 packets")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 63a67fe229ea ("ixgbe: add ipsec offload add and remove SA")
+Signed-off-by: Antony Antony <antony@phenome.org>
+Acked-by: Shannon Nelson <snelson@pensando.io>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/qrtr/qrtr.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c |    5 +++++
+ drivers/net/ethernet/intel/ixgbevf/ipsec.c     |    5 +++++
+ 2 files changed, 10 insertions(+)
 
---- a/net/qrtr/qrtr.c
-+++ b/net/qrtr/qrtr.c
-@@ -791,8 +791,10 @@ static int qrtr_sendmsg(struct socket *s
- 	plen = (len + 3) & ~3;
- 	skb = sock_alloc_send_skb(sk, plen + QRTR_HDR_MAX_SIZE,
- 				  msg->msg_flags & MSG_DONTWAIT, &rc);
--	if (!skb)
-+	if (!skb) {
-+		rc = -ENOMEM;
- 		goto out_node;
-+	}
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
+@@ -575,6 +575,11 @@ static int ixgbe_ipsec_add_sa(struct xfr
+ 		return -EINVAL;
+ 	}
  
- 	skb_reserve(skb, QRTR_HDR_MAX_SIZE);
++	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
++		netdev_err(dev, "Unsupported mode for ipsec offload\n");
++		return -EINVAL;
++	}
++
+ 	if (ixgbe_ipsec_check_mgmt_ip(xs)) {
+ 		netdev_err(dev, "IPsec IP addr clash with mgmt filters\n");
+ 		return -EINVAL;
+--- a/drivers/net/ethernet/intel/ixgbevf/ipsec.c
++++ b/drivers/net/ethernet/intel/ixgbevf/ipsec.c
+@@ -272,6 +272,11 @@ static int ixgbevf_ipsec_add_sa(struct x
+ 		return -EINVAL;
+ 	}
+ 
++	if (xs->props.mode != XFRM_MODE_TRANSPORT) {
++		netdev_err(dev, "Unsupported mode for ipsec offload\n");
++		return -EINVAL;
++	}
++
+ 	if (xs->xso.flags & XFRM_OFFLOAD_INBOUND) {
+ 		struct rx_sa rsa;
  
 
 
