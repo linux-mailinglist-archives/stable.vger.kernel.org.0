@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC4F33B69F
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFAA33B64A
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 14:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232321AbhCON6X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 09:58:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35550 "EHLO mail.kernel.org"
+        id S231661AbhCON5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 09:57:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232070AbhCON5n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:57:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84FAA64EF9;
-        Mon, 15 Mar 2021 13:57:41 +0000 (UTC)
+        id S231139AbhCON5G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:57:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8989D64EF0;
+        Mon, 15 Mar 2021 13:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816662;
-        bh=lZTynE910o75TtbFcVTnO8xh1elc8Bg6ye9eeHJ2WUw=;
+        s=korg; t=1615816623;
+        bh=nsYvCEi2xoNHe+CzywZRoMdYn6xHq91vEpzjR/JdKQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c/o7LdWKNfsF36VTKCpdkHSLpQChECQ75UNZgUvsq3ihQQCYnyYD5cf938rbkIE1e
-         3KeyGPYAn/ovVbnDkyKMrutSxrPAB43cu0dJ2q50UyBVnRO5eqMlLHDcCdyJ4VC75T
-         buW0iuhVWwpBOpwqbndBE20UhIMXipNMDZk26FHU=
+        b=v93QLcVbXGkn4O2UFj/up4WcxfdnKnvS/O4dh+2g3PCAgCdRAvkaVX7khgFSDDbCV
+         qLCG2A8wVjTgtGZJIev6kx9ieHRlqb/K9SguUcU1rgoy7WEsW+2pErVO2i04Z76cuZ
+         OUHrFNJQULehgjKhmiEuWVab2dYIW1nKcQXlI6JE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.11 049/306] net: enetc: fix incorrect TPID when receiving 802.1ad tagged packets
+        stable@vger.kernel.org, Vasily Averin <vvs@virtuozzo.com>,
+        Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 019/290] netfilter: x_tables: gpf inside xt_find_revision()
 Date:   Mon, 15 Mar 2021 14:51:52 +0100
-Message-Id: <20210315135509.307853239@linuxfoundation.org>
+Message-Id: <20210315135542.583007327@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
-References: <20210315135507.611436477@linuxfoundation.org>
+In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
+References: <20210315135541.921894249@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,93 +42,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Vasily Averin <vvs@virtuozzo.com>
 
-commit 827b6fd046516af605e190c872949f22208b5d41 upstream.
+commit 8e24edddad152b998b37a7f583175137ed2e04a5 upstream.
 
-When the enetc ports have rx-vlan-offload enabled, they report a TPID of
-ETH_P_8021Q regardless of what was actually in the packet. When
-rx-vlan-offload is disabled, packets have the proper TPID. Fix this
-inconsistency by finishing the TODO left in the code.
+nested target/match_revfn() calls work with xt[NFPROTO_UNSPEC] lists
+without taking xt[NFPROTO_UNSPEC].mutex. This can race with module unload
+and cause host to crash:
 
-Fixes: d4fd0404c1c9 ("enetc: Introduce basic PF and VF ENETC ethernet drivers")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+general protection fault: 0000 [#1]
+Modules linked in: ... [last unloaded: xt_cluster]
+CPU: 0 PID: 542455 Comm: iptables
+RIP: 0010:[<ffffffff8ffbd518>]  [<ffffffff8ffbd518>] strcmp+0x18/0x40
+RDX: 0000000000000003 RSI: ffff9a5a5d9abe10 RDI: dead000000000111
+R13: ffff9a5a5d9abe10 R14: ffff9a5a5d9abd8c R15: dead000000000100
+(VvS: %R15 -- &xt_match,  %RDI -- &xt_match.name,
+xt_cluster unregister match in xt[NFPROTO_UNSPEC].match list)
+Call Trace:
+ [<ffffffff902ccf44>] match_revfn+0x54/0xc0
+ [<ffffffff902ccf9f>] match_revfn+0xaf/0xc0
+ [<ffffffff902cd01e>] xt_find_revision+0x6e/0xf0
+ [<ffffffffc05a5be0>] do_ipt_get_ctl+0x100/0x420 [ip_tables]
+ [<ffffffff902cc6bf>] nf_getsockopt+0x4f/0x70
+ [<ffffffff902dd99e>] ip_getsockopt+0xde/0x100
+ [<ffffffff903039b5>] raw_getsockopt+0x25/0x50
+ [<ffffffff9026c5da>] sock_common_getsockopt+0x1a/0x20
+ [<ffffffff9026b89d>] SyS_getsockopt+0x7d/0xf0
+ [<ffffffff903cbf92>] system_call_fastpath+0x25/0x2a
+
+Fixes: 656caff20e1 ("netfilter 04/09: x_tables: fix match/target revision lookup")
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Reviewed-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/enetc/enetc.c    |   34 ++++++++++++++++++------
- drivers/net/ethernet/freescale/enetc/enetc_hw.h |    3 ++
- 2 files changed, 29 insertions(+), 8 deletions(-)
+ net/netfilter/x_tables.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/freescale/enetc/enetc.c
-+++ b/drivers/net/ethernet/freescale/enetc/enetc.c
-@@ -523,9 +523,8 @@ static void enetc_get_rx_tstamp(struct n
- static void enetc_get_offloads(struct enetc_bdr *rx_ring,
- 			       union enetc_rx_bd *rxbd, struct sk_buff *skb)
- {
--#ifdef CONFIG_FSL_ENETC_PTP_CLOCK
- 	struct enetc_ndev_priv *priv = netdev_priv(rx_ring->ndev);
--#endif
-+
- 	/* TODO: hashing */
- 	if (rx_ring->ndev->features & NETIF_F_RXCSUM) {
- 		u16 inet_csum = le16_to_cpu(rxbd->r.inet_csum);
-@@ -534,12 +533,31 @@ static void enetc_get_offloads(struct en
- 		skb->ip_summed = CHECKSUM_COMPLETE;
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -330,6 +330,7 @@ static int match_revfn(u8 af, const char
+ 	const struct xt_match *m;
+ 	int have_rev = 0;
+ 
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(m, &xt[af].match, list) {
+ 		if (strcmp(m->name, name) == 0) {
+ 			if (m->revision > *bestp)
+@@ -338,6 +339,7 @@ static int match_revfn(u8 af, const char
+ 				have_rev = 1;
+ 		}
  	}
++	mutex_unlock(&xt[af].mutex);
  
--	/* copy VLAN to skb, if one is extracted, for now we assume it's a
--	 * standard TPID, but HW also supports custom values
--	 */
--	if (le16_to_cpu(rxbd->r.flags) & ENETC_RXBD_FLAG_VLAN)
--		__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
--				       le16_to_cpu(rxbd->r.vlan_opt));
-+	if (le16_to_cpu(rxbd->r.flags) & ENETC_RXBD_FLAG_VLAN) {
-+		__be16 tpid = 0;
-+
-+		switch (le16_to_cpu(rxbd->r.flags) & ENETC_RXBD_FLAG_TPID) {
-+		case 0:
-+			tpid = htons(ETH_P_8021Q);
-+			break;
-+		case 1:
-+			tpid = htons(ETH_P_8021AD);
-+			break;
-+		case 2:
-+			tpid = htons(enetc_port_rd(&priv->si->hw,
-+						   ENETC_PCVLANR1));
-+			break;
-+		case 3:
-+			tpid = htons(enetc_port_rd(&priv->si->hw,
-+						   ENETC_PCVLANR2));
-+			break;
-+		default:
-+			break;
-+		}
-+
-+		__vlan_hwaccel_put_tag(skb, tpid, le16_to_cpu(rxbd->r.vlan_opt));
-+	}
-+
- #ifdef CONFIG_FSL_ENETC_PTP_CLOCK
- 	if (priv->active_offloads & ENETC_F_RX_TSTAMP)
- 		enetc_get_rx_tstamp(rx_ring->ndev, rxbd, skb);
---- a/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-+++ b/drivers/net/ethernet/freescale/enetc/enetc_hw.h
-@@ -172,6 +172,8 @@ enum enetc_bdr_type {TX, RX};
- #define ENETC_PSIPMAR0(n)	(0x0100 + (n) * 0x8) /* n = SI index */
- #define ENETC_PSIPMAR1(n)	(0x0104 + (n) * 0x8)
- #define ENETC_PVCLCTR		0x0208
-+#define ENETC_PCVLANR1		0x0210
-+#define ENETC_PCVLANR2		0x0214
- #define ENETC_VLAN_TYPE_C	BIT(0)
- #define ENETC_VLAN_TYPE_S	BIT(1)
- #define ENETC_PVCLCTR_OVTPIDL(bmp)	((bmp) & 0xff) /* VLAN_TYPE */
-@@ -570,6 +572,7 @@ union enetc_rx_bd {
- #define ENETC_RXBD_LSTATUS(flags)	((flags) << 16)
- #define ENETC_RXBD_FLAG_VLAN	BIT(9)
- #define ENETC_RXBD_FLAG_TSTMP	BIT(10)
-+#define ENETC_RXBD_FLAG_TPID	GENMASK(1, 0)
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return match_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -350,6 +352,7 @@ static int target_revfn(u8 af, const cha
+ 	const struct xt_target *t;
+ 	int have_rev = 0;
  
- #define ENETC_MAC_ADDR_FILT_CNT	8 /* # of supported entries per port */
- #define EMETC_MAC_ADDR_FILT_RES	3 /* # of reserved entries at the beginning */
++	mutex_lock(&xt[af].mutex);
+ 	list_for_each_entry(t, &xt[af].target, list) {
+ 		if (strcmp(t->name, name) == 0) {
+ 			if (t->revision > *bestp)
+@@ -358,6 +361,7 @@ static int target_revfn(u8 af, const cha
+ 				have_rev = 1;
+ 		}
+ 	}
++	mutex_unlock(&xt[af].mutex);
+ 
+ 	if (af != NFPROTO_UNSPEC && !have_rev)
+ 		return target_revfn(NFPROTO_UNSPEC, name, revision, bestp);
+@@ -371,12 +375,10 @@ int xt_find_revision(u8 af, const char *
+ {
+ 	int have_rev, best = -1;
+ 
+-	mutex_lock(&xt[af].mutex);
+ 	if (target == 1)
+ 		have_rev = target_revfn(af, name, revision, &best);
+ 	else
+ 		have_rev = match_revfn(af, name, revision, &best);
+-	mutex_unlock(&xt[af].mutex);
+ 
+ 	/* Nothing at all?  Return 0 to try loading module. */
+ 	if (best == -1) {
 
 
