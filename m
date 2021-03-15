@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5092133B7A8
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4775C33B84D
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233174AbhCOOA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:00:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35186 "EHLO mail.kernel.org"
+        id S233925AbhCOOCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231851AbhCON7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9292C64F42;
-        Mon, 15 Mar 2021 13:59:09 +0000 (UTC)
+        id S231678AbhCOOAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65AA464F3C;
+        Mon, 15 Mar 2021 13:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816750;
-        bh=+dLMDR0iclzPgzx6Mrlb2Nb8EtxTaZNFwxyzdorgccc=;
+        s=korg; t=1615816785;
+        bh=oBaedW3ZVe/rOPk/x+o8rsGxTTvVfmgAc0nw/CuGuZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0f2dPDwrBgPOjN2eax70b5nOCtDm6OrpiG813EgPD06pMjwIItE3bKuEcFL87y+4
-         XumyHSTxWomtFEgbITKDUq5WZCtCvLIN6s1uc2rnO9doxvSCA+ZX7f6LK15uTmqKT4
-         5H4dLcs28Pu9G7OIiNPuPAxxkng/fBJbEyubVaCQ=
+        b=0ubnHyNR6qqmqfn6tBOSblPAXsDBNOv1WNHr0zdRgWSqlNXZK6/JTfRzhgHWvJl/9
+         Wh3rPYQm6V3uwWekPaSUfjtF+lIAUbmFgFvAPZRBbSGAzEKFCVuclzxB+pfiNbEGxE
+         8H1IBStNNFR+tJ8K+FL6CLcvwT20eawN1/g7hsKE=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Roberts <nroberts@igalia.com>,
-        Steven Price <steven.price@arm.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: [PATCH 5.10 093/290] drm/shmem-helper: Dont remove the offset in vm_area_struct pgoff
+        stable@vger.kernel.org, Christoph Paasch <cpaasch@apple.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Florian Westphal <fw@strlen.de>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 123/306] mptcp: reset last_snd on subflow close
 Date:   Mon, 15 Mar 2021 14:53:06 +0100
-Message-Id: <20210315135545.067178724@linuxfoundation.org>
+Message-Id: <20210315135511.830130427@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,74 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Neil Roberts <nroberts@igalia.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 11d5a4745e00e73745774671dbf2fb07bd6e2363 upstream.
+[ Upstream commit e0be4931f3fee2e04dec4013ea4f27ec2db8556f ]
 
-When mmapping the shmem, it would previously adjust the pgoff in the
-vm_area_struct to remove the fake offset that is added to be able to
-identify the buffer. This patch removes the adjustment and makes the
-fault handler use the vm_fault address to calculate the page offset
-instead. Although using this address is apparently discouraged, several
-DRM drivers seem to be doing it anyway.
+Send logic caches last active subflow in the msk, so it needs to be
+cleared when the cached subflow is closed.
 
-The problem with removing the pgoff is that it prevents
-drm_vma_node_unmap from working because that searches the mapping tree
-by address. That doesn't work because all of the mappings are at offset
-0. drm_vma_node_unmap is being used by the shmem helpers when purging
-the buffer.
-
-This fixes a bug in Panfrost which is using drm_gem_shmem_purge. Without
-this the mapping for the purged buffer can still be accessed which might
-mean it would access random pages from other buffers
-
-v2: Don't check whether the unsigned page_offset is less than 0.
-
-Cc: stable@vger.kernel.org
-Fixes: 17acb9f35ed7 ("drm/shmem: Add madvise state and purge helpers")
-Signed-off-by: Neil Roberts <nroberts@igalia.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Signed-off-by: Steven Price <steven.price@arm.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210223155125.199577-3-nroberts@igalia.com
-Signed-off-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d5f49190def61c ("mptcp: allow picking different xmit subflows")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/155
+Reported-by: Christoph Paasch <cpaasch@apple.com>
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/mptcp/protocol.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -536,15 +536,19 @@ static vm_fault_t drm_gem_shmem_fault(st
- 	loff_t num_pages = obj->size >> PAGE_SHIFT;
- 	vm_fault_t ret;
- 	struct page *page;
-+	pgoff_t page_offset;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 3cc7be259396..de89824a2a36 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2110,6 +2110,8 @@ static struct sock *mptcp_subflow_get_retrans(const struct mptcp_sock *msk)
+ void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 		       struct mptcp_subflow_context *subflow)
+ {
++	struct mptcp_sock *msk = mptcp_sk(sk);
 +
-+	/* We don't use vmf->pgoff since that has the fake offset */
-+	page_offset = (vmf->address - vma->vm_start) >> PAGE_SHIFT;
+ 	list_del(&subflow->node);
  
- 	mutex_lock(&shmem->pages_lock);
+ 	lock_sock_nested(ssk, SINGLE_DEPTH_NESTING);
+@@ -2138,6 +2140,9 @@ void __mptcp_close_ssk(struct sock *sk, struct sock *ssk,
+ 	release_sock(ssk);
  
--	if (vmf->pgoff >= num_pages ||
-+	if (page_offset >= num_pages ||
- 	    WARN_ON_ONCE(!shmem->pages) ||
- 	    shmem->madv < 0) {
- 		ret = VM_FAULT_SIGBUS;
- 	} else {
--		page = shmem->pages[vmf->pgoff];
-+		page = shmem->pages[page_offset];
+ 	sock_put(ssk);
++
++	if (ssk == msk->last_snd)
++		msk->last_snd = NULL;
+ }
  
- 		ret = vmf_insert_page(vma, vmf->address, page);
- 	}
-@@ -600,9 +604,6 @@ int drm_gem_shmem_mmap(struct drm_gem_ob
- 	struct drm_gem_shmem_object *shmem;
- 	int ret;
- 
--	/* Remove the fake offset */
--	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
--
- 	if (obj->import_attach) {
- 		/* Drop the reference drm_gem_mmap_obj() acquired.*/
- 		drm_gem_object_put(obj);
+ static unsigned int mptcp_sync_mss(struct sock *sk, u32 pmtu)
+-- 
+2.30.1
+
 
 
