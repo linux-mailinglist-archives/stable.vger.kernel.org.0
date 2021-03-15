@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F2633B7E0
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7456933B873
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:05:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233378AbhCOOBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:01:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
+        id S231707AbhCOODd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230436AbhCON7t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 09:59:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C04164D9E;
-        Mon, 15 Mar 2021 13:59:26 +0000 (UTC)
+        id S231990AbhCOOAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 10:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 520F764F18;
+        Mon, 15 Mar 2021 14:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816768;
-        bh=3J5T+51wExoyAnoz49/GEIY5eCDLm7DZch2NxfueNNM=;
+        s=korg; t=1615816803;
+        bh=enOh4DF4ELE20QCSde+JnHmzf2w8hW8NSNxMlRnX/uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UkUU095ikGmCx39s8+j9ySUC/A1M6hS92R9jfPII3SnHRW7KqrKfOD08qqbisQ7IS
-         5ifNlp1Q2fI2oaOYHGhxqr7Of88j2xEupPiP+VkXkk9Dyz+dprogkHY5MI2AOcuqZ+
-         LlMqTqmOzrhl1a0cyg+ZN0GXV5lfA6HeHYNoqgxI=
+        b=CZTwnIIq+XSLs2DKoxcjT2ZcPjDyVRMXXz0yWiPTRIa07Q5FTrMPlIG8xkq3N5C18
+         wzw92TZ+oFZnv2YZjLQZleoB8CW0zDSzPry5MkULGqJYepGdAlQmCPf8ee7zNsPm8V
+         Vf9+DrRw4+qmR1qC4bnZt0Ii1dZdg0F+ruaBz3xg=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 103/290] media: rkisp1: params: fix wrong bits settings
-Date:   Mon, 15 Mar 2021 14:53:16 +0100
-Message-Id: <20210315135545.396949680@linuxfoundation.org>
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 134/306] platform/x86: amd-pmc: put device on error paths
+Date:   Mon, 15 Mar 2021 14:53:17 +0100
+Message-Id: <20210315135512.178419088@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135541.921894249@linuxfoundation.org>
-References: <20210315135541.921894249@linuxfoundation.org>
+In-Reply-To: <20210315135507.611436477@linuxfoundation.org>
+References: <20210315135507.611436477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +42,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Pan Bian <bianpan2016@163.com>
 
-commit 2025a48cfd92d541c5ee47deee97f8a46d00c4ac upstream.
+[ Upstream commit 745ed17a04f966406c8c27c8f992544336c06013 ]
 
-The histogram mode is set using 'rkisp1_params_set_bits'.
-Only the bits of the mode should be the value argument for
-that function. Otherwise bits outside the mode mask are
-turned on which is not what was intended.
+Put the PCI device rdev on error paths to fix potential reference count
+leaks.
 
-Fixes: bae1155cf579 ("media: staging: rkisp1: add output device for parameters")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121045005.73342-1-bianpan2016@163.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkisp1/rkisp1-params.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/platform/x86/amd-pmc.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/media/rkisp1/rkisp1-params.c
-+++ b/drivers/staging/media/rkisp1/rkisp1-params.c
-@@ -1291,7 +1291,6 @@ static void rkisp1_params_config_paramet
- 	memset(hst.hist_weight, 0x01, sizeof(hst.hist_weight));
- 	rkisp1_hst_config(params, &hst);
- 	rkisp1_param_set_bits(params, RKISP1_CIF_ISP_HIST_PROP,
--			      ~RKISP1_CIF_ISP_HIST_PROP_MODE_MASK |
- 			      rkisp1_hst_params_default_config.mode);
+diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pmc.c
+index ef8342572463..b9da58ee9b1e 100644
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -210,31 +210,39 @@ static int amd_pmc_probe(struct platform_device *pdev)
+ 	dev->dev = &pdev->dev;
  
- 	/* set the  range */
+ 	rdev = pci_get_domain_bus_and_slot(0, 0, PCI_DEVFN(0, 0));
+-	if (!rdev || !pci_match_id(pmc_pci_ids, rdev))
++	if (!rdev || !pci_match_id(pmc_pci_ids, rdev)) {
++		pci_dev_put(rdev);
+ 		return -ENODEV;
++	}
+ 
+ 	dev->cpu_id = rdev->device;
+ 	err = pci_write_config_dword(rdev, AMD_PMC_SMU_INDEX_ADDRESS, AMD_PMC_BASE_ADDR_LO);
+ 	if (err) {
+ 		dev_err(dev->dev, "error writing to 0x%x\n", AMD_PMC_SMU_INDEX_ADDRESS);
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
+ 	}
+ 
+ 	err = pci_read_config_dword(rdev, AMD_PMC_SMU_INDEX_DATA, &val);
+-	if (err)
++	if (err) {
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
++	}
+ 
+ 	base_addr_lo = val & AMD_PMC_BASE_ADDR_HI_MASK;
+ 
+ 	err = pci_write_config_dword(rdev, AMD_PMC_SMU_INDEX_ADDRESS, AMD_PMC_BASE_ADDR_HI);
+ 	if (err) {
+ 		dev_err(dev->dev, "error writing to 0x%x\n", AMD_PMC_SMU_INDEX_ADDRESS);
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
+ 	}
+ 
+ 	err = pci_read_config_dword(rdev, AMD_PMC_SMU_INDEX_DATA, &val);
+-	if (err)
++	if (err) {
++		pci_dev_put(rdev);
+ 		return pcibios_err_to_errno(err);
++	}
+ 
+ 	base_addr_hi = val & AMD_PMC_BASE_ADDR_LO_MASK;
+ 	pci_dev_put(rdev);
+-- 
+2.30.1
+
 
 
