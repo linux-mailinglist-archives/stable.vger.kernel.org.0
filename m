@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2945633B82D
-	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E128133B80F
+	for <lists+stable@lfdr.de>; Mon, 15 Mar 2021 15:04:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233737AbhCOOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 15 Mar 2021 10:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
+        id S233550AbhCOOCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 15 Mar 2021 10:02:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232929AbhCOOAL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 15 Mar 2021 10:00:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A54864F6D;
-        Mon, 15 Mar 2021 13:59:55 +0000 (UTC)
+        id S232377AbhCON7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 15 Mar 2021 09:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72B8964F22;
+        Mon, 15 Mar 2021 13:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1615816797;
-        bh=08oL0oLXiYE0De0SgSdpidRFGQvV+jBUzg/iP7iGhW8=;
+        s=korg; t=1615816748;
+        bh=gx7uBT8U4+i8w5exb3WkcPRwRM2B1g9/JyoAWrlpxwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uB9XG7XxGSUxdmXukEhe+hbTrPj7+xxt/m30Vy0HHXNtODO2Hj1V1HbWxQ1aMn93p
-         CYI6RyBUqgkCHyka4aCwExP2qC1CA7GTva46hpN8+b8/+4DoYkWwOrz7P8Vkb1VAWi
-         MQ2pipesXP1bshRygi6XkEBmS84huoQBc2qyKPwM=
+        b=atCD9O7j0SvyInEkCgyFq8lLE6JYAuMLksAl+rRSFb4nW4f4WyZisSYOir5Zua8k/
+         oXJpccIbJlhBEHVD+q5ltNZuOfKOKwNYqAP81wOcQdu/IPcGdQDxkiNMi+eS5Piyw5
+         oAfLLoW5yPERsJrfHHQzAoPNWo84+7zbwTVzfKmA=
 From:   gregkh@linuxfoundation.org
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>
-Subject: [PATCH 4.19 074/120] usb: dwc3: qcom: Honor wakeup enabled/disabled state
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 35/95] powerpc: improve handling of unrecoverable system reset
 Date:   Mon, 15 Mar 2021 14:57:05 +0100
-Message-Id: <20210315135722.401214691@linuxfoundation.org>
+Message-Id: <20210315135741.425402077@linuxfoundation.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210315135720.002213995@linuxfoundation.org>
-References: <20210315135720.002213995@linuxfoundation.org>
+In-Reply-To: <20210315135740.245494252@linuxfoundation.org>
+References: <20210315135740.245494252@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-From: Matthias Kaehlcke <mka@chromium.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 2664deb0930643149d61cddbb66ada527ae180bd upstream.
+[ Upstream commit 11cb0a25f71818ca7ab4856548ecfd83c169aa4d ]
 
-The dwc3-qcom currently enables wakeup interrupts unconditionally
-when suspending, however this should not be done when wakeup is
-disabled (e.g. through the sysfs attribute power/wakeup). Only
-enable wakeup interrupts when device_may_wakeup() returns true.
+If an unrecoverable system reset hits in process context, the system
+does not have to panic. Similar to machine check, call nmi_exit()
+before die().
 
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210302103659.v2.1.I44954d9e1169f2cf5c44e6454d357c75ddfa99a2@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210130130852.2952424-26-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/traps.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -234,8 +234,10 @@ static int dwc3_qcom_suspend(struct dwc3
- 	for (i = qcom->num_clocks - 1; i >= 0; i--)
- 		clk_disable_unprepare(qcom->clks[i]);
+diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
+index 0f1a888c04a8..05c1aabad01c 100644
+--- a/arch/powerpc/kernel/traps.c
++++ b/arch/powerpc/kernel/traps.c
+@@ -360,8 +360,11 @@ void system_reset_exception(struct pt_regs *regs)
+ 		die("Unrecoverable nested System Reset", regs, SIGABRT);
+ #endif
+ 	/* Must die if the interrupt is not recoverable */
+-	if (!(regs->msr & MSR_RI))
++	if (!(regs->msr & MSR_RI)) {
++		/* For the reason explained in die_mce, nmi_exit before die */
++		nmi_exit();
+ 		die("Unrecoverable System Reset", regs, SIGABRT);
++	}
  
-+	if (device_may_wakeup(qcom->dev))
-+		dwc3_qcom_enable_interrupts(qcom);
-+
- 	qcom->is_suspended = true;
--	dwc3_qcom_enable_interrupts(qcom);
- 
- 	return 0;
- }
-@@ -248,7 +250,8 @@ static int dwc3_qcom_resume(struct dwc3_
- 	if (!qcom->is_suspended)
- 		return 0;
- 
--	dwc3_qcom_disable_interrupts(qcom);
-+	if (device_may_wakeup(qcom->dev))
-+		dwc3_qcom_disable_interrupts(qcom);
- 
- 	for (i = 0; i < qcom->num_clocks; i++) {
- 		ret = clk_prepare_enable(qcom->clks[i]);
+ 	if (!nested)
+ 		nmi_exit();
+-- 
+2.30.1
+
 
 
