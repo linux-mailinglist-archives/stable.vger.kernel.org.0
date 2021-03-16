@@ -2,252 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4B033CD4D
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 06:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86EB233CD79
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 06:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235480AbhCPF2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 01:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47832 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231533AbhCPF2G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 01:28:06 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E40BDC061756
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 22:28:05 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id e7so19985249edu.10
-        for <stable@vger.kernel.org>; Mon, 15 Mar 2021 22:28:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=W8cno2jI/q1a7Mp+m2I4l1zQLuFb746zaAM3fMhbI38=;
-        b=LtIQg+e0Y9DlqGto+4IPnaOFvLMkZyX4VP8cj8K4xIETjgZ+3afnXfpGIIuxRbGSU5
-         rGPTz1IhRm4jJeyNezL7FlmdQnGUWdGTFfSFjErOxJQPkSnIVR499589axeDe6WkKCiR
-         g+hCAZmxnJtPt6pd+XLHRhbuSqa3CsZr4TAioE8tkumGmXG/PzHutejfbALnYz320OP2
-         PusP80tnrVbkqNfxhWnVG5LBNdt4y0l6pg9IaUkXvcJ4OK7DOLq2Lja/0syRmogImG+m
-         P5OSMm/r9vcCeAuUI3u2Lz0h6K6HY4aH9SaNrmBIYVHs/uXn/JnRtNWc1WU+J9QURhIg
-         csjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=W8cno2jI/q1a7Mp+m2I4l1zQLuFb746zaAM3fMhbI38=;
-        b=MoO/ItItJmfe4diE7VzOeiZGVcVid8qq1ydYu1VMa0gtt1fCAbPDDx4ghtqgoFiv3A
-         S6aT8kxmQAuvBi9j/M53CFGhiXUTKnsByVNu6rchyr9rDe30yj9Z0dHy/zqAUDzBQ88r
-         XYcY+9nYYKSj44GbDmzlAiNm3skmZlRBwqit/BixHV/wU/0+4HCRfeCAK1MaEsZl5pHB
-         dpCXHmQAHNiEcIA5sExxowEzxjyMcS4bXoui0jMazxx9hMuNtxiihQ6xTFljasaNF/6S
-         qnP+9bIM14sQ1GzAlT4F0KF56hsJld9taXNJ/WrkOXa0WKj3aI9kBag8WDOcVZCEK6uZ
-         /d8A==
-X-Gm-Message-State: AOAM533EWnIWvkrdr2892F/DqgGVrt5IQDAlorF8iUMU/O2aiOA6LrBK
-        dhLMIpmglSQVQvaxpPX629q5ERm+09YC6AoAP35fZg==
-X-Google-Smtp-Source: ABdhPJyM14fi89CH30Ia06fF4KyQ0KbVSHA0Ml943Ta/ZexwvPgQDXfPzqM9t3bRGYLz2PUP/NMHHehK+N3WTtw8lEw=
-X-Received: by 2002:a05:6402:13ce:: with SMTP id a14mr33958112edx.365.1615872484610;
- Mon, 15 Mar 2021 22:28:04 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210315135550.333963635@linuxfoundation.org>
-In-Reply-To: <20210315135550.333963635@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 16 Mar 2021 10:57:53 +0530
-Message-ID: <CA+G9fYu7ZwgN-c6sNpdwv2qYjjEdu2h-18FgGQhSumDfimB2mg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/168] 5.4.106-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
+        id S235293AbhCPFqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 01:46:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35628 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232953AbhCPFqN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 01:46:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB67665041;
+        Tue, 16 Mar 2021 05:46:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615873573;
+        bh=5X1sAbjwlO2FZcj8u4oacUCNFUtXmJoGeWPaIvVl8o8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Vk8sZAI5lnW3OkA4aUc1D3frY6q5LHJncY8PnVWtDWSYiZ3GD0dgOq7Z3kgwm9ymK
+         i+LBSaa9D1YRBGwk8Z/xbD8ojHWQ4TBoi3/7qkXwKWXFQ/3SgpeNFymlrT3n6PkKo7
+         yXJILjpPckNpW8s1sZAnjThDf1CnwdOZ7Oaplb6c=
+Date:   Tue, 16 Mar 2021 06:46:10 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Vladimir Oltean <vladimir.oltean@nxp.com>
+Cc:     Andrew Lunn <andrew@lunn.ch>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Christian Eggers <ceggers@arri.de>
+Subject: Re: [PATCH 5.10 113/290] net: dsa: implement a central TX
+ reallocation procedure
+Message-ID: <YFBGIt2jRQLmjtln@kroah.com>
+References: <20210315135541.921894249@linuxfoundation.org>
+ <20210315135545.737069480@linuxfoundation.org>
+ <20210315195601.auhfy5uafjafgczs@skbuf>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210315195601.auhfy5uafjafgczs@skbuf>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 15 Mar 2021 at 19:35, <gregkh@linuxfoundation.org> wrote:
->
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->
-> This is the start of the stable review cycle for the 5.4.106 release.
-> There are 168 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 17 Mar 2021 13:55:26 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.106-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Mon, Mar 15, 2021 at 07:56:02PM +0000, Vladimir Oltean wrote:
+> +Andrew, Vivien,
+> 
+> On Mon, Mar 15, 2021 at 02:53:26PM +0100, gregkh@linuxfoundation.org wrote:
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> >
+> > From: Vladimir Oltean <vladimir.oltean@nxp.com>
+> >
+> > [ Upstream commit a3b0b6479700a5b0af2c631cb2ec0fb7a0d978f2 ]
+> >
+> > At the moment, taggers are left with the task of ensuring that the skb
+> > headers are writable (which they aren't, if the frames were cloned for
+> > TX timestamping, for flooding by the bridge, etc), and that there is
+> > enough space in the skb data area for the DSA tag to be pushed.
+> >
+> > Moreover, the life of tail taggers is even harder, because they need to
+> > ensure that short frames have enough padding, a problem that normal
+> > taggers don't have.
+> >
+> > The principle of the DSA framework is that everything except for the
+> > most intimate hardware specifics (like in this case, the actual packing
+> > of the DSA tag bits) should be done inside the core, to avoid having
+> > code paths that are very rarely tested.
+> >
+> > So provide a TX reallocation procedure that should cover the known needs
+> > of DSA today.
+> >
+> > Note that this patch also gives the network stack a good hint about the
+> > headroom/tailroom it's going to need. Up till now it wasn't doing that.
+> > So the reallocation procedure should really be there only for the
+> > exceptional cases, and for cloned packets which need to be unshared.
+> >
+> > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> > Tested-by: Christian Eggers <ceggers@arri.de> # For tail taggers only
+> > Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
+> > Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+> > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> 
+> For context, Sasha explains here:
+> https://www.spinics.net/lists/stable-commits/msg190151.html
+> (the conversation is somewhat truncated, unfortunately, because
+> stable-commits@vger.kernel.org ate my replies)
+> that 13 patches were backported to get the unrelated commit 9200f515c41f
+> ("net: dsa: tag_mtk: fix 802.1ad VLAN egress") to apply cleanly with git-am.
+> 
+> I am not strictly against this, even though I would have liked to know
+> that the maintainers were explicitly informed about it.
+> 
+> Greg, could you make your stable backporting emails include the output
+> of ./get_maintainer.pl into the list of recipients? Thanks.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I cc: everyone on the signed-off-by list on the patch, why would we need
+to add more?  A maintainer should always be on that list automatically.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+thanks,
 
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.4.106-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.4.y
-git commit: 26ba2df2641dff3b9583fc4d1fbdc668bd346f00
-git describe: v5.4.105-169-g26ba2df2641d
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.=
-y/build/v5.4.105-169-g26ba2df2641d
-
-No regressions (compared to build v5.4.105)
-
-No fixes (compared to build v5.4.105)
-
-Ran 50881 total tests in the following environments and test suites.
-
-Environments
---------------
-- arc
-- arm
-- arm64
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- nxp-ls2088
-- nxp-ls2088-64k_page_size
-- parisc
-- powerpc
-- qemu-arm-clang
-- qemu-arm64-clang
-- qemu-arm64-kasan
-- qemu-x86_64-clang
-- qemu-x86_64-kasan
-- qemu-x86_64-kcsan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- riscv
-- s390
-- sh
-- sparc
-- x15
-- x86
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* libhugetlbfs
-* ltp-controllers-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-io-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-tracing-tests
-* perf
-* v4l2-compliance
-* fwts
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-tc-testing
-* kvm-unit-tests
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-hugetlb-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* network-basic-tests
-* kselftest-kexec
-* kselftest-vm
-* kselftest-x86
-* ltp-cap_bounds-test[
-* ltp-open-posix-tests
-* ltp-syscalls-tests
-* rcutorture
-* ssuite
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+greg k-h
