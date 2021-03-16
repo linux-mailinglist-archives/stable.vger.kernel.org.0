@@ -2,106 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D762633D103
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 10:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C5E33D11E
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 10:49:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234293AbhCPJmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 05:42:10 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:52002 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234461AbhCPJll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 05:41:41 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 269FD1C0B8B; Tue, 16 Mar 2021 10:41:38 +0100 (CET)
-Date:   Tue, 16 Mar 2021 10:41:37 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     gregkh@linuxfoundation.org
+        id S233039AbhCPJtH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 05:49:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232335AbhCPJtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 05:49:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 990CD64F6D;
+        Tue, 16 Mar 2021 09:48:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615888140;
+        bh=2V+lNZksGULsy/lblGLLF1K+PMqySH5u+6uef63fvDU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WpYrW87pN81De28KP8oYmI+UG3Ga44pGvZbOmRXFDvjKvid9eGfidTYrSnIpNdn7a
+         EhYpD34MsZ9YjfJ71kQa79ty/N7ugMD8LsYJvZT0VqxWtifjFazJJiTuzx4L/HtGjm
+         TMVvtZkT0+jMj0/6XqU6u/ksIMNRZ7d/rlDhR2Ko=
+Date:   Tue, 16 Mar 2021 10:48:56 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
 Subject: Re: [PATCH 4.19 011/120] tcp: annotate tp->copied_seq lockless reads
-Message-ID: <20210316094137.GA12946@amd>
+Message-ID: <YFB/CBeDBiolOxDD@kroah.com>
 References: <20210315135720.002213995@linuxfoundation.org>
  <20210315135720.384809636@linuxfoundation.org>
+ <20210316094137.GA12946@amd>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210315135720.384809636@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20210316094137.GA12946@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Mar 16, 2021 at 10:41:37AM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > From: Eric Dumazet <edumazet@google.com>
+> 
+> Two From: fields here.
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a side-affect of me using git-send-email to talk to the remote
+smtp server directly instead of using my local email server.  This was
+done to increase the speed of sending these patches out as
+git-send-email can pipeline messages instead of having msmtp do a
+setup/send/teardown on every individual message sent.
 
-Hi!
+These are not in the patches themselves and I will work to figure out
+if this can be fixed.  Gotta be a setting somewhere...
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->=20
-> From: Eric Dumazet <edumazet@google.com>
+> 
+> > [ Upstream commit 7db48e983930285b765743ebd665aecf9850582b ]
+> > 
+> > There are few places where we fetch tp->copied_seq while
+> > this field can change from IRQ or other cpu.
+> 
+> And there are few such places even after the patch is applied; I
+> quoted them below.
+> 
+> Doing addition to variable without locking... is kind of
+> interesting. Are you sure it is okay?
 
-Two From: fields here.
+Why isn't it?
 
-> [ Upstream commit 7db48e983930285b765743ebd665aecf9850582b ]
->=20
-> There are few places where we fetch tp->copied_seq while
-> this field can change from IRQ or other cpu.
+thanks,
 
-And there are few such places even after the patch is applied; I
-quoted them below.
-
-Doing addition to variable without locking... is kind of
-interesting. Are you sure it is okay?
-
-> @@ -2112,7 +2112,7 @@ int tcp_recvmsg(struct sock *sk, struct
->  			if (urg_offset < used) {
->  				if (!urg_offset) {
->  					if (!sock_flag(sk, SOCK_URGINLINE)) {
-> -						++*seq;
-> +						WRITE_ONCE(*seq, *seq + 1);
->  						urg_hole++;
->  						offset++;
->  						used--;
-> @@ -2134,7 +2134,7 @@ int tcp_recvmsg(struct sock *sk, struct
->  			}
->  		}
-> =20
-> -		*seq +=3D used;
-> +		WRITE_ONCE(*seq, *seq + used);
->  		copied +=3D used;
->  		len -=3D used;
-> =20
-> @@ -2163,7 +2163,7 @@ skip_copy:
-> =20
->  	found_fin_ok:
->  		/* Process the FIN. */
-> -		++*seq;
-> +		WRITE_ONCE(*seq, *seq + 1);
->  		if (!(flags & MSG_PEEK))
->  			sk_eat_skb(sk, skb);
->  		break;
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBQfVEACgkQMOfwapXb+vJ9VgCfY34c39nassZfZh50cm1j60Ga
-R8gAoI7SBRhkbGI2pxLQRXw5I+v93yzD
-=dGFU
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+greg k-h
