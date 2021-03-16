@@ -2,109 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCCC133CE8E
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 08:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F8633D025
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 09:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229749AbhCPHWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 03:22:50 -0400
-Received: from mail-qk1-f181.google.com ([209.85.222.181]:36591 "EHLO
-        mail-qk1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232422AbhCPHWW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 03:22:22 -0400
-Received: by mail-qk1-f181.google.com with SMTP id n79so34294733qke.3;
-        Tue, 16 Mar 2021 00:22:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XypHAARpZukwprD44oUN3XYz7B3z0WrE+Lu1+PHkgig=;
-        b=DJu7FVdXsGxNzfxjvdEwY62FgcIPFQx+64uuqiC2Uv/gQG5FnmRWvDPatCYP6cjkVO
-         rtPrPyyEdMmmUrKCAYgg00YnnNyrPfjBC9Z7t3pxBz4B7bC1WSzONXIXDDqkG4Pmz9se
-         tNTiO5GXzuRsFJIe+5IBD4BgF+wf8izx1uGk/3VsHBEQmw4YdqS/QA0mBzswVmLgS1Zd
-         n+gBcpPxOC2ylK+/3CQDV05hWs+cFzYq94wsOymlfUD1Wfrg/HgAkE1A3sgPonnXpZ+y
-         9Ixs0X2JU1h2GI/j6Mx5rSbCoiUQxU8bS2LuTYIPRLA7Mb0McBYpqnTdid6VLzaYdYyR
-         ct3Q==
-X-Gm-Message-State: AOAM530qc8LnxvsAyt3qTUCeJ7blXTTDi/WcI2BvZi/NluVlgz5/1uvG
-        cfh4pUb/9adhypMe2QJa4mh65Tb4qvjnILw1EBs=
-X-Google-Smtp-Source: ABdhPJzNscKvYrVo+yrr63c4ruxSltZ20SZE0CtI9tai+v3U891vPaTD8W/Rcxc8hou49p+hVH6oeQgoIeNrK8O4jkc=
-X-Received: by 2002:a05:620a:4511:: with SMTP id t17mr29049978qkp.316.1615879341399;
- Tue, 16 Mar 2021 00:22:21 -0700 (PDT)
+        id S235322AbhCPIyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 04:54:11 -0400
+Received: from mga03.intel.com ([134.134.136.65]:39224 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235553AbhCPIxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 04:53:43 -0400
+IronPort-SDR: brrGyZ0wcQU5MpNfuw0wXLNhD1TkzXUw9W7B/ww3B5mZnnKLnecMym8FkSf65GHuOJIRBeliQ+
+ ejmtWbJPTesw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9924"; a="189274541"
+X-IronPort-AV: E=Sophos;i="5.81,251,1610438400"; 
+   d="scan'208";a="189274541"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2021 01:53:42 -0700
+IronPort-SDR: bFPhdZuFuRIsfoX6ZTnXty9YDw1RjNQZmXexsuTu0fZHwM1wQLp4jEQnebGHn8I3Q4gcrPEShb
+ +e8hD8vwsN6Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,251,1610438400"; 
+   d="scan'208";a="373724184"
+Received: from glass.png.intel.com ([10.158.65.59])
+  by orsmga006.jf.intel.com with ESMTP; 16 Mar 2021 01:53:40 -0700
+From:   Wong Vee Khee <vee.khee.wong@intel.com>
+To:     Andrew Lunn <andrew@lunn.ch>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Weifeng <voon.weifeng@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>
+Subject: [PATCH net-next 1/1] net: phy: fix invalid phy id when probe using C22
+Date:   Tue, 16 Mar 2021 16:57:48 +0800
+Message-Id: <20210316085748.3017-1-vee.khee.wong@intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <1614778938-93092-1-git-send-email-kan.liang@linux.intel.com>
- <YD/cnnuh/AHOL8hV@hirez.programming.kicks-ass.net> <9484ab6e-a6e5-bb72-106f-ed904e50fc0c@linux.intel.com>
- <YD/vy2RnkWZYiJHP@hirez.programming.kicks-ass.net>
-In-Reply-To: <YD/vy2RnkWZYiJHP@hirez.programming.kicks-ass.net>
-From:   Namhyung Kim <namhyung@kernel.org>
-Date:   Tue, 16 Mar 2021 16:22:09 +0900
-Message-ID: <CAM9d7cjbSGC_mac0CuU3xnDN=bkJ81W+FLn5XSvxbaHb5HL6Fw@mail.gmail.com>
-Subject: Re: [PATCH] Revert "perf/x86: Allow zero PEBS status with only single
- active event"
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     "Liang, Kan" <kan.liang@linux.intel.com>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Stephane Eranian <eranian@google.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        "stable # 4 . 5" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Peter and Kan,
+When using Clause-22 to probe for PHY devices such as the Marvell
+88E2110, PHY ID with value 0 is read from the MII PHYID registers
+which caused the PHY framework failed to attach the Marvell PHY
+driver.
 
-On Thu, Mar 4, 2021 at 5:22 AM Peter Zijlstra <peterz@infradead.org> wrote:
->
-> On Wed, Mar 03, 2021 at 02:53:00PM -0500, Liang, Kan wrote:
-> > On 3/3/2021 1:59 PM, Peter Zijlstra wrote:
-> > > On Wed, Mar 03, 2021 at 05:42:18AM -0800, kan.liang@linux.intel.com wrote:
->
-> > > > +++ b/arch/x86/events/intel/ds.c
-> > > > @@ -2000,18 +2000,6 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
-> > > >                           continue;
-> > > >                   }
-> > > > -         /*
-> > > > -          * On some CPUs the PEBS status can be zero when PEBS is
-> > > > -          * racing with clearing of GLOBAL_STATUS.
-> > > > -          *
-> > > > -          * Normally we would drop that record, but in the
-> > > > -          * case when there is only a single active PEBS event
-> > > > -          * we can assume it's for that event.
-> > > > -          */
-> > > > -         if (!pebs_status && cpuc->pebs_enabled &&
-> > > > -                 !(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
-> > > > -                 pebs_status = cpuc->pebs_enabled;
-> > >
-> > > Wouldn't something like:
-> > >
-> > >                     pebs_status = p->status = cpus->pebs_enabled;
-> > >
-> >
-> > I didn't consider it as a potential solution in this patch because I don't
-> > think it's a proper way that SW modifies the buffer, which is supposed to be
-> > manipulated by the HW.
->
-> Right, but then HW was supposed to write sane values and it doesn't do
-> that either ;-)
->
-> > It's just a personal preference. I don't see any issue here. We may try it.
->
-> So I mostly agree with you, but I think it's a shame to unsupport such
-> chips, HSW is still a plenty useable chip today.
+Fixed this by adding a check of PHY ID equals to all zeroes.
 
-I got a similar issue on ivybridge machines which caused kernel crash.
-My case it's related to the branch stack with PEBS events but I think
-it's the same issue.  And I can confirm that the above approach of
-updating p->status fixed the problem.
+Cc: stable@vger.kernel.org
+Reviewed-by: Voon Weifeng <voon.weifeng@intel.com>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@intel.com>
+---
+ drivers/net/phy/phy_device.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-I've talked to Stephane about this, and he wants to make it more
-robust when we see stale (or invalid) PEBS records.  I'll send the
-patch soon.
+diff --git a/drivers/net/phy/phy_device.c b/drivers/net/phy/phy_device.c
+index a009d1769b08..f1afc00fcba2 100644
+--- a/drivers/net/phy/phy_device.c
++++ b/drivers/net/phy/phy_device.c
+@@ -820,8 +820,8 @@ static int get_phy_c22_id(struct mii_bus *bus, int addr, u32 *phy_id)
+ 
+ 	*phy_id |= phy_reg;
+ 
+-	/* If the phy_id is mostly Fs, there is no device there */
+-	if ((*phy_id & 0x1fffffff) == 0x1fffffff)
++	/* If the phy_id is mostly Fs or all zeroes, there is no device there */
++	if (((*phy_id & 0x1fffffff) == 0x1fffffff) || (*phy_id == 0))
+ 		return -ENODEV;
+ 
+ 	return 0;
+-- 
+2.25.1
 
-Thanks,
-Namhyung
