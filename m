@@ -2,78 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B7E33D8F0
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 17:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C17EA33D91B
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 17:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238548AbhCPQRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 12:17:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46970 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235755AbhCPQRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 12:17:37 -0400
-Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79156C06174A
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 09:17:37 -0700 (PDT)
-Received: by mail-il1-x132.google.com with SMTP id z9so13217884iln.1
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 09:17:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=MEwQloA6Sbs6wcbrOL1SorV9LxqSXhkO7dOkdPzni08=;
-        b=ZTeCpjDkkjUsieQCpDnZ/P0+EqQ3uvpnbNQc/IxLxVVMPJ2yQ0JkppWLH7fY63FRJZ
-         EVe3q5ENwDpKyDQspAm3fY3v1myd4qUA9CCEWJgbO8ex1EoWiElphFWFilMCqd18UZOi
-         YXGOSqscz1rvElHxQ1ViIB9c5x7DolyFJebsU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=MEwQloA6Sbs6wcbrOL1SorV9LxqSXhkO7dOkdPzni08=;
-        b=j8CKA5y5DhFztpzrMF+MjXVsu3yV1AL3ya8Kzc41D6LvQ2terME+fUAK5+OOoeEeJJ
-         ry4UQdDKZ2TDBlguIxJ+haNYwyNEZ41TrrxBG7tuAWtd01+d2W8wm37lZnU0HuxDOkO+
-         DSzcSTKik+wkpyOzp5wwt5RBPPfvUzM7VlP5l/0mPGANRMbOb2ooGM+1fo3D3+x8pgzk
-         LqF8kCZuUX/Ym/12nTrHEl0jSNYxbRVm8h3Cii/mvI//ibE5vm2W+Zw94KNZrmgtfLB0
-         kzszAoBNgj4SqUhXTNhqoEgE/CqC5ievb6FQx9O/YIT6GjM889q+xfPodZdw5S9JvgLX
-         vhHQ==
-X-Gm-Message-State: AOAM533Id/vwI9dkCm5kMVAsmQueWgHMIw/glQXQWdS3AwYeS6E6wjye
-        7osuzsv5sO6vM775YSkgKhCPOQ==
-X-Google-Smtp-Source: ABdhPJxL+rYdG4+7zu2ISFBDBSQYDvJKYeWqVVP7yBu9VsFtuFXVy5l+neqtJIchvaWTzQkiOYi8Sg==
-X-Received: by 2002:a92:d6cf:: with SMTP id z15mr4368628ilp.40.1615911456994;
-        Tue, 16 Mar 2021 09:17:36 -0700 (PDT)
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
-        by smtp.gmail.com with ESMTPSA id b20sm8725500iod.22.2021.03.16.09.17.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 16 Mar 2021 09:17:36 -0700 (PDT)
-Subject: Re: FAILED: patch "[PATCH] usbip: fix vudc to check for stream
- socket" failed to apply to 4.4-stable tree
-To:     gregkh@linuxfoundation.org, penguin-kernel@I-love.SAKURA.ne.jp
-Cc:     stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-References: <16157245893852@kroah.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <aa6c5898-f783-e1ce-a32b-9b3601dc856b@linuxfoundation.org>
-Date:   Tue, 16 Mar 2021 10:17:35 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+        id S232147AbhCPQV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 12:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236076AbhCPQV3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 12:21:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60ACD6508A;
+        Tue, 16 Mar 2021 16:21:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615911688;
+        bh=JGA1BYJ4DnjkWs2uoiTYFr2jx9MyA+44cAQvE2O4UV0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ktIMhylmaxtlTzafPoz2hATAZL600RlZfL9ib7IL9WgxbnZIZEl5x/EMwWhL4nKlQ
+         LuFXIj9s+0RHQnttz8m0jidqe9Eyq+clqafnKe9ukbEkAQHjXuXwk0mh39rOGun2fF
+         9USB/a9jfGZ4L+ENinQcVXOd7Ee8dTtEI1GLZt+vhdTVUj440iXl4KQgvTFzKSRWWM
+         IawPB/6NvyawRK7Or8QpNOqe7NbzgOG387I946HsSX3LU6e2BDxBb5bemPftgRJRI2
+         pdO9qsnoee4U6udFNT2RK0wAt2bN9czxy5TKnBEjhQMxGt6w1ct9OVxrfPV2ZDCkH+
+         QCD4IWcoZoshw==
+Date:   Tue, 16 Mar 2021 12:21:27 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Christian Eggers <ceggers@arri.de>
+Subject: Re: [PATCH 5.10 113/290] net: dsa: implement a central TX
+ reallocation procedure
+Message-ID: <YFDbBygzYu1yqBh9@sashalap>
+References: <20210315135541.921894249@linuxfoundation.org>
+ <20210315135545.737069480@linuxfoundation.org>
+ <20210315195601.auhfy5uafjafgczs@skbuf>
+ <YFBGIt2jRQLmjtln@kroah.com>
+ <YFC4eVripXbAw2cG@sashalap>
+ <YFDXNxW9w25n/51o@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <16157245893852@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <YFDXNxW9w25n/51o@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/14/21 6:23 AM, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.4-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
-> 
+On Tue, Mar 16, 2021 at 05:05:11PM +0100, gregkh@linuxfoundation.org wrote:
+>On Tue, Mar 16, 2021 at 09:54:01AM -0400, Sasha Levin wrote:
+>> On Tue, Mar 16, 2021 at 06:46:10AM +0100, gregkh@linuxfoundation.org wrote:
+>> > I cc: everyone on the signed-off-by list on the patch, why would we need
+>> > to add more?  A maintainer should always be on that list automatically.
+>>
+>> Oh, hm, could this be an issue with subsystems that have a shared
+>> maintainership model? In that scenario not all maintainers will sign-off
+>> on a commit.
+>
+>So a shared maintainer trusts their co-maintainer for reviewing patches
+>for Linus's tree and all future kernels, but NOT into an old backported
+>stable tree?  I doubt that, trust should be the same for both.
 
-Thanks. I will back-port this series for 4.4.
+I don't think it's necessarily a trust issue, but is an availability
+issue: one of the reasons shared maintainership models exist is so
+that one maintainer can go on vacation (or focus other work) while the
+other maintainer(s) take over. If we send a review request to that
+maintainer he might be away and we'll never get our review.
 
-thanks,
--- Shuah
-
+-- 
+Thanks,
+Sasha
