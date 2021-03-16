@@ -2,65 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8540033D5F6
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 15:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A78D33D647
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 15:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236875AbhCPOmK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 10:42:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232002AbhCPOmB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 10:42:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 507A86507D;
-        Tue, 16 Mar 2021 14:42:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615905721;
-        bh=OHX825C3UzAW3uf4c1TTiD26NlTs851j5uLceMniJZg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=Ot3kGTyIF8EOIESfmOddFY7C/KxlBe7wsHWHza4sCQPdw15RCAqD6YriRVAU+yJNi
-         uCZqDKhQwdObTLeR6h2oWct2c+iUzXvBVmlS0It+8ozjb2cAQ04rUvOi6JsOLLLZ0I
-         hefo5wsEA6jrBuGWlsrSpxNToO0e8jKUBHrqcJ1v8P7in7axZAC8x6eahm/x4lTKO5
-         oHk4T7fHSMvUfvPvzlsxQuJJkAyz/rnA2BF27Diid0FwvQ/Dmfko4MeKYVx+7K2Mma
-         8tFb2ox72nEIjEKyusvL9mtX20Q8m6z3jEyjP1zwcm6pJcptUdkXRQoMXY3CFY3bHJ
-         i8l9mSKzpqiNA==
-Date:   Tue, 16 Mar 2021 15:41:58 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Ping Cheng <pinglinux@gmail.com>
-cc:     linux-input@vger.kernel.org, Juan.Garrido@wacom.com,
-        Jason.Gerecke@wacom.com, Ping Cheng <ping.cheng@wacom.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] HID: wacom: set EV_KEY and EV_ABS only for non-HID_GENERIC
- type of devices
-In-Reply-To: <20210311193009.12692-1-ping.cheng@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2103161541470.12405@cbobk.fhfr.pm>
-References: <20210311193009.12692-1-ping.cheng@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S231225AbhCPO6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 10:58:47 -0400
+Received: from esa1.ssilver.iphmx.com ([68.232.153.64]:3581 "EHLO
+        esa1.ssilver.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230283AbhCPO6i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 10:58:38 -0400
+X-Greylist: delayed 429 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Mar 2021 10:58:37 EDT
+Message-Id: <ccb348$5pjcc@ob1.ssilver.iphmx.com>
+IronPort-SDR: 7FkFpG5zYtKKY9r4hhdC12ftL7Yin0loyWtkQ8Grlrh1vbFAQ3s2u9E7T2GIw/4lLzWrdswEG7
+ l+5ToUVn3hzQR+HfLbklvAb/+xnKtvtmQnerXFQ19Ve9/RW1cTx70tqESZB8YyaPkCAQP/ZAcw
+ r7oTt8x+dka9DLieYy/EpevPXmlzJ4Sis34KJbXcY4a2VCdPS0RKxNJKidoTkslqVKrZ3Fiwgf
+ o3XYu472oIE7ALxhEykhZIYme5e2Q0QJQzBZm5YTvr7jx783CaO6m8W1PUwdhryVyaXPZ5S12D
+ m4U=
+Received: from unknown (HELO User) ([202.38.180.78])
+  by ob1.ssilver.iphmx.com with SMTP; 16 Mar 2021 09:51:20 -0500
+Reply-To: <benobi236@yahoo.com.co>
+From:   "Fred Grenville" <chiatatwah@camv.vn>
+Subject: Reply Asap!! 
+Date:   Tue, 16 Mar 2021 07:51:26 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+        charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 11 Mar 2021, Ping Cheng wrote:
+Good day
 
-> Valid HID_GENERIC type of devices set EV_KEY and EV_ABS by wacom_map_usage.
-> When *_input_capabilities are reached, those devices should already have
-> their proper EV_* set. EV_KEY and EV_ABS only need to be set for
-> non-HID_GENERIC type of devices in *_input_capabilities.
-> 
-> Devices that don't support HID descitoprs will pass back to hid-input for
-> registration without being accidentally rejected by the introduction of
-> patch: "Input: refuse to register absolute devices without absinfo"
-> 
-> Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices without absinfo")
-> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> Reviewed-by: Jason Gerecke <Jason.Gerecke@wacom.com>
-> Tested-by: Juan Garrido <Juan.Garrido@wacom.com>
-> CC: stable@vger.kernel.org
+How are you today, did you receive the email I sent you three days ago? For important discussion on ( Investment ) If not please reply me back so that I will resend it again.
 
-Applied, thanks Ping.
+Please confirm if you did ( u.abdulghani@yahoo.com.co ).
 
--- 
-Jiri Kosina
-SUSE Labs
-
+Best Regards,
+Mr. Fred Grenville
