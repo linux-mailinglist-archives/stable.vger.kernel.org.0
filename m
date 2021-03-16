@@ -2,131 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E4D433DC67
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 19:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D51F133DCA0
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 19:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236558AbhCPSR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 14:17:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58042 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239966AbhCPSR2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 14:17:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1615918648;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=HAM1TwwmGz08tYIJFcJigdtdBF6Phn1evgG1Tccbtsg=;
-        b=Q9rG+KP3BWgvwJNzCa2Gkqkoev4xmPpVZjhN9k3yvEwnaRFyOVUK8IYjWULg1dJ/vnotN3
-        d7ar81t/92VruQgLLbcIMHOUKyzrobRD2gnAuv7Lfz4l/7nZyQQWtLBvNf2vhP/m/cxE4t
-        qt/K7jPgO18W7K6+roHjZ8LsUAr3MRw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-527-QoVFzhEFMwyyetXQP_FxeQ-1; Tue, 16 Mar 2021 14:17:26 -0400
-X-MC-Unique: QoVFzhEFMwyyetXQP_FxeQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 03632107ACCA;
-        Tue, 16 Mar 2021 18:17:25 +0000 (UTC)
-Received: from horse.redhat.com (ovpn-114-57.rdu2.redhat.com [10.10.114.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 892EC5D9C0;
-        Tue, 16 Mar 2021 18:17:18 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 1B80E220BCF; Tue, 16 Mar 2021 14:17:18 -0400 (EDT)
-Date:   Tue, 16 Mar 2021 14:17:18 -0400
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Luis Henriques <lhenriques@suse.de>
-Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        virtualization@lists.linux-foundation.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, virtio-fs-list <virtio-fs@redhat.com>
-Subject: Re: [PATCH] virtiofs: fix memory leak in virtio_fs_probe()
-Message-ID: <20210316181718.GG270529@redhat.com>
-References: <20210316170234.21736-1-lhenriques@suse.de>
+        id S236941AbhCPSea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 14:34:30 -0400
+Received: from foss.arm.com ([217.140.110.172]:55918 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240031AbhCPSeH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 14:34:07 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 79A2931B;
+        Tue, 16 Mar 2021 11:34:06 -0700 (PDT)
+Received: from ewhatever.cambridge.arm.com (ewhatever.cambridge.arm.com [10.1.197.1])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 772B03F70D;
+        Tue, 16 Mar 2021 11:34:05 -0700 (PDT)
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+To:     stable@vger.kernel.org
+Cc:     suzuki.poulose@arm.com, maz@kernel.org, catalin.marinas@arm.com,
+        will@kernel.org, alexandru.elisei@arm.com, christoffer.dall@arm.com
+Subject: [PATCH] KVM: arm64: nvhe: Save the SPE context early
+Date:   Tue, 16 Mar 2021 18:33:53 +0000
+Message-Id: <20210316183353.4081445-1-suzuki.poulose@arm.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <16157981451454@kroah.com>
+References: <16157981451454@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210316170234.21736-1-lhenriques@suse.de>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Mar 16, 2021 at 05:02:34PM +0000, Luis Henriques wrote:
-> When accidentally passing twice the same tag to qemu, kmemleak ended up
-> reporting a memory leak in virtiofs.  Also, looking at the log I saw the
-> following error (that's when I realised the duplicated tag):
-> 
->   virtiofs: probe of virtio5 failed with error -17
-> 
-> Here's the kmemleak log for reference:
-> 
-> unreferenced object 0xffff888103d47800 (size 1024):
->   comm "systemd-udevd", pid 118, jiffies 4294893780 (age 18.340s)
->   hex dump (first 32 bytes):
->     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
->     ff ff ff ff ff ff ff ff 80 90 02 a0 ff ff ff ff  ................
->   backtrace:
->     [<000000000ebb87c1>] virtio_fs_probe+0x171/0x7ae [virtiofs]
->     [<00000000f8aca419>] virtio_dev_probe+0x15f/0x210
->     [<000000004d6baf3c>] really_probe+0xea/0x430
->     [<00000000a6ceeac8>] device_driver_attach+0xa8/0xb0
->     [<00000000196f47a7>] __driver_attach+0x98/0x140
->     [<000000000b20601d>] bus_for_each_dev+0x7b/0xc0
->     [<00000000399c7b7f>] bus_add_driver+0x11b/0x1f0
->     [<0000000032b09ba7>] driver_register+0x8f/0xe0
->     [<00000000cdd55998>] 0xffffffffa002c013
->     [<000000000ea196a2>] do_one_initcall+0x64/0x2e0
->     [<0000000008f727ce>] do_init_module+0x5c/0x260
->     [<000000003cdedab6>] __do_sys_finit_module+0xb5/0x120
->     [<00000000ad2f48c6>] do_syscall_64+0x33/0x40
->     [<00000000809526b5>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Luis Henriques <lhenriques@suse.de>
+commit b96b0c5de685df82019e16826a282d53d86d112c upstream
 
-Hi Luis,
+The nVHE KVM hyp drains and disables the SPE buffer, before
+entering the guest, as the EL1&0 translation regime
+is going to be loaded with that of the guest.
 
-Thanks for the report and the fix. So looks like leak is happening
-because we are not doing kfree(fs->vqs) in error path.
+But this operation is performed way too late, because :
+ - The owning translation regime of the SPE buffer
+   is transferred to EL2. (MDCR_EL2_E2PB == 0)
+ - The guest Stage1 is loaded.
 
-> ---
->  fs/fuse/virtio_fs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 8868ac31a3c0..4e6ef9f24e84 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -899,7 +899,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
->  
->  out:
->  	vdev->priv = NULL;
-> -	kfree(fs);
-> +	virtio_fs_put(fs);
+Thus the flush could use the host EL1 virtual address,
+but use the EL2 translations instead of host EL1, for writing
+out any cached data.
 
-[ CC virtio-fs list ]
+Fix this by moving the SPE buffer handling early enough.
+The restore path is doing the right thing.
 
-fs object is not fully formed. So calling virtio_fs_put() is little odd.
-I will expect it to be called if somebody takes a reference using _get()
-or in the final virtio_fs_remove() when creation reference should go
-away.
+Cc: stable@vger.kernel.org # v5.4-
+Cc: Christoffer Dall <christoffer.dall@arm.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+---
+ arch/arm64/include/asm/kvm_hyp.h |  3 +++
+ arch/arm64/kvm/hyp/debug-sr.c    | 24 +++++++++++++++---------
+ arch/arm64/kvm/hyp/switch.c      | 13 ++++++++++++-
+ 3 files changed, 30 insertions(+), 10 deletions(-)
 
-How about open coding it and free fs->vqs explicitly. Something like
-as follows.
-
-@@ -896,7 +896,7 @@ static int virtio_fs_probe(struct virtio
- out_vqs:
-        vdev->config->reset(vdev);
-        virtio_fs_cleanup_vqs(vdev, fs);
+diff --git a/arch/arm64/include/asm/kvm_hyp.h b/arch/arm64/include/asm/kvm_hyp.h
+index 97f21cc66657..7f7fdb16bb96 100644
+--- a/arch/arm64/include/asm/kvm_hyp.h
++++ b/arch/arm64/include/asm/kvm_hyp.h
+@@ -71,6 +71,9 @@ void __sysreg32_restore_state(struct kvm_vcpu *vcpu);
+ 
+ void __debug_switch_to_guest(struct kvm_vcpu *vcpu);
+ void __debug_switch_to_host(struct kvm_vcpu *vcpu);
++void __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu);
++void __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu);
++
+ 
+ void __fpsimd_save_state(struct user_fpsimd_state *fp_regs);
+ void __fpsimd_restore_state(struct user_fpsimd_state *fp_regs);
+diff --git a/arch/arm64/kvm/hyp/debug-sr.c b/arch/arm64/kvm/hyp/debug-sr.c
+index 0fc9872a1467..aead8a5fbe91 100644
+--- a/arch/arm64/kvm/hyp/debug-sr.c
++++ b/arch/arm64/kvm/hyp/debug-sr.c
+@@ -168,6 +168,21 @@ static void __hyp_text __debug_restore_state(struct kvm_vcpu *vcpu,
+ 	write_sysreg(ctxt->sys_regs[MDCCINT_EL1], mdccint_el1);
+ }
+ 
++void __hyp_text __debug_save_host_buffers_nvhe(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * Non-VHE: Disable and flush SPE data generation
++	 * VHE: The vcpu can run, but it can't hide.
++	 */
++	__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
++
++}
++
++void __hyp_text __debug_restore_host_buffers_nvhe(struct kvm_vcpu *vcpu)
++{
++	__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
++}
++
+ void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_cpu_context *host_ctxt;
+@@ -175,13 +190,6 @@ void __hyp_text __debug_switch_to_guest(struct kvm_vcpu *vcpu)
+ 	struct kvm_guest_debug_arch *host_dbg;
+ 	struct kvm_guest_debug_arch *guest_dbg;
+ 
+-	/*
+-	 * Non-VHE: Disable and flush SPE data generation
+-	 * VHE: The vcpu can run, but it can't hide.
+-	 */
+-	if (!has_vhe())
+-		__debug_save_spe_nvhe(&vcpu->arch.host_debug_state.pmscr_el1);
 -
-+       kfree(fs->vqs);
- out:
-        vdev->priv = NULL;
-        kfree(fs);
-
-Thanks
-Vivek
+ 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
+ 		return;
+ 
+@@ -201,8 +209,6 @@ void __hyp_text __debug_switch_to_host(struct kvm_vcpu *vcpu)
+ 	struct kvm_guest_debug_arch *host_dbg;
+ 	struct kvm_guest_debug_arch *guest_dbg;
+ 
+-	if (!has_vhe())
+-		__debug_restore_spe_nvhe(vcpu->arch.host_debug_state.pmscr_el1);
+ 
+ 	if (!(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
+ 		return;
+diff --git a/arch/arm64/kvm/hyp/switch.c b/arch/arm64/kvm/hyp/switch.c
+index 84964983198e..14607fac7ca3 100644
+--- a/arch/arm64/kvm/hyp/switch.c
++++ b/arch/arm64/kvm/hyp/switch.c
+@@ -682,6 +682,15 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
+ 
+ 	__sysreg_save_state_nvhe(host_ctxt);
+ 
++	/*
++	 * We must flush and disable the SPE buffer for nVHE, as
++	 * the translation regime(EL1&0) is going to be loaded with
++	 * that of the guest. And we must do this before we change the
++	 * translation regime to EL2 (via MDCR_EL2_EPB == 0) and
++	 * before we load guest Stage1.
++	 */
++	__debug_save_host_buffers_nvhe(vcpu);
++
+ 	__activate_vm(kern_hyp_va(vcpu->kvm));
+ 	__activate_traps(vcpu);
+ 
+@@ -720,11 +729,13 @@ int __hyp_text __kvm_vcpu_run_nvhe(struct kvm_vcpu *vcpu)
+ 	if (vcpu->arch.flags & KVM_ARM64_FP_ENABLED)
+ 		__fpsimd_save_fpexc32(vcpu);
+ 
++	__debug_switch_to_host(vcpu);
++
+ 	/*
+ 	 * This must come after restoring the host sysregs, since a non-VHE
+ 	 * system may enable SPE here and make use of the TTBRs.
+ 	 */
+-	__debug_switch_to_host(vcpu);
++	__debug_restore_host_buffers_nvhe(vcpu);
+ 
+ 	if (pmu_switch_needed)
+ 		__pmu_switch_to_host(host_ctxt);
+-- 
+2.24.1
 
