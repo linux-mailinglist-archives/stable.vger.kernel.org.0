@@ -2,82 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C69F33D344
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 12:42:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0279933D34E
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 12:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237422AbhCPLlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 07:41:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49178 "EHLO mail.kernel.org"
+        id S237448AbhCPLpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 07:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231549AbhCPLlc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 07:41:32 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E232765018;
-        Tue, 16 Mar 2021 11:41:31 +0000 (UTC)
-Received: from disco-boy.misterjones.org ([51.254.78.96] helo=www.loen.fr)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.94)
-        (envelope-from <maz@kernel.org>)
-        id 1lM84o-001wtA-0a; Tue, 16 Mar 2021 11:41:30 +0000
+        id S237447AbhCPLp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 07:45:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E21AF65020;
+        Tue, 16 Mar 2021 11:45:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615895129;
+        bh=rHEZ8llIHHXGM7jx1Z2zqiWqFW8Ao6YtWewieSAnCr8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JWjHwLKPgmed3EkyEsDiUo7u71UZGQigx+pLqIfH3roFOPmUpe2LywwbO+VnZbdiF
+         OE/5Y8+9XcrkVYP33bPCpE+doXFIyHODQdzQBqkdNEOjoC3UD/wyKFilNuKmHDDoTZ
+         Jdk3nFRtWx7W72c2x6vBRH3V/YqdhYhFHK1UmVpiHAJS9+vcuB0P4880+oyD9/3xDr
+         WoJj3fra4LljulcZZcfNizKCbgD9Rn3oI9oq+U/PQK7PRhCTiaJj2bIypXIFbHYnB4
+         cHzRpN5OnfORMWOyL+IxzxQSn4YyerkR3gv5vUUJn0+BKt3CfWbMfVoZ2YhZBMzkgK
+         VMpLkTv80kUSg==
+Date:   Tue, 16 Mar 2021 12:45:26 +0100
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     "Paul E. McKenney" <paulmck@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Stable <stable@vger.kernel.org>,
+        Joel Fernandes <joel@joelfernandes.org>
+Subject: Re: [PATCH 12/13] rcu/nocb: Prepare for finegrained deferred wakeup
+Message-ID: <20210316114526.GA639918@lothringen>
+References: <20210223001011.127063-1-frederic@kernel.org>
+ <20210223001011.127063-13-frederic@kernel.org>
+ <20210316030239.GA13675@paulmck-ThinkPad-P72>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Tue, 16 Mar 2021 11:41:29 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Vladimir Murzin <vladimir.murzin@arm.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        catalin.marinas@arm.com, will@kernel.org, dbrazdil@google.com
-Subject: Re: [PATCH][for-stable-v5.11]] arm64: Unconditionally set virtual cpu
- id registers
-In-Reply-To: <YFCXCbKefWH8smpB@kroah.com>
-References: <20210316112500.85268-1-vladimir.murzin@arm.com>
- <YFCXCbKefWH8smpB@kroah.com>
-User-Agent: Roundcube Webmail/1.4.11
-Message-ID: <530a6de97ee4f0d03e10102273f35fd6@kernel.org>
-X-Sender: maz@kernel.org
-X-SA-Exim-Connect-IP: 51.254.78.96
-X-SA-Exim-Rcpt-To: gregkh@linuxfoundation.org, vladimir.murzin@arm.com, linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org, catalin.marinas@arm.com, will@kernel.org, dbrazdil@google.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210316030239.GA13675@paulmck-ThinkPad-P72>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-03-16 11:31, Greg KH wrote:
-> On Tue, Mar 16, 2021 at 11:25:00AM +0000, Vladimir Murzin wrote:
->> Commit 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
->> reorganized el2 setup in such way that virtual cpu id registers set
->> only in nVHE, yet they used (and need) to be set irrespective VHE
->> support. Lack of setup causes 32-bit guest stop booting due to MIDR
->> stay undefined.
->> 
->> Fixes: 78869f0f0552 ("arm64: Extract parts of el2_setup into a macro")
->> Signed-off-by: Vladimir Murzin <vladimir.murzin@arm.com>
->> ---
->> 
->> There is no upstream fix since issue went away due to code there has
->> been reworked in 5.12: nVHE comes first, so virtual cpu id register
->> are always set.
->> 
->> Maintainers, please, Ack.
+On Mon, Mar 15, 2021 at 08:02:39PM -0700, Paul E. McKenney wrote:
+> On Tue, Feb 23, 2021 at 01:10:10AM +0100, Frederic Weisbecker wrote:
+> > Provide a way to tune the deferred wakeup level we want to perform from
+> > a safe wakeup point. Currently those sites are:
+> > 
+> > * nocb_timer
+> > * user/idle/guest entry
+> > * CPU down
+> > * softirq/rcuc
+> > 
+> > All of these sites perform the wake up for both RCU_NOCB_WAKE and
+> > RCU_NOCB_WAKE_FORCE.
+> > 
+> > In order to merge nocb_timer and nocb_bypass_timer together, we plan to
+> > add a new RCU_NOCB_WAKE_BYPASS that really want to be deferred until
+> > a timer fires so that we don't wake up the NOCB-gp kthread too early.
+> > 
+> > To prepare for that, integrate a wake up level/limit that a callsite is
+> > deemed to perform.
 > 
-> Why not just use the "rework" patch instead that fixes this issue?
+> This appears to need the following in order to build for non-NOCB
+> configurations.  I will fold it in and am retesting.
 > 
+> 							Thanx, Paul
 > 
-> that's always preferred instead of one-off patches.
+> ------------------------------------------------------------------------
+> 
+> commit 55f59dd75a11455cf558fd387fbf9011017dcc8a
+> Author: Paul E. McKenney <paulmck@kernel.org>
+> Date:   Mon Mar 15 20:00:34 2021 -0700
+> 
+>     squash! rcu/nocb: Prepare for fine-grained deferred wakeup
+>     
+>     [ paulmck: Fix non-NOCB rcu_nocb_need_deferred_wakeup() definition. ]
+>     Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+> 
+> diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
+> index 0cc7f68..dfb048e 100644
+> --- a/kernel/rcu/tree_plugin.h
+> +++ b/kernel/rcu/tree_plugin.h
+> @@ -2926,7 +2926,7 @@ static void __init rcu_boot_init_nocb_percpu_data(struct rcu_data *rdp)
+>  {
+>  }
+>  
+> -static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp)
+> +static int rcu_nocb_need_deferred_wakeup(struct rcu_data *rdp, int level)
+>  {
+>  	return false;
+>  }
 
-It isn't just a "rework" patch. It's a whole series that turns the
-world upside down, and it really isn't suitable for backporting in
-the upstream kernel.
 
-My preference would be to fix 5.11. I'll review that patch in a moment.
-
-Thanks,
-
-         M.
--- 
-Jazz is not dead. It just smells funny...
+Oops thanks, I missed that.
