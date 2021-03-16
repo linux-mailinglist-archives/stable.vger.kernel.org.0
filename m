@@ -2,92 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DC333D15C
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 11:05:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46FC233D1A5
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 11:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236243AbhCPKFP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 06:05:15 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:54372 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233330AbhCPKFF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 06:05:05 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id DD45A1C0B8B; Tue, 16 Mar 2021 11:05:02 +0100 (CET)
-Date:   Tue, 16 Mar 2021 11:05:01 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     gregkh@linuxfoundation.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 154/290] PCI/LINK: Remove bandwidth notification
-Message-ID: <20210316100501.GD12946@amd>
-References: <20210315135541.921894249@linuxfoundation.org>
- <20210315135547.125914951@linuxfoundation.org>
+        id S236439AbhCPKSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 06:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58724 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236273AbhCPKRm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 06:17:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D912465024;
+        Tue, 16 Mar 2021 10:17:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1615889862;
+        bh=mPZpYndorhq/hGagJa302dLkTdn2UIDGB0v5ZTd6Isk=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=H4UblTBphr2g0960ZHn0FDAhozaK3VEq7NAdn/y2dqS5bZVglkPR5u7Gougu0yCTF
+         ySVrtSvIEv/jot3SzexIUA3hIjc2hpx0Tu7khsZcgTxVFlvS3xa0/nTa8f/B68syfr
+         +0EQMCCMhzjLA05tZA8TXE0T8SfGGsXctxFxDtoNGbuFIDHU7E/ZtXNl5RJ27hnbGF
+         PmAgxlRTa2Or8hKQJMoyq/6ASegHTmX/MsIxR+qB+jJlfBhoowmL345SEzp2EVkzER
+         dKXrHckWFVXCHzVbQcw/lzkG76SjRFC3jL1YSd5fsipEtR/gYlfFL8wHVV2pYnJbGM
+         /1wqIEus/PF1g==
+Received: by mail-ot1-f51.google.com with SMTP id 75so8337765otn.4;
+        Tue, 16 Mar 2021 03:17:41 -0700 (PDT)
+X-Gm-Message-State: AOAM533QSo1mLTls8JRiyi8qHMiJiPMTDmVugn5N1zysrhyZbXrGn4pK
+        LNwUXEDpWiyJ1UOPRTePbaVo7gXCVO1VBuNQn3U=
+X-Google-Smtp-Source: ABdhPJyEqCvePx8enAes+FWMrFnWnd9A3TcRrE0wT9hXhaug7cQAl/j5o2iXIFEOUCoRayEqtBLmY+pd8uNsk6N4bME=
+X-Received: by 2002:a9d:7512:: with SMTP id r18mr3169537otk.90.1615889861146;
+ Tue, 16 Mar 2021 03:17:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Q0rSlbzrZN6k9QnT"
-Content-Disposition: inline
-In-Reply-To: <20210315135547.125914951@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu>
+In-Reply-To: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Tue, 16 Mar 2021 11:17:30 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+Message-ID: <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+Subject: Re: stable request
+To:     Thomas Backlund <tmb@tmb.nu>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 16 Mar 2021 at 10:21, Thomas Backlund <tmb@tmb.nu> wrote:
+>
+> Den 16.3.2021 kl. 08:37, skrev Ard Biesheuvel:
+> > Please consider backporting commit
+> >
+> > 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+> > crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+> >
+> > to stable. It addresses a rather substantial retpoline-related
+> > performance regression in the AES-NI XTS code, which is a widely used
+> > disk encryption algorithm on x86.
+> >
+>
+> To get all the nice bits, we added the following in Mageia 5.10 / 5.11
+> series kerenels (the 2 first is needed to get the third to apply/build
+> nicely):
+>
 
---Q0rSlbzrZN6k9QnT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I will leave it up to the -stable maintainers to decide, but I will
+point out that none of the additional patches fix any bugs, so this
+may violate the stable kernel rules. In fact, I deliberately split the
+XTS changes into two  patches so that the first one could be
+backported individually.
 
-Hi!
+-- 
+Ard.
 
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->=20
-> From: Bjorn Helgaas <bhelgaas@google.com>
 
-Dup.
-
-> Remove the bandwidth change notifications for now.  Hopefully we can add
-> this back when we have a better understanding of why this happens and how
-> we can make the messages useful instead of overwhelming.
-
-This is stable, and even for mainline, I'd expect "depends on BROKEN"
-in Kconfig, or something like that, so people can still work on fixing
-it and so that we don't have huge changes floating around.
-
-Best regards,
-								Pavel
-							=09
-> diff --git a/drivers/pci/pcie/Kconfig b/drivers/pci/pcie/Kconfig
-> index 3946555a6042..45a2ef702b45 100644
-> --- a/drivers/pci/pcie/Kconfig
-> +++ b/drivers/pci/pcie/Kconfig
-> @@ -133,14 +133,6 @@ config PCIE_PTM
->  	  This is only useful if you have devices that support PTM, but it
->  	  is safe to enable even if you don't.
-> =20
-> -config PCIE_BW
-> -	bool "PCI Express Bandwidth Change Notification"
-> -	depends on PCIEPORTBUS
-> -	help
-> -	  This enables PCI Express Bandwidth Change Notification.  If
-> -	  you know link width or rate changes occur only to correct
-> -	  unreliable links, you may answer Y.
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---Q0rSlbzrZN6k9QnT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmBQgs0ACgkQMOfwapXb+vLOxgCeN+MQeHtq+scAXlKbL20uT5Sm
-qYQAoKQTFYLSuLvuwE9dRNkfvaN1iRhj
-=9jjp
------END PGP SIGNATURE-----
-
---Q0rSlbzrZN6k9QnT--
+> applied in this order:
+>
+>  From 032d049ea0f45b45c21f3f02b542aa18bc6b6428 Mon Sep 17 00:00:00 2001
+> From: Uros Bizjak <ubizjak@gmail.com>
+> Date: Fri, 27 Nov 2020 10:44:52 +0100
+> Subject: [PATCH] crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%reg
+>
+>  From ddf169a98f01d6fd46295ec0dd4c1d6385be65d4 Mon Sep 17 00:00:00 2001
+> From: Ard Biesheuvel <ardb@kernel.org>
+> Date: Tue, 8 Dec 2020 00:34:02 +0100
+> Subject: [PATCH] crypto: aesni - implement support for cts(cbc(aes))
+>
+>  From 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1 Mon Sep 17 00:00:00 2001
+> From: Ard Biesheuvel <ardb@kernel.org>
+> Date: Thu, 31 Dec 2020 17:41:54 +0100
+> Subject: [PATCH] crypto: x86/aes-ni-xts - use direct calls to and 4-way
+> stride
+>
+>  From 2481104fe98d5b016fdd95d649b1235f21e491ba Mon Sep 17 00:00:00 2001
+> From: Ard Biesheuvel <ardb@kernel.org>
+> Date: Thu, 31 Dec 2020 17:41:55 +0100
+> Subject: [PATCH] crypto: x86/aes-ni-xts - rewrite and drop indirections
+> via glue helper
+>
+> --
+> Thomas
+>
