@@ -2,95 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B78C33D7AA
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 16:34:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D72033D8A9
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 17:06:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238095AbhCPPe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 11:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238197AbhCPPeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 11:34:12 -0400
-Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EBFC061756;
-        Tue, 16 Mar 2021 08:34:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
-         s=42; h=Message-Id:Date:Cc:To:From;
-        bh=W1/Pd1fvF7xVVbyikJTI1oYMQfnsxA1s6oxtgxnl93c=; b=DRKaJ5dRE2FUA56+oec4MKmW3d
-        AqGU6kn2AdGMcjjs6qtTj7N1JrCOoPMfAaor0BYi6EYW0xLcyxmpO3QfEXBcCJ27gEEPout2C4Z7D
-        vq68Sv1tQfj6okIDTVlZUeQLdA7h0SQnsYBlE7S4WQ9Ki1ulp4DZRWxDB+XX4mob/JyDjw5uzlkx4
-        8JLtyeG74IzwBYAS9M17lIMh37XUkubKKnyGZy40N9pPMEDZfe2l0FJIP6X5u2Rf8OT/LX8t0Rb0B
-        jQbJ+l13dpCxwDxk0Dvwo4bRr/cQnrEx8ZKXDlRMCMCihIoeuNwHzGz6GyUoxBjYrzzpARPEcfXSZ
-        9snZaZN8Dh2GWADRBodBb34hJNC/+Hxqw8nt+/mf3M3lErTJwuuc0qD/+32O+CJCtmwHhhYO+Hfnr
-        IPv6OcSmhvnPIExcs+aPb4ACSEG2GKJpbEW8cp6j5jloiMSE+wMvgB0/xOHc3LyMLUrvnRsy4L5zn
-        fM3yKSpOiWy7jVJ47LZDuSAd;
-Received: from [127.0.0.2] (localhost [127.0.0.1])
-        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_RSA_CHACHA20_POLY1305:256)
-        (Exim)
-        id 1lMBho-0000k2-MA; Tue, 16 Mar 2021 15:34:00 +0000
-From:   Stefan Metzmacher <metze@samba.org>
-To:     io-uring@vger.kernel.org
-Cc:     Stefan Metzmacher <metze@samba.org>, stable@vger.kernel.org
-Subject: [PATCH 2/2] io_uring: imply MSG_NOSIGNAL for send[msg]()/recv[msg]() calls
-Date:   Tue, 16 Mar 2021 16:33:27 +0100
-Message-Id: <38961085c3ec49fd21550c7788f214d1ff02d2d4.1615908477.git.metze@samba.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <cover.1615908477.git.metze@samba.org>
-References: <cover.1615908477.git.metze@samba.org>
+        id S231435AbhCPQFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 12:05:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238443AbhCPQFW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 12:05:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3D2464FA5;
+        Tue, 16 Mar 2021 16:05:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615910714;
+        bh=ynXJtKVMMF9qJ1oZ8CZr4CxxidViT0otaj5Qh85Igr8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nrUWNMJdTMGO/qsTCQWubX6dSjFA1MstkMcMXEYTm1uvJ2tYYTLuPC1teEHXOHZo5
+         /cr9s/1tdBn9FfGhRw+wisrvK57L69OJP7IxYj7QKUIfvo8KV1u6YDQEFoPeckQYRy
+         GieqhEycVMFM8uoHkh/MIpEoxmsts0StDBGOcc7o=
+Date:   Tue, 16 Mar 2021 17:05:11 +0100
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Kurt Kanzenbach <kurt@linutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Christian Eggers <ceggers@arri.de>
+Subject: Re: [PATCH 5.10 113/290] net: dsa: implement a central TX
+ reallocation procedure
+Message-ID: <YFDXNxW9w25n/51o@kroah.com>
+References: <20210315135541.921894249@linuxfoundation.org>
+ <20210315135545.737069480@linuxfoundation.org>
+ <20210315195601.auhfy5uafjafgczs@skbuf>
+ <YFBGIt2jRQLmjtln@kroah.com>
+ <YFC4eVripXbAw2cG@sashalap>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YFC4eVripXbAw2cG@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We never want to generate any SIGPIPE, -EPIPE only is much better.
+On Tue, Mar 16, 2021 at 09:54:01AM -0400, Sasha Levin wrote:
+> On Tue, Mar 16, 2021 at 06:46:10AM +0100, gregkh@linuxfoundation.org wrote:
+> > On Mon, Mar 15, 2021 at 07:56:02PM +0000, Vladimir Oltean wrote:
+> > > +Andrew, Vivien,
+> > > 
+> > > On Mon, Mar 15, 2021 at 02:53:26PM +0100, gregkh@linuxfoundation.org wrote:
+> > > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > >
+> > > > From: Vladimir Oltean <vladimir.oltean@nxp.com>
+> > > >
+> > > > [ Upstream commit a3b0b6479700a5b0af2c631cb2ec0fb7a0d978f2 ]
+> > > >
+> > > > At the moment, taggers are left with the task of ensuring that the skb
+> > > > headers are writable (which they aren't, if the frames were cloned for
+> > > > TX timestamping, for flooding by the bridge, etc), and that there is
+> > > > enough space in the skb data area for the DSA tag to be pushed.
+> > > >
+> > > > Moreover, the life of tail taggers is even harder, because they need to
+> > > > ensure that short frames have enough padding, a problem that normal
+> > > > taggers don't have.
+> > > >
+> > > > The principle of the DSA framework is that everything except for the
+> > > > most intimate hardware specifics (like in this case, the actual packing
+> > > > of the DSA tag bits) should be done inside the core, to avoid having
+> > > > code paths that are very rarely tested.
+> > > >
+> > > > So provide a TX reallocation procedure that should cover the known needs
+> > > > of DSA today.
+> > > >
+> > > > Note that this patch also gives the network stack a good hint about the
+> > > > headroom/tailroom it's going to need. Up till now it wasn't doing that.
+> > > > So the reallocation procedure should really be there only for the
+> > > > exceptional cases, and for cloned packets which need to be unshared.
+> > > >
+> > > > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> > > > Tested-by: Christian Eggers <ceggers@arri.de> # For tail taggers only
+> > > > Tested-by: Kurt Kanzenbach <kurt@linutronix.de>
+> > > > Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+> > > > Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> > > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > > ---
+> > > 
+> > > For context, Sasha explains here:
+> > > https://www.spinics.net/lists/stable-commits/msg190151.html
+> > > (the conversation is somewhat truncated, unfortunately, because
+> > > stable-commits@vger.kernel.org ate my replies)
+> > > that 13 patches were backported to get the unrelated commit 9200f515c41f
+> > > ("net: dsa: tag_mtk: fix 802.1ad VLAN egress") to apply cleanly with git-am.
+> > > 
+> > > I am not strictly against this, even though I would have liked to know
+> > > that the maintainers were explicitly informed about it.
+> > > 
+> > > Greg, could you make your stable backporting emails include the output
+> > > of ./get_maintainer.pl into the list of recipients? Thanks.
+> > 
+> > I cc: everyone on the signed-off-by list on the patch, why would we need
+> > to add more?  A maintainer should always be on that list automatically.
+> 
+> Oh, hm, could this be an issue with subsystems that have a shared
+> maintainership model? In that scenario not all maintainers will sign-off
+> on a commit.
 
-cc: stable@vger.kernel.org
-Signed-off-by: Stefan Metzmacher <metze@samba.org>
----
- fs/io_uring.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+So a shared maintainer trusts their co-maintainer for reviewing patches
+for Linus's tree and all future kernels, but NOT into an old backported
+stable tree?  I doubt that, trust should be the same for both.
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index f8a6a629e4db..54105c5cf9e8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -4369,7 +4369,7 @@ static int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
- 		kmsg = &iomsg;
- 	}
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (issue_flags & IO_URING_F_NONBLOCK)
-@@ -4416,7 +4416,7 @@ static int io_send(struct io_kiocb *req, unsigned int issue_flags)
- 	msg.msg_controllen = 0;
- 	msg.msg_namelen = 0;
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (issue_flags & IO_URING_F_NONBLOCK)
-@@ -4607,7 +4607,7 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- 				1, req->sr_msg.len);
- 	}
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
-@@ -4669,7 +4669,7 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
- 	msg.msg_iocb = NULL;
- 	msg.msg_flags = 0;
- 
--	flags = req->sr_msg.msg_flags;
-+	flags = req->sr_msg.msg_flags | MSG_NOSIGNAL;
- 	if (flags & MSG_DONTWAIT)
- 		req->flags |= REQ_F_NOWAIT;
- 	else if (force_nonblock)
--- 
-2.25.1
+thanks,
 
+greg k-h
