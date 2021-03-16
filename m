@@ -2,316 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CB133D389
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 13:08:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DBEF33D39A
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 13:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237561AbhCPMIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 08:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233982AbhCPMHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 08:07:46 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F75AC06174A
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 05:07:44 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id u4so21170187edv.9
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 05:07:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=6HtHHZ++i9Sp4DSeONedSewEzbhA+aKhuSNlC2WbViw=;
-        b=bDuA03JYRGlE+RRNJLJAj5ywBlu+X1V9M7Jv59P0PcKMCwwB0r4SD3n2/zVaCH0oD1
-         KOVYAvWgNhZKwfvKsEw0ExU4Z6CM8ZsWM7PZtMWoVcE6lNpe+ExV2HRie5uQ/ijksJuS
-         MSeg0vj41sDHyhSpjRtRDJWklOBBGAWV77H9D3JZuciZlTeeQ8xwtKhyIxFpWXR5Z1Sq
-         poS8AxtpmCGPZT02piGBcweTP6dLw8onKrA1fzqW9Zcaj4yhB6XFTP+TkHcpXHvmxnNw
-         Npt/PBSiLjB2npUKGYG1bAWpRkuJ6REATomDxXd5PX7SFG9yH8OM1j+s5B/kERvZzCzG
-         cQqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6HtHHZ++i9Sp4DSeONedSewEzbhA+aKhuSNlC2WbViw=;
-        b=ji1gEp5Nfkuv6J1hI9QdNTshXlLmZPrtwRP7uqAGrPPfyOgsziNAl1eJ15vFkysoc0
-         KS0WnbsxfmST/BuBvWzVbwtFxahGcR3WOAgrXqZsI4HnfEcuYwcgccwTMkscoBX5danV
-         8wc23gxFUiWXIKo0vPwq8jFA2oqvt9ttxZgHr9OWb0mEQi+1sSTgHwSF+Hd4hl5FUjGN
-         LlEk2rWM31Ep9HL3lAl05wUx6WUvpyYGPGWZP5PQd4V2m90FLvcWAyYu7y5nNIjMNA1T
-         gAxS5arpbTl1KCIQ3WRIDbdzXkyr+xSnz0DrrZC8WBTSOWCY93gEOEeox9h5n73ZXEML
-         YLiQ==
-X-Gm-Message-State: AOAM530XyvvIlEdrcPlKJfbiy3cQB5e6I3ZEv3QqTB3OdnhdLqg4Km9B
-        EtepVh25pQAqs7UjX7+Wvf3VYW2yTwL155F1/WD8bg==
-X-Google-Smtp-Source: ABdhPJwv0IrWpnXPCUNOwZDVQNPKDoEEjcP6SQyZFbL/NgmGTvr/LerWYX1xSO6W9lyuQ8YpmA1DeyetKlWs9oPmsWk=
-X-Received: by 2002:a05:6402:5113:: with SMTP id m19mr36289517edd.78.1615896463093;
- Tue, 16 Mar 2021 05:07:43 -0700 (PDT)
+        id S229681AbhCPMQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 08:16:10 -0400
+Received: from mail-40131.protonmail.ch ([185.70.40.131]:12573 "EHLO
+        mail-40131.protonmail.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229739AbhCPMQC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 08:16:02 -0400
+Date:   Tue, 16 Mar 2021 12:15:48 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tmb.nu;
+        s=protonmail; t=1615896960;
+        bh=AN1iVoDnrXSaWtJKAGtgjDpy289O3XZjKfNs+R5E3C8=;
+        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
+        b=BsyfJflOEnS2UQQDY7QmzysjXtc8V+BXepYbZRwjmdNFXlAj/GhOn5wh0zjh0/OCE
+         qh0kw+zpsj8caifRPrRwbLbSgIsXepvogjot9DEtN5FigyxXVHQqENs78HSHIjvpfw
+         JWoXOh/u0HtbqEiRGj5IL/4eS2vpnssVH6ANRpy8=
+To:     Ard Biesheuvel <ardb@kernel.org>
+From:   Thomas Backlund <tmb@tmb.nu>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Reply-To: Thomas Backlund <tmb@tmb.nu>
+Subject: Re: stable request
+Message-ID: <1e6eb02b-e699-d1ff-9cfb-4ef77255e244@tmb.nu>
+In-Reply-To: <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
+References: <d5c825ba-cdcb-29eb-c434-83ef4db05ee0@tmb.nu> <CAMj1kXEM76Dejv1fTZ-1EmXpSsE-ZtKWf19dPNTSBRuPcAkreA@mail.gmail.com>
 MIME-Version: 1.0
-References: <20210315135208.252034256@linuxfoundation.org>
-In-Reply-To: <20210315135208.252034256@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 16 Mar 2021 17:37:31 +0530
-Message-ID: <CA+G9fYso_m+8YaWjVaSxwbv4tjdCRHrEcEKz53oySPuuWYYpJw@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/75] 4.4.262-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.2 required=10.0 tests=ALL_TRUSTED,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF shortcircuit=no
+        autolearn=disabled version=3.4.4
+X-Spam-Checker-Version: SpamAssassin 3.4.4 (2020-01-24) on
+        mailout.protonmail.ch
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 15 Mar 2021 at 19:23, <gregkh@linuxfoundation.org> wrote:
+
+Den 16.3.2021 kl. 12:17, skrev Ard Biesheuvel:
+> On Tue, 16 Mar 2021 at 10:21, Thomas Backlund <tmb@tmb.nu> wrote:
+>> Den 16.3.2021 kl. 08:37, skrev Ard Biesheuvel:
+>>> Please consider backporting commit
+>>>
+>>> 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+>>> crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+>>>
+>>> to stable. It addresses a rather substantial retpoline-related
+>>> performance regression in the AES-NI XTS code, which is a widely used
+>>> disk encryption algorithm on x86.
+>>>
+>> To get all the nice bits, we added the following in Mageia 5.10 / 5.11
+>> series kerenels (the 2 first is needed to get the third to apply/build
+>> nicely):
+>>
+> I will leave it up to the -stable maintainers to decide, but I will
+> point out that none of the additional patches fix any bugs, so this
+> may violate the stable kernel rules. In fact, I deliberately split the
+> XTS changes into two  patches so that the first one could be
+> backported individually.
+
+
+Yes, I understand that.
+
+but commit
+
+86ad60a65f29dd862a11c22bb4b5be28d6c5cef1
+crypto: x86/aes-ni-xts - use direct calls to and 4-way stride
+
+only applies cleanly on 5.11.
+
+
+So if it's wanted in 5.10 you need the 2 others too... unless you intend to=
+ provide a tested backport...
+and IIRC GregKH prefers 1:1 matching of patches between -stable and linus t=
+ree unless they are too intrusive.
+
+
+As for the last one I seem to remember comments that it too was part of the=
+ "affects performance", but I might be remembering wrong... and since you a=
+re Author of them I assume you know better about the facts :)
+
+
+That's why I listed them as an extra "hopefully helfpful" info and datapoin=
+t that they work...
+We have been carrying them in 5.10 series since we rebased to 5.10.8 on Jan=
+uary 17th, 2021
+
+
+but in the end it's up to the -stable maintainers as you point out...
+
+--
+Thomas
+
+> --
+> Ard.
 >
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 >
-> This is the start of the stable review cycle for the 4.4.262 release.
-> There are 75 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 17 Mar 2021 13:51:52 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.262-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+>> applied in this order:
+>>
+>>   From 032d049ea0f45b45c21f3f02b542aa18bc6b6428 Mon Sep 17 00:00:00 2001
+>> From: Uros Bizjak <ubizjak@gmail.com>
+>> Date: Fri, 27 Nov 2020 10:44:52 +0100
+>> Subject: [PATCH] crypto: aesni - Use TEST %reg,%reg instead of CMP $0,%r=
+eg
+>>
+>>   From ddf169a98f01d6fd46295ec0dd4c1d6385be65d4 Mon Sep 17 00:00:00 2001
+>> From: Ard Biesheuvel <ardb@kernel.org>
+>> Date: Tue, 8 Dec 2020 00:34:02 +0100
+>> Subject: [PATCH] crypto: aesni - implement support for cts(cbc(aes))
+>>
+>>   From 86ad60a65f29dd862a11c22bb4b5be28d6c5cef1 Mon Sep 17 00:00:00 2001
+>> From: Ard Biesheuvel <ardb@kernel.org>
+>> Date: Thu, 31 Dec 2020 17:41:54 +0100
+>> Subject: [PATCH] crypto: x86/aes-ni-xts - use direct calls to and 4-way
+>> stride
+>>
+>>   From 2481104fe98d5b016fdd95d649b1235f21e491ba Mon Sep 17 00:00:00 2001
+>> From: Ard Biesheuvel <ardb@kernel.org>
+>> Date: Thu, 31 Dec 2020 17:41:55 +0100
+>> Subject: [PATCH] crypto: x86/aes-ni-xts - rewrite and drop indirections
+>> via glue helper
+>>
+>> --
+>> Thomas
+>>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.262-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 712d2b53fc1193899b028c57bb0fe069936e958e
-git describe: v4.4.261-76-g712d2b53fc11
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.=
-y/build/v4.4.261-76-g712d2b53fc11
-
-
-No regressions (compared to build v4.4.261)
-
-No fixes (compared to build v4.4.261)
-
-Ran 30821 total tests in the following environments and test suites.
-
-Environments
---------------
-- arm
-- arm64
-- i386
-- juno-64k_page_size
-- juno-r2 - arm64
-- juno-r2-compat
-- juno-r2-kasan
-- mips
-- qemu-arm64-kasan
-- qemu-x86_64-kasan
-- qemu_arm
-- qemu_arm64
-- qemu_arm64-compat
-- qemu_i386
-- qemu_x86_64
-- qemu_x86_64-compat
-- sparc
-- x15 - arm
-- x86_64
-- x86-kasan
-- x86_64
-
-Test Suites
------------
-* build
-* linux-log-parser
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* perf
-* kselftest-sync
-* kvm-unit-tests
-* v4l2-compliance
-* install-android-platform-tools-r2600
-* fwts
-* ssuite
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 4.4.262-rc1
-git repo: https://git.linaro.org/lkft/arm64-stable-rc.git
-git branch: 4.4.262-rc1-hikey-20210315-965
-git commit: 0571025494b76ef8d857a1bbf7937b881e18ba1e
-git describe: 4.4.262-rc1-hikey-20210315-965
-Test details: https://qa-reports.linaro.org/lkft/linaro-hikey-stable-rc-4.4=
--oe/build/4.4.262-rc1-hikey-20210315-965
-
-
-No regressions (compared to build 4.4.262-rc1-hikey-20210315-962)
-
-
-No fixes (compared to build 4.4.262-rc1-hikey-20210315-962)
-
-Ran 1966 total tests in the following environments and test suites.
-
-Environments
---------------
-- hi6220-hikey - arm64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-zram
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
