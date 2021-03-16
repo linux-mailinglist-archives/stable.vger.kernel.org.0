@@ -2,221 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D2D033E04F
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 22:17:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B932933E08F
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 22:32:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233148AbhCPVR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 17:17:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55792 "EHLO
+        id S229506AbhCPVcT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 17:32:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233087AbhCPVRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 17:17:09 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B3FC06175F;
-        Tue, 16 Mar 2021 14:17:08 -0700 (PDT)
-Date:   Tue, 16 Mar 2021 21:17:05 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1615929425;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xw6nNRh3N9kof/ooR7FnSsxqyrCJ/QtG04AagLWg0iE=;
-        b=a9z/XNvKvm6U4PMi2dYOeVlkeWmm+SCQgmgzTYhwg5sCMk+cGHzsWEA1SbhScNS9nRuMVs
-        W7nCkMWjTQMzaOrtW/r4ytBQrVOG8/xic7RWgRlwSN/TIZZIjizIDykMNJtyImOtrRrJQR
-        P0IV00eM20Rgs3Ru1Zl6hj6HdXccvTBsOHw0xvyNkwWuEqJiMfGj9f5uMHsiYfkKw6cDrI
-        1YmdsfdOPxJmJvaqFgcKi49dr8VvTIlYhP928Zvk567lzETrdIZbN4Pm9MXJXvJaTkFtrJ
-        s8Oc/AF2wWpxN/klIEhtaoHB305m7nA/hciQ3CwuLs+HE9ADskN3MoIKgM6Z0w==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1615929425;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xw6nNRh3N9kof/ooR7FnSsxqyrCJ/QtG04AagLWg0iE=;
-        b=g4vR915yWSKEse+7D+NTxX2BbNGlJrm3hNqS6XoP8lUWFVvCYYAzUd3ChlFeanmbuj1Gxz
-        Z+HCgpjJcRalAwAQ==
-From:   "tip-bot2 for Oleg Nesterov" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] kernel, fs: Introduce and use set_restart_fn() and
- arch_set_restart_data()
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210201174641.GA17871@redhat.com>
-References: <20210201174641.GA17871@redhat.com>
-MIME-Version: 1.0
-Message-ID: <161592942528.398.3161222812902818660.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229680AbhCPVbs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 17:31:48 -0400
+Received: from mail-qv1-xf4a.google.com (mail-qv1-xf4a.google.com [IPv6:2607:f8b0:4864:20::f4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74BFCC06174A
+        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 14:31:48 -0700 (PDT)
+Received: by mail-qv1-xf4a.google.com with SMTP id k92so22722481qva.20
+        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 14:31:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=9qIl2h84+tEpR/qPDqw7Ia65+Rx0tWJMRUJLpgSeqnM=;
+        b=VKidfvf+MG8jEETiiE08axf+7iZQSbpLglqhROkebIZt0fikpDpV+kmPgHe73Lb49T
+         F6Jt3upfNFYoCxTLLr1Z2K++BKVf9H7bLpTYOrOCm/U9fkU1VyayTnp28aq/OnASgofU
+         Z6jsIV8CsPGH6Oo95QDA+JzG0J+v1sOJwO1sFf8/SskIpOSdb2U5uPvoBy0gKHGlRm9p
+         jfsnW/ubAhcqY5QOmfnydoebGLjEyF8lN8awAq8SdqJwv7JQ+Q6N+dLLxyAfA/ov9cx0
+         CfTsAP240chH8GQBxFrb83QwL8m9p3jUl09lRYdM759F98i+SG29MZHWRvyLszMsA9pN
+         F2Sg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=9qIl2h84+tEpR/qPDqw7Ia65+Rx0tWJMRUJLpgSeqnM=;
+        b=V8Kqm0xwKTQ0NK1PU+WeHnRw6Eyi48L1gEYjzwGgVWsk1a8Ntvv4kNNh+Fc2YCnH1g
+         fZkerNy16xwboYv0DePUA7eCv1PdItwKbSbjrxs6JVXucu87r4kdcpFSmapoZqkVQlet
+         ZaIt1CJ1L517L7poGhunFxienDZHfruOWV5zBfJMj6jGBzh/WC85OoBf9tXR+nUGEvuz
+         0hqF/vdEXusCwwlxiy0GcHgCsnoA0VoUVIL1nIlV7XvkanXzU0VkoMku6Xi7BSoD487i
+         y0rS4iqOcNoOGsqv8UsKMwHm/3X3YNZTpxOTLqI1AqEP72Kj9DbIQ1TEmo18wj1pUiLl
+         OpgQ==
+X-Gm-Message-State: AOAM531/sr4potLD/CYvhKaEEKD3p/Vr5O6wBb3DuOyUP/GgfF1oo6oL
+        usH2mL/Q9y81apmSFVWwPCvMmUfPL9fYKHZiND8=
+X-Google-Smtp-Source: ABdhPJxIW6jDWu6KdNEpIRhbBqjCtyfJcmFkSZFoI1+waUeR+OqLTQtQfV45DrCQ6Cik8oLM3S/lHWzj7Dwr7A4Wpz4=
+X-Received: from ndesaulniers1.mtv.corp.google.com ([2620:15c:211:202:b408:7c5f:edf4:6c69])
+ (user=ndesaulniers job=sendgmr) by 2002:a05:6214:2b06:: with SMTP id
+ jx6mr1632764qvb.48.1615930306822; Tue, 16 Mar 2021 14:31:46 -0700 (PDT)
+Date:   Tue, 16 Mar 2021 14:31:33 -0700
+Message-Id: <20210316213136.1866983-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH] scripts: stable: add script to validate backports
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Ard Biesheuvel <ard@kernel.org>,
+        clang-built-linux@googlegroups.com,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+A common recurring mistake made when backporting patches to stable is
+forgetting to check for additional commits tagged with `Fixes:`. This
+script validates that local commits have a `commit <sha40> upstream.`
+line in their commit message, and whether any additional `Fixes:` shas
+exist in the `master` branch but were not included. It can not know
+about fixes yet to be discovered, or fixes sent to the mailing list but
+not yet in mainline.
 
-Commit-ID:     5abbe51a526253b9f003e9a0a195638dc882d660
-Gitweb:        https://git.kernel.org/tip/5abbe51a526253b9f003e9a0a195638dc882d660
-Author:        Oleg Nesterov <oleg@redhat.com>
-AuthorDate:    Mon, 01 Feb 2021 18:46:41 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 16 Mar 2021 22:13:10 +01:00
+To save time, it avoids checking all of `master`, stopping early once
+we've reached the commit time of the earliest backport. It takes 0.5s to
+validate 2 patches to linux-5.4.y when master is v5.12-rc3 and 5s to
+validate 27 patches to linux-4.19.y. It does not recheck dependencies of
+found fixes; the user is expected to run this script to a fixed point.
+It depnds on pygit2 python library for working with git, which can be
+installed via:
+$ pip3 install pygit2
 
-kernel, fs: Introduce and use set_restart_fn() and arch_set_restart_data()
+It's expected to be run from a stable tree with commits applied.  For
+example, consider 3cce9d44321e which is a fix for f77ac2e378be. Let's
+say I cherry picked f77ac2e378be into linux-5.4.y but forgot
+3cce9d44321e (true story). If I ran:
 
-Preparation for fixing get_nr_restart_syscall() on X86 for COMPAT.
+$ ./scripts/stable/check_backports.py
+Checking 1 local commits for additional Fixes: in master
+Please consider backporting 3cce9d44321e as a fix for f77ac2e378be
 
-Add a new helper which sets restart_block->fn and calls a dummy
-arch_set_restart_data() helper.
+So then I could cherry pick 3cce9d44321e as well:
+$ git cherry-pick -sx 3cce9d44321e
+$ ./scripts/stable/check_backports.py
+...
+Exception: Missing 'commit <sha40> upstream.' line
 
-Fixes: 609c19a385c8 ("x86/ptrace: Stop setting TS_COMPAT in ptrace code")
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210201174641.GA17871@redhat.com
+Oops, let me fixup the commit message and retry.
+$ git commit --amend
+<fix commit message>
+$ ./scripts/stable/check_backports.py
+Checking 2 local commits for additional Fixes: in master
+$ echo $?
+0
 
+This allows for client side validation by the backports author, and
+server side validation by the stable kernel maintainers.
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 ---
- fs/select.c                    | 10 ++++------
- include/linux/thread_info.h    | 13 +++++++++++++
- kernel/futex.c                 |  3 +--
- kernel/time/alarmtimer.c       |  2 +-
- kernel/time/hrtimer.c          |  2 +-
- kernel/time/posix-cpu-timers.c |  2 +-
- 6 files changed, 21 insertions(+), 11 deletions(-)
+ MAINTAINERS                       |  1 +
+ scripts/stable/check_backports.py | 92 +++++++++++++++++++++++++++++++
+ 2 files changed, 93 insertions(+)
+ create mode 100755 scripts/stable/check_backports.py
 
-diff --git a/fs/select.c b/fs/select.c
-index 37aaa83..945896d 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -1055,10 +1055,9 @@ static long do_restart_poll(struct restart_block *restart_block)
+diff --git a/MAINTAINERS b/MAINTAINERS
+index aa84121c5611..a8639e9277c4 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -16960,6 +16960,7 @@ M:	Sasha Levin <sashal@kernel.org>
+ L:	stable@vger.kernel.org
+ S:	Supported
+ F:	Documentation/process/stable-kernel-rules.rst
++F:	scripts/stable/
  
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	if (ret == -ERESTARTNOHAND) {
--		restart_block->fn = do_restart_poll;
--		ret = -ERESTART_RESTARTBLOCK;
--	}
-+	if (ret == -ERESTARTNOHAND)
-+		ret = set_restart_fn(restart_block, do_restart_poll);
+ STAGING - ATOMISP DRIVER
+ M:	Mauro Carvalho Chehab <mchehab@kernel.org>
+diff --git a/scripts/stable/check_backports.py b/scripts/stable/check_backports.py
+new file mode 100755
+index 000000000000..529294e247ca
+--- /dev/null
++++ b/scripts/stable/check_backports.py
+@@ -0,0 +1,92 @@
++#!/usr/bin/env python3
++# SPDX-License-Identifier: GPL-2.0
++# Copyright (C) 2021 Google, Inc.
 +
- 	return ret;
- }
- 
-@@ -1080,7 +1079,6 @@ SYSCALL_DEFINE3(poll, struct pollfd __user *, ufds, unsigned int, nfds,
- 		struct restart_block *restart_block;
- 
- 		restart_block = &current->restart_block;
--		restart_block->fn = do_restart_poll;
- 		restart_block->poll.ufds = ufds;
- 		restart_block->poll.nfds = nfds;
- 
-@@ -1091,7 +1089,7 @@ SYSCALL_DEFINE3(poll, struct pollfd __user *, ufds, unsigned int, nfds,
- 		} else
- 			restart_block->poll.has_timeout = 0;
- 
--		ret = -ERESTART_RESTARTBLOCK;
-+		ret = set_restart_fn(restart_block, do_restart_poll);
- 	}
- 	return ret;
- }
-diff --git a/include/linux/thread_info.h b/include/linux/thread_info.h
-index 9b2158c..157762d 100644
---- a/include/linux/thread_info.h
-+++ b/include/linux/thread_info.h
-@@ -11,6 +11,7 @@
- #include <linux/types.h>
- #include <linux/bug.h>
- #include <linux/restart_block.h>
-+#include <linux/errno.h>
- 
- #ifdef CONFIG_THREAD_INFO_IN_TASK
- /*
-@@ -59,6 +60,18 @@ enum syscall_work_bit {
- 
- #ifdef __KERNEL__
- 
-+#ifndef arch_set_restart_data
-+#define arch_set_restart_data(restart) do { } while (0)
-+#endif
++import os
++import re
++import sys
 +
-+static inline long set_restart_fn(struct restart_block *restart,
-+					long (*fn)(struct restart_block *))
-+{
-+	restart->fn = fn;
-+	arch_set_restart_data(restart);
-+	return -ERESTART_RESTARTBLOCK;
-+}
++import pygit2 as pg
 +
- #ifndef THREAD_ALIGN
- #define THREAD_ALIGN	THREAD_SIZE
- #endif
-diff --git a/kernel/futex.c b/kernel/futex.c
-index e68db77..00febd6 100644
---- a/kernel/futex.c
-+++ b/kernel/futex.c
-@@ -2728,14 +2728,13 @@ retry:
- 		goto out;
- 
- 	restart = &current->restart_block;
--	restart->fn = futex_wait_restart;
- 	restart->futex.uaddr = uaddr;
- 	restart->futex.val = val;
- 	restart->futex.time = *abs_time;
- 	restart->futex.bitset = bitset;
- 	restart->futex.flags = flags | FLAGS_HAS_TIMEOUT;
- 
--	ret = -ERESTART_RESTARTBLOCK;
-+	ret = set_restart_fn(restart, futex_wait_restart);
- 
- out:
- 	if (to) {
-diff --git a/kernel/time/alarmtimer.c b/kernel/time/alarmtimer.c
-index 98d7a15..4d94e2b 100644
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -854,9 +854,9 @@ static int alarm_timer_nsleep(const clockid_t which_clock, int flags,
- 	if (flags == TIMER_ABSTIME)
- 		return -ERESTARTNOHAND;
- 
--	restart->fn = alarm_timer_nsleep_restart;
- 	restart->nanosleep.clockid = type;
- 	restart->nanosleep.expires = exp;
-+	set_restart_fn(restart, alarm_timer_nsleep_restart);
- 	return ret;
- }
- 
-diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
-index 788b9d1..5c9d968 100644
---- a/kernel/time/hrtimer.c
-+++ b/kernel/time/hrtimer.c
-@@ -1957,9 +1957,9 @@ long hrtimer_nanosleep(ktime_t rqtp, const enum hrtimer_mode mode,
- 	}
- 
- 	restart = &current->restart_block;
--	restart->fn = hrtimer_nanosleep_restart;
- 	restart->nanosleep.clockid = t.timer.base->clockid;
- 	restart->nanosleep.expires = hrtimer_get_expires_tv64(&t.timer);
-+	set_restart_fn(restart, hrtimer_nanosleep_restart);
- out:
- 	destroy_hrtimer_on_stack(&t.timer);
- 	return ret;
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index a71758e..9abe152 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -1480,8 +1480,8 @@ static int posix_cpu_nsleep(const clockid_t which_clock, int flags,
- 		if (flags & TIMER_ABSTIME)
- 			return -ERESTARTNOHAND;
- 
--		restart_block->fn = posix_cpu_nsleep_restart;
- 		restart_block->nanosleep.clockid = which_clock;
-+		set_restart_fn(restart_block, posix_cpu_nsleep_restart);
- 	}
- 	return error;
- }
++
++def get_head_branch(repo):
++    # Walk the branches to find which is HEAD.
++    for branch_name in repo.branches:
++        branch = repo.branches[branch_name]
++        if branch.is_head():
++            return branch
++
++
++def get_local_commits(repo):
++    head_branch = get_head_branch(repo)
++    # Walk the HEAD ref until we hit the first commit from the upstream.
++    walker = repo.walk(repo.head.target)
++    upstream_branch = head_branch.upstream
++    upstream_commit, _ = repo.resolve_refish(upstream_branch.name)
++    walker.hide(upstream_commit.id)
++    commits = [commit for commit in walker]
++    if not len(commits):
++        raise Exception("No local commits")
++    return commits
++
++
++def get_upstream_shas(commits):
++    upstream_shas = []
++    prog = re.compile('commit ([0-9a-f]{40}) upstream.')
++    # For each line of each commit message, record the
++    # "commit <sha40> upstream." line.
++    for commit in commits:
++        found_upstream_line = False
++        for line in commit.message.splitlines():
++            result = prog.search(line)
++            if result:
++                upstream_shas.append(result.group(1)[:12])
++                found_upstream_line = True
++                break
++        if not found_upstream_line:
++            raise Exception("Missing 'commit <sha40> upstream.' line")
++    return upstream_shas
++
++
++def get_oldest_commit_time(repo, shas):
++    commit_times = [repo.resolve_refish(sha)[0].commit_time for sha in shas]
++    return sorted(commit_times)[0]
++
++
++def get_fixes_for(shas):
++    shas = set(shas)
++    prog = re.compile("Fixes: ([0-9a-f]{12,40})")
++    # Walk commits in the master branch.
++    master_commit, master_ref = repo.resolve_refish("master")
++    walker = repo.walk(master_ref.target)
++    oldest_commit_time = get_oldest_commit_time(repo, shas)
++    fixes = []
++    for commit in walker:
++        # It's not possible for a Fixes: to be committed before a fixed tag, so
++        # don't iterate all of git history.
++        if commit.commit_time < oldest_commit_time:
++            break
++        for line in reversed(commit.message.splitlines()):
++            result = prog.search(line)
++            if not result:
++                continue
++            fixes_sha = result.group(1)[:12]
++            if fixes_sha in shas and commit.id.hex[:12] not in shas:
++                fixes.append((commit.id.hex[:12], fixes_sha))
++    return fixes
++
++
++def report(fixes):
++    if len(fixes):
++        for fix, broke in fixes:
++            print("Please consider backporting %s as a fix for %s" % (fix, broke))
++        sys.exit(1)
++
++
++if __name__ == "__main__":
++    repo = pg.Repository(os.getcwd())
++    commits = get_local_commits(repo)
++    print("Checking %d local commits for additional Fixes: in master" % (len(commits)))
++    upstream_shas = get_upstream_shas(commits)
++    fixes = get_fixes_for(upstream_shas)
++    report(fixes)
+-- 
+2.31.0.rc2.261.g7f71774620-goog
+
