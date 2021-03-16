@@ -2,51 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B816033D14B
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 11:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3DC333D15C
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 11:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236125AbhCPKBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 06:01:24 -0400
-Received: from szxga04-in.huawei.com ([45.249.212.190]:13628 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236145AbhCPKAy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 06:00:54 -0400
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.58])
-        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4F07zQ0Sv4z17L9v;
-        Tue, 16 Mar 2021 17:58:58 +0800 (CST)
-Received: from [127.0.0.1] (10.175.101.122) by DGGEMS401-HUB.china.huawei.com
- (10.3.19.201) with Microsoft SMTP Server id 14.3.498.0; Tue, 16 Mar 2021
- 18:00:42 +0800
-Content-Type: multipart/alternative;
-        boundary="===============7904025277230501180=="
+        id S236243AbhCPKFP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 06:05:15 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:54372 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233330AbhCPKFF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 06:05:05 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id DD45A1C0B8B; Tue, 16 Mar 2021 11:05:02 +0100 (CET)
+Date:   Tue, 16 Mar 2021 11:05:01 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 154/290] PCI/LINK: Remove bandwidth notification
+Message-ID: <20210316100501.GD12946@amd>
+References: <20210315135541.921894249@linuxfoundation.org>
+ <20210315135547.125914951@linuxfoundation.org>
 MIME-Version: 1.0
-Date:   Tue, 16 Mar 2021 18:00:42 +0800
-From:   <hulkrobot@huawei.com>
-To:     <stable@vger.kernel.org>
-CC:     <gregkh@linuxfoundation.org>
-Subject: =?utf-8?q?=5Blinux-stable-rc_CI=5D_Test_report_for_5=2E10=2E24-rc1/arm64?=
-Message-ID: <9346e64d-ec07-4d1a-81c9-6ae3aee765f4@DGGEMS401-HUB.china.huawei.com>
-X-Originating-IP: [10.175.101.122]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Q0rSlbzrZN6k9QnT"
+Content-Disposition: inline
+In-Reply-To: <20210315135547.125914951@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---===============7904025277230501180==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
 
-S2VybmVsIHJlcG86IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwv
-Z2l0L3N0YWJsZS9saW51eC1zdGFibGUtcmMuZ2l0CkJyYW5jaDogbGludXgtNS4xMC55CkFyY2g6
-IGFybTY0ClZlcnNpb246IDUuMTAuMjQtcmMxCkNvbW1pdDogYzZiMzcyNGU1NjkyMzE5MWRjNTY3
-Y2ViNjI2YmExNWRhYTQ5MzEzYw0KQ29tcGlsZXI6IGdjYyB2ZXJzaW9uIDcuMy4wIChHQ0MpCi0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tCkFsbCB0ZXN0Y2FzZXMgUEFTU0VELgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpUZXN0Y2FzZSBSZXN1
-bHQgU3VtbWFyeToKdG90YWxfbnVtOiA0NzM1CnN1Y2NlZWRfbnVtOiA0NzM1CmZhaWxlZF9udW06
-IDAKdGltZW91dF9udW06IDAKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KVGVzdGVkLWJ5OiBIdWxrIFJvYm90IDxodWxr
-cm9ib3RAaHVhd2VpLmNvbT4=
+--Q0rSlbzrZN6k9QnT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---===============7904025277230501180==--
+Hi!
+
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>=20
+> From: Bjorn Helgaas <bhelgaas@google.com>
+
+Dup.
+
+> Remove the bandwidth change notifications for now.  Hopefully we can add
+> this back when we have a better understanding of why this happens and how
+> we can make the messages useful instead of overwhelming.
+
+This is stable, and even for mainline, I'd expect "depends on BROKEN"
+in Kconfig, or something like that, so people can still work on fixing
+it and so that we don't have huge changes floating around.
+
+Best regards,
+								Pavel
+							=09
+> diff --git a/drivers/pci/pcie/Kconfig b/drivers/pci/pcie/Kconfig
+> index 3946555a6042..45a2ef702b45 100644
+> --- a/drivers/pci/pcie/Kconfig
+> +++ b/drivers/pci/pcie/Kconfig
+> @@ -133,14 +133,6 @@ config PCIE_PTM
+>  	  This is only useful if you have devices that support PTM, but it
+>  	  is safe to enable even if you don't.
+> =20
+> -config PCIE_BW
+> -	bool "PCI Express Bandwidth Change Notification"
+> -	depends on PCIEPORTBUS
+> -	help
+> -	  This enables PCI Express Bandwidth Change Notification.  If
+> -	  you know link width or rate changes occur only to correct
+> -	  unreliable links, you may answer Y.
+
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--Q0rSlbzrZN6k9QnT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmBQgs0ACgkQMOfwapXb+vLOxgCeN+MQeHtq+scAXlKbL20uT5Sm
+qYQAoKQTFYLSuLvuwE9dRNkfvaN1iRhj
+=9jjp
+-----END PGP SIGNATURE-----
+
+--Q0rSlbzrZN6k9QnT--
