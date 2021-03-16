@@ -2,124 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 423F333DBD0
-	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 19:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E4D433DC67
+	for <lists+stable@lfdr.de>; Tue, 16 Mar 2021 19:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239550AbhCPSAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 14:00:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41328 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239570AbhCPSAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 14:00:18 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0528AC06174A
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 11:00:14 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id y6so22586455eds.1
-        for <stable@vger.kernel.org>; Tue, 16 Mar 2021 11:00:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DgS4OPGpMnlY/AXfZW8QgtbwbGQ3UnwEJWQevK1FyQM=;
-        b=cG0II0bD9BO8wTxnNskixKM4IoZR5lfxEvmdzYjzx1KMvMD9a35KYSXzWCBTmDIsjy
-         7jPK/a/JoQDMjUnOBznqdt7bJq0ICL7FTNt1gJcvyMxOLasgVXyL8OhiOyU9gdlf3cU6
-         j2u66UMluSlRdjFIuumABGiJ1Z9H4xq+5zIp0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DgS4OPGpMnlY/AXfZW8QgtbwbGQ3UnwEJWQevK1FyQM=;
-        b=ZGPX/KGOknqxUr+aqL3Fg9HX+AeEH2fBOaKuOsAqlhENI2raElg2sRwSUmAEYegtL5
-         I33ptfYvPXEddxfXceizxFIAIBmOwSamSaB6YXM3LUsH8JVja7yOc9XI0/ae2WutTuOD
-         aVcytGFomSvuCBnubBoS6Lh5mwoHNNa4l4YPXtnq2o2YgAc6me81x3ZqjNNms3+3gPWR
-         WoMOp6I9YJE9pJ+N3r07scJ8KkzUZ47hc6uAQWWfgyQ6FkGU6w3BlGIfSk9hgzpVCnw3
-         K0jXHWWGYRW3mI428a+KlqTuNJf+ExzlzF4Vtj3FYnWigpepeqCld+6QN68dmldFVbZq
-         zegA==
-X-Gm-Message-State: AOAM532vtVSZ1Eg/W+/FY5mmga2gIXUxRPj02Gz99Ge2ptqLa8i4RnQL
-        pMZiXc8WizraeAzi2uPlPkJYJA==
-X-Google-Smtp-Source: ABdhPJz7YUZrzF1/c9en2cWPZuO3gyNnvUfEwjU0ztOWHESL9qcPjLopL9NVEas4O5zneC3vmtudRw==
-X-Received: by 2002:a05:6402:17af:: with SMTP id j15mr37619688edy.50.1615917608430;
-        Tue, 16 Mar 2021 11:00:08 -0700 (PDT)
-Received: from alco.lan ([80.71.134.83])
-        by smtp.gmail.com with ESMTPSA id c19sm10953182edu.20.2021.03.16.11.00.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Mar 2021 11:00:08 -0700 (PDT)
-From:   Ricardo Ribalda <ribalda@chromium.org>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        tfiga@chromium.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH v5 01/13] media: v4l2-ioctl: Fix check_ext_ctrls
-Date:   Tue, 16 Mar 2021 18:59:51 +0100
-Message-Id: <20210316180004.1605727-2-ribalda@chromium.org>
-X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
-In-Reply-To: <20210316180004.1605727-1-ribalda@chromium.org>
-References: <20210316180004.1605727-1-ribalda@chromium.org>
+        id S236558AbhCPSR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 14:17:57 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:58042 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S239966AbhCPSR2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 16 Mar 2021 14:17:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1615918648;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HAM1TwwmGz08tYIJFcJigdtdBF6Phn1evgG1Tccbtsg=;
+        b=Q9rG+KP3BWgvwJNzCa2Gkqkoev4xmPpVZjhN9k3yvEwnaRFyOVUK8IYjWULg1dJ/vnotN3
+        d7ar81t/92VruQgLLbcIMHOUKyzrobRD2gnAuv7Lfz4l/7nZyQQWtLBvNf2vhP/m/cxE4t
+        qt/K7jPgO18W7K6+roHjZ8LsUAr3MRw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-QoVFzhEFMwyyetXQP_FxeQ-1; Tue, 16 Mar 2021 14:17:26 -0400
+X-MC-Unique: QoVFzhEFMwyyetXQP_FxeQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 03632107ACCA;
+        Tue, 16 Mar 2021 18:17:25 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-57.rdu2.redhat.com [10.10.114.57])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 892EC5D9C0;
+        Tue, 16 Mar 2021 18:17:18 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 1B80E220BCF; Tue, 16 Mar 2021 14:17:18 -0400 (EDT)
+Date:   Tue, 16 Mar 2021 14:17:18 -0400
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Luis Henriques <lhenriques@suse.de>
+Cc:     Stefan Hajnoczi <stefanha@redhat.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        virtualization@lists.linux-foundation.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, virtio-fs-list <virtio-fs@redhat.com>
+Subject: Re: [PATCH] virtiofs: fix memory leak in virtio_fs_probe()
+Message-ID: <20210316181718.GG270529@redhat.com>
+References: <20210316170234.21736-1-lhenriques@suse.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210316170234.21736-1-lhenriques@suse.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Drivers that do not use the ctrl-framework use this function instead.
+On Tue, Mar 16, 2021 at 05:02:34PM +0000, Luis Henriques wrote:
+> When accidentally passing twice the same tag to qemu, kmemleak ended up
+> reporting a memory leak in virtiofs.  Also, looking at the log I saw the
+> following error (that's when I realised the duplicated tag):
+> 
+>   virtiofs: probe of virtio5 failed with error -17
+> 
+> Here's the kmemleak log for reference:
+> 
+> unreferenced object 0xffff888103d47800 (size 1024):
+>   comm "systemd-udevd", pid 118, jiffies 4294893780 (age 18.340s)
+>   hex dump (first 32 bytes):
+>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+>     ff ff ff ff ff ff ff ff 80 90 02 a0 ff ff ff ff  ................
+>   backtrace:
+>     [<000000000ebb87c1>] virtio_fs_probe+0x171/0x7ae [virtiofs]
+>     [<00000000f8aca419>] virtio_dev_probe+0x15f/0x210
+>     [<000000004d6baf3c>] really_probe+0xea/0x430
+>     [<00000000a6ceeac8>] device_driver_attach+0xa8/0xb0
+>     [<00000000196f47a7>] __driver_attach+0x98/0x140
+>     [<000000000b20601d>] bus_for_each_dev+0x7b/0xc0
+>     [<00000000399c7b7f>] bus_add_driver+0x11b/0x1f0
+>     [<0000000032b09ba7>] driver_register+0x8f/0xe0
+>     [<00000000cdd55998>] 0xffffffffa002c013
+>     [<000000000ea196a2>] do_one_initcall+0x64/0x2e0
+>     [<0000000008f727ce>] do_init_module+0x5c/0x260
+>     [<000000003cdedab6>] __do_sys_finit_module+0xb5/0x120
+>     [<00000000ad2f48c6>] do_syscall_64+0x33/0x40
+>     [<00000000809526b5>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Luis Henriques <lhenriques@suse.de>
 
-- Return error when handling of REQUEST_VAL.
-- Do not check for multiple classes when getting the DEF_VAL.
+Hi Luis,
 
-Fixes v4l2-compliance:
-Control ioctls (Input 0):
-		fail: v4l2-test-controls.cpp(813): doioctl(node, VIDIOC_G_EXT_CTRLS, &ctrls)
-	test VIDIOC_G/S/TRY_EXT_CTRLS: FAIL
+Thanks for the report and the fix. So looks like leak is happening
+because we are not doing kfree(fs->vqs) in error path.
 
-Cc: stable@vger.kernel.org
-Fixes: 6fa6f831f095 ("media: v4l2-ctrls: add core request support")
-Suggested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
----
- drivers/media/v4l2-core/v4l2-ioctl.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+> ---
+>  fs/fuse/virtio_fs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 8868ac31a3c0..4e6ef9f24e84 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -899,7 +899,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
+>  
+>  out:
+>  	vdev->priv = NULL;
+> -	kfree(fs);
+> +	virtio_fs_put(fs);
 
-diff --git a/drivers/media/v4l2-core/v4l2-ioctl.c b/drivers/media/v4l2-core/v4l2-ioctl.c
-index 31d1342e61e8..9406e90ff805 100644
---- a/drivers/media/v4l2-core/v4l2-ioctl.c
-+++ b/drivers/media/v4l2-core/v4l2-ioctl.c
-@@ -917,15 +917,24 @@ static int check_ext_ctrls(struct v4l2_ext_controls *c, int allow_priv)
- 	for (i = 0; i < c->count; i++)
- 		c->controls[i].reserved2[0] = 0;
- 
--	/* V4L2_CID_PRIVATE_BASE cannot be used as control class
--	   when using extended controls.
--	   Only when passed in through VIDIOC_G_CTRL and VIDIOC_S_CTRL
--	   is it allowed for backwards compatibility.
--	 */
--	if (!allow_priv && c->which == V4L2_CID_PRIVATE_BASE)
--		return 0;
--	if (!c->which)
-+	switch (c->which) {
-+	case V4L2_CID_PRIVATE_BASE:
-+		/*
-+		 * V4L2_CID_PRIVATE_BASE cannot be used as control class
-+		 * when using extended controls.
-+		 * Only when passed in through VIDIOC_G_CTRL and VIDIOC_S_CTRL
-+		 * is it allowed for backwards compatibility.
-+		*/
-+		if (!allow_priv)
-+			return 0;
-+		break;
-+	case V4L2_CTRL_WHICH_DEF_VAL:
-+	case V4L2_CTRL_WHICH_CUR_VAL:
- 		return 1;
-+	case V4L2_CTRL_WHICH_REQUEST_VAL:
-+		return 0;
-+	}
-+
- 	/* Check that all controls are from the same control class. */
- 	for (i = 0; i < c->count; i++) {
- 		if (V4L2_CTRL_ID2WHICH(c->controls[i].id) != c->which) {
--- 
-2.31.0.rc2.261.g7f71774620-goog
+[ CC virtio-fs list ]
+
+fs object is not fully formed. So calling virtio_fs_put() is little odd.
+I will expect it to be called if somebody takes a reference using _get()
+or in the final virtio_fs_remove() when creation reference should go
+away.
+
+How about open coding it and free fs->vqs explicitly. Something like
+as follows.
+
+@@ -896,7 +896,7 @@ static int virtio_fs_probe(struct virtio
+ out_vqs:
+        vdev->config->reset(vdev);
+        virtio_fs_cleanup_vqs(vdev, fs);
+-
++       kfree(fs->vqs);
+ out:
+        vdev->priv = NULL;
+        kfree(fs);
+
+Thanks
+Vivek
 
