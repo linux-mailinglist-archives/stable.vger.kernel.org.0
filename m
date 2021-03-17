@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3D6833E515
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97C2833E51A
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbhCQBBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:01:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
+        id S232226AbhCQBBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232502AbhCQBAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 21:00:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0D964EBD;
-        Wed, 17 Mar 2021 01:00:21 +0000 (UTC)
+        id S232511AbhCQBAX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 21:00:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACAC564F9F;
+        Wed, 17 Mar 2021 01:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942822;
-        bh=ELKO9Cy2wCXnBkRN3a+2su6DS9jpGee7xyY3YKS/PnQ=;
+        s=k20201202; t=1615942823;
+        bh=Z/ViK3Yxx3NBj4j43iKicqYY8wXPPy/h7p6c8I0fbrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abEKccB0zzU622YJ+7tfr9N1i2/9RQbyt2md0hxRxAytphMNxJ5pFARw937Lu7lsT
-         ysFV43Fcd6/COad6ukDFt9iPRGIXQpwBSQiTxobbyQL82AQfSJImXpvPQv4tvAb8Gw
-         mvEiX0IKchRGNK5WlFe28cZLDbLsCIow6GONgpdCwuMok9U8QqyNDrLmTKDaMjdGDZ
-         V4DqS+LF4W4mDlYVrlgXMwpwcPjrukveW+zuAALfX0L5QwWFwNx44lXCO1af2VCI7+
-         w1ReVcaucrVBl2zowPDUAo5qfLiDRfS+xVC4zk/RdPJO2FgHFmzvoUcwpRudBzpHFY
-         1R80yu8ziWUhg==
+        b=fkp7g5cBDXpfkY/TXQ0xf/OzcMprG5Dn8UoCBsRSQUMrXtubesWNs+NQfw8at8Ml3
+         404OrGeeZfzYm6UhKagfxbr6txXZqrLE94eLg+v61QsUxfqMEvbSsxKLQS6BNTWVr8
+         Tk+jQpQ1lsl9sHW9lCw0fSOd3J/WVHINObt6aKb7q12o0AqdtHy05tw+v2E9nprHa2
+         /bb8dVk5O2rBkIqOtbOFqkP2o/oyEFhuSh3JXerbJWg1/5b+0hW1RVqpo+mTx1TOHb
+         tJe5LhdWsqPI1/MJqBWcR81uATkQbKwELr2fhKmTCZcDKRsg+xgUWYv0NAoGHXMujK
+         Z0/CRYSLtJhdQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "Erhard F." <erhard_f@mailbox.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 11/14] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
-Date:   Tue, 16 Mar 2021 21:00:05 -0400
-Message-Id: <20210317010008.727496-11-sashal@kernel.org>
+Cc:     "J. Bruce Fields" <bfields@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 12/14] nfs: we don't support removing system.nfs4_acl
+Date:   Tue, 16 Mar 2021 21:00:06 -0400
+Message-Id: <20210317010008.727496-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317010008.727496-1-sashal@kernel.org>
 References: <20210317010008.727496-1-sashal@kernel.org>
@@ -43,62 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: "J. Bruce Fields" <bfields@redhat.com>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
 
-Jakub reported that:
+The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
+removexattr(path,"system.nfs4_acl") doesn't make sense.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
+There's no documented return value.  Arguably it could be EOPNOTSUPP but
+I'm a little worried an application might take that to mean that we
+don't support ACLs or xattrs.  How about EINVAL?
 
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
-
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/nfs/nfs4proc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index df89c9bcba7d..7b38288dc239 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -68,12 +68,13 @@ struct u64_stats_sync {
- };
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 3c15291ba1aa..bc48b7769982 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -4848,6 +4848,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
+ 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
+ 	int ret, i;
  
- 
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
- {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
- 
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
++	/* You can't remove system.nfs4_acl: */
++	if (buflen == 0)
++		return -EINVAL;
+ 	if (!nfs4_server_supports_acls(server))
+ 		return -EOPNOTSUPP;
+ 	if (npages > ARRAY_SIZE(pages))
 -- 
 2.30.1
 
