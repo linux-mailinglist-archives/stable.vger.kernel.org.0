@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B54D33E3D9
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 740C633E3C6
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbhCQA5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34890 "EHLO mail.kernel.org"
+        id S231370AbhCQA5i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:57:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231446AbhCQA5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6937D64F9F;
-        Wed, 17 Mar 2021 00:57:04 +0000 (UTC)
+        id S229874AbhCQA5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C07D464F9E;
+        Wed, 17 Mar 2021 00:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942625;
-        bh=8lIR2o4v18WR/2YlHYIn96RC4k9ZocX631GO7STRiBc=;
+        s=k20201202; t=1615942626;
+        bh=Qf6WRzLXOfkPVr6+tyAWYIuSf30ymOOqJmelHgbPUp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CD9kiTehxE2y44ygNtYNxfOzjTYukk4P0IlLAz6S8z8Sso9MHKWR56Q+iVNujTOA+
-         qmxTinHsNk1+m2A5PcCbug5+bSjYluinwjLjIylxLCASuf2iiUKN5evkH7VxKODTQZ
-         hQXug5sJfC08L3dmEu3MCKg8vJYf1wAcG2Movy9VBEw/J3dOgQdQ6MaS8vSnlBn5S5
-         PIZvMAlsEDZ0DQVF4ChoLfIIOghKE7uFvi5612KrbOvAq3oCL3lJ59AXX2poqyjJ2g
-         iHZWSEmYOEkm1+5w8zar/cpRuRSEXhMV4m/O4NeACyPgXSXQHZh2KCgcpfT8u3lzwZ
-         UfsF86zGlVc9w==
+        b=nZE+Lv36PxSsqNYFxoL0wuNhxBGB4hUe5xz/nL6DxlJE4+WMSe9v9aiL6oQ8wr6lf
+         mKrDTq61F7CuLh2l2r93BbB22zGG2RVkj/2fdggCY9+KivdJ2ZURdzDvpUyF0SlVH/
+         ACvVx7uu1x3JJK3PmLxwc8XfoUwZfKD42OUtvmm1VD0oWf4ePFNXecNd99QxtAvAK3
+         QhOBuh7/9Ba8d1w40HZaT1v5y5i7rA/u9WkQ5hjiln7udqv6iuQKA2Wd5TKgtbkdL9
+         bPg+REA4F78JrPMyIgTOtx/En4u19+ApQ6QOn7ff9qi3yt2R4GvAvZxMyhXhMi73gT
+         yp5SgA0O7WjSg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Pearson <markpearson@lenovo.com>,
-        Philipp Leskovitz <philipp.leskovitz@secunet.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 08/54] ALSA: hda: ignore invalid NHLT table
-Date:   Tue, 16 Mar 2021 20:56:07 -0400
-Message-Id: <20210317005654.724862-8-sashal@kernel.org>
+Cc:     Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 09/54] ixgbe: Fix memleak in ixgbe_configure_clsu32
+Date:   Tue, 16 Mar 2021 20:56:08 -0400
+Message-Id: <20210317005654.724862-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -44,48 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <markpearson@lenovo.com>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit a14a6219996ee6f6e858d83b11affc7907633687 ]
+[ Upstream commit 7a766381634da19fc837619b0a34590498d9d29a ]
 
-On some Lenovo systems if the microphone is disabled in the BIOS
-only the NHLT table header is created, with no data. This means
-the endpoints field is not correctly set to zero - leading to an
-unintialised variable and hence invalid descriptors are parsed
-leading to page faults.
+When ixgbe_fdir_write_perfect_filter_82599() fails,
+input allocated by kzalloc() has not been freed,
+which leads to memleak.
 
-The Lenovo firmware team is addressing this, but adding a check
-preventing invalid tables being parsed is worthwhile.
-
-Tested on a Lenovo T14.
-
-Tested-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
-Reported-by: Philipp Leskovitz <philipp.leskovitz@secunet.com>
-Signed-off-by: Mark Pearson <markpearson@lenovo.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210302141003.7342-1-markpearson@lenovo.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/hda/intel-nhlt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/sound/hda/intel-nhlt.c b/sound/hda/intel-nhlt.c
-index d053beccfaec..e2237239d922 100644
---- a/sound/hda/intel-nhlt.c
-+++ b/sound/hda/intel-nhlt.c
-@@ -39,6 +39,11 @@ int intel_nhlt_get_dmic_geo(struct device *dev, struct nhlt_acpi_table *nhlt)
- 	if (!nhlt)
- 		return 0;
- 
-+	if (nhlt->header.length <= sizeof(struct acpi_table_header)) {
-+		dev_warn(dev, "Invalid DMIC description table\n");
-+		return 0;
-+	}
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index f3f449f53920..278fc866fad4 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -9582,8 +9582,10 @@ static int ixgbe_configure_clsu32(struct ixgbe_adapter *adapter,
+ 	ixgbe_atr_compute_perfect_hash_82599(&input->filter, mask);
+ 	err = ixgbe_fdir_write_perfect_filter_82599(hw, &input->filter,
+ 						    input->sw_idx, queue);
+-	if (!err)
+-		ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
++	if (err)
++		goto err_out_w_lock;
 +
- 	for (j = 0, epnt = nhlt->desc; j < nhlt->endpoint_count; j++,
- 	     epnt = (struct nhlt_endpoint *)((u8 *)epnt + epnt->length)) {
++	ixgbe_update_ethtool_fdir_entry(adapter, input, input->sw_idx);
+ 	spin_unlock(&adapter->fdir_perfect_lock);
  
+ 	if ((uhtid != 0x800) && (adapter->jump_tables[uhtid]))
 -- 
 2.30.1
 
