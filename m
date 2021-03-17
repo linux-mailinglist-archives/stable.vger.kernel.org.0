@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B24C33E53E
+	by mail.lfdr.de (Postfix) with ESMTP id 4002533E53D
 	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231719AbhCQBCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41700 "EHLO mail.kernel.org"
+        id S231613AbhCQBCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231714AbhCQBAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 21:00:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7ACB64FA8;
-        Wed, 17 Mar 2021 00:59:58 +0000 (UTC)
+        id S231510AbhCQBAB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 21:00:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F042D64FA5;
+        Wed, 17 Mar 2021 00:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942799;
-        bh=O+bGaQbgppl7EBlZBXLS8rnc8WcSz3t4LTbgzH+Wb1s=;
+        s=k20201202; t=1615942800;
+        bh=z6fjfAWkHbVDLjL2M6xlYkNM70LTzfCTKgvyHQgM7V0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENtrAVPQ1q8CzsljIKq6RNO6Sqvu5YCXMUtPJq3fmOsggQPfV6Yo14o4rEXDZ7NUb
-         EWq5ybkPSG/6hXPYpcvwLeE4gAiv8WG5MNNr7+Wk3WBmVC7aDcvyHU5ISEYp/7xtUD
-         2W5OFZJb0pRuKmQWURlaFKY2gbia2/pWVV4S3N7eA1cir78E2fhFS1/i8gF0rRARH1
-         r980PdvIdFvXOfddPX8jzFJIE2QCGRvldSiTPmQ2pSoGHjblm9DNfhnv4B1yRHx5bR
-         3ETPUhIkhsBoV6IPTLVB6IuzHegt+c9Gz+Wau2DOudYHQOyRHeLnEfI4bGD16gFQ1F
-         AM+9TTapghyYg==
+        b=ffyHpi3YSY2dDKAbhuHJd4UBJHuKJ37aJlgRNmhhdYYT+8sfCkI+QlNMIBdT8Ka28
+         z3OQ/0Natr1WjQQL7lIjH6681o7qjrk4IMZgfsHahc61qJDj3PQEBTEZJ4SBhaTrF+
+         YUqjH6yrecO6p0guCdn+kbNK1HaF9PxEO4dOVrNaasuhnZU646guIHW8pJA3HGEfya
+         +VI3piv7ShR/qW+nK7OFwEnyo0Lh7xNSWmSaQI4QfYbDFaJv+4vkN/RsGrsVCYgHws
+         0x3PMdNbhrQhs/ymXhjvJ/C6knncOXZUxwinF46C8R7q8HMAi4MCuOHEY6CS1HabLq
+         bf/z7qvNK8fcg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Sorenson <sorenson@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/16] NFS: Correct size calculation for create reply length
-Date:   Tue, 16 Mar 2021 20:59:40 -0400
-Message-Id: <20210317005948.727250-9-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 10/16] net: wan: fix error return code of uhdlc_init()
+Date:   Tue, 16 Mar 2021 20:59:41 -0400
+Message-Id: <20210317005948.727250-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005948.727250-1-sashal@kernel.org>
 References: <20210317005948.727250-1-sashal@kernel.org>
@@ -42,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
+[ Upstream commit 62765d39553cfd1ad340124fe1e280450e8c89e2 ]
 
-CREATE requests return a post_op_fh3, rather than nfs_fh3. The
-post_op_fh3 includes an extra word to indicate 'handle_follows'.
+When priv->rx_skbuff or priv->tx_skbuff is NULL, no error return code of
+uhdlc_init() is assigned.
+To fix this bug, ret is assigned with -ENOMEM in these cases.
 
-Without that additional word, create fails when full 64-byte
-filehandles are in use.
-
-Add NFS3_post_op_fh_sz, and correct the size calculation for
-NFS3_createres_sz.
-
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3xdr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wan/fsl_ucc_hdlc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 267126d32ec0..4a68837e92ea 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -33,6 +33,7 @@
-  */
- #define NFS3_fhandle_sz		(1+16)
- #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
-+#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
- #define NFS3_sattr_sz		(15)
- #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
- #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
-@@ -70,7 +71,7 @@
- #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1)
- #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3)
- #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
--#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
-+#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
- #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2)
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index 87bf05a81db5..fc7d28edee07 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -169,13 +169,17 @@ static int uhdlc_init(struct ucc_hdlc_private *priv)
+ 
+ 	priv->rx_skbuff = kzalloc(priv->rx_ring_size * sizeof(*priv->rx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->rx_skbuff)
++	if (!priv->rx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_ucc_pram;
++	}
+ 
+ 	priv->tx_skbuff = kzalloc(priv->tx_ring_size * sizeof(*priv->tx_skbuff),
+ 				  GFP_KERNEL);
+-	if (!priv->tx_skbuff)
++	if (!priv->tx_skbuff) {
++		ret = -ENOMEM;
+ 		goto free_rx_skbuff;
++	}
+ 
+ 	priv->skb_curtx = 0;
+ 	priv->skb_dirtytx = 0;
 -- 
 2.30.1
 
