@@ -2,117 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B50133FB28
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 23:29:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 398CF33FB74
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 23:46:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229460AbhCQW2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 18:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbhCQW2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Mar 2021 18:28:01 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F027C06174A
-        for <stable@vger.kernel.org>; Wed, 17 Mar 2021 15:27:50 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id v2so142447pgk.11
-        for <stable@vger.kernel.org>; Wed, 17 Mar 2021 15:27:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=oCvX3F8Yu1wf8KVZXBfN9GLgma5rimbpgHACqbK+qXk=;
-        b=o6rVJV5mj75whPa+MyXGMRc0j++bYeY8atCRlNq+OW93nesvg32F+Vrab4OVYyzd8s
-         tFpcLBNbeaw4BJIkpqMWlRBBmLj+NUTK6Eq+qkUqVG07nh+7mp2RF8hSO96MxAkDYiXp
-         8n+oSu8qXAcLQ9nkq1p/PndgXO5Erfi5x4UX0ADzBOd5SE3s+mTKLeCbJqbw16iAlcZ4
-         N5g5dVVDaSacr9Grd+7OdlccsNZxHYhjKCUg1SD7nYM0E2xANqGJAIX5p+EnX4HC9bI7
-         EV0A9I6zncXgsJ4SD6z6/9t+HrqZlp66Bw4SnHFJNB9nDMmxfagE82+a8wvdhyyKMPtk
-         tTNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=oCvX3F8Yu1wf8KVZXBfN9GLgma5rimbpgHACqbK+qXk=;
-        b=hKKxaXDpcvwYib799PEkb17JrMLlG0Qhgp6KUpfIba30VZaHz1HX40zPy3A58VDebR
-         O7jBg/tmdSZyppwgHpypJmPrFEFxIur4zUixIkfcMCBVrOlPjaXPH5kP1OcuaSeDgJV9
-         StyWcybAlP1CJ1inFt1SmJVRfQey4Azl40V69gx0n14FU0lE7+9P6A+TraAQW/YQUssn
-         6Q3soUbbVMfRTUC6dO5O9/9xTUMQWEXnJuYIauiZkrfbcsa4VXwVKsemT99GfkP/mce9
-         WeZTl0gPseMPIHrBopyFni2tMoAbbKh+0D+Nsc6v6evj1VorRkdAEDgglDkJ3jMxjxOi
-         41Bg==
-X-Gm-Message-State: AOAM5327hGH+Dq2apNrHFE4OkxfjTAZpxMotmW6WNECklgZ41Zu9ALgG
-        EB0fbzfzwzckjVYJqCVKEZQKI/GsDM0vCQ==
-X-Google-Smtp-Source: ABdhPJzN1LrKWWCbhs8tgUeONCEOXQONFc3dtDj61GZ/ZYLNWsjBA3eAr2JqIjOp2fZPWYRuET9fcg==
-X-Received: by 2002:a63:e5d:: with SMTP id 29mr4277181pgo.450.1616020069855;
-        Wed, 17 Mar 2021 15:27:49 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 63sm100011pfg.187.2021.03.17.15.27.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Mar 2021 15:27:49 -0700 (PDT)
-Message-ID: <60528265.1c69fb81.48e39.06b4@mx.google.com>
-Date:   Wed, 17 Mar 2021 15:27:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229632AbhCQWqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Mar 2021 18:46:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35084 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229658AbhCQWpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Mar 2021 18:45:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E90B464F07;
+        Wed, 17 Mar 2021 22:45:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1616021151;
+        bh=SiIaImEVqlVFRrXonYU+yQjBVT0RVVimMFmScMaARIc=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=TGmUyLwX9HZkSijy6/ClnaCC9KujuIUFIDUnE4bqTN7vFAp8af/58trITkqSUJ8He
+         34R5LLn5IwkTZbLV3H+cTlwAfXsF9BbtZ/dB5g2TL4BUmHR3f1gF3TgSrDFuHVjmB7
+         StFT5CouhySDg5rR8ESjCs7FDSDDxtla91MMK8leK0djQuT+GRiUKuVK/wT3MWM4+Y
+         +W0M+CkqvAX0G7FCsPo7uJsMHMK677XjY9t1mbJKM8Qr+wZ4WdaEbpzttIVVnE1zZd
+         ZtISjGmVKZ7Stg1yliHy9Ql8PyVxDHVcxcj4JscxZv0CO7RouOYvdmIcADA9wQF7F7
+         O4rpa3RmC+S0w==
+Date:   Wed, 17 Mar 2021 17:45:49 -0500
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
+Cc:     linux-pci@vger.kernel.org,
+        =?iso-8859-1?Q?R=F6tti?= 
+        <espressobinboardarmbiantempmailaddress@posteo.de>,
+        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Zachary Zhang <zhangzg@marvell.com>
+Subject: Re: [PATCH] PCI: Add Max Payload Size quirk for ASMedia ASM1062 SATA
+ controller
+Message-ID: <20210317224549.GA93134@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.24
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable/linux-5.10.y baseline: 123 runs, 1 regressions (v5.10.24)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210317115924.31885-1-kabel@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 123 runs, 1 regressions (v5.10.24)
+[+cc Zachary, author of 8a3ebd8de328]
 
-Regressions Summary
--------------------
+Thanks for the report and the patch, Marek!
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+On Wed, Mar 17, 2021 at 12:59:24PM +0100, Marek Behún wrote:
+> The ASMedia ASM1062 SATA controller causes an External Abort on
+> controllers which support Max Payload Size >= 512. It happens with
+> Aardvark PCIe controller (tested on Turris MOX) and also with DesignWare
+> controller (armada8k, tested on CN9130-CRB):
+> 
+>   ata1: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+>   ata1.00: ATA-9: WDC WD40EFRX-68WT0N0, 80.00A80, max UDMA/133
+>   ata1.00: 7814037168 sectors, multi 0: LBA48 NCQ (depth 32), AA
+>   ERROR:   Unhandled External Abort received on 0x80000000 at EL3!
+>   ERROR:    exception reason=1 syndrome=0x92000210
+>   PANIC at PC : 0x00000000040273bc
+> 
+> Limiting Max Payload Size to 256 bytes solves this problem.
+> 
+> On Turris MOX this problem first appeared when the pci-aardvark
+> controller started using the pci-emul-bridge API, in commit 8a3ebd8de328
+> ("PCI: aardvark: Implement emulated root PCI bridge config space").
 
+Any ideas about why 8a3ebd8de328 made a difference?  Could there be a
+defect in 8a3ebd8de328?  Or maybe before 8a3ebd8de328 we didn't
+actually read or update MPS settings in the hardware?
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.24/plan/baseline/
+> On armada8k this was always a problem because it has HW root bridge.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.24
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      05d125f7524e9ad200375c52799575184755d340 =
+Can you please open a report at bugzilla.kernel.org and attach the
+complete "sudo lspci -vv" output for both systems?  I think it's OK to
+collect these with the patch applied; we should still be able to see
+the information we use to compute the MPS values.  But please include
+the CONFIG_PCIE_BUS_* settings and any "pcie_bus_*" kernel command
+line arguments.
 
+This quirk suggests that there's a hardware defect in the ASMedia
+ASM1062.  But if that's really the case, we should see reports on lots
+of platforms, and I'm only aware of these two.  You do mention that it
+was always a problem on armada8k; if you know of other reports of
+that, please include URLs in the bugzilla.
 
+If the problem only occurs on these platforms, my first guess would be
+a hardware defect in these platforms or a software defect in the PCIe
+controller driver.  It wouldn't surprise me if we have a generic PCI
+core defect in how we set MPS, either.
 
-Test Regressions
----------------- =
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> Reported-by: Rötti <espressobinboardarmbiantempmailaddress@posteo.de>
+> Cc: Pali Rohár <pali@kernel.org>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/pci/quirks.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+> index 653660e3ba9e..a561136efb08 100644
+> --- a/drivers/pci/quirks.c
+> +++ b/drivers/pci/quirks.c
+> @@ -3251,6 +3251,11 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+>  			 PCI_DEVICE_ID_SOLARFLARE_SFC4000A_1, fixup_mpss_256);
+>  DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_SOLARFLARE,
+>  			 PCI_DEVICE_ID_SOLARFLARE_SFC4000B, fixup_mpss_256);
+> +/*
+> + * For some reason DECLARE_PCI_FIXUP_HEADER does not work with pci-aardvark
+> + * controller. We have to use DECLARE_PCI_FIXUP_EARLY.
+> + */
 
+This is curious, too.  If we need the quirk, I'd like to run this down
+to figure out why we need an EARLY instead of HEADER quirk.
+Differences like that suggest a bug elsewhere, or at least an
+unnecessary difference between PCIe controller drivers.
 
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/605251794d7623eb34addce2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.24/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.24/a=
-rm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-4-g97706c5d9567/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/605251794d7623eb34add=
-ce3
-        new failure (last pass: v5.10.22) =
-
- =20
+> +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_ASMEDIA, 0x0612, fixup_mpss_256);
+>  
+>  /*
+>   * Intel 5000 and 5100 Memory controllers have an erratum with read completion
+> -- 
+> 2.26.2
+> 
