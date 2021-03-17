@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C2833E51A
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC36C33E518
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:03:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232226AbhCQBBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232346AbhCQBBz (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 21:01:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232511AbhCQBAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 21:00:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACAC564F9F;
-        Wed, 17 Mar 2021 01:00:22 +0000 (UTC)
+        id S232515AbhCQBAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 21:00:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B66E664F8F;
+        Wed, 17 Mar 2021 01:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942823;
-        bh=Z/ViK3Yxx3NBj4j43iKicqYY8wXPPy/h7p6c8I0fbrA=;
+        s=k20201202; t=1615942824;
+        bh=syqiy/Li6HnEEBmIOCP61gDJXS6K8gQC530w/VEDqZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkp7g5cBDXpfkY/TXQ0xf/OzcMprG5Dn8UoCBsRSQUMrXtubesWNs+NQfw8at8Ml3
-         404OrGeeZfzYm6UhKagfxbr6txXZqrLE94eLg+v61QsUxfqMEvbSsxKLQS6BNTWVr8
-         Tk+jQpQ1lsl9sHW9lCw0fSOd3J/WVHINObt6aKb7q12o0AqdtHy05tw+v2E9nprHa2
-         /bb8dVk5O2rBkIqOtbOFqkP2o/oyEFhuSh3JXerbJWg1/5b+0hW1RVqpo+mTx1TOHb
-         tJe5LhdWsqPI1/MJqBWcR81uATkQbKwELr2fhKmTCZcDKRsg+xgUWYv0NAoGHXMujK
-         Z0/CRYSLtJhdQ==
+        b=T5dM09t984DFGdRGKkMRjZoumkKZ2DA7T58KcRkmXk/iz4yoHwvwh3/BpVgnDndLW
+         6EwTyXA/tSQsJ6BiqBVwsRMFO+EEzUqIyxKrfkFM/Wx0UTu70fXaHsQruh4Kv7aTDn
+         Hc79Y68NwmMk0uTeUAT+qCBVRQVvPi/jNk6TGh68NgI7NGQlArd9+qZsvHKdIkkOIq
+         KY2yXfYWtUWi/YdiVc3Fl6oooj26JFeRx76QXxsqPZ8E7mHleolKbqN/OE2HJ2lciE
+         rwy919Jpf5JZkJaQc+C6xLBbKusGsG+FZ9y1d/3IikBeFf6GgsOPTHnq8dWCejcNjh
+         8S3WnwabFMH1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "J. Bruce Fields" <bfields@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/14] nfs: we don't support removing system.nfs4_acl
-Date:   Tue, 16 Mar 2021 21:00:06 -0400
-Message-Id: <20210317010008.727496-12-sashal@kernel.org>
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
+        "Dmitry V . Levin" <ldv@altlinux.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 13/14] ia64: fix ia64_syscall_get_set_arguments() for break-based syscalls
+Date:   Tue, 16 Mar 2021 21:00:07 -0400
+Message-Id: <20210317010008.727496-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317010008.727496-1-sashal@kernel.org>
 References: <20210317010008.727496-1-sashal@kernel.org>
@@ -42,38 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "J. Bruce Fields" <bfields@redhat.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit 4f8be1f53bf615102d103c0509ffa9596f65b718 ]
+[ Upstream commit 0ceb1ace4a2778e34a5414e5349712ae4dc41d85 ]
 
-The NFSv4 protocol doesn't have any notion of reomoving an attribute, so
-removexattr(path,"system.nfs4_acl") doesn't make sense.
+In https://bugs.gentoo.org/769614 Dmitry noticed that
+`ptrace(PTRACE_GET_SYSCALL_INFO)` does not work for syscalls called via
+glibc's syscall() wrapper.
 
-There's no documented return value.  Arguably it could be EOPNOTSUPP but
-I'm a little worried an application might take that to mean that we
-don't support ACLs or xattrs.  How about EINVAL?
+ia64 has two ways to call syscalls from userspace: via `break` and via
+`eps` instructions.
 
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+The difference is in stack layout:
+
+1. `eps` creates simple stack frame: no locals, in{0..7} == out{0..8}
+2. `break` uses userspace stack frame: may be locals (glibc provides
+   one), in{0..7} == out{0..8}.
+
+Both work fine in syscall handling cde itself.
+
+But `ptrace(PTRACE_GET_SYSCALL_INFO)` uses unwind mechanism to
+re-extract syscall arguments but it does not account for locals.
+
+The change always skips locals registers. It should not change `eps`
+path as kernel's handler already enforces locals=0 and fixes `break`.
+
+Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
+
+Link: https://lkml.kernel.org/r/20210221002554.333076-1-slyfox@gentoo.org
+Link: https://bugs.gentoo.org/769614
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: Dmitry V. Levin <ldv@altlinux.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4proc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/ia64/kernel/ptrace.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 3c15291ba1aa..bc48b7769982 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -4848,6 +4848,9 @@ static int __nfs4_proc_set_acl(struct inode *inode, const void *buf, size_t bufl
- 	unsigned int npages = DIV_ROUND_UP(buflen, PAGE_SIZE);
- 	int ret, i;
+diff --git a/arch/ia64/kernel/ptrace.c b/arch/ia64/kernel/ptrace.c
+index 6f54d511cc50..a757b123ebaf 100644
+--- a/arch/ia64/kernel/ptrace.c
++++ b/arch/ia64/kernel/ptrace.c
+@@ -2140,27 +2140,39 @@ static void syscall_get_set_args_cb(struct unw_frame_info *info, void *data)
+ {
+ 	struct syscall_get_set_args *args = data;
+ 	struct pt_regs *pt = args->regs;
+-	unsigned long *krbs, cfm, ndirty;
++	unsigned long *krbs, cfm, ndirty, nlocals, nouts;
+ 	int i, count;
  
-+	/* You can't remove system.nfs4_acl: */
-+	if (buflen == 0)
-+		return -EINVAL;
- 	if (!nfs4_server_supports_acls(server))
- 		return -EOPNOTSUPP;
- 	if (npages > ARRAY_SIZE(pages))
+ 	if (unw_unwind_to_user(info) < 0)
+ 		return;
+ 
++	/*
++	 * We get here via a few paths:
++	 * - break instruction: cfm is shared with caller.
++	 *   syscall args are in out= regs, locals are non-empty.
++	 * - epsinstruction: cfm is set by br.call
++	 *   locals don't exist.
++	 *
++	 * For both cases argguments are reachable in cfm.sof - cfm.sol.
++	 * CFM: [ ... | sor: 17..14 | sol : 13..7 | sof : 6..0 ]
++	 */
+ 	cfm = pt->cr_ifs;
++	nlocals = (cfm >> 7) & 0x7f; /* aka sol */
++	nouts = (cfm & 0x7f) - nlocals; /* aka sof - sol */
+ 	krbs = (unsigned long *)info->task + IA64_RBS_OFFSET/8;
+ 	ndirty = ia64_rse_num_regs(krbs, krbs + (pt->loadrs >> 19));
+ 
+ 	count = 0;
+ 	if (in_syscall(pt))
+-		count = min_t(int, args->n, cfm & 0x7f);
++		count = min_t(int, args->n, nouts);
+ 
++	/* Iterate over outs. */
+ 	for (i = 0; i < count; i++) {
++		int j = ndirty + nlocals + i + args->i;
+ 		if (args->rw)
+-			*ia64_rse_skip_regs(krbs, ndirty + i + args->i) =
+-				args->args[i];
++			*ia64_rse_skip_regs(krbs, j) = args->args[i];
+ 		else
+-			args->args[i] = *ia64_rse_skip_regs(krbs,
+-				ndirty + i + args->i);
++			args->args[i] = *ia64_rse_skip_regs(krbs, j);
+ 	}
+ 
+ 	if (!args->rw) {
 -- 
 2.30.1
 
