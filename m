@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF8E33E36E
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:57:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 390C533E36F
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbhCQA4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:56:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33226 "EHLO mail.kernel.org"
+        id S231139AbhCQA4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229904AbhCQA4M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF8864F92;
-        Wed, 17 Mar 2021 00:56:11 +0000 (UTC)
+        id S230365AbhCQA4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D32E64F8F;
+        Wed, 17 Mar 2021 00:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942572;
-        bh=4DNjOmlZ7d4KBzzPxWE3LCyL6Js+P2t+Kvd2p4coykw=;
+        s=k20201202; t=1615942573;
+        bh=06AdV+JkCI79bqE8VrXjJjhz6t24lXG9Wq7P9wAxE/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZNASM6cr5b3KmXDmazr8uu1JiKibo7kaoa05jo01Fx6c62ffCOZk36VvtFVzqZjH
-         dEYpqdO3T7RmHgleoUbWKGhTnOUi1H0GtPmKoSe3SceLVNU3bt/SEdBEuH3YvuQD0A
-         kgvS1CNfH4oh2OS9HOf5TI27XIhM5bEDeL1jslhFdHm3MC6NYEsmxwtdhcg8gktbkn
-         IFvScV67mK5BjdHH3y6f3LUZ3ChydLg46vpgAG3S9Nkz/OD3+etX1QLPxSBYt4qCC4
-         6vRUMSeimi+EdXMGalhrknfCJ6Rq4Yau1PkSCY+WheuQAuhiMb3TZmLa8h5zv7gojB
-         nup3w1lO9AbXw==
+        b=PCv43EQmKr1jhTeTNFcS23zvmdyUFpUlBi+Va2x097SZYsh2SGWWe66j8gA28lWUt
+         2QrzwlNm1aPrHos20+uBR9g8zPtVZVPGaX5n8EB0TXv4IG9UsxK+FV/mNUWfDBhORD
+         n3VILbSRgtqH56xabMqltlBPwA7jwMYAPi7q6dYH8Ka+tQOVTk4+eWkTW7vgqb4HGG
+         NbGIqT3Gm6YqmFzm0yazdlVqS6J0pdUdNGfzz+x4ZvdyCbw35M3eu+wZOmKRHDszwO
+         mdKlxWAJNIUpS9V5TB01esWTRHlHTtWkaaynp9sfNfifYB+mf2CTiaj2kghzb7a7DN
+         0xOCbMJRbovgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paulo Alcantara <pc@cjr.nz>, Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.11 29/61] cifs: change noisy error message to FYI
-Date:   Tue, 16 Mar 2021 20:55:03 -0400
-Message-Id: <20210317005536.724046-29-sashal@kernel.org>
+Cc:     Paul Cercueil <paul@crapouillou.net>,
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 30/61] irqchip/ingenic: Add support for the JZ4760
+Date:   Tue, 16 Mar 2021 20:55:04 -0400
+Message-Id: <20210317005536.724046-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -44,45 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit e3d100eae44b42f309c1366efb8397368f1cf8ed ]
+[ Upstream commit 5fbecd2389f48e1415799c63130d0cdce1cf3f60 ]
 
-A customer has reported that their dmesg were being flooded by
+Add support for the interrupt controller found in the JZ4760 SoC, which
+works exactly like the one in the JZ4770.
 
-  CIFS: VFS: \\server Cancelling wait for mid xxx cmd: a
-  CIFS: VFS: \\server Cancelling wait for mid yyy cmd: b
-  CIFS: VFS: \\server Cancelling wait for mid zzz cmd: c
-
-because some processes that were performing statfs(2) on the share had
-been interrupted due to their automount setup when certain users
-logged in and out.
-
-Change it to FYI as they should be mostly informative rather than
-error messages.
-
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210307172014.73481-2-paul@crapouillou.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/transport.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/irqchip/irq-ingenic-tcu.c | 1 +
+ drivers/irqchip/irq-ingenic.c     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
-index 4a2b836eb017..39a8610c5de6 100644
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -1182,7 +1182,7 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
- 	}
- 	if (rc != 0) {
- 		for (; i < num_rqst; i++) {
--			cifs_server_dbg(VFS, "Cancelling wait for mid %llu cmd: %d\n",
-+			cifs_server_dbg(FYI, "Cancelling wait for mid %llu cmd: %d\n",
- 				 midQ[i]->mid, le16_to_cpu(midQ[i]->command));
- 			send_cancel(server, &rqst[i], midQ[i]);
- 			spin_lock(&GlobalMid_Lock);
+diff --git a/drivers/irqchip/irq-ingenic-tcu.c b/drivers/irqchip/irq-ingenic-tcu.c
+index 7a7222d4c19c..b938d1d04d96 100644
+--- a/drivers/irqchip/irq-ingenic-tcu.c
++++ b/drivers/irqchip/irq-ingenic-tcu.c
+@@ -179,5 +179,6 @@ static int __init ingenic_tcu_irq_init(struct device_node *np,
+ }
+ IRQCHIP_DECLARE(jz4740_tcu_irq, "ingenic,jz4740-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4725b_tcu_irq, "ingenic,jz4725b-tcu", ingenic_tcu_irq_init);
++IRQCHIP_DECLARE(jz4760_tcu_irq, "ingenic,jz4760-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(jz4770_tcu_irq, "ingenic,jz4770-tcu", ingenic_tcu_irq_init);
+ IRQCHIP_DECLARE(x1000_tcu_irq, "ingenic,x1000-tcu", ingenic_tcu_irq_init);
+diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
+index b61a8901ef72..ea36bb00be80 100644
+--- a/drivers/irqchip/irq-ingenic.c
++++ b/drivers/irqchip/irq-ingenic.c
+@@ -155,6 +155,7 @@ static int __init intc_2chip_of_init(struct device_node *node,
+ {
+ 	return ingenic_intc_of_init(node, 2);
+ }
++IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
+ IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);
 -- 
 2.30.1
 
