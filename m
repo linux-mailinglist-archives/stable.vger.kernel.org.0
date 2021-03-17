@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25E933E3D8
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BE833E3F2
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbhCQA5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35252 "EHLO mail.kernel.org"
+        id S231543AbhCQA6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:58:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231536AbhCQA5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F2A64F9B;
+        id S231571AbhCQA5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 146BC64FF9;
         Wed, 17 Mar 2021 00:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942637;
-        bh=+eUHutKYIktr+Eq43papny8RGVP67Auq//PQTZkp4f4=;
+        s=k20201202; t=1615942638;
+        bh=pcVq+a5VQPh/Mil5FZe4vY5PetGOiLSYo7C+ns3bn48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DOy1ZeH01NBn8kqS0pTQ047doG/1cSjdfqzvtySzi0sMENoWrIWvCNHaP7dfsitK7
-         ToSHOIU4e6nGDMjRvszThByIrH+MpoO0Jpfv8mG46HBk3fPKSVpX1la9Dx3cIH5Hll
-         YJNeh0QWJFCszrojFCXWedBu130LN+pw+LXjcZ7FWyaB6jpd1JlSbbPQcdIDO6r8UE
-         asmpBFdPahWb9vLo7aRD7wOFOkILU6RQyYF0Z3I7dbeyEki8CH5h5RXUTdMbjfRHEs
-         Jw2JovDbV/dYi+k1FsXCbII0SiPLter6xAy+hlL6MVogli8arSU5ZDmvIvSFfPwrGY
-         L1YdPK+xJN7Yg==
+        b=i1UgLewYjNgDXhkb9qj1BqLDGBCTSqZjk4zAzeWyks5H52JA5wBUNdQsUHWjx0H3n
+         VCvTMtNnDqr9NvyBk61WC1ttsn3oJRmRgeJ57pOGaB3XWXyQ95TJftY1Mz+OVnp/d1
+         mOCqaDG055LmxMdIm4fkKX1IZERxYjcbaEMtqSyrvd94mty6s0cuP/vIY8mijIheec
+         kBQGIe8wjs5sZyo8U3GHv7AkEY6l6MQmdyUBPHvgFxbJNKi8NBEZFSVYRU/gBLVUb/
+         s8D96o4/dttcs8PiXxKWbHpfpcqatOxDHCAgeQDzeONMR+gMRPPlKq+PAaDotyQXjo
+         4SYfkCAxRNHOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 18/54] cpufreq: blacklist Arm Vexpress platforms in cpufreq-dt-platdev
-Date:   Tue, 16 Mar 2021 20:56:17 -0400
-Message-Id: <20210317005654.724862-18-sashal@kernel.org>
+Cc:     Yang Li <yang.lee@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 19/54] gpiolib: acpi: Add missing IRQF_ONESHOT
+Date:   Tue, 16 Mar 2021 20:56:18 -0400
+Message-Id: <20210317005654.724862-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -42,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit fbb31cb805fd3574d3be7defc06a7fd2fd9af7d2 ]
+[ Upstream commit 6e5d5791730b55a1f987e1db84b078b91eb49e99 ]
 
-Add "arm,vexpress" to cpufreq-dt-platdev blacklist since the actual
-scaling is handled by the firmware cpufreq drivers(scpi, scmi and
-vexpress-spc).
+fixed the following coccicheck:
+./drivers/gpio/gpiolib-acpi.c:176:7-27: ERROR: Threaded IRQ with no
+primary handler requested without IRQF_ONESHOT
 
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Make sure threaded IRQs without a primary handler are always request
+with IRQF_ONESHOT
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq-dt-platdev.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpio/gpiolib-acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
-index 3776d960f405..1c192a42f11e 100644
---- a/drivers/cpufreq/cpufreq-dt-platdev.c
-+++ b/drivers/cpufreq/cpufreq-dt-platdev.c
-@@ -103,6 +103,8 @@ static const struct of_device_id whitelist[] __initconst = {
- static const struct of_device_id blacklist[] __initconst = {
- 	{ .compatible = "allwinner,sun50i-h6", },
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 834a12f3219e..8b8672386b11 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -174,7 +174,7 @@ static void acpi_gpiochip_request_irq(struct acpi_gpio_chip *acpi_gpio,
+ 	int ret, value;
  
-+	{ .compatible = "arm,vexpress", },
-+
- 	{ .compatible = "calxeda,highbank", },
- 	{ .compatible = "calxeda,ecx-2000", },
- 
+ 	ret = request_threaded_irq(event->irq, NULL, event->handler,
+-				   event->irqflags, "ACPI:Event", event);
++				   event->irqflags | IRQF_ONESHOT, "ACPI:Event", event);
+ 	if (ret) {
+ 		dev_err(acpi_gpio->chip->parent,
+ 			"Failed to setup interrupt handler for %d\n",
 -- 
 2.30.1
 
