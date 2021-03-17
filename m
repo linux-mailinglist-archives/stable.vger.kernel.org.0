@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB2133E3B4
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3687B33E3B8
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231609AbhCQA5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:57:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34666 "EHLO mail.kernel.org"
+        id S231620AbhCQA5W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:57:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231302AbhCQA4x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:56:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E387364FA7;
-        Wed, 17 Mar 2021 00:56:51 +0000 (UTC)
+        id S231343AbhCQA44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:56:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D67A64F9E;
+        Wed, 17 Mar 2021 00:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942612;
-        bh=IbK9jyQI8KiJR0IZteICTrmpT+15gQ4hoLVWkZBduP4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6xfjN5N8kFVctwc6JAaETNCJ0svLUCq224GQXd9vCJSWZ9Cv05WMOOpDFIcpEvTt
-         RaVvf/tx7idu5DM7A7AekbB/E3cFyKvYcHj2fCNkptHw3B/cnMgXQrH7aQG+wNP/dJ
-         PtLXliqfhlD1ZRsBPTOnvstOJW08Qfwmvpd3IkU1YUAuoIxwNf38zngayF8fPMnqpA
-         8rKwDdD9ULLHrWy9AiBDjMI2SakAyPvjsVVrIE9PdR6/TA5AJAKaJT7RgjZ9GvwfjK
-         CCv0aOtRzNhxqhTpTUOILIEeZYf/PMESj7/wuZTOkJAijN04iDL/PriCAlt3vvSr0P
-         ZYQTYMgoW9ebA==
+        s=k20201202; t=1615942616;
+        bh=8r7ZKpUpT54YHKo9ljUDkHxXozt3eNq1dGm1nOVyAfw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hFo/AoAJzbKRdNX87aC9pO52CXaAteqwDMeWCrhlEHMyj4xHLP8OiQcYSiNxIKFno
+         bk36ifEH6h+k32ZrHihU7HDIp7sIMjSaCFDqZ7rcymlG+0glpgkQV1MNZ2D6vg/hVa
+         5DcryYJxgu1B4ZwS5Ok2IFt3PWXWTvkRLsocWZOvvIIvXeED6KKc5kpW7G8xCCDSO9
+         K9a4Rkq7Kd9CHVg1/xzRa0tjvW3AII3NA/kcme8pPvuUjIzCqeIT2Mv7N6pAdM9eDg
+         czc9DLEavjHc58hFtugQh5U433Sen2l2Xl2Y1sEXloRrHkPnvaR8AcNpnZYGFnnZR8
+         Dcxs/7b1cGhJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergei Trofimovich <slyfox@gentoo.org>,
-        "Dmitry V . Levin" <ldv@altlinux.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-ia64@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 61/61] ia64: fix ptrace(PTRACE_SYSCALL_INFO_EXIT) sign
-Date:   Tue, 16 Mar 2021 20:55:35 -0400
-Message-Id: <20210317005536.724046-61-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 01/54] mt76: fix tx skb error handling in mt76_dma_tx_queue_skb
+Date:   Tue, 16 Mar 2021 20:56:00 -0400
+Message-Id: <20210317005654.724862-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
-References: <20210317005536.724046-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,70 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 61bf318eac2c13356f7bd1c6a05421ef504ccc8a ]
+[ Upstream commit ae064fc0e32a4d28389086d9f4b260a0c157cfee ]
 
-In https://bugs.gentoo.org/769614 Dmitry noticed that
-`ptrace(PTRACE_GET_SYSCALL_INFO)` does not return error sign properly.
+When running out of room in the tx queue after calling drv->tx_prepare_skb,
+the buffer list will already have been modified on MT7615 and newer drivers.
+This can leak a DMA mapping and will show up as swiotlb allocation failures
+on x86.
 
-The bug is in mismatch between get/set errors:
+Fix this by moving the queue length check further up. This is less accurate,
+since it can overestimate the needed room in the queue on MT7615 and newer,
+but the difference is small enough to not matter in practice.
 
-static inline long syscall_get_error(struct task_struct *task,
-                                     struct pt_regs *regs)
-{
-        return regs->r10 == -1 ? regs->r8:0;
-}
-
-static inline long syscall_get_return_value(struct task_struct *task,
-                                            struct pt_regs *regs)
-{
-        return regs->r8;
-}
-
-static inline void syscall_set_return_value(struct task_struct *task,
-                                            struct pt_regs *regs,
-                                            int error, long val)
-{
-        if (error) {
-                /* error < 0, but ia64 uses > 0 return value */
-                regs->r8 = -error;
-                regs->r10 = -1;
-        } else {
-                regs->r8 = val;
-                regs->r10 = 0;
-        }
-}
-
-Tested on v5.10 on rx3600 machine (ia64 9040 CPU).
-
-Link: https://lkml.kernel.org/r/20210221002554.333076-2-slyfox@gentoo.org
-Link: https://bugs.gentoo.org/769614
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Reported-by: Dmitry V. Levin <ldv@altlinux.org>
-Reviewed-by: Dmitry V. Levin <ldv@altlinux.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210216135119.23809-1-nbd@nbd.name
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/syscall.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/dma.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/arch/ia64/include/asm/syscall.h b/arch/ia64/include/asm/syscall.h
-index 6c6f16e409a8..0d23c0049301 100644
---- a/arch/ia64/include/asm/syscall.h
-+++ b/arch/ia64/include/asm/syscall.h
-@@ -32,7 +32,7 @@ static inline void syscall_rollback(struct task_struct *task,
- static inline long syscall_get_error(struct task_struct *task,
- 				     struct pt_regs *regs)
- {
--	return regs->r10 == -1 ? regs->r8:0;
-+	return regs->r10 == -1 ? -regs->r8:0;
- }
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 917617aad8d3..3857761c9619 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -355,7 +355,6 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 	};
+ 	struct ieee80211_hw *hw;
+ 	int len, n = 0, ret = -ENOMEM;
+-	struct mt76_queue_entry e;
+ 	struct mt76_txwi_cache *t;
+ 	struct sk_buff *iter;
+ 	dma_addr_t addr;
+@@ -397,6 +396,11 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 	}
+ 	tx_info.nbuf = n;
  
- static inline long syscall_get_return_value(struct task_struct *task,
++	if (q->queued + (tx_info.nbuf + 1) / 2 >= q->ndesc - 1) {
++		ret = -ENOMEM;
++		goto unmap;
++	}
++
+ 	dma_sync_single_for_cpu(dev->dev, t->dma_addr, dev->drv->txwi_size,
+ 				DMA_TO_DEVICE);
+ 	ret = dev->drv->tx_prepare_skb(dev, txwi, qid, wcid, sta, &tx_info);
+@@ -405,11 +409,6 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 	if (ret < 0)
+ 		goto unmap;
+ 
+-	if (q->queued + (tx_info.nbuf + 1) / 2 >= q->ndesc - 1) {
+-		ret = -ENOMEM;
+-		goto unmap;
+-	}
+-
+ 	return mt76_dma_add_buf(dev, q, tx_info.buf, tx_info.nbuf,
+ 				tx_info.info, tx_info.skb, t);
+ 
+@@ -425,9 +424,7 @@ mt76_dma_tx_queue_skb(struct mt76_dev *dev, enum mt76_txq_id qid,
+ 		dev->test.tx_done--;
+ #endif
+ 
+-	e.skb = tx_info.skb;
+-	e.txwi = t;
+-	dev->drv->tx_complete_skb(dev, &e);
++	dev_kfree_skb(tx_info.skb);
+ 	mt76_put_txwi(dev, t);
+ 	return ret;
+ }
 -- 
 2.30.1
 
