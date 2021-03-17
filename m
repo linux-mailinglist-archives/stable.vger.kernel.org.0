@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D86933E328
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:56:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B49F33E336
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230196AbhCQA4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230217AbhCQA4D (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 20:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60986 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:32778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229871AbhCQAzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:55:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6788964F9E;
-        Wed, 17 Mar 2021 00:55:51 +0000 (UTC)
+        id S229874AbhCQAzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:55:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A18E64F8F;
+        Wed, 17 Mar 2021 00:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942552;
-        bh=O/0q2JjobzsUmuE+dvnraPV+i669n5v5EMZTYrRvoEI=;
+        s=k20201202; t=1615942553;
+        bh=wzE1/pH3sttOMtpx9P/3mP60bD/P+dRiprD1JqRIWPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UVWbtaKt5AE+9BJ1ke1Oka9+q6I/uxTjwcWERS2Uc2DH9oA4G0bi7CglSVv3W/hl6
-         cwjUAyy3LfL7wakL0E3G+XAJq9L2ASbVTP5r98E6hxxxvIulPBQ31vf/YcAMRaW8LB
-         95a5+c7mhLjQRrMtd8nZDZfhtX+QOu0MUkUED+sCF9FkI+Pgx/nrCAWLsBm8cR2A5D
-         lS78joHpOTD9Be61JOCKmL/MZZdYOKg7ETyroeDBq4mOT6kvZItcOUYLJJvJOsPsOX
-         fplf8XW8Pk73G8kCJoqs10PntYojMS/Uh06eTRsxL+nu6z8PV2hcfx0wyMZRZiSUnD
-         8YJuJB3ThPk6w==
+        b=dOb967MDiJMYWYnra7goMC+xDtTwDOi7Db3hQZZFkCASM4FbO7z2IwVqt0EuAjlDz
+         nq+Wi5Xru9mcPu1JVdC1f4NkPZvsMujPok3xCjmRToUAriVRQRHHwQmgwKUHwvsD+H
+         o9+fGaCBstzai2bDjdAKA0AapZXpuj7YBsZHNviX6+vHCYfXi0VMCLr/zCfN1Os3gU
+         uMmqaYagYeGzxh9ECzQi3ufOX7vGE1N5dviyYDUs1lTkXvz84HFs8tI3ueJp7hl4BD
+         E1bjQWgVTx5RWvidb5wO65CrxEfyU/g6lLvKrX+JVuZdZ1WAgGx7y6EeH0xShn/fBg
+         kThj1BnQfbs5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xunlei Pang <xlpang@linux.alibaba.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.11 12/61] blk-cgroup: Fix the recursive blkg rwstat
-Date:   Tue, 16 Mar 2021 20:54:46 -0400
-Message-Id: <20210317005536.724046-12-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.11 13/61] net: tehuti: fix error return code in bdx_probe()
+Date:   Tue, 16 Mar 2021 20:54:47 -0400
+Message-Id: <20210317005536.724046-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005536.724046-1-sashal@kernel.org>
 References: <20210317005536.724046-1-sashal@kernel.org>
@@ -42,58 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xunlei Pang <xlpang@linux.alibaba.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 4f44657d74873735e93a50eb25014721a66aac19 ]
+[ Upstream commit 38c26ff3048af50eee3fcd591921357ee5bfd9ee ]
 
-The current blkio.throttle.io_service_bytes_recursive doesn't
-work correctly.
+When bdx_read_mac() fails, no error return code of bdx_probe()
+is assigned.
+To fix this bug, err is assigned with -EFAULT as error return code.
 
-As an example, for the following blkcg hierarchy:
- (Made 1GB READ in test1, 512MB READ in test2)
-     test
-    /    \
- test1   test2
-
-$ head -n 1 test/test1/blkio.throttle.io_service_bytes_recursive
-8:0 Read 1073684480
-$ head -n 1 test/test2/blkio.throttle.io_service_bytes_recursive
-8:0 Read 537448448
-$ head -n 1 test/blkio.throttle.io_service_bytes_recursive
-8:0 Read 537448448
-
-Clearly, above data of "test" reflects "test2" not "test1"+"test2".
-
-Do the correct summary in blkg_rwstat_recursive_sum().
-
-Signed-off-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-cgroup-rwstat.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/tehuti/tehuti.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-cgroup-rwstat.c b/block/blk-cgroup-rwstat.c
-index 85d5790ac49b..3304e841df7c 100644
---- a/block/blk-cgroup-rwstat.c
-+++ b/block/blk-cgroup-rwstat.c
-@@ -109,6 +109,7 @@ void blkg_rwstat_recursive_sum(struct blkcg_gq *blkg, struct blkcg_policy *pol,
- 
- 	lockdep_assert_held(&blkg->q->queue_lock);
- 
-+	memset(sum, 0, sizeof(*sum));
- 	rcu_read_lock();
- 	blkg_for_each_descendant_pre(pos_blkg, pos_css, blkg) {
- 		struct blkg_rwstat *rwstat;
-@@ -122,7 +123,7 @@ void blkg_rwstat_recursive_sum(struct blkcg_gq *blkg, struct blkcg_policy *pol,
- 			rwstat = (void *)pos_blkg + off;
- 
- 		for (i = 0; i < BLKG_RWSTAT_NR; i++)
--			sum->cnt[i] = blkg_rwstat_read_counter(rwstat, i);
-+			sum->cnt[i] += blkg_rwstat_read_counter(rwstat, i);
- 	}
- 	rcu_read_unlock();
- }
+diff --git a/drivers/net/ethernet/tehuti/tehuti.c b/drivers/net/ethernet/tehuti/tehuti.c
+index b8f4f419173f..d054c6e83b1c 100644
+--- a/drivers/net/ethernet/tehuti/tehuti.c
++++ b/drivers/net/ethernet/tehuti/tehuti.c
+@@ -2044,6 +2044,7 @@ bdx_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		/*bdx_hw_reset(priv); */
+ 		if (bdx_read_mac(priv)) {
+ 			pr_err("load MAC address failed\n");
++			err = -EFAULT;
+ 			goto err_out_iomap;
+ 		}
+ 		SET_NETDEV_DEV(ndev, &pdev->dev);
 -- 
 2.30.1
 
