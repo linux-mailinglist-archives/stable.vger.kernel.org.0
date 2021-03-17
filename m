@@ -2,90 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D410233F4BC
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 16:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B20C33F436
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 16:49:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232166AbhCQPzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 17 Mar 2021 11:55:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45386 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232473AbhCQPzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 17 Mar 2021 11:55:18 -0400
-Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A174EC06174A
-        for <stable@vger.kernel.org>; Wed, 17 Mar 2021 08:55:17 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id 68668C800AA;
-        Wed, 17 Mar 2021 16:14:34 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id ViZFGjpL2COx; Wed, 17 Mar 2021 16:14:34 +0100 (CET)
-Received: from wsembach-tuxedo.fritz.box (host-212-18-30-247.customer.m-online.net [212.18.30.247])
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id D5CAAC800A5;
-        Wed, 17 Mar 2021 16:14:33 +0100 (CET)
-From:   Werner Sembach <wse@tuxedocomputers.com>
-To:     wse@tuxedocomputers.com, harry.wentland@amd.com,
-        sunpeng.li@amd.com, alexander.deucher@amd.com,
-        christian.koenig@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] drm/amd/display: Try YCbCr420 color when YCbCr444 fails
-Date:   Wed, 17 Mar 2021 16:13:48 +0100
-Message-Id: <20210317151348.11331-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.25.1
+        id S231786AbhCQPso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 17 Mar 2021 11:48:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57904 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232002AbhCQPsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 17 Mar 2021 11:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E664864F72;
+        Wed, 17 Mar 2021 15:36:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1615995372;
+        bh=UrUtjxVyoeoRl31xBOd91McCs6UZrYNRl38mnzMyPQo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=d81ZIUTt6ozn3lmcR5e0LYTUh4Sw1f+KiWzN1YxzE5jKxtxhlsJVIg+TKiuFhl9WB
+         jd9bqlkbCxnJNpaJSI6UgUBGl179bOa4KqblNSu3HjtDOOo2d8Fkqn50DbHBNRIbN1
+         KhediFuNSy37B7xc2TnHWWKGwWWRJcUeHIdmvIxE=
+Date:   Wed, 17 Mar 2021 16:36:09 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Samuel Zou <zou_wei@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/95] 4.14.226-rc1 review
+Message-ID: <YFIh6ZyWb2JtCu6H@kroah.com>
+References: <20210315135740.245494252@linuxfoundation.org>
+ <c0902934-ea11-ba1e-fa2d-b05897aab4b3@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c0902934-ea11-ba1e-fa2d-b05897aab4b3@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When encoder validation of a display mode fails, retry with less bandwidth
-heavy YCbCr420 color mode, if available. This enables some HDMI 1.4 setups
-to support 4k60Hz output, which previously failed silently.
+On Tue, Mar 16, 2021 at 02:35:36PM +0800, Samuel Zou wrote:
+> 
+> 
+> On 2021/3/15 21:56, gregkh@linuxfoundation.org wrote:
+> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > 
+> > This is the start of the stable review cycle for the 4.14.226 release.
+> > There are 95 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Wed, 17 Mar 2021 13:57:24 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.226-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Tested on x86 for 4.14.226-rc1,
+> 
+> Kernel repo:
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> Branch: linux-4.14.y
+> Version: 4.14.226-rc1
+> Commit: 57cc62fb2d2b8e81c02cb9197e303c7782dee4cd
+> Compiler: gcc version 7.3.0 (GCC)
+> 
+> x86 (No kernel failures)
+> --------------------------------------------------------------------
+> Testcase Result Summary:
+> total_num: 4728
+> succeed_num: 4727
+> failed_num: 1
 
-On some setups, while the monitor and the gpu support display modes with
-pixel clocks of up to 600MHz, the link encoder might not. This prevents
-YCbCr444 and RGB encoding for 4k60Hz, but YCbCr420 encoding might still be
-possible. However, which color mode is used is decided before the link
-encoder capabilities are checked. This patch fixes the problem by retrying
-to find a display mode with YCbCr420 enforced and using it, if it is
-valid.
+What does this "failed_num" mean?
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: <stable@vger.kernel.org>
----
+thanks,
 
-From c9398160caf4ff20e63b8ba3a4366d6ef95c4ac3 Mon Sep 17 00:00:00 2001
-From: Werner Sembach <wse@tuxedocomputers.com>
-Date: Wed, 17 Mar 2021 12:52:22 +0100
-Subject: [PATCH] Retry forcing YCbCr420 color on failed encoder validation
-
----
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 961abf1cf040..2d16389b5f1e 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5727,6 +5727,15 @@ create_validate_stream_for_sink(struct amdgpu_dm_connector *aconnector,
- 
- 	} while (stream == NULL && requested_bpc >= 6);
- 
-+	if (dc_result == DC_FAIL_ENC_VALIDATE && !aconnector->force_yuv420_output) {
-+		DRM_DEBUG_KMS("Retry forcing YCbCr420 encoding\n");
-+
-+		aconnector->force_yuv420_output = true;
-+		stream = create_validate_stream_for_sink(aconnector, drm_mode,
-+						dm_state, old_stream);
-+		aconnector->force_yuv420_output = false;
-+	}
-+
- 	return stream;
- }
- 
--- 
-2.25.1
-
+greg k-h
