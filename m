@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC44E33E4B2
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C463A33E4AF
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230027AbhCQBAW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232498AbhCQBAW (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 21:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232137AbhCQA7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:59:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 266C864FCB;
-        Wed, 17 Mar 2021 00:59:12 +0000 (UTC)
+        id S232156AbhCQA7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:59:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53AB864FC7;
+        Wed, 17 Mar 2021 00:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942752;
-        bh=YmdqMCOGIIF1N6stSjszgZ/JdIxQLgQGqkNQIalEejU=;
+        s=k20201202; t=1615942753;
+        bh=n7t8f2l0CysmlHiuZW++Ft9mjEipInAmI5pBKnZIFSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6a4z1SH5CwU4tbqGN8l8nJYmWCd7MLQJ/wLjrF8eOIdEaCsDiItu5mJbqri3B718
-         x3MPclny30ZNetjyVwmmiqlGmWKM5doq+yPQp/A88k9dQi19DUTmpfRTehO7gK+Tho
-         CnrTldUJLhcAkiNJZOvg0CeHcbPmjHzzpipHkeuCupR8FueXhAkCqvADngQtutMxbz
-         bCgaTBwICCVEEg2mUCdvBgLCJSzcc5UUDmORLe5vJDm+EwSZG+j11XSR51QYnSIZkY
-         CkSHPmN5v8/7TWiq67K1mC/ZBNLYCwQ8DdTXxuO7XF52iG2MRKwUjGxyX4l327aIsx
-         gulCK41ERlToA==
+        b=GYpoCJlT93Aa5+xcRJ1FqV2NQkkW/wbfwF7TOORWKUeVXjsbgI7DMFfS6znzrxQkZ
+         wfjKhvU/Bb+gpcLMY1l5c/eqbVAS3BfD4rZDyH73uBg7YatJ9zs91fZFg7VXXbEyuu
+         H/b4+ifRUg9Lw2OMWoH2zGvy5Q2tjL2HjcV2E4P4oQiX4bKCuEpXUosGo9EE3uPITt
+         J4rMv8qjthvdxGcvr/O+0KhGfNyx5NXrhGFDU2XzB9KRBQcQLMnJiXm29kdgWjHRpg
+         /tgbC/zK0TqJQtr0duPKNu5nq89zehH70XJg3ccRV+/vClfp5zfMbmC+zu65vdnsmk
+         T773+6idb0dkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
-        "Erhard F." <erhard_f@mailbox.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 18/23] u64_stats,lockdep: Fix u64_stats_init() vs lockdep
-Date:   Tue, 16 Mar 2021 20:58:44 -0400
-Message-Id: <20210317005850.726479-18-sashal@kernel.org>
+Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.19 19/23] drm/radeon: fix AGP dependency
+Date:   Tue, 16 Mar 2021 20:58:45 -0400
+Message-Id: <20210317005850.726479-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005850.726479-1-sashal@kernel.org>
 References: <20210317005850.726479-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,62 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit d5b0e0677bfd5efd17c5bbb00156931f0d41cb85 ]
+[ Upstream commit cba2afb65cb05c3d197d17323fee4e3c9edef9cd ]
 
-Jakub reported that:
+When AGP is compiled as module radeon must be compiled as module as
+well.
 
-    static struct net_device *rtl8139_init_board(struct pci_dev *pdev)
-    {
-	    ...
-	    u64_stats_init(&tp->rx_stats.syncp);
-	    u64_stats_init(&tp->tx_stats.syncp);
-	    ...
-    }
-
-results in lockdep getting confused between the RX and TX stats lock.
-This is because u64_stats_init() is an inline calling seqcount_init(),
-which is a macro using a static variable to generate a lockdep class.
-
-By wrapping that in an inline, we negate the effect of the macro and
-fold the static key variable, hence the confusion.
-
-Fix by also making u64_stats_init() a macro for the case where it
-matters, leaving the other case an inline for argument validation
-etc.
-
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Debugged-by: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: "Erhard F." <erhard_f@mailbox.org>
-Link: https://lkml.kernel.org/r/YEXicy6+9MksdLZh@hirez.programming.kicks-ass.net
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/u64_stats_sync.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/u64_stats_sync.h b/include/linux/u64_stats_sync.h
-index a27604f99ed0..11096b561dab 100644
---- a/include/linux/u64_stats_sync.h
-+++ b/include/linux/u64_stats_sync.h
-@@ -69,12 +69,13 @@ struct u64_stats_sync {
- };
- 
- 
-+#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
-+#define u64_stats_init(syncp)	seqcount_init(&(syncp)->seq)
-+#else
- static inline void u64_stats_init(struct u64_stats_sync *syncp)
- {
--#if BITS_PER_LONG == 32 && defined(CONFIG_SMP)
--	seqcount_init(&syncp->seq);
--#endif
- }
-+#endif
- 
- static inline void u64_stats_update_begin(struct u64_stats_sync *syncp)
- {
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index e44e567bd789..a050a9aa9a5e 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -192,6 +192,7 @@ source "drivers/gpu/drm/arm/Kconfig"
+ config DRM_RADEON
+ 	tristate "ATI Radeon"
+ 	depends on DRM && PCI && MMU
++	depends on AGP || !AGP
+ 	select FW_LOADER
+         select DRM_KMS_HELPER
+         select DRM_TTM
 -- 
 2.30.1
 
