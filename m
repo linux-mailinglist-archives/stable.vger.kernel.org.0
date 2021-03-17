@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A244633E496
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4577F33E49E
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232169AbhCQBAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:00:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34872 "EHLO mail.kernel.org"
+        id S231621AbhCQBAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229974AbhCQA6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231686AbhCQA6m (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:58:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E492064FAB;
-        Wed, 17 Mar 2021 00:58:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CF8E64FAE;
+        Wed, 17 Mar 2021 00:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942711;
-        bh=IrGIXmQxI09MYQmttRJ9qPN1HtP2WUP1gbuUnWj39mg=;
+        s=k20201202; t=1615942712;
+        bh=tJppkkQxH6U1OjcQEgVnWQ7WGA+4wOLEyT5G0NsQy78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BbYHE3+0Fc72Qy2LsO7E4he2qormEVkGbqQ+6OSDWDX0llP3+m0f92p5c5nDn6DGX
-         wE9vDh62lMZu71vEQ2diDu4Od57Z2haBvZmZORVuhxr7xS9JLNdgksXwlj4XQEdkL0
-         dZj7Ot4t0qPZdtM1ITxTvCqS0zvtoskRtkrE0IEwUZ4kSlJ46CI2+VnxM1wlQTLFwR
-         LzVw9WEWn5zFB+WDNFBuzO4Hsk68o1RUnOJ2HVCA8qmwlomMPgb9N51fIlShJq8IsX
-         w8WkfvFatB331Mhs3+32IvHCHtyAcwVVpcQTi59WaAcOZdzH7LS4gBQxUufeER/ZRZ
-         qF5c8gQegVMmw==
+        b=obikidQUdeF3SGbeE07+FsuV/Tpd5FVEltxdKNwGEPCieYFrkit9n4nTisxkfsWPQ
+         SUwoYGZYHHPqPqxPR9JHMpDshtQSXGb2nJ0d/3laI18Lvf1ECUokXfd8mN/pwU0sxR
+         M7JZFKRCMRb9ZRZKT3oUtIqz1vJUkyoF2Gvfe8gHhJZvCaviZIoWZa0VDr6EmZjiPl
+         HUp8B0qZ6yLpn+gFq/76OapCSrES9GpuyQ6GYaEN5Rsyb26Tz0nhBHuadT68rGLPXz
+         NQPhTt8tFGooDL4Q+cViOYHls4XXnii/JrbPMRGKyP/bWvCylSQ1CsEK7dmH6bZfMi
+         HVMY5KPlSMlbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Cercueil <paul@crapouillou.net>,
-        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 23/37] irqchip/ingenic: Add support for the JZ4760
-Date:   Tue, 16 Mar 2021 20:57:48 -0400
-Message-Id: <20210317005802.725825-23-sashal@kernel.org>
+Cc:     Rob Gardner <rob.gardner@oracle.com>,
+        Anatoly Pugachev <matorola@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 24/37] sparc64: Fix opcode filtering in handling of no fault loads
+Date:   Tue, 16 Mar 2021 20:57:49 -0400
+Message-Id: <20210317005802.725825-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005802.725825-1-sashal@kernel.org>
 References: <20210317005802.725825-1-sashal@kernel.org>
@@ -42,44 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Rob Gardner <rob.gardner@oracle.com>
 
-[ Upstream commit 5fbecd2389f48e1415799c63130d0cdce1cf3f60 ]
+[ Upstream commit e5e8b80d352ec999d2bba3ea584f541c83f4ca3f ]
 
-Add support for the interrupt controller found in the JZ4760 SoC, which
-works exactly like the one in the JZ4770.
+is_no_fault_exception() has two bugs which were discovered via random
+opcode testing with stress-ng. Both are caused by improper filtering
+of opcodes.
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210307172014.73481-2-paul@crapouillou.net
+The first bug can be triggered by a floating point store with a no-fault
+ASI, for instance "sta %f0, [%g0] #ASI_PNF", opcode C1A01040.
+
+The code first tests op3[5] (0x1000000), which denotes a floating
+point instruction, and then tests op3[2] (0x200000), which denotes a
+store instruction. But these bits are not mutually exclusive, and the
+above mentioned opcode has both bits set. The intent is to filter out
+stores, so the test for stores must be done first in order to have
+any effect.
+
+The second bug can be triggered by a floating point load with one of
+the invalid ASI values 0x8e or 0x8f, which pass this check in
+is_no_fault_exception():
+     if ((asi & 0xf2) == ASI_PNF)
+
+An example instruction is "ldqa [%l7 + %o7] #ASI 0x8f, %f38",
+opcode CF95D1EF. Asi values greater than 0x8b (ASI_SNFL) are fatal
+in handle_ldf_stq(), and is_no_fault_exception() must not allow these
+invalid asi values to make it that far.
+
+In both of these cases, handle_ldf_stq() reacts by calling
+sun4v_data_access_exception() or spitfire_data_access_exception(),
+which call is_no_fault_exception() and results in an infinite
+recursion.
+
+Signed-off-by: Rob Gardner <rob.gardner@oracle.com>
+Tested-by: Anatoly Pugachev <matorola@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-ingenic-tcu.c | 1 +
- drivers/irqchip/irq-ingenic.c     | 1 +
- 2 files changed, 2 insertions(+)
+ arch/sparc/kernel/traps_64.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/irqchip/irq-ingenic-tcu.c b/drivers/irqchip/irq-ingenic-tcu.c
-index 6d05cefe9d79..02a82723a57a 100644
---- a/drivers/irqchip/irq-ingenic-tcu.c
-+++ b/drivers/irqchip/irq-ingenic-tcu.c
-@@ -179,4 +179,5 @@ static int __init ingenic_tcu_irq_init(struct device_node *np,
- }
- IRQCHIP_DECLARE(jz4740_tcu_irq, "ingenic,jz4740-tcu", ingenic_tcu_irq_init);
- IRQCHIP_DECLARE(jz4725b_tcu_irq, "ingenic,jz4725b-tcu", ingenic_tcu_irq_init);
-+IRQCHIP_DECLARE(jz4760_tcu_irq, "ingenic,jz4760-tcu", ingenic_tcu_irq_init);
- IRQCHIP_DECLARE(jz4770_tcu_irq, "ingenic,jz4770-tcu", ingenic_tcu_irq_init);
-diff --git a/drivers/irqchip/irq-ingenic.c b/drivers/irqchip/irq-ingenic.c
-index dda512dfe2c1..31bc11f15bfa 100644
---- a/drivers/irqchip/irq-ingenic.c
-+++ b/drivers/irqchip/irq-ingenic.c
-@@ -168,6 +168,7 @@ static int __init intc_2chip_of_init(struct device_node *node,
- {
- 	return ingenic_intc_of_init(node, 2);
- }
-+IRQCHIP_DECLARE(jz4760_intc, "ingenic,jz4760-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4770_intc, "ingenic,jz4770-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4775_intc, "ingenic,jz4775-intc", intc_2chip_of_init);
- IRQCHIP_DECLARE(jz4780_intc, "ingenic,jz4780-intc", intc_2chip_of_init);
+diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
+index 27778b65a965..f2b22c496fb9 100644
+--- a/arch/sparc/kernel/traps_64.c
++++ b/arch/sparc/kernel/traps_64.c
+@@ -275,14 +275,13 @@ bool is_no_fault_exception(struct pt_regs *regs)
+ 			asi = (regs->tstate >> 24); /* saved %asi       */
+ 		else
+ 			asi = (insn >> 5);	    /* immediate asi    */
+-		if ((asi & 0xf2) == ASI_PNF) {
+-			if (insn & 0x1000000) {     /* op3[5:4]=3       */
+-				handle_ldf_stq(insn, regs);
+-				return true;
+-			} else if (insn & 0x200000) { /* op3[2], stores */
++		if ((asi & 0xf6) == ASI_PNF) {
++			if (insn & 0x200000)        /* op3[2], stores   */
+ 				return false;
+-			}
+-			handle_ld_nf(insn, regs);
++			if (insn & 0x1000000)       /* op3[5:4]=3 (fp)  */
++				handle_ldf_stq(insn, regs);
++			else
++				handle_ld_nf(insn, regs);
+ 			return true;
+ 		}
+ 	}
 -- 
 2.30.1
 
