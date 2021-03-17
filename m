@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C71033E5CE
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6666A33E48B
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:01:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231997AbhCQBAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 21:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36102 "EHLO mail.kernel.org"
+        id S229708AbhCQBAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 21:00:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231916AbhCQA7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBD4364FBC;
-        Wed, 17 Mar 2021 00:59:09 +0000 (UTC)
+        id S231954AbhCQA7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:59:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0270765011;
+        Wed, 17 Mar 2021 00:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942750;
-        bh=UwteTIvtz0sz7yz6zNFbrqtuV5n3YUzbwKmK4nWPcpc=;
+        s=k20201202; t=1615942751;
+        bh=4b1tEAHbreg0k9BU17gZ4Fz/tfFYOrkQpGtKWm6Mkqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LV+t5LRBYfwp8UqwNtHf71Zz/EjsxFSQwG4aObCUUDfJ877nDH6gjOnIGk8vVbptJ
-         oBCJdbuEAr1Ru9kJ3mLN9JayjFeSSUi6B6kaNxav5D8FaFJaG0ROi4JP2x9HrD/Mox
-         WYqSnMI4IlzEI+EV0jVwazq4V9NEmG4fbKEdwmaQ61INCVI0J0qzVbLojZAquJE0Q5
-         Vv6xJMUnWfoxT/2WJs13fdR4yKqg6OQzwsFzhGv81qscmgw1qBBh9+mUNRF0QnqXbO
-         G/PcuWLVaH1etZ7RS8bNk2AXDS++RJe/jvl530hIl3sNZPD++GXOxuKW6kySiSKwrr
-         IQauEShnlLp6w==
+        b=DSjg+DNd05LqRgl02scGY0IkAHM5yQtL+J6U//ubDYLSa8ZZwVvQuTkCb10/x0KCV
+         +1y8CgmnEfqw5nMIcx2vFuZJVRf0YeFSjNSD4cHfnqdtgk1chblP+/Hb6MFWSIa/Ej
+         Jkg4JQ2yMfeLvCRMoyRX3FzXDXkpm6Nsg6EiFVY3PO5j3nHsXtgbaQeiTLCYedRPdt
+         w0olc5YAsScZPmo9I/QKIPKfmdxrwXBsQrNoPyvBIK6wB+TZKQMwgbvH9ID2RboABi
+         5k2nfIKln1Sl5ezTvjmWY+zZMHtGWHZuM+F5jkpSKQOjJN3Vu/tfB+IhX2lTUZuUEj
+         OrELKuVKoZWIg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tong Zhang <ztong0001@gmail.com>,
+Cc:     Rob Gardner <rob.gardner@oracle.com>,
+        Anatoly Pugachev <matorola@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 16/23] atm: idt77252: fix null-ptr-dereference
-Date:   Tue, 16 Mar 2021 20:58:42 -0400
-Message-Id: <20210317005850.726479-16-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 17/23] sparc64: Fix opcode filtering in handling of no fault loads
+Date:   Tue, 16 Mar 2021 20:58:43 -0400
+Message-Id: <20210317005850.726479-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005850.726479-1-sashal@kernel.org>
 References: <20210317005850.726479-1-sashal@kernel.org>
@@ -43,46 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Rob Gardner <rob.gardner@oracle.com>
 
-[ Upstream commit 4416e98594dc04590ebc498fc4e530009535c511 ]
+[ Upstream commit e5e8b80d352ec999d2bba3ea584f541c83f4ca3f ]
 
-this one is similar to the phy_data allocation fix in uPD98402, the
-driver allocate the idt77105_priv and store to dev_data but later
-dereference using dev->dev_data, which will cause null-ptr-dereference.
+is_no_fault_exception() has two bugs which were discovered via random
+opcode testing with stress-ng. Both are caused by improper filtering
+of opcodes.
 
-fix this issue by changing dev_data to phy_data so that PRIV(dev) can
-work correctly.
+The first bug can be triggered by a floating point store with a no-fault
+ASI, for instance "sta %f0, [%g0] #ASI_PNF", opcode C1A01040.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+The code first tests op3[5] (0x1000000), which denotes a floating
+point instruction, and then tests op3[2] (0x200000), which denotes a
+store instruction. But these bits are not mutually exclusive, and the
+above mentioned opcode has both bits set. The intent is to filter out
+stores, so the test for stores must be done first in order to have
+any effect.
+
+The second bug can be triggered by a floating point load with one of
+the invalid ASI values 0x8e or 0x8f, which pass this check in
+is_no_fault_exception():
+     if ((asi & 0xf2) == ASI_PNF)
+
+An example instruction is "ldqa [%l7 + %o7] #ASI 0x8f, %f38",
+opcode CF95D1EF. Asi values greater than 0x8b (ASI_SNFL) are fatal
+in handle_ldf_stq(), and is_no_fault_exception() must not allow these
+invalid asi values to make it that far.
+
+In both of these cases, handle_ldf_stq() reacts by calling
+sun4v_data_access_exception() or spitfire_data_access_exception(),
+which call is_no_fault_exception() and results in an infinite
+recursion.
+
+Signed-off-by: Rob Gardner <rob.gardner@oracle.com>
+Tested-by: Anatoly Pugachev <matorola@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/idt77105.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/sparc/kernel/traps_64.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/atm/idt77105.c b/drivers/atm/idt77105.c
-index 0a67487c0b1d..a2ecb4190f78 100644
---- a/drivers/atm/idt77105.c
-+++ b/drivers/atm/idt77105.c
-@@ -261,7 +261,7 @@ static int idt77105_start(struct atm_dev *dev)
- {
- 	unsigned long flags;
- 
--	if (!(dev->dev_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
-+	if (!(dev->phy_data = kmalloc(sizeof(struct idt77105_priv),GFP_KERNEL)))
- 		return -ENOMEM;
- 	PRIV(dev)->dev = dev;
- 	spin_lock_irqsave(&idt77105_priv_lock, flags);
-@@ -336,7 +336,7 @@ static int idt77105_stop(struct atm_dev *dev)
-                 else
-                     idt77105_all = walk->next;
- 	        dev->phy = NULL;
--                dev->dev_data = NULL;
-+                dev->phy_data = NULL;
-                 kfree(walk);
-                 break;
-             }
+diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
+index aa624ed79db1..86879c28910b 100644
+--- a/arch/sparc/kernel/traps_64.c
++++ b/arch/sparc/kernel/traps_64.c
+@@ -274,14 +274,13 @@ bool is_no_fault_exception(struct pt_regs *regs)
+ 			asi = (regs->tstate >> 24); /* saved %asi       */
+ 		else
+ 			asi = (insn >> 5);	    /* immediate asi    */
+-		if ((asi & 0xf2) == ASI_PNF) {
+-			if (insn & 0x1000000) {     /* op3[5:4]=3       */
+-				handle_ldf_stq(insn, regs);
+-				return true;
+-			} else if (insn & 0x200000) { /* op3[2], stores */
++		if ((asi & 0xf6) == ASI_PNF) {
++			if (insn & 0x200000)        /* op3[2], stores   */
+ 				return false;
+-			}
+-			handle_ld_nf(insn, regs);
++			if (insn & 0x1000000)       /* op3[5:4]=3 (fp)  */
++				handle_ldf_stq(insn, regs);
++			else
++				handle_ld_nf(insn, regs);
+ 			return true;
+ 		}
+ 	}
 -- 
 2.30.1
 
