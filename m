@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0105C33E3F7
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 01:58:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2CC533E42D
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbhCQA6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:58:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35238 "EHLO mail.kernel.org"
+        id S232131AbhCQA6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231607AbhCQA5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6720664FA8;
-        Wed, 17 Mar 2021 00:57:20 +0000 (UTC)
+        id S231664AbhCQA52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ADA364F9F;
+        Wed, 17 Mar 2021 00:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942641;
-        bh=F+/1jRtl4oh8fKzC81jYd6ay7UwsjSgYDTNsZApfhJ4=;
+        s=k20201202; t=1615942647;
+        bh=Fki+6t2i693xmHEl2L3+HBbS1O+MLL5WTpNnEgLEha8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzDxjrQsV3MzdDxwAsfQiVLK6IcIHdAdEZDG4v8DPSy6WQzjwWRRYylO2dIjxkz9J
-         Dj5CSqzBx6Fj4hzN8jCWLTgFDXKYlAZqcY6hBEbVKjMIomxMwtH/1ZuU4M2kxKTZ84
-         SowY7f+RDYYVwemvWmFbuUyKrM8NHAMzl421N1mBTH2G3SpwEyEHwkjQORYGl26swE
-         VkG7Pg8Rmrgh1Rbsu4wnrqUbGrI25f3fzvwg52wDl5kfS5DDcjH+0SoqgwbVSzZ5Kk
-         rtHjvau/mFPoNgG2IJ7Q6dmMEH5Yfhqfj2MEWdpprKHbtD9dVvIiUR5joG8Fv9iton
-         BajSFENghLNmw==
+        b=AGIsjRxSpgIQ5+vVw4u8o4a8YD9hUqqmnL+rMGzFpMwcslqM3LkxcVxOQvuEOedeE
+         jyWz9eHC7RtSIDiZ9fDo3vTiqPl7NRQd1txfECeOvAuMCEpRk5hDCLvIRd96KFwMD2
+         falX/xlKnWsRl3vTlIriJx5B3Mrl2wsm1X+CSeY565gnzE5N3pYESHl+zh9LirKa3B
+         K2yGVEVqzo7y9on6gPOSFrkd9anTebnZ9FhNMGOm5wKmnCno44y7Z/TR+M2g8DM8OF
+         4NPS8BDPQK7S5Y2uge+8Uz/ipMKbFKUDLXPUponEhSxKkHiRlOxGMH713IeiZYulkA
+         xmL0sI1cS0esw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Sorenson <sorenson@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 21/54] NFS: Correct size calculation for create reply length
-Date:   Tue, 16 Mar 2021 20:56:20 -0400
-Message-Id: <20210317005654.724862-21-sashal@kernel.org>
+Cc:     Tong Zhang <ztong0001@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/54] atm: uPD98402: fix incorrect allocation
+Date:   Tue, 16 Mar 2021 20:56:25 -0400
+Message-Id: <20210317005654.724862-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -42,47 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Sorenson <sorenson@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit ad3dbe35c833c2d4d0bbf3f04c785d32f931e7c9 ]
+[ Upstream commit 3153724fc084d8ef640c611f269ddfb576d1dcb1 ]
 
-CREATE requests return a post_op_fh3, rather than nfs_fh3. The
-post_op_fh3 includes an extra word to indicate 'handle_follows'.
+dev->dev_data is set in zatm.c, calling zatm_start() will overwrite this
+dev->dev_data in uPD98402_start() and a subsequent PRIV(dev)->lock
+(i.e dev->phy_data->lock) will result in a null-ptr-dereference.
 
-Without that additional word, create fails when full 64-byte
-filehandles are in use.
+I believe this is a typo and what it actually want to do is to allocate
+phy_data instead of dev_data.
 
-Add NFS3_post_op_fh_sz, and correct the size calculation for
-NFS3_createres_sz.
-
-Signed-off-by: Frank Sorenson <sorenson@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3xdr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/atm/uPD98402.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs3xdr.c b/fs/nfs/nfs3xdr.c
-index 69971f6c840d..dff6b52d26a8 100644
---- a/fs/nfs/nfs3xdr.c
-+++ b/fs/nfs/nfs3xdr.c
-@@ -35,6 +35,7 @@
-  */
- #define NFS3_fhandle_sz		(1+16)
- #define NFS3_fh_sz		(NFS3_fhandle_sz)	/* shorthand */
-+#define NFS3_post_op_fh_sz	(1+NFS3_fh_sz)
- #define NFS3_sattr_sz		(15)
- #define NFS3_filename_sz	(1+(NFS3_MAXNAMLEN>>2))
- #define NFS3_path_sz		(1+(NFS3_MAXPATHLEN>>2))
-@@ -72,7 +73,7 @@
- #define NFS3_readlinkres_sz	(1+NFS3_post_op_attr_sz+1+1)
- #define NFS3_readres_sz		(1+NFS3_post_op_attr_sz+3+1)
- #define NFS3_writeres_sz	(1+NFS3_wcc_data_sz+4)
--#define NFS3_createres_sz	(1+NFS3_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
-+#define NFS3_createres_sz	(1+NFS3_post_op_fh_sz+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_renameres_sz	(1+(2 * NFS3_wcc_data_sz))
- #define NFS3_linkres_sz		(1+NFS3_post_op_attr_sz+NFS3_wcc_data_sz)
- #define NFS3_readdirres_sz	(1+NFS3_post_op_attr_sz+2+1)
+diff --git a/drivers/atm/uPD98402.c b/drivers/atm/uPD98402.c
+index 7850758b5bb8..239852d85558 100644
+--- a/drivers/atm/uPD98402.c
++++ b/drivers/atm/uPD98402.c
+@@ -211,7 +211,7 @@ static void uPD98402_int(struct atm_dev *dev)
+ static int uPD98402_start(struct atm_dev *dev)
+ {
+ 	DPRINTK("phy_start\n");
+-	if (!(dev->dev_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
++	if (!(dev->phy_data = kmalloc(sizeof(struct uPD98402_priv),GFP_KERNEL)))
+ 		return -ENOMEM;
+ 	spin_lock_init(&PRIV(dev)->lock);
+ 	memset(&PRIV(dev)->sonet_stats,0,sizeof(struct k_sonet_stats));
 -- 
 2.30.1
 
