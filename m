@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9137C33E417
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8999933E41A
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbhCQA6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 16 Mar 2021 20:58:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36002 "EHLO mail.kernel.org"
+        id S231684AbhCQA6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 16 Mar 2021 20:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231386AbhCQA5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S230076AbhCQA5p (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 16 Mar 2021 20:57:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E626E64FE3;
-        Wed, 17 Mar 2021 00:57:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C2BB64FE0;
+        Wed, 17 Mar 2021 00:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942659;
-        bh=loSHwK2MBX8jk4o2QA+i+HmRZZgkfxNoedrsqCKiIZ8=;
+        s=k20201202; t=1615942660;
+        bh=Usc0eiGhhPiYmNvlsMHzWrjR6Ey/DywCN3lPhaMFtQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRCB2a5JyblMnXMCZAB9jcifpWCSQqKTT0mPp5RC1WyP2OiK5KvTD6PtLa8f9XrtY
-         fRdLgcTmhmYkF1zs1ooZpD4qktFMkDPFb0pyYaxf7JkOY8a4olCC+Kc6Wrv1Gn43FT
-         0hRfkNapG7e0FGP3pgISGhKznRLAg72pEWWMaglO2ObSayLtVHfrFkzst4ESPEvH+P
-         Ex2LFfVt1I79dUy4P+OeuyBv8luSHsItc6Q1AUDzpFU8hc3AHq6KkaXhJmMt8a2QHr
-         D69DHO0NoXAUGZhh+3R/MjBC9ZS1U11coGTLFKnqnDKWoQu30tdgmMiVtmrM+dDsB8
-         jp11C5OhqxzBA==
+        b=IsPmkaLMauBPMql3wqIWy41iKgaluZT+Y0laBFYR6ozSeyMSsAacH/zM8NkP5NvCc
+         NhHCto4eeZCzg+iJyblI2pqG8m03VeqARTB6W9PXw2GiR/xpMIw9PYZCeBFtW6D6tQ
+         z0SXb3LxsJXkCR0rJzm2rZvP7rYQSezKyQQFoWPT6dKTna58sM2U9btSxL9NeqOicf
+         TVYBVMaZKctKhFZgsPpj3546YE7QyYsMkwMBpr3dRW2HVExBi3QZ0tC8SgArVAnu4J
+         8kcc2IZxhZyYx18bJGrHM82vCab1+re/htgqPoH/bkJCxBz1O1mLXtR9rFXk3FmqJs
+         +cVbeNq3+XNrw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 37/54] kselftest: arm64: Fix exit code of sve-ptrace
-Date:   Tue, 16 Mar 2021 20:56:36 -0400
-Message-Id: <20210317005654.724862-37-sashal@kernel.org>
+Cc:     satya priya <skakit@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 38/54] regulator: qcom-rpmh: Correct the pmic5_hfsmps515 buck
+Date:   Tue, 16 Mar 2021 20:56:37 -0400
+Message-Id: <20210317005654.724862-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
@@ -43,32 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: satya priya <skakit@codeaurora.org>
 
-[ Upstream commit 07e644885bf6727a48db109fad053cb43f3c9859 ]
+[ Upstream commit e610e072c87a30658479a7b4c51e1801cb3f450c ]
 
-We track if sve-ptrace encountered a failure in a variable but don't
-actually use that value when we exit the program, do so.
+Correct the REGULATOR_LINEAR_RANGE and n_voltges for
+pmic5_hfsmps515 buck.
 
+Signed-off-by: satya priya <skakit@codeaurora.org>
+Link: https://lore.kernel.org/r/1614155592-14060-4-git-send-email-skakit@codeaurora.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210309190304.39169-1-broonie@kernel.org
-Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/arm64/fp/sve-ptrace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/regulator/qcom-rpmh-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/arm64/fp/sve-ptrace.c b/tools/testing/selftests/arm64/fp/sve-ptrace.c
-index b2282be6f938..612d3899614a 100644
---- a/tools/testing/selftests/arm64/fp/sve-ptrace.c
-+++ b/tools/testing/selftests/arm64/fp/sve-ptrace.c
-@@ -332,5 +332,5 @@ int main(void)
- 
- 	ksft_print_cnts();
- 
--	return 0;
-+	return ret;
- }
+diff --git a/drivers/regulator/qcom-rpmh-regulator.c b/drivers/regulator/qcom-rpmh-regulator.c
+index 52e4396d4071..c3036591b259 100644
+--- a/drivers/regulator/qcom-rpmh-regulator.c
++++ b/drivers/regulator/qcom-rpmh-regulator.c
+@@ -726,8 +726,8 @@ static const struct rpmh_vreg_hw_data pmic5_ftsmps510 = {
+ static const struct rpmh_vreg_hw_data pmic5_hfsmps515 = {
+ 	.regulator_type = VRM,
+ 	.ops = &rpmh_regulator_vrm_ops,
+-	.voltage_range = REGULATOR_LINEAR_RANGE(2800000, 0, 4, 16000),
+-	.n_voltages = 5,
++	.voltage_range = REGULATOR_LINEAR_RANGE(320000, 0, 235, 16000),
++	.n_voltages = 236,
+ 	.pmic_mode_map = pmic_mode_map_pmic5_smps,
+ 	.of_map_mode = rpmh_regulator_pmic4_smps_of_map_mode,
+ };
 -- 
 2.30.1
 
