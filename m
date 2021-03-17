@@ -2,17 +2,17 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A29EF33F079
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 13:39:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F8133F074
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 13:39:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229921AbhCQMie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229864AbhCQMie (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 17 Mar 2021 08:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbhCQMi1 (ORCPT
+        with ESMTP id S229804AbhCQMi1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 17 Mar 2021 08:38:27 -0400
 Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9C29C06175F;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A07C06174A;
         Wed, 17 Mar 2021 05:38:27 -0700 (PDT)
 Date:   Wed, 17 Mar 2021 12:38:25 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
@@ -22,12 +22,12 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=b7tQGYlUswiXbyNAMMhbY05Q+Vlm5r3os4rSYHVdeis=;
-        b=TeJShnmIE9ykppikO5RMnw1Q88DS1o5EFYeLN+Mw135KxOMZkQqXEaW2lfCBF4A6rxTnEv
-        P8bbGSaiQEv1jpvVuffOPJR0ExjQf7ABgU+Fjv7SGM5uD8Y8uFNoRi5t7cfQNw7TJgG0a0
-        LF7DyadLLgdOVek0WPmWCoH7063K0xon7OxLy09sZ9UDlg3M7CH8JbWQoajVgWfLbugBBc
-        M6pkJ7Sj5f/c99XHTbrNe2GSsiN2fPMvHQDvslUCW9QfeDfvSdopomo3Llfu99r0U0VDa+
-        U6HTFgEqdqlBKmzPrPvi/ek0R2jKbMYb8F/B9znhurtTqEyKOjznuJchIjD1nA==
+        bh=NMK9mwYemz31+TAh2smZqXf6rAO8D93gOnHoa7VYhuU=;
+        b=0pr6LBYQpF0sIMjckGbctFZxBGrDcLEKBPnVjDuEb102m6wWPyGlLgGauiVibneNFsphTU
+        k/WmV2SS1N2CQHx9Zvf3J9hQsdSKuKaQBZRJfKaBFe2PmtmghoV3iMPApoeZmP7JKDgAkq
+        tINXQsAwEk/+1kTxlv6xwQzy7Of9VBlwBONTL1NodwHZwE55uxfYwS4Z4ldYA7T1A7IVul
+        szGJ98MRGJMVhlKqftbKndxzVJrsv0X8lUzZ3gHTERJ0ltELYQl4W5a3rBnaarqQ0bZDef
+        UdE3eY9t53LmIHKCeoUAp2e/yTBNB0iq8/J72j4tYSwTAdkp5NPp0gV6WwS4Sw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
         s=2020e; t=1615984706;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
@@ -35,22 +35,24 @@ DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=b7tQGYlUswiXbyNAMMhbY05Q+Vlm5r3os4rSYHVdeis=;
-        b=3PlyDCxcXJmwHBJGR5qXLuIH8NYs9NmUTMj2V2rc/GdXywEyY6UL14Tr6q2v2MuRjBVxLK
-        z/CDmNjDBugPG7Cw==
+        bh=NMK9mwYemz31+TAh2smZqXf6rAO8D93gOnHoa7VYhuU=;
+        b=aQq0sLazXcCQOFp1kTk3JTaynKivOp92FBar5NbZ5YWE+7J5hGSazQBd+cAoCcppLsCaBA
+        dRr47z0olh6Tp+Bg==
 From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/x86/intel: Fix a crash caused by zero PEBS status
+Subject: [tip: perf/urgent] perf/x86/intel: Fix unchecked MSR access error
+ caused by VLBR_EVENT
 Cc:     Vince Weaver <vincent.weaver@maine.edu>,
+        Kan Liang <kan.liang@linux.intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1615555298-140216-1-git-send-email-kan.liang@linux.intel.com>
-References: <1615555298-140216-1-git-send-email-kan.liang@linux.intel.com>
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1615555298-140216-2-git-send-email-kan.liang@linux.intel.com>
+References: <1615555298-140216-2-git-send-email-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-Message-ID: <161598470586.398.5955283931725612425.tip-bot2@tip-bot2>
+Message-ID: <161598470558.398.3008177602318423260.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -61,57 +63,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     d88d05a9e0b6d9356e97129d4ff9942d765f46ea
-Gitweb:        https://git.kernel.org/tip/d88d05a9e0b6d9356e97129d4ff9942d765f46ea
+Commit-ID:     2dc0572f2cef87425147658698dce2600b799bd3
+Gitweb:        https://git.kernel.org/tip/2dc0572f2cef87425147658698dce2600b799bd3
 Author:        Kan Liang <kan.liang@linux.intel.com>
-AuthorDate:    Fri, 12 Mar 2021 05:21:37 -08:00
+AuthorDate:    Fri, 12 Mar 2021 05:21:38 -08:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
 CommitterDate: Tue, 16 Mar 2021 21:44:39 +01:00
 
-perf/x86/intel: Fix a crash caused by zero PEBS status
+perf/x86/intel: Fix unchecked MSR access error caused by VLBR_EVENT
 
-A repeatable crash can be triggered by the perf_fuzzer on some Haswell
-system.
-https://lore.kernel.org/lkml/7170d3b-c17f-1ded-52aa-cc6d9ae999f4@maine.edu/
+On a Haswell machine, the perf_fuzzer managed to trigger this message:
 
-For some old CPUs (HSW and earlier), the PEBS status in a PEBS record
-may be mistakenly set to 0. To minimize the impact of the defect, the
-commit was introduced to try to avoid dropping the PEBS record for some
-cases. It adds a check in the intel_pmu_drain_pebs_nhm(), and updates
-the local pebs_status accordingly. However, it doesn't correct the PEBS
-status in the PEBS record, which may trigger the crash, especially for
-the large PEBS.
+[117248.075892] unchecked MSR access error: WRMSR to 0x3f1 (tried to
+write 0x0400000000000000) at rIP: 0xffffffff8106e4f4
+(native_write_msr+0x4/0x20)
+[117248.089957] Call Trace:
+[117248.092685]  intel_pmu_pebs_enable_all+0x31/0x40
+[117248.097737]  intel_pmu_enable_all+0xa/0x10
+[117248.102210]  __perf_event_task_sched_in+0x2df/0x2f0
+[117248.107511]  finish_task_switch.isra.0+0x15f/0x280
+[117248.112765]  schedule_tail+0xc/0x40
+[117248.116562]  ret_from_fork+0x8/0x30
 
-It's possible that all the PEBS records in a large PEBS have the PEBS
-status 0. If so, the first get_next_pebs_record_by_bit() in the
-__intel_pmu_pebs_event() returns NULL. The at = NULL. Since it's a large
-PEBS, the 'count' parameter must > 1. The second
-get_next_pebs_record_by_bit() will crash.
+A fake event called VLBR_EVENT may use the bit 58 of the PEBS_ENABLE, if
+the precise_ip is set. The bit 58 is reserved by the HW. Accessing the
+bit causes the unchecked MSR access error.
 
-Besides the local pebs_status, correct the PEBS status in the PEBS
-record as well.
+The fake event doesn't support PEBS. The case should be rejected.
 
-Fixes: 01330d7288e0 ("perf/x86: Allow zero PEBS status with only single active event")
+Fixes: 097e4311cda9 ("perf/x86: Add constraint to create guest LBR event without hw counter")
 Reported-by: Vince Weaver <vincent.weaver@maine.edu>
-Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/1615555298-140216-1-git-send-email-kan.liang@linux.intel.com
+Link: https://lkml.kernel.org/r/1615555298-140216-2-git-send-email-kan.liang@linux.intel.com
 ---
- arch/x86/events/intel/ds.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
-index 7ebae18..d32b302 100644
---- a/arch/x86/events/intel/ds.c
-+++ b/arch/x86/events/intel/ds.c
-@@ -2010,7 +2010,7 @@ static void intel_pmu_drain_pebs_nhm(struct pt_regs *iregs, struct perf_sample_d
- 		 */
- 		if (!pebs_status && cpuc->pebs_enabled &&
- 			!(cpuc->pebs_enabled & (cpuc->pebs_enabled-1)))
--			pebs_status = cpuc->pebs_enabled;
-+			pebs_status = p->status = cpuc->pebs_enabled;
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 7bbb5bb..37ce384 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -3659,6 +3659,9 @@ static int intel_pmu_hw_config(struct perf_event *event)
+ 		return ret;
  
- 		bit = find_first_bit((unsigned long *)&pebs_status,
- 					x86_pmu.max_pebs_events);
+ 	if (event->attr.precise_ip) {
++		if ((event->attr.config & INTEL_ARCH_EVENT_MASK) == INTEL_FIXED_VLBR_EVENT)
++			return -EINVAL;
++
+ 		if (!(event->attr.freq || (event->attr.wakeup_events && !event->attr.watermark))) {
+ 			event->hw.flags |= PERF_X86_EVENT_AUTO_RELOAD;
+ 			if (!(event->attr.sample_type &
