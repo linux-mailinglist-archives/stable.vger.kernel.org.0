@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 437C833E427
-	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E71E233E426
+	for <lists+stable@lfdr.de>; Wed, 17 Mar 2021 02:00:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231864AbhCQA6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231890AbhCQA6s (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 16 Mar 2021 20:58:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37260 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231420AbhCQA5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 16 Mar 2021 20:57:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BD7C64F9B;
-        Wed, 17 Mar 2021 00:57:42 +0000 (UTC)
+        id S231156AbhCQA5t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 16 Mar 2021 20:57:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A21B64FDF;
+        Wed, 17 Mar 2021 00:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1615942663;
-        bh=Vnr7MAJTIlC5HrBZBnBkc8Elfqq+p/iixIUF9T1HFtM=;
+        s=k20201202; t=1615942664;
+        bh=6tv68FGLqvBJOuuHzZh4lgqMBl8erwIjzi2VaN4TVs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RFWVjSZ93BRpW/e1CqDdvUbwHO+tQ8EHzO/e5O7LBDDBxLf0ElaNq3ZnUznc2wfaP
-         WCgI+bz3kN6zXOfIJAVOj8mnY7bU4/63Ab5u74MhrTZUh8TcchBp2fzFqI69by6F8l
-         HtItuoctyLwmaei9BzmyXRfKpIHWaVEGMLF161ywnulJP5DgUNhegye97r+ctmTIHG
-         KZ6SKDrdXCSAXlOunvHjafxxRjYXPLysX5CQZ5IMw/aN5bhSYoPAEIkI6g1AZfyBod
-         55UKmJpO9py1ZQ46rC9TRcSZoOXPRb2pZFz0y52jp70t2vJCrRdN6Fyz2XN0of7Om1
-         Rk33I1so7i9nQ==
+        b=hyqF5KDzS9lIbBCon3gSLGDQ5hglL6pwUSZpEqoDMIXjeLVMnhnMv92c6W8L8yxJF
+         XMH/2zlAp37U/qslVQjU2E9A/7aC7WTXcvVnrwnMJl0tFAzNjsNRlU2ju5LQ1u+N45
+         tnUTBYdNIxA1yB+/bM5N31IDQPFjiWj2mqTldbUIHdYXSh1xkyQDtd6DMdAxEF/CrX
+         K0DuF5mWyeIEY8yd57b+QRNXEhGR51HDL54CkW9+F0unu312XRyIqp1O4OEVk+Dls5
+         SLnzlxNVL6v6tAXROIxNxxaiXCWjEgRm1wI8hEmk3P4mSZ19VasprKZ/KMFxISmeQz
+         0MYG9x9sbP90w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sung Lee <sung.lee@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Haonan Wang <Haonan.Wang2@amd.com>,
-        Eryk Brol <eryk.brol@amd.com>,
+Cc:     Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 40/54] drm/amd/display: Revert dram_clock_change_latency for DCN2.1
-Date:   Tue, 16 Mar 2021 20:56:39 -0400
-Message-Id: <20210317005654.724862-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 41/54] drm/amdgpu: fb BO should be ttm_bo_type_device
+Date:   Tue, 16 Mar 2021 20:56:40 -0400
+Message-Id: <20210317005654.724862-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210317005654.724862-1-sashal@kernel.org>
 References: <20210317005654.724862-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,37 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sung Lee <sung.lee@amd.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit b0075d114c33580f5c9fa9cee8e13d06db41471b ]
+[ Upstream commit 521f04f9e3ffc73ef96c776035f8a0a31b4cdd81 ]
 
-[WHY & HOW]
-Using values provided by DF for latency may cause hangs in
-multi display configurations. Revert change to previous value.
+FB BO should not be ttm_bo_type_kernel type and
+amdgpufb_create_pinned_object() pins the FB BO anyway.
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Sung Lee <sung.lee@amd.com>
-Reviewed-by: Haonan Wang <Haonan.Wang2@amd.com>
-Acked-by: Eryk Brol <eryk.brol@amd.com>
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 4e2dcf259428..b2b1e3664f28 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -295,7 +295,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn2_1_soc = {
- 	.num_banks = 8,
- 	.num_chans = 4,
- 	.vmm_page_size_bytes = 4096,
--	.dram_clock_change_latency_us = 11.72,
-+	.dram_clock_change_latency_us = 23.84,
- 	.return_bus_width_bytes = 64,
- 	.dispclk_dppclk_vco_speed_mhz = 3600,
- 	.xfc_bus_transport_time_us = 4,
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+index e2c2eb45a793..1ea8af48ae2f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+@@ -146,7 +146,7 @@ static int amdgpufb_create_pinned_object(struct amdgpu_fbdev *rfbdev,
+ 	size = mode_cmd->pitches[0] * height;
+ 	aligned_size = ALIGN(size, PAGE_SIZE);
+ 	ret = amdgpu_gem_object_create(adev, aligned_size, 0, domain, flags,
+-				       ttm_bo_type_kernel, NULL, &gobj);
++				       ttm_bo_type_device, NULL, &gobj);
+ 	if (ret) {
+ 		pr_err("failed to allocate framebuffer (%d)\n", aligned_size);
+ 		return -ENOMEM;
 -- 
 2.30.1
 
